@@ -1,0 +1,83 @@
+================================================================================
+ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26 -- "on mac i do not have access to the
+           preferences. preferences and quit are for some reason not in the
+           spacr dropdown to the to left".
+Owner:     spacr/qt/app.py.
+
+--------------------------------------------------------------------------------
+THEY HAVE NOT VANISHED. MACOS TOOK THEM, WHICH IS CORRECT.
+--------------------------------------------------------------------------------
+
+An action carrying `PreferencesRole` or `QuitRole` is MOVED by macOS out of
+whatever menu it was added to and into the APPLICATION MENU -- the one
+beside the Apple logo, named after the application. That is the platform
+convention and spaCR should keep it.
+
+The roles are right. Measured on the current build:
+
+    PreferencesRole   1   ['Preferences…']
+    QuitRole          1   ['Quit']
+    AboutRole         1   ['About spaCR']
+    NoRole           26   everything else
+
+So macOS moved them, correctly -- and spaCR's own dropdown lost them,
+correctly. The problem is WHERE THEY LANDED.
+
+--------------------------------------------------------------------------------
+THE APPLICATION MENU IS NOT NAMED SPACR
+--------------------------------------------------------------------------------
+
+    QApplication.applicationName()         'PySideApp'
+    QApplication.applicationDisplayName()  'PySideApp'
+
+`app.setApplicationName("spaCR")` exists at `app.py:3588`, and
+`setApplicationDisplayName` is NEVER CALLED. A freshly constructed
+application reports `PySideApp`, so anything reading the name before that
+line runs gets the wrong one -- and on macOS the menu is built from it.
+
+The code already knows this failure mode. The comment above
+`pin_all_menu_roles` describes the previous instance of it, naming the
+macOS `"python"` menu by name -- so the application menu has been showing
+up under the interpreter's name rather than spaCR's before now.
+
+WHAT TO ESTABLISH, rather than assume:
+  * what macOS actually names that menu for this launch -- from a script,
+    from a console entry point, and from the packaged .app, which are three
+    different answers. A bundled app takes it from `CFBundleName`;
+  * whether `setApplicationName` at line 3588 runs BEFORE the menu bar is
+    built. If the menu bar is built first, renaming afterwards is too late;
+  * whether `setApplicationDisplayName` is the one macOS reads here. Set
+    both, early, and measure which took effect.
+
+--------------------------------------------------------------------------------
+AND MAKE THEM REACHABLE ANYWAY
+--------------------------------------------------------------------------------
+
+Even correctly named, Preferences and Quit will always leave spaCR's own
+dropdown on macOS -- that is the convention working. A user who has just
+looked in the obvious place and found nothing needs another route, and the
+maintainer has asked for the same thing for the window controls
+(instruction 268): minimise, maximise and close in the Help menu because
+they are missing from the frame on that Mac.
+
+So one answer covers both: A MENU ENTRY THAT DOES NOT MOVE. Whatever
+carries the window controls carries a way to Preferences and Quit too --
+with `NoRole` pinned, or macOS will relocate those copies as well and the
+problem repeats one level down.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * `applicationName` and `applicationDisplayName` both read "spaCR" before
+    the menu bar is built, asserted rather than assumed;
+  * on macOS the application menu is titled spaCR, and Preferences and Quit
+    are in it;
+  * a second route to Preferences and Quit exists that macOS does NOT
+    relocate -- checked by asserting its actions carry NoRole;
+  * the roles stay as measured above: exactly one Preferences, one Quit,
+    one About, everything else NoRole, after every module that adds to the
+    menus has done so.
