@@ -115,3 +115,62 @@ def test_the_real_permutation_folder_shows_both(tmp_path):
     frame, _, merged = read_run_tables(tables)
     assert "gene" in set(frame["level"].dropna())
     assert any(p.endswith("results_gene.csv") for p in merged)
+
+
+def test_a_file_path_still_finds_its_siblings(tmp_path):
+    """The panel is often handed results.csv itself, not the folder.
+
+    Returning that one path alone hid the gene file sitting beside it, so
+    the merge never had anything to merge and the reader saw guides only.
+    """
+    from spacr.qt.widgets.regression_results import find_results_tables
+
+    tables = _run(tmp_path, _guides(3), gene=_genes(2))
+    found = find_results_tables(tables[0])
+    assert any(p.endswith("results_gene.csv") for p in found)
+    assert found[0].endswith("results.csv"), "the chosen file must stay primary"
+    frame, _, merged = read_run_tables(found)
+    assert sorted(frame["level"].dropna().unique()) == ["gene", "grna"]
+    assert merged
+
+
+def test_a_lone_file_with_no_siblings_is_unchanged(tmp_path):
+    tables = _run(tmp_path, _guides(3))
+    from spacr.qt.widgets.regression_results import find_results_tables
+    assert find_results_tables(tables[0]) == [tables[0]]
+
+
+def test_the_table_drops_columns_blank_at_this_level():
+    """A gene row has no `guide`; showing the column puts its name far right."""
+    from spacr.qt.widgets.regression_results import for_table
+
+    genes = _genes(2)
+    genes["guide"] = None
+    genes["wells_with_guide"] = float("nan")
+    narrowed = for_table(genes)
+    assert "guide" not in narrowed.columns
+    assert "wells_with_guide" not in narrowed.columns
+    assert "gene" in narrowed.columns and "wells_with_gene" in narrowed.columns
+
+
+def test_a_kept_column_survives_even_when_blank():
+    from spacr.qt.widgets.regression_results import for_table
+
+    guides = _guides(2)
+    guides["q_value"] = None
+    assert "q_value" in for_table(guides).columns
+
+
+def test_a_column_with_any_value_is_kept():
+    from spacr.qt.widgets.regression_results import for_table
+
+    guides = _guides(3)
+    guides["note"] = ["", "", "seen"]
+    assert "note" in for_table(guides).columns
+
+
+def test_an_empty_frame_is_returned_as_is():
+    from spacr.qt.widgets.regression_results import for_table
+
+    empty = _guides(0)
+    assert list(for_table(empty).columns) == list(empty.columns)
