@@ -5262,13 +5262,26 @@ def _api_html(regression_type: Any, ink: Dict[str, str],
 #: Brief guidance shown when nonparametric inference bypasses model fitting.
 #: The separate Permutation Test section contains the full method description.
 NONPARAMETRIC_NOTE = (
-    "No model is fitted. Each guide is tested independently as a marginal "
-    "association, with P values from plate-blocked permutations -- so there "
-    "is no formula, no family, and no coefficient for a guide conditional "
-    "on the others.",
+    "This asks one question of each guide on its own: does its abundance "
+    "track the phenotype? It does not fit a model, so nothing here is a "
+    "coefficient — there is no formula, no family, and no estimate of what "
+    "a guide does with every other guide held fixed.",
+    "How the P value is reached: the guide's read fraction and the well "
+    "phenotype are both cleaned of plate, row and column effects, and the "
+    "cleaned phenotype is then reshuffled between wells of the same plate, "
+    "many thousands of times. The P value is the share of those shuffles "
+    "that produced an association at least as strong as the real one — so "
+    "it is measured from your own data rather than assumed from a "
+    "distribution.",
+    "USE IT WHEN THE GUIDES OUTNUMBER THE WELLS. A model that fits every "
+    "guide at once needs more wells than guides or its coefficients are not "
+    "identifiable at all; this has no such limit. The cost is that guides "
+    "sharing a well are not told apart, and that no P value can be smaller "
+    "than one divided by the number of shuffles plus one.",
     "The regression settings are greyed because this path never reads them. "
     "Their values are kept, so switching back restores the model you chose. "
-    "The Permutation Test section explains the test itself.",
+    "The Permutation Test section sets the number of shuffles and how much "
+    "support a guide needs to be tested at all.",
 )
 
 
