@@ -1,0 +1,99 @@
+================================================================================
+WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26.
+Priority:  Not stated. Treated as ordinary until told otherwise.
+Owner:     the image loading and streaming paths, and whichever screens host
+           them.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+Three fallbacks, in the maintainer's words:
+
+  "If stream array mode and can't find merged pop up window asking for
+   merged path
+
+   If stream coordinates column and can't find coordinates column or
+   database give path to database and column name and table
+
+   If load images and can't find data folder with pngs then pop up asking
+   for data folder path.
+
+   These are backups triggered if elements for image loading/streaming
+   don't work as per usual."
+
+--------------------------------------------------------------------------------
+WHAT THIS IS AND IS NOT
+--------------------------------------------------------------------------------
+
+THESE ARE BACKUPS, not the normal route. The usual resolution stays exactly
+as it is and is tried first every time. The prompt appears only when that
+resolution has already failed -- so a run that works today must not gain a
+dialog, and a user who never hits the failure must never see one.
+
+A DIALOG IS BETTER THAN AN ERROR HERE because the information is one the
+user has and the program does not. The current behaviour on each of these is
+to stop with a message; the message names the thing that is missing, which
+means the program already knows precisely what to ask for. Asking is
+strictly more useful than reporting, and costs the user one dialog instead
+of one aborted run.
+
+--------------------------------------------------------------------------------
+THE THREE CASES
+--------------------------------------------------------------------------------
+
+1. STREAM, ARRAY MODE, NO MERGED FOLDER.
+   Ask for the merged path. The dialog is a folder chooser.
+
+2. STREAM, COORDINATE COLUMN, NO COLUMN OR NO DATABASE.
+   This one needs THREE answers, not one: the path to the database, the
+   table within it, and the column within that. A folder chooser alone
+   cannot express it, so this is a small form -- and the table and column
+   fields should be populated from the database once its path is known,
+   rather than typed blind.
+
+3. LOAD IMAGES, NO DATA FOLDER OF PNGs.
+   Ask for the data folder. A folder chooser.
+
+--------------------------------------------------------------------------------
+WHAT EVERY ONE OF THEM OWES
+--------------------------------------------------------------------------------
+
+  * SAY WHAT WAS TRIED FIRST. "No merged folder under <path>" before the
+    chooser, so the user knows why they are being asked and can tell a typo
+    in a setting from a genuinely missing folder.
+  * VALIDATE THE ANSWER BEFORE ACCEPTING IT. A chosen folder with no images
+    in it is the same failure one step later; say so and stay open rather
+    than closing and failing again.
+  * REMEMBER IT FOR THE RUN. Asked once, not once per image, per well or per
+    plate.
+  * WRITE IT BACK where the setting lives, so the next run does not ask
+    again -- and say that it was written, because a setting that changes
+    without being announced is worse than one that does not.
+  * BE REFUSABLE. Cancel means the run stops with the error it would have
+    given anyway. A dialog that cannot be dismissed is a worse failure than
+    the one it replaces.
+  * NEVER APPEAR HEADLESS. In a script, a test or a batch run there is
+    nobody to answer: the fallback must resolve to the original error rather
+    than blocking on a dialog nobody can see. This is the one that will be
+    got wrong, and it is the one that hangs a pipeline overnight.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * each of the three failures raises its prompt, driven through the real
+    widget rather than by calling the resolver directly;
+  * a run whose usual resolution succeeds shows no dialog at all -- asserted,
+    because this is the regression that would annoy every user every day;
+  * cancelling gives exactly the error the run gave before this item;
+  * a headless run gives that same error and never blocks;
+  * an answer that does not resolve is rejected in the dialog, which stays
+    open, rather than being accepted and failing afterwards;
+  * the accepted answer is used for the whole run and written back to the
+    setting, and the write is stated;
+  * case 2 offers the tables in the chosen database and the columns in the
+    chosen table, rather than a blank text field.
