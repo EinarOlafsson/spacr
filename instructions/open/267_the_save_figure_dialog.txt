@@ -1,0 +1,122 @@
+================================================================================
+THE SAVE FIGURE DIALOG: FOUR THINGS
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26, from the volcano's right-click
+           Save figure.
+Owner:     spacr/qt/widgets/save_figure_dialog.py, and whatever raises
+           when the canvas shape changes.
+
+--------------------------------------------------------------------------------
+1. SQUARE REPLACES THE PLOT WITH A LIE            <-- BUG, AND THE WORST ONE
+--------------------------------------------------------------------------------
+
+"if i change graph shape to square the graph is replaced by this plot has
+noting drawn on it yet"
+
+THE MESSAGE IS WRONG AND THE CODE KNOWS IT. `save_figure_dialog.py:516`:
+
+    except Exception:
+        LOG.debug("could not preview the plot", exc_info=True)
+    ...
+    if pixmap is None:
+        "This plot has nothing drawn on it yet, so there is nothing to
+         preview or to save."
+
+The render RAISES, the exception goes to a debug log nobody reads, and the
+dialog then blames the plot for being empty. A full plot is reported as an
+empty one, and the real reason is discarded on the way.
+
+TWO SEPARATE FIXES, and both are needed:
+
+  a. FIND WHAT SQUARE ACTUALLY RAISES and fix it. Reproduce first --
+     build the dialog on a real volcano, set the shape to square, and read
+     the traceback that is currently being swallowed;
+  b. STOP THE MESSAGE FROM LYING. "Nothing drawn" is one reason a preview
+     can be absent. A raised exception is another, and they are not the
+     same sentence. Say which happened, and put the real reason where a
+     user can see it -- this is the same rule as the red-label item
+     (instruction 265): keep the figure where possible, and never replace
+     it with a wrong explanation.
+
+--------------------------------------------------------------------------------
+2. DPI IS GREYED OUT FOR PNG, WHICH IS BACKWARDS
+--------------------------------------------------------------------------------
+
+"the DPI is still grayed out when PNG is chosen which does not make sense."
+
+`save_figure_dialog.py:398` disables it whenever the plot is a fast plot,
+whatever the FORMAT is. The comment explains the intent -- "Vector PDF and
+SVG output has no DPI. Fast-plot PNG dimensions come from the canvas shape,
+so a second resolution control would be misleading" -- and the first half is
+right while the second is not what a user expects.
+
+DPI IS EXACTLY WHAT A RASTER EXPORT IS FOR. A journal asking for 300 dpi is
+asking about the PNG. Deciding its pixels from the canvas shape alone means
+the one control that governs how big the file really is has been taken away.
+
+  * the greying follows the FORMAT, not the plot kind: off for PDF and SVG,
+    live for PNG and any other raster;
+  * if the canvas shape and the DPI both influence the pixel count, say how
+    in one sentence -- and prefer letting DPI win, because it is the number
+    the user was told to set.
+
+--------------------------------------------------------------------------------
+3. SHOW THE VALUE, NOT A SENTENCE ABOUT WHERE IT LIVES
+--------------------------------------------------------------------------------
+
+"some of the options just say as shown, they should show the actual values,
+not as shown."
+
+Several rows are disabled with a reason in place of a value:
+
+    size        "set on the plot's right-click menu, under Canvas: it is
+                 one page size, read by every export this plot makes"
+    resolution  "this plot writes true vector for PDF and SVG ... and sizes
+                 its PNG from the canvas shape"
+
+Explaining where a setting lives is useful ONCE; it is not a substitute for
+the number. A reader about to save wants to know what they are about to
+get. SHOW THE INHERITED VALUE -- the actual page size, the actual
+resolution -- and keep the explanation as hover help or a quieter note
+beside it.
+
+--------------------------------------------------------------------------------
+4. THE DIALOG ONLY NEEDS FOUR SETTINGS
+--------------------------------------------------------------------------------
+
+"all the settings this really needs are: background color / line width and
+color / text color / and aspect ratio: with the options square, vertical
+rectangle, horizontal rectangle"
+
+    background colour
+    line width and line colour
+    text colour
+    graph shape -- square, vertical rectangle, horizontal rectangle
+
+Everything else is either inherited from the plot -- in which case rule 3
+applies and it is shown, not offered -- or it is not worth the room.
+
+NOTE THE VOCABULARY, which this list already settled: the CANVAS control is
+"graph shape" with those three values, and the DATA control that locks one
+y unit to N x units is "lock axis scales". The maintainer wrote "aspect
+ratio" here meaning the first. Do not reintroduce the old name.
+
+DO NOT SILENTLY DROP A SETTING THAT DOES SOMETHING. If a control being
+removed is the only way to reach a behaviour, say so rather than deleting
+it -- moving it to the plot's own right-click menu is the obvious home,
+since that is where the canvas controls already live.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * setting the graph shape to square on a real volcano previews and saves,
+    and the written file is square;
+  * a preview that fails for any reason says WHY, and never calls a drawn
+    plot empty;
+  * DPI is live for PNG and greyed for PDF and SVG, and a PNG written at
+    600 dpi has more pixels than the same figure at 150;
+  * every inherited row shows its actual value;
+  * the dialog offers the four settings above, and any control removed
+    from it is reachable somewhere the item names.
