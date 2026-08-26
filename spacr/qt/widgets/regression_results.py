@@ -193,6 +193,71 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
     return [candidate for _, _, group in runs for candidate in group]
 
 
+def read_run_tables(tables):
+    """Read a run's primary table, and any LEVEL it left in a sibling file.
+
+    ``results.csv`` is meant to hold every level a run produced -- a fitted
+    run at ``level='both'`` writes its guide and gene rows into one table and
+    the panel filters them apart by the ``level`` column.
+
+    THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected
+    them as their own family, wrote them to ``results_gene.csv``, and left
+    ``results.csv`` holding guides alone -- so a reader who asked for genes
+    was shown nothing while the rows sat in a file nothing opened. The writer
+    is fixed, and this reads the older runs too, because a folder on disk
+    does not update itself.
+
+    A sibling is merged only when it brings a level the primary table does
+    NOT already carry, so a run that already holds both is untouched and
+    nothing is ever counted twice.
+
+    :param tables: candidate paths, primary first, as
+        :func:`find_results_tables` returns them.
+    :returns: ``(frame, found, merged)`` -- the table, the path it came from,
+        and the sibling paths folded into it.
+    """
+    import pandas as pd
+
+    found = tables[0]
+    frame = pd.read_csv(found)
+    merged = []
+    have = set()
+    if "level" in frame.columns:
+        have = {str(v).strip().lower() for v in frame["level"].dropna().unique()}
+    else:
+        from spacr.hits import coefficient_levels
+
+        try:
+            have = {str(v) for v in pd.Series(coefficient_levels(frame)).unique()}
+        except Exception:                                    # noqa: BLE001
+            have = set()
+    home = os.path.dirname(found)
+    for sibling in tables[1:]:
+        if os.path.dirname(sibling) != home:
+            continue          # a different run, not a second half of this one
+        name = os.path.basename(sibling)
+        wants = ("gene" if "gene" in name else
+                 "grna" if "grna" in name else "")
+        if not wants or wants in have:
+            continue
+        try:
+            extra = pd.read_csv(sibling)
+        except Exception:                                    # noqa: BLE001
+            continue
+        if extra.empty:
+            continue
+        if "level" not in extra.columns:
+            extra = extra.copy()
+            extra["level"] = wants
+        if "level" not in frame.columns:
+            frame = frame.copy()
+            frame["level"] = sorted(have)[0] if len(have) == 1 else None
+        frame = pd.concat([frame, extra], ignore_index=True, sort=False)
+        have.add(wants)
+        merged.append(sibling)
+    return frame, found, merged
+
+
 def find_results_table(path) -> Optional[str]:
     """The results CSV for ``path``: a file, a run folder, or a parent of one.
 
@@ -1901,13 +1966,12 @@ class RegressionResultsPanel(QWidget):
                 f"Searched {searched} and found none of "
                 f"{', '.join(RESULT_FILENAMES)} in it or in any folder up to "
                 f"{MAX_SEARCH_DEPTH} deep.")}
-        found = tables[0]
         try:
-            frame = pd.read_csv(found)
+            frame, found, merged = read_run_tables(tables)
         except Exception as error:  # noqa: BLE001 - report, do not raise
-            return {"error": f"Could not read {found}: {error}"}
+            return {"error": f"Could not read {tables[0]}: {error}"}
         return {"frame": frame, "found": found, "searched": searched,
-                "tables": tables}
+                "tables": tables, "merged": merged}
 
     def _finish_load(self, outcome) -> bool:
         """THE GUI HALF: everything that touches a widget."""
@@ -1964,11 +2028,10 @@ class RegressionResultsPanel(QWidget):
                 f"{MAX_SEARCH_DEPTH} deep.")
             return False
 
-        found = tables[0]
         try:
-            frame = pd.read_csv(found)
+            frame, found, merged = read_run_tables(tables)
         except Exception as error:  # noqa: BLE001 - report, do not raise
-            self.say(f"Could not read {found}: {error}")
+            self.say(f"Could not read {tables[0]}: {error}")
             return False
         return self._apply_loaded_run(frame, found, searched, tables)
 
