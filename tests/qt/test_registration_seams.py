@@ -716,7 +716,6 @@ def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
 #: other -- an app with neither has a Run button that says "Not runnable"
 #: and no screen of its own to explain why.
 WIRED_IN = {
-    "illumination": "entry",
     "layer_viewer": "factory",
     "graph_builder": "factory",
     # The three that landed just after the seam did and were unreachable
@@ -725,38 +724,63 @@ WIRED_IN = {
     "run_compare": "factory",
 }
 
-#: The two that have since been FOLDED into a host screen and no longer
-#: have a row at all: Barcode QC onto Map Barcodes, AnnData Export onto
-#: Measure. AnnData Export is the app that made the case for `entry` with
-#: NO screen of its own -- its settings are already typed and tooltipped,
-#: so the generic AppScreen draws the export form and the Run button runs
-#: the export -- and that is still exactly how its folded page works.
+#: The three that have since been FOLDED into a host screen and no longer
+#: have a row at all: Barcode QC onto Map Barcodes, AnnData Export and
+#: Illumination onto Measure. AnnData Export is the app that made the case
+#: for `entry` with NO screen of its own -- its settings are already typed
+#: and tooltipped, so the generic AppScreen draws the export form and the
+#: Run button runs the export -- and that is still exactly how its folded
+#: page works.
 #:
 #: THE POINT OF KEEPING THEM HERE. Everything the registration seam
 #: delivered is still owed to a folded module: a header and a blurb on
 #: its page, a translated name, an API link, an answer to `spacr-run`,
 #: and a Run button that runs something. Only the tile went. Deleting
-#: these two out of this file when their rows went would have deleted the
-#: assertions that say so.
+#: these three out of this file when their rows went would have deleted
+#: the assertions that say so.
 FOLDED_IN = {
     "barcode_qc": "entry",
     "anndata_export": "entry",
+    "illumination": "entry",
 }
 
 #: Both groups, for the checks a fold does not change.
 EVERY_FEATURE = {**WIRED_IN, **FOLDED_IN}
 
-#: What each folded module's page is headed by, now that no row holds it.
-FOLDED_NAMES = {
-    "barcode_qc": "Barcode QC",
-    "anndata_export": "AnnData Export",
-}
-
 #: Folded key → the module that hangs its button on the host masthead.
 FOLDED_HOSTS = {
     "barcode_qc": "spacr.qt.screens.map_barcodes",
     "anndata_export": "spacr.qt.screens.measure",
+    "illumination": "spacr.qt.screens.measure",
 }
+
+
+def folded_name(key: str) -> str:
+    """A folded module's display name, asked of the live resolver.
+
+    THE REGISTRY IS THE WRONG PLACE TO ASK. A fold drops the row, so
+    `APPS` stops answering and every question that used to be put to it
+    -- what is this module called, how mature is it, what does it do --
+    has to be put to `fold_strip.folded_fallback` instead, which reads
+    the host's own record of what the tile said. The masthead draws that
+    name and the translation catalog is keyed on it, so a copy of it
+    kept here would go on passing after the module's own record changed
+    -- checking the test against itself rather than against the GUI.
+
+    Blank is a failure, not a default. `folded_fallback` returns three
+    empty strings for a key it has never heard of, and a folded module
+    whose record was dropped with its row is exactly the regression this
+    file exists to catch, so it is asserted rather than filled in.
+    """
+    from spacr.qt.widgets.fold_strip import folded_fallback
+
+    name, _description, _stage = folded_fallback(key)
+    assert name.strip(), (
+        f"{key} is folded, so its name can only come from a host's "
+        f"FOLD_FALLBACK, and no host in fold_strip.FOLD_HOST_MODULES "
+        f"keeps one -- its masthead is headed by the key title-cased and "
+        f"its translation is keyed on a name nothing publishes")
+    return name
 
 
 @pytest.mark.parametrize("key", sorted(FOLDED_IN))
@@ -777,6 +801,53 @@ def test_the_folded_feature_has_no_row_and_is_reached_from_its_host(key):
         f"{key} has no row and no button on {host.HOST_KEY}, so nothing "
         f"opens it")
     assert callable(host.BUILDERS[key])
+
+
+@pytest.mark.parametrize("key", sorted(FOLDED_IN))
+def test_the_folded_feature_still_has_a_name_a_sentence_and_a_stage(key):
+    """What the registry answered before the row went, answered by the fold.
+
+    The three fields a tile carried are what the masthead button needs:
+    the name it is headed by, the sentence it hovers, and the maturity
+    colour it lights up in. Once the row is gone `spacr.qt.app` answers a
+    folded key the way it answers a typo -- no name, no sentence, and
+    "stable" -- so a module assessed as beta goes on promising finished
+    code unless a host kept the record. This is the assertion that the
+    record is there, which is the half of a fold that is easy to skip.
+    """
+    from importlib import import_module
+
+    from spacr.qt.widgets import fold_strip
+    from spacr.qt.widgets.fold_strip import folded_fallback, folded_modules
+
+    assert key in folded_modules(), (
+        f"{key} is folded but no module in fold_strip.FOLD_HOST_MODULES "
+        f"keeps a FOLD_FALLBACK row for it, so nothing can say what it is")
+    name, description, stage = folded_fallback(key)
+    assert name.strip()
+    assert len(description) > 40, (
+        f"{key}'s folded button hovers {description!r}, which does not "
+        f"tell anyone what the module does")
+    assert stage in app_mod.STAGES, (
+        f"{key} is folded at stage {stage!r}, which has no hover colour")
+
+    # Several hosts keep a record of the same key -- map_barcodes carries
+    # one for modules folded elsewhere -- and `folded_modules` returns the
+    # FIRST. If two disagree the resolver's answer depends on the order of
+    # that tuple, so the name the masthead draws and the name the catalog
+    # is keyed on can differ from the host's own.
+    # Walked from `fold_strip` rather than from a list here: a copy would
+    # quietly stop covering a host somebody added.
+    for module_name in fold_strip.FOLD_HOST_MODULES:
+        kept = getattr(import_module(module_name), "FOLD_FALLBACK", {})
+        if key not in kept:
+            continue
+        assert kept[key][0] == name, (
+            f"{module_name} calls {key} {kept[key][0]!r} and the resolver "
+            f"answers {name!r}; whichever is asked first wins")
+        assert kept[key][2] == stage, (
+            f"{module_name} has {key} at stage {kept[key][2]!r} and the "
+            f"resolver answers {stage!r}")
 
 
 @pytest.mark.parametrize("key", sorted(WIRED_IN))
@@ -815,8 +886,7 @@ def test_the_waiting_feature_is_translated_into_every_ui_language(key):
     from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
 
     names = {row[0]: row[1] for row in app_mod.APPS}
-    names.update(FOLDED_NAMES)
-    name = names[key]
+    name = names.get(key) or folded_name(key)
     for code in VALID_LANGUAGE_CODES:
         if code == "en":
             continue
