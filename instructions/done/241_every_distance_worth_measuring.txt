@@ -125,3 +125,26 @@ HOW TO KNOW IT WORKED
 * A synthetic field with objects at known separations reproduces those
   separations to within a pixel.
 * Driven on plate1 and the columns appear in measurements.db.
+
+--------------------------------------------------------------------------------
+THE TWO VERIFIED NAMES ARE COMPOSED AT RUN TIME, AND NOW PINNED
+--------------------------------------------------------------------------------
+
+`cell_surface_to_nucleus_surface` and `cell_nucleus_overlap_fraction` are
+written nowhere in the source, which is not drift: `object_distances` emits
+`surface_to_nucleus_surface` bare on purpose, and `measure` prefixes every
+column of a props frame with its object type. The name a user meets in
+measurements.db is the join of two halves that live in different modules.
+
+THE COVERAGE STOPPED EITHER SIDE OF THAT JOIN.
+`tests/test_every_distance_worth_measuring.py` drives the bare frame and
+asserts the prefix is ABSENT; the measure-level test asked only that some
+column matching "distance" or "nearest" appeared -- which neither
+`surface_to_nucleus_surface` nor `nucleus_overlap_fraction` does. Both
+between-type families could have dropped out of the merge with nothing red.
+
+`tests/test_the_distance_columns_reach_the_object_table.py`, 6 passing, drives
+`measure._morphological_measurements` and asserts the composed names, both
+orderings of centre-to-surface, an object entirely inside another giving
+overlap 1.0, a known 8 px gap recovered, no doubled prefix, and nothing
+measured when the setting is off.

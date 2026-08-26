@@ -2,9 +2,17 @@
 THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
 ================================================================================
 
-Status:    not started, 2026-08-11. 24 defects located and verified; the
-           three checked by hand were all real. NONE of the fixes below are
-           written yet.
+Status:    CLOSED 2026-08-12 -- all 24 findings accounted for; see the
+           closing section. The header used to read "not started, 2026-08-11
+           ... NONE of the fixes below are written yet", which was true the
+           day it was written and has been false since, and this file is long
+           enough that a reader takes the header for the verdict.
+           Re-audited 2026-08-25: four symbols this file names no longer
+           exist. Each is annotated in place -- `_normalize_filter_inputs`
+           and `_restore_module_defaults` went with the Tk front end,
+           `child_columns` is the dead local from the branch that was
+           replaced, and `render_multichannel_mosaic_from_csv` is a name that
+           never existed (the function is `mosaic_all_channels_from_csv`).
 Requested: 2026-08-08 - "remove phantom settings that are not used anyware.
            make sure their removal dosnt break the legacy application or the
            new alpplication"
@@ -298,6 +306,14 @@ THE FINDINGS
       honour and reports the resulting (too large) row count as the filtered 
       total.
 
+      [2026-08-25] FIXED, AND THE TK HALF OF THIS SENTENCE NO LONGER EXISTS.
+      `_normalize_filter_inputs` was in `spacr/legacy_tk/gui_elements.py`,
+      deleted with the whole Tk front end in b4bbf9ff. The refusal now lives
+      in the front end that ships: `qt.annotate_engine.fetch_filtered_paths`
+      broadcasts the documented one-threshold shorthand and then RAISES
+      ValueError on any other length mismatch, naming both counts, rather
+      than letting zip() truncate. Read at annotate_engine.py:783-806.
+
     FAILS LIKE THIS:
       In the Qt Annotate settings dialog 
       (spacr/qt/screens/annotate.py:850-864, both fields are free-text 
@@ -559,10 +575,18 @@ THE FINDINGS
 
     WHAT IS WRONG:
       `render_mosaic_from_csv` (spacrops.py:1945) and 
-      `render_multichannel_mosaic_from_csv` (spacrops.py:2142) both accept 
+      `mosaic_all_channels_from_csv` (spacrops.py:2142) both accept 
       `cap_one_per_dir: bool = True`, document it as "keep at most one edge 
       per direction per tile" (1962, 2159), and forward it to 
       `_compute_mosaic_transforms` (2009, 2203). 
+      [NAME CORRECTED 2026-08-25: this finding called the second one
+      `render_multichannel_mosaic_from_csv`, which has never existed under
+      that name in this repository. The multi-channel entry point is
+      `Stitcher.mosaic_all_channels_from_csv`. The defect the finding
+      describes was real and is FIXED -- `_compute_mosaic_transforms` now
+      reads the flag at both the per-direction cap and the candidate gather
+      (spacrops.py:1880, :1900), and `tests/test_spacrops_settings_are_
+      honoured.py` fails if the cap goes unconditional again.] 
       `_compute_mosaic_transforms`' own docstring repeats it as step 4: "For 
       each tile, keep at most one best edge per direction bin (R/L/U/D) if 
       cap_one_per_dir." The body never references the name. The capping is 
@@ -869,6 +893,16 @@ FIXED:
     place to pay for that is a two-line exemption, not a weaker rule.
 
 ANALYSED, NOT FIXED -- merge_tables.py:401, the "drop" policy.
+
+  [2026-08-25] SINCE FIXED. The code quoted below is the OLD branch, kept as
+  the statement of the defect; `child_columns` is that dead local and does
+  not exist in the tree. `_apply_na_policy`'s drop branch now tests the
+  `<table>_count` roll-ups -- NaN exactly when the child table contributed no
+  row -- and returns the frame untouched when nothing was rolled up, which is
+  the "no childlessness to test" case. The 2026-08-12 note below already
+  records the answer ("CLOSED by item (a)"); driven by
+  tests/test_wrong_numbers_77.py (a cell with an unmeasurable child survives;
+  a cell with no child is still dropped).
 
 Confirmed wrong, and left alone deliberately because the right answer is not
 obvious from the line:
@@ -1230,6 +1264,36 @@ added 2026-08-11 by c41a5f68 and covered by
 `tests/test_tk_panel_keeps_module_defaults.py`, which names these exact four
 cases. The panel shows the module's own default. The finding is CLOSED.
 
+  [2026-08-25] BOTH THINGS THAT SENTENCE NAMES ARE GONE, AND THE FINDING IS
+  STILL CLOSED -- but not for the reason written above, so the reason is
+  written again here rather than left to be re-derived.
+
+  `gui_core._restore_module_defaults` and
+  `tests/test_tk_panel_keeps_module_defaults.py` were both deleted with the
+  Tk front end (b4bbf9ff). Qt was never repaired by that function: it
+  corrects the same thing locally, in
+  `qt.screens.settings_model.SettingsWidgets._widget_for`'s combo branch --
+  `if key in self._defaults: default = self._defaults[key]` -- which the
+  deleted test's own docstring already recorded.
+
+  WHAT WAS ACTUALLY MISSING was the guard, not the repair. The invariant was
+  pinned only on the Tk side, so when Tk went the Qt correction was left
+  untested. `tests/qt/test_the_panel_keeps_module_defaults.py` is that guard
+  now: it builds every registered module's panel and asserts no combo posts a
+  value other than the one the module's own defaults factory declared.
+
+  MEASURED across all 36 modules on 2026-08-25: six combos whose canned
+  default differs from the module's, and zero disagreements once built.
+
+      mask / measure / external_masks  summarize_organelles_by  'cell' vs None
+      classify_merged                  model_type   'maxvit_t' vs 'resnet50'
+      regression                       analysis_mode
+                                       'guide_permutation' vs 'regression'
+      regression                       transform    'log' vs None
+
+  Disabling the one-line correction fails 13 of the new file's cases, each
+  naming its module.
+
 Worse, that function's docstring says outright why the repair lives there
 and not in the converter: the "special cases ignore the supplied value"
 contract is deliberately pinned by a test, and changing it reaches every
@@ -1336,3 +1400,36 @@ The last open question -- the join type -- was answered by the maintainer on
 `MergePolicy.consolidate_on_cell`, the aggregation is per measurement type,
 and a NaN that pandas skips is now visible as `<table>_measured` rather than
 silently reducing a sum. See the section above.
+
+
+--------------------------------------------------------------------------------
+2026-08-25 -- THE SYMBOL AUDIT, AND THE ONE GAP IT FOUND
+--------------------------------------------------------------------------------
+
+Five names in this file do not appear in the tree. Four are stale narration
+and are annotated where they are used; one was a real hole.
+
+  `_normalize_filter_inputs`      (finding 8)  Tk, deleted in b4bbf9ff. The
+      refusal it described now lives in `qt.annotate_engine`, verified by
+      reading the code: three measurement columns and two thresholds raise
+      rather than truncate.
+  `render_multichannel_mosaic_from_csv`  (finding 17)  Never existed. The
+      real name is `Stitcher.mosaic_all_channels_from_csv`. The defect was
+      real and is fixed; `cap_one_per_dir` is read at spacrops.py:1880 and
+      :1900 and `tests/test_spacrops_settings_are_honoured.py` guards it.
+  `child_columns`                 (finding 11) The dead local from the old
+      drop branch, quoted as the statement of the defect. Fixed; the branch
+      now tests the `<table>_count` roll-ups.
+  `_restore_module_defaults` and `tests/test_tk_panel_keeps_module_defaults.py`
+      (finding 20)  Both Tk, both deleted in b4bbf9ff.
+
+THE GAP: finding 20 was closed on the strength of a repair and a test that
+were BOTH Tk-only. Qt has always had its own one-line correction and it still
+works -- but nothing tested it, so the finding's closure rested on a file
+that no longer exists. Written: `tests/qt/test_the_panel_keeps_module_
+defaults.py`, 116 cases over all 36 registered modules. Disabling the
+correction fails 13 of them.
+
+VERIFIED BY RUNNING:  tests/qt/test_the_panel_keeps_module_defaults.py (116
+passed), tests/test_wrong_numbers_77.py and
+tests/test_spacrops_settings_are_honoured.py (20 passed).

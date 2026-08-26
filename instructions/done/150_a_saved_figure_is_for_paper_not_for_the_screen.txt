@@ -31,8 +31,10 @@ legend text and any annotation line are white -- and
     THERE IS NO EXPORT-TIME INVERSION ANYWHERE.
 
 Grepped: `save_figure` decides format, font type and DPI, and says nothing
-about colour. `_export_pdf` / `_export_png` / `_paint_scene` render the scene
-as it stands. So a figure saved from a dark-themed session is white ink, and
+about colour. `_export_pdf` / `_export_svg` / `_paint_scene` render the scene
+as it stands, and PNG -- the default -- goes out through pyqtgraph's own
+`ImageExporter`, which does not paint the scene at all. So a figure saved from
+a dark-themed session is white ink, and
 white ink on a white page is a blank rectangle with some coloured dots in it.
 
 WHY THIS IS WORSE THAN IT LOOKS. A PNG saved with a transparent background

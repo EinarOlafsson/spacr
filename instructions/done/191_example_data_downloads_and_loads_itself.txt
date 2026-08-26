@@ -83,6 +83,10 @@ of them the example screen: the eight count and dependent-variable tables are
 a GitHub release download under `~/.cache/spacr/example_data`, verified on
 size and then SHA-256, written to `.part` and renamed. `MANIFEST.in` and
 `setup.py`'s `package_data` reach only `resources/data`, so the wheel is the
-size it was.
+size it was. (`package_data` is setuptools', not spaCR's; it is at
+setup.py:694 and reaches `resources/data/*`. `MANIFEST.in:4` is the matching
+`recursive-include spacr/resources/data *.csv`. Re-checked 2026-08-25:
+`spacr/resources/data` is 8 files and 4.8 MB, and `spacr/example_data.py` is
+the downloader, covered by tests/test_cov_w2_5_example_data.py.)
 
 Measured: 24.5 s cold, 0.02 s warm.

@@ -487,6 +487,15 @@ FOUND BY A RED TEST, NOT BY READING. `test_an_uncorrected_run_offers_no_toggle`
 in tests/test_every_saved_figure_reaches_the_grid.py had been failing since
 the p-axis rework, and its docstring is the finding:
 
+  [NAME UPDATED 2026-08-25] The test still exists and still guards this; it
+  was RENAMED in the same commit that fixed the bug (3ae3548c), because
+  "toggle" stopped being what the control is -- the p axis became a choice
+  among several rather than two states. It is now
+  `test_an_uncorrected_run_offers_no_adjusted_axis`, beside the two the note
+  below says were added: `test_a_corrected_run_can_still_choose_the_adjusted_
+  axis` and `test_recorrecting_to_none_puts_the_axis_back`, plus
+  `test_and_it_says_why_there_is_no_toggle` for the greyed entry's reason.
+
     "`multiple_testing_method='none'` writes a q_value EQUAL to the raw p. A
      menu entry promising 'adjusted' there offers a number that is not there."
 

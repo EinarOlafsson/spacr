@@ -303,7 +303,9 @@ A/B'd it over five fresh processes each:
     with the Qt fast path   907 923 857 835 979    (median 907)
     without                 873 867 855 821 887    (median 867)
 
-No improvement, marginally worse. REVERTED.
+No improvement, marginally worse. REVERTED -- so `_cached_qimage` is
+deliberately absent from the tree, and a sweep that looks for it is finding
+the revert rather than a gap.
 
 WHY THE PROFILE LIED, which is the transferable part: cProfile charges
 per-call overhead, and PIL decode plus `np.asarray` is call-heavy in a way

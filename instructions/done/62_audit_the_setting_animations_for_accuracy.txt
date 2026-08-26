@@ -399,6 +399,20 @@ is fixed" -- a test that fails on success. Replaced with a RATCHET (the
 count may fall, never rise) plus a per-family regression guard, which is the
 shape this should have had.
 
+  THE REPLACEMENTS, BY NAME, since the old one is named above and no longer
+  exists. Both are in tests/test_animations_show_something.py:
+
+      test_the_number_of_silent_animations_never_grows   the ratchet. It
+          asserts ZERO now that all 94 clear the threshold, and its docstring
+          carries the 27 -> 23 -> 15 -> 8 -> 0 history so a future reader
+          knows what the number used to be.
+      test_the_repaired_families_stay_fixed             the per-family guard.
+          Nineteen slugs by name -- the diameter, min-area and
+          min-intensity-percentile families plus the seven umap ones --
+          pinned against a regeneration that silently undoes the fix.
+      test_a_generous_threshold_passes_everything       the sanity check that
+          keeps the ratchet from passing because the measurement broke.
+
     under 1%   27 -> 23 (diameter) -> 15 (filter) -> 8 (umap)
 
 REMAINING 8, and they are now one-offs rather than families:

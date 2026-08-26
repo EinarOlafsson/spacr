@@ -112,6 +112,12 @@ DONE 2026-08-06 (commit: classify: one vocabulary...)
   * ML gained the MEASUREMENT basis (ml._labels_from_measurements), taking
     the same rule shape spacr.io accepts. Clauses within a rule are ANDed --
     several measurements at once, as asked.
+    SUPERSEDED 2026-08-21 BY INSTRUCTION 229, which removed the measurement
+    option from dataset_mode along with `metadata_type_by` and
+    `measurement_rules`. `ml._labels_from_measurements` is gone, TRAINING_BASES
+    is ('metadata', 'annotation'), and a settings CSV naming the retired value
+    is MIGRATED rather than refused (training_basis.RETIRED_BASES maps
+    'measurement' -> 'annotation'). See tests/test_the_measurement_basis_is_gone.py.
   * The panel greys what the chosen basis does not read. Greyed, not
     removed (INVARIANTS 6). The list lives in training_basis.py so the
     panel and the pipeline cannot disagree.
@@ -184,7 +190,7 @@ VERIFIED
 --------------------------------------------------------------------------------
 
     QT_QPA_PLATFORM=offscreen python -m pytest tests/test_classify_merged.py \
-      tests/test_training_basis.py tests/test_ml_measurement_basis.py \
+      tests/test_training_basis.py tests/test_the_measurement_basis_is_gone.py \
       tests/test_dead_settings.py tests/test_settings.py \
       tests/qt/test_demo_menu.py tests/qt/test_main_window.py \
       tests/qt/test_menu_roles.py tests/qt/test_annotate.py -q -p no:randomly
@@ -203,3 +209,22 @@ test_category_keys_list_matches_the_map both pass alone and fail when
 tests/qt/test_demo_menu.py runs first. Confirmed pre-existing by running the
 same two files in the same order on a stashed clean tree. A fourth instance
 of the INVARIANTS 5 family, undiagnosed.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-POINTED AT THE CODE THAT SHIPS
+--------------------------------------------------------------------------------
+
+`tests/test_ml_measurement_basis.py` is named twice above and does not exist.
+It was not lost: instruction 229 retired the measurement basis on 2026-08-21,
+so the file that drove it went with the feature. The command line under
+VERIFIED now names `tests/test_the_measurement_basis_is_gone.py`, which is
+what took its place -- it asserts the option is out of TRAINING_BASES, out of
+the settings spec, out of the panel's own combo, and that
+`ml._labels_from_measurements` is gone, while an old CSV naming the retired
+value still loads through RETIRED_BASES.
+
+Everything else this file names was checked and is present:
+test_classify_merged.py, test_training_basis.py, test_dead_settings.py,
+test_settings.py and the four Qt files. `spacr/training_basis.py` and
+`spacr/classify.py` still carry the symbols the DONE sections claim, minus
+the retired basis.

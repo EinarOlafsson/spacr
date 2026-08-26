@@ -200,3 +200,20 @@ dropped:
   * PIL treats a 4-channel TIFF as RGBA and silently reinterprets a 5-channel
     one's dimensions, so no image container is a free path past three planes;
   * `convert('RGB')` silently drops a fourth plane, in five places in spaCR.
+
+--------------------------------------------------------------------------------
+2026-08-25 - AUDIT NOTE: THE THREE NAMES BELOW ARE NOT spaCR SYMBOLS
+--------------------------------------------------------------------------------
+
+A mechanical pass flags `conv0`, `conv_proj` and `crop_extra_channel` as names
+this file uses that the tree does not define. All three are correct as
+written, and none of them is work owed:
+
+  `features.conv0`   torchvision DenseNet's first convolution. Verified
+                     against the installed torchvision 0.28.0.
+  `conv_proj`        torchvision ViT's patch-embedding projection. Same.
+                     resnet50's `conv1.weight.shape` is `(64, 3, 7, 7)`,
+                     the number this file cites.
+  `crop_extra_channel`  a setting NAME PROPOSED under "WHAT TO BUILD, IF IT
+                     IS BUILT", in an item the maintainer DROPPED. Its
+                     absence is the decision, not a gap.

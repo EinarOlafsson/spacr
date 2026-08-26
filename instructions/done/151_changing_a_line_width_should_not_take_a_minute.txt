@@ -34,8 +34,9 @@ would have moved nothing.
 A. THE CAUSE: ONE CONTROL ASKS TWO QUESTIONS, AND THE SECOND IS SLOW
 --------------------------------------------------------------------------------
 
-`FastPlot._ask_line_style` (spacr/qt/widgets/fast_plots.py:2302) runs, in
-order:
+`FastPlot._ask_line_style` -- the method no longer exists under that name;
+B.1 below split it into `_ask_line_width` and `_ask_line_colour`, which is the
+fix. What it did, in order, was:
 
     QInputDialog.getDouble(...)        "Line width"     <- what was asked for
     QColorDialog.getColor(...)         "Line colour"    <- not asked for

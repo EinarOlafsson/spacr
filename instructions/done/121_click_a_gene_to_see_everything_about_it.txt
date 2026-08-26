@@ -2,7 +2,9 @@
 CLICK A GENE IN THE REGRESSION AND EVERYTHING KNOWN ABOUT IT APPEARS
 ================================================================================
 
-Status:    filed 2026-08-16, not started.
+Status:    COMPLETE 2026-08-20 -- see the closing sections. Header corrected
+           2026-08-25: it still read "not started" long after the tile
+           shipped and reached the figure grid.
 Requested: 2026-08-16 - "also if the grna or guide is a toxoplasma gene then i
            would love to have behaviour like in starplast
            (/mnt/firecuda2/Claude/repo/starplast/) where if you click a gene
@@ -28,6 +30,13 @@ starplast already does this and is the reference implementation
 `gene_attributes`, `starplast/annotations.py` holds the per-gene annotation
 store, and `starplast/analysis_panel.py` is the panel that displays it.
 Take the pattern, and take the parts that are genuinely portable.
+
+THESE FOUR NAMES ARE STARPLAST'S, NOT SPACR'S, and none of them will ever be
+in this tree; `gene_attributes` is at
+starplast/starplast/interactions.py:159. spaCR's own answer is
+`GeneTilePanel` (`spacr/qt/widgets/gene_tile.py`), with `gene_panel.py`
+beside it, driven by tests/qt/test_the_gene_tile_is_on_the_grid.py and
+test_gene_tile_i18n.py.
 
 --------------------------------------------------------------------------------
 WHAT GOES ON THE TILE

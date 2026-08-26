@@ -144,6 +144,13 @@ maintainer in the second person about work not yet done. The five additions
 above exist as their own tracked items rather than as prose in a reference
 page.
 
+CONFIRMED 2026-08-25. `docs/source/module_audit.rst` is gone and `module_audit`
+appears nowhere in `docs/source/index.rst`, so the name having no hit in the
+tree IS the delivered outcome and not drift -- do not "restore" it. The first
+half was kept, per point 2, as `proposals/MODULE_AUDIT_2026-07-30.rst`, whose
+own header records the move; its recommendation sections are cut and the only
+surviving mention of them is that header's pointer back to this file.
+
 --------------------------------------------------------------------------------
 2026-08-13 - INSIGHT (e), THE BENCHMARK COMMAND, IS BUILT
 --------------------------------------------------------------------------------

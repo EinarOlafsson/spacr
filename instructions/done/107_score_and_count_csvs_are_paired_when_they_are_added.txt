@@ -23,10 +23,12 @@ its own `FilePathListWidget`. `perform_regression` loops over each list
 separately, stamps a plate ID, concatenates, and joins the two frames on
 `prc = plateID_rowID_columnID`.
 
-Plate ID today comes from `_assign_plate` (`spacr/ml.py`), in priority order:
-an explicit `plates_score`/`plates_count` list (not exposed anywhere), then
-`plate_from_order`, then the file's own `plateID` column, then `plate{i+1}` by
-LIST POSITION.
+Plate ID at the time of writing came from a private `spacr/ml.py` helper, in
+priority order: an explicit `plates_score`/`plates_count` list (not exposed
+anywhere), then `plate_from_order`, then the file's own `plateID` column, then
+`plate{i+1}` by LIST POSITION. That helper and all three of those settings
+were removed by the pairing work below; `ml.load_regression_input_pairs` is
+the live resolver and the rules it applies are in the RESULT section.
 
 The `plateID` SETTING is separate from all of that: a single scalar (default
 `'plate1'`) passed to `process_scores` and `process_reads` as the fallback
@@ -269,3 +271,61 @@ legacy flat form of `paired_data`, migrated positionally on load, and that a
 run writes to `<count data folder>/results/<regression type>`. Note that
 editing them also requires `tools/build_i18n_catalogs.py`, because nine
 catalogs carry hashes of the current text.
+
+================================================================================
+2026-08-25 - THE OWED settings.py PATCH IS PINNED, AND WHY IT IS STILL OWED
+================================================================================
+
+The two tooltips named under STILL NEEDED are the last live description of the
+retired contract: `plates_count` and `plates_score` appear in the whole
+package in exactly those two strings and nowhere else.
+
+THE PROSE FIX WAS WRITTEN AND THEN REVERTED, and the reason is worth
+recording rather than rediscovering. Both strings are the PINNED SOURCE of
+human-reviewed translations under `docs/i18n/reviewed/runtime/` -- count_data
+in zh_CN, score_data in ko, sv and zh_CN. A reviewed record carries the
+English it was translated from and its sha256, and the loader in
+`tools/build_i18n_catalogs.py` REFUSES a record whose source has moved. Three
+tests go red on the first character changed:
+
+    tests/qt/test_module_tooltip_i18n.py::
+        test_reviewed_summary_hashes_match_current_builtin_sources
+    tests/test_documentation_i18n.py::
+        test_five_locale_semantic_gate_bad_good_matrix
+    tests/test_documentation_i18n.py::
+        test_api_gate_removes_and_rejects_multilingual_model_control_tokens
+
+-- measured by making the edit and running them, not predicted. So this is
+one change to the English AND to four reviewed records in three languages,
+and the reviewed store is a human-review artefact that the session holding
+the catalog pipeline owns. Writing new Korean, Swedish and Chinese into it
+from here would put unreviewed text in a file whose whole purpose is that its
+contents were reviewed.
+
+THE REPLACEMENT TEXT, ready to land with that rebuild. Note that restating
+the rule in full pushes `count_data` to 648 characters, over the
+600-character ceiling `tests/test_tooltip_length_and_shape.py` holds; the
+wording below is 566.
+
+  count_data: replace "Pass one path per plate, position-aligned with
+  plates_count; results are written under the first file's folder." with
+  "and this is the legacy flat form of paired_data: a list here is paired
+  with score_data by position when the settings load. A run writes to <count
+  data folder>/results/<regression type>." (folding the preceding sentence's
+  full stop into a comma).
+
+  score_data: replace "Pass one path per plate, position-aligned with
+  plates_score." with "This is the legacy flat form of paired_data: a list
+  here is paired with count_data by position when the settings load, and the
+  pairing is logged."
+
+PINNED IN THE MEANTIME BY NAME RATHER THAN BY STRING, because the failure is
+general -- whenever a setting is removed, whatever described it is what gets
+left behind. `tests/test_no_tooltip_names_a_retired_setting.py`, 9 passing,
+asserts that the three retired keys really are absent from `expected_types`
+and from the regression defaults, that no tooltip outside a named `OWED` list
+mentions any of them, that `paired_data` states where plate identity comes
+from and names both legacy keys, and -- the part that makes the exemption
+shrink -- that every entry in `OWED` still carries its stale phrase, so the
+list cannot outlive the defect. Landing the text above turns that last test
+red with "remove it from OWED".

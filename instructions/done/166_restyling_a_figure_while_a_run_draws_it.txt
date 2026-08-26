@@ -48,8 +48,8 @@ One re-entrant lock in `figure_queue`, taken by:
   * `_style_figure_colors`  -- every restyle, from the dialog or elsewhere
 
 RE-ENTRANT because `_style_figure_colors` is also called from inside the render
-path (`_prepare_for_display` styles before rendering), and a plain Lock would
-deadlock the first time a figure was styled and rendered in one call.
+path (`render_figure_to_png` styles before it rasterises), and a plain Lock
+would deadlock the first time a figure was styled and rendered in one call.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -74,11 +74,47 @@ HOW TO KNOW IT WORKED
     `FigureQueue._style_figure` is a thin wrapper over it rather than a
     second implementation.
 
-RE-ENTRANT is load-bearing: `_prepare_for_display` styles a figure inside the
-render path, so a plain Lock would deadlock the first time one figure was
-styled and rendered in a single call.
+RE-ENTRANT is load-bearing: `render_figure_to_png` calls
+`_style_figure_colors` before it rasterises, so a plain Lock would deadlock the
+first time one figure was styled and rendered in a single call.
 
 Covered by tests/test_a_restyle_during_a_run_does_not_crash.py -- four tests,
 including one that renders on one thread while restyling on another over the
 same Figure, and one that greps both call sites, because a lock one side
 forgets is not a lock.
+
+--------------------------------------------------------------------------------
+2026-08-25 - THE LOCK WAS ONE ACCESSOR SHORT: THE DIALOG DRAWS, NOT ONLY
+             RECOLOURS
+--------------------------------------------------------------------------------
+
+Audited against the code rather than against the note above, and the two call
+sites it names are correct but not complete. The GUI thread touches the same
+Figure in two more places, both inside the settings dialog and both while the
+user is moving a control:
+
+    `FigureQueue._render_preview`        `fig.savefig` into a BytesIO, the
+                                        throwaway raster drawn on every change
+    `FigureQueue._render_preview_async`  `pickle.dumps(fig)`, the copy handed
+                                        to the preview worker
+
+Neither took the lock. A draw racing a draw is the same C-layer race as a draw
+racing a recolour -- `pickle.dumps` walks the whole artist tree, so it is a
+read of exactly the state a render is mutating.
+
+AND THE WORKER REALLY IS ON THAT SAME FIGURE, which is what makes this the
+reported bug rather than a theoretical one. `bridge._capture_show` re-renders
+and re-emits any figure carrying `_spacr_live_update` -- the training monitor
+-- for as long as the fit runs, so the figure the dialog holds is the figure a
+worker is rendering. `FigureQueue._rerender_for_size` hands the current figure
+to a worker on every resize for the same reason. The report was "changing the
+background graph colour of the FIRST graph while a model was being trained",
+and the first graph during a fit is the live-update monitor.
+
+Both now take `FIGURE_LOCK`, which is re-entrant and held only for the draw.
+
+tests/test_a_restyle_during_a_run_does_not_crash.py grows from four tests to
+seven. The two new runtime ones are not greps: a second thread holds the lock,
+the preview is driven from a third, and the test asserts the draw does NOT
+begin while the lock is held and DOES once it is released. All three fail
+against the pre-fix code, checked by putting it back.

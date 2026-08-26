@@ -957,6 +957,11 @@ the central library rather than destructively moved out of their owners.
 --------------------------------------------------------------------------------
 
 The API-writer inventory initially reported 153 ``ai_filler`` review prompts.
+(``ai_filler`` is a category emitted by the SKILL's own script --
+``scientific-python-api-writer/scripts/audit_user_facing_text.py:45``, in the
+central library at /mnt/firecuda2/Claude/toxoplasma_projects/skills. It is
+not a spaCR symbol and is not expected in this tree. The guard that IS in
+this tree is ``tests/test_user_facing_docstrings.py``.)
 The exact-text review found that 99 contained ``simply``, 49 contained
 ``robust``, five contained ``easily``, and one contained ``intuitive``; some
 records contained more than one term. These were prompts, not 153 defects.

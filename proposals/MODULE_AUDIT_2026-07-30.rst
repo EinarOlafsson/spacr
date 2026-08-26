@@ -9,7 +9,7 @@ Module audit -- 2026-07-30
    maintainer instead. Moved here 2026-08-12; see instruction 86.
 
    Its recommendation sections ("High-value additions", "GPU opportunities")
-   were cut and preserved in ``instructions/open/86_*`` -- work belongs on
+   were cut and preserved in ``instructions/done/86_*`` -- work belongs on
    the instruction list, not in a reference page.
 
 This page records the repository-wide module audit completed on

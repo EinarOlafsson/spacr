@@ -31,8 +31,8 @@ they do it to:
 with the named examples (remove background, intensity merge/split, minimum
 distance) moving out of the per-object categories into it.
 
-The reason this is worth doing: `cell_remove_background` and
-`nucleus_remove_background` do the SAME THING to different objects. Filed
+The reason this is worth doing: `remove_background_cell` and
+`remove_background_nucleus` do the SAME THING to different objects. Filed
 under two different objects they read as two unrelated knobs; filed under one
 "image preprocessing" heading with an object sub-heading they read as one
 decision applied four times, which is what they are.
@@ -67,9 +67,11 @@ WHAT TO DO
 
 2. Inventory what would move. Every setting that is (i) shared in FORM
    across object classes and (ii) something a user does not touch on a first
-   run. `*_remove_background`, `*_intensity_merge`/`*_split`,
-   `*_minimum_distance` are the named ones; there will be more, and the list
-   belongs in this file with a count.
+   run. `remove_background_*`, `*_intensity_merge`/`*_intensity_split`,
+   `*_min_distance` are the named ones; there will be more, and the list
+   belongs in this file with a count. (The object goes at the END of the
+   remove-background keys and at the FRONT of the other two -- spaCR's own
+   inconsistency, which the family matcher below has to read both ways.)
 
 3. Do not break existing settings CSVs. Moving a key between GUI categories
    must not change its name or its meaning -- the category is presentation.

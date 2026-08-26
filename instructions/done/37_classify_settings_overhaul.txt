@@ -2,10 +2,12 @@
 CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
 ================================================================================
 
-Status:    partially complete. SCOPE REVISED 2026-08-09 -- the classes dict
+Status:    COMPLETE. Header corrected 2026-08-25: it still said "selector
+           redesign remains open" while the file's own closing section says
+           "STILL OPEN IN THIS FILE: nothing" and the two-field chip
+           selector is built. SCOPE REVISED 2026-08-09 -- the classes dict
            is replaced by a simpler editor; see the end of this file. The
-           class/folder-name contract landed 2026-08-12; selector redesign
-           remains open.
+           class/folder-name contract landed 2026-08-12.
 Requested: 2026-08-07
 
 Verbatim, because most of this is precise and the paraphrase would lose it:
@@ -563,6 +565,12 @@ THREE CONSTRAINTS THAT RULE OUT THE OBVIOUS FIX:
      `str(defaults.get('classes', ['nc','pc']))` and `:6183` parses it back
      with `_parse_list_literal`. spaCR ships both front ends, so changing the
      default to a dict breaks the Tk path.
+     VOID SINCE THE TK REMOVAL -- kept because the reasoning below turns on
+     it. `spacr/gui_elements.py` no longer exists, `_parse_list_literal`
+     went with it, and setup.py's console_scripts records that the five Tk
+     launchers are gone and every screen is a tab in the Qt `spacr`. There
+     is no second front end to keep a list shape for. Do not go looking for
+     this symbol; it is history, not a constraint.
   2. `normalize_settings` translates only `if not isinstance(raw, Mapping)`.
      A dict default -- including `{}` -- SKIPS the legacy translation, so a
      default of `{}` would silently mean "no classes" rather than "not set".
@@ -619,6 +627,9 @@ So: make the change, then update every Tk reader in the same commit.
 `gui_elements.py:5879` (the entry's initial value) and `:6183`
 (`_parse_list_literal` on the way back) are the two known ones; grep the
 `gui_*` modules for `classes` before assuming they are the only ones.
+SUPERSEDED: the Tk front end was removed outright, so there are no readers
+left to update. The list that used to live under `classes` is now the
+separate `class_folder_names` key (`spacr/classify_classes.py`).
 
 WHAT MUST STILL HOLD
 
@@ -817,3 +828,22 @@ the class, classify and Tk suites.
 
 STILL OPEN IN THIS FILE: nothing. The shape question was answered 2026-08-12
 and the selector is built.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- AUDITED AGAINST THE CODE. NOTHING OWED.
+--------------------------------------------------------------------------------
+
+Prompted by an audit that flagged `_parse_list_literal` as a symbol this file
+names and the tree does not have. It is not drift in the classify work: the
+symbol lived in `spacr/gui_elements.py`, and the whole Tk front end was
+removed. Both citations above now say so.
+
+Re-run rather than trusted: tests/qt/test_settings_list_editor.py and
+tests/test_class_editor.py -- 114 passed, including
+`test_every_default_round_trips_untouched[classify]`, the assertion this file
+recorded as RED on 2026-08-09. Opening the Classify screen and saving no
+longer rewrites the setting.
+
+`class_folder_names` is present as the list that used to be `classes`
+(`spacr/classify_classes.py:31`); the Tk-only `listy` set that once had to be
+patched alongside it is gone with Tk.
