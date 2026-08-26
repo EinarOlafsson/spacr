@@ -414,8 +414,13 @@ def test_the_ring_features_are_scoped_to_the_three_objects_that_have_them():
 def test_the_correlation_features_are_the_only_channel_pair_ones():
     pairs = {key for key, scope in FEATURE_SCOPE.items()
              if scope.channels == CHANNEL_PAIR}
+    # The corrected Manders trio (corrected_manders) joined the pair family;
+    # every member is still in the correlation family, which is what this
+    # test is really asserting.
     assert pairs == {"Pearson_correlation", "M1_correlation_<t>",
-                     "M2_correlation_<t>"}
+                     "M2_correlation_<t>", "manders_m1", "manders_m2",
+                     "manders_overlap_coefficient"}
+    assert {KNOWN_PROPERTIES[key].family for key in pairs} == {"correlation"}
 
 
 # --------------------------------------------------------------------------

@@ -85,3 +85,37 @@ without saying so.
 
 Instruction 206's multi-select is what makes the well set more than one
 guide's wells.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-26: THE BOX IS OFFERED AND NOTHING READS IT     [OPEN]
+--------------------------------------------------------------------------------
+
+`spacr/well_scope.py` is right and is tested on its own. THE PANEL NEVER
+CALLS IT.
+
+`MeasurementComparePanel.refresh` builds the comparison from `self._objects`
+directly; `scoped_objects()` has no caller anywhere in spaCR outside the
+tests. Driven on a built panel with three cells' worth of well-mates:
+
+    scope=guides   scoped_objects  2 rows   DRAWN comparison  8 rows
+    scope=wells    scoped_objects  6 rows   DRAWN comparison  8 rows
+    scope=all      scoped_objects  8 rows   DRAWN comparison  8 rows
+
+So the three choices are offered and none of them changes the population --
+199's fault exactly: a handler that works and a control that does not reach
+it. `set_selected_guides` and `set_selected_wells` likewise have no caller
+outside the tests, so the volcano selection never reaches this panel and the
+derived well set is neither shown nor narrowable by a user.
+
+WHY IT IS NOT A ONE-LINE FIX, and why it wants a decision rather than a
+patch: pointing `refresh` at `scoped_objects()` makes the panel obey a scope
+whose default is `guides` while nothing ever sets a guide -- so the Compare
+tab would go from drawing everything to drawing nothing. The wiring and the
+default belong together:
+
+  * who calls `set_selected_guides` -- the volcano's `keys_selected` reaches
+    `ResultsTable.select_keys` (206), and the montage view builds this panel
+    with `picked_groups()`, so one of the two is the route;
+  * what the scope defaults to before any guide is chosen;
+  * where the derived well set is SHOWN, since the file's own section B says
+    a set the user cannot see is a set they cannot narrow.

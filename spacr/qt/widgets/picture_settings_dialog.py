@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
                                QLabel, QLineEdit, QSpinBox, QTabWidget,
                                QVBoxLayout, QWidget)
 
+from ...crops import LOAD_IMAGES
 from ...picture_settings import ALL_KEYS, applies_to, categories, why_not
 
 __all__ = ["PictureSettingsDialog", "picture_defaults"]
@@ -238,6 +239,20 @@ class PictureSettingsDialog(QDialog):
         if isinstance(cap, QSpinBox):
             cap.valueChanged.connect(
                 lambda _v: self._say_what_the_cap_costs())
+
+        # AND THE GREYING FOLLOWS THE MODE CHOSEN *HERE*. `crop_source` is one
+        # of the annotator's own controls, so it is a control IN this window
+        # as well as on the toolbar that opened it -- and a mode read once at
+        # build time described the mode the window OPENED on. A user who
+        # switched to streaming here was then told the array and channel
+        # selectors their chosen mode does use were unavailable, with a
+        # reason naming the mode they had just left.
+        source_editor = self._editors.get("crop_source")
+        if isinstance(source_editor, QComboBox):
+            source_editor.currentIndexChanged.connect(
+                lambda _i: self.set_mode(
+                    str(source_editor.currentData()
+                        or source_editor.currentText() or LOAD_IMAGES)))
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
                                    parent=self)

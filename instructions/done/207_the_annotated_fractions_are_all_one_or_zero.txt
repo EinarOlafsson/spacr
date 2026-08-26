@@ -379,3 +379,20 @@ section C above, WHERE THE GUESS IT CORRECTS IS -- `rank` yes, `attributed`
 yes, `assigned` no, `multivariate` yes, `sudoku` yes -- and the maintainer's
 guess about `multivariate` was wrong, because it thresholds at 0.55 like
 `attributed` regardless of the prior.
+
+--------------------------------------------------------------------------------
+RE-AUDITED 2026-08-26: FOUR OF THE FIVE HOLD; THE MEASUREMENT IS MISSING
+--------------------------------------------------------------------------------
+
+Confirmed against the code: `show_all_in_well` defaults True and its help
+says why; `normalise_fraction` defaults True, is documented objectively and
+the per-well note says which denominator was used; the unpicked cells are
+named `Non_annotated` in a real column; and section C settles all five
+pickers in writing.
+
+NOT DONE: the first criterion. "The fraction distribution for 225160 at cell
+level is reported with `show_all_in_well` on and off" asks for a MEASUREMENT
+and this file gives an argument. The argument is a good one and it is not the
+same thing -- the whole point of the criterion is that the comparison costs
+one query and settles whether there was an annotation bug at all. The data is
+on disk (`tsg101_screen`), so this is a job, not an unknown.

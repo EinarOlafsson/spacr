@@ -103,3 +103,66 @@ HOW TO KNOW IT WORKED
 * Re-opening the dialog on a filled field shows those wells blue.
 * The dialog is testable without a human: the drag is a method that takes two
   cells, so a test can select a region and assert the written value.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. THE CLOSING SECTION THE STATUS LINE POINTS AT.
+--------------------------------------------------------------------------------
+
+Recovered after the fact: the status line said "see the closing section" and
+there was none, so what shipped -- and the two places it deliberately differs
+from the checklist -- was recorded only in the code.
+
+THE PARSER IS `spacr/well_spec.py`, one function for every caller. `parse`
+takes `r1, c1, A01` mixed in one string on any of the six layouts
+(`LAYOUTS` = 6, 12, 24, 96, 384, 1536, `DEFAULT_LAYOUT` = 384) and returns
+one-based ``(row, column)`` pairs. `A1`, `A01` and `r1c1` are the same well,
+and the whole vocabulary is case-insensitive. `to_text` is its inverse and
+COLLAPSES: a full row is written `r1`, a full column `c1`, everything else
+listed -- which is the uncertain question this file left open, answered the
+way it proposed.
+
+OUT OF THE LAYOUT IS AN ERROR THAT NAMES THE LAYOUT. `WellSpecError` on
+`H12` against a 24: "'H12' is outside a 24-well plate, which has 4 row(s) and
+6 column(s) (A01 to D06). Choose the layout the plate actually is."
+
+THE DIALOG IS `spacr/qt/widgets/plate_map_picker.py::PlateMapPicker`, with
+Plate / Done / Close at the bottom right and 384 as the layout it opens on.
+It is DRIVEN WITHOUT A HUMAN: `select_region(start, end, choosing=None)`
+takes two cells and does the drag, `begin_drag`/`drag_to`/`finish_drag` are
+the mouse path over the same code, and `selection()` / `set_selection()` /
+`value()` are what a test asserts on. Passing `choosing=None` inverts the
+state of the anchor well, which is the spreadsheet idiom this file proposed.
+
+RE-OPENING IS THE ROUND TRIP. `AppScreen.pick_wells_for` constructs the
+picker on the field's CURRENT text, so the wells already in the field come up
+blue, and Done REPLACES with whatever is blue -- append and replace are the
+same gesture, as proposed. Closing writes nothing and leaves the field
+untouched.
+
+TWO DELIBERATE NARROWINGS, neither of them recorded until now:
+
+  * THE AUDIT IN C LIVES IN THE CODE, not in this file. `well_spec.WELL_SETTINGS`
+    is the audit -- every setting whose documented value MAY contain rows,
+    columns or wells, derived from the setting descriptions rather than from
+    key-name patterns, which is how a generic field like `filter_value` got
+    onto it. It is a list a reader can check, which is what "written down"
+    was asking for.
+
+  * THE BUTTON GOES ON THE WELL-ONLY SUBSET, not on all of them.
+    `WELL_ONLY_SETTINGS` is the settings whose COMPLETE value is a well
+    specification, and it is a strict subset of `WELL_SETTINGS`. The
+    checklist says "every settings field that takes wells has the button";
+    that is not what shipped, and the reason is that Done REPLACES the whole
+    field. On a mixed-vocabulary field -- one that may hold a well OR a gene
+    OR a treatment name -- replacing the value with the picker's answer
+    throws away whatever else was in it. A button that silently discards the
+    user's typing is worse than no button, which is the same argument this
+    file makes for not putting one next to only some fields, applied one
+    level down. 221 later added the three control blocks to both lists, and
+    the subset relation is what caught them being added to one and not the
+    other.
+
+Tests: `tests/test_wells_are_picked_off_a_plate_map.py`,
+`tests/test_cov_3_well_spec.py`, and
+`tests/qt/test_the_plate_map_button_is_on_the_panel.py`, which drives the
+button on the panel rather than the picker on its own.

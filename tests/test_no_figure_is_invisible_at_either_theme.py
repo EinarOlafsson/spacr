@@ -12,8 +12,14 @@ text follows the theme (so on the dark theme it was white on white), and a
 
 WHAT IS ALLOWED IS NAMED, NOT COUNTED. Text drawn ON a microscopy image is
 white because the image is dark, and that has nothing to do with the theme; a
-Tk widget is not a figure at all. A bare number would be satisfied by deleting
-a figure, and would not say which colours were the deliberate ones.
+contact sheet is a black page on purpose. A bare number would be satisfied by
+deleting a figure, and would not say which colours were the deliberate ones.
+
+AN EXCEPTION MUST STILL EXIST. `test_every_exception_still_exists` is what
+keeps this list honest, and it is the reason the two Tk entries are gone: the
+Tk front end was deleted, so `gui_core.py` and `gui_elements.py` hold no ink
+at all any more and the allowance for them was describing files that are not
+there.
 """
 from __future__ import annotations
 
@@ -45,8 +51,6 @@ ALLOWED = {
     "utils.py": (4, "predicted-class labels drawn ON the image they "
                     "describe"),
     "measure.py": (2, "a black figure ground behind image panels"),
-    "gui_core.py": (1, "a Tk console text tag, not a figure at all"),
-    "gui_elements.py": (1, "a Tk widget stylesheet, not a figure at all"),
     "qt/annotate_engine.py": (1, "drawn onto the annotated microscopy image itself, not onto the page"),
     "qt/widgets/motility_preview.py": (1, "an overlay drawn onto a video frame, not onto a figure"),
 }

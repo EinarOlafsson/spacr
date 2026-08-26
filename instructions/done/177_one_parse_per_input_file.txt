@@ -23,10 +23,14 @@ is re-reading that file out of the page cache. Four times: regression on a
 measurement column writes the merged frame to one CSV and points EVERY pair
 row's score at it, and `load_regression_input_pairs` parsed it once per row.
 
-FIXED: each distinct path is parsed once and handed out as a copy -- a copy
-because the caller assigns `plateID` onto what it gets and filters it down to
-one plate, so sharing the frame would let the first pair row's edits reach the
-second. Eight `read_table` calls become five on a four-plate screen.
+FIXED: each distinct path is parsed once and the cached frame is handed out
+directly. The copy is taken at the ONE place that mutates -- stamping `plateID`
+onto a file that names no plate -- because sharing the frame would otherwise
+let the first pair row's edit reach the second, while the filtering branches
+build new frames of their own and cannot reach the cache. (An earlier revision
+copied on every hand-out; four copies of a 2.75 GB frame is eleven gigabytes of
+allocation for a mutation that happens on one branch.) Eight `read_table` calls
+become five on a four-plate screen.
 
 AND THE LARGER HALF, THE INTERMEDIATE ITSELF: the frame is ALREADY IN MEMORY
 when it is written, and writing it took 160 seconds before anything read it
@@ -93,8 +97,9 @@ the form they can be checked in:
 
   * Four pair rows pointing at ONE merged file cost ONE parse, not four --
     `ml.load_regression_input_pairs` asks `frame_handoff.held(path)` before it
-    reads, keys its cache on the distinct path, and hands each row a COPY, so
-    one row stamping `plateID` cannot reach the next.
+    reads, and keys its cache on the distinct path. It copies where it
+    mutates rather than on every hand-out, so one row stamping `plateID`
+    cannot reach the next without paying for a copy per row.
   * A reader that was offered nothing reads the file exactly as before, so a
     headless run with no producer in the process is unchanged.
   * The offer is a WEAK reference: dropping the producer's frame must not be

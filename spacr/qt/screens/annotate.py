@@ -863,6 +863,40 @@ class _SettingsDialog(QDialog):
         self._img_size.setValue(settings.image_size[0])
         form.addRow("Image size (px)", self._img_size)
 
+        # WHERE THE PICTURE COMES FROM, offered rather than inferred.
+        # The setting has always existed and was never asked about: it
+        # shipped 'auto', which takes the exported crops whenever a `data/`
+        # folder is there, so a screen holding both folders could not be
+        # told to read the arrays without editing a settings file.
+        #
+        # The two modes are named the same way every other spaCR panel names
+        # them, and the STORED values stay 'png' and 'merged' -- no settings
+        # file written before this changes meaning. 'auto' is retired from
+        # the panel and not from the code: it answers "what is available
+        # here", which is not an answer to which mode a user wants.
+        from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
+                              STREAM_IMAGES_LABEL)
+
+        self._crop_source = QComboBox()
+        self._crop_source.addItem(
+            f"{LOAD_IMAGES_LABEL} \u2014 crops already in data/", LOAD_IMAGES)
+        self._crop_source.addItem(
+            f"{STREAM_IMAGES_LABEL} \u2014 cut from merged/*.npy",
+            STREAM_IMAGES)
+        self._crop_source.setToolTip(
+            "LOAD IMAGES reads the crops the measure step exported under "
+            "data/. STREAM IMAGES cuts them out of merged/*.npy as the page "
+            "is drawn, which needs no export. Either mode falls back to the "
+            "other when its folder is missing, and says which route drew.")
+        stored = str(getattr(settings, "crop_source", "") or "").strip().lower()
+        # EVERY SPELLING THIS SETTING HAS EVER CARRIED resolves here, so a
+        # settings file written under any of them opens on the mode it named
+        # rather than on whatever happened to be last in the list.
+        self._crop_source.setCurrentIndex(
+            1 if stored in ("merged", "stream", "stream_images", "on_demand")
+            else 0)
+        form.addRow("Image source", self._crop_source)
+
         self._image_type = QLineEdit(settings.image_type or "")
         self._image_type.setPlaceholderText("e.g. cell (blank = all types)")
         form.addRow("Image type filter", self._image_type)
@@ -1184,6 +1218,7 @@ class _SettingsDialog(QDialog):
         s.annotation_column = self._ann_col.text().strip() or "annotate"
         size = int(self._img_size.value())
         s.image_size = (size, size)
+        s.crop_source = str(self._crop_source.currentData() or "png")
         s.image_type = self._image_type.text().strip() or None
         s.channels = _csv_to_list(self._channels.text())
         s.stored_channel_order = str(

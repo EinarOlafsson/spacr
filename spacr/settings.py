@@ -1104,6 +1104,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
     settings.setdefault('spatial_measurements', False)
+    # The radius is part of the COLUMN NAME (neighbors_within_50), so it
+    # is declared rather than read raw from the dict: an undeclared key
+    # has no widget and is refused by check_settings, which would leave
+    # the neighbourhood size settable only by editing the source.
+    settings.setdefault('spatial_neighbor_radius', 50)
     # EVERY DISTANCE WORTH MEASURING, off by default for the same
     # reason: it is real time on a 3-D field.
     settings.setdefault('object_distances', False)
@@ -3079,6 +3084,7 @@ expected_types = {
     "test_nr": int,
     "radial_dist": bool,
     "spatial_measurements": bool,
+    "spatial_neighbor_radius": int,
     "corrected_manders": bool,
     "calculate_correlation": bool,
     "manders_thresholds": list,
@@ -4251,6 +4257,7 @@ tooltips = {
     "positive_control": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run the image-preparation stage before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into float arrays. Leave True on a fresh run; set False only when those normalized arrays already exist, otherwise segmentation has nothing to read. Default True.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: how many neighbours lie within a radius, the first and second nearest-neighbour distances, and what fraction of its border touches another object. Local density is the dominant confounder in image screens - crowded cells are smaller, dimmer and cell-cycle-shifted - and without these there is no per-object column to regress it out. Not produced for cytoplasm, which is one object per cell by construction. Costs one KD-tree and one boundary pass per field, not per object. Default False.",
+    "spatial_neighbor_radius": "(int) - Radius of the neighbourhood spatial_measurements counts objects in. Quoted in the units of the row's measurement_units stamp: pixels in a 2-D run, micrometres in a 3-D run that knew its voxel size. The value is baked into the column name (neighbors_within_50), so two plates measured at different radii produce different columns and will not concatenate - pick one radius for a screen and keep it. Ignored unless spatial_measurements is on. Default 50.",
     "corrected_manders": "(bool) - Add the CORRECT Manders coefficients (manders_m1, manders_m2, manders_overlap_coefficient) alongside the existing M1_correlation_* columns, which are not Manders' coefficients despite their name and are deprecated. The old columns are left untouched so plates measured before and after this setting still agree; read the new ones. Default False.",
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
@@ -4882,7 +4889,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "corrected_manders", "spatial_measurements", "spatial_neighbor_radius", "manders_thresholds", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     # The flat-field correction Measure applies before it measures anything.
     # One heading, not the four the Illumination screen splits them across:

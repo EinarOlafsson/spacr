@@ -608,7 +608,8 @@ class DoseResponseResult:
     hiding it would only make people re-derive it; the name says what it is.
 
     :param group: the level this curve belongs to, or ``""``.
-    :param bottom: smaller plateau. :param top: larger plateau.
+    :param bottom: smaller plateau.
+    :param top: larger plateau.
     :param log10_ec50: the fitted parameter. Always finite when the fit
         converged, whether or not it is inside the tested range.
     :param hill: slope; negative for inhibition, positive for activation.
@@ -641,7 +642,8 @@ class DoseResponseResult:
         error, or ``None`` when the design cannot support it.
     :param lack_of_fit_df: ``(numerator, denominator)`` df of that test.
     :param covariance: the 4×4 matrix, or ``None`` when it could not be
-        estimated. :param covariance_ok: whether it is finite and usable.
+        estimated.
+    :param covariance_ok: whether it is finite and usable.
     :param optimizer_notes: every warning scipy raised during the fit,
         captured rather than allowed to escape — an
         ``OptimizeWarning: Covariance of the parameters could not be

@@ -115,9 +115,21 @@ HOW TO KNOW IT WORKED
   against an attribution made FROM the recruitment score is circular and the
   maintainer said so. `pathogen_area` is not: attribute on `pred`, then ask
   whether cells attributed to a pathway guide differ in `pathogen_area` from
-  cells attributed to controls IN THE SAME WELL. Same well removes plate and
-  well batch entirely, and it is a contrast the well-level fraction can never
-  make.
+  cells attributed to OTHER GENES IN THE SAME WELL. Same well removes plate
+  and well batch entirely, and it is a contrast the well-level fraction can
+  never make.
+
+  AS FIRST WRITTEN THIS SAID "cells attributed to controls in the same well",
+  AND THAT VERSION IS UNRUNNABLE BY CONSTRUCTION -- kept here because the
+  reason is the point. A non-targeting control has no effect to attribute on,
+  so its likelihood is flat by design and it can never win the posterior; on
+  the reference screen exactly ONE well of 1,536 had both a gene and a control
+  attributed, and lowering the threshold does not rescue it because the limit
+  is not abundance. A method that confidently attributed cells to a
+  non-targeting control would be inventing the structure this module exists to
+  avoid. The per-gene contrast is the same design with a comparator that can
+  actually be attributed; the measured run is in the 2026-08-20 validation
+  section below.
 * HELD-OUT PLATES: estimate the effects on three plates, attribute the fourth.
 * Two guides with identical effects come back at exactly pi_1 : pi_2 for every
   cell -- flat, ambiguous, and correct. The data cannot separate them and the
@@ -361,3 +373,8 @@ the values are replaced.
 16 tests. Everything 173 asked for has now shipped: the model, option C, the
 three validations on the real screen, the pre-flight wired into the caption,
 and this.
+
+AND THE LAST OUTSTANDING ITEM -- "validation 2 as written should be replaced
+in this instruction" -- IS DONE IN THE HOW TO KNOW SECTION ABOVE. The
+comparator is other genes in the same well, not controls, and the original
+wording is kept there with the reason it cannot be run.
