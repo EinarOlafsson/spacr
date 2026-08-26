@@ -2,19 +2,10 @@
 GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
 ================================================================================
 
-Status:    OPEN on item 7 only. Items 1 to 6 are done.
-           Requested 2026-08-23; items 1 and 3 had been asked for
-           repeatedly before that.
-
-  1. "Graph type" is on the right-click menu of every plot, installed at
-     the one seam both back ends pass through.
-  2. The cell tab draws a decided number of cells per row and does not
-     reflow when the panel is resized.
-  3. One crop, whatever cut it -- see the note under that heading.
-  4. The measurement join runs on a worker with progress and a cancel.
-  5. The object_label disagreement warning no longer fires on a healthy
-     screen: the join key is not a measurement, so it is not compared.
-  6. The joined measurement columns are selectable under Compare.
+Status:    DONE. Items 1 to 6 were already closed; item 7, the UniProt
+           organism list, resolves all of it -- the table carries 109
+           organisms and every host, apicomplexan and other parasite the
+           item names resolves by name or by taxon id.
 Owner:     Regression results, the measurements/cell tab, crops.
 
 --------------------------------------------------------------------------------
