@@ -128,8 +128,18 @@ def _torchvision_model_names():
 #: takes the ordinary path, so no module's existing widget changes shape.
 _VALUE_SPECIAL_CASES = {
     'level': (
+        # NAMED FOR WHAT THEY PRODUCE. 'grna'/'gene'/'both' are the keys the
+        # settings file and the API have always used and they do not change;
+        # what changes is that the panel says which analysis each one asks
+        # for, so a reader who wants gene effects can find them without
+        # knowing that `level` is the control that gives them.
         (('both', 'grna', 'gene'),
-         ('combo', ['both', 'grna', 'gene'], 'both')),
+         ('combo', [('both', 'both — gRNA and gene effects, each corrected '
+                             'as its own family'),
+                    ('grna', 'gRNA effects — one estimate per guide'),
+                    ('gene', 'gene effects — one estimate per gene, its '
+                             'guides pooled')],
+          'both')),
         (('object', 'well', 'plate'),
          ('combo', ['object', 'well', 'plate'], 'object')),
     ),
