@@ -2,21 +2,24 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open. Re-triaged from run 32886221114 / 32886220828 /
-           32886220809 -- a push, not a re-run -- and every failure below
-           was reproduced locally before anything was changed.
-             compat-matrix  GREEN, whole workflow.
-             tests          Lint, Network, GPU, NAS, Slow and Integration
-                            are green. Fast and Minimum dependencies each
-                            had exactly ONE failure and it was the same
-                            test; that is fixed. Both Qt shards are red:
-                            shard 0 on app-registry drift, shard 1 on a
-                            single wedged test, which is NOT the same hang
-                            as before and is diagnosed below.
-             docs           red, still on the two layers below. The second
-                            layer has grown from 66 stale symbols to 325
-                            and grows with every docstring edited, so it
-                            can only be settled from a finished tree.
+Status:    open, 82%. Re-triaged from run 32907403895 / 32907403724 /
+           32907403685 -- a push of commit f0ac3b28, not a re-run -- and
+           every failure below was reproduced locally before anything was
+           changed.
+             compat-matrix  GREEN, all sixteen cells including macOS
+                            arm64 and Windows.
+             tests          Lint, NAS, Network, Integration, Slow and GPU
+                            green. Fast and Minimum dependencies have ONE
+                            failure each and it is the same test both
+                            times: the public API surface ratchet. Qt
+                            shard 0 has 27 failures, shard 1 has 15 --
+                            and shard 1 RAN TO A SUMMARY in 30m39s. The
+                            hang is gone; the per-test timeout added last
+                            session is what closed it.
+             docs           red BEFORE it reaches either of the two layers
+                            named below, on a third that is new: six
+                            reviewed RUNTIME records name settings the
+                            registry no longer has.
            See WHERE THE RUNS STAND at the end of this file.
 Requested: 2026-08-08 - "fix the failing GitHub tests."
 
@@ -668,22 +671,242 @@ docs has been red on every push for days. It is settled LAST, from a
 finished tree, not now.
 
 --------------------------------------------------------------------------------
+2026-08-25 (later) - THE HANG IS GONE, AND WHAT IS LEFT IS FOUR THINGS
+--------------------------------------------------------------------------------
+
+Re-triaged from a fresh push rather than from the list above, because that
+list was three commits old and most of it had already been fixed by other
+work. Six of the ten jobs in `tests` are green, compat-matrix is green in
+all sixteen cells, and what remains is four causes, not forty failures.
+
+THE QT SHARD RAN TO A SUMMARY. Shard 1 finished in 30 minutes 39 seconds
+with `15 failed, 5093 passed`. The 120-minute silent kill is closed: the
+`per_test_timeout_seconds` input and `--max-worker-restart=0` added to
+.github/workflows/_pytest-suite.yml last session are what did it, and this
+is the run that proves it rather than the argument that predicted it.
+
+1. THE PUBLIC API RATCHET, and it is the ONLY thing red in Fast and in
+   Minimum dependencies. Both jobs report exactly one failure and it is the
+   same test:
+
+       tests/test_api_i18n_extractor.py
+           ::test_public_docstrings_matches_reviewed_visible_coverage
+       the public API surface is 8246, reviewed at 8190 (+56)
+
+   NOT MOVED HERE. The ratchet's own comment states the terms -- an
+   addition must bump the count, NAME what it admitted, and regenerate the
+   target catalogs -- and a number moved without the regeneration is a
+   rubber stamp that also leaves 62 symbols missing from every localized
+   API page. Measured rather than guessed: `public_docstrings()` was run in
+   a `git archive` of bba9d681, the commit 8190 was taken on, and
+   subtracted from the same expression at f0ac3b28.
+
+   ADMITTED, 62, by module:
+
+       11  spacr.organelle_types
+        7  spacr.qt.screens.make_masks (+3 on MakeMasksScreen)
+        6  spacr.qt.wand_rescue
+        6  spacr.qt.screens.activation (+1 on ExplainNavigator)
+        5  spacr.qt.screens.settings_model (+1 on SettingsWidgets)
+        3  spacr.qt.screens.app_screen (+4 on AppScreen)
+        3  spacr.qt.mask_engine
+        2  spacr.qt.widgets.fold_strip (+1 on FoldButton)
+        1  each: spacr.qt, spacr.qt.chaining, spacr.qt.i18n,
+                 spacr.qt.preview_registry, spacr.qt.screens,
+                 spacr.qt.screens.mask, spacr.qt.app.MainWindow,
+                 spacr.qt.curation_tool.BrushPanel,
+                 spacr.qt.widgets.live_preview.LivePreviewPanel
+
+   RETIRED, 6:
+
+       spacr.anndata_export.register_anndata_app
+       spacr.qt.screens.explain_cv, and its `register`
+       spacr.qt.screens.image_scatter.register
+       spacr.qt.screens.pca.register
+       spacr.qt.screens.volcano.register
+
+   The same regeneration settles docs layer 2 below. One root cause, two
+   red workflows.
+
+2. DOCS HAS A THIRD LAYER, IN FRONT OF THE OTHER TWO. The audit no longer
+   reaches the five API records: it dies first on
+
+       ValueError: stale reviewed runtime source
+       setting_tooltips/anndata_nan_policy:
+       docs/i18n/reviewed/runtime/sv/2026-08-14-exact-final.json
+
+   `reviewed_runtime_translations` is a hard error on drift and aborts at
+   the FIRST bad record, so the message names one of six. All six were
+   enumerated by walking the 323 runtime records with the loader's own
+   checks; every one of them is a setting key the registry has DROPPED,
+   which makes them obsolete rather than repairable:
+
+       es/2026-08-15-model-explanation.json   setting_tooltips/explain_cv
+       fr/2026-08-15-model-explanation.json   setting_tooltips/explain_cv
+       pt/2026-08-15-model-explanation.json   setting_tooltips/explain_cv
+       is/2026-08-14-exact-final.json         setting_tooltips/anndata_out
+       ko/2026-08-14-tooltip-000-019.json     setting_tooltips/anndata_nan_policy
+       sv/2026-08-14-exact-final.json         setting_tooltips/anndata_nan_policy
+
+   They fell out of `spacr.anndata_export.register_anndata_app` and
+   `spacr.qt.screens.explain_cv` being retired -- the same six retirements
+   the ratchet in (1) counts. Delete the six RECORDS, not the files: four
+   of the six files carry other records that are still exact.
+
+   WITH THEM GONE the audit reaches layer 1, and layer 1 is unchanged and
+   still exactly five records -- re-enumerated across all 1425 reviewed API
+   records, the same five this file already lists. Behind those, layer 2 is
+   67 stale symbols, not the 325 recorded above: the manifest was
+   regenerated in the meantime and only the newest docstrings are adrift.
+   Measured by running the audit with the eleven obsolete records filtered
+   out in-process, so the number is the real remainder rather than an
+   estimate.
+
+   This was ONE Qt failure as well:
+   tests/qt/test_external_i18n_catalogs.py
+       ::test_runtime_source_inventory_is_stable_after_runctx_import
+   raises the identical ValueError.
+
+3. WHAT THE QT SHARDS ARE ACTUALLY RED ON. 42 failures across the two
+   shards, and ten of the shard-1 failures listed by CI now PASS on the
+   current tree -- the plate-viewer grid (9) and the mask module smoke
+   test -- because the work that broke them was fixed while this triage
+   ran. That is the fourth time this file has recorded that a triage is
+   only worth the commit it was taken on.
+
+   Fixed here, all three the same shape -- an inventory in a test that the
+   product had moved past:
+
+     tests/qt/test_dnd_handlers_full.py    "regression" now answers with
+         RegressionDropHandler, which is a MeasurementsDropHandler that
+         also takes the parameter sweep's two CSV lists. The table asserts
+         exact type, so the subclass is not the same answer.
+     tests/qt/test_hyperparam_screen.py    APP_PARAMS grew classify_merged
+         -- the merged classifier screen is the only door left to the
+         cross-validated search. The set is enumerated, and the new key is
+         now driven through `searchable` rather than only counted.
+     tests/qt/test_home_layout.py          the widest-name check named
+         three tiles by hand and one of them, "Annotator Agreement", is no
+         longer a tile at all; it is a strip on the Annotate masthead. It
+         now measures EVERY visible tile, which is the contract its own
+         docstring states and cannot go stale when a module is folded.
+
+   NOT fixed here, and each one belongs to work that is still in flight:
+
+     illumination folded but not finished        7 in
+         test_the_straightforward_folds.py, 3 in test_registration_seams.py
+         and 1 in test_app_maturity.py all say the same thing: the module
+         is promoted in the maturity table and expected as a fold, but is
+         neither registered nor folded into a host. `activation` is half
+         way through the same move -- folded, and still drawing a tile.
+     the home app-count ratchet                  33 apps carry a staged
+         colour where test_home_layout.py pins 47. NOT MOVED: it is a
+         claim about what the user sees. It is not a stage-colour bug --
+         48 apps register and 15 are stable -- it is the registry
+         consolidation, and whoever consolidated has to re-narrate it.
+     docs/source/index.rst                       two tests in
+         test_help_menu_tutorial_link.py read the app and category counts
+         out of the landing page and the sentences are no longer there.
+     the setup slide inventory is EMPTY          three tests in
+         test_the_setup_asks_about_the_animation.py assert against `[]`,
+         so it is not the animation question that is missing, it is every
+         slide.
+     Ctrl+End is on the cheat sheet, unbound     test_shortcut_overlay.py.
+     the compare panel's unreadable-database note now reports "Only 2
+         measurement(s)" instead of saying it could not read the database,
+         which means an unreadable file is being reported as a two-column
+         crop table.
+     the results header does not wrap            one row where two are
+         needed, test_the_results_header_wraps_instead_of_overlapping.py.
+
+4. TWO PRODUCT DEFECTS FOUND WHILE REPRODUCING, both in
+   spacr/qt/settings_search.py and neither of them a test problem.
+
+   THE SEARCH STRIP MAKES ITS SCREEN CRASH WHEN IT IS DESTROYED. Minimal,
+   deterministic, and nothing to do with Cellpose:
+
+       app = QApplication([])
+       screen = AppScreen("mask")          # any key: measure, classify...
+       spacr.qt.settings_search.install(screen)
+       screen.deleteLater()
+       QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+       # SIGSEGV
+
+   Without the `install` line the same screen is destroyed cleanly. Under
+   gdb the crash is `Shiboken::BindingManager::releaseWrapper` inside
+   `QObjectPrivate::deleteChildren()` -- a wrapper released twice, which
+   points at `install` reparenting the screen's own `_settings_scroll` out
+   of the splitter and into a container while the screen keeps holding it.
+   This is what takes tests/qt/test_cellpose_workbench.py down: the test
+   BODY passes and the process dies afterwards, which xdist reports as a
+   failed test with no message.
+
+   "ALL SETTINGS" NO LONGER RESTORES EVERY ROW. On the mask screen the
+   strip indexes 350 keys and shows 333 at the ALL level. The seventeen it
+   cannot restore are the whole z-stack and t-stack groups -- z_stack,
+   z_segmentation_mode, z_axis, z_projection, anisotropy, voxel_size_z_um,
+   voxel_size_xy_um, stitch_threshold, t_stack, t_axis_order, t_axis,
+   frame_interval_s, t_track_backend, t_link_threshold,
+   t_max_displacement_px, t_max_displacement_um, t_project_for_tracking.
+   `z_stack` and `t_stack` are the master toggles that would turn their
+   own groups on, so an applicability rule is hiding the control that
+   satisfies it. Two tests in tests/qt/test_settings_search.py say so.
+
+5. FAST AND MINIMUM DEPENDENCIES RUN 19 BATCHES OF 54, AND THAT IS THE
+   BIGGEST THING BETWEEN THIS FILE AND GREEN.
+
+   Both jobs run `tools/run_pytest_batches.py`, which splits the file list
+   into fresh pytest processes to keep resident memory under the runner's
+   limit. It returns as soon as one batch fails:
+
+       if result.returncode not in (0, NO_TESTS_COLLECTED):
+           return int(result.returncode)
+
+   The log says so plainly once you look for it -- `pytest batch 19/54` is
+   the last line either job printed. The failing test,
+   tests/test_api_i18n_extractor.py, is IN batch 19. Thirty-five batches,
+   about two thirds of the fast partition, were never executed.
+
+   So "Fast has one failure" is not a measurement, it is a floor. Proof
+   rather than inference: tests/test_instruction_index.py sits in batch 39
+   and had THREE failures on this very commit -- instruction files 245, 246
+   and 247 were filed and 244 finished without `00_INDEX.txt` being
+   regenerated, and the index has been stale in the tree since bdc60f66
+   with CI silent about it the whole time. Regenerating the index is part
+   of this change; the reason CI never said so is not.
+
+   This is also why every push produces a DIFFERENT red list: fixing the
+   test that stops batch N reveals batch N+1, one commit at a time, and a
+   triage taken from such a run describes a prefix of the suite rather than
+   the suite.
+
+   THE FIX, which is two lines in a file this instruction does not own:
+   give `run_pytest_batches.py` a `--keep-going` flag -- default OFF so no
+   existing caller changes -- that records the worst exit status instead of
+   returning on it, and pass `--keep-going` from the `fast` and
+   `minimum-dependencies` steps in .github/workflows/tests.yml. A job that
+   stops at the first failure cannot answer the question this instruction
+   exists to answer.
+
+--------------------------------------------------------------------------------
 WHERE THE RUNS STAND
 --------------------------------------------------------------------------------
 
-  compat-matrix   GREEN, whole workflow.
-  tests           Lint, Network, GPU, NAS, Slow, Integration green.
-                  Fast and Minimum dependencies: one failure each, same
-                  test, fixed above.
-                  Qt shard 0: 26 failures + 3 errors, almost all app
-                  registry drift (`cellpose_masks`, `train_cellpose`,
-                  `parameter_sweep`, `motility`, `timelapse`), plus the
-                  setup animation slide, the shortcut cheat sheet, the
-                  compare-panel note and the i18n inventories. Not this
-                  instruction's to settle.
-                  Qt shard 1: killed by its own timeout on one wedged test.
-                  Diagnosed above; the shard will now name it instead.
-  docs            red, on the two layers above.
+  Measured on run 32907403895 / 32907403724 / 32907403685, commit f0ac3b28.
+
+  compat-matrix   GREEN, whole workflow, all sixteen cells.
+  tests           Lint, NAS, Network, Integration, Slow, GPU green.
+                  Fast, Minimum dependencies: 1 failure each, the SAME
+                  test -- the public API surface ratchet, +56. Not moved
+                  here; what it admitted and retired is enumerated under
+                  (1) of the 2026-08-25 (later) section above. READ THAT
+                  "1" AS A FLOOR: both jobs stop at batch 19 of 54, so 35
+                  batches were never run. See (5).
+                  Qt shard 0: 27 failures, 7826 passed, 1h07m.
+                  Qt shard 1: 15 failures, 5093 passed, 30m39s -- and a
+                  summary, which is the whole point of the timeout.
+  docs            red on a THIRD layer in front of the two: six reviewed
+                  runtime records for settings the registry has dropped.
 
 HOW TO MEASURE THE RETAINED TREE, so the next reader does not rebuild it
 

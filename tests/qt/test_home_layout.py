@@ -447,12 +447,25 @@ def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
             continue        # a tile on a tab that is not the current one
         assert floor <= tile.width() <= cap, (
             f"{name} is {tile.width()} px wide, outside {floor}..{cap}")
-    for name in ("Mask", "Annotator Agreement", "Format Converter"):
+    # Measured over every visible tile rather than over three names typed
+    # in here. A hard-coded trio pins whichever names were widest the day
+    # it was written, and it stops measuring anything at all the moment
+    # one of them is folded into another module -- which is what happened
+    # to "Annotator Agreement", now a strip on the Annotate masthead and
+    # no longer a tile at all. The widest name is whichever the registry
+    # currently offers, so the test asks the registry.
+    widest = max(
+        visible,
+        key=lambda n: QFontMetrics(tiles[n].name_label.font())
+        .horizontalAdvance(n),
+    )
+    for name in visible:
         label = tiles[name].name_label
         needed = QFontMetrics(label.font()).horizontalAdvance(name)
         assert needed <= label.available_text_width(), (
             f"{name!r} needs {needed} px and the tile gives it "
-            f"{label.available_text_width()} px")
+            f"{label.available_text_width()} px"
+            + (" (it is the widest name on the page)" if name == widest else ""))
 
 
 # ---------------------------------------------------------------------------

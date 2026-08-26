@@ -465,6 +465,21 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
     index = pages.indexOf(screen)
     if index < 0:
         index = pages.addTab(screen, title)
+    # THE MODULE'S OWN MARK ON ITS TAB. A folded module gave up its tile,
+    # and the icon is the thing a user already associates with it -- so a
+    # page carrying only a title asks them to re-learn a name for
+    # something they could recognise at a glance. The key is taken from
+    # the screen itself, so a page opened by any host is marked the same.
+    key = str(getattr(screen, "app_key", "") or "")
+    if key:
+        try:
+            from .. import iconset
+
+            icon = iconset.app_icon(key)
+            if icon is not None and not icon.isNull():
+                pages.setTabIcon(index, icon)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("no mark for the %s page", key, exc_info=True)
     pages.setCurrentIndex(index)
     return screen
 

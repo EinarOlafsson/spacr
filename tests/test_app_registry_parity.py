@@ -97,6 +97,11 @@ HEADLESS_ONLY = {
 # side: "missing from APPS" must always come with a reason somebody wrote
 # down, or a genuinely unwired module hides behind the exception.
 FOLDED = {
+    "activation": "a button on the Classify masthead that opens the "
+                  "activation-map workbench as a page beside the training "
+                  "settings -- an activation map is a view of what a "
+                  "trained classifier looked at, which is Classify's own "
+                  "output (spacr.qt.screens.classify)",
     "illumination": "nine settings on the Measure panel rather than a "
                     "button, because the flat-field correction is applied "
                     "BEFORE any intensity feature is computed -- it has to "
