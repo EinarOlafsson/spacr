@@ -178,6 +178,7 @@ entirely.
 """
 from __future__ import annotations
 
+import logging
 import math
 import random
 import threading
@@ -195,6 +196,8 @@ from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
