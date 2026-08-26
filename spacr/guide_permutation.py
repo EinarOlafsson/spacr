@@ -230,6 +230,84 @@ def guide_freedman_lane_test(
 ) -> pd.DataFrame:
     """Test marginal guide associations across one or more support families.
 
+    THE METHOD, IN FULL
+    -------------------
+
+    Let ``n`` be the number of wells and ``G`` the number of guides. For well
+    ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read
+    fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for
+    the block (normally ``plateID``) and for each column in
+    ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A
+    rank-deficient ``Z`` is REFUSED rather than pseudo-inverted, because a
+    nuisance basis that cannot be inverted is a design question, not a
+    numerical one.
+
+    **1. Projection.** ``Z = QR`` (reduced QR), and ``Q`` is the orthonormal
+    basis. Residualising is ``M = I - QQ'``, the projection onto the
+    orthogonal complement of ``Z``::
+
+        x~_g = M x_g        y^ = QQ'y        y~ = y - y^ = My
+
+    QR rather than ``(Z'Z)^-1`` because the indicator design a plate layout
+    produces is close to collinear and the normal equations lose precision
+    on it.
+
+    **2. The statistic.** For each guide::
+
+        t_g = (x~_g . y~) / (||x~_g|| ||y~||)
+
+    the cosine between the two residualised vectors -- that is, the PARTIAL
+    CORRELATION of ``x_g`` and ``y`` given ``Z``. It is scale-free in both
+    arguments, so guides are directly comparable without standardisation. A
+    zero-norm residual on either side is refused by name rather than
+    returned as a zero correlation.
+
+    With ``statistic='rank'`` the phenotype is ranked (average ranks for
+    ties) BEFORE the projection, so ``M`` removes the block from the RANKS
+    and ``t_g`` is a Spearman-type partial correlation.
+
+    **3. Freedman--Lane.** For permutation ``b``, with ``P_b`` shuffling rows
+    only WITHIN a block::
+
+        y_b  = y^ + P_b y~        y~_b = M y_b
+        t_g_b = (x~_g . y~_b) / (||x~_g|| ||y~_b||)
+
+    Three things this does that a naive shuffle does not. The nuisance fit
+    is added back before re-projecting, so the reference distribution is
+    "no guide effect GIVEN Z" rather than "no structure at all". The
+    denominator is recomputed per permutation, because ``M P_b y~`` does not
+    preserve norm and a fixed one would let the null drift with the shuffle.
+    And the shuffle is confined to a block, because permuting across plates
+    would let a plate effect leak into the null and inflate significance.
+
+    **4. The P value.** Two-sided, by absolute value::
+
+        p_g = (1 + #{b : |t_g_b| >= |t_g| - eps}) / (B + 1)
+
+    The ``+1`` in both places is not a fudge: including the observed
+    configuration in its own reference set is what makes the test EXACT,
+    giving ``P(p <= alpha) <= alpha`` under the null for any ``B``. It also
+    sets a floor of ``1 / (B + 1)`` -- with the default 200,000
+    permutations, 5e-06. A guide at the floor is one no permutation reached,
+    and guides there cannot be ranked against each other; raising ``B`` is
+    the only remedy and costs linearly. The ``eps`` keeps a permutation that
+    reproduces the observed statistic exactly from failing its own ``>=``.
+
+    Permutations run in batches of ``batch_size`` so an ``n x batch_size``
+    block is materialised instead of ``n x B``. Exceedances accumulate
+    across batches; the result is identical and the memory is bounded.
+
+    **What it assumes.** Exchangeability of ``y~`` within a block under the
+    null. Structure inside a plate that ``Z`` does not capture -- an edge
+    effect ``rowID``/``columnID`` misses, a batch within a plate -- breaks
+    it, and the P values are then anti-conservative.
+
+    **What it does not give.** A conditional coefficient. Each guide is
+    tested alone, so two guides in one well both take credit and the test
+    cannot apportion the effect between them. That is the price of having no
+    rank requirement: guides may outnumber wells here, and may not in a
+    model that fits them all at once.
+
     Permutation P values are computed once for every guide satisfying the
     smallest requested support threshold.  For each displayed threshold, the
     eligible subset is then corrected as its own multiple-testing family.
