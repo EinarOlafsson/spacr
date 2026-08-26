@@ -109,11 +109,24 @@ def main(argv: Sequence[str] | None = None) -> int:
             # the job exits with, so the signal is unchanged; what changes
             # is that the remaining batches still run and their failures
             # are still reported.
-            failed.append((number, int(result.returncode)))
+            failed.append((number, int(result.returncode), batch))
     if failed:
+        # A BATCH NUMBER IS NOT A FILE NAME. Reading one back means
+        # re-deriving the sorted file list and slicing it by the batch
+        # size, which nobody does. Name the files instead: a batch that
+        # ends in a segfault or a runner timeout prints no pytest summary
+        # at all, so this list is the only record of what it was running.
+        for number, code, batch in failed:
+            print(
+                f"batch {number} (exit {code}) ran: " + " ".join(batch),
+                flush=True,
+            )
         print(
             f"{len(failed)} of {len(batches)} batches failed: "
-            + ", ".join(f"batch {n} (exit {code})" for n, code in failed),
+            + ", ".join(
+                f"batch {number} (exit {code})"
+                for number, code, _files in failed
+            ),
             flush=True,
         )
         return failed[0][1]

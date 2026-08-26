@@ -2764,6 +2764,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.screens.settings_model import (
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,
+        _FOLDED_DEFAULTS_MODULES,
         _SETTINGS_MODEL_UI_SOURCES,
         _humanize,
         _strip_type_prefix,
@@ -2787,8 +2788,24 @@ def canonical_sources() -> dict[str, object]:
     # tooltip tables.  Otherwise the generated source inventory depends on
     # import order: a clean generator omitted Barcode QC while a test process
     # that had already imported ``spacr.sequencing_qc`` gained one extra key.
+    #
+    # A FOLDED MODULE IS STILL VISIBLE UI, and a folded module has no
+    # registry row, so ``APPS`` alone is not the inventory.  Its settings
+    # form opens as a page on its host and every label and help paragraph
+    # on that form needs a translation exactly as before it folded.  Ask
+    # ``settings_model`` which defaults module each folded key resolves
+    # through and resolve those too: when Anndata Export, Barcode QC and
+    # Explain CV folded, thirty-three authored tooltips silently left the
+    # inventory, which turned every reviewed translation bound to them
+    # into a hard "stale reviewed runtime source" error and failed the
+    # docs build.
+    app_keys = [app_key for app_key, _name, _description, _section in APPS]
+    inventoried_keys = app_keys + [
+        folded_key for folded_key in sorted(_FOLDED_DEFAULTS_MODULES)
+        if folded_key not in set(app_keys)
+    ]
     resolved_settings: dict[str, dict[str, object]] = {}
-    for app_key, _name, _description, _section in APPS:
+    for app_key in inventoried_keys:
         try:
             resolved_settings[app_key] = resolve_default_settings(app_key)
         except Exception:
@@ -2816,7 +2833,7 @@ def canonical_sources() -> dict[str, object]:
         for key, _name, description, _section in APPS
     }
     label_model = SettingsWidgets.__new__(SettingsWidgets)
-    for app_key, _name, _description, _section in APPS:
+    for app_key in inventoried_keys:
         label_model.app_key = app_key
         setting_keys = resolved_settings.get(app_key, {})
         for key in setting_keys:
