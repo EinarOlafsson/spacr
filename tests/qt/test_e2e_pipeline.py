@@ -1,10 +1,13 @@
 """End-to-end pipeline tests against the synthetic demo datasets.
 
-These tests actually invoke real spacr pipeline functions
+These tests invoke real spacr pipeline functions
 (`preprocess_generate_masks`, `measure_crop`) so they need torch,
-cellpose, and the rest of the heavy deps installed. That's why
-they're marked `slow` — the fast CI job skips them, and running
-`pytest -m slow` opts in.
+cellpose, and the rest of the heavy deps installed. The mask test replaces
+only Cellpose model construction and inference with a deterministic,
+image-driven segmenter: this file tests pipeline plumbing and artifacts, not
+the accuracy or runtime of pretrained weights. Bounded real-model coverage is
+kept in its dedicated opt-in test. The tests remain marked `slow` because the
+rest of each production pipeline still runs; `pytest -m slow` opts in.
 
 If a test can't import the pipeline for any reason (usually a
 missing optional dependency in a bare-bones environment) the test
@@ -12,16 +15,15 @@ skips with a clear reason so the suite still stays green.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
 import pytest
+from scipy.ndimage import label as connected_components
 
 from spacr.qt import synthetic as syn
-
 
 pytestmark = pytest.mark.slow
 
@@ -64,11 +66,79 @@ def _minimal_mask_settings(src: str) -> Dict[str, Any]:
     return s
 
 
+class _DeterministicCellposeModel:
+    """Small image-driven substitute for the external inference boundary.
+
+    The synthetic fields contain bright, spatially separated Gaussian
+    objects on a dim camera background. Thresholding halfway from the median
+    background to the field maximum and labelling connected components is a
+    scientifically meaningful deterministic segmentation for that controlled
+    input. It intentionally does not emulate Cellpose accuracy; it gives the
+    production pipeline labelled masks so this test can exercise everything
+    around inference without loading multi-gigabyte weights or selecting a
+    CUDA device.
+    """
+
+    instances: list["_DeterministicCellposeModel"] = []
+
+    def __init__(self, gpu=False, pretrained_model="cpsam", device=None,
+                 **_kwargs):
+        self.gpu = gpu
+        self.pretrained_model = pretrained_model
+        self.device = device
+        self.calls: list[Dict[str, Any]] = []
+        type(self).instances.append(self)
+
+    def eval(self, x, batch_size=8, normalize=True, channel_axis=None,
+             diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             min_size=15, resample=True, progress=None, **_kwargs):
+        masks = []
+        flows = []
+        images = list(x)
+        self.calls.append({
+            "n_images": len(images),
+            "batch_size": batch_size,
+            "normalize": normalize,
+            "channel_axis": channel_axis,
+            "diameter": diameter,
+            "flow_threshold": flow_threshold,
+            "cellprob_threshold": cellprob_threshold,
+            "min_size": min_size,
+            "resample": resample,
+            "progress": progress,
+        })
+
+        for image in images:
+            array = np.asarray(image, dtype=np.float32)
+            signal = array.max(axis=-1) if array.ndim == 3 else array
+            background = float(np.median(signal))
+            peak = float(signal.max())
+            threshold = background + 0.5 * (peak - background)
+            mask, _ = connected_components(signal > threshold)
+            masks.append(mask.astype(np.uint16, copy=False))
+
+            # `parse_cellpose4_output` accepts one four-member flow list per
+            # image. Downstream plotting is disabled here, but returning the
+            # documented shape keeps the production parser in the test path.
+            flow_rgb = np.zeros(signal.shape + (3,), dtype=np.uint8)
+            flow_vectors = np.zeros((2,) + signal.shape, dtype=np.float32)
+            cell_probability = signal - threshold
+            flows.append([
+                flow_rgb,
+                flow_vectors,
+                cell_probability,
+                np.zeros_like(signal, dtype=np.float32),
+            ])
+
+        return masks, flows, None
+
+
 # ---------------------------------------------------------------------------
 # preprocess_generate_masks against the mask demo
 # ---------------------------------------------------------------------------
 
-def test_preprocess_generate_masks_runs_on_mask_demo(tmp_path: Path):
+def test_preprocess_generate_masks_runs_on_mask_demo(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """The mask pipeline segments the demo field and writes it out.
 
     "It did not crash" is not the contract — ``measure_crop`` is fed from
@@ -78,7 +148,21 @@ def test_preprocess_generate_masks_runs_on_mask_demo(tmp_path: Path):
     """
     _require("torch")
     _require("cellpose")
+    import torch
+
+    from spacr import object as object_module
     from spacr.core import preprocess_generate_masks
+
+    _DeterministicCellposeModel.instances = []
+    monkeypatch.setattr(
+        object_module.cp_models,
+        "CellposeModel",
+        _DeterministicCellposeModel,
+    )
+    # This test never needs a CUDA context: making the choice explicit keeps
+    # it off a developer's GPU even when one happens to be available.
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
 
     # Use all four channels — matches demo_settings("mask") which lists
     # channels=[0,1,2,3]. The pipeline normalises every channel in that
@@ -96,15 +180,19 @@ def test_preprocess_generate_masks_runs_on_mask_demo(tmp_path: Path):
     mask_dims = {role: n_channels + i
                  for i, role in enumerate(syn.MASK_ROLE_ORDER)}
 
-    try:
-        preprocess_generate_masks(s)
-    except Exception as e:
-        # Cellpose / torch may fail cold on a machine with no models
-        # downloaded; skip rather than fail so the test stays useful.
-        msg = str(e).lower()
-        if any(kw in msg for kw in ("model", "download", "cuda", "network")):
-            pytest.skip(f"preprocess needed model / network access: {e}")
-        raise
+    preprocess_generate_masks(s)
+
+    # Three object roles cross the model boundary exactly once. This proves
+    # the pipeline did not bypass segmentation while also pinning the demo's
+    # scientifically relevant diameter settings at that boundary.
+    models = _DeterministicCellposeModel.instances
+    assert len(models) == 3
+    assert all(model.gpu is False for model in models)
+    assert all(str(model.device) == "cpu" for model in models)
+    assert all(model.pretrained_model == "cpsam" for model in models)
+    assert [len(model.calls) for model in models] == [1, 1, 1]
+    assert [model.calls[0]["n_images"] for model in models] == [1, 1, 1]
+    assert [model.calls[0]["diameter"] for model in models] == [40, 16, 10]
 
     src = layout.src
 
