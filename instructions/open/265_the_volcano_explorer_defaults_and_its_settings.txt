@@ -1,0 +1,93 @@
+================================================================================
+THE VOLCANO EXPLORER: PUBLICATION DEFAULTS, A RED LABEL INSTEAD OF A BLANK
+PLOT, AND SETTINGS THAT DO NOT OVERWHELM
+================================================================================
+
+Status:    OPEN. Requested 2026-08-26.
+Owner:     spacr/qt/widgets/volcano_explorer.py and spacr/volcano_style.py.
+
+--------------------------------------------------------------------------------
+1. THE DEFAULTS GO PUBLICATION-BLACK-ON-WHITE
+--------------------------------------------------------------------------------
+
+"white background, black lines for the x axis and y axis and vertical and
+horizontal lines, black font"
+
+  * background WHITE;
+  * the x and y axis lines BLACK;
+  * the threshold lines -- the vertical fold-change lines and the
+    horizontal significance line -- BLACK;
+  * all text BLACK.
+
+A NOTE ON THE TENSION, so it is decided rather than tripped over. The
+GLOBAL figure default is `"background": "none"` in `spacr/figure_style.py`,
+and it is that way at the maintainer's own instruction ("ship as none") so a
+saved figure drops onto any page without carrying a white rectangle. This
+request is about THE VOLCANO EXPLORER, which is a screen being read rather
+than an asset being placed.
+
+So the two are not in conflict as long as the distinction is kept: the
+explorer's own defaults go white-and-black; whatever it EXPORTS still
+honours the global transparent default unless the user says otherwise.
+If the code cannot presently tell those two apart, that is the first half
+of this item.
+
+--------------------------------------------------------------------------------
+2. A BROKEN SETTING TURNS ITS LABEL RED. THE PLOT STAYS.
+--------------------------------------------------------------------------------
+
+"if something is wrong make the setting lable red dont just replace the
+figure with cannot draw this plot then the explanation, that text can appear
+at the bottom of the plot under the plot."
+
+Replacing the picture with an error message loses the one thing the reader
+was looking at, and it does it over a single bad field. What is wanted:
+
+  * THE FIGURE STAYS DRAWN -- with the last good value for the offending
+    setting, or without that setting's contribution;
+  * THE LABEL OF THE OFFENDING SETTING GOES RED, so the eye lands on the
+    control that caused it rather than hunting;
+  * THE EXPLANATION GOES UNDER THE PLOT, in a line beneath the figure --
+    not over it, not instead of it;
+  * fixing the setting clears both the red and the line.
+
+MORE THAN ONE THING CAN BE WRONG AT ONCE. Two bad settings means two red
+labels; the line beneath says both, or says how many and shows the first.
+A design that can only hold one message will silently drop the second.
+
+--------------------------------------------------------------------------------
+3. THE SETTINGS GO INTO DROP-DOWNS
+--------------------------------------------------------------------------------
+
+"the settings should be in drop downs, there are to many at present visable,
+so it looks overwhelming."
+
+The panel shows everything at once. Group them into collapsible sections --
+the same folding the settings panels elsewhere in spaCR already use, so
+this reads as the application rather than as a second idea about panels --
+and start them CLOSED.
+
+  * group by what a reader is doing: what is plotted, how it is tested,
+    how it looks, what is labelled;
+  * the few controls that are reached constantly stay visible -- decide
+    which by what the maintainer actually changes, and say which you chose
+    and why;
+  * a section holding a setting that is currently RED opens itself, or the
+    red is invisible and rule 2 is defeated.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a freshly opened volcano draws on white, with black axes, black
+    threshold lines and black text -- measured in PIXELS on the drawn
+    figure, not read from a style dict;
+  * a saved figure still honours the global transparent default, so
+    section 1 did not quietly change what gets exported;
+  * giving one setting a bad value leaves the figure drawn, turns that
+    setting's label red, and puts the reason under the plot;
+  * two bad settings give two red labels and neither message is lost;
+  * correcting them clears the red and the line;
+  * the settings panel opens with its sections closed, and a section
+    containing a red label is open;
+  * every setting that was reachable before is still reachable.
