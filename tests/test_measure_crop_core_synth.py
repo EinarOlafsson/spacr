@@ -73,6 +73,54 @@ def _write_stack(tmp_path, data, name="plate1_A01_F001.npy"):
 # _measure_crop_core
 # ---------------------------------------------------------------------------
 
+#: What `synth_masks_multi` actually contains, measured from the database a
+#: real run writes. Asserting THESE is the point: `_measure_crop_core`
+#: returns the index it was given on every path, because its whole body is
+#: inside `except Exception` -- so `assert index == 0` is `assert 0 == 0`
+#: and passes just as well when the measurement raised and wrote nothing.
+#: The OBJECT counts, which the fixture fixes. `png_list` is deliberately
+#: not here: it counts crops written, so it is 4 with one crop mode and 8
+#: with two, and pinning it would make a settings change look like a
+#: measurement change.
+FIXTURE_COUNTS = {"cell": 4, "nucleus": 4, "pathogen": 2, "cytoplasm": 4}
+
+
+def _counts_in(db_path):
+    """``{table: rows}`` for the measurement tables that exist."""
+    import sqlite3
+
+    con = sqlite3.connect(str(db_path))
+    try:
+        present = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        wanted = set(FIXTURE_COUNTS) | {"png_list"}
+        return {t: con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                for t in wanted if t in present}
+    finally:
+        con.close()
+
+
+def _assert_the_measurement_happened(tmp_path, crops=True):
+    """The database exists AND holds what this fixture produces.
+
+    A database file on disk is not evidence: with the measurement body
+    raising, the file is still created and simply has no measurement table
+    in it, which is what the old assertions passed against.
+    """
+    db = tmp_path / "measurements" / "measurements.db"
+    assert db.is_file(), "no measurements.db was written at all"
+    counts = _counts_in(db)
+    assert counts, "measurements.db has no measurement table in it"
+    objects = {k: v for k, v in counts.items() if k in FIXTURE_COUNTS}
+    assert objects == {k: v for k, v in FIXTURE_COUNTS.items()
+                       if k in objects}, objects
+    # Crops, when this run was asked for any. `save_png=False` and
+    # `save_arrays` runs write none by design, so demanding one there would
+    # be asserting the opposite of the setting under test.
+    if crops:
+        assert counts.get("png_list", 0) >= 1, "no crop was written"
+
+
 def test_measure_crop_core_writes_measurements_and_pngs(tmp_path, synth_masks_multi, rng):
     from spacr.measure import _measure_crop_core
     data = _build_merged_stack(synth_masks_multi, rng)
@@ -82,6 +130,7 @@ def test_measure_crop_core_writes_measurements_and_pngs(tmp_path, synth_masks_mu
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
 
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
     # cells is the unique-label array of the cell mask (includes 0 bg).
     assert np.max(cells) >= 1
     # measurements.db written one level up from merged/
@@ -107,6 +156,7 @@ def test_measure_crop_core_cytoplasm_and_bounding_box(tmp_path, synth_masks_mult
         cell_min_size=1)
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
     assert (tmp_path / "measurements" / "measurements.db").is_file()
 
 
@@ -119,6 +169,7 @@ def test_measure_crop_core_nucleus_and_pathogen_crop_modes(tmp_path, synth_masks
         png_size=[[48, 48], [32, 32]])
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
 
 
 def test_measure_crop_core_save_arrays(tmp_path, synth_masks_multi, rng):
@@ -128,6 +179,7 @@ def test_measure_crop_core_save_arrays(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(merged, save_arrays=True, save_png=False)
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path, crops=False)
     assert isinstance(cells, np.ndarray), "the worker must not return its failure sentinel"
     arrays = list(tmp_path.rglob("region_array/*.npy"))
     assert arrays, "expected saved region arrays"
@@ -150,6 +202,7 @@ def test_measure_crop_core_organelle_summary(tmp_path, synth_masks_multi, rng):
         summarize_organelles_by=["cell", "nucleus", "pathogen"])
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
 
 
 def test_measure_crop_core_no_cell_mask(tmp_path, synth_masks_multi, rng):
@@ -160,6 +213,7 @@ def test_measure_crop_core_no_cell_mask(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(merged, cell_mask_dim=None, crop_mode=["nucleus"])
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
 
 
 def test_measure_crop_core_float_input_converted(tmp_path, synth_masks_multi, rng):
@@ -169,6 +223,7 @@ def test_measure_crop_core_float_input_converted(tmp_path, synth_masks_multi, rn
     settings = _settings_for(merged, verbose=True)
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +248,7 @@ def test_measure_crop_core_plot_path(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(merged, plot=True)
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
     # plot=True populates the figure dict with before/after/pngs entries.
     assert any(k.endswith("__before_filtration") for k in figs)
 
@@ -209,6 +265,7 @@ def test_measure_crop_core_dilate_and_cytoplasm_crop(tmp_path, synth_masks_multi
         dialate_pngs=[True, True], dialate_png_ratios=[0.1, 0.1])
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path)
 
 
 def test_measure_crop_rejects_bool_normalize(tmp_path, synth_masks_multi, rng, capsys):
@@ -247,12 +304,19 @@ def test_measure_crop_core_timelapse_nucleus_relabel(tmp_path, synth_masks_multi
     """timelapse_objects='nucleus' relabels cells to nucleus ids and re-saves."""
     from spacr.measure import _measure_crop_core
     data = _build_merged_stack(synth_masks_multi, rng)
-    merged, name = _write_stack(tmp_path, data)
+    # A TIMELAPSE FILENAME HAS FOUR PARTS -- plate_well_field_TIME. The
+    # default three-part name is unparseable in timelapse mode, so every
+    # row's identity came out as the string "error", the database was never
+    # written, and this test passed anyway: it asserted only that the call
+    # returned the index it was handed.
+    merged, name = _write_stack(tmp_path, data,
+                                name="plate1_A01_F001_T0001.npy")
     settings = _settings_for(
         merged, timelapse=True, save_png=False,
         timelapse_objects="nucleus")
     index, avg_time, cells, figs = _measure_crop_core(0, [], name, settings)
     assert index == 0
+    _assert_the_measurement_happened(tmp_path, crops=False)
 
 
 # ---------------------------------------------------------------------------

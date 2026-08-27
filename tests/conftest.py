@@ -1586,7 +1586,17 @@ def synth_illumina_reads(tmp_path, rng, synth_barcodes):
         # Build a read exactly matching:
         #   {col:8}TGCTG{fill}TAAAC{grna:20-21}AACTT{fill}AGAAG{row:8}{trailing}
         # spacr's regex uses .* for the two fill regions.
-        fill1 = _rand_bases(rng, 6)
+        # THE ANCHOR'S OWN MIDDLE, not six random bases.
+        #
+        # `target_sequence` defaults to 'TGCTGTTTCCAGCATAGCTCTTAAAC', and
+        # spaCR scans every read for an EXACT match of it -- reads without
+        # one are skipped entirely. A random fill here put six arbitrary
+        # bases where that constant belongs, so no read carried the anchor,
+        # the module's own end-to-end test mapped 0 of 40 reads, and it
+        # passed: it asserted only that the call returned.
+        #
+        # 'TGCTG' + this + 'TAAAC' is exactly the default anchor.
+        fill1 = "TTTCCAGCATAGCTCT"
         fill2 = _rand_bases(rng, 6)
         trailing = _rand_bases(rng, 8)
 
