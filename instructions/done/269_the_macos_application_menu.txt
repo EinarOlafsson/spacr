@@ -2,7 +2,35 @@
 ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "on mac i do not have access to the
+Status:    DONE, audited 2026-08-27.
+
+           THE NAME IS SET BEFORE THE APPLICATION EXISTS. `name_the_application`
+           runs ahead of the `QApplication(...)` constructor, and returns what
+           actually took rather than what was asked for. Measured in a cold
+           process:
+
+               before QApplication exists : 'spaCR' 'spaCR'
+               after  it is built         : 'spaCR' 'spaCR'
+
+           Both, not just `applicationName` -- `applicationDisplayName` was
+           never set at all and is the one Qt shows to people.
+
+           THE ROLES ARE EXACTLY AS THIS FILE MEASURED THEM, on the menu bar:
+           33 NoRole, 1 PreferencesRole, 1 QuitRole, 1 AboutRole.
+
+           A NOTE FOR THE NEXT AUDIT, because this looks wrong and is not:
+           `win.findChildren(QAction)` reports 44 actions carrying
+           TextHeuristicRole. They are the app-launcher actions -- Mask,
+           Measure, Regression and the rest -- which live in the command
+           palette and NOT on the menu bar, so macOS never sees them and
+           cannot relocate them. Count `_menu_bar_actions()`, which is what
+           the claim is about.
+
+           THE SECOND ROUTE EXISTS: copies of Preferences and Quit that carry
+           NoRole, so macOS leaves them where they are. That is the same
+           answer instruction 268 wanted for the window controls.
+
+Original:  OPEN. Requested 2026-08-26 -- "on mac i do not have access to the
            preferences. preferences and quit are for some reason not in the
            spacr dropdown to the to left".
 Owner:     spacr/qt/app.py.

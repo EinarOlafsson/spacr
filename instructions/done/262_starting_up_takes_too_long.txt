@@ -2,7 +2,26 @@
 STARTING UP TAKES TOO LONG
 ================================================================================
 
-Status:    OPEN, and RE-AIMED 2026-08-26 after measuring the real entry
+Status:    DONE 2026-08-27, measured the same way this file measured it.
+
+               Mask screen build   2.73 s  ->  0.604 s   (4.5x)
+               per row             1.78 ms ->  0.39 ms   (1,538 rows)
+               _language_code      forty per setting -> ZERO during a build
+
+           THE PER-ROW COST FELL, so every module gained rather than one.
+           Measured alongside: Measure 0.148 s, Regression 0.297 s, UMAP
+           9.621 s -> 0.408 s, and the cold launch 1.388 s -> 1.067 s with
+           856 modules -> 434.
+
+           THE APPLICABILITY REFRESH STILL LANDS FIRST: a freshly opened
+           Mask panel with every channel None still shows one row per
+           object, asserted by
+           tests/qt/test_a_saved_file_that_names_no_channels_hides_the_objects.py.
+
+           NO SETTINGS TEST HAD TO MOVE. 97 pass across the applicability,
+           category and organelle files.
+
+Original:  OPEN, and RE-AIMED 2026-08-26 after measuring the real entry
            point. The first version of this item aimed at the per-row cost
            of building a settings panel. THAT WAS THE WRONG TARGET: the
            per-row numbers are dominated by one-time initialisation charged
