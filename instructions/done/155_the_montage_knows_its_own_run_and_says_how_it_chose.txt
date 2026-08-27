@@ -463,3 +463,10 @@ so the record of what was done stays readable:
   * The 2026-08-18 SECTION A note names `cell_montage.load_fraction_frame`.
     That function is now `cell_montage.read_well_guide_fractions`, with the
     same folder-or-CSV resolution the note describes.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

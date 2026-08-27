@@ -380,3 +380,10 @@ callers, and is ready for the module that earns it.
 delivered for the module the request was about, with `multi_database`'s
 describe/merge underneath it and `spacr.tabular` canonicalising on the way in
 (145).
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

@@ -520,3 +520,10 @@ them; 8 fail without the change. The three that pass either way are the
 guards: an untouched store still draws the published ink, the data keeps its
 own colours, and 118's panel foreground still reaches a figure nobody
 recoloured.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

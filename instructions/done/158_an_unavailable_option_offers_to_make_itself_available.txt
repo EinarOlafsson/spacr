@@ -417,3 +417,10 @@ appeared; they assert the SENTENCE and the panel's current entry now -- a
 dialog existing is not the property, saying why is.
 
 9 tests in tests/qt/test_umap_gpu_button.py.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------
