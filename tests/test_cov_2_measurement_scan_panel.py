@@ -179,9 +179,15 @@ def test_a_plate_id_that_reaches_the_plan_uncollapsed_is_named(tmp_path):
     notes = msp.plate_id_notes(plan)
 
     assert len(notes) == 1
+    # BOTH IDENTIFIERS AND WHAT THE DIFFERENCE COSTS, rather than one exact
+    # phrase. This pinned "shown as plate1" and went on failing after the
+    # note was reworded to say the same thing more fully -- the wording is
+    # not the behaviour, and the behaviour is that a reader is told the
+    # stored id, the canonical one, and that score CSVs will not join.
     assert "pplate1" in notes[0]
-    assert "shown as plate1" in notes[0]
+    assert "plate1" in notes[0]
     assert msp.PLATE_KEY in notes[0]
+    assert "will not match" in notes[0]
 
 
 def test_the_whole_report_is_the_summary_and_then_its_evidence(two_plates):
