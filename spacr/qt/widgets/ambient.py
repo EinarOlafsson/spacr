@@ -187,8 +187,8 @@ from dataclasses import dataclass
 from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
 
-from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QPointF, QRect,
-                            QRectF, Qt, QTimer)
+from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
+                            QRect, QRectF, Qt, QTimer)
 from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QPainterPath, QPen, QPixmap, QRadialGradient,
                            QTransform)
@@ -5159,6 +5159,62 @@ class AmbientWidget(QWidget):
 # Integration
 # ---------------------------------------------------------------------------
 
+def _the_spaceout_fractal(host):
+    """The spaceout backdrop, or None when this is an ordinary launch.
+
+    Returns a widget already parented to ``host`` and lowered behind it, so
+    the caller can hand it straight back as though `install_ambient` had
+    built it. None means "not spaceout, or it could not be built" -- and the
+    caller then installs the ambient engine it always did, so a machine that
+    cannot draw the fractal still gets an animation.
+    """
+    try:
+        from ..theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return None
+    except Exception:                                        # noqa: BLE001
+        return None
+
+    try:
+        from ..preferences import get_fractal_settings
+        from .fractal_travel import (
+            RuntimeControls, Settings, create_fractal_widget)
+
+        values = get_fractal_settings()
+        widget = create_fractal_widget(
+            Settings(backend=values["backend"], quality=values["quality"],
+                     scale=values["scale"]),
+            RuntimeControls(speed=values["speed"], dream=values["dream"],
+                            variable_speed=values["variable_speed"]),
+        )
+        widget.setParent(host)
+        widget.setGeometry(host.rect())
+        widget.lower()
+        widget.show()
+        host.installEventFilter(_FractalTracksItsHost(widget, host))
+        return widget
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("Could not install the spaceout fractal")
+        return None
+
+
+class _FractalTracksItsHost(QObject):
+    """Keeps the spaceout backdrop the size of what it sits behind."""
+
+    def __init__(self, widget, host) -> None:
+        super().__init__(host)
+        self._widget = widget
+
+    def eventFilter(self, watched, event) -> bool:
+        try:
+            if event.type() == QEvent.Type.Resize:
+                self._widget.setGeometry(watched.rect())
+        except Exception:                                    # noqa: BLE001
+            pass
+        return False
+
+
 def install_ambient(host: QWidget, layout=None, *,
                     theme: str = DEFAULT_THEME,
                     palette: str = DEFAULT_PALETTE,
@@ -5198,6 +5254,16 @@ def install_ambient(host: QWidget, layout=None, *,
         should not pass them.
     :returns: the widget, already shown and lowered.
     """
+    # SPACEOUT DRAWS THE OTHER FRACTAL (instruction 260). Hooked HERE rather
+    # than at the call sites because there are three of them -- the module
+    # screens, the Home screen and the setup slides -- and hooking one left
+    # Home showing the old Julia set, which is what the maintainer saw.
+    # `dressed()` below would otherwise swap the theme to SPACEOUT_THEME,
+    # which IS the old artwork.
+    replacement = _the_spaceout_fractal(host)
+    if replacement is not None:
+        return replacement
+
     widget = AmbientWidget(host, theme=theme, palette=palette,
                            backdrop=backdrop, corner_radius=corner_radius,
                            **kwargs)
