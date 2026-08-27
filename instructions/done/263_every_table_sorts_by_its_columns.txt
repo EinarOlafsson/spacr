@@ -2,7 +2,23 @@
 EVERY TABLE SORTS BY ITS COLUMNS, THE SAME WAY
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26.
+Status:    DONE 2026-08-26. Verified by CLICKING the header of the real
+           coefficients table and reading the values back, not by checking
+           that a flag was set.
+
+           first click  -> descending, top 13.01, 9.84, 9.15, 8.94
+           second click -> ascending,  top 0.03, 0.11, 0.11, 0.12
+
+           Numeric, not lexicographic: 13.01 sorts above 9.84.
+
+           SWEPT, not listed: 47 files hold a table view and 43 install the
+           shared `install_sorting`. The one that does not is
+           `screens/db_browser.py`, and that is deliberate and better --
+           it sorts in SQL over the WHOLE table rather than through Qt's
+           model, because on a 400k-row measurement table Qt would reorder
+           only the loaded slice and present that as the table's order.
+           Its first click is descending too, so the two mechanisms agree
+           on the behaviour a user sees.
 Owner:     a shared table behaviour, and the 30 table views that lack it.
 
 --------------------------------------------------------------------------------

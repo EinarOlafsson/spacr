@@ -2,7 +2,26 @@
 THE GENE-LEVEL COEFFICIENTS ARE FITTED AND CANNOT BE SEEN
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "in the regression module i still
+Status:    DONE 2026-08-26, verified on the drawn table and the drawn
+           volcano rather than on a model call.
+
+           Fitted run at level='both' (results/ols_3): the panel offers
+           gRNA (789), Gene (380) and Both (1169), and each draws exactly
+           the rows it names in the TABLE and the VOLCANO alike. All 1,169
+           feature labels are unique at 'both', so a gene and its guides are
+           distinguishable rows rather than points on top of each other.
+
+           Permutation run: the gene pass now runs and is reported, so the
+           panel offers gRNA (1380), Gene (452), Both (1832). A permutation
+           that reported guides ONLY says why and how to ask for genes,
+           rather than the old sentence claiming a gene-level permutation is
+           a different test that this run did not do -- it does it now.
+
+           See also 273, which made `level` drive the permutation side, and
+           the effect-axis work that stopped the volcano calling a partial
+           correlation a coefficient.
+
+Original:  OPEN. Requested 2026-08-26 -- "in the regression module i still
            only get gRNA level coefficients i cant plot the gene level
            coefficients ...or see the gene level coefficients."
 Owner:     spacr/qt/widgets/regression_results.py.

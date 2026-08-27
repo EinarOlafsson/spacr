@@ -938,6 +938,15 @@ class _RowsBuiltWhenTheyAreAskedFor(list):
         self._complete()
         return super().__repr__()
 
+#: Which section each module's "load the example" button belongs in -- the
+#: one holding the settings it fills. A module absent from this table has no
+#: example data to offer and gets no button.
+EXAMPLE_DATA_SECTIONS = {
+    "regression": "Input Tables",       # the count and score tables
+    "mask": "Input & Metadata",         # a plate of images, and `src`
+}
+
+
 
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
@@ -2047,11 +2056,19 @@ class AppScreen(QWidget):
 
         if depth == 0 and has_section_explainer(self.app_key, title):
             self._install_section_explainer(section, title)
-        # THE EXAMPLE SCREEN, where its tables belong (191 C). Asked for
-        # 2026-08-20: "that button should obviously be in input tables."
-        if (depth == 0 and title == "Input Tables"
-                and self.app_key == "regression"):
-            self._install_example_data_button(section)
+        # THE EXAMPLE DATA, in the section that holds what it fills.
+        #
+        # Regression (191 C, asked for 2026-08-20: "that button should
+        # obviously be in input tables") gets the count and score TABLES.
+        # Mask Generation gets IMAGES -- a different example set from a
+        # different place, so it is a different button rather than the same
+        # one widened: one fills two file slots from the packaged example
+        # screen, the other downloads a plate of TIFs and fills `src`.
+        if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
+            if self.app_key == "regression":
+                self._install_example_data_button(section)
+            else:
+                self._install_example_images_button(section)
         # DEEPEST FIRST. Recorded after the children so the list a consumer
         # scans for "which section holds this widget" answers with the
         # innermost heading; the umbrella is an ancestor of every one of
@@ -2923,6 +2940,91 @@ class AppScreen(QWidget):
         button.clicked.connect(lambda: self.load_the_example_screen())
         self._example_data_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_example_images_button(self, section) -> None:
+        """A button that fetches the example PLATE and fills `src`.
+
+        The sibling of `_install_example_data_button`, and a separate one on
+        purpose: that button fills two TABLE slots from the packaged example
+        screen, this one downloads a plate of TIFs from Hugging Face and
+        fills the source folder. Same shape, different data, different place
+        it comes from.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load the example images\u2026"))
+        button.setToolTip(tr(
+            "Fetch the toxo_mito example plate and put its folder in `src`. "
+            "About 400 MB the first time; cached afterwards, so pressing it "
+            "again is instant. The matching settings pack comes with it."))
+        button.clicked.connect(lambda: self.load_the_example_images())
+        self._example_images_button = button
+        section.add_prose(button, at_top=True)
+
+    def example_images_destination(self):
+        """Where the example plate is put. Beside the other cached example
+        data, so a user finds one folder rather than two."""
+        from pathlib import Path
+
+        return Path.home() / ".cache" / "spacr" / "example_images"
+
+    def load_the_example_images(self, *, ask=None) -> dict:
+        """Fetch the example plate and fill `src`. Returns what it did.
+
+        IT SAYS WHERE EVERYTHING WENT, for the reason the tables button
+        gives: filling a field silently is indistinguishable from a button
+        that did nothing, and this one may also have just moved 400 MB.
+
+        :param ask: injected for tests -- the downloader to call. Defaults to
+            `hf_download.download_toxo_mito_demo`.
+        """
+        destination = self.example_images_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # ALREADY THERE? Then nothing is downloaded. The plate is 400 MB and
+        # a user who presses this twice should get the second press for free.
+        plate = destination / "plate1"
+        if plate.is_dir() and any(plate.iterdir()):
+            return self._put_the_example_images_in_place(plate, None)
+
+        button = getattr(self, "_example_images_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching the example plate\u2026"))
+
+        placed = {}
+
+        def done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load the example images\u2026"))
+            if result is None:
+                self._console.append_stdout(
+                    f"The example images did not download: "
+                    f"{error or 'unknown error'}\n")
+                return
+            placed.update(self._put_the_example_images_in_place(
+                result.dataset_path, result.settings_path))
+
+        if ask is None:
+            from ..hf_download import download_toxo_mito_demo as ask
+        ask(self, str(destination), done)
+        return placed
+
+    def _put_the_example_images_in_place(self, images, settings) -> dict:
+        """Write the fetched folder into `src` and say so."""
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is not None and hasattr(control, "setText"):
+            control.setText(str(images))
+        self._console.append_stdout(f"src: {images}\n")
+        if settings is not None:
+            self._console.append_stdout(
+                f"the matching settings pack is in {settings}\n")
+        return {"src": str(images),
+                "settings": str(settings) if settings else ""}
 
     def load_the_example_screen(self, *, download: bool = True) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
