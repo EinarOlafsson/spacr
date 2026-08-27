@@ -145,3 +145,130 @@ def a_folder_holding(*suffixes: str) -> Callable[[str], Optional[str]]:
                 f"Choose the folder that does.")
 
     return check
+
+
+def tables_in(database: str) -> list:
+    """Every table in a SQLite file, or an empty list if it is not one.
+
+    Never raises: a path the user chose is a path that may be anything, and
+    "this file holds no tables" is the sentence the form needs rather than
+    an exception it would have to catch anyway.
+    """
+    import sqlite3
+
+    try:
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
+            rows = db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "ORDER BY name").fetchall()
+    except Exception:                                    # noqa: BLE001
+        return []
+    return [str(row[0]) for row in rows]
+
+
+def columns_in(database: str, table: str) -> list:
+    """Every column of one table, in the order the table declares them."""
+    import sqlite3
+
+    try:
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
+            rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+    except Exception:                                    # noqa: BLE001
+        return []
+    return [str(row[1]) for row in rows]
+
+
+def ask_for_a_database_column(
+    key: str,
+    *,
+    tried: str,
+    what: str = "Coordinate column",
+    parent=None,
+    chooser: Optional[Callable[..., str]] = None,
+    pick: Optional[Callable[..., Optional[str]]] = None,
+) -> Tuple[Optional[Tuple[str, str, str]], str]:
+    """Ask for a database, a table within it, and a column within that.
+
+    THREE ANSWERS, NOT ONE, because that is what the coordinate stream needs
+    and asking for them one at a time is what makes the second and third
+    answerable: the tables offered are the ones the chosen database actually
+    holds, and the columns are that table's. A blank field would ask the
+    user to remember a name the program can read.
+
+    :param key: what is being asked for; the answer is remembered under it.
+    :param tried: what was tried and did not work, shown in each title.
+    :param chooser: injected for tests; defaults to a real file dialog.
+    :param pick: injected for tests; defaults to a real list dialog. Called
+        ``(title, prompt, options)`` and returns the choice or None.
+    :returns: ``((database, table, column), why)``, or ``(None, why)``. The
+        reason always says WHICH of the three stops -- nobody there, a
+        cancel, or a database with nothing in it -- because a caller that
+        prints it is the only account the user gets.
+
+    Backing out of a later step returns to the earlier one rather than
+    abandoning the whole form, so choosing the wrong database costs one
+    click instead of the run.
+    """
+    already = _ANSWERED.get(key)
+    if already:
+        parts = already.split("\x1f")
+        if len(parts) == 3:
+            return (parts[0], parts[1], parts[2]), (
+                f"{what}: using {parts[2]} in {parts[1]}, chosen earlier "
+                f"in this run")
+
+    if not somebody_is_there():
+        return None, (f"{what}: {tried} -- and there is nobody to ask, so "
+                      f"this run stops here rather than waiting for an "
+                      f"answer that cannot come.")
+
+    if chooser is None:                                  # pragma: no cover
+        from PySide6.QtWidgets import QFileDialog
+
+        def chooser(title, start=""):
+            path, _filter = QFileDialog.getOpenFileName(
+                parent, title, start, "Databases (*.db *.sqlite);;All (*)")
+            return path
+
+    if pick is None:                                     # pragma: no cover
+        from PySide6.QtWidgets import QInputDialog
+
+        def pick(title, prompt, options):
+            choice, accepted = QInputDialog.getItem(
+                parent, title, prompt, list(options), 0, False)
+            return choice if accepted else None
+
+    complaint = tried
+    while True:
+        database = chooser(f"{what} — {complaint}")
+        if not database:
+            return None, (f"{what}: cancelled, so this run stops with the "
+                          f"error it would have given anyway.")
+        tables = tables_in(database)
+        if not tables:
+            # Rejected IN the form: a file that is not a database, or one
+            # with no tables, is the same failure one step later.
+            complaint = (f"{os.path.basename(database)} holds no tables. "
+                         f"Choose the database that does.")
+            continue
+
+        table = pick(what, f"Table in {os.path.basename(database)}", tables)
+        if table is None:
+            # Back out to the database rather than abandoning the form.
+            complaint = tried
+            continue
+
+        columns = columns_in(database, table)
+        if not columns:
+            complaint = f"{table} has no columns. Choose another database."
+            continue
+
+        column = pick(what, f"Column in {table}", columns)
+        if column is None:
+            complaint = tried
+            continue
+
+        _ANSWERED[key] = "\x1f".join((database, table, column))
+        return (database, table, column), (
+            f"{what}: using {column} in {table}, from "
+            f"{os.path.basename(database)}, chosen just now")

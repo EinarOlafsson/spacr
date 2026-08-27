@@ -1266,8 +1266,11 @@ def test_a_well_tab_survives_the_selection_moving_and_a_re_run(qtbot,
     view.set_coefficient(GENE_KEY)
     view.build()
     before = view.tab_labels()
-    # Summary, Graph (179 A), and one tab per well.
-    assert len(before) == 2 + len(view.well_tabs())
+    # The fixed tabs NAMED rather than counted: a bare count said "2" and
+    # went on saying it while Graph became Compare and Annotate arrived,
+    # so it failed on a tab that was supposed to be there.
+    assert before[:3] == ("Summary", "Compare", "Annotate")
+    assert len(before) == 3 + len(view.well_tabs())
     assert len(view.well_tabs()) == 3
 
     view.set_coefficient(GUIDE_KEY)
