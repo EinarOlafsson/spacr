@@ -1023,7 +1023,7 @@ class MontagePlan:
                 "guides kept apart instead of the default summed")
         if changed:
             lines.append(
-                "Non-default montage settings: " + "; ".join(changed)
+                "NON-DEFAULT SETTINGS ON THIS MONTAGE: " + "; ".join(changed)
                 + ". Each of these changes which cells are shown, so this "
                   "montage is not comparable to one made with the defaults.")
         return "\n".join(lines)
@@ -1042,7 +1042,7 @@ class MontagePlan:
         if window.baseline_source == "screen_median":
             lines.append(
                 f"  baseline = median per-object {self.score_column} over "
-                f"all objects supplied ({window.n_scored:,} objects, the "
+                f"EVERY object supplied ({window.n_scored:,} objects, the "
                 f"whole screen and not this coefficient's wells) = "
                 f"{window.baseline:.6g}")
         else:

@@ -501,8 +501,8 @@ def organelle_number(role: str) -> int:
             and "b" <= name[-1] <= "z"):
         return ord(name[-1]) - ord("a") + 1
     raise ValueError(
-        f"{role!r} is not an organelle slot; expected 'organelle' or "
-        "'organelle' followed by one of the letters b-z")
+        f"{role!r} is not an organelle role; expected 'organelle', "
+        "'organelleb', ... through 'organellez'")
 
 
 def organelle_slot_label(role: str) -> str:

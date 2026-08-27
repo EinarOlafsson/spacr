@@ -2386,10 +2386,9 @@ def double_transform_warning(name, transform, family) -> str:
         f"selected family also carries a {link} link, so the model fits "
         f"{link.lower()}({kind}(y)) -- which is usually why McFadden's "
         f"R-squared comes back negative and meaningless. "
-        f"The transform is dropped and the family's link does the work, so "
-        f"it is applied once. To fit the TRANSFORMED response instead, use "
-        f"regression_type='ols' on the transformed "
-        f"response)."
+        f"spaCR will drop the transform and let the family's link do the "
+        f"work, so it is applied once. To fit the TRANSFORMED response "
+        f"instead, use regression_type='ols' on the transformed response."
     )
 
 

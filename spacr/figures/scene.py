@@ -1264,13 +1264,15 @@ def _columns(figure) -> int:
     return max([column + span for _, column, span in _positions(figure)] + [0])
 
 
-def build_scene(figure, *, mode=None):
+def build_scene(figure, *, mode=None, dpi=None):
     """Translate a matplotlib ``Figure`` into a pyqtgraph scene.
 
     :param figure: a drawn matplotlib Figure. It is NOT modified: everything
         here is a read.
     :param mode: a :data:`spacr.figure_style.SAVE_MODES` value, or None to ask
         the preference.
+    :param dpi: output resolution used to size the scene. By default, use the
+        figure's current resolution.
     :returns: ``(widget, report)``. The widget is a
         ``pyqtgraph.GraphicsLayoutWidget`` holding one plot per axes; the
         :class:`SceneReport` says whether the translation was COMPLETE, and a
@@ -1279,7 +1281,7 @@ def build_scene(figure, *, mode=None):
     import pyqtgraph as pg
 
     width, height = (float(value) for value in figure.get_size_inches())
-    dpi = float(figure.get_dpi() or 100.0)
+    dpi = float(dpi if dpi is not None else (figure.get_dpi() or 100.0))
     look = _Look(mode, dpi=dpi)
     widget = pg.GraphicsLayoutWidget(size=(int(width * dpi), int(height * dpi)))
     widget.resize(int(width * dpi), int(height * dpi))
@@ -1383,8 +1385,8 @@ def export_scene(widget, path) -> Optional[str]:
     return str(path) if os.path.exists(str(path)) else None
 
 
-def render_figure(figure, path, *, fmt=None, mode=None, announce=True,
-                  title=None):
+def render_figure(figure, path, *, fmt=None, mode=None, dpi=None,
+                  announce=True, title=None):
     """Write ``figure`` as a pyqtgraph render. ``None`` when it could not be.
 
     :param figure: the drawn matplotlib figure, used as the GEOMETRY. It is
@@ -1392,6 +1394,8 @@ def render_figure(figure, path, *, fmt=None, mode=None, announce=True,
     :param path: destination; the extension is settled by
         :func:`spacr.plot.figure_path` BEFORE the exporter sees it, because
         pyqtgraph decides what it writes from the file name.
+    :param dpi: output resolution used to size the scene. By default, use the
+        figure's current resolution.
     :param announce: put the file in the gallery as well as on disk.
     :returns: ``(written_path, report)``, or ``(None, report)``. A caller that
         gets None writes the matplotlib page and says why.
@@ -1411,7 +1415,10 @@ def render_figure(figure, path, *, fmt=None, mode=None, announce=True,
         return None, report
     widget = None
     try:
-        widget, report = build_scene(figure, mode=mode)
+        scene_options = {"mode": mode}
+        if dpi is not None:
+            scene_options["dpi"] = dpi
+        widget, report = build_scene(figure, **scene_options)
         if not report.complete:
             return None, report
         written = export_scene(widget, figure_path(path, fmt))
@@ -1448,6 +1455,8 @@ def write_figure(figure, path, *, fmt=None, dpi=None, renderer=None,
 
     :param renderer: force one of :data:`RENDERERS`; None asks
         :func:`scene_renderer`.
+    :param dpi: force an output resolution; otherwise use the configured
+        figure preference.
     :param savefig: forwarded to matplotlib on the fallback path (``bbox_inches``
         and friends). pyqtgraph has no use for them.
     :returns: ``(path, renderer, reason)``. ``reason`` is why it is not the
@@ -1460,8 +1469,15 @@ def write_figure(figure, path, *, fmt=None, dpi=None, renderer=None,
     """
     chosen, why = scene_renderer(renderer)
     if chosen == "pyqtgraph":
-        written, report = render_figure(figure, path, fmt=fmt, announce=announce,
-                                        title=title)
+        from ..plot import deliverable_dpi, figure_output_preferences
+
+        requested_dpi = dpi
+        if requested_dpi is None:
+            _preferred_format, requested_dpi = figure_output_preferences()
+        scene_dpi = deliverable_dpi(figure, requested_dpi, path=path)
+        written, report = render_figure(
+            figure, path, fmt=fmt, dpi=scene_dpi, announce=announce,
+            title=title)
         if written:
             return written, "pyqtgraph", ""
         why = report.reason() or (report.notes[-1] if report.notes

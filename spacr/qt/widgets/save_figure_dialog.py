@@ -11,7 +11,9 @@ width of its lines, the colour of its text, the shape of its page, and what
 kind of file it is. Everything else a figure can be told belongs to the PLOT
 and lives on the plot's own right-click menu, where it reaches the screen and
 every export at once; a value inherited from there is shown here rather than
-offered a second time.
+offered a second time. Matplotlib figures have no such plot menu, so their
+dialog also offers an export-only text scale to keep type proportional when
+the output page is resized.
 """
 import logging
 from typing import Optional
@@ -319,14 +321,13 @@ class SaveFigureDialog(QDialog):
     -----
     Export settings never modify the source displayed in the application.
 
-    WHAT IT OFFERS, AND WHY IT IS SHORT. Four settings change how the FILE
-    looks -- the background, the lines' colour and width, the text colour,
-    and the shape of the page -- and three more say what the file IS: its
-    format, its resolution and its page size. Everything else a figure can
-    be told is a property of the PLOT and lives on the plot's own right-click
-    menu, where it applies to the screen and to every export at once. A
-    second copy of those controls here would be a second answer to one
-    question with no way to tell which won.
+    WHAT IT OFFERS, AND WHY IT IS SHORT. For a fast plot, four setting groups
+    change how the FILE looks -- the background, the lines' colour and width,
+    the text colour, and the shape of the page -- and three more say what the
+    file IS: its format, resolution and page size. Everything else belongs on
+    the plot's own right-click menu, where it applies to the screen and every
+    export at once. A Matplotlib figure has no equivalent live menu, so its
+    dialog also offers an export-only text scale.
 
     A SETTING INHERITED FROM THE PLOT IS SHOWN, NOT EXPLAINED. The page size
     a pyqtgraph plot writes onto is set on that menu; this dialog displays
@@ -389,6 +390,24 @@ class SaveFigureDialog(QDialog):
             "Every piece of text in the file: the title, the axis labels, "
             "the numbers beside the ticks and the legend.")
         form.addRow("text colour", self.ink)
+
+        # A MATPLOTLIB FIGURE HAS NO LIVE STYLE MENU. Its page can be reduced
+        # from a wide on-screen figure to a journal column here, but without
+        # an export-only scale the existing labels remain full size and crowd
+        # out the axes. Fast plots already own one font-size setting on their
+        # right-click menu, so they must not get a second answer here.
+        if not self._fast:
+            self.font_scale = QDoubleSpinBox()
+            self.font_scale.setRange(0.25, 4.0)
+            self.font_scale.setSingleStep(0.05)
+            self.font_scale.setDecimals(2)
+            self.font_scale.setValue(1.0)
+            self.font_scale.setToolTip(
+                "Scale labels, tick text, legends, and titles in the saved "
+                "file. Use a value below 1 when reducing the page size; 1 "
+                "keeps the current text size.")
+            self.font_scale.valueChanged.connect(self.refresh)
+            form.addRow("text scale", self.font_scale)
 
         # THE SHAPE OF THE FIGURE, as a choice rather than a number. A ratio
         # is a number, and a reader deciding how a figure sits on a page is
@@ -727,7 +746,8 @@ class SaveFigureDialog(QDialog):
             line_colour=self._colour_of(self.line_colour),
             background=self._colour_of(self.background),
             width=float(self.width.value()), height=float(self.height.value()),
-            dpi=int(self.dpi.value()))
+            dpi=int(self.dpi.value()),
+            font_scale=float(self.font_scale.value()))
         self._clear_holder()
         if self._preview is None:
             self._holder.addWidget(QLabel(

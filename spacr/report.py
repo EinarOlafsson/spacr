@@ -79,6 +79,7 @@ from __future__ import annotations
 import base64
 import csv
 import html as _html
+import importlib
 import io
 import json
 import logging
@@ -617,7 +618,7 @@ def _load_journal_runs(src: Path, run_dirs: Optional[Sequence[Any]],
     problems: List[str] = []
     records: List[Dict[str, Any]] = []
     try:
-        from . import run_journal as journal
+        journal = importlib.import_module(".run_journal", __package__)
     except Exception as exc:
         return records, [f"run journal unavailable ({exc.__class__.__name__})"]
 

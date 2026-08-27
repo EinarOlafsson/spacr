@@ -79,6 +79,25 @@ from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
+
+def find_evaluation_bundles(root: Any) -> List[Path]:
+    """Discover evaluation manifests while keeping sklearn off GUI startup.
+
+    The implementation is imported only when a scan worker calls this seam.
+    Keeping the seam at module scope also lets tests and downstream wrappers
+    replace discovery without importing the scientific stack eagerly.
+    """
+    from ...classifier_evaluation import find_evaluation_bundles as discover
+
+    return discover(root)
+
+
+def load_evaluation_bundle(path: Any) -> Dict[str, Any]:
+    """Load one evaluation bundle without importing sklearn at GUI startup."""
+    from ...classifier_evaluation import load_evaluation_bundle as load
+
+    return load(path)
+
 __all__ = [
     "ClassifierEvaluationScreen",
     "APP_KEY",
@@ -448,8 +467,6 @@ class ClassifierEvaluationScreen(QWidget):
 
         def _work(_settings):
             try:
-                from ...classifier_evaluation import find_evaluation_bundles
-
                 self._pending_bundles = find_evaluation_bundles(source)
             except Exception as exc:
                 self._pending_error = f"{type(exc).__name__}: {exc}"
@@ -515,8 +532,6 @@ class ClassifierEvaluationScreen(QWidget):
 
         def _work(_settings):
             try:
-                from ...classifier_evaluation import load_evaluation_bundle
-
                 self._pending_bundle = load_evaluation_bundle(manifest)
             except Exception as exc:
                 self._pending_error = f"{type(exc).__name__}: {exc}"

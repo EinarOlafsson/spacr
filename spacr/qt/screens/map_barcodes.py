@@ -96,7 +96,7 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Write the measurements as .h5ad for scanpy and scvi-tools",
         "beta"),
     "illumination": (
-        "Illumination Correction",
+        "Illumination",
         "Estimate and assess a flat-field correction model before "
         "measurement",
         "beta"),
