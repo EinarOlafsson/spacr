@@ -919,17 +919,16 @@ def _design_section(run: "_Run") -> List[SummaryField]:
     return out
 
 
-#: Below this share of rows surviving `fraction_threshold`, the summary says
-#: so rather than merely stating the count. Five per cent is well under any
-#: ordinary cut and well above zero, so it fires on the runs worth a second
-#: look and not on the ones that merely trimmed a tail.
+#: Retention below this percentage receives an explicit warning in the run
+#: summary. The threshold distinguishes severe filtering from routine removal
+#: of low-abundance rows.
 _LOW_RETENTION_PERCENT = 5.0
 
-#: Below this share of the LARGER side finding a partner, the summary says so.
-#: The two sides are not expected to match -- sequencing covers every well and
-#: imaging keeps only what survives segmentation -- so this is deliberately
-#: lenient and fires only when the join looks like a key problem.
+#: Pairing below this percentage of the smaller input receives an explicit
+#: warning. The two inputs may have different coverage, so unmatched wells on
+#: the larger side do not make an otherwise complete join appear incomplete.
 _LOW_PAIRING_PERCENT = 50.0
+
 
 def _design_counts(frame) -> Dict[str, Optional[int]]:
     """Wells, guides, genes, cells and rows from the run's fitted table.
@@ -1764,19 +1763,17 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
                 value=f"gRNA rows below a well fraction of "
                       f"{float(fraction):g} were dropped; {_NOT_RECORDED}")
         elif outof:
-            # THE RETENTION, AND FLAGGED WHEN IT IS SMALL. "580,214 of
-            # 586,038 dropped" and "1.0% retained" are the same fact, but a
-            # reader scanning for what the run was based on reads the second
-            # one. A retention this low decides a result and went past in one
-            # line among many, so it is called out the way the effect-size
-            # cut already calls out what it removed.
+            # Report both counts and percentage because the percentage makes
+            # severe filtering directly comparable across datasets.
             retained = outof - dropped
             share = 100.0 * retained / outof if outof else 0.0
-            flag = (" -- UNUSUALLY LOW: this run rests on a small part of "
-                    "the data, which is what a threshold above the median "
-                    "fraction does. Check it against the sweep's own "
-                    "suggestion before reading the result."
-                    if share < _LOW_RETENTION_PERCENT else "")
+            flag = (
+                f" -- warning: fewer than {_LOW_RETENTION_PERCENT:g}% of "
+                "gRNA rows were retained. "
+                "Review fraction_threshold and its calibration diagnostics "
+                "before interpreting the regression results."
+                if share < _LOW_RETENTION_PERCENT else ""
+            )
             add("fraction_threshold",
                 value=f"{dropped:,} of {outof:,} gRNA rows were below a well "
                       f"fraction of {float(fraction):g} and were dropped, "
@@ -1785,11 +1782,8 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
             add("fraction_threshold",
                 value=f"{dropped:,} gRNA rows were below a well fraction of "
                       f"{float(fraction):g} and were dropped")
-    # THE PAIRING, from the same recorder the drop counts come from. It used
-    # to say "not recorded", which was honest and useless: on the run that
-    # prompted this, 724 of 1,344 sequencing wells had no partner, and that
-    # is the kind of number a reader needs when they ask what the fit was
-    # based on.
+    # Pairing counts are recorded at the score/count join and persist in the
+    # settings saved with the run.
     paired = _exclusion_count(settings, "wells_paired")
     if paired is None:
         add("missing_metadata",
@@ -1799,17 +1793,24 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
     else:
         lost_counts = _exclusion_count(settings, "wells_unpaired_counts") or 0
         lost_scores = _exclusion_count(settings, "wells_unpaired_scores") or 0
-        offered = paired + max(lost_counts, lost_scores)
-        share = 100.0 * paired / offered if offered else 100.0
-        flag = ("" if share >= _LOW_PAIRING_PERCENT else
-                " -- fewer than half the wells on the larger side found a "
-                "partner, which is worth checking against the plate "
-                "identifiers before reading the result")
+        smaller_input = paired + min(lost_counts, lost_scores)
+        share = 100.0 * paired / smaller_input if smaller_input else 100.0
+        flag = (
+            "" if share >= _LOW_PAIRING_PERCENT else
+            " -- warning: fewer than half of the wells in the smaller input "
+            "had a matching identifier. Verify plate and well identifiers "
+            "before interpreting the regression results."
+        )
+        paired_label = "well" if paired == 1 else "wells"
+        paired_verb = "was" if paired == 1 else "were"
+        count_label = "well" if lost_counts == 1 else "wells"
+        score_label = "well" if lost_scores == 1 else "wells"
         add("missing_metadata",
-            value=f"{paired:,} well(s) were joined on the well identifier; "
-                  f"{lost_counts:,} sequencing and {lost_scores:,} imaging "
-                  f"well(s) had no partner and took no part in the fit "
-                  f"({share:.0f}% of the larger side paired){flag}")
+            value=f"{paired:,} {paired_label} {paired_verb} matched by well "
+                  f"identifier; {lost_counts:,} count-table {count_label} "
+                  f"and {lost_scores:,} score-table {score_label} had no "
+                  f"match and were excluded before fitting ({share:.0f}% "
+                  f"of wells in the smaller input paired){flag}")
 
     counts = _design_counts(run.data)
     rows = counts.get("n_rows_fitted")

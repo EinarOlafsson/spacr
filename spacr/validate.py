@@ -554,14 +554,61 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
 # ---------------------------------------------------------------------------
 
 
-#: Modules that work out their own source when none is given, so an absent
-#: one is a default rather than a mistake. Regression writes beside its
-#: count data; `spacr.ml.resolve_regression_src` is where that is decided
-#: and where a supplied value is honoured instead.
-#:
-#: A module NOT named here still errors on a missing source, which is the
-#: behaviour `preprocess_generate_masks` depends on.
-DERIVES_ITS_OWN_SRC = frozenset({"regression"})
+def _check_regression_output_src(raw: Any) -> List[Problem]:
+    """Validate the optional regression output root without creating it.
+
+    Regression reads its score and count tables through dedicated settings;
+    ``src`` names only the output root. A missing final directory is valid
+    when its parent exists because :func:`spacr.ml.resolve_regression_src`
+    creates that one directory. Configurations that trigger the documented
+    automatic fallback are warnings rather than errors because the analysis
+    remains runnable.
+
+    :param raw: Configured ``src`` value.
+    :returns: Problems associated with the output-root configuration.
+    """
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return []
+    if not isinstance(raw, str):
+        return [Problem(
+            ERROR,
+            "src",
+            f"regression src={raw!r} is not a path string.",
+            "Set src to one output directory, or leave it blank to write "
+            "beside the first count table.",
+        )]
+    if raw in ("path", "/path/to/src"):
+        return [Problem(
+            ERROR,
+            "src",
+            f"regression src is still the placeholder {raw!r}.",
+            "Choose an output directory, or clear src to use the automatic "
+            "location beside the first count table.",
+        )]
+
+    requested = os.path.abspath(os.path.expanduser(raw.strip()))
+    if os.path.isdir(requested):
+        return []
+    if os.path.exists(requested):
+        return [Problem(
+            WARNING,
+            "src",
+            f"regression output path is not a directory: {requested}.",
+            "Choose a directory. If unchanged, spaCR will report the issue "
+            "and write beside the first count table instead.",
+        )]
+
+    parent = os.path.dirname(requested)
+    if os.path.isdir(parent):
+        return []
+    return [Problem(
+        WARNING,
+        "src",
+        f"regression output directory cannot be created because its parent "
+        f"does not exist: {parent}.",
+        "Create the parent directory or choose another output root. If "
+        "unchanged, spaCR will write beside the first count table instead.",
+    )]
 
 
 def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Inventory]) -> List[Problem]:
@@ -578,15 +625,10 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Set src to the folder holding the images (or, for measure, "
             "the merged folder).")
-    # A MODULE THAT DERIVES ITS OWN SOURCE IS NOT MISSING ONE. Regression
-    # reads count tables, not images: an absent `src` means "beside the count
-    # data", which is what every run of it has always done. Erroring here
-    # demanded a setting the module does not require and told the user to
-    # point it at a folder of images, on runs that then completed normally.
-    if app in DERIVES_ITS_OWN_SRC:
-        raw = settings.get(key)
-        if raw is None or (isinstance(raw, str) and not raw.strip()):
-            return []
+    # Regression's ``src`` is an output root, not an image or project source.
+    # Its dedicated check also handles the blank automatic value.
+    if app == "regression":
+        return _check_regression_output_src(settings.get(key))
 
     if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
@@ -1021,9 +1063,10 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     ERROR, key, f"{key}={value} must be greater than zero.",
                     "Give the expected object size in pixels, or None to let magnification derive it."))
 
-        if number is not None and key in ("batch_size", "test_images", "test_nr", "nr_imgs",
-                                          "epochs", "n_epochs", "image_size", "size",
-                                          "chunk_size", "magnification", "examples_to_plot"):
+        if number is not None and key in (
+                "batch_size", "test_images", "test_nr", "nr_imgs",
+                "epochs", "n_epochs", "image_size", "size", "chunk_size",
+                "magnification", "examples_to_plot", "guide_permutations"):
             if number < 1:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be at least 1.",

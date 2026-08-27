@@ -427,6 +427,12 @@ def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
             f"{name} is {tile.width()} px wide, outside {floor}..{cap}")
     # Check every visible title rather than naming former tiles. This keeps
     # the contract aligned with the launched registry as modules are folded.
+    widest = max(
+        visible,
+        key=lambda name: QFontMetrics(
+            tiles[name].name_label.font()
+        ).horizontalAdvance(name),
+    )
     for name in visible:
         label = tiles[name].name_label
         needed = QFontMetrics(label.font()).horizontalAdvance(name)

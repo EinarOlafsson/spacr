@@ -9,7 +9,7 @@ taking. The authoritative status is the current ledger and each instruction's
 latest dated record; older sections below are preserved as history.
 
 Current checkpoint: branch `codex/tutorial-api-final`, 92 done / 10 open after
-this closeout. The complete tutorial release has 73 lessons, 507 purposeful
+this closeout. The complete tutorial release has 73 lessons, 508 purposeful
 scenes, eight languages, 50 voices, 3,650 strict-freshness narration tracks,
 and 73 4K silent masters. Its reusable audit skill, frame sampler, live
 verifier, and tests are committed. Two hundred new audio/timing pairs and four

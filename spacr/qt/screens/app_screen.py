@@ -5018,11 +5018,11 @@ class AppScreen(QWidget):
 
     @staticmethod
     def _it_will_permute(settings) -> bool:
-        """Whether this run is CERTAINLY the permutation test.
+        """Return whether the settings explicitly select permutation inference.
 
-        'auto' is not certain: its real resolution counts guides and wells,
-        which the panel cannot see, so it is answered False here and the
-        design scan says which it was.
+        ``inference='auto'`` is intentionally excluded because its resolution
+        depends on guide and well counts that are not available until the
+        design scan completes.
         """
         settings = settings or {}
         inference = str(settings.get("inference") or "").strip().lower()
@@ -5030,30 +5030,51 @@ class AppScreen(QWidget):
         return inference == "nonparametric" or mode == "guide_permutation"
 
     def _say_what_the_permutation_will_do(self, settings) -> str:
-        """The banner for a run that fits no model. Returns what it said.
+        """Display and return the configuration of a guide permutation run.
 
-        WHAT A READER NEEDS BEFORE IT STARTS: how many reshuffles, what that
-        makes the smallest possible P value, and which level is reported.
-        The floor is the one that surprises people -- a test cannot report a
-        P below 1/(permutations+1) however strong the effect, and a
-        correction over hundreds of guides can need one smaller than that.
+        The banner reports the statistic, blocking variable, output level,
+        permutation count, and minimum attainable empirical P value. Invalid
+        counts are reported without attempting to calculate a P-value floor;
+        pre-flight validation then prevents the run from starting.
+
+        :param settings: Regression settings associated with the pending run.
+        :returns: The message appended to the run console.
         """
+        from ..i18n import tr
         from .settings_model import normalise_regression_level
 
         settings = settings or {}
+        raw_permutations = settings.get("guide_permutations", 200000)
         try:
-            permutations = int(settings.get("guide_permutations", 200000))
+            permutations = int(raw_permutations)
         except (TypeError, ValueError):
-            permutations = 200000
-        floor = 1.0 / (max(permutations, 1) + 1)
+            permutations = 0
+        if permutations < 1:
+            note = tr(
+                "→ Guide permutation test configuration is invalid: "
+                "guide_permutations={value}. Enter an integer of at least 1 "
+                "before running the analysis.",
+                value=repr(raw_permutations),
+            )
+            self._console.append_notice("{note}\n", note=note)
+            return note
+
+        floor = 1.0 / (permutations + 1)
         level = normalise_regression_level(settings.get("level"))
         statistic = str(settings.get("grna_statistic") or "pearson")
         block = str(settings.get("guide_permutation_block") or "plateID")
-        note = (f"→ Permutation test: each guide on its own, {permutations:,} "
-                f"reshuffles within each {block}, {statistic} statistic, "
-                f"level {level}. No model is fitted, so regression_type is "
-                f"not read. The smallest P this can report is "
-                f"{floor:.2g} (1/(permutations+1)).")
+        note = tr(
+            "→ Guide permutation test: {permutations} within-{block} "
+            "permutations per guide using the {statistic} statistic; "
+            "reported level: {level}. No regression model is fitted, so "
+            "regression_type is not used. Minimum attainable empirical P "
+            "value: {floor} (1/(permutations+1)).",
+            permutations=f"{permutations:,}",
+            block=block,
+            statistic=statistic,
+            level=level,
+            floor=f"{floor:.3g}",
+        )
         self._console.append_notice("{note}\n", note=note)
         return note
 
@@ -5084,18 +5105,10 @@ class AppScreen(QWidget):
                                      regression_design_scan)
 
         model = str((settings or {}).get("regression_type") or "auto").lower()
-        # A BANNER THAT KNOWS WHAT THE RUN IS. A permutation run fits no
-        # model, so the model line describes nothing and the cost warning
-        # describes work that will not happen -- measured: a run that opened
-        # with "tens of minutes to hours" finished in 44.7 seconds, and the
-        # line saying regression_type was never read came later. A user who
-        # believes the banner waits for hours that never come, or changes a
-        # setting nothing read.
-        #
-        # Only when the choice is CERTAIN. Under 'auto' the real resolution
-        # counts guides and wells, which this cannot see, so the model
-        # banner stays -- describing a fit that may not run is the lesser
-        # error of the two, and the design scan below corrects it.
+        # Explicit permutation runs use a dedicated banner because they do
+        # not fit a regression model or use ``regression_type``. Automatic
+        # inference retains the model banner until the design scan resolves
+        # the method from the guide and well counts.
         if self._it_will_permute(settings):
             self._say_what_the_permutation_will_do(settings)
             self._slow_fit = False

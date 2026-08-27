@@ -2825,6 +2825,8 @@ def _looks_translatable(text: str) -> bool:
         return False
     if re.fullmatch(r"[\W\d_]+", source):
         return False
+    if re.fullmatch(r"\{[A-Za-z_][A-Za-z0-9_]*\}", source):
+        return False
     if re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
         return False
     # Stylesheets, regexes and serialized records are not presentation prose.
@@ -3093,6 +3095,7 @@ def canonical_sources() -> dict[str, object]:
         DEFAULT_INSTRUCTION,
     )
     from spacr.qt.screens.settings_model import (
+        _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
         _SETTINGS_MODEL_UI_SOURCES,
         CATEGORY_TOOLTIPS,
@@ -3163,7 +3166,25 @@ def canonical_sources() -> dict[str, object]:
         for key, text in raw_tooltips.items()
         if str(text).strip() and catalogued_setting(key)
     }
-    labels = {key: _humanize(key) for key in tooltips}
+    # A shared setting key can have a distinct meaning in one module. Keep
+    # those descriptions under an app-qualified identity so translating the
+    # Regression output directory cannot replace ``src`` help in Mask,
+    # Measure, sequencing, or any other screen.
+    for app_key, overrides in _APP_TOOLTIP_OVERRIDES.items():
+        for key, text in overrides.items():
+            if str(text).strip() and catalogued_setting(key):
+                tooltips[f"{app_key}.{key}"] = " ".join(
+                    _strip_type_prefix(text).split()
+                )
+    # App-qualified tooltip identities are not setting keys and must not be
+    # humanized into labels such as ``Umap.metric``. Visible labels are
+    # inventoried from each resolved settings surface below, where genuine
+    # app-specific labels receive their own qualified identity.
+    labels = {
+        key: _humanize(key)
+        for key in tooltips
+        if "." not in key
+    }
     categories = set(CATEGORY_TOOLTIPS.values())
     categories.update(
         text for entries in CATEGORY_TOOLTIPS_BY_APP.values()

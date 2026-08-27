@@ -1022,6 +1022,28 @@ _UMAP_TOOLTIP_OVERRIDES = {
     ),
 }
 
+_REGRESSION_TOOLTIP_OVERRIDES = {
+    "src": (
+        "Output root for regression results. Leave blank to use the directory "
+        "containing the first count table. An existing directory is used "
+        "directly; if only its final component is missing, spaCR creates that "
+        "directory. If the configured path is a file, its parent is missing, "
+        "or the directory cannot be created, spaCR reports the problem and "
+        "uses the automatic location. Home-directory shortcuts and relative "
+        "path components are resolved before validation. Each run is stored "
+        "below this root in results/<analysis> or, when that directory is "
+        "occupied, results/<analysis>_<n>. Default: blank (automatic)."
+    ),
+}
+
+# Shared keys can have different meanings in individual modules. These
+# overrides are applied after the global tooltip registry is loaded.
+_APP_TOOLTIP_OVERRIDES = {
+    "regression": _REGRESSION_TOOLTIP_OVERRIDES,
+    "umap": _UMAP_TOOLTIP_OVERRIDES,
+}
+
+
 #: Every setting owned by SOME training basis. Re-enabling is restricted to
 #: these, so `refresh_training_basis_enablement` cannot switch a control back
 #: on that something else disabled for its own reasons.
@@ -1460,10 +1482,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # They belong beside the table they name: a user who has to say what
         # their count file calls its guide column is looking at the count
         # file, not at the model.
-        # `src` LAST in this group and empty by default: it is where the
-        # results GO rather than an input, but it belongs beside the tables
-        # because the folder it defaults to is derived from the first of
-        # them. Empty means automatic; see `ml.resolve_regression_src`.
+        # ``src`` is the optional result root. It remains beside the input
+        # tables because its automatic value is derived from the first count
+        # table; see ``ml.resolve_regression_src``.
         ("Input Tables", ("paired_data", "metadata_files",
                           "count_grna_column", "count_value_column",
                           "src")),
@@ -4048,6 +4069,11 @@ _UNIT_INTERVAL_PHRASES = (
 #: from the GUI at all.
 AUTO_OR_NUMBER_SETTINGS = ("alpha",)
 
+# These integer settings are undefined at zero and negative values. Limiting
+# the editor prevents the GUI from producing values rejected by the engine;
+# pre-flight validation still handles settings loaded from external files.
+POSITIVE_INTEGER_SETTINGS = frozenset({"guide_permutations"})
+
 #: What the minimum of such a spin box means, and what it shows.
 AUTO_TEXT = "auto"
 
@@ -4251,6 +4277,7 @@ def _translated_body(
     language: Optional[str] = None,
     *,
     setting_key: str = "",
+    app_key: str = "",
     category: bool = False,
 ) -> str:
     """Translate setting prose only when a complete translation exists.
@@ -4268,7 +4295,7 @@ def _translated_body(
     if code == "en":
         return source
     memo = _TRANSLATION_MEMO
-    memo_key = ("body", source, code, setting_key, category)
+    memo_key = ("body", source, code, setting_key, app_key, category)
     if memo is not None and memo_key in memo:
         return memo[memo_key]
     from ..i18n import _exact_translation, tr
@@ -4276,7 +4303,7 @@ def _translated_body(
     try:
         from ..i18n_catalogs import category_help, setting_tooltip
         translated = (
-            setting_tooltip(setting_key, source, code)
+            setting_tooltip(setting_key, source, code, app_key)
             if setting_key
             else category_help(source, code) if category else None
         )
@@ -4382,7 +4409,9 @@ def format_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body_source = _translated_body(text, code, setting_key=key)
+    body_source = _translated_body(
+        text, code, setting_key=key, app_key=app_key
+    )
     body = escape(body_source)
     header = escape(_translated_setting_name(key, code, app_key))
     th = escape(_translated_type_hint(key, code))
@@ -4415,7 +4444,7 @@ def plain_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body = _translated_body(text, code, setting_key=key)
+    body = _translated_body(text, code, setting_key=key, app_key=app_key)
     if not body:
         body = (f"Controls {_humanize(key).lower()}."
                 if code == "en" and key
@@ -7882,10 +7911,7 @@ class SettingsWidgets:
         self.rows_are_laid_out_by = None
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
-        if app_key == "umap":
-            # These app-scoped descriptions supersede legacy shared strings
-            # without invalidating source-bound reviewed translation evidence.
-            self._tooltips.update(_UMAP_TOOLTIP_OVERRIDES)
+        self._tooltips.update(_APP_TOOLTIP_OVERRIDES.get(app_key, {}))
         try:
             from spacr.plugins import get_app
             plugin_app = get_app(app_key)
@@ -8204,6 +8230,8 @@ class SettingsWidgets:
                 return "Exclude"
             if key == "exclude":
                 return "Exclude features"
+        if self.app_key == "regression" and key == "src":
+            return "Output directory"
         return setting_label(key)
 
     def _widget_for(self, kind: str, options: Any, default: Any,
@@ -8493,7 +8521,11 @@ class SettingsWidgets:
                 # silently clamped it to 1e6 -- a thousand-fold change to the
                 # largest vacuole the assay will score, applied before the
                 # user touched anything.
-                w.setRange(-2_147_483_648, 2_147_483_647)
+                minimum = (
+                    1 if key in POSITIVE_INTEGER_SETTINGS
+                    else -2_147_483_648
+                )
+                w.setRange(minimum, 2_147_483_647)
                 w.setValue(default)
                 return w
             if isinstance(default, float):

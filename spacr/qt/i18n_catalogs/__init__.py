@@ -158,10 +158,19 @@ def setting_tooltip(
     key: str,
     source: str,
     language: str,
+    app_key: str = "",
 ) -> Optional[str]:
-    """Return a scientific tooltip only while the canonical prose matches."""
+    """Return a scientific tooltip only while the canonical prose matches.
+
+    App-specific records take precedence when the same setting key has a
+    different meaning in one module. A shared record remains the fallback for
+    callers that provide an app key but use the canonical global description.
+    """
     canonical = getattr(_english(), "SETTING_TOOLTIPS", {})
-    if canonical.get(str(key)) != str(source):
+    lookup = f"{app_key}.{key}" if app_key else str(key)
+    if canonical.get(lookup) != str(source):
+        lookup = str(key)
+    if canonical.get(lookup) != str(source):
         default_limit = 4
         try:
             from spacr.organelle_types import (
@@ -206,7 +215,7 @@ def setting_tooltip(
     if module is None:
         return None
     return _localized_value(
-        module, "SETTING_TOOLTIPS", str(key), canonical[str(key)]
+        module, "SETTING_TOOLTIPS", lookup, canonical[lookup]
     )
 
 
