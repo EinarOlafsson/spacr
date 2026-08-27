@@ -2,7 +2,32 @@
 THE CELL TAB OFFERS THE BEST WAYS TO ANNOTATE, NOT ONLY THE OBVIOUS ONE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    DONE, audited 2026-08-27 against the built panel.
+
+           THE STRATEGIES ARE A NAMED CHOICE, each saying what it is for and
+           what it costs rather than naming a mechanism:
+
+             model    auto / xgboost / hist_gradient_boosting -- "boosted
+                      trees, XGBoost where it is installed"
+             leakage  report both / drop them / keep them -- and `keep` says
+                      out loud that it "can succeed by relearning the score"
+
+           THE LEAKAGE QUESTION IS ANSWERED, NOT AVOIDED. `report` fits with
+           the score's own inputs and without them and says how much of the
+           fit survives the second, which is the number that says whether a
+           model learned the phenotype or relearned the score.
+
+           THE SPLIT CANNOT STRADDLE A WELL: the level is offered as
+           "well -- cells of one well never straddle the split", so a hold-out
+           score is measured on wells the fit never saw. Cells of one well
+           share that well's phenotype, plate and treatment, so a split that
+           crossed one would score a model on its own training data.
+
+           A strategy with nothing to fit on says so rather than fitting on
+           nothing -- tests/qt/test_a_strategy_the_cells_cannot_support_says_so.py
+           and test_the_annotation_menu_refuses_before_it_fits.py.
+
+           55 tests across the three files.
 Owner:     the Regression module's cell tab, and whatever fits the chosen
            cells afterwards.
 

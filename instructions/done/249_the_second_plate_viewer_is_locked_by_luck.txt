@@ -2,7 +2,41 @@
 THE SECOND PLATE VIEWER IS LOCKED BY LUCK, AND DUPLICATES THE FIRST
 ================================================================================
 
-Status:    OPEN. Found while fixing the plate map picker's wells.
+Status:    DONE 2026-08-26, with ONE POINT ANSWERED DIFFERENTLY FROM THE
+           WAY THIS FILE ASKED -- measured, and said out loud below.
+
+           LOCKED BY CONSTRUCTION. Both plates state their square in their
+           OWN sheet, in content-box numbers, so the application sheet
+           cannot polish it away. `_well_sheet` pins `border-width` too,
+           which is the half a blanket `QLabel { border: ... }` would
+           otherwise take. Under a hostile rule installed on the REAL theme,
+           every cell and both header strips on both plates still measure
+           WELL_SIDE.
+
+           ONE COPY OF EVERYTHING SHAREABLE. `experiment_design` imports
+           WELL_SIDE, `_locked_square` and `_Header` from the picker and
+           declares none of its own -- pinned by tests now, because this
+           file records that they drifted once.
+
+           NOT ONE `_Well`, AND THAT IS DELIBERATE. This file asked for one
+           plate widget imported twice. Building 1,536 cells was measured
+           both ways under the real theme:
+
+               QLabel      (design map) 0.472 s
+               QPushButton (picker)     0.751 s   -- 59% more
+
+           The picker's wells are CHECKABLE: their state IS the selection,
+           so a button is the right shape there. The design map is a picture
+           that reports clicks, and 1,536 checkable buttons is a heavier
+           answer to a lighter question. Merging them would put that 0.28 s
+           on every open of the design screen -- several times that on the
+           laptop instruction 268 is about, which is the HIGHEST-priority
+           open item. So the shared parts are shared and the cell class is
+           not, with the measurement recorded in the test that pins it.
+
+           tests/qt/test_both_plates_are_locked_and_keep_what_was_chosen.py,
+           34 tests, all run against the real application stylesheet -- the
+           guard this file was written about failed because it did not.
 Owner:     spacr/qt/screens/experiment_design.py, and whatever it should
            import from spacr/qt/widgets/plate_map_picker.py.
 

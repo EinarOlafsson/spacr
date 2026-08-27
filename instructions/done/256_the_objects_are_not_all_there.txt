@@ -3,7 +3,31 @@ AN OBJECT THAT IS NOT IN THE RUN: A MASK DIM THAT CANNOT BE EMPTIED, AND AN
 ORGANELLE COUNT THAT STILL CHANGES NOTHING
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26. Extends 246, which is reopened on
+Status:    DONE, audited 2026-08-27. 41 tests across three files.
+
+           The count is on the panel each module OPENS with, immediately
+           before the slots it governs, and driving it through the real
+           dropdown with the event loop running renders exactly that many:
+           7 -> seven, 2 -> two, 7 -> seven again, asserted against
+           `organelle_roles(count)` rather than a slot count.
+
+           The count itself is never one of the rows a slot takes with it.
+
+           A mask dim clears to empty and stores None; a settings file that
+           omits the key loads; a stored channel of 0 counts as PRESENT,
+           which is the falsy-zero trap this item exists for; and the object
+           settings are hidden on first open with every channel None,
+           including when a saved file names none.
+
+           A NOTE ON AUDITING THIS ONE: an ad-hoc probe looking for widget
+           keys like `organelle*_channel` finds twenty-six and reports zero
+           visible, which looks like a failure and is not. The slots are
+           named by ROLE (`spacr.organelle_types.ALL_ORGANELLE_ROLES`) and
+           visibility is `screen.setting_row_is_visible`, not
+           `widget.isVisible` -- an unshown widget answers False to the
+           second whatever the panel is doing.
+
+Original:  OPEN. Requested 2026-08-26. Extends 246, which is reopened on
            the same organelle half.
 Owner:     spacr/settings.py and spacr/qt/screens/settings_model.py.
 

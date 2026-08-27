@@ -529,3 +529,56 @@ class TestABorderIsTakenBackOffToo:
         assert heads, "the picker drew no headers to measure"
         sizes = {(h.size().width(), h.size().height()) for h in heads}
         assert sizes == {(WELL_SIDE, WELL_SIDE)}, sizes
+
+
+class TestTheTwoPlatesShareOneDefinition:
+    """They drifted once. These pin what must stay one copy.
+
+    NOT the cell class, and that is measured rather than assumed. Building
+    1,536 cells takes 0.472 s as a QLabel and 0.751 s as a QPushButton --
+    59% more, on a workstation, for a plate that draws every well. The
+    picker's wells are CHECKABLE, so their state IS the selection and a
+    button is the right shape; the design map is a picture that reports
+    clicks, and 1,536 checkable buttons is a heavier answer to a lighter
+    question. Merging them would contradict instruction 268, which is about
+    exactly this cost on a slow machine.
+    """
+
+    def test_one_well_side(self):
+        from spacr.qt.screens import experiment_design
+        from spacr.qt.widgets import plate_map_picker
+
+        assert experiment_design.WELL_SIDE is plate_map_picker.WELL_SIDE
+
+    def test_the_design_map_declares_no_well_side_of_its_own(self):
+        import inspect
+
+        from spacr.qt.screens import experiment_design
+
+        source = inspect.getsource(experiment_design)
+        assert "\nWELL_SIDE =" not in source, (
+            "the second plate declared its own again; they drifted once")
+
+    def test_one_locked_square_helper(self):
+        from spacr.qt.screens import experiment_design
+        from spacr.qt.widgets import plate_map_picker
+
+        assert (experiment_design._locked_square
+                is plate_map_picker._locked_square)
+
+    def test_one_header_class(self):
+        from spacr.qt.screens import experiment_design
+        from spacr.qt.widgets import plate_map_picker
+
+        assert experiment_design._Header is plate_map_picker._Header
+
+    def test_the_design_well_states_its_own_square(self):
+        """The whole point of the item: locked by construction rather than
+        by the absence of a blanket QLabel rule."""
+        import inspect
+
+        from spacr.qt.screens import experiment_design
+
+        sheet = inspect.getsource(experiment_design._well_sheet)
+        assert "_locked_square" in sheet
+        assert "border-width" in sheet
