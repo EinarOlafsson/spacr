@@ -3910,6 +3910,15 @@ class AppScreen(QWidget):
                 # returns early for the run already on screen, so the two
                 # signals the Runs tab emits together cost one load.
                 self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+                # AND THE TWO TABS THAT READ THE RUN'S FOLDER. Both take
+                # zero-argument providers precisely so they can be re-read --
+                # the scan panel's own docstring says "the tab must not go on
+                # showing the previous run's inputs" -- but the only thing
+                # that re-read them was OPENING the tab. Change the loaded
+                # run while the Cells tab is in front and it went on showing
+                # the previous run's cells, under the new run's name.
+                self._sweep_runs.loaded_run_changed.connect(
+                    self._on_loaded_run_changed_refresh_tabs)
                 # A RUN THAT LEAVES THE TABLE LEAVES THE OTHER VIEWS
                 # (instruction 146). The panel keeps a plot state per run and
                 # the results tab may be showing the very run being removed.
@@ -6583,6 +6592,36 @@ class AppScreen(QWidget):
                 except Exception:                                # noqa: BLE001
                     LOG.debug("could not forget %s's figures", label,
                               exc_info=True)
+
+    def _on_loaded_run_changed_refresh_tabs(self, _record=None) -> None:
+        """Re-read the Cells and Measurements tabs when the run changes.
+
+        Opening a tab already re-reads it. That is not enough: the tab a user
+        is LOOKING AT when they load another run is never opened again, so it
+        kept the previous run's content while every other view moved. Showing
+        one run's cells under another run's name is the plausible-and-wrong
+        output this screen is most careful about.
+
+        The montage's grid is emptied rather than rebuilt. Its contents
+        answer a coefficient selected from the previous run's table, which
+        means nothing for the new one; the selection that arrives with the
+        new table fills it again. Never raises -- a tab that cannot refresh
+        must not take the run change down with it.
+        """
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None:
+            try:
+                montage.clear()
+                montage.refresh()
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not refresh the cells tab", exc_info=True)
+        scan = getattr(self, "_scan_panel", None)
+        if scan is not None:
+            try:
+                scan.refresh()
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not refresh the measurements tab",
+                          exc_info=True)
 
     def _on_results_tab_changed(self, index: int) -> None:
         """Opening a tab re-reads what it shows.
