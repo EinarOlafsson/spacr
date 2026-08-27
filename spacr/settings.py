@@ -2467,6 +2467,10 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('hinge_threshold', None)
     settings.setdefault('hinge_n_boot', 200)
     settings.setdefault('huber_t', 1.345)
+    # The spline basis. Read only by regression_type 'spline', where the
+    # COVARIATES are given a basis and the guide columns are left alone.
+    settings.setdefault('spline_knots', 4)
+    settings.setdefault('spline_degree', 3)
     settings.setdefault('lasso_n_boot', 200)
     settings.setdefault('lasso_selection_threshold', 0.6)
     # The group lasso's penalty weight. Declared here for the same reason as
@@ -3300,6 +3304,8 @@ expected_types = {
     "hinge_threshold": (float, type(None)),
     "hinge_n_boot": int,
     "huber_t": float,
+    "spline_knots": int,
+    "spline_degree": int,
     "lasso_n_boot": int,
     "lasso_selection_threshold": float,
     "regression_qc": bool,
@@ -4346,6 +4352,8 @@ tooltips = {
     "quantile": "(float) - Which quantile of the response quantile regression fits, strictly inside 0 and 1: 0.5 is the median (robust to outlier wells), 0.9 asks which gRNAs move the top of the distribution rather than its centre. Aggregation is turned off automatically so the quantile is taken over cells, not over well means. Read only by regression_type 'quantile'; it replaced the old overload of alpha. Default 0.5.",
     "hinge_threshold": "(float) - Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
     "hinge_n_boot": "(int) - Number of bootstrap resamples behind the hinge p-values. A support vector machine has no likelihood and so no Wald test; spaCR refits it on this many resamples of the wells and compares each coefficient to its bootstrap standard deviation. Treat the result as a stability statistic, not a hypothesis test. Higher is steadier and linearly slower; below about 50 the standard deviations are too noisy to rank on. Default 200.",
+    "spline_knots": "(int) - How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+    "spline_degree": "(int) - The polynomial degree of each covariate's spline basis. 3 is a cubic spline, the usual choice; 1 is piecewise linear. Read only by regression_type 'spline'. Default 3.",
     "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS under normally distributed residuals. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
     "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
     "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.",
@@ -5154,6 +5162,7 @@ categories = {
     # ignoring them, so a wrong setting here is an error and not a silent no-op.
     "Regression: Model Tuning": [
         "alpha", "l1_ratio", "quantile", "huber_t", "hinge_threshold",
+        "spline_knots", "spline_degree",
         "hinge_n_boot", "lasso_n_boot", "lasso_selection_threshold",
         "group_lasso_lambda",
     ],

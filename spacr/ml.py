@@ -2722,6 +2722,11 @@ _SETTING_NOT_APPLICABLE = {
     'hinge_threshold': "it is the cut that turns a continuous response into "
                        "the two classes a hinge loss separates; no other "
                        "model classifies.",
+    'spline_knots': "it sets how many knots each CONTINUOUS covariate's "
+                    "basis gets, and only the spline fit builds one; the "
+                    "guide columns are untouched either way.",
+    'spline_degree': "it sets the polynomial degree of that basis, and only "
+                     "the spline fit builds one.",
     'huber_t': "it is the residual, in units of the estimated scale, at which "
                "Huber's loss switches from squared to linear; only the robust "
                "fits have that switch.",
@@ -3376,6 +3381,7 @@ _GLUM_DESIGN_CLASS = type('GLM', (_AbsorbedDesign,),
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
                      hinge_threshold=None, huber_t=1.345, exposure=None,
+                     spline_knots=4, spline_degree=3,
                      group_lasso_lambda='auto', rra_alpha=0.25,
                      rra_permutations=10000,
                      regression_backend=DEFAULT_REGRESSION_BACKEND,
@@ -3453,6 +3459,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     :param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).
     :param hinge_threshold: Cut used to binarise a continuous response for
         ``hinge``; see :func:`binarise_response`.
+    :param spline_knots: Knots per continuous covariate for ``spline``.
+    :param spline_degree: Polynomial degree of that basis; 3 is cubic.
     :param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of
         the estimated residual scale. 1.345 gives 95% efficiency under
         normality.
@@ -3982,7 +3990,10 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             column = np.asarray(X[name], dtype=float)
             if np.unique(column).size > 4:
                 covariates.append(name)
-        design = spline_design(X, covariates) if covariates else X
+        design = (spline_design(X, covariates,
+                                knots=int(spline_knots),
+                                degree=int(spline_degree))
+                  if covariates else X)
         fitted = (sm.OLS(y, design).fit(cov_type=cov_type) if cov_type
                   else sm.OLS(y, design).fit())
         return fitted
@@ -4498,6 +4509,8 @@ def _reconcile_random_row_column_effects(settings):
         'quantile': (settings.get('quantile', 0.5), 0.5),
         'hinge_threshold': (settings.get('hinge_threshold'), None),
         'huber_t': (settings.get('huber_t', 1.345), 1.345),
+        'spline_knots': (settings.get('spline_knots', 4), 4),
+        'spline_degree': (settings.get('spline_degree', 3), 3),
     })
 
     if reg_type != 'mixed':
@@ -4663,6 +4676,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
                hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
+               spline_knots=4, spline_degree=3,
                legacy_volcano=False, level='grna', level_dst=None,
                draw_shared_panels=True, group_lasso_lambda='auto',
                rra_alpha=0.25, rra_permutations=10000,
@@ -4923,6 +4937,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             quantile=quantile,
             hinge_threshold=hinge_threshold,
             huber_t=huber_t,
+            spline_knots=spline_knots,
+            spline_degree=spline_degree,
             exposure=weights,
             group_lasso_lambda=group_lasso_lambda,
             rra_alpha=rra_alpha,
@@ -8466,6 +8482,8 @@ def _perform_regression(settings):
         hinge_threshold=settings['hinge_threshold'],
         hinge_n_boot=settings['hinge_n_boot'],
         huber_t=settings['huber_t'],
+        spline_knots=settings.get('spline_knots', 4),
+        spline_degree=settings.get('spline_degree', 3),
         # DEFAULTED HERE, not indexed. `group_lasso_lambda`, `rra_alpha` and
         # `rra_permutations` are declared in spacr.settings, but a settings
         # CSV written before instruction 133 has none of them and must still

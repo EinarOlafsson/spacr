@@ -1364,6 +1364,8 @@ class FastPlot(QWidget):
         #: ``[(label, callback, checked)]`` for the baselines this plot can
         #: measure its effects from. Empty unless the host offers them.
         self._baselines = []
+        self._smoothers = None
+        self._smoother_chosen = ""
 
         #: ``[(label, callback, checked)]`` for the MARK this plot's groups
         #: are drawn with. Empty on a plot whose x-axis is continuous, where
@@ -1426,6 +1428,8 @@ class FastPlot(QWidget):
         self._highlight = None
         self._refit = None
         self._baselines = []
+        self._smoothers = None
+        self._smoother_chosen = ""
         self._compartments = []
         self._corrections = []
         self._encodings = []
@@ -1575,6 +1579,80 @@ class FastPlot(QWidget):
         replaces the fit.
         """
         self._baselines = list(options or ())
+
+    def offer_smoothers(self, on_change, *, chosen: str = "lowess") -> None:
+        """Offer the four diagnostic smoothers on the right-click menu.
+
+        :param on_change: called ``(method_name)`` when one is picked, or
+            with ``""`` for none. The host redraws from it.
+        :param chosen: which one is currently drawn.
+
+        SEPARATE FROM :meth:`offer_refit` DELIBERATELY, and the menu says so.
+        These curves are laid over a fit that has already happened; none of
+        them replaces it, and none of them decides a hit. That is the whole
+        reason instruction 254 puts them in a different category from the
+        entries in ``regression_type``.
+        """
+        self._smoothers = on_change
+        self._smoother_chosen = str(chosen or "")
+
+    def _smoother_options(self) -> list:
+        """Build the menu entries, one per diagnostic, plus "none"."""
+        from spacr.nonparametric_fits import CATEGORY_DIAGNOSTIC, METHODS
+
+        entries = [("None", lambda: self._smoothers(""),
+                    not self._smoother_chosen)]
+        for name, spec in METHODS.items():
+            if spec["category"] != CATEGORY_DIAGNOSTIC:
+                continue
+            entries.append((
+                spec["label"],
+                (lambda n=name: self._smoothers(n)),
+                self._smoother_chosen == name,
+            ))
+        return entries
+
+    def add_smoother(self, x, y, *, method: str = "lowess",
+                     colour: str = "#55A868") -> str:
+        """Lay one diagnostic curve over the points already drawn.
+
+        :returns: what to say about it -- the method, its note, and the band
+            when it reports one -- or the refusal, which is a sentence the
+            caller shows rather than an exception it swallows. Returns ``""``
+            when ``method`` is empty, so "none" is not a special case at
+            every call site.
+
+        The curve carries no p-value and cannot acquire one: it comes back as
+        a :class:`spacr.nonparametric_fits.Curve`, which has no such
+        attribute. A smoother that bends where the straight trend line is
+        flat is the finding -- it means the mean model is missing a term --
+        and that is a statement about the FIT, not a test of a guide.
+        """
+        if not method:
+            return ""
+        from spacr.nonparametric_fits import smooth
+
+        try:
+            curve = smooth(x, y, method=method)
+        except ValueError as refusal:
+            # A refusal is the answer, not a failure: a Gaussian process
+            # asked for more rows than it can take says the number.
+            return str(refusal)
+        except Exception as problem:                          # noqa: BLE001
+            return f"{method} could not be drawn: {problem}"
+
+        if curve.has_band:
+            band = pg.FillBetweenItem(
+                pg.PlotDataItem(curve.x, curve.lower),
+                pg.PlotDataItem(curve.x, curve.upper),
+                brush=pg.mkBrush(85, 168, 104, 60))
+            self.plot.addItem(band)
+        self.plot.plot(curve.x, curve.y,
+                       pen=pg.mkPen(colour, width=2.0))
+        said = f"{curve.method} curve laid over the points"
+        if curve.note:
+            said += f" ({curve.note})"
+        return said + ". It is a diagnostic: it decides no hit."
 
     def offer_style(self, style, on_change=None, *, choices=None,
                     use_default: bool = True) -> None:
@@ -3399,6 +3477,13 @@ class FastPlot(QWidget):
             # fit that has already happened.
             self._checkable(self._group(menu, "Measured from"),
                             self._baselines)
+            claims = True
+        if self._smoothers is not None:
+            # NOT under a heading that could read as a choice of fit. These
+            # are drawn on top of one; the heading says which it is.
+            self._checkable(
+                self._group(menu, "Diagnostic curve (decides no hit)"),
+                self._smoother_options())
             claims = True
         if claims:
             menu.addSeparator()
@@ -7753,8 +7838,17 @@ class ResidualPlot(FastPlot):
     def __init__(self, parent=None):
         super().__init__(title="Residuals vs fitted", x_label="fitted",
                          y_label="residual", parent=parent)
+        self._residual_data = None
+        self.offer_smoothers(self._choose_smoother, chosen="lowess")
+
+    def _choose_smoother(self, method: str) -> None:
+        """Redraw with a different diagnostic curve, or with none."""
+        self._smoother_chosen = str(method or "")
+        if self._residual_data is not None:
+            self.set_residuals(*self._residual_data)
 
     def set_residuals(self, fitted, residuals, labels: Sequence[str] = ()):
+        self._residual_data = (fitted, residuals, labels)
         self._reset_scene()
         f, r = _finite(fitted), _finite(residuals)
         if not len(f):
@@ -7769,9 +7863,14 @@ class ResidualPlot(FastPlot):
             xs = np.array([np.nanmin(f), np.nanmax(f)])
             self.plot.plot(xs, slope * xs + intercept,
                            pen=pg.mkPen("#DD8452", width=1.5))
-            self.set_status(
-                f"{int(good.sum())} residuals. Trend slope {slope:+.3g} -- "
-                f"far from zero means the mean model is missing something.")
+            said = (f"{int(good.sum())} residuals. Trend slope "
+                    f"{slope:+.3g} -- far from zero means the mean model is "
+                    f"missing something.")
+            # THE STRAIGHT LINE CAN BE FLAT WHILE THE RESIDUALS BEND, which
+            # is the case a slope cannot report and a smoother can.
+            curve = self.add_smoother(f[good], r[good],
+                                      method=self._smoother_chosen)
+            self.set_status(f"{said} {curve}" if curve else said)
         return int(good.sum())
 
 
@@ -7797,6 +7896,15 @@ class ScaleLocationPlot(FastPlot):
         super().__init__(title="Scale-location", x_label="fitted",
                          y_label="sqrt(|standardised residual|)",
                          parent=parent)
+        self._scale_data = None
+        self.offer_smoothers(self._choose_smoother, chosen="lowess")
+
+    def _choose_smoother(self, method: str) -> None:
+        """Redraw with a different diagnostic curve, or with none."""
+        self._smoother_chosen = str(method or "")
+        if self._scale_data is not None:
+            self.set_scale_location(*self._scale_data[:3],
+                                    reason=self._scale_data[3])
 
     def set_scale_location(self, fitted, std_resid,
                            labels: Sequence[str] = (), reason: str = ""):
@@ -7808,6 +7916,7 @@ class ScaleLocationPlot(FastPlot):
         :param reason: what to say when there is no standardised residual;
             pass ``ctx.standardisation.reason``.
         """
+        self._scale_data = (fitted, std_resid, labels, reason)
         self._reset_scene()
         f, s = _finite(fitted), _finite(std_resid)
         good = ~(np.isnan(f) | np.isnan(s))
@@ -7823,11 +7932,13 @@ class ScaleLocationPlot(FastPlot):
         xs = np.array([float(np.nanmin(f)), float(np.nanmax(f))])
         self.plot.plot(xs, slope * xs + intercept,
                        pen=pg.mkPen("#DD8452", width=1.5))
-        self.set_status(
-            f"{int(good.sum())} wells. Trend slope {slope:+.3g} -- a flat "
-            f"line is constant variance; a rising one means the standard "
-            f"errors, and so every p-value on the volcano, depend on the "
-            f"fitted value.")
+        said = (f"{int(good.sum())} wells. Trend slope {slope:+.3g} -- a "
+                f"flat line is constant variance; a rising one means the "
+                f"standard errors, and so every p-value on the volcano, "
+                f"depend on the fitted value.")
+        curve = self.add_smoother(f[good], root[good],
+                                  method=self._smoother_chosen)
+        self.set_status(f"{said} {curve}" if curve else said)
         return int(good.sum())
 
 

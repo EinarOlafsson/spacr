@@ -35,6 +35,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 #: incomparable, which is the one thing a side-by-side re-fit is for.
 REFITTABLE = ("regression_type", "multiple_testing_method", "fdr_alpha",
               "alpha", "cov_type", "quantile", "huber_t", "l1_ratio",
+              "spline_knots", "spline_degree",
               "hinge_threshold", "random_row_column_effects")
 
 #: The setting that names the correction. SPELLED THE WAY THE RUN READS IT --

@@ -1798,6 +1798,11 @@ def _all_fitted_models(n=240, seed=200):
 
     plan = {
         "ols": (continuous, {}),
+        # `spline` IS an OLS fit, on a design whose CONTINUOUS covariates
+        # carry a basis. It joins this sweep on the continuous response for
+        # exactly that reason: the QC report has to describe the fit that
+        # ran, and the fit that ran is a least-squares one.
+        "spline": (continuous, {}),
         "wls": (continuous, {"weights": counts}),
         "rlm": (continuous, {}),
         "huber": (continuous, {"huber_t": 1.2}),

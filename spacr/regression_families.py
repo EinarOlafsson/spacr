@@ -48,7 +48,7 @@ REGRESSION_FAMILY_GROUPS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
         "lasso", "logit", "ols", "poisson", "probit", "quasi_binomial",
         "ridge", "wls",
     )),
-    ("robust_semiparametric", ("huber", "quantile", "rlm")),
+    ("robust_semiparametric", ("huber", "quantile", "rlm", "spline")),
     ("rank_based", ("rra",)),
 )
 
@@ -95,6 +95,9 @@ REGRESSION_FAMILY_ASSUMPTIONS: Dict[str, str] = {
               "well is in, not by how much"),
     "rlm": ("a linear model fitted by an M-estimator, so extreme wells are "
             "downweighted rather than assumed absent"),
+    "spline": ("least squares, but each continuous covariate is free to "
+               "bend; guides keep one coefficient each, so the volcano is "
+               "unchanged. Semiparametric, not fully nonparametric"),
     "huber": ("squared loss near the centre and linear in the tails, so a "
               "handful of bright wells cannot set a coefficient"),
     "quantile": ("a quantile of the response rather than its mean, which "
