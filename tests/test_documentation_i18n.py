@@ -12,10 +12,9 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 8_565
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 8_569
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -191,6 +190,7 @@ def test_api_repair_reuses_legacy_cache_only_for_identical_model_input(
     tmp_path, monkeypatch,
 ):
     import argparse
+
     import build_documentation_i18n as builder
 
     source = "Return the task status."
@@ -239,6 +239,7 @@ def test_api_repair_reuses_exact_historical_blocks_inside_changed_docstrings(
     tmp_path, monkeypatch,
 ):
     import argparse
+
     import build_documentation_i18n as builder
 
     key = "spacr.example"
@@ -322,6 +323,7 @@ def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
 ):
     import argparse
     import hashlib
+
     import build_documentation_i18n as builder
 
     source = "Return the processing session status."
@@ -387,6 +389,7 @@ def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
 ):
     import argparse
     import hashlib
+
     import build_documentation_i18n as builder
 
     source = "Return the groups variance distribution test."
@@ -1476,13 +1479,19 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "criblages CRISPR" in joined["fr"]
     assert "CRISPR 스크리닝" in joined["ko"]
     assert "CRISPR-skim" in joined["is"]
-    assert len(REVIEWED_README_HEADINGS) == 15
+    assert len(REVIEWED_README_HEADINGS) == 16
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
         }
     assert REVIEWED_README_HEADINGS["Install spaCR"]["hi"] == (
         "spaCR इंस्टॉल करें"
+    )
+    assert REVIEWED_README_HEADINGS["Conda-forge installation"]["zh_CN"] == (
+        "使用 conda-forge 安装"
+    )
+    assert REVIEWED_README_HEADINGS["PyPI installation"]["de"] == (
+        "Installation über PyPI"
     )
 
 
@@ -1561,8 +1570,8 @@ def test_numeric_protection_markers_restore_when_models_join_target_text():
 
 
 def test_numeric_protection_marker_does_not_match_inside_larger_number():
-    from build_i18n_catalogs import _restore
     import pytest
+    from build_i18n_catalogs import _restore
 
     with pytest.raises(ValueError, match="did not preserve 0X0 exactly once"):
         _restore("prefix 10X01 suffix", {"0X0": "**"})
@@ -1979,8 +1988,8 @@ def test_no_valid_beam_falls_back_to_source_without_cache(
 ):
     import types
 
-    import torch
     import build_i18n_catalogs as builder
+    import torch
 
     source = "Translate this deliberately unique beam fixture."
     model_folder = tmp_path / builder.MODEL_SPECS["pt"][1]
@@ -2324,6 +2333,7 @@ def test_atomic_catalog_writes_clean_temporary_files_after_failure(tmp_path):
 
 def test_catalog_seed_requires_current_per_entry_source_hash(monkeypatch):
     import build_i18n_catalogs as builder
+
     from spacr.qt.i18n_catalogs import de, en
 
     key = next(iter(en.SETTING_TOOLTIPS))
@@ -2980,8 +2990,8 @@ def test_opencc_t2s_normalizes_only_unprotected_chinese_prose():
 def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
     monkeypatch,
 ):
-    import build_i18n_catalogs as builder
     import build_documentation_i18n as docs_builder
+    import build_i18n_catalogs as builder
 
     monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
     with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
@@ -3226,7 +3236,7 @@ def test_localized_readmes_preserve_safety_meaning_and_language_names():
 
 def test_localized_readmes_keep_the_badge_row_structurally_intact():
     expected = (
-        "|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| "
+        "|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| "
         "|Source| |Issues| |License| |DOI|"
     )
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
@@ -3319,6 +3329,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
 def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
     """The image generator must not restore English headings or actions."""
     import importlib.util
+
     from readme_i18n import (
         WORKFLOW_MODULE_ALT_TEMPLATES,
         WORKFLOW_SECTION_LABELS,

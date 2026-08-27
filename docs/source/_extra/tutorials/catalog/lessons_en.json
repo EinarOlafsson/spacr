@@ -32,19 +32,19 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Choose the official source for a packaged release, desktop installer, development branch, or future conda-forge package.",
+      "description": "Choose the official source for a Python package, conda-forge package, desktop installer, or development branch.",
       "objectives": [
-        "Identify the official PyPI package and GitHub repository.",
+        "Identify the official PyPI and conda-forge packages.",
         "Distinguish stable releases from the nightly branch.",
-        "Understand the current conda-forge publication status."
+        "Select the appropriate installation route for the intended environment."
       ],
       "prerequisite": "No installation is required.",
       "scenes": [
         {
-          "narration": "Before installing spaCR, choose the official source. PyPI provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
+          "narration": "Before installing spaCR, choose an official distribution route. PyPI and conda-forge provide released packages, while GitHub provides source code, desktop installers, and release records.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "Before installing spacer, choose the official source. pypie provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
+          "speech_text": "Before installing spacer, choose an official distribution route. pypie and [conda-forge](/kˈɑndə fˌɔɹʤ/) provide released packages, while [GitHub](/ɡˈɪthˌʌb/) provides source code, desktop installers, and release records."
         },
         {
           "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
@@ -71,16 +71,16 @@
           "speech_text": "In a [GitHub](/ɡˈɪthˌʌb/) Release, expand Assets to download the Windows, [macOS](/mˈækOˌɛs/), or Linux installer, the Python package files, or the checksum list."
         },
         {
-          "narration": "Conda-forge does not publish spaCR yet. Today, create a Conda environment and install spaCR from PyPI; use the conda-forge channel only after the package is published.",
+          "narration": "The official conda-forge package installs spaCR and its desktop dependencies into the active Conda environment. Use the exact command conda install conda-forge::spacr.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pypie; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
+          "speech_text": "The official [conda-forge](/kˈɑndə fˌɔɹʤ/) package installs spacer and its desktop dependencies into the active [Conda](/kˈɑndə/) environment. Use the exact command [conda](/kˈɑndə/) install [conda-forge](/kˈɑndə fˌɔɹʤ/)::spacer."
         },
         {
-          "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
+          "narration": "Use conda-forge or PyPI for a managed Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "Use pypie or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
+          "speech_text": "Use [conda-forge](/kˈɑndə fˌɔɹʤ/) or pypie for a managed Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
         }
       ]
     },
@@ -92,25 +92,25 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Create an isolated Python 3.12 environment and install the desktop or headless package into it.",
+      "description": "Create an isolated Python 3.12 environment and install the complete spaCR desktop package directly from conda-forge.",
       "objectives": [
-        "Create and verify an isolated spaCR environment.",
-        "Choose the desktop or headless installation.",
-        "Validate the installation before launching spaCR."
+        "Create and activate an isolated spaCR environment.",
+        "Install spaCR directly from the official conda-forge channel.",
+        "Verify the package and diagnostics before launching spaCR."
       ],
       "prerequisite": "Install Miniforge, Miniconda, Anaconda, or another Conda-compatible manager.",
       "scenes": [
         {
-          "narration": "Use a Conda environment to isolate spaCR and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages.",
+          "narration": "Install spaCR from conda-forge in a dedicated Conda environment. The package includes the desktop interface and declares spaCR's scientific dependencies.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Use a [Conda](/kˈɑndə/) environment to isolate spacer and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages."
+          "speech_text": "Install spacer from [conda-forge](/kˈɑndə fˌɔɹʤ/) in a dedicated [Conda](/kˈɑndə/) environment. The package includes the desktop interface and declares spacer's scientific dependencies."
         },
         {
-          "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve and pip.",
+          "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve.",
           "visual": "create",
           "hold_after": 0.7,
-          "speech_text": "Open a [Conda](/kˈɑndə/)-enabled terminal and create an environment named spacer with Python three point twelve and pip."
+          "speech_text": "Open a [Conda](/kˈɑndə/)-enabled terminal and create an environment named spacer with Python three point twelve."
         },
         {
           "narration": "Activate the environment. Confirm that Python belongs to the spacr environment before installing anything.",
@@ -119,16 +119,16 @@
           "speech_text": "Activate the environment. Confirm that Python belongs to the spacer environment before installing anything."
         },
         {
-          "narration": "Upgrade pip through the active Python interpreter. Using python -m pip prevents a different pip executable from receiving the package.",
-          "visual": "upgrade",
+          "narration": "Install the official package with conda install conda-forge::spacr. The channel-qualified command selects the conda-forge build explicitly.",
+          "visual": "install",
           "hold_after": 0.7,
-          "speech_text": "Upgrade pip through the active Python interpreter. Using python dash m pip prevents a different pip executable from receiving the package."
+          "speech_text": "Install the official package with [conda](/kˈɑndə/) install [conda-forge](/kˈɑndə fˌɔɹʤ/)::spacer. The channel-qualified command selects the [conda-forge](/kˈɑndə fˌɔɹʤ/) build explicitly."
         },
         {
-          "narration": "For the desktop application, install spacr with the qt extra. Use the plain spacr package for a headless workstation or server.",
-          "visual": "desktop",
+          "narration": "Confirm that Conda reports spaCR in the environment, then import it and print the installed version.",
+          "visual": "verify",
           "hold_after": 0.7,
-          "speech_text": "For the desktop application, install spacer with the cute extra. Use the plain spacer package for a headless workstation or server."
+          "speech_text": "Confirm that [Conda](/kˈɑndə/) reports spacer in the environment, then import it and print the installed version."
         },
         {
           "narration": "Run spacr-doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
@@ -137,10 +137,10 @@
           "speech_text": "Run spacer doctor before the first launch. It reports the active installation, cute, [PyTorch](/pˈItˌɔɹʧ/), optional components, and hardware support with a suggested fix for every failed check."
         },
         {
-          "narration": "After spacr-doctor passes, keep this environment activated whenever you run spaCR.",
+          "narration": "After spacr-doctor passes, launch spaCR with the spacr command. Keep this environment activated whenever you run spaCR.",
           "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "After spacer doctor passes, keep this environment activated whenever you run spacer."
+          "speech_text": "After spacer doctor passes, launch spacer with the spacer command. Keep this environment activated whenever you run spacer."
         }
       ]
     },
@@ -952,41 +952,41 @@
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Link pooled-screen guide abundance to measured phenotypes and inspect evidence, diagnostics, and effect estimates.",
+      "description": "Relate pooled-screen guide abundance to measured phenotypes with blocked permutation tests or simultaneous regression, then inspect support, diagnostics, and effect estimates.",
       "objectives": [
         "Align phenotype, guide-count, and control information.",
-        "Choose a justified model, correction, and evidence rules.",
+        "Choose a justified inference procedure, correction, and evidence rules.",
         "Interpret effects together with controls and diagnostics."
       ],
       "prerequisite": "Complete barcode mapping and prepare phenotype and guide-count tables with matching plate and well identifiers.",
       "scenes": [
         {
-          "narration": "Regression links phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, model diagnostics, results, and reproducibility records.",
+          "narration": "Regression relates phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, the selected inference procedure, diagnostics, results, and reproducibility records.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Regression links phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, model diagnostics, results, and reproducibility records."
+          "speech_text": "Regression relates phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, the selected inference procedure, diagnostics, results, and reproducibility records."
         },
         {
-          "narration": "Input Tables selects phenotype scores, sequencing counts, and optional gene metadata. Confirm that plates and wells use matching identifiers before modeling.",
+          "narration": "Input Tables selects phenotype scores, sequencing counts, optional gene metadata, and the result destination. Leave the destination blank to write beside the first count table; confirm matching plate and well identifiers before analysis.",
           "visual": "12_category_01_input_tables",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Input Tables selects phenotype scores, sequencing counts, and optional gene metadata. Confirm that plates and wells use matching identifiers before modeling."
+          "speech_text": "Input Tables selects phenotype scores, sequencing counts, optional gene metadata, and the result destination. Leave the destination blank to write beside the first count table; confirm matching plate and well identifiers before analysis."
         },
         {
-          "narration": "Essentials contains the controls required for a first model. Use Modified to audit deliberate changes, All for advanced families, and Recipes for a reusable design.",
+          "narration": "Essentials contains the inputs and inference controls required for a first analysis. Use Modified to audit deliberate changes, All to inspect advanced controls, and Recipes to save a reusable design.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls required for a first model. Use Modified to audit deliberate changes, All for advanced families, and Recipes for a reusable design."
+          "speech_text": "Essentials contains the inputs and inference controls required for a first analysis. Use Modified to audit deliberate changes, All to inspect advanced controls, and Recipes to save a reusable design."
         },
         {
-          "narration": "Controls and Plate Design identifies positive, negative, and neutral controls plus any wells or rows excluded before fitting. These choices define the reference behavior.",
-          "visual": "12_category_02_controls_plate_design",
+          "narration": "Controls and Filters identifies positive, negative, and neutral controls; excludes specified guides, wells, or table rows; and sets the evidence and normalization rules that determine which observations enter the analysis.",
+          "visual": "12_category_02_controls_filters",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Controls and Plate Design identifies positive, negative, and neutral controls plus any wells or rows excluded before fitting. These choices define the reference behavior."
+          "speech_text": "Controls and Filters identifies positive, negative, and neutral controls; excludes specified guides, wells, or table rows; and sets the evidence and normalization rules that determine which observations enter the analysis."
         },
         {
           "narration": "Plate and Batch Correction can remove technical offsets by centering, robust scaling, reference controls, or batch models. Apply correction only when the design supports it.",
@@ -996,39 +996,46 @@
           "speech_text": "Plate and Batch Correction can remove technical offsets by centering, robust scaling, reference controls, or batch models. Apply correction only when the design supports it."
         },
         {
-          "narration": "Model and Covariates selects the response, aggregation, transform, regression family, uncertainty estimate, and any justified row, column, or experimental covariates.",
-          "visual": "12_category_04_model_covariates",
+          "narration": "Response selects the phenotype column, analysis unit, aggregation, optional inversion, and transform. These choices define the quantity associated with guide abundance.",
+          "visual": "12_category_04_response",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Model and Covariates selects the response, aggregation, transform, regression family, uncertainty estimate, and any justified row, column, or experimental covariates."
+          "speech_text": "Response selects the phenotype column, analysis unit, aggregation, optional inversion, and transform. These choices define the quantity associated with guide abundance."
         },
         {
-          "narration": "Hit Calling and Outliers sets minimum cell, well, and guide evidence plus optional outlier rules. Choose thresholds from control behavior and data quality.",
-          "visual": "12_category_06_hit_calling_outliers",
+          "narration": "Model and Inference chooses nonparametric guide testing, parametric simultaneous regression, or automatic selection. It also defines the reported level, model family when applicable, multiple-testing correction, and significance rule.",
+          "visual": "12_category_05_model_inference",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Hit Calling and Outliers sets minimum cell, well, and guide evidence plus optional outlier rules. Choose thresholds from control behavior and data quality."
+          "speech_text": "Model and Inference chooses nonparametric guide testing, parametric simultaneous regression, or automatic selection. It also defines the reported level, model family when applicable, multiple-testing correction, and significance rule."
         },
         {
-          "narration": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep untruncated tables for interpretation.",
-          "visual": "12_category_07_regression_plots",
+          "narration": "Estimator Tuning contains covariance, regularization, robust-fit, quantile, bootstrap, and rank-aggregation controls. Only settings used by the selected estimator affect the analysis.",
+          "visual": "12_category_06_estimator_tuning",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep [untruncated](/ʌntɹˈʌŋkATᵻd/) tables for interpretation."
+          "speech_text": "Estimator Tuning contains covariance, regularization, robust-fit, quantile, bootstrap, and rank-aggregation controls. Only settings used by the selected estimator affect the analysis."
         },
         {
-          "narration": "Run validates schemas and well keys, applies exclusions and correction, aggregates scores, fits the selected model, and evaluates evidence. Watch controls and diagnostics before calling hits.",
+          "narration": "Permutation Test configures the guide statistic, minimum well support, permutation count and seed, exchangeability block, nuisance variables, presence threshold, and memory-bounded batch size.",
+          "visual": "12_category_07_permutation_test",
+          "hold_after": 0.7,
+          "focus_key": "category",
+          "speech_text": "Permutation Test configures the guide statistic, minimum well support, permutation count and seed, exchangeability block, nuisance variables, presence threshold, and memory-bounded batch size."
+        },
+        {
+          "narration": "Run validates schemas and well keys, applies exclusions and correction, aggregates the response, and executes the selected inference procedure. The default nonparametric procedure uses plate-blocked Freedman–Lane permutations and does not fit a regression model.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run validates schemas and well keys, applies exclusions and correction, aggregates scores, fits the selected model, and evaluates evidence. Watch controls and diagnostics before calling hits."
+          "speech_text": "Run validates schemas and well keys, applies exclusions and correction, aggregates the response, and executes the selected inference procedure. The default nonparametric procedure uses plate-blocked Freedman–Lane permutations and does not fit a regression model."
         },
         {
-          "narration": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a rerunnable manifest.",
+          "narration": "The completed project contains aligned analysis data, guide- and gene-level effect estimates, empirical or model-based significance tables, diagnostic figures, saved settings, and a rerunnable manifest.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
+          "speech_text": "The completed project contains aligned analysis data, guide- and gene-level effect estimates, empirical or model-based significance tables, diagnostic figures, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
       ]
     },

@@ -3520,12 +3520,23 @@ REVIEWED_README_HEADINGS.update({
         "ko": "데스크톱 애플리케이션", "is": "Skjáborðsforrit",
         "fr": "Application de bureau",
     },
-    "Python installation": {
-        "sv": "Python-installation", "de": "Python-Installation",
-        "es": "Instalación con Python", "zh_CN": "Python 安装",
-        "pt": "Instalação com Python", "hi": "Python इंस्टॉलेशन",
-        "ko": "Python 설치", "is": "Python-uppsetning",
-        "fr": "Installation avec Python",
+    "Conda-forge installation": {
+        "sv": "Installation med conda-forge",
+        "de": "Installation mit conda-forge",
+        "es": "Instalación con conda-forge",
+        "zh_CN": "使用 conda-forge 安装",
+        "pt": "Instalação com conda-forge",
+        "hi": "conda-forge से इंस्टॉलेशन",
+        "ko": "conda-forge 설치",
+        "is": "Uppsetning með conda-forge",
+        "fr": "Installation avec conda-forge",
+    },
+    "PyPI installation": {
+        "sv": "Installation från PyPI", "de": "Installation über PyPI",
+        "es": "Instalación desde PyPI", "zh_CN": "使用 PyPI 安装",
+        "pt": "Instalação pelo PyPI", "hi": "PyPI से इंस्टॉलेशन",
+        "ko": "PyPI 설치", "is": "Uppsetning frá PyPI",
+        "fr": "Installation depuis PyPI",
     },
     "What you can do": {
         "sv": "Det här kan du göra", "de": "Was Sie tun können",
@@ -3705,15 +3716,15 @@ REVIEWED_README_RESOURCE_ALT_TEXT = {
 }
 
 REVIEWED_README_BADGE_ALT_TEXT = {
-    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "PolyForm-Noncommercial-Lizenz", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Rezept", "spaCR"),
-    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia PolyForm Noncommercial", "DOI de Zenodo", "Instaladores más recientes", "Receta de conda-forge", "spaCR"),
-    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence PolyForm Noncommercial", "DOI Zenodo", "Derniers installateurs", "Recette conda-forge", "spaCR"),
-    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "PolyForm गैर-व्यावसायिक लाइसेंस", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge रेसिपी", "spaCR"),
-    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "PolyForm Noncommercial-leyfi", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-uppskrift", "spaCR"),
-    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "PolyForm 비상업용 라이선스", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 레시피", "spaCR"),
-    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença PolyForm Noncommercial", "DOI do Zenodo", "Instaladores mais recentes", "Receita do conda-forge", "spaCR"),
-    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "PolyForm Noncommercial-licens", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-recept", "spaCR"),
-    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "PolyForm 非商业许可证", "Zenodo DOI", "最新安装程序", "conda-forge 配方", "spaCR"),
+    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "PolyForm-Noncommercial-Lizenz", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "spaCR"),
+    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia PolyForm Noncommercial", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "spaCR"),
+    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence PolyForm Noncommercial", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "spaCR"),
+    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "PolyForm गैर-व्यावसायिक लाइसेंस", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "spaCR"),
+    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "PolyForm Noncommercial-leyfi", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "spaCR"),
+    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "PolyForm 비상업용 라이선스", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "spaCR"),
+    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença PolyForm Noncommercial", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "spaCR"),
+    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "PolyForm Noncommercial-licens", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "spaCR"),
+    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "PolyForm 非商业许可证", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "spaCR"),
 }
 
 # Workflow tiles keep their canonical module names so visual navigation, GUI
@@ -3723,7 +3734,7 @@ REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 
 README_BADGE_SUBSTITUTIONS = (
     "Docs", "Tutorials", "PyPI", "Python", "Tests", "Qt", "Source",
-    "Issues", "License", "DOI", "Release", "CondaRecipe",
+    "Issues", "License", "DOI", "Release", "Conda",
 )
 README_INSTALLER_SUBSTITUTIONS = (
     "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
@@ -6556,7 +6567,9 @@ def main() -> int:
             module_name_iter = iter(module_names)
             localized_readme = re.sub(
                 r"(?m)^- \*\*[^*\n]+\*\*\s*",
-                lambda _match: f"- **{next(module_name_iter)}** ",
+                lambda _match, names=module_name_iter: (
+                    f"- **{next(names)}** "
+                ),
                 localized_readme,
                 count=len(module_names),
             )

@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: Latest installers
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge recipe
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge version
 
 .. image:: spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -394,9 +394,23 @@ blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
 See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
 offline and troubleshooting instructions.
 
-Python installation
-~~~~~~~~~~~~~~~~~~~
+Conda-forge installation
+~~~~~~~~~~~~~~~~~~~~~~~~
 
+The official conda-forge package installs spaCR and its desktop dependencies
+into the active environment:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+PyPI installation
+~~~~~~~~~~~~~~~~~
+
+For the PyPI release, install spaCR with pip inside a Conda environment.
 Python 3.12 has the widest choice of optional scientific packages:
 
 .. code-block:: bash

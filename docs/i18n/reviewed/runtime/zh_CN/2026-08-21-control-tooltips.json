@@ -6,9 +6,9 @@
     {
       "table": "setting_tooltips",
       "key": "controls",
-      "source_sha256": "9f6dca8c4b40a495839db56e6e8bd7e66d5635e5fa453cbea456bb94fd53fa12",
-      "source": "gRNA identifiers treated as non-targeting controls. Their coefficients define the effect-size cutoff drawn on the volcano plot: abs(median(control coefficients)) + threshold_multiplier × spread, where threshold_method selects the spread estimator. A wider control distribution raises the cutoff. None disables the effect-size cutoff. Default ['000000'] identifies the non-cutting control gene, which spaCR resolves to every associated guide in the loaded library and avoids a manually maintained list that can become inconsistent with library revisions. A guide identifier also works, with or without the organism prefix.",
-      "translation": "作为非靶向对照处理的 gRNA 标识符。其系数定义火山图上绘制的效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高。None 会禁用效应量阈值。默认值 ['000000'] 标识非切割对照基因；spaCR 会根据已加载的文库将其解析为所有相关向导，从而避免手工维护的列表与文库修订不一致。也可以提供单个向导标识符，带或不带物种前缀均可。"
+      "source_sha256": "7ae3717a942308af9d7dfcf2ae0cfc09565b894cced8fa55bf2831a95dea967b",
+      "source": "Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
+      "translation": "非靶向对照 gRNA 标识符。其系数设定火山图效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高；None 会禁用该阈值。默认值 ['000000'] 指定非切割对照基因，spaCR 会将其解析为已加载文库中的所有相关向导。也可以使用单个向导标识符，无论是否带有生物体前缀。"
     },
     {
       "table": "setting_tooltips",

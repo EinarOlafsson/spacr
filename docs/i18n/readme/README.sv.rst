@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: Senaste installationsprogrammen
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge-recept
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge-version
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -376,10 +376,22 @@ På macOS, öppna ``.pkg``. Nuvarande beta notariseras inte. Om Gatekeeper block
 
 Se `installationsguide <../../source/installer_guide.rst>`_ för uppdatering, avinstallera, offline och felsökningsinstruktioner.
 
-Python-installation
-~~~~~~~~~~~~~~~~~~~
+Installation med conda-forge
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python 3.12 har det bredaste valet av frivilliga vetenskapliga paket:
+Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden i den aktiva miljön:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Installation från PyPI
+~~~~~~~~~~~~~~~~~~~~~~
+
+För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 ger det största urvalet av valfria vetenskapliga paket:
 
 .. code-block:: bash
 

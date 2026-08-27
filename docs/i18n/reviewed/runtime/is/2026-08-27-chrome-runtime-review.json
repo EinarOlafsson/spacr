@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "Styrkleikavinnsla (allir hlutir)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "Uppruni örplatna og verkflæði"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "Merkingar og flokkar"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "Mat og niðurstöður"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "Lágmarksflatarmál hlutar"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "Fjarlægja hluti við jaðar"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "Hitakort örplötu"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "Samþykkt og í almennri notkun."
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "Lengra komið en alfastigið og í reglulegri notkun, en hefur ekki enn verið samþykkt."
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "Útfært og aðgengilegt, en ekki enn talið áreiðanlegt frá upphafi til enda. Búast má við hnökrum; sannreyna ætti tölurnar áður en reitt er á þær."
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> merkja + áfram &nbsp;·&nbsp; <b>0</b> hreinsa merkingu &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> færa fókus &nbsp;·&nbsp; <b>Space</b> sleppa &nbsp;·&nbsp; <b>Backspace</b> til baka &nbsp;·&nbsp; <b>u</b> afturkalla &nbsp;·&nbsp; <b>Enter</b> næsta lota"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> úthluta myndbútinum í fókus viðeigandi flokki og fara í næsta ómerkta myndbút &nbsp;·&nbsp; <b>0</b> hreinsa merkinguna af myndbútinum í fókus &nbsp;·&nbsp; <b>← ↑ ↓ →</b> eða <b>h j k l</b> færa fókus án þess að merkja &nbsp;·&nbsp; <b>Space</b> hoppa yfir einn myndbút áfram &nbsp;·&nbsp; <b>Backspace</b> fara einn myndbút til baka &nbsp;·&nbsp; <b>u</b> afturkalla síðustu merkingu &nbsp;·&nbsp; <b>Enter</b> vista þessa síðu og hlaða næstu lotu &nbsp;·&nbsp; músin virkar áfram: vinstrismellur = flokkur 1, hægrismellur = flokkur 2."
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "Veldu möppu sem inniheldur `measurements/measurements.db`. Vinstrismelltu á mynd til að úthluta flokki 1, hægrismelltu fyrir flokk 2 og smelltu aftur til að hreinsa merkinguna — eða notaðu eingöngu lyklaborðið: 1–9 merkja og fara í næsta myndbút. Merkingar vistast í bakgrunni."
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "Raungagnasafn frá upphafi til enda (Grímur → Mæling → Merking)…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "Skilgreining á metnum skurðpunkti. 'fitted' metur hann út frá gögnunum sem spágildi svarsins þegar allar skýribreytur eru á viðmiðunarstigi sínu; í genahönnun með tvíkosta vísakóðun er viðmiðið genið sem patsy sleppir og það hefur hugsanlega enga gagnlega líffræðilega túlkun. 'control' dregur meðalsvar neikvæðu viðmiðanna frá áður en líkanið er metið og sleppir skurðliðnum, þannig að hver stuðull er mismunur miðað við viðmiðin. 'zero' þvingar aðhvarfið í gegnum núllpunktinn. 'value' festir skurðpunktinn við intercept_value. Sjálfgefið: 'fitted'."
+    }
+  ]
+}

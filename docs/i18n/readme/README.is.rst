@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: Nýjustu uppsetningarforrit
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge-uppskrift
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge-útgáfa
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -376,10 +376,22 @@ Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið 
 
 Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
 
-Python-uppsetning
+Uppsetning með conda-forge
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Uppsetning frá PyPI
 ~~~~~~~~~~~~~~~~~~~
 
-Python 3.12 hefur breiðustu val af ókeypis vísindalegar pakka:
+Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
 
 .. code-block:: bash
 

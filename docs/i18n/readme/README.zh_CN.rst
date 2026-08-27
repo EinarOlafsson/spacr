@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: 最新安装程序
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge 配方
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge 版本
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -376,10 +376,22 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
 
-Python 安装
-~~~~~~~~~~~~~~~~~~~
+使用 conda-forge 安装
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python 3.12 有最广泛的选择可选的科学包:
+官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+使用 PyPI 安装
+~~~~~~~~~~~~~~~~~
+
+如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富：
 
 .. code-block:: bash
 

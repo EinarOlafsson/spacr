@@ -1,0 +1,27 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "The ``+1`` in both places is not a fudge: including the observed configuration in its own reference set is what makes the test EXACT, giving ``P(p <= alpha) <= alpha`` under the null for any ``B``. It also sets a floor of ``1 / (B + 1)`` -- with the default 200,000 permutations, 5e-06. A guide at the floor is one no permutation reached, and guides there cannot be ranked against each other; raising ``B`` is the only remedy and costs linearly. The ``eps`` keeps a permutation that reproduces the observed statistic exactly from failing its own ``>=``.",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#11",
+      "source": "The ``+1`` in both places is not a fudge: including the observed configuration in its own reference set is what makes the test EXACT, giving ``P(p <= alpha) <= alpha`` under the null for any ``B``. It also sets a floor of ``1 / (B + 1)`` -- with the default 200,000 permutations, 5e-06. A guide at the floor is one no permutation reached, and guides there cannot be ranked against each other; raising ``B`` is the only remedy and costs linearly. The ``eps`` keeps a permutation that reproduces the observed statistic exactly from failing its own ``>=``.",
+      "source_sha256": "743af4dc5782a8cc877cf92062c4e31335f35d0829bfc650ca0ec0578dde4447",
+      "translation": "两处的 ``+1`` 都不是任意修正：将观测到的配置纳入其自身的参考集，使检验保持精确，即在原假设成立时满足 ``P(p <= alpha) <= alpha``，且该结论对任意 ``B`` 均成立。这也将最小值设为 ``1 / (B + 1)`` -- 使用默认的 200,000 次置换时，该值为 5e-06。达到该最小值的向导序列表示没有任何置换达到相应统计量，因此这些向导序列之间无法排序；唯一的解决方法是增大 ``B``，计算成本会线性增加。``eps`` 可避免恰好复现观测统计量的置换因其自身的 ``>=`` 比较而被错误排除。"
+    },
+    {
+      "context": "optional callable asked before each image data channel's Cellpose model construction and forward pass. When it answers True the work is abandoned by raising :class:`OutlineCancelled` rather than finishing a page nobody is waiting for; ``'otsu'`` outlines are fast enough that they are never interrupted mid-image data channel.",
+      "label": "spacr.qt.annotate_engine.outline_image#3",
+      "source": "optional callable asked before each channel's Cellpose model construction and forward pass. When it answers True the work is abandoned by raising :class:`OutlineCancelled` rather than finishing a page nobody is waiting for; ``'otsu'`` outlines are fast enough that they are never interrupted mid-channel.",
+      "source_sha256": "1f0ea3f87aa9fcaf2449da22f4037c72b58f687c3eaddeeaa0362dc697795fa8",
+      "translation": "在为每个图像数据通道构建 Cellpose 模型并执行前向传播之前调用的可选函数。如果该函数返回 True，则通过引发 :class:`OutlineCancelled` 放弃该任务，而不是完成无人等待的页面；``'otsu'`` 轮廓计算足够快，因此不会在单个图像数据通道处理途中被中断。"
+    },
+    {
+      "context": "Dropping a column that no visible row fills is safe because it carries no value for this selection: \"how many microplate sample positions hold this guide\" has no answer for a gene. The identity and significance columns in :data:`TABLE_KEEP_COLUMNS` stay regardless.",
+      "label": "spacr.qt.widgets.regression_results.for_table#2",
+      "source": "Dropping a column that no visible row fills is safe because it carries no value for this selection: \"how many wells hold this guide\" has no answer for a gene. The identity and significance columns in :data:`TABLE_KEEP_COLUMNS` stay regardless.",
+      "source_sha256": "69e3b14c757e10d6a17d36ca94a7e90ffdf142d97e290e1f80a462ff8e29f070",
+      "translation": "删除所有可见行均为空的列是安全的，因为该列对当前选择不包含任何值：“有多少个微孔板样本位置包含此向导序列”这一问题不适用于基因。无论如何，:data:`TABLE_KEEP_COLUMNS` 中的标识列和显著性列都会保留。"
+    }
+  ],
+  "schema": 1
+}

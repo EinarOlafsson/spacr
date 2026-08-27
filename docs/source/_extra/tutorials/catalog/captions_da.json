@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Før du installerer spaCR, skal du vælge den officielle kilde. PyPI indeholder den udgivne Python-pakke, GitHub indeholder kildekoden og installationsprogrammerne til skrivebordet, og conda-forge bliver en mulighed, når pakken er udgivet."
+          "narration": "Vælg en officiel distributionsmetode, før du installerer spaCR. PyPI og conda-forge leverer udgivne pakker, mens GitHub leverer kildekode, installationsprogrammer til skrivebordet og udgivelseshistorik."
         },
         {
           "narration": "På PyPI viser udgivelsesoverskriften den aktuelle stabile version og kommandoen pip install spacr."
         },
         {
-          "narration": "Under Project links finder du dokumentationen, hjemmesiden, fejlrapporteringen og kildekodedepotet."
+          "narration": "Afsnittet Project links åbner dokumentationen, startsiden, problemsporingen og kildekodedepotet."
         },
         {
-          "narration": "På GitHub bruger du grenvælgeren til at vælge kodelinje. main er udgivelsesgrenen; nightly indeholder nyere ændringer, der stadig testes."
+          "narration": "På GitHub er main den udgivne kildekodelinje, mens nightly indeholder nyere ændringer, der stadig testes. Brug kun nightly, når du specifikt har brug for en endnu ikke udgivet ændring."
         },
         {
-          "narration": "Udvid Assets under en GitHub-udgivelse for at hente installationsprogrammet til Windows, macOS eller Linux, Python-pakkefilerne eller listen over kontrolsummer."
+          "narration": "I en GitHub Release skal du udvide Assets for at hente installationsprogrammet til Windows, macOS eller Linux, Python-pakkefilerne eller listen over kontrolsummer."
         },
         {
-          "narration": "Conda-forge udgiver endnu ikke spaCR. Opret i øjeblikket et Conda-miljø, og installér spaCR fra PyPI; brug først conda-forge-kanalen, når pakken er udgivet."
+          "narration": "Den officielle conda-forge-pakke installerer spaCR og dens skrivebordsafhængigheder i det aktive Conda-miljø. Brug præcis kommandoen conda install conda-forge::spacr."
         },
         {
-          "narration": "Brug PyPI eller pip til et Python-miljø, GitHub Releases til et installationsprogram til skrivebordet og nightly, når du specifikt har brug for ændringer, der endnu ikke er udgivet. Vælg derefter installationsvejledningen til din installationsmetode."
+          "narration": "Brug conda-forge eller PyPI til et administreret Python-miljø, GitHub Releases til et installationsprogram til skrivebordet og nightly kun, når du har brug for ikke-udgivne ændringer. Vælg derefter installationsvejledningen til din metode."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Brug et Conda-miljø til at isolere spaCR og dets videnskabelige afhængigheder. Python 3.12 anvendes i eksemplet, fordi denne version i øjeblikket understøtter det bredeste udvalg af valgfrie pakker."
+          "narration": "Installer spaCR fra conda-forge i et dedikeret Conda-miljø. Pakken indeholder skrivebordsgrænsefladen og deklarerer spaCR's videnskabelige afhængigheder."
         },
         {
-          "narration": "Åbn en terminal med Conda, og opret et miljø med navnet spacr, Python 3.12 og pip."
+          "narration": "Åbn en terminal med Conda, og opret et miljø med navnet spacr og Python 3.12."
         },
         {
-          "narration": "Aktivér miljøet. Kontrollér, at Python tilhører spacr-miljøet, før du installerer noget."
+          "narration": "Aktivér miljøet. Bekræft, at Python tilhører spacr-miljøet, før du installerer noget."
         },
         {
-          "narration": "Opgradér pip via den aktive Python-fortolker. Kommandoen python -m pip sikrer, at pakken ikke installeres af en anden pip-eksekverbar fil."
+          "narration": "Installer den officielle pakke med conda install conda-forge::spacr. Kommandoen angiver kanalen og vælger dermed conda-forge-buildet udtrykkeligt."
         },
         {
-          "narration": "Installér spacr med qt-tilvalget til skrivebordsprogrammet. Brug den almindelige spacr-pakke på en arbejdsstation eller server uden grafisk brugerflade."
+          "narration": "Bekræft, at Conda viser spaCR i miljøet; importér derefter pakken, og vis den installerede version."
         },
         {
-          "narration": "Kør spacr-doctor før første start. Programmet rapporterer den aktive installation, Qt, PyTorch, valgfrie komponenter og hardwareunderstøttelse og foreslår en løsning for hver kontrol, der ikke består."
+          "narration": "Kør spacr-doctor før den første start. Diagnoseværktøjet kontrollerer den aktive installation, Qt, PyTorch, valgfrie komponenter og hardwareunderstøttelse og foreslår en løsning for hver kontrol, der mislykkes."
         },
         {
-          "narration": "Når spacr-doctor består alle kontroller, skal miljøet være aktiveret, hver gang du kører spaCR."
+          "narration": "Når spacr-doctor har bestået alle kontroller, starter du spaCR med kommandoen spacr. Behold miljøet aktiveret, hver gang du kører spaCR."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regression forbinder fenotypscore med sekvenseret guide overflod. Konsolen rapporterer tabellyning, filtrering, modeldiagnostik, resultater og reproducerbarhedsposter."
+          "narration": "Regression relaterer fænotypescorer til guideforekomst udledt fra sekventering. Konsollen rapporterer tabeljustering, filtrering, den valgte inferensprocedure, diagnostik, resultater og reproducerbarhedsoplysninger."
         },
         {
-          "narration": "Input Tables vælger fenotip score, sekvenseringstællinger og valgfrie genmetadata. Bevis, at plader og brønner anvender matcherende identifikatorer, før modellering."
+          "narration": "Input Tables vælger fænotypescorer, sekventeringstællinger, valgfrie genmetadata og resultatdestinationen. Lad destinationen være tom for at skrive ved siden af den første tællingstabel; bekræft matchende plade- og brøndidentifikatorer før analysen."
         },
         {
-          "narration": "Essentials indeholder de kontroller, der kræves for en første model. Brug Modificeret til at kontrollere forsætlige ændringer, Alle til avancerede familier, og opskrifter til et genbrugsbart design."
+          "narration": "Essentials indeholder de input og inferensindstillinger, der kræves til en første analyse. Brug Modified til at kontrollere bevidste ændringer, All til avancerede indstillinger og Recipes til at gemme et analysedesign, der kan genbruges."
         },
         {
-          "narration": "Kontroller og pladedesign identificerer positive, negative og neutrale kontroller plus alle brønde eller rækker, der er udelukket før montering. Disse valg definerer referenceret adfærd."
+          "narration": "Controls and Filters identificerer positive, negative og neutrale kontroller, udelukker angivne guider, brønde eller tabelrækker og fastlægger de evidens- og normaliseringsregler, som bestemmer, hvilke observationer der indgår i analysen."
         },
         {
-          "narration": "Plade- og batchkorrigering kan fjerne tekniske afviklinger ved at centrere, skalere med robust skala, kontrollere referencer eller batchmodeller. Anvend kun korrektion, hvis designet understøtter den."
+          "narration": "Plate and Batch Correction kan fjerne tekniske forskydninger ved centrering, robust skalering, referencekontroller eller batchmodeller. Anvend kun korrektion, når forsøgsdesignet understøtter den."
         },
         {
-          "narration": "Modellen og covariaterne udvælger responsen, aggregeringen, transformationen, regressionsfamilien, usikkerhedssatsen og eventuelle berettigede række-, kolonne- eller eksperimentelle covariater."
+          "narration": "Response vælger fænotypekolonne, analyseenhed, aggregering, valgfri fortegnsvending og transformation. Disse valg definerer den størrelse, der relateres til guideforekomsten."
         },
         {
-          "narration": "Hit Calling og Outliers sætter minimum cell, vel, og guide beviser plus valgfri outlier regler. Vælg tærskler fra kontroladfærd og datakvalitet."
+          "narration": "Model and Inference vælger ikke-parametrisk testning pr. guide, parametrisk samtidig regression eller automatisk valg. Her angives også rapporteringsniveau, modelfamilie når relevant, korrektion for multiple test og signifikansregel."
         },
         {
-          "narration": "Regression Plots konfigurerer diagnostiske og vulkansk skærm. Planbegrænsninger ændrer præsentationen, ikke de monterede koefficienter, så hold ikke truncated tabeller til fortolkning."
+          "narration": "Estimator Tuning indeholder indstillinger for kovarians, regularisering, robust tilpasning, kvantiler, bootstrap og rangaggregering. Kun de indstillinger, som den valgte estimator bruger, påvirker analysen."
         },
         {
-          "narration": "Run validerer skemaer og klynger, anvender udelukkelser og korrektioner, aggregerer score, passer til den valgte model og evaluerer beviser. Se kontrol og diagnostik, før du ringer."
+          "narration": "Permutation Test konfigurerer guidestatistik, mindste brøndstøtte, antal permutationer og tilfældighedsfrø, udskiftelighedsblok, forstyrrende variable, tilstedeværelsestærskel og en batchstørrelse begrænset af hukommelsen."
         },
         {
-          "narration": "Det afsluttet projekt indeholder justerede regressionsdata, koefficienter på vejledning- og genniveau, usikkerhedstabeller eller signifikant tabeller, diagnostiske tal, gemte indstillinger og et genrejseligt manifest."
+          "narration": "Run validerer skemaer og brøndnøgler, anvender udelukkelser og korrektion, aggregerer responsen og kører den valgte inferensprocedure. Standardproceduren er ikke-parametrisk, bruger pladeblokerede Freedman–Lane-permutationer og tilpasser ingen regressionsmodel."
+        },
+        {
+          "narration": "Det afsluttede projekt indeholder justerede analysedata, effektestimater på guide- og genniveau, empiriske eller modelbaserede signifikanstabeller, diagnostiske figurer, gemte indstillinger og et manifest, der kan køres igen."
         }
       ]
     },

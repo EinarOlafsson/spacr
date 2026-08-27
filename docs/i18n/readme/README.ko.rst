@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: 최신 설치 프로그램
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge 레시피
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge 버전
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -376,10 +376,22 @@ macOS에서는 ``.pkg``\ 를 여세요. 현재 베타는 공증되지 않았습�
 
 업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
 
-Python 설치
-~~~~~~~~~~~~~~~~~~~
+conda-forge 설치
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python 3.12은 선택적 과학 패키지의 가장 광범위한 선택을 가지고 있습니다 :
+공식 conda-forge 패키지는 활성 환경에 spaCR 및 데스크톱 실행에 필요한 종속성을 설치합니다:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+PyPI 설치
+~~~~~~~~~~~~~~~~~
+
+PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python 3.12에서 선택 가능한 과학 패키지의 범위가 가장 넓습니다:
 
 .. code-block:: bash
 

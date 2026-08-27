@@ -10,8 +10,7 @@ rectangle of text over the middle of somebody's work.
 from __future__ import annotations
 
 import pytest
-
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QKeyEvent, QKeySequence
 from PySide6.QtWidgets import QLabel, QWidget
 
@@ -69,6 +68,28 @@ def test_the_card_is_centred_and_fits(window, qtbot):
     overlay_centre = overlay.rect().center()
     assert abs(card_centre.x() - overlay_centre.x()) <= 1
     assert abs(card_centre.y() - overlay_centre.y()) <= 1
+    overlay.dismiss()
+
+
+def test_the_recrop_row_remains_reachable_in_a_short_window(window, qtbot):
+    """Growing the complete map may scroll its inside, never clip its tail."""
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    overlay.show()
+    qtbot.waitExposed(overlay)
+
+    recrop = next(
+        label
+        for label in overlay._card.findChildren(QLabel)
+        if label.text().startswith("Recrop an object")
+    )
+    overlay._scroll.ensureWidgetVisible(recrop)
+    qtbot.wait(10)
+
+    top = recrop.mapTo(overlay._scroll.viewport(), QPoint()).y()
+    assert top < overlay._scroll.viewport().height()
+    assert top + recrop.height() > 0
+    assert overlay._card.height() <= overlay.height()
     overlay.dismiss()
 
 

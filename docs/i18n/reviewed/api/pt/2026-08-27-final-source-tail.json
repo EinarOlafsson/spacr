@@ -1,0 +1,27 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "The menu those actions are relocated INTO is named after the application, so this module also owns naming the application -- before the ``QApplication`` exists, which is the only moment early enough for macOS to read it.",
+      "label": "spacr.qt.menus#2",
+      "source": "The menu those actions are relocated INTO is named after the application, so this module also owns naming the application -- before the ``QApplication`` exists, which is the only moment early enough for macOS to read it.",
+      "source_sha256": "3e003dbfadd5a41c823e03acbb04b0b5c5bc9d9644ab8347cbc46db50f482a99",
+      "translation": "O menu para o qual essas ações são transferidas recebe o nome do aplicativo; por isso, este módulo também define o nome do aplicativo antes da criação de ``QApplication``, o único momento suficientemente cedo para que o macOS o leia."
+    },
+    {
+      "context": ":data:`DEFAULT_AI_ON_AT_LAUNCH` unless the user has said otherwise. An explicit choice is always written, so an opt-out survives a change to the default rather than being overwritten by it.",
+      "label": "spacr.qt.preferences.get_ai_on_by_default#1",
+      "source": ":data:`DEFAULT_AI_ON_AT_LAUNCH` unless the user has said otherwise. An explicit choice is always written, so an opt-out survives a change to the default rather than being overwritten by it.",
+      "source_sha256": "393d8f23d060c5d56333d20fcb2b31ba7d31b28980dc48b24603f425c766c1b0",
+      "translation": ":data:`DEFAULT_AI_ON_AT_LAUNCH`, a menos que o usuário tenha indicado outra opção. Uma escolha explícita sempre é gravada; assim, a desativação permanece válida quando o padrão muda, em vez de ser substituída pela alteração."
+    },
+    {
+      "context": "Principal limitation or trade-off, in one sentence.",
+      "label": "spacr.regression_annotation.Strategy#4",
+      "source": "Principal limitation or trade-off, in one sentence.",
+      "source_sha256": "a476ffd463a0796e862ef9a6cdca656dea505c912ef22592e742e5cbee4fb989",
+      "translation": "Principal limitação ou compromisso, em uma frase."
+    }
+  ],
+  "schema": 1
+}

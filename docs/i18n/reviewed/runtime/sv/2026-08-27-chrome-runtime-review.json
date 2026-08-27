@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "Intensitetshantering (alla objekt)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "Plattkällor och arbetsflöde"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "Etiketter och klasser"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "Utvärdering och resultat"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "Minsta objektarea"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "Ta bort kantobjekt"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "Värmekarta för platta"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "Godkänd och i normal användning."
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "Längre kommen än Alfa-stadiet och i regelbunden användning, men ännu inte godkänd."
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "Implementerad och tillgänglig, men ännu inte tillförlitlig genom hela arbetsflödet. Räkna med brister och kontrollera värdena innan du förlitar dig på dem."
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> tilldela klass + gå vidare &nbsp;·&nbsp; <b>0</b> rensa märkning &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> flytta fokus &nbsp;·&nbsp; <b>Space</b> hoppa över &nbsp;·&nbsp; <b>Backspace</b> tillbaka &nbsp;·&nbsp; <b>u</b> ångra &nbsp;·&nbsp; <b>Enter</b> nästa omgång"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> tilldela bildutsnittet i fokus motsvarande klass och gå till nästa omärkta bildutsnitt &nbsp;·&nbsp; <b>0</b> ta bort märkningen från bildutsnittet i fokus &nbsp;·&nbsp; <b>← ↑ ↓ →</b> eller <b>h j k l</b> flytta fokus utan att märka &nbsp;·&nbsp; <b>Space</b> hoppa över ett bildutsnitt framåt &nbsp;·&nbsp; <b>Backspace</b> gå tillbaka ett bildutsnitt &nbsp;·&nbsp; <b>u</b> ångra den senaste märkningen &nbsp;·&nbsp; <b>Enter</b> spara sidan och läs in nästa omgång &nbsp;·&nbsp; musen fungerar fortfarande: vänsterklick = klass 1, högerklick = klass 2."
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "Välj en mapp som innehåller `measurements/measurements.db`. Vänsterklicka på en bild för att tilldela klass 1, högerklicka för klass 2 och klicka igen för att ta bort märkningen — eller använd bara tangentbordet: 1–9 tilldelar en klass och går till nästa bildutsnitt. Annoteringarna sparas i bakgrunden."
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "Verklig datauppsättning från början till slut (Masker → Mätning → Annotering)…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "Definition av det skattade interceptet. 'fitted' skattar det från data som det predikterade svaret när varje prediktor ligger på sin referensnivå; i en gendesign med binär indikatorkodning är denna referens den gen som patsy utelämnar och den behöver inte ha någon meningsfull biologisk tolkning. 'control' subtraherar medelsvaret för de negativa kontrollerna före anpassningen och utelämnar intercepttermen, så varje koefficient är en skillnad mot kontrollerna. 'zero' anpassar modellen genom origo. 'value' låser interceptet till intercept_value. Standard: 'fitted'."
+    },
+    {
+      "table": "setting_labels",
+      "key": "eps",
+      "source_sha256": "391ce3b13f489e92cdfe3238517bed8ae23de1df24f5ebe719c736da80ad469c",
+      "source": "Eps",
+      "translation": "Eps"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pos",
+      "source_sha256": "704e75860aa0d98d434c24c9bbb8ef327dcba607294281b2cbf8d8a3d38d2b17",
+      "source": "Pos",
+      "translation": "Pos."
+    },
+    {
+      "table": "setting_labels",
+      "key": "neg",
+      "source_sha256": "ee02b7e6deb6343d4ffd86d2b3294042746361615464a21f6bbb9a736d9457c1",
+      "source": "Neg",
+      "translation": "Neg."
+    },
+    {
+      "table": "setting_labels",
+      "key": "gpu",
+      "source_sha256": "ea49523d744c40bc900b4462c43132d1c8a8de5216fa8436cc0e8b3e89dddbe3",
+      "source": "GPU",
+      "translation": "GPU"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_n",
+      "source_sha256": "cf112e915b77eeac1f0a397fa092744e1286a1de7266aa82acf79bcbc331ecf3",
+      "source": "Min n",
+      "translation": "Minsta n"
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end demo",
+      "source_sha256": "c0c2495a8ff1c22537c1a759b62586ac1e3d6dbddf07b12e1568910af25b4b2c",
+      "source": "End-to-end demo",
+      "translation": "Demonstration från början till slut"
+    },
+    {
+      "table": "ui",
+      "key": "Min area (px²)",
+      "source_sha256": "9a17e8ef0edc38793c686543d8b2b342625ca0cbb34937a71c2c5a76a6e84867",
+      "source": "Min area (px²)",
+      "translation": "Minsta yta (px²)"
+    },
+    {
+      "table": "ui",
+      "key": "Max area (px²)",
+      "source_sha256": "e1bf24bb6e2fede98fe21a46763f779e5dcf3a7d6c590b35673d0aa3dd8b1b74",
+      "source": "Max area (px²)",
+      "translation": "Största yta (px²)"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR features have different units — px², counts, ratios — so an unscaled PCA finds whichever column has the biggest numbers. Standardising makes the answer independent of the units.",
+      "source_sha256": "26fc549cd7e0d97d4516a7db11b30b96e850e9a9d6fa41d8eb4225fa8e22a6d9",
+      "source": "spaCR features have different units — px², counts, ratios — so an unscaled PCA finds whichever column has the biggest numbers. Standardising makes the answer independent of the units.",
+      "translation": "spaCR-funktioner har olika enheter — px², antal och kvoter — så en oskalad PCA domineras av kolumnen med de största numeriska värdena. Standardisering gör resultatet oberoende av enheterna."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_qc",
+      "source_sha256": "95e9e6c3c8ae783db6a9395f32b3fd320174cb9b18f06f9418f00cb7a85c8262",
+      "source": "Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
+      "translation": "Skriv diagnostik för varianshomogenitet, residualer, design, inflytande och kalibrering till <res_folder>/regression_qc/ som figurer, en sammanslagen PDF och en textrapport. En anpassning tar cirka 5.8 sekunder och skriver 19 filer. Funktionen är därför aktiverad för enskilda analyser men inaktiveras automatiskt under parametersvep för att undvika tusentals diagnostikfiler. Öppna en vald prövning igen för att generera dess diagnostik. Gäller för alla regression_type. Standard: True."
+    }
+  ]
+}

@@ -68,9 +68,9 @@
     {
       "table": "setting_tooltips",
       "key": "cell_model_name",
-      "source_sha256": "5a4bea87d40ea751a24025dbff7c97bd907f02888fc241a2103583a2ed33bcec",
-      "source": "Weights used to segment cells. Cellpose 4 provides one stock model, 'cpsam'; the alternative is a path to a CPSAM checkpoint produced by Train Cellpose, loaded as pretrained_model. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but all resolve to cpsam because those historical models are unavailable in Cellpose 4. Of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
-      "translation": "세포 분할에 사용하는 가중치입니다. Cellpose 4 는 기본 모델 'cpsam' 하나를 제공하며, 다른 선택지는 Train Cellpose 에서 생성한 CPSAM 체크포인트의 경로를 pretrained_model 로 불러오는 것입니다. 이전 설정과의 호환성을 위해 SAM 이전 이름 'cyto', 'cyto2', 'cyto3', 'nuclei' 도 허용되지만, 해당 기존 모델은 Cellpose 4 에서 제공되지 않으므로 모두 cpsam 으로 해석됩니다. 이전에 모델을 구분하던 세 매개변수 중 diameter 만 작동하며 eval 은 30/diameter 로 크기를 조정합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록된 후 생략됩니다. 기본값 'cpsam'."
+      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "translation": "세포 분할 가중치입니다. Cellpose 4 는 기본 'cpsam' 모델을 제공합니다. 또는 Train Cellpose 에서 생성한 CPSAM 체크포인트를 pretrained_model 로 불러올 수 있습니다. 기존 이름 ('cyto', 'cyto2', 'cyto3', 'nuclei')도 계속 허용되지만, Cellpose 4 가 해당 모델을 더 이상 제공하지 않으므로 cpsam으로 해석됩니다. 추론을 변경하는 매개변수는 diameter뿐이며(30/diameter로 스케일링), model_type 과 diam_mean 은 v4.0.1+에서 사용되지 않습니다. 기본값은 'cpsam' 입니다."
     },
     {
       "table": "setting_tooltips",

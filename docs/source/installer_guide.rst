@@ -3,10 +3,10 @@
 Installer guide
 ===============
 
-This page covers the current desktop installers, Python installation,
-updates, removal, offline preparation and the files to check when installation
-fails. For older downloadable versions, use the :doc:`installer archive
-<installers>`.
+This page covers the current desktop installers, conda-forge and PyPI
+installation, updates, removal, offline preparation and the files to check
+when installation fails. For older downloadable versions, use the
+:doc:`installer archive <installers>`.
 
 Choose an installation
 ----------------------
@@ -17,9 +17,12 @@ installation. It downloads a managed Python 3.12 runtime and the exact spaCR
 version named by the installer, then checks the environment before replacing
 an existing working installation.
 
-Use ``pip`` when spaCR must live in an existing environment, notebook, server
-or cluster. Python 3.12 currently offers the widest selection of optional
-scientific packages.
+Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_
+when Conda should install spaCR and resolve its desktop and scientific
+dependencies. Use ``pip`` for the PyPI release when spaCR must live in an
+existing Python environment, notebook, server or cluster, or when you need a
+PyPI extra that is not part of the conda package. Python 3.12 currently offers
+the widest selection of optional scientific packages.
 
 Desktop installers
 ------------------
@@ -69,17 +72,25 @@ update leaves the previous working environment in place. Project folders and
 results are not stored in the installation directory and are not removed by
 an update.
 
-Python environments can be updated explicitly:
+Update an environment installed from conda-forge with:
+
+.. code-block:: bash
+
+   conda update conda-forge::spacr
+
+Update an environment installed from PyPI with:
 
 .. code-block:: bash
 
    python -m pip install --upgrade "spacr[qt]"
 
 For reproducible work, install an exact version instead of following the
-latest release:
+latest release. Use the command for the package source already installed in
+the environment:
 
 .. code-block:: bash
 
+   conda install conda-forge::spacr=1.5.0.4
    python -m pip install "spacr[qt]==1.5.0.4"
 
 Uninstalling
@@ -94,9 +105,11 @@ Uninstalling
   per-user private runtime.
 * **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh``. This removes the
   launcher, desktop entry and private environment.
-* **pip or conda:** activate the environment and run
-  ``python -m pip uninstall spacr``. Remove the environment itself if it was
-  created only for spaCR.
+* **conda-forge:** activate the environment and run ``conda remove spacr``.
+* **PyPI:** activate the environment and run
+  ``python -m pip uninstall spacr``.
+
+Remove the environment itself if it was created only for spaCR.
 
 Uninstalling does not delete microscopy projects, databases or exported
 results. User preferences, run records and logs under ``~/.spacr`` are also
@@ -128,11 +141,24 @@ builds may require a separate wheel source, so prepare and test the complete
 wheelhouse on a matching connected machine before moving it to an isolated
 system.
 
-Python installation and extras
-------------------------------
+Conda-forge installation
+------------------------
 
-spaCR supports Python 3.9 through 3.14 except Python 3.14.1. For the desktop
-interface:
+Install the official conda-forge package directly into an activated
+environment. It includes spaCR's desktop and core scientific dependencies:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+PyPI installation and extras
+----------------------------
+
+The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To
+install the PyPI release and desktop interface inside a Conda environment:
 
 .. code-block:: bash
 

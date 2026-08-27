@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Veldu opinbera uppsprettu áður en spaCR er sett upp. PyPI veitir útgefna Python-pakkann, GitHub veitir frumkóðann og uppsetningarforrit fyrir skjáborð, og conda-forge verður valkostur þegar pakkinn hefur verið gefinn út þar."
+          "narration": "Veldu opinbera dreifingarleið áður en spaCR er sett upp. PyPI og conda-forge bjóða útgefna pakka, en GitHub býður frumkóða, uppsetningarforrit fyrir skjáborð og útgáfuskrá."
         },
         {
-          "narration": "Á PyPI sýnir útgáfuhausinn núverandi stöðugu útgáfu og skipunina pip install spacr."
+          "narration": "Útgáfuhausinn á PyPI sýnir núverandi stöðugu útgáfu og skipunina pip install spacr."
         },
         {
-          "narration": "Hlutinn Project links vísar í skjölunina, heimasíðuna, villuskráningarkerfið og frumkóðageymsluna."
+          "narration": "Project links hlutinn opnar skjölin, heimasíðuna, verkbeiðnakerfið og frumkóðasafnið."
         },
         {
-          "narration": "Notaðu greinavalið á GitHub til að velja kóðalínu. main er útgefna línan; nightly inniheldur nýrri breytingar sem enn eru í prófun."
+          "narration": "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda."
         },
         {
-          "narration": "Opnaðu Assets í GitHub-útgáfu til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða listann yfir gátsummur."
+          "narration": "Í GitHub Release skaltu opna Assets til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða gátsummulistann."
         },
         {
-          "narration": "spaCR er ekki enn gefið út á conda-forge. Búðu því til Conda-umhverfi og settu spaCR upp frá PyPI; notaðu conda-forge-rásina aðeins eftir að pakkinn hefur verið gefinn út þar."
+          "narration": "Opinberi conda-forge pakkinn setur spaCR og skjáborðsháð þess upp í virka Conda-umhverfinu. Notaðu nákvæmlega skipunina conda install conda-forge::spacr."
         },
         {
-          "narration": "Notaðu PyPI eða pip fyrir Python-umhverfi, GitHub Releases fyrir uppsetningarforrit á skjáborði og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarleiðbeiningarnar sem eiga við þína leið."
+          "narration": "Notaðu conda-forge eða PyPI fyrir stýrt Python-umhverfi, GitHub Releases fyrir skjáborðsuppsetningarforrit og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarkennsluna fyrir þína leið."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Notaðu Conda-umhverfi til að einangra spaCR og vísindaleg háðasöfn þess. Python 3.12 er notað í dæminu þar sem sú útgáfa styður nú flest valfrjáls forritasöfn."
+          "narration": "Settu spaCR upp úr conda-forge í sérstöku Conda-umhverfi. Pakkinn inniheldur skjáborðsviðmótið og tilgreinir vísindaleg hugbúnaðarhæði spaCR."
         },
         {
-          "narration": "Opnaðu skipanalínu með Conda-stuðningi og búðu til umhverfi sem heitir spacr með Python 3.12 og pip."
+          "narration": "Opnaðu Conda-virka skipanalínu og búðu til umhverfi sem heitir spacr með Python 3.12."
         },
         {
           "narration": "Virkjaðu umhverfið. Staðfestu að Python tilheyri spacr-umhverfinu áður en nokkuð er sett upp."
         },
         {
-          "narration": "Uppfærðu pip í gegnum virka Python-túlkinn. Skipunin python -m pip kemur í veg fyrir að annað pip-forrit setji pakkann upp."
+          "narration": "Settu opinbera pakkann upp með conda install conda-forge::spacr. Skipunin tilgreinir rásina og velur því conda-forge-smíðina sérstaklega."
         },
         {
-          "narration": "Settu spacr upp með qt-viðbótinni fyrir skjáborðsforritið. Notaðu venjulega spacr-pakkann á vinnustöð eða þjóni án grafísks viðmóts."
+          "narration": "Staðfestu að Conda skrái spaCR í umhverfinu; flyttu það síðan inn og birtu uppsettu útgáfuna."
         },
         {
-          "narration": "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Verkfærið skráir virku uppsetninguna, Qt, PyTorch, valfrjálsa hluta og vélbúnaðarstuðning og leggur til lausn fyrir hvert próf sem stenst ekki."
+          "narration": "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
         },
         {
-          "narration": "Þegar spacr-doctor stenst öll próf skaltu hafa þetta umhverfi virkt í hvert sinn sem spaCR er keyrt."
+          "narration": "Þegar spacr-doctor stenst allar athuganir skaltu ræsa spaCR með skipuninni spacr. Hafðu umhverfið virkt í hvert sinn sem þú keyrir spaCR."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regressi tengir fenotip stig til röðun-stundaðar leiðarar fjöldi. Konsóllin skýrir frá borðstillingu, sía, módelgreiningu, niðurstöðum og endurskránni."
+          "narration": "Regression tengir svipgerðarskor við magn leiðsöguraða sem er leitt af raðgreiningu. Stjórnborðið sýnir samsvörun taflna, síun, valda ályktunaraðferð, greiningar, niðurstöður og gögn um endurgeranleika."
         },
         {
-          "narration": "Input Tables velur kynmyndarmerki, raðfylgjingartal og valfrjáls genmetadata. Staðfest að plötur og brunnur nota samsvarandi auðkenningar áður en módelgun er gerð."
+          "narration": "Input Tables velur svipgerðarskor, talningar úr raðgreiningu, valfrjáls genalýsigögn og áfangastað niðurstaðna. Skildu áfangastaðinn eftir auðan til að skrifa við hlið fyrstu talningatöflunnar; staðfestu samsvarandi auðkenni platna og brunna fyrir greiningu."
         },
         {
-          "narration": "Essentials inniheldur þær stjórnir sem þarf til að hafa fyrsta líkan. Notaðu breytt til að endurskoða tilvitað breytingar, allt fyrir háþróaðar fjölskyldur og uppskriftir til endurtekningarhæfa hönnun."
+          "narration": "Essentials inniheldur þau inntök og ályktunarviðföng sem þarf fyrir fyrstu greiningu. Notaðu Modified til að yfirfara vísvitandi breytingar, All til að skoða ítarleg viðföng og Recipes til að vista endurnýtanlega greiningarhönnun."
         },
         {
-          "narration": "Stjórn og plötun gerðu grein fyrir jákvæðum, neikvæðum og hlutlausum stjórnunum auk þess sem öll brunn eða röð eru útilokað áður en sett er. Þessi valgreiningar skilgreina viðmiðunarhegðunina."
+          "narration": "Controls and Filters tilgreinir jákvæðar, neikvæðar og hlutlausar viðmiðanir, útilokar tilteknar leiðsöguraðir, brunna eða töflulínur og setur sönnunar- og stöðlunarreglur sem ráða hvaða mælingar fara í greininguna."
         },
         {
-          "narration": "Platta og Batch Correction getur fjarlægð tæknilegar afvik með miðlægingu, öflugu mælingar, viðmiðunarstjórn eða batch-módelum. Fylgdu leiðréttingu aðeins þegar hönnuninn styður hana."
+          "narration": "Plate and Batch Correction getur fjarlægt tæknilegar hliðranir með miðjun, þolinni kvörðun, viðmiðunarstýringum eða lotulíkönum. Beittu leiðréttingu aðeins þegar tilraunahönnunin styður hana."
         },
         {
-          "narration": "Model og Covariates velur viðbrögð, samsetning, umbreyting, regressionsfjölskyldu, óvissa áætlun og allar réttlætuðar röður, stöngur eða tilraunalega covariates."
+          "narration": "Response velur svipgerðardálk, greiningareiningu, samantekt, valfrjálsa formerkisbreytingu og umbreytingu. Þessi val skilgreina stærðina sem tengd er magni leiðsöguraða."
         },
         {
-          "narration": "Hit Calling og Outliers setur lágmarksfrumur, vel, og leiđanir sönnun auk valfrjálsa outlier reglur. Veldu þröskulendur af stjórn hegðun og gögn gæða."
+          "narration": "Model and Inference velur óparametrískt próf fyrir leiðsöguraðir, parametríska samtímis aðhvarfsgreiningu eða sjálfvirkt val. Þar eru einnig skilgreind framsetningarstig, líkanafjölskylda þegar við á, leiðrétting fyrir fjölprófun og marktækniregla."
         },
         {
-          "narration": "Regression Plots setur upp greiningar- og eldgosskjöl. Áætlunarríki breytast kynningu, ekki settir samræmi, svo geymdu óþröngur borð til túlkunar."
+          "narration": "Estimator Tuning inniheldur viðföng fyrir samdreifni, reglun, þolna aðlögun, fjórðunga, bootstrap og samantekt raða. Aðeins stillingar sem valdi metillinn notar hafa áhrif á greininguna."
         },
         {
-          "narration": "Run staðfestir skipulag og lykla brunn, beitir útiloka og leiðréttingu, samanstendur stig, passar valdu líkanum og metur sönnun. Horfðu á eftirlit og greiningu áður en þú hringir í slys."
+          "narration": "Permutation Test stillir tölfræði leiðsöguraða, lágmarksstuðning brunna, fjölda umröðunarprófa og slembifræ, skiptanleikablokk, truflandi breytur, viðveruþröskuld og lotustærð sem takmarkast af minni."
         },
         {
-          "narration": "Lögð fram verkefni felur í sér samræmda regressionsupplýsingar, leiðbeiningar- og gen-þyngdar, óvissa eða merkingu töflur, greiningar tölur, sparaðar stillingar og endurtekjanlegt manifest."
+          "narration": "Run sannreynir töfluskemu og brunnalykla, beitir útilokunum og leiðréttingu, tekur saman svörunina og keyrir valda ályktunaraðferð. Sjálfgefna óparametríska aðferðin notar Freedman–Lane-umraðanir sem eru blokkaðar eftir plötu og aðlagar ekki aðhvarfslíkan."
+        },
+        {
+          "narration": "Lokaverkefnið inniheldur samræmd greiningargögn, áhrifamat á stigi leiðsöguraða og gena, reynslu- eða líkanabyggðar marktæknitöflur, greiningarmyndir, vistaðar stillingar og keyranlegt birtingarskjal."
         }
       ]
     },

@@ -124,6 +124,89 @@ _TEXT_CONSTRUCTORS = {
     "QGroupBox", "QAction", "AiToggleLabel", "Card", "FlatButton",
     "FlatComboBox", "FlatSpinBox", "Toggle",
 }
+
+# Short captions carried through local registries, form-row tuples, or helper
+# functions rather than a literal Qt text call.  The AST extractor cannot
+# follow those values to the eventual widget, so keep the inventory beside the
+# extractor.  These are generated/source-hashed captions, not compact
+# registry names: adding one to ``i18n._ROWS`` would create two authoritative
+# owners and is rejected by the runtime ratchet.
+_INDIRECT_CHROME_UI_SOURCES = frozenset({
+    # Settings-section headings assembled by settings_model.
+    "Intensity Handling (all objects)",
+    "Plate Sources & Workflow",
+    "Labels & Classes",
+    "Evaluation & Results",
+    "Classifier",
+    # Preferences tabs, resource controls, and colour-vision choices.
+    "Modules",
+    "Logging",
+    "Clear RAM",
+    "Clear VRAM",
+    "Clear CPU",
+    "Check disk space",
+    "Memory",
+    "GPU memory",
+    "Threads",
+    "Deuteranopia (red-green)",
+    "Protanopia (red-green)",
+    "Tritanopia (blue-yellow)",
+    # Live-preview form rows stored in COMPARTMENT_FIELDS or added through a
+    # form helper whose literal label is not itself passed to ``tr``.
+    "Min area (px²)",
+    "Max area (px²)",
+    "Min object area",
+    "Min distance",
+    "Area multiplier",
+    "Perimeter fraction",
+    "Min intensity pct",
+    "Max intensity pct",
+    "Intensity percentile",
+    "Intensity threshold",
+    "Intensity merge",
+    "Intensity split",
+    "Remove border objects",
+    "Signal to noise",
+    "Remove background",
+    "Outline colour",
+    "Upper percentile",
+    # Figure-settings rows. QFormLayout.addRow is intentionally not treated
+    # as a generic text call: many panels use its first argument for dynamic
+    # data labels, so this reviewed finite set avoids cataloguing data.
+    "All text size",
+    "Correct across pairs",
+    "Figure title",
+    "Grid axis",
+    "Height (in)",
+    "Width (in)",
+    "Hide top/right",
+    "Legend columns",
+    "Legend frame",
+    "Legend position",
+    "Legend text size",
+    "Line style",
+    "Opacity (all)",
+    "Outline width (all)",
+    "Point size (all)",
+    "Tick label size",
+    "Title",
+    "Unit of replication",
+    "Figure settings",
+    # Empty states, drop hints, list-editor placeholders, and small glosses.
+    "Open an experiment to start annotating",
+    "Drop files or folders here, or use Add files…",
+    "Drop one file here, or use Choose file…",
+    "Attached databases",
+    "Meas.",
+    "add value",
+    "add value…",
+    "add text",
+    "add number",
+    "Red",
+    "Green",
+    "Blue",
+    "Plate heatmap",
+})
 _DIALOG_METHODS = {"information", "warning", "critical", "question"}
 _FILE_DIALOG_METHODS = {
     "getOpenFileName", "getOpenFileNames", "getSaveFileName",
@@ -132,7 +215,7 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
-    "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "FOV", "GPU",
+    "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "JSON", "MIP", "ML", "NaN", "PDF",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
@@ -2853,6 +2936,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
         PREFERENCE_TIPS,
     )
     from spacr.qt.preview_registry import PREVIEWS
+    from spacr.qt.screens.annotate import AnnotateScreen
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
@@ -2860,6 +2944,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
         SWEEP_TOGGLE_TEXT,
         SWEEP_TOGGLE_TOOLTIP,
     )
+    from spacr.qt.theme import STAGE_NOTE
     from spacr.qt.widgets.ambient import (
         ANIMATION_CHOICES,
         DRIFT_DIRECTIONS,
@@ -2883,6 +2968,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     )
 
     found: set[str] = set(PREFERENCE_TIPS)
+    found.update(_INDIRECT_CHROME_UI_SOURCES)
     found.update(map(str, PREFERENCE_TIPS.values()))
     found.update(map(str, MODE_LABELS.values()))
     found.update(map(str, MODE_NOTES.values()))
@@ -2909,6 +2995,24 @@ def _indirect_runtime_ui_sources() -> set[str]:
         "Channels drawn in {mode} primaries.",
     ))
     found.update(map(str, PRIMARY_NOTES.values()))
+    found.update(map(str, STAGE_NOTE.values()))
+    found.update((
+        str(AnnotateScreen.LEGEND_COMPACT),
+        str(AnnotateScreen.LEGEND_FULL),
+    ))
+
+    # EmptyState receives these strings by keyword and forwards them to its
+    # own labels. Follow that one explicit constructor contract in the AST
+    # rather than hard-coding its long, source-sensitive subtitle here.
+    annotate_path = ROOT / "spacr" / "qt" / "screens" / "annotate.py"
+    annotate_tree = ast.parse(annotate_path.read_text(encoding="utf-8"))
+    for node in ast.walk(annotate_tree):
+        if not isinstance(node, ast.Call) or _call_name(node) != "EmptyState":
+            continue
+        for keyword in node.keywords:
+            if keyword.arg not in {"title", "subtitle", "cta_label"}:
+                continue
+            found.update(_literal_strings(keyword.value, {}))
     for spec in PREVIEWS.values():
         found.add(str(spec.title))
         found.add(

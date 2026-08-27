@@ -25,11 +25,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Post-sweep compact surface on 2026-08-25.  The count catches additions; the
+# Post-sweep compact surface on 2026-08-27.  The count catches additions; the
 # digest also catches a replacement that happens to keep the count unchanged.
-COMPACT_CAPTION_COUNT = 156
+COMPACT_CAPTION_COUNT = 197
 COMPACT_CAPTION_SHA256 = (
-    "92415e08e9ea8b9bc20cfe3c1e958f28c85fd3a637c37235d38afbfcfd375a33"
+    "276539ee51ad8abf3223c00d46108acb49449758122245594bc774d78b92337f"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -38,14 +38,14 @@ COMPACT_CAPTION_SHA256 = (
 # this reviewed inventory deliberately even when the builder can generate a
 # source hash automatically.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 998,
-    "SETTING_TOOLTIPS": 983,
+    "SETTING_LABELS": 999,
+    "SETTING_TOOLTIPS": 987,
     "CATEGORY_HELP": 192,
-    "UI": 2524,
+    "UI": 2598,
     "MODULE_SUMMARIES": 64,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "840fcf1b01f675c34bd3482f721db2d266bcedaad9b1e5c52f7a7ab13411e2fc"
+    "94eddcb669e46c5a1378356bbffbc05658327ec96a066078c9c6eefc8a2f2726"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -270,14 +270,28 @@ def _indirect_registry_captions() -> set[str]:
     return {str(value).strip() for value in found if str(value).strip()}
 
 
+def _shortcut_caption_fields() -> set[str]:
+    """Return shortcut copy while deliberately excluding key identifiers."""
+    from spacr.qt.shortcuts import SCREEN_SHORTCUTS, SHORTCUTS
+
+    return {
+        value.strip()
+        for spec in (*SHORTCUTS, *SCREEN_SHORTCUTS)
+        for value in (spec.label, spec.category, spec.scope)
+        if value.strip()
+    }
+
+
 def compact_user_facing_captions() -> frozenset[str]:
     """Discover the complete caption surface that exact ``_ROWS`` owns.
 
     This predicate intentionally follows semantic UI registries rather than
     reading the catalog it audits: Home app/section names, fold buttons,
     first-run slides/questions/choices, tour text, terms chrome and literal
-    onboarding dialog/button captions.  A caption added to any of those
-    sources therefore enters this set before it has a translation row.
+    onboarding dialog/button captions and shortcut labels, categories and
+    scopes.  A caption added to any of those sources therefore enters this
+    set before it has a translation row.  Shortcut key identifiers are not
+    copy and remain in their platform-native spelling.
 
     Language choices remain in their own native scripts and installed AI
     provider names remain product identities.  The generic provider fallback
@@ -336,6 +350,7 @@ def compact_user_facing_captions() -> frozenset[str]:
         for step in DEFAULT_TOUR
         for text in (step.title, step.body)
     )
+    found.update(_shortcut_caption_fields())
     found.update(source for source, _values in TRANSLATIONS)
     return frozenset(found)
 
@@ -349,18 +364,12 @@ def test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned():
     and fails here until an exact row is reviewed.
     """
     from spacr.qt.i18n import _ROWS
-    from spacr.qt.i18n_catalogs import en
 
     discovered = compact_user_facing_captions()
     missing = sorted(discovered - set(_ROWS))
     assert not missing, (
         "new compact user-facing captions need exact i18n._ROWS entries:\n  "
         + "\n  ".join(repr(value) for value in missing)
-    )
-    duplicated = sorted(set(_ROWS) & set(en.UI_SOURCES))
-    assert not duplicated, (
-        "compact captions must not acquire a second generated owner:\n  "
-        + "\n  ".join(repr(value) for value in duplicated)
     )
     assert len(discovered) == COMPACT_CAPTION_COUNT, (
         f"compact caption surface changed from {COMPACT_CAPTION_COUNT} to "
@@ -372,6 +381,84 @@ def test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned():
     assert digest == COMPACT_CAPTION_SHA256, (
         "compact caption set changed without moving its reviewed fingerprint"
     )
+
+
+def test_compact_and_generated_caption_owners_are_disjoint():
+    """A caption belongs to the reviewed compact or generated layer, not both."""
+    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n_catalogs import en
+
+    duplicated = sorted(set(_ROWS) & set(en.UI_SOURCES))
+    assert not duplicated, (
+        "compact captions must not acquire a second generated owner:\n  "
+        + "\n  ".join(repr(value) for value in duplicated)
+    )
+
+
+def test_shortcut_copy_enters_the_compact_ratchet_but_keys_do_not():
+    """Shortcut labels/categories/scopes are copy; bindings are identities."""
+    from spacr.qt.i18n import _ROWS, VALID_LANGUAGE_CODES, tr
+    from spacr.qt.shortcuts import SCREEN_SHORTCUTS, SHORTCUTS
+
+    discovered = compact_user_facing_captions()
+    assert _shortcut_caption_fields() <= discovered
+
+    key_identifiers = {
+        spec.keys for spec in (*SHORTCUTS, *SCREEN_SHORTCUTS)
+    }
+    assert not (key_identifiers & set(_ROWS)), (
+        "shortcut bindings must retain QKeySequence/native platform spelling"
+    )
+    for language in VALID_LANGUAGE_CODES[1:]:
+        annotate = tr("Annotate", language)
+        make_masks = tr("Make Masks", language)
+        joint_scope = tr("the Annotate and Make Masks screens", language)
+        assert annotate in joint_scope
+        assert make_masks in joint_scope
+        assert annotate in tr("the Annotate screen", language)
+        assert make_masks in tr("the Make Masks screen", language)
+
+
+def test_shortcut_overlay_renders_localized_copy_and_native_keys(
+    monkeypatch,
+    qtbot,
+):
+    """A newly opened map follows the language without translating bindings."""
+    from PySide6.QtWidgets import QLabel, QWidget
+
+    from spacr.qt.shortcuts import ShortcutOverlay, native
+
+    expected = {
+        "sv": ("Pensel  —  skärmen Skapa masker", "SKAPA MASKER"),
+        "ko": ("브러시  —  마스크 만들기 화면", "마스크 만들기"),
+    }
+    for language, (brush_text, category_text) in expected.items():
+        monkeypatch.setenv("SPACR_LANGUAGE", language)
+        window = QWidget()
+        window.resize(1400, 900)
+        qtbot.addWidget(window)
+        overlay = ShortcutOverlay(window)
+
+        labels = overlay.findChildren(QLabel)
+        copy = {
+            label.text()
+            for label in labels
+            if label.objectName() == "ShortcutOverlayLabel"
+        }
+        categories = {
+            label.text()
+            for label in labels
+            if label.objectName() == "ShortcutOverlayCategory"
+        }
+        keys = {
+            label.text()
+            for label in labels
+            if label.objectName() == "ShortcutOverlayKeys"
+        }
+
+        assert brush_text in copy
+        assert category_text in categories
+        assert native("B") in keys
 
 
 def test_compact_rows_are_unique_and_dynamic_registries_are_unambiguous():

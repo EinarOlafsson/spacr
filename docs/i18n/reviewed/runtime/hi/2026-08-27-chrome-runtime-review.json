@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "तीव्रता प्रबंधन (सभी ऑब्जेक्ट)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "प्लेट स्रोत और कार्यप्रवाह"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "लेबल और वर्ग"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "मूल्यांकन और परिणाम"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "ऑब्जेक्ट का न्यूनतम क्षेत्रफल"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "छवि की सीमा को छूने वाले ऑब्जेक्ट हटाएँ"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "प्लेट हीटमैप"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "अनुमोदित और नियमित उपयोग में है।"
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "अल्फा से अधिक विकसित और नियमित उपयोग में है, लेकिन अभी अंतिम अनुमोदन नहीं मिला है।"
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "कार्यान्वित और उपलब्ध है, लेकिन पूरे कार्यप्रवाह में अभी विश्वसनीय नहीं माना गया है। कुछ हिस्से अपरिष्कृत हो सकते हैं; परिणामों पर भरोसा करने से पहले संख्याओं की जाँच करें।"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> लेबल दें + आगे बढ़ें &nbsp;·&nbsp; <b>0</b> साफ़ करें &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> फ़ोकस ले जाएँ &nbsp;·&nbsp; <b>Space</b> छोड़ें &nbsp;·&nbsp; <b>Backspace</b> पीछे जाएँ &nbsp;·&nbsp; <b>u</b> पूर्ववत करें &nbsp;·&nbsp; <b>Enter</b> अगला बैच"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> फ़ोकस किए गए क्रॉप को संबंधित वर्ग दें और अगले बिना लेबल वाले क्रॉप पर जाएँ &nbsp;·&nbsp; <b>0</b> फ़ोकस किया हुआ क्रॉप साफ़ करें &nbsp;·&nbsp; <b>← ↑ ↓ →</b> या <b>h j k l</b> बिना लेबल दिए फ़ोकस ले जाएँ &nbsp;·&nbsp; <b>Space</b> एक क्रॉप आगे छोड़ें &nbsp;·&nbsp; <b>Backspace</b> एक क्रॉप पीछे जाएँ &nbsp;·&nbsp; <b>u</b> पिछला लेबल पूर्ववत करें &nbsp;·&nbsp; <b>Enter</b> यह पृष्ठ सहेजें और अगला बैच लोड करें &nbsp;·&nbsp; माउस भी काम करता है: बायाँ क्लिक = वर्ग 1, दायाँ क्लिक = वर्ग 2।"
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "ऐसा फ़ोल्डर चुनें जिसमें `measurements/measurements.db` हो। किसी छवि पर बायाँ क्लिक करके वर्ग 1 दें, दायाँ क्लिक करके वर्ग 2 दें, और साफ़ करने के लिए फिर क्लिक करें — या केवल कीबोर्ड का उपयोग करें: 1–9 से लेबल दें और अगले क्रॉप पर जाएँ। एनोटेशन पृष्ठभूमि में सहेजे जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "आरंभ से अंत तक (मास्क → मापन → एनोटेशन) वास्तविक डेटासेट…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "फिट किए गए इंटरसेप्ट की परिभाषा। 'fitted' इसे डेटा से उस पूर्वानुमानित प्रतिक्रिया के रूप में अनुमानित करता है जब प्रत्येक प्रेडिक्टर अपने संदर्भ स्तर पर हो; वन-हॉट जीन डिज़ाइन में यह संदर्भ वह जीन होता है जिसे patsy डिज़ाइन से छोड़ देता है, और उसकी कोई उपयोगी जैविक व्याख्या संभवतः न हो। 'control' फिट करने से पहले नकारात्मक नियंत्रणों की औसत प्रतिक्रिया घटाता है और इंटरसेप्ट पद को शामिल नहीं करता, इसलिए प्रत्येक गुणांक नियंत्रणों के सापेक्ष अंतर होता है। 'zero' मूलबिंदु से होकर फिट करता है। 'value' इंटरसेप्ट को intercept_value पर नियत करता है। डिफ़ॉल्ट 'fitted'।"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept",
+      "source_sha256": "1b6926403a45086210ec2fdb5b623a524b91da2733b8612b318a1eb10341a6ba",
+      "source": "Intercept",
+      "translation": "इंटरसेप्ट"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept_value",
+      "source_sha256": "34b8bd264bf59b981e3c05a31ccab201f0f7f510ebe518b28bcca19adbca70d2",
+      "source": "Intercept value",
+      "translation": "इंटरसेप्ट मान"
+    }
+  ]
+}

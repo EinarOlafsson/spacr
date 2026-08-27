@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = "20260826-508-regression"
+EXPECTED_CACHE_KEY = "20260827-conda-live"
 EXPECTED_VOICE_KEY = "20260811-50-voices"
 EXPECTED_APP_KEY = "20260825-folded-routes"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}

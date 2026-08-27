@@ -1,0 +1,97 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "key-value mapping Winning recipe, tuned and held-out silhouette scores, overfit gap, trustworthiness flag, the split level used, and all attempted trials. Error key-value mappings are returned when the controls cannot be split or scored.",
+      "label": "spacr.annotation_umap_qc.fit_on_controls#4",
+      "source": "dict Winning recipe, tuned and held-out silhouette scores, overfit gap, trustworthiness flag, the split level used, and all attempted trials. Error dictionaries are returned when the controls cannot be split or scored.",
+      "source_sha256": "61e664e85e6018cc5cefdd2316a3eeb0fdfce0774e3f06eccff917aad08307e2",
+      "translation": "dict Besta stillingasamsetningin, skuggamyndagildi fyrir stillingar- og frátekin gögn, ofmátunarmunur, áreiðanleikamerki, notað skiptistig og allar prófaðar tilraunir. Villuorðabókum er skilað þegar ekki er hægt að skipta stýrigögnunum eða reikna gildi þeirra."
+    },
+    {
+      "context": "WHICH objects get an outline is decided for each image layer by ``object_filters`` -- an area window and a mean-intensity window for each of red, green and blue. ``object_size`` is the one-window-for-every-image layer setting those replaced and is still honoured: it is migrated onto the three area rows by :func:`normalize_object_filters`, so a caller that passes only it gets exactly what it always got.",
+      "label": "spacr.qt.annotate_engine.outline_image#2",
+      "source": "WHICH objects get an outline is decided per plane by ``object_filters`` -- an area window and a mean-intensity window for each of red, green and blue. ``object_size`` is the one-window-for-every-plane setting those replaced and is still honoured: it is migrated onto the three area rows by :func:`normalize_object_filters`, so a caller that passes only it gets exactly what it always got.",
+      "source_sha256": "8832292237e4b17b0d4f76ab0319c63cef78cc445b245950557aa616b5ed7e9a",
+      "translation": "HVAÐA hlutir fá útlínu er ákveðið fyrir hvert myndlag með ``object_filters`` -- svæðisbili og meðaltalsstyrksbili fyrir hverja af rauðu, grænu og bláu rásunum. ``object_size`` er eldri stillingin þar sem sama bilið gildir fyrir öll myndlög; hún var leyst af hólmi en er enn virt: hún er færð yfir á raðirnar þrjár fyrir flatarmál með :func:`normalize_object_filters`, þannig að kallari sem gefur aðeins þá stillingu fær nákvæmlega sömu niðurstöðu og áður."
+    },
+    {
+      "context": "The resizing helpers remove explicit minimum sizes when appropriate, wrap content in a scroll area only when its layout prevents useful shrinking, add a visible size grip, and preserve the dialog's natural opening size. Qt's own specialized dialogs, simple message dialogs, and content that already scrolls are left unchanged. :func:`install_the_dialog_filters` applies these rules to new dialogs at application level.",
+      "label": "spacr.qt.dialogs#2",
+      "source": "The resizing helpers remove explicit minimum sizes when appropriate, wrap content in a scroll area only when its layout prevents useful shrinking, add a visible size grip, and preserve the dialog's natural opening size. Qt's own specialized dialogs, simple message dialogs, and content that already scrolls are left unchanged. :func:`install_the_dialog_filters` applies these rules to new dialogs at application level.",
+      "source_sha256": "49a11c98c83ea583e730094341761e4fcc8f4742db8238a2dd522b1624f600fe",
+      "translation": "Hjálparföll stærðarbreytinga fjarlægja tilgreindar lágmarksstærðir þegar við á, setja efni í skrunsvæði aðeins þegar uppsetning þess kemur í veg fyrir gagnlega smækkun, bæta við sýnilegu stærðarhandfangi og varðveita eðlilega upphafsstærð svargluggans. Sérhæfðir svargluggar Qt, einfaldir skilaboðagluggar og efni sem þegar er skrunanlegt haldast óbreytt. :func:`install_the_dialog_filters` beitir þessum reglum á nýja svarglugga á forritsstigi."
+    },
+    {
+      "context": "registry structured-data name. Given one, the module's API documentation link is the last line of the description's hover help. NOTHING IS DRAWN BESIDE THE DESCRIPTION: a dot used to be, and a masthead reads as one sentence rather than a sentence and a mark. The link is not lost with it -- see :class:`spacr.qt.widgets.ApiHelpLabel`, which carries the same help every setting's label carries.",
+      "label": "spacr.qt.screens.app_screen.ModuleHeader#10",
+      "source": "registry key. Given one, the module's API documentation link is the last line of the description's hover help. NOTHING IS DRAWN BESIDE THE DESCRIPTION: a dot used to be, and a masthead reads as one sentence rather than a sentence and a mark. The link is not lost with it -- see :class:`spacr.qt.widgets.ApiHelpLabel`, which carries the same help every setting's label carries.",
+      "source_sha256": "d8511b33e6140755abda32250ea551bde7d28fbf03455f744268f1e5d136d3ba",
+      "translation": "Skráningarlykill. Ef hann er gefinn er tengill á API-skjöl einingarinnar síðasta línan í hjálpartextanum sem birtist þegar bendillinn er yfir lýsingunni. EKKERT ER TEIKNAÐ VIÐ HLIÐ LÝSINGARINNAR: þar var áður punktur, en fyrirsögnin er lesin sem ein setning en ekki sem setning og merki. Tengillinn hverfur ekki með punktinum -- sjá :class:`spacr.qt.widgets.ApiHelpLabel`, sem veitir sömu hjálp og merki hverrar stillingar."
+    },
+    {
+      "context": "The reproducible synthetic microscope fields of view follow the filename and image data channel layout expected by the default workflow. A summary of written images, applied settings, and unavailable controls is displayed in the application view console.",
+      "label": "spacr.qt.screens.mask.load_the_example_images#1",
+      "source": "The reproducible synthetic fields follow the filename and channel layout expected by the default pipeline. A summary of written images, applied settings, and unavailable controls is displayed in the screen console.",
+      "source_sha256": "e0d12db3ff947029a05fc9e3ad95dd4977f10a8ac64a4567eae5b1fd5425042f",
+      "translation": "Endurgeranlegu tilbúnu smásjársjónsviðin fylgja skráaheita- og myndgagnarásaskipaninni sem sjálfgefna vinnuflæðið gerir ráð fyrir. Samantekt um skrifaðar myndir, notaðar stillingar og stýringar sem voru ekki tiltækar birtist í stjórnborði forritsskjásins."
+    },
+    {
+      "context": "The application view calls this before constructing captions and tooltips so settings for unavailable object types remain unbuilt. It uses the same visibility rule as :meth:`refresh_object_visibility`.",
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.keys_whose_object_the_run_lacks#1",
+      "source": "The screen calls this before constructing captions and tooltips so settings for unavailable object types remain unbuilt. It uses the same visibility rule as :meth:`refresh_object_visibility`.",
+      "source_sha256": "99aca85943ecd95e0d3775c964c8555c165e4d16f9ac4274cb13dfe6fa287d01",
+      "translation": "Forritsskjárinn kallar á þetta áður en merki og hjálpartextar eru útbúin, þannig að stillingar fyrir ótiltækar hlutagerðir séu ekki búnar til. Fallið notar sömu sýnileikareglu og :meth:`refresh_object_visibility`."
+    },
+    {
+      "context": "``SettingsWidgets`` controls are discovered through their ``settingKey`` property. Hand-built Live/Extracted image region/Search controls are supplied in ``widget_keys``. Descriptive help belongs to the label, not the editable microscope field of view, and the whole of it -- description and API link both -- is in the label's hover text.",
+      "label": "spacr.qt.screens.settings_model.install_api_tooltips#1",
+      "source": "``SettingsWidgets`` controls are discovered through their ``settingKey`` property. Hand-built Live/Crop/Search controls are supplied in ``widget_keys``. Descriptive help belongs to the label, not the editable field, and the whole of it -- description and API link both -- is in the label's hover text.",
+      "source_sha256": "ec926e2f89514eca100286c4d0931a2a28393eacb5b46f88be7f5b6c8e416f1a",
+      "translation": "Stýringar ``SettingsWidgets`` finnast með eiginleikanum ``settingKey``. Handgerðar stýringar fyrir rauntímaskoðun, útdregið myndsvæði og leit eru gefnar upp í ``widget_keys``. Lýsandi hjálp tilheyrir merkinu en ekki breytanlega innsláttarreitnum, og öll hjálpin -- bæði lýsingin og API-tengillinn -- er í hjálpartextanum sem birtist þegar bendillinn er yfir merkinu."
+    },
+    {
+      "context": "NOTHING IS DRAWN BESIDE THE LABEL. A teal link dot used to be, and three forms had already switched it off one at a time: 68 of them down the Mask live preview, twenty-six down the Annotate settings dialog, three in the figure dialog. A column of dots reads as texture rather than as one affordance per setting, and the API link was never in the dot alone -- it is in the hover text, which is where it was being read from.",
+      "label": "spacr.qt.screens.settings_model.install_api_tooltips#2",
+      "source": "NOTHING IS DRAWN BESIDE THE LABEL. A teal link dot used to be, and three forms had already switched it off one at a time: 68 of them down the Mask live preview, twenty-six down the Annotate settings dialog, three in the figure dialog. A column of dots reads as texture rather than as one affordance per setting, and the API link was never in the dot alone -- it is in the hover text, which is where it was being read from.",
+      "source_sha256": "a02875b6f744aa57e1999d66b45336ba90e4489b856850e7b0799f02d6c4e700",
+      "translation": "EKKERT ER TEIKNAÐ VIÐ HLIÐ MERKISINS. Þar var áður blágrænn tenglapunktur og þrjú stillingaform höfðu þegar slökkt á honum fyrir hvert merki fyrir sig: 68 merki í lifandi forskoðun Mask, tuttugu og sex í stillingarglugga Annotate og þrjú í myndglugganum. Dálkur af punktum virkar frekar sem áferð en sem ein skýr vísbending um virkni fyrir hverja stillingu, og API-tengillinn var aldrei aðeins í punktinum -- hann er í hjálpartextanum sem birtist þegar bendillinn er yfir merkinu, en þaðan var hann lesinn."
+    },
+    {
+      "context": "``root`` may be a tab widget, tab bar, or containing widget. Event filters also style close buttons added later. Repeated calls are idempotent.",
+      "label": "spacr.qt.theme.install_close_marks#1",
+      "source": "``root`` may be a tab widget, tab bar, or containing widget. Event filters also style close buttons added later. Repeated calls are idempotent.",
+      "source_sha256": "aad608be7f5928909bb103dfd6598219f5e64292ba72732e4d1b45d76a96e75f",
+      "translation": "``root`` getur verið flipagræja, flipastika eða umlykjandi græja. Atvikasíur stílsníða einnig lokunarhnappa sem bætt er við síðar. Endurtekin köll hafa sömu áhrif og eitt kall."
+    },
+    {
+      "context": "Under the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is re-hued onto the spectrum on the way out, at whatever offset the drift has reached. The keys and the count are unchanged, and so is every surface role's relative luminance, so callers, contrast rules and the light/dark distinction all go on working. The three ink roles are the exception and are solved rather than carried — see :data:`SPACEOUT_INK_ROLES`.",
+      "label": "spacr.qt.theme.palette_for#2",
+      "source": "Under the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is re-hued onto the spectrum on the way out, at whatever offset the drift has reached. The keys and the count are unchanged, and so is every surface role's relative luminance, so callers, contrast rules and the light/dark distinction all go on working. The three ink roles are the exception and are solved rather than carried — see :data:`SPACEOUT_INK_ROLES`.",
+      "source_sha256": "5e5bb304b90362be33fc6dcb13b2d04485223b32e738c856b02218ec9018352f",
+      "translation": "Þegar ``spaceout``-útlitið er notað (:func:`spaceout_enabled`) er niðurstaðan lituð aftur á litrófið á leiðinni út, við þá hliðrun sem rekið hefur náð. Lyklarnir og fjöldinn breytast ekki, og hlutfallslegt birtustig hvers yfirborðshlutverks helst einnig óbreytt, þannig að kallandi kóði, birtuskilareglur og greinarmunurinn á ljósu og dökku halda áfram að virka. Undantekningin eru blekhlutverkin þrjú; gildi þeirra eru reiknuð í stað þess að færast með — sjá :data:`SPACEOUT_INK_ROLES`."
+    },
+    {
+      "context": "Which coefficients every tab draws -- gRNA, Gene or Both -- is the reader's choice, made on the panel beside what it changes. A run fitted at ``level='both'`` fits twice and writes both families into one table, so the gene half needs no re-fit to be seen. The two fits are separate multiple-testing families and are corrected as such, and each row says which fit it came from, so a gene and its guides are distinct rows in the table, on the plot and in the exported copy. A level this run has no rows at says why it has none rather than drawing an empty tab.",
+      "label": "spacr.qt.widgets.regression_results#2",
+      "source": "Which coefficients every tab draws -- gRNA, Gene or Both -- is the reader's choice, made on the panel beside what it changes. A run fitted at ``level='both'`` fits twice and writes both families into one table, so the gene half needs no re-fit to be seen. The two fits are separate multiple-testing families and are corrected as such, and each row says which fit it came from, so a gene and its guides are distinct rows in the table, on the plot and in the exported copy. A level this run has no rows at says why it has none rather than drawing an empty tab.",
+      "source_sha256": "fae8eecce487fde40dbb549187e2d74a9bbc5805d97f503d7b5093bbeeedc529",
+      "translation": "Það er val lesandans hvaða stuðla hver flipi birtir -- gRNA, Gen eða Bæði -- og valið er gert á spjaldinu við hlið þess sem það breytir. Keyrsla sem er mátuð með ``level='both'`` framkvæmir tvær mátanir og skrifar báðar stuðlafjölskyldurnar í eina töflu, þannig að ekki þarf að máta aftur til að sjá genahlutann. Mátanirnar tvær eru aðskildar fjölprófunarfjölskyldur og eru leiðréttar sem slíkar; hver röð tilgreinir einnig úr hvaða mátun hún kom, þannig að gen og stýriraðir þess eru aðskildar raðir í töflunni, á grafinu og í útflutta afritinu. Ef keyrslan hefur engar raðir fyrir tiltekið stig er ástæðan gefin upp í stað þess að teikna tóman flipa."
+    },
+    {
+      "context": "A permutation run's table is the UNION of two schemas: a guide row has ``guide`` and ``wells_with_guide``, a gene row has ``gene``, ``wells_with_gene`` and ``guides_in_gene``. Showing the union means that whichever level is chosen, a third of the columns are empty -- and the gene the reader is looking for is named thirteen columns to the right of a blank ``guide`` cell, which is what makes a gene view read as broken even once the rows are there.",
+      "label": "spacr.qt.widgets.regression_results.for_table#1",
+      "source": "A permutation run's table is the UNION of two schemas: a guide row has ``guide`` and ``wells_with_guide``, a gene row has ``gene``, ``wells_with_gene`` and ``guides_in_gene``. Showing the union means that whichever level is chosen, a third of the columns are empty -- and the gene the reader is looking for is named thirteen columns to the right of a blank ``guide`` cell, which is what makes a gene view read as broken even once the rows are there.",
+      "source_sha256": "aef30e4f7dc3be4e0e73bbaf2850dfcac87804ca720babbf085092fa8c2b8e6d",
+      "translation": "Tafla slembiröðunarkeyrslu er SAMEINING tveggja gagnaskipana: röð á stýriraðarstigi hefur ``guide`` og ``wells_with_guide``, en röð fyrir gen hefur ``gene``, ``wells_with_gene`` og ``guides_in_gene``. Þegar sameiningin er sýnd er þriðjungur dálkanna auður, óháð því hvaða stig er valið -- og heiti gensins sem lesandinn leitar að kemur fram þrettán dálkum hægra megin við auðan ``guide``-reit; það er ástæðan fyrir því að genasýnin virðist biluð jafnvel eftir að raðirnar birtast."
+    },
+    {
+      "context": "TWO: IT WOULD COLLAPSE THE COMPARISON THE processing session EXISTS TO SHOW. In ``ml._perform_regression`` the calibration runs FIRST. When it succeeds ``fraction_threshold`` is no longer ``None``, so this function is never asked for a threshold at all -- it is asked to DRAW, through ``ml._draw_the_threshold_sweep``, whose whole job is to print the calibrated number beside this sweep's own independent pick. A sweep that also read the switch would hand back the calibrated number, and the processing session would print it twice as though two methods had agreed.",
+      "label": "spacr.sequencing.graph_sequencing_stats#7",
+      "source": "TWO: IT WOULD COLLAPSE THE COMPARISON THE RUN EXISTS TO SHOW. In ``ml._perform_regression`` the calibration runs FIRST. When it succeeds ``fraction_threshold`` is no longer ``None``, so this function is never asked for a threshold at all -- it is asked to DRAW, through ``ml._draw_the_threshold_sweep``, whose whole job is to print the calibrated number beside this sweep's own independent pick. A sweep that also read the switch would hand back the calibrated number, and the run would print it twice as though two methods had agreed.",
+      "source_sha256": "da21b4dd11dda240c0fd151ee1ca11973afb522f58f92bc357fbda7230451734",
+      "translation": "TVÖ: ÞAÐ MYNDI EYÐILEGGJA SAMANBURÐINN SEM KEYRSLUNNI ER ÆTLAÐ AÐ SÝNA. Í ``ml._perform_regression`` keyrir kvörðunin FYRST. Þegar hún tekst er ``fraction_threshold`` ekki lengur ``None``, þannig að þetta fall er aldrei beðið um þröskuld -- það er beðið um að TEIKNA með ``ml._draw_the_threshold_sweep``, en eina hlutverk fallsins er að prenta kvarðaða gildið við hlið eigin óháðs vals þessarar þröskuldsleitunar. Þröskuldsleit sem læsi einnig rofann myndi skila kvarðaða gildinu, og keyrslan myndi prenta það tvisvar eins og tvær aðferðir hefðu verið sammála."
+    }
+  ],
+  "schema": 1
+}

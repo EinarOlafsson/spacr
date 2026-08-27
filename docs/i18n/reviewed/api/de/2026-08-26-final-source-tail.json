@@ -1,0 +1,27 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Qt sends ``DevicePixelRatioChange`` when a window is dragged from a retina laptop onto an ordinary monitor or back. ``redraw`` is the widget's own \"put the picture on again\" call -- it must scale from the source it kept, not from what is currently on the label, or each move re-scales an already-scaled picture.",
+      "label": "spacr.qt.hidpi.follow_device_ratio#1",
+      "source": "Qt sends ``DevicePixelRatioChange`` when a window is dragged from a retina laptop onto an ordinary monitor or back. ``redraw`` is the widget's own \"put the picture on again\" call -- it must scale from the source it kept, not from what is currently on the label, or each move re-scales an already-scaled picture.",
+      "source_sha256": "217eb6dea8b2bb6e1e2cc0c2d33a30a82c5d3f25899ac92dbcac6802bd4df1de",
+      "translation": "Qt sendet ``DevicePixelRatioChange``, wenn ein Fenster von einem Retina-Laptop auf einen herkömmlichen Monitor oder zurück verschoben wird. ``redraw`` ist der eigene Aufruf des Widgets zum erneuten Zeichnen des Bildes -- er muss aus der gespeicherten Quelle skalieren und nicht aus dem aktuell auf dem Label angezeigten Bild, da sonst bei jedem Verschieben ein bereits skaliertes Bild erneut skaliert wird."
+    },
+    {
+      "context": "Construct the Run Compare screen for lazy registry loading.",
+      "label": "spacr.qt.screens.run_compare.make_run_compare_screen#0",
+      "source": "Construct the Run Compare screen for lazy registry loading.",
+      "source_sha256": "63c753fefa5955ddbf87a043e2dc1a2467ddaf29d1b6857394d42a827540fb73",
+      "translation": "Erstellt die Ansicht Run Compare für das verzögerte Laden der Registrierung."
+    },
+    {
+      "context": "Guide permutations and guide-only fits legitimately omit gene-level rows. The returned note identifies the available level; an empty string indicates that rows are present.",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.missing_level_note#1",
+      "source": "Guide permutations and guide-only fits legitimately omit gene-level rows. The returned note identifies the available level; an empty string indicates that rows are present.",
+      "source_sha256": "3b051a26ef0c53fef29837017c9bde9459ac8e16cfbe3db6db0656e74e91bc5f",
+      "translation": "Bei Guide-Permutationen und ausschließlich auf Guide-Ebene angepassten Modellen können Zeilen auf Genebene erwartungsgemäß fehlen. Der zurückgegebene Hinweis benennt die verfügbare Ebene; eine leere Zeichenkette gibt an, dass Zeilen vorhanden sind."
+    }
+  ],
+  "schema": 1
+}

@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Wählen Sie vor der Installation von spaCR eine offizielle Bezugsquelle. PyPI stellt das veröffentlichte Python-Paket bereit, GitHub den Quellcode und die Desktop-Installationsprogramme; conda-forge wird verfügbar, sobald das Paket dort veröffentlicht ist."
+          "narration": "Wählen Sie vor der Installation von spaCR einen offiziellen Vertriebsweg. PyPI und conda-forge stellen veröffentlichte Pakete bereit, während GitHub Quellcode, Desktop-Installationsprogramme und den Veröffentlichungsverlauf bereitstellt."
         },
         {
           "narration": "Auf PyPI zeigt der Veröffentlichungskopf die aktuelle stabile Version und den Befehl pip install spacr."
         },
         {
-          "narration": "Der Bereich Project links führt zur Dokumentation, zur Homepage, zur Fehlerverwaltung und zum Quellcode-Repository."
+          "narration": "Der Abschnitt Project links öffnet die Dokumentation, die Homepage, die Problemverfolgung und das Quellcode-Repository."
         },
         {
-          "narration": "Wählen Sie auf GitHub mit der Branch-Auswahl die gewünschte Quellcodelinie. main ist die veröffentlichte Linie; nightly enthält neuere Änderungen, die noch getestet werden."
+          "narration": "Auf GitHub bezeichnet main die freigegebene Quelllinie; nightly enthält neuere Änderungen, die noch getestet werden. Verwenden Sie nightly nur, wenn Sie ausdrücklich eine noch nicht veröffentlichte Änderung benötigen."
         },
         {
-          "narration": "Klappen Sie unter einer GitHub-Veröffentlichung Assets auf, um das Installationsprogramm für Windows, macOS oder Linux, die Python-Paketdateien oder die Prüfsummenliste herunterzuladen."
+          "narration": "Erweitern Sie in einem GitHub Release den Abschnitt Assets, um das Installationsprogramm für Windows, macOS oder Linux, die Python-Paketdateien oder die Prüfsummenliste herunterzuladen."
         },
         {
-          "narration": "Conda-forge veröffentlicht spaCR derzeit noch nicht. Erstellen Sie deshalb eine Conda-Umgebung und installieren Sie spaCR aus PyPI; verwenden Sie den conda-forge-Kanal erst nach Veröffentlichung des Pakets."
+          "narration": "Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Conda-Umgebung. Verwenden Sie exakt den Befehl conda install conda-forge::spacr."
         },
         {
-          "narration": "Verwenden Sie PyPI oder pip für eine Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur dann, wenn Sie noch nicht veröffentlichte Änderungen benötigen. Wählen Sie anschließend die Installationsanleitung für Ihren Bezugsweg."
+          "narration": "Verwenden Sie conda-forge oder PyPI für eine verwaltete Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur, wenn Sie unveröffentlichte Änderungen benötigen. Wählen Sie anschließend das Installations-Tutorial für Ihren Weg."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Verwenden Sie eine Conda-Umgebung, um spaCR und seine wissenschaftlichen Abhängigkeiten zu isolieren. Im Beispiel wird Python 3.12 verwendet, da diese Version derzeit die meisten optionalen Pakete unterstützt."
+          "narration": "Installieren Sie spaCR aus conda-forge in einer eigenen Conda-Umgebung. Das Paket enthält die Desktop-Oberfläche und deklariert die wissenschaftlichen Abhängigkeiten von spaCR."
         },
         {
-          "narration": "Öffnen Sie ein Terminal mit aktiviertem Conda und erstellen Sie eine Umgebung namens spacr mit Python 3.12 und pip."
+          "narration": "Öffnen Sie ein Terminal mit Conda und erstellen Sie eine Umgebung namens spacr mit Python 3.12."
         },
         {
-          "narration": "Aktivieren Sie die Umgebung. Vergewissern Sie sich vor der Installation, dass Python aus der spacr-Umgebung stammt."
+          "narration": "Aktivieren Sie die Umgebung. Vergewissern Sie sich vor der Installation, dass Python zur Umgebung spacr gehört."
         },
         {
-          "narration": "Aktualisieren Sie pip über den aktiven Python-Interpreter. Mit python -m pip verhindern Sie, dass ein anderes pip-Programm das Paket installiert."
+          "narration": "Installieren Sie das offizielle Paket mit conda install conda-forge::spacr. Der kanalqualifizierte Befehl wählt ausdrücklich den conda-forge-Build aus."
         },
         {
-          "narration": "Installieren Sie für die Desktop-Anwendung spacr mit dem qt-Extra. Verwenden Sie auf einer Workstation oder einem Server ohne grafische Oberfläche das einfache spacr-Paket."
+          "narration": "Prüfen Sie, dass Conda spaCR in der Umgebung aufführt; importieren Sie es anschließend und geben Sie die installierte Version aus."
         },
         {
-          "narration": "Führen Sie vor dem ersten Start spacr-doctor aus. Das Programm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardwareunterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor."
+          "narration": "Führen Sie vor dem ersten Start spacr-doctor aus. Das Diagnoseprogramm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardware-Unterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor."
         },
         {
-          "narration": "Wenn spacr-doctor alle Prüfungen besteht, lassen Sie diese Umgebung bei jeder Ausführung von spaCR aktiviert."
+          "narration": "Wenn spacr-doctor alle Prüfungen bestanden hat, starten Sie spaCR mit dem Befehl spacr. Lassen Sie diese Umgebung bei jeder Verwendung von spaCR aktiviert."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regression verbindet Phänotyp-Score mit sequenziertem Guide-Freiheit. Die Konsole berichtet von Tabellenausrichtung, Filterung, Modeldiagnostik, Ergebnissen und Wiedergabeaufzeichnungen."
+          "narration": "Regression setzt Phänotypwerte mit der aus Sequenzierungsdaten abgeleiteten Guide-Häufigkeit in Beziehung. Die Konsole meldet Tabellenabgleich, Filterung, das gewählte Inferenzverfahren, Diagnosen, Ergebnisse und Reproduzierbarkeitsnachweise."
         },
         {
-          "narration": "Input Tables wählt Phänotyp-Score, Sequenzierungszählen und optionale Genmetadaten aus. Bestätigen Sie, dass Platten und Brunnen vor dem Modellieren entsprechende Kennungen verwenden."
+          "narration": "Input Tables wählt Phänotypwerte, Sequenzierungszählungen, optionale Genmetadaten und den Zielordner für die Ergebnisse aus. Lassen Sie den Zielordner leer, um neben der ersten Zähltabelle zu speichern; prüfen Sie vor der Analyse, ob die Platten- und Well-Kennungen übereinstimmen."
         },
         {
-          "narration": "Die Essentials enthalten die für ein erstes Modell erforderlichen Kontrollen. Benutzen Sie Modified, um bewusste Änderungen zu überprüfen, All für fortgeschrittene Familien und Rezepte für ein wiederverwendbares Design."
+          "narration": "Essentials enthält die Eingaben und Inferenzparameter für eine erste Analyse. Verwenden Sie Modified, um bewusste Änderungen zu prüfen, All für erweiterte Parameter und Recipes, um einen wiederverwendbaren Analyseplan zu speichern."
         },
         {
-          "narration": "Die Steuerung und Plattengestaltung identifiziert positive, negative und neutrale Steuerungen sowie alle vor dem Einbau ausgeschlossenen Bohrungen oder Zeilen. Diese Entscheidungen definieren das Referenzverhalten."
+          "narration": "Controls and Filters legt positive, negative und neutrale Kontrollen fest, schließt angegebene Guides, Wells oder Tabellenzeilen aus und definiert die Evidenz- und Normalisierungsregeln, nach denen Beobachtungen in die Analyse eingehen."
         },
         {
-          "narration": "Die Platten- und Batchkorrektur kann technische Ausgleichsfälle durch Zentrierung, robuste Skalierung, Referenzsteuerungen oder Batchmodelle entfernen. Korrektur nur dann anwenden, wenn das Design sie unterstützt."
+          "narration": "Plate and Batch Correction kann technische Verschiebungen durch Zentrierung, robuste Skalierung, Referenzkontrollen oder Batch-Modelle entfernen. Wenden Sie eine Korrektur nur an, wenn das Versuchsdesign sie rechtfertigt."
         },
         {
-          "narration": "Modell und Covariates wählen die Reaktion, Aggregation, Transformation, Regressionsfamilie, Unsicherheitsschätzung und alle berechtigten Zeilen, Spalten oder experimentellen Covariaten aus."
+          "narration": "Response wählt die Phänotypspalte, die Analyseeinheit, die Aggregation, eine optionale Vorzeichenumkehr und die Transformation aus. Diese Entscheidungen definieren die Größe, die mit der Guide-Häufigkeit in Beziehung gesetzt wird."
         },
         {
-          "narration": "Hit Calling und Outliers setzt Mindestzelle, gut, und Führungsbeweise plus optionale Ausfallregeln. Wählen Sie Schwellenwerte aus Kontrollverhalten und Datenqualität."
+          "narration": "Model and Inference wählt zwischen einem nichtparametrischen Test pro Guide, einer parametrischen simultanen Regression und einer automatischen Auswahl. Außerdem werden die Berichtsebene, gegebenenfalls die Modellfamilie, die Korrektur für multiples Testen und die Signifikanzregel festgelegt."
         },
         {
-          "narration": "Regressions Plots konfiguriert Diagnostik- und Vulkanaufnahmen. Die Graphengrenzen ändern die Darstellung, nicht die angepassten Koeffizienten, so dass untruncated Tabellen zur Interpretation behalten."
+          "narration": "Estimator Tuning enthält Parameter für Kovarianz, Regularisierung, robuste Anpassung, Quantile, Bootstrap und Rangaggregation. Nur die vom gewählten Schätzer verwendeten Einstellungen beeinflussen die Analyse."
         },
         {
-          "narration": "Run validiert Schemata und Schlüsselschlüssel, wendet Ausschlüsse und Korrekturen an, aggregiert die Ergebnisse, passt zum ausgewählten Modell und bewertet die Beweise. Beobachten Sie die Kontrollen und Diagnosen, bevor Sie Schläge anrufen."
+          "narration": "Permutation Test konfiguriert die Guide-Statistik, die minimale Well-Unterstützung, Anzahl und Startwert der Permutationen, den Austauschbarkeitsblock, Störvariablen, den Präsenzschwellenwert und die speicherbegrenzte Batch-Größe."
         },
         {
-          "narration": "Das abgeschlossenen Projekt enthält ausgerichtete Regressionsdaten, Leitlinien- und Gen-Levelkoeffizienten, Unsicherheits- oder Signifikanztabellen, diagnostische Zahlen, gespeicherte Einstellungen und ein wiederverlässiges Manifest."
+          "narration": "Run validiert Schemata und Well-Schlüssel, wendet Ausschlüsse und Korrekturen an, aggregiert die Response und führt das gewählte Inferenzverfahren aus. Das standardmäßige nichtparametrische Verfahren verwendet nach Platte blockierte Freedman–Lane-Permutationen und passt kein Regressionsmodell an."
+        },
+        {
+          "narration": "Das abgeschlossene Projekt enthält abgeglichene Analysedaten, Effektschätzungen auf Guide- und Genebene, empirische oder modellbasierte Signifikanztabellen, Diagnoseabbildungen, gespeicherte Einstellungen und ein erneut ausführbares Manifest."
         }
       ]
     },

@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "Traitement de l’intensité (tous les objets)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "Sources de plaques et flux de travail"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "Étiquettes et classes"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "Évaluation et résultats"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "Aire minimale de l’objet"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "Supprimer les objets en bordure"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "Carte thermique de plaque"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "Validé et couramment utilisé."
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "Plus avancé que le stade Alpha et couramment utilisé, mais pas encore validé."
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "Implémenté et accessible, mais pas encore validé de bout en bout. Attendez-vous à quelques imperfections et vérifiez les chiffres avant de vous y fier."
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> attribuer une classe + avancer &nbsp;·&nbsp; <b>0</b> retirer l’étiquette &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> déplacer la sélection &nbsp;·&nbsp; <b>Space</b> passer &nbsp;·&nbsp; <b>Backspace</b> revenir &nbsp;·&nbsp; <b>u</b> annuler &nbsp;·&nbsp; <b>Enter</b> lot suivant"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> attribuer cette classe à l’extrait d’image actif et passer au suivant non étiqueté &nbsp;·&nbsp; <b>0</b> effacer l’étiquette de l’extrait actif &nbsp;·&nbsp; <b>← ↑ ↓ →</b> ou <b>h j k l</b> déplacer la sélection sans attribuer d’étiquette &nbsp;·&nbsp; <b>Space</b> avancer d’un extrait sans l’étiqueter &nbsp;·&nbsp; <b>Backspace</b> revenir d’un extrait &nbsp;·&nbsp; <b>u</b> annuler la dernière étiquette &nbsp;·&nbsp; <b>Enter</b> enregistrer cette page et charger le lot suivant &nbsp;·&nbsp; la souris reste utilisable : clic gauche = classe 1, clic droit = classe 2."
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "Choisissez un dossier contenant `measurements/measurements.db`. Cliquez avec le bouton gauche sur une image pour attribuer la classe 1, avec le bouton droit pour la classe 2, puis cliquez à nouveau pour retirer l’étiquette — ou utilisez uniquement le clavier : les touches 1–9 attribuent une étiquette et passent à l’extrait d’image suivant. Les annotations sont enregistrées en arrière-plan."
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "Jeu de données réel de bout en bout (Masques → Mesure → Annotation)…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "Définition de l’ordonnée à l’origine ajustée. 'fitted' l’estime à partir des données comme la réponse prédite lorsque chaque prédicteur est à son niveau de référence ; dans un plan génique à codage indicateur binaire, cette référence est le gène omis par patsy et peut ne pas avoir d’interprétation biologique utile. 'control' soustrait la réponse moyenne des témoins négatifs avant l’ajustement et supprime la constante, de sorte que chaque coefficient représente une différence par rapport aux témoins. 'zero' force l’ajustement à passer par l’origine. 'value' fixe l’ordonnée à l’origine à intercept_value. Valeur par défaut : 'fitted'."
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept",
+      "source_sha256": "1b6926403a45086210ec2fdb5b623a524b91da2733b8612b318a1eb10341a6ba",
+      "source": "Intercept",
+      "translation": "Ordonnée à l’origine"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intercept_value",
+      "source_sha256": "34b8bd264bf59b981e3c05a31ccab201f0f7f510ebe518b28bcca19adbca70d2",
+      "source": "Intercept value",
+      "translation": "Valeur de l’ordonnée à l’origine"
+    }
+  ]
+}

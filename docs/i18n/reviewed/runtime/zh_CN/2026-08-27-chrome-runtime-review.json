@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "强度处理（所有对象）"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "微孔板来源与工作流程"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "标签与类别"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "评估与结果"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "最小对象面积"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "移除接触边界的对象"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "微孔板热图"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "已通过审核并投入常规使用。"
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "成熟度高于内测阶段，已用于常规工作，但尚未通过最终审核。"
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "已完成构建并可使用，但尚未经过端到端验证。可能仍有不完善之处；请在据此作出判断前核对数值。"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> 分配类别并前进 &nbsp;·&nbsp; <b>0</b> 清除标注 &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> 移动焦点 &nbsp;·&nbsp; <b>Space</b> 跳过 &nbsp;·&nbsp; <b>Backspace</b> 返回 &nbsp;·&nbsp; <b>u</b> 撤销 &nbsp;·&nbsp; <b>Enter</b> 下一批"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> 将相应类别分配给当前图像裁剪并跳转到下一个未标注的图像裁剪 &nbsp;·&nbsp; <b>0</b> 清除当前图像裁剪的标注 &nbsp;·&nbsp; <b>← ↑ ↓ →</b> 或 <b>h j k l</b> 移动焦点但不进行标注 &nbsp;·&nbsp; <b>Space</b> 向前跳过一个图像裁剪 &nbsp;·&nbsp; <b>Backspace</b> 返回上一个图像裁剪 &nbsp;·&nbsp; <b>u</b> 撤销上一次标注 &nbsp;·&nbsp; <b>Enter</b> 保存本页并加载下一批 &nbsp;·&nbsp; 鼠标仍可使用：左键单击 = 类别 1，右键单击 = 类别 2。"
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "选择包含 `measurements/measurements.db` 的文件夹。左键单击图像以分配类别 1，右键单击以分配类别 2，再次单击可清除标注 — 也可以仅使用键盘：按 1–9 进行标注并跳转到下一个图像裁剪。标注将在后台保存。"
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "端到端真实数据集（掩膜 → 测量 → 标注）…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "拟合截距的定义。'fitted' 根据数据将其估计为所有预测变量均处于参考水平时的预测响应；在采用独热编码的基因设计中，该参考项是 patsy 省略的基因，可能不具有有意义的生物学解释。'control' 在拟合前减去阴性对照的平均响应，并移除截距项，因此每个系数都表示相对于对照的差异。'zero' 强制拟合通过原点。'value' 将截距固定为 intercept_value。默认值为 'fitted'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "Signal_to_noise",
+      "source_sha256": "3b205b5ed55854e0df93b5537172d51edd6cbdf66bb61d6f9ebdb540305bf4a0",
+      "source": "Background multiplier used as the Cellpose normalization threshold (background * Signal_to_noise). Per channel, spaCR selects the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles above it and rescales to that value. Higher values reduce clipping and make output dimmer; lower values reveal faint signal but can saturate bright objects. If no percentile qualifies, the range collapses to the 2nd percentile, indicating that this value is too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models).",
+      "translation": "用作 Cellpose 归一化阈值的背景倍数（background * Signal_to_noise）。对于每个通道，spaCR 会依次检查第 98、99、99.9、99.99 和 99.999 百分位数，选择第一个高于该阈值的值，并将强度重新缩放至该值。值越高，裁剪越少，输出越暗；值越低，越容易显示微弱信号，但可能使明亮对象饱和。如果没有任何百分位数达到阈值，范围会收缩至第 2 百分位数，这表明该值过高。设置 percentiles 时忽略此项。默认值为 10（在 check_cellpose_models 中为 5）。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "keep_npz",
+      "source_sha256": "116e50315706b80104372d5797dbb2660e441176a5248c3d634f02ccc3d10a2a",
+      "source": "Keep npz",
+      "translation": "保留 NPZ"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "keep_npz",
+      "source_sha256": "fa9d2f6bfe151597020eeb7012458398b4d95ed020ecff83a8906d214814d9ab",
+      "source": "Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
+      "translation": "仅适用于流式流水线（pipeline_style='v2'）：将每个内存中的 NPZ 批次写入 merged/_scratch/，而不是将其丢弃，以便检查失败运行的中间数据。此选项会增加磁盘使用量；仅在诊断时启用。默认值为 False。"
+    }
+  ]
+}

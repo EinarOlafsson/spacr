@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "keep_npz",
+      "source_sha256": "116e50315706b80104372d5797dbb2660e441176a5248c3d634f02ccc3d10a2a",
+      "source": "Keep npz",
+      "translation": "Geyma NPZ"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "keep_npz",
+      "source_sha256": "fa9d2f6bfe151597020eeb7012458398b4d95ed020ecff83a8906d214814d9ab",
+      "source": "Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
+      "translation": "Aðeins fyrir streymisvinnsluröðina (pipeline_style='v2'): skrifar hverja NPZ-lotu sem er í minni undir merged/_scratch/ í stað þess að farga henni, svo hægt sé að skoða milligögn úr keyrslu sem mistókst. Þetta eykur diskanotkun; virkjaðu aðeins við bilanagreiningu. Sjálfgefið False."
+    }
+  ]
+}

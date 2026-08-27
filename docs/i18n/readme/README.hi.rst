@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -33,9 +33,9 @@
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: नवीनतम इंस्टॉलर
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge रेसिपी
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge संस्करण
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
@@ -376,10 +376,22 @@ macOS पर, ``.pkg`` खोलें. वर्तमान बीटा न�
 
 अद्यतन, अनइंस्टॉल, ऑफ़लाइन और समस्या हल करने के लिए निर्देशों के लिए `इंस्टॉलर गाइड <../../source/installer_guide.rst>`_ देखें।
 
-Python इंस्टॉलेशन
-~~~~~~~~~~~~~~~~~~~
+conda-forge से इंस्टॉलेशन
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python 3.12 वैज्ञानिक पैकेजों का सबसे व्यापक विकल्प है:
+आधिकारिक conda-forge पैकेज सक्रिय वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ इंस्टॉल करता है:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+PyPI से इंस्टॉलेशन
+~~~~~~~~~~~~~~~~~
+
+PyPI रिलीज़ के लिए, Conda वातावरण के भीतर pip से spaCR इंस्टॉल करें। Python 3.12 में वैकल्पिक वैज्ञानिक पैकेजों की सबसे व्यापक उपलब्धता है:
 
 .. code-block:: bash
 

@@ -54,6 +54,10 @@ DELIBERATELY_UNTRANSLATED = {
     # scientific writing keeps the English "Assays".
     "Assays": {"de"},
     "Backend": {"de"},
+    # Established image-analysis and rendering terms retain the same spelling
+    # in these locales; Bokeh is also the upstream visualization product name.
+    "Blobs": {"de"},
+    "Bokeh": {"de", "es", "fr", "is", "pt", "sv"},
     "Console": {"fr", "pt"},
     "Data": {"sv"},
     "Demos": {"de"},
@@ -63,6 +67,8 @@ DELIBERATELY_UNTRANSLATED = {
     "Documentation (web)": {"fr"},
     # The figures container's own heading; French spells it the same way.
     "Figures": {"fr"},
+    # The cognate is spelled identically in these three languages.
+    "Animation": {"de", "fr", "sv"},
     "Live": {"de", "sv"},
     "Module": {"fr"},
     "Navigation": {"de", "fr"},
@@ -71,9 +77,9 @@ DELIBERATELY_UNTRANSLATED = {
     "Organelle 2": {"de"},
     "Organelle 3": {"de"},
     "Organelle 4": {"de"},
-    # The PCA screen keeps the standard scientific acronym in these locales;
-    # Chinese, French, Hindi, and Korean use localized names.
-    "PCA": {"de", "es", "is", "pt", "sv"},
+    # The PCA screen keeps the standard scientific acronym in every locale
+    # except French, whose established abbreviation is ACP.
+    "PCA": {"de", "es", "hi", "is", "ko", "pt", "sv", "zh_CN"},
     "Pause": {"de", "fr"},
     "Personal Access Token (ghp_… / github_pat_…)": {"hi"},
     "Regression": {"de", "sv"},
@@ -84,6 +90,14 @@ DELIBERATELY_UNTRANSLATED = {
     "System": {"de", "sv"},
     "Toxoplasma": {"de", "es", "fr", "is", "pt", "sv"},
     "Tutorial (web)": {"es", "pt"},
+    # Natural-language cognates and established clinical terms whose target
+    # spelling is exactly the canonical source spelling.
+    "Aurora": {"es", "pt"},
+    "Tubules": {"fr"},
+    "deuteranopia": {"pt"},
+    "protanopia": {"pt"},
+    "tritanopia": {"pt"},
+    "Zoom": {"de", "es", "fr", "pt"},
     # THE LIVE PREVIEW'S DROPDOWN CAPTIONS. Each has a reviewed row now, and
     # in these languages the reviewed translation is the English word:
     # "cell" is Swedish, and magenta and cyan are the printing-ink names
