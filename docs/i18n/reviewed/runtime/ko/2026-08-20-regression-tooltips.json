@@ -19,9 +19,9 @@
   {
    "table": "setting_tooltips",
    "key": "cov_type",
-   "source_sha256": "88a2d9b89bf9e41b23020d3160ba3f5e25761b2d7c076b6a7f0a0538e2ba5ab2",
-   "source": "Heteroscedasticity-robust covariance estimator passed to likelihood fits: 'HC0', 'HC1', 'HC2', 'HC3', or None for classical non-robust errors. It changes standard errors and P-values, not coefficients. Use 'HC3' when residual variance increases with well cell count. Penalized, robust and quantile fits do not support this estimator and raise an error rather than reporting ordinary errors under a robust label. Default None. Read by regression_type 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'wls'.",
-      "translation": "우도 기반 적합에 전달되는 이분산성 강건 공분산 추정량입니다. 'HC0', 'HC1', 'HC2', 'HC3' 중 하나를 사용하거나, 고전적 비강건 오차를 쓰려면 None 을 사용합니다. 계수는 바꾸지 않고 표준 오차와 P값만 바꿉니다. 잔차 분산이 웰 세포 수와 함께 증가할 때는 'HC3' 를 사용합니다. 벌점, 강건 및 분위수 적합은 이 추정량을 지원하지 않으며 강건한 레이블 아래 일반 오차를 보고하는 대신 오류를 발생시킵니다. 기본값 None. regression_type 이 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'wls' 일 때 사용됩니다."
+   "source_sha256": "ea1e9ed358e48ded075e43970ade273ba0b9fb5b3ed16b7ec1c672fcbc559feb",
+   "source": "Heteroscedasticity-robust covariance estimator passed to likelihood fits: 'HC0', 'HC1', 'HC2', 'HC3', or None for classical non-robust errors. It changes standard errors and P-values, not coefficients. Use 'HC3' when residual variance increases with well cell count. Penalized, robust and quantile fits do not support this estimator and raise an error rather than reporting ordinary errors under a robust label. Default None. Read by regression_type 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'spline', 'wls'.",
+      "translation": "우도 기반 적합에 전달되는 이분산성 강건 공분산 추정량입니다. 'HC0', 'HC1', 'HC2', 'HC3' 중 하나를 사용하거나, 고전적 비강건 오차를 쓰려면 None 을 사용합니다. 계수는 바꾸지 않고 표준 오차와 P값만 바꿉니다. 잔차 분산이 웰 세포 수와 함께 증가할 때는 'HC3' 를 사용합니다. 벌점, 강건 및 분위수 적합은 이 추정량을 지원하지 않으며 강건한 레이블 아래 일반 오차를 보고하는 대신 오류를 발생시킵니다. 기본값 None. regression_type 이 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'spline', 'wls' 일 때 사용됩니다."
   },
   {
    "table": "setting_tooltips",

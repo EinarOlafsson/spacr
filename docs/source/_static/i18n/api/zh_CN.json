@@ -109,6 +109,26 @@
         "d0194a642f1261c92516ca13c75cc4a5a6f4cb5602ce024cb6773eb565316c35"
       ]
     },
+    "spacr._v1_v2_bridge.v2_mask_source": {
+      "source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "5a4f7550a565472ea22cfb16756e3e0436ccee6ad031c3cf882a6c8817d5ceee",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9027865649852490b08f3672196fefa8d568dcce06a58856db1665794b8ae443",
+        "6412d601a36730c6015b85431f7c9d0108487f94eeab2d2bc3783cf3675841fc",
+        "362947f165dfab6e7304267c53a51050885eee30bf232a90995bb82f2a11d755"
+      ],
+      "source_sha256": "c435cac77aa8791be010fbfb2e37edd9b7e2621af00e5326f7d572c8478bbcc8",
+      "text": "一个可怕的掩膜来源为 :func:`spacr.seg_qc.run_segmentation_qc`。\n\n版本将每个显微镜视场的一个 ``.npy`` 写入到一个 ``<object_type>_mask_stack`` 文件夹中,记分卡将直接对其进行 glob。 版本没有这样的文件夹:掩码是``merged/stack_<field>.npy``的图像数据通道,形状为``(H, W, C_image + C_mask)``。 读取 ``channel_order.json`` 来了解图像层是哪个层,并返回 ``{field: thunk}``,因此同一个 QC 对两个布局进行评分,并且两者都不需要了解对方。\n\n:param merged_dir: ``merged/`` 文件夹 ``run_v2`` 写的。\n:param object_type: 图像数据通道,按名称与``channel_order.json``的``mask_channels``匹配。\n:returns: ``{field_id: callable}`` - 每个显微镜的视野,每人负载自己的粘贴和滑动一个图像层. 空白当侧面缺失时,名称没有掩膜,或名称不匹配 ``object_type``; 评分什么是诚实的答案“这里没有面罩”,呼叫者这样说,而不是这个上升到一个完成的跑步。\n\n通过 ``mmap_mode='r'`` 加载并复制图像层第一,因此一个 1536 微镜视野实验室显微板被记录为一个微观视野同时,而不是阅读整体。",
+      "translation_source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "d61e0d824ff613b7651bb09fd85b94800c3e2e1a7a1623c623256aa828a8e788",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9322647b9461664b4edaa5ef0c3324cbc6554e77e9ad4ba69e15041f125d3ce4",
+        "8880f2d6088a0008f89a96444a730e47cb84e3724784aac0af39ddbb508d2f1c",
+        "8dcbb4638a3ed3c2fbca5a28bdf7e7908875fd8132a8229896ca17d7ce7f75c9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -17067,6 +17087,22 @@
         "64fe42a30f9cb729134699480a93652b6e640e1de25b38f60a000135f47d593a"
       ]
     },
+    "spacr.external_masks.register_settings": {
+      "source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ],
+      "source_sha256": "c6fd846944972f533642ac645414cd4d63c99d278b849e3a1d2d7b79434a03d5",
+      "text": "通过共享注册表发布此模块的设置帮助。\n\n外部掩膜传递了模块注册表,因此它的七个进口商特定控制器是应用程序注册表中唯一显示的设置,没有授权的帮助。 注册除了默认情况之外,存储库、验证类型和工具提示都保持在一起; 由 :func:`default_settings` 返回的测量设置保持其现有共享声明。\n\n:param replace: 取代此模块的现有故障登记。\n:returns: 是否有新的登记。",
+      "translation_source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ]
+    },
     "spacr.external_masks.run_external_masks": {
       "source_blocks_sha256": [
         "d6cb29b1aff77773898863658b8f4107acb742022851dfe3724bed78b66a04ae",
@@ -33204,6 +33240,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
         "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
@@ -33213,8 +33251,8 @@
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "64bbe2b849013439ef40efbd878f65604196c2a93a11bdfd6b65bfe7aac62f7d",
-      "text": "将其转移到所要求的回归后端,并返回配备的模型。\n\n在 :data:`REGRESSION_TYPES` 中,每个名称都可以在这里匹配,每一个名称都有 :func:`process_model_coefficients` 的匹配分支,因此匹配的模型可以随时转换为对比表。\n\n背端,以及每一个是为了什么:\n\n==================================  =========================================================================================================\n``ols``                             常见的最低方位在一个持续的良好反应。\n``wls``                             重量最少的平方; ``weights`` 是微板样本位置的细胞数量,因此400个细胞的微板模型位置超过30个。\n``rlm``/``huber``                   强大的 M 估计(Huber 损失) 对于外部重型微板样本位置:一小块远程微板模型位置不再吸引合适的位置。\n``glm``                             GLM 与家庭自动从 :func:`pick_glm_family_and_link` 响应中选择。\n``poisson``                         Poisson GLM 具有日志链接和 ``offset(log(exposure))``,为每微板样本位置计算 - 因此,对每个细胞的 RATE 产生影响,而不是微板模型位置的头数。\n``quasi_binomial``                  二进制GLM,其分散量估计来自皮尔森四方,对于过分分散的分裂。\n``beta``                            Beta regression,为一个分裂严格在内部(0,1)。\n``logit``/``probit``                分数上的 GLM 二项式,按细胞计数加权。\n``quantile``                        量子回归为 ``quantile``;适合答案的背部而不是它的中间。\n``mixed``                           混合效应线性模型与``groups``作为随机中介。\n``lasso``/``ridge``/``elasticnet``  罚款最少的四分之一。\n``hinge``                           线性SVM(手指损失)在二进制反应上。\n``horseshoe``                       SPARSE POISSON GLM 配有前列(spaCRPower 的功率分析模型),通过 :mod:`spacr.power_model`。\n``group_lasso``                     惩罚最少的方形与一个基因的引导 RNA列被惩罚为一个区块,因此一个基于一个引导 RNA而不是一个组合被选择或放弃 - 通过:mod:`spacr.group_lasso`的混合模型的阴道的惩罚类似。\n``rra``                             MAGeCK风格强大的排名集成: 引导 RNA按其边缘效应排列,集成到基因 BY RANK 与转变 P 值,通过 :mod:`spacr.rra`。, 因此,上面的每一个背景限制的山脉和p>>n宽度不会达到它。\n==================================  =========================================================================================================\n\n无法阅读的背景设置已被拒绝,未被忽略 - 见 :data:`REGRESSION_SETTINGS_USED`。\n\n:param X: 设计矩阵(DataFrame;列名变成功能名称)。\n:param y: 答案变量。\n:param regression_type: 其中一个是:data:`REGRESSION_TYPES`。\n:param regression_backend: WHO 适合它 - 其中一个 :data:`REGRESSION_BACKEND_ORDER`. 默认 ``'statsmodels'``,产生了每个现有结果. 不适合 ``regression_type`` 的背景在这里被拒绝,没有忽略:两个控制器在两个方向上相互限制,并且一个设置 CSV 达到这个功能,而不会通过一个可能已经灰色输入的面板。\n:param groups: 混合模型的集群识别器。\n:param alpha: 罚款重量为 ``lasso``/``ridge``/ ``elasticnet`` 和逆转的 SVM 边缘为 ``hinge``; ``'auto'`` / ``None`` 以 5 倍的交叉验证为所有 4 个(对罚款最小四分之一的主要平方错误为 3 个,对 ``hinge`` 的平衡准确性)。\n:param cov_type: 可靠性估计适合(``'HC0'``..``'HC3'``); ``None``为经典标准错误。\n:param weights: 每观察重量 - 微板样本位置的细胞数量. 用作 ``var_weights`` 以 ``logit``/``probit``/ ``quasi_binomial`` 和 WLS 重量为 ``wls``。\n:param l1_ratio: ``elasticnet`` 混合; 1.0 是 lasso, 0.0 是 ridge。\n:param quantile: 定量为 ``quantile`` 回归,在 (0, 1 ) 。\n:param hinge_threshold: 切割用于二进制为 ``hinge`` 的连续回复; 见 :func:`binarise_response`。\n:param huber_t: 在估计剩余规模的单位,为 ``rlm``/``huber`` 的固定调。1345 提供 95% 效率低于正常度。\n:param exposure: 每观察曝光(微板样本位置的细胞数)使用为 ``offset(log(exposure))`` 与 ``horseshoe`` 和 ``poisson`` (以及 ``glm`` 当它自动选择一个 Poisson 家庭)。\n:param group_lasso_lambda: 区块罚款为``group_lasso``。 它自己的结构化数据名称,而不是 ``alpha`` 因为它与 :func:`spacr.group_lasso.max_lambda` 相比,这是设计的属性,因此从轻松运行传输的值在这里意味着别的东西。\n:param rra_alpha: MAGeCK的0.25是保持一个基因与一个强大的引导 RNA和三个没有切断可找到的。\n:param rra_permutations: 每个独特的引导 RNA计数在RRA的置换null;  10,000 将最小可报告 P 值设置为 1e-4。\n:returns: 定位 statsmodels / sklearn 估计器。\n:raises ValueError: 在未支持的 ``regression_type`` 上,或者当选择的背景无法阅读的设置设置为非默认值。\n\n例子:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
+      "source_sha256": "09cac4e3a8936fbf72dfc29d8f74436b3a8fe8fa66267a398d956186739ba7b1",
+      "text": "将其转移到所要求的回归后端,并返回配备的模型。\n\n在 :data:`REGRESSION_TYPES` 中,每个名称都可以在这里匹配,每一个名称都有 :func:`process_model_coefficients` 的匹配分支,因此匹配的模型可以随时转换为对比表。\n\n背端,以及每一个是为了什么:\n\n==================================  =========================================================================================================\n``ols``                             常见的最低方位在一个持续的良好反应。\n``wls``                             重量最少的平方; ``weights`` 是微板样本位置的细胞数量,因此400个细胞的微板模型位置超过30个。\n``rlm``/``huber``                   强大的 M 估计(Huber 损失) 对于外部重型微板样本位置:一小块远程微板模型位置不再吸引合适的位置。\n``glm``                             GLM 与家庭自动从 :func:`pick_glm_family_and_link` 响应中选择。\n``poisson``                         Poisson GLM 具有日志链接和 ``offset(log(exposure))``,为每微板样本位置计算 - 因此,对每个细胞的 RATE 产生影响,而不是微板模型位置的头数。\n``quasi_binomial``                  二进制GLM,其分散量估计来自皮尔森四方,对于过分分散的分裂。\n``beta``                            Beta regression,为一个分裂严格在内部(0,1)。\n``logit``/``probit``                分数上的 GLM 二项式,按细胞计数加权。\n``quantile``                        量子回归为 ``quantile``;适合答案的背部而不是它的中间。\n``mixed``                           混合效应线性模型与``groups``作为随机中介。\n``lasso``/``ridge``/``elasticnet``  罚款最少的四分之一。\n``hinge``                           线性SVM(手指损失)在二进制反应上。\n``horseshoe``                       SPARSE POISSON GLM 配有前列(spaCRPower 的功率分析模型),通过 :mod:`spacr.power_model`。\n``group_lasso``                     惩罚最少的方形与一个基因的引导 RNA列被惩罚为一个区块,因此一个基于一个引导 RNA而不是一个组合被选择或放弃 - 通过:mod:`spacr.group_lasso`的混合模型的阴道的惩罚类似。\n``rra``                             MAGeCK风格强大的排名集成: 引导 RNA按其边缘效应排列,集成到基因 BY RANK 与转变 P 值,通过 :mod:`spacr.rra`。, 因此,上面的每一个背景限制的山脉和p>>n宽度不会达到它。\n==================================  =========================================================================================================\n\n无法阅读的背景设置已被拒绝,未被忽略 - 见 :data:`REGRESSION_SETTINGS_USED`。\n\n:param X: 设计矩阵(DataFrame;列名变成功能名称)。\n:param y: 答案变量。\n:param regression_type: 其中一个是:data:`REGRESSION_TYPES`。\n:param regression_backend: WHO 适合它 - 其中一个 :data:`REGRESSION_BACKEND_ORDER`. 默认 ``'statsmodels'``,产生了每个现有结果. 不适合 ``regression_type`` 的背景在这里被拒绝,没有忽略:两个控制器在两个方向上相互限制,并且一个设置 CSV 达到这个功能,而不会通过一个可能已经灰色输入的面板。\n:param groups: 混合模型的集群识别器。\n:param alpha: 罚款重量为 ``lasso``/``ridge``/ ``elasticnet`` 和逆转的 SVM 边缘为 ``hinge``; ``'auto'`` / ``None`` 以 5 倍的交叉验证为所有 4 个(对罚款最小四分之一的主要平方错误为 3 个,对 ``hinge`` 的平衡准确性)。\n:param cov_type: 可靠性估计适合(``'HC0'``..``'HC3'``); ``None``为经典标准错误。\n:param weights: 每观察重量 - 微板样本位置的细胞数量. 用作 ``var_weights`` 以 ``logit``/``probit``/ ``quasi_binomial`` 和 WLS 重量为 ``wls``。\n:param l1_ratio: ``elasticnet`` 混合; 1.0 是 lasso, 0.0 是 ridge。\n:param quantile: 定量为 ``quantile`` 回归,在 (0, 1 ) 。\n:param hinge_threshold: 切割用于二进制为 ``hinge`` 的连续回复; 见 :func:`binarise_response`。\n:param spline_knots: 按 ``spline`` 的连续科瓦里亚特按节点。\n:param spline_degree: 该基础的聚合物级别; 3 是圆形的。\n:param huber_t: 在估计剩余规模的单位,为 ``rlm``/``huber`` 的固定调。1345 提供 95% 效率低于正常度。\n:param exposure: 每观察曝光(微板样本位置的细胞数)使用为 ``offset(log(exposure))`` 与 ``horseshoe`` 和 ``poisson`` (以及 ``glm`` 当它自动选择一个 Poisson 家庭)。\n:param group_lasso_lambda: 区块罚款为``group_lasso``。 它自己的结构化数据名称,而不是 ``alpha`` 因为它与 :func:`spacr.group_lasso.max_lambda` 相比,这是设计的属性,因此从轻松运行传输的值在这里意味着别的东西。\n:param rra_alpha: MAGeCK的0.25是保持一个基因与一个强大的引导 RNA和三个没有切断可找到的。\n:param rra_permutations: 每个独特的引导 RNA计数在RRA的置换null;  10,000 将最小可报告 P 值设置为 1e-4。\n:returns: 定位 statsmodels / sklearn 估计器。\n:raises ValueError: 在未支持的 ``regression_type`` 上,或者当选择的背景无法阅读的设置设置为非默认值。\n\n例子:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
       "translation_source_blocks_sha256": [
         "11addd56717d2def3ab515397efe9adf9e8ea2a5311aba495b89b6cab04650b7",
         "b6d92a9a367feb0a565f69b0a6af4e8a552253b3a0663e583928679bbc927405",
@@ -33247,6 +33285,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "6a0ece3932b5a634897beb05b315bc10a118b128e255cd53ee009b3f926c85af",
         "bdaf20968d29817f44096b5db6e96de5f477ead4cd542bfa4b9e9187fa70e092",
@@ -35957,6 +35997,158 @@
         "6696bc5034b22a18c5d5395e8ed7a6c1ab24fdb645c856b403b7f4e942b6ff92",
         "15601f90242cccfc0ea63274b9a62f76ebf84aa1371c29c0eeab10a2c7b31098",
         "6764daf04469b1a3346e7ca227774317a58bcd824c4ffd2a4d758873c6ad8bc5"
+      ]
+    },
+    "spacr.nonparametric_fits": {
+      "source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "dc80e9a737733f33c4291aa6d90cf460eed1d84293545036ad6af396e86f7ab4",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ],
+      "source_sha256": "2957a45a2e5671f7f872cb3a9e95d2530a8a32ec2bce970f49dec66bc7ea2f89",
+      "text": "七种非参数方法,按他们可以诚实地回答的分类。\n\n为什么这不是七个更多的输入在 regression_type 菜单上 合适的 spaCR 已经提供了所有答案在一个货币 - 每个引导 RNA的比例,一个标准错误和一个 P 值 - 其余的扫描实验是建立在它上:火山对意义的效果,击中列表排列基因的效果与测试的基因上一个 q,分配和模型卡消耗相同的表。\n\n四种七种产品没有干净的数字. 低度是描述性的. 核心逆转和KNN给了一个固定表面,而不是一个滑板. 森林给了重要性,这些不是比例,并且在相同规模的特征上不相似。 选择其中一个为 \"the regression\" 将给火山什么都没有提取,所以它们是提供的,如:\n\n  A. 以相同衡量单位给出结果的拟合 -- 加入 `regression_type`。B. 覆盖在数据上的诊断 -- 只用于绘图，绝不用于判定命中。C. 一致性检查 -- 报告与线性排序的比较，并指出两种方法结果不一致的向导。\n\n每种方法拟合的并不总是向导设计。spaCR 的拟合在孔（WELL）层级建立 guide -> phenotype（向导到表型）的关系，每个向导对应一列：这种设计高维、稀疏且为分类变量，对大多数此类方法而言是最不利的情形。对于连续（CONTINUOUS）协变量 -- 例如孔内向导丰度、细胞数或板位置 -- 这些方法则很适用。平滑器的作用正在于此：显示表型是否会随线性模型假定不存在的干扰变量平滑变化。\n\n一个洞中的细胞不独立,所以任何分裂这些方法需要通过洞,永远不会通过细胞。",
+      "translation_source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "a94a81e57402a749d36225cad55b0f17d548194ddb500bd8b0609de537e0251e",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a8fa2762d566899e2a2da4561832e5889bb5a81fc6940b9d95c018072f3b3c36",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ]
+    },
+    "spacr.nonparametric_fits.Agreement": {
+      "source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ],
+      "source_sha256": "f10a914b24e278e7980ad3980bdfa55bbad9e13c010049a5a0fbd73feece27c7",
+      "text": "同一引导 RNA的两个排名, 他们在哪里不同意。\n\n指令212说,这一点是什么:“这是数据的效果,还是模型?两点合意比单独合意更有价值,在他们不同意的情况下,分歧本身就是发现。",
+      "translation_source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ]
+    },
+    "spacr.nonparametric_fits.Curve": {
+      "source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ],
+      "source_sha256": "f6993fa92754942a23c4127885445c32eb7052ed69059c7326336e6ed09b749e",
+      "text": "一个配备的曲线,以吸引一个分散器,它是什么。\n\n`p_values`不存在于这个对象的目的:一个诊断可以错误的测试是指示254说的是更糟糕的,而不是提供方法的任何。",
+      "translation_source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ]
+    },
+    "spacr.nonparametric_fits.agreement": {
+      "source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "69f9e602c2017c2f5a8a21343e0f52fd8cd02f6a070f4cd387b87a369be488e1",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "11c59eceb23ebfbcc514e17010d4cca115b3a9caf2bd08cf9b3fa3456a3a97f0",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ],
+      "source_sha256": "96bfdfc7d78bb949d43e3e8589db2c907b3f33d3ceddc27c5dcee485cfa0ae02",
+      "text": "排名引导第二路,并将其与线性排名进行比较。\n\n:param design: 样品位置 x 导轨。 每个样品位置一行,而不是每个细胞。\n:param linear_effect: 适合自己的引导 RNA效应,按大小排名,以便给出这个排名,与此相比。\n:param groups: 通过到分裂器,这样一个微板样本位置的行从来没有分裂 - 一个微盘样本地点的细胞共享微板模型位置的现象,而一个分裂,通过一个将分数一个模型在自己的训练数据。\n:param moved_by: 一个引导 RNA必须移动多少个地方值得命名。",
+      "translation_source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "62529c61051d3bece9f17fb89d6491cde72ac2ee13e760d8037dc2871d5d4e5e",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "fa769e9a02b46eb361ee5acdfd76a02dbb5e31a4b90624236cfac942e1a00b35",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ]
+    },
+    "spacr.nonparametric_fits.describe": {
+      "source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ],
+      "source_sha256": "1ad3e586f8942846d6f7bc71be9bf209a996d113bf2bc036d8f6b427a26a6387",
+      "text": "一个句子命名一个方法是为什么,它花费了什么。\n\nWHERE 是可选的。 三路分裂的整个点是,读者在选择之前知道,而不是跑后。",
+      "translation_source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ]
+    },
+    "spacr.nonparametric_fits.isotonic_fit": {
+      "source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ],
+      "source_sha256": "59229686eb015fce756b5622ffde181053eb38d55761b6b8d3366367b6199547",
+      "text": "一个单调匹配 ``y`` 在一个订购的 ``x``. 返回(网,匹配)。\n\n一个尺寸和一个方向,这就是伊索顿性逆转所说的一切。 `refuse('isotonic', ordered=False)` 是这样说的,在一个呼叫者在引导 RNA设计中指出它之前。",
+      "translation_source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ]
+    },
+    "spacr.nonparametric_fits.methods_in": {
+      "source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ],
+      "source_sha256": "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432",
+      "text": "每个属于 ``category`` 的方法,以声明顺序。",
+      "translation_source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ]
+    },
+    "spacr.nonparametric_fits.refuse": {
+      "source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ],
+      "source_sha256": "e228cb7741ebd46ec0c3677cf5f75c31c051257637ca1baa880091b30c6c9694",
+      "text": "为什么 ``name`` 不能在此格式的数据上运行,或者 None。\n\n选择一个数据方法,不能因原因而被拒绝,而不是返回一个合适的方法,没有人应该阅读。",
+      "translation_source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ]
+    },
+    "spacr.nonparametric_fits.report_agreement": {
+      "source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ],
+      "source_sha256": "85eef9b73a648f6178d180c594fd149f727d2440b47e32b52ab42386ece75d3f",
+      "text": "运行协议检查完成的匹配,然后返回打印的内容。\n\n采取对比表一个已经产生的运行,所以什么都没有恢复和比较是对比的排名运行实际上报告。\n\n:param coefficients: 运行表,与 `feature` 和 `coefficient`。\n:returns: 要打印的句子,或者“当没有什么可比较的时 - 共享的引导 RNA太少,或者没有坐标的表。",
+      "translation_source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ]
+    },
+    "spacr.nonparametric_fits.smooth": {
+      "source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ],
+      "source_sha256": "bdd521837d7058ec6c5647793948e37ee5d77239ce92427edd5c49244b5bf751",
+      "text": "将其中一个诊断滑板匹配为 ``y`` 与 ``x``。\n\n:param scaled: 标准化 ``x`` 在适合需要它的方法之前,并在笔记中这样说. KNN 和 加西亚 过程是远程的,因此,一个不分裂的科瓦里亚特沉默地使它的一个单位意味著它的范围发生了什么。\n:raises ValueError: 当方法不能以这种形式运行时 - 与原因,而不是一个合适的,没有人应该阅读。",
+      "translation_source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ]
+    },
+    "spacr.nonparametric_fits.spline_design": {
+      "source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
+      ],
+      "source_sha256": "6076ec6e2d2905ffd9c2e7f2d99f94a614ec12cdb14f7bc090f0b6ffbdc9e3f1",
+      "text": "替换每个命名的科瓦里亚特与其 spline 基础,返回一个框架。\n\n引导 RNA列没有触摸,这就是它在A类中保持的。 每个引导 RNA都保持着一个单一的列,所以匹配者仍然产生一个引导 RNA和一个P值,而火山和击中列表则没有特殊的加密。 变成非线性的是 NUISANCE - 直线的科瓦里亚特正在采取。\n\n一个基列被称为 `<covariate>_spline<k>`,它不携带 `grna` 和 `gene`,所以每个已经落下 `rowID[T.r2]` 的过滤器也会落下这些。",
+      "translation_source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
       ]
     },
     "spacr.normalization": {
@@ -41256,10 +41448,10 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "129ca43c4fd5ed4d53e17d607873ba68112a9ab9eab83aae21d09ee68c27ef83"
       ],
-      "source_sha256": "c71664277b0555d332d35dbbdbf57f0bd21d865c2ade5fa62fd10f088f8b400c",
-      "text": "将 ``masks/*`` 列出到相匹配的图像上,从 ``img_folder``。\n\n:param img_folder: 包含图像的文件夹;掩膜在 ``img_folder/masks`` 中生存,并与相匹配的文件名。\n:param normalize: 如果 True,百分比正常化图像之前混合。 ``True``.\n:param resize: 如果 True,将混合的表面重定为 1000x1000. 默认 ``True``。\n:param save: 如果 True ,则输入 PNGs 到 ``img_folder/overlay/``. 默认情况下 ``False``。\n:param plot: 如果 True,显示每个 overlay 通过 matplotlib 假设 ``False``.\n:param thickness: 转线厚度在像素中. 默认 ``2``。\n:returns: None",
+      "source_sha256": "87e8f8f71fe914fcfc129d511648725fbb49a53f448fac1c09f3cb04c1409717",
+      "text": "将 ``masks/*`` 列出到相匹配的图像上,从 ``img_folder``。\n\n:param img_folder: 包含图像的文件夹;掩膜在 ``img_folder/masks`` 中生存,并与相匹配的文件名。\n:param normalize: 如果 True,在混合之前将百分比图像正常化为默认 ``True``。\n:param resize: 如果 True,将混合的表面重定为 1000x1000. 默认 ``True``。\n:param save: 如果 True ,则输入 PNGs 到 ``img_folder/overlay/``. 默认情况下 ``False``。\n:param plot: 如果 True,则通过 matplotlib 显示每个过度。 默认 ``False``。\n:param thickness: 转线厚度在像素中. 默认 ``2``。\n:returns: ``{'written': int, 'failed': [(filename, reason)]}``一个无法阅读的字段被命名并转换,而不是完成处理会议,因此一个持有一个字符串的文件夹 TIFF 它仍然产生每一个其他过度 - 并且呼叫者可以告诉谁是缺失的。",
       "translation_source_blocks_sha256": [
         "9a3f809a83769a9c91389cef5294ceb0c72557478347158de2e9881b45061ca3",
         "6209144a5b785a019714c69a18441371e56db975a8880746d2fd6cc5e34b125b",
@@ -41268,7 +41460,7 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -44265,6 +44457,16 @@
         "b861939ecbeb09b90ea871de468cd72c2c902c0291c235586c798f1a6eb43dbc"
       ]
     },
+    "spacr.predictions.first_present": {
+      "source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ],
+      "source_sha256": "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d",
+      "text": "第一个 ``names`` ``frame`` 实际上有,另一个 None。",
+      "translation_source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ]
+    },
     "spacr.predictions.merge_cv_predictions": {
       "source_blocks_sha256": [
         "ea0157cccd03f87d1905464cc59efc9c8e90477d5e5c6321a243f0045ed0ba06",
@@ -47195,6 +47397,20 @@
         "acb0b0e0af5e22425fb56afac156ab5d5a510a75b77f3204d60a35b20235dc63"
       ]
     },
+    "spacr.qt.app.install_the_spaceout_fractal": {
+      "source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "3691739c82aecee161535cda10c936165029de0ec70f863b63da51e7819094e5",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ],
+      "source_sha256": "e1fc0ec694cabb548905f78ef621ae9e36be1c76fd518c4cd1a1533399e35fdf",
+      "text": "将空间输出分裂置于 ``screen`` 后面,如果是空间输入。\n\n:returns: True 当它被安装时,所以召唤者知道如何逃避普通的环境背景。 False 在每一次正常发射中 - 这是保持模式隐藏的 - 而不是扔掉时,碎片无法建造,所以无法绘制的机器仍然得到它一直拥有的动画。\n\n设置来自偏好,它只显示它们在空间外,所以一个地方决定什么是提供和什么是拖动。",
+      "translation_source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "4b38faaea456670ab341c8bb106b33e8e3c7a3a67ac8bec27f4dbdb6ef740055",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ]
+    },
     "spacr.qt.app.launch": {
       "source_blocks_sha256": [
         "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865"
@@ -47475,6 +47691,146 @@
         "15fbd6c4c02cf7496fc10f040c4572934df6d10bd033d9763696631a325c602a",
         "7e7b12cbd705dcc73d06a90c90b07402cf4364bb01607b5ba7b926bed6714ae1",
         "08cb5bff9139116d7d3a506d287baef0078fb5fac6f2f399b9be34a5ebc28470"
+      ]
+    },
+    "spacr.qt.ask_for_the_path": {
+      "source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "de2f152a3cf969bbc83acac16eb37ff946df23bb04f20dd6685bae51530f8328",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "9f2b2d82ec2f1a30d3b83e1d981f14069cab38f60af0c6d49e401cc3410b4e88",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "1d98255231ac34929753c1cf13dfdcc650baa9809f775ab03fd113db25243667",
+        "f9da042489a7eec8063a85ec05220b68dfb57521ecca2a6068670026e5fba87b"
+      ],
+      "source_sha256": "e674d25d4cd1754b9ae12a8a10820a063ecebdb55c9b40096a6f6b0cd242c58a",
+      "text": "当寻找东西的常见方式失败时,请求它。\n\n这是背后,不是正常的路径. 常规的分辨率每次都运行一次; 只有一旦它已经失败,才会达到这一点. 今天运行的处理会议不必获得对话,而一个从未碰到失败的用户永远不会看到一个。\n\n在这里,对话比错误更好,因为信息是用户所拥有的信息,而程序却没有。 这些行为的当前行为是用一个名为错过的东西的消息来停止 - 这意味着程序已经知道要问什么。\n\n每个快点都欠什么,以及这个模块所要求的,所以一个召唤者不能忘记一个:\n\n* 说什么是第一个,所以一个设置中的类型可以从一个真正缺乏的文件夹中区分出来;\n* 在接受之前验证 - 一个未包含任何东西的选定的文件夹是相同的失败一步后;\n* 每次运行询问一次,而不是每个图像、每个微型板样品位置或每个实验室微型盘一次;\n* 把它写回来,这样说,因为没有被告知而改变的设置比不做的事情更糟。\n* 被拒绝:取消意味着处理会停止与错误它会给予的任何情况;\n* 在一个脚本、测试或行程中,没有人能回答,所以落后解决了原始错误,而不是阻止对话,谁也看不见。",
+      "translation_source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "e9f928813199565edc458c20ad3e1edb0926e39473dc4993cad8952957744985",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "765c36f74dd7e80baa5e30c2bb6763dbdb8b583fe120ea6a782e8c8b6a9d3dcd",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "0ccdc5a857545d381e9a41557986769c1b7b772eeb34c103e524bb3e58de2d50",
+        "97b412dffeb91b8042d5d4d8dc4191cf67d39459bce510bcea48de364b726700"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.a_folder_holding": {
+      "source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ],
+      "source_sha256": "6a494473bbb52647d27352f884164830bb6cda2efe4e1e28d3b191a866544c11",
+      "text": "验证器:文件夹必须包含至少一个文件,有 suffix。\n\n选择的文件夹中没有任何东西是相同的故障一个步骤后,这就是在接受代码的价值之前进行验证。",
+      "translation_source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
+      "source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ],
+      "source_sha256": "d1f116a3eed81cb162d03c07f9c4fe911793c10cadd69c4774c9262cc52d2ba9",
+      "text": "请求一个数据库,其中一个表和其中一个列。\n\n三个答案,不是一个,因为这就是协调流需要的,并要求它们一次是使第二个和第三个可回应的:提供的表是所选择的数据库实际上保持的,而列是该表的。\n\n:param key: 什么是被问及;答案在它下面记得。\n:param tried: 什么是尝试和没有工作,显示在每个标题。\n:param chooser: 注入测试;默认到一个真实的文件对话。\n:param pick: 注入测试;默认到一个真实的列表对话. 被称为 ``(title, prompt, options)`` 并返回选项或 None。\n:returns: ``((database, table, column), why)``,或 ``(None, why)``. 原因总是说什么三个停止 - 没有人在那里,取消,或数据库没有任何东西在它 - 因为一个打印它的呼叫器是唯一的帐户,用户得到。\n\n退出后一步的备份返回以前的,而不是放弃整个表格,所以选择错误的数据库费用一个点击而不是运行。",
+      "translation_source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder": {
+      "source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ],
+      "source_sha256": "f89ffe8657762b6e964d068d05f341c6b3d43ca7f909d492a82c2986cab2af98",
+      "text": "在常见的分辨率失败后请求文件夹。\n\n:param key: 答案被记住在它下面,所以第二张图像的运行不会再问。\n:param tried: 什么是尝试和没有工作,在选手之前说,所以用户知道为什么他们被问到。\n:param what: 简称为所需事物,对话标题。\n:param validate: 根据所选择的路径,当可用时返回 None 或句子说为什么不。\n:param chooser: 注入测试. 缺陷到一个真实的文件夹对话。\n:returns: ``(path, why)``。 `path` 是 None 当没有人回复,当用户被取消,或者当没有人在那里 - 而 `why` 总是说什么,因为这些是三个不同的情况。",
+      "translation_source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.columns_in": {
+      "source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ],
+      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+      "text": "每个单一表的列,在表声明它们的顺序。",
+      "translation_source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.forget": {
+      "source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ],
+      "source_sha256": "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3",
+      "text": "放下每一个记住的答案,为测试,并为一个新的跑步。",
+      "translation_source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.remembered": {
+      "source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ],
+      "source_sha256": "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61",
+      "text": "已被答案为 ``key``,如果有的话。",
+      "translation_source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.somebody_is_there": {
+      "source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ],
+      "source_sha256": "c92ac2e925ac76e702b158eeaf876999d34316c8beef08508a82f47c2d003177",
+      "text": "是否有一个人可以回答对话。\n\nFalse 在包底下,没有显示,或在一个 QApplication 存在之前. 检查 第一和本身,因为得到它是错误的,不会向任何人展示对话 - 它阻止,并且一个被阻止的包运行看起来像一个吊。",
+      "translation_source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.tables_in": {
+      "source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "3c7a2a2ef660cce10eec82aacb9aa5519333fdfa263fbf1dc300ec6eb7959b38"
+      ],
+      "source_sha256": "31809cab2f4cd71ed0abd9d4f96119cdc0d49bea9d6ab9bd0b8ca8161acb1a75",
+      "text": "每个表在 SQLite 文件中,或者一个空白列表,如果它不是一个。\n\n永远不会扔掉:用户选择的路径是一种可能是任何东西的路线,而“这个文件没有表格”是需要的表格而不是一个例外,它将不得不捕获的句子。",
+      "translation_source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "c78d0bdbb2416432d613f0e91431589b15f1178849a8e6ce9c15f31f8af9ecfc"
       ]
     },
     "spacr.qt.bridge": {
@@ -51427,6 +51783,28 @@
         "17b9d626580959e9cf19ec960e6e39844e7c3a39684c5bdf41bb8ed44ad7ec5e"
       ]
     },
+    "spacr.qt.fractal_defaults": {
+      "source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ],
+      "source_sha256": "fef40f2ded5279a9c30affbbc50c9e07db6cdf800c63980ccec7b96aa2b95f96",
+      "text": "破裂的数字,无 Qt、numba 或 vispy 可进口。\n\n`preferences` 需要默认和粘贴来阅读存储值,并且在第一个窗口存在之前 `preferences` 被进口。 到达 `widgets.fractal_travel` 为他们将拖动 numpy 和 numba 到每一次常规会议的启动路径 - 一个模块只使用空间输出。",
+      "translation_source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ]
+    },
+    "spacr.qt.fractal_defaults.clamp": {
+      "source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ],
+      "source_sha256": "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18",
+      "text": "``value`` 保持在 ``[low, high]`` 中。",
+      "translation_source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ]
+    },
     "spacr.qt.gil_priority": {
       "source_blocks_sha256": [
         "70d3cd7891ebb9fa9f85a3035269cd43d5304ed367205e12226acf77608d66dc",
@@ -52809,6 +53187,112 @@
       "translation_source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+      ]
+    },
+    "spacr.qt.laptop_mode": {
+      "source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ],
+      "source_sha256": "daecd56de2ad0cd0b7e640ce75dab9d81d2b9a0242ee33a7482fed59a2af6d31",
+      "text": "在一个小机器上运行,而不会变成一个小应用程序。\n\n该文件的规则符合,在维护者的言论:“只是转事物是一个策略,但我的最好的案例场景是能够保持尽可能多的功能,只是优化它们,所以它们也在恶劣的硬件上运行。\n\n这里没有什么改变一个处理会议计算的内容,它触摸的每个设置都是关于该应用程序是如何DRAWN的。\n\n它是自动选择的,它可以以任何方式被翻转,它说它是如何转动的 - 一个静静地使应用程序不同的是一个没有人可以破裂的模式。",
+      "translation_source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ]
+    },
+    "spacr.qt.laptop_mode.apply": {
+      "source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ],
+      "source_sha256": "876ecc902d9a078887f698b0fedfd8ee37872d0be4dc3b81c3365d6b47df1af4",
+      "text": "启动或关闭模式,返回已决定和已改变的模式。\n\n:param on: 强加答案; ``None`` 测量机器。\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` 命名每个设置实际上是写的,所以一个呼叫者可以说发生了什么而不是声称它。",
+      "translation_source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ]
+    },
+    "spacr.qt.laptop_mode.describe": {
+      "source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ],
+      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
+      "text": "整个决定作为一个区块,为启动日志。",
+      "translation_source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ]
+    },
+    "spacr.qt.laptop_mode.measure": {
+      "source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ],
+      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
+      "text": "决定是从什么,所以它可以被报告和测试。",
+      "translation_source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ]
+    },
+    "spacr.qt.laptop_mode.override": {
+      "source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ],
+      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
+      "text": "环境所说的话,或者 None 当它什么都没有说。",
+      "translation_source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ]
+    },
+    "spacr.qt.laptop_mode.total_memory_gib": {
+      "source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ],
+      "source_sha256": "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc",
+      "text": "物理记忆体在 GiB 或 None 中,当它无法阅读时。",
+      "translation_source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ]
+    },
+    "spacr.qt.laptop_mode.usable_cores": {
+      "source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ],
+      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
+      "text": "这个过程实际上可以使用,而不是机器所拥有的代码。\n\n`os.sched_getaffinity`在它存在的地方:一个容器或编程器可以将过程点击到更少的 `cpu_count` 报告,并且点击正是这个模式的情况。",
+      "translation_source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ]
+    },
+    "spacr.qt.laptop_mode.wanted": {
+      "source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ],
+      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
+      "text": "要么在笔记本电脑模式下运行,以及说为什么的句子。\n\n:returns: ``(on, why)``. 原因总是受欢迎,包括当答案是没有 - \"spaCR decided not to\" 是用户报告的一件事,有人必须能够检查。",
+      "translation_source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ]
+    },
+    "spacr.qt.laptop_mode.what_it_turns_down": {
+      "source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+      ],
+      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
+      "text": "每件事,模式的变化,以及一个用户失去的。\n\n这里没有什么是由一个工作流读到的,所以处理会议在任何模式中都会计算相同的答案 - 这就是承诺,使自动决策完全可接受。",
+      "translation_source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "e1c7f54e963fdc38e34ea1b8306d447010ef331a04ee7613f9e0f66739bd777f"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -55647,6 +56131,18 @@
         "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264"
       ]
     },
+    "spacr.qt.preferences.get_fractal_settings": {
+      "source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ],
+      "source_sha256": "6f0c8db2c882def4a35b1435da8407ff752f333d4b37af013619a95a418bcc88",
+      "text": "每个空间输出分裂设置,准备为 `Settings`/`RuntimeControls`。\n\n通过一个函数阅读,以便对话和背景无法不同意默认的值。 外界存储的值被粘贴而不是被拒绝 - 背景不应该阻止应用程序开始。",
+      "translation_source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [
         "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193"
@@ -55677,6 +56173,18 @@
       "text": "返回持久的 UI 语言代码,返回英语。",
       "translation_source_blocks_sha256": [
         "8fe3572d424d631dea9350a664e3f4f1334e1a3eead099dc7bd54a5cf79925d8"
+      ]
+    },
+    "spacr.qt.preferences.get_laptop_mode": {
+      "source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
+      ],
+      "source_sha256": "9970c73c5d6cec4d3aea8dc51dc5f048e1d3e475abd666b47f4ce3f4057f7e04",
+      "text": "无论笔记本电脑模式是否被强制启动、强制关闭或测量。\n\n存储值是 :data:`LAPTOP_MODE_CHOICES` 的任何其他内容 - 一个旧文件,一个手编辑的文件 - 被称为 ``\"automatic\"``,因为一个设置没有人可以解释应该像它从未设置。",
+      "translation_source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
       ]
     },
     "spacr.qt.preferences.get_log_console_levels": {
@@ -55971,6 +56479,18 @@
         "e4263e98c459c4bf6f797b85c1f0e59d9f3f6c282eddc9cd641284106f84a2d5",
         "5efe2212f3437950fc7e12b0f87c3fd4d049d482aa4746b4d51286ff8b9088aa",
         "c28efd5f9ced78ef62cf0f14ed0af079870a50abab66a9c2a704b3bb86bc060c"
+      ]
+    },
+    "spacr.qt.preferences.laptop_mode_note": {
+      "source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
+      ],
+      "source_sha256": "ddfabb93c4300855629291df28b701347865414b10403b9c1ecb1c27644a8680",
+      "text": "选择的设定将在这个机器上做什么,在节省之前说。\n\n自动是需要说的事情:标签不能提到结果,因为结果取决于机器阅读它。",
+      "translation_source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
       ]
     },
     "spacr.qt.preferences.maturity_is_visible": {
@@ -56399,6 +56919,18 @@
         "6ff0c2175252aff10cb2639d4c6c7aba7aafe020f957fbd1dd127731f1a5b9e5"
       ]
     },
+    "spacr.qt.preferences.set_fractal_settings": {
+      "source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ],
+      "source_sha256": "3e75419e2dace9574973f6a2e0e80af1993834f1791702af2f682d37af1445c6",
+      "text": "坚持任何分裂设置的子组。\n\n:raises ValueError: 在未知的名称上,或其组外的背景/质量. 其范围之外的数字被粘贴,因为滑板无法产生一个,并且手编辑的文件仍然应该开始。",
+      "translation_source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ]
+    },
     "spacr.qt.preferences.set_hash_inputs": {
       "source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
@@ -56433,6 +56965,20 @@
       "translation_source_blocks_sha256": [
         "0b926505a064e68b7543dc60c317836f3a336dc8450e6d9352f0564024d29443",
         "0ecd63fe48e47dcf5b363f0f3b6ade9472c2178df9c9d7e3cdabe49b56652c07"
+      ]
+    },
+    "spacr.qt.preferences.set_laptop_mode": {
+      "source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+      ],
+      "source_sha256": "d7057a17e60ba6db6fa09b6167bb17c91659a3d6c2160c3edfd7e2fc08d37c90",
+      "text": "坚持笔记本电脑模式偏好,现在应用。\n\n:raises ValueError: 不知不觉的选择。\n\n立即应用,而不是下一次启动,因为它所改变的两件事 - 环境动画和背景模具 - 都可见于对话背后的窗口。",
+      "translation_source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
       ]
     },
     "spacr.qt.preferences.set_log_levels": {
@@ -83026,6 +83572,20 @@
         "7f0b8b828bbb7985819b4676c26d3d39756b5a45116d69b50985582c84b94caf"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.add_smoother": {
+      "source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ],
+      "source_sha256": "3f053804ffc782260503c35d2bd6d6853c4353736ca919820296128f0c040e11",
+      "text": "将一个诊断曲线放在已经提取的点上。\n\n:returns: 要说什么 - 方法,它的笔记,和乐队,当它报告一个 - 或拒绝,这是一个句子,呼唤者显示,而不是一个例外,它吞下。 返回 ``\"\"`` 当 ``method`` 是空的,所以 \"none\" 不是每个呼叫网站的特殊情况。\n\n曲线没有p值,不能获得一个:它作为一个:class:`spacr.nonparametric_fits.Curve`回来,它没有这样的属性。 一个更顺利的曲线,在那里直趋势线是平坦的,是发现 - 这意味着中间模型缺乏一个术语 - 这是一个关于FIT的说法,而不是一个引导 RNA的测试。",
+      "translation_source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
       "source_blocks_sha256": [
         "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
@@ -83626,6 +84186,22 @@
         "1e2a2463e4992521cc0551b4f0866e8c6f65d3bd803ce2290ae5cf20992ac3d5",
         "5d4fc5178fe1cb7adabb14da987b070c72267b240d2ed8c32dd1beebaf1a9176",
         "4da05ffbdc99f516c96ffccbd237c1865b21b50b096360a6cf71271710732640"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_smoothers": {
+      "source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
+      ],
+      "source_sha256": "69ab7fbb4b71f69f2b5d49031debf18a839d42f2f9626f93ca796c1fbb3f9a6b",
+      "text": "在右键菜单上提供四个诊断滑板。\n\n:param on_change: 被称为 ``(method_name)``,当一个被选中时,或者用 ``\"\"``为没有。\n:param chosen: 目前正在拍摄的。\n\n从 :meth:`offer_refit` DELIBERATELY 分开,菜单说。 这些曲线被放置在已经发生的匹配上; 他们中没有人取代它,没有人决定打击。 这就是为什么指示254将它们置于与``regression_type``的输入不同类别。",
+      "translation_source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_style": {
@@ -88138,6 +88714,178 @@
       "text": "盒子下的线 - 验证消息或通知。",
       "translation_source_blocks_sha256": [
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel": {
+      "source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "0566678131450c8e1b80701442dfbd4c9c0c05c18b669c466f1c32d07f119c9d",
+        "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45"
+      ],
+      "source_sha256": "0a1eb74532f9b4acffc0ded75adcd5c8c9ea326f624c5db29fed63494b3d1dc2",
+      "text": "空间输出分裂:一个 GPU 阴影,当有一个,Numba 相反。\n\n从持有器的 `fractal_travel.py` v2.1.0. 两个发射器,而不是一个引擎与转换器:\n\n* **GPU** -- VisPy/gloo 配有 GLSL 碎片影子,物理像素分为 4 个空间样品,以及从样品 GPU 时间调整的细节圈。\n* **CPU** - 在Numba的更便宜的轨道分裂裂,以动画速度评估,有四个位置的时机2x2滑板和旋转的四个框窗口。\n\n这本书做了三件事,这本书说不了。\n\n`vispy` 不安装在发送环境中,所以 `backend='auto'` 解为 CPU 今天和 GPU 日。\n\n它是 PySide6. 脚本是 PyQt6, 并进口该连接在该应用程序内将放置两个 Qt 连接到一个过程, 谁不扔 -- 它分裂。\n\n而且它下跌了。 一个背面吃的核心,而一个分区运行是相反的它是什么,所以`pause()`停止了转折圈,并在应用程序视图上放弃了最后的框架。 看:meth:`CpuFractalWidget.pause`。",
+      "translation_source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "b9ff05769f0cf2087ef9cda80de7686e520e70ac9a0008fd100d1aaa4de25d1a",
+        "ad71051090a85fd00da5277eb84b25d02b34b6718d8de14357308d0b3e6cc863"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.CameraState": {
+      "source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ],
+      "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
+      "text": "在 GPU 字段中,在某个时刻。",
+      "translation_source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.GpuBackendError": {
+      "source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ],
+      "source_sha256": "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f",
+      "text": "GPU 播放器无法构建. 总是被 `auto` 捕获。",
+      "translation_source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.OrbitEngine": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ],
+      "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
+      "text": "四个框的时机窗口,还有别的东西。\n\n它没有关键框架:唯一的状态是最后四个滑雪阶段的戒指,这是反联盟需要的一切。",
+      "translation_source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls": {
+      "source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ],
+      "source_sha256": "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6",
+      "text": "用户在运行时可以移动什么",
+      "translation_source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
+      "source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ],
+      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
+      "text": "使用速度为 ``t`` 秒。\n\n固定,除非 `variable_speed` 即将到来,在这种情况下,它呼吸围绕设置值而不是取代它 - 所以偏好仍然意味着它所说的话。",
+      "translation_source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "图像是什么? 每个字段都是偏好序列。",
+      "translation_source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings.validated": {
+      "source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ],
+      "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
+      "text": "一个复印件,每个字段在接收的范围内。\n\n粘贴而不是拒绝:这是一个背景,一个偏好文件有一个愚蠢的数字在它不应该阻止应用程序从绘制一个。",
+      "translation_source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.create_fractal_widget": {
+      "source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66"
+      ],
+      "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
+      "text": "建造碎片背面, GPU 如果有一个。\n\n:returns: 一个 QWidget 携带 `backend_name`, `stats_text()`、 `pause()`、`resume()` 和 `shutdown()`. 永远不会为失去的 GPU 扔掉:无法构建的明确 ``backend='gpu'`` 仍然落后,因为背景不值得拒绝重新启动应用程序。",
+      "translation_source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.gpu_is_available": {
+      "source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ],
+      "source_sha256": "468548d177a174d97307e94514cbaa70048db83cc7817bcb5cdee8aa9ecbc84c",
+      "text": "是否可以构建 GPU 播放器。\n\n被问及,而不是被假设,并被问到没有进口VISPY到应用程序时,答案是没有: `importlib.util.find_spec`看模块没有执行它,所以一个失去的VASPY不花费任何费用,而一个现有没有启动两次。\n\n一个无法托管 GL 通道的平台计算为 GPU, 因为替代方案是一个核心跳跃而不是一个例外。",
+      "translation_source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
+      "source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "e99794211dd743cd84bf64422621443dfa8bb3e54e5567f59c9586d30a34ad25"
+      ],
+      "source_sha256": "e2bc79c3c22b5a48e944cd98fad44ba65bf9762a838fb3c6f2fade05d72345db",
+      "text": "这个 Qt 平台是否可以主办一个 GL 通道。\n\n在构建 GPU WIDGET 之前检查,因为错误时不会抛出。 在 `offscreen` 平台上,Qt 会打印 \"QOpenGLWidget 在此平台上不受支持 \", 并且进程 DUMPS CORE — — 没有 `except` 围绕构造函数可以捕获,因此 `create_fractal_widget` 中的回退将永远不会执行。 ,每次测试和每次无人发射都是这样的平台。",
+      "translation_source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "0ecf118546853a1031330730ffb2207379df5d75ea0e4ba7006a9f940f2642b1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolve_backend": {
+      "source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ],
+      "source_sha256": "bfdda1331e4fc5007a59cb39770c8ff421ef3303d1865f61f12bbc86e6ae8c0d",
+      "text": "哪个 renderer 实际上会运行,考虑到什么是安装的。\n\n:returns: ``'gpu'`` 或 ``'cpu'`` - 永远不会 ``'auto'``,因为一个呼叫器向用户显示他们在哪个,不能显示它们 \"auto\"。",
+      "translation_source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolved_cpu_threads": {
+      "source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ],
+      "source_sha256": "4249e971b0230af3ba75072ee4c3bcd1ee4e739b8153ca7d94c6dbd31e768900",
+      "text": "有多少Numba工作进程要采取,离开申请一些。\n\n在24点被捕,因为超越这个图像大小增加了编程的顶部,并且被捕在机器的计算之下,因为每一个核心的背板都饿了,用户实际上关心。",
+      "translation_source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.state_at_seconds": {
+      "source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+      ],
+      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+      "text": "相机在 ``t``. 清洁,所以测试可以说它移动。",
+      "translation_source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101355,6 +102103,16 @@
         "63404dd9edaa294b84bf662cd72384999f47c4e4d8950e5cdc8773a78d71b0a1"
       ]
     },
+    "spacr.qt.widgets.sweep_runs.describe_saved_states": {
+      "source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ],
+      "source_sha256": "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf",
+      "text": "一个句子关于一个储蓄做了什么,为面板自己的笔记。",
+      "translation_source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ]
+    },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
@@ -101365,6 +102123,22 @@
       "translation_source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
         "0aabd13f89079a39eee016b126fa9ec133fecb34714a607209d6e2400ce744b2"
+      ]
+    },
+    "spacr.qt.widgets.sweep_runs.save_run_states": {
+      "source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "1c6d40e37a40c08e463db5ca9eb3c45c7c6f6d7de59e5bce60d03809008e57d5",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
+      ],
+      "source_sha256": "8a0da88fd694fde04d0aace347e3078ba7c3bca76c392af75faf6fb80dd7bef5",
+      "text": "写一个工作空间包为每个 ``folders``。\n\n不管怎么说,这就是写的。 `workspace.save_for_run` 返回 None 当 `runs/save_workspace` 偏好关闭时,这对运行结束时的自动存储是正确的,并且在这里错误:从菜单中选择 \"Save the state\" 的用户已经询问了,而一个静静地做不到的菜单项目比缺席的更糟糕。 该模式仅适用于此通话,并且偏好未写入。\n\n:param folders: 处理会议文件夹保存。\n:returns: ``(saved, failures)`` - 收到包的文件夹,和 ``(folder, reason)`` 对于那些没有。 一个文件夹失败不会阻止其他,每个失败是名称:一个数字“3的5”没有名字是用户无法采取行动的报告。",
+      "translation_source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "5953a14a0c087e875d08dd3d93081f2a75f0f742d5c9af20101624009cae2cdf",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
       ]
     },
     "spacr.qt.widgets.table_chip": {
@@ -117804,10 +118578,12 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
-      "source_sha256": "78172a1682225d9d5d98e123a377fab64496ad08d7cca031a1e0d31a07d53c78",
-      "text": "从一个对象表中创建一个流媒体选项。\n\n参数\n----------\nframe : pandas.DataFrame 每个测量对象一行. object_array : str, default=\"cell\" 对象类型可选择. test_split : float, default=0.2 分割为测试集。 seed : int, default=0 随机种子控制定义分割分割。\n\n返回\n-------\npandas.DataFrame 对每个对象的频道识别、对象类型、分裂和来源。\n\n升高\n------\nValueError 如果表是空的或不包含可用的对象识别器。",
+      "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
+      "text": "从一个对象表中创建一个流媒体选项。\n\n参数\n----------\nframe : pandas.DataFrame 每个测量对象一行. object_array : str, default=\"cell\" 对象类型可选择. test_split : float, default=0.2 分割为测试集。 seed : int, default=0 随机种子控制定义分割分割。\n\n返回\n-------\npandas.DataFrame 对每个对象的频道识别、对象类型、分裂和来源。\n\n升高\n------\nValueError 如果表是空的或没有可用的对象识别器,或者没有人被问及或答案没有帮助。\n\n笔记\n-----\n``ask`` 只有在表中没有对象的名称时才被称为,而不是进口,所以这个模块从未依赖于 Qt。 一个没有人在前面打电话的人不会通过任何,并得到它总是得到的错误,这使得“从来没有急于运行”的结构,而不是一个规则,每个打电话网站都必须记住。 它被称为 ``ask(tried=..., object_array=...)`` 并返回 ``((database, table, column), why)`` - 见 :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
       "translation_source_blocks_sha256": [
         "bfd96720a7b1af1daa25c19ea6eb5a4569b08fd7491a94ee39259d755b232eac",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -117815,7 +118591,9 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ]
     },
     "spacr.stream_dataset.settings_for_method": {

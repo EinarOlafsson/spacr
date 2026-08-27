@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.nonparametric_fits#3",
+      "source": "A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`. B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides hits. C. AN AGREEMENT CHECK -- reports a comparison against the linear ranking, and names the guides the two disagree about.",
+      "context": "A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`. B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides hits. C. AN AGREEMENT CHECK -- reports a comparison against the linear ranking, and names the guides the two disagree about.",
+      "source_sha256": "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+      "translation": "A. 以相同衡量单位给出结果的拟合 -- 加入 `regression_type`。B. 覆盖在数据上的诊断 -- 只用于绘图，绝不用于判定命中。C. 一致性检查 -- 报告与线性排序的比较，并指出两种方法结果不一致的向导。"
+    },
+    {
+      "label": "spacr.nonparametric_fits#4",
+      "source": "AND WHAT EACH IS FITTING IS NOT ALWAYS THE GUIDE DESIGN. spaCR's fit is guide -> phenotype at WELL level with one column per guide: high dimensional, sparse and categorical, which is the worst case for most of these. Against a CONTINUOUS covariate -- guide abundance in the well, cell count, plate position -- they are on home ground, and that is where the smoothers earn their place: showing whether the phenotype moves smoothly with a nuisance variable the linear model is assuming away.",
+      "context": "AND WHAT EACH IS FITTING IS NOT ALWAYS THE GUIDE DESIGN. spaCR's fit is guide -> phenotype at Microplate sample position level with one column per guide: high dimensional, sparse and categorical, which is the worst case for most of these. Against a CONTINUOUS covariate -- guide abundance in the microplate sample position, cell count, laboratory microplate position -- they are on home ground, and that is where the smoothers earn their place: showing whether the phenotype moves smoothly with a nuisance variable the linear model is assuming away.",
+      "source_sha256": "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+      "translation": "每种方法拟合的并不总是向导设计。spaCR 的拟合在孔（WELL）层级建立 guide -> phenotype（向导到表型）的关系，每个向导对应一列：这种设计高维、稀疏且为分类变量，对大多数此类方法而言是最不利的情形。对于连续（CONTINUOUS）协变量 -- 例如孔内向导丰度、细胞数或板位置 -- 这些方法则很适用。平滑器的作用正在于此：显示表型是否会随线性模型假定不存在的干扰变量平滑变化。"
+    }
+  ]
+}

@@ -108,6 +108,26 @@
         "d0194a642f1261c92516ca13c75cc4a5a6f4cb5602ce024cb6773eb565316c35"
       ]
     },
+    "spacr._v1_v2_bridge.v2_mask_source": {
+      "source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "5a4f7550a565472ea22cfb16756e3e0436ccee6ad031c3cf882a6c8817d5ceee",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9027865649852490b08f3672196fefa8d568dcce06a58856db1665794b8ae443",
+        "6412d601a36730c6015b85431f7c9d0108487f94eeab2d2bc3783cf3675841fc",
+        "362947f165dfab6e7304267c53a51050885eee30bf232a90995bb82f2a11d755"
+      ],
+      "source_sha256": "c435cac77aa8791be010fbfb2e37edd9b7e2621af00e5326f7d572c8478bbcc8",
+      "text": "Una fuente de máscara perezosa para :func:`spacr.seg_qc.run_segmentation_qc`.\n\nv1 escribe un ``.npy`` por campo de visión del microscopio en una carpeta ``<object_type>_mask_stack``, que el marcador brilla directamente. v2 no tiene tal carpeta: la máscara es un canal de datos de imagen de ``merged/stack_<field>.npy``, forma ``(H, W, C_image + C_mask)``. Esto lee ``channel_order.json`` para aprender qué capa de imagen es y devuelve ``{field: thunk}``, por lo que el mismo QC puntúa ambos diseños y ninguno tiene que saber sobre el otro.\n\n:param merged_dir: escribió la carpeta ``merged/`` ``run_v2`` .\n:param object_type: que enmascara el canal de datos de la imagen a la puntuación, emparejado por el nombre contra el ``channel_order.json`` de ``mask_channels``.\n:returns: ``{field_id: callable}`` -- un golpe por campo de visión del microscopio, cada uno cargando su propia pila y cortando una capa de imagen. Vacía cuando falta el sidecar, no nombra máscara, o no nombra ninguno que coincida con ``object_type``; anotar nada es la respuesta honesta a \"no hay máscara aquí\", y el que llama lo dice en lugar de subir a una carrera final.\n\nCargado a través de ``mmap_mode='r'`` y copiado primero en la capa de la imagen, por lo que una microplaca de laboratorio de 1536-microscopio se marca un campo de visión del microscopio a la vez en lugar de leer todo.",
+      "translation_source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "d61e0d824ff613b7651bb09fd85b94800c3e2e1a7a1623c623256aa828a8e788",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9322647b9461664b4edaa5ef0c3324cbc6554e77e9ad4ba69e15041f125d3ce4",
+        "8880f2d6088a0008f89a96444a730e47cb84e3724784aac0af39ddbb508d2f1c",
+        "8dcbb4638a3ed3c2fbca5a28bdf7e7908875fd8132a8229896ca17d7ce7f75c9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -17066,6 +17086,22 @@
         "64fe42a30f9cb729134699480a93652b6e640e1de25b38f60a000135f47d593a"
       ]
     },
+    "spacr.external_masks.register_settings": {
+      "source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ],
+      "source_sha256": "c6fd846944972f533642ac645414cd4d63c99d278b849e3a1d2d7b79434a03d5",
+      "text": "Publicar la configuración de este módulo ayuda a través del registro compartido.\n\nLas máscaras externas son anteriores a la costura del módulo de registro, por lo que sus siete controles específicos para el importador fueron los únicos ajustes mostrados en el registro de aplicaciones sin ayuda de autor. Al registrarse junto a los valores predeterminados se mantiene el inventario, los tipos de validación y la prosa descripción emergente; los ajustes de medición devueltos por :func:`default_settings` conservan sus declaraciones compartidas existentes.\n\n:param replace: reemplazar el registro por defecto de este módulo.\n:returns: si se ha hecho una nueva inscripción.",
+      "translation_source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ]
+    },
     "spacr.external_masks.run_external_masks": {
       "source_blocks_sha256": [
         "d6cb29b1aff77773898863658b8f4107acb742022851dfe3724bed78b66a04ae",
@@ -33203,6 +33239,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
         "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
@@ -33212,8 +33250,8 @@
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "64bbe2b849013439ef40efbd878f65604196c2a93a11bdfd6b65bfe7aac62f7d",
-      "text": "Despacho al motor de regresión solicitado y devolver el modelo instalado.\n\nCada nombre en :data:`REGRESSION_TYPES` es apta aquí, y cada uno de ellos tiene una rama correspondiente en =:func:`process_model_coefficients`, por lo que un modelo que se ajuste siempre puede convertirse en una tabla de coeficientes.\n\nLos motores, y para qué cada uno es:\n\n==================================  =============================================================================================================================================================================================================================================================================================================\n``ols``                             Ordinario mínimo cuadrados en una respuesta de pozo continua.\n``wls``                             Los mínimos cuadrados ponderados; ``weights`` es el recuento de células de la posición de muestra de la microplaca, por lo que una posición de la muestra de microplata de 400 células supera una de 30.\n``rlm``/``huber``                   Robusto M-estimación (pérdida de Huber). Para las posiciones de muestra de microplaca más pesadas: un puñado de posiciones de muestras de micro placa no arrastran más el ajuste.\n``glm``                             GLM con la familia auto-seleccionada de la respuesta por :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM con un enlace logarítmico y ``offset(log(exposure))``, para los recuentos de la posición de muestra por microplaca - por lo que los coeficientes son efectos en el RAT por célula, no en el número de cabeza de la microplata muestra.\n``quasi_binomial``                  GLM binomio cuya dispersión se estima a partir del chi-cuadrado de Pearson, para fracciones sobredispersas.\n``beta``                            Regresión beta, para una fracción estrictamente dentro (0, 1).\n``logit``/``probit``                GLM-binomio en una fracción, ponderado por el recuento de células.\n``quantile``                        Regresión cuantitativa a ``quantile``; se ajusta a la cola de la respuesta en lugar de su media.\n``mixed``                           Modelo lineal de efectos mixtos con ``groups`` como interceptación aleatoria.\n``lasso``/``ridge``/``elasticnet``  Penalizado menos cuadrados.\n``hinge``                           SVM lineal (pérdida de mordaza) en una respuesta binarizada.\n``horseshoe``                       Poisson GLM escaso con una herradura previa (modelo de análisis de potencia de spaCRPower), vía :mod:`spacr.power_model`.\n``group_lasso``                     Penalizar los mínimos cuadrados con las columnas guía de un gen penalizado como UN bloque, por lo que un gen se selecciona o cae como un conjunto en lugar de una guía a la vez - el análogo penalizado de la anidación del modelo mixto, vía :mod:`spacr.group_lasso`.\n``rra``                             Agregación robusta de rango al estilo MAGeCK: guías clasificadas por su efecto marginal, agregadas al gen BY RANK con un valor P de permutación, vía :mod:`spacr.rra`. No forma ningún ajuste de articulación, por lo que la colinealidad y la anchura p > n que limitan cada motor de arriba no lo alcanzan.\n==================================  =============================================================================================================================================================================================================================================================================================================\n\nLos ajustes que un motor no puede leer se DENEGAN, no se ignoran (véase :data:`REGRESSION_SETTINGS_USED`).\n\n:param X: Matriz de diseño (DataFrame; los nombres de columna se convierten en nombres de características).\n:param y: Variable de respuesta.\n:param regression_type: Uno de :data:`REGRESSION_TYPES`.\n:param regression_backend: AQUI se ajusta -- uno de :data:`REGRESSION_BACKEND_ORDER`. Por defecto ``'statsmodels'``, que produjo todos los resultados existentes. Un motor que no puede caber ``regression_type`` se DENEGA aquí con la razón, no ignorado: los dos controles se limitan mutuamente en ambas direcciones , y una configuración CSV alcanza esta función sin pasar un panel que podría haber grisizado la entrada.\n:param groups: Identificadores de cluster para el modelo mixto.\n:param alpha: Peso de la pena para ``lasso``/``ridge``/``elasticnet`` y el margen de la VMS inversa para ``hinge``; ``'auto'`` / ``None`` la selecciona por 5 veces de validación cruzada para los cuatro (equivalente al error cuadrado para los tres mínimos cuadrados penalizados, precisión equilibrada para ``hinge``).\n:param cov_type: Estimación de covarianza para los ajustes de probabilidad (``'HC0'``..``'HC3'``); ``None`` para los errores estándar clásicos.\n:param weights: Pesos por observación - el recuento de células de la posición de la muestra de microplaca. Utilizado como ``var_weights`` por ``logit``/``probit``/``quasi_binomial`` y como los pesos WLS por ``wls``.\n:param l1_ratio: Mezcla ``elasticnet``; 1.0 es lazo, 0.0 es cresta.\n:param quantile: Montado cuántico por regresión ``quantile``, en (0, 1).\n:param hinge_threshold: Corte utilizado para binarizar una respuesta continua para ``hinge``; véase :func:`binarise_response`.\n:param huber_t: Constante de afinación de Huber para ``rlm``/``huber``, en unidades de la escala residual estimada. 1.345 da una eficiencia del 95% bajo normalidad.\n:param exposure: Exposición por observación (el recuento de células de la posición de muestra de la microplaca) utilizado como ``offset(log(exposure))`` por ``horseshoe`` y por ``poisson`` (y por ``glm`` cuando selecciona automáticamente una familia Poisson).\n:param group_lasso_lambda: La penalización de bloque para ``group_lasso``. Su propio nombre de datos estructurados en lugar de ``alpha`` porque se compara con :func:`spacr.group_lasso.max_lambda`, que es una propiedad del diseño, por lo que un valor arrastrado de una ejecución lasso significaría algo más aquí.\n:param rra_alpha: La fracción superior de la guía clasifica los agregados de alfa-RRA. MAGeCK 0,25, que es lo que mantiene un gen con una guía fuerte y tres que no cortan localizable.\n:param rra_permutations: Dibuja por cada cuenta de guía distinta en la permutación de RRA null; 10.000 pone el valor P reportable más pequeño en 1e-4.\n:returns: Estimador instalado statsmodels / sklearn.\n:raises ValueError: en un ``regression_type`` no soportado, o cuando una configuración que el motor elegido no puede leer se estableció en un valor no predeterminado.\n\nEjemplo\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
+      "source_sha256": "09cac4e3a8936fbf72dfc29d8f74436b3a8fe8fa66267a398d956186739ba7b1",
+      "text": "Despacho al motor de regresión solicitado y devolver el modelo instalado.\n\nCada nombre en :data:`REGRESSION_TYPES` es apta aquí, y cada uno de ellos tiene una rama correspondiente en =:func:`process_model_coefficients`, por lo que un modelo que se ajuste siempre puede convertirse en una tabla de coeficientes.\n\nLos motores, y para qué cada uno es:\n\n==================================  =============================================================================================================================================================================================================================================================================================================\n``ols``                             Ordinario mínimo cuadrados en una respuesta de pozo continua.\n``wls``                             Los mínimos cuadrados ponderados; ``weights`` es el recuento de células de la posición de muestra de la microplaca, por lo que una posición de la muestra de microplata de 400 células supera una de 30.\n``rlm``/``huber``                   Robusto M-estimación (pérdida de Huber). Para las posiciones de muestra de microplaca más pesadas: un puñado de posiciones de muestras de micro placa no arrastran más el ajuste.\n``glm``                             GLM con la familia auto-seleccionada de la respuesta por :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM con un enlace logarítmico y ``offset(log(exposure))``, para los recuentos de la posición de muestra por microplaca - por lo que los coeficientes son efectos en el RAT por célula, no en el número de cabeza de la microplata muestra.\n``quasi_binomial``                  GLM binomio cuya dispersión se estima a partir del chi-cuadrado de Pearson, para fracciones sobredispersas.\n``beta``                            Regresión beta, para una fracción estrictamente dentro (0, 1).\n``logit``/``probit``                GLM-binomio en una fracción, ponderado por el recuento de células.\n``quantile``                        Regresión cuantitativa a ``quantile``; se ajusta a la cola de la respuesta en lugar de su media.\n``mixed``                           Modelo lineal de efectos mixtos con ``groups`` como interceptación aleatoria.\n``lasso``/``ridge``/``elasticnet``  Penalizado menos cuadrados.\n``hinge``                           SVM lineal (pérdida de mordaza) en una respuesta binarizada.\n``horseshoe``                       Poisson GLM escaso con una herradura previa (modelo de análisis de potencia de spaCRPower), vía :mod:`spacr.power_model`.\n``group_lasso``                     Penalizar los mínimos cuadrados con las columnas guía de un gen penalizado como UN bloque, por lo que un gen se selecciona o cae como un conjunto en lugar de una guía a la vez - el análogo penalizado de la anidación del modelo mixto, vía :mod:`spacr.group_lasso`.\n``rra``                             Agregación robusta de rango al estilo MAGeCK: guías clasificadas por su efecto marginal, agregadas al gen BY RANK con un valor P de permutación, vía :mod:`spacr.rra`. No forma ningún ajuste de articulación, por lo que la colinealidad y la anchura p > n que limitan cada motor de arriba no lo alcanzan.\n==================================  =============================================================================================================================================================================================================================================================================================================\n\nLos ajustes que un motor no puede leer se DENEGAN, no se ignoran (véase :data:`REGRESSION_SETTINGS_USED`).\n\n:param X: Matriz de diseño (DataFrame; los nombres de columna se convierten en nombres de características).\n:param y: Variable de respuesta.\n:param regression_type: Uno de :data:`REGRESSION_TYPES`.\n:param regression_backend: AQUI se ajusta -- uno de :data:`REGRESSION_BACKEND_ORDER`. Por defecto ``'statsmodels'``, que produjo todos los resultados existentes. Un motor que no puede caber ``regression_type`` se DENEGA aquí con la razón, no ignorado: los dos controles se limitan mutuamente en ambas direcciones , y una configuración CSV alcanza esta función sin pasar un panel que podría haber grisizado la entrada.\n:param groups: Identificadores de cluster para el modelo mixto.\n:param alpha: Peso de la pena para ``lasso``/``ridge``/``elasticnet`` y el margen de la VMS inversa para ``hinge``; ``'auto'`` / ``None`` la selecciona por 5 veces de validación cruzada para los cuatro (equivalente al error cuadrado para los tres mínimos cuadrados penalizados, precisión equilibrada para ``hinge``).\n:param cov_type: Estimación de covarianza para los ajustes de probabilidad (``'HC0'``..``'HC3'``); ``None`` para los errores estándar clásicos.\n:param weights: Pesos por observación - el recuento de células de la posición de la muestra de microplaca. Utilizado como ``var_weights`` por ``logit``/``probit``/``quasi_binomial`` y como los pesos WLS por ``wls``.\n:param l1_ratio: Mezcla ``elasticnet``; 1.0 es lazo, 0.0 es cresta.\n:param quantile: Montado cuántico por regresión ``quantile``, en (0, 1).\n:param hinge_threshold: Corte utilizado para binarizar una respuesta continua para ``hinge``; véase :func:`binarise_response`.\n:param spline_knots: Nudos por covariable continuo para ``spline``.\n:param spline_degree: Grado polinomio de esa base; 3 es cúbico.\n:param huber_t: Constante de afinación de Huber para ``rlm``/``huber``, en unidades de la escala residual estimada. 1.345 da una eficiencia del 95% bajo normalidad.\n:param exposure: Exposición por observación (el recuento de células de la posición de muestra de la microplaca) utilizado como ``offset(log(exposure))`` por ``horseshoe`` y por ``poisson`` (y por ``glm`` cuando selecciona automáticamente una familia Poisson).\n:param group_lasso_lambda: La penalización de bloque para ``group_lasso``. Su propio nombre de datos estructurados en lugar de ``alpha`` porque se compara con :func:`spacr.group_lasso.max_lambda`, que es una propiedad del diseño, por lo que un valor arrastrado de una ejecución lasso significaría algo más aquí.\n:param rra_alpha: La fracción superior de la guía clasifica los agregados de alfa-RRA. MAGeCK 0,25, que es lo que mantiene un gen con una guía fuerte y tres que no cortan localizable.\n:param rra_permutations: Dibuja por cada cuenta de guía distinta en la permutación de RRA null; 10.000 pone el valor P reportable más pequeño en 1e-4.\n:returns: Estimador instalado statsmodels / sklearn.\n:raises ValueError: en un ``regression_type`` no soportado, o cuando una configuración que el motor elegido no puede leer se estableció en un valor no predeterminado.\n\nEjemplo\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
       "translation_source_blocks_sha256": [
         "11addd56717d2def3ab515397efe9adf9e8ea2a5311aba495b89b6cab04650b7",
         "b6d92a9a367feb0a565f69b0a6af4e8a552253b3a0663e583928679bbc927405",
@@ -33246,6 +33284,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "6a0ece3932b5a634897beb05b315bc10a118b128e255cd53ee009b3f926c85af",
         "bdaf20968d29817f44096b5db6e96de5f477ead4cd542bfa4b9e9187fa70e092",
@@ -35956,6 +35996,158 @@
         "6696bc5034b22a18c5d5395e8ed7a6c1ab24fdb645c856b403b7f4e942b6ff92",
         "15601f90242cccfc0ea63274b9a62f76ebf84aa1371c29c0eeab10a2c7b31098",
         "6764daf04469b1a3346e7ca227774317a58bcd824c4ffd2a4d758873c6ad8bc5"
+      ]
+    },
+    "spacr.nonparametric_fits": {
+      "source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "dc80e9a737733f33c4291aa6d90cf460eed1d84293545036ad6af396e86f7ab4",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ],
+      "source_sha256": "2957a45a2e5671f7f872cb3a9e95d2530a8a32ec2bce970f49dec66bc7ea2f89",
+      "text": "Los siete métodos no paramétricos, ordenados por lo que pueden responder honestamente.\n\nPOR QUÉ ESTA NO ES MÁS ENTRADAS EN EL MENU regression_type. Los ajustes spaCR ya ofrecen todas las respuestas en una moneda -- un coeficiente por guía, con un error estándar y un valor P -- y el resto del experimento de cribado se construye en él: el efecto de las parcelas volcánicas contra la significación, la lista de resultados clasifica los genes por efecto con un q sobre los genes probados, la atribución y la tarjeta modelo consumen la misma tabla.\n\nCUATRO DE ESTOS SIETE PRODUCTOS NO SON TAL NÚMERO. BAJA es descriptiva. La regresión del kernel y KNN dan una superficie ajustada, no una pendiente. Un bosque da importancia, que no son coeficientes y no son comparables a través de características en la misma escala. Elegir uno de ellos como \"the regression\" le daría al volcán nada para dibujar, por lo que se ofrecen como lo que son:\n\n  R. Un resultado que responde en la misma moneda -- se une a `regression_type`. B. Un diagnóstico dado sobre los datos -- pertenece a una trama, nunca decide los aciertos. C. Un cheque de acuerdo -- reporta una comparación con el ranking lineal, y nombra a las guías sobre las cuales los dos no están de acuerdo.\n\nEl ajuste de spaCR es el fenotipo guía -> en el nivel de la muestra de Microplate con una columna por guía: alta dimensión, escasa y categórica, que es el peor caso para la mayoría de ellos. Contra un covariable continuo -- abundancia de guía en la posición de muestra de microplate, recuento de células, posición de micro plate de laboratorio -- están en el suelo, y es ahí donde los suavizadores ganan su lugar: mostrando si el fenótipo se mueve suavemente con una variable molestia el modelo lineal está asumiendo lejos.\n\nGRUPO POR BIEN. Las células en un pozo no son independientes, por lo que cualquier división de estos métodos necesita pasar por el pozo, nunca a través de la célula.",
+      "translation_source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "a94a81e57402a749d36225cad55b0f17d548194ddb500bd8b0609de537e0251e",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a8fa2762d566899e2a2da4561832e5889bb5a81fc6940b9d95c018072f3b3c36",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ]
+    },
+    "spacr.nonparametric_fits.Agreement": {
+      "source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ],
+      "source_sha256": "f10a914b24e278e7980ad3980bdfa55bbad9e13c010049a5a0fbd73feece27c7",
+      "text": "Dos clasificaciones de los mismos guías, y donde no están de acuerdo.\n\nLa salida es una comparación, no una mesa coeficiente. La instrucción 212 dice cuál es el punto: \"¿Es esto el efecto de los datos, o es el modelo? Dos ajustes de acuerdo vale más que cualquiera de los dos solos, y donde están en desacuerdo el desacuerdo es en sí mismo el hallazgo.\"",
+      "translation_source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ]
+    },
+    "spacr.nonparametric_fits.Curve": {
+      "source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ],
+      "source_sha256": "f6993fa92754942a23c4127885445c32eb7052ed69059c7326336e6ed09b749e",
+      "text": "Una curva ajustada para dibujar sobre una dispersión, y lo que es.\n\nNUNCA UNA LISTA DE HIT. `p_values` no existe en este objeto a propósito: un diagnóstico que podría confundirse con una prueba es lo que la instrucción 254 dice que es peor que no ofrecer el método en absoluto.",
+      "translation_source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ]
+    },
+    "spacr.nonparametric_fits.agreement": {
+      "source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "69f9e602c2017c2f5a8a21343e0f52fd8cd02f6a070f4cd387b87a369be488e1",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "11c59eceb23ebfbcc514e17010d4cca115b3a9caf2bd08cf9b3fa3456a3a97f0",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ],
+      "source_sha256": "96bfdfc7d78bb949d43e3e8589db2c907b3f33d3ceddc27c5dcee485cfa0ae02",
+      "text": "Rank guía una segunda manera y compararlo con el ranking lineal.\n\n:param design: posiciones de muestra de microplaca x guías. Una fila por posición de muestra Microplaca, nunca por celda.\n:param linear_effect: el propio efecto por guía del ajuste, clasificado por magnitud para dar la clasificación esto se compara con.\n:param groups: la posición de la muestra de microplaca a la que pertenece cada fila. Pasado al divisor para que las filas de una posición de muestra de Microplaca nunca dividan una división -- las celdas de una microplata comparten la posición del fenotipo de esa posición de micro plata, y una división que cruzaba una marcaría un modelo en sus propios datos de entrenamiento.\n:param moved_by: cuántos lugares debe mover un guía para que valga la pena nombrar.",
+      "translation_source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "62529c61051d3bece9f17fb89d6491cde72ac2ee13e760d8037dc2871d5d4e5e",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "fa769e9a02b46eb361ee5acdfd76a02dbb5e31a4b90624236cfac942e1a00b35",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ]
+    },
+    "spacr.nonparametric_fits.describe": {
+      "source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ],
+      "source_sha256": "1ad3e586f8942846d6f7bc71be9bf209a996d113bf2bc036d8f6b427a26a6387",
+      "text": "Una frase nombrando lo que es un método para y lo que cuesta.\n\nDicho WHERE ES ELECCIONADO. Todo el punto de la división de tres vías es que un lector sabe antes de escoger, no después de correr.",
+      "translation_source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ]
+    },
+    "spacr.nonparametric_fits.isotonic_fit": {
+      "source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ],
+      "source_sha256": "59229686eb015fce756b5622ffde181053eb38d55761b6b8d3366367b6199547",
+      "text": "Un ajuste monotono de ``y`` en un pedido ``x``. Devoluciones (malla, montado).\n\nUNA DIMENSIÓN Y UNA DIRECCIÓN, que es la totalidad de lo que afirma la regresión isotónica. `refuse('isotonic', ordered=False)` es lo que dice antes de que un llamante lo apunte al diseño de la guía.",
+      "translation_source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ]
+    },
+    "spacr.nonparametric_fits.methods_in": {
+      "source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ],
+      "source_sha256": "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432",
+      "text": "Cada método perteneciente a ``category``, en orden de declaración.",
+      "translation_source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ]
+    },
+    "spacr.nonparametric_fits.refuse": {
+      "source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ],
+      "source_sha256": "e228cb7741ebd46ec0c3677cf5f75c31c051257637ca1baa880091b30c6c9694",
+      "text": "Por qué ``name`` no se puede ejecutar con datos de esta forma, o None.\n\nELIMINANDO UN MÉTODO SOBRE DATOS NO PUEDE REEMBOLSAR CON LA RAZÓN, en lugar de devolver un ajuste que nadie debería leer. Esa es la regla para la que esta función existe.",
+      "translation_source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ]
+    },
+    "spacr.nonparametric_fits.report_agreement": {
+      "source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ],
+      "source_sha256": "85eef9b73a648f6178d180c594fd149f727d2440b47e32b52ab42386ece75d3f",
+      "text": "Ejecute el acuerdo comprobar en un ajuste terminado y devolver lo que imprimir.\n\nToma la tabla de coeficientes una carrera ya producida, por lo que nada se reajusta y la comparación está en contra de la clasificación de la carrera realmente reportado.\n\n:param coefficients: la tabla de ejecución, con `feature` y `coefficient`.\n:returns: la frase a imprimir, o \"\" cuando no hay nada que comparar -- muy pocas guías compartidas, o una tabla sin coeficientes en ella.",
+      "translation_source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ]
+    },
+    "spacr.nonparametric_fits.smooth": {
+      "source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ],
+      "source_sha256": "bdd521837d7058ec6c5647793948e37ee5d77239ce92427edd5c49244b5bf751",
+      "text": "Ajuste uno de los suavizadores de diagnóstico a ``y`` contra ``x``.\n\n:param scaled: estandarizar ``x`` antes de ajustar para los métodos que lo necesitan, y decirlo en la nota. KNN y el proceso gaussiano están basados en la distancia, por lo que una covariable no escalado hace que una unidad de él significa cualquiera que sea su rango.\n:raises ValueError: cuando el método no se puede ejecutar en esta forma -- con la razón, en lugar de un ajuste nadie debe leer.",
+      "translation_source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ]
+    },
+    "spacr.nonparametric_fits.spline_design": {
+      "source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
+      ],
+      "source_sha256": "6076ec6e2d2905ffd9c2e7f2d99f94a614ec12cdb14f7bc090f0b6ffbdc9e3f1",
+      "text": "Reemplazar cada covariable nombrado con su base spline. Devuelve un marco.\n\nLAS COLUMNAS DE GUÍA NO SON TOQUEADAS, y eso es lo que mantiene esto en la categoría A. Cada guía mantiene exactamente una columna, por lo que el ajuste todavía produce un coeficiente y un valor de P por guía y el volcán y la lista de éxitos lo dibujan sin un revestimiento especial. Lo que se convierte en no lineal es la NUISANCIA -- la covariable la línea recta estaba asumiendo lejos.\n\nUna columna de base se llama `<covariate>_spline<k>`, que lleva no `grna` y no =`gene`, por lo que cada filtro que ya cae `rowID[T.r2]` deja caer estos también.",
+      "translation_source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
       ]
     },
     "spacr.normalization": {
@@ -41255,10 +41447,10 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "129ca43c4fd5ed4d53e17d607873ba68112a9ab9eab83aae21d09ee68c27ef83"
       ],
-      "source_sha256": "c71664277b0555d332d35dbbdbf57f0bd21d865c2ade5fa62fd10f088f8b400c",
-      "text": "Overlay ``masks/*`` esboza sobre imágenes coincidentes de ``img_folder``.\n\n:param img_folder: Carpeta que contiene imágenes; máscaras en vivo en ``img_folder/masks`` con nombres de archivo coincidentes.\n:param normalize: Si True, normalice las imágenes por ciento antes de mezclarlas. Predeterminado ``True``.\n:param resize: Si es True, redimensione la superposición mezclada a 1000x1000. Predeterminado ``True``.\n:param save: Si True, escriba PNGs a ``img_folder/overlay/``. Por defecto ``False``.\n:param plot: Si True, mostrar cada superposición a través de matplotlib. Predeterminado ``False``.\n:param thickness: Espesor de la línea de contorno en píxeles. Predeterminado ``2``.\n:returns: None",
+      "source_sha256": "87e8f8f71fe914fcfc129d511648725fbb49a53f448fac1c09f3cb04c1409717",
+      "text": "Overlay ``masks/*`` esboza sobre imágenes coincidentes de ``img_folder``.\n\n:param img_folder: Carpeta que contiene imágenes; máscaras en vivo en ``img_folder/masks`` con nombres de archivo coincidentes.\n:param normalize: Si True, normalice las imágenes por ciento antes de mezclarlas. Predeterminado ``True``.\n:param resize: Si es True, redimensione la superposición mezclada a 1000x1000. Predeterminado ``True``.\n:param save: Si True, escriba PNGs a ``img_folder/overlay/``. Por defecto ``False``.\n:param plot: Si True, mostrar cada superposición a través de matplotlib. Predeterminado ``False``.\n:param thickness: Espesor de la línea de contorno en píxeles. Predeterminado ``2``.\n:returns: ``{'written': int, 'failed': [(filename, reason)]}``. Un campo que no se puede leer es nombrado y omitido en lugar de terminar la sesión de procesamiento, por lo que una carpeta con una truncada TIFF todavía produce cualquier otra superposición -- y el llamante puede decir cuáles faltan.",
       "translation_source_blocks_sha256": [
         "9a3f809a83769a9c91389cef5294ceb0c72557478347158de2e9881b45061ca3",
         "6209144a5b785a019714c69a18441371e56db975a8880746d2fd6cc5e34b125b",
@@ -41267,7 +41459,7 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -44264,6 +44456,16 @@
         "b861939ecbeb09b90ea871de468cd72c2c902c0291c235586c798f1a6eb43dbc"
       ]
     },
+    "spacr.predictions.first_present": {
+      "source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ],
+      "source_sha256": "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d",
+      "text": "El primero de ``names`` que ``frame`` realmente tiene, de lo contrario None.",
+      "translation_source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ]
+    },
     "spacr.predictions.merge_cv_predictions": {
       "source_blocks_sha256": [
         "ea0157cccd03f87d1905464cc59efc9c8e90477d5e5c6321a243f0045ed0ba06",
@@ -47194,6 +47396,20 @@
         "acb0b0e0af5e22425fb56afac156ab5d5a510a75b77f3204d60a35b20235dc63"
       ]
     },
+    "spacr.qt.app.install_the_spaceout_fractal": {
+      "source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "3691739c82aecee161535cda10c936165029de0ec70f863b63da51e7819094e5",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ],
+      "source_sha256": "e1fc0ec694cabb548905f78ef621ae9e36be1c76fd518c4cd1a1533399e35fdf",
+      "text": "Ponga el fractal de espaciado detrás ``screen``, si esto es espaciamiento.\n\n:returns: True cuando se instaló, por lo que el llamante sabe saltarse el fondo ambiente ordinario. False en cada lanzamiento normal -- que es lo que mantiene oculto el modo -- y falso en lugar de lanzar cuando el fractal no se puede construir, así que una máquina que no puede dibujar todavía consigue la animación que siempre tuvo.\n\nLos ajustes vienen de Preferencias, que sólo los muestra bajo spaceout, por lo que un lugar decide tanto lo que se ofrece como lo que es dibujado.",
+      "translation_source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "4b38faaea456670ab341c8bb106b33e8e3c7a3a67ac8bec27f4dbdb6ef740055",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ]
+    },
     "spacr.qt.app.launch": {
       "source_blocks_sha256": [
         "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865"
@@ -47474,6 +47690,146 @@
         "15fbd6c4c02cf7496fc10f040c4572934df6d10bd033d9763696631a325c602a",
         "7e7b12cbd705dcc73d06a90c90b07402cf4364bb01607b5ba7b926bed6714ae1",
         "08cb5bff9139116d7d3a506d287baef0078fb5fac6f2f399b9be34a5ebc28470"
+      ]
+    },
+    "spacr.qt.ask_for_the_path": {
+      "source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "de2f152a3cf969bbc83acac16eb37ff946df23bb04f20dd6685bae51530f8328",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "9f2b2d82ec2f1a30d3b83e1d981f14069cab38f60af0c6d49e401cc3410b4e88",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "1d98255231ac34929753c1cf13dfdcc650baa9809f775ab03fd113db25243667",
+        "f9da042489a7eec8063a85ec05220b68dfb57521ecca2a6068670026e5fba87b"
+      ],
+      "source_sha256": "e674d25d4cd1754b9ae12a8a10820a063ecebdb55c9b40096a6f6b0cd242c58a",
+      "text": "Cuando la forma habitual de encontrar algo falla, pídelo.\n\nEstos son backups, no la ruta normal. La resolución ordinaria se ejecuta primero cada vez; esto se alcanza sólo una vez que ya ha fallado. Una sesión de procesamiento que funciona hoy en día no debe ganar un diálogo, y un usuario que nunca golpea el fallo nunca debe ver uno.\n\nUN DIÁLOGO ES MEJOR QUE UN ERROR AQUÍ porque la información es una que el usuario tiene y el programa no. El comportamiento actual en cada uno de ellos es parar con un mensaje nombrando lo que falta -- lo que significa que el programa ya sabe exactamente qué pedir. Pedir es estrictamente más útil que informar, y cuesta un diálogo en lugar de una ejecución abortada.\n\nLo que cada prompt debe, y lo que este módulo impone para que un llamante no pueda olvidar uno:\n\n* Di lo que fue juzgado primero, por lo que un error tipográfico en una configuración es distinguible de una carpeta realmente faltante;\n* VALIDAR ANTES DE ACEPTAR -- una carpeta elegida sin nada en ella es el mismo fallo un paso más tarde;\n* Pregúntese una vez por minuto, sin una sola vez por imagen, por posición de la muestra de microplacas o por microplaca de laboratorio;\n* ESCRIBE DE VOLVER Y DILO, porque un ajuste que cambia sin ser anunciado es peor que uno que no lo hace;\n* SER REFUSABLE: cancelar significa que la sesión de procesamiento se detiene con el error que habría dado de todos modos;\n* NUNCA PARECE HEADLESS. En un script, una prueba o una ejecución por lotes no hay nadie a quien responder, por lo que la copia de seguridad resuelve el error original en lugar de bloquear en un diálogo que nadie puede ver. Este es el que colgaría un flujo de trabajo de la noche a la mañana, y se comprueba antes que cualquier otra cosa.",
+      "translation_source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "e9f928813199565edc458c20ad3e1edb0926e39473dc4993cad8952957744985",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "765c36f74dd7e80baa5e30c2bb6763dbdb8b583fe120ea6a782e8c8b6a9d3dcd",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "0ccdc5a857545d381e9a41557986769c1b7b772eeb34c103e524bb3e58de2d50",
+        "97b412dffeb91b8042d5d4d8dc4191cf67d39459bce510bcea48de364b726700"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.a_folder_holding": {
+      "source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ],
+      "source_sha256": "6a494473bbb52647d27352f884164830bb6cda2efe4e1e28d3b191a866544c11",
+      "text": "Un validador: la carpeta debe contener al menos un archivo con un sufijo.\n\nUna carpeta elegida sin nada en ella es el mismo fallo un paso más tarde, que es lo que hace que la validación antes de aceptar el valor del código.",
+      "translation_source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
+      "source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ],
+      "source_sha256": "d1f116a3eed81cb162d03c07f9c4fe911793c10cadd69c4774c9262cc52d2ba9",
+      "text": "Pida una base de datos, una tabla dentro de ella, y una columna dentro de eso.\n\nTRES RESPUESTAS, NO UNA, porque eso es lo que el flujo de coordenadas necesita y preguntar por ellos uno a la vez es lo qué hace que el segundo y tercero sean responsables: las tablas ofrecidas son las que la base de datos elegida realmente tiene, y las columnas son de esa tabla. Un campo en blanco le pediría al usuario que recuerde un nombre que el programa puede leer.\n\n:param key: lo que se pide; la respuesta se recuerda bajo ella.\n:param tried: lo que se intentó y no funcionó, se muestra en cada título.\n:param chooser: inyectado para pruebas; por defecto a un diálogo de archivo real.\n:param pick: inyectado para pruebas; por defecto a un diálogo de lista real. Llamado ``(title, prompt, options)`` y devuelve la opción o None.\n:returns: ``((database, table, column), why)``, o ``(None, why)``. La razón siempre dice QUÉ de las tres paradas -- nadie allí, una cancelación, o una base de datos sin nada en ella -- porque un llamante que imprime es la única cuenta que recibe el usuario.\n\nRetroceder en un paso posterior vuelve a la anterior en lugar de abandonar todo el formulario, por lo que elegir la base de datos equivocada cuesta un clic en lugar del funcionamiento.",
+      "translation_source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder": {
+      "source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ],
+      "source_sha256": "f89ffe8657762b6e964d068d05f341c6b3d43ca7f909d492a82c2986cab2af98",
+      "text": "Pida una carpeta después de que la resolución habitual ha fallado.\n\n:param key: lo que se pide. La respuesta se recuerda debajo de ella, por lo que la segunda imagen de una carrera no pregunta de nuevo.\n:param tried: lo que se intentó y no funcionó, dijo antes del selector para que el usuario sepa por qué se les está preguntando.\n:param what: un nombre corto para la cosa deseada, para el título del diálogo.\n:param validate: dado un camino elegido, devuelve None cuando es utilizable o una oración diciendo por qué no lo es. El diálogo permanece abierto en caso de rechazo.\n:param chooser: inyectado para pruebas. Por defecto a un diálogo de carpeta real.\n:returns: ``(path, why)``. `path` es None cuando nadie responde, cuando el usuario cancela, o cuando no hay nadie allí -- y `why` siempre dice lo que, porque esas son tres situaciones diferentes.",
+      "translation_source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.columns_in": {
+      "source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ],
+      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+      "text": "Cada columna de una tabla, en el orden en que la tabla los declara.",
+      "translation_source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.forget": {
+      "source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ],
+      "source_sha256": "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3",
+      "text": "Suelta todas las respuestas recordadas para las pruebas y para una nueva carrera.",
+      "translation_source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.remembered": {
+      "source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ],
+      "source_sha256": "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61",
+      "text": "Lo que ya se respondió para ``key``, en todo caso.",
+      "translation_source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.somebody_is_there": {
+      "source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ],
+      "source_sha256": "c92ac2e925ac76e702b158eeaf876999d34316c8beef08508a82f47c2d003177",
+      "text": "Si hay una persona que podría responder a un diálogo.\n\nFalse bajo pytest, sin pantalla, o antes de que exista un QApplication. Comprobado PRIMERO y por sí solo, porque hacerlo mal no muestra un diálogo a nadie -- BLOCKS, y una ejecución por lotes bloqueada parece un ahorcamiento.",
+      "translation_source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.tables_in": {
+      "source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "3c7a2a2ef660cce10eec82aacb9aa5519333fdfa263fbf1dc300ec6eb7959b38"
+      ],
+      "source_sha256": "31809cab2f4cd71ed0abd9d4f96119cdc0d49bea9d6ab9bd0b8ca8161acb1a75",
+      "text": "Cada tabla en un archivo SQLite, o una lista vacía si no es una.\n\nNunca lanza: una ruta elegida por el usuario es una ruta que puede ser cualquier cosa, y \"este archivo no contiene tablas\" es la frase que el formulario necesita en lugar de una excepción que tendría que coger de todos modos.",
+      "translation_source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "c78d0bdbb2416432d613f0e91431589b15f1178849a8e6ce9c15f31f8af9ecfc"
       ]
     },
     "spacr.qt.bridge": {
@@ -51426,6 +51782,28 @@
         "17b9d626580959e9cf19ec960e6e39844e7c3a39684c5bdf41bb8ed44ad7ec5e"
       ]
     },
+    "spacr.qt.fractal_defaults": {
+      "source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ],
+      "source_sha256": "fef40f2ded5279a9c30affbbc50c9e07db6cdf800c63980ccec7b96aa2b95f96",
+      "text": "Números del fractal, importables sin Qt, entumecido o vispia.\n\n`preferences` necesita los valores predeterminados y la pinza para leer un valor almacenado, y `preferences` se importa antes de que exista la primera ventana. Alcanzar `widgets.fractal_travel` para ellos tiraría numpy y nombia en la ruta de lanzamiento para cada sesión ordinaria -- un módulo no usa nada más que espacio fuera.",
+      "translation_source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ]
+    },
+    "spacr.qt.fractal_defaults.clamp": {
+      "source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ],
+      "source_sha256": "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18",
+      "text": "``value`` mantenido en el interior ``[low, high]``.",
+      "translation_source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ]
+    },
     "spacr.qt.gil_priority": {
       "source_blocks_sha256": [
         "70d3cd7891ebb9fa9f85a3035269cd43d5304ed367205e12226acf77608d66dc",
@@ -52808,6 +53186,112 @@
       "translation_source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+      ]
+    },
+    "spacr.qt.laptop_mode": {
+      "source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ],
+      "source_sha256": "daecd56de2ad0cd0b7e640ce75dab9d81d2b9a0242ee33a7482fed59a2af6d31",
+      "text": "Ejecutar bien en una máquina pequeña sin convertirse en una aplicación más pequeña.\n\nEL RÉGIMEN DE ESTA RESPUESTA A RESPONSABILIDAD, en palabras del mantenedor: \"sólo cambiar las cosas es una estrategia, pero mi mejor escenario es poder mantener tantas características como sea posible simplemente optimizarlas para que también funcionen con peor hardware\".Así que este es el FALLBACK, alcanzado después de las optimizaciones, y rechaza lo que es decorativo en lugar de eliminar lo que hace un módulo.\n\nNada aquí cambia lo que calcula una sesión de procesamiento. Cada configuración que toca se trata de cómo la aplicación es DRAWN.\n\nSe elige automáticamente, puede ser anulado de cualquier manera, y dice lo que rechazó -- un modo que silenciosamente hace la aplicación diferente es uno que nadie puede depurar.",
+      "translation_source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ]
+    },
+    "spacr.qt.laptop_mode.apply": {
+      "source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ],
+      "source_sha256": "876ecc902d9a078887f698b0fedfd8ee37872d0be4dc3b81c3365d6b47df1af4",
+      "text": "Activa o desactiva el modo. Devuelve lo que se decidió y lo que cambió.\n\n:param on: fuerza la respuesta; ``None`` mide la máquina.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` nombra cada configuración realmente escrita, por lo que un llamante puede decir lo que pasó en lugar de reclamarlo.",
+      "translation_source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ]
+    },
+    "spacr.qt.laptop_mode.describe": {
+      "source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ],
+      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
+      "text": "Toda la decisión como un bloque, para el registro de lanzamiento.",
+      "translation_source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ]
+    },
+    "spacr.qt.laptop_mode.measure": {
+      "source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ],
+      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
+      "text": "De qué se toma la decisión, por lo que puede ser reportado y probado.",
+      "translation_source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ]
+    },
+    "spacr.qt.laptop_mode.override": {
+      "source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ],
+      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
+      "text": "Lo que el ambiente dice, o None cuando no dice nada.",
+      "translation_source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ]
+    },
+    "spacr.qt.laptop_mode.total_memory_gib": {
+      "source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ],
+      "source_sha256": "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc",
+      "text": "Memoria física en GiB, o None cuando no se puede leer.",
+      "translation_source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ]
+    },
+    "spacr.qt.laptop_mode.usable_cores": {
+      "source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ],
+      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
+      "text": "Los núcleos que este proceso puede realmente utilizar, no los núcleos de la máquina tiene.\n\n`os.sched_getaffinity` donde existe: un contenedor o un planificador puede fijar el proceso a menos de informes `cpu_count`, y el pinning es exactamente la situación para la que este modo es.",
+      "translation_source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ]
+    },
+    "spacr.qt.laptop_mode.wanted": {
+      "source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ],
+      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
+      "text": "Si se debe ejecutar en modo portátil, y la frase que dice por qué.\n\n:returns: ``(on, why)``. La razón siempre está poblada, incluyendo cuando la respuesta es no -- \"spaCR decided not to\" es algo que un usuario informa y alguien tiene que ser capaz de comprobar.",
+      "translation_source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ]
+    },
+    "spacr.qt.laptop_mode.what_it_turns_down": {
+      "source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+      ],
+      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
+      "text": "Cada cosa el modo cambia, y lo que un usuario pierde por ella.\n\nÚNICAMENTE DIRECCIÓN. Nada aquí es leído por un flujo de trabajo, por lo que una sesión de procesamiento calcula la misma respuesta en cualquiera de los modos -- que es la promesa que hace una decisión automática aceptable en absoluto.",
+      "translation_source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "e1c7f54e963fdc38e34ea1b8306d447010ef331a04ee7613f9e0f66739bd777f"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -55646,6 +56130,18 @@
         "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264"
       ]
     },
+    "spacr.qt.preferences.get_fractal_settings": {
+      "source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ],
+      "source_sha256": "6f0c8db2c882def4a35b1435da8407ff752f333d4b37af013619a95a418bcc88",
+      "text": "Cada ajuste fractal espaciador, listo para `Settings`/`RuntimeControls`.\n\nLea a través de una función para que el diálogo y el telón de fondo no estén en desacuerdo sobre un valor predeterminado. Los valores almacenados fuera de rango se sujetan en lugar de rechazarse; un telón no debe impedir que la aplicación comience.",
+      "translation_source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [
         "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193"
@@ -55676,6 +56172,18 @@
       "text": "Devuelve el código de idioma persistido UI, cayendo de nuevo al inglés.",
       "translation_source_blocks_sha256": [
         "8fe3572d424d631dea9350a664e3f4f1334e1a3eead099dc7bd54a5cf79925d8"
+      ]
+    },
+    "spacr.qt.preferences.get_laptop_mode": {
+      "source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
+      ],
+      "source_sha256": "9970c73c5d6cec4d3aea8dc51dc5f048e1d3e475abd666b47f4ce3f4057f7e04",
+      "text": "Si el modo portátil es forzado, forzado o medido.\n\nEl valor almacenado es uno de :data:`LAPTOP_MODE_CHOICES`. Cualquier otra cosa -- un archivo antiguo, uno editado a mano -- se lee como ``\"automatic\"``, porque una configuración que nadie puede interpretar debe comportarse como si nunca se hubiera establecido.",
+      "translation_source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
       ]
     },
     "spacr.qt.preferences.get_log_console_levels": {
@@ -55970,6 +56478,18 @@
         "e4263e98c459c4bf6f797b85c1f0e59d9f3f6c282eddc9cd641284106f84a2d5",
         "5efe2212f3437950fc7e12b0f87c3fd4d049d482aa4746b4d51286ff8b9088aa",
         "c28efd5f9ced78ef62cf0f14ed0af079870a50abab66a9c2a704b3bb86bc060c"
+      ]
+    },
+    "spacr.qt.preferences.laptop_mode_note": {
+      "source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
+      ],
+      "source_sha256": "ddfabb93c4300855629291df28b701347865414b10403b9c1ecb1c27644a8680",
+      "text": "Lo que el ajuste elegido hará en ESTA máquina, dijo antes de guardar.\n\nAutomático es el caso que necesita decir: la etiqueta no puede indicar el resultado, porque el resultado depende de la máquina que lo lee.",
+      "translation_source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
       ]
     },
     "spacr.qt.preferences.maturity_is_visible": {
@@ -56398,6 +56918,18 @@
         "6ff0c2175252aff10cb2639d4c6c7aba7aafe020f957fbd1dd127731f1a5b9e5"
       ]
     },
+    "spacr.qt.preferences.set_fractal_settings": {
+      "source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ],
+      "source_sha256": "3e75419e2dace9574973f6a2e0e80af1993834f1791702af2f682d37af1445c6",
+      "text": "Persiste cualquier subconjunto de la configuración fractal.\n\n:raises ValueError: en un nombre desconocido, o un motor / calidad fuera de su conjunto. Un número fuera de la gama se sujeta, porque un deslizador no puede producir uno y un archivo editado a mano todavía debe comenzar.",
+      "translation_source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ]
+    },
     "spacr.qt.preferences.set_hash_inputs": {
       "source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
@@ -56432,6 +56964,20 @@
       "translation_source_blocks_sha256": [
         "0b926505a064e68b7543dc60c317836f3a336dc8450e6d9352f0564024d29443",
         "0ecd63fe48e47dcf5b363f0f3b6ade9472c2178df9c9d7e3cdabe49b56652c07"
+      ]
+    },
+    "spacr.qt.preferences.set_laptop_mode": {
+      "source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+      ],
+      "source_sha256": "d7057a17e60ba6db6fa09b6167bb17c91659a3d6c2160c3edfd7e2fc08d37c90",
+      "text": "Persista la preferencia del modo portátil y aplíquelo ahora.\n\n:raises ValueError: en una elección desconocida.\n\nAplicado inmediatamente en lugar de en el siguiente lanzamiento, porque las dos cosas que cambia -- la animación ambiental y el fondo borroso -- son visibles en la ventana detrás del diálogo. Un ajuste de rendimiento que necesita un reinicio para mostrar su efecto no puede ser juzgado por la persona que lo establece.",
+      "translation_source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
       ]
     },
     "spacr.qt.preferences.set_log_levels": {
@@ -83025,6 +83571,20 @@
         "7f0b8b828bbb7985819b4676c26d3d39756b5a45116d69b50985582c84b94caf"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.add_smoother": {
+      "source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ],
+      "source_sha256": "3f053804ffc782260503c35d2bd6d6853c4353736ca919820296128f0c040e11",
+      "text": "Colocar una curva diagnóstica sobre los puntos ya dibujados.\n\n:returns: qué decir acerca de él -- el método, su nota, y la banda cuando reporta uno -- o la negativa, que es una frase que el llamante muestra en lugar de una excepción que traga. Devuelve ``\"\"`` cuando ``method`` está vacío, por lo que \"none\" no es un caso especial en cada sitio de llamada.\n\nLa curva no tiene valor de p y no puede adquirir uno: vuelve como un :class:`spacr.nonparametric_fits.Curve`, que no tiene tal atributo. Un más suave que se dobla donde la línea recta de tendencia es plana es el hallazgo -- significa que el modelo medio está faltando un término -- y que es una declaración sobre el FIT, no una prueba de una guía.",
+      "translation_source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
       "source_blocks_sha256": [
         "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
@@ -83625,6 +84185,22 @@
         "1e2a2463e4992521cc0551b4f0866e8c6f65d3bd803ce2290ae5cf20992ac3d5",
         "5d4fc5178fe1cb7adabb14da987b070c72267b240d2ed8c32dd1beebaf1a9176",
         "4da05ffbdc99f516c96ffccbd237c1865b21b50b096360a6cf71271710732640"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_smoothers": {
+      "source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
+      ],
+      "source_sha256": "69ab7fbb4b71f69f2b5d49031debf18a839d42f2f9626f93ca796c1fbb3f9a6b",
+      "text": "Ofrezca los cuatro suavizantes de diagnóstico en el menú del clic derecho.\n\n:param on_change: llamado ``(method_name)`` cuando uno es elegido, o con ``\"\"`` para ninguno. El host vuelve a dibujar de él.\n:param chosen: que se dibuja actualmente.\n\nSEPARATE DE :meth:`offer_refit` DELIBERALMENTE, y el menú lo dice. Estas curvas se colocan sobre un ajuste que ya ha ocurrido; ninguna de ellas lo reemplaza, y ninguna decide un golpe. Esa es toda la instrucción de razón 254 las coloca en una categoría diferente de las entradas en ``regression_type``.",
+      "translation_source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_style": {
@@ -88137,6 +88713,178 @@
       "text": "La línea debajo de los recuadros — el mensaje de validación o el aviso.",
       "translation_source_blocks_sha256": [
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel": {
+      "source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "0566678131450c8e1b80701442dfbd4c9c0c05c18b669c466f1c32d07f119c9d",
+        "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45"
+      ],
+      "source_sha256": "0a1eb74532f9b4acffc0ded75adcd5c8c9ea326f624c5db29fed63494b3d1dc2",
+      "text": "El fractal espaciador: un sombreador GPU cuando hay uno, Numba de lo contrario.\n\nPortado desde el `fractal_travel.py` v2.1.0 del mantenedor. Dos renderizadores, no un motor con un interruptor:\n\n* **GPU** -- VisPy/gloo con sombra de fragmento GLSL, cuatro muestras espaciales por píxel físico y un bucle de detalle que se adapta a partir del tiempo de muestreo GPU.\n* **CPU** -- un fractal orbital más barato en Numba, evaluado a velocidad de animación con un jitter temporal de 2x2 de cuatro posiciones y una ventana móvil de cuatro fotogramas.: cada fotograma mostrado es nuevo.\n\nTres cosas que este archivo hace que la araña no lo hizo.\n\n`vispy` no está instalado en el entorno enviado, por lo que `backend='auto'` resuelve a CPU hoy y a =GPU el día que es. Nada más cambia.\n\nEs PySide6. El script era PyQt6, e importar esa unión dentro de esta aplicación pondría dos fijaciones Qt en un proceso, que no lanza -- segfaults.\n\nY BLANCA. Un fondo comiendo núcleos mientras se ejecuta una segmentación es lo contrario de lo que es para, por lo que `pause()` detiene el bucle de renderizado y deja el último marco en la vista de la aplicación. Vea :meth:`CpuFractalWidget.pause`.",
+      "translation_source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "b9ff05769f0cf2087ef9cda80de7686e520e70ac9a0008fd100d1aaa4de25d1a",
+        "ad71051090a85fd00da5277eb84b25d02b34b6718d8de14357308d0b3e6cc863"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.CameraState": {
+      "source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ],
+      "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
+      "text": "Donde el campo GPU está mirando, en un instante.",
+      "translation_source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.GpuBackendError": {
+      "source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ],
+      "source_sha256": "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f",
+      "text": "El renderizador GPU no se pudo construir. Siempre atrapado por `auto`.",
+      "translation_source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.OrbitEngine": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ],
+      "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
+      "text": "La ventana temporal de cuatro fotogramas, y nada más.\n\nNo contiene fotogramas clave: el único estado es el anillo de las últimas cuatro fases de agitación, que es lo que el antialiasing necesita y todo lo que necesita.",
+      "translation_source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls": {
+      "source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ],
+      "source_sha256": "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6",
+      "text": "Lo que el usuario puede mover mientras se ejecuta.",
+      "translation_source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
+      "source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ],
+      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
+      "text": "La velocidad a utilizar en ``t`` segundos.\n\nConstante a menos que `variable_speed` esté encendido, en cuyo caso respira alrededor del valor establecido en lugar de reemplazarlo -- así que la preferencia todavía significa lo que dice.",
+      "translation_source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "De qué está hecha la imagen. Cada campo es una fila de Preferencias.",
+      "translation_source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings.validated": {
+      "source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ],
+      "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
+      "text": "Una copia con cada campo dentro del rango que los renderizadores aceptan.\n\nAplastado en lugar de rechazado: este es un telón de fondo, y un archivo de preferencias con un número tonto en él no debe detener la aplicación de dibujar uno.",
+      "translation_source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.create_fractal_widget": {
+      "source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66"
+      ],
+      "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
+      "text": "Construir el fondo fractal, GPU cuando hay uno.\n\n:returns: a QWidget que lleva `backend_name`, `stats_text()`, `pause()`, `resume()` y `shutdown()`. Nunca lanza para un GPU faltante: un ``backend='gpu'`` explícito que no se puede construir todavía cae hacia atrás, porque un fondo no vale la pena negarse a iniciar la aplicación de nuevo.",
+      "translation_source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.gpu_is_available": {
+      "source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ],
+      "source_sha256": "468548d177a174d97307e94514cbaa70048db83cc7817bcb5cdee8aa9ecbc84c",
+      "text": "Si se puede construir el renderizador GPU.\n\nPreguntado en lugar de supuesto, y preguntado SIN importar vispy en la aplicación cuando la respuesta es no: `importlib.util.find_spec` mira el módulo hacia arriba sin ejecutarlo, por lo que un visy faltante no cuesta nada y uno presente no se inicializa dos veces.\n\nUna plataforma que no puede albergar un lienzo GL cuenta como no GPU, porque la alternativa es un volcado de núcleo en lugar de una excepción.",
+      "translation_source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
+      "source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "e99794211dd743cd84bf64422621443dfa8bb3e54e5567f59c9586d30a34ad25"
+      ],
+      "source_sha256": "e2bc79c3c22b5a48e944cd98fad44ba65bf9762a838fb3c6f2fade05d72345db",
+      "text": "Si esta plataforma Qt puede albergar un lienzo GL.\n\nVERIFICADO ANTES DE QUE EL WIDGET GPU SE CONSTRUYE, porque hacerlo mal no lanza. En la plataforma `offscreen` Qt imprime \"QOpenGLWidget no está soportado en esta plataforma\" y el proceso DUMPS CORE -- que no `except` alrededor del constructor puede coger, por lo que el retroceso en `create_fractal_widget` nunca se ejecutaría. Cada prueba y cada lanzamiento sin interfaz gráfica es esa plataforma.",
+      "translation_source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "0ecf118546853a1031330730ffb2207379df5d75ea0e4ba7006a9f940f2642b1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolve_backend": {
+      "source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ],
+      "source_sha256": "bfdda1331e4fc5007a59cb39770c8ff421ef3303d1865f61f12bbc86e6ae8c0d",
+      "text": "¿Qué renderizador se ejecutará realmente, dado lo que está instalado.\n\n:returns: ``'gpu'`` o ``'cpu'`` -- nunca ``'auto'``, porque un llamante que muestra al usuario en cuál están no puede mostrarles \"auto\".",
+      "translation_source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolved_cpu_threads": {
+      "source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ],
+      "source_sha256": "4249e971b0230af3ba75072ee4c3bcd1ee4e739b8153ca7d94c6dbd31e768900",
+      "text": "¿Cuántos procesos de trabajo de Numba para tomar, dejando la aplicación algunos.\n\nTapeado en 24 porque más allá de eso la programación crece para este tamaño de imagen, y cubierto por debajo de la cuenta de la máquina porque un telón de fondo que toma cada núcleo pasa hambre al usuario realmente se preocupa por.",
+      "translation_source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.state_at_seconds": {
+      "source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+      ],
+      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+      "text": "La cámara en ``t``. Puro, por lo que una prueba puede afirmar que se mueve.",
+      "translation_source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101354,6 +102102,16 @@
         "63404dd9edaa294b84bf662cd72384999f47c4e4d8950e5cdc8773a78d71b0a1"
       ]
     },
+    "spacr.qt.widgets.sweep_runs.describe_saved_states": {
+      "source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ],
+      "source_sha256": "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf",
+      "text": "Una frase sobre lo que hizo un ahorro, para la propia nota del panel.",
+      "translation_source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ]
+    },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
@@ -101364,6 +102122,22 @@
       "translation_source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
         "0aabd13f89079a39eee016b126fa9ec133fecb34714a607209d6e2400ce744b2"
+      ]
+    },
+    "spacr.qt.widgets.sweep_runs.save_run_states": {
+      "source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "1c6d40e37a40c08e463db5ca9eb3c45c7c6f6d7de59e5bce60d03809008e57d5",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
+      ],
+      "source_sha256": "8a0da88fd694fde04d0aace347e3078ba7c3bca76c392af75faf6fb80dd7bef5",
+      "text": "Escriba un paquete de espacio de trabajo para cada uno de ``folders``.\n\nPREGUNTA POR, POR LO QUE ES ESCRITO. `workspace.save_for_run` devuelve None cuando la preferencia `runs/save_workspace` está desactivada, lo cual es correcto para el ahorro automático al final de una ejecución y aquí está mal: un usuario que eligió \"Save the state\" de un menú ha preguntado, y un elemento de menú que silenciosamente no hace nada es peor que uno que está ausente. El modo se ve forzado para esta llamada solamente, y la preferencia no está escrita.\n\n:param folders: carpetas de sesión de procesamiento para guardar.\n:returns: ``(saved, failures)`` -- las carpetas que obtuvieron un paquete, y ``(folder, reason)`` para aquellas que no lo hicieron. Una carpeta que falla no detiene a las otras, y cada fallo es NAMADO: una cuenta de \"3 de 5\" sin nombres es un informe en el que el usuario no puede actuar.",
+      "translation_source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "5953a14a0c087e875d08dd3d93081f2a75f0f742d5c9af20101624009cae2cdf",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
       ]
     },
     "spacr.qt.widgets.table_chip": {
@@ -117803,10 +118577,12 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
-      "source_sha256": "78172a1682225d9d5d98e123a377fab64496ad08d7cca031a1e0d31a07d53c78",
-      "text": "Construye una selección de streaming desde una tabla de objetos.\n\nParámetros\n----------\nframe : pandas.DataFrame Una fila por objeto medido. object_array : str, default=\"cell\" Tipo de objeto a seleccionar. test_split : float, default=0.2 Fracción asignada al conjunto de pruebas. seed : int, default=0 Semilla aleatoria que controla la asignación de división determinista.\n\nRetornos\n--------\npandas.DataFrame Identificadores canónicos, tipo de objeto, división y fuente para cada objeto.\n\nAumentos\n--------\nValueError Si la tabla está vacía o no contiene identificador de objeto utilizable.",
+      "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
+      "text": "Construye una selección de streaming desde una tabla de objetos.\n\nParámetros\n----------\nframe : pandas.DataFrame Una fila por objeto medido. object_array : str, default=\"cell\" Tipo de objeto a seleccionar. test_split : float, default=0.2 Fracción asignada al conjunto de pruebas. seed : int, default=0 Semilla aleatoria que controla la asignación de división determinista.\n\nRetornos\n--------\npandas.DataFrame Identificadores canónicos, tipo de objeto, división y fuente para cada objeto.\n\nAumentos\n--------\nValueError Si la tabla está vacía o no contiene identificador de objeto utilizable, y o no se le preguntó a nadie o la respuesta no ayudó.\n\nNotas\n-----\n``ask`` se llama sólo cuando la tabla no nombra ningún objeto, y es INJECTADO en lugar de importado por lo que este módulo nunca depende de Qt. Un llamante con nadie delante de él no pasa ninguno y obtiene exactamente el error que siempre tuvo, lo que hace que \"nunca pregunte en una ejecución por lotes\" estructural más que una regla que cada sitio de llamada tiene que recordar. Se llama ``ask(tried=..., object_array=...)`` y devuelve ``((database, table, column), why)`` -- véase :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
       "translation_source_blocks_sha256": [
         "bfd96720a7b1af1daa25c19ea6eb5a4569b08fd7491a94ee39259d755b232eac",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -117814,7 +118590,9 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ]
     },
     "spacr.stream_dataset.settings_for_method": {

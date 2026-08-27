@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "spline_degree",
+      "source_sha256": "25d4db7aca34d87f7a62494c73fb1e85d31fba0e737a79e470da3a077c163d84",
+      "source": "Spline degree",
+      "translation": "样条阶数"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spline_knots",
+      "source_sha256": "8ea6e3cdf74b2957271ebd7e5633a4f7ae1138483784563fdff4460c5b1bc1fb",
+      "source": "Spline knots",
+      "translation": "样条节点数"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_degree",
+      "source_sha256": "948dd7def548de6d0b8e81006ef9db37284d44587f3cb6a0d04ecd4088a86baa",
+      "source": "The polynomial degree of each covariate's spline basis. 3 is a cubic spline, the usual choice; 1 is piecewise linear. Read only by regression_type 'spline'. Default 3.",
+      "translation": "每个协变量的样条基函数所用的多项式阶数。3 表示常用的三次样条；1 表示分段线性函数。仅当 regression_type 为 'spline' 时使用。默认值：3。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_knots",
+      "source_sha256": "7c097817f41127ea1f896a249b562ec9aad6d7fae43831c65322756948829dd6",
+      "source": "How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+      "translation": "每个连续协变量的样条基函数所用的节点数。节点越多，协变量关系越灵活，但会消耗更多自由度。若某个协变量的不同取值数少于设定阶数，则保持线性，不会构造没有意义的样条基。guide 列绝不使用样条基，因此模型仍会为每个 guide 返回一个系数和一个 p 值。仅当 regression_type 为 'spline' 时使用。默认值：4。"
+    }
+  ]
+}

@@ -67,6 +67,18 @@
       "source_sha256": "c58a88e020bd2a3c0baf9314f883b2d9f5610fb11d32c19a9392bf9861ea2eea",
       "text": "Pick out ``(channel_indices, channel_names)`` from a v1 settings dict.\n\nOrder is fixed: nucleus, cell, pathogen, organelle (drops any that\nare None or absent). Uses the same C-axis convention that\n``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows\nend-to-end through v2 unchanged.\n\n:returns: two lists of equal length — indices to pass to\n    :func:`stream_originals_to_stack`, and matching human names to\n    record in ``channel_order.json``."
     },
+    "spacr._v1_v2_bridge.v2_mask_source": {
+      "source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "5a4f7550a565472ea22cfb16756e3e0436ccee6ad031c3cf882a6c8817d5ceee",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9027865649852490b08f3672196fefa8d568dcce06a58856db1665794b8ae443",
+        "6412d601a36730c6015b85431f7c9d0108487f94eeab2d2bc3783cf3675841fc",
+        "362947f165dfab6e7304267c53a51050885eee30bf232a90995bb82f2a11d755"
+      ],
+      "source_sha256": "c435cac77aa8791be010fbfb2e37edd9b7e2621af00e5326f7d572c8478bbcc8",
+      "text": "A lazy mask source for :func:`spacr.seg_qc.run_segmentation_qc`.\n\nv1 writes one ``.npy`` per field into a ``<object_type>_mask_stack``\nfolder, which the scorecard globs directly. v2 has no such folder: the\nmask is a CHANNEL of ``merged/stack_<field>.npy``, shape\n``(H, W, C_image + C_mask)``. This reads ``channel_order.json`` to learn\nwhich plane that is and hands back ``{field: thunk}``, so the same QC\nscores both layouts and neither has to know about the other.\n\n:param merged_dir: the ``merged/`` folder ``run_v2`` wrote.\n:param object_type: which mask channel to score, matched by name against\n    ``channel_order.json``'s ``mask_channels``.\n:returns: ``{field_id: callable}`` -- one thunk per field, each loading\n    its own stack and slicing one plane. Empty when the sidecar is\n    missing, names no mask, or names none matching ``object_type``;\n    scoring nothing is the honest answer to \"there is no mask here\", and\n    the caller says so rather than this raising into a finished run.\n\nLoaded through ``mmap_mode='r'`` and copied plane-first, so a 1536-field\nplate is scored one field at a time rather than read whole."
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -10560,6 +10572,16 @@
       "source_sha256": "a5ed2018e34a4a6b692fadf3c049aa696696d25860bf376675e4d7912f2bc020",
       "text": "Plan an external-mask import, print the preview, and run it.\n\nThe plan summary is always printed to stdout.  Unless ``preview_only``\nis set, the project is written and Measure is run, and the result\nsummary is printed too.\n\n:param settings: Partial settings mapping accepted by\n    :func:`default_settings`.\n:returns: The :class:`ExternalMaskPlan` when ``preview_only`` is set,\n    otherwise the :class:`ExternalMaskResult` from\n    :func:`run_external_masks`."
     },
+    "spacr.external_masks.register_settings": {
+      "source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ],
+      "source_sha256": "c6fd846944972f533642ac645414cd4d63c99d278b849e3a1d2d7b79434a03d5",
+      "text": "Publish this module's settings help through the shared registry.\n\nExternal Masks predates the module-registration seam, so its seven\nimporter-specific controls were the only displayed settings in the app\nregistry without authored help.  Registering beside the defaults keeps\nthe inventory, validation types, and tooltip prose together; the Measure\nsettings returned by :func:`default_settings` retain their existing\nshared declarations.\n\n:param replace: replace this module's existing defaults registration.\n:returns: whether a new registration was made."
+    },
     "spacr.external_masks.run_external_masks": {
       "source_blocks_sha256": [
         "d6cb29b1aff77773898863658b8f4107acb742022851dfe3724bed78b66a04ae",
@@ -20690,6 +20712,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
         "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
@@ -20699,8 +20723,8 @@
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "64bbe2b849013439ef40efbd878f65604196c2a93a11bdfd6b65bfe7aac62f7d",
-      "text": "Dispatch to the requested regression backend and return the fitted model.\n\nEvery name in :data:`REGRESSION_TYPES` is fittable here, and every one of\nthem has a matching branch in :func:`process_model_coefficients`, so a\nmodel that fits can always be turned into a coefficient table.\n\nThe backends, and what each is for:\n\n==================================  ========================================================\n``ols``                             Ordinary least squares on a continuous well response.\n``wls``                             Weighted least squares; ``weights`` is the well's cell\n                                    count, so a well of 400 cells outweighs one of 30.\n``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy\n                                    wells: a handful of runaway wells no longer drag the\n                                    fit.\n``glm``                             GLM with the family auto-selected from the response by\n                                    :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM with a log link and\n                                    ``offset(log(exposure))``, for per-well counts - so the\n                                    coefficients are effects on the per-cell RATE, not on\n                                    the well's headcount.\n``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the\n                                    Pearson chi-square, for overdispersed fractions.\n``beta``                            Beta regression, for a fraction strictly inside (0, 1).\n``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.\n``quantile``                        Quantile regression at ``quantile``; fits the tail of\n                                    the response rather than its mean.\n``mixed``                           Mixed-effects linear model with ``groups`` as the random\n                                    intercept.\n``lasso``/``ridge``/``elasticnet``  Penalised least squares.\n``hinge``                           Linear SVM (hinge loss) on a binarised response.\n``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's\n                                    power-analysis model), via :mod:`spacr.power_model`.\n``group_lasso``                     Penalised least squares with a gene's guide columns\n                                    penalised as ONE block, so a gene is selected or dropped\n                                    as a set rather than one guide at a time - the penalised\n                                    analogue of the mixed model's nesting, via\n                                    :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK-style robust rank aggregation: guides ranked by\n                                    their marginal effect, aggregated to the gene BY RANK\n                                    with a permutation P value, via :mod:`spacr.rra`. It\n                                    forms no joint fit, so the collinearity and the p >> n\n                                    width that constrain every backend above do not reach it.\n==================================  ========================================================\n\nSettings a backend cannot read are REFUSED, not ignored — see\n:data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; column names become feature names).\n:param y: Response variable.\n:param regression_type: One of :data:`REGRESSION_TYPES`.\n:param regression_backend: WHO fits it -- one of\n    :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which\n    produced every existing result. A backend that cannot fit\n    ``regression_type`` is REFUSED here with the reason, not ignored:\n    the two controls constrain each other in both directions\n   , and a settings CSV reaches this function\n    without passing a panel that could have greyed the entry out.\n:param groups: Cluster identifiers for the mixed model.\n:param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and\n    the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by\n    5-fold cross-validation for all four (mean squared error for the\n    penalised least-squares three, balanced accuracy for ``hinge``).\n:param cov_type: Covariance estimator for the likelihood fits\n    (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.\n:param weights: Per-observation weights - the well's cell count. Used as\n    ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the\n    WLS weights by ``wls``.\n:param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.\n:param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).\n:param hinge_threshold: Cut used to binarise a continuous response for\n    ``hinge``; see :func:`binarise_response`.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of\n    the estimated residual scale. 1.345 gives 95% efficiency under\n    normality.\n:param exposure: Per-observation exposure (the well's cell count) used as\n    ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by\n    ``glm`` when it auto-selects a Poisson family).\n:param group_lasso_lambda: The block penalty for ``group_lasso``. Its own\n    key rather than ``alpha`` because it is compared against\n    :func:`spacr.group_lasso.max_lambda`, which is a property of the\n    design, so a value carried over from a lasso run would mean something\n    else here.\n:param rra_alpha: The top fraction of the guide ranking alpha-RRA\n    aggregates over. MAGeCK's 0.25, which is what keeps a gene with one\n    strong guide and three that did not cut findable.\n:param rra_permutations: Draws per distinct guide count in RRA's\n    permutation null; 10,000 puts the smallest reportable P value at 1e-4.\n:returns: Fitted statsmodels / sklearn estimator.\n:raises ValueError: on an unsupported ``regression_type``, or when a\n    setting the chosen backend cannot read was set to a non-default value.\n\nExample:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope"
+      "source_sha256": "09cac4e3a8936fbf72dfc29d8f74436b3a8fe8fa66267a398d956186739ba7b1",
+      "text": "Dispatch to the requested regression backend and return the fitted model.\n\nEvery name in :data:`REGRESSION_TYPES` is fittable here, and every one of\nthem has a matching branch in :func:`process_model_coefficients`, so a\nmodel that fits can always be turned into a coefficient table.\n\nThe backends, and what each is for:\n\n==================================  ========================================================\n``ols``                             Ordinary least squares on a continuous well response.\n``wls``                             Weighted least squares; ``weights`` is the well's cell\n                                    count, so a well of 400 cells outweighs one of 30.\n``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy\n                                    wells: a handful of runaway wells no longer drag the\n                                    fit.\n``glm``                             GLM with the family auto-selected from the response by\n                                    :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM with a log link and\n                                    ``offset(log(exposure))``, for per-well counts - so the\n                                    coefficients are effects on the per-cell RATE, not on\n                                    the well's headcount.\n``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the\n                                    Pearson chi-square, for overdispersed fractions.\n``beta``                            Beta regression, for a fraction strictly inside (0, 1).\n``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.\n``quantile``                        Quantile regression at ``quantile``; fits the tail of\n                                    the response rather than its mean.\n``mixed``                           Mixed-effects linear model with ``groups`` as the random\n                                    intercept.\n``lasso``/``ridge``/``elasticnet``  Penalised least squares.\n``hinge``                           Linear SVM (hinge loss) on a binarised response.\n``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's\n                                    power-analysis model), via :mod:`spacr.power_model`.\n``group_lasso``                     Penalised least squares with a gene's guide columns\n                                    penalised as ONE block, so a gene is selected or dropped\n                                    as a set rather than one guide at a time - the penalised\n                                    analogue of the mixed model's nesting, via\n                                    :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK-style robust rank aggregation: guides ranked by\n                                    their marginal effect, aggregated to the gene BY RANK\n                                    with a permutation P value, via :mod:`spacr.rra`. It\n                                    forms no joint fit, so the collinearity and the p >> n\n                                    width that constrain every backend above do not reach it.\n==================================  ========================================================\n\nSettings a backend cannot read are REFUSED, not ignored — see\n:data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; column names become feature names).\n:param y: Response variable.\n:param regression_type: One of :data:`REGRESSION_TYPES`.\n:param regression_backend: WHO fits it -- one of\n    :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which\n    produced every existing result. A backend that cannot fit\n    ``regression_type`` is REFUSED here with the reason, not ignored:\n    the two controls constrain each other in both directions\n   , and a settings CSV reaches this function\n    without passing a panel that could have greyed the entry out.\n:param groups: Cluster identifiers for the mixed model.\n:param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and\n    the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by\n    5-fold cross-validation for all four (mean squared error for the\n    penalised least-squares three, balanced accuracy for ``hinge``).\n:param cov_type: Covariance estimator for the likelihood fits\n    (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.\n:param weights: Per-observation weights - the well's cell count. Used as\n    ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the\n    WLS weights by ``wls``.\n:param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.\n:param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).\n:param hinge_threshold: Cut used to binarise a continuous response for\n    ``hinge``; see :func:`binarise_response`.\n:param spline_knots: Knots per continuous covariate for ``spline``.\n:param spline_degree: Polynomial degree of that basis; 3 is cubic.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of\n    the estimated residual scale. 1.345 gives 95% efficiency under\n    normality.\n:param exposure: Per-observation exposure (the well's cell count) used as\n    ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by\n    ``glm`` when it auto-selects a Poisson family).\n:param group_lasso_lambda: The block penalty for ``group_lasso``. Its own\n    key rather than ``alpha`` because it is compared against\n    :func:`spacr.group_lasso.max_lambda`, which is a property of the\n    design, so a value carried over from a lasso run would mean something\n    else here.\n:param rra_alpha: The top fraction of the guide ranking alpha-RRA\n    aggregates over. MAGeCK's 0.25, which is what keeps a gene with one\n    strong guide and three that did not cut findable.\n:param rra_permutations: Draws per distinct guide count in RRA's\n    permutation null; 10,000 puts the smallest reportable P value at 1e-4.\n:returns: Fitted statsmodels / sklearn estimator.\n:raises ValueError: on an unsupported ``regression_type``, or when a\n    setting the chosen backend cannot read was set to a non-default value.\n\nExample:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope"
     },
     "spacr.ml.resolve_auto_inference": {
       "source_blocks_sha256": [
@@ -22350,6 +22374,104 @@
       ],
       "source_sha256": "d6f5044b9097290dca86463ab4512bf0a0dd9ed4835fce339b4ff9057521eb90",
       "text": "Write a corrected mask the way spaCR writes masks, and record it.\n\nTwo halves, and both are the point.\n\nThe mask goes through :func:`spacr.mask_io.save_mask`, which is the one\nplace spaCR decides what a mask file is — ``uint16``, LZW-compressed TIFF\nby default, ``.npy`` when the path or ``SPACR_MASK_FORMAT`` says so. A\ncorrected mask written any other way would be a mask the rest of the\npipeline reads differently from the one segmentation produced.\n\nThe correction goes into the artefact's\n:class:`spacr.curation.CurationLog`, appended, never rewritten, so\n:func:`spacr.curation.is_curated` tells a curated dataset from a raw one\nwhether the editing happened in spaCR's brush or in napari.\n\nA round trip that changed nothing writes nothing and records nothing.\nThat is the same rule :meth:`spacr.curation.MaskCuration.end_stroke`\napplies to a stroke that moved no pixels: a ledger padded with no-op\nentries is one nobody reads, and rewriting the file would move its mtime\nand make every downstream artifact look stale for no reason.\n\n:param mask_path: where the mask lives. The ledger is written beside it.\n:param corrected: the corrected labels, from napari or anywhere.\n:param original: what it was before. Read from ``mask_path`` when not\n    given, so the diff is against what is actually on disk.\n:param source: what to stamp a *new* ledger with. An existing ledger\n    keeps its own; the tool that made each edit is recorded on the edit.\n:param extra: anything else to record on the ledger entry.\n:param write: False computes and records nothing, returning the diff\n    only — for a preview.\n:returns: a :class:`CorrectionResult`.\n:raises MaskFidelityError: when the mask cannot be written faithfully, or\n    when its shape changed."
+    },
+    "spacr.nonparametric_fits": {
+      "source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "dc80e9a737733f33c4291aa6d90cf460eed1d84293545036ad6af396e86f7ab4",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ],
+      "source_sha256": "2957a45a2e5671f7f872cb3a9e95d2530a8a32ec2bce970f49dec66bc7ea2f89",
+      "text": "The seven nonparametric methods, sorted by what they can honestly answer.\n\nWHY THIS IS NOT SEVEN MORE ENTRIES IN THE regression_type MENU. The fits\nspaCR already offers all answer in one currency -- a coefficient per guide,\nwith a standard error and a P value -- and the rest of the screen is built\non it: the volcano plots effect against significance, the hit list ranks\ngenes by effect with a q over the genes tested, the attribution and the\nmodel card consume the same table.\n\nFOUR OF THESE SEVEN PRODUCE NO SUCH NUMBER. LOWESS is descriptive. Kernel\nregression and KNN give a fitted surface, not a slope. A forest gives\nimportances, which are not coefficients and are not comparable across\nfeatures on the same scale. Choosing one of them as \"the regression\" would\nhand the volcano nothing to draw, so they are offered as what they are:\n\n  A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`.\n  B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides\n     hits.\n  C. AN AGREEMENT CHECK -- reports a comparison against the linear\n     ranking, and names the guides the two disagree about.\n\nAND WHAT EACH IS FITTING IS NOT ALWAYS THE GUIDE DESIGN. spaCR's fit is\nguide -> phenotype at WELL level with one column per guide: high\ndimensional, sparse and categorical, which is the worst case for most of\nthese. Against a CONTINUOUS covariate -- guide abundance in the well, cell\ncount, plate position -- they are on home ground, and that is where the\nsmoothers earn their place: showing whether the phenotype moves smoothly\nwith a nuisance variable the linear model is assuming away.\n\nGROUP BY WELL. Cells in one well are not independent, so any split these\nmethods need goes through the well, never through the cell."
+    },
+    "spacr.nonparametric_fits.Agreement": {
+      "source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ],
+      "source_sha256": "f10a914b24e278e7980ad3980bdfa55bbad9e13c010049a5a0fbd73feece27c7",
+      "text": "Two rankings of the same guides, and where they disagree.\n\nTHE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. Instruction 212\nsaid what the point is: \"IS THIS EFFECT THE DATA, OR IS IT THE MODEL?\nTwo fits agreeing is worth more than either alone, and where they\ndisagree the disagreement is itself the finding.\""
+    },
+    "spacr.nonparametric_fits.Curve": {
+      "source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ],
+      "source_sha256": "f6993fa92754942a23c4127885445c32eb7052ed69059c7326336e6ed09b749e",
+      "text": "A fitted curve to draw over a scatter, and what it is.\n\nNEVER A HIT LIST. `p_values` does not exist on this object on purpose:\na diagnostic that could be mistaken for a test is the thing instruction\n254 says is worse than not offering the method at all."
+    },
+    "spacr.nonparametric_fits.agreement": {
+      "source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "69f9e602c2017c2f5a8a21343e0f52fd8cd02f6a070f4cd387b87a369be488e1",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "11c59eceb23ebfbcc514e17010d4cca115b3a9caf2bd08cf9b3fa3456a3a97f0",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ],
+      "source_sha256": "96bfdfc7d78bb949d43e3e8589db2c907b3f33d3ceddc27c5dcee485cfa0ae02",
+      "text": "Rank guides a second way and compare it with the linear ranking.\n\n:param design: wells x guides. One row per WELL, never per cell.\n:param linear_effect: the fit's own per-guide effect, ranked by\n    magnitude to give the ranking this is compared against.\n:param groups: the well each row belongs to. Passed to the splitter so\n    one well's rows never straddle a split -- cells in one well share\n    that well's phenotype, and a split that crossed one would score a\n    model on its own training data.\n:param moved_by: how many places a guide must move to be worth naming."
+    },
+    "spacr.nonparametric_fits.describe": {
+      "source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ],
+      "source_sha256": "1ad3e586f8942846d6f7bc71be9bf209a996d113bf2bc036d8f6b427a26a6387",
+      "text": "One sentence naming what a method is for and what it costs.\n\nSaid WHERE IT IS CHOSEN. The whole point of the three-way split is that\na reader knows before picking, not after running."
+    },
+    "spacr.nonparametric_fits.isotonic_fit": {
+      "source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ],
+      "source_sha256": "59229686eb015fce756b5622ffde181053eb38d55761b6b8d3366367b6199547",
+      "text": "A monotone fit of ``y`` on one ordered ``x``. Returns (grid, fitted).\n\nONE DIMENSION AND ONE DIRECTION, which is the whole of what isotonic\nregression claims. `refuse('isotonic', ordered=False)` is what says so\nbefore a caller points it at the guide design."
+    },
+    "spacr.nonparametric_fits.methods_in": {
+      "source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ],
+      "source_sha256": "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432",
+      "text": "Every method belonging to ``category``, in declaration order."
+    },
+    "spacr.nonparametric_fits.refuse": {
+      "source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ],
+      "source_sha256": "e228cb7741ebd46ec0c3677cf5f75c31c051257637ca1baa880091b30c6c9694",
+      "text": "Why ``name`` cannot be run on data of this shape, or None.\n\nCHOOSING A METHOD ON DATA IT CANNOT FIT REFUSES WITH THE REASON, rather\nthan returning a fit nobody should read. That is the rule this function\nexists for."
+    },
+    "spacr.nonparametric_fits.report_agreement": {
+      "source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ],
+      "source_sha256": "85eef9b73a648f6178d180c594fd149f727d2440b47e32b52ab42386ece75d3f",
+      "text": "Run the agreement check on a finished fit and return what to print.\n\nTakes the coefficient table a run already produced, so nothing is\nrefitted and the comparison is against the ranking the run actually\nreported.\n\n:param coefficients: the run's table, with `feature` and `coefficient`.\n:returns: the sentence to print, or \"\" when there is nothing to compare\n    -- too few shared guides, or a table with no coefficients in it."
+    },
+    "spacr.nonparametric_fits.smooth": {
+      "source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ],
+      "source_sha256": "bdd521837d7058ec6c5647793948e37ee5d77239ce92427edd5c49244b5bf751",
+      "text": "Fit one of the diagnostic smoothers to ``y`` against ``x``.\n\n:param scaled: standardise ``x`` before fitting for the methods that\n    need it, and say so in the note. KNN and the Gaussian process are\n    distance-based, so an unscaled covariate silently makes one unit of\n    it mean whatever its range happens to be.\n:raises ValueError: when the method cannot be run on this shape -- with\n    the reason, rather than a fit nobody should read."
+    },
+    "spacr.nonparametric_fits.spline_design": {
+      "source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
+      ],
+      "source_sha256": "6076ec6e2d2905ffd9c2e7f2d99f94a614ec12cdb14f7bc090f0b6ffbdc9e3f1",
+      "text": "Replace each named covariate with its spline basis. Returns a frame.\n\nTHE GUIDE COLUMNS ARE NOT TOUCHED, and that is what keeps this in\ncategory A. Each guide keeps exactly one column, so the fit still\nproduces one coefficient and one P value per guide and the volcano and\nthe hit list draw it with no special-casing. What becomes nonlinear is\nthe NUISANCE -- the covariate the straight line was assuming away.\n\nA basis column is named `<covariate>_spline<k>`, which carries no\n`grna` and no `gene`, so every filter that already drops `rowID[T.r2]`\ndrops these too."
     },
     "spacr.normalization": {
       "source_blocks_sha256": [
@@ -25622,10 +25744,10 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "129ca43c4fd5ed4d53e17d607873ba68112a9ab9eab83aae21d09ee68c27ef83"
       ],
-      "source_sha256": "c71664277b0555d332d35dbbdbf57f0bd21d865c2ade5fa62fd10f088f8b400c",
-      "text": "Overlay ``masks/*`` outlines onto matching images from ``img_folder``.\n\n:param img_folder: Folder containing images; masks live in\n    ``img_folder/masks`` with matching filenames.\n:param normalize: If True, percentile-normalise images before\n    blending. Default ``True``.\n:param resize: If True, resize the blended overlay to 1000x1000.\n    Default ``True``.\n:param save: If True, write PNGs to ``img_folder/overlay/``.\n    Default ``False``.\n:param plot: If True, show each overlay via matplotlib.\n    Default ``False``.\n:param thickness: Contour line thickness in pixels. Default ``2``.\n:returns: None"
+      "source_sha256": "87e8f8f71fe914fcfc129d511648725fbb49a53f448fac1c09f3cb04c1409717",
+      "text": "Overlay ``masks/*`` outlines onto matching images from ``img_folder``.\n\n:param img_folder: Folder containing images; masks live in\n    ``img_folder/masks`` with matching filenames.\n:param normalize: If True, percentile-normalise images before\n    blending. Default ``True``.\n:param resize: If True, resize the blended overlay to 1000x1000.\n    Default ``True``.\n:param save: If True, write PNGs to ``img_folder/overlay/``.\n    Default ``False``.\n:param plot: If True, show each overlay via matplotlib.\n    Default ``False``.\n:param thickness: Contour line thickness in pixels. Default ``2``.\n:returns: ``{'written': int, 'failed': [(filename, reason)]}``. A\n    field that cannot be read is named and skipped rather than\n    ending the run, so a folder holding one truncated TIFF still\n    produces every other overlay -- and the caller can tell which\n    ones are missing."
     },
     "spacr.plot.plot_arrays": {
       "source_blocks_sha256": [
@@ -27413,6 +27535,13 @@
       ],
       "source_sha256": "8af0e054220db9882697e95c5eb81f2e7914c22d5d780d1dc14ecc0b08f06b63",
       "text": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.\n\nEvery consumer of a classifier's results has to answer the same question --\nwhich object is this crop? -- and there is exactly one right way to answer\nit: :func:`spacr.utils._map_wells_png`, the parser\n:func:`spacr.utils.filepaths_to_database` used to write these very columns\nonto ``png_list``. Re-deriving them with the writer's own parser is what\nguarantees the two sides cannot drift apart.\n\nIt also recovers what a positional guess gets wrong.\n:func:`spacr.utils.process_vision_results` takes the object id as\n``path.split('_')[3]``, which on a *timelapse* crop\n(``plate_well_field_time_object``) is the **timepoint**, not the object.\n\n:param names: crop names or paths; only the basename is parsed.\n:param timelapse: whether the names carry a timepoint component.\n:returns: a DataFrame aligned to ``names`` with ``plateID``, ``rowID``,\n    ``columnID``, ``fieldID``, ``timeID`` (only when ``timelapse``),\n    ``object_label`` (the bare integer id, no ``'o'`` prefix) and\n    ``prcfo``. A name that cannot be parsed gives ``None`` throughout."
+    },
+    "spacr.predictions.first_present": {
+      "source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ],
+      "source_sha256": "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d",
+      "text": "The first of ``names`` that ``frame`` actually has, else None."
     },
     "spacr.predictions.merge_cv_predictions": {
       "source_blocks_sha256": [
@@ -29281,6 +29410,15 @@
       "source_sha256": "adc589f916605c4a1923022591188081f4655e046f34ddea2b19c1f5b4292cc2",
       "text": "Install the registered dialog event filters on a Qt application.\n\nInstallers are idempotent and isolated: a failure in one filter does not\nprevent the remaining filters from being installed.\n\n:returns: Names of the filters installed successfully."
     },
+    "spacr.qt.app.install_the_spaceout_fractal": {
+      "source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "3691739c82aecee161535cda10c936165029de0ec70f863b63da51e7819094e5",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ],
+      "source_sha256": "e1fc0ec694cabb548905f78ef621ae9e36be1c76fd518c4cd1a1533399e35fdf",
+      "text": "Put the spaceout fractal behind ``screen``, if this is spaceout.\n\n:returns: True when it was installed, so the caller knows to skip the\n    ordinary ambient backdrop. False in every normal launch -- which is\n    what keeps the mode hidden -- and false rather than raising when the\n    fractal cannot be built, so a machine that cannot draw it still gets\n    the animation it always had.\n\nThe settings come from Preferences, which shows them only under\nspaceout, so one place decides both what is offered and what is drawn."
+    },
     "spacr.qt.app.launch": {
       "source_blocks_sha256": [
         "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865"
@@ -29455,6 +29593,94 @@
       ],
       "source_sha256": "0b60c17fef87971c3a53f2bf458aef73d312c31173e0eb9e6a66567cf47077a5",
       "text": "Register the catalog entry for ``module`` without loading its screen.\n\nRegistration is idempotent because startup and direct module registration\ncan reach the same catalog entry. If its key is already registered, this\nfunction leaves the registry unchanged.\n\n:param module: the dotted module name the row is declared under.\n:param key: register under this key instead of the declared one. Two of\n    these registrars expose it so a second copy of a screen can be given\n    its own row; the row's own key is the default and the normal case.\n:param section: override the declared section. For\n    :func:`spacr.qt.layer_viewer.register_layer_viewer_app`, which lets a\n    caller place the app elsewhere.\n:param stage: override the declared maturity stage, likewise.\n:returns: the registry row that was appended, or ``None`` when the key was\n    already registered or no row is declared for ``module``."
+    },
+    "spacr.qt.ask_for_the_path": {
+      "source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "de2f152a3cf969bbc83acac16eb37ff946df23bb04f20dd6685bae51530f8328",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "9f2b2d82ec2f1a30d3b83e1d981f14069cab38f60af0c6d49e401cc3410b4e88",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "1d98255231ac34929753c1cf13dfdcc650baa9809f775ab03fd113db25243667",
+        "f9da042489a7eec8063a85ec05220b68dfb57521ecca2a6068670026e5fba87b"
+      ],
+      "source_sha256": "e674d25d4cd1754b9ae12a8a10820a063ecebdb55c9b40096a6f6b0cd242c58a",
+      "text": "When the usual way of finding something fails, ask for it.\n\nTHESE ARE BACKUPS, not the normal route. The ordinary resolution runs first\nevery time; this is reached only once it has already failed. A run that\nworks today must not gain a dialog, and a user who never hits the failure\nmust never see one.\n\nA DIALOG IS BETTER THAN AN ERROR HERE because the information is one the\nuser has and the program does not. The current behaviour on each of these\nis to stop with a message naming the thing that is missing -- which means\nthe program already knows precisely what to ask for. Asking is strictly\nmore useful than reporting, and costs one dialog instead of one aborted run.\n\nWhat every prompt owes, and what this module enforces so a caller cannot\nforget one:\n\n* SAY WHAT WAS TRIED FIRST, so a typo in a setting is distinguishable from\n  a genuinely missing folder;\n* VALIDATE BEFORE ACCEPTING -- a chosen folder with nothing in it is the\n  same failure one step later;\n* ASK ONCE PER RUN, not once per image, per well or per plate;\n* WRITE IT BACK and say so, because a setting that changes without being\n  announced is worse than one that does not;\n* BE REFUSABLE: cancel means the run stops with the error it would have\n  given anyway;\n* NEVER APPEAR HEADLESS. In a script, a test or a batch run there is nobody\n  to answer, so the fallback resolves to the original error rather than\n  blocking on a dialog nobody can see. This is the one that would hang a\n  pipeline overnight, and it is checked before anything else."
+    },
+    "spacr.qt.ask_for_the_path.a_folder_holding": {
+      "source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ],
+      "source_sha256": "6a494473bbb52647d27352f884164830bb6cda2efe4e1e28d3b191a866544c11",
+      "text": "A validator: the folder must hold at least one file with a suffix.\n\nA chosen folder with nothing in it is the same failure one step later,\nwhich is what makes validating before accepting worth the code."
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
+      "source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ],
+      "source_sha256": "d1f116a3eed81cb162d03c07f9c4fe911793c10cadd69c4774c9262cc52d2ba9",
+      "text": "Ask for a database, a table within it, and a column within that.\n\nTHREE ANSWERS, NOT ONE, because that is what the coordinate stream needs\nand asking for them one at a time is what makes the second and third\nanswerable: the tables offered are the ones the chosen database actually\nholds, and the columns are that table's. A blank field would ask the\nuser to remember a name the program can read.\n\n:param key: what is being asked for; the answer is remembered under it.\n:param tried: what was tried and did not work, shown in each title.\n:param chooser: injected for tests; defaults to a real file dialog.\n:param pick: injected for tests; defaults to a real list dialog. Called\n    ``(title, prompt, options)`` and returns the choice or None.\n:returns: ``((database, table, column), why)``, or ``(None, why)``. The\n    reason always says WHICH of the three stops -- nobody there, a\n    cancel, or a database with nothing in it -- because a caller that\n    prints it is the only account the user gets.\n\nBacking out of a later step returns to the earlier one rather than\nabandoning the whole form, so choosing the wrong database costs one\nclick instead of the run."
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder": {
+      "source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ],
+      "source_sha256": "f89ffe8657762b6e964d068d05f341c6b3d43ca7f909d492a82c2986cab2af98",
+      "text": "Ask for a folder after the usual resolution has failed.\n\n:param key: what is being asked for. The answer is remembered under it,\n    so the second image of a run does not ask again.\n:param tried: what was tried and did not work, said before the chooser\n    so the user knows why they are being asked.\n:param what: a short name for the thing wanted, for the dialog title.\n:param validate: given a chosen path, returns None when it is usable or\n    a sentence saying why it is not. The dialog stays open on a refusal.\n:param chooser: injected for tests. Defaults to a real folder dialog.\n:returns: ``(path, why)``. `path` is None when nobody answered, when the\n    user cancelled, or when there is nobody there -- and `why` always\n    says which, because those are three different situations."
+    },
+    "spacr.qt.ask_for_the_path.columns_in": {
+      "source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ],
+      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+      "text": "Every column of one table, in the order the table declares them."
+    },
+    "spacr.qt.ask_for_the_path.forget": {
+      "source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ],
+      "source_sha256": "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3",
+      "text": "Drop every remembered answer. For tests, and for a new run."
+    },
+    "spacr.qt.ask_for_the_path.remembered": {
+      "source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ],
+      "source_sha256": "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61",
+      "text": "What was already answered for ``key``, if anything."
+    },
+    "spacr.qt.ask_for_the_path.somebody_is_there": {
+      "source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ],
+      "source_sha256": "c92ac2e925ac76e702b158eeaf876999d34316c8beef08508a82f47c2d003177",
+      "text": "Whether there is a person who could answer a dialog.\n\nFalse under pytest, with no display, or before a QApplication exists.\nChecked FIRST and on its own, because getting it wrong does not show a\ndialog to nobody -- it BLOCKS, and a blocked batch run looks like a hang."
+    },
+    "spacr.qt.ask_for_the_path.tables_in": {
+      "source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "3c7a2a2ef660cce10eec82aacb9aa5519333fdfa263fbf1dc300ec6eb7959b38"
+      ],
+      "source_sha256": "31809cab2f4cd71ed0abd9d4f96119cdc0d49bea9d6ab9bd0b8ca8161acb1a75",
+      "text": "Every table in a SQLite file, or an empty list if it is not one.\n\nNever raises: a path the user chose is a path that may be anything, and\n\"this file holds no tables\" is the sentence the form needs rather than\nan exception it would have to catch anyway."
     },
     "spacr.qt.bridge": {
       "source_blocks_sha256": [
@@ -32114,6 +32340,21 @@
       "source_sha256": "c7cd17aa394f1d017e26a7125a0b0024162fa1bd4ebede2e865c20ddca879afd",
       "text": "Write ``mappings`` to ``dst`` as a CSV Excel opens cleanly.\n\nColumns: ``original_path, canonical, plate, well, field, channel, time``."
     },
+    "spacr.qt.fractal_defaults": {
+      "source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ],
+      "source_sha256": "fef40f2ded5279a9c30affbbc50c9e07db6cdf800c63980ccec7b96aa2b95f96",
+      "text": "The fractal's numbers, importable without Qt, numba or vispy.\n\n`preferences` needs the defaults and the clamp to read a stored value, and\n`preferences` is imported before the first window exists. Reaching into\n`widgets.fractal_travel` for them would pull numpy and numba onto the launch\npath for every ordinary session -- a module nothing but spaceout uses."
+    },
+    "spacr.qt.fractal_defaults.clamp": {
+      "source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ],
+      "source_sha256": "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18",
+      "text": "``value`` held inside ``[low, high]``."
+    },
     "spacr.qt.gil_priority": {
       "source_blocks_sha256": [
         "70d3cd7891ebb9fa9f85a3035269cd43d5304ed367205e12226acf77608d66dc",
@@ -33013,6 +33254,77 @@
       ],
       "source_sha256": "99e19331b917d5aee46c08a3edec9015a6fec9ffd0fee4a0e22bb4bd4cf2c483",
       "text": "Stop every live JobRunner. Returns how many were asked.\n\nCall once on the way out, before Qt starts destroying widgets. Ordering\nmatters more than completeness here: a runner that cannot stop in time is\nparked by `bridge.drain_thread` rather than terminated, so this is bounded."
+    },
+    "spacr.qt.laptop_mode": {
+      "source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ],
+      "source_sha256": "daecd56de2ad0cd0b7e640ce75dab9d81d2b9a0242ee33a7482fed59a2af6d31",
+      "text": "Run well on a small machine without becoming a smaller application.\n\nTHE RULE THIS FILE ANSWERS TO, in the maintainer's words: \"just turning\nthings of is one strategy, but my best case scenario is being able to keep\nas many features as possible just optimizing them so they also run on worse\nhardware.\" So this is the FALLBACK, reached after the optimisations, and it\nturns down what is decorative rather than removing what a module does.\n\nNothing here changes what a run computes. Every setting it touches is\nabout how the application is DRAWN.\n\nIt is chosen automatically, it can be overridden either way, and it says\nwhat it turned down -- a mode that quietly makes the application different\nis one nobody can debug."
+    },
+    "spacr.qt.laptop_mode.apply": {
+      "source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ],
+      "source_sha256": "876ecc902d9a078887f698b0fedfd8ee37872d0be4dc3b81c3365d6b47df1af4",
+      "text": "Turn the mode on or off. Returns what was decided and what changed.\n\n:param on: force the answer; ``None`` measures the machine.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` names each setting\n    actually written, so a caller can say what happened rather than\n    claim it."
+    },
+    "spacr.qt.laptop_mode.describe": {
+      "source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ],
+      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
+      "text": "The whole decision as one block, for the launch log."
+    },
+    "spacr.qt.laptop_mode.measure": {
+      "source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ],
+      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
+      "text": "What the decision is made from, so it can be reported and tested."
+    },
+    "spacr.qt.laptop_mode.override": {
+      "source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ],
+      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
+      "text": "What the environment says, or None when it says nothing."
+    },
+    "spacr.qt.laptop_mode.total_memory_gib": {
+      "source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ],
+      "source_sha256": "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc",
+      "text": "Physical memory in GiB, or None when it cannot be read."
+    },
+    "spacr.qt.laptop_mode.usable_cores": {
+      "source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ],
+      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
+      "text": "Cores this process may actually use, not cores the machine has.\n\n`os.sched_getaffinity` where it exists: a container or a scheduler can\npin the process to fewer than `cpu_count` reports, and pinning is\nexactly the situation this mode is for."
+    },
+    "spacr.qt.laptop_mode.wanted": {
+      "source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ],
+      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
+      "text": "Whether to run in laptop mode, and the sentence that says why.\n\n:returns: ``(on, why)``. The reason is always populated, including when\n    the answer is no -- \"spaCR decided not to\" is a thing a user reports\n    and somebody has to be able to check."
+    },
+    "spacr.qt.laptop_mode.what_it_turns_down": {
+      "source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+      ],
+      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
+      "text": "Each thing the mode changes, and what a user loses by it.\n\nONLY DRAWING. Nothing here is read by a pipeline, so a run computes the\nsame answer in either mode -- which is the promise that makes an\nautomatic decision acceptable at all."
     },
     "spacr.qt.layer_viewer": {
       "source_blocks_sha256": [
@@ -34860,6 +35172,14 @@
       "source_sha256": "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264",
       "text": "Return the saved UI font scale, clamped to supported bounds."
     },
+    "spacr.qt.preferences.get_fractal_settings": {
+      "source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ],
+      "source_sha256": "6f0c8db2c882def4a35b1435da8407ff752f333d4b37af013619a95a418bcc88",
+      "text": "Every spaceout fractal setting, ready for `Settings`/`RuntimeControls`.\n\nRead through one function so the dialog and the backdrop cannot disagree\nabout a default. Out-of-range stored values are clamped rather than\nrefused -- a backdrop must not stop the application from starting."
+    },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [
         "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193"
@@ -34881,6 +35201,14 @@
       ],
       "source_sha256": "8fe3572d424d631dea9350a664e3f4f1334e1a3eead099dc7bd54a5cf79925d8",
       "text": "Return the persisted UI language code, falling back to English."
+    },
+    "spacr.qt.preferences.get_laptop_mode": {
+      "source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
+      ],
+      "source_sha256": "9970c73c5d6cec4d3aea8dc51dc5f048e1d3e475abd666b47f4ce3f4057f7e04",
+      "text": "Whether laptop mode is forced on, forced off, or measured.\n\nThe stored value is one of :data:`LAPTOP_MODE_CHOICES`. Anything else --\nan old file, a hand-edited one -- reads as ``\"automatic\"``, because a\nsetting nobody can interpret should behave as though it were never set."
     },
     "spacr.qt.preferences.get_log_console_levels": {
       "source_blocks_sha256": [
@@ -35080,6 +35408,14 @@
       ],
       "source_sha256": "7309816ae9136acf1368bf9fdbe898d157fb92ca0c0453ea6bd36b18b515e9ba",
       "text": "How images should be drawn for this user, everywhere.\n\nThe global half of the colour-blind mode. A user who needs the\nsubstitution needs it in Annotate, in every live view and in every crop\ngrid, in every session -- not as a toggle they re-find on each screen.\nA view may still override it, because a figure being prepared for\npublication wants ``cmy`` whatever the author's vision, but this is\nwhat every view starts from.\n\n:returns: one of :data:`spacr.crops.DISPLAY_PRIMARIES`."
+    },
+    "spacr.qt.preferences.laptop_mode_note": {
+      "source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
+      ],
+      "source_sha256": "ddfabb93c4300855629291df28b701347865414b10403b9c1ecb1c27644a8680",
+      "text": "What the chosen setting will do on THIS machine, said before saving.\n\nAutomatic is the case that needs saying: the label cannot state the\noutcome, because the outcome depends on the machine reading it."
     },
     "spacr.qt.preferences.maturity_is_visible": {
       "source_blocks_sha256": [
@@ -35368,6 +35704,14 @@
       "source_sha256": "6ff0c2175252aff10cb2639d4c6c7aba7aafe020f957fbd1dd127731f1a5b9e5",
       "text": "Persist a UI font scale after clamping it to supported bounds."
     },
+    "spacr.qt.preferences.set_fractal_settings": {
+      "source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ],
+      "source_sha256": "3e75419e2dace9574973f6a2e0e80af1993834f1791702af2f682d37af1445c6",
+      "text": "Persist any subset of the fractal settings.\n\n:raises ValueError: on an unknown name, or a backend/quality outside its\n    set. A number outside its range is clamped, because a slider cannot\n    produce one and a hand-edited file should still start."
+    },
     "spacr.qt.preferences.set_hash_inputs": {
       "source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
@@ -35391,6 +35735,15 @@
       ],
       "source_sha256": "87c52787318e3b346d131070088afb146bcabb4e1fbd4fa4fc15b451b01df456",
       "text": "Persist one of the bundled UI languages.\n\n:raises ValueError: if ``language`` is not a supported language code."
+    },
+    "spacr.qt.preferences.set_laptop_mode": {
+      "source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+      ],
+      "source_sha256": "d7057a17e60ba6db6fa09b6167bb17c91659a3d6c2160c3edfd7e2fc08d37c90",
+      "text": "Persist the laptop-mode preference and apply it now.\n\n:raises ValueError: on an unknown choice.\n\nApplied immediately rather than at the next launch, because the two\nthings it changes -- the ambient animation and the backdrop blur -- are\nboth visible in the window behind the dialog. A performance setting\nthat needs a restart to show its effect cannot be judged by the person\nsetting it."
     },
     "spacr.qt.preferences.set_log_levels": {
       "source_blocks_sha256": [
@@ -52802,6 +53155,15 @@
       "source_sha256": "2534d5b1d7e3d3987a417fa815514943417026922c35f39b5107273173a9ebe5",
       "text": "Add points and wire up clicking them.\n\n:param colours: one QColor per point, or None for a single colour.\n:param symbol_list: one pyqtgraph symbol per point, or None for\n    ``symbol`` everywhere. This provides an independent categorical\n    encoding without constructing a combined colour-by-shape legend.\n:param size_list: one diameter per point, or None for ``size``\n    everywhere. A plain float array -- pyqtgraph takes it straight\n    into its own arrays, so unlike a brush per point this costs\n    nothing per point.\n:param labels: per-point text, shown on hover and on click.\n:param rows: the FRAME ROW each element of ``x``/``y`` came from.\n    Default ``None`` means the arrays are already in frame order.\n\n    THIS IS THE WHOLE OF THE Q-Q TRAP. A Q-Q plot is SORTED by\n    p-value, so its nth drawn point is not its nth table row; a\n    control panel is split into groups, so its nth point is not the\n    nth row either. Left to assume otherwise, every one of those\n    plots would carry an index that looks like a row, joins like a\n    row, and names a different guide -- silently, and in the\n    direction nobody questions, because something did light up."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.add_smoother": {
+      "source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ],
+      "source_sha256": "3f053804ffc782260503c35d2bd6d6853c4353736ca919820296128f0c040e11",
+      "text": "Lay one diagnostic curve over the points already drawn.\n\n:returns: what to say about it -- the method, its note, and the band\n    when it reports one -- or the refusal, which is a sentence the\n    caller shows rather than an exception it swallows. Returns ``\"\"``\n    when ``method`` is empty, so \"none\" is not a special case at\n    every call site.\n\nThe curve carries no p-value and cannot acquire one: it comes back as\na :class:`spacr.nonparametric_fits.Curve`, which has no such\nattribute. A smoother that bends where the straight trend line is\nflat is the finding -- it means the mean model is missing a term --\nand that is a statement about the FIT, not a test of a guide."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
       "source_blocks_sha256": [
         "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
@@ -53198,6 +53560,16 @@
       ],
       "source_sha256": "b6302bffa71fe4eb9ca30651dc2538b69dba6218a20326b214ed7c192379ae2b",
       "text": "Add an action that CHANGES THE NUMBERS to the right-click menu.\n\n:param callback: called with no arguments when the user picks it.\n:param label: what the action says.\n\nEverything else on that menu changes how the figure looks and nothing\nelse. This one re-runs the regression, so it is put under its own\nheading rather than in the list -- a user reaching for \"Point size\"\nmust not be one slip away from starting a fit.\n\nOffered by the host rather than built in, because the plot knows\nnothing about settings, count data or where a run writes, and should\nnot learn: the same widget draws a simulation and a sweep trial."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_smoothers": {
+      "source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
+      ],
+      "source_sha256": "69ab7fbb4b71f69f2b5d49031debf18a839d42f2f9626f93ca796c1fbb3f9a6b",
+      "text": "Offer the four diagnostic smoothers on the right-click menu.\n\n:param on_change: called ``(method_name)`` when one is picked, or\n    with ``\"\"`` for none. The host redraws from it.\n:param chosen: which one is currently drawn.\n\nSEPARATE FROM :meth:`offer_refit` DELIBERATELY, and the menu says so.\nThese curves are laid over a fit that has already happened; none of\nthem replaces it, and none of them decides a hit. That is the whole\nreason instruction 254 puts them in a different category from the\nentries in ``regression_type``."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_style": {
       "source_blocks_sha256": [
@@ -56130,6 +56502,120 @@
       ],
       "source_sha256": "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746",
       "text": "The line under the boxes — the validation message or the notice."
+    },
+    "spacr.qt.widgets.fractal_travel": {
+      "source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "0566678131450c8e1b80701442dfbd4c9c0c05c18b669c466f1c32d07f119c9d",
+        "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45"
+      ],
+      "source_sha256": "0a1eb74532f9b4acffc0ded75adcd5c8c9ea326f624c5db29fed63494b3d1dc2",
+      "text": "The spaceout fractal: a GPU shader when there is one, Numba otherwise.\n\nPorted from the maintainer's `fractal_travel.py` v2.1.0. Two renderers,\nnot one engine with a switch:\n\n* **GPU** -- VisPy/gloo with a GLSL fragment shader, four spatial samples per\n  physical pixel, and a detail loop that adapts from sampled GPU time.\n* **CPU** -- a cheaper orbit-fold fractal in Numba, evaluated at animation\n  rate with a four-position temporal 2x2 jitter and a rolling four-frame\n  window. No keyframes and no crossfades: every displayed frame is new.\n\nTHREE THINGS THIS FILE DOES THAT THE SCRIPT DID NOT.\n\n`vispy` is not installed in the shipped environment, so `backend='auto'`\nresolves to CPU today and to GPU the day it is. Nothing else changes.\n\nIt is PySide6. The script was PyQt6, and importing that binding inside this\napplication would put two Qt bindings in one process, which does not raise --\nit segfaults.\n\nAnd it WINDS DOWN. A backdrop eating cores while a segmentation runs is the\nopposite of what it is for, so `pause()` stops the render loop and leaves the\nlast frame on screen. See :meth:`CpuFractalWidget.pause`."
+    },
+    "spacr.qt.widgets.fractal_travel.CameraState": {
+      "source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ],
+      "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
+      "text": "Where the GPU field is looking, at one instant."
+    },
+    "spacr.qt.widgets.fractal_travel.GpuBackendError": {
+      "source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ],
+      "source_sha256": "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f",
+      "text": "The GPU renderer could not be built. Always caught by `auto`."
+    },
+    "spacr.qt.widgets.fractal_travel.OrbitEngine": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ],
+      "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
+      "text": "The four-frame temporal window, and nothing else.\n\nHolds no keyframes: the only state is the ring of the last four jitter\nphases, which is what the antialiasing needs and all it needs."
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls": {
+      "source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ],
+      "source_sha256": "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6",
+      "text": "What the user can move while it is running."
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
+      "source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ],
+      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
+      "text": "The speed to use at ``t`` seconds.\n\nConstant unless `variable_speed` is on, in which case it breathes\naround the set value rather than replacing it -- so the preference\nstill means what it says."
+    },
+    "spacr.qt.widgets.fractal_travel.Settings": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "What the picture is made of. Every field is a Preferences row."
+    },
+    "spacr.qt.widgets.fractal_travel.Settings.validated": {
+      "source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ],
+      "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
+      "text": "A copy with every field inside the range the renderers accept.\n\nClamped rather than refused: this is a backdrop, and a preferences\nfile with a silly number in it must not stop the application from\ndrawing one."
+    },
+    "spacr.qt.widgets.fractal_travel.create_fractal_widget": {
+      "source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66"
+      ],
+      "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
+      "text": "Build the fractal backdrop, GPU when there is one.\n\n:returns: a QWidget carrying `backend_name`, `stats_text()`, `pause()`,\n    `resume()` and `shutdown()`. Never raises for a missing GPU: an\n    explicit ``backend='gpu'`` that cannot be built still falls back,\n    because a backdrop is not worth refusing to start the application\n    over."
+    },
+    "spacr.qt.widgets.fractal_travel.gpu_is_available": {
+      "source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ],
+      "source_sha256": "468548d177a174d97307e94514cbaa70048db83cc7817bcb5cdee8aa9ecbc84c",
+      "text": "Whether the GPU renderer can be built at all.\n\nAsked rather than assumed, and asked WITHOUT importing vispy into the\napplication when the answer is no: `importlib.util.find_spec` looks the\nmodule up without executing it, so a missing vispy costs nothing and a\npresent one is not initialised twice.\n\nA platform that cannot host a GL canvas counts as no GPU, because the\nalternative is a core dump rather than an exception."
+    },
+    "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
+      "source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "e99794211dd743cd84bf64422621443dfa8bb3e54e5567f59c9586d30a34ad25"
+      ],
+      "source_sha256": "e2bc79c3c22b5a48e944cd98fad44ba65bf9762a838fb3c6f2fade05d72345db",
+      "text": "Whether this Qt platform can host a GL canvas at all.\n\nCHECKED BEFORE THE GPU WIDGET IS BUILT, because getting it wrong does not\nraise. On the `offscreen` platform Qt prints \"QOpenGLWidget is not\nsupported on this platform\" and the process DUMPS CORE -- which no\n`except` around the constructor can catch, so the fallback in\n`create_fractal_widget` would never run. Every test and every headless\nlaunch is that platform."
+    },
+    "spacr.qt.widgets.fractal_travel.resolve_backend": {
+      "source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ],
+      "source_sha256": "bfdda1331e4fc5007a59cb39770c8ff421ef3303d1865f61f12bbc86e6ae8c0d",
+      "text": "Which renderer will actually run, given what is installed.\n\n:returns: ``'gpu'`` or ``'cpu'`` -- never ``'auto'``, because a caller\n    showing the user which one they are on cannot show them \"auto\"."
+    },
+    "spacr.qt.widgets.fractal_travel.resolved_cpu_threads": {
+      "source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ],
+      "source_sha256": "4249e971b0230af3ba75072ee4c3bcd1ee4e739b8153ca7d94c6dbd31e768900",
+      "text": "How many Numba workers to take, leaving the application some.\n\nCapped at 24 because beyond that the scheduling overhead grows for this\nimage size, and capped below the machine's count because a backdrop that\ntakes every core starves the run the user actually cares about."
+    },
+    "spacr.qt.widgets.fractal_travel.state_at_seconds": {
+      "source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+      ],
+      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+      "text": "The camera at ``t``. Pure, so a test can assert it moves."
     },
     "spacr.qt.widgets.gate_canvas": {
       "source_blocks_sha256": [
@@ -64735,6 +65221,13 @@
       "source_sha256": "d336cd1c5b9f1fc0ad97643b94c46bb5d45d16e2f41bdff022a28426e7a5ece5",
       "text": "Change a recorded run's row -- its status, folder, seconds.\n\nReturns False for a handle this panel never issued, rather than\ninventing a row: a run whose panel was rebuilt underneath it is a\nstale handle, and a phantom row is worse than a missing one."
     },
+    "spacr.qt.widgets.sweep_runs.describe_saved_states": {
+      "source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ],
+      "source_sha256": "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf",
+      "text": "One sentence about what a save did, for the panel's own note."
+    },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
@@ -64742,6 +65235,16 @@
       ],
       "source_sha256": "9797ed24894a27d53f4bea4f30ca7e95740ce122d6d545970a0373d6aaaa039b",
       "text": "``PREFERRED_COLUMNS`` that this frame has, then everything else.\n\nOrdering, not filtering. A column nobody thought to list is still worth\nseeing -- it is in the CSV, and hiding it means the user has to leave the\napplication to read their own results."
+    },
+    "spacr.qt.widgets.sweep_runs.save_run_states": {
+      "source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "1c6d40e37a40c08e463db5ca9eb3c45c7c6f6d7de59e5bce60d03809008e57d5",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
+      ],
+      "source_sha256": "8a0da88fd694fde04d0aace347e3078ba7c3bca76c392af75faf6fb80dd7bef5",
+      "text": "Write a workspace bundle for each of ``folders``.\n\nASKED FOR, SO IT IS WRITTEN. `workspace.save_for_run` returns None when\nthe `runs/save_workspace` preference is off, which is right for the\nautomatic save at the end of a run and wrong here: a user who chose \"Save\nthe state\" from a menu has asked, and a menu item that silently does\nnothing is worse than one that is absent. The mode is forced on for this\ncall only, and the preference is not written.\n\n:param folders: run folders to save.\n:returns: ``(saved, failures)`` -- the folders that got a bundle, and\n    ``(folder, reason)`` for those that did not. One folder failing does\n    not stop the others, and every failure is NAMED: a count of \"3 of 5\"\n    with no names is a report the user cannot act on."
     },
     "spacr.qt.widgets.table_chip": {
       "source_blocks_sha256": [
@@ -75058,10 +75561,12 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
-      "source_sha256": "78172a1682225d9d5d98e123a377fab64496ad08d7cca031a1e0d31a07d53c78",
-      "text": "Build a streaming selection from an object table.\n\nParameters\n----------\nframe : pandas.DataFrame\n    One row per measured object.\nobject_array : str, default=\"cell\"\n    Object type to select.\ntest_split : float, default=0.2\n    Fraction assigned to the test set.\nseed : int, default=0\n    Random seed controlling deterministic split assignment.\n\nReturns\n-------\npandas.DataFrame\n    Canonical identifiers, object type, split, and source for each object.\n\nRaises\n------\nValueError\n    If the table is empty or contains no usable object identifier."
+      "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
+      "text": "Build a streaming selection from an object table.\n\nParameters\n----------\nframe : pandas.DataFrame\n    One row per measured object.\nobject_array : str, default=\"cell\"\n    Object type to select.\ntest_split : float, default=0.2\n    Fraction assigned to the test set.\nseed : int, default=0\n    Random seed controlling deterministic split assignment.\n\nReturns\n-------\npandas.DataFrame\n    Canonical identifiers, object type, split, and source for each object.\n\nRaises\n------\nValueError\n    If the table is empty or contains no usable object identifier, and\n    either nobody was asked or the answer did not help.\n\nNotes\n-----\n``ask`` is called only when the table names no object, and is INJECTED\nrather than imported so this module never depends on Qt. A caller with\nnobody in front of it passes none and gets exactly the error it always\ngot, which makes \"never prompt in a batch run\" structural rather than a\nrule each call site has to remember. It is called\n``ask(tried=..., object_array=...)`` and returns\n``((database, table, column), why)`` -- see\n:func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`."
     },
     "spacr.stream_dataset.settings_for_method": {
       "source_blocks_sha256": [

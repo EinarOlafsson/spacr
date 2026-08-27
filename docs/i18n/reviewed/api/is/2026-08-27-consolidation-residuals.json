@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.nonparametric_fits#3",
+      "source": "A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`. B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides hits. C. AN AGREEMENT CHECK -- reports a comparison against the linear ranking, and names the guides the two disagree about.",
+      "context": "A. A FIT THAT ANSWERS IN THE SAME CURRENCY -- joins `regression_type`. B. A DIAGNOSTIC LAID OVER THE DATA -- belongs on a plot, never decides hits. C. AN AGREEMENT CHECK -- reports a comparison against the linear ranking, and names the guides the two disagree about.",
+      "source_sha256": "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+      "translation": "A. LÍKAN SEM SVARAR Í SÖMU EININGUM -- bætist við `regression_type`. B. GREINING SEM ER LÖGÐ YFIR GÖGNIN -- á heima á myndriti og ákvarðar aldrei niðurstöður. C. SAMRÆMISPRÓF -- ber niðurstöðurnar saman við línulega röðun og tilgreinir leiðbeina sem aðferðirnar eru ósammála um."
+    }
+  ]
+}

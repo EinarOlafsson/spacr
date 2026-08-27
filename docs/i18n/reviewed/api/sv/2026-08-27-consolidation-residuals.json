@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.ask_for_the_path.somebody_is_there#1",
+      "source": "False under pytest, with no display, or before a QApplication exists. Checked FIRST and on its own, because getting it wrong does not show a dialog to nobody -- it BLOCKS, and a blocked batch run looks like a hang.",
+      "context": "False under pytest, with no display, or before a QApplication exists. Checked FIRST and on its own, because getting it wrong does not show a dialog to nobody -- it BLOCKS, and a blocked batch run looks like a hang.",
+      "source_sha256": "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db",
+      "translation": "False under pytest, när ingen bildskärm är tillgänglig eller innan en QApplication finns. Detta kontrolleras FIRST och separat, eftersom ett felaktigt resultat inte visar en dialogruta för någon -- det BLOCKS, och en blockerad batchkörning ser ut att ha hängt sig."
+    }
+  ]
+}
