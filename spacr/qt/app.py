@@ -15,7 +15,8 @@ import threading
 import traceback
 from typing import List, Optional, Tuple
 
-from PySide6.QtCore import QEvent, QSize, Qt, QThread, Signal
+from PySide6.QtCore import (QEvent, QObject, QSize, Qt, QThread,
+                            Signal)
 from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
@@ -62,6 +63,73 @@ LOG = logging.getLogger(__name__)
 DOCS_BASE_URL = "https://einarolafsson.github.io/spacr"
 DOCS_URL = f"{DOCS_BASE_URL}/index.html"
 TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"
+
+
+class _FractalFollowsItsScreen(QObject):
+    """Keeps the spaceout backdrop the same size as the screen behind it."""
+
+    def __init__(self, widget, screen) -> None:
+        super().__init__(screen)
+        self._widget = widget
+
+    def eventFilter(self, watched, event) -> bool:
+        if event.type() == QEvent.Type.Resize:
+            try:
+                self._widget.setGeometry(watched.rect())
+            except Exception:                                # noqa: BLE001
+                pass
+        return False
+
+
+def install_the_spaceout_fractal(screen) -> bool:
+    """Put the spaceout fractal behind ``screen``, if this is spaceout.
+
+    :returns: True when it was installed, so the caller knows to skip the
+        ordinary ambient backdrop. False in every normal launch -- which is
+        what keeps the mode hidden -- and false rather than raising when the
+        fractal cannot be built, so a machine that cannot draw it still gets
+        the animation it always had.
+
+    The settings come from Preferences, which shows them only under
+    spaceout, so one place decides both what is offered and what is drawn.
+    """
+    try:
+        from .theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return False
+        from .preferences import get_fractal_settings
+        from .widgets.fractal_travel import (
+            RuntimeControls, Settings, create_fractal_widget)
+
+        values = get_fractal_settings()
+        widget = create_fractal_widget(
+            Settings(backend=values["backend"], quality=values["quality"],
+                     scale=values["scale"]),
+            RuntimeControls(speed=values["speed"], dream=values["dream"],
+                            variable_speed=values["variable_speed"]),
+        )
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("Could not build the spaceout fractal")
+        return False
+
+    try:
+        widget.setParent(screen)
+        widget.setGeometry(screen.rect())
+        widget.lower()
+        widget.show()
+        # It follows the screen's geometry the way the ambient backdrop
+        # does; without this it keeps its first size and a resized window
+        # shows bare ground beside it.
+        screen.installEventFilter(_FractalFollowsItsScreen(widget, screen))
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("Could not place the spaceout fractal")
+        try:
+            widget.shutdown()
+        except Exception:                                    # noqa: BLE001
+            pass
+        return False
+    return True
 
 
 class _UpdateWorker(QThread):
@@ -3369,6 +3437,13 @@ class MainWindow(QMainWindow):
                 theme_background_path,
             )
             if not get_ambient_enabled():
+                return
+            # SPACEOUT DRAWS THE OTHER FRACTAL (instruction 260). It is the
+            # maintainer's own `fractal_travel.py`: a GLSL shader when vispy
+            # is importable and a Numba orbit-fold when it is not. An
+            # ordinary launch is unchanged and gets the ambient engine, which
+            # is what keeps the mode hidden.
+            if install_the_spaceout_fractal(screen):
                 return
             from .widgets.ambient import install_ambient
             install_ambient(
