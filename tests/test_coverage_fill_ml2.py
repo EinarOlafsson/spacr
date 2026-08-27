@@ -46,16 +46,47 @@ def _Xy(n=80, p=3):
     return X, y
 
 
+#: The coefficients `_Xy` actually generates. Asserting `hasattr(model,
+#: "predict")` cannot tell a fitted model from a sign-inverted one, and a
+#: sign inversion is the mistake that turns a protective hit into a
+#: sensitising one. The noise is 0.2 against effects of 0.3 to 0.8 over 80
+#: rows, so a correct fit lands well inside this tolerance.
+TRUE_COEFFICIENTS = (0.8, -0.5, 0.3)
+COEFFICIENT_TOLERANCE = 0.15
+
+
+def _assert_it_recovered_the_truth(model):
+    """The fit found the coefficients the fixture put in."""
+    import numpy as np
+
+    params = getattr(model, "params", None)
+    if params is None:
+        return                      # a backend that reports no coefficients
+    values = np.asarray(params, dtype=float).ravel()
+    # An intercept, when the design carries one, is the extra leading term.
+    if values.size == len(TRUE_COEFFICIENTS) + 1:
+        values = values[1:]
+    if values.size != len(TRUE_COEFFICIENTS):
+        return
+    for got, want in zip(values, TRUE_COEFFICIENTS):
+        assert abs(got - want) < COEFFICIENT_TOLERANCE, (
+            f"recovered {list(np.round(values, 3))}, "
+            f"expected about {list(TRUE_COEFFICIENTS)}")
+
+
 def test_regression_model_ols():
     X, y = _Xy()
     model = ML.regression_model(X, y, regression_type="ols")
     assert hasattr(model, "predict")
+    _assert_it_recovered_the_truth(model)
 
 
 def test_regression_model_ols_cov_type():
     X, y = _Xy()
     model = ML.regression_model(X, y, regression_type="ols", cov_type="HC3")
     assert hasattr(model, "predict")
+    # A robust covariance changes the standard errors, never the estimates.
+    _assert_it_recovered_the_truth(model)
 
 
 def test_regression_model_lasso_fixed_and_auto():
