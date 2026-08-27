@@ -70,3 +70,30 @@ def test_the_section_names_the_third_analysis(model):
     assert "mixed" in help_text
     assert "variance component" in help_text
     assert "no permutation equivalent" in help_text.lower()
+
+
+def test_the_cost_of_a_slow_fit_is_said_before_it_is_chosen(model):
+    """Instruction 273 section 3.
+
+    The measurement already existed and reached a user only AFTER they had
+    started the run -- printed by the console banner, which is after the
+    decision. It is on the control that makes the decision now.
+    """
+    box = model._widgets["regression_type"]
+    label = getattr(box, "_spacr_setting_label", None)
+    help_text = str((label.property("apiTooltipHtml") or label.toolTip() or "")
+                    if label else "") + str(box.toolTip() or "")
+    assert "tens of minutes" in help_text
+    assert "REML" in help_text, "the shape of the cost is not named"
+    assert "ols at level" in help_text, "no faster alternative is offered"
+
+
+def test_the_box_and_the_banner_cannot_disagree():
+    """One source for the measurement, so two hand-written copies cannot
+    drift -- and the second one edited is the one nobody believes."""
+    import inspect
+
+    from spacr.qt.screens import settings_model
+
+    source = inspect.getsource(settings_model.attach_api_tooltip)
+    assert "mixed_cost_note()" in source

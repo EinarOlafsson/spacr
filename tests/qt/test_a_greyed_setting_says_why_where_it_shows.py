@@ -42,6 +42,12 @@ def _regression(qtbot, inference="parametric"):
     return screen, model
 
 
+#: The greyed-reason's own closing sentence. Every dependency note ends
+#: with it and no setting DESCRIPTION does, so it tells the two apart --
+#: which "nested" does not, since `level`'s description says it too.
+NOTE_MARK = "The value is kept and saved."
+
+
 def _help(label) -> str:
     return str(label.property("apiTooltipHtml") or label.toolTip() or "")
 
@@ -64,7 +70,7 @@ def test_level_is_greyed_under_a_fitted_mixed_model(qtbot):
     # The REASON, not merely a disabled control: "mixed fits both levels at
     # once" is not a fact a user can deduce from a dead dropdown.
     assert "mixed" in _help(label)
-    assert "nested" in _help(label).lower()
+    assert NOTE_MARK in _help(label)
 
 
 def test_the_reason_goes_away_when_the_setting_applies_again(qtbot):
@@ -74,7 +80,7 @@ def test_the_reason_goes_away_when_the_setting_applies_again(qtbot):
 
     _choose(kind, "ols")
     assert level.isEnabled() is True
-    assert "nested" not in _help(label).lower()
+    assert NOTE_MARK not in _help(label)
 
 
 def test_the_settings_own_help_survives_the_note_coming_and_going(qtbot):
@@ -87,14 +93,26 @@ def test_the_settings_own_help_survives_the_note_coming_and_going(qtbot):
     # some time -- so the test failed on the FIRST assertion and never
     # reached the restore it exists to check. The machinery was fine; the
     # expectation had rotted, which is the failure mode this file is about.
-    own = "Which level the run reports"
+    # A PHRASE THE DESCRIPTION ACTUALLY CARRIES RIGHT NOW. This has rotted
+    # twice: the text is supplied by the translation catalogs, so a wording
+    # pinned from the source file stops matching the moment they are
+    # rebuilt. Read the description and take a phrase from it.
+    from spacr.qt.screens.settings_model import get_tooltips
+
+    import re
+
+    described = get_tooltips().get("level") or ""
+    # The rendered help drops the leading "(str) - " type prefix, so a slice
+    # taken from the raw description would never match.
+    own = re.sub(r"^\([^)]*\)\s*-\s*", "", described)[:24]
+    assert own, "level has no description at all"
 
     assert own in _help(label)               # greyed, note appended
     _choose(kind, "ols")
     assert own in _help(label)               # enabled, note gone
     _choose(kind, "mixed")
     assert own in _help(label)               # greyed again
-    assert "nested" in _help(label).lower()
+    assert NOTE_MARK in _help(label)
 
 
 def test_the_note_is_appended_once_however_many_times_it_is_applied(qtbot):
@@ -105,7 +123,7 @@ def test_the_note_is_appended_once_however_many_times_it_is_applied(qtbot):
     for _ in range(3):
         _choose(kind, "ols")
         _choose(kind, "mixed")
-    assert _help(label).lower().count("nested") == 1
+    assert _help(label).count(NOTE_MARK) == 1
 
 
 def test_the_label_is_greyed_with_its_field_so_the_row_reads_as_one(qtbot):

@@ -6202,6 +6202,16 @@ def attach_api_tooltip(
     # Keep an absent body absent: format_tooltip owns the localized generic
     # fallback.  Synthesizing an English sentence here bypasses it.
     body = str(body or "")
+    # WHAT A SLOW FIT COSTS, SAID BEFORE IT IS CHOSEN. Instruction 273
+    # section 3: the measurement already exists, and it used to reach a user
+    # only after they had started the run -- printed by the console banner,
+    # which is after the decision. `mixed_cost_note` is the one source, so
+    # the box and the banner cannot say different numbers.
+    if key == "regression_type":
+        try:
+            body = f"{body} {mixed_cost_note()}".strip()
+        except Exception:                                    # noqa: BLE001
+            pass
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
