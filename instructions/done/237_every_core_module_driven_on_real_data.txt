@@ -2,7 +2,49 @@
 EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
 ================================================================================
 
-Status:    OPEN. All five modules are driven on real data, and the driver
+Status:    DONE 2026-08-27. Section P is closed and the coverage half is
+           out of scope by the maintainer's own instruction: "Don't waste
+           tokens by measuring coverage. Just focus on completing all items
+           on the instructions list."
+
+           SECTION P'S ASSERTION FIXES ARE ALL IN, and each was verified to
+           FAIL against the wrong answer rather than merely to pass:
+
+             * the sequencing fixture put six RANDOM bases where the
+               `target_sequence` anchor's constant belongs, so no read
+               carried it, the end-to-end test mapped 0 of 40 reads, and it
+               passed. All 40 map now and the test asserts the count and the
+               distinct combinations. Restoring the random fill fails with
+               "mapped 0 of 40 reads".
+             * two read windows were hard-coded to 76 "with our fixture
+               layout"; they are measured from the read.
+             * `assert index == 0` is `assert 0 == 0` -- the function returns
+               the index it was handed on every path. Eight tests assert the
+               object counts instead: cell 4, nucleus 4, pathogen 2,
+               cytoplasm 4.
+             * `arr.max() >= 0` is true of an all-zero mask. It is `>= 1`.
+             * a database file on disk is not a measurement; the test opens
+               it and asserts the cell table is there and not empty.
+             * two perfectly separable metric fixtures assert 1.0, and the
+               regression fixture asserts the coefficients it generated --
+               verified by inverting their signs.
+
+           AND ONE REAL DEFECT CAME OUT OF IT. The timelapse test wrote no
+           database at all: a timelapse filename has four parts,
+           plate_well_field_time, and the fixture handed it three, so every
+           row's identity came out as the string "error" and the write was
+           abandoned. The test claimed to exercise nucleus relabelling and
+           exercised an error path. That is exactly what section P predicted
+           these assertions were hiding.
+
+           STILL OPEN AND NAMED, so it is not lost: the GPU-marked
+           end-to-end tests in test_real_data_image_modules.py and
+           test_full_pipeline_e2e.py skip without a CUDA device, so the
+           `>= 1` fix above lands on a test CI does not run. Whether a
+           CPU-sized version belongs beside each is a question for whoever
+           owns those files.
+
+Original:  OPEN. All five modules are driven on real data, and the driver
            scripts are in the tree (spacr_drivers/) so every run this file
            reports can be repeated from a checkout. The "tests that actually
            test" read-through is DONE for all six modules -- mask, measure,
