@@ -166,6 +166,27 @@ jobs:
             tests/test_online_installers.py \
             tests/test_conda_forge_recipe.py -q --tb=short
 
+      # THE CONDA-FORGE GATE, before anything is published.
+      #
+      # The feedstock updates itself: it watches PyPI and auto-merges the
+      # bot's version PR once CI is green. So a release reaches conda-forge
+      # with no human step -- until a build fails, and then conda-forge
+      # SILENTLY STAYS on the previous version and nothing announces it.
+      #
+      # The bot's PR rewrites version and sha256 and nothing else, so a
+      # console script dropped from setup.py is still declared by the recipe,
+      # points at a module the new sdist does not have, and the build dies.
+      # This reads the recipe conda-forge actually has and checks it against
+      # the sdist about to be uploaded.
+      #
+      # It fails ONLY on that -- a command missing from the recipe is
+      # reported and does not stop the release, because a gate that blocks
+      # on everything is one people learn to skip.
+      - name: The conda-forge recipe can build this release
+        run: |
+          SDIST=$(ls dist/*.tar.gz | head -1)
+          python tools/check_conda_forge_recipe.py --sdist "$SDIST"
+
       - uses: actions/upload-artifact@v7
         with:
           name: pypi-distributions
