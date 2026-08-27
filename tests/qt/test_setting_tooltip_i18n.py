@@ -44,6 +44,38 @@ def test_exact_whole_body_translation_is_used_and_url_is_unchanged():
     assert tip.count(url) == 1
 
 
+def test_tooltip_catalog_receives_the_application_identity(monkeypatch):
+    """A shared setting name may describe different data in two modules."""
+    from spacr.qt import i18n_catalogs
+    from spacr.qt.screens.settings_model import format_tooltip
+
+    seen = []
+
+    def translated(key, source, language, app_key=""):
+        seen.append((key, source, language, app_key))
+        return "Regressionsutdata" if app_key == "regression" else None
+
+    monkeypatch.setattr(i18n_catalogs, "setting_tooltip", translated)
+
+    regression = format_tooltip(
+        "Directory for regression outputs.",
+        "regression",
+        "src",
+        language="sv",
+    )
+    mask = format_tooltip(
+        "Directory for segmentation inputs.",
+        "mask",
+        "src",
+        language="sv",
+    )
+
+    assert "Regressionsutdata" in regression
+    assert "Directory for segmentation inputs." in mask
+    assert ("src", "Directory for regression outputs.", "sv", "regression") in seen
+    assert ("src", "Directory for segmentation inputs.", "sv", "mask") in seen
+
+
 def test_plain_tooltip_localizes_chrome_and_retains_canonical_body_and_url():
     from spacr.qt.screens.settings_model import api_docs_url, plain_tooltip
 

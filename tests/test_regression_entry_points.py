@@ -61,6 +61,9 @@ _HELPER_MODULES = (
     # every other helper reached by the regression entry point.
     "spacr.outlier_filter",
     "spacr.well_spec",
+    # The pre-fit resource estimate receives the complete settings mapping so
+    # it can describe the selected family and design size.
+    "spacr.fit_resources",
 )
 
 # Local import aliases whose public module name is intentionally different.
@@ -76,9 +79,6 @@ _HELPER_ALIASES = {
 #: derivation is asserted rather than assumed by
 #: :func:`test_the_only_keys_without_a_default_are_derived_and_written_first`.
 #:
-#: * ``src`` -- ``_perform_regression_set_paths`` sets it from ``count_data``
-#:   (ml.py) before ``utils.save_settings`` reads it to place
-#:   ``settings/regression.csv``.
 #: * ``score_data`` / ``count_data`` -- the paired-input migration. One row of
 #:   ``paired_data`` states one score/count relationship, and
 #:   ``ml.normalize_regression_input_pairs`` unpacks it into these two lists
@@ -87,7 +87,7 @@ _HELPER_ALIASES = {
 #:   words, because defaulting them would write the legacy pair back into
 #:   every new settings CSV and undo the migration. A settings file that still
 #:   carries them is migrated instead.
-_DERIVED_KEYS = frozenset({"src", "score_data", "count_data"})
+_DERIVED_KEYS = frozenset({"score_data", "count_data"})
 
 #: The six that were missing, and what each is for. Kept explicit so a future
 #: edit that drops one is named in the failure rather than counted.
@@ -279,8 +279,9 @@ def _assert_derived_before_read(fn, deriver, keys):
 def test_the_only_keys_without_a_default_are_derived_and_written_first():
     """Derived, not forgotten -- and the difference is checked, not assumed.
 
-    ``src`` is derived from ``count_data``; ``score_data`` and ``count_data``
-    are themselves derived from ``paired_data``. "Derived" is only an answer
+    ``score_data`` and ``count_data`` are derived from ``paired_data``.
+    ``src`` has a blank default whose automatic location is resolved from
+    ``count_data`` before output begins. "Derived" is only an answer
     to the missing-default contract if the derivation actually runs BEFORE the
     read, so the ordering is asserted rather than the mere existence of an
     assignment somewhere in the module -- an assignment placed after the read
@@ -293,6 +294,7 @@ def test_the_only_keys_without_a_default_are_derived_and_written_first():
 
     read = _keys_read_by_the_whole_call()
     assert sorted(read - set(_defaults())) == sorted(_DERIVED_KEYS)
+    assert _defaults()["src"] == ""
 
     # `src` IS DERIVED IN THE HELPER, and this used to look only inside
     # `perform_regression`. `_perform_regression_set_paths` was a nested def
