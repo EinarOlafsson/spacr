@@ -217,7 +217,15 @@ def test_process_chunk_end_to_end(synth_illumina_reads, synth_barcodes):
         r1_records, r2_records,
         INTERNAL_BARCODE_REGEX,        # columnID / rowID group names
         "TGCTG",                       # anchor present in every synth read
-        -8, 76,                        # start at the true read start; length 76bp
+        # MEASURED FROM THE READ, not a constant. This was hard-coded to 76
+        # "with our fixture layout", so the moment that layout changed --
+        # fill1 became the anchor's own middle, sixteen bases rather than
+        # six random ones -- the window stopped covering the read and every
+        # extraction returned nothing, silently.
+        #
+        # A record here is the whole four-line FASTQ block, so the sequence
+        # is its second line.
+        -8, len(r1_records[0].split("\n")[1]),
         p["column_csv"], p["grna_csv"], p["row_csv"],
         False,                         # fill_na
     )
@@ -259,7 +267,9 @@ def test_process_chunk_accepts_the_shipped_default_group_names(
     r1 = list(_read_fastq_records(synth_illumina_reads["r1_path"]))[:2]
     r2 = list(_read_fastq_records(synth_illumina_reads["r2_path"]))[:2]
     df, combinations, qc = SEQ.process_chunk((
-        r1, r2, DEFAULT_BARCODE_REGEX, "TGCTG", -8, 76,
+        # See the note above: the window is measured from the read.
+        r1, r2, DEFAULT_BARCODE_REGEX, "TGCTG", -8,
+        len(r1[0].split("\n")[1]),
         paths["column_csv"], paths["grna_csv"], paths["row_csv"], False,
     ))
     assert len(df) == 2
@@ -333,6 +343,20 @@ def test_generate_barecode_mapping_end_to_end(synth_illumina_reads,
     qc = list(Path(src).rglob("*qc*.csv"))
     assert combos, "generate_barecode_mapping wrote no unique_combinations csv"
     assert qc, "generate_barecode_mapping wrote no qc csv"
-    # The count table must at least be a valid, readable CSV.
+
+    # WHAT IT MAPPED, not that it wrote a file. This asserted only that the
+    # CSV was readable, and it passed while the pipeline mapped ZERO of the
+    # forty reads: the fixture put six random bases where the anchor's
+    # constant belongs, so no read carried `target_sequence` and every one
+    # was skipped. A test that survives its own fixture producing nothing
+    # is testing that the function returns.
     df = pd.read_csv(combos[0])
     assert df is not None
+    assert df["count"].sum() == synth_illumina_reads["n_reads"], (
+        f"mapped {df['count'].sum()} of "
+        f"{synth_illumina_reads['n_reads']} reads")
+    expected = {(r["row"], r["column"], r["grna"])
+                for r in synth_illumina_reads["truth"]}
+    assert len(df) == len(expected), (
+        f"{len(df)} rows for {len(expected)} distinct "
+        f"(row, column, grna) combinations")
