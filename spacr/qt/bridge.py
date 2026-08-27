@@ -14,6 +14,7 @@ pause protocol, but pipeline entries that do not call ``checkpoint`` report
 from __future__ import annotations
 
 import atexit
+import gc
 import io
 import logging
 import os
@@ -1588,17 +1589,28 @@ def make_thread(
     # it was found.
     #
     # `make_thread` runs on the caller's thread, so importing here puts
-    # that first import where it is safe. Every job after the first is a
+    # that first import where it is safe. Temporarily suspend cyclic GC as
+    # well: pyplot's many allocations can otherwise start a collection in
+    # the middle of the import. If that collection releases an old PySide
+    # wrapper, Qt re-enters Python while matplotlib's module graph is only
+    # half initialized; settings-search followed by the UMAP dialog used to
+    # reproduce that native crash reliably. Every job after the first is a
     # dict lookup, and the worker's own `matplotlib.use("Agg", force=True)`
     # still wins -- importing pyplot does not choose a backend.
     if "matplotlib.pyplot" not in sys.modules:
+        gc_was_enabled = gc.isenabled()
         try:
+            if gc_was_enabled:
+                gc.disable()
             import matplotlib.pyplot  # noqa: F401
         except Exception:              # noqa: BLE001
             # A build with no matplotlib still starts jobs; the worker's
             # own import is what would fail, and it already handles that.
             LOG.debug("matplotlib.pyplot could not be pre-imported",
                       exc_info=True)
+        finally:
+            if gc_was_enabled:
+                gc.enable()
     thread = QThread()
     _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)

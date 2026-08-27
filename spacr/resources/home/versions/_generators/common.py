@@ -452,13 +452,12 @@ CATS_BROAD3 = _with_late_registrations([
              "classify_merged",
              "map_barcodes", "regression", "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
-    ("Review", ["plate_view", "umap", "layer_viewer", "napari_bridge",
+    ("Review", ["plate_view", "umap", "layer_viewer",
                 "graph_builder", "tabulate", "trellis", "gate_editor",
                 "feature_explorer", "outliers", "dose_response",
                 "control_chart", "run_compare",
                 "train_compare", "run_history", "db_browser", "data_manager", "report",
-                "pipeline_graph", "hit_list", "profiler",
-                "methods_export", "investigate_hit", "qc_dashboard",
+                "pipeline_graph", "profiler", "investigate_hit", "qc_dashboard",
                 "lineage", "feature_dict"]),
 ], fallback="Review")
 
@@ -473,7 +472,7 @@ CATS_STAGE5 = _with_late_registrations([
                  "distributed_jobs", "data_manager", "project_browser"]),
     # Mask creation, manual correction and registered layer inspection are
     # one segmentation stage; folded model tools are reached through Mask.
-    ("Segment", ["mask", "make_masks", "layer_viewer", "napari_bridge"]),
+    ("Segment", ["mask", "make_masks", "layer_viewer"]),
     # These applications quantify, label or summarize measured objects.
     ("Measure", ["measure", "annotate", "lineage", "analyze_plaques",
                  "recruitment", "invasion", "replication", "tabulate",
@@ -487,14 +486,14 @@ CATS_STAGE5 = _with_late_registrations([
     # be reported and preserve the evidence used to reach that decision.
     ("Report", ["plate_view", "train_compare", "run_history", "run_compare",
                  "db_browser", "report",
-                 "pipeline_graph", "hit_list", "methods_export",
-                 "qc_dashboard", "outliers", "control_chart"]),
+                 "pipeline_graph", "qc_dashboard", "outliers",
+                 "control_chart"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
     # The bands stay deliberately narrow. Folded capabilities remain on
     # their host screens and therefore do not receive standalone entries.
-    ("Segment",          ["mask", "make_masks", "napari_bridge"]),
+    ("Segment",          ["mask", "make_masks"]),
     ("Measure",          ["measure", "tabulate", "feature_dict"]),
     ("Label",            ["annotate"]),
     ("Classify",         ["classify_merged", "train_compare"]),
@@ -504,8 +503,8 @@ CATS_NARROW8 = _with_late_registrations([
     ("Screens & reports", ["map_barcodes", "regression",
                            "umap", "graph_builder", "layer_viewer",
                            "plate_view", "report",
-                           "hit_list", "methods_export", "pipeline_graph",
-                           "profiler", "investigate_hit", "qc_dashboard",
+                           "pipeline_graph", "profiler", "investigate_hit",
+                           "qc_dashboard",
                            "lineage", "trellis", "gate_editor",
                            "feature_explorer", "outliers", "control_chart"]),
     ("Import & batch",   ["convert", "align", "foreign", "external_masks",
@@ -523,8 +522,7 @@ CATS_QUESTIONS = _with_late_registrations([
     # about getting images, since that is the decision it feeds.
     ("I have images. Where are my objects?",
      ["mask", "make_masks", "align", "convert", "foreign",
-      "external_masks", "power", "experiment_design", "project_browser",
-      "napari_bridge"]),
+      "external_masks", "power", "experiment_design", "project_browser"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "analyze_plaques", "recruitment",
       "invasion", "replication", "layer_viewer", "tabulate", "lineage",
@@ -534,7 +532,7 @@ CATS_QUESTIONS = _with_late_registrations([
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
      ["classify_merged", "map_barcodes",
-      "regression", "umap", "graph_builder", "hit_list", "profiler",
+      "regression", "umap", "graph_builder", "profiler",
       "investigate_hit", "trellis", "gate_editor", "feature_explorer",
       "outliers", "dose_response"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
@@ -544,7 +542,7 @@ CATS_QUESTIONS = _with_late_registrations([
     ("Should I believe any of this?",
      ["plate_view", "train_compare", "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",
-      "methods_export", "qc_dashboard", "control_chart"]),
+      "qc_dashboard", "control_chart"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

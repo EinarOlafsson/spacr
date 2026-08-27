@@ -315,6 +315,12 @@ class ExecutionProfileDialog(QDialog):
         attach_api_tooltip(
             label, "distributed_jobs", api_key, help_text
         )
+        # ``attach_api_tooltip`` deliberately expands the plain field help
+        # into structured HTML with an API link.  The generic retargeting
+        # pass therefore sees two *different* strings and conservatively
+        # keeps both.  This row created the richer label explicitly, so the
+        # plain duplicate on the editor is safe to remove here.
+        field.setToolTip("")
         label.setCursor(Qt.WhatsThisCursor)
         label.setProperty("settingHelpLabel", True)
         self._install_help_filter(label)

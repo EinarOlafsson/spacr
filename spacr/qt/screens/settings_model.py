@@ -2950,7 +2950,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Below them: the multiple-testing correction applied across the "
         "tested family, the level it targets, and the control-based "
         "effect-size threshold. With hundreds of guides an uncorrected P "
-        "value is not evidence, so this is the section to get right.",
+        "value is not evidence. Together, these settings define what counts "
+        "as a hit.",
     "REGRESSION: MODEL":
         "Select the estimation level and inference method independently. "
         "'Level' requests one effect per guide, one per gene, or separate "
@@ -9716,6 +9717,12 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
     setting whose help is on the field is a smaller defect than a setting
     with no help at all.
     """
+    # A disabled-reason tooltip is control state, not descriptive setting
+    # help.  It belongs on the disabled control by design (and is guarded by
+    # a dedicated test), so callers looking for label-paired *help* must not
+    # classify it as an ordinary field tooltip waiting to be moved.
+    if field.property(DISABLED_REASON_TOOLTIP):
+        return None
     parent = field.parentWidget()
     root = parent.layout() if parent is not None else None
     if root is None:

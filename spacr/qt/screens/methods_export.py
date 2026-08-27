@@ -98,8 +98,8 @@ APP_INTRO = (
 APP_CLI_NOTE = (
     "Use Methods & Results for interactive drafting. In a headless workflow, "
     "call spacr.methods_export.build_digest(...), then "
-    "render_methods(digest) and render_results(digest); these functions do not "
-    "require an AI provider.")
+    "render_methods(digest) and render_results(digest); these functions need "
+    "no AI provider.")
 
 #: "Methods & Results" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,

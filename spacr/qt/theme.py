@@ -3093,6 +3093,7 @@ _WIDGET_QSS: Dict[str, object] = {}
 #: with later rules winning ties.
 WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.settings_search",
+    "spacr.qt.screens.annotate",
     "spacr.qt.screens.app_screen",
     "spacr.qt.screens.settings_model",
     "spacr.qt.shortcuts",

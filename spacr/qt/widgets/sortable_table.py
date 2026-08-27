@@ -29,7 +29,14 @@ import re
 from typing import Optional
 
 import shiboken6
-from PySide6.QtCore import QObject, QSortFilterProxyModel, Qt, QTimer
+from PySide6.QtCore import (
+    QModelIndex,
+    QObject,
+    QSortFilterProxyModel,
+    Qt,
+    QTimer,
+    Slot,
+)
 from PySide6.QtWidgets import (
     QTableView,
     QTableWidget,
@@ -357,9 +364,20 @@ class _SortState(QObject):
         self._suspended = None
         self._resuming = False
         self._stamping = False
+        # A static ``QTimer.singleShot`` stores a queued call to the Python
+        # bound method.  A short-lived table can disappear before that call
+        # is delivered; PySide then tries to resolve a slot on the already
+        # torn-down ``_SortState`` and reports ``Slot '_SortState::' not
+        # found`` from the event loop.  An owned timer is disconnected and
+        # destroyed with this state, so no callback can outlive the view it
+        # is meant to sort.
+        self._resume_timer = QTimer(self)
+        self._resume_timer.setSingleShot(True)
+        self._resume_timer.timeout.connect(self.resume_after_fill)
 
     # -- keeping a fill from scrambling the rows ---------------------------
 
+    @Slot(QModelIndex, int, int)
     def suspend_for_fill(self, *args) -> None:
         """Drop the sort while rows are being written, put it back after.
 
@@ -369,26 +387,30 @@ class _SortState(QObject):
         indicator stops that -- the model only re-sorts on a write to the
         section the indicator names.
         """
-        header = _header(self._view)
-        if header is None or self._resuming:
+        view = getattr(self, "_view", None)
+        header = _header(view)
+        if header is None or getattr(self, "_resuming", True):
             return
-        if self._suspended is None:
+        if getattr(self, "_suspended", None) is None:
             self._suspended = (header.sortIndicatorSection(),
                                header.sortIndicatorOrder())
             if self._suspended[0] >= 0:
                 header.setSortIndicator(-1, Qt.AscendingOrder)
-        QTimer.singleShot(0, self.resume_after_fill)
+        self._resume_timer.start(0)
 
+    @Slot()
     def resume_after_fill(self) -> None:
         """Re-apply the sort the user had chosen, once the fill has settled."""
-        if self._suspended is None or not _alive(self._view):
+        suspended = getattr(self, "_suspended", None)
+        view = getattr(self, "_view", None)
+        if suspended is None or not _alive(view):
             return
-        section, order = self._suspended
+        section, order = suspended
         self._suspended = None
-        header = _header(self._view)
+        header = _header(view)
         if header is None or section < 0:
             return
-        if section >= _column_count(self._view):
+        if section >= _column_count(view):
             return
         self._resuming = True
         try:
@@ -398,6 +420,9 @@ class _SortState(QObject):
 
     # -- the header's own contract ----------------------------------------
 
+    @Slot()
+    @Slot(QModelIndex, int, int)
+    @Slot(Qt.Orientation, int, int)
     def stamp_initial_order(self, *args) -> None:
         """Tell the header that a fresh column starts descending.
 
@@ -407,19 +432,23 @@ class _SortState(QObject):
         descending-first: Qt does the rest, including the flip on the second
         click.
         """
-        if self._stamping or not _alive(self._view):
+        view = getattr(self, "_view", None)
+        if getattr(self, "_stamping", True) or not _alive(view):
             return
         self._stamping = True
         try:
-            _stamp_initial_order(self._view)
+            _stamp_initial_order(view)
         finally:
             self._stamping = False
 
+    @Slot(int, Qt.SortOrder)
     def on_indicator_changed(self, section: int, order) -> None:
         """A cleared indicator means "put it back the way it was"."""
-        if section >= 0 or self._resuming or not _alive(self._view):
+        view = getattr(self, "_view", None)
+        if (section >= 0 or getattr(self, "_resuming", True)
+                or not _alive(view)):
             return
-        restore_natural_order(self._view)
+        restore_natural_order(view)
 
 
 def _alive(obj) -> bool:

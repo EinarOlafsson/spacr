@@ -59,7 +59,7 @@ Values:
   uses neutral layered materials over a built-in light field. Legacy Space
   accessors remain for old settings, but Space is not a selectable theme.
 * ``space_seed``: int; retained for deterministic legacy Space backgrounds.
-* ``font_scale``: float, 1.0 = 100 % (default 1.5). Clamped to [0.75, 2.0].
+* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
@@ -2046,11 +2046,10 @@ _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 _KEY_AI_DEFAULT_ON = "ai/on_by_default"
 
 
-#: On. The assistant is what makes the settings answerable without reading
-#: the API, so a first run that has to find and tick it is a first run
-#: without the help it was built for. Turning it off is one click and is
-#: remembered.
-DEFAULT_AI_ON_AT_LAUNCH = True
+#: Off until the setup screen records the user's choice. Enabling an external
+#: assistant before consent would send context before the user has decided
+#: whether that is acceptable.
+DEFAULT_AI_ON_AT_LAUNCH = False
 
 
 def get_ai_on_by_default() -> bool:

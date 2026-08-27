@@ -749,13 +749,11 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                 "Headless, spacr.hits.build_hit_list(...) builds the same "
                 "ranking, and 'spacr-run investigate_hit' takes one hit "
                 "back to its wells.",
-    "methods_export": "Methods & Results drafts your write-up from a "
-                      "finished run and asks you to read it; run it in the "
-                      "GUI (spacr-qt), where it is a button on Regression. "
-                      "Headless, spacr.methods_export.build_digest(...) "
-                      "collects the run and render_methods/render_results "
-                      "turn it into the two sections, with verify_numbers "
-                      "checking every figure back against the digest.",
+    "methods_export": "Use Methods & Results for interactive drafting. In a "
+                      "headless workflow, call "
+                      "spacr.methods_export.build_digest(...), then "
+                      "render_methods(digest) and render_results(digest); "
+                      "these functions need no AI provider.",
     "napari_bridge": "Open in napari hands a mask to napari for you to "
                      "correct by hand and reads it back; the correcting is "
                      "the feature, so there is nothing to batch. Run it in "

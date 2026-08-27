@@ -829,7 +829,7 @@ class MaskHistory:
 # carrying that region of BOTH the image and the draft mask, and the
 # multi-object original is retired rather than curated.
 #
-# WHAT SPACR CAN AND CANNOT RETIRE. The Make Masks queue is a FOLDER:
+# WHAT spaCR CAN AND CANNOT RETIRE. The Make Masks queue is a FOLDER:
 # :func:`list_images` sorts the image files in it and the screen walks that
 # list, with each mask at ``<folder>/masks/<stem>.tif``. spaCR does have a
 # crop DATABASE -- ``png_list`` in ``measurements.db``, which is what the
