@@ -3,19 +3,25 @@
 
 WHY THIS EXISTS. The feedstock updates itself: `bot.version_updates.sources`
 is `[pypi]` so it watches PyPI, and `bot.automerge: version` merges the
-bot's pull request as soon as CI is green. A release therefore reaches
-conda-forge with no human step -- until a build fails, and then conda-forge
-SILENTLY STAYS on the previous version. Nothing announces it.
+bot's pull request as soon as CI is green. A release reaches conda-forge
+with no human step, and this tool does not change that.
 
-The way it fails is entry-point drift. The bot's PR rewrites `version` and
-`sha256` and nothing else, so a console script that this package has
-dropped is still declared by the recipe, points at a module the new sdist
-does not contain, and the build dies.
+WHAT IT REPORTS is entry-point drift. The bot's PR rewrites `version` and
+`sha256` and nothing else, so a console script this package has dropped is
+still declared by the recipe long after the module is gone.
 
-So this runs BEFORE publishing: it reads the recipe conda-forge actually
-has and checks every command it declares against the tree being released.
-A mismatch stops the release with the diff, which is recoverable, instead
-of leaving conda-forge quietly a version behind, which is not noticed.
+AND IT NEVER BLOCKS, which was established rather than assumed. The
+published package's `info/link.json` carries the recipe's entry points as
+INSTALL-TIME metadata: conda writes the wrapper scripts when a user
+installs, and nothing imports the module during the build. The recipe's own
+test section names five commands and `spacr-run --list`, none of them the
+stale ones. So a dropped module does not fail the build, conda-forge keeps
+updating, and what ships is a command that raises ModuleNotFoundError when
+somebody runs it.
+
+That is worth fixing and is not worth refusing to release over -- blocking
+a release to protect a channel that was never going to stall would be the
+more expensive error.
 
     python tools/check_conda_forge_recipe.py            # against this tree
     python tools/check_conda_forge_recipe.py --sdist X  # against an sdist
@@ -146,17 +152,13 @@ def main() -> int:
         print("OK -- the recipe builds this release")
         return 0
 
-    # TWO SEVERITIES, because they have different consequences. A declared
-    # command whose module is gone FAILS THE BUILD, and a failed build is
-    # how conda-forge stops updating without saying so -- that blocks. A
-    # command missing from the recipe, or pointing somewhere else, ships a
-    # package that builds and is merely incomplete -- that is worth saying
-    # and is not worth refusing to release over. A gate that blocks on
-    # everything is a gate people learn to pass with --no-verify.
+    # REPORTED, NEVER BLOCKING -- see the module docstring. The build does
+    # not import these modules, so none of what follows can stop a release.
 
     if broken:
-        print("\nTHE CONDA BUILD WILL FAIL. The recipe declares commands "
-              "whose modules are not in this release:")
+        print("\nCONDA USERS WILL GET BROKEN COMMANDS. The recipe declares "
+              "these, conda will create a wrapper for each at install time, "
+              "and the module behind them is not in this release:")
         for name, target in sorted(broken.items()):
             print(f"    {name} = {target}")
     if absent:
@@ -168,15 +170,13 @@ def main() -> int:
         for name, (mine, theirs) in sorted(disagree.items()):
             print(f"    {name}: setup.py {mine}  recipe {theirs}")
 
-    print("\nFIX IT IN THE SAME PULL REQUEST AS THE VERSION BUMP. The bot's "
-          "PR changes only version and sha256, so a recipe corrected "
-          "afterwards leaves one failed build in between -- and a failed "
-          "build is how conda-forge stops updating without saying so.")
-    print("Fork conda-forge/spacr-feedstock, edit recipe/recipe.yaml, and "
-          "send the entry-point fix as a PR the bot's version PR can land on.")
-    if broken:
-        return 1
-    print("\n(Not blocking: nothing here fails the conda build.)")
+    print("\nTHE FIX is a pull request to conda-forge/spacr-feedstock "
+          "editing recipe/recipe.yaml. It can land before or after the "
+          "version bump -- conda-forge keeps updating either way, so this "
+          "is about what the commands DO rather than about the channel "
+          "falling behind.")
+    print("\n(Not blocking. The conda build does not import these modules, "
+          "so none of the above can fail it.)")
     return 0
 
 
