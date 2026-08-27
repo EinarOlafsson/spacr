@@ -726,9 +726,88 @@ def prepare_external_masks(settings: Optional[Mapping[str, Any]] = None
     return result
 
 
+def register_settings(replace: bool = False) -> bool:
+    """Publish this module's settings help through the shared registry.
+
+    External Masks predates the module-registration seam, so its seven
+    importer-specific controls were the only displayed settings in the app
+    registry without authored help.  Registering beside the defaults keeps
+    the inventory, validation types, and tooltip prose together; the Measure
+    settings returned by :func:`default_settings` retain their existing
+    shared declarations.
+
+    :param replace: replace this module's existing defaults registration.
+    :returns: whether a new registration was made.
+    """
+    from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
+
+    if has_registered_defaults("external_masks") and not replace:
+        return False
+    types = {
+        "inputs": list,
+        "recursive": bool,
+        "layout": str,
+        "z_handling": str,
+        "plate_naming": str,
+        "overwrite": bool,
+        "preview_only": bool,
+    }
+    tips = {
+        "inputs":
+            "(list) - Image and external label-mask files or folders to "
+            "import. The preview groups them by source and proposes whether "
+            "each group is an intensity image, an object mask, or ignored. "
+            "Default [].",
+        "recursive":
+            "(bool) - Search inside subfolders of every input folder. Turn "
+            "this off when only files directly inside each selected folder "
+            "belong to the import. Default True.",
+        "layout":
+            "(str) - Naming-layout hint used to read plate, well, field, "
+            "channel, Z, and time identifiers from source files. 'auto' "
+            "detects the supported layout from the filenames. Default "
+            "'auto'.",
+        "z_handling":
+            "(str) - How multiple Z planes become a 2-D Measure input. "
+            "'max' takes a maximum-intensity projection and 'first' keeps "
+            "only the first plane; inputs that still contain separate planes "
+            "are rejected. Default 'max'.",
+        "plate_naming":
+            "(str) - How imported plates are named when the source does not "
+            "provide one. 'index' assigns stable plate numbers in discovered "
+            "input order. Default 'index'.",
+        "overwrite":
+            "(bool) - Allow the importer to replace files in an existing "
+            "destination project. Leave this off to stop before previously "
+            "written images, masks, or measurements can be replaced. Default "
+            "False.",
+        "preview_only":
+            "(bool) - Build and print the complete input-to-mask assignment "
+            "plan without writing a project or running Measure. Use this to "
+            "review automatic role and object-type detection first. Default "
+            "False.",
+    }
+    # A future shared importer may establish canonical prose first. Preserve
+    # it instead of making module import order decide which wording wins.
+    tips = {key: value for key, value in tips.items()
+            if key not in shared_tooltips}
+    register_defaults(
+        "external_masks", default_settings, replace=replace,
+        expected_types=types, tooltips=tips,
+        description=(
+            "Import images and externally generated label masks as a "
+            "measured spaCR project ready for annotation."),
+    )
+    return True
+
+
+register_settings()
+
+
 __all__ = [
     "InputGroup", "MaskMatch", "ExternalMaskPlan", "ExternalMaskResult",
     "SUPPORTED_SUFFIXES", "OBJECT_TYPES", "ROLES",
     "detect_inputs", "default_settings", "plan_external_masks",
-    "run_external_masks", "prepare_external_masks",
+    "run_external_masks", "prepare_external_masks", "register_settings",
 ]

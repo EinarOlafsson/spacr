@@ -18,7 +18,7 @@ version named by the installer, then checks the environment before replacing
 an existing working installation.
 
 Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_
-when Conda should install spaCR and resolve its desktop and scientific
+when Conda should install spaCR and resolve its desktop and
 dependencies. Use ``pip`` for the PyPI release when spaCR must live in an
 existing Python environment, notebook, server or cluster, or when you need a
 PyPI extra that is not part of the conda package. Python 3.12 currently offers
@@ -36,8 +36,10 @@ Windows 10/11
 
 Run ``SpaCR-<version>-Windows-Online-Setup.exe``. The default per-user
 location is ``%LOCALAPPDATA%\spaCR`` and does not require administrator
-access. The optional GPU component detects an NVIDIA driver; leave it
-unselected for the smaller CPU installation.
+access. Automatic hardware acceleration is selected by default. It installs a
+CUDA-capable PyTorch build on compatible NVIDIA systems and falls back safely
+elsewhere. Clear the component only when you require the smaller CPU-only
+installation.
 
 macOS 11 or later
 ~~~~~~~~~~~~~~~~~
@@ -62,6 +64,10 @@ The default installation root is ``~/.local/share/spacr``. The launcher is
 written to ``~/.local/bin/spacr`` and the desktop entry to
 ``~/.local/share/applications``. Add ``~/.local/bin`` to ``PATH`` if your shell
 does not already include it.
+
+Automatic backend selection is the Linux default. It installs CUDA support
+when compatible NVIDIA hardware is available. To require the smaller CPU-only
+build instead, run the installer with ``--torch-backend cpu``.
 
 Updating
 --------
@@ -145,7 +151,7 @@ Conda-forge installation
 ------------------------
 
 Install the official conda-forge package directly into an activated
-environment. It includes spaCR's desktop and core scientific dependencies:
+environment. It includes spaCR's desktop and core dependencies:
 
 .. code-block:: bash
 

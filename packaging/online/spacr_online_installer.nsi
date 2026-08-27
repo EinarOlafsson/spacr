@@ -48,14 +48,10 @@ SectionEnd
 
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
-  ; Match the bootstrap's default: select acceleration only when a working
-  ; NVIDIA driver identifies a card. The user can still untick the component.
-  nsExec::ExecToStack 'cmd.exe /D /C nvidia-smi -L'
-  Pop $0
-  Pop $1
-  ${If} $0 == 0
-    SectionSetFlags ${SecGpu} ${SF_SELECTED}
-  ${EndIf}
+  ; Automatic acceleration is the default. uv selects CUDA when compatible
+  ; NVIDIA hardware is present and falls back safely on other systems. The
+  ; user can still untick this component to require the smaller CPU wheel.
+  SectionSetFlags ${SecGpu} ${SF_SELECTED}
   StrCpy $ConsentShareValue 0
   StrCpy $ConsentIssuesValue 0
   StrCpy $ConsentSignInValue 0
@@ -87,7 +83,7 @@ Function ConsentPageLeave
 FunctionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "GPU acceleration: measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU on an RTX 3090; hardware varies."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "Automatic acceleration (recommended): uses CUDA on compatible NVIDIA hardware and falls back safely elsewhere. Untick only for a smaller CPU-only installation."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR

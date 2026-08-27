@@ -106,7 +106,7 @@ def test_windows_generated_catalog_is_bom_encoded_before_use():
     )
 
 
-def test_bootstraps_use_tls_and_detect_acceleration_by_default():
+def test_bootstraps_use_tls_and_select_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     assert "https://astral.sh/uv/" in unix
@@ -116,10 +116,11 @@ def test_bootstraps_use_tls_and_detect_acceleration_by_default():
     assert 'TORCH_BACKEND="${SPACR_TORCH_BACKEND:-}"' in unix
     assert "nvidia-smi -L" in unix
     assert 'DETECTED_ACCELERATOR="apple-silicon"' in unix
+    assert 'TORCH_BACKEND="auto"' in unix
     assert '--torch-backend "$TORCH_BACKEND"' in unix
     assert 'Get-Command "nvidia-smi.exe"' in windows
     assert '$TorchBackend = "auto"' in windows
-    assert '$TorchBackend = "cpu"' in windows
+    assert 'Users can still request "cpu" explicitly' in windows
     assert "--torch-backend $TorchBackend" in windows
     assert 'DEFAULT_EXTRAS="qt"' in unix
     assert '$DefaultExtras = "qt"' in windows
@@ -261,7 +262,6 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
         "SectionSetFlags ${SecGpu}"
     )
     assert '-TorchBackend "$1"' in nsis
-    assert "nvidia-smi -L" in nsis
     assert "SectionSetFlags ${SecGpu} ${SF_SELECTED}" in nsis
     assert "nsis-bootstrap-status.txt" in nsis
     assert "SetErrorLevel $0" in nsis
@@ -560,12 +560,12 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     ("platform_name", "machine", "nvidia_status", "expected"),
     (
         ("linux", "x86_64", 0, "auto"),
-        ("linux", "x86_64", 1, "cpu"),
+        ("linux", "x86_64", 1, "auto"),
         ("macos", "arm64", 1, "auto"),
-        ("macos", "x86_64", 1, "cpu"),
+        ("macos", "x86_64", 1, "auto"),
     ),
 )
-def test_unix_backend_default_follows_detected_hardware(
+def test_unix_backend_default_is_auto_on_every_supported_platform(
     tmp_path, platform_name, machine, nvidia_status, expected
 ):
     installer = _standalone_unix_installer(tmp_path)

@@ -43,11 +43,9 @@ if (Get-Command "nvidia-smi.exe" -ErrorAction SilentlyContinue) {
     }
 }
 if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
-    if ($DetectedAccelerator -eq "nvidia") {
-        $TorchBackend = "auto"
-    } else {
-        $TorchBackend = "cpu"
-    }
+    # uv's automatic backend selects CUDA on compatible NVIDIA systems and
+    # safely falls back elsewhere. Users can still request "cpu" explicitly.
+    $TorchBackend = "auto"
 }
 if ($TorchBackend -notmatch '^[a-z0-9]+$') {
     throw (Get-SpacrInstallerMessage "invalid_backend" @($TorchBackend))

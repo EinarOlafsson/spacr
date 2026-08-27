@@ -38,14 +38,14 @@ COMPACT_CAPTION_SHA256 = (
 # this reviewed inventory deliberately even when the builder can generate a
 # source hash automatically.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 999,
-    "SETTING_TOOLTIPS": 987,
+    "SETTING_LABELS": 1000,
+    "SETTING_TOOLTIPS": 995,
     "CATEGORY_HELP": 192,
     "UI": 2598,
     "MODULE_SUMMARIES": 64,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "94eddcb669e46c5a1378356bbffbc05658327ec96a066078c9c6eefc8a2f2726"
+    "501c9dcdba1262f0fcacba8214ffc753e80242fca1aff6374d4fa8bbb487eddb"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
