@@ -42,6 +42,33 @@ Status:    THE ENGINE IS BUILT, 2026-08-27 -- `spacr/nonparametric_fits.py`,
            a real effect, both the linear ranking and the forest put exactly
            those two first.
 
+           WIRING, 2026-08-27. `spline` is registered in REGRESSION_TYPES,
+           has a fit branch in `regression_model` and rides the existing
+           statsmodels coefficient branch, because it IS an OLS fit -- on a
+           design whose covariates carry a spline basis. The round trip the
+           registry demands therefore holds with no new coefficient code.
+
+           Measured on a phenotype that BENDS with a covariate, true guide
+           coefficient 1.2:
+
+               ols     +1.514   p 1.3e-26     <- biased by the unmodelled bend
+               spline  +1.216   p 6.3e-111
+
+           and both produce ONE ROW PER GUIDE, so the volcano reads it
+           unchanged.
+
+           `isotonic` IS DELIBERATELY NOT REGISTERED, and that is this
+           file's own rule applied to itself. It needs an ORDERED SINGLE
+           PREDICTOR; the guide design is unordered categories. Offering it
+           in a menu headed `regression_type` would hand a user a
+           coefficient table nobody should read, which is the "method in the
+           wrong category" this file says is worse than not offering it. It
+           is reachable against a covariate through
+           `nonparametric_fits.isotonic_fit`.
+
+           STILL TO WIRE: the four diagnostics onto the plot, and the
+           agreement check into the results panel.
+
 Original:  OPEN, and the three-way split below is AGREED. The maintainer,
            shown the A/B/C categories and the reason for them: "your A,B,C
            implementations seem reasonalble for what the tests are." So the
