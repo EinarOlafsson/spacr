@@ -2,8 +2,8 @@
 WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
 ================================================================================
 
-Status:    THE MECHANISM IS BUILT AND TESTED, 2026-08-27; the three call
-           sites are wired as each failure path is reached.
+Status:    DONE, 2026-08-27. The mechanism, the three call sites and the
+           three-answer coordinate form are all built and tested.
 
            `spacr/qt/ask_for_the_path.py` enforces all six things this file
            says every prompt owes, so a caller cannot forget one:
@@ -49,11 +49,30 @@ Status:    THE MECHANISM IS BUILT AND TESTED, 2026-08-27; the three call
            `ask`, so a wrong answer fails rather than opening a second
            dialog on top of the first -- one question per run, asserted.
 
-           STILL TO DO: the coordinate stream's form wants THREE answers
-           rather than one -- the database, the table within it and the
-           column within that -- and should offer the tables the chosen
-           database actually holds rather than a blank field. The seam takes
-           it; the form is what is left.
+           THE THREE-ANSWER FORM IS BUILT, 2026-08-27.
+           `ask_for_a_database_column` asks for the database, then the table
+           within it, then the column within that -- and asking them in that
+           order is what makes the second and third answerable: the tables
+           offered are the ones the chosen database actually holds and the
+           columns are that table's, so the user is never asked to remember
+           a name the program can read off the file.
+
+           It keeps all six guarantees. Backing out of a later step returns
+           to the earlier one rather than abandoning the form, so a wrong
+           database costs a click instead of the run; a file that is not a
+           database is rejected IN the form rather than accepted and failed
+           one step later; and an answer that gets through but does not help
+           fails rather than opening a second dialog, because one question
+           per run is the rule.
+
+           Wired at `selection_from_objects`, which is where the object
+           table failing to name an object is already raised. The prompt is
+           injected rather than imported, so `stream_dataset` gains no Qt
+           dependency and a caller with nobody in front of it gets exactly
+           the error it always got.
+
+           tests/qt/test_the_coordinate_form_asks_three_times.py (15) and
+           tests/test_the_coordinate_seam_can_ask.py (8).
 Priority:  Not stated. Treated as ordinary until told otherwise.
 Owner:     the image loading and streaming paths, and whichever screens host
            them.
