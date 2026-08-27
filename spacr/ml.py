@@ -6155,6 +6155,56 @@ def _report_exchangeability(data, outcome_column, settings, destination):
         return None
 
 
+def resolve_regression_src(requested, automatic):
+    """Where a regression writes, and one sentence saying how that was decided.
+
+    EMPTY MEANS AUTOMATIC -- the folder holding the count data, which is what
+    every existing run expects and what the GUI has always produced.
+
+    A VALUE SUPERSEDES IT, which is the whole point of offering one. Asked
+    for 2026-08-26: "if scr dosn exist then make the last folder if the
+    folder holding that folder dosnt exist fall back to auto src".
+
+    ONE LEVEL, NEVER ``makedirs``. A typo in a long path would otherwise
+    build a plausible-looking tree in the wrong place and the run would
+    succeed into it. Refusing to create more than the leaf is what keeps a
+    typo a typo rather than a directory.
+
+    :param requested: what the user asked for, or None/blank for automatic.
+    :param automatic: the folder to fall back to.
+    :returns: ``(path, how)`` -- the folder, and either ``'automatic'`` or a
+        sentence for the log naming what was done and why.
+    """
+    if not isinstance(requested, str) or not requested.strip():
+        return automatic, 'automatic'
+
+    # `~` and `../` resolve BEFORE any of the decisions below, so the parent
+    # that gets tested is the real one rather than a literal '..' segment.
+    wanted = os.path.abspath(os.path.expanduser(requested.strip()))
+
+    if os.path.isdir(wanted):
+        return wanted, f"src: writing to {wanted} as given."
+    if os.path.exists(wanted):
+        return automatic, (
+            f"src: {wanted} is a file, not a folder, so this run wrote to "
+            f"{automatic} instead.")
+
+    parent = os.path.dirname(wanted)
+    if os.path.isdir(parent):
+        try:
+            os.mkdir(wanted)
+        except OSError as error:
+            return automatic, (
+                f"src: could not create {wanted} ({error.strerror}), so this "
+                f"run wrote to {automatic} instead.")
+        return wanted, f"src: created {wanted} and wrote there."
+
+    return automatic, (
+        f"src: {wanted} does not exist and neither does {parent}, so nothing "
+        f"was created -- one missing level is a folder to make, two is a "
+        f"typo. This run wrote to {automatic} instead.")
+
+
 def _run_guide_permutation_analysis(data, outcome, destination, settings):
     """Run and persist the marginal guide analysis.
 
@@ -6658,12 +6708,13 @@ def _perform_regression_set_paths(settings):
     #
     # Falling back to the data directory keeps the old behaviour for
     # callers that never set src, which is what the GUI does.
-    requested = settings.get('src')
-    if isinstance(requested, str) and requested.strip():
-        src = os.path.abspath(os.path.expanduser(requested.strip()))
-    else:
-        src = os.path.dirname(settings['count_data'][0])
+    automatic = os.path.dirname(settings['count_data'][0])
+    src, how = resolve_regression_src(settings.get('src'), automatic)
     settings['src'] = src
+    # SAY WHICH HAPPENED. A user who asked for a folder and got a different
+    # one has to be told at the time, not left to find it afterwards.
+    if how != 'automatic':
+        print(how)
 
     # WHERE A RUN'S OUTPUT GOES: <count data folder>/results/<type>,
     # and never on top of an earlier run.

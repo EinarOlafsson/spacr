@@ -554,6 +554,16 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
 # ---------------------------------------------------------------------------
 
 
+#: Modules that work out their own source when none is given, so an absent
+#: one is a default rather than a mistake. Regression writes beside its
+#: count data; `spacr.ml.resolve_regression_src` is where that is decided
+#: and where a supplied value is honoured instead.
+#:
+#: A module NOT named here still errors on a missing source, which is the
+#: behaviour `preprocess_generate_masks` depends on.
+DERIVES_ITS_OWN_SRC = frozenset({"regression"})
+
+
 def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Inventory]) -> List[Problem]:
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
@@ -568,6 +578,16 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Set src to the folder holding the images (or, for measure, "
             "the merged folder).")
+    # A MODULE THAT DERIVES ITS OWN SOURCE IS NOT MISSING ONE. Regression
+    # reads count tables, not images: an absent `src` means "beside the count
+    # data", which is what every run of it has always done. Erroring here
+    # demanded a setting the module does not require and told the user to
+    # point it at a folder of images, on runs that then completed normally.
+    if app in DERIVES_ITS_OWN_SRC:
+        raw = settings.get(key)
+        if raw is None or (isinstance(raw, str) and not raw.strip()):
+            return []
+
     if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
         # required parameter').

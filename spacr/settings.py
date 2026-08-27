@@ -2094,6 +2094,11 @@ def get_perform_regression_default_settings(settings):
     # count_data keys supplied by an older settings file remain in ``settings``
     # and are migrated by ml.normalize_regression_input_pairs; they are not
     # defaulted into new files, which now write the explicit paired form.
+    # WHERE THE RESULTS GO. Empty means automatic -- beside the count data,
+    # which is what every run has always done and what the engine still does
+    # when this is blank. A value supersedes it; see
+    # `spacr.ml.resolve_regression_src` for the creation rule.
+    settings.setdefault('src', '')
     settings.setdefault('paired_data', [])
     # ``regression`` preserves the historical simultaneous model.  The
     # alternative is a within-plate marginal guide test with empirical
@@ -4608,6 +4613,7 @@ tooltips = {
     # so the hover has to be right in both panels or it is wrong in one.
     # Renaming either side was not available: a new tooltip key has to
     # exist in all nine i18n catalogs, which are generated elsewhere.
+    'src': "(str) - Where this run writes. EMPTY MEANS AUTOMATIC: the folder holding the first count table, which is where every regression has always written. Give a path to send the results somewhere else -- two runs of the same family write to one place otherwise, so comparing two conditions silently leaves only the last on disk. If the path does not exist but its parent does, that one folder is created. If the parent does not exist either, nothing is built and the run falls back to the automatic location and says so: one missing level is a folder to make, two is a typo, and building a tree would turn a typo into a directory the run succeeds into. '~' and '../' resolve first. Default '' (automatic).",
     'level': "(str) - Which level the run reports, on BOTH the fitted and the permutation side. 'both' answers the gRNA and the gene question separately, writes results_grna.csv and results_gene.csv, puts every row in results.csv marked by a 'level' column, and corrects each family independently with multiple_testing_method -- a gene fraction is the sum of its guides' fractions, so one combined design would be collinear and one shared correction would count the same wells twice. 'grna' or 'gene' reports one of them. Under inference='nonparametric' the guide pass runs whatever you pick, because a gene's regressor IS the sum of its guides', so 'gene' means the primary table reports genes rather than that guides were skipped. Disabled only for fitted mixed models, which nest guides within genes and answer both at once. Proportion plots use the same key for a different question: 'object' pools objects, 'well' averages by well, 'plate' averages by plate. Default 'both' for regression and 'object' for proportions.",
     'max_parasite_area': '(float or None) - Largest object area in pixels kept as a parasite. Anything bigger is several parasites merged by the mask, whose rim statistic mixes them and whose single classification then stands for all of them. None keeps everything. Default None.',
     'min_control_objects': "(int) - Objects a plate's control wells must contribute before their quantile is trusted as a threshold. Below it the plate falls back to the automatic per-field method and says so, rather than taking a 99th percentile from a handful of points. Default 10.",
