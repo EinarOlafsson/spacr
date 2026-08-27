@@ -947,6 +947,57 @@ EXAMPLE_DATA_SECTIONS = {
 
 
 
+def _each_fractal_backdrop(screen):
+    """Yield every fractal backdrop reachable from ``screen``.
+
+    Walks the window rather than holding a reference: the backdrop belongs
+    to whichever screen is showing, and a reference captured once would go
+    stale the first time the user changed module.
+    """
+    window = screen.window() if hasattr(screen, "window") else None
+    if window is None:
+        return
+    for child in window.findChildren(QWidget):
+        if hasattr(child, "pause") and hasattr(child, "backend_name"):
+            yield child
+
+
+def _pause_the_fractal(screen) -> int:
+    """Stop the spaceout fractal for the duration of a run.
+
+    :returns: how many backdrops were paused, so a test can assert on a
+        number rather than on a screenshot.
+
+    Never raises: a run must not fail because a decoration would not stop.
+    """
+    paused = 0
+    try:
+        for backdrop in _each_fractal_backdrop(screen):
+            try:
+                if backdrop.pause():
+                    paused += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not pause the fractal", exc_info=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the fractal", exc_info=True)
+    return paused
+
+
+def _resume_the_fractal(screen) -> int:
+    """Start it again once the run is over. Returns how many resumed."""
+    resumed = 0
+    try:
+        for backdrop in _each_fractal_backdrop(screen):
+            try:
+                if backdrop.resume():
+                    resumed += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not resume the fractal", exc_info=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the fractal", exc_info=True)
+    return resumed
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -5029,6 +5080,11 @@ class AppScreen(QWidget):
         # the run journal + the OS notification.
         import time as _time
         self._run_started_at = _time.time()
+        # WIND THE BACKDROP DOWN. Under spaceout the fractal holds nineteen
+        # Numba threads, which is exactly the machine the run wants. Stopping
+        # is better than slowing: a thinner fractal still owns the threads.
+        # The last frame stays on screen, so nothing blinks out.
+        _pause_the_fractal(self)
         # EACH RUN IS ITS OWN SECTION ON THE GRID, AND A ROW IN THE RUNS TAB.
         # Marked at the START rather than when the first figure arrives, so a
         # run that draws nothing still appears as a section that drew nothing
@@ -5964,6 +6020,9 @@ class AppScreen(QWidget):
         # finished says "still fitting" underneath "Finished", and the last
         # line of a console is the one a user reads.
         self._stop_the_heartbeat()
+        # AND GIVE THE BACKDROP ITS CORES BACK, whether the run finished or
+        # failed -- `_on_finished` is the one door both take.
+        _resume_the_fractal(self)
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         set_button_busy(self._btn_run, False)

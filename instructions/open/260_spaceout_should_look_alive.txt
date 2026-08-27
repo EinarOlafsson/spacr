@@ -308,3 +308,62 @@ HOW TO KNOW IT WORKED
   * the cursor accent's colour differs between two frames under spaceout
     and is constant under an ordinary start;
   * nothing in Preferences offers any of it.
+
+
+================================================================================
+SECTION 0B -- THE SCRIPT THE MAINTAINER SUPPLIED, 2026-08-27
+================================================================================
+
+Supersedes the budding-and-beating direction entirely. The maintainer handed
+over `fractal_travel.py` v2.1.0 and asked for it, or the code from it, to be
+what spaceout draws.
+
+WHAT IT IS. Two renderers, not one engine with a switch:
+
+  * GPU -- VisPy/gloo with a GLSL fragment shader, four spatial samples per
+    physical pixel (2x2 SSAA), detail loop adapting between 5 and 9 octaves
+    from sampled GPU time against the frame period.
+  * CPU -- a cheaper orbit-fold fractal in Numba (`njit(parallel=True)`),
+    rendered at animation rate with a FOUR-POSITION TEMPORAL 2x2 jitter and a
+    rolling four-frame accumulation. No keyframes and no crossfades. Capped
+    at 30 FPS because every displayed frame is newly evaluated, and the
+    internal pixel count adapts to hold about 78% of the frame period.
+
+WHAT MUST CHANGE FROM THE SCRIPT AS GIVEN:
+
+  * IT IS PyQt6 AND SPACR IS PySide6. Signal/Slot, the enum spellings, and
+    `vispy.app.use_app('pyside6')` all move. A stray PyQt6 import inside the
+    Qt application is two Qt bindings in one process, which segfaults.
+  * `numba` is present (0.67.0). `vispy` is NOT INSTALLED in the shipped
+    environment, so the GPU path must degrade to CPU rather than raise --
+    which `backend='auto'` already does -- and the GPU path must be written
+    so it starts working the day vispy is installed, with nothing else
+    changed.
+
+REQUIREMENTS THE SCRIPT DOES NOT ALREADY MEET:
+
+  * WIND DOWN WHEN A RUN STARTS, gracefully. A background eating cores while
+    a segmentation runs is the opposite of what it is for. The render thread
+    stops and the last frame stays on screen; it resumes when the run ends.
+  * PREFERENCES, and ONLY IN SPACEOUT. scale, speed, quality, dream,
+    backend, and a VARIABLE SPEED option. The rows must not appear in an
+    ordinary launch.
+  * OFF THE MAIN THREAD wherever possible. The CPU renderer already owns a
+    QThread; the GUI thread must never evaluate a fractal.
+
+DEFAULTS, exactly as given:
+
+    gpu:  --backend gpu --quality auto              --speed 4.0 --dream 1.5
+    cpu:  --backend cpu --quality balanced --scale 1.0 --speed 4.0 --dream 1.5
+
+Prefer the GPU renderer when it works.
+
+HOW TO KNOW IT WORKED:
+
+  * spaceout draws the supplied fractal, and an ordinary launch does not;
+  * with vispy absent the CPU renderer runs and says which backend it is on;
+  * starting a run stops the rendering and the interface stays answerable;
+    ending one resumes it;
+  * the six settings exist in Preferences under spaceout and change the
+    picture; they are absent otherwise;
+  * no PyQt6 symbol is imported anywhere in the shipped package.
