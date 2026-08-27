@@ -48,7 +48,8 @@ PREFERRED_COLUMNS = (
     LOADED_COLUMN,
     "run", "source",
     "trial_id", "status", "dependent_variable",
-    "regression_type", "inference", "analysis_unit",
+    "regression_type", "regression_backend", "inference",
+    "guide_permutations", "analysis_unit",
     "agg_type", "transform", "multiple_testing_method", "fdr_alpha",
     "fraction_threshold", "min_cell_count",
     "n_wells", "n_guides", "n_cells", "n_rows_fitted",
@@ -67,7 +68,12 @@ RUN_SETTING_COLUMNS = (
     # RESPONSE and in nothing else -- and a comparison table whose only
     # varying column is missing is a list of identical-looking rows.
     "dependent_variable",
-    "regression_type", "inference", "analysis_unit", "agg_type", "transform",
+    # WHICH ENGINE AND HOW MANY SHUFFLES. Two permutation runs a thousand
+    # shuffles apart were one row apart in this table and identical on it,
+    # which is the comparison the table exists for. `guide_permutations` is
+    # copied only for a run that actually permuted -- see `_run_settings_row`.
+    "regression_type", "regression_backend", "inference",
+    "guide_permutations", "analysis_unit", "agg_type", "transform",
     "multiple_testing_method", "fdr_alpha", "fraction_threshold",
     "min_cell_count",
 )
@@ -99,6 +105,103 @@ def _readable_size(total: int) -> str:
                 else f"{size:.1f} {unit}"
         size /= 1024
     return f"{size:.0f} GB"                        # pragma: no cover - loop
+
+
+def save_run_states(folders, app_key: str = "") -> tuple:
+    """Write a workspace bundle for each of ``folders``.
+
+    ASKED FOR, SO IT IS WRITTEN. `workspace.save_for_run` returns None when
+    the `runs/save_workspace` preference is off, which is right for the
+    automatic save at the end of a run and wrong here: a user who chose "Save
+    the state" from a menu has asked, and a menu item that silently does
+    nothing is worse than one that is absent. The mode is forced on for this
+    call only, and the preference is not written.
+
+    :param folders: run folders to save.
+    :returns: ``(saved, failures)`` -- the folders that got a bundle, and
+        ``(folder, reason)`` for those that did not. One folder failing does
+        not stop the others, and every failure is NAMED: a count of "3 of 5"
+        with no names is a report the user cannot act on.
+    """
+    saved = []
+    failures = []
+    try:
+        from ...workspace import save_for_run
+    except Exception as error:                               # noqa: BLE001
+        return [], [(str(folder), f"workspace unavailable: {error}")
+                    for folder in folders]
+
+    for folder in folders:
+        path = str(folder or "").strip()
+        if not path:
+            continue
+        if not os.path.isdir(path):
+            # `save_for_run` would CREATE this folder, leaving a directory
+            # holding nothing but a workspace file where a deleted run used
+            # to be. A run that is gone from disk is not a run to save.
+            failures.append((path, "the run folder is not on disk any more"))
+            continue
+        try:
+            # `reference` rather than `copy`: the run's own files are already
+            # on disk beside it, and copying them again to save a state would
+            # double a screen's worth of crops.
+            written = save_for_run(path, {"save_workspace": "reference"})
+        except Exception as error:                           # noqa: BLE001
+            failures.append((path, f"{type(error).__name__}: {error}"))
+            continue
+        if written is None:
+            failures.append(
+                (path, "nothing to save -- no panel offered any state"))
+        else:
+            saved.append(path)
+    return saved, failures
+
+
+def describe_saved_states(saved, failures) -> str:
+    """One sentence about what a save did, for the panel's own note."""
+    if not saved and not failures:
+        return "No run was selected, so nothing was saved."
+    parts = []
+    if saved:
+        plural = "" if len(saved) == 1 else "s"
+        parts.append(f"Saved the state of {len(saved)} run{plural}.")
+    for path, why in failures[:3]:
+        parts.append(f"{os.path.basename(path) or path}: {why}")
+    if len(failures) > 3:
+        parts.append(f"...and {len(failures) - 3} more that did not save.")
+    return " ".join(parts)
+
+
+def _permuted(settings) -> bool:
+    """Whether this run actually ran the permutation test.
+
+    `guide_permutations` has a default, so every settings dict carries a
+    number whether or not a shuffle ever happened. Reading it off a
+    least-squares fit would put "200000" in the column for a run that
+    permuted nothing.
+    """
+    mode = str((settings or {}).get("analysis_mode") or "").strip().lower()
+    if mode == "guide_permutation":
+        return True
+    inference = str((settings or {}).get("inference") or "").strip().lower()
+    return inference in ("nonparametric", "permutation")
+
+
+def _run_settings_row(settings) -> dict:
+    """The settings columns for one run, as a dict to update a row with.
+
+    A value of None is left out rather than written, so a column stays empty
+    for a run that has nothing to say there -- and 0 permutations stays
+    distinguishable from "this was not a permutation test".
+    """
+    out = {}
+    for name in RUN_SETTING_COLUMNS:
+        if name == "guide_permutations" and not _permuted(settings):
+            continue
+        value = (settings or {}).get(name)
+        if value is not None:
+            out[name] = value
+    return out
 
 
 def _has_workspace(folder: str) -> bool:
@@ -477,10 +580,7 @@ class SweepRunsPanel(QWidget):
                 settings = settings_of_run(table) or {}
             except Exception:                                    # noqa: BLE001
                 settings = {}
-            for name in RUN_SETTING_COLUMNS:
-                value = settings.get(name)
-                if value is not None:
-                    row[name] = value
+            row.update(_run_settings_row(settings))
             self._recorded[handle] = row
 
         before = self._loaded_key
@@ -1174,6 +1274,16 @@ class SweepRunsPanel(QWidget):
             load.setData("load")
             load.setToolTip("Show this run's results, figures and summary.")
             menu.addSeparator()
+        # SAVE, FOR ONE OR FOR SEVERAL. Restore below is single-run because
+        # two workspaces cannot both be put on screen; SAVING several is a
+        # different thing and is what was asked for.
+        keep = menu.addAction(
+            f"Save the state of {count} run{plural}"
+            if count != 1 else "Save this run's state")
+        keep.setData("save_state")
+        keep.setEnabled(any(str(record.get("folder") or "").strip()
+                            for record in records))
+
         if count == 1:
             folder = str(records[0].get("folder") or "")
             restore = menu.addAction("Restore what this run had open…")
@@ -1298,6 +1408,18 @@ class SweepRunsPanel(QWidget):
         an entry DOES either enters it and hangs, or re-implements the
         dispatch and tests its own copy.
         """
+        if verb == "save_state" and records:
+            folders = [str(record.get("folder") or "").strip()
+                       for record in records]
+            saved, failures = save_run_states(
+                [folder for folder in folders if folder])
+            # SAVING IS NOT CHOOSING. The loaded mark stays where it was:
+            # keeping a run for later is not the same as switching to it,
+            # and moving the mark would drag every view with it.
+            self._source_note = describe_saved_states(saved, failures)
+            self._rebuild(self._source_note)
+            return bool(saved)
+
         if verb == "load" and records:
             # The menu greys it, and so does this: a menu is one door and
             # `_apply_run_menu` is the seam tests drive, so a guard on the

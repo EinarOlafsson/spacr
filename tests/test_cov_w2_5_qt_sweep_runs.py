@@ -808,7 +808,11 @@ def test_the_menu_offers_load_restore_remove_beside_and_delete(panel,
     menu = panel._build_run_menu([panel.loaded_run()])
 
     verbs = [action.data() for action in menu.actions() if action.data()]
-    assert verbs == ["load", "restore", "remove", "beside", "delete"]
+    # `save_state` sits between load and restore: keeping a run and putting
+    # one back on screen are the two halves of the same idea, and a user
+    # looking for one finds the other beside it.
+    assert verbs == ["load", "save_state", "restore", "remove", "beside",
+                     "delete"]
     restore = next(a for a in menu.actions() if a.data() == "restore")
     assert not restore.isEnabled(), "no workspace bundle beside this run"
     assert "saved no workspace" in restore.toolTip()
@@ -833,14 +837,17 @@ def test_the_menu_greys_everything_a_running_run_cannot_do(panel, tmp_path):
 
 def test_a_multi_row_menu_offers_only_what_applies_to_all_of_them(panel,
                                                                   tmp_path):
-    """Load, restore and beside are single-run entries."""
+    """Load, restore and beside are single-run entries; save is not."""
     panel.load_run_from_disk(_run_folder(tmp_path, "ols_1", seed=1))
     panel.load_run_from_disk(_run_folder(tmp_path, "ols_2", seed=2))
 
     menu = panel._build_run_menu(panel._all_rows())
 
     verbs = [action.data() for action in menu.actions() if action.data()]
-    assert verbs == ["remove", "delete"]
+    # SAVE IS THE ONE THAT SCALES. Load, restore and beside are single-run
+    # because two runs cannot both be on screen; saving several is not that
+    # and was asked for explicitly.
+    assert verbs == ["save_state", "remove", "delete"]
     assert "2 runs" in menu.actions()[0].text()
 
 
