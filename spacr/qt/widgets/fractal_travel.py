@@ -160,6 +160,28 @@ def resolved_cpu_threads(settings: Settings,
     return max(2, min(available - 2, round(available * 0.78)))
 
 
+def platform_can_do_opengl() -> bool:
+    """Whether this Qt platform can host a GL canvas at all.
+
+    CHECKED BEFORE THE GPU WIDGET IS BUILT, because getting it wrong does not
+    raise. On the `offscreen` platform Qt prints "QOpenGLWidget is not
+    supported on this platform" and the process DUMPS CORE -- which no
+    `except` around the constructor can catch, so the fallback in
+    `create_fractal_widget` would never run. Every test and every headless
+    launch is that platform.
+    """
+    platform = str(os.environ.get("QT_QPA_PLATFORM", "")).strip().lower()
+    if platform.startswith(("offscreen", "minimal", "vnc")):
+        return False
+    if platform in ("", "xcb", "wayland", "cocoa", "windows"):
+        # An empty value means Qt will choose, which it only does when there
+        # is a display to choose for.
+        return bool(os.environ.get("DISPLAY")
+                    or os.environ.get("WAYLAND_DISPLAY")
+                    or platform in ("cocoa", "windows"))
+    return True
+
+
 def gpu_is_available() -> bool:
     """Whether the GPU renderer can be built at all.
 
@@ -167,9 +189,14 @@ def gpu_is_available() -> bool:
     application when the answer is no: `importlib.util.find_spec` looks the
     module up without executing it, so a missing vispy costs nothing and a
     present one is not initialised twice.
+
+    A platform that cannot host a GL canvas counts as no GPU, because the
+    alternative is a core dump rather than an exception.
     """
     import importlib.util
 
+    if not platform_can_do_opengl():
+        return False
     try:
         return importlib.util.find_spec("vispy") is not None
     except Exception:                                        # noqa: BLE001
@@ -978,6 +1005,8 @@ def create_fractal_widget(settings: Optional[Settings] = None,
     controls = controls or RuntimeControls()
     hardware = hardware or HardwareProfile.detect()
 
+    # `gpu_is_available` covers the explicit 'gpu' request as well: asking
+    # for a renderer this platform would crash on is still a crash.
     if settings.backend in ("auto", "gpu") and gpu_is_available():
         try:
             return _make_gpu_widget(settings, controls, hardware)

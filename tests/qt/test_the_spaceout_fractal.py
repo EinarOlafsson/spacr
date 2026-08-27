@@ -439,3 +439,159 @@ def test_the_paused_widget_says_so(qtbot):
     widget.pause()
     assert "paused for a run" in widget.stats_text()
     widget.shutdown()
+
+
+# --- actually drawn ---------------------------------------------------------
+
+
+def test_an_ordinary_launch_gets_no_fractal(qtbot, sandbox):
+    """The mode stays hidden: a normal session keeps the ambient engine."""
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.app import install_the_spaceout_fractal
+
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    assert install_the_spaceout_fractal(screen) is False
+    assert not [c for c in screen.findChildren(QWidget)
+                if hasattr(c, "backend_name")]
+
+
+def test_spaceout_installs_it(qtbot, sandbox, monkeypatch):
+    """The assertion that was missing: everything else tested the widget
+    directly, so nothing noticed that nothing built it."""
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.app import install_the_spaceout_fractal
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    screen.resize(640, 400)
+    assert install_the_spaceout_fractal(screen) is True
+    drawn = [c for c in screen.findChildren(QWidget)
+             if hasattr(c, "backend_name")]
+    assert len(drawn) == 1
+    drawn[0].shutdown()
+
+
+def test_it_sits_behind_the_screen_not_over_it(qtbot, sandbox, monkeypatch):
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.app import install_the_spaceout_fractal
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    screen.resize(640, 400)
+    install_the_spaceout_fractal(screen)
+    drawn = [c for c in screen.findChildren(QWidget)
+             if hasattr(c, "backend_name")][0]
+    assert drawn.size() == screen.rect().size()
+    drawn.shutdown()
+
+
+def test_it_follows_the_window_being_resized(qtbot, sandbox, monkeypatch):
+    """Without this it keeps its first size and a resized window shows bare
+    ground beside it."""
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.app import install_the_spaceout_fractal
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    screen.resize(640, 400)
+    screen.show()
+    install_the_spaceout_fractal(screen)
+    drawn = [c for c in screen.findChildren(QWidget)
+             if hasattr(c, "backend_name")][0]
+    screen.resize(900, 560)
+    QApplication.processEvents()
+    assert drawn.width() == screen.width()
+    drawn.shutdown()
+
+
+def test_a_fractal_that_cannot_be_built_leaves_the_old_backdrop(
+        qtbot, sandbox, monkeypatch):
+    """False rather than raising, so the machine still gets its animation."""
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.widgets import fractal_travel
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    monkeypatch.setattr(fractal_travel, "create_fractal_widget",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError))
+    from spacr.qt.app import install_the_spaceout_fractal
+
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    assert install_the_spaceout_fractal(screen) is False
+
+
+def test_the_backdrop_uses_the_stored_settings(qtbot, sandbox, monkeypatch):
+    """One place decides what is offered and what is drawn."""
+    import spacr.qt.theme as theme
+    from spacr.qt import app as qt_app
+    from spacr.qt.preferences import set_fractal_settings
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    set_fractal_settings(speed=1.25, dream=0.5, backend="cpu")
+    seen = {}
+
+    def _spy(settings, controls, *args, **kwargs):
+        seen["speed"] = controls.speed
+        seen["dream"] = controls.dream
+        seen["backend"] = settings.backend
+        raise RuntimeError("stop here, the arguments are what matter")
+
+    monkeypatch.setattr(
+        "spacr.qt.widgets.fractal_travel.create_fractal_widget", _spy)
+    from PySide6.QtWidgets import QWidget
+
+    qt_app.install_the_spaceout_fractal(QWidget())
+    assert seen == {"speed": 1.25, "dream": 0.5, "backend": "cpu"}
+
+
+# --- the platform guard -----------------------------------------------------
+
+
+def test_the_offscreen_platform_is_not_offered_a_gl_canvas(monkeypatch):
+    """Getting this wrong does not raise -- Qt dumps core, which no `except`
+    around the constructor can catch."""
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    assert F.platform_can_do_opengl() is False
+    assert F.gpu_is_available() is False
+    assert F.resolve_backend("auto") == "cpu"
+
+
+@pytest.mark.parametrize("platform", ["offscreen", "minimal", "vnc"])
+def test_every_headless_platform_is_refused(monkeypatch, platform):
+    monkeypatch.setenv("QT_QPA_PLATFORM", platform)
+    assert F.platform_can_do_opengl() is False
+
+
+def test_a_real_display_is_allowed(monkeypatch):
+    monkeypatch.setenv("QT_QPA_PLATFORM", "xcb")
+    monkeypatch.setenv("DISPLAY", ":0")
+    assert F.platform_can_do_opengl() is True
+
+
+def test_no_display_at_all_is_refused(monkeypatch):
+    monkeypatch.setenv("QT_QPA_PLATFORM", "xcb")
+    monkeypatch.delenv("DISPLAY", raising=False)
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    assert F.platform_can_do_opengl() is False
+
+
+def test_an_explicit_gpu_request_still_respects_the_guard(qtbot, monkeypatch):
+    """Asking for a renderer this platform would crash on is still a crash."""
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    widget = F.create_fractal_widget(F.Settings(backend="gpu"))
+    qtbot.addWidget(widget)
+    assert widget.backend_name == "cpu"
+    widget.shutdown()
