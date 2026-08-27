@@ -1823,6 +1823,10 @@ def _bootstrap_wald_p_values(model, X, y, n_boot=200, random_state=0):
 _STATSMODELS_COEF_TYPES = (
     'ols', 'wls', 'rlm', 'huber', 'glm', 'poisson', 'logit', 'probit',
     'quasi_binomial', 'quantile', 'mixed', 'horseshoe', 'rra',
+    # `spline` IS an OLS fit -- on a design with a spline basis over the
+    # covariates -- so its results object is the same one and its
+    # coefficients come out the same way.
+    'spline',
 )
 
 #: Backends whose fitted object exposes ``coef_`` and ``predict`` and carries
@@ -3955,8 +3959,37 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _horseshoe():
         return _fit_horseshoe_poisson(X, y, exposure)
 
+    def _spline():
+        """OLS on a design whose COVARIATES carry a spline basis.
+
+        The guide columns are untouched, which is what keeps this in
+        instruction 254's category A: one coefficient and one P value per
+        guide survive, so the volcano, the hit list and the attribution all
+        read the result with no special case. What becomes free to bend is
+        the nuisance the straight line was assuming away.
+
+        A column is treated as a covariate when it is CONTINUOUS and is not
+        a guide or gene term -- an indicator has nothing to bend through,
+        and expanding one would spend degrees of freedom on nothing.
+        """
+        from .nonparametric_fits import spline_design
+
+        covariates = []
+        for name in getattr(X, "columns", []):
+            label = str(name)
+            if "grna[" in label or "gene[" in label or label == "Intercept":
+                continue
+            column = np.asarray(X[name], dtype=float)
+            if np.unique(column).size > 4:
+                covariates.append(name)
+        design = spline_design(X, covariates) if covariates else X
+        fitted = (sm.OLS(y, design).fit(cov_type=cov_type) if cov_type
+                  else sm.OLS(y, design).fit())
+        return fitted
+
     model_map = {
         'ols':    lambda: sm.OLS(y, X).fit(cov_type=cov_type) if cov_type else sm.OLS(y, X).fit(),
+        'spline': _spline,
         'wls':    _wls,
         'rlm':    _rlm,
         'huber':  _rlm,

@@ -49,6 +49,22 @@ REGRESSION_TYPES = (
     'horseshoe',
     'group_lasso',
     'rra',
+    # THE ONE NONPARAMETRIC FAMILY THAT ANSWERS IN THIS CURRENCY.
+    #
+    # Instruction 254 sorts seven methods by what they can honestly report.
+    # `spline` belongs here: it fits OLS on a design whose COVARIATES carry
+    # a spline basis while every guide column is left alone, so one
+    # coefficient and one P value per guide survive and the volcano, the hit
+    # list and the attribution all read it unchanged.
+    #
+    # `isotonic` IS NOT HERE, and that is the same rule applied honestly.
+    # It needs an ORDERED SINGLE PREDICTOR and the guide design is unordered
+    # categories, so offering it in this menu would be the "method in the
+    # wrong category" that instruction says is worse than not offering it --
+    # a user picking it would get a coefficient table nobody should read.
+    # It is available against a covariate through
+    # `spacr.nonparametric_fits.isotonic_fit`, which is where it is true.
+    'spline',
 )
 
 #: Names spaCR advertised but has never been able to fit, mapped to the
@@ -118,6 +134,9 @@ UNSUPPORTED_REGRESSION_TYPES = {
 #:   here.
 REGRESSION_SETTINGS_USED = {
     'ols': ('cov_type',),
+    # `spline` fits OLS on a design whose COVARIATES carry a spline basis
+    # and whose guide columns are untouched, so it reads what ols reads.
+    'spline': ('cov_type', 'spline_knots', 'spline_degree'),
     'wls': ('cov_type',),
     'rlm': ('huber_t',),
     'huber': ('huber_t',),
