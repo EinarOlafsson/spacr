@@ -11,6 +11,10 @@ from typing import Final
 
 #: The maintainer's own two command lines, as one set of numbers. `auto`
 #: takes the GPU when vispy is importable and the CPU when it is not.
+#: Which fractal family. Kept here with the rest so `preferences` can read
+#: it without importing the widget, and therefore without numba.
+DEFAULT_PATTERN: Final[str] = "orbit"
+
 DEFAULT_BACKEND: Final[str] = "auto"
 DEFAULT_QUALITY: Final[str] = "auto"
 DEFAULT_SCALE: Final[float] = 1.0

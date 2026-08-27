@@ -52,6 +52,18 @@ QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 #: The maintainer's own defaults, given as two command lines. `auto` picks
 #: the GPU when vispy is importable and the CPU otherwise, which is what
 #: makes one set of numbers serve both.
+#: Which fractal. Two genuinely different families, not one with knobs:
+#: `orbit` is the orbit-fold of `fractal_travel.py` v2.1.0, whose CPU path
+#: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
+#: the fold-inversion of v1.0.0, which takes all four samples INSIDE one
+#: frame and is four times the work per pixel because of it.
+PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade")
+PATTERN_LABELS: Final[dict] = {
+    "orbit": "Orbit fold (temporal 2x2)",
+    "cascade": "Fold-inversion cascade (spatial 2x2)",
+}
+DEFAULT_PATTERN: Final[str] = "orbit"
+
 DEFAULT_BACKEND: Final[str] = "auto"
 DEFAULT_QUALITY: Final[str] = "auto"
 DEFAULT_SCALE: Final[float] = 1.0
@@ -73,6 +85,7 @@ def clamp(value: float, low: float, high: float) -> float:
 class Settings:
     """What the picture is made of. Every field is a Preferences row."""
 
+    pattern: str = DEFAULT_PATTERN
     backend: str = DEFAULT_BACKEND
     quality: str = DEFAULT_QUALITY
     scale: float = DEFAULT_SCALE
@@ -87,6 +100,7 @@ class Settings:
         drawing one.
         """
         return Settings(
+            pattern=self.pattern if self.pattern in PATTERNS else DEFAULT_PATTERN,
             backend=self.backend if self.backend in BACKENDS else DEFAULT_BACKEND,
             quality=self.quality if self.quality in QUALITIES else DEFAULT_QUALITY,
             scale=clamp(float(self.scale), 0.25, 2.0),
@@ -438,16 +452,32 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
     quality = resolved_quality(settings.quality, "cpu", hardware)
     thread_count = resolved_cpu_threads(settings, hardware)
-    iterations = 5 if quality == "balanced" else 6
+    cascade = settings.pattern == "cascade"
 
-    # Capped at 30 because every displayed frame is newly evaluated -- there
-    # is no keyframe to re-project, so a higher cap would only burn cores.
-    target_fps = max(15, min(settings.fps, 30))
+    # EACH PATTERN'S OWN BUDGET. The cascade evaluates four samples per pixel
+    # inside one frame where the orbit evaluates one and averages across
+    # frames, so it renders roughly a quarter of the pixels and holds a lower
+    # cap to spend the same wall-clock. Sharing one set of numbers would make
+    # one of them either wasteful or unusable.
+    if cascade:
+        from .fractal_cascade import CascadeEngine
+
+        engine_factory = CascadeEngine
+        iterations = 4 if quality == "balanced" else 5
+        target_fps = max(15, min(settings.fps, 24 if quality == "balanced" else 20))
+        base_pixels = 115_000.0 if quality == "balanced" else 190_000.0
+    else:
+        engine_factory = OrbitEngine
+        iterations = 5 if quality == "balanced" else 6
+        # Capped at 30 because every displayed frame is newly evaluated --
+        # there is no keyframe to re-project, so a higher cap only burns
+        # cores.
+        target_fps = max(15, min(settings.fps, 30))
+        # A pixel COUNT, not a percentage: on a 4K display a percentage is an
+        # unbounded promise, and this is a backdrop.
+        base_pixels = 460_000.0 if quality == "balanced" else 680_000.0
+
     target_period = 1.0 / target_fps
-
-    # A pixel COUNT, not a percentage: on a 4K display a percentage is an
-    # unbounded promise, and this is a backdrop.
-    base_pixels = (460_000.0 if quality == "balanced" else 680_000.0)
     base_pixels *= settings.scale * settings.scale
 
     class _Worker(QObject):
@@ -456,7 +486,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
         def __init__(self) -> None:
             super().__init__()
-            self.engine = OrbitEngine(thread_count)
+            self.engine = engine_factory(thread_count)
 
         @Slot(object)
         def render(self, request: object) -> None:
@@ -672,7 +702,8 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             else:
                 timing = f"{1000.0 * self._last_render_seconds:.1f} ms frame"
             error = "" if self._error is None else f"\n{self._error}"
-            return (f"v{VERSION} · CPU/{quality} · temporal 2x2\n"
+            aa = "spatial 2x2" if cascade else "temporal 2x2"
+            return (f"v{VERSION} · CPU/{quality} · {settings.pattern} · {aa}\n"
                     f"{width}×{height} · {self._actual_fps:.1f} fps · "
                     f"{thread_count} threads\n{timing}{error}")
 
@@ -873,7 +904,15 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         raise GpuBackendError(str(error)) from error
 
     quality = resolved_quality(settings.quality, "gpu", hardware)
-    base_detail = 6 if quality == "balanced" else 8
+    if settings.pattern == "cascade":
+        from .fractal_cascade import FRAGMENT_SHADER as _FRAGMENT
+
+        base_detail = 5 if quality == "balanced" else 6
+        detail_floor = 4
+    else:
+        _FRAGMENT = FRAGMENT_SHADER
+        base_detail = 6 if quality == "balanced" else 8
+        detail_floor = 5
 
     class _Canvas(Canvas):
         def __init__(self) -> None:
@@ -883,7 +922,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._render_ema: Optional[float] = None
             self._detail = base_detail
             self._paused = False
-            self._program = gloo.Program(VERTEX_SHADER, FRAGMENT_SHADER)
+            self._program = gloo.Program(VERTEX_SHADER, _FRAGMENT)
             self._program["a_position"] = np.asarray(
                 [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
                 dtype=np.float32)
@@ -931,7 +970,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._last_sample = time.perf_counter()
                 target_period = 1.0 / settings.fps
                 if self._render_ema > 1.05 * target_period:
-                    self._detail = max(5, self._detail - 1)
+                    self._detail = max(detail_floor, self._detail - 1)
                 elif self._render_ema < 0.52 * target_period:
                     self._detail = min(base_detail + 1, self._detail + 1)
             except Exception:                                # noqa: BLE001
@@ -951,7 +990,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 timing = "measuring"
             else:
                 timing = f"{1000.0 * self._render_ema:.1f} ms GPU"
-            return (f"v{VERSION} · GPU/{quality} · spatial 2x2\n"
+            return (f"v{VERSION} · GPU/{quality} · {settings.pattern} · "
+                    f"spatial 2x2\n"
                     f"{int(width)}×{int(height)} · target {settings.fps} fps · "
                     f"detail {self._detail}\n{timing}")
 
