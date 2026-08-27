@@ -111,6 +111,36 @@ CV_SCORE_COLUMN = "pred"
 #: (:func:`spacr.utils.process_vision_results`).
 CV_CLASS_COLUMN = "cv_predictions"
 
+#: What a per-object classification score is CALLED in a score table, in the
+#: order they are tried. Which name it gets depends on which classifier
+#: wrote the file, not on anything the reader chose:
+#:
+#: * ``pred`` -- `process_vision_results` and the deep-learning CV scores;
+#: * ``prediction_probability_class_1`` -- `ml_analysis`, i.e. the XGBoost
+#:   and other scikit-learn fits, whose positive-class probability this is.
+#:
+#: Kept in ONE place because the two readers were already meant to agree:
+#: :func:`merge_ml_predictions` knew the second name and
+#: :func:`attach_predictions` did not, so merging an XGBoost score file into
+#: a database worked while reading the same file in memory failed with "no
+#: 'pred' column" -- about a file that held the score all along.
+SCORE_SOURCE_COLUMNS: Tuple[str, ...] = (
+    CV_SCORE_COLUMN, "prediction_probability_class_1",
+)
+
+#: Likewise for the predicted CLASS.
+CLASS_SOURCE_COLUMNS: Tuple[str, ...] = (CV_CLASS_COLUMN, "predictions")
+
+
+def first_present(frame, names) -> Optional[str]:
+    """The first of ``names`` that ``frame`` actually has, else None."""
+    found = getattr(frame, "columns", None)
+    columns = set() if found is None else {str(name) for name in found}
+    for name in names:
+        if str(name) in columns:
+            return str(name)
+    return None
+
 #: Positive-class probability from the classical-ML classifier. This one is
 #: new: the ML stage only ever wrote a class, never its confidence. Namespaced
 #: rather than reusing ``pred`` precisely so it cannot collide with the CV
@@ -351,7 +381,14 @@ def _prcfo_from_metadata(frame: pd.DataFrame) -> Optional[pd.Series]:
     key = pieces[0].astype(str)
     for piece in pieces[1:]:
         key = key + "_" + piece.astype(str)
-    return key.astype("object").where(valid, other=None)
+    # THROUGH THE SAME NORMALISER THE STORED KEY GETS. A key rebuilt here and
+    # a key read from the `prcfo` column must be the same string or the join
+    # silently matches nothing, and the halves disagree exactly where
+    # `_clean_prcfo` says they do: an older run stamps the plate `pplate1`
+    # and everything computed since stamps it `plate1`. Normalising in one
+    # place is what stops the two builders drifting apart again.
+    return (key.astype("object").where(valid, other=None)
+            .map(_clean_prcfo))
 
 
 def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
@@ -447,9 +484,23 @@ def _result_keys(kind: str, results: pd.DataFrame, timelapse: bool) -> Optional[
             return pd.Series(results.index,
                              index=results.index).map(_clean_prcfo)
         name_col = _name_column(results)
-        if name_col is None:
+        if name_col is not None:
+            return _prcfo_from_names(results[name_col], timelapse)
+        # SAME FALLBACK `_db_keys` ALREADY HAD. A score table with no path
+        # column can still carry the metadata `prcfo` is built from, and an
+        # `ml_analysis` score CSV is exactly that: plate/row/column/field and
+        # an object id, under the plainer spellings that
+        # `schema.canonicalise_columns` resolves. Without this the two sides
+        # of the join were asymmetric -- the database could rebuild the key
+        # and the results frame could not -- so an XGBoost score file matched
+        # zero rows and read as "no per-object score".
+        from .schema import canonicalise_columns
+
+        try:
+            renamed = canonicalise_columns(results.copy())
+        except Exception:                                    # noqa: BLE001
             return None
-        return _prcfo_from_names(results[name_col], timelapse)
+        return _prcfo_from_metadata(renamed)
     if kind == "png_path":
         for name in ("png_path", "path"):
             if name in results.columns:
@@ -891,10 +942,21 @@ def attach_predictions(objects, results, *,
         return objects, 0
 
     out = objects.copy()
-    wanted = {score_col: score_source, class_col: class_source}
+    # WHICHEVER NAME THE SCORE ARRIVED UNDER. `score_source` stays the first
+    # choice, so an explicit argument still wins; when the table does not
+    # carry it, the other names a score goes by are tried before giving up.
+    # Refusing here on the name alone is what made an XGBoost score CSV read
+    # as "no per-object score" while holding one.
+    score_name = (str(score_source)
+                  if str(score_source) in getattr(results, "columns", ())
+                  else first_present(results, SCORE_SOURCE_COLUMNS))
+    class_name = (str(class_source)
+                  if str(class_source) in getattr(results, "columns", ())
+                  else first_present(results, CLASS_SOURCE_COLUMNS))
+    wanted = {score_col: score_name, class_col: class_name}
     matched = 0
     for target, source in wanted.items():
-        if source not in getattr(results, "columns", ()):
+        if source is None or source not in getattr(results, "columns", ()):
             continue
         lookup = dict(zip(result_keys, results[source]))
         joined = db_keys.map(lambda key: lookup.get(key))

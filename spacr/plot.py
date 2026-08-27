@@ -6549,7 +6549,11 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
     :param plot: If True, show each overlay via matplotlib.
         Default ``False``.
     :param thickness: Contour line thickness in pixels. Default ``2``.
-    :returns: None
+    :returns: ``{'written': int, 'failed': [(filename, reason)]}``. A
+        field that cannot be read is named and skipped rather than
+        ending the run, so a folder holding one truncated TIFF still
+        produces every other overlay -- and the caller can tell which
+        ones are missing.
     """
 
     def normalize_image(image):
@@ -6585,7 +6589,15 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
         print("No matching filenames found in both folders.")
         return
 
-    for filename in common_filenames:
+    # ONE BAD FILE MUST NOT COST THE WHOLE FOLDER. A name shared by an image
+    # and a mask is not a promise that both read: a truncated TIFF, a stray
+    # .db, or a mask of a different rank ends the loop, and every overlay
+    # after it is silently never written -- with no list of which ones were
+    # done. Each field is its own attempt; failures are named and counted.
+    failed = []
+    written = 0
+    for filename in sorted(common_filenames):
+      try:
         # Load image and mask
         img_path = os.path.join(img_folder, filename)
         mask_path = os.path.join(mask_folder, filename)
@@ -6639,6 +6651,19 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
                 plt.title(f"Overlay: {filename}")
                 plt.axis('off')
                 plt.show()
+        written += 1
+      except Exception as error:                             # noqa: BLE001
+        failed.append((filename, f"{type(error).__name__}: {error}"))
+
+    if failed:
+        print(f"overlay_masks_on_images: {written} of "
+              f"{len(common_filenames)} overlaid; {len(failed)} failed.")
+        for name, why in failed[:10]:
+            print(f"  {name}: {why}")
+        if len(failed) > 10:
+            print(f"  ...and {len(failed) - 10} more")
+    return {"written": written, "failed": failed}
+
 
 def graph_importance(settings):
     """Concatenate feature-importance CSVs and hand off to :class:`spacrGraph` for plotting.
