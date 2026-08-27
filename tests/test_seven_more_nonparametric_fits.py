@@ -238,3 +238,55 @@ def test_isotonic_can_go_the_other_way():
     y = -2.0 * x + rng.normal(0, 0.3, 120)
     _grid, fitted = NP.isotonic_fit(x, y, increasing=False)
     assert np.all(np.diff(fitted) <= 1e-9)
+
+
+# --- the agreement check, run on a finished fit ----------------------------
+
+
+def _fit_shaped(n=300, g=10, seed=0):
+    rng = np.random.default_rng(seed)
+    design = pd.DataFrame(rng.uniform(0, 1, (n, g)),
+                          columns=[f"fraction:grna[gd{i}]" for i in range(g)])
+    truth = np.zeros(g)
+    truth[0], truth[1] = 2.0, -1.5
+    y = design.to_numpy() @ truth + rng.normal(0, 0.2, n)
+    coefficients = pd.DataFrame({"feature": design.columns,
+                                 "coefficient": truth})
+    return coefficients, design, y
+
+
+def test_it_reports_against_the_ranking_the_run_produced():
+    """Nothing is refitted: it takes the coefficient table the run made."""
+    coefficients, design, y = _fit_shaped()
+    said = NP.report_agreement(coefficients, design, y)
+    assert "Spearman" in said
+    assert "linear ranking" in said
+
+
+def test_the_report_says_importances_are_unsigned():
+    coefficients, design, y = _fit_shaped()
+    assert "unsigned" in NP.report_agreement(coefficients, design, y)
+
+
+def test_it_says_nothing_rather_than_guessing_on_a_thin_table():
+    """Two guides cannot be a ranking, so there is no comparison to make."""
+    coefficients, design, y = _fit_shaped(g=2)
+    assert NP.report_agreement(coefficients, design, y) == ""
+
+
+def test_a_table_with_no_guide_terms_reports_nothing():
+    coefficients = pd.DataFrame({"feature": ["Intercept", "rowID[T.r2]"],
+                                 "coefficient": [0.1, 0.2]})
+    design = pd.DataFrame(np.ones((10, 2)), columns=["Intercept",
+                                                     "rowID[T.r2]"])
+    assert NP.report_agreement(coefficients, design, np.zeros(10)) == ""
+
+
+def test_it_names_a_guide_the_two_rankings_disagree_about():
+    coefficients, design, y = _fit_shaped()
+    # Claim a large linear effect for a guide that has none.
+    coefficients = coefficients.copy()
+    coefficients.loc[coefficients.feature.str.contains("gd7"),
+                     "coefficient"] = 9.0
+    said = NP.report_agreement(coefficients, design, y)
+    assert "gd7" in said or "No guide moved" in said
