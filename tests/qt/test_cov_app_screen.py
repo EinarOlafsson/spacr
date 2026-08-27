@@ -197,17 +197,27 @@ class TestWidgetConstruction:
 
     def test_mask_screen_builds_one_widget_per_expected_type(self, qtbot):
         """Every widget kind the settings model can emit is actually built."""
+        from PySide6.QtWidgets import QComboBox
+
         scr = _make_screen(qtbot, "mask")
         widgets = scr._settings_model._widgets
-        kinds = {}
-        for key, w in widgets.items():
-            kinds.setdefault(type(w).__name__, []).append(key)
+
+        # BUCKETED BY WHAT THE WIDGET IS, not by its exact class name. The
+        # enumerated settings are built as `_ValueCombo`, a QComboBox
+        # subclass, so an exact-name bucket reported "no QComboBox built for
+        # the mask app" about a screen carrying 187 of them -- and would say
+        # the same of any future subclass. `Toggle` is likewise a QCheckBox,
+        # which the assertions below already rely on.
+        def _count(kind):
+            return sum(1 for w in widgets.values() if isinstance(w, kind))
+
+        from spacr.qt.screens.settings_model import _ScalarEdit
+        from spacr.qt.widgets.toggle import Toggle
 
         # bool -> Toggle, int -> QSpinBox, float -> QDoubleSpinBox,
         # enumerated -> QComboBox, str/None -> _ScalarEdit.
-        for kind in ("Toggle", "QSpinBox", "QDoubleSpinBox",
-                     "QComboBox", "_ScalarEdit"):
-            assert kinds.get(kind), f"no {kind} built for the mask app"
+        for kind in (Toggle, QSpinBox, QDoubleSpinBox, QComboBox, _ScalarEdit):
+            assert _count(kind), f"no {kind.__name__} built for the mask app"
 
         # And each one carries the DEFAULT of its setting, not a blank widget.
         defaults = scr._settings_model._defaults
