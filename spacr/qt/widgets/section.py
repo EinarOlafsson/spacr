@@ -231,7 +231,7 @@ class Section(QFrame):
         chevron and pointer target remain unchanged.
 
         :param key: Folded module registry key.
-        :param name: Accessible module name; defaults to ``key``.
+        :param name: Accessible module name. If empty, ``key`` is used.
         :returns: ``True`` if a module-specific icon was displayed.
         """
         key = str(key or "")

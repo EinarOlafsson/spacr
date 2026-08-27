@@ -938,12 +938,11 @@ class _RowsBuiltWhenTheyAreAskedFor(list):
         self._complete()
         return super().__repr__()
 
-#: Which section each module's "load the example" button belongs in -- the
-#: one holding the settings it fills. A module absent from this table has no
-#: example data to offer and gets no button.
+#: Top-level section containing each module's example-data control. Modules
+#: omitted from this mapping do not expose an example-data action.
 EXAMPLE_DATA_SECTIONS = {
-    "regression": "Input Tables",       # the count and score tables
-    "mask": "Input & Metadata",         # a plate of images, and `src`
+    "regression": "Input Tables",
+    "mask": "Input & Metadata",
 }
 
 
@@ -2056,14 +2055,9 @@ class AppScreen(QWidget):
 
         if depth == 0 and has_section_explainer(self.app_key, title):
             self._install_section_explainer(section, title)
-        # THE EXAMPLE DATA, in the section that holds what it fills.
-        #
-        # Regression (191 C, asked for 2026-08-20: "that button should
-        # obviously be in input tables") gets the count and score TABLES.
-        # Mask Generation gets IMAGES -- a different example set from a
-        # different place, so it is a different button rather than the same
-        # one widened: one fills two file slots from the packaged example
-        # screen, the other downloads a plate of TIFs and fills `src`.
+        # Place each example-data action beside the settings it populates.
+        # Regression fills paired tables; Mask Generation fills ``src`` with
+        # a downloaded example image directory.
         if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
             if self.app_key == "regression":
                 self._install_example_data_button(section)
@@ -2942,47 +2936,39 @@ class AppScreen(QWidget):
         section.add_prose(button, at_top=True)
 
     def _install_example_images_button(self, section) -> None:
-        """A button that fetches the example PLATE and fills `src`.
-
-        The sibling of `_install_example_data_button`, and a separate one on
-        purpose: that button fills two TABLE slots from the packaged example
-        screen, this one downloads a plate of TIFs from Hugging Face and
-        fills the source folder. Same shape, different data, different place
-        it comes from.
-        """
+        """Add the example-image control that populates ``src``."""
         from PySide6.QtWidgets import QPushButton
 
         button = QPushButton(tr("Load the example images\u2026"))
         button.setToolTip(tr(
-            "Fetch the toxo_mito example plate and put its folder in `src`. "
-            "About 400 MB the first time; cached afterwards, so pressing it "
-            "again is instant. The matching settings pack comes with it."))
+            "Download the approximately 400 MB toxo_mito example plate and "
+            "set its image directory as the source (src). Later requests "
+            "reuse the cached files. The download includes compatible "
+            "example settings."))
         button.clicked.connect(lambda: self.load_the_example_images())
         self._example_images_button = button
         section.add_prose(button, at_top=True)
 
     def example_images_destination(self):
-        """Where the example plate is put. Beside the other cached example
-        data, so a user finds one folder rather than two."""
+        """Return the cache directory used for downloaded example images."""
         from pathlib import Path
 
         return Path.home() / ".cache" / "spacr" / "example_images"
 
     def load_the_example_images(self, *, ask=None) -> dict:
-        """Fetch the example plate and fill `src`. Returns what it did.
+        """Download the example plate and populate the ``src`` setting.
 
-        IT SAYS WHERE EVERYTHING WENT, for the reason the tables button
-        gives: filling a field silently is indistinguishable from a button
-        that did nothing, and this one may also have just moved 400 MB.
-
-        :param ask: injected for tests -- the downloader to call. Defaults to
-            `hf_download.download_toxo_mito_demo`.
+        :param ask: Optional download function used in place of
+            :func:`spacr.qt.hf_download.download_toxo_mito_demo`.
+        :returns: A mapping containing the selected source directory and the
+            downloaded settings path. Returns an empty mapping if the
+            download fails or has not completed.
         """
         destination = self.example_images_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        # ALREADY THERE? Then nothing is downloaded. The plate is 400 MB and
-        # a user who presses this twice should get the second press for free.
+        # Reuse an existing non-empty plate directory to avoid downloading
+        # the approximately 400 MB dataset again.
         plate = destination / "plate1"
         if plate.is_dir() and any(plate.iterdir()):
             return self._put_the_example_images_in_place(plate, None)
@@ -3000,8 +2986,12 @@ class AppScreen(QWidget):
                 button.setText(tr("Load the example images\u2026"))
             if result is None:
                 self._console.append_stdout(
-                    f"The example images did not download: "
-                    f"{error or 'unknown error'}\n")
+                    tr(
+                        "The example images could not be downloaded: "
+                        "{error}",
+                        error=error or tr("unknown error"),
+                    ) + "\n"
+                )
                 return
             placed.update(self._put_the_example_images_in_place(
                 result.dataset_path, result.settings_path))
@@ -3019,21 +3009,25 @@ class AppScreen(QWidget):
                    else None)
         if control is not None and hasattr(control, "setText"):
             control.setText(str(images))
-        self._console.append_stdout(f"src: {images}\n")
+        self._console.append_stdout(
+            tr("Source directory (src): {path}", path=str(images)) + "\n"
+        )
         if settings is not None:
             self._console.append_stdout(
-                f"the matching settings pack is in {settings}\n")
+                tr(
+                    "Compatible example settings: {path}",
+                    path=str(settings),
+                ) + "\n"
+            )
         return {"src": str(images),
                 "settings": str(settings) if settings else ""}
 
     def load_the_example_screen(self, *, download: bool = True) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
 
-        :returns: what was put where, so a caller can check it without a GUI.
-
-        IT SAYS WHERE EVERYTHING WENT. Filling two file fields silently is
-        indistinguishable from a button that did nothing, and this one may
-        also have just moved 33 MB.
+        :param download: If ``True``, download files that are not already in
+            the local cache.
+        :returns: A mapping of populated setting names to their file paths.
         """
         from ...example_data import ExampleDataError, fetch, missing
 
