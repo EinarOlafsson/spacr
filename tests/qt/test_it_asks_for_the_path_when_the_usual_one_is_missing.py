@@ -142,3 +142,76 @@ def test_a_cancel_is_not_remembered(monkeypatch, tmp_path):
     _present(monkeypatch)
     A.ask_for_a_folder("k", tried="x", what="Merged", chooser=_chooser(""))
     assert A.remembered("k") is None
+
+
+# --- wired into the crop source resolution --------------------------------
+#
+# `resolve_crop_source` is where all three failures land: no merged folder,
+# no PNG data folder, and (through the same root) no coordinate source. It
+# lives in a module that must NOT depend on Qt, so the prompt is INJECTED --
+# which is what makes "never prompt headless" structural rather than
+# something each call site has to remember.
+
+
+def test_a_headless_caller_gets_the_error_it_always_got(tmp_path):
+    """No `ask`, no dialog, no change in behaviour."""
+    from spacr.crops import CropError, resolve_crop_source
+
+    with pytest.raises(CropError) as raised:
+        resolve_crop_source(str(tmp_path))
+    assert "no crop source available" in str(raised.value)
+
+
+def test_the_prompt_is_offered_the_reason_and_the_root(tmp_path):
+    from spacr.crops import CropError, resolve_crop_source
+
+    seen = {}
+
+    def ask(tried, root):
+        seen["tried"] = tried
+        seen["root"] = root
+        return ""                                    # cancelled
+
+    with pytest.raises(CropError):
+        resolve_crop_source(str(tmp_path), ask=ask)
+    assert seen["root"] == str(tmp_path)
+    assert "merged" in seen["tried"] and str(tmp_path) in seen["tried"]
+
+
+def test_an_answer_is_resolved_against(tmp_path):
+    """The whole point: the run continues where the user pointed."""
+    from spacr.crops import resolve_crop_source
+
+    good = tmp_path / "elsewhere"
+    (good / "merged").mkdir(parents=True)
+    source = resolve_crop_source(str(tmp_path),
+                                 ask=lambda tried, root: str(good))
+    # It resolved against the ANSWER rather than the original root: the
+    # original has no merged folder, so a merged source could only have come
+    # from where the user pointed.
+    assert source.kind == "merged"
+
+
+def test_cancelling_raises_the_original_error(tmp_path):
+    from spacr.crops import CropError, resolve_crop_source
+
+    with pytest.raises(CropError):
+        resolve_crop_source(str(tmp_path), ask=lambda tried, root: None)
+
+
+def test_a_wrong_answer_does_not_open_a_second_prompt(tmp_path):
+    """One question per run. Resolving against the answer passes no `ask`,
+    so a bad answer fails rather than asking again on top of itself."""
+    from spacr.crops import CropError, resolve_crop_source
+
+    asked = []
+    nowhere = tmp_path / "also-empty"
+    nowhere.mkdir()
+
+    def ask(tried, root):
+        asked.append(root)
+        return str(nowhere)
+
+    with pytest.raises(CropError):
+        resolve_crop_source(str(tmp_path), ask=ask)
+    assert len(asked) == 1, f"it asked {len(asked)} times"
