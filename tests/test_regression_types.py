@@ -208,6 +208,11 @@ def assert_recovers_the_planted_gene(results, regression_type):
 #: 'horseshoe' needs spacr.power_model and has its own test below.
 END_TO_END = [
     ("ols", "fraction", {}),
+    # `spline` fits OLS on a design whose COVARIATES carry a spline basis
+    # and whose guide columns are untouched, so it must recover a planted
+    # effect exactly as ols does -- that is the claim that puts it in
+    # instruction 254's category A rather than among the diagnostics.
+    ("spline", "fraction", {}),
     ("wls", "fraction", {}),
     ("rlm", "fraction", {}),
     ("huber", "fraction", {}),
