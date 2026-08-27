@@ -2,43 +2,40 @@
 FOUR THINGS ABOUT THE MODULES
 ================================================================================
 
-Status:    OPEN on part 4 ONLY, and part 4 is BLOCKED ON DATA THAT DOES
-           NOT EXIST. Parts 1, 2 and 3 are done and verified 2026-08-26:
+Status:    DONE 2026-08-26, all four.
 
            1. `spacr/qt/screens/napari_bridge.py` is gone -- folded into
               its host. `spacr/napari_bridge.py`, the LIBRARY, still stands:
-              it is public API, the CLI documents `correct_mask` by name and
-              the drop handler routes through it.
+              public API, the CLI documents `correct_mask` by name, and the
+              drop handler routes through it.
            2. `make_masks` is registered under SECTION_DATA
               (`spacr/qt/app.py:776`), not Segmentation models.
            3. `fold_strip.py`: BUTTON_PX 51, ICON_PX 30, GAP_PX 9 -- the
               buttons grew by half and the gap grew with them, which was the
               point: the complaint was crowding.
+           4. UNBLOCKED. This file recorded part 4 as blocked because
+              `spacr.example_data` holds eight CSVs and not one image. That
+              was true of THAT manifest and the wrong place to look: the
+              example images have been on Hugging Face all along, as
+              `einarolafsson/toxo_mito` (plate1) and
+              `einarolafsson/spacr_settings`, and `spacr/qt/hf_download.py`
+              already downloads both for the end-to-end demo.
 
-           4. THE EXAMPLE DATA HAS NO IMAGES. Measured:
-              `spacr.example_data.FILES` holds EIGHT files, all CSV, in two
-              kinds -- `counts` (4) and `scores` (4). No .tif, .tiff, .png,
-              .zip or .npy, and nothing bundled under `spacr/resources`
-              either. This file predicted it: "if the manifest has no images
-              for it, that gap IS the first half of this item."
+              Mask Generation now has "Load the example images…" at the top
+              of Input & Metadata -- the section that holds `src`, which is
+              what it fills. It is a SEPARATE button from Regression's, not
+              the same one widened: that one fills two table slots from the
+              packaged example screen, this one fetches a plate of TIFs and
+              fills one folder.
 
-              So a Load-example button on Mask Generation has nothing to
-              load. `_install_example_data_button` is deliberately still
-              gated to `regression` rather than shipping a button that
-              fetches four count tables into a segmentation run.
+              It says where everything went, including the settings pack. A
+              plate already in the cache is not downloaded again -- 400 MB
+              once, and the second press is free. A failed download says so
+              and leaves `src` as it was.
 
-              WHAT UNBLOCKS IT, and it is not a code change: a small set of
-              example images published to the `example-data` release
-              (`BASE_URL` = github.com/EinarOlafsson/spacr/releases/download/
-              example-data) and added to `FILES` with a `kind` of `images`
-              and a sha256, alongside the existing two kinds in `KINDS`.
-              One plate's worth of a few fields is enough. Once those exist
-              the button is a small change: widen the gate to Mask
-              Generation and fill the source slot instead of the two table
-              slots.
-Owner:     spacr/qt/app.py for the section, spacr/qt/widgets/fold_strip.py
-           for the buttons, spacr/qt/screens/ for the folded modules'
-           source, spacr/qt/screens/mask.py for the example data.
+              tests/qt/test_mask_generation_loads_the_example_images.py,
+              8 tests.
+
 
 --------------------------------------------------------------------------------
 1. A FOLDED MODULE KEEPS NO MODULE OF ITS OWN

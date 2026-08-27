@@ -1062,6 +1062,23 @@ def test_every_qt_section_hint_names_a_real_category():
     # `_APP_CATEGORY_SPECS`-style Qt regroups and appear nowhere in
     # `S.categories`, so leaving it out reported all nine as dead.
     from spacr.qt.screens.settings_model import categories_for_app
+
+    # A MODULE THAT REGISTERS ITS OWN CATEGORY HAS TO HAVE REGISTERED IT.
+    # `power.register_settings` merges "Power analysis" into `S.categories`
+    # -- the single heading it groups all fifteen of its keys under, and the
+    # one its blurb describes. In the running application the screen does
+    # that on import; in a test process that never touched the module, the
+    # category simply does not exist yet and its live blurb reads as dead.
+    #
+    # Registering it here asks the question the test means to ask: is this
+    # blurb reachable, rather than has this process happened to import the
+    # module that makes it so.
+    try:
+        from spacr.qt.screens.power import register_settings as _register_power
+        _register_power()
+    except Exception:                                    # noqa: BLE001
+        pass
+
     for app_key in (
         "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
         "timelapse", "motility", "regression", "activation", "replication",
