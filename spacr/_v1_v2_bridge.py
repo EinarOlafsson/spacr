@@ -18,6 +18,7 @@ Two responsibilities:
 from __future__ import annotations
 
 import logging
+import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
@@ -141,3 +142,76 @@ def _human(n_bytes: int) -> str:
         if n_bytes >= div:
             return f"{n_bytes / div:.2f} {unit}"
     return f"{n_bytes} B"
+
+
+def v2_mask_source(merged_dir, object_type: str = "cell"):
+    """A lazy mask source for :func:`spacr.seg_qc.run_segmentation_qc`.
+
+    v1 writes one ``.npy`` per field into a ``<object_type>_mask_stack``
+    folder, which the scorecard globs directly. v2 has no such folder: the
+    mask is a CHANNEL of ``merged/stack_<field>.npy``, shape
+    ``(H, W, C_image + C_mask)``. This reads ``channel_order.json`` to learn
+    which plane that is and hands back ``{field: thunk}``, so the same QC
+    scores both layouts and neither has to know about the other.
+
+    :param merged_dir: the ``merged/`` folder ``run_v2`` wrote.
+    :param object_type: which mask channel to score, matched by name against
+        ``channel_order.json``'s ``mask_channels``.
+    :returns: ``{field_id: callable}`` -- one thunk per field, each loading
+        its own stack and slicing one plane. Empty when the sidecar is
+        missing, names no mask, or names none matching ``object_type``;
+        scoring nothing is the honest answer to "there is no mask here", and
+        the caller says so rather than this raising into a finished run.
+
+    Loaded through ``mmap_mode='r'`` and copied plane-first, so a 1536-field
+    plate is scored one field at a time rather than read whole.
+    """
+    import json
+    import os
+
+    merged = os.fspath(merged_dir)
+    sidecar = os.path.join(merged, "channel_order.json")
+    try:
+        with open(sidecar) as handle:
+            meta = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+
+    image_channels = list(meta.get("image_channels") or [])
+    mask_channels = list(meta.get("mask_channels") or [])
+    if not mask_channels:
+        return {}
+
+    wanted = str(object_type)
+    if wanted in mask_channels:
+        offset = mask_channels.index(wanted)
+    elif len(mask_channels) == 1:
+        # One mask and a name that does not match: score it anyway. The
+        # channel was written by the run being scored, and refusing over a
+        # naming difference would report "no masks" about a plate that has
+        # them.
+        offset = 0
+    else:
+        return {}
+    plane = len(image_channels) + offset
+
+    def _reader(path):
+        def read():
+            stack = np.load(path, mmap_mode="r")
+            if stack.ndim < 3 or plane >= stack.shape[2]:
+                raise IndexError(
+                    f"{os.path.basename(path)} has no plane {plane}: its "
+                    f"shape is {getattr(stack, 'shape', None)}, so "
+                    f"channel_order.json does not describe this stack")
+            return np.asarray(stack[:, :, plane])
+        return read
+
+    out = {}
+    for name in sorted(os.listdir(merged)):
+        if not name.lower().endswith(".npy"):
+            continue
+        field = name[:-4]
+        if field.startswith("stack_"):
+            field = field[len("stack_"):]
+        out[field] = _reader(os.path.join(merged, name))
+    return out

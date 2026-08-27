@@ -35,38 +35,57 @@ from .figures.style import figure_style, theme_target
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
-def _say_v2_does_not_score_masks(settings) -> bool:
-    """Tell the user that `seg_qc` is not scored on the v2 path.
+def _score_v2_masks(src, settings, object_type: str = "cell"):
+    """Score the masks a v2 run just wrote, the way v1 scores its own.
 
-    The v1 path scores every mask through :func:`spacr.object._run_seg_qc`
-    once the masks are the newest thing on disk. The v2 path cannot reuse
-    it: v1 writes a `<object_type>_mask_stack` FOLDER, which is what the QC
-    globs, while v2 appends the mask as extra CHANNELS of
-    `merged/stack_<field>.npy` -- shape `(H, W, C_image + C_mask)`. There is
-    no folder to score.
+    v1 reaches this through :func:`spacr.object._run_seg_qc`, which globs a
+    `<object_type>_mask_stack` folder. v2 has no such folder -- its mask is a
+    CHANNEL of `merged/stack_<field>.npy` -- so it goes through
+    :func:`spacr._v1_v2_bridge.v2_mask_source`, which reads
+    `channel_order.json` to find the plane and hands back one lazy reader per
+    field. Both layouts then meet in the same scorecard, which is the point:
+    `seg_qc` means the same thing whichever pipeline produced the masks.
 
-    So the setting is not honoured here, and saying so is the whole point of
-    this function. A `seg_qc` that is accepted and quietly does nothing is
-    worse than one that is refused: the user believes a bad plate was
-    checked and finds out in the measurements instead.
+    :param src: the plate folder handed to `run_v2`; `merged/` sits under it.
+    :returns: what :func:`spacr.seg_qc.run_segmentation_qc` returns, or None
+        when QC is off, there are no masks to score, or scoring failed.
 
-    :returns: True when a warning was printed, so a test can assert on it
-        rather than on captured output.
+    Never raises into a finished run. A plate that has just spent hours
+    segmenting must not lose its masks to a scorecard bug, which is the same
+    rule `_run_seg_qc` follows.
     """
     try:
-        from .seg_qc import qc_mode
-    except ImportError:                                      # pragma: no cover
-        return False
-    if qc_mode(settings) == 'off':
-        return False
-    print(
-        "seg_qc is set but NOT scored on the v2 pipeline: v2 writes the mask "
-        "as extra channels of merged/stack_<field>.npy, and the scorecard "
-        "reads a <object>_mask_stack folder, which v2 never creates. The "
-        "masks are unaffected -- they are simply unscored. Run "
-        "pipeline_style='v1' if you need the segmentation scorecard."
-    )
-    return True
+        from .seg_qc import qc_mode, run_segmentation_qc, thresholds_from_settings
+        from ._v1_v2_bridge import v2_mask_source
+
+        mode = qc_mode(settings)
+        if mode == 'off':
+            return None
+
+        merged = os.path.join(os.fspath(src), 'merged')
+        source = v2_mask_source(merged, object_type)
+        if not source:
+            print(f"Segmentation QC found no {object_type} masks to score in "
+                  f"{merged}: channel_order.json names none, so the stacks do "
+                  f"not say which plane is a mask.")
+            return None
+
+        result = run_segmentation_qc(
+            source,
+            object_type=object_type,
+            dst=os.fspath(src),
+            mode=mode,
+            thresholds=thresholds_from_settings(settings),
+            verbose=bool(settings.get('verbose', True)),
+        )
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"Segmentation QC skipped for {object_type}: "
+              f"{type(exc).__name__}: {exc}")
+        return None
+
+    if result is not None and result.get('mode') == 'flag':
+        settings.setdefault('seg_qc_flags', {})[object_type] = result['flags']
+    return result
 
 
 def preprocess_generate_masks(settings):
@@ -222,7 +241,7 @@ def preprocess_generate_masks(settings):
                 object_type='cell',
             )
             report_disk_savings(src, result['stacks'])
-            _say_v2_does_not_score_masks(settings)
+            _score_v2_masks(src, settings, object_type='cell')
         return
     
     # settings defaults (incl. 'consolidate') are only applied further down,
