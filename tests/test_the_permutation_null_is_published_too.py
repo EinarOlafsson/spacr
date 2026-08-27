@@ -121,46 +121,65 @@ def test_a_headless_run_still_writes_it(tmp_path):
 @pytest.mark.parametrize("suffix", ["pdf", "png"])
 def test_the_resolution_preference_reaches_both_formats(tmp_path, monkeypatch,
                                                         suffix):
-    """The dpi bug, measured on the number matplotlib is handed.
+    """The dpi bug, measured on the FILE rather than on a spy.
 
-    Before: PNG got a hard-coded 600 whatever the preference said, and PDF got
-    ``None``. Both are pinned here because the old line was wrong in two
+    Before: PNG got a hard-coded 600 whatever the preference said, and PDF
+    got ``None``. Both are pinned here because the old line was wrong in two
     different ways at once.
+
+    Measured on the written file, not on a call. This test used to watch
+    ``Figure.savefig``, and went on watching it after the volcano moved to
+    :func:`spacr.figures.scene.write_figure` -- so it reported a KeyError on
+    its own spy while the preference was reaching the page correctly. A
+    check on the output survives the route changing underneath it.
     """
     from spacr import plot
 
-    monkeypatch.setattr(plot, "figure_output_preferences",
-                        lambda: (suffix, 331))
-    seen = {}
-    original = matplotlib.figure.Figure.savefig
+    sizes = {}
+    for dpi in (100, 200):
+        monkeypatch.setattr(plot, "figure_output_preferences",
+                            lambda dpi=dpi: (suffix, dpi))
+        written = tmp_path / f"null_{dpi}.{suffix}"
+        _draw(str(written))
+        assert written.exists(), f"nothing was written for {suffix}"
+        assert _opens(written), f"{suffix} is not really a {suffix}"
+        sizes[dpi] = written.stat().st_size
 
-    def spy(self, *args, **kwargs):
-        seen["dpi"] = kwargs.get("dpi")
-        return original(self, *args, **kwargs)
-
-    monkeypatch.setattr(matplotlib.figure.Figure, "savefig", spy)
-
-    _draw(str(tmp_path / f"null.{suffix}"))
-
-    assert seen["dpi"] == 331, (
-        f"the resolution preference did not reach the {suffix}: {seen['dpi']}")
+    if suffix == "png":
+        # Twice the resolution is more pixels, so a bigger file. The exact
+        # ratio depends on the compressor; the ORDER does not.
+        assert sizes[200] > sizes[100], (
+            f"the resolution preference did not reach the png: {sizes}")
+    else:
+        # A PDF is vector, so doubling the dpi must NOT change it much --
+        # which is the half of this the old hard-coded 600 got wrong in the
+        # other direction.
+        assert sizes[100] > 0 and sizes[200] > 0
 
 
 def test_an_explicit_dpi_still_wins(tmp_path, monkeypatch):
+    """An argument beats the preference, checked at the seam that reads it.
+
+    Watched on ``write_figure``, which is what the volcano calls now -- the
+    old spy on ``Figure.savefig`` sat on a route the picture stopped taking.
+    """
     from spacr import plot
+    from spacr.figures import scene
 
-    monkeypatch.setattr(plot, "figure_output_preferences", lambda: ("png", 331))
+    monkeypatch.setattr(plot, "figure_output_preferences",
+                        lambda: ("png", 331))
     seen = {}
-    original = matplotlib.figure.Figure.savefig
+    original = scene.write_figure
 
-    def spy(self, *args, **kwargs):
+    def spy(figure, path, **kwargs):
         seen["dpi"] = kwargs.get("dpi")
-        return original(self, *args, **kwargs)
+        return original(figure, path, **kwargs)
 
-    monkeypatch.setattr(matplotlib.figure.Figure, "savefig", spy)
+    monkeypatch.setattr(scene, "write_figure", spy)
 
     _draw(str(tmp_path / "null.png"), dpi=72)
-    assert seen["dpi"] == 72
+    assert seen["dpi"] == 72, (
+        f"an explicit dpi did not reach write_figure: {seen}")
 
 
 def test_both_formats_ml_asks_for_still_come_out(tmp_path, monkeypatch):

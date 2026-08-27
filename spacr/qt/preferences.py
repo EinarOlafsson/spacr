@@ -180,6 +180,7 @@ AMBIENT_MOTION_SCALE = 2
 _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
+_KEY_LAPTOP_MODE = "prefs/laptop_mode"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
 _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
@@ -1756,6 +1757,73 @@ _MODE_MINIMISED_VISUALS = (
 )
 
 
+#: What the laptop-mode preference may be set to. ``"automatic"`` leaves the
+#: decision to the measurement, which is what an unset preference has always
+#: meant; the other two override it in either direction.
+LAPTOP_MODE_CHOICES = ("automatic", "on", "off")
+
+#: What the dialog calls each one.
+LAPTOP_MODE_LABELS = {
+    "automatic": "Automatic (decide from this machine)",
+    "on": "On (turn the animation and blur down)",
+    "off": "Off (keep everything on)",
+}
+
+
+def get_laptop_mode() -> str:
+    """Whether laptop mode is forced on, forced off, or measured.
+
+    The stored value is one of :data:`LAPTOP_MODE_CHOICES`. Anything else --
+    an old file, a hand-edited one -- reads as ``"automatic"``, because a
+    setting nobody can interpret should behave as though it were never set.
+    """
+    raw = str(_settings().value(_KEY_LAPTOP_MODE, "automatic"))
+    return raw if raw in LAPTOP_MODE_CHOICES else "automatic"
+
+
+def set_laptop_mode(choice: str) -> None:
+    """Persist the laptop-mode preference and apply it now.
+
+    :raises ValueError: on an unknown choice.
+
+    Applied immediately rather than at the next launch, because the two
+    things it changes -- the ambient animation and the backdrop blur -- are
+    both visible in the window behind the dialog. A performance setting
+    that needs a restart to show its effect cannot be judged by the person
+    setting it.
+    """
+    if choice not in LAPTOP_MODE_CHOICES:
+        raise ValueError(f"unknown laptop mode {choice!r}; "
+                         f"expected one of {list(LAPTOP_MODE_CHOICES)}")
+    _settings().setValue(_KEY_LAPTOP_MODE, choice)
+    _settings().sync()
+    from .laptop_mode import apply as _apply, wanted
+    _apply(None if choice == "automatic" else choice == "on")
+    return None
+
+
+def laptop_mode_note(choice: str) -> str:
+    """What the chosen setting will do on THIS machine, said before saving.
+
+    Automatic is the case that needs saying: the label cannot state the
+    outcome, because the outcome depends on the machine reading it.
+    """
+    from .laptop_mode import measure, wanted, what_it_turns_down
+
+    turns_down = ", ".join(what for what, _cost in what_it_turns_down())
+    if choice == "automatic":
+        # Asked with the override cleared, because what the note has to
+        # report is what the MEASUREMENT says -- an environment variable
+        # set for one launch would otherwise be read back as the machine's
+        # own answer.
+        _on, why = wanted({**measure(), "override": None})
+        return why
+    if choice == "on":
+        return (f"Turns down {turns_down}. Only the drawing changes: a run "
+                f"computes exactly the same answer either way.")
+    return "Keeps the animation and the blur on, whatever this machine is."
+
+
 def get_spacr_mode() -> str:
     """Which resource posture spaCR is in — one of :data:`SPACR_MODES`."""
     raw = str(_settings().value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE))
@@ -2840,6 +2908,7 @@ PREFERENCE_TIPS = {
     "Page opacity": "Page opacity relative to the animated background.",
     # -- the backdrop and the rim --------------------------------------
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
+    "Laptop mode": "Turns the ambient animation and the backdrop blur down on a small machine. Automatic decides from the cores and memory it finds. Only drawing is affected: a run computes the same answer either way.",
     "Animation blur": "Blur applied to background shapes.",
     "Animation speed": "Background-animation speed.",
     "Animation size": "Size of background shapes.",
@@ -3798,6 +3867,39 @@ class PreferencesDialog:
             mode_note_label.setText(text)
 
         mode_combo.currentIndexChanged.connect(_sync_mode_note)
+
+        # LAPTOP MODE, which until now could only be set through an
+        # environment variable -- which is to say it could not be found.
+        # It sits under the mode because it answers the same question at a
+        # smaller scale: how much of this machine should the WINDOW use.
+        laptop_combo = QComboBox()
+        laptop_combo.setObjectName("LaptopMode")
+        for _key in LAPTOP_MODE_CHOICES:
+            laptop_combo.addItem(tr(LAPTOP_MODE_LABELS[_key]), _key)
+        _current_laptop = get_laptop_mode()
+        for _i in range(laptop_combo.count()):
+            if laptop_combo.itemData(_i) == _current_laptop:
+                laptop_combo.setCurrentIndex(_i)
+                break
+        performance.addRow(tr("Laptop mode"), laptop_combo)
+
+        laptop_note_label = QLabel()
+        laptop_note_label.setObjectName("LaptopModeNote")
+        laptop_note_label.setWordWrap(True)
+        performance.addRow("", laptop_note_label)
+
+        def _sync_laptop_note(*_args):
+            """Say what the choice will do HERE, before it is saved.
+
+            Automatic is the case that needs it: the label cannot state the
+            outcome, because the outcome depends on the machine reading it.
+            """
+            text = laptop_mode_note(laptop_combo.currentData())
+            laptop_combo.setToolTip(text)
+            laptop_note_label.setText(text)
+
+        laptop_combo.currentIndexChanged.connect(_sync_laptop_note)
+        _sync_laptop_note()
         _sync_mode_note()
 
         def _quit_spacr(parent) -> None:
@@ -4143,6 +4245,7 @@ class PreferencesDialog:
             # their minimums, and leaving it puts back what it stashed. Do
             # it earlier and the dialog's own values would land on top,
             # which would mean the mode silently did not take effect.
+            set_laptop_mode(laptop_combo.currentData())
             set_spacr_mode(mode_combo.currentData())
             apply_preferences_to_app()
             _refresh_owner_window(parent)

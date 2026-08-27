@@ -183,9 +183,18 @@ def test_resolve_system_returns_valid_choice(qt_theme_applied):
 # Font scale
 # ---------------------------------------------------------------------------
 
-def test_font_scale_default_is_150pct(qt_theme_applied):
-    from spacr.qt.preferences import get_font_scale
-    assert get_font_scale() == 1.5
+def test_font_scale_default_is_100pct(qt_theme_applied):
+    """1.0, and the reason is in DEFAULT_FONT_SCALE's own comment.
+
+    This scales the WHOLE interface, and a HiDPI display is already being
+    scaled by the operating system -- macOS reports a 2x device pixel ratio.
+    1.5 on top of that is 3x linear and nine times the pixels of a 100%
+    layout, which is what "spaCR is extremely slow" turned out to be on a
+    machine faster than the workstation it ran well on.
+    """
+    from spacr.qt.preferences import DEFAULT_FONT_SCALE, get_font_scale
+    assert get_font_scale() == 1.0
+    assert DEFAULT_FONT_SCALE == 1.0
 
 
 def test_font_scale_roundtrip(qt_theme_applied):
@@ -211,7 +220,7 @@ def test_font_scale_recovers_from_corrupt_value(qt_theme_applied):
     from spacr.qt.preferences import get_font_scale
     from PySide6.QtCore import QSettings
     QSettings("spacr", "qt").setValue("prefs/font_scale", "garbage")
-    assert get_font_scale() == 1.5
+    assert get_font_scale() == 1.0
 
 
 # ---------------------------------------------------------------------------
