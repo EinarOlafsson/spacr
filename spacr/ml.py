@@ -5902,7 +5902,7 @@ def load_regression_input_pairs(pairs):
 
 
 def _check_score_count_pairing(independent_df, dependent_df, merged_df, *,
-                               well_column='prc'):
+                               well_column='prc', record=None):
     """Fail loudly when the score and count tables describe different wells.
 
     The two inputs are never paired file-to-file: each list is concatenated
@@ -5955,6 +5955,14 @@ def _check_score_count_pairing(independent_df, dependent_df, merged_df, *,
     if comparable and matched / comparable >= _MINIMUM_PAIRED_WELL_FRACTION:
         unused_counts = count_wells - matched
         unused_scores = score_wells - matched
+        # RECORDED, NOT ONLY PRINTED. A console scrolls; the summary is
+        # where a reader looks for what the run was based on, and "more than
+        # half the wells had no partner" is the kind of number that decides
+        # a result. Until this the summary said the pairing was not recorded.
+        if record is not None:
+            record["wells_paired"] = int(matched)
+            record["wells_unpaired_counts"] = int(unused_counts)
+            record["wells_unpaired_scores"] = int(unused_scores)
         if unused_counts or unused_scores:
             print(
                 f"Paired {matched} wells. "
@@ -8154,7 +8162,8 @@ def _perform_regression(settings):
     merged_df = pd.merge(independent_df, dependent_df, on='prc',
                          validate=merge_validate)
 
-    _check_score_count_pairing(independent_df, dependent_df, merged_df)
+    _check_score_count_pairing(independent_df, dependent_df, merged_df,
+                               record=settings.get('_regression_exclusions'))
 
     # n_grna / n_gene DESCRIBE THE ROWS THAT REACHED THE FIT.
     #

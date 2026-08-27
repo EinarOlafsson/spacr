@@ -2,7 +2,40 @@
 THREE THINGS THE REGRESSION LOG SAID, TWO OF THEM WRONG
 ================================================================================
 
-Status:    OPEN. Found in a real run's console output, 2026-08-26.
+Status:    DONE, 2026-08-26. All three.
+
+           1. SUPERSEDED BY 272, which is done: the panel offers `src`, and
+           `validate.DERIVES_ITS_OWN_SRC` stops the false ERROR on a module
+           that derives its own source. A module that genuinely needs one
+           still errors.
+
+           2. THE BANNER KNOWS WHAT THE RUN IS. Under a CERTAIN permutation
+           -- inference='nonparametric' or analysis_mode='guide_permutation'
+           -- it describes the permutation instead: how many reshuffles,
+           within what, which statistic, which level, that no model is
+           fitted so regression_type is not read, and the P floor at
+           1/(permutations+1). The model line and its cost warning are not
+           printed at all, so nothing warns about hours of REML on a run
+           that takes 45 seconds.
+
+           NOT under 'auto': its real resolution counts guides and wells,
+           which the panel cannot see. Describing a fit that may not run is
+           the lesser error, and the design scan corrects it afterwards.
+
+           3. RETENTION AND PAIRING ARE IN THE SUMMARY. The fraction
+           threshold row now gives the rows left and the percentage, and
+           flags a retention under 5% as resting on a small part of the
+           data. The pairing said "not recorded" because it was printed and
+           not recorded; `_check_score_count_pairing` now takes the same
+           `record=` the drop counts use, and the summary reports how many
+           wells joined, how many had no partner on each side, and what
+           share of the larger side that is -- flagged under 50%, which is
+           lenient on purpose: the two sides are not expected to match.
+
+           THE NUMBER WAS NOT CHANGED. 0.02 was set deliberately and the run
+           says so; this item was about the run being legible.
+
+           tests/test_the_regression_log_says_what_the_run_is.py, 13 tests.
 Owner:     spacr/settings.py's validator, spacr/ml.py's run banner, and the
            fraction-threshold reporting.
 
