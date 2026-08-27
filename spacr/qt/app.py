@@ -3855,6 +3855,20 @@ def launch(argv: Optional[list[str]] = None) -> int:
     LOG.info("application named %r (display %r); Qt reports %r / %r",
              _app_name, _app_display_name, app.applicationName(),
              app.applicationDisplayName())
+    # LAPTOP MODE, decided once and SAID. It is the fallback the laptop
+    # instruction calls the fallback -- reached after the optimisations, and
+    # it turns down what is decorative rather than removing what a module
+    # does. Nothing it touches is read by a pipeline, so a run computes the
+    # same answer either way; that is what makes deciding automatically
+    # acceptable. Overridable through SPACR_LAPTOP_MODE either way.
+    try:
+        from .laptop_mode import apply as _apply_laptop_mode, describe
+        LOG.info("%s", describe())
+        _laptop = _apply_laptop_mode()
+        if _laptop["changed"]:
+            LOG.info("laptop mode changed: %s", ", ".join(_laptop["changed"]))
+    except Exception:                                    # pragma: no cover
+        LOG.debug("could not decide laptop mode", exc_info=True)
     # Linux shells resolve dock/switcher identity through the desktop-file
     # id (Wayland does not use setWindowIcon for that surface).
     app.setDesktopFileName("io.github.olafssonlab.spacr")
