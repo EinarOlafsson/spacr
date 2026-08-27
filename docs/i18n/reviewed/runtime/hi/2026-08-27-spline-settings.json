@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "spline_degree",
+      "source_sha256": "25d4db7aca34d87f7a62494c73fb1e85d31fba0e737a79e470da3a077c163d84",
+      "source": "Spline degree",
+      "translation": "स्प्लाइन घात"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spline_knots",
+      "source_sha256": "8ea6e3cdf74b2957271ebd7e5633a4f7ae1138483784563fdff4460c5b1bc1fb",
+      "source": "Spline knots",
+      "translation": "स्प्लाइन नॉट्स"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_degree",
+      "source_sha256": "948dd7def548de6d0b8e81006ef9db37284d44587f3cb6a0d04ecd4088a86baa",
+      "source": "The polynomial degree of each covariate's spline basis. 3 is a cubic spline, the usual choice; 1 is piecewise linear. Read only by regression_type 'spline'. Default 3.",
+      "translation": "प्रत्येक सहचर के स्प्लाइन आधार की बहुपद घात। 3 सामान्यतः उपयोग किया जाने वाला घन स्प्लाइन बनाता है; 1 खंडवार रैखिक फलन बनाता है। केवल तब उपयोग होता है जब regression_type 'spline' हो। डिफ़ॉल्ट मान: 3।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_knots",
+      "source_sha256": "7c097817f41127ea1f896a249b562ec9aad6d7fae43831c65322756948829dd6",
+      "source": "How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+      "translation": "प्रत्येक सतत सहचर के स्प्लाइन आधार में नॉट्स की संख्या। अधिक नॉट्स संबंध को अधिक लचीला बनाते हैं, लेकिन अधिक स्वतंत्रता-घातों का उपयोग करते हैं। जिस सहचर के विशिष्ट मानों की संख्या घात से कम हो, उसे अर्थहीन स्प्लाइन आधार देने के बजाय रैखिक रखा जाता है। गाइड स्तंभों पर स्प्लाइन आधार कभी लागू नहीं होता, इसलिए मॉडल प्रत्येक गाइड के लिए एक गुणांक और एक p-मान लौटाता है। केवल तब उपयोग होता है जब regression_type 'spline' हो। डिफ़ॉल्ट मान: 4।"
+    }
+  ]
+}

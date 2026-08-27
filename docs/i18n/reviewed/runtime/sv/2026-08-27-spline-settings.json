@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "spline_degree",
+      "source_sha256": "25d4db7aca34d87f7a62494c73fb1e85d31fba0e737a79e470da3a077c163d84",
+      "source": "Spline degree",
+      "translation": "Splinegrad"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spline_knots",
+      "source_sha256": "8ea6e3cdf74b2957271ebd7e5633a4f7ae1138483784563fdff4460c5b1bc1fb",
+      "source": "Spline knots",
+      "translation": "Splineknutar"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_degree",
+      "source_sha256": "948dd7def548de6d0b8e81006ef9db37284d44587f3cb6a0d04ecd4088a86baa",
+      "source": "The polynomial degree of each covariate's spline basis. 3 is a cubic spline, the usual choice; 1 is piecewise linear. Read only by regression_type 'spline'. Default 3.",
+      "translation": "Polynomgraden för splinebasen för varje kovariat. 3 ger en kubisk spline, det vanligaste valet; 1 ger en styckvis linjär funktion. Används endast när regression_type är 'spline'. Standardvärde: 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_knots",
+      "source_sha256": "7c097817f41127ea1f896a249b562ec9aad6d7fae43831c65322756948829dd6",
+      "source": "How many knots the spline basis gets for each CONTINUOUS covariate. More knots let the covariate bend more freely and spend more degrees of freedom; a covariate with fewer distinct values than the degree is left linear rather than given a basis made out of nothing. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+      "translation": "Antalet knutar i splinebasen för varje kontinuerligt kovariat. Fler knutar gör sambandet mer flexibelt men använder fler frihetsgrader. Ett kovariat med färre unika värden än graden behålls linjärt i stället för att få en meningslös splinebas. Guidekolumner får aldrig en splinebas, så modellen returnerar fortfarande en koefficient och ett p-värde per guide. Används endast när regression_type är 'spline'. Standardvärde: 4."
+    }
+  ]
+}

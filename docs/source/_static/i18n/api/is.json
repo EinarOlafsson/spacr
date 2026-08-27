@@ -108,6 +108,26 @@
         "d0194a642f1261c92516ca13c75cc4a5a6f4cb5602ce024cb6773eb565316c35"
       ]
     },
+    "spacr._v1_v2_bridge.v2_mask_source": {
+      "source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "5a4f7550a565472ea22cfb16756e3e0436ccee6ad031c3cf882a6c8817d5ceee",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9027865649852490b08f3672196fefa8d568dcce06a58856db1665794b8ae443",
+        "6412d601a36730c6015b85431f7c9d0108487f94eeab2d2bc3783cf3675841fc",
+        "362947f165dfab6e7304267c53a51050885eee30bf232a90995bb82f2a11d755"
+      ],
+      "source_sha256": "c435cac77aa8791be010fbfb2e37edd9b7e2621af00e5326f7d572c8478bbcc8",
+      "text": "Sjálfsögn fyrir :func:`spacr.seg_qc.run_segmentation_qc`.\n\nv1 skrifa einn ``.npy`` á mikroskópum sviði sýn í ``<object_type>_mask_stack`` fóli, sem skóreikardinn globa beint. v2 hefur engin slík fóli: maska er mynd gögn kanal af ``merged/stack_<field>.npy``, form ``(H, W, C_image + C_mask)``. Þetta lesur ``channel_order.json`` til að vita hvaða myndarklæði er og hendur aftur ``{field: thunk}``, þannig að sama QC skora bæði áætlun og enginn þarf að vita um annað.\n\n:param merged_dir: ``merged/`` síma ``run_v2`` skrifað.\n:param object_type: sem maska gögn gögn kanna til að skora, samræmi við nafni gegn ``channel_order.json`` ``mask_channels``.\n:returns: ``{field_id: callable}`` - einn tunk á mikroskópum sviði, hver lenda eigin stack og slicing einn myndslóð. Vökur þegar sidakjöld er sakinn, nefnast engin maska, eða nefnandi engin matching ``object_type``; skorað ekkert er heiðarlega svarið til \"þar ekki maska hér\", og kallaðurinn segir svo í stað þess að upphæðast í ferli.\n\nLátnað í gegnum ``mmap_mode='r'`` og kopið myndu skamms fyrst, þannig að 1536-mikroskópur sviði sjónvarpslíf mikroskrópur er ritað einn mikroskopur svið sjónvarp á einu sinni en að lesa helstu.",
+      "translation_source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "d61e0d824ff613b7651bb09fd85b94800c3e2e1a7a1623c623256aa828a8e788",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9322647b9461664b4edaa5ef0c3324cbc6554e77e9ad4ba69e15041f125d3ce4",
+        "8880f2d6088a0008f89a96444a730e47cb84e3724784aac0af39ddbb508d2f1c",
+        "8dcbb4638a3ed3c2fbca5a28bdf7e7908875fd8132a8229896ca17d7ce7f75c9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -17066,6 +17086,22 @@
         "64fe42a30f9cb729134699480a93652b6e640e1de25b38f60a000135f47d593a"
       ]
     },
+    "spacr.external_masks.register_settings": {
+      "source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ],
+      "source_sha256": "c6fd846944972f533642ac645414cd4d63c99d278b849e3a1d2d7b79434a03d5",
+      "text": "Ákvarðanir þessarar mólus hjálpa í gegnum sameiginlegur skrá.\n\nExternal Masks snýr innskriftssamann, þannig að sjö innfangara-specifi stjórnun hennar voru eina setningar sem birtist í app registri án samþykktar hjálp. Að skrá sig við aðstæður halda uppsetningu, staðfestingu tegundir, og tóltýp prósa saman; Hugsanir með :func:`default_settings` hættu nú besta samfélagsins.\n\n:param replace: staðsetja núverandi skammsögn þessa modúla.\n:returns: hvort nýja skrá var gerð.",
+      "translation_source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ]
+    },
     "spacr.external_masks.run_external_masks": {
       "source_blocks_sha256": [
         "d6cb29b1aff77773898863658b8f4107acb742022851dfe3724bed78b66a04ae",
@@ -33203,6 +33239,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
         "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
@@ -33212,8 +33250,8 @@
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "64bbe2b849013439ef40efbd878f65604196c2a93a11bdfd6b65bfe7aac62f7d",
-      "text": "Sendið til beðið regressíu bakgrunni og sendið aftur tilreiðanlegur mönnun.\n\nHver nafn í :data:`REGRESSION_TYPES` er fátækur hér, og hver af þeim hefur samræmi grín í :func:`process_model_coefficients`, þannig að mönnun sem passa er alltaf hægt að breyta í coefficienttabla.\n\nHugbúnaður, og hvað hver er fyrir:\n\n==================================  ==========================================================================================================================================================================================================================================================================\n``ols``                             Reglulega minnsta kvarts á stöðugt vel viðbrögð.\n``wls``                             Vægt minnsta kvarts; ``weights`` er tölur celið í mikroplaði stöðu, þannig að mikroflaður stöðu 400 celiðar þyngir einn af 30.\n``rlm``/``huber``                   Stærri M-tækni (Huber tap). Fyrir mikrópstæðir staðar: nokkrar mikrótar staðar staðar eru ekki lengur að draga upp.\n``glm``                             GLM með fjölskyldunni sjálfvirkt úr svörunni með :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM með log tengsl og ``offset(log(exposure))``, fyrir per-microplate prófstæði talar - þannig að samkeppnin eru áhrif á per-cell RATE, ekki á heildnum mikróplata prófsta stöðu.\n``quasi_binomial``                  Binomial GLM sem er uppgötvun frá Pearson chi-square, fyrir yfirþreytingar.\n``beta``                            Beta regressions, fyrir fraktion strákur inn í (0, 1).\n``logit``/``probit``                GLM-binomial á fraktionum, þyngd af cell count.\n``quantile``                        Kvantilregression á ``quantile``; hættir við hár viðbrögðina en miðjan.\n``mixed``                           Mixed-effects linear myndavél með ``groups`` sem slæmt innfang.\n``lasso``/``ridge``/``elasticnet``  Að minnsta fótmynda.\n``hinge``                           Linear SVM (hinge tap) á bináris viðbrögð.\n``horseshoe``                       Sparse Poisson GLM með höfuðshú áður (spaCRPower Power-analysis modell), með :mod:`spacr.power_model`.\n``group_lasso``                     Sanktir minnsta kvarts með leiðbeiningar kolumna gein sanktir eins og ONE blokk, þannig að gein er valið eða kastað sem sett en ekki einn leiðbein á sama tíma - straffinu analóginn af blanda mynda, í gegnum :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK stíl robust rangamæli: leiðbeiningar rangast af marginal áhrif þeirra, aggregated til gena BY RANK með permutation P gildi, með :mod:`spacr.rra`. Það bildar engin sameiginleika, þannig að hólinn og p >> n breiður sem takmar á hverri bakgrunni yfir ekki ná það\n==================================  ==========================================================================================================================================================================================================================================================================\n\nTilsetningar bakgrunds sem ekki hægt er að lesa eru REFUSED, ekki unnið — sjá :data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; höfuðnafn verða tegundnafn).\n:param y: Svarið er breytilegt.\n:param regression_type: Eitt af :data:`REGRESSION_TYPES`.\n:param regression_backend: WHO hættir það - einn af :data:`REGRESSION_BACKEND_ORDER`. Þannig ``'statsmodels'``, sem framleiðti allar til staðar niðurstöður. A hættu sem getur ekki passað ``regression_type`` er REFUSED hér með ástæðu, ekki yfirgefið: tveir stjórnunir takast á milli í báðum leiðum , og setting CSV ná til þessar aðgerðir án þess að fara yfir panel sem gæti verið grænt innfang út.\n:param groups: Klústerkennir fyrir blandað tækni.\n:param alpha: Sanktsvægi fyrir ``lasso``/``ridge``/ ``elasticnet`` og viðbótar SVM marginn fyrir ``hinge``; ``'auto'`` / ``None`` gerði það með 5 sinnum kross-validation fyrir alla fjórar (mean kvarts virði fyrir bestur minnsta-kvarts þremur, jafnvægi nákvæmni fyrir ``hinge``).\n:param cov_type: Covariance estimator fyrir líkamsþing (``'HC0'``..``'HC3'``); ``None`` fyrir klassískra standað mistök.\n:param weights: Vöru á eftirliti - tölur celið stöðu mikrópla. notað sem ``var_weights`` með ``logit``/``probit`` /``quasi_binomial`` og eins og WLS vöru með ``wls``.\n:param l1_ratio: ``elasticnet`` blanda; 1.0 er lasso, 0.0 er ridge.\n:param quantile: Kvantil er sett með ``quantile`` regressíu, í (0, 1).\n:param hinge_threshold: Cut notað til að binarise stöðugt svör fyrir ``hinge``; sjá :func:`binarise_response`.\n:param huber_t: Huber túning stöðugt fyrir ``rlm``/``huber``, í einum í áætlað residual skala. 1.345 gefur 95% efnahagsleika undir norræmi.\n:param exposure: Per-sýntun (þekktur celið í mikrónapliki stöðu) notað sem ``offset(log(exposure))`` með ``horseshoe`` og ``poisson`` (og við ``glm`` þegar það sjálfvirkt velur Poisson fjölskyldu).\n:param group_lasso_lambda: Blokk bragð fyrir ``group_lasso``. Þessar eigin byggð gögn-nafn en ekki ``alpha`` vegna þess að það er sameiginlegt við :func:`spacr.group_lasso.max_lambda`, sem er eiginleika útgáfu, þannig að gildi yfir frá lasso rún myndi þýða eitthvað annað hér.\n:param rra_alpha: Top fraktion leiðbeiningar ranging alfa-RRA samsætt yfir. MAGeCK 0.25, sem er það sem hallar gein með einn sterka leiðbein og þremur sem hefur ekki skortur til að finna.\n:param rra_permutations: Draws á mismunandi leiðbeininga tákn í RRA permutation null; 10 000 setur minnsta greininni P í 1e-4.\n:returns: Skammt statsmodels / sklearn skammt.\n:raises ValueError: á óþekktum ``regression_type``, eða þegar settin er ekki hægt að lesa valda bakgrunni hefur verið sett á ekki stefnumótaraði.\n\nTil dæmis:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
+      "source_sha256": "09cac4e3a8936fbf72dfc29d8f74436b3a8fe8fa66267a398d956186739ba7b1",
+      "text": "Sendið til beðið regressíu bakgrunni og sendið aftur tilreiðanlegur mönnun.\n\nHver nafn í :data:`REGRESSION_TYPES` er fátækur hér, og hver af þeim hefur samræmi grín í :func:`process_model_coefficients`, þannig að mönnun sem passa er alltaf hægt að breyta í coefficienttabla.\n\nHugbúnaður, og hvað hver er fyrir:\n\n==================================  ==========================================================================================================================================================================================================================================================================\n``ols``                             Reglulega minnsta kvarts á stöðugt vel viðbrögð.\n``wls``                             Vægt minnsta kvarts; ``weights`` er tölur celið í mikroplaði stöðu, þannig að mikroflaður stöðu 400 celiðar þyngir einn af 30.\n``rlm``/``huber``                   Stærri M-tækni (Huber tap). Fyrir mikrópstæðir staðar: nokkrar mikrótar staðar staðar eru ekki lengur að draga upp.\n``glm``                             GLM með fjölskyldunni sjálfvirkt úr svörunni með :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM með log tengsl og ``offset(log(exposure))``, fyrir per-microplate prófstæði talar - þannig að samkeppnin eru áhrif á per-cell RATE, ekki á heildnum mikróplata prófsta stöðu.\n``quasi_binomial``                  Binomial GLM sem er uppgötvun frá Pearson chi-square, fyrir yfirþreytingar.\n``beta``                            Beta regressions, fyrir fraktion strákur inn í (0, 1).\n``logit``/``probit``                GLM-binomial á fraktionum, þyngd af cell count.\n``quantile``                        Kvantilregression á ``quantile``; hættir við hár viðbrögðina en miðjan.\n``mixed``                           Mixed-effects linear myndavél með ``groups`` sem slæmt innfang.\n``lasso``/``ridge``/``elasticnet``  Að minnsta fótmynda.\n``hinge``                           Linear SVM (hinge tap) á bináris viðbrögð.\n``horseshoe``                       Sparse Poisson GLM með höfuðshú áður (spaCRPower Power-analysis modell), með :mod:`spacr.power_model`.\n``group_lasso``                     Sanktir minnsta kvarts með leiðbeiningar kolumna gein sanktir eins og ONE blokk, þannig að gein er valið eða kastað sem sett en ekki einn leiðbein á sama tíma - straffinu analóginn af blanda mynda, í gegnum :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK stíl robust rangamæli: leiðbeiningar rangast af marginal áhrif þeirra, aggregated til gena BY RANK með permutation P gildi, með :mod:`spacr.rra`. Það bildar engin sameiginleika, þannig að hólinn og p >> n breiður sem takmar á hverri bakgrunni yfir ekki ná það\n==================================  ==========================================================================================================================================================================================================================================================================\n\nTilsetningar bakgrunds sem ekki hægt er að lesa eru REFUSED, ekki unnið — sjá :data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; höfuðnafn verða tegundnafn).\n:param y: Svarið er breytilegt.\n:param regression_type: Eitt af :data:`REGRESSION_TYPES`.\n:param regression_backend: WHO hættir það - einn af :data:`REGRESSION_BACKEND_ORDER`. Þannig ``'statsmodels'``, sem framleiðti allar til staðar niðurstöður. A hættu sem getur ekki passað ``regression_type`` er REFUSED hér með ástæðu, ekki yfirgefið: tveir stjórnunir takast á milli í báðum leiðum , og setting CSV ná til þessar aðgerðir án þess að fara yfir panel sem gæti verið grænt innfang út.\n:param groups: Klústerkennir fyrir blandað tækni.\n:param alpha: Sanktsvægi fyrir ``lasso``/``ridge``/ ``elasticnet`` og viðbótar SVM marginn fyrir ``hinge``; ``'auto'`` / ``None`` gerði það með 5 sinnum kross-validation fyrir alla fjórar (mean kvarts virði fyrir bestur minnsta-kvarts þremur, jafnvægi nákvæmni fyrir ``hinge``).\n:param cov_type: Covariance estimator fyrir líkamsþing (``'HC0'``..``'HC3'``); ``None`` fyrir klassískra standað mistök.\n:param weights: Vöru á eftirliti - tölur celið stöðu mikrópla. notað sem ``var_weights`` með ``logit``/``probit`` /``quasi_binomial`` og eins og WLS vöru með ``wls``.\n:param l1_ratio: ``elasticnet`` blanda; 1.0 er lasso, 0.0 er ridge.\n:param quantile: Kvantil er sett með ``quantile`` regressíu, í (0, 1).\n:param hinge_threshold: Cut notað til að binarise stöðugt svör fyrir ``hinge``; sjá :func:`binarise_response`.\n:param spline_knots: Nútur á stöðugum covariði fyrir ``spline``.\n:param spline_degree: Polynómískt gradið þessarar grunn; 3 er kubískt.\n:param huber_t: Huber túning stöðugt fyrir ``rlm``/``huber``, í einum í áætlað residual skala. 1.345 gefur 95% efnahagsleika undir norræmi.\n:param exposure: Per-sýntun (þekktur celið í mikrónapliki stöðu) notað sem ``offset(log(exposure))`` með ``horseshoe`` og ``poisson`` (og við ``glm`` þegar það sjálfvirkt velur Poisson fjölskyldu).\n:param group_lasso_lambda: Blokk bragð fyrir ``group_lasso``. Þessar eigin byggð gögn-nafn en ekki ``alpha`` vegna þess að það er sameiginlegt við :func:`spacr.group_lasso.max_lambda`, sem er eiginleika útgáfu, þannig að gildi yfir frá lasso rún myndi þýða eitthvað annað hér.\n:param rra_alpha: Top fraktion leiðbeiningar ranging alfa-RRA samsætt yfir. MAGeCK 0.25, sem er það sem hallar gein með einn sterka leiðbein og þremur sem hefur ekki skortur til að finna.\n:param rra_permutations: Draws á mismunandi leiðbeininga tákn í RRA permutation null; 10 000 setur minnsta greininni P í 1e-4.\n:returns: Skammt statsmodels / sklearn skammt.\n:raises ValueError: á óþekktum ``regression_type``, eða þegar settin er ekki hægt að lesa valda bakgrunni hefur verið sett á ekki stefnumótaraði.\n\nTil dæmis:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
       "translation_source_blocks_sha256": [
         "11addd56717d2def3ab515397efe9adf9e8ea2a5311aba495b89b6cab04650b7",
         "b6d92a9a367feb0a565f69b0a6af4e8a552253b3a0663e583928679bbc927405",
@@ -33246,6 +33284,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "6a0ece3932b5a634897beb05b315bc10a118b128e255cd53ee009b3f926c85af",
         "bdaf20968d29817f44096b5db6e96de5f477ead4cd542bfa4b9e9187fa70e092",
@@ -35956,6 +35996,158 @@
         "6696bc5034b22a18c5d5395e8ed7a6c1ab24fdb645c856b403b7f4e942b6ff92",
         "15601f90242cccfc0ea63274b9a62f76ebf84aa1371c29c0eeab10a2c7b31098",
         "6764daf04469b1a3346e7ca227774317a58bcd824c4ffd2a4d758873c6ad8bc5"
+      ]
+    },
+    "spacr.nonparametric_fits": {
+      "source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "dc80e9a737733f33c4291aa6d90cf460eed1d84293545036ad6af396e86f7ab4",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ],
+      "source_sha256": "2957a45a2e5671f7f872cb3a9e95d2530a8a32ec2bce970f49dec66bc7ea2f89",
+      "text": "Þessir sjö nonparametric aðferðir, skipt af því sem þeir geta heiðarlega svarað.\n\ner ekki sjö fleiri færslur í regression_type valmyndinni.  spaCR býður nú þegar upp á allt svar í einum gjaldmiðli - stuðull á leiðarvísi,  með staðalvillu og P-gildi -- og restin af skimunartilrauninni er byggð á því: eldfjallið teiknar áhrif gegn marktækni,  rađar genum eftir áhrifum međ q yfir genum sem prķfuđ voru,  og líkanið kortið neyta sömu töflu.\n\nFjórir þessar sjö vörur eru ekki suður tölur. LOWESS er lýsandi. Kernel regressions og KNN gefur fínt yfirborði, ekki slopp. Forest gefur mikilvægi, sem eru ekki samræmi og eru ekki samanburðar á hverjum eiginleikum á sama skala. Valinn einn af þeim sem \"the regression\" myndi veita vulkanum ekkert að draga, þannig að þeir eru boðið sem þeir eru:\n\n  A. LÍKAN SEM SVARAR Í SÖMU EININGUM -- bætist við `regression_type`. B. GREINING SEM ER LÖGÐ YFIR GÖGNIN -- á heima á myndriti og ákvarðar aldrei niðurstöður. C. SAMRÆMISPRÓF -- ber niðurstöðurnar saman við línulega röðun og tilgreinir leiðbeina sem aðferðirnar eru ósammála um.\n\nOg það sem EACH er að passa er ekki alltaf leiðbeiningar. spaCR's fit er leiðbeining -> fenotype á mikróplata staðsetningu með einn stólur á leiðbein: hágæða, skammt og flokkur, sem er verra tilfelle fyrir flestum af þeim. Þrátt fyrir stöðugt covariate - leiðbeiningar fjölbreytni í mikrópstæðinu stöðu, cell count, laboratory mikróbstæði stöðu - þeir eru á heima jörð, og það er þar sem fljótur vinna stað þeirra: sýna hvort fenotyp hreyfir fljótt með neikvæðum breytandi lífræna mönnun er að taka út.\n\nCeller í einum vatni eru ekki sjálfstætt, þannig að hver skiptir þessar aðferðir þurfa að fara í gegnum vatni, aldrei í gegnum cell.",
+      "translation_source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "a94a81e57402a749d36225cad55b0f17d548194ddb500bd8b0609de537e0251e",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a8fa2762d566899e2a2da4561832e5889bb5a81fc6940b9d95c018072f3b3c36",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ]
+    },
+    "spacr.nonparametric_fits.Agreement": {
+      "source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ],
+      "source_sha256": "f10a914b24e278e7980ad3980bdfa55bbad9e13c010049a5a0fbd73feece27c7",
+      "text": "Tveir rangar sömu leiðbeininga, og þar sem þeir eru ekki sammála.\n\nÚtflutningin er samræmi, ekki efnahagsleg tól. 212 segir hvaða punkt er: \"Er þetta áhrif á gögnum, eða er það mönnun? Tveir sammála er meira en einn, og þar sem þeir ekki sammála, er óþekkt sjálfur finna.“",
+      "translation_source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ]
+    },
+    "spacr.nonparametric_fits.Curve": {
+      "source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ],
+      "source_sha256": "f6993fa92754942a23c4127885445c32eb7052ed69059c7326336e6ed09b749e",
+      "text": "A fínt curve til að draga yfir skotari, og hvað það er.\n\nAldrei HIT LIST. `p_values` eksist ekki á þessu hlutum með tilgangi: tákn sem gæti verið rangt fyrir prófið er það sem leiðbeining 254 segir er verra en ekki bjóða upp aðferðina alls.",
+      "translation_source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ]
+    },
+    "spacr.nonparametric_fits.agreement": {
+      "source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "69f9e602c2017c2f5a8a21343e0f52fd8cd02f6a070f4cd387b87a369be488e1",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "11c59eceb23ebfbcc514e17010d4cca115b3a9caf2bd08cf9b3fa3456a3a97f0",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ],
+      "source_sha256": "96bfdfc7d78bb949d43e3e8589db2c907b3f33d3ceddc27c5dcee485cfa0ae02",
+      "text": "Rank leiðir annað leið og samanburða það við linear rangning.\n\n:param design: Mikróplata skammt stillingar x leiðbeiningar. Einn stefnu á mikróplatta skammta stillingu, aldrei á celi.\n:param linear_effect: eigin per- guide áhrif, raðað eftir stærð til að gefa röðunina sem þetta er borið saman við.\n:param groups: Mikróplaður sýnstaða hverri ræði er að. Endur til skilja þannig að ein mikrópliður sýnað stöðu ræðir aldrei skilja skilja - celler í mikróblað sýnaðar stöðu deila sem mikróflaður sömu stöðu, og skiljað sem krossir einn myndi skora mönnun á eigin þjálfun gögnum.\n:param moved_by: Hversu mörg staðir leiðandi þarf að fara til þess að vera þess virði að nafnast.",
+      "translation_source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "62529c61051d3bece9f17fb89d6491cde72ac2ee13e760d8037dc2871d5d4e5e",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "fa769e9a02b46eb361ee5acdfd76a02dbb5e31a4b90624236cfac942e1a00b35",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ]
+    },
+    "spacr.nonparametric_fits.describe": {
+      "source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ],
+      "source_sha256": "1ad3e586f8942846d6f7bc71be9bf209a996d113bf2bc036d8f6b427a26a6387",
+      "text": "Eitt orð sem nefnir hvað aðferð er fyrir og hvað það kostar.\n\nHefur sagt WHERE Það er vel. Allir hlutinn á þremur leiðin er að lesandinn veit áður en að taka, ekki eftir að hlaupa.",
+      "translation_source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ]
+    },
+    "spacr.nonparametric_fits.isotonic_fit": {
+      "source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ],
+      "source_sha256": "59229686eb015fce756b5622ffde181053eb38d55761b6b8d3366367b6199547",
+      "text": "A monotón fítur af ``y`` á einum bestu ``x``. Til baka (þrýst og slýst)\n\nEitt umfang og einn leið, `refuse('isotonic', ordered=False)` er það sem segir svo áður en kallaður sýnir það á leiðbeiningu.",
+      "translation_source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ]
+    },
+    "spacr.nonparametric_fits.methods_in": {
+      "source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ],
+      "source_sha256": "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432",
+      "text": "Allir aðferðir sem tengjast ``category``, í skýrslu.",
+      "translation_source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ]
+    },
+    "spacr.nonparametric_fits.refuse": {
+      "source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ],
+      "source_sha256": "e228cb7741ebd46ec0c3677cf5f75c31c051257637ca1baa880091b30c6c9694",
+      "text": "Hvers vegna ``name`` er ekki hægt að hlaupa á gögnum í þessari form, eða None.\n\nAð velja aðferð á gögnum getur ekki náð við ástæðu, í stað þess að endurtekna aðferð sem enginn ætti að lesa.",
+      "translation_source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ]
+    },
+    "spacr.nonparametric_fits.report_agreement": {
+      "source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ],
+      "source_sha256": "85eef9b73a648f6178d180c594fd149f727d2440b47e32b52ab42386ece75d3f",
+      "text": "Hættu samninginn athuga á ferilinu og aftur hvaða til að trúa.\n\nTakar reikningstablaðinn þegar framleidd, þannig að ekkert er endurtekinu og samræmi er gegn ráningu sem leikurinn er í raun notið.\n\n:param coefficients: Bílinn í rúnum, með `feature` og `coefficient`.\n:returns: orðin til að trúa, eða \"\" þegar það er ekkert að mæla - of fáir sameiginlegir leiðbeiningar, eða borð með engum samræmi í henni.",
+      "translation_source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ]
+    },
+    "spacr.nonparametric_fits.smooth": {
+      "source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ],
+      "source_sha256": "bdd521837d7058ec6c5647793948e37ee5d77239ce92427edd5c49244b5bf751",
+      "text": "Hættu einn af dásamálum á ``y`` gegn ``x``.\n\n:param scaled: standa ``x`` áður en að passa fyrir aðferðir sem þurfa það, og segja það í notandi. KNN og Gaussian ferli eru fjarlægð, þannig að óskalað covariat hljóðlega gerir einn eining hennar þýðir hvað umfang hennar gerist að vera.\n:raises ValueError: þegar aðferðin er ekki hægt að hlaupa á þessari formi - með ástæðu, í stað þess að passa enginn ætti að lesa.",
+      "translation_source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ]
+    },
+    "spacr.nonparametric_fits.spline_design": {
+      "source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
+      ],
+      "source_sha256": "6076ec6e2d2905ffd9c2e7f2d99f94a614ec12cdb14f7bc090f0b6ffbdc9e3f1",
+      "text": "Hættu hverri nefndur covariat með spline basis. Til baka ramma.\n\nLeikstjórnin er ekki rannsakað, og það er það sem gefur þetta í flokki A. Hver leiðbeiningin gefur nákvæmlega eitt stóð, þannig að viðeigandi framleiðir enn einn samræmi og einn P gildi á leiðbeiningu og vulkaninn og hit listan draga það með engum sérstökum skammingu. -- Covariate steinlinni var að taka út.\n\nA grundvallarkoluminn er kallaður `<covariate>_spline<k>`, sem bori ekki `grna` og ekkert `gene`, þannig að hvert filter sem þegar dropur `rowID[T.r2]` dropur þetta líka.",
+      "translation_source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
       ]
     },
     "spacr.normalization": {
@@ -41255,10 +41447,10 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "129ca43c4fd5ed4d53e17d607873ba68112a9ab9eab83aae21d09ee68c27ef83"
       ],
-      "source_sha256": "c71664277b0555d332d35dbbdbf57f0bd21d865c2ade5fa62fd10f088f8b400c",
-      "text": "Overlay ``masks/*`` útlíkur á samræmi myndum frá ``img_folder``.\n\n:param img_folder: Fólkið sem inniheldur myndir; maskar lifandi í ``img_folder/masks`` með samræmi við filnafn.\n:param normalize: Ef True, percentual-normalisa myndir áður en blanda. Skammsögn ``True``.\n:param resize: Ef True, endurskera blandað yfirliti til 1000x1000. Skammsögn ``True``.\n:param save: Ef True, skrifaðu PNGs til ``img_folder/overlay/``. Skammsögn ``False``.\n:param plot: Ef True, sýnir hver yfirliðið á matplotlib. Skammsögn ``False``.\n:param thickness: Hæftir á svæði í pixlar. ðræðalega ``2``.\n:returns: None",
+      "source_sha256": "87e8f8f71fe914fcfc129d511648725fbb49a53f448fac1c09f3cb04c1409717",
+      "text": "Overlay ``masks/*`` útlíkur á samræmi myndum frá ``img_folder``.\n\n:param img_folder: Fólkið sem inniheldur myndir; maskar lifandi í ``img_folder/masks`` með samræmi við filnafn.\n:param normalize: Ef True, percentual-normalisa myndir áður en blanda. Skammsögn ``True``.\n:param resize: Ef True, endurskera blandað yfirliti til 1000x1000. Skammsögn ``True``.\n:param save: Ef True, skrifaðu PNGs til ``img_folder/overlay/``. Skammsögn ``False``.\n:param plot: Ef True, sýnir hver yfirliðið á matplotlib. Skammsögn ``False``.\n:param thickness: Hæftir á svæði í pixlar. ðræðalega ``2``.\n:returns: ``{'written': int, 'failed': [(filename, reason)]}``. Fólkið sem ekki hægt er að lesa er nefnd og skipt í stað þess að loka meðferðarhúsinn, þannig að mappur sem hallar einn truncated TIFF framleiðir enn allar aðrar yfirliti - og kallaðurinn getur sagt hvaða eru saknar.",
       "translation_source_blocks_sha256": [
         "9a3f809a83769a9c91389cef5294ceb0c72557478347158de2e9881b45061ca3",
         "6209144a5b785a019714c69a18441371e56db975a8880746d2fd6cc5e34b125b",
@@ -41267,7 +41459,7 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -44264,6 +44456,16 @@
         "b861939ecbeb09b90ea871de468cd72c2c902c0291c235586c798f1a6eb43dbc"
       ]
     },
+    "spacr.predictions.first_present": {
+      "source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ],
+      "source_sha256": "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d",
+      "text": "Fyrsta af ``names`` sem ``frame`` hefur í raun, annar None.",
+      "translation_source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ]
+    },
     "spacr.predictions.merge_cv_predictions": {
       "source_blocks_sha256": [
         "ea0157cccd03f87d1905464cc59efc9c8e90477d5e5c6321a243f0045ed0ba06",
@@ -47194,6 +47396,20 @@
         "acb0b0e0af5e22425fb56afac156ab5d5a510a75b77f3204d60a35b20235dc63"
       ]
     },
+    "spacr.qt.app.install_the_spaceout_fractal": {
+      "source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "3691739c82aecee161535cda10c936165029de0ec70f863b63da51e7819094e5",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ],
+      "source_sha256": "e1fc0ec694cabb548905f78ef621ae9e36be1c76fd518c4cd1a1533399e35fdf",
+      "text": "Settu spatiout fraktalinu bak ``screen``, ef þetta er spati out.\n\n:returns: True þegar það var sett, þannig að hringandi veit að skipta yfir venjulega umhverfis bakgrunni. False í hverjum venjulegum upplifunum - sem er það sem hallar aðferðin skjult - og fallegt í stað þess að kasta þegar fraktalinn ekki hægt er að byggja, svo að vél sem ekki getur skreytist það fær enn uppþróun sem það hefur alltaf verið.\n\nSættir koma frá Preferences, sem sýnir þá aðeins undir spatiout, þannig að einn staður ákveður bæði hvað er boðið og hvað er hækkað.",
+      "translation_source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "4b38faaea456670ab341c8bb106b33e8e3c7a3a67ac8bec27f4dbdb6ef740055",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ]
+    },
     "spacr.qt.app.launch": {
       "source_blocks_sha256": [
         "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865"
@@ -47474,6 +47690,146 @@
         "15fbd6c4c02cf7496fc10f040c4572934df6d10bd033d9763696631a325c602a",
         "7e7b12cbd705dcc73d06a90c90b07402cf4364bb01607b5ba7b926bed6714ae1",
         "08cb5bff9139116d7d3a506d287baef0078fb5fac6f2f399b9be34a5ebc28470"
+      ]
+    },
+    "spacr.qt.ask_for_the_path": {
+      "source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "de2f152a3cf969bbc83acac16eb37ff946df23bb04f20dd6685bae51530f8328",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "9f2b2d82ec2f1a30d3b83e1d981f14069cab38f60af0c6d49e401cc3410b4e88",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "1d98255231ac34929753c1cf13dfdcc650baa9809f775ab03fd113db25243667",
+        "f9da042489a7eec8063a85ec05220b68dfb57521ecca2a6068670026e5fba87b"
+      ],
+      "source_sha256": "e674d25d4cd1754b9ae12a8a10820a063ecebdb55c9b40096a6f6b0cd242c58a",
+      "text": "Þegar venjulega leiðin til að finna eitthvað missa, spyrðu það.\n\nÞessar eru bakbúðir, ekki venjuleg leið. Ordinleg lausn er fyrst á hverjum tíma; Þetta er aðeins hægt að ná þegar það hefur þegar missað. Meðferð sem virkar í dag ætti ekki að fá samskipti, og notandi sem aldrei hittir misnotkun ætti aldrei að sjá einn.\n\nA DIALOG er betri en mistök hér vegna þess að upplýsingarnar eru það sem notandinn hefur og programinn gerir ekki. Núverandi hegðun á hverjum þeirra er að hætta með skilaboð sem heitir það sem er saknað - sem þýðir að hugbúnaður veit nú þegar nákvæmlega hvað að biðja um. Að spyrja er strákar gagnlegari en að skýra, og kostar eitt samræmi í stað þess að einn abortur fer.\n\nÞað sem hver skammt skyldi, og hvað þetta móddur veitir svo að kallaður getur ekki gleymt einn:\n\n* Sá hvað var tríður fyrst, þannig að typo í stöðu er skilgreint frá alvöru mismunandi skáld;\n* Valítið áður en viðurkennd - valda skáld með ekkert í henni er sama mismunandi eitt skref síðar;\n* Ásaka einu sinni í rún, ekki einu sinni á mynd, á mikrópstæðan stað eða á mikrorópstæði í prófabréfi;\n* Skrifaðu það aftur og segja svo, því að sett sem breytist án þess að vera tilkynnt er verra en sett sem ekki;\n* Be refusalable: Annull þýðir að meðferð hættir með mistök sem það hefði gefið í öllum tilvikum;\n* Aldrei sýna headset. Í skriptu, prófi eða upplifun er enginn að svara, svo fallback leysa upp á upprunalegu mistök í stað þess að loka á samskipti enginn getur séð. Þetta er það sem myndi hleyma vinnuflokk í nóttinni, og það er skoðað áður en eitthvað annað.",
+      "translation_source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "e9f928813199565edc458c20ad3e1edb0926e39473dc4993cad8952957744985",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "765c36f74dd7e80baa5e30c2bb6763dbdb8b583fe120ea6a782e8c8b6a9d3dcd",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "0ccdc5a857545d381e9a41557986769c1b7b772eeb34c103e524bb3e58de2d50",
+        "97b412dffeb91b8042d5d4d8dc4191cf67d39459bce510bcea48de364b726700"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.a_folder_holding": {
+      "source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ],
+      "source_sha256": "6a494473bbb52647d27352f884164830bb6cda2efe4e1e28d3b191a866544c11",
+      "text": "Validator: Fólkið verður að hafa að minnsta kosti einn skál með suffix.\n\nValinn mappur með ekkert í henni er sömu mismunandi eitt skref síðar, sem er það sem gerir staðfestingu áður en viðurkenna verðlaun kóða.",
+      "translation_source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
+      "source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ],
+      "source_sha256": "d1f116a3eed81cb162d03c07f9c4fe911793c10cadd69c4774c9262cc52d2ba9",
+      "text": "Spurðu um gögn, tabla í henni, og kolumn í henni.\n\nÞREIR svör, NEIN EIN, vegna þess að það er það sem samskiptaflokkinn þarf og að spyrja fyrir þá einn á sama tíma er því sem gerir annað og þriðja svarað: gögnum sem bjóða eru þeir sem valið gögn virkilega halda, og kolumnar eru þeir gögnin. A hvíldur leyti myndi biðja notandinn að muna nafn sem hugbúnaður getur lesið.\n\n:param key: Hvað er spyrjað; svarið er minnst undir það.\n:param tried: Það sem var reynt og ekki virkar, sýnt í hverjum titli.\n:param chooser: injektuð til prófunar; staðsetningar til raunverulegur skáldsamtal.\n:param pick: Injektuð til prófa; staðsetningar í raunverulegu lista samskipti. kallað ``(title, prompt, options)`` og endurheimtir val eða None.\n:returns: ``((database, table, column), why)``, eða ``(None, why)``. ástæðan segir alltaf WHAT af þremur hættu -- Það er enginn þar, hætta eða gögn með ekkert í henni. -- vegna þess að kallaður sem trúa það er eina reikning sem notandi fær.\n\nBackup út frá síðar skref kemur aftur til fyrri en ekki að yfirgefa allan forminn, svo að velja rangt gögn tölva kostar einn klikk í stað þess að fara.",
+      "translation_source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder": {
+      "source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ],
+      "source_sha256": "f89ffe8657762b6e964d068d05f341c6b3d43ca7f909d492a82c2986cab2af98",
+      "text": "Spurðu eftir því að venjuleg lausn hefur missað.\n\n:param key: Svarið er minnst undir það, þannig að þriðja mynd af hlaupinu spyr ekki aftur.\n:param tried: hvað var reynt og virkar ekki, sagði áður en valmaður svo notandi veit hvers vegna þeir eru spurð.\n:param what: Námskeið fyrir hlutina sem þú vilt, fyrir titil.\n:param validate: með því að valda leið, kemur None aftur þegar það er notandi eða orð sem segir hvers vegna það er ekki.\n:param chooser: Íhugað til prófa. Óþekkt í raunverulegu mappandi samskipti.\n:returns: ``(path, why)``. `path` er None þegar enginn svaraði, þegar notandi var hættað, eða þegar það er enginn þar - og `why` segir alltaf hvaða, vegna þess að þetta eru þrjár mismunandi stöðu.",
+      "translation_source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.columns_in": {
+      "source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ],
+      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+      "text": "Hver stóð í einu tólum, í orðum tólinn segir þá.",
+      "translation_source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.forget": {
+      "source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ],
+      "source_sha256": "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3",
+      "text": "Hættu hvert minntuna svarið. fyrir prófa, og fyrir nýr renn.",
+      "translation_source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.remembered": {
+      "source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ],
+      "source_sha256": "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61",
+      "text": "Hvað var þegar svarað fyrir ``key``, ef eitthvað.",
+      "translation_source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.somebody_is_there": {
+      "source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ],
+      "source_sha256": "c92ac2e925ac76e702b158eeaf876999d34316c8beef08508a82f47c2d003177",
+      "text": "Eða það er einhver sem gæti svarað við umræðu.\n\nFalse undir pytest, með engin sýn, eða áður en QApplication er til. Verið fyrst og á sjálfum sér, vegna þess að fá það rangt sýnir ekki samskipti við neinn - það blokkir, og blokkinn batch virðist eins og hang.",
+      "translation_source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.tables_in": {
+      "source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "3c7a2a2ef660cce10eec82aacb9aa5519333fdfa263fbf1dc300ec6eb7959b38"
+      ],
+      "source_sha256": "31809cab2f4cd71ed0abd9d4f96119cdc0d49bea9d6ab9bd0b8ca8161acb1a75",
+      "text": "Hver tabla í SQLite faili, eða leyti lista ef það er ekki einn.\n\nAldrei kasta: leið sem notandinn hefur valið er leið sem getur verið eitthvað, og \"þetta skáld hefur engin tablar\" er orð sem forminn þarf en ekki undantekning sem það myndi hafa að taka alls staðar.",
+      "translation_source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "c78d0bdbb2416432d613f0e91431589b15f1178849a8e6ce9c15f31f8af9ecfc"
       ]
     },
     "spacr.qt.bridge": {
@@ -51426,6 +51782,28 @@
         "17b9d626580959e9cf19ec960e6e39844e7c3a39684c5bdf41bb8ed44ad7ec5e"
       ]
     },
+    "spacr.qt.fractal_defaults": {
+      "source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ],
+      "source_sha256": "fef40f2ded5279a9c30affbbc50c9e07db6cdf800c63980ccec7b96aa2b95f96",
+      "text": "Númerur fraktalins, innleiðandi án Qt, numba eða vispy.\n\n`preferences` þarf skammturnar og klíminn til að lesa lagðri gildi, og `preferences` er inn innan fyrstu vönnun er til. Að ná til `widgets.fractal_travel` fyrir þá myndi draga numpy og numba á hættu fyrir hvert venjuleg sesun - ein modul ekkert en spaceout notar.",
+      "translation_source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ]
+    },
+    "spacr.qt.fractal_defaults.clamp": {
+      "source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ],
+      "source_sha256": "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18",
+      "text": "``value`` geymt í ``[low, high]``.",
+      "translation_source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ]
+    },
     "spacr.qt.gil_priority": {
       "source_blocks_sha256": [
         "70d3cd7891ebb9fa9f85a3035269cd43d5304ed367205e12226acf77608d66dc",
@@ -52808,6 +53186,112 @@
       "translation_source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+      ]
+    },
+    "spacr.qt.laptop_mode": {
+      "source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ],
+      "source_sha256": "daecd56de2ad0cd0b7e640ce75dab9d81d2b9a0242ee33a7482fed59a2af6d31",
+      "text": "Farið vel á litlu vélinu án þess að verða smá notkun.\n\nReglur þessarar skálir svörir til, í orðum viðbótarinnar: \"Eins vegar að snúa hlutina er eitt stefnu, en bestu málsscenari minn er að vera fær um að halda svo mörg eiginleika sem hægt er bara að bæta þeim svo þeir eru einnig að fara á verri hardwar.“ Svo þetta er FALLBACK, eftir því að upplifunin er gerð, og það snúa niður það sem er dekorandi en að fjarlægja það sem ein modul gerir.\n\nÞað er ekkert hér að breyta það sem meðhöndlun ákvarðanir. Hver sett sem það ber er um hvernig notkun er DRAWN.\n\nÞað er valið sjálfkrafa, það er hægt að eyðileggja á hvaða hátt og það segir hvað það eyðilegt - aðferð sem örugglega gerir notkun öðruvísi er einn sem enginn getur degið.",
+      "translation_source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ]
+    },
+    "spacr.qt.laptop_mode.apply": {
+      "source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ],
+      "source_sha256": "876ecc902d9a078887f698b0fedfd8ee37872d0be4dc3b81c3365d6b47df1af4",
+      "text": "Hugsaðu eða hættuðu aðferðina. endurheimtir það sem var ákveðið og það sem breytist.\n\n:param on: svarið er áreiðanlegt; ``None`` mætur vélinn.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` heitir hvert sett í raun skrifað, þannig að kallaður getur sagt hvað gerðist í stað þess að segja það.",
+      "translation_source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ]
+    },
+    "spacr.qt.laptop_mode.describe": {
+      "source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ],
+      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
+      "text": "Fullur ákvörðun sem einn blokk, fyrir upphafi log.",
+      "translation_source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ]
+    },
+    "spacr.qt.laptop_mode.measure": {
+      "source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ],
+      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
+      "text": "Það sem ákvörðun er gert frá, þannig að það er hægt að vita og prófa.",
+      "translation_source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ]
+    },
+    "spacr.qt.laptop_mode.override": {
+      "source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ],
+      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
+      "text": "Það sem umhverfið segir, eða None þegar það segir ekkert.",
+      "translation_source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ]
+    },
+    "spacr.qt.laptop_mode.total_memory_gib": {
+      "source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ],
+      "source_sha256": "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc",
+      "text": "Físísk minningu í GiB, eða None þegar það er ekki hægt að lesa.",
+      "translation_source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ]
+    },
+    "spacr.qt.laptop_mode.usable_cores": {
+      "source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ],
+      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
+      "text": "Cores þetta ferli getur virkilega notað, ekki cores sem vélin hefur.\n\n`os.sched_getaffinity` þar sem það er til: container eða skiptandi getur pinð ferlið til minna en `cpu_count` skýringar, og pinning er nákvæmlega aðstæður þessi leið er fyrir.",
+      "translation_source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ]
+    },
+    "spacr.qt.laptop_mode.wanted": {
+      "source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ],
+      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
+      "text": "Hvað á að fara í tölvupósti, og orð sem segir hvers vegna.\n\n:returns: ``(on, why)``. ástæðan er alltaf vinsamlegur, þar á meðal þegar svarið er ekki -- \"spaCR decided not to\" er hlutur sem notandi segir og einhver ætti að vera fær um að skoða.",
+      "translation_source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ]
+    },
+    "spacr.qt.laptop_mode.what_it_turns_down": {
+      "source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+      ],
+      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
+      "text": "Hver hluti breytist aðferð, og hvað notandi tapar af því.\n\nÞað er ekkert hér að lesa af vinnuflokk, þannig að meðferð ákvarðanir sömu svarið í hverjum stöðu - sem er loforð sem gerir sjálfkrafa ákvörðun viðkomandi alls.",
+      "translation_source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "e1c7f54e963fdc38e34ea1b8306d447010ef331a04ee7613f9e0f66739bd777f"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -55646,6 +56130,18 @@
         "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264"
       ]
     },
+    "spacr.qt.preferences.get_fractal_settings": {
+      "source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ],
+      "source_sha256": "6f0c8db2c882def4a35b1435da8407ff752f333d4b37af013619a95a418bcc88",
+      "text": "Allir spatiout fraktsættir, tilbúinn fyrir `Settings`/`RuntimeControls`.\n\ní gegnum eina ađgerđ svo valmyndin og bakgrunnurinn geti ekki veriđ ķsammála um sjálfgefin gildi. -of-svið geymd gildi eru klemmd frekar en hafnað - bakgrunnur má ekki stöðva forritið frá upphafi.",
+      "translation_source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [
         "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193"
@@ -55676,6 +56172,18 @@
       "text": "Til baka persistingu UI tungumálskód, fall aftur á ensku.",
       "translation_source_blocks_sha256": [
         "8fe3572d424d631dea9350a664e3f4f1334e1a3eead099dc7bd54a5cf79925d8"
+      ]
+    },
+    "spacr.qt.preferences.get_laptop_mode": {
+      "source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
+      ],
+      "source_sha256": "9970c73c5d6cec4d3aea8dc51dc5f048e1d3e475abd666b47f4ce3f4057f7e04",
+      "text": "Hvort sem laptop móður er tvöfaldur á, tvöddur af, eða metnað.\n\nHugbúnaður er eitt af :data:`LAPTOP_MODE_CHOICES`. Allt annað - gamla skrif, handreiðanlegt skrif - lesa sem ``\"automatic\"``, vegna þess að setting sem enginn getur þýdd ætti að verja eins og það var aldrei sett.",
+      "translation_source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
       ]
     },
     "spacr.qt.preferences.get_log_console_levels": {
@@ -55970,6 +56478,18 @@
         "e4263e98c459c4bf6f797b85c1f0e59d9f3f6c282eddc9cd641284106f84a2d5",
         "5efe2212f3437950fc7e12b0f87c3fd4d049d482aa4746b4d51286ff8b9088aa",
         "c28efd5f9ced78ef62cf0f14ed0af079870a50abab66a9c2a704b3bb86bc060c"
+      ]
+    },
+    "spacr.qt.preferences.laptop_mode_note": {
+      "source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
+      ],
+      "source_sha256": "ddfabb93c4300855629291df28b701347865414b10403b9c1ecb1c27644a8680",
+      "text": "Hvað valinn sett mun gera á þessari vél, sagði áður en spara.\n\nAutomatic er aðstæður sem þarf að segja: tákn getur ekki sagt niðurstöðu, vegna þess að niðurstöðu er eftir vélinu að lesa það.",
+      "translation_source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
       ]
     },
     "spacr.qt.preferences.maturity_is_visible": {
@@ -56398,6 +56918,18 @@
         "6ff0c2175252aff10cb2639d4c6c7aba7aafe020f957fbd1dd127731f1a5b9e5"
       ]
     },
+    "spacr.qt.preferences.set_fractal_settings": {
+      "source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ],
+      "source_sha256": "3e75419e2dace9574973f6a2e0e80af1993834f1791702af2f682d37af1445c6",
+      "text": "Vinsamlegur undirsetur af frakttalegum settum.\n\n:raises ValueError: á óþekkt nafn, eða bakgrunni / gæði út úr setinu. tölur út úr sviði hennar er klappur, vegna þess að slider getur ekki framleiðt einn og handbreiddur skrá ætti enn að byrja.",
+      "translation_source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ]
+    },
     "spacr.qt.preferences.set_hash_inputs": {
       "source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
@@ -56432,6 +56964,20 @@
       "translation_source_blocks_sha256": [
         "0b926505a064e68b7543dc60c317836f3a336dc8450e6d9352f0564024d29443",
         "0ecd63fe48e47dcf5b363f0f3b6ade9472c2178df9c9d7e3cdabe49b56652c07"
+      ]
+    },
+    "spacr.qt.preferences.set_laptop_mode": {
+      "source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+      ],
+      "source_sha256": "d7057a17e60ba6db6fa09b6167bb17c91659a3d6c2160c3edfd7e2fc08d37c90",
+      "text": "Vinsamlegast þörf á laptop móður og nota það núna.\n\n:raises ValueError: á óþekktri val.\n\nÁætlaðu strax en ekki á næsta útgáfu, vegna þess að tvö hlutir sem það breytist - umhverfismál og bakgrunni blur - eru bæði sýnilegar í gluggi bak viðtalina.",
+      "translation_source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
       ]
     },
     "spacr.qt.preferences.set_log_levels": {
@@ -83025,6 +83571,20 @@
         "7f0b8b828bbb7985819b4676c26d3d39756b5a45116d69b50985582c84b94caf"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.add_smoother": {
+      "source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ],
+      "source_sha256": "3f053804ffc782260503c35d2bd6d6853c4353736ca919820296128f0c040e11",
+      "text": "Leyfðu einn diagnostiskurva yfir þá punktur sem nú eru tekin.\n\n:returns: Hvað á að segja um það - metan, notan, og bandinn þegar það segir einn - eða neita, sem er orð sem kallaður sýnir í stað þess að undantekning sem það snýr. ``\"\"`` kemur aftur þegar ``method`` er leitt, þannig að \"none\" er ekki sérstakt mál á hverjum hringslu síðu.\n\nKurvinn hefur engin p-verði og getur ekki fengið einn: það kemur aftur sem :class:`spacr.nonparametric_fits.Curve`, sem hefur enginn slík atribút. Eitt fljótari sem bendi þar sem hægri stefnu stefnu er fljótt er að finna - það þýðir að miðjamálinn er saknað skilaboð - og það er lausn um FIT, ekki próf leiðbeiningar.",
+      "translation_source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
       "source_blocks_sha256": [
         "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
@@ -83625,6 +84185,22 @@
         "1e2a2463e4992521cc0551b4f0866e8c6f65d3bd803ce2290ae5cf20992ac3d5",
         "5d4fc5178fe1cb7adabb14da987b070c72267b240d2ed8c32dd1beebaf1a9176",
         "4da05ffbdc99f516c96ffccbd237c1865b21b50b096360a6cf71271710732640"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_smoothers": {
+      "source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
+      ],
+      "source_sha256": "69ab7fbb4b71f69f2b5d49031debf18a839d42f2f9626f93ca796c1fbb3f9a6b",
+      "text": "Leyfðu fjögur dásamálar á hægra klicka menynni.\n\n:param on_change: kallað ``(method_name)`` þegar einn er takað, eða með ``\"\"`` fyrir enginn.\n:param chosen: sem núna er tekin.\n\nSérðu frá :meth:`offer_refit` DELIBERATELY, og menni segir það. Þessar krúfur eru staðar yfir fit sem hefur þegar gerst; Enginn þeirra skiptir það, og enginn þeirra ákveður hit. Það er allt ástæðan fyrir því að leiðbeining 254 setja þá í mismunandi flokki frá inntekjum í ``regression_type``.",
+      "translation_source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_style": {
@@ -88137,6 +88713,178 @@
       "text": "Línin undir boði - valideringskynning eða skilaboð.",
       "translation_source_blocks_sha256": [
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel": {
+      "source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "0566678131450c8e1b80701442dfbd4c9c0c05c18b669c466f1c32d07f119c9d",
+        "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45"
+      ],
+      "source_sha256": "0a1eb74532f9b4acffc0ded75adcd5c8c9ea326f624c5db29fed63494b3d1dc2",
+      "text": ". spaceout fractal: GPU shader þegar það er einn, Numba annars.\n\nTalað frá viðhalda `fractal_travel.py` v2.1.0. Tveir renderendur, ekki einn motor með skipti:\n\n* **GPU** - VisPy/gloo með GLSL skugga, fjórar plássveinar á líkamlegri pikseli og nákvæmlega hlipa sem passa frá GPU tímann.\n* **CPU** - ódýrari orbit-fold fractal í Numba, geymað á hreyfingu með fjórum stöðum 2x2 jitter og snúandi fjórar kerfi.\n\nÞrír hlutir þessi skrá gerir það sem skriptin sagði ekki.\n\n`vispy` er ekki sett í sendum umhverfi, þannig að `backend='auto'` skiptir við CPU í dag og til GPU daginn sem það er.\n\nÞað er PySide6. Skriptið var PyQt6, og að innleiða að tengja inn í þessari notkun myndi setja tvö Qt tengingar í einu ferli, sem ekki kasta - það segfa.\n\nOg það vinnur niður. A bakdrop eyða kerfi meðan segmentation runnur er á móti því sem það er fyrir, þannig að `pause()` hættir renderingum og yfirgefur síðasta kerfi á sýningu á notkunum. Sjá :meth:`CpuFractalWidget.pause`.",
+      "translation_source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "b9ff05769f0cf2087ef9cda80de7686e520e70ac9a0008fd100d1aaa4de25d1a",
+        "ad71051090a85fd00da5277eb84b25d02b34b6718d8de14357308d0b3e6cc863"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.CameraState": {
+      "source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ],
+      "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
+      "text": "Þar sem GPU svið er að horfa, á einum tíma.",
+      "translation_source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.GpuBackendError": {
+      "source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ],
+      "source_sha256": "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f",
+      "text": "GPU renderer gæti ekki verið byggð. Það er alltaf að taka `auto`.",
+      "translation_source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.OrbitEngine": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ],
+      "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
+      "text": "Fjórum kröfurum tímapunkti, og ekkert annað.\n\nÞað hefur engin keyframes: eina tilstand er ringinn af síðustu fjórum jitter fasum, sem er það sem antialiasing þarf og allt sem það þarf.",
+      "translation_source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls": {
+      "source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ],
+      "source_sha256": "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6",
+      "text": "Það sem notandi getur flytjað meðan það er að fara.",
+      "translation_source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
+      "source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ],
+      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
+      "text": "Hægt að nota á ``t`` sekúndum.\n\nKonstant ef `variable_speed` er á, í því tilfelli að það andast um setur verð en að skipta það - þannig að forritin þýðir enn það sem það segir.",
+      "translation_source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "Hvaða mynd er gert af. Hver sviði er áætlun.",
+      "translation_source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings.validated": {
+      "source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ],
+      "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
+      "text": "Kopið með hvert sviði inn á sviði sem renderendur samþykkir.\n\nKlappur í stað þess að neita: þetta er bakgrunni, og uppáhaldsfili með hlýnum tölum í henni ætti ekki að hætta notkun að drekka einn.",
+      "translation_source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.create_fractal_widget": {
+      "source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66"
+      ],
+      "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
+      "text": "Að byggja frakttal bakgrunni, GPU þegar það er einn.\n\n:returns: a QWidget með `backend_name` , `stats_text()`, `pause()` ,`resume()` og `shutdown()`. Aldrei kasta fyrir misnotandi GPU: útskýrt ``backend='gpu'`` sem ekki er hægt að byggja enn fallir aftur, vegna þess að bakgrunnin er ekki þess virði að neita að byrja við notkun.",
+      "translation_source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.gpu_is_available": {
+      "source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ],
+      "source_sha256": "468548d177a174d97307e94514cbaa70048db83cc7817bcb5cdee8aa9ecbc84c",
+      "text": "Eða GPU renderer er hægt að byggja alls.\n\nAð spyrja en að viðurkenna, og spurði ekki að koma vispy inn í umsókn þegar svarið er nei: `importlib.util.find_spec` lítur upp á modulinn án þess að kynnast það, Þannig kostar mistök vispy ekkert og núverandi er ekki innledt tvö sinnum.\n\nPlattform sem ekki er hægt að veita GL kanvas er ekki GPU, vegna þess að valkosturinn er kjarndump en ekki undantekning.",
+      "translation_source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
+      "source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "e99794211dd743cd84bf64422621443dfa8bb3e54e5567f59c9586d30a34ad25"
+      ],
+      "source_sha256": "e2bc79c3c22b5a48e944cd98fad44ba65bf9762a838fb3c6f2fade05d72345db",
+      "text": "Eða þetta Qt kerfi getur geymt GL kanvas alls.\n\nSkoðað áður en GPU WIDGET er byggð, vegna þess að fá það rangt er ekki að kasta. Á `offscreen` plötvuni Qt birtist \"QOpenGLWidget er ekki stuðlaður á þessum plötum\" og ferlið DUMPS CORE - sem enginn `except` um byggingarnar getur tekið, þannig að niðurstaða í `create_fractal_widget` myndi aldrei fara. Hver próf og hver hlaupless laun er þessi plattform.",
+      "translation_source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "0ecf118546853a1031330730ffb2207379df5d75ea0e4ba7006a9f940f2642b1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolve_backend": {
+      "source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ],
+      "source_sha256": "bfdda1331e4fc5007a59cb39770c8ff421ef3303d1865f61f12bbc86e6ae8c0d",
+      "text": "Hvaða render verður í raun að fara, eftir því sem er sett.\n\n:returns: ``'gpu'`` eða ``'cpu'`` - aldrei ``'auto'``, vegna þess að hringandi sem sýnir notandi sem þeir eru á getur ekki sýnt þeim \"auto\".",
+      "translation_source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolved_cpu_threads": {
+      "source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ],
+      "source_sha256": "4249e971b0230af3ba75072ee4c3bcd1ee4e739b8153ca7d94c6dbd31e768900",
+      "text": "Hversu margir Numba starfsmenn að taka, yfirgefa notkun sumir.\n\nFangið á 24 vegna þess að yfir því að skipuleggjandi yfirborðið er að vaxa fyrir þessa myndshöru, og fangið undir tölvu vélins vegna að bakgrunni sem tekur hvert kjarn er hungrandi í ferli sem notandinn virkilega hefur áhyggjur af.",
+      "translation_source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.state_at_seconds": {
+      "source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+      ],
+      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+      "text": "Kameran á ``t``. Pure, þannig að prófið getur staðfest að það fer.",
+      "translation_source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101354,6 +102102,16 @@
         "63404dd9edaa294b84bf662cd72384999f47c4e4d8950e5cdc8773a78d71b0a1"
       ]
     },
+    "spacr.qt.widgets.sweep_runs.describe_saved_states": {
+      "source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ],
+      "source_sha256": "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf",
+      "text": "Eitt orð um það sem bjargað gerði, fyrir notan eigin.",
+      "translation_source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ]
+    },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
@@ -101364,6 +102122,22 @@
       "translation_source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
         "0aabd13f89079a39eee016b126fa9ec133fecb34714a607209d6e2400ce744b2"
+      ]
+    },
+    "spacr.qt.widgets.sweep_runs.save_run_states": {
+      "source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "1c6d40e37a40c08e463db5ca9eb3c45c7c6f6d7de59e5bce60d03809008e57d5",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
+      ],
+      "source_sha256": "8a0da88fd694fde04d0aace347e3078ba7c3bca76c392af75faf6fb80dd7bef5",
+      "text": "Skrifaðu vinnufél fyrir hvert ``folders``.\n\n`workspace.save_for_run` kemur aftur None þegar `runs/save_workspace` forrit er off, sem er rétt fyrir sjálfkrafa spara á lokum ferðar og rangt hér: notandi sem hefur valið \"Save the state\" frá menni hefur spyrt, og menni hlutur sem hljóðlega gerir ekkert er verra en einn sem er ekki.\n\n:param folders: Sjálfsögn um að spara.\n:returns: ``(saved, failures)`` - gögnum sem fékk bundla, og ``(folder, reason)`` fyrir þá sem ekki. einn gögnin missa ekki að hætta aðrir, og hver missa er NAMED: fjölda \"3 af 5\" með engum nafnum er skýrsla sem notandi getur ekki aðgerð á.",
+      "translation_source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "5953a14a0c087e875d08dd3d93081f2a75f0f742d5c9af20101624009cae2cdf",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
       ]
     },
     "spacr.qt.widgets.table_chip": {
@@ -117803,10 +118577,12 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
-      "source_sha256": "78172a1682225d9d5d98e123a377fab64496ad08d7cca031a1e0d31a07d53c78",
-      "text": "Búa á streaming útval frá hluttabla.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Einn stefnu á mættum hlutum. object_array : str, default=\"cell\" Object typi til að velja. test_split : float, default=0.2 Fraksi tiltekinn til prófsetningu. seed : int, default=0 Random seed stjórna deterministic split uppsettingu.\n\nSkilar\n-------\npandas.DataFrame Kánónískt skilaboð, tegund, split og kjarna fyrir hvert tegund.\n\nUpphæð\n------\nValueError Ef tákn er vöktu eða inniheldur engin notuð efni.",
+      "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
+      "text": "Búa á streaming útval frá hluttabla.\n\nFæribreytur\n-----------\nframe : pandas.DataFrame Einn stefnu á mættum hlutum. object_array : str, default=\"cell\" Object typi til að velja. test_split : float, default=0.2 Fraksi tiltekinn til prófsetningu. seed : int, default=0 Random seed stjórna deterministic split uppsettingu.\n\nSkilar\n-------\npandas.DataFrame Kánónískt skilaboð, tegund, split og kjarna fyrir hvert tegund.\n\nUpphæð\n------\nValueError Ef tólinn er vöktu eða inniheldur engin notandi efni, og hvort sem enginn var spurður eða svarið hjálpaði ekki.\n\nNotaðir\n-------\n``ask`` er kallaður aðeins þegar tólinn heitir engin hlut, og er INJECTED í stað þess að innleiða þannig að þetta samfélagið er aldrei á Qt. A samtalandi með engum í framan það passer neinn og fær nákvæmlega mistök sem það er alltaf að fá, sem gerir \"aldra fljótt í töflum\" byggingu í stað þess að regla hvert samtal staður hefur að muna. Það er kallað ``ask(tried=..., object_array=...)`` og kemur aftur ``((database, table, column), why)`` - sjá :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
       "translation_source_blocks_sha256": [
         "bfd96720a7b1af1daa25c19ea6eb5a4569b08fd7491a94ee39259d755b232eac",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -117814,7 +118590,9 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ]
     },
     "spacr.stream_dataset.settings_for_method": {

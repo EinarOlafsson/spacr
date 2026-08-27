@@ -108,6 +108,26 @@
         "d0194a642f1261c92516ca13c75cc4a5a6f4cb5602ce024cb6773eb565316c35"
       ]
     },
+    "spacr._v1_v2_bridge.v2_mask_source": {
+      "source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "5a4f7550a565472ea22cfb16756e3e0436ccee6ad031c3cf882a6c8817d5ceee",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9027865649852490b08f3672196fefa8d568dcce06a58856db1665794b8ae443",
+        "6412d601a36730c6015b85431f7c9d0108487f94eeab2d2bc3783cf3675841fc",
+        "362947f165dfab6e7304267c53a51050885eee30bf232a90995bb82f2a11d755"
+      ],
+      "source_sha256": "c435cac77aa8791be010fbfb2e37edd9b7e2621af00e5326f7d572c8478bbcc8",
+      "text": ":func:`spacr.seg_qc.run_segmentation_qc`에 대한 가짜 마스크 출처입니다.\n\nV1은 하나를 쓴다. ``.npy`` 마이크로소프트에 의하여 시각 필드에서 A ``<object_type>_mask_stack`` 폴더, 스코어 카드가 직접 녹음. v2는 그러한 포스터가 없습니다 : 마스크는 이미지 데이터 채널입니다. ``merged/stack_<field>.npy``형태 : 형태 ``(H, W, C_image + C_mask)``이 글은 읽고 ``channel_order.json`` 어떤 이미지 레이어가 있는지 알아보고 손을 뒤로 ``{field: thunk}``그래서 똑같은 QC 두 개의 레이아웃을 점수하고 다른 하나에 대해 알 필요가 없습니다.\n\n:param merged_dir: ``merged/`` 폴더 ``run_v2``를 작성합니다.\n:param object_type: ``channel_order.json``의 ``mask_channels``에 대한 이름에 따라 일치하는 이미지 데이터 채널을 마스크합니다.\n:returns: ``{field_id: callable}`` - 각 마이크로스코프 시각 필드, 각 자신의 스택을 충전하고 하나의 이미지 레이어를 녹여. 빈 측면이 사라질 때, 이름은 마스크가 없거나 이름은 아무것도 일치하지 않습니다 ``object_type``; 점수는 \"여기에 마스크는 없습니다\"에 대한 정직한 대답이 아닙니다.\n\n``mmap_mode='r'``를 통해 업로드하고 복사 된 이미지 레이어-첫 번째, 그래서 1536 마이크로스코프 필드 시각 실험실 미생물 플레이트는 전체를 읽는 대신 한 번에 하나의 마이크로는 필드를 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "51648d25b901229e70644faa609b58eb913534f2f6a7ac84cf1f283b57a5219c",
+        "d61e0d824ff613b7651bb09fd85b94800c3e2e1a7a1623c623256aa828a8e788",
+        "64c305642b49a8f1f459a8e92cb16a7e85b44902b623857b69d90e41f740e3a6",
+        "9322647b9461664b4edaa5ef0c3324cbc6554e77e9ad4ba69e15041f125d3ce4",
+        "8880f2d6088a0008f89a96444a730e47cb84e3724784aac0af39ddbb508d2f1c",
+        "8dcbb4638a3ed3c2fbca5a28bdf7e7908875fd8132a8229896ca17d7ce7f75c9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -17066,6 +17086,22 @@
         "64fe42a30f9cb729134699480a93652b6e640e1de25b38f60a000135f47d593a"
       ]
     },
+    "spacr.external_masks.register_settings": {
+      "source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ],
+      "source_sha256": "c6fd846944972f533642ac645414cd4d63c99d278b849e3a1d2d7b79434a03d5",
+      "text": "공유 레지스트리를 통해 이 모듈의 설정을 게시하는 데 도움이됩니다.\n\n외부 마스크는 모듈 등록 시엄을 전달하므로 7 개의 수입자 특정 컨트롤은 권한이 부여되지 않은 앱 레지스트리에서 유일하게 표시되는 설정이었습니다. 기본 사항 외에 등록하면 인벤토리, 검증 유형 및 도구 팁이 함께 유지됩니다. :func:`default_settings`에 의해 반환 된 측정 설정은 기존 공유 진술을 유지합니다.\n\n:param replace: 이 모듈의 기존 장애 등록을 대체합니다.\n:returns: 새로운 등록이 이루어졌는지 여부",
+      "translation_source_blocks_sha256": [
+        "14963efb25ba8d8d0a113908f48b7683a524625aa3cd42d8eb6c1b5d56b28758",
+        "4c46629fb2d972e40e5344ec0d4a38fc2b8bdc080c1db113ad92423077c15e09",
+        "c232403761bd4e823c0a96c2ee291567e0dfce0833458ace9b9552dcee4de377",
+        "0ba9bd726598e0194f1e652916407878e7fd643d9967912eca50d3e854413a4d"
+      ]
+    },
     "spacr.external_masks.run_external_masks": {
       "source_blocks_sha256": [
         "d6cb29b1aff77773898863658b8f4107acb742022851dfe3724bed78b66a04ae",
@@ -33203,6 +33239,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
         "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
@@ -33212,8 +33250,8 @@
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "64bbe2b849013439ef40efbd878f65604196c2a93a11bdfd6b65bfe7aac62f7d",
-      "text": "요청된 regression backend로 전송하고 고정된 모델을 반환합니다.\n\n:data:`REGRESSION_TYPES`의 모든 이름은 여기에 적합하며 각각 :func:`process_model_coefficients`의 일치하는 지점이 있으므로 적합한 모델은 항상 동율 테이블로 변환될 수 있습니다.\n\n뒷면, 그리고 각각 무엇을 위해 :\n\n==================================  ===========================================================================================================================================================\n``ols``                             일반적으로 적어도 평방은 끊임없이 좋은 반응에 있습니다.\n``wls``                             무게 최소 평방; ``weights``는 마이크로 플레이트 샘플 위치의 세포 계산, 그래서 400 세포의 마이크로는 30 이상 무게가 있습니다.\n``rlm``/``huber``                   강력한 M-평가 (Huber 손실).외부 무거운 마이크로 플레이트 샘플 위치에 대 한 : 수많은 거리 마이크를 샘프 위치는 더 이상 적합하지 않습니다.\n``glm``                             GLM은 :func:`pick_glm_family_and_link`에 의한 응답에서 자동으로 선택된 가족입니다.\n``poisson``                         녹음 링크와 ``offset(log(exposure))``를 가진 Poisson GLM, per-microplate 샘플 위치를 계산하기 위해 - 따라서 요소는 per-cell RATE에 영향을 미치고, 마이크로plate 표본 위치의 헤드 숫자가 아닙니다.\n``quasi_binomial``                  Binomial GLM의 분산은 Pearson chi-square에서, 과도하게 분산 된 부분으로 추정됩니다.\n``beta``                            베타 회복, 한 부분을 위해 엄격히 내부 (0, 1).\n``logit``/``probit``                GLM-binomial 한 부분에, 세포 계산에 의해 무게.\n``quantile``                        ``quantile``의 양적 회복; 그것의 중간 대신 반응의 엉덩이에 맞는다.\n``mixed``                           혼합 효과는 ``groups``의 라인 모델을 우연한 간섭으로 나타냅니다.\n``lasso``/``ridge``/``elasticnet``  최소한의 쿼터를 처벌했다.\n``hinge``                           Linear SVM (힌지 손실) 이진화된 응답에 대한 선형 SVM입니다.\n``horseshoe``                       Sparse Poisson GLM (spaCRPower의 전원 분석 모델)을 앞서 :mod:`spacr.power_model`로 사용합니다.\n``group_lasso``                     유전자의 가이드 열이 ONE 블록으로 처벌되므로 유전자는 한 번에 가이드가 아닌 세트로 선택되거나 떨어집니다 - 혼합 된 모델의 둥지의 처벌 된 아날로그, :mod:`spacr.group_lasso`를 통해.\n``rra``                             MAGeCK 스타일의 강력한 순위 집합: 그들의 경계 효과에 따라 순위 가이드, :mod:`spacr.rra`를 통해 P 값의 permutation BY RANK 유전자에 집합. 그것은 결합 적합하지 않으므로 위의 각 배경을 제한하는 p >> n 폭은 그것에 도달하지 않습니다.\n==================================  ===========================================================================================================================================================\n\n읽을 수없는 배경 설정은 거부되며, 무시되지 않습니다 - :data:`REGRESSION_SETTINGS_USED`를 참조하십시오.\n\n:param X: 디자인 매트릭스 (DataFrame; 열 이름이 함수 이름이됩니다).\n:param y: 응답은 변수입니다.\n:param regression_type: :data:`REGRESSION_TYPES`에 해당되는 글 1건\n:param regression_backend: WHO는 그것을 적합합니다 - :data:`REGRESSION_BACKEND_ORDER`의 하나. 기본 ``'statsmodels'``, 모든 기존 결과를 생성합니다. ``regression_type``에 적합하지 않는 배경은 이유로 여기서 거부되며, 무시되지 않습니다 : 두 컨트롤은 두 방향으로 서로를 제한하고, CSV 설정은 입력을 녹일 수있는 패널을 통과하지 않고이 기능에 도달합니다.\n:param groups: 혼합 모델에 대한 클러스터 식별자.\n:param alpha: ``lasso`` / ``ridge``/``elasticnet`` 및 ``hinge``의 반대 SVM 마진에 대한 벌금 무게; ``'auto'``/ ``None``는 모든 4 개의 5 배의 크로스 인증으로 그것을 획득합니다 (벌금 최소 3 평방, ``hinge``의 균형 잡힌 정확도).\n:param cov_type: 확률이 맞는 측정기(``'HC0'``..``'HC3'``); 고전적인 표준 오류를 위한 ``None``.\n:param weights: 관찰 무게 - 마이크로 플레이트 샘플 위치의 세포 계산. ``var_weights``로 사용 ``logit``/``probit`` / ``quasi_binomial`` 및 WLS 무게로 ``wls``.\n:param l1_ratio: ``elasticnet`` 혼합; 1.0은 라소이며, 0.0은 리지입니다.\n:param quantile: ``quantile`` regression에 의해 조정된 양, in (0, 1).\n:param hinge_threshold: ``hinge``에 대한 지속적인 응답을 바이너리화하는 데 사용되는 절단; :func:`binarise_response`을 참조하십시오.\n:param huber_t: ``rlm``/``huber``에 대한 Huber 튜닝 일정, 추정 된 나머지 규모의 단위. 1.345은 정상보다 95% 효율성을 제공합니다.\n:param exposure: 관찰 당 노출 (마이크로 플레이트 샘플 위치의 세포 계산) ``offset(log(exposure))``로 ``horseshoe`` 및 ``poisson``로 사용 (그리고 ``glm``로 Poisson 가족을 자동으로 선택할 때).\n:param group_lasso_lambda: 블록 벌금은 ``group_lasso``입니다. 그것의 자신의 구조화 된 데이터 이름은 ``alpha`` 대신, 그것은 :func:`spacr.group_lasso.max_lambda`에 비해 비교되기 때문에, 이것은 디자인의 속성입니다, 그래서 라소 실행에서 전달 된 값은 여기에 다른 무언가를 의미 할 것입니다.\n:param rra_alpha: 가이드 순위의 상단 부분은 알파-RRA를 합쳐집니다. MAGeCK의 0.25, 그것은 하나의 강력한 가이드와 세 가지를 가진 유전자를 유지하는 것입니다.\n:param rra_permutations: RRA의 permutation null에서 분리된 가이드 계산에 따라 드라이브; 10,000은 가장 작은 보고 가능한 P 값을 1e-4.\n:returns: 정의된 statsmodels / sklearn 추정기.\n:raises ValueError: 지원되지 않은 ``regression_type``에서, 또는 선택한 배경을 읽을 수 없는 설정이 기본이 아닌 값으로 설정되었을 때.\n\n예를 들어 :\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
+      "source_sha256": "09cac4e3a8936fbf72dfc29d8f74436b3a8fe8fa66267a398d956186739ba7b1",
+      "text": "요청된 regression backend로 전송하고 고정된 모델을 반환합니다.\n\n:data:`REGRESSION_TYPES`의 모든 이름은 여기에 적합하며 각각 :func:`process_model_coefficients`의 일치하는 지점이 있으므로 적합한 모델은 항상 동율 테이블로 변환될 수 있습니다.\n\n뒷면, 그리고 각각 무엇을 위해 :\n\n==================================  ===========================================================================================================================================================\n``ols``                             일반적으로 적어도 평방은 끊임없이 좋은 반응에 있습니다.\n``wls``                             무게 최소 평방; ``weights``는 마이크로 플레이트 샘플 위치의 세포 계산, 그래서 400 세포의 마이크로는 30 이상 무게가 있습니다.\n``rlm``/``huber``                   강력한 M-평가 (Huber 손실).외부 무거운 마이크로 플레이트 샘플 위치에 대 한 : 수많은 거리 마이크를 샘프 위치는 더 이상 적합하지 않습니다.\n``glm``                             GLM은 :func:`pick_glm_family_and_link`에 의한 응답에서 자동으로 선택된 가족입니다.\n``poisson``                         녹음 링크와 ``offset(log(exposure))``를 가진 Poisson GLM, per-microplate 샘플 위치를 계산하기 위해 - 따라서 요소는 per-cell RATE에 영향을 미치고, 마이크로plate 표본 위치의 헤드 숫자가 아닙니다.\n``quasi_binomial``                  Binomial GLM의 분산은 Pearson chi-square에서, 과도하게 분산 된 부분으로 추정됩니다.\n``beta``                            베타 회복, 한 부분을 위해 엄격히 내부 (0, 1).\n``logit``/``probit``                GLM-binomial 한 부분에, 세포 계산에 의해 무게.\n``quantile``                        ``quantile``의 양적 회복; 그것의 중간 대신 반응의 엉덩이에 맞는다.\n``mixed``                           혼합 효과는 ``groups``의 라인 모델을 우연한 간섭으로 나타냅니다.\n``lasso``/``ridge``/``elasticnet``  최소한의 쿼터를 처벌했다.\n``hinge``                           Linear SVM (힌지 손실) 이진화된 응답에 대한 선형 SVM입니다.\n``horseshoe``                       Sparse Poisson GLM (spaCRPower의 전원 분석 모델)을 앞서 :mod:`spacr.power_model`로 사용합니다.\n``group_lasso``                     유전자의 가이드 열이 ONE 블록으로 처벌되므로 유전자는 한 번에 가이드가 아닌 세트로 선택되거나 떨어집니다 - 혼합 된 모델의 둥지의 처벌 된 아날로그, :mod:`spacr.group_lasso`를 통해.\n``rra``                             MAGeCK 스타일의 강력한 순위 집합: 그들의 경계 효과에 따라 순위 가이드, :mod:`spacr.rra`를 통해 P 값의 permutation BY RANK 유전자에 집합. 그것은 결합 적합하지 않으므로 위의 각 배경을 제한하는 p >> n 폭은 그것에 도달하지 않습니다.\n==================================  ===========================================================================================================================================================\n\n읽을 수없는 배경 설정은 거부되며, 무시되지 않습니다 - :data:`REGRESSION_SETTINGS_USED`를 참조하십시오.\n\n:param X: 디자인 매트릭스 (DataFrame; 열 이름이 함수 이름이됩니다).\n:param y: 응답은 변수입니다.\n:param regression_type: :data:`REGRESSION_TYPES`에 해당되는 글 1건\n:param regression_backend: WHO는 그것을 적합합니다 - :data:`REGRESSION_BACKEND_ORDER`의 하나. 기본 ``'statsmodels'``, 모든 기존 결과를 생성합니다. ``regression_type``에 적합하지 않는 배경은 이유로 여기서 거부되며, 무시되지 않습니다 : 두 컨트롤은 두 방향으로 서로를 제한하고, CSV 설정은 입력을 녹일 수있는 패널을 통과하지 않고이 기능에 도달합니다.\n:param groups: 혼합 모델에 대한 클러스터 식별자.\n:param alpha: ``lasso`` / ``ridge``/``elasticnet`` 및 ``hinge``의 반대 SVM 마진에 대한 벌금 무게; ``'auto'``/ ``None``는 모든 4 개의 5 배의 크로스 인증으로 그것을 획득합니다 (벌금 최소 3 평방, ``hinge``의 균형 잡힌 정확도).\n:param cov_type: 확률이 맞는 측정기(``'HC0'``..``'HC3'``); 고전적인 표준 오류를 위한 ``None``.\n:param weights: 관찰 무게 - 마이크로 플레이트 샘플 위치의 세포 계산. ``var_weights``로 사용 ``logit``/``probit`` / ``quasi_binomial`` 및 WLS 무게로 ``wls``.\n:param l1_ratio: ``elasticnet`` 혼합; 1.0은 라소이며, 0.0은 리지입니다.\n:param quantile: ``quantile`` regression에 의해 조정된 양, in (0, 1).\n:param hinge_threshold: ``hinge``에 대한 지속적인 응답을 바이너리화하는 데 사용되는 절단; :func:`binarise_response`을 참조하십시오.\n:param spline_knots: ``spline``에 대한 지속적인 코바리아트 당 노트.\n:param spline_degree: 그 기초의 폴리노미 등급; 3은 큐브입니다.\n:param huber_t: ``rlm``/``huber``에 대한 Huber 튜닝 일정, 추정 된 나머지 규모의 단위. 1.345은 정상보다 95% 효율성을 제공합니다.\n:param exposure: 관찰 당 노출 (마이크로 플레이트 샘플 위치의 세포 계산) ``offset(log(exposure))``로 ``horseshoe`` 및 ``poisson``로 사용 (그리고 ``glm``로 Poisson 가족을 자동으로 선택할 때).\n:param group_lasso_lambda: 블록 벌금은 ``group_lasso``입니다. 그것의 자신의 구조화 된 데이터 이름은 ``alpha`` 대신, 그것은 :func:`spacr.group_lasso.max_lambda`에 비해 비교되기 때문에, 이것은 디자인의 속성입니다, 그래서 라소 실행에서 전달 된 값은 여기에 다른 무언가를 의미 할 것입니다.\n:param rra_alpha: 가이드 순위의 상단 부분은 알파-RRA를 합쳐집니다. MAGeCK의 0.25, 그것은 하나의 강력한 가이드와 세 가지를 가진 유전자를 유지하는 것입니다.\n:param rra_permutations: RRA의 permutation null에서 분리된 가이드 계산에 따라 드라이브; 10,000은 가장 작은 보고 가능한 P 값을 1e-4.\n:returns: 정의된 statsmodels / sklearn 추정기.\n:raises ValueError: 지원되지 않은 ``regression_type``에서, 또는 선택한 배경을 읽을 수 없는 설정이 기본이 아닌 값으로 설정되었을 때.\n\n예를 들어 :\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope",
       "translation_source_blocks_sha256": [
         "11addd56717d2def3ab515397efe9adf9e8ea2a5311aba495b89b6cab04650b7",
         "b6d92a9a367feb0a565f69b0a6af4e8a552253b3a0663e583928679bbc927405",
@@ -33246,6 +33284,8 @@
         "a546f82e041ef4b2a4b4487078312653c70505997d870fc0f8c2855a6968a138",
         "a5bcfb20a0edf4f09e7c9e7b841b71195ed192e563338a8cb4f1a7481e9a4d07",
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
+        "f32505b838ba22bd793aebdbb6b1971325a4a137f27079ebc01f3687a620deee",
+        "4a4084178fecf97d014312eb4b8920895a9e8b1a2f4f89fe21ce182bca56e865",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "6a0ece3932b5a634897beb05b315bc10a118b128e255cd53ee009b3f926c85af",
         "bdaf20968d29817f44096b5db6e96de5f477ead4cd542bfa4b9e9187fa70e092",
@@ -35956,6 +35996,158 @@
         "6696bc5034b22a18c5d5395e8ed7a6c1ab24fdb645c856b403b7f4e942b6ff92",
         "15601f90242cccfc0ea63274b9a62f76ebf84aa1371c29c0eeab10a2c7b31098",
         "6764daf04469b1a3346e7ca227774317a58bcd824c4ffd2a4d758873c6ad8bc5"
+      ]
+    },
+    "spacr.nonparametric_fits": {
+      "source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "dc80e9a737733f33c4291aa6d90cf460eed1d84293545036ad6af396e86f7ab4",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a9c1619799eac5ef566ef55a8a85e0e8d42c41b2142365fc5df3514035059c4c",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ],
+      "source_sha256": "2957a45a2e5671f7f872cb3a9e95d2530a8a32ec2bce970f49dec66bc7ea2f89",
+      "text": "일곱 가지 비정상적인 방법, 그들이 정직하게 대답 할 수있는 것에 따라 분류.\n\n왜 이것은 regression_type 메뉴에 7 개의 더 많은 입력이 아닙니다. spaCR 탭은 이미 하나의 통화로 모든 답변을 제공합니다 - 가이드 당 요소, 표준 오류와 P 값과 함께 - 그리고 스크린링 실험의 나머지 부분은 그것에 기반을두고 있습니다 : 화산은 의미에 대한 효과를 획득하고, 히트 목록은 테스트 된 유전자 위에 q와 함께 효과에 따라 유전자를 순위하고, 속성과 모델 카드는 동일한 테이블을 소비합니다.\n\n4 이 7 제품은 수치 번호가 없습니다. 낮은 것은 설명적입니다. 핵 회전과 KNN은 끈이 아닌 고정 된 표면을 제공합니다. 숲은 중요성을 제공하지 않으며 동일한 규모의 특징들 사이에서 비교할 수 없습니다. \"the regression\"로 하나를 선택하면 화산에 인쇄 할 것이 없으므로 그들이 무엇인지 제공됩니다.\n\n  A. 동일한 순간에 응답하는 팁 - `regression_type`에 합류합니다. B. 데이터에 대한 진단적 인 팁은 스크립트에 속하며 결코 타격을 결정하지 않습니다. C. 합의 검사 - 선형 순위에 대한 비교를 보고하고 두 사람이 동의하지 않는 가이드를 지정합니다.\n\n그리고 귀에 맞는 것은 항상 가이드 디자인이 아닙니다. spaCR 가이드는 가이드입니다. -> 마이크로 플레이트 샘플 위치 수준의 현상 유형은 가이드 당 하나의 열: 높은 차원, 분산 및 범주, 이것은 대부분의 경우 최악의 경우입니다. CONTINUOUS covariate에 대 한 - 가이드 풍부한 마이크를 샘프 위치, 세포 계산, 실험실 마이크 플레트 위치 - 그들은 가정 지상에있다, 그리고 그것은 슬라이더가 그들의 장소를 얻는 곳입니다 : 현상의 움직임이 부드러운 변수와 함께 부드럽게 이동하는지 여부를 보여 라인 모델은 사라지고있다.\n\n하나의 궤도에있는 세포는 독립적이지 않으므로 이러한 방법을 분할해야하는 것은 궤도를 통과하고 결코 세포를 통과하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "571cfadb5178787fe7b5fac9d6d408b8ff7b57ce69ab8669b2b64766b46ea488",
+        "a94a81e57402a749d36225cad55b0f17d548194ddb500bd8b0609de537e0251e",
+        "a2dd115af09d26a08b390c3e107dc92e28b2e08bbf20b04d6c02a470f4606de1",
+        "1664374f28e84cb435b9a1001f9446cd77e1f2c8f10499c8691e438a9a47b255",
+        "a8fa2762d566899e2a2da4561832e5889bb5a81fc6940b9d95c018072f3b3c36",
+        "3e18ecab42ff11e55ac1c07f010443c81a7d482f66eb8f7963d4eb96340f6aef"
+      ]
+    },
+    "spacr.nonparametric_fits.Agreement": {
+      "source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ],
+      "source_sha256": "f10a914b24e278e7980ad3980bdfa55bbad9e13c010049a5a0fbd73feece27c7",
+      "text": "동일한 가이드의 두 개의 순위, 그리고 그들이 동의하지 않는 곳.\n\n지침 212은 그 점이 무엇인지 말했습니다 : \"이것이 데이터 효과가 있습니까, 아니면 그것이 모델입니까? 두 개의 타입에 동의하는 것은 혼자서보다 더 가치가 있으며, 그들이 동의하지 않는 곳에서는 분쟁 자체가 발견됩니다.\"",
+      "translation_source_blocks_sha256": [
+        "2266a594a6482d5d9aa1682b8f755c2616a593e4b59bfe3ad0be38b64fba7169",
+        "f5d1260570fb5569afad114bdde844fb4129b3efb3317f41b8b9eb720e1213c2"
+      ]
+    },
+    "spacr.nonparametric_fits.Curve": {
+      "source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ],
+      "source_sha256": "f6993fa92754942a23c4127885445c32eb7052ed69059c7326336e6ed09b749e",
+      "text": "그것이 무엇인지에 대한 격렬한 곡선을 끌어내고, 그것은 무엇입니까.\n\n`p_values`이 목적을 위해이 개체에 존재하지 않습니다 : 테스트를 위해 잘못 될 수있는 진단은 지침 254에 따르면 방법을 제공하지 않는 것보다 더 나쁘다.",
+      "translation_source_blocks_sha256": [
+        "052e8868c011af62aeac288013902c027fb2307e3f6f86f842d2b00adfba4a35",
+        "fa8593746fcfba1f00d6fcfff126600a1b4b8e2d1336ebd12d0262994fa3aee0"
+      ]
+    },
+    "spacr.nonparametric_fits.agreement": {
+      "source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "69f9e602c2017c2f5a8a21343e0f52fd8cd02f6a070f4cd387b87a369be488e1",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "11c59eceb23ebfbcc514e17010d4cca115b3a9caf2bd08cf9b3fa3456a3a97f0",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ],
+      "source_sha256": "96bfdfc7d78bb949d43e3e8589db2c907b3f33d3ceddc27c5dcee485cfa0ae02",
+      "text": "순위는 두 번째 방향을 지시하고 선형 순위와 비교합니다.\n\n:param design: 마이크로 플레이트 샘플 포지션 x 가이드.마이크로플레이트 표본 위치에 한 줄, 세포에 결코.\n:param linear_effect: fit의 자신의 per-guide 효과, 크기로 등급하여 등급을 제공하는 이것은 비교됩니다.\n:param groups: 마이크로 플레이트 샘플 위치 각 라인에 속합니다. 분할기에 통과 한 마이크를 샘프 위치의 라인은 결코 분할을 분할하지 않습니다 - 마이크의 샘폴 위치에있는 세포는 마이크 샘블 위치의 현상 유형을 공유하고, 하나를 건너 분할은 자신의 훈련 데이터에 모델을 점수 할 것입니다.\n:param moved_by: 가이드가 이름을 지정할 가치가 있는 곳이 얼마나 될까.",
+      "translation_source_blocks_sha256": [
+        "18b6944aabe491d4320d70838d8939090158e291b69a90645541219670adaac0",
+        "62529c61051d3bece9f17fb89d6491cde72ac2ee13e760d8037dc2871d5d4e5e",
+        "b5e81acf304168a8873e0131cf8cb1fd6323c0eec8fe6892c2178b8d7cf6fd20",
+        "fa769e9a02b46eb361ee5acdfd76a02dbb5e31a4b90624236cfac942e1a00b35",
+        "98cd9c7fb89e607b294867b65882ab5c969a5571ab13441ce148ff2fc23bcf17"
+      ]
+    },
+    "spacr.nonparametric_fits.describe": {
+      "source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ],
+      "source_sha256": "1ad3e586f8942846d6f7bc71be9bf209a996d113bf2bc036d8f6b427a26a6387",
+      "text": "하나의 문장은 방법이 무엇을위한 것인지, 그리고 그것이 비용이 무엇인지 명칭합니다.\n\nWHERE 말하자면 그것은 선택됩니다. 삼각형 분할의 전체 점은 독자가 선택하기 전에 알고 있기 때문에 실행 후가 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "d13ee44230a76aed532894a1a2077e3c679688c57eafacf6b9462d9eb9f859f0",
+        "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c"
+      ]
+    },
+    "spacr.nonparametric_fits.isotonic_fit": {
+      "source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ],
+      "source_sha256": "59229686eb015fce756b5622ffde181053eb38d55761b6b8d3366367b6199547",
+      "text": "단일 모니터링이 적합합니다. ``y`` 한 명의 명령에 ``x``다시 돌아오는 것 (그리드, 피트)\n\n하나의 차원과 하나의 방향, 이소톤 회복이 주장하는 것의 전체입니다. `refuse('isotonic', ordered=False)`는 호출자가 가이드 디자인에 그것을 지적하기 전에 그렇게 말하는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "601da3e59074ec5821f273a76d8ce42c05449af7b42a1fd5ce69dfc86756f897",
+        "5f74e388db21cb2aa0e027d21e9ac651623a85801b72fa0cbe3b63d70462652b"
+      ]
+    },
+    "spacr.nonparametric_fits.methods_in": {
+      "source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ],
+      "source_sha256": "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432",
+      "text": "각 방법은 ``category``에 속하며, 선언 순서에 있습니다.",
+      "translation_source_blocks_sha256": [
+        "93ebcbfca7e86dd481f789859026285b50aaa50959a866db8f4d5f57a8d84432"
+      ]
+    },
+    "spacr.nonparametric_fits.refuse": {
+      "source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ],
+      "source_sha256": "e228cb7741ebd46ec0c3677cf5f75c31c051257637ca1baa880091b30c6c9694",
+      "text": "왜 ``name`` 이 형식의 데이터를 실행할 수 없으며, 또는 None.\n\n데이터에 대한 방법을 선택하는 것은 그 이유에 맞지 않을 것이며, 적합한 방법을 반환하는 대신 읽어서는 안됩니다.이 기능이 존재하는 규칙입니다.",
+      "translation_source_blocks_sha256": [
+        "5db896954fc137032e2dbafe490aa2daa29651251e7b5f0fd22025de418b0633",
+        "bffc26fc8506b73d40ec013a8b358a46ece0806f352768a1b3198767c71a2b74"
+      ]
+    },
+    "spacr.nonparametric_fits.report_agreement": {
+      "source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ],
+      "source_sha256": "85eef9b73a648f6178d180c594fd149f727d2440b47e32b52ab42386ece75d3f",
+      "text": "계약 체크를 실행하여 완성된 적응을 확인하고 무엇을 인쇄해야 하는지 반환합니다.\n\n요소 테이블은 이미 생산 된 실행을 취하므로 아무것도 반환되지 않으며 비교는 실행이 실제로 보고 한 순위에 반대됩니다.\n\n:param coefficients: 실행 테이블, `feature` 및 `coefficient`.\n:returns: 인쇄 할 문장, 또는 \"\" 비교할 것이 없을 때 - 너무 적은 공유 가이드, 또는 그 안에 요소가없는 테이블.",
+      "translation_source_blocks_sha256": [
+        "94e0894280e5993724b310989ac3c00b778883f7f9c4d8be6ef447357b1ca684",
+        "d01a04a62b450481d51334626efec9547b28c6d838086db48c1417bdb7aba11e",
+        "0077437cb0f0eaa0b226eccc2621a7d2f97c2326bda3f273c7da5ccc2580b5fb",
+        "da28248ce8518155638ce1a23a73ee6da20bcb798d9b69ee80fe56547e330b61"
+      ]
+    },
+    "spacr.nonparametric_fits.smooth": {
+      "source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ],
+      "source_sha256": "bdd521837d7058ec6c5647793948e37ee5d77239ce92427edd5c49244b5bf751",
+      "text": "하나의 진단에 맞는 균형을 맞추기 위하여 ``y`` 반대 ``x``.\n\n:param scaled: 그것을 필요로하는 방법에 맞추기 전에 ``x``을 표준화하고, 메모에서 그렇게 말하십시오.KNN과 가우스 과정은 거리 기반이므로 무질서한 코바리아트는 조용히 하나의 단위가 그것의 범위가 무엇이든 의미합니다.\n:raises ValueError: 방법이 이 형태로 실행될 수 없을 때 - 이유와 함께, 적합한 대신 아무도 읽어야합니다.",
+      "translation_source_blocks_sha256": [
+        "4c8df81c349fd104eafca1fef00e8cb2f53d86ca0a66fa33975465dac3d63668",
+        "9c87d0a51431d1c0a26c31c3ff733a505a4eeefde75c203b9da630574a761608",
+        "dbd416222d7b53760de470ac94a07e2c1d0bd2518894a6edf0ef78da8f7628fe"
+      ]
+    },
+    "spacr.nonparametric_fits.spline_design": {
+      "source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
+      ],
+      "source_sha256": "6076ec6e2d2905ffd9c2e7f2d99f94a614ec12cdb14f7bc090f0b6ffbdc9e3f1",
+      "text": "각 이름의 코바리아트를 스프린 기반으로 대체합니다.그것은 프레임을 반환합니다.\n\n가이드 콜럼은 접촉되지 않으며, 이것이 이것을 A 범주에 유지하는 것입니다. 각 가이드는 정확히 하나의 열을 유지하므로 적합한 여전히 가이드 당 하나의 요소와 하나의 P 값을 생성하고 화산과 히트 목록은 특별한 카싱없이 그것을 끌어 들이지 않습니다.\n\n기본 열은 `<covariate>_spline<k>`이라고 불리며, `grna`과 `gene`을 가지고 있지 않으므로 이미 `rowID[T.r2]`를 떨어 뜨리는 모든 필터도 이 필터를 떨어뜨립니다.",
+      "translation_source_blocks_sha256": [
+        "56f5871240bf0a7d175214b2a776aa85b0b47ab7a80e8f3c0a9130259d102101",
+        "ab4ffd42df8c762191ffaba83aee9469532e55bb604294387c2db00526e83d4c",
+        "f4acba25df52b0ade04b2726cfcff1b5066cb1e61fca7e2ef174b1d26c216ea2"
       ]
     },
     "spacr.normalization": {
@@ -41255,10 +41447,10 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "129ca43c4fd5ed4d53e17d607873ba68112a9ab9eab83aae21d09ee68c27ef83"
       ],
-      "source_sha256": "c71664277b0555d332d35dbbdbf57f0bd21d865c2ade5fa62fd10f088f8b400c",
-      "text": "``masks/*``의 상승은 ``img_folder``에서 일치하는 이미지로 나옵니다.\n\n:param img_folder: 이미지 포함된 폴더; 필름 이름과 일치하는 ``img_folder/masks``에서 살아있는 마스크.\n:param normalize: 만약 True, 혼합하기 전에 센티일-정상화 이미지. ``True``.\n:param resize: 만약 True, 혼합 된 덮개를 1000x1000로 재구성합니다. ``True``.\n:param save: 만약 True 글쓰기 PNGs 에 대 한 ``img_folder/overlay/``가짜 ``False``.\n:param plot: 만약 True, 각 위로를 보여주기 위하여 matplotlib 가짜 ``False``.\n:param thickness: 픽셀의 컨트리 라인 두께. 기본 ``2``.\n:returns: None",
+      "source_sha256": "87e8f8f71fe914fcfc129d511648725fbb49a53f448fac1c09f3cb04c1409717",
+      "text": "``masks/*``의 상승은 ``img_folder``에서 일치하는 이미지로 나옵니다.\n\n:param img_folder: 이미지 포함된 폴더; 필름 이름과 일치하는 ``img_folder/masks``에서 살아있는 마스크.\n:param normalize: 만약 True, 혼합하기 전에 센티일-정상화 이미지. ``True``.\n:param resize: 만약 True, 혼합 된 덮개를 1000x1000로 재구성합니다. ``True``.\n:param save: 만약 True 글쓰기 PNGs 에 대 한 ``img_folder/overlay/``가짜 ``False``.\n:param plot: 만약 True, 각 위로를 보여주기 위하여 matplotlib 가짜 ``False``.\n:param thickness: 픽셀의 컨트리 라인 두께. 기본 ``2``.\n:returns: ``{'written': int, 'failed': [(filename, reason)]}``읽을 수없는 필드는 처리 세션을 끝내는 대신 이름을 지정하고 옮겨집니다, 그래서 하나를 붙잡는 폴더 TIFF 여전히 다른 모든 과잉을 생성합니다 - 그리고 호출자는 어떤 것을 놓치고 있는지 말할 수 있습니다.",
       "translation_source_blocks_sha256": [
         "9a3f809a83769a9c91389cef5294ceb0c72557478347158de2e9881b45061ca3",
         "6209144a5b785a019714c69a18441371e56db975a8880746d2fd6cc5e34b125b",
@@ -41267,7 +41459,7 @@
         "5c271d7450176d99078c9ff46f89a74eee6cbbec5b907c71031eae47d28b6029",
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
-        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+        "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -44264,6 +44456,16 @@
         "b861939ecbeb09b90ea871de468cd72c2c902c0291c235586c798f1a6eb43dbc"
       ]
     },
+    "spacr.predictions.first_present": {
+      "source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ],
+      "source_sha256": "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d",
+      "text": "첫 번째 ``names`` ``frame`` 실제로 가지고, 다른 None.",
+      "translation_source_blocks_sha256": [
+        "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
+      ]
+    },
     "spacr.predictions.merge_cv_predictions": {
       "source_blocks_sha256": [
         "ea0157cccd03f87d1905464cc59efc9c8e90477d5e5c6321a243f0045ed0ba06",
@@ -47194,6 +47396,20 @@
         "acb0b0e0af5e22425fb56afac156ab5d5a510a75b77f3204d60a35b20235dc63"
       ]
     },
+    "spacr.qt.app.install_the_spaceout_fractal": {
+      "source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "3691739c82aecee161535cda10c936165029de0ec70f863b63da51e7819094e5",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ],
+      "source_sha256": "e1fc0ec694cabb548905f78ef621ae9e36be1c76fd518c4cd1a1533399e35fdf",
+      "text": "``screen`` 뒤에 spaceout fractal을 넣어, 이것이 spaceout인 경우.\n\n:returns: True 설치되었을 때, 그래서 호출자는 평범한 환경 배경을 벗어날 수 있습니다. False 모든 정상 출력에서 - 그것은 모드를 숨기고있는 것입니다 - 거짓 대신 던지면 프라크탈을 구축 할 수 없습니다, 그래서 그것을 끌 수없는 기계는 여전히 그것이 항상 가지고있는 애니메이션을 얻습니다.\n\n설정은 프레젠테이션에서 나옵니다, 그것은 그들을 공간 밖에서만 표시, 그래서 하나의 장소는 무엇을 제공하고 무엇을 끌고 결정합니다.",
+      "translation_source_blocks_sha256": [
+        "b06843aea0b0521698bbacc7d886ee2e3f07a1a53e9d9debfab4d2ff89ab557f",
+        "4b38faaea456670ab341c8bb106b33e8e3c7a3a67ac8bec27f4dbdb6ef740055",
+        "0d5d2cd3d296b49dc91b4e089a7587d3c2db5dc82b539be57a76575fa9f3dd6c"
+      ]
+    },
     "spacr.qt.app.launch": {
       "source_blocks_sha256": [
         "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865"
@@ -47474,6 +47690,146 @@
         "15fbd6c4c02cf7496fc10f040c4572934df6d10bd033d9763696631a325c602a",
         "7e7b12cbd705dcc73d06a90c90b07402cf4364bb01607b5ba7b926bed6714ae1",
         "08cb5bff9139116d7d3a506d287baef0078fb5fac6f2f399b9be34a5ebc28470"
+      ]
+    },
+    "spacr.qt.ask_for_the_path": {
+      "source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "de2f152a3cf969bbc83acac16eb37ff946df23bb04f20dd6685bae51530f8328",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "9f2b2d82ec2f1a30d3b83e1d981f14069cab38f60af0c6d49e401cc3410b4e88",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "1d98255231ac34929753c1cf13dfdcc650baa9809f775ab03fd113db25243667",
+        "f9da042489a7eec8063a85ec05220b68dfb57521ecca2a6068670026e5fba87b"
+      ],
+      "source_sha256": "e674d25d4cd1754b9ae12a8a10820a063ecebdb55c9b40096a6f6b0cd242c58a",
+      "text": "뭔가를 찾는 일반적인 방법이 실패하면 그것을 요청하십시오.\n\n일반 해상도는 매번 먼저 실행됩니다; 이것은 이미 실패한 후에만 달성됩니다.오늘날 작동하는 처리 세션은 대화를 얻지 못해야하며 실패를 결코 만지지 않는 사용자는 결코 하나를 볼 수 없습니다.\n\n다이얼은 여기에서 오류보다 낫기 때문에 정보는 사용자가 가지고 있고 프로그램은하지 않습니다.이 각각의 현재 행동은 잃어버린 것을 명칭하는 메시지로 멈추는 것입니다.이것은 프로그램이 이미 정확히 무엇을 요청해야하는지 알고 있음을 의미합니다.\n\n모든 신속하게 빚진 것, 그리고이 모듈이 요구하는 것, 그래서 호출자는 하나를 잊을 수 없습니다 :\n\n* 먼저 무엇을 훈련했는지 말하십시오, 그래서 조건에있는 타이포는 진정으로 잃어버린 폴더에서 구별 될 수 있습니다.\n* 승인하기 전에 유효한 - 선택한 폴더에 아무것도없는 동일한 실패 한 단계 후;\n* 샘플 위치 또는 실험실 마이크로 플레이트에 따라 한 번, 한 번이 아닌 한 번;\n* 그것을 다시 쓰고 그렇게 말하십시오, 왜냐하면 발표되지 않고 변경되는 설정은 그렇지 않은 것보다 더 나쁘기 때문입니다.\n* 거절할 수 있음: 취소는 처리 세션이 어쨌든 주어진 오류와 함께 중단되는 것을 의미합니다.\n* 스크립트, 테스트 또는 배치 실행에서는 아무도 응답 할 수 없으므로 붕괴는 아무도 볼 수없는 대화를 차단하는 대신 원래 오류에 해결됩니다.이것은 밤에 작업 흐름을 묶을 것입니다.",
+      "translation_source_blocks_sha256": [
+        "5070900230982ac4c862171189d7f4b473c2ba55a10709302c08ed24cd5328b1",
+        "e9f928813199565edc458c20ad3e1edb0926e39473dc4993cad8952957744985",
+        "671376f29e48595229e5f61d2d6eb862e1412e939ce24f5318ce33c33e57af03",
+        "840a4f9f955767c4d0b475f8dd42c3981a5e8ff58489d2819a05388ced5d7d97",
+        "205dfd02500eb129d8380456753935422f533f62f72aec3159652e295a739b14",
+        "af625c674109501fdfff3d78d316b652b70d6dc81a938204dcf29a8c811c8e91",
+        "765c36f74dd7e80baa5e30c2bb6763dbdb8b583fe120ea6a782e8c8b6a9d3dcd",
+        "5fa94ade98bea4567c224cddef35b55efa31dbafa6d5a6e3ef2b3f377e0f0183",
+        "0ccdc5a857545d381e9a41557986769c1b7b772eeb34c103e524bb3e58de2d50",
+        "97b412dffeb91b8042d5d4d8dc4191cf67d39459bce510bcea48de364b726700"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.a_folder_holding": {
+      "source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ],
+      "source_sha256": "6a494473bbb52647d27352f884164830bb6cda2efe4e1e28d3b191a866544c11",
+      "text": "인증기: 폴더에는 적어도 하나의 파일이 있어야 합니다.\n\n선택한 폴더에 아무것도없는 동일한 실패 한 단계 후, 이것은 코드의 가치를 받아들이기 전에 검증을 만드는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "4526e90b5a8fa8d3877ff137e7f2c0a8868e910f083925af1ca0a2521daa2912",
+        "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
+      "source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ],
+      "source_sha256": "d1f116a3eed81cb162d03c07f9c4fe911793c10cadd69c4774c9262cc52d2ba9",
+      "text": "데이터베이스, 그 안의 테이블 및 그 안에 있는 열을 요청하십시오.\n\n3개의 응답, 하나가 아니기 때문에 이것이 좌표 스트림이 필요하고 한 번에 하나를 요청하는 것은 두 번째와 세 번째를 책임질 수 있게 만드는 것입니다 : 제공되는 테이블은 선택한 데이터베이스가 실제로 보유하고 있으며, 열은 그 테이브입니다.\n\n:param key: 무엇을 요구하는가; 그 아래에 대답이 기억됩니다.\n:param tried: 무엇이 시도되었고 무엇이 작동하지 않았는지, 각 제목에서 보여줍니다.\n:param chooser: 테스트를 위해 주입; 실제 파일 대화에 가정.\n:param pick: 테스트를 위해 주입; 실제 목록 대화에 결함. ``(title, prompt, options)`` 선택을 반환하거나 None.\n:returns: ``((database, table, column), why)``, 또는 ``(None, why)``. 이유는 항상 말한다 3 개 중 누구도 멈추지 않습니다 - 거기에 아무도, 취소, 또는 그것에 아무것도없는 데이터베이스 - 왜냐하면 그것을 인쇄하는 호출자는 사용자가 얻는 유일한 계정입니다.\n\n나중 단계에서 백업하는 것은 전체 양식을 포기하는 대신 이전 단계로 돌아갑니다, 그래서 잘못된 데이터베이스를 선택하면 실행 대신 한 번의 클릭이 소요됩니다.",
+      "translation_source_blocks_sha256": [
+        "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
+        "342bdbb765df89917aecbed6dc83ab9c71d0e8fb003c6926d9205e29eeef4b98",
+        "4741fe4adc596265bac3c3c3d15d3d944bfae666e046bcb96212a574e29bed6b",
+        "ec4ba965f018e4f1764077f375671d723ac47381b213e1f3ad63bc0d5cc4c408",
+        "7ea2291a10766476e15afc50d6823d953b72e217432a7a1099dba80b40ae3ae7",
+        "c1a38769b0f71d1f1154f3a26b1ed9d29245f25d2074e90b7f24de9d606f1efa",
+        "50b6c482d2316e2d51af733166f0e20c0f903828bf74c705ec85c5ef9b8b8f92",
+        "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder": {
+      "source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ],
+      "source_sha256": "f89ffe8657762b6e964d068d05f341c6b3d43ca7f909d492a82c2986cab2af98",
+      "text": "일반 해상도가 실패한 후에 폴더를 요청하십시오.\n\n:param key: 답은 그 아래에 기억되어 있으므로 두 번째 실행의 이미지는 다시는 묻지 않습니다.\n:param tried: 무엇이 시도되었고 작동하지 않았는지, 유권자 전에 말하여 사용자가 그들이 왜 묻는지 알고있다.\n:param what: 원하는 것에 대한 짧은 이름, 대화의 제목.\n:param validate: 선택한 경로를 보면 사용 가능할 때 None 또는 왜 그렇지 않은지 말하는 문장이 반환됩니다.\n:param chooser: 테스트를 위해 주입.실제 폴더 대화에 결함.\n:returns: ``(path, why)``. `path` 그것은 None 아무도 응답하지 않았을 때, 사용자가 취소되었을 때 또는 아무도 없을 때 - 그리고 `why` 왜냐하면 그들은 세 가지 다른 상황이기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
+        "68da2eafa7c9992ab06c53a2fa576b01feaebeb4d09c075edd67b98cdf84e1a8",
+        "7252071239224584f18102bacae814d8dc52866ff19e6ecf5719a10603ce663e",
+        "a877ddb032179e4f4c77167ea481227f96bb3508b5664522fca0db83eab3efb7",
+        "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
+        "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
+        "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.columns_in": {
+      "source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ],
+      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+      "text": "각 열에 하나의 테이블, 순서에 테이브는 그들을 선언합니다.",
+      "translation_source_blocks_sha256": [
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.forget": {
+      "source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ],
+      "source_sha256": "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3",
+      "text": "모든 기억에 남는 대답을 던지십시오. 테스트를 위해, 그리고 새로운 실행을 위해.",
+      "translation_source_blocks_sha256": [
+        "cd35ecec29a50e61d189adbcf75d73d93f91ced5c4932909a099a9f727df79a3"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.remembered": {
+      "source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ],
+      "source_sha256": "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61",
+      "text": "이미 ``key``에 대답 한 것이 무엇입니까?",
+      "translation_source_blocks_sha256": [
+        "6fea37b8ffe820984693e5322edbe1ab2fd13bc8a5247ed832fc015051395c61"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.somebody_is_there": {
+      "source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ],
+      "source_sha256": "c92ac2e925ac76e702b158eeaf876999d34316c8beef08508a82f47c2d003177",
+      "text": "대화에 응답할 수 있는 사람이 있는지 여부.\n\nFalse 밑에 묻지 않고, 표시되지 않고, 또는 이전에 QApplication 처음 확인하고 스스로, 왜냐하면 그것을 잘못하는 것은 아무에게도 대화를 보여주지 않기 때문입니다 - 그것은 차단하고, 차단 된 배치 실행은 묶음처럼 보입니다.",
+      "translation_source_blocks_sha256": [
+        "6cc327c57a31d6d2948c23d1943ce8ba5279c5c17106c24f5fb23f2b963632fe",
+        "5fd947c2947954d54d6e6d874d2a2ecdbbd437b705c87106474b1f6ef26c65db"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.tables_in": {
+      "source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "3c7a2a2ef660cce10eec82aacb9aa5519333fdfa263fbf1dc300ec6eb7959b38"
+      ],
+      "source_sha256": "31809cab2f4cd71ed0abd9d4f96119cdc0d49bea9d6ab9bd0b8ca8161acb1a75",
+      "text": "각 테이블은 SQLite 파일 또는 하나가 아닌 경우 빈 목록입니다.\n\n절대 던지지 마십시오 : 사용자가 선택한 경로는 무엇이든 될 수있는 경로이며, \"이 파일은 테이블을 가지고 있지 않습니다\"는 예외가 아닌 양식이 필요하는 문장입니다 어쨌든 잡아야합니다.",
+      "translation_source_blocks_sha256": [
+        "fd3630334325a8cbee8191e8dca9cd13ecae484b93893aec3e2a2c9e67a0280f",
+        "c78d0bdbb2416432d613f0e91431589b15f1178849a8e6ce9c15f31f8af9ecfc"
       ]
     },
     "spacr.qt.bridge": {
@@ -51426,6 +51782,28 @@
         "17b9d626580959e9cf19ec960e6e39844e7c3a39684c5bdf41bb8ed44ad7ec5e"
       ]
     },
+    "spacr.qt.fractal_defaults": {
+      "source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ],
+      "source_sha256": "fef40f2ded5279a9c30affbbc50c9e07db6cdf800c63980ccec7b96aa2b95f96",
+      "text": "Qt, numba 또는 vispy 없이 수입할 수 있는 숫자.\n\n`preferences` 기본 및 클램프가 저장된 값을 읽을 필요가 있으며, `preferences` 첫 번째 창이 존재하기 전에 수입됩니다. `widgets.fractal_travel` 그들이 끌어내리기 위해서 numpy 그리고 모든 일반 세션에 대한 출발 경로에 숫자 - 모듈은 공간을 사용하는 것 외에 아무것도 없습니다.",
+      "translation_source_blocks_sha256": [
+        "69d300fc0c5eac906243c8eb0d16520850eb8c9a5c532645caa2910eeb409ce1",
+        "0d4baaabca4746c2e4342a401a7be25002f670e30b2b14ad1c7fbbda303eb0dc"
+      ]
+    },
+    "spacr.qt.fractal_defaults.clamp": {
+      "source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ],
+      "source_sha256": "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18",
+      "text": "``value``은 ``[low, high]`` 내부에 붙어 있습니다.",
+      "translation_source_blocks_sha256": [
+        "aa0f4da492edd4d1d14a9a3b287b86fe2301291e2ffb64b462eec6ffaf9eaa18"
+      ]
+    },
     "spacr.qt.gil_priority": {
       "source_blocks_sha256": [
         "70d3cd7891ebb9fa9f85a3035269cd43d5304ed367205e12226acf77608d66dc",
@@ -52808,6 +53186,112 @@
       "translation_source_blocks_sha256": [
         "18d1d62ac5ff4db8f2a0b6524803e2126b67521c7b8138dfe68c293546fa0227",
         "77b88411e35a1cc0de08f9313df9529ce16e32f9f2a43fc89ff2781a6def8f35"
+      ]
+    },
+    "spacr.qt.laptop_mode": {
+      "source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "365085411bc3b4f0aea6be73f6814c9198ecc6a80f0f63349bc13b602284dd81",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ],
+      "source_sha256": "daecd56de2ad0cd0b7e640ce75dab9d81d2b9a0242ee33a7482fed59a2af6d31",
+      "text": "작은 기계를 잘 실행하여 작은 응용 프로그램이되지 않습니다.\n\n이 파일의 규칙은, 유지 보수의 말에서 : \"단지 물건을 돌리는 것은 하나의 전략이지만, 나의 최고의 사례 시나리오는 가능한 한 많은 기능을 유지할 수있을 뿐만 아니라 그들을 최적화 그래서 그들은 또한 더 나쁜 하드웨어를 실행한다.\"그래서 이것은 최적화를 얻은 후에 도달 된 FALLBACK이며, 그것은 모듈이하는 것을 제거하는 대신 장식적인 것을 돌립니다.\n\n여기서 처리 세션이 계산하는 것을 바꾸는 것은 아무것도 없습니다.그것이 만지는 모든 설정은 응용 프로그램이 DRAWN인지에 관한 것입니다.\n\n그것은 자동으로 선택되며, 어떠한 방식으로든 과장될 수 있으며, 그것이 무엇을 바꾸었는지 말한다 - 응용 프로그램을 조용히 다르게 만드는 모드는 아무도 탈출 할 수없는 모드입니다.",
+      "translation_source_blocks_sha256": [
+        "b071d6a55e1916e0ec46dfaa8b28251334e7de871f415e9c4981c5bcc50ccb51",
+        "1de337511f3500232661745ab249189da57e8e127453e2b0c157fc64ccd2f6fb",
+        "90480b66e0997f15671e2aa2cf8efdff2b6c73dd38d0350a667b55b7ba5e4bf6",
+        "60629331c8dadca853952ba07cc39d2fdc919d1f7a4ae9b7ba7398ee39833a26"
+      ]
+    },
+    "spacr.qt.laptop_mode.apply": {
+      "source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ],
+      "source_sha256": "876ecc902d9a078887f698b0fedfd8ee37872d0be4dc3b81c3365d6b47df1af4",
+      "text": "모드를 끄거나 끄십시오.결정된 것과 변경된 것을 반환합니다.\n\n:param on: 응답을 강요하십시오; ``None`` 기계를 측정합니다.\n:returns: ``{\"on\", \"why\", \"changed\"}`` -- `changed` 각 설정의 이름은 실제로 작성되어 있으므로 호출자는 그것을 주장하는 대신 무슨 일이 일어 났는지 말할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "26ed332e5c606b21ccd218b3c024aa56d1623aa06d8b81b8b8cef050b1877163",
+        "4b8dac16a7a15348b6d552ccb4e28be1b6917f5ccb8ce40a3bf36e9c259f34d2",
+        "ca2a93d108d6158c4df6a20da7d288e4117c025d0aad6c401ca776c9670473bf"
+      ]
+    },
+    "spacr.qt.laptop_mode.describe": {
+      "source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ],
+      "source_sha256": "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b",
+      "text": "전체 결정은 하나의 블록으로, 발사 기록을 위해.",
+      "translation_source_blocks_sha256": [
+        "a0722563f209d8da3f16a72fd429307e3660104f3fe2c8b4c90d1f9061b5f76b"
+      ]
+    },
+    "spacr.qt.laptop_mode.measure": {
+      "source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ],
+      "source_sha256": "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec",
+      "text": "결정이 무엇에서 이루어지고 있는지, 그래서 그것은 보고되고 테스트 될 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "111e00b5ca73496b10ef3cf3db4044cd6efa6a6d0f0a7c8909de8051ac8cf2ec"
+      ]
+    },
+    "spacr.qt.laptop_mode.override": {
+      "source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ],
+      "source_sha256": "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d",
+      "text": "환경이 말하는 것, 또는 None 아무 말도 하지 않을 때",
+      "translation_source_blocks_sha256": [
+        "a7af8365ada2279c3d778d6cb64a65b3b7d592f357bf65b70439c996c8269b9d"
+      ]
+    },
+    "spacr.qt.laptop_mode.total_memory_gib": {
+      "source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ],
+      "source_sha256": "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc",
+      "text": "GiB의 신체적 기억, 또는 None 읽을 수 없을 때",
+      "translation_source_blocks_sha256": [
+        "1690a8c54ec19611aa449078292d021bea95629a564f73ba123068c945bc16fc"
+      ]
+    },
+    "spacr.qt.laptop_mode.usable_cores": {
+      "source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ],
+      "source_sha256": "dc715c3833b07e51d9c7a53dfdf61547f9a6e309eb6d6132e0bf44db54427e20",
+      "text": "코어 이 과정은 실제로 사용할 수 있으며, 기계가 가지고있는 코어는 아닙니다.\n\n`os.sched_getaffinity`이 존재하는 경우 : 컨테이너 또는 일정은 `cpu_count` 보고서보다 덜 프로세스를 핀 할 수 있으며, 핀링은이 모드가 정확히 상황입니다.",
+      "translation_source_blocks_sha256": [
+        "6eeca1c96f25ca1b20363fe0660331ff83bcc457a9e322861b2979e1c6fbbf38",
+        "e5e0905bd72d34ad04ad93efbfe15014f34c1ea4af000bef7476a52aac623487"
+      ]
+    },
+    "spacr.qt.laptop_mode.wanted": {
+      "source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ],
+      "source_sha256": "c1a223ad9504b6f729f814a7ae6adec827d53e7bd57b4b7257c6d23637ca43d8",
+      "text": "노트북 모드에서 실행하는지 여부, 그리고 왜 말하는 문장.\n\n:returns: ``(on, why)``. 원인은 항상 인구가있다, 또한 대답이 아니면 포함 - \"spaCR decided not to\"는 사용자 보고서의 일이며 누군가가 확인할 수 있어야합니다.",
+      "translation_source_blocks_sha256": [
+        "d5f0631d4d0a2d1420fdc111009d6af4ce1a89e455f2cc728c275f7790175a54",
+        "da99dae2fbd6c895c14e7e7076a0621f983b203f3ed91b17dcc7cbbc1a1fa70b"
+      ]
+    },
+    "spacr.qt.laptop_mode.what_it_turns_down": {
+      "source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "ca261d6b9e41a4314bd1d8fedab690e821a1b20e7eb5ed7ad2adeaf12790411d"
+      ],
+      "source_sha256": "ba94f02cd51cfe0e2abe44fbe9565fd38fb8b794c200786816815cd883c99868",
+      "text": "모든 것이 모드를 변경하고, 사용자가 그것에 의해 잃어버린 것입니다.\n\n여기서 아무것도 작업 흐름에 의해 읽혀 있지 않으므로 처리 세션은 각 모드에서 동일한 대답을 계산합니다 - 이것은 자동 결정을 전혀 수용 할 수있는 약속입니다.",
+      "translation_source_blocks_sha256": [
+        "88d07befe5e3a2884bec7027606293051bb6427913a4b00764c678d008cf57bf",
+        "e1c7f54e963fdc38e34ea1b8306d447010ef331a04ee7613f9e0f66739bd777f"
       ]
     },
     "spacr.qt.layer_viewer": {
@@ -55646,6 +56130,18 @@
         "5367c8ff589146b57284866676a2a82adeec3e4bbd4dd6522abff3251740e264"
       ]
     },
+    "spacr.qt.preferences.get_fractal_settings": {
+      "source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ],
+      "source_sha256": "6f0c8db2c882def4a35b1435da8407ff752f333d4b37af013619a95a418bcc88",
+      "text": "모든 spaceout fractal 설정, 준비 `Settings`/`RuntimeControls`.\n\n하나의 기능을 통해 읽으십시오, 그래서 대화와 배경은 기본에 대해 동의하지 않을 수 없습니다. 범위 내에서 저장된 값은 거부되는 대신 접착됩니다 - 배경은 응용 프로그램을 시작하는 것을 막지 않아야합니다.",
+      "translation_source_blocks_sha256": [
+        "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
+        "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
     "spacr.qt.preferences.get_hash_inputs": {
       "source_blocks_sha256": [
         "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193"
@@ -55676,6 +56172,18 @@
       "text": "지속적인 UI 언어 코드를 반환하여 영어로 돌아갑니다.",
       "translation_source_blocks_sha256": [
         "8fe3572d424d631dea9350a664e3f4f1334e1a3eead099dc7bd54a5cf79925d8"
+      ]
+    },
+    "spacr.qt.preferences.get_laptop_mode": {
+      "source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
+      ],
+      "source_sha256": "9970c73c5d6cec4d3aea8dc51dc5f048e1d3e475abd666b47f4ce3f4057f7e04",
+      "text": "노트북 모드가 강제로 켜져 있든, 끄거나 측정되는지 여부.\n\n저장된 값은 :data:`LAPTOP_MODE_CHOICES`의 하나입니다.다른 모든 것 - 오래된 파일, 수동으로 편집 된 파일 - ``\"automatic\"``로 읽기 때문에 아무도 해석 할 수없는 설정은 결코 설정되지 않은 것처럼 행동해야합니다.",
+      "translation_source_blocks_sha256": [
+        "ac3cc50523b846cff8e75fb809a13be4c622e39c2613f973d67d278546961bae",
+        "7ebb81d1c1c56c104d0421fe3854490922fbc7a9509749e99cf64fb8d15cf0b5"
       ]
     },
     "spacr.qt.preferences.get_log_console_levels": {
@@ -55970,6 +56478,18 @@
         "e4263e98c459c4bf6f797b85c1f0e59d9f3f6c282eddc9cd641284106f84a2d5",
         "5efe2212f3437950fc7e12b0f87c3fd4d049d482aa4746b4d51286ff8b9088aa",
         "c28efd5f9ced78ef62cf0f14ed0af079870a50abab66a9c2a704b3bb86bc060c"
+      ]
+    },
+    "spacr.qt.preferences.laptop_mode_note": {
+      "source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
+      ],
+      "source_sha256": "ddfabb93c4300855629291df28b701347865414b10403b9c1ecb1c27644a8680",
+      "text": "선택한 설정이 이 기계에서 무엇을 할 것인가, 저장하기 전에 말했습니다.\n\n자동은 말해야 할 경우입니다 : 라벨은 결과를 지정할 수 없기 때문에 결과는 기계가 그것을 읽는 것에 달려 있습니다.",
+      "translation_source_blocks_sha256": [
+        "7c54f8cd4415ed7a49e08d2d3bba3a081ba3a72e92490827d04f7aa97732c576",
+        "2d1e177e5be07e8f3927bbe7e7c59effbca9b2ae18b76e8b63b796da31ca392a"
       ]
     },
     "spacr.qt.preferences.maturity_is_visible": {
@@ -56398,6 +56918,18 @@
         "6ff0c2175252aff10cb2639d4c6c7aba7aafe020f957fbd1dd127731f1a5b9e5"
       ]
     },
+    "spacr.qt.preferences.set_fractal_settings": {
+      "source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ],
+      "source_sha256": "3e75419e2dace9574973f6a2e0e80af1993834f1791702af2f682d37af1445c6",
+      "text": "fractal 설정의 모든 하위 세트를 유지합니다.\n\n:raises ValueError: 알려지지 않은 이름, 또는 그것의 세트 밖의 배경 / 품질.그것의 범위 이외의 숫자가 붙어 있기 때문에 슬라이더는 하나를 생성 할 수 없으며 수동으로 편집 된 파일은 여전히 시작해야합니다.",
+      "translation_source_blocks_sha256": [
+        "43acf34945fb81608b0b3408dac3579b779119d7ec0a4ca8a48301b3f1c5f2c1",
+        "c629756d33e323bac12448d5f524fbd197bc0ce348fecf34489f804cd6533282"
+      ]
+    },
     "spacr.qt.preferences.set_hash_inputs": {
       "source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
@@ -56432,6 +56964,20 @@
       "translation_source_blocks_sha256": [
         "0b926505a064e68b7543dc60c317836f3a336dc8450e6d9352f0564024d29443",
         "0ecd63fe48e47dcf5b363f0f3b6ade9472c2178df9c9d7e3cdabe49b56652c07"
+      ]
+    },
+    "spacr.qt.preferences.set_laptop_mode": {
+      "source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+      ],
+      "source_sha256": "d7057a17e60ba6db6fa09b6167bb17c91659a3d6c2160c3edfd7e2fc08d37c90",
+      "text": "노트북 모드 선호도를 유지하고 지금 적용하십시오.\n\n:raises ValueError: 알려지지 않은 선택으로\n\n다음 발사 대신 즉시 적용하십시오, 왜냐하면 그것이 변화하는 두 가지 - 환경 애니메이션과 배경 흐름 - 모두 대화 뒤의 창에서 볼 수 있기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
+        "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
+        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
       ]
     },
     "spacr.qt.preferences.set_log_levels": {
@@ -83025,6 +83571,20 @@
         "7f0b8b828bbb7985819b4676c26d3d39756b5a45116d69b50985582c84b94caf"
       ]
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.add_smoother": {
+      "source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ],
+      "source_sha256": "3f053804ffc782260503c35d2bd6d6853c4353736ca919820296128f0c040e11",
+      "text": "이미 끌려온 포인트 위에 하나의 진단 곡선을 놓으십시오.\n\n:returns: 그것에 대해 무엇을 말할 것인가 - 방법, 그것의 메모, 그리고 그것이 하나를보고 할 때 밴드 - 또는 거부, 즉 전화가 보여주는 예외가 아닌 문장입니다. ``\"\"`` ``method``가 텅 비어있을 때 반환, 그래서 \"none\"는 모든 전화 사이트에서 특별한 경우가 아닙니다.\n\n곡선은 p 값을 가지고 있지 않으며 하나를 얻을 수 없습니다 : 그것은 :class:`spacr.nonparametric_fits.Curve`로 돌아갑니다, 그것은 그러한 속성이 없습니다. 직선 트렌드 라인이 평평한 곳에서 흔들리는 더 부드러운 것은 발견입니다 - 그것은 중간 모델이 용어를 놓치고 있음을 의미합니다 - 그리고 그것은 FIT에 대한 진술이며 가이드의 테스트가 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "5b0eabe11739d03100c1d20ab3c6c3b8e133217a96ce0b9bef3e43dff046db56",
+        "527fa064a7ef345934d29b4c4e490f77947ed93da03bde2321343843000e66bb",
+        "910ff597ea9f1e83883953066c98cde7d6b37c74fc5ba4dc18ba2d7d77a77d46"
+      ]
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
       "source_blocks_sha256": [
         "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
@@ -83625,6 +84185,22 @@
         "1e2a2463e4992521cc0551b4f0866e8c6f65d3bd803ce2290ae5cf20992ac3d5",
         "5d4fc5178fe1cb7adabb14da987b070c72267b240d2ed8c32dd1beebaf1a9176",
         "4da05ffbdc99f516c96ffccbd237c1865b21b50b096360a6cf71271710732640"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_smoothers": {
+      "source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
+      ],
+      "source_sha256": "69ab7fbb4b71f69f2b5d49031debf18a839d42f2f9626f93ca796c1fbb3f9a6b",
+      "text": "오른쪽 클릭 메뉴에서 4 개의 진단 슬라이더를 제공합니다.\n\n:param on_change: ``(method_name)``을 선택할 때, 또는 ``\"\"``을 사용하지 않습니다.\n:param chosen: 그 중 하나는 현재 끌려가고 있다.\n\n:meth:`offer_refit` DELIBERATELY에서 분리하고 메뉴는 그렇게 말합니다. 이러한 곡선은 이미 일어난 적합성 위에 놓여있다; 그들 중 누구도 그것을 대체하지 않으며, 그들 가운데 누구도 히트를 결정하지 않습니다. 이것이 전체 이유 지침 254은 ``regression_type``의 입력과 다른 범주에 그들을 배치합니다.",
+      "translation_source_blocks_sha256": [
+        "cab0177979993b15d5749fe30ad5ad025384b83e57b0b9d8bc482d5292352be5",
+        "223909c595eead00930455d0a8958a4c35574f4822ccc6c9098f87a48a0415a2",
+        "a63ebff872ea3584e7ddb2f7d548066c66fa681250badae77273b495ec835515",
+        "d8c683cb04618ab0da607720a5216c1f36c948fee4d022e7721ea8ccaf31aeed"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_style": {
@@ -88137,6 +88713,178 @@
       "text": "상자 아래의 라인 - 승인 메시지 또는 알림.",
       "translation_source_blocks_sha256": [
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel": {
+      "source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "0566678131450c8e1b80701442dfbd4c9c0c05c18b669c466f1c32d07f119c9d",
+        "b3cd44a99f1bb3c9b983ec5839f6ec5cb58cd91d292a906d80986eb1ae7b6a45"
+      ],
+      "source_sha256": "0a1eb74532f9b4acffc0ded75adcd5c8c9ea326f624c5db29fed63494b3d1dc2",
+      "text": "Spaceout fractal : GPU 그림자가 하나가있을 때, Numba는 그렇지 않다.\n\n터의 `fractal_travel.py` v2.1.0.에서 가져온 두 개의 렌더, 스위치가있는 하나의 엔진이 아닙니다 :\n\n* **GPU** - VisPy/gloo는 GLSL 조각 그림자, 물리적 픽셀 당 4 개의 공간 샘플, 그리고 템플릿 GPU 시간에 따라 적응하는 세부 루프를 갖추고 있습니다.\n* **CPU** - Numba에서 더 저렴한 궤도 분열 분열, 4 위치 2x2 타이머와 롤링 4 프레임 창으로 애니메이션 속도로 평가.\n\n이 문서의 세 가지 사항은 성경이 말하지 않는 것입니다.\n\n`vispy` 배송된 환경에 설치되어 있지 않으므로, `backend='auto'` 결정을 내리며 CPU 오늘날 그리고 GPU 그 날이야, 아무것도 바뀌지 않는다.\n\n그것은 PySide6 입니다. 스크립트는 PyQt6이었고, 이 응용 프로그램 내부에 묶는 것은 2 개의 Qt 묶음을 하나의 프로세스에 넣을 것입니다.이 프로세스는 던지지 않습니다.\n\n그리고 그것은 내려갑니다. 뒷면은 분열이 실행하는 동안 코어를 먹는 반대입니다, 그래서 `pause()`는 렌더링 루프를 멈추고 응용 프로그램 보기에서 마지막 프레임을 떠납니다. :meth:`CpuFractalWidget.pause` 참조.",
+      "translation_source_blocks_sha256": [
+        "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
+        "8d841069a733b95e24af3acf489bd956ef5bb599650d784eaf30bd3069d3385d",
+        "49a0fb4ed27e41dab57cc0f61890b64053e076cae3b5b880941847b5af34bba1",
+        "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+        "ab9454efa2f08115b19edfd6705eaca719ca8599dac41cac2082f56c281a1a49",
+        "c7cf17c1317995332f1c315837afff34c833fefbe9c27612238b5c35c0299be3",
+        "b9ff05769f0cf2087ef9cda80de7686e520e70ac9a0008fd100d1aaa4de25d1a",
+        "ad71051090a85fd00da5277eb84b25d02b34b6718d8de14357308d0b3e6cc863"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.CameraState": {
+      "source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ],
+      "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
+      "text": "GPU 필드가 한 순간에 표시되는 곳.",
+      "translation_source_blocks_sha256": [
+        "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.GpuBackendError": {
+      "source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ],
+      "source_sha256": "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f",
+      "text": "GPU 렌더는 구축 할 수 없습니다. 항상 `auto`에 의해 잡혔습니다.",
+      "translation_source_blocks_sha256": [
+        "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.OrbitEngine": {
+      "source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ],
+      "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
+      "text": "4 프레임 타임 창, 그리고 다른 아무것도.\n\n키 프레임이 없습니다 : 유일한 상태는 마지막 4 단계의 반지이며, 이것은 반합이 필요하고 필요한 모든 것입니다.",
+      "translation_source_blocks_sha256": [
+        "015404bfce3aa07fac9a0206f1143181a1daad36763c94e48839601f8130e5ed",
+        "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls": {
+      "source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ],
+      "source_sha256": "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6",
+      "text": "사용자가 실행하는 동안 움직일 수있는 것.",
+      "translation_source_blocks_sha256": [
+        "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
+      "source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ],
+      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
+      "text": "사용 속도는 ``t`` 초입니다.\n\n`variable_speed`가 멈추지 않는 한, 그 경우에 그것은 그것을 대체하는 대신 설정된 값 주위에 숨을 쉬는 - 그래서 선호도는 여전히 그것이 말하는 것을 의미합니다.",
+      "translation_source_blocks_sha256": [
+        "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
+        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings": {
+      "source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ],
+      "source_sha256": "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38",
+      "text": "사진은 무엇으로 만들어졌는지.모든 필드는 선호 라인입니다.",
+      "translation_source_blocks_sha256": [
+        "ae592a90f3d7c4a01bed183889f92d8116106b46ebf8f5c6f64de5484057bb38"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Settings.validated": {
+      "source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ],
+      "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
+      "text": "Renderers가 받아들이는 범위 내의 각 필드를 가진 복사본.\n\n거절하는 대신 흔들린 : 이것은 배경, 그리고 그것에 어리석은 번호가있는 선호 파일은 응용 프로그램이 하나를 그리는 것을 멈추지 않아야합니다.",
+      "translation_source_blocks_sha256": [
+        "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
+        "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.create_fractal_widget": {
+      "source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66"
+      ],
+      "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
+      "text": "뒷면을 흔들어 놓고, GPU 하나가 있을 때\n\n:returns: `backend_name`, `stats_text()`, `pause()`, `resume()`, `shutdown()`을 제공하는 QWidget입니다. GPU 장치가 없어도 예외를 발생시키지 않습니다. 명시적인 ``backend='gpu'`` 백엔드를 생성할 수 없는 경우에도 대체 백엔드로 전환됩니다. 배경 화면 효과 때문에 애플리케이션 시작을 거부할 이유가 없기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "6c21f73e16bcbb078be3248ff9aef6a47690b5fd13a915935d946fa81d4329b6",
+        "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.gpu_is_available": {
+      "source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ],
+      "source_sha256": "468548d177a174d97307e94514cbaa70048db83cc7817bcb5cdee8aa9ecbc84c",
+      "text": "GPU 렌더가 완전히 구축 될 수 있는지 여부.\n\n응답이 아니었을 때 응용 프로그램에 비스피를 가져오지 않고 물어보았습니다: `importlib.util.find_spec` 모듈을 실행하지 않고 볼 수 있으므로 실종 된 비스파는 아무것도 비용이 들지 않고 현재 하나는 두 번 시작되지 않습니다.\n\nGL 캔버스를 호스팅 할 수없는 플랫폼은 그렇지 않은 것으로 계산됩니다. GPU 왜냐하면 대안은 예외가 아닌 핵심 덤프이기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
+        "8890f6d2ff87577130e67f7e6fb1cf872f63e4566e76ca9ddcf755093caee22f",
+        "9b81cc253621b33daca5a0088c3bd26830a66a8c1cbb542a714b1965601957e3"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
+      "source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "e99794211dd743cd84bf64422621443dfa8bb3e54e5567f59c9586d30a34ad25"
+      ],
+      "source_sha256": "e2bc79c3c22b5a48e944cd98fad44ba65bf9762a838fb3c6f2fade05d72345db",
+      "text": "이 Qt 플랫폼이 GL 캔버스를 호스팅 할 수 있는지 여부.\n\nGPU 위젯 전에 체크하면 잘못되면 던지지 않기 때문에 건설됩니다. `offscreen` 플랫폼에서 Qt 인쇄 \"QOpenGLWidget는이 플랫동안 지원되지 않습니다\"와 프로세스 DUMPS CORE - 건축가 주위에 `except`를 잡을 수 없으므로 `create_fractal_widget`의 붕괴는 결코 실행되지 않을 것입니다. 모든 테스트와 헤드없는 발사는 그 플랫폼입니다.",
+      "translation_source_blocks_sha256": [
+        "5df2caffa5c3ae54df1fcd5be94bbc5884af7a60251afd3cf43159e333ab571d",
+        "0ecf118546853a1031330730ffb2207379df5d75ea0e4ba7006a9f940f2642b1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolve_backend": {
+      "source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ],
+      "source_sha256": "bfdda1331e4fc5007a59cb39770c8ff421ef3303d1865f61f12bbc86e6ae8c0d",
+      "text": "어떤 렌더가 실제로 실행 될 것인가, 무엇이 설치되어 있는지에 따라.\n\n:returns: ``'gpu'`` 또는 ``'cpu'`` - 결코 ``'auto'``를 표시하지 않기 때문에 사용자에게 그들이있는 사람을 표시하는 호출자는 \"auto\"을 표시 할 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "3c15f478c09ae562e7bceda96c8e44038304baa328a5920f4b525a11489f8526",
+        "66a8255e4ffbc35c220afbbf0c2ff624ae55efb44b0fc45e95d8751e3c3c119c"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.resolved_cpu_threads": {
+      "source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ],
+      "source_sha256": "4249e971b0230af3ba75072ee4c3bcd1ee4e739b8153ca7d94c6dbd31e768900",
+      "text": "얼마나 많은 Numba 노동자, 응용 프로그램을 떠날 수 있습니다.\n\n24에 캡처되었기 때문에이 이미지 크기에 대한 일정 표면이 증가하고, 실제로 사용자가 돌보는 실행을 굶주린 각 핵심을 차지하는 배경 지붕이기 때문에 기계의 계산 아래에 붙어있다.",
+      "translation_source_blocks_sha256": [
+        "add390888da071e7c97eceaa2a588335aeb7733a9a22789fd1f6d41584b1a36f",
+        "0f2062909e6c4ca67b87958784dc03b4447211369aa6d1ef44e7469f5cfeb777"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.state_at_seconds": {
+      "source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+      ],
+      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+      "text": "카메라는 ``t``. 순수하므로 테스트가 그것이 움직이는 것을 주장할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101354,6 +102102,16 @@
         "63404dd9edaa294b84bf662cd72384999f47c4e4d8950e5cdc8773a78d71b0a1"
       ]
     },
+    "spacr.qt.widgets.sweep_runs.describe_saved_states": {
+      "source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ],
+      "source_sha256": "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf",
+      "text": "하나의 문장에 대해 무엇을 저장했는지, 패널의 자신의 메모를 위해.",
+      "translation_source_blocks_sha256": [
+        "deac87679ce85e04a78746141da596b9c91eab9650f43755abb47e5250b7dfaf"
+      ]
+    },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
@@ -101364,6 +102122,22 @@
       "translation_source_blocks_sha256": [
         "8b1575094ed8099635069f51e90c3305a1411ba2c04eacf2049036bb5d83b514",
         "0aabd13f89079a39eee016b126fa9ec133fecb34714a607209d6e2400ce744b2"
+      ]
+    },
+    "spacr.qt.widgets.sweep_runs.save_run_states": {
+      "source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "1c6d40e37a40c08e463db5ca9eb3c45c7c6f6d7de59e5bce60d03809008e57d5",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
+      ],
+      "source_sha256": "8a0da88fd694fde04d0aace347e3078ba7c3bca76c392af75faf6fb80dd7bef5",
+      "text": "각 ``folders``에 대한 작업 공간 팩을 작성합니다.\n\n괜찮아, 그래서 글을 쓰고 있어요. `workspace.save_for_run` 돌아오는 None 만일 그가 `runs/save_workspace` 선호도는 끄고, 이것은 실행의 끝에서 자동 저장에 대해 올바르고 여기에서 잘못됩니다 : 선택한 사용자 \"Save the state\" 메뉴에서 요청하고, 조용히 아무것도하지 않는 메뉴 항목은 부재 한 것보다 더 나쁘다.\n\n:param folders: 저장할 수 있는 세션 폴더\n:returns: ``(saved, failures)`` - 팩을 얻은 폴더, 그리고 ``(folder, reason)``하지 않은 사람들을 위해. 하나의 패널 실패는 다른 사람을 멈추지 않습니다, 그리고 모든 실패가 NAMED : 이름이없는 \"3의 5\"의 숫자는 사용자가 행동 할 수없는 보고서입니다.",
+      "translation_source_blocks_sha256": [
+        "9df6eccf0d720a3b9f1a99d15fb41684e324f891698ce61a97422763ad6a115c",
+        "ed82c1cad468be492cc39ed9de87a89e316aa2de21f03d6b0860ab7df5d53950",
+        "5953a14a0c087e875d08dd3d93081f2a75f0f742d5c9af20101624009cae2cdf",
+        "72f0851dd70bea356f630e2e2f87a56267197819d629bc8ddf063b40c68a2b3a"
       ]
     },
     "spacr.qt.widgets.table_chip": {
@@ -117803,10 +118577,12 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ],
-      "source_sha256": "78172a1682225d9d5d98e123a377fab64496ad08d7cca031a1e0d31a07d53c78",
-      "text": "객체 테이블에서 스트리밍 선택을 구축합니다.\n\n파라미터\n----------\nframe : pandas.DataFrame 측정된 개체에 한 줄. object_array : str, default=\"cell\" 선택할 수 있는 개체 유형. test_split : float, default=0.2 테스트 세트에 부여된 분열. seed : int, default=0 임의의 씨앗은 결정적 분열을 제어합니다.\n\n돌아오는\n--------\npandas.DataFrame 각 개체에 대한 캐논 식별자, 개체 유형, 분할 및 출처.\n\n상승\n------\nValueError 테이블이 텅 비어 있거나 사용할 수 있는 개체 식별자를 포함하지 않는 경우.",
+      "source_sha256": "b0567519dbde23227f76ae60d85553ad0962382e693bc36694ec1fe56c39d370",
+      "text": "객체 테이블에서 스트리밍 선택을 구축합니다.\n\n파라미터\n----------\nframe : pandas.DataFrame 측정된 개체에 한 줄. object_array : str, default=\"cell\" 선택할 수 있는 개체 유형. test_split : float, default=0.2 테스트 세트에 부여된 분열. seed : int, default=0 임의의 씨앗은 결정적 분열을 제어합니다.\n\n돌아오는\n--------\npandas.DataFrame 각 개체에 대한 캐논 식별자, 개체 유형, 분할 및 출처.\n\n상승\n------\nValueError 테이블이 텅 비어 있거나 사용 가능한 개체 식별자를 포함하지 않으며, 아무도 물어보지 않았거나 답변이 도움이되지 않았습니다.\n\n노트\n-----\n``ask`` 테이블이 개체 이름이 없을 때만 호출되며, 이 모듈이 수입되는 대신 INJECTED이므로 결코 의존하지 않습니다. Qt 그 앞에 있는 아무도 가진 호출자는 아무도 지나지 않고 그가 항상 얻는 실수를 정확히 얻는다. \"결코 배치 실행에 빠지지 않는다.\" 구조적 대신 규칙 각 전화 사이트는 기억해야합니다. ``ask(tried=..., object_array=...)`` 그리고 돌아오는 ``((database, table, column), why)`` - 보기 :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.",
       "translation_source_blocks_sha256": [
         "bfd96720a7b1af1daa25c19ea6eb5a4569b08fd7491a94ee39259d755b232eac",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -117814,7 +118590,9 @@
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "faee0baddc42976fd869a98e19b17c5945321afbeddf92c3b062602db3fd6c34",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
-        "269288228030be0251d152a396532029dbe022637c1a9bf19d78264123497317"
+        "b1313598f958156ddf9e0572e9216d05ae74472e15c8412a005ee3a414fd790f",
+        "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
+        "2170fbc93a61ad335c19cefd3e46223e058421f8f953a9d4fa18d81ce48bcf11"
       ]
     },
     "spacr.stream_dataset.settings_for_method": {

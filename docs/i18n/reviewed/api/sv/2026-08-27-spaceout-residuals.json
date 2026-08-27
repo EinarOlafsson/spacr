@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.fractal_travel#3",
+      "source": "**CPU** -- a cheaper orbit-fold fractal in Numba, evaluated at animation rate with a four-position temporal 2x2 jitter and a rolling four-frame window. No keyframes and no crossfades: every displayed frame is new.",
+      "context": "**CPU** -- a cheaper orbit-fold fractal in Numba, evaluated at animation rate with a four-position temporal 2x2 jitter and a rolling four-frame window. No keyframes and no crossfades: every displayed frame is new.",
+      "source_sha256": "fd16953f46c5f079d74525981430ee62857526b436de6e72354d72ca0a86c6fe",
+      "translation": "**CPU** -- en mindre beräkningskrävande orbit-fold-fraktal i Numba, utvärderad med animationsfrekvens med en tidsmässig 2x2-jitter över fyra positioner och ett rullande fönster med fyra bildrutor. Inga nyckelrutor och inga övertoningar: varje visad bildruta är ny."
+    }
+  ]
+}
