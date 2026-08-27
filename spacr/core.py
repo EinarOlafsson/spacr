@@ -35,6 +35,40 @@ from .figures.style import figure_style, theme_target
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
+def _say_v2_does_not_score_masks(settings) -> bool:
+    """Tell the user that `seg_qc` is not scored on the v2 path.
+
+    The v1 path scores every mask through :func:`spacr.object._run_seg_qc`
+    once the masks are the newest thing on disk. The v2 path cannot reuse
+    it: v1 writes a `<object_type>_mask_stack` FOLDER, which is what the QC
+    globs, while v2 appends the mask as extra CHANNELS of
+    `merged/stack_<field>.npy` -- shape `(H, W, C_image + C_mask)`. There is
+    no folder to score.
+
+    So the setting is not honoured here, and saying so is the whole point of
+    this function. A `seg_qc` that is accepted and quietly does nothing is
+    worse than one that is refused: the user believes a bad plate was
+    checked and finds out in the measurements instead.
+
+    :returns: True when a warning was printed, so a test can assert on it
+        rather than on captured output.
+    """
+    try:
+        from .seg_qc import qc_mode
+    except ImportError:                                      # pragma: no cover
+        return False
+    if qc_mode(settings) == 'off':
+        return False
+    print(
+        "seg_qc is set but NOT scored on the v2 pipeline: v2 writes the mask "
+        "as extra channels of merged/stack_<field>.npy, and the scorecard "
+        "reads a <object>_mask_stack folder, which v2 never creates. The "
+        "masks are unaffected -- they are simply unscored. Run "
+        "pipeline_style='v1' if you need the segmentation scorecard."
+    )
+    return True
+
+
 def preprocess_generate_masks(settings):
     """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
 
@@ -188,6 +222,7 @@ def preprocess_generate_masks(settings):
                 object_type='cell',
             )
             report_disk_savings(src, result['stacks'])
+            _say_v2_does_not_score_masks(settings)
         return
     
     # settings defaults (incl. 'consolidate') are only applied further down,
