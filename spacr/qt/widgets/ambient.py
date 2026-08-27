@@ -5183,8 +5183,8 @@ def _the_spaceout_fractal(host):
 
         values = get_fractal_settings()
         widget = create_fractal_widget(
-            Settings(backend=values["backend"], quality=values["quality"],
-                     scale=values["scale"]),
+            Settings(pattern=values["pattern"], backend=values["backend"],
+                     quality=values["quality"], scale=values["scale"]),
             RuntimeControls(speed=values["speed"], dream=values["dream"],
                             variable_speed=values["variable_speed"]),
         )

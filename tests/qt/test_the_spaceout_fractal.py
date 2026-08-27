@@ -198,11 +198,12 @@ def test_the_stored_defaults_are_the_command_lines(sandbox):
 def test_every_setting_round_trips(sandbox):
     from spacr.qt.preferences import get_fractal_settings, set_fractal_settings
 
-    set_fractal_settings(backend="cpu", quality="high", scale=0.5,
-                         speed=2.0, dream=0.25, variable_speed=True)
+    set_fractal_settings(pattern="cascade", backend="cpu", quality="high",
+                         scale=0.5, speed=2.0, dream=0.25,
+                         variable_speed=True)
     assert get_fractal_settings() == {
-        "backend": "cpu", "quality": "high", "scale": 0.5,
-        "speed": 2.0, "dream": 0.25, "variable_speed": True}
+        "pattern": "cascade", "backend": "cpu", "quality": "high",
+        "scale": 0.5, "speed": 2.0, "dream": 0.25, "variable_speed": True}
 
 
 def test_a_number_out_of_range_is_clamped(sandbox):
@@ -673,3 +674,152 @@ def test_the_home_screen_path_gets_it_too(qtbot, sandbox, monkeypatch):
 
     # It reaches the fractal the same way: through `install_ambient`.
     assert "install_ambient" in inspect.getsource(home.HomePage._install_ambient)
+
+
+# --- the second pattern -----------------------------------------------------
+
+
+def test_both_patterns_are_offered():
+    assert F.PATTERNS == ("orbit", "cascade")
+
+
+def test_the_cascade_draws_something_that_is_not_flat():
+    pytest.importorskip("numba")
+    from spacr.qt.widgets.fractal_cascade import CascadeEngine
+
+    frame = CascadeEngine(2).render(64, 48, 0.0, 4.0, 1.5, 4)
+    assert frame.shape == (48, 64, 3)
+    assert frame.std() > 0
+
+
+def test_the_cascade_keeps_no_history_between_frames():
+    """Its four samples are of one instant, so there is nothing to remember
+    -- which is also why pausing it cannot show a seam."""
+    from spacr.qt.widgets.fractal_cascade import CascadeEngine
+
+    engine = CascadeEngine(2)
+    assert not hasattr(engine, "ring")
+    assert not hasattr(engine, "slot")
+
+
+def test_the_same_instant_gives_the_same_picture():
+    """A true supersample is deterministic in t; the orbit pattern's
+    temporal jitter is not."""
+    pytest.importorskip("numba")
+    from spacr.qt.widgets.fractal_cascade import CascadeEngine
+
+    engine = CascadeEngine(2)
+    first = engine.render(48, 32, 3.0, 4.0, 1.5, 4).copy()
+    second = engine.render(48, 32, 3.0, 4.0, 1.5, 4)
+    assert (first == second).all()
+
+
+def test_the_cascade_travels_with_time():
+    pytest.importorskip("numba")
+    from spacr.qt.widgets.fractal_cascade import CascadeEngine
+
+    engine = CascadeEngine(2)
+    early = engine.render(48, 32, 0.0, 4.0, 1.5, 4).copy()
+    later = engine.render(48, 32, 20.0, 4.0, 1.5, 4)
+    assert (early != later).any()
+
+
+def test_the_two_scale_windows_hand_over_without_a_reset():
+    """At phase 1 the second window has reached exactly where the first
+    started, so the cascade never jumps."""
+    import math
+
+    from spacr.qt.widgets.fractal_cascade import LOG_SCALE_BASE, SCALE_BASE
+
+    assert math.isclose(math.exp(-LOG_SCALE_BASE) * SCALE_BASE, 1.0,
+                        rel_tol=1e-9)
+
+
+@pytest.mark.parametrize("pattern", ["orbit", "cascade"])
+def test_each_pattern_builds_a_widget(qtbot, pattern):
+    pytest.importorskip("numba")
+    widget = F.create_fractal_widget(
+        F.Settings(pattern=pattern, backend="cpu"))
+    qtbot.addWidget(widget)
+    assert pattern in widget.stats_text()
+    widget.shutdown()
+
+
+def test_they_do_not_share_a_budget():
+    """The cascade is four samples a pixel inside one frame; sharing the
+    orbit's pixel count would make it unusable."""
+    import inspect
+
+    body = inspect.getsource(F._make_cpu_widget)
+    assert "115_000" in body and "460_000" in body
+
+
+def test_an_unknown_pattern_falls_back(qtbot):
+    assert F.Settings(pattern="spiral").validated().pattern == "orbit"
+
+
+def test_the_pattern_is_a_preference(sandbox):
+    from spacr.qt.preferences import get_fractal_settings, set_fractal_settings
+
+    set_fractal_settings(pattern="cascade")
+    assert get_fractal_settings()["pattern"] == "cascade"
+
+
+def test_an_unknown_pattern_is_refused(sandbox):
+    from spacr.qt.preferences import set_fractal_settings
+
+    with pytest.raises(ValueError, match="unknown fractal pattern"):
+        set_fractal_settings(pattern="spiral")
+
+
+def test_the_row_is_there_under_spaceout(qtbot, sandbox, monkeypatch):
+    from PySide6.QtWidgets import QComboBox
+
+    import spacr.qt.theme as theme
+    from spacr.qt.preferences import PreferencesDialog
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    dialog = PreferencesDialog()
+    qtbot.addWidget(dialog)
+    combo = dialog.findChild(QComboBox, "FractalPattern")
+    assert combo is not None
+    assert [combo.itemData(i) for i in range(combo.count())] == \
+        list(F.PATTERNS)
+
+
+def test_the_chosen_pattern_reaches_the_backdrop(sandbox, monkeypatch):
+    """The wiring, not the widget. A setting the backdrop never reads is the
+    shape of bug this file has already hit twice."""
+    import spacr.qt.theme as theme
+    from spacr.qt.preferences import set_fractal_settings
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    set_fractal_settings(pattern="cascade")
+    seen = {}
+
+    def _spy(settings, controls, *args, **kwargs):
+        seen["pattern"] = settings.pattern
+        raise RuntimeError("the argument is what matters")
+
+    monkeypatch.setattr(
+        "spacr.qt.widgets.fractal_travel.create_fractal_widget", _spy)
+    from PySide6.QtWidgets import QWidget
+
+    ambient._the_spaceout_fractal(QWidget())
+    assert seen["pattern"] == "cascade"
+
+
+def test_the_cascade_module_imports_no_pyqt6():
+    import ast
+
+    from spacr.qt.widgets import fractal_cascade
+
+    tree = ast.parse(open(fractal_cascade.__file__).read())
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported.add(node.module.split(".")[0])
+    assert "PyQt6" not in imported

@@ -181,6 +181,7 @@ _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
+_KEY_FRACTAL_PATTERN = "spaceout/fractal_pattern"
 _KEY_FRACTAL_BACKEND = "spaceout/fractal_backend"
 _KEY_FRACTAL_QUALITY = "spaceout/fractal_quality"
 _KEY_FRACTAL_SCALE = "spaceout/fractal_scale"
@@ -1783,6 +1784,7 @@ LAPTOP_MODE_LABELS = {
 #: The defaults are the maintainer's two command lines. `auto` picks the GPU
 #: when vispy is importable and the CPU otherwise, which is what lets one set
 #: of numbers serve both.
+FRACTAL_PATTERNS = ("orbit", "cascade")
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
 FRACTAL_QUALITIES = ("auto", "balanced", "high")
 
@@ -1795,8 +1797,8 @@ def get_fractal_settings() -> dict:
     refused -- a backdrop must not stop the application from starting.
     """
     from .fractal_defaults import (
-        DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_QUALITY, DEFAULT_SCALE,
-        DEFAULT_SPEED, DEFAULT_VARIABLE_SPEED, clamp,
+        DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_PATTERN, DEFAULT_QUALITY,
+        DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_VARIABLE_SPEED, clamp,
     )
 
     settings = _settings()
@@ -1819,6 +1821,8 @@ def get_fractal_settings() -> dict:
         variable = bool(raw_variable)
 
     return {
+        "pattern": _text(_KEY_FRACTAL_PATTERN, DEFAULT_PATTERN,
+                         FRACTAL_PATTERNS),
         "backend": _text(_KEY_FRACTAL_BACKEND, DEFAULT_BACKEND,
                          FRACTAL_BACKENDS),
         "quality": _text(_KEY_FRACTAL_QUALITY, DEFAULT_QUALITY,
@@ -1840,6 +1844,7 @@ def set_fractal_settings(**values) -> None:
     from .fractal_defaults import clamp
 
     keys = {
+        "pattern": (_KEY_FRACTAL_PATTERN, None),
         "backend": (_KEY_FRACTAL_BACKEND, None),
         "quality": (_KEY_FRACTAL_QUALITY, None),
         "scale": (_KEY_FRACTAL_SCALE, (0.25, 2.0)),
@@ -1853,6 +1858,8 @@ def set_fractal_settings(**values) -> None:
             raise ValueError(f"unknown fractal setting {name!r}; "
                              f"expected one of {sorted(keys)}")
         key, bounds = keys[name]
+        if name == "pattern" and value not in FRACTAL_PATTERNS:
+            raise ValueError(f"unknown fractal pattern {value!r}")
         if name == "backend" and value not in FRACTAL_BACKENDS:
             raise ValueError(f"unknown fractal backend {value!r}")
         if name == "quality" and value not in FRACTAL_QUALITIES:
@@ -3986,6 +3993,18 @@ class PreferencesDialog:
             fractal = _page("Fractal", "PreferencesTabFractal")
             _fractal_values = get_fractal_settings()
 
+            fractal_pattern = QComboBox()
+            fractal_pattern.setObjectName("FractalPattern")
+            from .widgets.fractal_travel import PATTERN_LABELS
+            for _key in FRACTAL_PATTERNS:
+                fractal_pattern.addItem(tr(PATTERN_LABELS.get(_key, _key)),
+                                        _key)
+            fractal_pattern.setCurrentIndex(
+                max(0, fractal_pattern.findData(_fractal_values["pattern"])))
+            # FIRST in the tab: it decides which fractal the rows below it
+            # are describing, and the two have different costs.
+            fractal.addRow(tr("Pattern"), fractal_pattern)
+
             fractal_backend = QComboBox()
             fractal_backend.setObjectName("FractalBackend")
             for _key in FRACTAL_BACKENDS:
@@ -4423,6 +4442,7 @@ class PreferencesDialog:
             # which would mean the mode silently did not take effect.
             if spaceout_enabled():
                 set_fractal_settings(
+                    pattern=fractal_pattern.currentData(),
                     backend=fractal_backend.currentData(),
                     quality=fractal_quality.currentData(),
                     scale=fractal_scale.value(),

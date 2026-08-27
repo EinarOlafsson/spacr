@@ -367,3 +367,29 @@ HOW TO KNOW IT WORKED:
   * the six settings exist in Preferences under spaceout and change the
     picture; they are absent otherwise;
   * no PyQt6 symbol is imported anywhere in the shipped package.
+
+--------------------------------------------------------------------------------
+SECTION 0C -- THE SECOND PATTERN, 2026-08-27
+--------------------------------------------------------------------------------
+
+The maintainer supplied a SECOND script -- the fold-inversion cascade v1.0.0 --
+and asked for it as an OPTION alongside the first, not as a replacement.
+
+Both are implemented and selectable from Preferences under spaceout:
+
+  orbit    fractal_travel.py v2.1.0. CPU antialiases by walking a sub-pixel
+           grid ACROSS FOUR FRAMES: one sample per pixel per frame, blended
+           over a short window. 30 fps, 460k/680k pixels.
+  cascade  fold-inversion v1.0.0. A Kaliset-like fold/inversion map coloured
+           by THREE ORBIT TRAPS, travelling through two overlapping
+           logarithmic scale windows so nothing ever resets. CPU does TRUE
+           SPATIAL 2x2 inside one frame -- four samples of the same instant.
+           24/20 fps, 115k/190k pixels, because it is four times the work.
+
+They do not share a budget, and that is deliberate: one set of numbers would
+leave the orbit wasteful or the cascade unusable. Measured on 19 threads --
+orbit 30.5 fps at 560x360, cascade 19.9 fps at the same size.
+
+`exp(-LOG_SCALE_BASE) * SCALE_BASE == 1.0` exactly, which is what makes the
+cascade's handoff seamless; a test asserts it rather than trusting the two
+constants to stay consistent.
