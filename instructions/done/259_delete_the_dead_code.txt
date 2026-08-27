@@ -2,7 +2,27 @@
 DELETE THE DEAD CODE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "delete all dead code."
+Status:    DONE. Seventeen unreachable blocks removed from timelapse.py
+           (3370 -> 3316 statements) and the package's only constant
+           condition removed from io.py, each deletion naming the line above
+           it that made it unreachable.
+
+           THE SWEEPS RE-RUN 2026-08-27 over 465 files:
+               statements after return/raise/continue/break ... 0
+               constant `if` conditions ....................... 0
+
+           Nothing protected was taken. The optional-dependency guards are
+           still there (`umap is None`, `TSNE is None`, the btrack
+           ImportError/OSError), and the macOS OpenMP clamp lives in
+           `openmp_guard.py`, untouched -- unreachable on this machine and
+           load-bearing on that one.
+
+           A deleted guard leaves nothing to assert on, so the tests pin the
+           INVARIANT that killed it instead, and each was confirmed to fail
+           when that invariant is broken at the source.
+           tests/test_a_guard_no_input_could_reach_is_gone.py, 22 tests.
+
+Original:  OPEN. Requested 2026-08-26 -- "delete all dead code."
 Owner:     wherever it is.
 
 --------------------------------------------------------------------------------
