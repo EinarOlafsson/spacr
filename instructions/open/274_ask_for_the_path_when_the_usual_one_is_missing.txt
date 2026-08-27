@@ -32,11 +32,28 @@ Status:    THE MECHANISM IS BUILT AND TESTED, 2026-08-27; the three call
            11 tests, including one asserting that a test process is not a
            person.
 
-           STILL TO WIRE: the merged-folder site in array mode, the
-           database/table/column form for a coordinate stream -- which needs
-           THREE answers rather than one and should offer the tables in the
-           chosen database rather than a blank field -- and the PNG data
-           folder for image loading.
+           WIRED AT THE SEAM ALL THREE SHARE. `crops.resolve_crop_source`
+           is where every one of them fails -- no merged folder, no PNG data
+           folder, and the coordinate source through the same root -- so the
+           fallback goes there once rather than at three call sites.
+
+           `ask` is INJECTED rather than imported, because `crops.py` must
+           not depend on Qt. A caller with nobody in front of it passes none
+           and gets exactly the error it always got, which makes "never
+           prompt headless" STRUCTURAL instead of a rule each site has to
+           remember. A test asserts that a caller with no `ask` behaves
+           unchanged.
+
+           The prompt is handed what was tried and the root it was tried
+           under. An answer is resolved against, and resolving passes NO
+           `ask`, so a wrong answer fails rather than opening a second
+           dialog on top of the first -- one question per run, asserted.
+
+           STILL TO DO: the coordinate stream's form wants THREE answers
+           rather than one -- the database, the table within it and the
+           column within that -- and should offer the tables the chosen
+           database actually holds rather than a blank field. The seam takes
+           it; the form is what is left.
 Priority:  Not stated. Treated as ordinary until told otherwise.
 Owner:     the image loading and streaming paths, and whichever screens host
            them.

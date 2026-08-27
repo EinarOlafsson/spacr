@@ -3455,7 +3455,8 @@ def picture_source_label(value: str) -> str:
 
 def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
                         *, object_type: Optional[str] = None,
-                        prefer: Optional[str] = None) -> CropSource:
+                        prefer: Optional[str] = None,
+                        ask: Optional[Any] = None) -> CropSource:
     """Pick the crop source for a run, and record which one it picked.
 
     The returned object's :attr:`CropSource.kind` is ``'png'`` or ``'merged'``
@@ -3533,6 +3534,26 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
                 reason=f"{STREAM_IMAGES_LABEL} was asked for and there is no "
                        f"'merged/' folder under {root}, so this is "
                        f"{LOAD_IMAGES_LABEL} instead")
+        # THE FALLBACK, AND ONLY AFTER THE USUAL RESOLUTION HAS FAILED.
+        #
+        # `ask` is INJECTED rather than imported: this module must not depend
+        # on Qt, and a caller with nobody in front of it -- a script, a test,
+        # a batch run -- simply passes none and gets the error below, which
+        # is what it has always got. That makes "never prompt headless"
+        # structural instead of something each call site has to remember.
+        #
+        # The program already knows exactly what is missing here, which is
+        # why asking is more useful than reporting it.
+        if ask is not None:
+            tried = (f"no '*_png' folder under 'data/' and no 'merged/' "
+                     f"folder in {root}")
+            answer = ask(tried=tried, root=root)
+            if answer:
+                # Resolved AGAINST THE ANSWER, with no `ask` this time: one
+                # question per run, and a wrong answer must not open a
+                # second dialog on top of the first.
+                return resolve_crop_source(answer, object_type=object_type,
+                                           prefer=prefer)
         raise CropError(
             f"no crop source available for {root}: no '*_png' folder under "
             f"'data/' and no 'merged/' folder")
