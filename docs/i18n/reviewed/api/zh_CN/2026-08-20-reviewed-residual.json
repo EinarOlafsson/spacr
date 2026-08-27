@@ -2,25 +2,11 @@
   "language": "zh_CN",
   "records": [
     {
-      "context": "Given a coefficient (a gene or a guide), the per-object rows out of the imported measurement databases, and the per-microplate sample position guide fractions the regression was fitted on, this module decides **which objects to draw and says exactly how it decided**. It draws nothing: the pixels come from :mod:`spacr.crops`, and the tab that shows them is wired separately.",
-      "label": "spacr.cell_montage#1",
-      "source": "Given a coefficient (a gene or a guide), the per-object rows out of the imported measurement databases, and the per-well guide fractions the regression was fitted on, this module decides **which objects to draw and says exactly how it decided**. It draws nothing: the pixels come from :mod:`spacr.crops`, and the tab that shows them is wired separately.",
-      "source_sha256": "8f07095e12b448d22df94c864183b9e909a854455370723ed9a09a2ad2d20cfe",
-      "translation": "给定一个系数（基因或向导）、从导入的测量数据库读取的逐对象记录，以及回归拟合所用的逐微孔板孔位向导比例，本模块会**决定绘制哪些对象，并准确说明决定过程**。本模块本身不绘制图像：像素由 :mod:`spacr.crops` 提供，显示这些图像的标签页在其他位置连接。"
-    },
-    {
       "context": "what that route needs and what it can offer -- :class:`RouteRequirements`, checked up front so a missing channel list is reported as a missing channel list rather than surfacing later as an extracted image region that will not cut. ``None`` when nothing asked.",
       "label": "spacr.cell_montage.CropSourceChoice#6",
       "source": "what that route needs and what it can offer -- :class:`RouteRequirements`, checked up front so a missing channel list is reported as a missing channel list rather than surfacing later as a crop that will not cut. ``None`` when nothing asked.",
       "source_sha256": "7449dc6f7caa60a9e4d458e6cb32fef014706262d581fb3f5cb4446d32261fb7",
       "translation": "该路径需要什么以及能够提供什么——由 :class:`RouteRequirements` 表示并预先检查，因此缺少通道列表时会直接报告，而不会到后续裁剪提取图像区域时才失败。未请求任何内容时为 ``None``。"
-    },
-    {
-      "context": "one row per (well, guide) with ``prc``, ``grna`` and ``fraction``, and ``gene`` when the counts carry it.",
-      "label": "spacr.cell_montage.fractions_from_counts#6",
-      "source": "one row per (well, guide) with ``prc``, ``grna`` and ``fraction``, and ``gene`` when the counts carry it.",
-      "source_sha256": "94ca4ce5118cebc8a47b70af681641482a3bfa94f0b09e2c4de475234b5771ae",
-      "translation": "每个（微孔板孔位，向导）组合占一行，包含 ``prc``、``grna`` 和 ``fraction``；如果计数数据包含基因信息，还包含 ``gene``。"
     },
     {
       "context": "guides or genes to leave out, by name. Matched at BOTH levels -- a screen swept at gene level names genes and one at guide level names guides, and a user typing a gene id should not have to know which they are looking at.",

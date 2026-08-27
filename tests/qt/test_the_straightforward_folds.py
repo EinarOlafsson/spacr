@@ -37,10 +37,9 @@ from PySide6.QtWidgets import QPushButton, QStackedWidget, QWidget
 
 from spacr.qt.app import app_stage
 from spacr.qt.screens import classify, map_barcodes, measure
-from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.annotate import FOLDED_APPS as ANNOTATE_FOLDS
+from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.widgets.fold_strip import FoldStrip
-
 
 #: (module, host key) for the three hosts whose screen is the generic
 #: settings form. Annotate builds its own masthead and is tested apart.
@@ -216,8 +215,7 @@ def test_classify_opens_both_judgements_with_their_own_panels(
     Each is named by a capability Classify itself has none of: the
     evaluation bundle browser, and the explanation screen's CV panel.
     """
-    from spacr.qt.screens.classifier_evaluation import (
-        ClassifierEvaluationScreen)
+    from spacr.qt.screens.classifier_evaluation import ClassifierEvaluationScreen
     from spacr.qt.screens.model_explanation import ModelExplanationScreen
 
     screen, _strip = _host_screen(qtbot, classify, "classify_merged")
@@ -681,7 +679,6 @@ def _stage_at_launch(key: str) -> str:
     the live table under whatever runs next.
     """
     from spacr.qt import maturity
-
     from spacr.qt.app import APPS
 
     promoted = maturity.PROMOTIONS.get(key)

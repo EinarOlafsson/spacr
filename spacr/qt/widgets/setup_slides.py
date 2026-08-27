@@ -70,9 +70,9 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     # one is the condition the licence names, so it is the one slide that
     # has to be answered before the screen can finish.
     ("Terms of use",
-     "spaCR is licensed on the condition that you accept these terms. Read "
-     "to the end -- the acceptance below stays greyed until you do -- and "
-     "the whole licence is one click away.",
+     "Review the terms of use and scroll to the end to enable acceptance. "
+     "Use the license link to read the full PolyForm Noncommercial License "
+     "1.0.0.",
      ()),
     # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
     # the six questions; "Welcome to spaCR" is what the screen is for. The
@@ -1879,12 +1879,11 @@ class SetupSlides(QDialog):
             self._fade_in()
 
     def showEvent(self, event):                 # noqa: N802 - Qt naming
-        """Measure the reading gate once the window is on screen.
+        """Schedule terms-gate evaluation after the window has been laid out.
 
-        THE GATE ASKS WHETHER THE END OF THE TERMS IS ON SCREEN, which has
-        no answer while the window is not. The check is deferred to the
-        event loop rather than run here, because the layout that decides
-        whether the document fits happens after this returns.
+        Whether the end of the terms document is visible depends on its
+        rendered viewport. The zero-delay callback runs on the next event-loop
+        turn, after Qt has completed layout for the show event.
         """
         super().showEvent(event)
         try:

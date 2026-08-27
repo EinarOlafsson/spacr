@@ -1443,13 +1443,13 @@ class GateCanvas(GraphCanvas):
         return hit
 
     def set_spin_axis(self, axis: str) -> None:
-        """Lock the volume's rotation to one axis.
+        """Constrain subsequent volume rotation to the selected axis.
 
-        "i want to be able to spinn allong axees not meev freely ... say click
-        the y axis, then i should be able to spin on the x axis." Free
-        rotation reaches angles from which nothing can be read, and getting
-        back to a square-on view by hand is not realistic. Locked, a drag is
-        one rotation about one axis and every view stays interpretable.
+        ``"z"`` changes azimuth, ``"x"`` and ``"y"`` change elevation, and
+        ``""`` permits both. Unsupported values fall back to ``"z"``. Axis
+        locking prevents a drag from changing both viewing angles at once.
+
+        :param axis: ``"x"``, ``"y"``, ``"z"``, or ``""`` for free rotation.
         """
         self._spin_axis = axis if axis in ("x", "y", "z", "") else "z"
 

@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging
 
 import pytest
-
 from PySide6.QtCore import QEvent, QSize
 from PySide6.QtGui import QAction, QKeySequence, QShortcut
 from PySide6.QtWidgets import QLabel, QMainWindow, QWidget
@@ -83,7 +82,9 @@ def test_install_binds_every_key_that_is_not_bound_elsewhere(window):
         if spec.scope != sc.EVERYWHERE:
             continue
         assert sc.native(spec.keys) in bound, spec.keys
-    assert sc.native("Ctrl+B") not in bound      # the sidebar owns this one
+    # Window actions own these two rather than ``install()``.
+    assert sc.native("Ctrl+B") not in bound
+    assert sc.native("F11") not in bound
 
 
 # --------------------------------------------------------------------------

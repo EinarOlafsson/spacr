@@ -22,7 +22,6 @@ import threading
 import types
 
 import pytest
-
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
@@ -41,30 +40,29 @@ from PySide6.QtWidgets import (
 
 from spacr.qt import app as app_mod
 from spacr.qt.app import (
+    _FORCE_GLYPH,
+    _ICON_OVERRIDES,
     APPS,
     MAX_APPS_PER_SECTION,
+    SECTION_ASSAYS,
     SECTION_CORE,
     SECTION_DATA,
     SECTION_DESIGN,
     SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
-    SECTION_ASSAYS,
     SECTIONS,
     MainWindow,
     Sidebar,
-    _FORCE_GLYPH,
-    _ICON_OVERRIDES,
-    _PipelinePreloader,
     _icon_for_app,
     _load_bundled_fonts,
+    _PipelinePreloader,
     app_stage,
     home_bands,
     make_home_page,
     section_members,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
-
 
 # ---------------------------------------------------------------------------
 # helpers / fixtures
@@ -394,7 +392,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Forty alpha, eight beta, six stable. The alpha column is the
+    Twenty-eight alpha, four beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -466,19 +464,12 @@ def test_no_section_is_used_that_was_never_declared():
 
 
 def test_no_section_holds_more_than_the_cap():
-    """The cap was 9 and is now 13.
+    """Keep every current section within the explicit readability cap.
 
-    Nine was the width of the Core pipeline and nothing more, so it
-    would have fired on the next Core app rather than when a row stopped
-    being readable. #16i raised it to thirteen for a staging section
-    that no longer exists.
-
-    Twenty was set on request once the registry passed fifty apps. The
-    argument for thirteen was that a longer row stops being scannable,
-    and that is still true -- but the sections that actually fill up are
-    the ones doing real work, and splitting Explore into two half-named
-    tabs to satisfy a number would have been worse than the long row it
-    avoided."""
+    The cap is a design constraint rather than a count inferred from Core.
+    Crossing it requires a deliberate, meaningfully named split instead of
+    silently lengthening a row.
+    """
     counts = _counts()
     assert MAX_APPS_PER_SECTION == 20
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
@@ -491,11 +482,10 @@ def test_no_section_holds_more_than_the_cap():
 def test_the_core_section_leads_the_ctrl_number_slots():
     """Ctrl+1..9 address APPS[0..8]; Core has to lead them.
 
-    Core is nine again — #16i staged Timelapse and Motility Assay out of
-    it and #16j put them back — so the nine slots are exactly the
-    pipeline. The assertion is written not to care either way: what has
-    to stay true is that Core is the first contiguous block, so the low
-    numbers reach the pipeline."""
+    Core now contains the six primary pipeline modules. The first six number
+    shortcuts therefore open that complete block, and Ctrl+7..9 continue into
+    the next apps in sidebar order. The assertion deliberately follows the
+    registry rather than a fixed Core count."""
     core = [k for k, _n, _d, s in APPS if s == SECTION_CORE]
     assert 0 < len(core) <= MAX_APPS_PER_SECTION
     assert [k for k, *_r in APPS[:len(core)]] == core
@@ -1221,6 +1211,7 @@ def test_a_failing_browser_open_reports_in_the_status_bar(win, monkeypatch):
 
 def test_open_log_folder_points_at_the_real_log_directory(win, monkeypatch):
     import webbrowser
+
     from spacr.qt.verbose_logger import log_dir
     opened = []
     monkeypatch.setattr(webbrowser, "open", opened.append)
@@ -1811,6 +1802,7 @@ def test_closing_the_window_waits_for_a_running_update_check(
     """Quitting mid-update destroyed a live QThread — the exact abort
     ``closeEvent`` drains the consoles to avoid."""
     import time
+
     import spacr.updater as updater
 
     def _slow_check():
@@ -2016,21 +2008,27 @@ def test_train_requested_to_a_screen_without_settings_is_a_no_op(win):
 def test_seed_values_are_applied_per_widget_type(qtbot):
     apply = MainWindow._apply_seed_value
 
-    box = QCheckBox(); qtbot.addWidget(box)
+    box = QCheckBox()
+    qtbot.addWidget(box)
     apply(box, 1)
     assert box.isChecked() is True
     apply(box, 0)
     assert box.isChecked() is False
 
-    spin = QSpinBox(); qtbot.addWidget(spin); spin.setRange(0, 100)
+    spin = QSpinBox()
+    qtbot.addWidget(spin)
+    spin.setRange(0, 100)
     apply(spin, "42.9")
     assert spin.value() == 42
 
-    dspin = QDoubleSpinBox(); qtbot.addWidget(dspin); dspin.setRange(0, 100)
+    dspin = QDoubleSpinBox()
+    qtbot.addWidget(dspin)
+    dspin.setRange(0, 100)
     apply(dspin, "3.5")
     assert dspin.value() == pytest.approx(3.5)
 
-    combo = QComboBox(); qtbot.addWidget(combo)
+    combo = QComboBox()
+    qtbot.addWidget(combo)
     combo.addItem("Alpha", "a")
     combo.addItem("Beta", "b")
     apply(combo, "b")
@@ -2038,19 +2036,22 @@ def test_seed_values_are_applied_per_widget_type(qtbot):
     apply(combo, "Alpha")
     assert combo.currentIndex() == 0
 
-    edit = QLineEdit(); qtbot.addWidget(edit)
+    edit = QLineEdit()
+    qtbot.addWidget(edit)
     apply(edit, None)
     assert edit.text() == ""
     apply(edit, 12)
     assert edit.text() == "12"
 
-    label = QLabel("untouched"); qtbot.addWidget(label)
+    label = QLabel("untouched")
+    qtbot.addWidget(label)
     apply(label, "ignored")           # unknown widget type: no-op
     assert label.text() == "untouched"
 
 
 def test_a_combo_seed_that_matches_nothing_leaves_the_index_alone(qtbot):
-    combo = QComboBox(); qtbot.addWidget(combo)
+    combo = QComboBox()
+    qtbot.addWidget(combo)
     combo.addItem("Alpha", "a")
     combo.addItem("Beta", "b")
     combo.setCurrentIndex(1)

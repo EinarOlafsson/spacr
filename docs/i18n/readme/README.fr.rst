@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ Langues: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 **Analyse spatiale des phénotypes de criblages CRISPR.**
 
-spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, associe chaque cellule au gRNA qu’elle a reçu et indique quels gènes ont modifié le phénotype. Les images de plaques et les lectures FASTQ constituent les entrées ; les mesures par objet, les classificateurs entraînés, les tailles d’effet par guide et par gène et une liste de résultats classés constituent les sorties.
+spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.
 
-Pour les criblages CRISPR groupés fondés sur l’imagerie, ce flux couvre l’ensemble du parcours. Avec des images de microscopie à haut contenu mais sans criblage, les étapes de segmentation, de mesure, d’annotation et de classification peuvent être exécutées indépendamment.
+Pour les criblages CRISPR groupés fondés sur l’imagerie, spaCR fournit le flux de travail depuis la segmentation des images jusqu’à la hiérarchisation des résultats. Pour les études de microscopie à haut contenu sans criblage fondé sur le séquençage, les modules de segmentation, de mesure, d’annotation et de classification peuvent être utilisés indépendamment.
 
 Les images, masques, recadrages, mesures, annotations, prédictions, codes-barres et identifiants de puits sont conservés dans un même projet SQLite, ce qui permet de relier chaque valeur d’un résultat à son objet d’origine.
 
@@ -107,7 +106,7 @@ Vue d’ensemble du flux de travail
    :width: 2.5%
    :align: middle
 
-**Data**
+**Données**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
@@ -115,13 +114,13 @@ Vue d’ensemble du flux de travail
 
 |App_project_browser|
 
-**Results & QC**
+**Résultats et contrôle qualité**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**Explorer**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,11 +128,11 @@ Vue d’ensemble du flux de travail
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**Essais**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Design**
+**Conception**
 
 |App_experiment_design|\ |App_power|\ |App_dose_response|
 
@@ -415,13 +414,15 @@ Points d’entrée en ligne de commande
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-Définissez ``SPACR_LOG_LEVEL=DEBUG`` lors du dépannage. Les journaux rotatifs sont écrits dans ``~/.spacr/logs/spacr.log``.
+Définissez ``SPACR_LOG_LEVEL=DEBUG`` lors du dépannage. Les journaux avec rotation sont écrits dans ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` répertorie les modules dotés de points d’entrée en ligne de commande pour une exécution sans interface graphique. Les modules d’annotation, de curation, de comparaison et d’exploration disponibles uniquement dans l’interface graphique sont omis.
 
 
 Ce que vous pouvez faire
 ------------------------
 
-La plupart des criblages suivent six modules:
+Le flux de travail principal comprend six modules :
 
 - **Mask** segmente les cellules, les noyaux, les agents pathogènes et les organites avec Cellpose.
 - **Measure** enregistre dans SQLite les caractéristiques morphologiques, d’intensité, de texture, spatiales et de colocalisation, ainsi que les vignettes des objets.
@@ -430,7 +431,28 @@ La plupart des criblages suivent six modules:
 - **Map Barcodes** associe les lectures FASTQ aux puits et aux gRNA, avec un contrôle qualité de l’abondance, des collisions et de la couverture.
 - **Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.
 
-Le même projet peut également concevoir des plaques, estimer la puissance, corriger les effets des lots, inspecter la qualité de la segmentation, explorer les parcelles et les vignettes liées, exporter AnnData, reprendre les travaux interrompus et enregistrer les paramètres derrière chaque résultat.
+Le même projet permet également de concevoir des plaques, d’estimer la puissance statistique, de corriger les effets de lot, d’examiner la qualité de la segmentation, d’explorer des graphiques et des extraits d’image liés, d’exporter AnnData, de reprendre un traitement interrompu et d’enregistrer les paramètres associés à chaque résultat.
+
+Modules accessibles depuis leurs écrans hôtes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vingt modules sont intégrés à des écrans hôtes associés au lieu d’être affichés sous forme de tuiles distinctes sur l’écran d’accueil. Chaque module s’ouvre depuis l’en-tête de son écran hôte et utilise le projet actif. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP et Make Masks donnent accès à ces modules intégrés. Leur aide et leur documentation API restent disponibles, et les modules dotés de points d’entrée de pipeline peuvent toujours être exécutés sans interface graphique. Le `guide des fonctionnalités <../../source/features.rst>`_ répertorie chaque module intégré et son écran hôte.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks apparaît sous **Data** et permet la correction manuelle des masques de segmentation. Son en-tête donne également accès aux flux de travail Cellpose. Le canevas comporte neuf outils : **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** et **Recrop**. Draw crée une étiquette remplie à partir d’un contour fermé tracé à main levée. Divide sépare un objet fusionné selon une ligne définie par l’utilisateur tout en préservant les étiquettes de tous les autres objets.
+
+Recrop extrait un champ ne contenant qu’un objet à partir d’une image préparée qui en contient plusieurs. Une boîte englobante autour d’un objet enregistre les régions correspondantes de l’image et du masque dans un nouveau champ, programme ce champ après le champ actif et retire de la file de curation le champ initial contenant plusieurs objets. Recrop modifie le champ actif plutôt que les pixels des étiquettes.
+
+L’exécution de Cellpose-SAM depuis Make Masks affiche deux résultats intermédiaires à côté du masque : la **carte de probabilité cellulaire** et le **champ de flux**. Le masque est défini par un seuil appliqué à la carte de probabilité, et les contrôles de cohérence du flux peuvent rejeter les objets dont les flux dérivés diffèrent du champ prédit. Examinez ces résultats pour distinguer une faible probabilité cellulaire d’un flux incohérent lors de l’évaluation d’un masque incorrect ou incomplet.
+
+Objets et paramètres
+~~~~~~~~~~~~~~~~~~~~
+
+spaCR prend en charge les objets cellule, noyau et pathogène, un cytoplasme dérivé de leurs masques et entre zéro et vingt-six emplacements d’organites. Chaque emplacement d’organite possède son propre canal, diamètre, préréglage morphologique et mode de détection.
+
+Le panneau des paramètres affiche les contrôles uniquement lorsqu’ils s’appliquent. Les emplacements d’organites au-delà du nombre configuré sont masqués, les objets sans canal attribué sont exclus de l’exécution et les contrôles propres à une morphologie ne sont affichés que pour la méthode sélectionnée. Les commutateurs **3D** et **Time** définissent la dimensionnalité : ``z_stack`` active les paramètres volumétriques, ``timelapse`` active les paramètres de suivi et les paramètres à quatre dimensions apparaissent lorsque les deux sont activés.
 
 Choisissez la page suivante par ce que vous voulez faire:
 
@@ -479,10 +501,23 @@ Jeux de données de référence
    :alt: Ouvrir la prépublication bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+Diagnostic des performances
+---------------------------
+
+Générez un rapport matériel et joignez-le à un ticket relatif aux performances::
+
+    python tools/spacr_hardware_report.py
+
+La commande affiche un rapport et enregistre une copie sous ``~/.spacr/reports`` ; la dernière ligne indique le chemin du fichier enregistré. ``--quick`` omet les mesures de performance les plus longues et ``--out PATH`` sélectionne un autre emplacement de sortie.
+
+Le rapport n’ouvre aucun projet et ne lit aucune donnée de projet. Il enregistre les temps d’importation et des bibliothèques numériques, la mise à l’échelle de l’affichage, les préférences actives, la construction de la fenêtre principale et des écrans de modules, ainsi que les performances des animations. Le fichier de rapport est la seule sortie créée.
+
+Le rapport identifie également l’émulation de l’architecture du processeur, par exemple une version x86_64 de Python sur Apple Silicon, et l’implémentation BLAS utilisée par NumPy. Ces deux facteurs peuvent affecter sensiblement les performances.
+
 Contributions et assistance
 ---------------------------
 
-Les rapports de bogues et les demandes de fonctionnalités bien délimitées sont les bienvenus dans `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Pour signaler un échec, indiquez la version de spaCR, le système d’exploitation, la version de Python, les paramètres du module et l’extrait de journal pertinent. ``spacr-doctor`` recueille automatiquement la plupart de ces informations.
+Soumettez les rapports de bogues et les demandes de fonctionnalités bien délimitées via `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Lorsque vous signalez un échec, indiquez la version de spaCR, le système d’exploitation, la version de Python, les paramètres du module et l’extrait de journal pertinent. ``spacr-doctor`` collecte la plupart de ces informations ; joignez le rapport matériel lorsque vous signalez un problème de performances.
 
 Licence
 ~~~~~~~~~

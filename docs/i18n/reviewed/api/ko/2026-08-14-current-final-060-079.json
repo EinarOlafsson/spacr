@@ -37,13 +37,6 @@
       "translation": "**napari 이벤트 루프를 실행하지 않습니다.** spaCR 은 이미 실행 중인 ``QApplication``이므로 두 번째 루프를 시작하면 중첩됩니다. 뷰어를 열어 둔 뒤 사용자가 완료하면 *마스크 가져오기*를 누릅니다. 이렇게 하면 살펴보고, 편집하고, 마스크를 가져온 뒤 계속할 수 있습니다. :func:`spacr.napari_bridge.run_event_loop`는 스크립트용이며 해당 문서 문자열에도 명시되어 있습니다."
     },
     {
-      "context": "The tell is which dialogs misbehave. In spaCR, Preferences (``PreferencesDialog(...).exec()``) and Annotate's settings (``_SettingsDialog(...).exec()``) are attached; the UMAP search settings (``UmapSearchSettingsDialog(panel).show()``) and the Mask and extracted image region live preview settings are not. The first two are modal and the rest are modeless -- which is exactly the WM's rule, and nothing to do with how any of them are built.",
-      "label": "spacr.qt.dialogs#3",
-      "source": "The tell is which dialogs misbehave. In spaCR, Preferences (``PreferencesDialog(...).exec()``) and Annotate's settings (``_SettingsDialog(...).exec()``) are attached; the UMAP search settings (``UmapSearchSettingsDialog(panel).show()``) and the Mask and crop live preview settings are not. The first two are modal and the rest are modeless -- which is exactly the WM's rule, and nothing to do with how any of them are built.",
-      "source_sha256": "f344eaf5caa287fbdfa94c85eb30f2eb1eecae5b3f6014ae9415c3b02e5b38f0",
-      "translation": "어떤 대화상자가 잘못 동작하는지가 단서입니다. spaCR 에서는 Preferences(``PreferencesDialog(...).exec()``)와 Annotate 설정(``_SettingsDialog(...).exec()``)이 부모에 연결되어 있습니다. UMAP 검색 설정(``UmapSearchSettingsDialog(panel).show()``), Mask 및 추출 이미지 영역 실시간 미리보기 설정은 연결되지 않습니다. 앞의 둘은 모달이고 나머지는 비모달입니다. 이는 정확히 WM 규칙이며 대화상자 생성 방식과는 관계없습니다."
-    },
-    {
       "context": "Each image layer is compared with the image layer below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
       "label": "spacr.zstack.stitch_planes#1",
       "source": "Each plane is compared with the plane below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",

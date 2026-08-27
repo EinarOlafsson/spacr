@@ -1,30 +1,13 @@
-"""Axis gestures for the Gate Editor's scatter: cutoffs and transforms.
+"""Axis-specific cutoff and transform controls for the Gate Editor.
 
-Right-clicking the PLOT and right-clicking an AXIS are two different
-questions. The plot menu asks what to do with the picture -- save it, copy
-it, reset the view. An axis menu asks what that one measurement should look
-like: how it is laid out, and how much of it is worth showing.
+:func:`axis_at` identifies the axis associated with a pointer position from
+its bounding box. :class:`AxisCutoffs` stores display limits by measurement,
+and :func:`axis_menu_items` represents the corresponding menu as data so it
+can be tested without opening a graphical popup.
 
-Two things live here, and both are kept out of the canvas widget so they can
-be exercised without a display:
-
-* :func:`axis_at` -- which axis a right-click landed on, from the axes'
-  bounding box alone. Pure geometry, no Qt, no matplotlib.
-* :class:`AxisCutoffs` and :func:`axis_menu_items` -- the cutoffs a user has
-  set, and the menu offering them, returned as data so a test can read the
-  menu without popping one up. An offscreen Qt cannot grab for a popup, so a
-  test that builds a real menu hangs.
-
-A CUTOFF IS A VIEW, NOT A FILTER. It narrows what is drawn and never which
-rows a gate contains. The same rule the axis scales already follow: a
-transform or a cutoff that changed the rows would silently re-decide every
-gate already drawn, and a population would then depend on how the plot
-happened to be zoomed.
-
-A CUTOFF BELONGS TO THE MEASUREMENT, NOT TO THE AXIS SLOT. They are keyed by
-column, so putting `area` on Y after cutting it off on X carries the cut with
-it, and swapping the axes does not silently apply the intensity cutoff to
-area.
+Cutoffs affect only the displayed range; they do not filter rows or change
+gate membership. Limits are keyed by measurement rather than by the current
+X/Y assignment, so they follow a measurement when axes are exchanged.
 """
 from __future__ import annotations
 
@@ -104,9 +87,8 @@ class AxisCutoff:
 class AxisCutoffs:
     """The cutoffs a session has set, keyed by measurement.
 
-    A plain dictionary would do the storing; what this adds is the rule that
-    an empty cutoff is *absent* rather than stored as a pair of ``None``, so
-    "has this column been cut off?" has one answer everywhere.
+    Empty cutoffs are removed rather than stored as ``(None, None)``. A
+    measurement is therefore present only when at least one limit is active.
     """
 
     def __init__(self, initial: Optional[Dict[str, AxisCutoff]] = None):

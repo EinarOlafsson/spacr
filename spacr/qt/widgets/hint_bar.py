@@ -1,29 +1,20 @@
-"""A line at the foot of a window that says what the thing under the mouse does.
+"""Window-level, non-modal hover help for Qt controls.
 
-THE HOME SCREEN ALREADY WORKS THIS WAY and it is the better answer. A module
-tile carries no tooltip: hovering it writes its description into a bar across
-the bottom of the page. A popup would be a second copy of the same sentence
-drawn ON TOP of the grid the user is reading to choose between, and these
-descriptions run to several hundred characters -- fine in a fixed line the eye
-can skip, wrong in a box covering the thing it describes.
+:class:`HintBar` is a centered, word-wrapped label that displays registered
+help text while the pointer is over a widget. On pointer leave, it restores
+the default message only when that widget's text is still displayed, avoiding
+an intermediate reset while the pointer moves between adjacent controls.
 
-The same is true of a button. A tooltip appears over the button, which is
-where the pointer already is and where the user is about to click; a bar at
-the foot is out of the way, holds a long sentence without covering anything,
-and does not flicker in and out as the pointer crosses the row.
+:meth:`HintBar.explain` registers either explicit text or the widget's current
+tooltip. Successful registration clears the tooltip, supplies the same text
+as the accessible description only when no accessible description is already
+present, and installs the bar as an event filter. Source strings are
+translated when displayed. Widgets without available text are not registered.
 
-    bar = HintBar("Hover a control to see what it does.")
-    bar.explain(clear_ram_button, "Frees cached memory. Asks first.")
-    layout.addWidget(bar)
-
-``explain`` takes the sentence off the widget's tooltip when none is given,
-so a control that already had one hands it over rather than being rewritten:
-
-    bar.explain(button)          # uses button.toolTip(), then clears it
-
-The registration is held by the bar and the widget is watched through an
-event filter, so nothing has to be unhooked when the window closes -- the
-filter dies with the bar.
+Use :func:`hint_bar_of` to locate the :class:`HintBar` in a widget's top-level
+window, or :func:`explain_through_the_bar` to register a widget only when such
+a bar exists. The bar retains the registration mapping and event filter for
+its lifetime.
 """
 
 from __future__ import annotations

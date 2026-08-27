@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Áður en þú setur upp spaCR skaltu þekkja þrjár opinberar dreifingarleiðir: PyPI fyrir gefið út Python-pakkann, GitHub fyrir kjali og skrifborðsstjóra og conda-forge þegar endurskoðað pakkann er birt."
+          "narration": "Veldu opinbera uppsprettu áður en spaCR er sett upp. PyPI veitir útgefna Python-pakkann, GitHub veitir frumkóðann og uppsetningarforrit fyrir skjáborð, og conda-forge verður valkostur þegar pakkinn hefur verið gefinn út þar."
         },
         {
-          "narration": "spaCR síðan á PyPI sýnir núverandi stöðugan útgáfu og skipanina pip install spacr. Útgáfu skrár innihalda Python hjól og uppspretta skrá."
+          "narration": "Á PyPI sýnir útgáfuhausinn núverandi stöðugu útgáfu og skipunina pip install spacr."
         },
         {
-          "narration": "PyPI tengist einnig heimildum, uppsprettageymslunni og útgáfunni. Skoðaðu þörfin Python útgáfur og útgáfudag áður en þú breytir fyrirliggjandi umhverfi."
+          "narration": "Hlutinn Project links vísar í skjölunina, heimasíðuna, villuskráningarkerfið og frumkóðageymsluna."
         },
         {
-          "narration": "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda."
+          "narration": "Notaðu greinavalið á GitHub til að velja kóðalínu. main er útgefna línan; nightly inniheldur nýrri breytingar sem enn eru í prófun."
         },
         {
-          "narration": "GitHub Releases veitir Windows, macOS og Linux uppsetningar, útgáfu athugasemdir, Python pakka skrár, og SHA-256 prófsum."
+          "narration": "Opnaðu Assets í GitHub-útgáfu til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða listann yfir gátsummur."
         },
         {
-          "narration": "Uppskriftin á conda-forge er gerð í geymslunni en engin spaCR pakka er birt á conda-forge-miðlinum enn. Til þessa, búa til Conda umhverfi og setja spaCR frá PyPI inni í það."
+          "narration": "spaCR er ekki enn gefið út á conda-forge. Búðu því til Conda-umhverfi og settu spaCR upp frá PyPI; notaðu conda-forge-rásina aðeins eftir að pakkinn hefur verið gefinn út þar."
         },
         {
-          "narration": "Notaðu PyPI eða pip fyrir Python umhverfi, GitHub Releases fyrir innfædd uppsetningu og nightly grein aðeins fyrir þróun. Næstu námskeiðin sýna hverja uppsetningarleið án þess að forritinu verði sett í gang."
+          "narration": "Notaðu PyPI eða pip fyrir Python-umhverfi, GitHub Releases fyrir uppsetningarforrit á skjáborði og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarleiðbeiningarnar sem eiga við þína leið."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Umhverfi Conda heldur spaCR og vísindalega háðstöðum þess frá ótengdum verkefnum. Python þrír punktur tólf býður upp á víðasta valfrjáls samhæfni á pakkanum."
+          "narration": "Notaðu Conda-umhverfi til að einangra spaCR og vísindaleg háðasöfn þess. Python 3.12 er notað í dæminu þar sem sú útgáfa styður nú flest valfrjáls forritasöfn."
         },
         {
-          "narration": "Opnaðu Conda-mögulega endaspyrnu og skapaðu umhverfi sem heitir spacr með Python þremur punktum tólf og pip."
+          "narration": "Opnaðu skipanalínu með Conda-stuðningi og búðu til umhverfi sem heitir spacr með Python 3.12 og pip."
         },
         {
-          "narration": "Virktu umhverfið. Staðfestir að Python tilheyrir spacr umhverfi áður en þú setur eitthvað."
+          "narration": "Virkjaðu umhverfið. Staðfestu að Python tilheyri spacr-umhverfinu áður en nokkuð er sett upp."
         },
         {
-          "narration": "Uppfæra pip í gegnum virkan Python túlka. Með því að nota python -m pip kemur ekki í veg fyrir að annað framkvæmdastykki fá pakka."
+          "narration": "Uppfærðu pip í gegnum virka Python-túlkinn. Skipunin python -m pip kemur í veg fyrir að annað pip-forrit setji pakkann upp."
         },
         {
-          "narration": "Fyrir skrifborðsforritið skaltu setja upp spacr með qt extra. Notaðu hreinn rúmpakka fyrir vinnustað eða netþjón án höfuð."
+          "narration": "Settu spacr upp með qt-viðbótinni fyrir skjáborðsforritið. Notaðu venjulega spacr-pakkann á vinnustöð eða þjóni án grafísks viðmóts."
         },
         {
-          "narration": "Keyrðu spaCR-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
+          "narration": "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Verkfærið skráir virku uppsetninguna, Qt, PyTorch, valfrjálsa hluta og vélbúnaðarstuðning og leggur til lausn fyrir hvert próf sem stenst ekki."
         },
         {
-          "narration": "conda-forge pakkinn hefur ekki verið gefinn út enn, svo ekki keyra skipunina conda install -c conda-forge spacr í dag. Þegar pakkinn verður tiltækur verður tengt í opinberu uppskriftina og rásina frá spaCR hugbúnaðarsafninu."
+          "narration": "Þegar spacr-doctor stenst öll próf skaltu hafa þetta umhverfi virkt í hvert sinn sem spaCR er keyrt."
         }
       ]
     },
@@ -59,25 +59,25 @@
       "id": "03_pip_install",
       "scenes": [
         {
-          "narration": "Pip leið virkar á Windows, macOS og Linux. Notaðu alltaf einangrað virtulegt umhverfi í stað þess að breyta Python uppsetningu rekstrarkerfisins."
+          "narration": "Uppsetning með pip virkar á Windows, macOS og Linux. Notaðu alltaf einangrað sýndarumhverfi í stað þess að breyta Python-uppsetningu stýrikerfisins."
         },
         {
-          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3 point 12 og svo virkja það úr skránni."
+          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3.12 og virkja það síðan úr bin-möppunni."
         },
         {
-          "narration": "Á Windows skaltu nota Python launcherinn til að búa til umhverfið og virkja það úr skránni Scripts."
+          "narration": "Á Windows skaltu nota Python-ræsiforritið til að búa til umhverfið og virkja það úr Scripts-möppunni."
         },
         {
-          "narration": "Uppfæra pip í virkum umhverfi. Beiðnin python -m pip heldur uppsetningu tengd Python sem þú hefur reynt."
+          "narration": "Uppfærðu pip í virka umhverfinu. Skipunin python -m pip tengir uppsetninguna við Python-útgáfuna sem var virkjuð."
         },
         {
-          "narration": "Settu upp einfaldan spacr-pakka til að nota án höfuð eða spacr með qt extra fyrir skrifborðsvið."
+          "narration": "Settu upp venjulega spacr-pakkann fyrir notkun án grafísks viðmóts eða spacr með qt-viðbótinni fyrir skjáborðsviðmótið."
         },
         {
-          "narration": "Verið innfluttu útgáfu og keyrið spacr-doctor. Ljúka einhverjum misteknum athugunum áður en opnað er tilraunaupplýsingar."
+          "narration": "Staðfestu innfluttu útgáfuna og keyrðu spacr-doctor. Lagfærðu öll próf sem ekki standast áður en tilraunagögn eru opnuð."
         },
         {
-          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt hvenær sem þú notar spaCR og notaðu python -m pip install --upgrade spacr þegar þú uppfærir það viljandi."
+          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt þegar spaCR er notað og notaðu python -m pip install --upgrade spacr þegar þú ætlar sérstaklega að uppfæra forritið."
         }
       ]
     },
@@ -85,28 +85,28 @@
       "id": "04_platform_installers",
       "scenes": [
         {
-          "narration": "Léttvægir innfæddir uppsetjendur búa til einka Python þrjár stig tólf reksturstíma, svo hlaða niður Qt, PyTorch, spaCR, og vísindalega háð."
+          "narration": "Léttu, stýrikerfissértæku uppsetningarforritin búa til einkarekið Python 3.12-keyrsluumhverfi og sækja síðan Qt, PyTorch, spaCR og vísindaleg háðasöfn þess."
         },
         {
-          "narration": "Sækja uppsetningar aðeins úr nýjustu spaCR GitHub útgáfu. Samræma skráina við stýrikerfið þitt og notaðu gefið út SHA-256 skráina þegar þú þarft að staðfesta niðurhal."
+          "narration": "Sæktu uppsetningarforrit aðeins úr nýjustu spaCR-útgáfunni á GitHub. Veldu skrána fyrir þitt stýrikerfi og notaðu útgefnu SHA-256-skrána þegar staðfesta þarf niðurhalið."
         },
         {
-          "narration": "Á Windows tíu eða ellefu opnaðu uppsetningu á netinu. Flutningur CPU uppsetningu er sjálfgefið; NVIDIA hraða er valfrjáls uppsetningarhluti."
+          "narration": "Á Windows 10 eða 11 skaltu opna uppsetningarskrána sem sækir gögn af netinu. Flytjanlega CPU-uppsetningin er sjálfgefin; NVIDIA-hröðun er valfrjáls uppsetningarhluti."
         },
         {
-          "narration": "Á macOS 11 eða nýri opnaðu alþjóðlega pakkann fyrir Intel og Apple silicon. Ef Gatekeeper blokkar ekki staðfest pakkann, notaðu persónuvernd og öryggi, Opna samt og keyra hana aftur."
+          "narration": "Á macOS 11 eða nýrra skaltu opna alhliða pakkann fyrir Intel- og Apple Silicon-vélar. Ef Gatekeeper lokar óstaðfesta pakkanum skaltu velja Privacy & Security, síðan Open Anyway og keyra pakkann aftur."
         },
         {
-          "narration": "Á 64 bitum Linux, gera niðurhlaðaðu .run skrá framkvæmd, svo byrja það frá enda. Varauppsettan uppsetningu notar CPU sambærilegt PyTorch."
+          "narration": "Á 64 bita Linux skaltu gera sóttu .run-skrána keyranlega og ræsa hana síðan úr skipanalínu. Sjálfgefna uppsetningin notar CPU-samhæfa útgáfu af PyTorch."
         },
         {
-          "narration": "Til að fá stuðning við NVIDIA vélbúnað á Linux skaltu fara í gegnum --torch-backend auto. Þetta velur hraðun þegar hún er í boði án þess að CUDA bókasafnið sé þögugt sjálfgefið."
+          "narration": "Á Linux með studdum NVIDIA-vélbúnaði skaltu nota --torch-backend auto. Þá er hröðun valin þegar hún er tiltæk án þess að CUDA-söfn verði ótilgreind sjálfgefin krafa."
         },
         {
-          "narration": "Hver uppsetjandi staðfestir skiptingu áður en breyting á útgáfum. Með truflaðri uppfærslu er fyrri umhverfið óbreytt og install.log er áfram í einkareknu spaCR uppsetningarskrá."
+          "narration": "Hvert uppsetningarforrit staðfestir nýju uppsetninguna áður en skipt er yfir í hana. Ef uppfærsla rofnar helst fyrra umhverfið óbreytt og install.log varðveitist í einkarekinni spaCR-uppsetningarmöppu."
         },
         {
-          "narration": "Eftir uppsetningu skaltu nota rekstrarkerfið. Ekki er þörf á að setja Python eða Conda upp."
+          "narration": "Ræstu spaCR úr ræsivalmynd stýrikerfisins eftir uppsetningu. Ekki þarf að setja Python eða Conda upp sérstaklega."
         }
       ]
     },
@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Hús hópar spaCR hönnun eftir vinnuflokki svo þú getur farið frá myndvinnslu í gegnum greiningu og gæðastjórnun."
+          "narration": "Home flokkar spaCR-einingar eftir verkflæði svo hægt sé að fara frá myndvinnslu yfir í greiningu og gæðaeftirlit."
         },
         {
-          "narration": "Notaðu vinstri hliðarbarinn til að skipta um deildir. Veldu Heim hvenær sem þú vilt snúa aftur til heildarbókasafns modulsins."
+          "narration": "Notaðu vinstri hliðarstikuna til að skipta um hluta. Veldu Home þegar þú vilt fara aftur í heildaryfirlit eininga."
         },
         {
-          "narration": "Fylgdu í greinarkröfum og launum um vinnuflæði til að finna mótun. Hver flís opnar einn vinnuflóð og liturinn gefur til kynna hvort módúlinn sé alfa, beta eða stöðugur."
+          "narration": "Skoðaðu flokkaflipana og verkflæðislínurnar til að finna einingu. Hver reitur opnar eitt verkflæði og liturinn sýnir hvort einingin er alpha, beta eða stable."
         },
         {
-          "narration": "Á hægri skjánum má sjá núverandi notkun kerfisins, fréttafréttir og frásögn um líffræði. Skoðaðu notkun kerfisins áður en þú byrjar dýrt starf."
+          "narration": "Hægri svæðið sýnir núverandi kerfisálag, útgáfufréttir og skýringu á stöðu eininga. Athugaðu kerfisálagið áður en umfangsmikil vinnsla er ræst."
         },
         {
-          "narration": "Veldu flís fyrir stýrið til að opna stillingarskjáinn. Nafnið og lýsingin á modúlunni efst staðfestir hvaða vinnuflóð er virkt."
+          "narration": "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."
         }
       ]
     },
@@ -1806,6 +1806,86 @@
         },
         {
           "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út bökurparametrar, óvissa, greiningar og heimildatökur saman."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Explain CV Model. Endurskapið spár tölvusjónar út frá mældum eiginleikum og metið hvort skýringarnar sem fást séu áreiðanlegar og án gagnaleka."
+        },
+        {
+          "narration": "Veljið spáskrána fyrir hvern hlut, tengdan mælingagagnagrunn, spáðan flokk eða stig og hópun eftir brunni örplötu eða plötu sem verður að haldast óskipt."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu bakenda staðgengilslíkansins, frátekna sannprófunarhópa, eiginleika sem á að útiloka, fjölda umstokkunarendurtekninga og afmarkað SHAP-útreikningsmagn."
+        },
+        {
+          "narration": "Sannreynið útilokanir gegn gagnaleka og hópaskipta gagnaskiptingu. Aðlagið síðan staðgengilslíkanið og berið samsvörun þess á sannprófunargögnum saman við grunnviðmið meirihlutaflokks áður en mikilvægi eiginleika er túlkað."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir það samsvörun, umstokkunarmikilvægi á sannprófunarsafninu, SHAP-yfirlit, útilokaða dálka, hópun, bakenda og uppruna; lítil samsvörun er tilgreind í stað þess að vera falin."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Investigate Hit. Rekið valda niðurstöðu aðhvarfsgreiningar aftur til mögulegra frumna og megindlegrar stoðar úr brunnnum örplötu án þess að yfirskrifa yfirfarnar merkingar."
+        },
+        {
+          "narration": "Veljið aðhvarfsgreiningarkeyrsluna, valda niðurstöðu á gena- eða stýriraðastigi, stefnu svipgerðar, þröskuld falskra uppgötvana, stuðning stýriraða og samsvarandi mælingagagnagrunn."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir hlutatöfluna, stigadálkinn, hópun eftir brunni örplötu, sönnunarþröskulda, skýribreytur og valfrjálsa þveraðlagaða stigskipta blöndulíkanið."
+        },
+        {
+          "narration": "Forskoðið mögulegar frumur raðaðar eftir stigum og yfirlit brunna örplötu. Keyrið þveraðlagaða líkanið aðeins þegar valda niðurstaðan og skilyrði fyrir stoð eru rétt."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur vistar spaCR raðaðar mögulegar frumur, samanburð óháðra brunna, valfrjálsar líkur á að hver fruma samsvari valinni svipgerð, óvissu og útgáfustýrða flokkun sem kemur aldrei í stað handvirkra merkinga."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Volcano Explorer. Opnið lokið aðhvarfsgreiningarverk, skoðið hvert gagnapunkt, breytið útliti myndarinnar og flytjið út vigurmynd í birtingarstærð án þess að keyra greininguna aftur."
+        },
+        {
+          "narration": "Veljið möppu með lokinni aðhvarfsgreiningu eða CSV-niðurstöðuskrá og staðfestið útkomuna, töfluna á stýriraðastigi, stuðningsfjölskylduna, áhrifadálkinn og dálkinn með leiðréttum P-gildum."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir marktektar- og áhrifaþröskulda, ásabreytingar, merkingar, liti, form, skýringar, ásrof, leturgerðir og stærð úttaks."
+        },
+        {
+          "narration": "Smellið á dæmigerða punkta til að skoða allar upplýsingar í röðum þeirra, sameinið valfrjálsar merkingar og sannreynið að breytingar á útliti varðveiti undirliggjandi gildi og þröskulda."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur eru PDF- og PNG-skrár endurgerðar úr skráðum gögnum og útliti í umbeðinni stærð, en upprunalegar niðurstöður aðhvarfsgreiningarinnar haldast óbreyttar."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Parameter Sweep. Keyrið afmarkaða leit yfir stillingar aðhvarfsgreiningar og berið saman hvaða ályktanir standast verjandi val á greiningaraðferðum."
+        },
+        {
+          "narration": "Parið CSV-skrár með stigum fyrir hvern hlut og fjölda stýriraða fyrir hverja plötu, veljið svardálkinn og tilgreinið sérstaka úttaksmöppu."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu hvaða víddir eru breytilegar, festið öll önnur gildi, veljið grindar- eða slembiúrtak, takmarkið fjölda tilrauna, skráið slembifræið og samþykkið fjölda vinnsluþráða sem er takmarkaður af minni."
+        },
+        {
+          "narration": "Notið fyrst Estimate til að skoða stærð og kostnað leyfilega leitarrýmisins. Hefjið síðan litla, afmarkaða leit og fylgist með heppnuðum, höfnuðum og misheppnuðum tilraunum."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir endurheimtanlega niðurstöðutaflan stillingar, stöðu, fjölda uppgötvana, sæti jákvæðrar viðmiðunar, keyrslutíma, úttaksmöppu og ástæðu bilunar fyrir hverja tilraun."
         }
       ]
     }

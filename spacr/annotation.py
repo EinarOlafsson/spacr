@@ -1,30 +1,18 @@
-"""Join bundled *Toxoplasma* gene annotations onto exported results.
+"""Join bundled *Toxoplasma* gene annotations to exported results.
 
 The joined fields include gene names, predicted signal peptides and
-transmembrane domains, published phenotype scores, stage-specific expression,
-and hyperLOPIT localisation. Previously, ``toxo=True`` reached only the
-volcano colours and two heatmaps, while the CSV a reader actually opens
-came out as bare gene numbers and coefficients. Somebody then joined the
-annotation by hand in Excel, which is where the wrong-key mistakes live.
+transmembrane domains, published phenotype scores, stage-specific expression
+and hyperLOPIT localisation.
 
-THREE THINGS MAKE THIS SAFE, and each is a bug this project has already had.
+All supported identifier forms are normalized to a bare gene number:
+``TGGT1_224750``, ``TGME49_224750``, ``gene_fraction:gene[224750]`` and the
+guide identifier ``224750_2`` resolve to gene ``224750`` through
+:func:`gene_number`. Each source is reduced to one row per gene and merged
+with ``many_to_one`` validation, preventing annotation duplicates from
+multiplying result rows. A field unavailable in a source is omitted rather
+than emitted as an all-missing column.
 
-1.  ONE KEY SPACE: the bare gene NUMBER. `TGGT1_224750` (what the screen
-    library uses), `TGME49_224750` (what every annotation table uses),
-    `gene_fraction:gene[224750]` (what patsy names a term) and `224750_2` (a
-    guide) are all gene ``224750``. :func:`gene_number` is the single parse.
-
-2.  THE JOIN CANNOT MULTIPLY ROWS. Every source is collapsed to one row per
-    gene before it is merged and the merge is declared ``many_to_one``, so a
-    duplicated annotation key raises instead of silently turning one
-    coefficient into four rows. That failure has already reached a user's
-    figure once, and it looked entirely plausible while it was wrong.
-
-3.  A COLUMN THAT CANNOT BE FILLED IS ABSENT, WITH A REASON. Never a column
-    of NaN, which reads as "measured, found nothing" rather than "not
-    available here".
-
-WHAT IS BUNDLED, and why it is small enough to bundle:
+Bundled annotation sources:
 
     toxoplasma_metadata.csv  2.97 MB  gene name, product, expression
     deeptmhmm.csv            1.11 MB  signal peptide and transmembrane
@@ -32,12 +20,11 @@ WHAT IS BUNDLED, and why it is small enough to bundle:
     lopit.csv                0.20 MB  hyperLOPIT/TAGM compartment
     uniprot.csv              0.13 MB  accession
 
-deeptmhmm.csv is this project's own DeepTMHMM run over 8,140 proteins, at 82
-columns: the summary (`dtm_type`, `n_tm`, `sp_length`) that :func:`annotate`
-joins, and the coordinates of every one of the up to 24 transmembrane
-segments, which :func:`supplementary` writes as its own table. The 25
-per-segment SEQUENCE columns of the source file are dropped -- they are 16 of
-its 17 MB and every one of them is recoverable from the proteome.
+``deeptmhmm.csv`` contains a DeepTMHMM analysis of 8,140 proteins. Summary
+fields (``dtm_type``, ``n_tm`` and ``sp_length``) are joined by
+:func:`annotate`; coordinates for as many as 24 transmembrane segments are
+written separately by :func:`supplementary`. Per-segment sequence columns are
+excluded because they are recoverable from the reference proteome.
 """
 
 from __future__ import annotations

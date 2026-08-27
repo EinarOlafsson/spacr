@@ -1,4 +1,4 @@
-"""Interrogate a fitted model: move one input, watch the prediction move.
+"""Evaluate a fitted model by varying one input and plotting its predictions.
 
 A coefficient table answers "which terms matter". It does not answer the
 question anyone actually has in front of a fitted screen model, which is

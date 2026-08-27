@@ -138,10 +138,10 @@ class SweepPanel(QWidget):
                              ("both", "genes and guides")):
             self.level.addItem(label, value)
         self._level_label.setToolTip(
-            "A gene's fraction in a well is the SUM of its guides', which is "
-            "the same rule the regression applies — so 'does this gene move "
-            "this measurement' is not a different arithmetic from the fit "
-            "that found the gene.")
+            "A gene's fraction in a well is the sum of its guide fractions, "
+            "matching the aggregation used by regression. Gene-level sweep "
+            "results therefore use the same guide aggregation as the fitted "
+            "gene effect.")
         row.addWidget(self.level)
 
         # WHICH PICTURE. The heatmap answers "what moved"; it cannot answer
@@ -183,7 +183,7 @@ class SweepPanel(QWidget):
         self.drop_genes.setPlaceholderText("e.g. 220950, 233460")
         self.drop_genes.setToolTip(
             "Genes or guides to keep out, by name and comma separated. "
-            "Matched at BOTH levels, so a gene id works whether the sweep is "
+            "Names are matched at both levels, so a gene identifier works whether the sweep is "
             "running at gene or guide level.")
         leave_out.addWidget(self.drop_genes, 1)
 

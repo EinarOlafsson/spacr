@@ -1,36 +1,15 @@
-"""Map Barcodes, and the QC that says whether the mapping worked.
+"""Barcode QC integration and shared support for folded modules.
 
-Barcode QC is not a separate errand. A mapping run is judged by reads per
-well, starved wells, unmapped reads, barcode collisions, row/column
-position effects and library coverage -- and by the abundance threshold
-those numbers imply -- so the question "did this run work" belongs on the
-screen that produced the run rather than one tile away from it.
+The Barcode QC page assesses reads per well, low-depth wells, unmapped reads,
+barcode collisions, positional effects, library coverage and the resulting
+abundance threshold. It opens beside the Map Barcodes settings with its full
+settings form, run controls, console and figures.
 
-It arrives as a button on the Map Barcodes masthead: the Barcode QC icon
-with no text, the module's own one-line description as its tooltip, lit
-on hover in the maturity colour its tile used. See
-:class:`spacr.qt.widgets.fold_strip.FoldStrip`, which reads that colour
-from the same table the tiles read.
-
-NOTHING IS LOST IN THE MOVE. The button opens the Barcode QC module
-itself -- the same settings form, the same Run button, the same console
-and figures -- as a PAGE beside the mapping settings, so every number the
-folded screen could produce it still produces, and the mapping settings
-are one tab away rather than behind a window. A window is what a fold
-becomes only when its host has no body to make pages out of.
-
-THE SHARED HALF OF A FOLD LIVES HERE. Opening a folded module in a
-window, wiring the host signals a sidebar row used to wire, and hanging
-the strip off the masthead are the same job on every host, so
-:func:`install_fold_strip`, :class:`FoldOpener` and
-:func:`build_settings_screen` are written once and imported by the other
-hosts. So is :func:`install_window_hooks`, which walks the window's
-screen stack and gives each host in :data:`FOLD_HOST_MODULES` its strip:
-they
-reach into an already-built ``AppScreen`` the way
-:func:`spacr.qt.chaining.install_chaining` and
-:mod:`spacr.qt.preview_registry` do, and for the same reason -- the
-shared screen needs no line about who folded into it.
+This module also provides the common infrastructure used by host screens:
+:func:`install_fold_strip`, :class:`FoldOpener`,
+:func:`build_settings_screen` and :func:`install_window_hooks`. These helpers
+mount a complete module page, connect host signals and attach its masthead
+button without duplicating analytical implementations.
 """
 
 from __future__ import annotations
@@ -90,8 +69,8 @@ FOLD_WINDOW_SIZE = (1180, 760)
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
     "barcode_qc": (
         "Barcode QC",
-        "Did the mapping run work, and where does the abundance threshold "
-        "go",
+        "Assess mapping depth, coverage, collisions and positional effects, "
+        "and estimate the abundance threshold for the intended gRNAs per well.",
         "beta"),
     "classifier_evaluation": (
         "Classifier Evaluation",
@@ -103,14 +82,23 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Reproduce CV decisions from measured features, then inspect gain, "
         "held-out permutation importance and SHAP",
         "alpha"),
+    "activation": (
+        "Activation",
+        "Generate class activation maps for image-classifier predictions",
+        "beta"),
     "agreement": (
         "Annotator Agreement",
-        "Cohen's/Fleiss' κ between annotation columns + a disagreement "
-        "review",
+        "Compute Cohen's or Fleiss' κ across annotation columns and review "
+        "discordant crops.",
         "stable"),
     "anndata_export": (
         "AnnData Export",
         "Write the measurements as .h5ad for scanpy and scvi-tools",
+        "beta"),
+    "illumination": (
+        "Illumination Correction",
+        "Estimate and assess a flat-field correction model before "
+        "measurement",
         "beta"),
     "timelapse": (
         "Timelapse",
@@ -118,12 +106,13 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "beta"),
     "motility": (
         "Motility Assay",
-        "Automated motility assay: track velocity + infection QC",
+        "Quantify track velocity and straightness and stratify results by "
+        "infection state.",
         "beta"),
     # Image UMAP's two other projections of the same measurement table.
     "image_scatter": (
         "Image Scatter",
-        "Hover a point to see the cell; click it to open the crop",
+        "Preview the object associated with each point and open its image crop.",
         "alpha"),
     "pca": (
         "PCA",
@@ -150,12 +139,11 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
 
 
 def fold_description(key: str) -> Tuple[str, str, str]:
-    """``(name, description, stage)`` for a folded module.
+    """Return the display name, description, and maturity stage for ``key``.
 
-    The app registry answers while it still holds the module's row; once
-    the row has been dropped -- which is what folding a module ends in --
-    the answer comes from :data:`FOLD_FALLBACK`, so the button goes on
-    carrying the name, the sentence and the maturity colour its tile had.
+    Registry metadata is preferred while the module remains registered.
+    :data:`FOLD_FALLBACK` supplies the same presentation metadata after a
+    folded module's standalone registry entry is removed.
     """
     name = description = stage = ""
     try:
@@ -186,13 +174,12 @@ def fold_description(key: str) -> Tuple[str, str, str]:
 
 
 def restate_fold_button(button, key: str) -> None:
-    """Give ``button`` the name, sentence and stage its tile carried.
+    """Apply the folded module's registered name, description, and stage.
 
-    A no-op while the registry still holds the row -- the strip has
-    already read the same three things from the same place. It is what
-    keeps the button honest afterwards, when the row is gone and the
-    registry would report no description and a stable-blue hover for a
-    module that is neither.
+    The operation has no visible effect while the registry still contains
+    the module because the strip already uses the same metadata. After the
+    registry row is removed, the fallback metadata preserves the module's
+    accessible label, tooltip, and maturity-stage styling.
     """
     if button is None:
         return
@@ -218,12 +205,11 @@ def restate_fold_button(button, key: str) -> None:
 
 
 def folded_module_title(key: str) -> str:
-    """The window title for folded module ``key``.
+    """Return the window title for folded module ``key``.
 
-    Read from the registry rather than typed here, so a module renamed in
-    one place is renamed on its folded window too; a module whose row has
-    already been dropped is named by :data:`FOLD_FALLBACK` instead of by
-    its key.
+    The application title table is preferred so renamed modules remain
+    consistent throughout the interface. Fallback metadata is used after a
+    module's standalone registry entry is removed.
     """
     try:
         from .app_screen import APP_TITLES
@@ -241,10 +227,9 @@ def folded_module_title(key: str) -> str:
 def connect_host(screen: QWidget, host_window: Optional[QWidget]) -> None:
     """Connect ``screen``'s host signals to ``host_window``'s slots.
 
-    The pairs come from :data:`spacr.qt.chaining.HOST_CONNECTIONS`, which
-    is the table ``MainWindow._build_screen``'s own wiring is checked
-    against -- so a signal added there reaches a folded screen too,
-    without anyone having to remember that folds exist.
+    Connections are derived from :data:`spacr.qt.chaining.HOST_CONNECTIONS`,
+    the same mapping used by ``MainWindow._build_screen``. Folded and
+    standalone screens therefore expose the same host-level actions.
     """
     if host_window is None:
         return
@@ -266,15 +251,12 @@ def connect_host(screen: QWidget, host_window: Optional[QWidget]) -> None:
 
 def build_settings_screen(key: str,
                           host_window: Optional[QWidget] = None) -> QWidget:
-    """Build the generic module screen for ``key``, wired as the sidebar
-    wired it.
+    """Build a fully connected settings screen for module ``key``.
 
-    A settings-driven module opened from a fold has to be the screen the
-    sidebar row used to open, host connections included: "Explain error"
-    and "Run on a cluster" are capabilities of that screen, and a fold
-    that dropped them would be a fold that lost something. The chaining
-    strip is offered for the same reason; a module with no declared ports
-    simply does not get one.
+    The returned screen has the same host connections and declared pipeline
+    ports as the standalone screen, including error explanation and cluster
+    execution actions. Modules without declared ports omit the chaining
+    controls.
 
     :param key: the folded module's registry key.
     :param host_window: the main window, when there is one to connect to.
@@ -296,11 +278,10 @@ def show_as_window(screen: QWidget, owner: Optional[QWidget],
                    title: str) -> QWidget:
     """Show ``screen`` as its own window, owned by ``owner``'s window.
 
-    THE LAST RESORT, and only reached when the host cannot carry a page:
-    see :func:`show_as_page`. Parented to the main window rather than left
-    free-floating so that Qt keeps it alive and it closes with the
-    application; a folded module held only by a local name is one the
-    garbage collector closes the moment the button handler returns.
+    This fallback is used when the host cannot display the screen as a page;
+    see :func:`show_as_page`. The main window owns the resulting window so
+    that Qt retains it for the application's lifetime and closes it with the
+    application.
     """
     parent = owner.window() if owner is not None else None
     screen.setParent(parent, Qt.Window)
@@ -408,19 +389,16 @@ def _page_body(screen: QWidget) -> Optional[QWidget]:
 
 
 def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
-    """The host's page strip, made on first use.
+    """Return the host's page strip, creating it when first requested.
 
-    The host's own body becomes the first page and keeps the stretch it
-    had, so a host with no folds open looks exactly as it did with one tab
-    across the top. Folded pages are closable; the host's own is not,
-    because closing it would leave the module with nothing on screen.
+    The host body becomes a non-closable first page and retains its layout
+    stretch. Pages opened for folded modules can be closed without destroying
+    their underlying screens.
 
     :param screen: the host module's screen.
-    :param title: what to call the host's own page. Falls back to
-        ``screen._fold_page_title`` -- which is how a screen that is not
-        the generic settings form names itself -- and then to the name the
-        registry has for its app key.
-    :returns: the strip, or None when the host has no body to wrap.
+    :param title: caption for the host page. If omitted, use
+        ``screen._fold_page_title`` and then the registered application name.
+    :returns: the page strip, or ``None`` when the host has no page body.
     """
     existing = getattr(screen, "_fold_pages", None)
     if isinstance(existing, QTabWidget):
@@ -484,13 +462,12 @@ def _close_fold_page(pages: QTabWidget, index: int) -> None:
 
 def show_as_page(screen: QWidget, host: Optional[QWidget],
                  title: str) -> Optional[QWidget]:
-    """Put ``screen`` on ``host``'s page strip and raise it.
+    """Add ``screen`` to ``host``'s page strip and select it.
 
-    :param screen: the folded module's own widget.
+    :param screen: widget for the folded module.
     :param host: the host module's screen.
-    :param title: the page's caption -- the folded module's name.
-    :returns: the screen, or None when the host cannot carry pages, which
-        is the caller's cue to fall back to a window.
+    :param title: page caption, normally the folded module's display name.
+    :returns: ``screen``, or ``None`` when the host cannot contain pages.
     """
     pages = host_pages(host) if host is not None else None
     if pages is None:
@@ -522,18 +499,13 @@ def show_as_page(screen: QWidget, host: Optional[QWidget],
 
 
 class FoldOpener:
-    """Opens one folded module, and reuses the screen it built.
+    """Open a folded module and reuse its screen between activations.
 
-    A plain object rather than a closure, so the button's connection
-    holds something the strip owns and that dies with it -- the reason
-    :mod:`spacr.qt.recipes` gives for its own button handler.
-
-    THE MODULE ARRIVES AS A PAGE ON ITS HOST, beside the host's own, and
-    only becomes a window when the host has no body to make pages out of.
-    Either way it is the module's OWN screen that arrives, built once and
-    kept, so a second press never makes a second copy of something that
-    owns a database handle and a job runner -- and closing its page keeps
-    everything it had loaded.
+    The opener is an object so the fold strip controls its lifetime through
+    the button connection. The module appears as a page on its host when the
+    host supports pages, or as a separate window otherwise. Its screen is
+    constructed once and retained, preventing duplicate database handles or
+    job runners and preserving loaded state when the user changes pages.
 
     :param screen: the host screen the button sits on.
     :param key: the folded module's registry key.
@@ -584,21 +556,18 @@ def install_fold_strip(screen: QWidget, host_key: str,
                        builders: Dict[str, Callable[[Optional[QWidget]],
                                                     QWidget]]
                        ) -> Optional[FoldStrip]:
-    """Put a fold strip for ``folded`` on ``screen``'s masthead.
+    """Install buttons for ``folded`` modules on ``screen``'s masthead.
 
-    Idempotent, and defensive by design: a screen that opens without its
-    fold buttons is a smaller screen, while an exception raised here
-    would be no screen at all.
+    Repeated calls return the existing strip. Construction failures are
+    contained so the host screen remains usable without the optional strip.
 
     :param screen: the host module's screen.
-    :param host_key: the registry key that screen must carry; a screen
-        for anything else is left alone, so the seam that calls this can
-        be wrong without consequence.
+    :param host_key: registry key required on ``screen``.
     :param folded: the folded modules' keys, in strip order.
-    :param builders: key → callable building that module's screen.
-    :returns: the strip, or None when this screen cannot carry one -- it
-        is not the host, it has no masthead, one is already installed, or
-        building it failed.
+    :param builders: mapping from module key to a screen factory.
+    :returns: the installed strip, or ``None`` when the screen is not the
+        requested host, has no masthead, contains no eligible modules, or
+        strip construction fails.
     """
     if getattr(screen, "app_key", None) != host_key:
         return None
@@ -682,11 +651,10 @@ FOLD_HOST_MODULES: Dict[str, str] = {
 
 
 def install_folds_on(screen: QWidget) -> Optional[FoldStrip]:
-    """Install whichever host module owns ``screen``'s folds.
+    """Install the fold strip declared for ``screen``'s application key.
 
-    Looks the screen's app key up in :data:`FOLD_HOST_MODULES` and hands the
-    screen to that module. A screen with no folds -- which is most of
-    them -- costs one dictionary miss.
+    The owning module is selected through :data:`FOLD_HOST_MODULES`. Screens
+    without a fold declaration are left unchanged.
     """
     key = getattr(screen, "app_key", None)
     module_name = FOLD_HOST_MODULES.get(key) if key else None
@@ -724,11 +692,10 @@ class _StackWatcher(QObject):
 
 
 def install_window_hooks(window) -> Optional[_StackWatcher]:
-    """Follow ``window``'s screen stack, giving each host its strip.
+    """Install fold strips as screens become current in ``window``.
 
-    Idempotent: a second call returns the watcher the first one made,
-    rather than installing a second one that would do the same work
-    twice on every tab change.
+    Repeated calls return the existing stack watcher rather than connecting
+    an additional callback.
 
     :param window: the main window.
     :returns: the watcher, or None when the window has no screen stack.
@@ -782,28 +749,21 @@ def _widget_keys(model) -> Dict[int, str]:
 class CategoryFold:
     """One folded module, mounted on its host as extra settings categories.
 
-    The module's settings form is built exactly as its own screen builds
-    it, and the categories holding settings the host does not already
-    offer are moved onto the host's form -- hidden until the fold button
-    switches them on.
+    The module's settings form is built through the same path as its own
+    screen. Categories containing settings absent from the host are then
+    mounted on the host and remain hidden until the fold is enabled.
 
-    THE SWITCH IS THE ONLY THING THAT SHOWS OR HIDES THEM. The mounted
-    cards are deliberately kept out of the host's ``_settings_sections``,
-    which is the list the maturity filter and the settings search both
-    walk setting each section's visibility -- two owners of one widget's
-    visibility is a card that reappears the next time the Preferences
-    dialog is closed, describing a run the form is not asking for. The
-    cost is that the settings search does not reach a folded category
-    while its switch is off, which is the smaller of the two.
+    The fold switch exclusively controls the mounted categories' visibility.
+    They are omitted from ``_settings_sections`` because the maturity filter
+    and settings search also change the visibility of sections in that list.
+    Consequently, settings search does not include an inactive folded
+    category.
 
-    WHAT IS ALREADY ON THE HOST IS NOT DUPLICATED. A setting has one
-    control or it has two sources of truth, and the second one silently
-    loses: ``collect()`` is keyed on the setting name, so a second widget
-    for ``src`` would replace the host's own and the folder the user typed
-    would stop being read. Every row whose key the host already binds is
-    therefore dropped, and a category left with no rows of its own is not
-    mounted at all -- which is what makes "its own categories" a derived
-    fact rather than a list somebody has to maintain.
+    Settings already provided by the host are not duplicated. Because
+    :meth:`collect` indexes controls by setting name, duplicate controls would
+    create ambiguous values and could replace values entered on the host.
+    Existing keys are therefore removed from the folded form, and categories
+    with no remaining controls are not mounted.
 
     :param screen: the host module's ``AppScreen``.
     :param key: the folded module's registry key.
@@ -928,12 +888,10 @@ class CategoryFold:
             section.setVisible(self._active)
 
     def collect(self) -> Dict[str, object]:
-        """What this fold contributes to the host's settings, on its own.
+        """Return the settings contributed by this fold.
 
-        The host's ``collect()`` already returns these keys mixed in with
-        its own; this is the same values isolated, which is what a test --
-        or a caller wanting to hand the folded module's own entry point a
-        dict -- asks for.
+        The host model collects both host and folded settings. This method
+        selects only the keys mounted by the current fold.
         """
         host_model = getattr(self.screen, "_settings_model", None)
         if host_model is None:
@@ -944,20 +902,17 @@ class CategoryFold:
 
 
 class CategoryFoldSet:
-    """Every category fold on one host, and the switches that drive them.
+    """Manage category folds and pipeline gates for one host screen.
 
-    Holds the folds, keeps the pipeline gates consistent with which of
-    them are switched on, and builds the masthead strip whose buttons do
-    the switching. A host module declares what folds into it and what each
-    fold gates; the mechanics are the same everywhere and live here.
+    A host declares its folded modules and their associated gates. This class
+    mounts their settings, builds the masthead controls, and synchronizes gate
+    values with the active folds.
 
     :param screen: the host module's ``AppScreen``.
     :param folds: ``key -> gate names``, in the order the strip draws them.
-    :param implies: ``key -> keys``. A fold that cannot mean anything on
-        its own switches the folds it depends on with it -- the motility
-        assay runs inside the timelapse branch, so asking for it is asking
-        for tracking too, and a form that showed the assay's knobs without
-        the tracking ones would be describing a run that cannot happen.
+    :param implies: dependencies as ``key -> keys``. Activating a dependent
+        fold also activates its prerequisites. For example, the motility
+        assay activates the timelapse branch required for tracking.
     """
 
     def __init__(self, screen: QWidget,
@@ -974,11 +929,9 @@ class CategoryFoldSet:
 
     # -- building ------------------------------------------------------
     def mount(self) -> Tuple[str, ...]:
-        """Mount every fold's categories on the host, hidden.
+        """Mount each fold's categories on the host in a hidden state.
 
-        :returns: the keys that mounted. A module with nothing of its own
-            to add is dropped from the set rather than given a button that
-            would reveal an empty form.
+        :returns: keys of folds that contributed at least one setting.
         """
         mounted = []
         for key in self.order:
@@ -1007,12 +960,12 @@ class CategoryFoldSet:
 
     # -- switching -----------------------------------------------------
     def set_active(self, key: str, on: bool) -> None:
-        """Switch one fold on or off, and everything that follows from it.
+        """Set a fold's state and update its dependency relationships.
 
-        Switching a dependent fold on switches what it depends on on;
-        switching a dependency off switches off whatever depended on it.
-        Driven through the buttons where there are buttons, so the strip
-        never shows a state the form does not have.
+        Enabling a dependent fold enables its prerequisites. Disabling a
+        prerequisite disables active dependents. Available strip buttons are
+        updated through their normal signal path to keep display and form
+        state synchronized.
         """
         fold = self.folds.get(key)
         if fold is None:
@@ -1046,19 +999,12 @@ class CategoryFoldSet:
             fold.set_active(on)
 
     def apply_gates(self) -> Dict[str, bool]:
-        """Write every gate's value from the folds that are switched on.
+        """Derive and store gate values from all active folds.
 
-        Recomputed from all of them together rather than toggled one at a
-        time: two folds can share a gate -- the assay needs the timelapse
-        branch as much as tracking does -- and switching one off must not
-        cancel the other.
-
-        The values go into the settings model's defaults rather than into
-        a control, because a gate has no control on this form: what turns
-        it on is the button, and a checkbox saying the same thing in a
-        second place is the two-sources-of-truth this fold exists to
-        avoid. ``collect()`` reads the defaults for every key with no
-        widget, so the run is handed what the buttons say.
+        Values are recomputed collectively because multiple folds may share a
+        gate. Gates are stored in the settings model defaults rather than in
+        duplicate form controls; ``collect()`` includes defaults for keys
+        without widgets.
         """
         model = getattr(self.screen, "_settings_model", None)
         values = {gate: False
@@ -1073,12 +1019,11 @@ class CategoryFoldSet:
         return values
 
     def sync_from_settings(self, settings: Dict[str, object]) -> Tuple[str, ...]:
-        """Switch the folds to match a settings dict that was just loaded.
+        """Synchronize fold states with values in a loaded settings mapping.
 
-        A settings CSV written by the folded module names its gate, and
-        the gate has no widget for the bulk apply to land in -- so without
-        this, loading a Timelapse settings file into Mask Generation would
-        fill in every tracking control and leave tracking switched off.
+        Fold gates have no dedicated widgets, so bulk settings application
+        cannot update them through the form. This method reads the gate values
+        directly and activates the corresponding folds.
 
         :param settings: the dict that was applied.
         :returns: the keys switched on by it.

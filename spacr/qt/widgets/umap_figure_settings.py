@@ -328,11 +328,12 @@ def apply_to_figure(fig, payload: Dict[str, Any], values: Dict[str, Any],
 # ---------------------------------------------------------------------------
 
 class UmapFigureSettings(QWidget):
-    """The Image UMAP half of the non-live figure-settings window.
+    """Edit Image UMAP figure settings with debounced live application.
 
-    Emits :attr:`settings_changed` with every value, debounced, as soon as
-    the user changes one -- there is no Apply button, because "you should see
-    changes in the graph directly" is the requirement.
+    Each change emits :attr:`settings_changed` with the complete settings
+    dictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings
+    window applies style and redraw tiers immediately; rerun-tier values are
+    retained for the next embedding run. No separate Apply action is required.
     """
 
     #: Debounced, and carries the WHOLE value dict rather than the delta: the

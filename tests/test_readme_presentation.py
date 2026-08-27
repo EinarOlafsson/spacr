@@ -23,6 +23,9 @@ AUTOAPI_INDEX = ROOT / "docs" / "source" / "_autoapi_templates" / "index.rst"
 DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
 WORKFLOW_DIR = ROOT / "spacr" / "resources" / "icons" / "workflow"
 APP_WORKFLOW_DIR = WORKFLOW_DIR / "apps"
+DOC_APP_WORKFLOW_DIR = (
+    ROOT / "docs" / "source" / "_static" / "workflow" / "apps"
+)
 
 
 def _read(path: Path) -> str:
@@ -40,7 +43,7 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     features = _read(FEATURES)
 
     assert "What you can do\n---------------" in text
-    assert "Most screens follow six modules" in text
+    assert "The primary workflow comprises six modules" in text
     assert "docs/source/features.rst" in text
     # Image substitutions carry accessibility text and targets but are not
     # visible prose. Remove their directive blocks as well as the generated
@@ -112,15 +115,17 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         assert docs_relative in docs
         assert urls[key] in docs
 
-    expected_assets = set(urls) - set(pipeline)
-    assert {path.stem for path in APP_WORKFLOW_DIR.glob("*.png")} == (
-        expected_assets
+    expected_app_assets = {
+        f"{key}.png"
+        for key, _label, _description, _section in registry
+        if key not in pipeline
+    }
+    assert {path.name for path in APP_WORKFLOW_DIR.glob("*.png")} == (
+        expected_app_assets
     )
-    assert {
-        path.stem
-        for path in (ROOT / "docs" / "source" / "_static" / "workflow" /
-                      "apps").glob("*.png")
-    } == expected_assets
+    assert {path.name for path in DOC_APP_WORKFLOW_DIR.glob("*.png")} == (
+        expected_app_assets
+    )
 
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text

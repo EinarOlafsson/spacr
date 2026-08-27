@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.active_learning.annotation_coverage#1",
+      "source_sha256": "0d9252123d49080b5d9fc3d4a52e3f7d04c63090ea112432cb83e4011818a0ba",
+      "source": "The distribution of labels across experimental units determines whether a classifier can generalize beyond acquisition-specific staining, focus and confluency. A label set concentrated within one well can therefore yield optimistic performance under an object-level random split. This function exposes such concentration before model training or evaluation.",
+      "context": "The distribution of labels across experimental units determines whether a machine-learning classification model can generalize beyond acquisition-specific staining, focus and confluency. A label set concentrated within one microplate sample position can therefore yield optimistic performance under an object-level random split. This function exposes such concentration before model training or evaluation.",
+      "translation": "Dreifing merkja milli tilraunaeininga ræður því hvort flokkunarlíkan geti alhæft út fyrir litun, fókus og samflæði sem tengjast tiltekinni myndatöku. Merki sem eru að mestu úr einum brunni geta því gefið óraunhæft bjartsýnt mat þegar slembiskipting er gerð á stigi einstakra hluta. Fallið sýnir þessa samþjöppun áður en líkanið er þjálfað eða metið."
+    },
+    {
+      "label": "spacr.crops.stamp_crop_folder#1",
+      "source_sha256": "6bab33ecbd2d29b3ffab4420cfb6958c754e8697b00bb9bcffb6d3636b6a2f88",
+      "source": "The crop writer calls this before writing the first PNG. An interrupted run therefore leaves a marked, possibly incomplete folder rather than an unmarked folder that could be interpreted as the legacy format.",
+      "context": "The extracted-image-region writer calls this before writing the first PNG. An interrupted run therefore leaves a marked, possibly incomplete folder rather than an unmarked folder that could be interpreted as the legacy format.",
+      "translation": "Ritarinn fyrir myndskurði kallar þetta áður en fyrsta PNG skráin er skrifuð. Ef keyrsla rofnar verður því eftir merkt mappa, sem kann að vera ófullgerð, í stað ómerktrar möppu sem hægt væri að túlka sem eldra snið."
+    },
+    {
+      "label": "spacr.fraction_calibration#2",
+      "source_sha256": "ca095ec2ec3e762897ffebd6fefe0150841390cf5ff0d288e1672560525d1817",
+      "source": "For each candidate threshold, this module compares the positive-control read fraction from sequencing with the positive phenotype fraction from imaging. Candidates are scored by the median absolute well-level disagreement, ``median(abs(imaging - sequencing))``. The fit uses the median of pairwise slopes to reduce sensitivity to one-sided contamination from screen hits. Slope, intercept, residual, disagreement and guides per well are retained for review at every candidate.",
+      "context": "For each candidate threshold, this module compares the positive-control read fraction from sequencing with the positive phenotype fraction from imaging. Candidates are scored by the median absolute microplate sample position-level disagreement, ``median(abs(imaging - sequencing))``. The fit uses the median of pairwise slopes to reduce sensitivity to one-sided contamination from screen hits. Slope, intercept, residual, disagreement and guides per microplate sample position are retained for review at every candidate.",
+      "translation": "Fyrir hvert mögulegt þröskuldsgildi ber þessi eining saman hlutfall jákvæðra viðmiðunarlestra úr raðgreiningu við hlutfall jákvæðrar svipgerðar úr myndgreiningu. Möguleg gildi eru metin með miðgildi algilds fráviks á brunnstigi, ``median(abs(imaging - sequencing))``. Aðlögunin notar miðgildi paraðra hallatalna til að draga úr næmi fyrir einhliða mengun frá skimunarhittum. Hallatala, skurðpunktur, leif, frávik og fjöldi leiðbeininga á hvern brunn eru varðveitt til yfirferðar fyrir hvert mögulegt gildi."
+    },
+    {
+      "label": "spacr.organelle_types.organelle_number#0",
+      "source_sha256": "d0040697eb775a8a4dd009fc225ef4f67a1b98ea69a60147e8eac0e3b180f59e",
+      "source": "The one-based slot number a role prefix stands for.",
+      "context": "The one-based slot number a role prefix stands for.",
+      "translation": "Númer sætisins, talið frá einum, sem forskeyti hlutverksins táknar."
+    },
+    {
+      "label": "spacr.qt.screens.activation#1",
+      "source_sha256": "cf69d045f98bf69626a5a2f77ea28045434bb54e18dff76bb47bdd651dbc12d7",
+      "source": "The ``activation`` workflow remains distinct from classifier training: it uses its own settings form, Run action, console, and hyperparameter-search key, and :func:`spacr.qt.bridge.resolve_pipeline_entry` dispatches it to ``generate_activation_map``. The Classify masthead opens that workflow as a folded page so attribution results remain associated with the trained model without combining the two pipeline runs.",
+      "context": "The ``activation`` workflow remains distinct from machine-learning classification model training: it uses its own settings form, Run action, console, and hyperparameter-search structured-data name, and :func:`spacr.qt.bridge.resolve_pipeline_entry` dispatches it to ``generate_activation_map``. The Classify masthead opens that workflow as a folded page so attribution results remain associated with the trained model without combining the two workflow processing sessions.",
+      "translation": "Vinnuflæðið ``activation`` er áfram aðskilið frá þjálfun flokkunarlíkans: það notar eigið stillingaform, eigin keyrsluaðgerð, stjórnborð og lykil fyrir leit að yfirstikum, og :func:`spacr.qt.bridge.resolve_pipeline_entry` sendir það til ``generate_activation_map``. Haus Classify-skjásins opnar vinnuflæðið sem innfellda síðu þannig að niðurstöður eiginleikagreiningar haldist tengdar þjálfaða líkaninu án þess að vinnslukeyrslurnar tvær séu sameinaðar."
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes#1",
+      "source_sha256": "de07b0fdb89b7d0c30e31425669540f5d301fb32ee10064ee30fbe3fb9c89a5d",
+      "source": "The Barcode QC page assesses reads per well, low-depth wells, unmapped reads, barcode collisions, positional effects, library coverage and the resulting abundance threshold. It opens beside the Map Barcodes settings with its full settings form, run controls, console and figures.",
+      "context": "The Barcode QC page assesses reads per microplate sample position, low-depth microplate sample positions, unmapped reads, barcode collisions, positional effects, library coverage and the resulting abundance threshold. It opens beside the Map Barcodes settings with its full settings form, run controls, console and figures.",
+      "translation": "Síðan Barcode QC metur lestra á hvern brunn, brunna með litla raðdýpt, ókortlagða lestra, árekstra strikamerkja, staðsetningaráhrif, þekju safnsins og þann gnægðarþröskuld sem leiðir af þessu. Hún opnast við hlið stillinga fyrir Map Barcodes með öllu stillingaforminu, keyrslustýringum, stjórnborði og myndum."
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes.CategoryFold#2",
+      "source_sha256": "c6e9c107ea3a4c4676972a3425161763fb7265bf2f2745812768a4b953d35705",
+      "source": "The fold switch exclusively controls the mounted categories' visibility. They are omitted from ``_settings_sections`` because the maturity filter and settings search also change the visibility of sections in that list. Consequently, settings search does not include an inactive folded category.",
+      "context": "The fold switch exclusively controls the mounted categories' visibility. They are omitted from ``_settings_sections`` because the maturity filter and settings search also change the visibility of sections in that list. Consequently, settings search does not include an inactive folded category.",
+      "translation": "Rofinn fyrir innfellingu stýrir eingöngu sýnileika uppsettu flokkanna. Þeir eru ekki hafðir í ``_settings_sections`` þar sem þroskasían og leit í stillingum breyta einnig sýnileika hluta í þeim lista. Þar af leiðandi tekur leit í stillingum ekki til óvirks innfellds flokks."
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes.CategoryFoldSet.build_strip#0",
+      "source_sha256": "31ae4117ec60c60b91c1e73910039682850272f7a2a5db109a4ba81100e560a0",
+      "source": "The masthead strip: one checkable button per mounted fold.",
+      "context": "The masthead strip: one checkable button per mounted fold.",
+      "translation": "Hausröndin: einn hnappur sem hægt er að haka við fyrir hverja uppsetta innfellingu."
+    },
+    {
+      "label": "spacr.qt.screens.mask.fold_previews#0",
+      "source_sha256": "616673c22e7838d02374dfe15c7a7b7a699bbdda0480462acb7f2ab886d3f213",
+      "source": "The folded previews attached to ``screen``, keyed by folded app.",
+      "context": "The folded previews attached to ``screen``, keyed by folded app.",
+      "translation": "Innfelldu forskoðanirnar sem tengjast ``screen``, lyklaðar eftir innfelldu forriti."
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose#1",
+      "source_sha256": "2115c4d84027b9bc154ba34eab468a019dfea771a4bd26529b82a347612b70d2",
+      "source": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "context": "The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows as Train and Apply tabs, each backed by its own :class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads ``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its independent source directory and writes masks to ``<src>/masks``.",
+      "translation": "Vinnuborðið fellir vinnuflæðin ``train_cellpose`` og ``cellpose_masks`` inn sem flipana Train og Apply, þar sem hvor flipi notar sinn eigin :class:`~spacr.qt.screens.app_screen.AppScreen`. Train flipinn les ``<src>/train/images`` og ``<src>/train/masks`` og skrifar stöðupunkta líkans undir ``<src>/models``. Apply flipinn les ``<src>/*.tif`` úr sjálfstæðri upprunamöppu og skrifar grímur í ``<src>/masks``."
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose#4",
+      "source_sha256": "e4d5ebb78dfe7389d628bed79a02eeed342544329e8f0c0ec7af9110115ed74e",
+      "source": "The combined screen changes only GUI registration. The ``train_cellpose`` and ``cellpose_masks`` pipeline keys, command-line entry points, and settings-file formats remain available.",
+      "context": "The combined application view changes only GUI registration. The ``train_cellpose`` and ``cellpose_masks`` workflow structured-data names, command-line entry points, and settings-file formats remain available.",
+      "translation": "Sameinaði skjárinn breytir aðeins GUI-skráningunni. Vinnslulyklarnir ``train_cellpose`` og ``cellpose_masks``, skipanalínuinngangar og snið stillingaskráa eru áfram tiltæk."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.display_channel#0",
+      "source_sha256": "a91f40fecad3ed080ad658a24c99626c936d3ab10ba6bc1ed229688cc8134011",
+      "source": "Merged-array plane the preview reads objects from.",
+      "context": "Merged-array image layer the preview reads objects from.",
+      "translation": "Flötur sameinaða fylkisins sem forskoðunin les hluti úr."
+    },
+    {
+      "label": "spacr.regression_families#3",
+      "source_sha256": "d5fc4d7e0ddd9b15b1a851c736bba055683bbd45883cfc9b706b918183fb8db7",
+      "source": "Distribution-free inference is independent of these effect-estimation groups. Any coefficient-producing family can be paired with a permutation null. The stored regression-type values are retained for settings-file compatibility.",
+      "context": "Distribution-free inference is independent of these effect-estimation groups. Any coefficient-producing family can be paired with a permutation null. The stored regression-type values are retained for settings-file compatibility.",
+      "translation": "Óstikabundin ályktun er óháð þessum hópum fyrir mat á áhrifum. Hægt er að para sérhverja líkanagerð sem skilar stuðlum við núlltilgátu byggða á umstokkun. Geymd gildi fyrir tegund aðhvarfs eru varðveitt til samhæfis við stillingaskrár."
+    },
+    {
+      "label": "spacr.settings.organelle_measurement_caveats#1",
+      "source_sha256": "3e60f1ba51b1c6615de7463ba8bb11d84e8c31922329f1b43f351b184e21a26f",
+      "source": "One entry per enabled organelle slot whose type makes a count-dependent family read differently from the way it reads for cells: ``(slot label, setting name, reason)``.",
+      "context": "One entry per enabled organelle slot whose type makes a count-dependent family read differently from the way it reads for cells: ``(slot label, setting name, reason)``.",
+      "translation": "Ein færsla fyrir hvert virkt frumulíffærasæti þar sem gerðin veldur því að mælingaflokkur sem háður er fjölda er túlkaður öðruvísi en fyrir frumur: ``(slot label, setting name, reason)``."
+    }
+  ]
+}

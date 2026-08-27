@@ -33,23 +33,23 @@
     {
       "table": "setting_tooltips",
       "key": "cell_intensity_merge",
-      "source_sha256": "afb59997c5e768bd16f218bc4ad8518111a352f4467025cecbe7838a4c7d8963",
-      "source": "Merge touching cell labels when the mean intensity along their shared boundary is at least as high as the interior intensity of the dimmer of the two, meaning there is no real membrane edge between them. Use it to repair cells Cellpose cut in half. The comparison statistic is set by cell_intensity_threshold_method. Default False.",
-      "translation": "当相邻细胞标签共享边界的平均强度不低于两者中较暗对象的内部强度时合并它们；这表示两者之间没有真正的细胞膜边缘。可用此项修复被 Cellpose 错误切成两半的细胞。比较统计量由 cell_intensity_threshold_method 设置。默认值为 False。"
+      "source_sha256": "14fc540114816f7fcb9d042a5c709292fce6d8335abdc191c40df32a8b31022f",
+      "source": "Merge touching cell labels when the mean intensity along their shared boundary is at least as high as the interior intensity of the dimmer label, indicating no detectable membrane boundary between them. This can correct over-segmentation of individual cells. The comparison statistic is set by cell_intensity_threshold_method. Default False.",
+      "translation": "当相邻细胞标签共享边界的平均强度不低于较暗标签的内部强度时合并这些标签，表明两者之间没有可检测的细胞膜边界。此设置可以校正单个细胞的过度分割。比较统计量由 cell_intensity_threshold_method 设置。默认值为 False。"
     },
     {
       "table": "setting_tooltips",
       "key": "cell_loc",
-      "source_sha256": "aa64245af763c7d4a4284918e1b93c4befb73cb4a4a4c58abe6e1c2093813d56",
-      "source": "One list of well identifiers per entry in cells, giving where each host cell line sits on the plate, e.g. [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; anything else is ignored and those wells stay unannotated. Pass None to label every row with the first entry of cells. No default is set: no set_default_* function in settings.py touches this key, and its only reader, annotate_filter_vision, indexes settings['cell_loc'] directly, so it must be present in the dict (explicitly None if you do not want location mapping) or the call raises KeyError.",
-      "translation": "cells 中每个条目对应一个微孔标识符列表，用于说明各宿主细胞系位于微孔板上的位置，例如 [['c1','c2'],['c3']]。标识符必须以表示行的 'r' 或表示列的 'c' 开头；其他值会被忽略，对应微孔不会添加注释。传入 None 会使用 cells 的第一个条目标记每一行。此项没有默认值：settings.py 中没有 set_default_* 函数处理此键，而唯一读取它的 annotate_filter_vision 会直接索引 settings['cell_loc']，所以字典中必须存在该键（若不需要位置映射，应显式设为 None），否则调用会抛出 KeyError。"
+      "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
+      "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
+      "translation": "cells 中每个条目对应一个微孔标识符列表，用于指定各宿主细胞系在微孔板上的位置，例如 [['c1','c2'],['c3']]。标识符必须以表示行的 'r' 或表示列的 'c' 开头；其他值会被忽略，对应微孔保持未注释状态。None 会使用 cells 的第一个条目标记每一行。此项没有默认值：annotate_filter_vision 会直接访问 settings['cell_loc']，因此字典中必须包含该键；不需要位置映射时必须将其显式设置为 None。"
     },
     {
       "table": "setting_tooltips",
       "key": "cell_model_name",
-      "source_sha256": "cf46d76c44becdc4c9b7e4f2e5fd196782d5504ab708392dcda22d563943a70d",
-      "source": "Which weights segment cells. Cellpose 4 ships exactly one stock model, 'cpsam', so the only other meaningful value is a path to a checkpoint you trained in Train Cellpose, loaded as pretrained_model. The pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings load, but all resolve to cpsam -- naming one does not get you that model, it no longer exists. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
-      "translation": "用于分割细胞的权重。Cellpose 4 只随附一个标准模型 'cpsam'，因此除此之外唯一有意义的值是你在 Train Cellpose 中训练的检查点路径，它会作为 pretrained_model 加载。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但它们都会解析为 cpsam；指定这些名称并不会获得原模型，因为原模型已不存在。过去用于区分模型的三个参数中，只有 diameter 仍生效（eval 按 30/diameter 缩放）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后被丢弃。默认值为 'cpsam'。"
+      "source_sha256": "5a4bea87d40ea751a24025dbff7c97bd907f02888fc241a2103583a2ed33bcec",
+      "source": "Weights used to segment cells. Cellpose 4 provides one stock model, 'cpsam'; the alternative is a path to a CPSAM checkpoint produced by Train Cellpose, loaded as pretrained_model. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but all resolve to cpsam because those historical models are unavailable in Cellpose 4. Of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
+      "translation": "用于分割细胞的权重。Cellpose 4 提供一个标准模型 'cpsam'；另一种选择是由 Train Cellpose 生成并作为 pretrained_model 加载的 CPSAM 检查点路径。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但由于 Cellpose 4 不提供这些历史模型，它们都会解析为 cpsam。过去用于区分模型的三个参数中，只有 diameter 仍生效（eval 按 30/diameter 缩放）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后省略。默认值为 'cpsam'。"
     },
     {
       "table": "setting_tooltips",
@@ -68,16 +68,16 @@
     {
       "table": "setting_tooltips",
       "key": "control_sgrnas",
-      "source_sha256": "f71352dc4eb3fabb845ed087a5343d68618c8d99a34ce16f5cc905ba6c5418e8",
-      "source": "gRNA names treated as controls when the mixed-condition fraction is computed; every fraction is measured relative to these. A wrong or incomplete list shifts every fraction on the plate in the same direction rather than raising, so check it against the library. Default None.",
-      "translation": "计算混合条件比例时视为对照的 gRNA 名称；每个比例都相对于这些对照计算。错误或不完整的列表不会抛出异常，而是会使微孔板上的所有比例向同一方向偏移，因此请对照文库核验。默认值为 None。"
+      "source_sha256": "4e20ed4179f55b4600ef05f500fd0e74ea8cf98720dbc1db070bbabedcd4d6a3",
+      "source": "gRNA names treated as controls when computing the mixed-condition fraction; every fraction is measured relative to these controls. An incorrect or incomplete list shifts every fraction on the plate in the same direction without raising an exception. Verify the list against the screening library. Default None.",
+      "translation": "计算混合条件比例时作为对照的 gRNA 名称；每个比例均相对于这些对照计算。错误或不完整的列表不会引发异常，但会使微孔板上的所有比例向同一方向偏移。请根据筛选文库核验该列表。默认值为 None。"
     },
     {
       "table": "setting_tooltips",
       "key": "correlation",
-      "source_sha256": "fbf3d18f27dfc46d4bd47c87804f095173c18eda2eabc7009d0c7f75c107d041",
-      "source": "Correlate every input channel against every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, 75 by default). Use it to quantify which stain the model attends to instead of eyeballing heatmaps; it needs save=True to reach the database. Default True.",
-      "translation": "针对每张图像，将每个输入图像数据通道与每个激活图图像数据通道相关联，并把结果写入 <cam_type>_correlations 表：包括 Pearson 系数，以及在 manders_thresholds 的各分位数处计算的 Manders M1/M2（默认分位数为 15、50、75）。可用它定量判断模型关注哪种染色，而不是凭肉眼查看热图；必须设置 save=True，结果才会写入数据库。默认值为 True。"
+      "source_sha256": "df7638fae1fa209534bdb8627a88d6878473c22a438e510459c06f1c11496106",
+      "source": "Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",
+      "translation": "针对每张图像，计算每个输入通道与每个激活图通道之间的相关性，并将结果写入 <cam_type>_correlations 表：包括 Pearson 系数，以及在 manders_thresholds 的各分位数处计算的 Manders M1/M2（默认分位数为 15、50 和 75）。除热图的目视检查外，此项还能提供模型对特定染色关注程度的定量证据。必须设置 save=True 才能将结果写入数据库。默认值为 True。"
     },
     {
       "table": "setting_tooltips",
@@ -89,9 +89,9 @@
     {
       "table": "setting_tooltips",
       "key": "crop_mode",
-      "source_sha256": "038a163474ddd490d5e0c1d36793c9196d51199982196cb5642bc970067ee680",
-      "source": "Which mask each PNG crop is centred on: any of 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, and so are dialate_pngs and dialate_png_ratios - pass a list only when the modes need different values. A list shorter than crop_mode reuses its last entry for the rest and says so. Default ['cell'].",
-      "translation": "每个 PNG 提取图像区域以哪种掩模为中心：可选 'cell'、'nucleus'、'pathogen'、'cytoplasm' 或 'organelle'。每个条目都会把一组提取图像区域写入 <mode>_png/ 文件夹，因此 ['cell','nucleus'] 会使写入的图像数量和加入 png_list 的行数翻倍。像 [224,224] 这样的单个 png_size 会广播到所有模式，dialate_pngs 和 dialate_png_ratios 也是如此；只有各模式需要不同值时才传入列表。若列表短于 crop_mode，其最后一个条目会用于其余模式，并会报告这一行为。默认值为 ['cell']。"
+      "source_sha256": "e5b4bf52a8f58befd1a1ebb9691aa2be756cff9e75238a10ef06ed6c8a3718df",
+      "source": "Mask used to center each PNG crop: 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, as are dialate_pngs and dialate_png_ratios; use lists only when modes require different values. A list shorter than crop_mode reuses its final entry for the remaining modes and records a warning. Default ['cell'].",
+      "translation": "每个 PNG 图像裁剪区域所依据的中心掩膜：可选 'cell'、'nucleus'、'pathogen'、'cytoplasm' 或 'organelle'。每个条目都会向 <mode>_png/ 文件夹写入一组图像，因此 ['cell','nucleus'] 会使写入的图像数量和加入 png_list 的行数翻倍。像 [224,224] 这样的单个 png_size 会应用于所有模式，dialate_pngs 和 dialate_png_ratios 也是如此；只有各模式需要不同值时才使用列表。若列表短于 crop_mode，其最后一个条目会用于其余模式，并记录警告。默认值为 ['cell']。"
     },
     {
       "table": "setting_tooltips",
@@ -103,9 +103,9 @@
     {
       "table": "setting_tooltips",
       "key": "denoise",
-      "source_sha256": "2da039906c6561f58b045112d3c3b78ef565673fb455327ff008f1f9375c1706",
-      "source": "Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
-      "translation": "掩模流水线的旧版去噪开关：没有代码读取此键，因此它不起作用。若要真正去噪，请把各对象的恢复设置（cell_restore_type / nucleus_restore_type / pathogen_restore_type）设为 'denoise'，这样分割会经过 Cellpose 的 CellposeDenoiseModel。默认值为 False。"
+      "source_sha256": "e8d3043fff3f1ec5931210d6e8734bf591c5de426bad9eb21a43833ede036c17",
+      "source": "Legacy denoising toggle for the mask pipeline. This key is not read and has no effect. To enable denoising, set the per-object restore settings (cell_restore_type, nucleus_restore_type, or pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
+      "translation": "掩模流水线的旧版去噪开关。此键不会被读取，因此不起作用。若要启用去噪，请将各对象的恢复设置（cell_restore_type、nucleus_restore_type 或 pathogen_restore_type）设为 'denoise'，这样分割会通过 Cellpose 的 CellposeDenoiseModel 执行。默认值为 False。"
     },
     {
       "table": "setting_tooltips",

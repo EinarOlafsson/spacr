@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "source_sha256": "f40fe7b371d4ce347fbe8103ce5daa614833777ea008436dd23e598fc021f8ee",
+      "source": "Displayed channel. 'All channels' shows the image as stored; picking one shows that plane alone. This is a view control — the segmentation channels live in Live settings.",
+      "translation": "Sýnd rás. 'All channels' sýnir myndina eins og hún er vistuð; ef ein rás er valin er aðeins það plan sýnt. Þetta er birtingarstýring — sundurgreiningarrásirnar eru í Live settings."
+    },
+    {
+      "table": "categories",
+      "key": "Experimental volumetric handling: how the z-axis is read, whether planes are projected or stitched, and the physical voxel size used for calibration. Needed only for z-stacks — and the voxel size is what makes a 3-D measurement physically meaningful.",
+      "source_sha256": "00980020ad635c29f8e0eebf9b848f27f6c253370c78df619d64e01dcb278edd",
+      "source": "Experimental volumetric handling: how the z-axis is read, whether planes are projected or stitched, and the physical voxel size used for calibration. Needed only for z-stacks — and the voxel size is what makes a 3-D measurement physically meaningful.",
+      "translation": "Tilraunakennd meðhöndlun rúmmálsgagna: hvernig z-ásinn er lesinn, hvort flötum er varpað eða þeir saumaðir saman og hvaða raunlæg voxlastærð er notuð við kvörðun. Þetta er aðeins nauðsynlegt fyrir z-stafla — voxlastærðin gerir þrívíddarmælingu raunlægt marktæka."
+    },
+    {
+      "table": "categories",
+      "key": "How a z-stack is turned into something segmentable — whether planes are projected or stitched, which axis is z, and the physical voxel size. Ignore it entirely for single-plane data.",
+      "source_sha256": "ec6571bf829a09d21367eaeb0ef91f8f37dfcae20c87a8bd57a37fd4dcdf588b",
+      "source": "How a z-stack is turned into something segmentable — whether planes are projected or stitched, which axis is z, and the physical voxel size. Ignore it entirely for single-plane data.",
+      "translation": "Hvernig z-stafla er umbreytt í gögn sem unnt er að hluta niður — hvort flötum er varpað eða þeir saumaðir saman, hvaða ás er z og hver raunlæg voxlastærð er. Sleppið þessu alveg fyrir gögn með einum fleti."
+    },
+    {
+      "table": "ui",
+      "key": "Image channel indices written to crop R, G and B planes.",
+      "source_sha256": "43148c1b4d65b1b4e00fd24b90f527a4f7b52708f536ff9f5c4b138f691fb70f",
+      "source": "Image channel indices written to crop R, G and B planes.",
+      "translation": "Vísar myndrása sem eru skráðir í R-, G- og B-plön myndútskurðarins."
+    },
+    {
+      "table": "categories",
+      "key": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "source_sha256": "9e2c74616703be4a5c2cba812e3670cc8324e99e7cb0e1f077d52d535df4bb19",
+      "source": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
+      "translation": "Uppruni mynda, fletir sem einingin les og stöðlun eða viðsnúningur sem er beitt fyrir greiningu. Tóm niðurstaða getur bent til þess að rásarvísi hafi verið úthlutað tómu fleti."
+    },
+    {
+      "table": "ui",
+      "key": "No objects found in the tracked mask plane.",
+      "source_sha256": "0d8c3b7596272d45b1fcd34a6e7d394d4a0993a2c1c718a63a26fdd43d3e6c3d",
+      "source": "No objects found in the tracked mask plane.",
+      "translation": "Engir hlutir fundust í rakta maskafletinum."
+    },
+    {
+      "table": "ui",
+      "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+      "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "translation": "Lögun sem er teiknuð með drætti á valda fletinum. Þegar gate er búið til er hvert þessara forma framlengt eftir ási fletsins; teikningin helst því flöt en gate verður þrívítt."
+    },
+    {
+      "table": "ui",
+      "key": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "source_sha256": "fd36fe0d20280113f5ebfbb7cb79391cfdd7328d68962a75c5c4a1f5a7bcb3f8",
+      "source": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "translation": "Maskaflöturinn sem afmarkar myndútskurðinn. 'cytoplasm' hefur engan flöt á diski og er reiknað sem fruma að frádregnum kjarna og sýkli, nákvæmlega eins og measure_crop reiknar það."
+    }
+  ]
+}

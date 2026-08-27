@@ -1,32 +1,16 @@
-"""Activation maps, as a page on Classify.
+"""Activation-map workflow embedded in the Classify screen.
 
-An activation map is a picture of what a trained classifier looked at, so
-it is read beside the model that produced it rather than from a
-destination of its own. The module is a button on Classify's masthead
-that opens its OWN screen as a page next to the training settings --
-:mod:`spacr.qt.screens.classify` declares the button, this module builds
-what it opens and answers the navigation that leads to it.
+The ``activation`` workflow remains distinct from classifier training: it
+uses its own settings form, Run action, console, and hyperparameter-search
+key, and :func:`spacr.qt.bridge.resolve_pipeline_entry` dispatches it to
+``generate_activation_map``. The Classify masthead opens that workflow as a
+folded page so attribution results remain associated with the trained model
+without combining the two pipeline runs.
 
-WHY A PAGE AND NOT A FEW CATEGORIES ON THE HOST'S FORM. Eight of the
-module's twenty-seven settings are ones Classify already asks for; the
-other nineteen -- which attribution method, which layer it hooks, the
-smoothing, occlusion and path-integral counts, the validation sweep and
-how the map is drawn over the crop -- belong to a DIFFERENT RUN.
-:func:`spacr.qt.bridge.resolve_pipeline_entry` sends this key to
-``generate_activation_map`` while the host's Run button trains a model,
-and the hyperparameter panel searches whatever its own screen's key names
-in :data:`spacr.qt.screens.hyperparam.APP_PARAMS`. So a host form that
-merely revealed the attribution settings would leave them with no Run
-button that runs them and nothing able to sweep them: the two capabilities
-the module exists for. The whole screen, on a page, keeps both.
-
-WHAT ELSE THIS MODULE HOLDS is the navigation. Explain CV Model --
-Classify's other page -- offers "Open Activation Maps" and asks its host
-for the module by name. Nothing answers that name: ``activation_maps`` is
-not a screen key, so the request navigated to a key the registry has
-never heard of and built an orphan page with an empty form on it.
-:class:`ExplainNavigator` is the host that page is handed instead, and it
-answers with the page the masthead button opens.
+:class:`ExplainNavigator` routes requests from the Explain CV Model page to
+the same folded activation page. The aliases in :data:`NAV_KEYS` cover the
+pipeline key, command alias, and navigation spelling without constructing a
+second screen or duplicating its settings and job state.
 """
 
 from __future__ import annotations
@@ -64,13 +48,14 @@ def build(host_window: Optional[QWidget] = None) -> QWidget:
 
 
 def opener_on(screen: Optional[QWidget]) -> Optional[Any]:
-    """The activation fold opener ``screen`` carries, or None.
+    """Return the activation-page opener registered on ``screen``, if present.
 
-    Asked of the host rather than kept here so that pressing the masthead
-    button and following a navigation reach the SAME screen: the opener
-    owns the built page, and a second route that built its own copy would
-    be a second console, a second job runner and a settings form whose
-    answers the button's page never shows.
+    The opener is owned by the host screen. Reusing it ensures that masthead
+    actions and navigation requests address the same folded page and preserve
+    its console, job runner, and settings state.
+
+    :param screen: Candidate host screen.
+    :returns: Matching fold opener, or ``None``.
     """
     for opener in getattr(screen, "_fold_openers", ()) or ():
         if getattr(opener, "key", "") == APP_KEY:

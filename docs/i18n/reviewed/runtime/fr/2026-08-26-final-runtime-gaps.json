@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(float) Mask-probability cutoff.",
+      "source_sha256": "fd576f448618c759611539e52cca1362fbfdf0c6759d1bfc28340e5e8cf266c8",
+      "source": "(float) Mask-probability cutoff.",
+      "translation": "(float) Seuil de probabilité du masque."
+    },
+    {
+      "table": "ui",
+      "key": "2D gates on a scatter, 3D in a volume, xD on more measurements than can be drawn at once.",
+      "source_sha256": "c3353438a4b219472a1e75b080d166df94eb6ce944e3e07d4799fb188067cf7f",
+      "source": "2D gates on a scatter, 3D in a volume, xD on more measurements than can be drawn at once.",
+      "translation": "Sélections 2D sur un nuage de points, 3D dans un volume et xD sur un nombre de mesures supérieur à celui qui peut être représenté simultanément."
+    },
+    {
+      "table": "ui",
+      "key": "on",
+      "source_sha256": "b8d31e852725afb1e26d53bab6095b2bff1749c9275be13ed1c05a56ed31ec09",
+      "source": "on",
+      "translation": "activé"
+    },
+    {
+      "table": "ui",
+      "key": "trained on",
+      "source_sha256": "af4ea0876118a7cb99ef8c1660223ad5e2702b8c825702689f7f089d5558f7c9",
+      "source": "trained on",
+      "translation": "entraîné sur"
+    }
+  ]
+}

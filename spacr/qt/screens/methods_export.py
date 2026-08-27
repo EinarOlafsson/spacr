@@ -74,20 +74,19 @@ APP_NAME = "Methods & Results"
 #: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
 #: that the button actually reads.
 APP_DESCRIPTION = (
-    "Draft the methods and results sections from the run, with every number "
-    "traced")
+    "Generate traceable Methods and Results drafts from recorded run metadata")
 
 #: What the module does, in a paragraph. This screen draws its own
 #: :class:`~spacr.qt.screens.app_screen.ModuleHeader`, so nothing reads this
 #: to build a page; it is the module's own description.
 APP_INTRO = (
-    "Assemble everything the run knows — versions, parameters, counts, QC "
-    "verdicts, held-out metrics, statistics — into one run digest, then draft "
-    "the Methods and Results sections of a paper from it. An AI writes the "
-    "prose if one is configured, but it never sees the data: it sees the "
-    "digest, and every number it writes is checked back against it. A draft "
-    "with an invented figure, or one that drops a caveat the run recorded, is "
-    "refused and spaCR's own version is shown instead.")
+    "Build a run digest containing software versions, parameters, counts, QC "
+    "verdicts, held-out metrics, and statistical results, then generate draft "
+    "Methods and Results sections. When an AI provider is configured, it "
+    "receives the digest rather than the underlying data. Numeric claims and "
+    "recorded caveats are validated against the digest; drafts that introduce "
+    "unsupported figures or omit required caveats are replaced by the "
+    "deterministic spaCR rendering.")
 
 #: Why there is no ``spacr-run methods_export``.
 #:
@@ -97,9 +96,10 @@ APP_INTRO = (
 #: that have no PySide6 at all, the sentence cannot be imported from here. A
 #: test asserts the two copies are the same string.
 APP_CLI_NOTE = (
-    "Methods & Results is the interactive drafting panel; headless, call "
-    "spacr.methods_export.build_digest(...) and then render_methods(digest) "
-    "and render_results(digest), which need no AI provider at all.")
+    "Use Methods & Results for interactive drafting. In a headless workflow, "
+    "call spacr.methods_export.build_digest(...), then "
+    "render_methods(digest) and render_results(digest); these functions do not "
+    "require an AI provider.")
 
 #: "Methods & Results" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,

@@ -43,6 +43,41 @@ def repo_root() -> str:
     return os.path.normpath(os.path.join(here(), *([".."] * 5)))
 
 
+def _prefer_checkout_package() -> None:
+    """Make this generator import ``spacr`` from the checkout it writes."""
+    root = repo_root()
+    normalized = os.path.normcase(os.path.realpath(root))
+    sys.path[:] = [entry for entry in sys.path
+                   if os.path.normcase(os.path.realpath(entry or os.getcwd()))
+                   != normalized]
+    sys.path.insert(0, root)
+
+    loaded = sys.modules.get("spacr")
+    if loaded is None:
+        return
+    origins = []
+    loaded_file = getattr(loaded, "__file__", "")
+    if loaded_file:
+        origins.append(loaded_file)
+    origins.extend(str(path) for path in getattr(loaded, "__path__", ()))
+    package_root = os.path.join(normalized, "spacr")
+    is_local = any(
+        os.path.commonpath((package_root, os.path.realpath(origin)))
+        == package_root
+        for origin in origins
+    )
+    if not is_local:
+        for module_name in [name for name in sys.modules
+                            if name == "spacr" or name.startswith("spacr.")]:
+            sys.modules.pop(module_name, None)
+
+
+# The tables below read the registry during module import, before
+# :func:`bootstrap` is called. Select the checkout now so those tables and the
+# later renderer cannot disagree about which spaCR tree they represent.
+_prefer_checkout_package()
+
+
 # ---------------------------------------------------------------------------
 # Bootstrap
 # ---------------------------------------------------------------------------
@@ -56,9 +91,7 @@ def bootstrap():
     what the reviewer has saved.
     """
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-    root = repo_root()
-    if root not in sys.path:
-        sys.path.insert(0, root)
+    _prefer_checkout_package()
 
     from PySide6.QtCore import QSettings
     from PySide6.QtWidgets import QApplication
@@ -116,7 +149,13 @@ def available_themes() -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _registry():
-    from spacr.qt.app import APPS, _ICON_OVERRIDES, _FORCE_GLYPH
+    # ``spacr.qt.run`` performs these registrations before constructing
+    # MainWindow. Home and the sidebar therefore show this launched registry,
+    # not the shorter import-time table from ``app.py`` alone.
+    import spacr.qt
+
+    spacr.qt.register_self_registering_modules()
+    from spacr.qt.app import _FORCE_GLYPH, _ICON_OVERRIDES, APPS
     return APPS, _ICON_OVERRIDES, _FORCE_GLYPH
 
 
@@ -158,6 +197,19 @@ def core_keys() -> List[str]:
 def n_apps() -> int:
     """Return the current number of registered apps."""
     return len(all_keys())
+
+
+def section_names() -> List[str]:
+    """Return non-empty registry sections in their displayed order."""
+    from spacr.qt.app import SECTIONS
+
+    occupied = {row[3] for row in apps()}
+    return [section for section in SECTIONS if section in occupied]
+
+
+def n_sections() -> int:
+    """Return the number of non-empty sections shown in the sidebar."""
+    return len(section_names())
 
 
 #: Icons are re-inked per theme by ``iconset`` (a PIL + numpy pass per
@@ -241,6 +293,7 @@ class Ctx:
         """The spaCR wordmark logo, re-inked for this theme."""
         from PySide6.QtCore import Qt
         from PySide6.QtGui import QPixmap
+
         from spacr.qt.iconset import themed_pixmap
         cache_key = (self.theme, px)
         if cache_key in _LOGO_CACHE:
@@ -281,7 +334,7 @@ MOCK = {
     "whats_new": [
         "Mask now runs on the Cellpose 4 (SAM) backend.",
         "Invasion Assay: two-colour outside/inside scoring.",
-        "Model Zoo benches a model on three of your own fields.",
+        "Make Masks can evaluate a segmentation model on selected fields.",
         "Report writes a shareable HTML/PDF with the QC verdict.",
     ],
     "queue": [("plate_08", "Mask → Measure", "queued"),
@@ -306,7 +359,7 @@ USE_COUNTS = {
     "convert": 47, "umap": 41, "make_masks": 38, "run_history": 35,
     "graph_builder": 31,
     "align": 24, "layer_viewer": 23, "distributed_jobs": 22, "foreign": 21,
-    "external_masks": 20, "activation": 17,
+    "external_masks": 20,
     "train_compare": 15, "recruitment": 9,
     "analyze_plaques": 8, "invasion": 6, "replication": 6,
 }
@@ -332,12 +385,12 @@ del _key
 # ---------------------------------------------------------------------------
 
 def cats_current() -> "List[Tuple[str, List[str]]]":
-    """Today's five sections, straight out of ``spacr.qt.app``."""
-    from spacr.qt.app import SECTIONS
-    grouped = {s: [] for s in SECTIONS}
+    """The current non-empty sections, straight out of ``spacr.qt.app``."""
+    sections = section_names()
+    grouped = {s: [] for s in sections}
     for key, _n, _d, section in apps():
         grouped.setdefault(section, []).append(key)
-    return [(s, grouped[s]) for s in SECTIONS if grouped.get(s)]
+    return [(s, grouped[s]) for s in sections]
 
 
 def _with_late_registrations(
@@ -365,17 +418,19 @@ def _with_late_registrations(
     :returns: a fresh list; the literal is not mutated.
     """
     live = set(all_keys())
-    # BOTH DIRECTIONS, because a table drifts from the registry both ways.
-    #
-    # An app that registered itself after these literals were written is
-    # added to the fallback, which is what this function was for. An app
-    # whose ROW WAS DROPPED is removed -- a module folded into a host
-    # screen keeps its screen and loses its tile, and a table that goes on
-    # naming it makes `name_of` raise and takes all thirty variants down.
-    # That has happened twice: once for `cellpose_masks` and once for
-    # `parameter_sweep`, both times as a crash rather than a missing tile.
-    result = [(title, [key for key in keys if key in live])
-              for title, keys in cats]
+    placed_literal = {key for _title, keys in cats for key in keys}
+    retired = sorted(placed_literal - live)
+    if retired:
+        raise AssertionError(
+            "categorisation still presents retired app keys: "
+            f"{retired}. Remove each folded module from the Home table and "
+            "route it through its host screen instead.")
+
+    # New registrations still enter the declared fallback so the review
+    # surface remains buildable. Retired rows are deliberately different:
+    # retaining one would present a standalone Home tile that no longer
+    # exists, so the explicit failure above makes that drift visible.
+    result = [(title, list(keys)) for title, keys in cats]
     placed = {key for _title, keys in result for key in keys}
     missing = [key for key in all_keys() if key not in placed]
     if missing:
@@ -390,260 +445,76 @@ CATS_BROAD3 = _with_late_registrations([
     # Power / Design is the only app in the registry that runs BEFORE the
     # images exist. "Prepare" is the closest of these three to that, and
     # it is where a screener would look for it.
-    ("Prepare", ["power", "convert", "align", "foreign", "external_masks",
-                 "illumination", "make_masks"]),
+    ("Prepare", ["power", "experiment_design", "convert", "align",
+                 "foreign", "external_masks", "project_browser",
+                 "make_masks"]),
     ("Run", ["mask", "measure", "annotate",
              "classify_merged",
              "map_barcodes", "regression", "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
-    ("Review", ["plate_view", "umap", "activation",
-                "layer_viewer", "graph_builder",
-                "tabulate", "run_compare",
+    ("Review", ["plate_view", "umap", "layer_viewer", "napari_bridge",
+                "graph_builder", "tabulate", "trellis", "gate_editor",
+                "feature_explorer", "outliers", "dose_response",
+                "control_chart", "run_compare",
                 "train_compare", "run_history", "db_browser", "data_manager", "report",
                 "pipeline_graph", "hit_list", "profiler",
-                "methods_export", "investigate_hit"]),
+                "methods_export", "investigate_hit", "qc_dashboard",
+                "lineage", "feature_dict"]),
 ], fallback="Review")
 
-#: Five stages of a run. Variants 02 and 23 draw these as one seven-wide
-#: tile grid per band, so a band of more than seven takes a second row.
-#:
-#: Five bands of seven was thirty-five slots for a registry of
-#: thirty-four, and the note here said the next app added would force a
-#: real decision rather than a silent overflow. Four arrived at once —
-#: Illumination, Barcode QC, Layer Viewer, Graph Builder — and thirty-
-#: eight apps do not go into thirty-five slots. The decision taken:
-#:
-#: * not a sixth band. Variants 13, 15 and 16 lay these out as exactly
-#:   five columns and solve the gap between them from that count.
-#: * not a wider grid. At eight columns the tile is 166 px, and at that
-#:   width thirty-four of the thirty-eight names elide however small the
-#:   font is set — measured, not assumed.
-#: * so: three bands hold eight and wrap onto a second row in those two
-#:   variants, which is recorded in v02's own comment and in the
-#:   argument it prints.
-#:
-#: The cap was eight, which kept that to ONE wrapped row per band, then
-#: nine, ten, eleven, and it is now TWELVE. Each rise is the same arithmetic:
-#: the cap is the smallest number that can hold the registry over five
-#: bands, so forty-two apps forced nine, forty-nine forced ten and
-#: fifty-one force eleven, and fifty-six force twelve. Twelve is still one
-#: wrapped row (seven, then five) rather than a third, which is what the rule
-#: was ever about: the
-#: ceiling for "one wrapped row" is fourteen, and each cap is simply the
-#: smallest number that fitted the registry of the day. Both alternatives
-#: are still refused for the reasons below — a sixth band breaks the
-#: five-column variants, a wider grid elides the names.
-#:
-#: Curate and Lineage arrived after the cap had already moved to ten and
-#: Report was already holding ten, so the fallback made Report twelve and
-#: the test went red. Nothing moved out of Report and the cap did not rise
-#: again: NEITHER app belonged in Report. Fixing a mask by hand is
-#: producing a mask (Segment, which had eight) and a containment tree is a
-#: measurement (Measure, which had nine). Forty-nine over five bands is
-#: 10/9/10/10/10, which is the floor exactly — that is what a fallback
-#: overflow usually means, that the band the key really belongs in still
-#: had room.
-#:
-#: Experiment Design and the QC Dashboard then took it to fifty-one, and
-#: fifty-one over five bands is ELEVEN however it is shared out — so this
-#: time the cap really did have to move, and it moved by the arithmetic
-#: rather than by preference. Both were filed where they belong first:
-#: Experiment Design beside Power in Acquire (the plate layout decided
-#: before an image exists), the QC Dashboard in Report (five verdicts, none
-#: recomputed). 11/9/10/10/11. Eleven is still one wrapped row — seven,
-#: then four — and a third row does not start until fifteen.
-#: ``test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row``
-#: is what makes the next app a decision rather than a silently squashed
-#: page, and it asserts the floor too, so a cap left loose after apps are
-#: removed fails as loudly as one left too tight.
-#:
-#: The merged Classify module then took the registry to fifty-four and the
-#: test went red at "Report has 12" again, for the same reason as last
-#: time: it was filed nowhere, so the fallback piled it into Report. The
-#: cap did NOT move — eleven is still the floor, fifty-four over five
-#: bands — but fifty-four leaves exactly one spare slot in 5 × 11, so the
-#: shape is now four bands of eleven and one of ten, and Segment's nine
-#: was no longer a shape the arithmetic allowed. Classify went beside its
-#: two originals in Analyse and Activation came out of that band to
-#: Segment, which is the one move the counts left available and is argued
-#: on its own terms below. 11/10/11/11/11.
-#:
-#: Explain CV Model and Investigate Hit then took the registry to fifty-six.
-#: Both are explicitly filed rather than left in Report's fallback: Explain
-#: CV sits beside Activation because both interpret a trained vision model,
-#: while Investigate Hit follows Regression in Analyse. The resulting
-#: 11/11/11/12/11 distribution has the required arithmetic floor of twelve.
-#:
-#: PCA, Tabulate, Parameter Sweep and Volcano Explorer take the registry to
-#: fifty-eight. All four now have deliberate homes rather than landing in the
-#: fallback Report band: PCA and Tabulate inspect measurements, Parameter
-#: Sweep varies a regression, and Volcano Explorer reads a finished result.
-#: The balanced 11/11/12/12/12 distribution keeps twelve as the exact floor.
+#: Five alternative workflow stages used by variants 02, 15, 23 and 30.
+#: Seven tiles fit per row; the focused test pins the current widest band so
+#: registry growth or consolidation cannot silently add or leave an empty row.
 CATS_STAGE5 = _with_late_registrations([
-    # Illumination is a correction of the sensor, applied to the pixels
-    # before anything is segmented or measured — it belongs with the
-    # other things done to images on the way in, not with the results.
-    #
-    # Power / Design comes before even that: it is what you run to decide
-    # how many wells to image at all. There is no band earlier than
-    # Acquire and a sixth is refused above, so it leads this one.
-    #
-    # Data Manager moves back here from Report. It landed there by analogy
-    # with Database Browser ("a question about a finished run"), but the two
-    # are not the same question: the browser reads the results, while the
-    # manager answers "what is this project costing me on disk and what of
-    # it can go", which is housekeeping beside Plate Queue, Batch Runner and
-    # Distributed Jobs. CATS_NARROW8 already files it under "Import &
-    # batch", so this makes the two tables agree rather than holding a third
-    # opinion.
-    #
-    # Experiment Design is beside Power for the reason Power leads: it is
-    # the other half of this section's own note -- plate layout, controls
-    # and replicates, all decided before an image exists.
+    # Design precedes acquisition; project conversion, dispatch and storage
+    # management all prepare inputs rather than interpret results.
     ("Acquire", ["power", "experiment_design", "convert", "align", "foreign",
-                 "external_masks", "illumination", "queue", "batch",
-                 "distributed_jobs", "data_manager"]),
-    # Layer Viewer is here because looking at a label mask over its image
-    # is how a segmentation is judged; it is the eye on this band's work.
-    # Curate is the hand on it: Layer Viewer is where you see that a cell
-    # was split in two, and this is where you join it back up. Fixing a
-    # mask is producing a mask, so it is this band and not a later one —
-    # ``EXPECTED_SECTIONS`` files it under Core beside Mask and Timelapse
-    # on exactly that argument, and this is the second table agreeing.
-    # Activation moves here from Analyse, and the reason is half
-    # arithmetic and half the band's own argument. The arithmetic: the
-    # merged Classify module took the registry to fifty-four, and
-    # fifty-four over five bands under a cap of eleven is 11/11/11/11/10
-    # however it is shared out — so filing Classify beside the two
-    # originals it dispatches to meant one key had to leave Analyse, and
-    # this was the only band under the cap. The argument: Activation is
-    # the one app in Analyse that never touches the measurement table or
-    # the screen — it takes a trained model and a folder of crops and
-    # paints what the model looked at, which is the job Layer Viewer does
-    # for a mask, in the band the models themselves are in. The three model
-    # apps that argument named are buttons on the Make Masks masthead now
-    # rather than keys of their own, so this band reaches them through
-    # ``make_masks`` -- which is why the band did not shrink by three when
-    # they left, and why Curate is not listed beside it either.
-    ("Segment", ["mask", "make_masks",
-                 "layer_viewer", "activation"]),
-    # Annotator Agreement moves here from Report, beside Annotate. It is
-    # not a report on the screen, it is the check on the labelling step:
-    # kappa between two annotation columns says whether the labels this
-    # band produced can be trusted, in exactly the way Layer Viewer says
-    # it for masks. Both other tables already put it with Annotate —
-    # CATS_NARROW8 under "Label", CATS_QUESTIONS under "I have objects.
-    # What are they like?" — so this is the third table agreeing.
-    # Lineage is here for the third turn of the same argument, and it is
-    # the strongest of the three: the cell → nucleus → pathogen tree is
-    # not derived from the measurements, it IS one of them. Measure is
-    # what writes the ``cell_id`` links, so the band that produced the
-    # relationship is the band that reads it. The fallback would have put
-    # it under Report, which is only where an uncategorised key lands —
-    # not an argument that a containment tree is a deliverable.
-    # Tabulate is here on the band's own argument, one more turn: a pivot
-    # of the measurement table with the n behind each cell is a question
-    # asked OF the measurements, which is what this band is. It had been
-    # landing in Report, and Report is only where an uncategorised key
-    # falls -- not an argument that a contingency table is a deliverable.
+                 "external_masks", "queue", "batch",
+                 "distributed_jobs", "data_manager", "project_browser"]),
+    # Mask creation, manual correction and registered layer inspection are
+    # one segmentation stage; folded model tools are reached through Mask.
+    ("Segment", ["mask", "make_masks", "layer_viewer", "napari_bridge"]),
+    # These applications quantify, label or summarize measured objects.
     ("Measure", ["measure", "annotate", "lineage", "analyze_plaques",
-                 "recruitment", "invasion", "replication", "tabulate"]),
-    # Barcode QC sits beside Map Barcodes and Regression because the
-    # number it derives — the abundance threshold — is what the
-    # regression consumes as fraction_threshold. It is part of analysing
-    # the screen, not of reporting it. Graph Builder is here for the
-    # same reason: asking the measurements a question you did not plan
-    # for is analysis, whatever you do with the answer afterwards. AnnData
-    # Export is the same argument once more — the .h5ad exists to be
-    # analysed in scanpy, and the export is the first step of that
-    # analysis rather than something you hand to a collaborator. The
-    # Prediction Profiler is the same argument a fourth time: sweeping one
-    # input of the fitted model to see where the prediction goes is asking
-    # the model a question, which is analysis — the reporting apps below
-    # judge whether to believe a result, and this one produces results.
-    # Parameter Sweep belongs beside Regression: it repeatedly fits that
-    # analysis under defensible alternatives and compares what survives. It
-    # was falling into Report only because this review table predated the
-    # standalone sweep screen.
-    # Classify — the merged module — is here beside the two originals it
-    # dispatches to, which is where every other table already files the
-    # three together: CATS_BROAD3 under "Run", CATS_NARROW8 under
-    # "Classify", CATS_QUESTIONS under "I have a screen. Which genes
-    # matter?". It had been landing in Report, which took that band to
-    # twelve against a cap of eleven — and Report is only where an
-    # uncategorised key falls, never an argument that training a
-    # classifier is a deliverable. Activation went the other way, to
-    # Segment; the note there says why.
-    ("Analyse", ["classify_merged", "map_barcodes",
-                 "regression", "umap", "graph_builder",
-                 "profiler", "investigate_hit"]),
-    # Report is "decide whether to believe it, then hand it on", which is
-    # where the two model/provenance QC apps belong: Classifier Evaluation
-    # judges the classifier the Analyse stage trained, Run History says what
-    # settings produced the numbers. Database Browser moves here from
-    # Acquire for the same reason — exporting measurements.db is something
-    # you do with results, not to get images in. Run Compare joins them on
-    # the same grounds and beside Run History in particular: "what did I
-    # change between these two runs, and did the numbers move" is the
-    # question Run History answers for one run and this one answers for
-    # two. Pipeline Graph is the same question about one run's files
-    # rather than about two runs' settings, and it is the sharpest form of
-    # "decide whether to believe it" there is: it marks which outputs no
-    # longer follow from their inputs. Hit List and Methods & Results are
-    # the "hand it on" half made literal — the ranked table a collaborator
-    # receives, and the two paragraphs of the paper.
-    # The QC Dashboard is the most literal member this band has: five
-    # verdicts on one screen, none of them recomputed, which is "decide
-    # whether to believe it" with nothing else in it.
-    ("Report",  ["plate_view", "train_compare", "run_history", "run_compare", "db_browser", "report",
+                 "recruitment", "invasion", "replication", "tabulate",
+                 "feature_dict"]),
+    # Classification, barcode mapping, regression and exploratory model
+    # interrogation produce analytical results.
+    ("Analyse", ["classify_merged", "map_barcodes", "regression", "umap",
+                 "graph_builder", "profiler", "investigate_hit", "trellis",
+                 "gate_editor", "feature_explorer", "dose_response"]),
+    # Provenance, QC, comparisons and export determine whether a result can
+    # be reported and preserve the evidence used to reach that decision.
+    ("Report", ["plate_view", "train_compare", "run_history", "run_compare",
+                 "db_browser", "report",
                  "pipeline_graph", "hit_list", "methods_export",
-                 "qc_dashboard"]),
+                 "qc_dashboard", "outliers", "control_chart"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
-    # The bands stay deliberately narrow: variant 04's whole argument is
-    # that a narrow category can be named honestly ("'Segment' is the
-    # apps that make a mask, and it is obvious which they are") at the
-    # cost of categories too small for a heading. Sizes are not asserted
-    # here because folding a module into its host removes its key from
-    # every one of these lists without changing what the band means.
-    # Layer Viewer would be one more here on a technicality — it is where
-    # you LOOK at a mask, not one of the things that make one.
-    # ONE SEGMENT BAND, not a "Train models" band beside it. Training a
-    # Cellpose model, comparing two and browsing the zoo are buttons on the
-    # Make Masks masthead, so "Train models" held nothing that trains --
-    # only Make Masks, which corrects a mask by hand and is a way of
-    # producing one. A band named for work none of its keys does is worse
-    # than a slightly wider band.
-    ("Segment",          ["mask", "make_masks"]),
-    ("Measure",          ["measure", "tabulate"]),
+    # The bands stay deliberately narrow. Folded capabilities remain on
+    # their host screens and therefore do not receive standalone entries.
+    ("Segment",          ["mask", "make_masks", "napari_bridge"]),
+    ("Measure",          ["measure", "tabulate", "feature_dict"]),
     ("Label",            ["annotate"]),
-    # Classify (the merged module) is one of the apps that trains a
-    # per-object classifier, so it is here with the two originals it
-    # dispatches to rather than in the fallback band, which had been
-    # swallowing it.
-    ("Classify",         ["classify_merged",
-                          "activation", "train_compare"]),
+    ("Classify",         ["classify_merged", "train_compare"]),
     # The Prediction Profiler goes here rather than under "Classify":
     # what it sweeps is a screen's regression, which is this band's
-    # subject, and variant 04's argument is that "Classify" is exactly
-    # the six apps that train and judge a per-object classifier.
+    # subject, while Classify contains the classifier and training review.
     ("Screens & reports", ["map_barcodes", "regression",
                            "umap", "graph_builder", "layer_viewer",
                            "plate_view", "report",
                            "hit_list", "methods_export", "pipeline_graph",
-                           "profiler", "investigate_hit"]),
-    # Power / Design and Run Compare are both "things you do around a run
-    # rather than to the images": one decides how big the run has to be,
-    # the other reads two of them against each other. This is variant 04's
-    # widest, most administrative category and it is where they belong.
-    ("Import & batch",   ["power", "convert", "align", "foreign",
-                          "external_masks",
-                          "illumination", "queue", "batch",
+                           "profiler", "investigate_hit", "qc_dashboard",
+                           "lineage", "trellis", "gate_editor",
+                           "feature_explorer", "outliers", "control_chart"]),
+    ("Import & batch",   ["convert", "align", "foreign", "external_masks",
+                          "queue", "batch",
                           "distributed_jobs", "run_history", "run_compare",
-                          "db_browser", "data_manager"]),
+                          "db_browser", "data_manager", "project_browser"]),
     ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
                           "replication"]),
+    ("Design",            ["power", "experiment_design", "dose_response"]),
 ], fallback="Screens & reports")
 
 CATS_QUESTIONS = _with_late_registrations([
@@ -651,17 +522,21 @@ CATS_QUESTIONS = _with_late_registrations([
     # I have enough images?" — and the honest place for it is the band
     # about getting images, since that is the decision it feeds.
     ("I have images. Where are my objects?",
-     ["mask", "make_masks", "align", "convert", "illumination",
-      "foreign", "external_masks", "power"]),
+     ["mask", "make_masks", "align", "convert", "foreign",
+      "external_masks", "power", "experiment_design", "project_browser",
+      "napari_bridge"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "analyze_plaques", "recruitment",
-      "invasion", "replication", "layer_viewer", "tabulate"]),
+      "invasion", "replication", "layer_viewer", "tabulate", "lineage",
+      "feature_dict"]),
     # Hit List answers this band's question in the most direct way there
     # is — it IS the list of genes that matter — and the Prediction
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
      ["classify_merged", "map_barcodes",
-      "regression", "umap", "activation", "graph_builder", "hit_list", "profiler", "investigate_hit"]),
+      "regression", "umap", "graph_builder", "hit_list", "profiler",
+      "investigate_hit", "trellis", "gate_editor", "feature_explorer",
+      "outliers", "dose_response"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
     # outputs that no longer follow from their inputs, which is the
     # question in the heading. Methods & Results is the other half — what
@@ -669,7 +544,7 @@ CATS_QUESTIONS = _with_late_registrations([
     ("Should I believe any of this?",
      ["plate_view", "train_compare", "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",
-      "methods_export"]),
+      "methods_export", "qc_dashboard", "control_chart"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

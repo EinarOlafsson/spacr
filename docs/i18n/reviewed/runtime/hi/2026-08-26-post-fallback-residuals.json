@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Pause is not available for this module.\n\nPausing means holding the pipeline at a point where nothing is half-written — between fields, not mid-write. spaCR's pipelines do not yet offer such a checkpoint, so a Pause button here could only freeze the thread wherever it happened to be, which can truncate a mask file or leave a field measured into some tables and not others.\n\nUse Stop, or queue plates so the run can be halted between them.",
+      "source_sha256": "06fa5212e6133349c2aeb6bf0342e040180c6b687470dbf6c4cf3087785f0f31",
+      "source": "Pause is not available for this module.\n\nPausing means holding the pipeline at a point where nothing is half-written — between fields, not mid-write. spaCR's pipelines do not yet offer such a checkpoint, so a Pause button here could only freeze the thread wherever it happened to be, which can truncate a mask file or leave a field measured into some tables and not others.\n\nUse Stop, or queue plates so the run can be halted between them.",
+      "translation": "इस मॉड्यूल में Pause उपलब्ध नहीं है।\n\nपाइपलाइन को ऐसे बिंदु पर रोकना आवश्यक है जहाँ कोई लेखन अधूरा न हो — अर्थात फ़ील्डों के बीच, न कि किसी लेखन क्रिया के दौरान। spaCR की पाइपलाइनें अभी ऐसा checkpoint प्रदान नहीं करतीं; इसलिए यहाँ Pause बटन thread को किसी भी बिंदु पर रोक सकता है, जिससे mask file अधूरी हो सकती है या किसी field का मापन केवल कुछ tables में दर्ज हो सकता है।\n\nStop का उपयोग करें, या plates को queue में रखें ताकि run को उनके बीच रोका जा सके।"
+    },
+    {
+      "table": "ui",
+      "key": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source_sha256": "3248e705bb66fd4e2ffacbf0751c3e3fa1eb7bd7315726e623ac82053d9f72a4",
+      "source": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "translation": "एक ही इंटरफ़ेस में छवि के चुने हुए भागों या मापी गई विशेषताओं से वर्गीकरण मॉडल प्रशिक्षित करें। प्लेट मेटाडेटा या टिप्पणियों से वर्ग परिभाषित करें, फिर PyTorch छवि मॉडल या ग्रेडिएंट-बूस्टेड विशेषता मॉडल चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+      "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+      "translation": "चयनित तल पर खींचने से बनने वाली आकृति। गेट बनाते समय प्रत्येक आकृति को तल की अपनी धुरी के साथ विस्तारित किया जाता है; इसलिए खींची गई आकृति समतल रहती है और गेट त्रिविमीय ठोस बनता है।"
+    }
+  ]
+}

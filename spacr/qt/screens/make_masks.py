@@ -1,132 +1,45 @@
-"""
-MakeMasksScreen — hand-correct a segmentation, on the record.
+"""Interactive editing and curation of segmentation masks.
 
-Load a folder of images and their masks (in ``<folder>/masks/``), draw
-brush/erase strokes, run object-level operations (fill, relabel, invert,
-remove small, Otsu detect), zoom and pan into a region for detailed
-edits, flood-fill by intensity with the magic wand, undo/redo, and save
-the edited mask back to ``<folder>/masks/<name>.tif`` as labelled uint16.
+:class:`MakeMasksScreen` loads images and labelled masks from
+``<folder>/masks``, supports brush and erase operations, object filling and
+relabeling, inversion, size filtering, Otsu detection, magic-wand selection,
+region drawing and division, zooming, undo, and redo, and saves edited labels
+as ``uint16`` TIFF files. Draw closes and fills a traced boundary as one
+object. Divide separates a merged object, preserves the original identifier
+on the larger component, and assigns a new identifier to the smaller
+component; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` defines the cut
+width.
 
-Six things here are less obvious than the tool buttons:
-
-**Every edit is recorded.** The screen keeps a
-:class:`spacr.curation.CurationLog` per field, seeded from any ledger
-already beside the mask, and :func:`spacr.qt.mask_engine.save_mask`
-writes it back. So :func:`spacr.curation.is_curated` can tell a mask that
-was corrected by hand from one the pipeline produced, and the ledger says
-what was done to it. One gesture is one entry: a right-button sweep over
-six objects records a single ``sweep_delete`` of six, not six deletes,
-for the same reason it is a single undo step.
-
-**The magic-wand tolerance is a percentage by default.** An absolute
-tolerance means two different things on an 8-bit and a 16-bit image; a
-percentage of the image's own intensity range means one. See
+Each field has a :class:`spacr.curation.CurationLog`, initialized from any
+existing sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and
+ledger together, allowing :func:`spacr.curation.is_curated` to distinguish
+manually corrected masks from pipeline output. A single gesture produces one
+ledger entry and one undo step. Magic-wand tolerance is relative to the
+image's intensity range by default; see
 :func:`spacr.qt.mask_engine.relative_tolerance`.
 
-**The display percentiles carry six decimals.** On a 4-megapixel 16-bit
-field the difference between 99.9 and 99.9999 is the difference between
-clipping four thousand pixels and clipping four, and a few hot pixels are
-often the entire reason a field looks black.
+:meth:`MakeMasksScreen.run_cellpose` applies the pipeline's resolved
+Cellpose-SAM model to the open field and displays the mask, cell-probability
+map, and flow field. The intermediate outputs support evaluation of
+:data:`CELLPROB_THRESHOLD` when detections are missing or incomplete.
 
-**Draw and divide are region tools, not strokes.** The brush is the wrong
-instrument for two of the commonest corrections. Tracing a cell's rim
-with it labels the rim and leaves the middle background, so ``draw``
-closes the traced path and fills what it encloses as ONE object with one
-id. And nothing that adds pixels can separate a merged pair, so
-``divide`` cuts across one, keeps the original id on the larger piece and
-gives the smaller one a fresh id, leaving every other object in the field
-untouched. The cut is wider than a pixel for a reason --
-:data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` says which.
+Editor modes are assembled from :func:`tool_row_entries` and
+:data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts
+non-mode actions into the same toolbar. The settings panel contains brush,
+wand, display, filtering, and object-operation controls and can be hidden to
+return its width to the canvas.
 
-**Recrop replaces the field instead of editing it.** Every other tool
-answers "which pixels are this object"; ``recrop`` answers "this picture
-is not one field". A staged crop holding several cells is not one
-training example, and curating it as though it were teaches a network
-that two objects are one picture — so a box round each object writes that
-region of BOTH the image and the mask as a field of its own, queued
-straight after this one, and the multi-object original is RETIRED rather
-than curated. Retired, not deleted: :func:`spacr.qt.mask_engine.retire_recropped_original`
-moves it into ``recropped_originals/`` with its mask and its ledger and
-records the move, because a box drawn wrong is only recoverable while the
-field it was drawn on still exists. Two refusals and two rules keep what
-lands on disk usable as ground truth — a box under
-:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` px, and a box that repeats
-one already cut, are both refused with a sentence; every object the box
-cuts through is dropped, because an object whose boundary is where the
-mouse was released is not that object; and the labels that survive are
-renumbered from one, so the new field is a field and not a view of
-another one.
+Additional segmentation tools are opened from the masthead in
+:data:`FOLD_ORDER` through
+:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask the whole folder**
+applies Cellpose to every image in the selected folder, while **Save mask** on
+the Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded
+modules retain their existing widgets inside :class:`FoldedModulePanel`.
 
-**Cellpose-SAM comes with its two intermediate outputs.**
-:meth:`MakeMasksScreen.run_cellpose` segments the field that is open,
-through the resolver the pipeline itself uses
-(:func:`spacr.utils._resolve_cellpose_pretrained`), and fills two tabs
-beside the mask: the cell-probability map and the flow field. They are
-not decoration. A mask is a threshold applied to that probability map,
-so seeing the map beside the objects drawn from it is the difference
-between moving :data:`CELLPROB_THRESHOLD` with a reason and moving it by
-guessing — and after a run that found nothing, the map is the only thing
-on screen that says whether the network saw nothing or the threshold
-threw away what it saw.
-
-ONE ROW OF TOOLS, AND A SETTINGS BUTTON
----------------------------------------
-
-Every tool is in a single row across the top of the editor, so the whole
-set is read left to right instead of hunted for and each tool stays where
-it was last seen. The row is built from :func:`tool_row_entries`: a tool
-added to :data:`TOOL_MODES` — or a ``MODE_*`` constant added with no
-table entry at all — appears in it without anyone editing the layout, and
-:meth:`MakeMasksScreen.add_toolbar_action` puts a button that is not a
-mode into the same row rather than starting a second one.
-
-Everything else — brush radius, the wand, display percentiles, the
-auto-filter and the object operations — is the settings, and one
-checkable button shows or hides the lot. The canvas is what the screen is
-for; the settings are what you set on the way in and then stop looking
-at. Hiding them is a splitter child going away, so THE CANVAS TAKES THE
-WIDTH instead of a gap opening where the panel was, and the panel comes
-back at the width it had.
-
-THE SEGMENTATION WORKBENCH
---------------------------
-
-Everything a person does to a segmentation happens on one screen, because
-they are one job done in a loop: segment the folder, look at the masks,
-correct what came out wrong, train on the corrections, segment again. The
-modules that used to be rows of their own are buttons on this screen's
-masthead — :data:`FOLD_ORDER` — each drawn as its own icon by
-:class:`~spacr.qt.widgets.fold_strip.FoldStrip`.
-
-WHAT THIS SCREEN IS NOT is a time series. Tracking objects across frames
-and the motility assay fold into Mask Generation, whose settings they
-overlap, and they fold in as settings categories rather than as anything
-that opens — see :mod:`spacr.qt.screens.mask`.
-
-Two of those buttons carry something the folded module did not have:
-
-* **Mask the whole folder** runs the applying half of the Cellpose
-  workbench over every image in the folder that is open here, rather than
-  asking for the path a second time.
-* **Save mask**, on the Curate window, writes the corrected labels.
-  Curate paints and records and never wrote a pixel of its own: its
-  ledger asserted corrections beside a file the pipeline had produced,
-  and :func:`spacr.curation.is_curated` answered ``True`` for that
-  untouched file. :meth:`spacr.curation.MaskCuration.save_mask` writes
-  the labels and the ledger together, and this button is what presses it.
-
-A folded module is opened as the widget it always was, on a page beside
-the editor (:class:`FoldedModulePanel`), so nothing it could do is lost on
-the way in and nothing floats over the screen it came from.
-
-AND A FOLDED MODULE KEEPS NO MODULE OF ITS OWN. A screen only this masthead
-opens, sitting under ``spacr/qt/screens/`` beside every screen that does have
-a tile, is a front door onto nothing: the row is gone, so nothing imports it
-but this file. :class:`NapariBridgeScreen` therefore lives here, in the one
-screen that builds it. What it is a surface over --
-:mod:`spacr.napari_bridge`, the engine behind ``spacr.napari_bridge
-.correct_mask`` and behind the label-mask drop handler -- is a different file
-and is untouched: the fold takes the screen in, not the library.
+Time-series tracking is integrated with Mask Generation as the Timelapse
+settings category; see :mod:`spacr.qt.screens.mask`. Motility Assay instead
+belongs to Measure because it consumes existing masks and writes measurement
+tables rather than generating masks.
 """
 from __future__ import annotations
 
@@ -238,12 +151,13 @@ FOLD_ORDER = (
 FOLD_FALLBACK = {
     "train_cellpose": (
         "Cellpose Workbench",
-        "Fine-tune a Cellpose model on your own labelled fields, then "
-        "segment a folder of images with it or with a stock model",
+        "Fine-tune a Cellpose model on labelled fields, then apply the "
+        "trained model or a stock model to an image folder.",
         "beta"),
     MASK_FOLDER_KEY: (
         "Mask the whole folder",
-        "Run the segmentation model over every image in the open folder",
+        "Apply the selected segmentation model to every image in the open "
+        "folder.",
         "beta"),
     # STABLE, not alpha: `spacr.qt.maturity` promoted both at launch on the
     # evidence in its own table, and it is the promoted stage the tile lit
@@ -252,24 +166,26 @@ FOLD_FALLBACK = {
     # tile it replaced lit blue.
     "model_compare": (
         "Model Compare",
-        "Two Cellpose models on the same fields: masks side by side, "
-        "object-count and ARI deltas",
+        "Compare two Cellpose models on the same fields using side-by-side "
+        "masks, object-count differences and adjusted Rand index (ARI).",
         "stable"),
     "model_zoo": (
         "Model Zoo",
-        "Browse, verify, download and bench Cellpose + classifier models on "
-        "three of your fields",
+        "Browse, verify, download and benchmark Cellpose and classifier "
+        "models on selected fields.",
         "stable"),
     "curate": (
         "Curate",
-        "Paint a mask right, and fix tracks by hand — on the record",
+        "Correct segmentation masks and tracking assignments manually while "
+        "recording each edit in the curation log.",
         "alpha"),
     # THE ONLY SOURCE, not a fallback: the bridge registered its own row
     # until the screen folded in here, so nothing puts one in the registry
     # any more and this is what the button reads.
     "napari_bridge": (
         "Napari Bridge",
-        "Correct a mask in napari and bring the corrected labels back",
+        "Correct a segmentation mask in napari and import the revised labels "
+        "into spaCR.",
         "alpha"),
 }
 
@@ -2302,11 +2218,10 @@ class MakeMasksScreen(QWidget):
     def save_curated_mask(self) -> str:
         """Write the labels Curate corrected back to the mask file.
 
-        The Curate screen paints and records and never wrote a pixel: its
-        ledger asserted corrections beside a file the pipeline had produced,
-        and :func:`spacr.curation.is_curated` answered ``True`` for that
-        untouched file. The write lives here because this is the screen that
-        writes masks.
+        The Curate page retains corrected labels in its curation session. This
+        method calls :meth:`spacr.curation.MaskCuration.save_mask`, which
+        writes the labels and, when edits exist, writes the corresponding
+        curation ledger beside the output file.
 
         :returns: the path written, or ``""`` when there is nothing to write.
         """
@@ -2473,13 +2388,13 @@ class MakeMasksScreen(QWidget):
         return scroller
 
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
-        """Put a non-mode button in the toolbar row and return it.
+        """Insert a non-mode action into the editor toolbar.
 
-        Tools come from the mode table. An action that is not a mode —
-        running a segmentation over the open image, say — has no entry
-        there, and this is how it still lands in the one row instead of
-        starting a second one. It goes in beside the other actions, left
-        of the stretch, so the settings toggle stays at the far end.
+        The button is placed with the other actions, immediately before the
+        stretch that keeps the Settings toggle aligned to the far edge.
+
+        :param button: Action button to insert.
+        :returns: The same button.
         """
         row = self._tool_row_layout
         row.insertWidget(max(row.indexOf(self._btn_settings) - 1, 0), button)

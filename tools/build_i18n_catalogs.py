@@ -28,24 +28,24 @@ from __future__ import annotations
 
 import argparse
 import ast
-from collections import Counter, defaultdict
-from contextlib import contextmanager
 import ctypes
 import ctypes.util
 import fcntl
-from functools import lru_cache
 import hashlib
+import importlib.util
 import json
 import os
-from pathlib import Path
 import pprint
 import re
 import stat
 import sys
 import tempfile
 import time
+from collections import Counter, defaultdict
+from contextlib import contextmanager
+from functools import lru_cache
+from pathlib import Path
 from typing import Callable, Iterable, Mapping
-
 
 ROOT = Path(__file__).resolve().parents[1]
 # Executing ``python tools/build_i18n_catalogs.py`` otherwise puts only the
@@ -56,6 +56,20 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) in sys.path:
     sys.path.remove(str(ROOT))
 sys.path.insert(0, str(ROOT))
+
+# Load the reviewed sibling from this checkout after pinning the checkout
+# root.  A bare sibling import depends on the launch directory, while a late
+# module-level ``from`` import violates the script's lint contract.
+_REVIEWED_UI_SPEC = importlib.util.spec_from_file_location(
+    "_spacr_i18n_reviewed_ui",
+    ROOT / "tools" / "i18n_reviewed_ui.py",
+)
+if _REVIEWED_UI_SPEC is None or _REVIEWED_UI_SPEC.loader is None:
+    raise ImportError("could not load tools/i18n_reviewed_ui.py")
+_REVIEWED_UI_MODULE = importlib.util.module_from_spec(_REVIEWED_UI_SPEC)
+_REVIEWED_UI_SPEC.loader.exec_module(_REVIEWED_UI_MODULE)
+REVIEWED_UI_TRANSLATIONS = _REVIEWED_UI_MODULE.REVIEWED_UI_TRANSLATIONS
+
 CATALOG_DIR = ROOT / "spacr" / "qt" / "i18n_catalogs"
 REVIEWED_RUNTIME_DIR = ROOT / "docs" / "i18n" / "reviewed" / "runtime"
 
@@ -103,11 +117,12 @@ _TEXT_METHODS = {
     "setText", "setTitle", "setToolTip", "setStatusTip",
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
-    "set_translatable_text",
+    "set_translatable_text", "tr",
 }
 _TEXT_CONSTRUCTORS = {
     "QLabel", "QPushButton", "QToolButton", "QCheckBox", "QRadioButton",
-    "QGroupBox", "QAction",
+    "QGroupBox", "QAction", "AiToggleLabel", "Card", "FlatButton",
+    "FlatComboBox", "FlatSpinBox", "Toggle",
 }
 _DIALOG_METHODS = {"information", "warning", "critical", "question"}
 _FILE_DIALOG_METHODS = {
@@ -117,12 +132,37 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
-    "API", "CPU", "CUDA", "CV", "DNA", "EC50", "FOV", "GPU", "JSON",
-    "ML", "NaN", "PCA", "PDF", "PNG", "QC", "RGB", "RNA", "ROI",
-    "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X", "XGBoost", "Y",
+    "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "FOV", "GPU",
+    "CSV", "Cellpose-SAM", "JSON", "MIP", "ML", "NaN", "PDF",
+    "PNG", "QC", "RGB",
+    "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
+    "XGBoost", "Y",
     "Z", "log10", "spaCR", "t", "x", "y", "µM", "µm/pixel",
     "|Tutorials|",
+    # Standalone option values are executable configuration identities, not
+    # prose.  Translation models repeatedly mapped these short tokens to
+    # unrelated everyday words (for example ``viridis`` to Korean "virus"
+    # and ``slurm`` to German "mud").  Resolve them before every reviewed,
+    # compact or cached candidate so a contaminated checkpoint cannot win.
+    "cividis", "coolwarm", "inferno", "magma", "plasma", "turbo",
+    "viridis", "otsu", "cellpose", "pymc", "numpyro", "umap", "tsne",
+    "btrack", "trackastra", "trackpy", "ultrack", "slurm", "ssh",
+    "torch", "png", "fdr_bh", "measurements.db", "seg_qc",
+    # Additional optimizer/path identities exposed as standalone choices.
+    "%d px", "--partition=gpu --gres=gpu:1 --time=12:00:00",
+    "<a href=\"api\">API</a>", "2D / 3D UMAP", "Amsgrad",
+    "EAF1_g1, EAF1_g2", "Huber t", "RdBu_r", "Tensorboard", "dst", "xD",
+    "gRNA", "gRNA CSV", "image_path", "metadata_column_map.json",
+    "png_list", "png_path", "{report}", "■ {note}",
 }
+
+_KNOWN_CONTAMINATION_MARKERS = (
+    "ordförande",
+    "herr präsident",
+    "@info: whatsthis",
+    "description in lists",
+    "en anglais seulement",
+)
 
 _PROTECTED_TERMS = tuple(sorted({
     "spaCR", "Cellpose", "PyTorch", "TensorBoard", "NumPy", "pandas",
@@ -1600,6 +1640,7 @@ def _translation_rejection_reasons(
     if (
         (raw_value == source_text or candidate == source_text)
         and (force or _looks_translatable(source_text))
+        and _reviewed_translation(source_text, language) != raw_value
     ):
         failures.add("exact")
 
@@ -2236,6 +2277,17 @@ MANUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
 }
 
 MANUAL_UI: dict[str, dict[str, str]] = {
+    "A qc": {
+        "sv": "A — kvalitetskontroll",
+        "de": "A — Qualitätskontrolle",
+        "es": "A — control de calidad",
+        "zh_CN": "A — 质量控制",
+        "pt": "A — controlo de qualidade",
+        "hi": "A — गुणवत्ता नियंत्रण",
+        "ko": "A — 품질 관리",
+        "is": "A — gæðamat",
+        "fr": "A — contrôle qualité",
+    },
     "Go to the screen this run belongs to.": {
         "fr": "Accédez à l’écran auquel appartient cette exécution.",
     },
@@ -2585,11 +2637,48 @@ MANUAL_TRANSLATIONS["Power hit rate"] = {
 }
 
 
+@lru_cache(maxsize=None)
+def _reviewed_module_summary_translations(language: str) -> dict[str, str]:
+    """Return source-bound, human-reviewed module-summary translations."""
+    import spacr.qt
+    from spacr.qt.app import APPS
+    from spacr.qt.i18n_module_summaries import (
+        MODULE_SUMMARIES,
+        REVIEWED_SOURCE_HASHES,
+    )
+    from spacr.qt.widgets.fold_strip import folded_modules
+
+    spacr.qt.register_self_registering_modules()
+    sources = {str(key): str(summary) for key, _name, summary, _section in APPS}
+    sources.update({
+        str(key): str(entry[1])
+        for key, entry in folded_modules().items()
+        if len(entry) > 1 and str(entry[1]).strip()
+    })
+    reviewed: dict[str, str] = {}
+    for key, target in MODULE_SUMMARIES.get(language, {}).items():
+        source = sources.get(str(key))
+        if source is None or REVIEWED_SOURCE_HASHES.get(str(key)) != _source_hash(
+            source
+        ):
+            continue
+        previous = reviewed.setdefault(source, str(target))
+        if previous != str(target):
+            raise ValueError(
+                f"conflicting reviewed module-summary targets for {source!r}"
+            )
+    return reviewed
+
+
 def _reviewed_translation(source: str, language: str) -> str | None:
     """Return exact reviewed prose without adding it to the static UI set."""
+    if str(source) in _IDENTITY_TEXT:
+        return str(source)
     static = (
-        MANUAL_TRANSLATIONS.get(str(source), {}).get(language)
+        REVIEWED_UI_TRANSLATIONS.get(str(source), {}).get(language)
+        or MANUAL_TRANSLATIONS.get(str(source), {}).get(language)
         or MANUAL_UI.get(str(source), {}).get(language)
+        or _reviewed_module_summary_translations(language).get(str(source))
     )
     if static is not None or language in _REVIEWED_RUNTIME_LOADING:
         return static
@@ -2635,6 +2724,51 @@ def _literal_strings(
 
 
 def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
+    if name == "AiToggleLabel":
+        # This custom control exposes both its visible caption and hover help
+        # through keyword arguments.  Falling through to the generic first-
+        # positional-argument rule sees only ``parent`` at most, which left
+        # action-strip controls untranslated without failing the catalog
+        # inventory guard.
+        for keyword in node.keywords:
+            if keyword.arg in {"text", "tooltip"}:
+                yield keyword.value
+        # Its first positional argument is ``parent``; positional caption and
+        # tooltip values, when used, are arguments 1 and 2.
+        yield from node.args[1:3]
+        return
+    if name == "Card":
+        # Card(title, subtitle, parent) also accepts both captions by name.
+        yield from node.args[:2]
+        for keyword in node.keywords:
+            if keyword.arg in {"title", "subtitle"}:
+                yield keyword.value
+        return
+    if name == "FlatButton":
+        if node.args:
+            yield node.args[0]
+        if len(node.args) >= 3:
+            yield node.args[2]
+        for keyword in node.keywords:
+            if keyword.arg in {"text", "tooltip"}:
+                yield keyword.value
+        return
+    if name in {"FlatComboBox", "FlatSpinBox"}:
+        # Their first positional argument is the parent, not presentation
+        # text.  Only the named tooltip is user-facing.
+        if len(node.args) >= 2:
+            yield node.args[1]
+        for keyword in node.keywords:
+            if keyword.arg == "tooltip":
+                yield keyword.value
+        return
+    if name == "Toggle":
+        if node.args:
+            yield node.args[0]
+        for keyword in node.keywords:
+            if keyword.arg == "text":
+                yield keyword.value
+        return
     if name == "set_translatable_text" and len(node.args) >= 2:
         # set_translatable_text(widget, source, language=None, **values).
         # The first argument is a widget; the second is the canonical English
@@ -2701,6 +2835,99 @@ def _looks_translatable(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", source))
 
 
+def _indirect_runtime_ui_sources() -> set[str]:
+    """Return presentation prose exposed through runtime data structures.
+
+    These values are passed to ``tr`` or a Qt text setter only after a
+    dictionary/registry lookup.  An AST walk of the eventual call therefore
+    sees a variable, not the English source.  Keep the explicit inventory
+    here beside the extractor so a new value in any supported registry enters
+    the source-hash ratchet automatically.
+    """
+    from spacr.qt.preferences import (
+        MODE_LABELS,
+        MODE_NOTES,
+        MODE_WARNINGS,
+        PREFERENCE_TIPS,
+    )
+    from spacr.qt.preview_registry import PREVIEWS
+    from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
+    from spacr.qt.screens.batch import ON_ERROR_LABELS
+    from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
+    from spacr.qt.screens.parameter_sweep import (
+        SWEEP_TOGGLE_TEXT,
+        SWEEP_TOGGLE_TOOLTIP,
+    )
+    from spacr.qt.widgets.ambient import (
+        ANIMATION_CHOICES,
+        DRIFT_DIRECTIONS,
+        PALETTE_SETS,
+        animation_label,
+        animation_note,
+        drift_direction_label,
+        drift_direction_note,
+    )
+    from spacr.qt.widgets.preview_contract import (
+        PREVIEW_BUSY_MESSAGE,
+        PREVIEW_CANCEL_TEXT,
+        PREVIEW_CANCELLED_MESSAGE,
+        PREVIEW_RUN_TEXT,
+        PREVIEW_RUNNING_MESSAGE,
+        PRIMARY_NOTES,
+    )
+    from spacr.qt.widgets.preview_controls import (
+        ALL_CHANNELS,
+        MAX_SETS_TOOLTIP,
+    )
+
+    found: set[str] = set(PREFERENCE_TIPS)
+    found.update(map(str, PREFERENCE_TIPS.values()))
+    found.update(map(str, MODE_LABELS.values()))
+    found.update(map(str, MODE_NOTES.values()))
+    found.update(
+        str(value) for value in MODE_WARNINGS.values() if str(value).strip()
+    )
+    for _dimension, label, tooltip in DIMENSION_TOGGLES:
+        found.update((str(label), str(tooltip)))
+    found.update(str(label) for label, _value in ON_ERROR_LABELS)
+    found.update((
+        str(TOGGLE_TEXT),
+        str(TOGGLE_TOOLTIP),
+        str(SWEEP_TOGGLE_TEXT),
+        str(SWEEP_TOGGLE_TOOLTIP),
+        str(ALL_CHANNELS),
+        str(MAX_SETS_TOOLTIP),
+        str(PREVIEW_RUN_TEXT),
+        str(PREVIEW_CANCEL_TEXT),
+        str(PREVIEW_BUSY_MESSAGE),
+        str(PREVIEW_CANCELLED_MESSAGE),
+        str(PREVIEW_RUNNING_MESSAGE),
+        # Canonical templates for the two runtime-formatted preview messages.
+        "Preview failed: {error}",
+        "Channels drawn in {mode} primaries.",
+    ))
+    found.update(map(str, PRIMARY_NOTES.values()))
+    for spec in PREVIEWS.values():
+        found.add(str(spec.title))
+        found.add(
+            str(spec.tooltip)
+            if str(spec.tooltip).strip()
+            else "Show a preview of what these settings produce."
+        )
+    for name in ANIMATION_CHOICES:
+        found.update((animation_label(name), animation_note(name)))
+    for spec in PALETTE_SETS.values():
+        found.update((str(spec.label), str(spec.note)))
+    for name in DRIFT_DIRECTIONS:
+        found.update((
+            drift_direction_label(name),
+            drift_direction_note(name),
+        ))
+    return {
+        value.strip() for value in found if _looks_translatable(value)
+    }
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     found: set[str] = set()
@@ -2722,6 +2949,85 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
         for node in ast.walk(tree):
+            if (
+                isinstance(node, (ast.Assign, ast.AnnAssign))
+                and (
+                    (
+                        isinstance(node, ast.Assign)
+                        and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "preview_controls"
+                    )
+                    or (
+                        isinstance(node, ast.AnnAssign)
+                        and isinstance(node.target, ast.Name)
+                        and node.target.id == "preview_controls"
+                    )
+                )
+            ):
+                # ``AppScreen`` stores each runtime-preview tooltip in a
+                # local mapping as ``app_key: (card_attribute, tooltip)`` and
+                # passes the selected value indirectly to ``AiToggleLabel``.
+                # Inspect only tuple item 1 so private attribute names never
+                # enter the presentation catalog.
+                mapping = node.value
+                if isinstance(mapping, ast.Dict):
+                    for item in mapping.values:
+                        if isinstance(item, (ast.Tuple, ast.List)) and len(
+                            item.elts
+                        ) >= 2:
+                            for value in _literal_strings(
+                                item.elts[1], constants
+                            ):
+                                if _looks_translatable(value):
+                                    found.add(value.strip())
+            if (
+                path.name == "measure_preview.py"
+                and isinstance(node, (ast.Assign, ast.AnnAssign))
+                and (
+                    (
+                        isinstance(node, ast.Assign)
+                        and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "tooltips"
+                    )
+                    or (
+                        isinstance(node, ast.AnnAssign)
+                        and isinstance(node.target, ast.Name)
+                        and node.target.id == "tooltips"
+                    )
+                )
+                and isinstance(node.value, ast.Dict)
+            ):
+                # Measure Preview attaches these values in a local
+                # widget->tooltip mapping, so the later ``setToolTip(text)``
+                # call has no literal argument for the generic walker.
+                for item in node.value.values:
+                    for value in _literal_strings(item, constants):
+                        if _looks_translatable(value):
+                            found.add(value.strip())
+            if (
+                path.name == "annotate.py"
+                and isinstance(node, (ast.Assign, ast.AnnAssign))
+                and (
+                    (
+                        isinstance(node, ast.Assign)
+                        and len(node.targets) == 1
+                        and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "_PRIMARY_LABELS"
+                    )
+                    or (
+                        isinstance(node, ast.AnnAssign)
+                        and isinstance(node.target, ast.Name)
+                        and node.target.id == "_PRIMARY_LABELS"
+                    )
+                )
+                and isinstance(node.value, ast.Dict)
+            ):
+                for item in node.value.values:
+                    for value in _literal_strings(item, constants):
+                        if _looks_translatable(value):
+                            found.add(value.strip())
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)
@@ -2747,6 +3053,13 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                     if _looks_translatable(value):
                         found.add(value.strip())
 
+    # These shared tables are applied indirectly after widget construction,
+    # so no literal text-setting call points back to their values in the AST.
+    # They remain part of the generated/source-hashed layer: unlike compact
+    # registry captions, they are explanatory prose and may change with the
+    # behavior they document.
+    found.update(_indirect_runtime_ui_sources())
+
     # The compact catalog already owns these and has stronger human review.
     from spacr.qt.i18n import _ROWS
     return tuple(sorted(found - set(_ROWS)))
@@ -2757,29 +3070,42 @@ def canonical_sources() -> dict[str, object]:
     # Run-control settings are registered by importing runctx rather than by
     # an individual app factory.  Import it explicitly so a clean catalog
     # build and a long-lived GUI/test process expose the same source set.
+    import spacr.qt
     import spacr.runctx  # noqa: F401
 
+    # Late modules register Home/fold metadata and their exact compact rows at
+    # the same supported seam used during GUI startup.  Run it before reading
+    # either catalog layer so a clean builder cannot assign captions such as
+    # ``Animation`` or ``Gate Editor`` to the generated layer while an
+    # already-started GUI correctly assigns them to ``i18n._ROWS``.
+    spacr.qt.register_self_registering_modules()
+    # The first-run slide module owns the exact ``Animation`` row and also
+    # registers the terms chrome.  Import it before extracting static Qt text
+    # so clean catalog builds and sessions that have opened setup assign that
+    # caption to the same compact layer.
+    import spacr.qt.widgets.setup_slides  # noqa: F401
     from spacr.gene_tile import _GENE_TILE_UI_SOURCES
-
-    from spacr.qt.screens.settings_model import (
-        CATEGORY_TOOLTIPS,
-        CATEGORY_TOOLTIPS_BY_APP,
-        _FOLDED_DEFAULTS_MODULES,
-        _SETTINGS_MODEL_UI_SOURCES,
-        _humanize,
-        _strip_type_prefix,
-        get_tooltips,
-        resolve_default_settings,
-        SettingsWidgets,
-    )
-    from spacr.qt.widgets.settings_advisor_dialog import (
-        _SETTINGS_ADVISOR_UI_SOURCES,
-    )
-    from spacr.qt.app import APPS, _SECTION_NOTE_LIBRARY
+    from spacr.qt.app import _SECTION_NOTE_LIBRARY, APPS
+    from spacr.qt.i18n import _ROWS
     from spacr.qt.screens.app_screen import (
         APP_INTROS,
         APP_TITLES,
         DEFAULT_INSTRUCTION,
+    )
+    from spacr.qt.screens.settings_model import (
+        _FOLDED_DEFAULTS_MODULES,
+        _SETTINGS_MODEL_UI_SOURCES,
+        CATEGORY_TOOLTIPS,
+        CATEGORY_TOOLTIPS_BY_APP,
+        SettingsWidgets,
+        _humanize,
+        _strip_type_prefix,
+        get_tooltips,
+        resolve_default_settings,
+    )
+    from spacr.qt.widgets.fold_strip import folded_modules
+    from spacr.qt.widgets.settings_advisor_dialog import (
+        _SETTINGS_ADVISOR_UI_SOURCES,
     )
 
     # Several self-contained modules contribute defaults, tooltips, and a
@@ -2811,11 +3137,31 @@ def canonical_sources() -> dict[str, object]:
         except Exception:
             continue
 
+    # spaCR can preserve as many as 26 organelle slots in one settings file,
+    # but every secondary slot has the same label/tooltip contract as the
+    # primary slot.  The runtime registries therefore contain generated keys
+    # through ``organellez_*``; copying all of those clones into every
+    # language catalog adds more than 1,200 records and makes the catalog grow
+    # whenever the slot bound changes.  Keep the four legacy/default slots in
+    # the materialized catalogs and let the runtime catalog adapter reuse the
+    # primary translation for higher numbered slots.
+    from spacr.organelle_types import (
+        DEFAULT_NUMBER_OF_ORGANELLES,
+        organelle_number,
+        organelle_role_of,
+    )
+
+    def catalogued_setting(key: object) -> bool:
+        role = organelle_role_of(str(key))
+        return role is None or organelle_number(role) <= (
+            DEFAULT_NUMBER_OF_ORGANELLES
+        )
+
     raw_tooltips = get_tooltips()
     tooltips = {
         str(key): " ".join(_strip_type_prefix(text).split())
         for key, text in raw_tooltips.items()
-        if str(text).strip()
+        if str(text).strip() and catalogued_setting(key)
     }
     labels = {key: _humanize(key) for key in tooltips}
     categories = set(CATEGORY_TOOLTIPS.values())
@@ -2832,11 +3178,23 @@ def canonical_sources() -> dict[str, object]:
         str(key): str(description)
         for key, _name, description, _section in APPS
     }
+    # A folded module is still an independently named, clickable UI surface;
+    # only its Home tile has gone away.  Its fold-button tooltip therefore
+    # belongs to the same source-bound summary catalog as a tile description.
+    # Reading both registries also removes import-order drift: the host screen
+    # may have been imported before or after the generator in a live process.
+    module_summaries.update({
+        str(key): str(entry[1])
+        for key, entry in folded_modules().items()
+        if len(entry) > 1 and str(entry[1]).strip()
+    })
     label_model = SettingsWidgets.__new__(SettingsWidgets)
     for app_key in inventoried_keys:
         label_model.app_key = app_key
         setting_keys = resolved_settings.get(app_key, {})
         for key in setting_keys:
+            if not catalogued_setting(key):
+                continue
             actual = label_model._label_for(str(key))
             generic = _humanize(str(key))
             # Labels are visible UI even when a setting has no authored help
@@ -2856,6 +3214,24 @@ def canonical_sources() -> dict[str, object]:
     # than visible to the literal-string AST extractor.
     ui_sources.update(MANUAL_UI)
     ui_sources.add(DEFAULT_INSTRUCTION)
+    # ``_looks_translatable`` deliberately rejects identifiers and option
+    # tokens, so the AST pass cannot materialize them.  Give every reviewed
+    # identity exactly one source-hashed record when it is not already owned
+    # by a setting, category or module summary.  This makes exact preservation
+    # auditable in every locale instead of relying on an uncatalogued fallback.
+    already_materialized = (
+        set(labels.values())
+        | set(tooltips.values())
+        | set(categories)
+        | set(module_summaries.values())
+        | ui_sources
+    )
+    ui_sources.update(_IDENTITY_TEXT - already_materialized)
+    # Exact compact captions may enter through title/registry inventories
+    # after the AST extractor has already excluded them.  Compact ownership
+    # wins for the complete assembled UI set as well: one visible caption has
+    # one authoritative translation layer, never two drifting translations.
+    ui_sources.difference_update(_ROWS)
     return {
         "setting_labels": dict(sorted(labels.items())),
         "setting_tooltips": dict(sorted(tooltips.items())),
@@ -3748,7 +4124,7 @@ def _syntax_preserved(
 def _syntax_preserved_or_reviewed(
     source: str, value: str, language: str,
 ) -> bool:
-    """Accept exact reviewed UI wording without weakening generated prose.
+    """Accept exact reviewed wording without weakening generated prose.
 
     A handful of short reviewed labels intentionally canonicalize lowercase
     acronyms (``pca`` -> ``PCA`` and ``B qc`` -> ``B QC``).  The generic
@@ -3758,6 +4134,16 @@ def _syntax_preserved_or_reviewed(
     only the reviewed product-token normalization.
     """
     if _syntax_preserved(source, value):
+        return True
+    # A module summary is a complete, source-hashed human review unit rather
+    # than a model-generated transformation.  Its reviewer may replace a
+    # terse acronym-heavy Home caption with equivalent scientific prose.  The
+    # exact source hash and exact language/value row are the safety contract;
+    # generated candidates still pass the ordinary protected-token gate.
+    module_reviewed = _reviewed_module_summary_translations(language).get(
+        str(source)
+    )
+    if module_reviewed is not None and str(value) == module_reviewed:
         return True
     reviewed = _reviewed_translation(str(source), language)
     return bool(
@@ -3783,6 +4169,7 @@ def _looks_degenerate(source: str, value: str, language: str) -> bool:
         "omited",
         "oh my god",
         "dios mío",
+        *_KNOWN_CONTAMINATION_MARKERS,
     )):
         return True
     # A short label expanding into hundreds of characters is a generation
@@ -3832,8 +4219,19 @@ def _has_expected_script(
     return bool(re.search(pattern, str(value)))
 
 
-def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
-    """Reuse a previously generated module when adding new source surfaces."""
+def _seed_cache_from_catalog(
+    language: str,
+    cache: dict[str, str],
+    skip_sources: Iterable[str] = (),
+) -> None:
+    """Reuse current catalog prose except authoritative reviewed captions.
+
+    Short, context-sensitive captions and exact technical identities are
+    resolved by deterministic review tables.  Never seed their historical
+    catalog values into the model cache: an earlier semantically valid but
+    contextually wrong translation must not survive a reviewed correction.
+    """
+    skipped = frozenset(map(str, skip_sources))
     try:
         from spacr.qt.i18n_catalogs import en as english
         target = __import__(
@@ -3859,6 +4257,8 @@ def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
         canonical = getattr(english, canonical_name, {})
         translated = getattr(target, name, {})
         for key, source in canonical.items():
+            if str(source) in skipped:
+                continue
             value = translated.get(key)
             if (
                 isinstance(value, str)
@@ -3870,6 +4270,8 @@ def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
                 )
     for name in ("CATEGORY_HELP", "UI"):
         for source, value in getattr(target, name, {}).items():
+            if str(source) in skipped:
+                continue
             if (
                 isinstance(value, str)
                 and hash_is_current(name, source, source)
@@ -3881,6 +4283,8 @@ def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
     canonical_modules = getattr(english, "MODULE_SUMMARIES", {})
     translated_modules = getattr(target, "MODULE_SUMMARIES", {})
     for key, source in canonical_modules.items():
+        if str(source) in skipped:
+            continue
         value = translated_modules.get(key)
         if (
             isinstance(value, str)
@@ -3890,6 +4294,75 @@ def _seed_cache_from_catalog(language: str, cache: dict[str, str]) -> None:
             cache.setdefault(
                 str(source), _contextualize(value, language, source)
             )
+
+
+def _invalid_catalog_sources(
+    language: str,
+    sources: Mapping[str, object],
+) -> set[str]:
+    """Return only current runtime sources that require regeneration.
+
+    Unlike the broad semantic-reset mode, this incremental repair preserves
+    every hash-current candidate that passes the release gates.  A row is
+    retried when it is missing, source-stale, blank, exact English without an
+    explicit reviewed-identity decision, or rejected by the current
+    syntax/script/semantic/context contracts.
+    """
+    namespace: dict[str, object] = {}
+    catalog_path = CATALOG_DIR / f"{language}.py"
+    try:
+        exec(
+            compile(
+                catalog_path.read_text(encoding="utf-8"),
+                str(catalog_path),
+                "exec",
+            ),
+            namespace,
+            namespace,
+        )
+    except FileNotFoundError:
+        return set(_unique_translation_sources(sources))
+
+    hashes = namespace.get("SOURCE_HASHES", {})
+    if not isinstance(hashes, Mapping):
+        hashes = {}
+    table_sources: tuple[tuple[str, Mapping[object, object]], ...] = (
+        ("SETTING_LABELS", sources["setting_labels"]),
+        ("SETTING_TOOLTIPS", sources["setting_tooltips"]),
+        (
+            "CATEGORY_HELP",
+            {source: source for source in sources["categories"]},
+        ),
+        ("UI", {source: source for source in sources["ui"]}),
+        ("MODULE_SUMMARIES", sources["module_summaries"]),
+    )
+    invalid: set[str] = set()
+    for table_name, canonical in table_sources:
+        table = namespace.get(table_name, {})
+        if not isinstance(table, Mapping):
+            invalid.update(map(str, canonical.values()))
+            continue
+        for key, raw_source in canonical.items():
+            source = str(raw_source)
+            value = table.get(key)
+            reviewed = _reviewed_translation(source, language)
+            if (
+                not isinstance(value, str)
+                or not value.strip()
+                or hashes.get((table_name, str(key))) != _source_hash(source)
+                or (reviewed is not None and value != reviewed)
+                or (
+                    value == source
+                    and _looks_translatable(source)
+                    and reviewed != source
+                )
+                or _contextualize(str(value), language, source) != str(value)
+                or not _translation_candidate_valid(
+                    source, str(value), language, force=True
+                )
+            ):
+                invalid.add(source)
+    return invalid
 
 
 def _current_invalid_sources(
@@ -4057,8 +4530,14 @@ def _translate_batches(
     cache_baseline = {
         str(key): str(value) for key, value in cache.items()
     }
-    _seed_cache_from_catalog(language, cache)
     forced = frozenset(map(str, force_sources))
+    authoritative_sources = frozenset(_IDENTITY_TEXT) | frozenset(
+        REVIEWED_UI_TRANSLATIONS
+    )
+    # Keep the third argument positional so focused tests and downstream
+    # callers that replace the two-argument cache hook with ``lambda *args``
+    # remain compatible with the optional invalidation set.
+    _seed_cache_from_catalog(language, cache, forced | authoritative_sources)
 
     def cache_key(source: str) -> str:
         return f"{cache_namespace}\0{source}" if cache_namespace else source
@@ -4121,8 +4600,24 @@ def _translate_batches(
     for source in strings:
         source_cache_key = cache_key(source)
         reviewed_value = _reviewed_translation(source, language)
-        compact_value = compact.get(source) if source not in forced else None
-        if (
+        compact_value = compact.get(source)
+        reviewed_ui_value = REVIEWED_UI_TRANSLATIONS.get(source, {}).get(
+            language
+        )
+        if source in _IDENTITY_TEXT:
+            # Identity rows are authoritative even when an old reviewed,
+            # compact or cache record contains a fluent but semanticized word.
+            translated[source] = source
+            cache.pop(source_cache_key, None)
+        elif reviewed_ui_value is not None:
+            if not candidate_valid(source, reviewed_ui_value):
+                raise ValueError(
+                    "invalid reviewed short UI translation "
+                    f"{language}/{source!r}: {reviewed_ui_value!r}"
+                )
+            translated[source] = reviewed_ui_value
+            cache.pop(source_cache_key, None)
+        elif (
             reviewed_value is not None
             and candidate_valid(source, reviewed_value)
         ):
@@ -4140,8 +4635,6 @@ def _translate_batches(
                 if language == "zh_CN" else compact_value,
                 language, source,
             )
-        elif source in _IDENTITY_TEXT:
-            translated[source] = source
         elif (
             source not in forced
             and source_cache_key in cache
@@ -5119,6 +5612,32 @@ def _unique_translation_sources(sources: Mapping[str, object]) -> list[str]:
     return sorted(values)
 
 
+def _short_runtime_caption_sources(
+    sources: Mapping[str, object],
+) -> frozenset[str]:
+    """Return the generated short-caption surface that requires a clean pass.
+
+    Setting labels are necessarily context-poor even when their humanized
+    spelling is moderately long.  For the general UI table, constrain the
+    repair to caption-sized strings; longer notices retain sentence context
+    and the ordinary source-hash cache contract.  ``--repair-untranslated``
+    uses this inventory to bypass both generated catalogs and model caches.
+    """
+    labels = {
+        str(value) for value in sources["setting_labels"].values()
+    }
+    captions = {
+        str(value)
+        for value in sources["ui"]
+        if (
+            "\n" not in str(value)
+            and len(str(value)) <= 80
+            and len(str(value).split()) <= 10
+        )
+    }
+    return frozenset(labels | captions)
+
+
 def write_language(
     language: str,
     sources: Mapping[str, object],
@@ -5137,6 +5656,8 @@ def write_language(
     ui = {value: translations[value] for value in sources["ui"]}
     from spacr.qt.i18n_module_summaries import (
         MODULE_SUMMARIES as reviewed_module_summaries,
+    )
+    from spacr.qt.i18n_module_summaries import (
         REVIEWED_SOURCE_HASHES as reviewed_source_hashes,
     )
     reviewed = reviewed_module_summaries.get(language, {})
@@ -5155,7 +5676,7 @@ def write_language(
         # Human review controls terminology, but it may never rewrite an API
         # literal or protected product name. Fall back to the structurally
         # validated generated value when an older reviewed summary does so.
-        if (not _syntax_preserved(source, candidate)
+        if (not _syntax_preserved_or_reviewed(source, candidate, language)
                 or _looks_degenerate(source, candidate, language)
                 or _semantic_false_friends(source, candidate, language)):
             candidate = translations[source]
@@ -5359,6 +5880,36 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
                     "false friends "
                     f"({', '.join(map(str, semantic_errors[:5]))})"
                 )
+            identity_errors = [
+                key for key, value in table.items()
+                if (
+                    str(source_tables[name].get(key, key)) in _IDENTITY_TEXT
+                    and str(value) != str(source_tables[name].get(key, key))
+                )
+            ]
+            if identity_errors:
+                failures.append(
+                    f"{language}/{name}: {len(identity_errors)} technical "
+                    "identity values changed "
+                    f"({', '.join(map(str, identity_errors[:5]))})"
+                )
+            reviewed_ui_errors = [
+                key for key, value in table.items()
+                if (
+                    _reviewed_translation(
+                        str(source_tables[name].get(key, key)), language,
+                    ) is not None
+                    and str(value) != _reviewed_translation(
+                        str(source_tables[name].get(key, key)), language,
+                    )
+                )
+            ]
+            if reviewed_ui_errors:
+                failures.append(
+                    f"{language}/{name}: {len(reviewed_ui_errors)} reviewed "
+                    "translations changed "
+                    f"({', '.join(map(str, reviewed_ui_errors[:5]))})"
+                )
             syntax_errors = [
                 key for key, value in table.items()
                 if not _syntax_preserved_or_reviewed(
@@ -5372,6 +5923,24 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
                     f"{language}/{name}: {len(syntax_errors)} protected "
                     "literal or markup failures "
                     f"({', '.join(map(str, syntax_errors[:5]))})"
+                )
+            exact_english = [
+                key for key, value in table.items()
+                if (
+                    str(value) == str(source_tables[name].get(key, key))
+                    and _looks_translatable(
+                        str(source_tables[name].get(key, key))
+                    )
+                    and _reviewed_translation(
+                        str(source_tables[name].get(key, key)), language
+                    ) != str(value)
+                )
+            ]
+            if exact_english:
+                failures.append(
+                    f"{language}/{name}: {len(exact_english)} rows remain "
+                    "exact English "
+                    f"({', '.join(map(str, exact_english[:5]))})"
                 )
         localized_hashes = getattr(module, "SOURCE_HASHES", {})
         if localized_hashes != expected_hashes:
@@ -5421,24 +5990,6 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
                 failures.append(
                     f"{language}/ui/{source!r}: reviewed translation changed"
                 )
-        unchanged_tips = [
-            key for key, source in sources["setting_tooltips"].items()
-            if module.SETTING_TOOLTIPS.get(key) == source
-            and _looks_translatable(source)
-        ]
-        unchanged_ui = sum(
-            module.UI.get(source) == source for source in sources["ui"]
-        )
-        if unchanged_tips:
-            failures.append(
-                f"{language}: {len(unchanged_tips)} tooltip bodies remain "
-                "exact English "
-                f"({', '.join(unchanged_tips[:5])})"
-            )
-        if unchanged_ui > max(25, len(expected_ui) // 6):
-            failures.append(
-                f"{language}: {unchanged_ui} static UI strings remain English"
-            )
         if language in script_pattern:
             missing_script = [
                 key
@@ -5520,6 +6071,14 @@ def main() -> int:
             "whose protected literals were damaged"
         ),
     )
+    parser.add_argument(
+        "--repair-invalid-only",
+        action="store_true",
+        help=(
+            "retry only missing, source-stale, exact-English or currently "
+            "rejected runtime rows, preserving all valid cached translations"
+        ),
+    )
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--beams", type=int, default=4)
@@ -5540,72 +6099,19 @@ def main() -> int:
     values = _unique_translation_sources(sources)
     for language in args.languages:
         forced: set[str] = set()
+        if args.repair_untranslated or args.repair_invalid_only:
+            forced.update(_invalid_catalog_sources(language, sources))
         if args.repair_untranslated:
-            namespace: dict[str, object] = {}
-            catalog_path = CATALOG_DIR / f"{language}.py"
-            try:
-                exec(
-                    compile(
-                        catalog_path.read_text(encoding="utf-8"),
-                        str(catalog_path),
-                        "exec",
-                    ),
-                    namespace,
-                    namespace,
-                )
-            except FileNotFoundError:
-                pass
-            current = namespace.get("SETTING_TOOLTIPS", {})
-            if isinstance(current, dict):
-                forced.update(
-                    source
-                    for key, source in sources["setting_tooltips"].items()
-                    if (
-                        not isinstance(current.get(key), str)
-                        or (
-                            current.get(key) == source
-                            and _looks_translatable(source)
-                        )
-                        or _contextualize(
-                            str(current.get(key, "")), language, source,
-                        ) != str(current.get(key, ""))
-                        or not _translation_candidate_valid(
-                            source, str(current.get(key, "")), language,
-                        )
-                    )
-                )
-            for table_name, source_name in (
-                ("CATEGORY_HELP", "categories"),
-                ("UI", "ui"),
-            ):
-                current_table = namespace.get(table_name, {})
-                if not isinstance(current_table, dict):
-                    continue
-                source_values = sources[source_name]
-                iterable = (
-                    source_values.values()
-                    if isinstance(source_values, dict)
-                    else source_values
-                )
-                forced.update(
-                    source
-                    for source in iterable
-                    if (
-                        not isinstance(current_table.get(source), str)
-                        or (
-                            current_table.get(source) == source
-                            and _looks_translatable(source)
-                        )
-                        or _contextualize(
-                            str(current_table.get(source, "")), language, source,
-                        ) != str(current_table.get(source, ""))
-                        or not _translation_candidate_valid(
-                            source, str(current_table.get(source, "")), language,
-                        )
-                    )
-                )
+            # This explicit repair mode is a semantic cache reset for the
+            # complete context-poor generated surface, not only rows whose
+            # current value happens to fail a mechanical validator.  Old
+            # parliamentary, food, agricultural and everyday-word senses can
+            # be fluent, hash-current and structurally valid; only bypassing
+            # both catalog seeding and the model cache removes them reliably.
+            forced.update(_short_runtime_caption_sources(sources))
+        if args.repair_untranslated or args.repair_invalid_only:
             print(
-                f"{language}: strict runtime repairs={len(forced)}",
+                f"{language}: runtime repairs={len(forced)}",
                 flush=True,
             )
         translations = _translate_batches(
@@ -5617,7 +6123,9 @@ def main() -> int:
             beams=args.beams,
             threads=args.threads,
             force_sources=forced,
-            repair_protected=args.repair_untranslated,
+            repair_protected=(
+                args.repair_untranslated or args.repair_invalid_only
+            ),
         )
         print(f"wrote {write_language(language, sources, translations)}")
     return audit(sources, args.languages)

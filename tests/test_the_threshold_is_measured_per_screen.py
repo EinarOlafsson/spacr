@@ -154,9 +154,15 @@ def test_the_classifier_correction_needs_a_confusion_matrix():
     """Sensitivity and specificity are two quantities and an accuracy is one;
     on a well where the control is a minority the accuracy is dominated by the
     majority class."""
-    with pytest.raises(ValueError, match="BOTH sensitivity and specificity"):
+    with pytest.raises(
+        ValueError,
+        match="requires both sensitivity and specificity",
+    ):
         _sweep(sensitivity=0.96)
-    with pytest.raises(ValueError, match="BOTH sensitivity and specificity"):
+    with pytest.raises(
+        ValueError,
+        match="requires both sensitivity and specificity",
+    ):
         _sweep(specificity=0.98)
 
 

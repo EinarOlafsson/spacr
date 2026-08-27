@@ -5,9 +5,9 @@ engine handles narration synthesis + capture + mux; these functions
 only choose the narration text, the UI actions, and the cursor
 targets.
 
-Every script exercises the same core motion: land on the app, load
-a synthetic demo dataset (via the Demos menu we shipped), highlight
-the interesting parts of the settings form, then click Run.
+Every script follows the same core sequence: open the application, load
+a synthetic dataset through the Demos menu, highlight the relevant settings,
+and start the run.
 
 Two rules keep a script from quietly pointing at nothing:
 
@@ -27,7 +27,7 @@ Two rules keep a script from quietly pointing at nothing:
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, List, Optional
+from typing import Any, List
 
 from .engine import Step
 
@@ -45,12 +45,18 @@ def build_steps(app_key: str, window) -> List[Step]:
     :param window: live MainWindow instance the steps drive.
     :raises ValueError: when ``app_key`` is not a known tutorial.
     """
-    if app_key == "home":       return _build_home_steps(window)
-    if app_key == "mask":       return _build_mask_steps(window)
-    if app_key == "measure":    return _build_measure_steps(window)
-    if app_key == "crop":       return _build_crop_steps(window)
-    if app_key == "classify":   return _build_classify_steps(window)
-    if app_key == "timelapse":  return _build_timelapse_steps(window)
+    if app_key == "home":
+        return _build_home_steps(window)
+    if app_key == "mask":
+        return _build_mask_steps(window)
+    if app_key == "measure":
+        return _build_measure_steps(window)
+    if app_key == "crop":
+        return _build_crop_steps(window)
+    if app_key == "classify":
+        return _build_classify_steps(window)
+    if app_key == "timelapse":
+        return _build_timelapse_steps(window)
     raise ValueError(f"unknown tutorial: {app_key}. "
                        f"Choose from {AVAILABLE_TUTORIALS}")
 
@@ -131,6 +137,22 @@ def _find_menu(window, title: str):
     Delegates to :func:`spacr.qt.first_run.find_menu`, which is the same
     lookup; a second copy is a second thing to get wrong.
     """
+    # Demos is a Help submenu and MainWindow deliberately retains the QMenu
+    # wrapper that owns its actions. Qt may reparent that submenu when it is
+    # inserted under Help, so it is not reliably returned by the menu bar's
+    # child walk on every PySide6 version. Use the retained owner first.
+    if title == "Demos":
+        menu = getattr(window, "_demo_menu", None)
+        try:
+            # ``_demo_menu`` is the semantic owner, independent of the
+            # currently selected language. Comparing its rendered title to
+            # the English lookup key made the tutorial lose the menu after a
+            # retranslation within the same application session.
+            if menu is not None:
+                menu.title()  # prove that the retained Qt wrapper is live
+                return menu
+        except RuntimeError:
+            pass
     try:
         from ..first_run import find_menu
     except Exception:
@@ -168,6 +190,23 @@ def _menu_target(window, title: str):
         if parent is not None:
             rect = mb.actionGeometry(parent.menuAction())
             return (mb, (rect.center().x(), rect.center().y()))
+    if title == "Demos":
+        # The target users click is Help, not the submenu itself. During a
+        # long tutorial-test session Qt can briefly detach the submenu action
+        # while pages are being rebuilt even though ``_demo_menu`` remains
+        # live. Target the stable top-level Help action directly in that
+        # state. The final-action fallback is language-independent; spaCR and
+        # Help are the only top-level menus in the current compact bar.
+        actions = list(mb.actions())
+        help_action = next(
+            (action for action in actions
+             if action.text().replace("&", "") == "Help"),
+            actions[-1] if actions else None,
+        )
+        if help_action is not None:
+            rect = mb.actionGeometry(help_action)
+            if rect.isValid() and rect.width():
+                return (mb, (rect.center().x(), rect.center().y()))
     LOG.warning("tutorial: menu bar has no %r menu", title)
     return (mb, None)
 
@@ -175,13 +214,41 @@ def _menu_target(window, title: str):
 def _top_level_menu_containing(window, menu):
     """The menu-bar menu that ``menu`` is a submenu of, or None."""
     mb = window.menuBar()
+    try:
+        # A real rectangle on the bar proves this is already a top-level
+        # menu.  Check that first: during long PySide test sessions a
+        # released submenu wrapper can be recycled and acquire the same
+        # rendered title as an unrelated menu, so title-only relation scans
+        # must never be allowed to reclassify a bar menu as its own child.
+        rect = mb.actionGeometry(menu.menuAction())
+        if rect.isValid() and rect.width():
+            return None
+    except RuntimeError:
+        return None
+    try:
+        target_title = menu.title().replace("&", "")
+    except RuntimeError:
+        return None
     for action in mb.actions():
-        top = action.menu()
+        # Retrieve the bar-owned QMenu wrapper through the same stable lookup
+        # used elsewhere. Returning ``action.menu()`` directly can leave the
+        # caller with a deleted temporary PySide wrapper after ``action`` is
+        # released.
+        top = _find_menu(window, action.text().replace("&", ""))
         if top is None:
             continue
         for entry in top.actions():
-            if entry.menu() is menu:
-                return top
+            try:
+                nested = entry.menu()
+                # Compare semantic titles only. Temporary PySide wrappers can
+                # be recycled after Qt releases them, so Python object
+                # identity is not a safe submenu relation across event-loop
+                # turns.
+                if (nested is not None and
+                        nested.title().replace("&", "") == target_title):
+                    return top
+            except RuntimeError:
+                continue
     return None
 
 
@@ -223,32 +290,32 @@ def _build_home_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "The left sidebar gives you quick access to every "
-            "pipeline in spaCR — grouped into Core, Analysis, "
-            "Cellpose, and Sequencing.",
+            "The sidebar groups modules by scientific role: Core, Data, "
+            "Segmentation models, Results and quality control, Explore, "
+            "Assays, and Design.",
             target=(window._sidebar, None),
             highlight=window._sidebar,
             hold_ms=300,
         ),
         Step(
-            "The home page shows every app as a large clickable "
-            "tile. Hovering makes each tile pop, and clicking "
-            "opens the module.",
+            "Home provides one tile for each primary module. Related "
+            "workflows that were consolidated into a module are available "
+            "from icon buttons in that module's header.",
             target=(window._stack, None),
             highlight=window._stack,
             hold_ms=500,
         ),
         Step(
-            "Every pipeline in spaCR ships with a one-click "
-            "synthetic demo dataset. From the Demos menu you can "
-            "generate a working example for any module.",
+            "The Help menu contains Demos for selected core workflows. "
+            "Each entry generates a small synthetic dataset, writes its "
+            "settings, and opens the corresponding module.",
             action=lambda: _open_demos_menu(window),
             target=_menu_target(window, "Demos"),
             highlight=_menu_bar(window),
             hold_ms=800,
         ),
         Step(
-            "Let's jump into the mask module to see it in action.",
+            "Open Mask to examine the first image-analysis stage.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
             highlight=_sidebar_button(window, "mask"),
@@ -293,9 +360,9 @@ def _build_mask_steps(window) -> List[Step]:
 
     return [
         Step(
-            "This is the mask module — spaCR's front door for "
-            "segmenting cells, nuclei, and pathogens using "
-            "Cellpose.",
+            "Mask generates per-object masks for cells, nuclei, pathogens, "
+            "and configured organelles from microscopy images using Cellpose "
+            "and, for organelles, classical or custom-model methods.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
             highlight=_sidebar_button(window, "mask"),
@@ -303,10 +370,9 @@ def _build_mask_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Rather than pointing you at your own data, we'll load "
-            "a synthetic demo from the Demos menu — this generates "
-            "a small dataset in the correct format and fills in "
-            "every setting.",
+            "Load Mask demo from Help, Demos. The command generates a "
+            "small synthetic acquisition, writes a compatible settings "
+            "file, and applies those settings to this screen.",
             action=lambda: (_load_demo(window, "mask", tmp_root)(),
                              _capture_screen()),
             target=_menu_target(window, "Demos"),
@@ -316,33 +382,33 @@ def _build_mask_steps(window) -> List[Step]:
         ),
         Step(
             "The settings panel on the left is now populated. "
-            "Notice the source folder, the channel layout, "
-            "and each object's Cellpose model — cyto for cells, "
-            "nuclei for nuclei.",
+            "Verify the source, metadata parser, channel assignments, object "
+            "diameters, and each object's segmentation method. Confirm the "
+            "model or checkpoint wherever that method requires one.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "The console on the right will stream every log "
-            "record — from spaCR itself, from Cellpose, and from "
-            "any warnings raised during the run.",
+            "The console on the right records validation, segmentation "
+            "progress, warnings, and output paths. Resolve validation "
+            "errors before interpreting a completed run.",
             target=(lambda: _console_panel(screen_ref[0]), None),
             highlight=lambda: _console_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "When you hit Run, spaCR converts your images to a "
-            "Yokogawa-style stack, normalises each channel, and "
-            "then hands each field to Cellpose to segment.",
+            "Selecting Run parses the acquisition metadata, assembles each "
+            "field and channel stack, applies the configured preprocessing, "
+            "and generates the requested object masks.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=600,
         ),
         Step(
-            "Once the run finishes, the masks land in a masks "
-            "subfolder next to your images, ready to feed into "
-            "the measure module.",
+            "The run writes label images under masks and merged image-mask "
+            "arrays under merged. Review segmentation quality before using "
+            "those arrays in Measure.",
             hold_ms=400,
         ),
     ]
@@ -361,9 +427,9 @@ def _build_measure_steps(window) -> List[Step]:
 
     return [
         Step(
-            "The measure module extracts single-object features "
-            "from your segmented images — intensity, morphology, "
-            "co-localization, texture, and radial distribution.",
+            "Measure computes per-object intensity, morphology, texture, "
+            "colocalization, radial-distribution, and spatial features from "
+            "merged image-mask arrays.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
             highlight=_sidebar_button(window, "measure"),
@@ -371,9 +437,8 @@ def _build_measure_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load the measure demo — this ships pre-built masks "
-            "and a measurements database seeded with the correct "
-            "schema.",
+            "Load Measure demo from Help, Demos. It provides representative "
+            "merged arrays and applies a valid measurement configuration.",
             action=lambda: (_load_demo(window, "measure", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -383,24 +448,25 @@ def _build_measure_steps(window) -> List[Step]:
         ),
         Step(
             "The demo populates the source folder, the channel "
-            "layout, and every measurement toggle. The cell, "
-            "nucleus, and pathogen channels can be tuned "
-            "independently.",
+            "layout, object tables, and measurement controls. Confirm each "
+            "cell, nucleus, pathogen, cytoplasm, and organelle role before "
+            "measuring intensities or relationships.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "Optionally, measure will also crop each object into "
-            "a PNG for classify — enable Save PNG and pick a size.",
+            "Measure can optionally export object-centred PNG crops for "
+            "annotation or image classification. Enable crop export, select "
+            "the object types and channels, and record the crop dimensions.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "Hitting Run walks every mask, computes features, and "
-            "appends rows to measurements.db — one row per object, "
-            "per timepoint if you're doing timelapse.",
+            "Selecting Run computes the requested features and writes one "
+            "database row per measured object, with time-indexed rows when "
+            "the source contains tracked frames.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=500,
@@ -421,9 +487,9 @@ def _build_crop_steps(window) -> List[Step]:
 
     return [
         Step(
-            "The crop demo lands you in the measure module — "
-            "in spaCR, cropping is one of the outputs of measure, "
-            "not a standalone step.",
+            "Crop export is part of Measure rather than a standalone module. "
+            "The exported images retain object identifiers that connect "
+            "them to measurements and annotations.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
             highlight=_sidebar_button(window, "measure"),
@@ -431,9 +497,8 @@ def _build_crop_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load the crop demo — this pre-fills a set of "
-            "settings that turn measure into a pure crop-and-save "
-            "job.",
+            "Load Crop demo from Help, Demos. It configures Measure to "
+            "export object crops from the supplied merged arrays.",
             action=lambda: (_load_demo(window, "crop", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -442,17 +507,17 @@ def _build_crop_steps(window) -> List[Step]:
             hold_ms=800,
         ),
         Step(
-            "Save PNG is on, PNG size is 64, and PNG dims picks "
-            "which channels get baked into the crop. You'll get "
-            "one folder of thumbnails per object type.",
+            "The crop controls specify the object types, dimensions, channel "
+            "composition, and optional contextual dilation. Measure writes "
+            "one identified crop collection per selected object type.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "The crops are what feed into classify — once you "
-            "annotate them, you have a labelled training set for "
-            "your own CNN.",
+            "After review and annotation, these crops can train the Computer "
+            "Vision workflow in Classify. Preserve plate or well groups so "
+            "related objects cannot leak across validation splits.",
             hold_ms=400,
         ),
     ]
@@ -471,9 +536,9 @@ def _build_classify_steps(window) -> List[Step]:
 
     return [
         Step(
-            "Classify starts in the annotate module — this is "
-            "where you label the crops that measure produced, so "
-            "that classify has a training set.",
+            "Image classification requires reviewed labels. Begin in "
+            "Annotate to assign classes to the object crops produced by "
+            "Measure, then hand the labelled project to Classify.",
             action=_nav_to(window, "annotate"),
             target=(_sidebar_button(window, "annotate"), None),
             highlight=_sidebar_button(window, "annotate"),
@@ -481,9 +546,9 @@ def _build_classify_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Loading the classify demo generates a small folder "
-            "of pre-labelled synthetic crops so we can see the "
-            "labelling grid without needing real data.",
+            "Load Classify demo from Help, Demos. It generates a small "
+            "synthetic crop collection with example labels and opens the "
+            "annotation grid.",
             action=lambda: (_load_demo(window, "classify", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -492,17 +557,18 @@ def _build_classify_steps(window) -> List[Step]:
             hold_ms=1000,
         ),
         Step(
-            "Each tile is a single-cell crop. Left-click cycles "
-            "through class labels — none, one, two, and back to "
-            "none — so you can label a whole plate very quickly.",
+            "Each tile represents one identified object crop. Assign the "
+            "reviewed class with the annotation controls and inspect image "
+            "context before resolving ambiguous examples.",
             target=(lambda: screen_ref[0], None),
             highlight=lambda: screen_ref[0],
             hold_ms=500,
         ),
         Step(
-            "When you're done, the Train CV and Train XG buttons "
-            "hand your annotations off to classify — either as a "
-            "CNN or as an XGBoost model.",
+            "Train CV sends the labelled crop project to Classify's Computer "
+            "Vision workflow; Train XG sends its measured features to the "
+            "Machine Learning workflow. Both open in the consolidated "
+            "Classify module.",
             target=(lambda: _find_button(screen_ref[0], "Train CV"), None),
             highlight=lambda: _find_button(screen_ref[0], "Train CV"),
             hold_ms=500,
@@ -529,10 +595,9 @@ def _build_timelapse_steps(window) -> List[Step]:
 
     return [
         Step(
-            "spaCR handles timelapse natively — every module "
-            "understands the T dimension in the Yokogawa filename "
-            "convention, so tracking is a switch on mask "
-            "generation rather than a module of its own.",
+            "Timelapse is a tracking mode within Mask. It generates a mask "
+            "for each time point and links selected objects across frames "
+            "using acquisition metadata that includes a time axis.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
             highlight=_sidebar_button(window, "mask"),
@@ -540,10 +605,9 @@ def _build_timelapse_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Loading the timelapse demo generates eight frames "
-            "per field. Its settings file asks for tracking, so "
-            "the Timelapse switch comes on with it and the "
-            "tracking categories appear on the form.",
+            "Load Timelapse demo from Help, Demos. It generates eight frames "
+            "per field and applies settings with tracking enabled, which "
+            "activates the Timelapse switch and reveals its categories.",
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -552,27 +616,26 @@ def _build_timelapse_steps(window) -> List[Step]:
             hold_ms=800,
         ),
         Step(
-            "That is the Timelapse switch, on the masthead. It "
-            "lights while tracking is part of the run; press it "
-            "again and the tracking categories fold away.",
+            "The Timelapse icon in the Mask header is a persistent switch. "
+            "It remains highlighted while tracking is enabled and hides the "
+            "tracking categories when disabled.",
             target=(lambda: _fold_button(screen_ref[0], "timelapse"), None),
             highlight=lambda: _fold_button(screen_ref[0], "timelapse"),
             show_pointer=True,
             hold_ms=600,
         ),
         Step(
-            "The tracking categories it revealed hold the linking "
-            "knobs — which objects to link, the linking mode, and "
-            "how far an object may travel between frames — beside "
-            "the settings mask generation always had.",
+            "The revealed categories specify which objects are linked, the "
+            "tracking backend, frame range, displacement and gap constraints, "
+            "lifetime filters, diagnostics, and movie outputs.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "Run will then generate a per-frame mask stack, and "
-            "measure will produce a longitudinal database with "
-            "one row per object per timepoint.",
+            "Run generates per-frame labels and stable track identities. "
+            "Use the Motility workflow from Measure when calibrated trajectory "
+            "and velocity measurements are required from the finished tracks.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=400,

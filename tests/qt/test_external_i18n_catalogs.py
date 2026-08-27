@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 import ast
-from importlib import import_module
 import hashlib
 import json
-from pathlib import Path
 import re
-from string import Formatter
 import sys
-
+from importlib import import_module
+from pathlib import Path
+from string import Formatter
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
@@ -98,12 +97,125 @@ def test_external_runtime_catalogs_have_exact_current_source_keys():
         catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
         for table, keys in expected.items():
             assert set(getattr(catalog, table)) == keys
-            assert all(str(value).strip() for value in getattr(catalog, table).values())
+            assert all(
+                str(value).strip()
+                for value in getattr(catalog, table).values()
+            )
         expected_hash_keys = {
             (table, str(key)) for table, keys in expected.items() for key in keys
         }
         assert set(catalog.SOURCE_HASHES) == expected_hash_keys
         assert catalog.SOURCE_HASHES == english.SOURCE_HASHES
+
+
+def test_standalone_technical_identity_values_remain_exact_in_every_language():
+    """Short configuration tokens may never be semanticized as prose."""
+
+    expected_examples = {
+        "cividis", "coolwarm", "inferno", "magma", "plasma", "turbo",
+        "viridis", "otsu", "cellpose", "pymc", "numpyro", "umap", "tsne",
+        "btrack", "trackastra", "trackpy", "ultrack", "slurm", "ssh",
+        "torch", "png", "fdr_bh", "measurements.db", "seg_qc",
+        "Amsgrad", "CSV", "Huber t", "Tensorboard",
+        "gRNA", "gRNA CSV", "--partition=gpu --gres=gpu:1 --time=12:00:00",
+        "2D / 3D UMAP", "EAF1_g1, EAF1_g2", "xD",
+    }
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        identities = set(import_module("build_i18n_catalogs")._IDENTITY_TEXT)
+    finally:
+        sys.path.remove(tools_dir)
+    assert expected_examples <= identities
+
+    from spacr.qt.i18n import _ROWS, tr
+
+    english = import_module("spacr.qt.i18n_catalogs.en")
+    source_tables = {
+        "SETTING_LABELS": english.SETTING_LABELS,
+        "SETTING_TOOLTIPS": english.SETTING_TOOLTIPS,
+        "CATEGORY_HELP": {value: value for value in english.CATEGORY_SOURCES},
+        "UI": {value: value for value in english.UI_SOURCES},
+        "MODULE_SUMMARIES": english.MODULE_SUMMARIES,
+    }
+    located = set()
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        for table_name, sources in source_tables.items():
+            translated = getattr(catalog, table_name)
+            for key, source in sources.items():
+                if source not in identities:
+                    continue
+                located.add(source)
+                assert translated[key] == source, (
+                    f"{language}/{table_name}/{key}: technical identity "
+                    f"{source!r} changed to {translated[key]!r}"
+                )
+        for source in identities & set(_ROWS):
+            assert tr(source, language) == source
+    assert located | (identities & set(_ROWS)) == identities
+
+
+def test_runtime_catalogs_reject_known_cross_domain_contamination_markers():
+    """Parliamentary/KDE corpus fragments must not re-enter UI catalogs."""
+
+    markers = (
+        "ordförande", "herr präsident", "@info: whatsthis",
+        "description in lists", "en anglais seulement",
+    )
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        values = (
+            *catalog.SETTING_LABELS.values(),
+            *catalog.SETTING_TOOLTIPS.values(),
+            *catalog.CATEGORY_HELP.values(),
+            *catalog.UI.values(),
+            *catalog.MODULE_SUMMARIES.values(),
+        )
+        contaminated = [
+            value for value in values
+            if any(marker in str(value).casefold() for marker in markers)
+        ]
+        assert not contaminated, f"{language}: contaminated rows {contaminated[:3]}"
+
+
+def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
+    """Reviewed captions and launch prose must override generated cache text."""
+
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        reviewed = import_module("i18n_reviewed_ui").REVIEWED_UI_TRANSLATIONS
+    finally:
+        sys.path.remove(tools_dir)
+
+    english = import_module("spacr.qt.i18n_catalogs.en")
+    from spacr.qt.i18n import _ROWS, VALID_LANGUAGE_CODES
+
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        located = set()
+        for key, source in english.SETTING_LABELS.items():
+            if source in reviewed:
+                located.add(source)
+                assert catalog.SETTING_LABELS[key] == reviewed[source][language]
+        for source in english.UI_SOURCES:
+            if source in reviewed:
+                located.add(source)
+                assert catalog.UI[source] == reviewed[source][language]
+        for key, source in english.MODULE_SUMMARIES.items():
+            if source in reviewed:
+                located.add(source)
+                assert catalog.MODULE_SUMMARIES[key] == reviewed[source][language]
+        language_index = VALID_LANGUAGE_CODES.index(language) - 1
+        for source, values in _ROWS.items():
+            if source in reviewed:
+                located.add(source)
+                assert values[language_index] == reviewed[source][language]
+        assert located == set(reviewed), (
+            f"{language}: reviewed UI rows missing from regenerated tables: "
+            f"{sorted(set(reviewed) - located)}"
+        )
 
 
 def test_runtime_source_inventory_is_complete_before_optional_module_imports():
@@ -116,6 +228,14 @@ def test_runtime_source_inventory_is_complete_before_optional_module_imports():
 
     sources = builder.canonical_sources()
     assert "barcode_qc" in sources["setting_tooltips"]
+    short_surface = builder._short_runtime_caption_sources(sources)
+    assert set(sources["setting_labels"].values()) <= short_surface
+    assert {
+        "Joining predictions to measured objects and fitting held-out surrogate…",
+        "Load table…",
+        "Well",
+        "Score the masks now",
+    } <= short_surface
     from spacr.qt.i18n_catalogs import en
     assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
 
@@ -367,8 +487,8 @@ def test_model_explainer_keeps_language_on_internal_api_links():
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
     monkeypatch,
 ):
-    from spacr.qt.i18n_catalogs import setting_tooltip
     from spacr.qt.i18n_catalogs import de as catalog
+    from spacr.qt.i18n_catalogs import setting_tooltip
     from spacr.qt.i18n_catalogs.en import SETTING_TOOLTIPS
 
     key = "cell_diameter"
@@ -391,11 +511,64 @@ def test_runtime_tooltips_have_no_exact_english_prose_fallbacks():
         assert not unchanged, f"{language}: {unchanged[:10]}"
 
 
+def test_runtime_catalogs_have_no_unreviewed_exact_english_fallbacks():
+    """Every translatable runtime row resolves or is reviewed as identity."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    english = import_module("spacr.qt.i18n_catalogs.en")
+    source_tables = {
+        "SETTING_LABELS": english.SETTING_LABELS,
+        "SETTING_TOOLTIPS": english.SETTING_TOOLTIPS,
+        "CATEGORY_HELP": {
+            source: source for source in english.CATEGORY_SOURCES
+        },
+        "UI": {source: source for source in english.UI_SOURCES},
+        "MODULE_SUMMARIES": english.MODULE_SUMMARIES,
+    }
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        for table_name, sources in source_tables.items():
+            table = getattr(catalog, table_name)
+            unchanged = [
+                key
+                for key, source in sources.items()
+                if (
+                    table[key] == source
+                    and builder._looks_translatable(source)
+                    and builder._reviewed_translation(source, language)
+                    != source
+                )
+            ]
+            assert not unchanged, (
+                f"{language}/{table_name}: {unchanged[:10]}"
+            )
+
+
+def test_runtime_catalogs_need_no_incremental_repairs():
+    """The release catalogs are a fixed point of every current hard gate."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    sources = builder.canonical_sources()
+    for language in LANGUAGES:
+        invalid = builder._invalid_catalog_sources(language, sources)
+        assert not invalid, f"{language}: {sorted(invalid)[:10]}"
+
+
 def test_runtime_uses_external_static_and_context_keyed_setting_text():
     from spacr.qt.i18n import tr
-    from spacr.qt.screens.settings_model import _translated_setting_name
     from spacr.qt.i18n_catalogs import setting_tooltip
     from spacr.qt.i18n_catalogs.en import SETTING_TOOLTIPS
+    from spacr.qt.screens.settings_model import _translated_setting_name
 
     assert tr("Remove selected", "sv") == "Ta bort markerade"
     assert _translated_setting_name("plate", "zh_CN") == "孔板"
@@ -409,8 +582,38 @@ def test_runtime_uses_external_static_and_context_keyed_setting_text():
     assert setting_tooltip(key, source + " changed", "de") is None
 
 
+def test_higher_organelle_slots_reuse_one_source_bound_translation():
+    """Generated slots stay translated without expanding every catalog."""
+    from spacr.object_roles import setting_label as english_setting_label
+    from spacr.qt.i18n_catalogs import en, setting_label, setting_tooltip
+    from spacr.settings import tooltips
+
+    key = "organellee_channel"  # slot 5: first above the materialized four
+    tooltip_key = "organellee_log_max_sigma"
+    label_source = english_setting_label(key)
+    tooltip_source = re.sub(
+        r"^\s*\([^)]*\)\s*[-–:]?\s*", "", tooltips[tooltip_key]
+    ).strip()
+
+    assert key not in en.SETTING_LABELS
+    assert tooltip_key not in en.SETTING_TOOLTIPS
+    label = setting_label(key, label_source, "de")
+    tooltip = setting_tooltip(tooltip_key, tooltip_source, "de")
+    assert label == "Organelle 5 — Kanal"
+    assert tooltip and tooltip != tooltip_source
+    assert "organellee_" in tooltip
+
+    # The alias is as source-bound as a materialized record: arbitrary label
+    # or tooltip changes cannot receive the primary slot's old translation.
+    assert setting_label(key, label_source + " changed", "de") is None
+    assert setting_tooltip(
+        tooltip_key, tooltip_source + " changed", "de"
+    ) is None
+
+
 def test_visible_setting_labels_use_app_context(qapp):
     from PySide6.QtWidgets import QLabel
+
     from spacr.qt.i18n import retranslate_widget_tree
     from spacr.qt.i18n_catalogs import setting_label
     from spacr.qt.i18n_catalogs.en import SETTING_LABELS
@@ -428,6 +631,7 @@ def test_visible_setting_labels_use_app_context(qapp):
 
 def test_transient_dialogs_translate_when_shown(qapp, monkeypatch):
     from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
+
     from spacr.qt.i18n import install_dialog_translation
     from spacr.qt.i18n_catalogs import ui_text
 
@@ -500,12 +704,16 @@ def test_reviewed_scientific_terms_use_domain_context_not_false_friends():
     assert not any(word in annotate.casefold()
                    for word in ("criblage", "récolte", "culture"))
 
-    run_source = "Every verdict here was written by the run that produced it -- "
-    run_text = next(
-        value for source, value in french_catalog.UI.items()
-        if source.startswith(run_source)
+    run_source = (
+        "Summarizes quality-control results stored by completed runs; "
+        "opening this screen does not recompute masks or measurements. "
+        "An out-of-date result was produced from older inputs. A missing "
+        "result indicates that the corresponding check has not been run "
+        "and must not be interpreted as a passing result."
     )
-    assert "exécution" in run_text and "piste" not in run_text.casefold()
+    run_text = french_catalog.UI[run_source]
+    assert "contrôle" in run_text and "qualité" in run_text
+    assert "piste" not in run_text.casefold()
 
     mixed_source = next(
         source for source in french_catalog.UI
@@ -570,7 +778,13 @@ def test_chinese_and_scientific_runtime_terms_are_contextual():
             if re.search(r"\bguides?\b", source, re.IGNORECASE):
                 assert "指南" not in value and "向导 RNA" not in value
 
-    assert "golpe" not in es.SETTING_LABELS["power_hit_rate"].casefold()
+    power_labels = [
+        es.SETTING_LABELS[key]
+        for key, source in en.SETTING_LABELS.items()
+        if "power" in source.casefold()
+    ]
+    assert power_labels
+    assert all("golpe" not in value.casefold() for value in power_labels)
     assert "Rennen" not in de.SETTING_TOOLTIPS["intermedeate_save"]
     assert "Formtor" not in de.SETTING_TOOLTIPS["organelle_ring_min_prominence"]
     question = "Ask a question about the table you are gating without leaving the screen."

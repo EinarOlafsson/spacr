@@ -1266,7 +1266,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     :param empirical_dict: mapping of ``rowID`` to ``(pc_units, nc_units)`` mixture; a 16-row default is used when ``None``.
     :param pc_grna: positive-control gRNA name. Default ``'TGGT1_220950_1'``.
     :param nc_grna: negative-control gRNA name. Default ``'TGGT1_233460_4'``.
-    :param y_columns: columns to plot on the y axis; a sensible default is used when ``None``.
+    :param y_columns: Columns to plot on the y axis. ``None`` uses
+        ``['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']``.
     :param column: column used to select a subset of wells. Default ``'columnID'``.
     :param value: value in ``column`` to keep. Default ``'c3'``.
     :param plate: plate ID to stamp when a single pair of CSVs is given.

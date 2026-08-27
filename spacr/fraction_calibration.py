@@ -1,59 +1,19 @@
-"""Measure ``fraction_threshold`` from the control wells instead of assuming it.
+"""Estimate ``fraction_threshold`` from control-well concordance.
 
-``fraction_threshold`` drops a gRNA from a well when its share of that well's
-reads is too small to believe. The default is 0.02 -- a constant, chosen once,
-applied to every screen. It decides how many guides each well is credited
-with, and therefore what every coefficient downstream is regressed on.
+``fraction_threshold`` removes a gRNA from a well when its share of reads is
+below the selected limit. This changes the number and normalized abundance of
+guides assigned to each well and therefore affects downstream coefficients.
 
-A CONTROL WELL KNOWS THE ANSWER TWICE. Sequencing says the positive control
-is a fraction ``f`` of the well's reads; imaging says a proportion ``p`` of
-the well's cells look like the positive control. When the control is the only
-thing in that well producing the phenotype the two must agree, so the SPREAD
-of ``p`` around its line on ``f`` measures how well the fractions are behaving
--- and the threshold is what the fractions are computed under.
+For each candidate threshold, this module compares the positive-control read
+fraction from sequencing with the positive phenotype fraction from imaging.
+Candidates are scored by the median absolute well-level disagreement,
+``median(abs(imaging - sequencing))``. The fit uses the median of pairwise
+slopes to reduce sensitivity to one-sided contamination from screen hits.
+Slope, intercept, residual, disagreement and guides per well are retained for
+review at every candidate.
 
-So sweep it. Recompute the fractions at each candidate threshold, refit
-imaging on sequencing, and take the threshold whose fit is most consistent.
-The number stops being a constant in a library and becomes a measurement of
-this screen.
-
-WHAT "MOST CONSISTENT" MEANS HERE: the median absolute DISAGREEMENT between
-the two measurements, well by well -- ``median |imaging - sequencing|``.
-
-Not the slope, and not the scatter around the fitted line. A slope is
-penetrance times fraction bias when the imaging side is a classifier's call
-rate, and the mixture estimator this uses absorbs penetrance -- a positive
-control cell showing no phenotype is still in the pure-PC reference -- so what
-is left to explain a disagreement IS the fraction. Scatter around the fitted
-line cannot see a systematic deflation at all: fractions that are all 3 % too
-low sit exactly on a line of slope 1.03. The slope, the intercept and the
-residual are reported at every candidate so all three can be read; the choice
-is made on how far apart the two answers actually are.
-
-THE FIT IS A MEDIAN FIT, and that is not a stylistic preference. A screen hit
-sharing a control well ADDS phenotype-positive cells and never removes them,
-so the contamination is one-sided -- exactly the case least squares handles
-worst. :func:`spacr.annotation_validation.mixed_ratio_calibration` fits the
-median of the pairwise slopes.
-
-WHAT THIS DOES NOT MEASURE. A control column has two guides competing for its
-reads; a screen well has hundreds. The threshold chosen here is the one that
-makes the CONTROL wells internally consistent, and the number of guides per
-well is reported at every candidate so the difference is visible rather than
-assumed away.
-
-AND IT IS NOT THE ONLY THRESHOLD THE RUN COMPUTES.
-:func:`spacr.sequencing.graph_sequencing_stats` sweeps the same cut-off
-against ``target_unique_count`` -- how many gRNAs a well should end up with,
-answered from the counts alone. That is a different question from this one,
-so neither replaces the other and a run reports both.
-
-WHICH ONE IS IN FORCE IS DECIDED IN ONE PLACE: ``ml._perform_regression``
-reads ``calibrate_fraction_threshold`` where the score table is already
-loaded, because the imaging side is what this sweep needs and what the count
-sweep has never been given. A second reader in the counts module could only
-disagree with the first, and would hand the run this sweep's answer back as
-though the counts had independently confirmed it.
+The selected threshold establishes concordance within control wells; it does
+not estimate performance in wells containing a complex guide library.
 """
 
 from __future__ import annotations
@@ -216,37 +176,30 @@ def sweep_fraction_threshold(counts: pd.DataFrame,
     :param features: ``(n_cells, n_features)`` over those same wells.
     :param wells: one well label per cell.
     :param positive_guide: the gRNA whose share is being calibrated.
-    :param pure_pc_wells: wells that are entirely positive control, NAMED FROM
-        THE PLATE DESIGN. Identifying them by their reported fraction would be
-        circular: that fraction is the quantity under test, and a bias large
-        enough to matter pushes a pure well below any cut-off.
+    :param pure_pc_wells: wells designated as entirely positive control in the
+        plate design. They are not inferred from the read fraction being
+        calibrated.
     :param pure_nc_wells: wells that are entirely negative control, likewise.
     :param candidates: the thresholds to try.
     :param normalise: sweep with ``normalise_fraction`` on or off.
-    :param sensitivity: classifier sensitivity, for the Rogan--Gladen
-        rescaling of the fitted slope. There is no default and there will not
-        be one: a sensitivity measured on one model, one stain and one
-        microscope is wrong for every other screen in a way that produces
-        plausible numbers rather than an error.
-    :param specificity: classifier specificity. AN ACCURACY IS NOT ENOUGH --
-        these are two quantities, and on a well where the control is a
-        minority the accuracy is dominated by the majority class.
+    :param sensitivity: classifier sensitivity used for Rogan--Gladen
+        rescaling of the fitted slope. No cross-experiment default is assumed.
+    :param specificity: classifier specificity used with ``sensitivity``;
+        aggregate accuracy is not an equivalent substitute.
     :param minimum_wells: refuse to report below this many usable wells.
     :param training_columns: plate columns the classifier was trained on.
     :returns: the chosen threshold, the reason, and every candidate's fit.
 
-    A screen with no threshold that beats the others is told so: ``chosen``
-    is ``None`` and ``reason`` says why, rather than a number being returned
-    that the data did not support.
+    If no candidate meets the evidence requirement, ``chosen`` is ``None``
+    and ``reason`` describes the limiting condition.
     """
     from .annotation_validation import mixed_ratio_calibration
 
     correction: Dict[str, float] = {}
     if (sensitivity is None) != (specificity is None):
         raise ValueError(
-            "the Rogan-Gladen correction needs BOTH sensitivity and "
-            "specificity; one of them alone is an accuracy wearing a "
-            "confusion matrix's name")
+            "Rogan-Gladen correction requires both sensitivity and "
+            "specificity")
     if sensitivity is not None:
         denominator = float(sensitivity) + float(specificity) - 1.0
         if denominator <= 0:

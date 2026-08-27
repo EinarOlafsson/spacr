@@ -19,9 +19,9 @@
     {
       "table": "setting_tooltips",
       "key": "plot",
-      "source_sha256": "c8e4e51784e4cb61a097fe456f043d071c6d584ff5a3a8b015f266df965e819b",
-      "source": "Render and save QC figures while the pipeline runs: channel montages and Cellpose mask overlays during segmentation, before/after filtration views and crop grids during measurement. It adds figures per batch, so a full plate becomes much slower and more memory-hungry; keep it for small or test_mode runs, which force it on. Default False.",
-      "translation": "流水线运行时渲染并保存 QC 图：分割期间的图像数据通道拼图和 Cellpose 掩模叠加图，以及测量期间过滤前后的视图和提取图像区域网格。每个批次都会增加图形，因此完整微孔板的处理会慢得多并占用更多内存；仅建议在小规模运行或 test_mode 运行中开启，后者会强制开启此项。默认值为 False。"
+      "source_sha256": "e6649baf82ce5d34b6fdfa62e1d0b76401de29e2e07d9aa76a883f3f6cc5f798",
+      "source": "Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False.",
+      "translation": "在流水线运行期间渲染并保存质量控制图，包括通道拼图、Cellpose 掩模叠加图、过滤对比图和 image crop 网格。生成图形会增加运行时间和内存使用量，处理完整微孔板时尤为明显。test_mode 会自动启用此设置。默认值为 False。"
     },
     {
       "table": "setting_tooltips",
@@ -33,16 +33,16 @@
     {
       "table": "setting_tooltips",
       "key": "png_type",
-      "source_sha256": "c3c6539b01296eb76c7fea36c2ffcc3b471dae760adcb2ee5e1f50ad472ce9b6",
-      "source": "Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
-      "translation": "构建训练数据集时从 png_list 表提取的对象提取图像区域类型；仅当某行的 PNG 路径包含此子字符串时才保留该行。使用 'cell_png'、'nucleus_png'、'pathogen_png'、'cytoplasm_png' 或 'organelle_png'，可分别基于完整细胞、细胞核、寄生虫、细胞质或细胞器进行训练。它必须与 measure_crop 实际保存的某个 crop_mode 匹配。默认值为 'cell_png'。"
+      "source_sha256": "8eb5919bb877e225dc887b7b70a4a791bb8f6be0e9a7f84b36c51c61fc44a642",
+      "source": "Object crop type selected from the png_list table when building the training dataset; a row is retained only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode saved by measure_crop. Default 'cell_png'.",
+      "translation": "构建训练数据集时从 png_list 表选择的对象裁剪类型；仅当某行的 PNG 路径包含此子字符串时才保留该行。使用 'cell_png'、'nucleus_png'、'pathogen_png'、'cytoplasm_png' 或 'organelle_png'，可分别基于完整细胞、细胞核、寄生虫、细胞质或细胞器进行训练。它必须与 measure_crop 保存的某个 crop_mode 匹配。默认值为 'cell_png'。"
     },
     {
       "table": "setting_tooltips",
       "key": "queue_measure",
-      "source_sha256": "545b4216afeb16f179a2b5a16b880630214df0b94f395eef7dfa1165d961b77d",
-      "source": "How uncertainty is scored for the queue. 'entropy' spreads its attention across every class and is the right default for three or more; 'least_confidence' ranks on how weak the top class is; 'margin' ranks on the gap between the top two. With exactly two classes margin and least_confidence produce the IDENTICAL ranking, including ties - they only diverge at three classes or more. These are uncertainty scores, not calibrated confidences: a softmax is not a probability. Default 'entropy'.",
-      "translation": "为工作列表计算不确定性的方式。'entropy' 把注意力分散到所有类别，是三个或更多类别时合适的默认方法；'least_confidence' 根据最高类别的强度有多弱排序；'margin' 根据最高两个类别之间的差距排序。恰好有两个类别时，margin 与 least_confidence 会产生完全相同的排序，包括并列情况；只有类别数达到三个或更多时才会不同。这些是不确定性分数，不是经过校准的置信度：softmax 不是概率。默认值为 'entropy'。"
+      "source_sha256": "2bec12f8ea7dcf98c7bd83a7f08f11381c7ae2aba513a04c40f3aa00e3f6996b",
+      "source": "Method used to score uncertainty for the annotation queue. 'entropy' incorporates all classes and is the preferred default for three or more classes; 'least_confidence' ranks samples by the highest class score; 'margin' ranks them by the difference between the two highest scores. With exactly two classes, margin and least_confidence produce identical rankings, including ties, and diverge only with three or more classes. These values are uncertainty scores rather than calibrated probabilities. Default 'entropy'.",
+      "translation": "用于计算标注队列不确定性的方法。'entropy' 会考虑所有类别，是类别数为三个或更多时的首选默认值；'least_confidence' 根据最高类别分数对样本排序；'margin' 根据最高两个分数之差排序。类别数恰好为两个时，margin 与 least_confidence 会产生相同的排序（包括并列），只有类别数达到三个或更多时才会不同。这些值是不确定性分数，不是经过校准的概率。默认值 'entropy'。"
     },
     {
       "table": "setting_tooltips",
@@ -75,16 +75,16 @@
     {
       "table": "setting_tooltips",
       "key": "seg_qc",
-      "source_sha256": "67455d542a75285465d57d880326ec81b70e8331e83248219cf72ec8358cd75e",
-      "source": "Segmentation quality control, scored the moment masks are written and long before measure_crop spends hours on them. 'off' skips it; 'report' scores every field, writes qc/segmentation_qc_OBJECT.csv and prints a card naming what is wrong; 'flag' adds a per-field JSON for a downstream step; 'stop' adds a raise when the plate verdict is 'fail', after the scorecard is written so you still get the card. No mode deletes or silently skips a field, and 'stop' never fires on 'warn' - halting on an unsure verdict is how a gate gets switched off. Default 'report'.",
-      "translation": "分割质量控制会在掩模写出时立即评分，远早于 measure_crop 在其上花费数小时。'off' 跳过检查；'report' 为每个显微镜视野评分，写入 qc/segmentation_qc_OBJECT.csv，并打印说明问题的卡片；'flag' 额外写出逐视野 JSON 供下游步骤使用；'stop' 会在微孔板结论为 'fail' 时抛出异常，但在评分卡写出之后执行，因此仍可获得卡片。任何模式都不会删除或静默跳过显微镜视野，而且 'stop' 从不因 'warn' 触发；在不确定结论时停止，正是质量门控会被关闭的原因。默认值为 'report'。"
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "分割质量控制在掩膜写入时、测量开始前执行。'off' 跳过评分；'report' 对每个显微镜视野评分，写入 qc/segmentation_qc_<object>.csv，并显示检测到的质量问题；'flag' 还会写入逐视野 JSON 供下游处理；'stop' 在写入评分卡后，于微孔板结论为 'fail' 时抛出异常。任何模式都不会删除或遗漏视野，且 'stop' 不会因 'warn' 结论抛出异常。默认值为 'report'。"
     },
     {
       "table": "setting_tooltips",
       "key": "test",
-      "source_sha256": "605da0b06016183a0567d25d0e2f44d82cf6ee207f80049f027ba2cd1f243f64",
-      "source": "In classifier training, run the held-out evaluation pass (combine with train, or use alone to score an existing model). In the sequencing barcode mapper it means something different: process only the first read chunk and print a preview, so you can sanity-check the regex and barcode CSVs in seconds. Default False.",
-      "translation": "在分类器训练中，运行留出评估步骤（可与 train 组合，或单独用于评估已有模型）。在测序条形码映射器中含义不同：只处理第一个读段块并打印预览，从而在数秒内快速检查正则表达式和条形码 CSV 是否合理。默认值为 False。"
+      "source_sha256": "198a78439617c5b3a18784ab0d2c9acad00f00f6944a484566e7dc25fbda5474",
+      "source": "In classifier training, run the held-out evaluation pass, either with train or alone to score an existing model. In the sequencing barcode mapper, process only the first read chunk and print a preview so the regex and barcode CSVs can be validated quickly. Default False.",
+      "translation": "在分类器训练中，运行留出评估步骤，可与 train 组合，也可单独用于评估现有模型。在测序条形码映射器中，只处理第一个读段块并打印预览，以便快速验证正则表达式和条形码 CSV。默认值为 False。"
     },
     {
       "table": "setting_tooltips",
@@ -110,9 +110,9 @@
     {
       "table": "setting_tooltips",
       "key": "treatment_plate_metadata",
-      "source_sha256": "a6649263d7d77611ca18da897ff6f60dbc6dff76d1aba5dbc0ee128d940ab6f7",
-      "source": "Wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); anything else is IGNORED and those wells get no treatment label rather than an error. Wells you do not list are still kept -- 'condition' joins whatever cell/pathogen/treatment labels exist, so an unlisted well simply carries fewer. Default None.",
-      "translation": "接受每种 treatments 条目的微孔；每种处理对应一个内部列表，并保持相同顺序，例如 [['r1','r2','r3'],['r4','r5','r6']]。条目必须以表示行的 'r' 或表示列的 'c' 开头；其他值会被忽略，对应微孔不会得到处理标签，也不会报错。未列出的微孔仍会保留；'condition' 会连接现有的细胞/病原体/处理标签，因此未列出的微孔只是包含较少的标签。默认值为 None。"
+      "source_sha256": "e353538ed6213f3f66e7fe26d7dc0484d2edd98f5333a2112987af093a894d11",
+      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None.",
+      "translation": "接受每种处理的微孔，每种处理对应一个内部列表且顺序一致，例如 [['r1','r2','r3'],['r4','r5','r6']]。条目必须以表示行的 'r' 或表示列的 'c' 开头；其他条目会被忽略且不会获得处理标签。未列出的微孔仍保留在输出中，其 condition 值仅包含可用的细胞、病原体或处理标签。默认值 None。"
     },
     {
       "table": "setting_tooltips",
@@ -124,16 +124,16 @@
     {
       "table": "setting_tooltips",
       "key": "voxel_size_z_um",
-      "source_sha256": "261732c932be440b2c51c8951a52dfdae449f9a35bb522d7df302d90ee722629",
-      "source": "Spacing between consecutive z planes in micrometres, straight off the acquisition settings. Together with voxel_size_xy_um it derives anisotropy, so setting these two is the safer way to get it right, and it is also what converts object volumes from voxel counts into um3. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in micrometres rather than voxels, and records which it used in the measurement_units column. Default None.",
-      "translation": "从采集设置直接获得的相邻 z 图像层间距，单位为微米。它与 voxel_size_xy_um 一起推导各向异性，因此同时设置这两个值是确保正确的更安全方法；它还用于把对象体积从体素计数转换为 um3。更改它会缩放所有物理 z 量和分割所用的各向异性；对 'project' 运行没有影响。Measure 使用这两个值以微米而不是体素报告三维形态，并在 measurement_units 列记录所用单位。默认值为 None。"
+      "source_sha256": "a4cab815c31149a39bf7fe83b66e775fbc5750507f569905be7f93ab94a829a9",
+      "source": "Spacing between consecutive z planes in micrometres, obtained from the acquisition metadata. Together with voxel_size_xy_um it determines anisotropy and converts object volumes from voxel counts into cubic micrometres. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in physical units and records the units in measurement_units. Default None.",
+      "translation": "从采集元数据获得的相邻 z 图像层间距，单位为微米。它与 voxel_size_xy_um 一起确定各向异性，并将对象体积从体素计数转换为立方微米。更改此值会重新缩放所有物理 z 量和分割所用的各向异性；对 'project' 运行没有影响。Measure 使用这两个值以物理单位报告三维形态，并在 measurement_units 中记录单位。默认值为 None。"
     },
     {
       "table": "setting_tooltips",
       "key": "z_projection",
-      "source_sha256": "e839a2d860b98aed39a346001446c03631f755594684bbd26e4b38caf2d77eeb",
-      "source": "How z is collapsed when z_segmentation_mode is 'project'. 'max' takes the brightest value down the stack and is the usual choice for sparse fluorescent objects; 'mean' averages, which suppresses noise but dilutes anything present in only a few planes; 'sum' preserves total signal so intensity stays proportional to how much of the object was in the stack; 'best_focus' discards every plane but the sharpest one, which beats a projection when only one plane is genuinely in focus and a MIP would smear the out-of-focus haze over it. Ignored by the other two modes. Default 'max'.",
-      "translation": "当 z_segmentation_mode 为 'project' 时折叠 z 的方法。'max' 取堆栈中最亮的值，通常适合稀疏荧光对象；'mean' 取平均，可抑制噪声，但会稀释只出现在少数图像层中的对象；'sum' 保留总信号，使强度与对象在堆栈中的含量保持成比例；'best_focus' 丢弃除最清晰图像层外的所有图像层，当只有一个图像层真正对焦、而最大强度投影会把离焦雾状背景涂抹其上时，它优于投影。其他两种模式会忽略此项。默认值为 'max'。"
+      "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
+      "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
+      "translation": "当 z_segmentation_mode 为 'project' 时用于折叠 z 的方法。'max' 保留堆栈中的最亮值，适合稀疏荧光对象；'mean' 抑制噪声，但会稀释仅存在于少数图像层中的信号；'sum' 保留总信号；'best_focus' 仅保留最清晰的图像层，适合只有一个图像层对焦且最大强度投影会包含大量离焦信号的情况。其他模式会忽略此项。默认值为 'max'。"
     }
   ]
 }

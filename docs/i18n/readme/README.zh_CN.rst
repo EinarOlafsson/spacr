@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ spaCR
 
 **CRISPR 筛选的空间表型分析。**
 
-spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将每个细胞与其获得的 gRNA 关联，并报告哪些基因改变了表型。输入为孔板图像和 FASTQ 读段；输出包括逐对象测量、训练后的分类器、逐向导 RNA 和逐基因效应量，以及按优先级排序的候选结果列表。
+spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。
 
-对于基于图像的混合 CRISPR 筛选，这涵盖了完整工作流程。如果只有高内涵显微镜数据而没有筛选实验，也可以单独运行分割、测量、标注和分类部分。
+对于基于图像的混合 CRISPR 筛选，spaCR 提供从图像分割到命中结果优先级排序的工作流程。对于不包含测序筛选的高内涵显微镜研究，分割、测量、标注和分类模块可独立使用。
 
 图像、掩膜、图像裁剪、测量值、标注、预测、条形码和孔位标识符都存储在同一个 SQLite 项目中，因此结果中的数值可以追溯到其来源对象。
 
@@ -107,7 +106,7 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
    :width: 2.5%
    :align: middle
 
-**Data**
+**数据**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
@@ -115,13 +114,13 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 |App_project_browser|
 
-**Results & QC**
+**结果与质控**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**探索**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,11 +128,11 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**实验分析**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Design**
+**设计**
 
 |App_experiment_design|\ |App_power|\ |App_dose_response|
 
@@ -375,7 +374,7 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
 
-请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、拆除、离线和解决问题的指示。
+请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
 
 Python 安装
 ~~~~~~~~~~~~~~~~~~~
@@ -415,13 +414,15 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-在解决问题时设置 ``SPACR_LOG_LEVEL=DEBUG``. 旋转日志以 ``~/.spacr/logs/spacr.log`` 写作.
+排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
+
+``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。
 
 
 您可以做什么
 ---------------
 
-大多数筛选遵循六个模块:
+主要工作流程由六个模块组成：
 
 - **Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。
 - **Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。
@@ -430,7 +431,28 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
 - **Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。
 - **Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。
 
-同一项目还可以设计孔板、估算统计功效、校正批次效应、检查分割质量、探索相互关联的图表和图像裁剪、导出 AnnData、恢复中断的工作，并记录每项结果所使用的设置。
+同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
+
+可从宿主界面使用的模块
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+20 个模块集成在相关宿主界面中，而不是作为单独的 Home 磁贴显示。每个模块都从其宿主界面的顶部标题栏打开，并使用当前项目。Mask、Measure、Annotate、Classify、Map Barcodes、Regression、Image UMAP 和 Make Masks 提供这些集成模块。它们的帮助和 API 文档仍可访问；具有流程入口的模块仍可在无界面模式下运行。`功能指南 <../../source/features.rst>`_ 列出了每个集成模块及其宿主界面。
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks 位于 **Data** 下，用于手动校正分割掩膜。其顶部标题栏还提供 Cellpose 工作流程的入口。画布包含九种工具：**Brush**、**Erase**、**Erase object**、**Wand +**、**Wand −**、**Draw**、**Divide**、**Zoom** 和 **Recrop**。Draw 根据任意形状的闭合轮廓创建一个填充标签。Divide 沿用户指定的线分离合并对象，同时保留其他所有对象标签。
+
+Recrop 可从待整理的多对象图像中提取单对象视野。在一个对象周围绘制边界框后，相应的图像和掩膜区域会写入一个新视野；该视野会安排在当前视野之后处理，同时原始多对象视野会从数据整理队列中移除。Recrop 改变的是当前视野，而不是标签像素。
+
+在 Make Masks 中运行 Cellpose-SAM 时，掩膜旁会显示两项中间输出：**细胞概率图**和**流场**。掩膜由概率图上的阈值确定；流一致性检查可以排除推导流与预测流场不一致的对象。评估错误或不完整的掩膜时，请检查这些输出，以区分细胞概率偏低和流不一致。
+
+对象和设置
+~~~~~~~~~~~~~~~~~~~~
+
+spaCR 支持细胞、细胞核和病原体对象、由这些对象的掩膜推导出的细胞质，以及 0 至 26 个细胞器槽位。每个细胞器槽位都有独立的通道、直径、形态预设和检测方法。
+
+设置面板仅在控件适用时显示控件。超过已配置数量的细胞器槽位会被隐藏，未分配通道的对象不会参与运行，形态特异性控件仅在所选方法需要时显示。**3D** 和 **Time** 开关定义数据维度：``z_stack`` 启用体积设置，``timelapse`` 启用跟踪设置，同时启用两者时会显示四维设置。
 
 选择下一个页面,根据你想做的事情:
 
@@ -479,10 +501,23 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
    :alt: 打开 bioRxiv 预印本
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+性能诊断
+----------------------
+
+生成硬件报告并将其附到性能相关问题中::
+
+    python tools/spacr_hardware_report.py
+
+该命令会输出报告，并在 ``~/.spacr/reports`` 下保存一份副本；最后一行会标明保存路径。``--quick`` 会省略耗时较长的基准测试，``--out PATH`` 可指定其他输出位置。
+
+该报告不会打开项目，也不会读取项目数据。它记录导入与数值库计时、显示缩放、当前首选项、主窗口和模块界面的构建过程以及动画性能。它创建的唯一输出是报告文件。
+
+该报告还会识别处理器架构模拟（例如在 Apple Silicon 上运行的 x86_64 Python 构建）以及 NumPy 使用的 BLAS 实现。二者均可能显著影响性能。
+
 贡献与支持
 ------------------------
 
-欢迎通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 可自动收集其中的大部分信息。
+请通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。
 
 许可
 ~~~~~~~~~

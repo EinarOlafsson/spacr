@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
+      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "translation": "पहले से तैयार क्रॉप की छवि का प्रारूप फ़ाइल एक्सटेंशन के रूप में निर्दिष्ट करें: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' या 'npy'। यह केवल प्रारूप फ़िल्टर है; क्रॉप किस वस्तु का है, यह path_string निर्धारित करता है। इसलिए यह जोड़ी 'किसी भी प्रारूप में प्रत्येक nucleus क्रॉप' और 'किसी भी वस्तु के लिए प्रत्येक TIFF' को अलग-अलग व्यक्त कर सकती है, जो एक संयुक्त सेटिंग नहीं कर सकती थी। '<object>_png' के रूप में पुराना मान अब भी स्वीकार किया जाता है और उसके एक्सटेंशन के रूप में पढ़ा जाता है, इसलिए पुरानी सेटिंग फ़ाइल कार्य करती रहती है। खाली मान किसी भी प्रारूप को स्वीकार करता है। डिफ़ॉल्ट 'cell_png' है, जिसे 'png' के रूप में पढ़ा जाता है।"
+    }
+  ]
+}

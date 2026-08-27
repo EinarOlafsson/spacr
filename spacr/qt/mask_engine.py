@@ -1,27 +1,20 @@
-"""
-Pure-Python backend for the Qt make-masks screen.
+"""Pure-Python mask editing and persistence for the Qt Make Masks screen.
 
-Image + mask I/O and the label-mutation helpers the screen above it calls
-for everything that is not a brush stroke: fill, relabel, invert, remove
-small, the size/intensity object filter, Otsu detection, and the magic
-wand. Nothing here touches Qt, so every edit the screen offers can be
-driven and asserted without a display.
+This module provides image and mask I/O plus non-brush label operations,
+including fill, relabel, inversion, size and intensity filtering, Otsu
+detection, and magic-wand selection. It has no Qt dependency, so the editing
+operations can be tested without a display.
 
-Two things about how a mask leaves here are load-bearing:
+:func:`save_mask` passes labels through :func:`canonical_labels`, which
+preserves existing nonzero object identifiers rather than renumbering
+connected components. This maintains correspondence with measurements,
+tracks, and crops keyed by those identifiers.
 
-**Object ids survive a save.** :func:`save_mask` writes what
-:func:`canonical_labels` produces, and that preserves the id every object
-already had. Renumbering the components of an edited mask would silently
-re-key it against the measurements, the tracks and the crops made from the
-segmentation it came from -- erasing object 7 of 20 would slide 8..20 down
-by one and every downstream table would then name different cells.
-
-**A hand-edited mask says so.** :func:`save_mask` writes the artefact's
-:class:`spacr.curation.CurationLog` beside it, the same append-only ledger
-:mod:`spacr.napari_bridge` and :mod:`spacr.qt.curation_tool` write, so
-:func:`spacr.curation.is_curated` can tell a curated mask from one the
-pipeline produced. A curated mask that is byte-indistinguishable from a
-segmented one cannot be reproduced from the settings that made it.
+Saving also writes the artifact's :class:`spacr.curation.CurationLog`
+sidecar, consistent with :mod:`spacr.napari_bridge` and
+:mod:`spacr.qt.curation_tool`. The sidecar allows
+:func:`spacr.curation.is_curated` to distinguish manually edited masks from
+pipeline-generated masks.
 """
 from __future__ import annotations
 

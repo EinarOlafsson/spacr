@@ -2034,12 +2034,12 @@ class HomePage(QWidget):
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802
-        """Tear down everything the page started before it goes away.
+        """Stop Home-page background activity before closing.
 
-        The journal walk reads thousands of manifests on a worker thread; a
-        page closed mid-walk would leave that thread running against a widget
-        already being destroyed. The registry connection and the ticker go the
-        same way, so nothing left behind can call back into a dead page.
+        Shut down the journal reader, disconnect run-registry notifications,
+        and stop the refresh ticker before delegating to the base close
+        handler. This prevents pending work from invoking a page that Qt is
+        destroying.
         """
         self._journal_jobs.shutdown()
         try:

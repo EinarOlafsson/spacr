@@ -233,9 +233,9 @@ class GateEditorScreen(QWidget):
 
         self._annotate = QPushButton("Annotate…", self)
         self._annotate.setToolTip(
-            "Turn the SHOWN gates into one annotation column. Binary marks "
-            "objects inside every one of them; multi-class gives each "
-            "combination that actually occurs its own class.")
+            "Write the displayed gates to one annotation column. Binary mode "
+            "marks objects inside all gates; multi-class mode assigns a "
+            "separate class to each observed gate combination.")
         self._annotate.clicked.connect(self.annotate_from_gates)
         head.addWidget(self._annotate)
 

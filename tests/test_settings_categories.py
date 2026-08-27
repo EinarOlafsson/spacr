@@ -1055,6 +1055,13 @@ def test_every_category_has_a_qt_section_hint():
 def test_every_qt_section_hint_names_a_real_category():
     hints = _section_hints()
     known = {c.upper().strip() for c in S.categories}
+    # Power contributes its legacy/defaults category lazily rather than at
+    # settings-module import. Discover that registered category through the
+    # public registration seam so its live section hint is not mistaken for
+    # an orphan merely because this test ran before the Power screen opened.
+    from spacr.qt.screens import power as power_screen
+    power_screen.register_settings()
+    known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).
     # Classify is the reason this list has to be exhaustive rather than

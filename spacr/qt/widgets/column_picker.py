@@ -686,9 +686,9 @@ class ColumnPickerDialog(QDialog):
         summary_row.addWidget(self._summary, 1)
         self._count_btn = QPushButton("Count non-null", self)
         self._count_btn.setToolTip(
-            "Count the rows that actually have a value in the selected "
-            "column. This one reads the whole table, so it is not run "
-            "when the dialog opens.")
+            "Count rows containing a value in the selected column. This "
+            "operation reads the complete table and is not calculated when "
+            "the dialog opens.")
         self._count_btn.setEnabled(False)
         self._count_btn.clicked.connect(self._count_selected)
         summary_row.addWidget(self._count_btn, 0)

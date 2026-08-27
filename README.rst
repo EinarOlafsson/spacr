@@ -57,14 +57,15 @@ Languages: `English <README.rst>`_ · `Svenska <docs/i18n/readme/README.sv.rst>`
 **Spatial phenotype analysis of CRISPR screens.**
 
 spaCR segments and measures single cells in high-content microscopy images,
-links each cell to the gRNA it received, and reports which genes changed the
-phenotype. Plate images and FASTQ reads go in; per-object measurements,
-trained classifiers, per-guide and per-gene effect sizes, and a ranked hit
-list come out.
+integrates per-object phenotypes with sequencing-derived guide abundance, and
+estimates which genes are associated with phenotypic changes. Starting from
+plate images and FASTQ reads, it produces per-object measurements, trained
+classifiers, per-guide and per-gene effect estimates, and a ranked hit list.
 
-If you run image-based pooled CRISPR screens, that is the whole path. If you
-have high-content microscopy and no screen, the segmentation, measurement,
-annotation and classification half runs on its own.
+For image-based pooled CRISPR screens, spaCR provides the workflow from image
+segmentation through hit prioritization. For high-content microscopy studies
+without sequencing-based screens, the segmentation, measurement, annotation
+and classification modules can be used independently.
 
 Images, masks, crops, measurements, annotations, predictions, barcodes and
 well identifiers live in one SQLite project, so a number in a result can be
@@ -440,15 +441,14 @@ Command-line entry points
 Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
 to ``~/.spacr/logs/spacr.log``.
 
-``spacr-run --list`` prints the modules that run headlessly. Interactive
-screens -- the annotator, the curation and comparison tools, the explorers --
-have no headless form and are not on that list.
+``spacr-run --list`` lists modules with headless command-line entry points.
+GUI-only annotation, curation, comparison and exploration modules are omitted.
 
 
 What you can do
 ---------------
 
-Most screens follow six modules, in the order you run them:
+The primary workflow comprises six modules:
 
 - **Mask** segments cells, nuclei, pathogens and organelles with Cellpose.
 - **Measure** writes morphology, intensity, texture, spatial and
@@ -466,55 +466,56 @@ The same project can also design plates, estimate power, correct batch effects,
 inspect segmentation quality, explore linked plots and crops, export AnnData,
 resume interrupted work and record the settings behind each result.
 
-Modules that open from a masthead
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Modules available from host screens
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A module does not need a tile to be a module. Twenty of them answer a question
-about the run their host produces, so they open from a button on that host's
-masthead, as a page beside its settings and already pointed at the same
-project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image
-UMAP and Make Masks each host some. They are shipped, translated and
-documented like any other module, and the ones that are pipelines still run
-headlessly; the `feature guide <docs/source/features.rst>`_ says which module
-is on which masthead.
+Twenty modules are integrated into related host screens rather than displayed
+as separate Home tiles. Each opens from its host screen's masthead and uses the
+active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression,
+Image UMAP and Make Masks provide these integrated modules. Their help and API
+documentation remain available, and modules with pipeline entry points can
+still run headlessly. The `feature guide <docs/source/features.rst>`_ lists
+each integrated module and its host.
 
 Make Masks
 ~~~~~~~~~~
 
-Make Masks is filed under **Data**. It corrects masks by hand and carries the
-Cellpose loop on its masthead. The canvas has nine tools: **Brush**,
+Make Masks appears under **Data** and provides manual correction of
+segmentation masks. Its masthead also provides access to the Cellpose
+workflows. The canvas has nine tools: **Brush**,
 **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
-**Zoom** and **Recrop**. Draw traces a free-form outline that closes and fills
-as one object; Divide drags a line across a merged object and makes it two,
-leaving every other object's label untouched.
+**Zoom** and **Recrop**. Draw creates one filled label from a free-form closed
+outline. Divide separates a merged object along a user-defined line while
+preserving all other object labels.
 
-Recrop is the one tool that changes which field is on screen rather than what
-is painted on it. A staged crop holding several cells is not one training
-example, so a box round one object writes that region of both the image and
-the mask as a field of its own, queued straight after the current one, and the
-multi-object original is retired rather than curated.
+Recrop extracts a single-object field from a staged image containing multiple
+objects. A bounding box around one object writes the corresponding image and
+mask regions as a new field, schedules that field after the current one and
+removes the original multi-object field from the curation queue. Recrop changes
+the active field rather than editing label pixels.
 
-Running Cellpose-SAM here shows its two intermediate outputs beside the mask:
+Running Cellpose-SAM from Make Masks displays two intermediate outputs beside
+the mask:
 the **cell-probability map** and the **flow field**. A mask is a threshold on
-that probability map, and objects are dropped when their flows disagree with
-the predicted ones, so when a mask is wrong those two panes are where the
-reason is visible.
+the probability map, and flow-consistency checks can reject objects whose
+derived flows differ from the predicted field. Inspect these outputs to
+distinguish low cell probability from inconsistent flow when evaluating an
+incorrect or incomplete mask.
 
 Objects and settings
 ~~~~~~~~~~~~~~~~~~~~
 
-The objects are not a fixed four. A project has a cell, a nucleus and a
-pathogen, a cytoplasm derived from them, and as many organelle slots as you
-ask for -- from none up to twenty-six -- each with its own channel, diameter,
-morphology preset and detection method.
+spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from
+their masks, and between zero and twenty-six organelle slots. Each organelle
+slot has an independent channel, diameter, morphology preset and detection
+method.
 
-The settings panel shows a setting when it applies: a slot past the organelle
-count takes its whole block of settings with it, an object whose channel names
-no plane is not in the run, and a setting belonging to one morphology is
-dropped for a slot of another. The **3D** and **Time** switches say which
-dimensions the plate has -- ``z_stack`` declares a z axis and reveals the
-volumetric settings, ``timelapse`` declares a time axis and reveals tracking,
-and the 4D settings appear only when both are on.
+The settings panel displays controls only when they apply. Organelle slots
+above the configured count are hidden, an object with no assigned channel is
+excluded from the run, and morphology-specific controls are shown only for the
+selected method. The **3D** and **Time** switches define the dimensionality:
+``z_stack`` enables volumetric settings, ``timelapse`` enables tracking
+settings, and four-dimensional settings appear when both are enabled.
 
 Choose the next page by what you want to do:
 
@@ -579,38 +580,35 @@ Reference datasets
    :alt: Open the bioRxiv preprint
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-If spaCR is slow on your machine
---------------------------------
+Diagnosing performance
+----------------------
 
-Run the hardware report and send it with your issue::
+Generate a hardware report and attach it to a performance-related issue::
 
     python tools/spacr_hardware_report.py
 
-It prints a report and saves a copy under ``~/.spacr/reports``; the path is
-on the last line. ``--quick`` skips the longer benchmarks, and
-``--out PATH`` writes it somewhere else.
+The command prints a report and saves a copy under ``~/.spacr/reports``; the
+last line identifies the saved path. ``--quick`` omits the longer benchmarks,
+and ``--out PATH`` selects another output location.
 
-It only reads: it opens no project, loads none of your data, and the report
-is the one file it writes. What it measures is where the time actually
-goes — the imports, the numeric libraries underneath them, your display's
-device pixel ratio, the preferences in effect, building the main window,
-building each module screen, the animated backdrop and the startup card's
-animation — so a slow machine can be answered with a number instead of a
-guess.
+The report does not open a project or read project data. It records import and
+numeric-library timing, display scaling, active preferences, main-window and
+module-screen construction, and animation performance. The report file is the
+only output it creates.
 
-Two things it asks that are invisible otherwise and each explain a
-many-fold slowdown on their own: whether Python is running under emulation
-(an x86_64 build on Apple Silicon), and which BLAS NumPy found.
+It also identifies processor-architecture emulation, such as an x86_64 Python
+build on Apple Silicon, and the BLAS implementation used by NumPy. Either can
+substantially affect performance.
 
 Contributing and support
 ------------------------
 
-Bug reports and focused feature requests are welcome through
+Submit bug reports and focused feature requests through
 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.
 When reporting a failure, include the spaCR version, operating system, Python
 version, module settings and the relevant log excerpt. ``spacr-doctor``
-collects most of that for you, and the hardware report above covers anything
-about speed.
+collects most of this information; include the hardware report when reporting
+performance problems.
 
 Licensing
 ~~~~~~~~~

@@ -247,7 +247,7 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
 
 
 class ModelZooScreen(QWidget):
-    """Browse, verify, download and bench the models spaCR can run.
+    """Browse, verify, download and benchmark models supported by spaCR.
 
     :param parent: Qt parent.
     :param threaded: run scans, downloads and benchmarks on worker threads (the
@@ -413,10 +413,10 @@ class ModelZooScreen(QWidget):
         self._allow_unverified = Toggle(
             "Accept a model with no published checksum", download)
         self._allow_unverified.setToolTip(
-            "(bool) Off by default. A download nobody can check against a "
-            "published hash could be truncated or substituted, and a wrong "
-            "checkpoint still loads and still produces masks — just not the "
-            "author's.")
+            "(bool) Disabled by default. Without a published checksum, a "
+            "download cannot be verified for truncation or substitution. An "
+            "incorrect checkpoint may still load but can produce invalid "
+            "masks.")
         dl.addWidget(self._allow_unverified)
 
         self._progress = QProgressBar(download)

@@ -8,17 +8,18 @@ types, no centre-to-perimeter in either direction, no perimeter-to-
 perimeter, nothing about local maxima, and nothing about where an object
 sits inside its parent.
 
-THE WHOLE MODULE RESTS ON ONE TRICK. A Euclidean distance transform of a
-type's mask answers "how far is this point from the nearest object of that
-type" for EVERY point in the field at once. So the cost is O(field) per
-object type, not O(objects squared), and every number below is a lookup
-into a transform that was computed once:
+A Euclidean distance transform is computed once for each object-type mask. At
+every pixel it records the distance to the nearest pixel belonging to that
+object type, with zero inside an object. Centre-to-surface,
+surface-to-surface, and local-maximum distances can therefore be obtained by
+sampling or reducing the precomputed field rather than evaluating every pair
+of objects. The principal operations are::
 
     centre -> nearest surface      dt_b[centroid_a]
-    surface -> surface             min of dt_b over a's boundary pixels
-    a local maximum -> anything     dt_b[peak]
+    surface -> surface             min(dt_b[a_boundary])
+    local maximum -> surface       dt_b[peak]
 
-That is what makes it affordable to ask for all of it.
+The transform costs O(image pixels) per object type.
 
 WHAT "DISTANCE" MEANS HERE, because three different numbers get called it:
 

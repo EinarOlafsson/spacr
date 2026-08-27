@@ -100,9 +100,9 @@ APP_NAME = "Training Runs"
 #: somewhere else.
 APP_SECTION = "Results & QC"
 APP_INTRO = (
-    "Overlay the loss and accuracy curves of several training runs on one "
-    "axis and see, beside them, exactly which settings differed — with "
-    "environment drift bucketed away from the knobs you actually turned.")
+    "Compare loss and accuracy curves from multiple training runs on shared "
+    "axes. The adjacent settings comparison separates model and training "
+    "changes from differences in the software environment.")
 
 #: Combo label -> ``spacr.train_compare.compare_runs(folds=…)`` value.
 FOLD_MODE_LABELS = (

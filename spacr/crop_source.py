@@ -7,21 +7,20 @@ which is one idea in two spellings: a user reading the annotation panel and
 the training panel could not tell they were being asked the same thing, and
 the two halves of the code could not tell either.
 
-``png`` -- LOAD IMAGES, and the default
-    Crops already written to disk by the measure step. Selected by
-    ``path_string`` (a substring the path must contain) and ``file_type`` (the
-    image extension). Nothing is cut here; the images exist.
-``merged`` -- STREAM IMAGES
-    Crops cut from ``merged/*.npy`` as training runs. A merged array holds
-    both intensity planes and mask planes, so this needs to be told which are
-    which: ``extract_channels`` names the intensity planes and ``object_array``
-    names the object whose mask defines each crop's extent. Optionally the
-    objects come from a DATABASE instead, via ``coordinate_columns``.
-``generate`` -- an ACTION, not a third source
-    Cut a full crop set to disk first, then train on it as LOAD IMAGES would.
-    It is the one value that is not an answer to "where do the pixels come
-    from", which is why it keeps its own name rather than being forced into a
-    two-way naming that does not fit it.
+``png`` — load pre-generated images (default)
+    Read crops previously written by the measurement workflow.
+    ``path_string`` filters paths by substring and ``file_type`` filters by
+    image extension. This source performs no cropping.
+``merged`` — stream images
+    Extract crops during training from ``merged/*.npy`` arrays.
+    ``extract_channels`` selects the intensity planes and ``object_array``
+    selects the labelled mask plane that defines each object's extent. When
+    ``coordinate_columns`` are configured, database coordinates instead
+    define fixed bounding-box crops.
+``generate`` — generate images, then load them
+    Materialize a complete crop set on disk before training, then read it
+    through the same file-backed path as ``png``. This is a preprocessing
+    action rather than a streaming source.
 
 **The stored values did not change.** ``png`` and ``merged`` are what
 ``spacr.crops.resolve_crop_source`` has always read, so a settings file

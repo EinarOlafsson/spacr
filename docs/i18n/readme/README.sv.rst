@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ Språk: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 **Rumslig fenotypanalys av CRISPR-screeningar.**
 
-spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, kopplar varje cell till den gRNA den fick och rapporterar vilka gener som förändrade fenotypen. Plattbilder och FASTQ-läsningar matas in; ut kommer mätningar per objekt, tränade klassificerare, effektstorlekar per guide och gen samt en rangordnad träfflista.
+spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista.
 
-För bildbaserade poolade CRISPR-screeningar täcker detta hela arbetsflödet. Om du har mikroskopi med högt innehåll men ingen screening kan delarna för segmentering, mätning, annotering och klassificering köras fristående.
+För bildbaserade poolade CRISPR-screeningar tillhandahåller spaCR arbetsflödet från bildsegmentering till prioritering av träffar. För studier med mikroskopi med högt innehåll utan sekvenseringsbaserade screeningar kan modulerna för segmentering, mätning, annotering och klassificering användas oberoende av varandra.
 
 Bilder, masker, bildutsnitt, mätningar, annoteringar, prediktioner, streckkoder och brunnsidentifierare lagras i ett enda SQLite-projekt, så ett värde i ett resultat kan spåras tillbaka till objektet det kom från.
 
@@ -115,13 +114,13 @@ Arbetsflödet i korthet
 
 |App_project_browser|
 
-**Results & QC**
+**Resultat och kvalitetskontroll**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**Utforska**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,7 +128,7 @@ Arbetsflödet i korthet
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**Analyser**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
@@ -415,13 +414,15 @@ Kommandoradskommandon
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-Ställ in ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
+Ange ``SPACR_LOG_LEVEL=DEBUG`` vid felsökning. Roterande loggar skrivs till ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` listar moduler med kommandoradsposter för körning utan grafiskt gränssnitt. GUI-bundna moduler för annotering, kurering, jämförelse och utforskning utelämnas.
 
 
 Det här kan du göra
 -------------------
 
-De flesta skärmarna följer sex moduler:
+Det primära arbetsflödet består av sex moduler:
 
 - **Mask** segmenterar celler, cellkärnor, patogener och organeller med Cellpose.
 - **Measure** skriver morfologiska, intensitets-, textur-, rumsliga och kolokaliseringsmått samt objektutsnitt till SQLite.
@@ -430,7 +431,28 @@ De flesta skärmarna följer sex moduler:
 - **Map Barcodes** kopplar FASTQ-läsningar till brunnar och gRNA:er och rapporterar QC för förekomst, kollisioner och täckning.
 - **Regression** skattar effekter för guider, gener, betingelser och kontroller med modellfamiljer för kontinuerliga data, andelar och antal.
 
-Samma projekt kan också designa plattor, uppskatta effekt, korrigera batcheffekter, inspektera segmenteringskvalitet, utforska länkade tomter och bildutsnitt, exportera AnnData, återuppta avbrutet arbete och registrera inställningarna bakom varje resultat.
+Samma projekt kan även användas för att utforma plattor, uppskatta statistisk styrka, korrigera batcheffekter, granska segmenteringskvalitet, utforska sammankopplade diagram och bildutsnitt, exportera AnnData, återuppta avbruten bearbetning och registrera inställningarna bakom varje resultat.
+
+Moduler som är tillgängliga från värdvyer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tjugo moduler är integrerade i relaterade värdvyer i stället för att visas som separata paneler på startsidan. Varje modul öppnas från värdvyns rubrikrad och använder det aktiva projektet. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP och Make Masks tillhandahåller dessa integrerade moduler. Hjälp- och API-dokumentationen är fortsatt tillgänglig, och moduler med bearbetningsflöden kan fortfarande köras utan grafiskt gränssnitt. `Funktionsguiden <../../source/features.rst>`_ anger varje integrerad modul och dess värd.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks visas under **Data** och används för manuell korrigering av segmenteringsmasker. Rubrikraden ger även åtkomst till Cellpose-arbetsflödena. Arbetsytan har nio verktyg: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** och **Recrop**. Draw skapar en fylld etikett från en sluten frihandskontur. Divide delar ett sammanvuxet objekt längs en användardefinierad linje och bevarar alla övriga objektetiketter.
+
+Recrop extraherar ett bildfält med ett enda objekt från en förberedd bild som innehåller flera objekt. En avgränsningsruta runt ett objekt sparar motsvarande bild- och maskområden som ett nytt bildfält, schemalägger fältet direkt efter det aktuella och tar bort det ursprungliga fältet med flera objekt från kureringskön. Recrop ändrar det aktiva bildfältet i stället för etikettpixlarna.
+
+När Cellpose-SAM körs från Make Masks visas två mellanresultat bredvid masken: **cell-sannolikhetskartan** och **flödesfältet**. Masken definieras genom ett tröskelvärde på sannolikhetskartan, och flödeskonsistenskontroller kan avvisa objekt vars härledda flöden avviker från det förutsagda fältet. Granska dessa resultat för att skilja låg cellsannolikhet från inkonsekvent flöde vid bedömning av en felaktig eller ofullständig mask.
+
+Objekt och inställningar
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+spaCR stöder cell-, kärn- och patogenobjekt, ett cytoplasmaobjekt som härleds från deras masker samt mellan noll och tjugosex organellplatser. Varje organellplats har en oberoende kanal, diameter, morfologiförinställning och detektionsmetod.
+
+Inställningspanelen visar endast reglage när de är tillämpliga. Organellplatser över det konfigurerade antalet döljs, objekt utan tilldelad kanal utesluts från körningen och morfologispecifika reglage visas endast för den valda metoden. Reglagen **3D** och **Time** anger dimensionaliteten: ``z_stack`` aktiverar volyminställningar, ``timelapse`` aktiverar spårningsinställningar och fyrdimensionella inställningar visas när båda är aktiverade.
 
 Välj nästa sida efter vad du vill göra:
 
@@ -479,10 +501,23 @@ Referensdatauppsättningar
    :alt: Öppna bioRxiv-förhandsversionen
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+Prestandadiagnostik
+----------------------
+
+Skapa en maskinvarurapport och bifoga den till ett prestandarelaterat ärende::
+
+    python tools/spacr_hardware_report.py
+
+Kommandot skriver ut en rapport och sparar en kopia under ``~/.spacr/reports``; den sista raden anger sökvägen till den sparade filen. ``--quick`` utelämnar de längre prestandamätningarna och ``--out PATH`` väljer en annan plats för utdata.
+
+Rapporten öppnar inget projekt och läser inga projektdata. Den registrerar tidsåtgång för import och numeriska bibliotek, bildskärmsskalning, aktiva inställningar, konstruktion av huvudfönstret och modulvyer samt animationsprestanda. Rapportfilen är den enda utdata som skapas.
+
+Rapporten identifierar även emulering av processorarkitektur, exempelvis en x86_64-version av Python på Apple Silicon, och vilken BLAS-implementation NumPy använder. Båda kan påverka prestandan avsevärt.
+
 Bidrag och support
 ------------------------
 
-Felrapporter och avgränsade funktionsförslag är välkomna via `GitHub-ärenden <https://github.com/EinarOlafsson/spacr/issues>`_. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. ``spacr-doctor`` samlar in det mesta av detta åt dig.
+Skicka felrapporter och avgränsade funktionsförslag via `GitHub-ärenden <https://github.com/EinarOlafsson/spacr/issues>`_. Ange spaCR-version, operativsystem, Python-version, modulinställningar och relevant loggutdrag när du rapporterar ett fel. ``spacr-doctor`` samlar in det mesta av denna information; bifoga maskinvarurapporten vid prestandaproblem.
 
 Licens
 ~~~~~~~~~

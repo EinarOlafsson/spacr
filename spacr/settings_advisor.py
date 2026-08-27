@@ -439,10 +439,10 @@ QUESTIONS: Tuple[Question, ...] = (
         kind="number",
         default=20,
         why_it_matters=(
-            "This is the prior, and it decides how strict the multiple-"
-            "testing correction should be. A screen expecting 5 in 1,000 is "
-            "asking a different question from one expecting 200, and the "
-            "same FDR serves neither. Nothing in the tables supplies it."),
+            "This prior informs the multiple-testing threshold. A screen "
+            "expected to contain 5 hits per 1,000 tests requires a different "
+            "threshold from one expected to contain 200; the input tables do "
+            "not provide this experimental assumption."),
     ),
     Question(
         key="direction",
@@ -453,39 +453,36 @@ QUESTIONS: Tuple[Question, ...] = (
                  ("down", "a decrease only")),
         default="either",
         why_it_matters=(
-            "A screen looking for loss of a phenotype is asking a one-sided "
-            "question, and testing it two-sided spends half the alpha on an "
-            "answer it does not want."),
+            "A directional hypothesis supports a one-sided test. A two-sided "
+            "test allocates significance probability to both directions and "
+            "therefore has less power for the prespecified direction."),
     ),
     Question(
         key="controls",
-        prompt="What are your NON-CUTTING controls called? (blank if there "
-               "are none)",
+        prompt="What are the non-cutting controls called? Leave blank if "
+               "there are none.",
         kind="text",
         default="",
         why_it_matters=(
-            "The guides that BIND WITHOUT CUTTING -- the screen's empirical "
-            "null, and not the negative control, which is a real gene "
-            "knocked out. A gene name takes every one of its guides; a guide "
-            "name takes just that guide, in any of the four spellings spaCR "
-            "reads. With them named, effects can be measured FROM the null "
-            "rather than from zero."),
+            "Non-cutting guides define the screen's empirical null and are "
+            "distinct from negative-control gene knockouts. A gene name "
+            "selects all associated guides; a guide name selects only that "
+            "guide. Specifying these controls estimates effects relative to "
+            "the empirical null rather than zero."),
     ),
     Question(
         key="cost",
-        prompt="What does a wrong answer cost you?",
+        prompt="How should false positives and false negatives be weighted?",
         kind="choice",
-        options=(("precision", "a false positive is expensive — the "
-                              "follow-up is slow or costly"),
-                 ("balanced", "about the same either way"),
-                 ("recall", "a false negative is expensive — I would rather "
-                            "chase a few extra")),
+        options=(("precision", "false positives are more costly"),
+                 ("balanced", "similar cost"),
+                 ("recall", "false negatives are more costly")),
         default="balanced",
         why_it_matters=(
-            "The honest form of 'how strict?'. It moves the alpha and, at "
-            "the recall end, the correction itself — there is no setting "
-            "that is right for both a screen feeding a mouse experiment and "
-            "one feeding a plate reader."),
+            "This choice adjusts the significance threshold and, when recall "
+            "is prioritized, the multiple-testing correction. The appropriate "
+            "balance depends on the screen objective and the cost of "
+            "downstream validation."),
     ),
 )
 

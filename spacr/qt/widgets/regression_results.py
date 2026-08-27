@@ -773,14 +773,14 @@ class RegressionResultsPanel(QWidget):
         # field. Both sentences belong to the same name, so they are one
         # tooltip on it.
         self._colour_by_label.setToolTip(
-            "Up to THREE columns at once, layered rather than combined: the "
+            "Up to three columns can be encoded simultaneously: the "
             "first is the colour, the second the marker shape, the third the "
-            "opacity. Always in that order, so the same choice always gives "
-            "the same picture. There is no fourth — past three encodings a "
-            "point carries more than a reader can decode.\n\n"
+            "opacity. The order is fixed so each position has a consistent "
+            "visual meaning. Additional encodings are not supported because "
+            "they would reduce interpretability.\n\n"
             "Choosing nothing in the first box turns the other two off as "
-            "well: a shape that means one thing beside a colour that means "
-            "the q-value is two claims on one dot.")
+            "well, preventing shape or opacity from being displayed without "
+            "the primary colour encoding.")
         controls.addWidget(self._colour_by_label)
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
@@ -794,17 +794,16 @@ class RegressionResultsPanel(QWidget):
         self._colour_by_2 = QComboBox()
         self._colour_by_2.setMinimumWidth(120)
         self._colour_by_2.setToolTip(
-            "A SECOND column, drawn as the marker SHAPE rather than the "
-            "colour. Layered rather than combined: two columns of three "
-            "levels combined would be a nine-entry legend, and three would "
-            "be twenty-seven.")
+            "Second column, encoded as marker shape rather than colour. The "
+            "encodings are layered rather than combined to avoid a rapidly "
+            "expanding legend.")
         self._colour_by_2.currentIndexChanged.connect(self._redraw_volcano)
         controls.addWidget(self._colour_by_2)
         self._colour_by_3 = QComboBox()
         self._colour_by_3.setMinimumWidth(120)
         self._colour_by_3.setToolTip(
-            "A THIRD column, drawn as opacity. There is no fourth: past "
-            "three encodings a point carries more than a reader can decode.")
+            "Third column, encoded as opacity. No additional column is "
+            "offered because more simultaneous encodings reduce readability.")
         self._colour_by_3.currentIndexChanged.connect(self._redraw_volcano)
         controls.addWidget(self._colour_by_3)
         layout.addLayout(header)

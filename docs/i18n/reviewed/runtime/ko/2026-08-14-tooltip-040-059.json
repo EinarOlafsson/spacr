@@ -12,9 +12,9 @@
     {
       "table": "setting_tooltips",
       "key": "min_objects_for_threshold",
-      "source_sha256": "0ee6edebf56e12e711351a61864b73c16a51e32ebcb5905bde299a1046c6701b",
-      "source": "Objects a field must hold before a threshold is derived from it alone; below it the field borrows its well's threshold, then its plate's, and the level actually used is written into automatic_source. Raising it makes thresholds steadier and less local, which is the wrong trade when illumination varies across the field of view. Default 10.",
-      "translation": "한 필드만으로 임계값을 구하려면 필요한 객체 수입니다. 이보다 적으면 웰 임계값을, 이어서 플레이트 임계값을 빌리며 실제 사용 수준을 automatic_source 에 기록합니다. 값을 크게 하면 임계값이 더 안정적이지만 덜 국소적이므로 시야 전체에서 조명이 달라질 때는 부적절합니다. 기본값 10."
+      "source_sha256": "dc3806ab0a6f0a8f7bc499d44487eac17b292eb5fa5760c3b352f51530a2eae4",
+      "source": "Minimum number of objects required to derive a field-specific threshold. Below this count, the field uses its well threshold and then its plate threshold; automatic_source records the level used. Increasing the value improves statistical stability but reduces adaptation to local illumination variation. Default 10.",
+      "translation": "필드별 임계값을 계산하는 데 필요한 최소 객체 수입니다. 이보다 적으면 해당 필드는 웰 임계값을 사용하고 이어서 플레이트 임계값을 사용하며, automatic_source 에 실제 사용 수준을 기록합니다. 값을 높이면 통계적 안정성은 향상되지만 국소 조명 변화에 대한 적응성은 감소합니다. 기본값 10."
     },
     {
       "table": "setting_tooltips",
@@ -26,9 +26,9 @@
     {
       "table": "setting_tooltips",
       "key": "model_name",
-      "source_sha256": "a834ded6e6dac86d672a5f8d71145038a55d4199232b9483cfba86ccce5feee9",
-      "source": "Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam'; the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings files load, but they are mapped to 'cpsam' and reported, because Cellpose resolves them to cpsam silently anyway. Of the three parameters that used to distinguish models, only diameter still does anything under Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and dropped. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
-      "translation": "분할에 사용할 Cellpose 모델입니다. Cellpose 4 에는 'cpsam' 하나만 있습니다. 이전 설정 파일을 읽기 위해 SAM 이전 이름 'cyto', 'cyto2', 'cyto3', 'nuclei' 도 허용하지만 모두 'cpsam' 으로 바꾸고 이를 보고합니다. Cellpose 자체도 조용히 cpsam 으로 해석하기 때문입니다. 모델을 구분하던 세 매개변수 중 Cellpose 4 에서 작동하는 것은 diameter 뿐이며 eval 은 30/diameter 로 이미지 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 사용자 CPSAM 체크포인트를 불러오지 않는 한 'cpsam' 으로 두십시오. 기본값 'cpsam'."
+      "source_sha256": "65c016f6374310f738870e0a5187bea8e647722182afb3354640aa247d3ed2af",
+      "source": "Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
+      "translation": "분할에 사용하는 Cellpose 모델입니다. Cellpose 4 는 기본 모델 'cpsam' 하나를 제공합니다. 이전 설정과의 호환성을 위해 SAM 이전 이름 'cyto', 'cyto2', 'cyto3', 'nuclei' 도 허용되지만 'cpsam' 으로 매핑되고 이 변경이 보고됩니다. 이전에 모델을 구분하던 세 매개변수 중 Cellpose 4 에서는 diameter 만 작동하며 eval 은 30/diameter 로 이미지 크기를 조정합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록된 후 생략됩니다. 사용자 정의 CPSAM 체크포인트를 불러오는 경우가 아니면 'cpsam' 을 사용하십시오. 기본값 'cpsam'."
     },
     {
       "table": "setting_tooltips",
@@ -82,16 +82,16 @@
     {
       "table": "setting_tooltips",
       "key": "nucleus_model_name",
-      "source_sha256": "8f2e2aad818187d9f327adb31a0bedc800ed5873a7a73d6dc06919b79d297f6a",
-      "source": "Which weights segment nuclei. 'cpsam' or a path to your own Train Cellpose checkpoint; there is no third option, because Cellpose 4 removed every pre-SAM model. 'nuclei'/'nucleus' from an older settings file is accepted and mapped to 'cpsam'. Set nucleus_diameter rather than expecting a nucleus-specific model - diameter is the parameter Cellpose 4 still acts on. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
-      "translation": "핵 분할 가중치입니다. 'cpsam' 또는 Train Cellpose 로 만든 체크포인트 경로만 가능합니다. Cellpose 4 가 SAM 이전 모델을 모두 제거했기 때문입니다. 이전 설정의 'nuclei'/'nucleus' 는 허용해 'cpsam' 으로 바꿉니다. 핵 전용 모델을 기대하지 말고 nucleus_diameter 를 설정하십시오. Cellpose 4 가 계속 사용하는 매개변수는 diameter 뿐이며 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
+      "source_sha256": "70cf4a95ef90f38aee935140af72d779023104d59efc856fe476ed09abe29415",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. The legacy values 'nuclei' and 'nucleus' are accepted for compatibility and mapped to 'cpsam' because Cellpose 4 removed the pre-SAM models. Configure nucleus_diameter to control scale; of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter), while model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
+      "translation": "핵 분할에 사용하는 가중치입니다. 유효한 값은 'cpsam' 또는 Train Cellpose 에서 생성한 사용자 정의 CPSAM 체크포인트의 경로입니다. Cellpose 4 에서 SAM 이전 모델이 제거되었으므로 호환성을 위해 레거시 값 'nuclei' 와 'nucleus' 를 허용하고 'cpsam' 으로 매핑합니다. 크기는 nucleus_diameter 로 조정하십시오. 이전에 모델을 구분하던 세 매개변수 중 diameter 만 작동하고 eval 은 30/diameter 로 크기를 조정하며, model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록된 후 생략됩니다. 기본값 'cpsam'."
     },
     {
       "table": "setting_tooltips",
       "key": "object_type",
-      "source_sha256": "40f917765b3a4b0f5e743cd8faad12fc39c367606471545c7cc25ac87b3c173e",
-      "source": "Which mask decides where an object is when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The pointing game asks only whether the map's single hottest pixel lands inside that mask, so it is cheap and coarse - it says nothing about the rest of the map, and a method can score 1.0 while attributing nonsense everywhere else. Default 'cell'.",
-      "translation": "포인팅 게임이 기여도 지도를 평가할 때 객체 위치를 정할 마스크입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm' 중 하나입니다. 포인팅 게임은 지도에서 가장 뜨거운 픽셀 하나가 마스크 안에 있는지만 보므로 빠르지만 거칩니다. 지도의 나머지는 말해 주지 않으며 다른 곳이 모두 엉터리여도 1.0 을 받을 수 있습니다. 기본값 'cell'."
+      "source_sha256": "efc14c0a37d69f0ef2e93c27ffab573493431d8e936e37130e820e1789d296b3",
+      "source": "Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",
+      "translation": "포인팅 게임으로 기여도 지도를 평가할 때 객체를 정의하는 마스크입니다. 'cell', 'nucleus', 'pathogen', 'cytoplasm' 중 하나입니다. 이 지표는 지도에서 최댓값인 픽셀이 마스크 안에 있는지만 확인합니다. 계산 비용은 낮지만 지도의 나머지 영역은 평가하지 않으므로, 다른 위치에 허위 기여도를 할당해도 1.0을 받을 수 있습니다. 기본값 'cell'."
     },
     {
       "table": "setting_tooltips",
@@ -117,9 +117,9 @@
     {
       "table": "setting_tooltips",
       "key": "organelle_network_threshold",
-      "source_sha256": "7770b8150c8a37a05be5436318f158574a2d6694dfdf75123a877348f2e5fd6e",
-      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelle_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelle_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
-      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램에서 전역 절단값 하나를 구하고, 'adaptive' 는 국소 임계값(organelle_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelle_method='ridge' 일 때만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+      "source_sha256": "39622a9de924156c5701e2f2f22da978ad5d05d811047ea11b2f7e289d0a651d",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelle_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelle_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램에서 전역 절단값 하나를 구하고, 'adaptive' 는 국소 임계값(organelle_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelle_method='ridge' 일 때만 읽으며 알 수 없는 값은 경고 없이 otsu 로 돌아갑니다. 기본값 'otsu'."
     },
     {
       "table": "setting_tooltips",
