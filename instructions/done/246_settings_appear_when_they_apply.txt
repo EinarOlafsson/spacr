@@ -2,7 +2,26 @@
 SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 ================================================================================
 
-Status:    REOPENED ON ITEM 1 ONLY. Item 2 was re-measured and DOES work.
+Status:    DONE 2026-08-27. Item 1 was reopened because the count was
+           inert; it is not any more, and the work that fixed it is the same
+           work that closed instruction 256.
+
+           THE COUNT DRIVES THE SLOTS. Set through the real dropdown with
+           the event loop running, 7 renders seven, 2 renders two and 7
+           renders seven again -- asserted against `organelle_roles(count)`
+           rather than a slot count, so a wrong ORDER fails too. Hiding a
+           slot keeps its value and still saves it, and bringing the count
+           back brings the old answers with it.
+
+           `cell_channel = None` hides the cell settings and a channel shows
+           them, on the driven panel. A slot typed punctate shows exactly the
+           punctate controls and one typed vesicular exactly the vesicular
+           ones, asserted AS A SET.
+
+           NO KEY IS IN BOTH a host's fold table and the registry -- swept
+           just now, the intersection is empty.
+
+Original:  REOPENED ON ITEM 1 ONLY. Item 2 was re-measured and DOES work.
 
            1. THE COUNT IS INERT -- STILL BROKEN. `number_of_organelles`
               exists and defaults to 4, and changing it changes nothing:
