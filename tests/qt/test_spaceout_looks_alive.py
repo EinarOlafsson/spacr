@@ -863,6 +863,24 @@ def test_none_of_this_is_offered_in_preferences():
     assert amb.SPACEOUT_THEME not in amb.ANIMATION_CHOICES
     assert not amb.is_valid_theme(amb.SPACEOUT_THEME)
     assert not hasattr(preferences, "set_spaceout")
-    for name in dir(preferences):
-        assert "spaceout" not in name.lower()
-        assert "fractal" not in name.lower()
+
+    # CHECKED ON THE ROWS, NOT ON THE SYMBOL NAMES. This used to forbid the
+    # word "fractal" anywhere in `preferences`, which stopped being the
+    # right question when the maintainer asked for the fractal's own
+    # settings -- speed, quality, backend and the rest -- to be settable
+    # "only available in spaceout mode". The rule it was protecting is
+    # unchanged and is now asserted directly: an ordinary launch is offered
+    # none of it. `test_the_rows_are_absent_in_an_ordinary_launch` in
+    # tests/qt/test_the_spaceout_fractal.py holds the other half.
+    from PySide6.QtWidgets import QApplication, QComboBox, QTabWidget
+
+    if QApplication.instance() is None:                      # pragma: no cover
+        QApplication([])
+    dialog = preferences.PreferencesDialog()
+    try:
+        assert dialog.findChild(QComboBox, "FractalBackend") is None
+        tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+        titles = [tabs.tabText(i) for i in range(tabs.count())]
+        assert "Fractal" not in titles
+    finally:
+        dialog.deleteLater()

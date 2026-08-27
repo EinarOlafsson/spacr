@@ -181,6 +181,12 @@ _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
+_KEY_FRACTAL_BACKEND = "spaceout/fractal_backend"
+_KEY_FRACTAL_QUALITY = "spaceout/fractal_quality"
+_KEY_FRACTAL_SCALE = "spaceout/fractal_scale"
+_KEY_FRACTAL_SPEED = "spaceout/fractal_speed"
+_KEY_FRACTAL_DREAM = "spaceout/fractal_dream"
+_KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
 _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
@@ -1770,6 +1776,95 @@ LAPTOP_MODE_LABELS = {
 }
 
 
+#: The spaceout fractal's settings. SPACEOUT ONLY -- the rows are not built
+#: in an ordinary launch, and these functions are the only readers, so a
+#: normal session neither shows them nor is affected by them.
+#:
+#: The defaults are the maintainer's two command lines. `auto` picks the GPU
+#: when vispy is importable and the CPU otherwise, which is what lets one set
+#: of numbers serve both.
+FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
+FRACTAL_QUALITIES = ("auto", "balanced", "high")
+
+
+def get_fractal_settings() -> dict:
+    """Every spaceout fractal setting, ready for `Settings`/`RuntimeControls`.
+
+    Read through one function so the dialog and the backdrop cannot disagree
+    about a default. Out-of-range stored values are clamped rather than
+    refused -- a backdrop must not stop the application from starting.
+    """
+    from .fractal_defaults import (
+        DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_QUALITY, DEFAULT_SCALE,
+        DEFAULT_SPEED, DEFAULT_VARIABLE_SPEED, clamp,
+    )
+
+    settings = _settings()
+
+    def _text(key, default, allowed):
+        raw = str(settings.value(key, default))
+        return raw if raw in allowed else default
+
+    def _number(key, default, low, high):
+        try:
+            return clamp(float(settings.value(key, default)), low, high)
+        except (TypeError, ValueError):
+            return default
+
+    raw_variable = settings.value(_KEY_FRACTAL_VARIABLE_SPEED,
+                                  DEFAULT_VARIABLE_SPEED)
+    if isinstance(raw_variable, str):
+        variable = raw_variable.strip().lower() in ("1", "true", "yes", "on")
+    else:
+        variable = bool(raw_variable)
+
+    return {
+        "backend": _text(_KEY_FRACTAL_BACKEND, DEFAULT_BACKEND,
+                         FRACTAL_BACKENDS),
+        "quality": _text(_KEY_FRACTAL_QUALITY, DEFAULT_QUALITY,
+                         FRACTAL_QUALITIES),
+        "scale": _number(_KEY_FRACTAL_SCALE, DEFAULT_SCALE, 0.25, 2.0),
+        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.15, 8.0),
+        "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, 1.5),
+        "variable_speed": variable,
+    }
+
+
+def set_fractal_settings(**values) -> None:
+    """Persist any subset of the fractal settings.
+
+    :raises ValueError: on an unknown name, or a backend/quality outside its
+        set. A number outside its range is clamped, because a slider cannot
+        produce one and a hand-edited file should still start.
+    """
+    from .fractal_defaults import clamp
+
+    keys = {
+        "backend": (_KEY_FRACTAL_BACKEND, None),
+        "quality": (_KEY_FRACTAL_QUALITY, None),
+        "scale": (_KEY_FRACTAL_SCALE, (0.25, 2.0)),
+        "speed": (_KEY_FRACTAL_SPEED, (0.15, 8.0)),
+        "dream": (_KEY_FRACTAL_DREAM, (0.0, 1.5)),
+        "variable_speed": (_KEY_FRACTAL_VARIABLE_SPEED, None),
+    }
+    store = _settings()
+    for name, value in values.items():
+        if name not in keys:
+            raise ValueError(f"unknown fractal setting {name!r}; "
+                             f"expected one of {sorted(keys)}")
+        key, bounds = keys[name]
+        if name == "backend" and value not in FRACTAL_BACKENDS:
+            raise ValueError(f"unknown fractal backend {value!r}")
+        if name == "quality" and value not in FRACTAL_QUALITIES:
+            raise ValueError(f"unknown fractal quality {value!r}")
+        if bounds is not None:
+            value = clamp(float(value), *bounds)
+        if name == "variable_speed":
+            value = bool(value)
+        store.setValue(key, value)
+    store.sync()
+
+
 def get_laptop_mode() -> str:
     """Whether laptop mode is forced on, forced off, or measured.
 
@@ -2997,11 +3092,13 @@ class PreferencesDialog:
     def __new__(cls, parent=None):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+            QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+            QDoubleSpinBox, QFormLayout,
             QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
             QSpinBox, QTabWidget, QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
+        from .theme import spaceout_enabled
         from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
@@ -3882,6 +3979,85 @@ class PreferencesDialog:
                 laptop_combo.setCurrentIndex(_i)
                 break
         performance.addRow(tr("Laptop mode"), laptop_combo)
+        # THE SPACEOUT FRACTAL, and ONLY under spaceout. An ordinary launch
+        # builds none of these rows, so the hidden mode stays hidden: a
+        # settings page advertising it would be the giveaway.
+        if spaceout_enabled():
+            fractal = _page("Fractal", "PreferencesTabFractal")
+            _fractal_values = get_fractal_settings()
+
+            fractal_backend = QComboBox()
+            fractal_backend.setObjectName("FractalBackend")
+            for _key in FRACTAL_BACKENDS:
+                fractal_backend.addItem(tr(_key), _key)
+            fractal_backend.setCurrentIndex(
+                max(0, fractal_backend.findData(_fractal_values["backend"])))
+            fractal.addRow(tr("Backend"), fractal_backend)
+
+            fractal_note = QLabel()
+            fractal_note.setObjectName("FractalBackendNote")
+            fractal_note.setWordWrap(True)
+            fractal.addRow("", fractal_note)
+
+            def _sync_fractal_note(*_args):
+                """Say which renderer 'auto' will actually pick HERE.
+
+                The label cannot state it: it depends on whether vispy is
+                importable on this machine, and the honest answer is the one
+                the user will get.
+                """
+                from .widgets.fractal_travel import (
+                    gpu_is_available, resolve_backend)
+
+                chosen = fractal_backend.currentData()
+                actual = resolve_backend(chosen)
+                if chosen == "auto":
+                    text = (f"Automatic: this machine will use the "
+                            f"{actual.upper()} renderer.")
+                elif chosen == "gpu" and not gpu_is_available():
+                    text = ("The GPU renderer needs vispy, which is not "
+                            "installed here, so the CPU renderer runs "
+                            "instead. Nothing else changes when it is.")
+                else:
+                    text = f"The {actual.upper()} renderer."
+                fractal_note.setText(text)
+
+            fractal_backend.currentIndexChanged.connect(_sync_fractal_note)
+            _sync_fractal_note()
+
+            fractal_quality = QComboBox()
+            fractal_quality.setObjectName("FractalQuality")
+            for _key in FRACTAL_QUALITIES:
+                fractal_quality.addItem(tr(_key), _key)
+            fractal_quality.setCurrentIndex(
+                max(0, fractal_quality.findData(_fractal_values["quality"])))
+            fractal.addRow(tr("Quality"), fractal_quality)
+
+            def _tenths(name, value, low, high):
+                """A slider in tenths -- QSlider is integer-only."""
+                box = QDoubleSpinBox()
+                box.setObjectName(name)
+                box.setRange(low, high)
+                box.setSingleStep(0.05)
+                box.setDecimals(2)
+                box.setValue(float(value))
+                return box
+
+            fractal_scale = _tenths("FractalScale",
+                                    _fractal_values["scale"], 0.25, 2.0)
+            fractal.addRow(tr("Scale"), fractal_scale)
+            fractal_speed = _tenths("FractalSpeed",
+                                    _fractal_values["speed"], 0.15, 8.0)
+            fractal.addRow(tr("Speed"), fractal_speed)
+            fractal_dream = _tenths("FractalDream",
+                                    _fractal_values["dream"], 0.0, 1.5)
+            fractal.addRow(tr("Dream"), fractal_dream)
+
+            fractal_variable = Toggle()
+            fractal_variable.setObjectName("FractalVariableSpeed")
+            fractal_variable.setChecked(bool(_fractal_values["variable_speed"]))
+            fractal.addRow(tr("Variable speed"), fractal_variable)
+
 
         laptop_note_label = QLabel()
         laptop_note_label.setObjectName("LaptopModeNote")
@@ -4245,6 +4421,15 @@ class PreferencesDialog:
             # their minimums, and leaving it puts back what it stashed. Do
             # it earlier and the dialog's own values would land on top,
             # which would mean the mode silently did not take effect.
+            if spaceout_enabled():
+                set_fractal_settings(
+                    backend=fractal_backend.currentData(),
+                    quality=fractal_quality.currentData(),
+                    scale=fractal_scale.value(),
+                    speed=fractal_speed.value(),
+                    dream=fractal_dream.value(),
+                    variable_speed=fractal_variable.isChecked(),
+                )
             set_laptop_mode(laptop_combo.currentData())
             set_spacr_mode(mode_combo.currentData())
             apply_preferences_to_app()
