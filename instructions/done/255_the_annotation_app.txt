@@ -2,8 +2,22 @@
 THE ANNOTATION APP: TWO CRASHES FIRST, THEN SIX THINGS ABOUT THE VIEW
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26. TWO OF THESE ARE CRASHES and come
-           before everything else on this list.
+Status:    DONE, audited 2026-08-27.
+
+           BOTH CRASHES ARE FIXED -- commit 40a5bbab, "Both annotator
+           crashes, and the view settings that were decorative". Cellpose
+           was a thread-ownership segfault; the Coverage button was a nested
+           `exec()` wedge. Guarded by
+           tests/qt/test_annotate_worker_lifecycle.py and
+           test_annotate_resize_crash.py.
+
+           THE VIEW SETTINGS WERE DECORATIVE and are not any more: CMY and
+           `B G R` never reached the view because `collect()` did not write
+           the combos. A CMY crop now differs from the same crop in RGB in
+           PIXELS, and the difference is the subtractive mapping rather than
+           noise -- tests/qt/test_a_cmy_crop_is_not_an_rgb_crop.py.
+
+           94 tests pass across the annotator files.
 Owner:     spacr/qt/screens/annotate.py and what it opens.
 
 --------------------------------------------------------------------------------
