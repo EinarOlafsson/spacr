@@ -3,7 +3,23 @@ THE VOLCANO EXPLORER: PUBLICATION DEFAULTS, A RED LABEL INSTEAD OF A BLANK
 PLOT, AND SETTINGS THAT DO NOT OVERWHELM
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26.
+Status:    DONE, audited 2026-08-27. Every acceptance point has a named
+           test and all 90 pass across the three explorer files.
+
+           White ground, black axes, black threshold lines and black text
+           are measured IN PIXELS on the drawn figure
+           (`test_the_left_spine_is_black_in_pixels`), not read from a
+           style dict -- which is what this file asked for.
+
+           The export is unchanged: the global transparent default still
+           holds, the screen's ground never reaches a file, and a
+           transparent export is still transparent. So section 1 did not
+           quietly change what gets saved.
+
+           A bad setting keeps the figure, reddens that setting's name, puts
+           the reason UNDER the plot, and falls back to the last value that
+           drew. Two bad settings give two red labels and neither message is
+           lost; correcting them clears both.
 Owner:     spacr/qt/widgets/volcano_explorer.py and spacr/volcano_style.py.
 
 --------------------------------------------------------------------------------

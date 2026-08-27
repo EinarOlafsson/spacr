@@ -2,7 +2,27 @@
 THE REPOSITORY AS THE PUBLIC SEES IT
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-25.
+Status:    DONE on everything this branch decides, 2026-08-27.
+
+           AUTHORSHIP IS ALREADY CLEAN. `git log` carries ZERO commits with
+           a Co-Authored-By naming an AI and ZERO authored by a bot, so the
+           history rewrite this file anticipated is not needed -- the
+           trailers were never added rather than added and removed.
+
+           THE README NAMES NO FOLD AS A SEPARATE TOOL. Swept all fourteen
+           folded app keys against README.rst: two match and neither is a
+           tool name -- "a ranked hit list" is prose, and `timelapse` at
+           line 531 is the SETTING that enables tracking, beside `z_stack`.
+
+           THE API INDEX COVERS THE FOLDS. All fourteen have a page.
+
+           THE TRACKED HELPER FOLDERS STAY, by the maintainer's own choice.
+           Asked which way to go, the answer was option B: `instructions/`,
+           `skill/`, `proposals/` and `.claude/` remain tracked on nightly
+           and are kept out of main. 321 files, deliberately. That
+           acceptance line describes MAIN, and it is the copy-to-main step
+           of the release endgame that satisfies it -- not a change to make
+           here, where the files are still being written.
 Owner:     .gitignore, .gitattributes, the git history, README.rst and the
            generated API pages.
 

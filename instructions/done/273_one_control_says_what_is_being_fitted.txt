@@ -2,7 +2,35 @@
 ONE CONTROL SAYS WHAT IS BEING FITTED, AND THE PERMUTATION TESTS GENES TOO
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26. The maintainer has raised this
+Status:    DONE 2026-08-27, all three sections.
+
+           1. THE OPTIONS NAME THE ANALYSIS. `level` offers "one estimate
+           per guide", "one estimate per gene, its guides pooled", and both
+           corrected as their own families; `inference` offers the fit that
+           needs more wells than terms and the permutation that is valid at
+           any width. The stored values are unchanged, so every settings
+           file already written still means what it meant. The section help
+           states the two questions in order and says they are independent
+           -- every level is available under either -- and names the third
+           analysis and its limit: a mixed family models the guide-to-guide
+           spread and has NO permutation equivalent, because a variance
+           component is something a model estimates.
+
+           2. THE PERMUTATION REPORTS GENES when they are asked for. `level`
+           drives that path as it drives the fitted one: grna skips the gene
+           pass, gene reports genes, both reports both, each corrected as
+           its own BH family. Measured on the maintainer's own screen: 789
+           guides, 380 genes, 1169 for both.
+
+           3. THE COST IS SAID BEFORE IT IS PAID. `mixed_cost_note` is now
+           on `regression_type`'s own help -- the control that CHOOSES the
+           fit -- rather than only in the console banner, which a user
+           reaches after starting the run. One source for the measurement,
+           so the box and the banner cannot drift apart. And it no longer
+           prints on runs that fit no model at all; instruction 271 fixed
+           that half.
+
+Original:  OPEN. Requested 2026-08-26. The maintainer has raised this
            repeatedly -- "a problem i keep coming back to".
 Priority:  HIGH. It is the question the whole module exists to answer.
 Owner:     spacr/settings.py, spacr/ml.py, spacr/guide_permutation.py.
