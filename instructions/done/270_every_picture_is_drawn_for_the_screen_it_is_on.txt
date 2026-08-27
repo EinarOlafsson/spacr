@@ -2,7 +2,31 @@
 EVERY PICTURE IS DRAWN FOR THE SCREEN IT IS ON
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26 -- "the spacr logo looks super low res
+Status:    DONE 2026-08-26. `spacr/qt/hidpi.py` holds the helper and 16
+           files go through it. Measured on the pixmap, not the file:
+
+               ratio 2 -> 240x240 pixels, devicePixelRatio 2, logical 120x120
+               ratio 1 -> 120x120 pixels, devicePixelRatio 1, logical 120x120
+
+           So the picture carries twice the pixels on a retina display and
+           the label it sits in is unchanged, and nothing regresses at
+           ratio 1.
+
+           THE SWEEP, and the two sites that do NOT go through it, each with
+           its reason as this file asked:
+
+             * `widgets/ambient.py:1407` -- downsamples an internal blur
+               BUFFER, not a picture shown at a logical size. There is no
+               logical size for a device ratio to multiply.
+             * `tutorial/engine.py:269` -- writes a VIDEO FRAME at an exact
+               pixel size, and sets devicePixelRatio to 1.0 first on
+               purpose: the grab's HiDPI claim would halve the frame. Using
+               the helper here would reintroduce the bug its comment
+               describes.
+
+           A third match is prose inside a docstring.
+
+Original:  OPEN. Requested 2026-08-26 -- "the spacr logo looks super low res
            on the mac".
 Owner:     spacr/qt/widgets/home.py and the 24 scaling sites the sweep finds.
 
