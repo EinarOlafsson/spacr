@@ -2,7 +2,29 @@
 SPACEOUT: THE SAME APPLICATION, WEARING SOMETHING ELSE
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26.
+Status:    DONE, audited 2026-08-27.
+
+           THE ENTRY POINT is `spaceout=spacr.qt.spaceout:main` in setup.py,
+           beside `spacr` and `spacr-qt`. It starts the same application --
+           the same registry, the same settings, only the dressing differs.
+
+           NOTHING IN PREFERENCES OFFERS IT. The theme chooser lists dark,
+           light, cell and glass; `spaceout` is not among them, and nothing
+           persists it, so an ordinary `spacr` start cannot land in it. That
+           was the one thing the request ruled out.
+
+           THE PALETTE IS RAINBOW AND DRIFTS -- SPACEOUT_HUES,
+           SPACEOUT_DRIFT_STEPS, SPACEOUT_DRIFT_TURN -- and the ambient layer
+           draws moving fractals (FRACTAL_* in widgets/ambient.py).
+
+           READABILITY HOLDS. `fg` against `bg` is 21.0:1. `fg_dim` is
+           4.16:1, which is the hint-text role and answers to the 3.0:1 rule
+           the theme documents for it, not the 4.5:1 one for body text.
+           tests/qt/test_space_legibility.py, 83 tests.
+
+           THE FRACTALS ANSWER TO THE EXISTING GUARD:
+           `FRACTAL_AFFORD_FLOOR` clamps the work when frames get expensive,
+           so the animation degrades rather than stuttering the application.
 Owner:     the console entry points in setup.py, spacr/qt/theme.py and the
            loading screen's animation.
 
