@@ -10,6 +10,10 @@ what the runtime returns.
 """
 from __future__ import annotations
 
+import sys
+from importlib import import_module
+from pathlib import Path
+
 import pytest
 
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
@@ -156,6 +160,16 @@ def _catalog(language):
     return _module(language)
 
 
+def _builder():
+    """Import the runtime-catalog builder without relying on PYTHONPATH."""
+    tools = str(Path(__file__).resolve().parents[2] / "tools")
+    sys.path.insert(0, tools)
+    try:
+        return import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools)
+
+
 @pytest.mark.parametrize("language", LANGUAGES)
 def test_every_chrome_caption_resolves_to_its_catalog_row(language):
     """tr() must return the catalog row, not the English source.
@@ -164,20 +178,70 @@ def test_every_chrome_caption_resolves_to_its_catalog_row(language):
     headers, placeholders — which is exactly the text the language pass had
     left behind.
     """
-    from spacr.qt.i18n import tr
+    from spacr.qt.i18n import _ROWS, CATALOGS, tr
 
-    catalog = _catalog(language).UI
+    external = _catalog(language).UI
     english = []
     for source in CHROME_CAPTIONS:
-        assert source in catalog, f"{language}: {source!r} has no catalog row"
+        compact_owner = source in _ROWS
+        external_owner = source in external
+        assert compact_owner != external_owner, (
+            f"{language}: {source!r} needs exactly one authoritative row; "
+            f"compact={compact_owner}, external={external_owner}"
+        )
+        expected = (
+            CATALOGS[language][source]
+            if compact_owner else external[source]
+        )
         translated = tr(source, language)
-        assert translated == catalog[source], (
-            f"{language}: {source!r} did not resolve to its row"
+        assert translated == expected, (
+            f"{language}: {source!r} did not resolve to its authoritative row"
         )
         if translated == source and language not in SPELLED_THE_SAME.get(
                 source, ()):
             english.append(source)
     assert not english, f"{language} still English: {english}"
+
+
+def test_chrome_and_related_prose_enter_the_source_inventory_once():
+    """Indirect chrome must enter one source-hashed translation layer.
+
+    The captions covered here do not appear as literal arguments to the Qt
+    calls that eventually display them. This check binds the independent
+    focused inventory above to the production extractor, including the three
+    maturity notes, two annotate legends, and source-sensitive empty-state
+    subtitle that exposed the same gap.
+    """
+    builder = _builder()
+    canonical = set(builder.canonical_sources()["ui"])
+
+    from spacr.qt.i18n import _ROWS
+    from spacr.qt.screens.annotate import AnnotateScreen
+    from spacr.qt.theme import STAGE_NOTE
+
+    external_chrome = set(CHROME_CAPTIONS) - set(_ROWS)
+    assert external_chrome <= canonical
+    assert not (canonical & set(_ROWS))
+
+    auxiliary = set(STAGE_NOTE.values()) | {
+        AnnotateScreen.LEGEND_COMPACT,
+        AnnotateScreen.LEGEND_FULL,
+    }
+    subtitles = {
+        source for source in canonical
+        if source.startswith(
+            "Pick a folder that contains `measurements/measurements.db`"
+        )
+    }
+    assert len(subtitles) == 1
+    assert auxiliary | subtitles <= canonical
+
+    # Sixty-six chrome rows plus the five constants and one subtitle are the
+    # exact gap this regression covers. The project-wide inventory ratchet
+    # independently pins the resulting canonical count and digest.
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 66
+    assert builder._INDIRECT_CHROME_UI_SOURCES <= set(CHROME_CAPTIONS)
+    assert len(auxiliary | subtitles) == 6
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
@@ -364,11 +428,12 @@ def test_distinct_settings_keep_distinct_swedish_labels():
     leaves the panel showing the same row label twice, which is worse than
     English because the user cannot tell which control is which.
     """
+    from spacr.qt.i18n import tr
     from spacr.qt.i18n_catalogs import sv
 
     labels = {key: sv.SETTING_LABELS[key]
               for key in ("eps", "pos", "neg", "gpu", "min_n")}
     assert len(set(labels.values())) == len(labels), labels
-    captions = {key: sv.UI[key]
+    captions = {key: tr(key, "sv")
                 for key in ("Radius", "organelle", "tsne", "umap", "png")}
     assert len(set(captions.values())) == len(captions), captions

@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QLabel,
     QMainWindow,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -126,6 +127,8 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("D",            "Draw an object",         "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("V",            "Divide an object",       "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("R",            "Recrop an object",       "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Z",            "Zoom",                   "Make Masks",
                  "the Make Masks screen"),
@@ -476,6 +479,7 @@ def _jump_to_the_newest_line(window) -> None:
 #: objectNames, so the theme can reach the overlay and tests can find it.
 OVERLAY_NAME = "ShortcutOverlay"
 OVERLAY_CARD_NAME = "ShortcutOverlayCard"
+OVERLAY_SCROLL_NAME = "ShortcutOverlayScroll"
 
 
 class ShortcutOverlay(QWidget):
@@ -493,6 +497,8 @@ class ShortcutOverlay(QWidget):
     """
 
     def __init__(self, window: QWidget):
+        from .i18n import tr
+
         super().__init__(window)
         self.setObjectName(OVERLAY_NAME)
         self._window = window
@@ -502,12 +508,31 @@ class ShortcutOverlay(QWidget):
 
         self._card = QWidget(self)
         self._card.setObjectName(OVERLAY_CARD_NAME)
-        grid = QGridLayout(self._card)
+        card_layout = QVBoxLayout(self._card)
+        card_layout.setContentsMargins(0, 0, 0, 0)
+        card_layout.setSpacing(0)
+
+        # The complete map normally fits as one centred card. A short window
+        # or larger UI font must not clip its last shortcuts, so only the
+        # inside becomes scrollable when the natural card is taller/wider
+        # than the overlay. The surrounding card and its visual treatment do
+        # not change.
+        self._scroll = QScrollArea(self._card)
+        self._scroll.setObjectName(OVERLAY_SCROLL_NAME)
+        self._scroll.setWidgetResizable(False)
+        self._scroll.setFocusPolicy(Qt.NoFocus)
+        self._scroll.viewport().setAutoFillBackground(False)
+        self._scroll.viewport().installEventFilter(self)
+        card_layout.addWidget(self._scroll)
+
+        self._card_content = QWidget()
+        self._card_content.setAutoFillBackground(False)
+        grid = QGridLayout(self._card_content)
         grid.setContentsMargins(28, 24, 28, 24)
         grid.setHorizontalSpacing(36)
         grid.setVerticalSpacing(6)
 
-        title = QLabel("Keyboard shortcuts", self._card)
+        title = QLabel(tr("Keyboard shortcuts"), self._card_content)
         title.setObjectName("ShortcutOverlayTitle")
         grid.addWidget(title, 0, 0, 1, 2)
 
@@ -539,33 +564,36 @@ class ShortcutOverlay(QWidget):
                 band = grid.rowCount() + 1
                 column = 0
             row = band
-            header = QLabel(category.upper(), self._card)
+            header = QLabel(tr(category).upper(), self._card_content)
             header.setObjectName("ShortcutOverlayCategory")
             grid.addWidget(header, row, column, 1, 2)
             row += 1
             for spec in specs:
                 # PRINTED IN THE PLATFORM'S OWN SPELLING. `Ctrl` is the
                 # Command symbol on macOS and Qt already knows.
-                keys = QLabel(native(spec.keys), self._card)
+                keys = QLabel(native(spec.keys), self._card_content)
                 keys.setObjectName("ShortcutOverlayKeys")
                 keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 grid.addWidget(keys, row, column)
                 # AND WHERE IT WORKS, when that is not everywhere. A key
                 # that works on one screen and is listed without saying so
                 # sends a user to press it somewhere it does nothing.
-                said = spec.label
+                said = tr(spec.label)
                 if spec.scope and spec.scope != EVERYWHERE:
-                    said = f"{said}  —  {spec.scope}"
-                label = QLabel(said, self._card)
+                    said = f"{said}  —  {tr(spec.scope)}"
+                label = QLabel(said, self._card_content)
                 label.setObjectName("ShortcutOverlayLabel")
                 grid.addWidget(label, row, column + 1)
                 row += 1
             column += 2
 
-        hint = QLabel("Press any key to close.", self._card)
+        hint = QLabel(tr("Press any key to close."), self._card_content)
         hint.setObjectName("ShortcutOverlayHint")
         grid.addWidget(hint, grid.rowCount(), 0, 1, max(column, 2))
 
+        self._scroll.setWidget(self._card_content)
+        grid.activate()
+        self._card_content.adjustSize()
         self._reposition()
         window.installEventFilter(self)
 
@@ -581,11 +609,21 @@ class ShortcutOverlay(QWidget):
         self._reposition()
 
     def _reposition(self) -> None:
-        hint = self._card.sizeHint()
+        hint = self._card_content.sizeHint()
+        max_width = max(1, self.width() - 24)
+        max_height = max(1, self.height() - 24)
+        needs_vertical_scroll = hint.height() > max_height
+        scrollbar_width = (
+            self._scroll.verticalScrollBar().sizeHint().width()
+            if needs_vertical_scroll else 0
+        )
+        width = min(max_width, hint.width() + scrollbar_width)
+        height = min(max_height, hint.height())
+        self._card_content.resize(hint)
         self._card.setGeometry(
-            max(0, (self.width() - hint.width()) // 2),
-            max(0, (self.height() - hint.height()) // 2),
-            hint.width(), hint.height(),
+            max(0, (self.width() - width) // 2),
+            max(0, (self.height() - height) // 2),
+            width, height,
         )
 
     # -- dismissal ----------------------------------------------------
@@ -593,6 +631,10 @@ class ShortcutOverlay(QWidget):
         """Track the window's size so the overlay stays full-bleed."""
         if obj is self._window and event.type() == QEvent.Resize:
             self.setGeometry(self._window.rect())
+        if obj is self._scroll.viewport() \
+                and event.type() == QEvent.MouseButtonPress:
+            self.dismiss()
+            return True
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event) -> None:
@@ -706,6 +748,13 @@ QWidget#{OVERLAY_CARD_NAME} {{
     background: {surface};
     border: 1px solid {palette["accent"]};
     border-radius: 12px;
+}}
+QScrollArea#{OVERLAY_SCROLL_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QScrollArea#{OVERLAY_SCROLL_NAME} > QWidget > QWidget {{
+    background: transparent;
 }}
 QLabel#ShortcutOverlayTitle {{
     font-size: {font_px(18)}px;

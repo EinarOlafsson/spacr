@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Intensity Handling (all objects)",
+      "source_sha256": "0b7397f777fe31d98838c965535ce576f94f2661d492eb2ac7591301eabb1bb7",
+      "source": "Intensity Handling (all objects)",
+      "translation": "강도 처리(모든 객체)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate Sources & Workflow",
+      "source_sha256": "a911ad2a1eb28ee568392dae7c368d6f57d54be35c75f6983180c0e91a795507",
+      "source": "Plate Sources & Workflow",
+      "translation": "마이크로플레이트 소스 및 워크플로"
+    },
+    {
+      "table": "ui",
+      "key": "Labels & Classes",
+      "source_sha256": "938666907850be867dde8d7cbb3279e9a2d7cdffc721bd3054a22dd0e92b1c9c",
+      "source": "Labels & Classes",
+      "translation": "레이블 및 클래스"
+    },
+    {
+      "table": "ui",
+      "key": "Evaluation & Results",
+      "source_sha256": "21232021a6cdaa1443f234cc9deded1509370c7e32d39310c1d23aa7b066933b",
+      "source": "Evaluation & Results",
+      "translation": "평가 및 결과"
+    },
+    {
+      "table": "ui",
+      "key": "Min object area",
+      "source_sha256": "45bd4fb391211df98034b81ab2ce2b18a416ff261b151b678397b3ef99db69d8",
+      "source": "Min object area",
+      "translation": "최소 객체 면적"
+    },
+    {
+      "table": "ui",
+      "key": "Remove border objects",
+      "source_sha256": "155e37e4127648bd9dd75129bf499173af6258c2b5ad6742a680028e9a6fe928",
+      "source": "Remove border objects",
+      "translation": "경계에 닿은 객체 제거"
+    },
+    {
+      "table": "ui",
+      "key": "Plate heatmap",
+      "source_sha256": "61a0cbd0f9a590de0628d6b635433ea6a869af0e9f715c8b2353246d30045104",
+      "source": "Plate heatmap",
+      "translation": "마이크로플레이트 히트맵"
+    },
+    {
+      "table": "ui",
+      "key": "Signed off and in normal use.",
+      "source_sha256": "f6d20c28871c2a839d8c4ba80ce975e34f011b66fd51b98480fc9ab480f59b51",
+      "source": "Signed off and in normal use.",
+      "translation": "검토를 완료하여 일반적으로 사용 중입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Further along than alpha and in regular use, but not signed off yet.",
+      "source_sha256": "b8215cef461f522f34fa104540738232aa71d61c5003146ef7d647f829b46834",
+      "source": "Further along than alpha and in regular use, but not signed off yet.",
+      "translation": "알파 단계보다 더 개발되었고 정기적으로 사용 중이지만, 아직 최종 승인을 받지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "source_sha256": "85e4e7e0a84b2017e66d69cd70b487d527db8c37ce944a75370f006e85c997de",
+      "source": "Built and reachable, not yet trusted end to end. Expect rough edges, and check the numbers before you rely on them.",
+      "translation": "구현되어 접근할 수 있지만, 아직 전체 워크플로에서 신뢰성이 검증되지 않았습니다. 미완성된 부분이 있을 수 있으므로 결과를 신뢰하기 전에 수치를 확인하십시오."
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "source_sha256": "d4f32b12299a83316728f13eb99c883b703517792fdb2692ecb2b063abc6ac35",
+      "source": "<b>1</b>–<b>9</b> label + advance &nbsp;·&nbsp; <b>0</b> clear &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> move &nbsp;·&nbsp; <b>Space</b> skip &nbsp;·&nbsp; <b>Backspace</b> back &nbsp;·&nbsp; <b>u</b> undo &nbsp;·&nbsp; <b>Enter</b> next batch",
+      "translation": "<b>1</b>–<b>9</b> 클래스 지정 + 다음으로 &nbsp;·&nbsp; <b>0</b> 레이블 지우기 &nbsp;·&nbsp; <b>← ↑ ↓ →</b> / <b>hjkl</b> 선택 위치 이동 &nbsp;·&nbsp; <b>Space</b> 건너뛰기 &nbsp;·&nbsp; <b>Backspace</b> 뒤로 &nbsp;·&nbsp; <b>u</b> 실행 취소 &nbsp;·&nbsp; <b>Enter</b> 다음 배치"
+    },
+    {
+      "table": "ui",
+      "key": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "source_sha256": "07606cbbed223265b25bd02dd1aa77d55c0efd9834c5f574da3e730087135746",
+      "source": "<b>1</b>–<b>9</b> assign that class to the focused crop and jump to the next unlabelled one &nbsp;·&nbsp; <b>0</b> clear the focused crop &nbsp;·&nbsp; <b>← ↑ ↓ →</b> or <b>h j k l</b> move focus without labelling &nbsp;·&nbsp; <b>Space</b> skip forward one &nbsp;·&nbsp; <b>Backspace</b> step back one &nbsp;·&nbsp; <b>u</b> undo the last label &nbsp;·&nbsp; <b>Enter</b> save this page and load the next batch &nbsp;·&nbsp; mouse still works: left-click = class 1, right-click = class 2.",
+      "translation": "<b>1</b>–<b>9</b> 현재 선택된 크롭에 해당 클래스를 지정하고 레이블이 없는 다음 크롭으로 이동 &nbsp;·&nbsp; <b>0</b> 현재 선택된 크롭의 레이블 지우기 &nbsp;·&nbsp; <b>← ↑ ↓ →</b> 또는 <b>h j k l</b> 레이블을 지정하지 않고 선택 위치 이동 &nbsp;·&nbsp; <b>Space</b> 한 크롭 앞으로 건너뛰기 &nbsp;·&nbsp; <b>Backspace</b> 한 크롭 뒤로 이동 &nbsp;·&nbsp; <b>u</b> 마지막 레이블 실행 취소 &nbsp;·&nbsp; <b>Enter</b> 현재 페이지를 저장하고 다음 배치 불러오기 &nbsp;·&nbsp; 마우스도 계속 사용할 수 있음: 왼쪽 클릭 = 클래스 1, 오른쪽 클릭 = 클래스 2."
+    },
+    {
+      "table": "ui",
+      "key": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "source_sha256": "d41b75743183b5820d1e308408832520fef7d4262bf7082c1d17c6c00d79b9a9",
+      "source": "Pick a folder that contains `measurements/measurements.db`. Left-click an image to assign class 1, right-click for class 2, click again to clear — or go keyboard-only: 1–9 label and jump to the next crop. Annotations save in the background.",
+      "translation": "`measurements/measurements.db`가 들어 있는 폴더를 선택하십시오. 이미지를 왼쪽 클릭하면 클래스 1을, 오른쪽 클릭하면 클래스 2를 지정하고, 다시 클릭하면 레이블을 지울 수 있습니다 — 키보드만 사용할 수도 있습니다: 1–9로 레이블을 지정하고 다음 크롭으로 이동합니다. 어노테이션은 백그라운드에서 저장됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+      "translation": "엔드투엔드(마스크 → 측정 → 어노테이션) 실제 데이터 세트…"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intercept",
+      "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
+      "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
+      "translation": "적합된 절편의 정의입니다. 'fitted' 값은 모든 예측 변수가 기준 수준에 있을 때의 예측 반응으로 데이터를 통해 절편을 추정합니다. 원-핫 인코딩된 유전자 설계에서는 patsy가 제외한 유전자가 이 기준이며, 유용한 생물학적 해석이 없을 수 있습니다. 'control' 옵션은 적합 전에 음성 대조군의 평균 반응을 빼고 절편항을 제거하므로 각 계수는 대조군과의 차이를 나타냅니다. 'zero' 옵션은 원점을 통과하도록 적합합니다. 'value' 옵션은 절편을 intercept_value 값으로 고정합니다. 기본값은 'fitted' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "level",
+      "source_sha256": "0691093a025e53e2463538f9b69e4bf1048bde1402911ba88aa008248d73743a",
+      "source": "Result level. For regression, 'both' writes results_grna.csv and results_gene.csv and corrects each family separately; 'grna' reports guide effects, and 'gene' pools guides by gene. Nonparametric inference also honours this choice. Mixed models disable it because they estimate gene effects with guides nested inside genes. For proportion plots, the same key selects 'object', 'well', or 'plate' aggregation. Default 'both' for regression and 'object' for proportions.",
+      "translation": "결과 수준입니다. 회귀에서 'both' 옵션은 results_grna.csv 및 results_gene.csv 파일을 기록하고 각 계열을 별도로 보정합니다. 'grna' 옵션은 가이드 효과를 보고하고, 'gene' 옵션은 가이드를 유전자별로 통합합니다. 비모수 추론에도 이 선택이 적용됩니다. 혼합 모형은 유전자 내에 중첩된 가이드로 유전자 효과를 추정하므로 이 설정을 비활성화합니다. 비율 플롯에서 같은 키는 'object', 'well' 또는 'plate' 중 하나를 집계 수준으로 선택합니다. 회귀의 기본값은 'both' 옵션이고 비율의 기본값은 'object' 옵션입니다."
+    }
+  ]
+}

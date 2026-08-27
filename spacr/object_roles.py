@@ -11,8 +11,15 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
 
-from .schema import (ALL_ROLES, CHILD_ROLES, DERIVED_ROLES,
-                     ORGANELLE_ROLES, SEGMENTED_ROLES)
+# These schema sets remain re-exported for existing ``object_roles`` consumers.
+from .schema import (  # noqa: F401
+    ALL_ROLES,
+    CHILD_ROLES,
+    DERIVED_ROLES,
+    ORGANELLE_ROLES,
+    SEGMENTED_ROLES,
+)
+
 
 #: Organelle slots use letter suffixes internally because object types are
 #: embedded directly in underscore-separated object keys: ``organelle_2``
@@ -56,7 +63,12 @@ def organelle_index(role: str) -> int:
     """
     from .organelle_types import organelle_number
 
-    return organelle_number(role)
+    try:
+        return organelle_number(role)
+    except ValueError as exc:
+        raise ValueError(
+            f"Cannot determine an organelle index: {exc}"
+        ) from exc
 
 
 def organelle_label(role: str) -> str:
@@ -88,6 +100,7 @@ CASED_TERMS = {
     "grnas": "gRNAs",
     "dna": "DNA",
     "rna": "RNA",
+    "gpu": "GPU",
     "umap": "UMAP",
     "csv": "CSV",
     "png": "PNG",

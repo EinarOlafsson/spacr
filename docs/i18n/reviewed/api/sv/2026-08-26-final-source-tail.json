@@ -1,0 +1,20 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "**What it assumes.** Exchangeability of ``y~`` within a block under the null. Structure inside a plate that ``Z`` does not capture -- an edge effect ``rowID``/``columnID`` misses, a batch within a plate -- breaks it, and the P values are then anti-conservative.",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#13",
+      "source": "**What it assumes.** Exchangeability of ``y~`` within a block under the null. Structure inside a plate that ``Z`` does not capture -- an edge effect ``rowID``/``columnID`` misses, a batch within a plate -- breaks it, and the P values are then anti-conservative.",
+      "source_sha256": "dd9d001071f17ed59b650c245a9be4a0ddf6e510f633e1a4fe8a5dfbc4a59c45",
+      "translation": "**Antagande.** ``y~`` måste vara utbytbart inom varje block under nollhypotesen. Struktur inom en platta som ``Z`` inte beskriver -- exempelvis en kanteffekt som ``rowID``/``columnID`` inte fångar eller en batch inom plattan -- bryter mot antagandet. P-värdena blir då antikonservativa."
+    },
+    {
+      "context": "This operation is idempotent and does not modify saved preferences.",
+      "label": "spacr.qt.theme.enable_spaceout#1",
+      "source": "This operation is idempotent and does not modify saved preferences.",
+      "source_sha256": "113956afe59611251f750e3ec6e47ed3e4b5d5b704d842b83baf2ef07cb45846",
+      "translation": "Åtgärden är idempotent och ändrar inte sparade inställningar."
+    }
+  ],
+  "schema": 1
+}

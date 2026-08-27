@@ -6,10 +6,9 @@ import ast
 import hashlib
 import importlib
 import json
-from pathlib import Path
 import re
 import sys
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
@@ -684,7 +683,29 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstrings with it, and the ratchet was never moved to follow. It is
     # moved to the MEASURED total rather than adjusted by an arithmetic
     # nobody can check, so the count means what it says again.
-    expected = 8190
+    # +282/-22 through the final 2026-08-27 consolidation and localization
+    # freeze, measured by subtracting the exact public-docstring inventory at
+    # bba9d681 from this source-stable tree:
+    #
+    #  224  spacr.qt -- 83 widgets, 59 screens, 20 theme, 14 mask_engine,
+    #       11 dialogs, 8 app_catalog, 7 wand_rescue, 5 annotate_engine,
+    #       5 hidpi, 2 each in app/spaceout/menus, and one each in ai, bridge,
+    #       i18n, preview_registry, curation_tool and chaining
+    #   38  spacr.regression_annotation
+    #   11  spacr.organelle_types
+    #    2  spacr.volcano_style
+    #    2  spacr.resources.home
+    #    1  each in spacr.hits, settings, ml, figure_style and
+    #       fraction_calibration
+    #
+    # The 22 retirements are the folded/removed registration surface:
+    # anndata_export.register_anndata_app; explain_cv and its register;
+    # hit_list/image_scatter/methods_export/pca/volcano register; the 13-name
+    # napari_bridge module/class surface; and
+    # settings_model.build_setting_link_widget.
+    # The complete 8,569-symbol inventory, including 119 aliases, is generated
+    # and source-hashed in every language catalog in this same change.
+    expected = 8450
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -699,7 +720,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8309
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8569
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

@@ -117,6 +117,207 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Om spaCR", "Über spaCR", "Acerca de spaCR", "关于 spaCR",
         "Sobre o spaCR", "spaCR के बारे में", "spaCR 정보", "Um spaCR",
         "À propos de spaCR"),
+    # Keyboard-shortcut map. The bindings themselves remain platform-native
+    # key identifiers; only their labels, categories and scopes are copy.
+    "Brush": _row(
+        "Pensel", "Pinsel", "Pincel", "画笔", "Pincel",
+        "ब्रश", "브러시", "Pensill", "Pinceau"),
+    "Divide an object": _row(
+        "Dela ett objekt", "Objekt teilen", "Dividir un objeto", "拆分对象",
+        "Dividir um objeto", "ऑब्जेक्ट को विभाजित करें", "객체 나누기",
+        "Skipta hlut", "Diviser un objet"),
+    "Draw an object": _row(
+        "Rita ett objekt", "Objekt zeichnen", "Dibujar un objeto", "绘制对象",
+        "Desenhar um objeto", "ऑब्जेक्ट आरेखित करें", "객체 그리기",
+        "Teikna hlut", "Dessiner un objet"),
+    "Erase": _row(
+        "Suddgummi", "Radierer", "Goma de borrar", "橡皮擦", "Borracha",
+        "इरेज़र", "지우개", "Strokleður", "Gomme"),
+    "Full screen": _row(
+        "Helskärm", "Vollbild", "Pantalla completa", "全屏", "Tela cheia",
+        "पूर्ण स्क्रीन", "전체 화면", "Heilskjár", "Plein écran"),
+    "Go to home": _row(
+        "Gå till startsidan", "Zur Startseite wechseln", "Ir a Inicio",
+        "转到主页", "Ir para Início", "मुखपृष्ठ पर जाएँ", "홈으로 이동",
+        "Fara á heimaskjáinn", "Aller à l’accueil"),
+    "Jump to the newest console line": _row(
+        "Gå till den senaste konsolraden",
+        "Zur neuesten Konsolenzeile springen",
+        "Ir a la línea más reciente de la consola",
+        "跳转到控制台最新一行",
+        "Ir para a linha mais recente do console",
+        "कंसोल की नवीनतम पंक्ति पर जाएँ",
+        "콘솔의 최신 줄로 이동",
+        "Fara í nýjustu línu stjórnborðsins",
+        "Aller à la dernière ligne de la console"),
+    "Magic wand — add": _row(
+        "Trollstav — lägg till", "Zauberstab — hinzufügen",
+        "Varita mágica — añadir", "魔棒 — 添加",
+        "Varinha mágica — adicionar", "मैजिक वैंड — जोड़ें",
+        "자동 선택 도구 — 추가", "Töfrasproti — bæta við",
+        "Baguette magique — ajouter"),
+    "Next image": _row(
+        "Nästa bild", "Nächstes Bild", "Imagen siguiente", "下一张图像",
+        "Próxima imagem", "अगली छवि", "다음 이미지", "Næsta mynd",
+        "Image suivante"),
+    "Open command palette": _row(
+        "Öppna kommandopaletten", "Befehlspalette öffnen",
+        "Abrir la paleta de comandos", "打开命令面板",
+        "Abrir a paleta de comandos", "कमांड पैलेट खोलें", "명령 팔레트 열기",
+        "Opna skipanaspjaldið", "Ouvrir la palette de commandes"),
+    "Open preferences": _row(
+        "Öppna inställningarna", "Einstellungen öffnen",
+        "Abrir las preferencias", "打开首选项", "Abrir as preferências",
+        "प्राथमिकताएँ खोलें", "환경설정 열기", "Opna stillingar",
+        "Ouvrir les préférences"),
+    "Previous image": _row(
+        "Föregående bild", "Vorheriges Bild", "Imagen anterior", "上一张图像",
+        "Imagem anterior", "पिछली छवि", "이전 이미지", "Fyrri mynd",
+        "Image précédente"),
+    "Recrop an object": _row(
+        "Beskär ett objekt på nytt", "Objekt neu zuschneiden",
+        "Volver a recortar un objeto", "重新裁剪对象",
+        "Recortar novamente um objeto", "ऑब्जेक्ट को फिर से क्रॉप करें",
+        "객체 다시 자르기", "Skera hlut aftur", "Recadrer un objet"),
+    "Redo": _row(
+        "Gör om", "Wiederherstellen", "Rehacer", "重做", "Refazer",
+        "फिर से करें", "다시 실행", "Endurtaka", "Rétablir"),
+    "Reset the zoom": _row(
+        "Återställ zoomningen", "Zoom zurücksetzen", "Restablecer el zoom",
+        "重置缩放", "Redefinir o zoom", "ज़ूम रीसेट करें", "확대/축소 초기화",
+        "Endurstilla aðdrátt", "Réinitialiser le zoom"),
+    "Save the mask": _row(
+        "Spara masken", "Maske speichern", "Guardar la máscara", "保存掩膜",
+        "Salvar a máscara", "मास्क सहेजें", "마스크 저장", "Vista grímuna",
+        "Enregistrer le masque"),
+    "Search this module's settings": _row(
+        "Sök i inställningarna för den här modulen",
+        "Einstellungen dieses Moduls durchsuchen",
+        "Buscar en la configuración de este módulo",
+        "搜索此模块的设置",
+        "Pesquisar nas configurações deste módulo",
+        "इस मॉड्यूल की सेटिंग्स में खोजें",
+        "이 모듈의 설정 검색",
+        "Leita í stillingum þessarar einingar",
+        "Rechercher dans les paramètres de ce module"),
+    "Settings recipes": _row(
+        "Inställningsrecept", "Einstellungsrezepte",
+        "Recetas de configuración", "设置方案", "Receitas de configuração",
+        "सेटिंग रेसिपी", "설정 레시피", "Stillingauppskriftir",
+        "Recettes de paramètres"),
+    "Show the full app list": _row(
+        "Visa hela listan över appar", "Vollständige App-Liste anzeigen",
+        "Mostrar la lista completa de aplicaciones", "显示完整应用列表",
+        "Mostrar a lista completa de aplicativos", "पूरी ऐप सूची दिखाएँ",
+        "전체 앱 목록 표시", "Sýna allan forritalistann",
+        "Afficher la liste complète des applications"),
+    "Show this cheat sheet": _row(
+        "Visa den här översikten över kortkommandon",
+        "Diese Tastenkürzelübersicht anzeigen",
+        "Mostrar este resumen de atajos de teclado",
+        "显示此快捷键表",
+        "Mostrar este resumo dos atalhos de teclado",
+        "यह त्वरित संदर्भ दिखाएँ",
+        "이 단축키 안내 표시",
+        "Sýna þetta yfirlit yfir flýtilykla",
+        "Afficher cette fiche récapitulative des raccourcis"),
+    "Switch to 1st app": _row(
+        "Växla till den första appen", "Zur ersten App wechseln",
+        "Cambiar a la primera aplicación", "切换到第一个应用",
+        "Mudar para o primeiro aplicativo", "पहले ऐप पर जाएँ",
+        "첫 번째 앱으로 전환", "Skipta yfir í fyrsta forritið",
+        "Passer à la première application"),
+    "Switch to 2nd app": _row(
+        "Växla till den andra appen", "Zur zweiten App wechseln",
+        "Cambiar a la segunda aplicación", "切换到第二个应用",
+        "Mudar para o segundo aplicativo", "दूसरे ऐप पर जाएँ",
+        "두 번째 앱으로 전환", "Skipta yfir í annað forritið",
+        "Passer à la deuxième application"),
+    "Switch to 3rd app": _row(
+        "Växla till den tredje appen", "Zur dritten App wechseln",
+        "Cambiar a la tercera aplicación", "切换到第三个应用",
+        "Mudar para o terceiro aplicativo", "तीसरे ऐप पर जाएँ",
+        "세 번째 앱으로 전환", "Skipta yfir í þriðja forritið",
+        "Passer à la troisième application"),
+    "Switch to 4th app": _row(
+        "Växla till den fjärde appen", "Zur vierten App wechseln",
+        "Cambiar a la cuarta aplicación", "切换到第四个应用",
+        "Mudar para o quarto aplicativo", "चौथे ऐप पर जाएँ",
+        "네 번째 앱으로 전환", "Skipta yfir í fjórða forritið",
+        "Passer à la quatrième application"),
+    "Switch to 5th app": _row(
+        "Växla till den femte appen", "Zur fünften App wechseln",
+        "Cambiar a la quinta aplicación", "切换到第五个应用",
+        "Mudar para o quinto aplicativo", "पाँचवें ऐप पर जाएँ",
+        "다섯 번째 앱으로 전환", "Skipta yfir í fimmta forritið",
+        "Passer à la cinquième application"),
+    "Switch to 6th app": _row(
+        "Växla till den sjätte appen", "Zur sechsten App wechseln",
+        "Cambiar a la sexta aplicación", "切换到第六个应用",
+        "Mudar para o sexto aplicativo", "छठे ऐप पर जाएँ",
+        "여섯 번째 앱으로 전환", "Skipta yfir í sjötta forritið",
+        "Passer à la sixième application"),
+    "Switch to 7th app": _row(
+        "Växla till den sjunde appen", "Zur siebten App wechseln",
+        "Cambiar a la séptima aplicación", "切换到第七个应用",
+        "Mudar para o sétimo aplicativo", "सातवें ऐप पर जाएँ",
+        "일곱 번째 앱으로 전환", "Skipta yfir í sjöunda forritið",
+        "Passer à la septième application"),
+    "Switch to 8th app": _row(
+        "Växla till den åttonde appen", "Zur achten App wechseln",
+        "Cambiar a la octava aplicación", "切换到第八个应用",
+        "Mudar para o oitavo aplicativo", "आठवें ऐप पर जाएँ",
+        "여덟 번째 앱으로 전환", "Skipta yfir í áttunda forritið",
+        "Passer à la huitième application"),
+    "Switch to 9th app": _row(
+        "Växla till den nionde appen", "Zur neunten App wechseln",
+        "Cambiar a la novena aplicación", "切换到第九个应用",
+        "Mudar para o nono aplicativo", "नौवें ऐप पर जाएँ",
+        "아홉 번째 앱으로 전환", "Skipta yfir í níunda forritið",
+        "Passer à la neuvième application"),
+    "Toggle AI Console": _row(
+        "Slå på/av AI-konsolen", "KI-Konsole ein-/ausschalten",
+        "Activar o desactivar la Consola de IA", "启用或停用人工智能控制台",
+        "Ativar/desativar o Console de IA", "एआई कंसोल चालू या बंद करें",
+        "AI 콘솔 켜기/끄기", "Virkja eða óvirkja Gervigreindarstjórnborð",
+        "Activer ou désactiver la Console IA"),
+    "Toggle full screen": _row(
+        "Växla helskärmsläge", "Vollbildmodus ein-/ausschalten",
+        "Activar o desactivar el modo de pantalla completa", "切换全屏模式",
+        "Ativar/desativar o modo de tela cheia", "पूर्ण स्क्रीन मोड टॉगल करें",
+        "전체 화면 전환", "Víxla skjáfylli",
+        "Activer ou désactiver le mode plein écran"),
+    "Undo": _row(
+        "Ångra", "Rückgängig", "Deshacer", "撤销", "Desfazer",
+        "पूर्ववत करें", "실행 취소", "Afturkalla", "Annuler"),
+    "Zoom": _row(
+        "Zooma", "Zoom", "Zoom", "缩放", "Zoom",
+        "ज़ूम", "확대/축소", "Aðdráttur", "Zoom"),
+    "anywhere in spaCR": _row(
+        "var som helst i spaCR", "überall in spaCR",
+        "en cualquier parte de spaCR", "spaCR 中的任意位置",
+        "em qualquer lugar no spaCR", "spaCR में कहीं भी", "spaCR 어디서나",
+        "hvar sem er í spaCR", "partout dans spaCR"),
+    "the Annotate and Make Masks screens": _row(
+        "skärmarna Annotering och Skapa masker",
+        "die Bildschirme Annotieren und Masken erstellen",
+        "las pantallas Anotación y Crear máscaras",
+        "标注和创建掩膜屏幕",
+        "as telas Anotação e Criar máscaras",
+        "एनोटेशन और मास्क बनाएँ स्क्रीन",
+        "어노테이션 및 마스크 만들기 화면",
+        "skjáirnir Merking og Búa til grímur",
+        "les écrans Annotation et Créer des masques"),
+    "the Annotate screen": _row(
+        "skärmen Annotering", "der Bildschirm Annotieren",
+        "la pantalla Anotación", "标注屏幕", "a tela Anotação",
+        "एनोटेशन स्क्रीन", "어노테이션 화면", "skjárinn Merking",
+        "l’écran Annotation"),
+    "the Make Masks screen": _row(
+        "skärmen Skapa masker", "der Bildschirm Masken erstellen",
+        "la pantalla Crear máscaras", "创建掩膜屏幕",
+        "a tela Criar máscaras", "मास्क बनाएँ स्क्रीन", "마스크 만들기 화면",
+        "skjárinn Búa til grímur", "l’écran Créer des masques"),
     # Terms/setup chrome. The agreement document remains in English because
     # a translated summary is not the governing licence; every instruction
     # and control around it is translated exactly.

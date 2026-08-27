@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Välj en officiell källa innan du installerar spaCR. PyPI tillhandahåller det publicerade Python-paketet, GitHub tillhandahåller källkoden och installationsprogrammen för skrivbordet, och conda-forge blir ett alternativ när paketet har publicerats där."
+          "narration": "Välj en officiell distributionsväg innan du installerar spaCR. PyPI och conda-forge tillhandahåller publicerade paket, medan GitHub tillhandahåller källkod, installationsprogram för skrivbordet och versionshistorik."
         },
         {
-          "narration": "På PyPI visar publiceringsrubriken den aktuella stabila versionen och kommandot pip install spacr."
+          "narration": "På PyPI visar versionsrubriken den aktuella stabila versionen och kommandot pip install spacr."
         },
         {
-          "narration": "Under Project links hittar du dokumentationen, hemsidan, ärendehanteraren och källkodsförrådet."
+          "narration": "Avsnittet Project links öppnar dokumentationen, startsidan, ärendehanteraren och källkodsarkivet."
         },
         {
-          "narration": "På GitHub använder du grenväljaren för att välja kodlinje. main är den publicerade linjen; nightly innehåller nyare ändringar som fortfarande testas."
+          "narration": "På GitHub är main den publicerade källkodslinjen, medan nightly innehåller nyare ändringar som fortfarande testas. Använd endast nightly när du uttryckligen behöver en ännu opublicerad ändring."
         },
         {
-          "narration": "Expandera Assets i en GitHub-publicering för att hämta installationsprogrammet för Windows, macOS eller Linux, Python-paketfilerna eller listan över kontrollsummor."
+          "narration": "I en GitHub Release expanderar du Assets för att hämta installationsprogrammet för Windows, macOS eller Linux, Python-paketfilerna eller listan med kontrollsummor."
         },
         {
-          "narration": "Conda-forge publicerar ännu inte spaCR. Skapa därför en Conda-miljö och installera spaCR från PyPI; använd conda-forge-kanalen först när paketet har publicerats."
+          "narration": "Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden i den aktiva Conda-miljön. Använd exakt kommandot conda install conda-forge::spacr."
         },
         {
-          "narration": "Använd PyPI eller pip för en Python-miljö, GitHub Releases för ett installationsprogram till skrivbordet och nightly bara när du behöver ändringar som ännu inte har publicerats. Välj sedan installationsguiden som motsvarar din metod."
+          "narration": "Använd conda-forge eller PyPI för en hanterad Python-miljö, GitHub Releases för ett installationsprogram till skrivbordet och nightly endast när du behöver opublicerade ändringar. Välj sedan installationstutorialen för din väg."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Använd en Conda-miljö för att isolera spaCR och dess vetenskapliga beroenden. Python 3.12 används i exemplet eftersom den versionen för närvarande stöder flest valfria paket."
+          "narration": "Installera spaCR från conda-forge i en särskild Conda-miljö. Paketet innehåller skrivbordsgränssnittet och deklarerar spaCR:s vetenskapliga beroenden."
         },
         {
-          "narration": "Öppna en terminal med Conda och skapa en miljö som heter spacr med Python 3.12 och pip."
+          "narration": "Öppna en terminal med Conda och skapa en miljö som heter spacr med Python 3.12."
         },
         {
-          "narration": "Aktivera miljön. Kontrollera att Python tillhör spacr-miljön innan du installerar något."
+          "narration": "Aktivera miljön. Bekräfta att Python tillhör miljön spacr innan du installerar något."
         },
         {
-          "narration": "Uppgradera pip via den aktiva Python-tolken. Kommandot python -m pip förhindrar att paketet installeras av en annan körbar pip-fil."
+          "narration": "Installera det officiella paketet med conda install conda-forge::spacr. Det kanalspecificerade kommandot väljer uttryckligen conda-forge-bygget."
         },
         {
-          "narration": "Installera spacr med qt-tillägget för skrivbordsprogrammet. Använd det vanliga spacr-paketet på en arbetsstation eller server utan grafiskt gränssnitt."
+          "narration": "Bekräfta att Conda listar spaCR i miljön; importera det sedan och skriv ut den installerade versionen."
         },
         {
-          "narration": "Kör spacr-doctor före den första starten. Programmet rapporterar den aktiva installationen, Qt, PyTorch, valfria komponenter och maskinvarustöd och föreslår en lösning för varje kontroll som misslyckas."
+          "narration": "Kör spacr-doctor före den första starten. Diagnosverktyget kontrollerar den aktiva installationen, Qt, PyTorch, valfria komponenter och maskinvarustöd och föreslår en lösning för varje kontroll som misslyckas."
         },
         {
-          "narration": "När spacr-doctor klarar alla kontroller ska miljön vara aktiverad varje gång du kör spaCR."
+          "narration": "När spacr-doctor har klarat alla kontroller startar du spaCR med kommandot spacr. Behåll miljön aktiverad varje gång du kör spaCR."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regression kopplar fenotyppoäng till sekvenseringstjänstledda riktningsmängder. Konsolen rapporterar tabelljustering, filtrering, modelldiagnostik, resultat och återspeglingsregister."
+          "narration": "Regression relaterar fenotyppoäng till guideförekomst som har härletts från sekvensering. Konsolen rapporterar tabelljustering, filtrering, vald inferensmetod, diagnostik, resultat och reproducerbarhetsposter."
         },
         {
-          "narration": "Input Tabeller väljer fenotyppoäng, sekvenseringsantal och valbara genmetadata. Bevisa att tallrikar och brunnar använder matchar identifierare innan modellering."
+          "narration": "Input Tables väljer fenotyppoäng, sekvenseringsräkningar, valfria genmetadata och målplatsen för resultaten. Lämna målplatsen tom för att skriva bredvid den första räknetabellen; kontrollera att platt- och brunnsidentifierarna stämmer överens före analysen."
         },
         {
-          "narration": "Essentials innehåller de kontroller som krävs för en första modell. Använd Modifierad för att granska ändringar, Allt för avancerade familjer och Recept för en återanvändbar design."
+          "narration": "Essentials innehåller de indata och inferensinställningar som krävs för en första analys. Använd Modified för att granska avsiktliga ändringar, All för avancerade inställningar och Recipes för att spara en återanvändbar analysdesign."
         },
         {
-          "narration": "Kontroll och plattdesign identifierar positiva, negativa och neutrala kontroller plus eventuella brunnar eller rader som är uteslutna innan montering. Dessa val definierar referensbeteendet."
+          "narration": "Controls and Filters identifierar positiva, negativa och neutrala kontroller, utesluter angivna guider, brunnar eller tabellrader och anger de evidens- och normaliseringsregler som avgör vilka observationer som ingår i analysen."
         },
         {
-          "narration": "Platt- och batchkorrigering kan ta bort tekniska avsked genom att centrera, skala på ett starkt sätt, kontrollera referens eller batchmodeller. Använd en korrigering endast när konstruktionen stöder den."
+          "narration": "Plate and Batch Correction kan ta bort tekniska förskjutningar genom centrering, robust skalning, referenskontroller eller batchmodeller. Använd korrigering endast när försöksdesignen motiverar den."
         },
         {
-          "narration": "Modell och covariater väljer svaret, aggregeringen, transformationen, regressionsfamiljen, osäkerhetsskattningen och alla motiverade rader, kolumner eller experimentella covariater."
+          "narration": "Response väljer fenotypkolumn, analysenhet, aggregering, valfri teckenvändning och transformation. Dessa val definierar den storhet som ska relateras till guideförekomsten."
         },
         {
-          "narration": "Hit Calling och Outliers sätter minsta cell, väl, och guide bevis plus valbara outlier regler. Välj tröskelvärden från kontrollbeteende och datakvalitet."
+          "narration": "Model and Inference väljer icke-parametrisk testning per guide, parametrisk samtidig regression eller automatiskt val. Här anges även rapporteringsnivå, modellfamilj när den är relevant, korrigering för multipla tester och signifikansregel."
         },
         {
-          "narration": "Regressionsplots konfigurerar diagnostiska och vulkansk visning. Planbegränsningar ändrar presentationen, inte de inställda koefficienten, så behåll inte truncated tabeller för tolkning."
+          "narration": "Estimator Tuning innehåller inställningar för kovarians, regularisering, robust anpassning, kvantiler, bootstrap och rangaggregering. Endast de inställningar som den valda estimatorn använder påverkar analysen."
         },
         {
-          "narration": "Run validerar schema och brunnnycklar, tillämpar uteslutningar och korrigeringar, aggregerar poäng, passar den valda modellen och utvärderar bevis. Se till att kontroll och diagnostik görs innan du ringer."
+          "narration": "Permutation Test konfigurerar guidestatistik, minsta brunnsstöd, antal permutationer och slumpfrö, utbytbarhetsblock, störvariabler, närvarotröskel och en batchstorlek som begränsas av minnet."
         },
         {
-          "narration": "Det slutförda projektet innehåller justerade regressionsdata, koefficienter på vägledning- och gennivå, osäkerhets- eller signifikanstabeller, diagnostiska siffror, sparas inställningar och ett omrundningsbart manifest."
+          "narration": "Run validerar scheman och brunnsnycklar, tillämpar uteslutningar och korrigering, aggregerar responsen och kör den valda inferensmetoden. Standardmetoden är icke-parametrisk, använder plattblockerade Freedman–Lane-permutationer och anpassar ingen regressionsmodell."
+        },
+        {
+          "narration": "Det slutförda projektet innehåller justerade analysdata, effektskattningar på guide- och gennivå, empiriska eller modellbaserade signifikanstabeller, diagnostiska figurer, sparade inställningar och ett manifest som kan köras på nytt."
         }
       ]
     },

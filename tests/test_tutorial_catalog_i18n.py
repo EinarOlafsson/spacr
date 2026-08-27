@@ -59,19 +59,27 @@ def test_all_authored_catalogs_match_the_73_lesson_inventory_and_routes():
 
 def test_spoken_pypi_is_exactly_one_continuous_pypie_token():
     """Keep the release-site pronunciation stable in every spoken locale."""
+    display_token = re.compile(r"(?<!\w)PyPI(?!\w)")
     token = re.compile(r"(?<!\w)pypie(?!\w)")
     pypi_family = re.compile(r"(?i)(?<!\w)pypi\w*(?!\w)")
     split_spelling = re.compile(r"(?i)\bp\W+y\W+p\W+i\b")
 
     for locale in FULL_LOCALES:
         lessons = _catalog("lessons", locale)["lessons"]
+        display = "\n".join(
+            scene.get("narration", "")
+            for lesson in lessons
+            for scene in lesson["scenes"]
+        )
         speech = "\n".join(
             scene.get("speech_text", "")
             for lesson in lessons
             for scene in lesson["scenes"]
         )
-        assert token.findall(speech) == ["pypie"] * 4, locale
-        assert pypi_family.findall(speech) == ["pypie"] * 4, locale
+        expected = len(display_token.findall(display))
+        assert expected > 0, locale
+        assert token.findall(speech) == ["pypie"] * expected, locale
+        assert pypi_family.findall(speech) == ["pypie"] * expected, locale
         assert not split_spelling.search(speech), locale
 
 
@@ -108,7 +116,7 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
 
         release = lessons["01_pypi_github"]
         display = "\n".join(scene["narration"] for scene in release["scenes"])
-        assert display.count("PyPI") == 4, locale
+        assert display.count("PyPI") == 3, locale
         assert "pypie" not in display, locale
         assert "GitHub" not in release["scenes"][1]["narration"], locale
         assert "conda-forge" not in release["scenes"][1]["narration"].casefold(), locale

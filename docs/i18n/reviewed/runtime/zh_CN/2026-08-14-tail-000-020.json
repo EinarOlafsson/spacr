@@ -47,9 +47,9 @@
     {
       "table": "setting_tooltips",
       "key": "cell_model_name",
-      "source_sha256": "5a4bea87d40ea751a24025dbff7c97bd907f02888fc241a2103583a2ed33bcec",
-      "source": "Weights used to segment cells. Cellpose 4 provides one stock model, 'cpsam'; the alternative is a path to a CPSAM checkpoint produced by Train Cellpose, loaded as pretrained_model. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but all resolve to cpsam because those historical models are unavailable in Cellpose 4. Of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
-      "translation": "用于分割细胞的权重。Cellpose 4 提供一个标准模型 'cpsam'；另一种选择是由 Train Cellpose 生成并作为 pretrained_model 加载的 CPSAM 检查点路径。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但由于 Cellpose 4 不提供这些历史模型，它们都会解析为 cpsam。过去用于区分模型的三个参数中，只有 diameter 仍生效（eval 按 30/diameter 缩放）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后省略。默认值为 'cpsam'。"
+      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "translation": "细胞分割权重。Cellpose 4 提供标准 'cpsam' 模型；也可以提供由 Train Cellpose 创建并作为 pretrained_model 加载的 CPSAM 检查点。仍接受旧名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但这些名称会解析为 cpsam，因为 Cellpose 4 不再随附这些模型。只有 diameter 会改变推理（按 30/diameter 缩放）；model_type 和 diam_mean 在 v4.0.1+ 中不使用。默认值为 'cpsam'。"
     },
     {
       "table": "setting_tooltips",
