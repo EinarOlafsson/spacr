@@ -1,0 +1,57 @@
+================================================================================
+SAVE A RUN'S STATE FROM THE LIST, AND MORE TO READ IN THE LIST
+================================================================================
+
+Status:    OPEN, filed 2026-08-27.
+Owner:     spacr/qt/widgets/sweep_runs.py for the menu and the columns,
+           spacr/workspace.py for what a state is.
+Follows:   157 (the loaded mark), 146 (a run leaving the table).
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"i should be able to right click on one or several runs and save its/their
+ states, to later be loaded easilly also the information columns for the runs
+ should contain more infor like permutations, backend, sourse, etc."
+
+--------------------------------------------------------------------------------
+WHERE IT STANDS, MEASURED
+--------------------------------------------------------------------------------
+
+SAVING. There is no save action at all. `spacr/workspace.py` exists and can
+compose a state from registered providers, and the right-click menu already
+offers "Restore what this run had open...", but a bundle is only ever WRITTEN
+automatically when a run closes, gated by the `runs/save_workspace`
+preference. A user who wants to keep the current state of a finished run
+cannot ask for it.
+
+ONE AT A TIME. Restore is built only `if count == 1`, and `_has_workspace`
+is asked of a single folder. Several selected runs can be removed and
+deleted together but not saved or restored together.
+
+THE COLUMNS. `PREFERRED_COLUMNS` already carries `source` -- so that third
+of the ask is done -- and `RUN_SETTING_COLUMNS` carries ten settings, but
+NEITHER carries `n_permutations` NOR any backend. A permutation run and a
+1000-permutation run are one row apart in the table and identical on it,
+which is the comparison the table exists for.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * right-clicking ONE run offers to save its state, and doing so writes a
+    bundle that the existing restore then finds;
+  * right-clicking SEVERAL offers to save all of them, says how many, and
+    reports what it wrote rather than only that it finished;
+  * a run whose state cannot be saved is NAMED, and the others are still
+    saved -- the same rule the overlay loop and the segmentation QC follow;
+  * saving does not move the loaded mark: keeping a run is not choosing it;
+  * `n_permutations` and the backend appear as columns, are populated from
+    the settings the run was started with, and sit inside PREFERRED_COLUMNS
+    rather than past the last one it knows -- a name the ordering does not
+    know lands at the far right of a twenty-column table, which is recorded
+    and never seen. A test already holds that rule for RUN_SETTING_COLUMNS;
+  * a run that had no permutations shows nothing there rather than a zero,
+    because 0 permutations and "this was not a permutation test" are
+    different facts.
