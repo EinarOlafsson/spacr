@@ -120,7 +120,11 @@ def test_overlay_masks_on_images_saves_resized_rgb_overlays(tmp_path):
     masks = {name: _square_mask((128, 128)) for name in imgs}
     img_dir = _overlay_dirs(tmp_path, imgs, masks)
 
-    assert overlay_masks_on_images(str(img_dir), save=True, plot=False) is None
+    # Returns a report rather than None: the per-image loop now survives a
+    # field it cannot read, so the caller has to be able to tell which
+    # ones are missing. Nothing is missing here.
+    report = overlay_masks_on_images(str(img_dir), save=True, plot=False)
+    assert report == {"written": 2, "failed": []}
 
     out_dir = img_dir / "overlay"
     assert out_dir.is_dir()
