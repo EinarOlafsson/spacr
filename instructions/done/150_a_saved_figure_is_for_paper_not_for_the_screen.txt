@@ -402,3 +402,10 @@ STILL OWED, and both belong to their own instructions: the preference control
 (118) and the per-figure restyle menus (108/147). 178 C.2's "Save styled…"
 already gives a user the three choices per figure, so the preference is a
 default rather than the only way in.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

@@ -317,3 +317,10 @@ STILL TRUE, and recorded rather than hidden: a LIVE run's Summary tab renders
 `model.summary()` directly, so during the run an ols fit shows the statsmodels
 text and the spaCR summary appears when the run is re-opened from disk. Both are
 the run's own summary; they are not the same text.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

@@ -845,3 +845,10 @@ reaches a figure the user actually sees rather than being merely available.
 With neither named the categorical scale still tells the groups apart: a
 figure that has not been told what it is about has no subject to single out,
 and greying every group equally would leave a picture with no ink in it.
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------

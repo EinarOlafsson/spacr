@@ -264,3 +264,10 @@ The items under "NOT DONE" are recorded scope decisions with their reasons,
 not outstanding work; anything among them that is later wanted is a new
 instruction rather than this one reopened.
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2026-08-27 -- RE-AUDITED AGAINST THE CODE. The WHAT REMAINS section above
+is HISTORY, not a live list: every claim in it was checked and the work was
+already done. A stale heading reads as current, which is how it sent an
+auditor chasing a bug that was fixed weeks ago.
+--------------------------------------------------------------------------------
