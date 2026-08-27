@@ -3,7 +3,46 @@ SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
 NO COEFFICIENT
 ================================================================================
 
-Status:    OPEN, and the three-way split below is AGREED. The maintainer,
+Status:    THE ENGINE IS BUILT, 2026-08-27 -- `spacr/nonparametric_fits.py`,
+           29 tests. What is left is the WIRING: the two category-A families
+           into `regression_type`, the diagnostics onto the plot, and the
+           agreement check into the results panel.
+
+           BUILT TO THE AGREED SPLIT, and the category is what most of the
+           tests are about, because this file says a method offered in the
+           wrong one is worse than one not offered:
+
+             A. FIT -- `spline` and `isotonic`. `spline_design` replaces a
+                COVARIATE with its basis and leaves every guide column
+                alone, so the fit still gives one coefficient and one P
+                value per guide and the volcano draws it with no
+                special-casing. The basis columns carry no `grna` and no
+                `gene`, so every filter that already drops `rowID[T.r2]`
+                drops them too. A covariate with too few distinct values is
+                left linear rather than given a basis made out of nothing.
+             B. DIAGNOSTIC -- `lowess`, `kernel`, `knn`, `gaussian_process`,
+                through `smooth()`. It returns a `Curve`, which carries no
+                `p_values` ATTRIBUTE AT ALL: that is the thing that would
+                let a diagnostic be mistaken for a test. Only the Gaussian
+                process reports a band, because that is the reason to choose
+                it. The distance-based methods standardise and say so.
+             C. AGREEMENT -- `random_forest` and `gradient_boosting`, through
+                `agreement()`. It returns a COMPARISON: two rankings, their
+                Spearman correlation, and the guides that moved far enough
+                to name. Permutation importance rather than the tree's own,
+                which is biased toward columns with many distinct values.
+
+           EVERY REFUSAL THIS FILE ASKED FOR IS IN. A Gaussian process
+           refuses a sample it cannot fit AND SAYS THE NUMBER; isotonic
+           refuses an unordered design and says where to point it instead;
+           kernel regression refuses the full guide design. A diagnostic
+           run as an agreement check refuses, and the reverse.
+
+           MEASURED: on a synthetic screen where two of twelve guides carry
+           a real effect, both the linear ranking and the forest put exactly
+           those two first.
+
+Original:  OPEN, and the three-way split below is AGREED. The maintainer,
            shown the A/B/C categories and the reason for them: "your A,B,C
            implementations seem reasonalble for what the tests are." So the
            question this item exists to answer is settled -- build to the
