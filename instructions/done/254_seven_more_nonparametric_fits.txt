@@ -3,7 +3,7 @@ SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
 NO COEFFICIENT
 ================================================================================
 
-Status:    THE ENGINE IS BUILT, 2026-08-27 -- `spacr/nonparametric_fits.py`,
+Status:    DONE, 2026-08-27. THE ENGINE WAS BUILT -- `spacr/nonparametric_fits.py`,
            29 tests. What is left is the WIRING: the two category-A families
            into `regression_type`, the diagnostics onto the plot, and the
            agreement check into the results panel.
@@ -66,8 +66,28 @@ Status:    THE ENGINE IS BUILT, 2026-08-27 -- `spacr/nonparametric_fits.py`,
            is reachable against a covariate through
            `nonparametric_fits.isotonic_fit`.
 
-           STILL TO WIRE: the four diagnostics onto the plot, and the
-           agreement check into the results panel.
+           FULLY WIRED, 2026-08-27. The four category-B diagnostics draw on
+           ResidualPlot and ScaleLocationPlot, chosen from a menu group
+           headed "Diagnostic curve (decides no hit)" and kept apart from
+           the re-fit menu, because a curve laid over a fit is not a choice
+           of fit. MEASURED, and it is the reason the wiring exists: on
+           residuals that are a clear parabola the straight trend line the
+           plot already drew has slope -0.0122 -- flat, reporting nothing
+           wrong -- while the smoother spans 2.33 over the same points.
+
+           Category C reaches the panel through `report_agreement`, which
+           takes the coefficient table a run ALREADY produced rather than
+           refitting, so the comparison is against the ranking the run
+           reported. It says nothing rather than guessing on a table with
+           fewer than three guide terms, and it carries its own caveat in
+           the sentence: importances are unsigned, so it compares ORDER.
+
+           Registering `spline` had left two settings declared and unbuilt --
+           REGRESSION_SETTINGS_USED promised `spline_knots` and
+           `spline_degree`, nothing created them and the fit read neither.
+           Both are real settings now, carried to `spline_design`: knots 3
+           gives six parameters, knots 8 gives eleven, guide coefficient
+           +1.19 against a truth of 1.2 either way.
 
 Original:  OPEN, and the three-way split below is AGREED. The maintainer,
            shown the A/B/C categories and the reason for them: "your A,B,C
