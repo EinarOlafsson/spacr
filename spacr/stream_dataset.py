@@ -102,9 +102,34 @@ def _split_labels(count: int, test_split: float, seed: int) -> np.ndarray:
     return out
 
 
+def _table_from_answer(answer, why: str):
+    """Read the table the user pointed at, and return it with its column.
+
+    :raises ValueError: when the answer turns out not to help after all --
+        an empty table, or a column that vanished between being listed and
+        being read. Raised rather than asked again, because one question per
+        run is the rule and a second dialog on top of the first is how a
+        wrong answer becomes a loop.
+    """
+    import sqlite3
+
+    database, table, column = answer
+    try:
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
+            frame = pd.read_sql_query(f'SELECT * FROM "{table}"', db)
+    except Exception as problem:                             # noqa: BLE001
+        raise ValueError(f"{why}, but {table} could not be read "
+                         f"({problem})") from problem
+    if not len(frame):
+        raise ValueError(f"{why}, but {table} is empty")
+    if column not in set(map(str, frame.columns)):
+        raise ValueError(f"{why}, but {table} has no {column!r} column")
+    return frame, column
+
+
 def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
-                           test_split: float = 0.2, seed: int = 0
-                           ) -> pd.DataFrame:
+                           test_split: float = 0.2, seed: int = 0,
+                           ask: Optional[Any] = None) -> pd.DataFrame:
     """Build a streaming selection from an object table.
 
     Parameters
@@ -126,7 +151,19 @@ def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
     Raises
     ------
     ValueError
-        If the table is empty or contains no usable object identifier.
+        If the table is empty or contains no usable object identifier, and
+        either nobody was asked or the answer did not help.
+
+    Notes
+    -----
+    ``ask`` is called only when the table names no object, and is INJECTED
+    rather than imported so this module never depends on Qt. A caller with
+    nobody in front of it passes none and gets exactly the error it always
+    got, which makes "never prompt in a batch run" structural rather than a
+    rule each call site has to remember. It is called
+    ``ask(tried=..., object_array=...)`` and returns
+    ``((database, table, column), why)`` -- see
+    :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.
     """
     from .schema import COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY
 
@@ -138,10 +175,18 @@ def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
     label = column if column in have else (
         OBJECT_KEY if OBJECT_KEY in have else None)
     if label is None:
-        raise ValueError(
-            f"the object table names no object: it has neither {column!r} "
-            f"nor {OBJECT_KEY!r}, so a selection built from it would stream "
-            f"crops it cannot identify")
+        tried = (f"the object table names no object: it has neither "
+                 f"{column!r} nor {OBJECT_KEY!r}, so a selection built from "
+                 f"it would stream crops it cannot identify")
+        if ask is None:
+            raise ValueError(tried)
+        # The user knows where the coordinates live and the program does
+        # not, so asking is strictly more useful than reporting.
+        answer, why = ask(tried=tried, object_array=object_array)
+        if answer is None:
+            raise ValueError(f"{tried}. {why}")
+        frame, label = _table_from_answer(answer, why)
+        have = set(map(str, frame.columns))
     out = pd.DataFrame({
         PLATE_KEY: frame.get(PLATE_KEY, ""),
         ROW_KEY: frame.get(ROW_KEY, ""),
