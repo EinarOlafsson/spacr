@@ -3438,13 +3438,10 @@ class MainWindow(QMainWindow):
             )
             if not get_ambient_enabled():
                 return
-            # SPACEOUT DRAWS THE OTHER FRACTAL (instruction 260). It is the
-            # maintainer's own `fractal_travel.py`: a GLSL shader when vispy
-            # is importable and a Numba orbit-fold when it is not. An
-            # ordinary launch is unchanged and gets the ambient engine, which
-            # is what keeps the mode hidden.
-            if install_the_spaceout_fractal(screen):
-                return
+            # The spaceout fractal is installed by `install_ambient` itself
+            # (instruction 260), so this caller needs no branch: hooking the
+            # three call sites separately is what left the Home screen still
+            # showing the old artwork.
             from .widgets.ambient import install_ambient
             install_ambient(
                 screen, None,

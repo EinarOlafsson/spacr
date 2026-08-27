@@ -546,6 +546,17 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
         def is_paused(self) -> bool:
             return self._paused
 
+        def set_animating(self, on: bool) -> bool:
+            """`AmbientWidget`'s verb for the same thing.
+
+            The ambient backdrop this replaces is stopped and started with
+            `set_animating`, and its callers -- the Home screen's teardown
+            among them -- reach for that name. Answering to it makes this a
+            drop-in rather than something every call site has to learn.
+            """
+            return self.resume() if on else self.pause()
+
+
         # ------------------------------------------------------ the frames
 
         def _target_size(self) -> tuple[int, int]:
@@ -972,6 +983,17 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
         def is_paused(self) -> bool:
             return bool(self._canvas._paused)
+
+        def set_animating(self, on: bool) -> bool:
+            """`AmbientWidget`'s verb for the same thing.
+
+            The ambient backdrop this replaces is stopped and started with
+            `set_animating`, and its callers -- the Home screen's teardown
+            among them -- reach for that name. Answering to it makes this a
+            drop-in rather than something every call site has to learn.
+            """
+            return self.resume() if on else self.pause()
+
 
         def stats_text(self) -> str:
             return self._canvas.stats_text()

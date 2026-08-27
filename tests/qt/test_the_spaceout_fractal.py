@@ -595,3 +595,81 @@ def test_an_explicit_gpu_request_still_respects_the_guard(qtbot, monkeypatch):
     qtbot.addWidget(widget)
     assert widget.backend_name == "cpu"
     widget.shutdown()
+
+
+# --- every install path, not just one --------------------------------------
+
+
+def test_install_ambient_returns_the_fractal_under_spaceout(
+        qtbot, sandbox, monkeypatch):
+    """Hooked at `install_ambient` rather than at its callers.
+
+    There are three call sites -- the module screens, the Home screen and
+    the setup slides -- and hooking one left Home showing the old Julia set,
+    which is what the maintainer saw and reported.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.widgets.ambient import AmbientWidget, install_ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(480, 320)
+    widget = install_ambient(host, None)
+    assert not isinstance(widget, AmbientWidget)
+    assert hasattr(widget, "backend_name")
+    widget.shutdown()
+
+
+def test_an_ordinary_launch_still_gets_the_ambient_engine(qtbot, sandbox):
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.widgets.ambient import AmbientWidget, install_ambient
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(480, 320)
+    assert isinstance(install_ambient(host, None), AmbientWidget)
+
+
+def test_the_old_spaceout_theme_is_no_longer_reached(qtbot, sandbox,
+                                                     monkeypatch):
+    """`dressed()` swaps the theme to SPACEOUT_THEME, which IS the old
+    artwork. Returning before it is what retires that engine."""
+    import spacr.qt.theme as theme
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    used = []
+    monkeypatch.setattr(ambient, "dressed",
+                        lambda t, p: used.append((t, p)) or (t, p))
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    widget = ambient.install_ambient(host, None)
+    assert used == [], "the ambient engine was still dressed for spaceout"
+    widget.shutdown()
+
+
+def test_it_answers_to_the_ambient_widget_s_own_verb(qtbot, sandbox):
+    """`_discard_ambient` and the Home teardown call `set_animating`."""
+    widget = F.create_fractal_widget(F.Settings(backend="cpu"))
+    qtbot.addWidget(widget)
+    assert widget.set_animating(False) is True
+    assert widget.is_paused() is True
+    assert widget.set_animating(True) is True
+    assert widget.is_paused() is False
+    widget.shutdown()
+
+
+def test_the_home_screen_path_gets_it_too(qtbot, sandbox, monkeypatch):
+    """Home installs its own backdrop, which is the one that was still old."""
+    import inspect
+
+    from spacr.qt.widgets import home
+
+    # It reaches the fractal the same way: through `install_ambient`.
+    assert "install_ambient" in inspect.getsource(home.HomePage._install_ambient)
