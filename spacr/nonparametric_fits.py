@@ -427,3 +427,48 @@ def isotonic_fit(x, y, *, increasing: bool = True):
     model = IsotonicRegression(increasing=increasing, out_of_bounds="clip")
     fitted = model.fit_transform(x[order], y[order])
     return x[order], fitted
+
+
+def report_agreement(coefficients, design, response, *,
+                     method: str = "random_forest", seed: int = 0) -> str:
+    """Run the agreement check on a finished fit and return what to print.
+
+    Takes the coefficient table a run already produced, so nothing is
+    refitted and the comparison is against the ranking the run actually
+    reported.
+
+    :param coefficients: the run's table, with `feature` and `coefficient`.
+    :returns: the sentence to print, or "" when there is nothing to compare
+        -- too few shared guides, or a table with no coefficients in it.
+    """
+    import re
+
+    effect = {}
+    for _i, row in coefficients.iterrows():
+        name = str(row.get("feature", ""))
+        found = re.search(r"grna\[(?:T\.)?([^\]]+)\]", name)
+        if found is None:
+            continue
+        try:
+            effect[found.group(1)] = float(row.get("coefficient"))
+        except (TypeError, ValueError):
+            continue
+    if len(effect) < 3:
+        return ""
+
+    # The design's guide columns carry the same names, so the two line up.
+    columns = {}
+    for name in getattr(design, "columns", []):
+        found = re.search(r"grna\[(?:T\.)?([^\]]+)\]", str(name))
+        if found is not None and found.group(1) in effect:
+            columns[name] = found.group(1)
+    if len(columns) < 3:
+        return ""
+
+    narrowed = design[list(columns)]
+    narrowed.columns = [columns[c] for c in columns]
+    try:
+        result = agreement(narrowed, response, effect, method=method, seed=seed)
+    except Exception:                                        # noqa: BLE001
+        return ""
+    return f"{result.summary()} ({result.note})"
