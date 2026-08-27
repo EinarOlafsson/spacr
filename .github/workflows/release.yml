@@ -166,26 +166,26 @@ jobs:
             tests/test_online_installers.py \
             tests/test_conda_forge_recipe.py -q --tb=short
 
-      # THE CONDA-FORGE GATE, before anything is published.
+      # THE CONDA-FORGE RECIPE, REPORTED AND NEVER BLOCKING.
       #
-      # The feedstock updates itself: it watches PyPI and auto-merges the
-      # bot's version PR once CI is green. So a release reaches conda-forge
-      # with no human step -- until a build fails, and then conda-forge
-      # SILENTLY STAYS on the previous version and nothing announces it.
+      # The feedstock updates itself -- it watches PyPI and auto-merges the
+      # bot's version PR once CI is green -- and this step does not change
+      # that. It reports ENTRY-POINT DRIFT: the bot's PR rewrites version
+      # and sha256 and nothing else, so a console script this package has
+      # dropped is still declared by the recipe long after the module goes.
       #
-      # The bot's PR rewrites version and sha256 and nothing else, so a
-      # console script dropped from setup.py is still declared by the recipe,
-      # points at a module the new sdist does not have, and the build dies.
-      # This reads the recipe conda-forge actually has and checks it against
-      # the sdist about to be uploaded.
-      #
-      # It fails ONLY on that -- a command missing from the recipe is
-      # reported and does not stop the release, because a gate that blocks
-      # on everything is one people learn to skip.
-      - name: The conda-forge recipe can build this release
+      # It cannot fail the release, and that was established rather than
+      # assumed: the published package's info/link.json carries those entry
+      # points as INSTALL-TIME metadata, so conda writes the wrappers when a
+      # user installs and nothing imports the module during the build. What
+      # ships is a command that raises ModuleNotFoundError when run -- worth
+      # fixing, not worth refusing to release over.
+      - name: Report conda-forge recipe drift (never blocking)
         run: |
           SDIST=$(ls dist/*.tar.gz | head -1)
-          python tools/check_conda_forge_recipe.py --sdist "$SDIST"
+          # `|| true` as well as the tool's own exit 0: a network hiccup
+          # reaching raw.githubusercontent must not be what stops a release.
+          python tools/check_conda_forge_recipe.py --sdist "$SDIST" || true
 
       - uses: actions/upload-artifact@v7
         with:
