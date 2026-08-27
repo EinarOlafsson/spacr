@@ -919,6 +919,18 @@ def _design_section(run: "_Run") -> List[SummaryField]:
     return out
 
 
+#: Below this share of rows surviving `fraction_threshold`, the summary says
+#: so rather than merely stating the count. Five per cent is well under any
+#: ordinary cut and well above zero, so it fires on the runs worth a second
+#: look and not on the ones that merely trimmed a tail.
+_LOW_RETENTION_PERCENT = 5.0
+
+#: Below this share of the LARGER side finding a partner, the summary says so.
+#: The two sides are not expected to match -- sequencing covers every well and
+#: imaging keeps only what survives segmentation -- so this is deliberately
+#: lenient and fires only when the join looks like a key problem.
+_LOW_PAIRING_PERCENT = 50.0
+
 def _design_counts(frame) -> Dict[str, Optional[int]]:
     """Wells, guides, genes, cells and rows from the run's fitted table.
 
@@ -1752,17 +1764,52 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
                 value=f"gRNA rows below a well fraction of "
                       f"{float(fraction):g} were dropped; {_NOT_RECORDED}")
         elif outof:
+            # THE RETENTION, AND FLAGGED WHEN IT IS SMALL. "580,214 of
+            # 586,038 dropped" and "1.0% retained" are the same fact, but a
+            # reader scanning for what the run was based on reads the second
+            # one. A retention this low decides a result and went past in one
+            # line among many, so it is called out the way the effect-size
+            # cut already calls out what it removed.
+            retained = outof - dropped
+            share = 100.0 * retained / outof if outof else 0.0
+            flag = (" -- UNUSUALLY LOW: this run rests on a small part of "
+                    "the data, which is what a threshold above the median "
+                    "fraction does. Check it against the sweep's own "
+                    "suggestion before reading the result."
+                    if share < _LOW_RETENTION_PERCENT else "")
             add("fraction_threshold",
                 value=f"{dropped:,} of {outof:,} gRNA rows were below a well "
-                      f"fraction of {float(fraction):g} and were dropped")
+                      f"fraction of {float(fraction):g} and were dropped, "
+                      f"leaving {retained:,} ({share:.1f}% retained){flag}")
         else:
             add("fraction_threshold",
                 value=f"{dropped:,} gRNA rows were below a well fraction of "
                       f"{float(fraction):g} and were dropped")
-    add("missing_metadata",
-        value=f"the score and count tables are joined on the well, so a well "
-              f"present in only one of them takes no part in the fit; "
-              f"{_NOT_RECORDED}")
+    # THE PAIRING, from the same recorder the drop counts come from. It used
+    # to say "not recorded", which was honest and useless: on the run that
+    # prompted this, 724 of 1,344 sequencing wells had no partner, and that
+    # is the kind of number a reader needs when they ask what the fit was
+    # based on.
+    paired = _exclusion_count(settings, "wells_paired")
+    if paired is None:
+        add("missing_metadata",
+            value=f"the score and count tables are joined on the well, so a "
+                  f"well present in only one of them takes no part in the "
+                  f"fit; {_NOT_RECORDED}")
+    else:
+        lost_counts = _exclusion_count(settings, "wells_unpaired_counts") or 0
+        lost_scores = _exclusion_count(settings, "wells_unpaired_scores") or 0
+        offered = paired + max(lost_counts, lost_scores)
+        share = 100.0 * paired / offered if offered else 100.0
+        flag = ("" if share >= _LOW_PAIRING_PERCENT else
+                " -- fewer than half the wells on the larger side found a "
+                "partner, which is worth checking against the plate "
+                "identifiers before reading the result")
+        add("missing_metadata",
+            value=f"{paired:,} well(s) were joined on the well identifier; "
+                  f"{lost_counts:,} sequencing and {lost_scores:,} imaging "
+                  f"well(s) had no partner and took no part in the fit "
+                  f"({share:.0f}% of the larger side paired){flag}")
 
     counts = _design_counts(run.data)
     rows = counts.get("n_rows_fitted")

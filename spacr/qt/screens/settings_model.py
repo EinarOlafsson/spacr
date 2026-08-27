@@ -1460,8 +1460,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # They belong beside the table they name: a user who has to say what
         # their count file calls its guide column is looking at the count
         # file, not at the model.
+        # `src` LAST in this group and empty by default: it is where the
+        # results GO rather than an input, but it belongs beside the tables
+        # because the folder it defaults to is derived from the first of
+        # them. Empty means automatic; see `ml.resolve_regression_src`.
         ("Input Tables", ("paired_data", "metadata_files",
-                          "count_grna_column", "count_value_column")),
+                          "count_grna_column", "count_value_column",
+                          "src")),
         # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
         # Asked for on 2026-08-17 -- "merge quality & filters in here. change
         # the settings categoty to Controlls & Filters". They were two

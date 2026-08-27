@@ -2,8 +2,35 @@
 REGRESSION OFFERS ITS OWN src, AND CREATES ONE LEVEL IF IT HAS TO
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26. Supersedes item 1 of instruction
+Status:    DONE. Requested 2026-08-26. Supersedes item 1 of instruction
            271, which reported the symptom.
+
+           `src` is on the regression panel, last in Input Tables, EMPTY by
+           default -- so a user who touches nothing runs exactly where they
+           ran before. It is a `_ScalarEdit`, which is what `src` is on Mask
+           and Measure too: the same control every other module's source
+           uses, rather than a bespoke one for this module.
+
+           `ml.resolve_regression_src` decides the rest and returns the
+           sentence that says which happened:
+
+               empty / blank      -> automatic, silently (nothing changed)
+               folder exists      -> used, "writing to X as given"
+               parent exists      -> ONE folder created, "created X"
+               parent missing     -> automatic, and says one missing level
+                                     is a folder to make and two is a typo
+               a file, not a dir  -> automatic, and says so
+
+           `~` and `../` resolve before any of those decisions. Never
+           `makedirs`: a tree built from a typo is a directory the run
+           succeeds into.
+
+           The false error is gone. `validate.DERIVES_ITS_OWN_SRC` names
+           regression, so an absent source there is a default rather than a
+           mistake; a module NOT named still errors, which is what
+           preprocess_generate_masks depends on.
+
+           tests/test_regression_offers_its_own_src.py, 16 tests.
 Owner:     spacr/settings.py for the setting, spacr/ml.py:6598 for the
            resolution, and the settings validator for the false error.
 
