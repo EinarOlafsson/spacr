@@ -2,7 +2,41 @@
 WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26.
+Status:    THE MECHANISM IS BUILT AND TESTED, 2026-08-27; the three call
+           sites are wired as each failure path is reached.
+
+           `spacr/qt/ask_for_the_path.py` enforces all six things this file
+           says every prompt owes, so a caller cannot forget one:
+
+             * SAYS WHAT WAS TRIED, passed in and shown in the chooser's own
+               title, so a typo in a setting reads differently from a
+               genuinely missing folder;
+             * VALIDATES BEFORE ACCEPTING -- `a_folder_holding('.tif')`
+               refuses a folder with no images and the dialog STAYS OPEN
+               carrying the reason, rather than accepting and failing one
+               step later;
+             * ASKS ONCE PER RUN, remembered per key, so the second image
+               does not ask again -- and two different things are still
+               asked separately;
+             * IS REFUSABLE: cancel returns the original error and is NOT
+               remembered, so cancelling once does not silently answer the
+               next run;
+             * NEVER APPEARS HEADLESS. Checked first and on its own, because
+               getting it wrong does not show a dialog to nobody -- it
+               BLOCKS, and a blocked batch run looks like a hang. Under
+               pytest, with no QApplication, on an offscreen platform, or
+               with SPACR_NO_PROMPTS set, it resolves to the original error
+               and says so.
+
+           tests/qt/test_it_asks_for_the_path_when_the_usual_one_is_missing.py,
+           11 tests, including one asserting that a test process is not a
+           person.
+
+           STILL TO WIRE: the merged-folder site in array mode, the
+           database/table/column form for a coordinate stream -- which needs
+           THREE answers rather than one and should offer the tables in the
+           chosen database rather than a blank field -- and the PNG data
+           folder for image loading.
 Priority:  Not stated. Treated as ordinary until told otherwise.
 Owner:     the image loading and streaming paths, and whichever screens host
            them.
