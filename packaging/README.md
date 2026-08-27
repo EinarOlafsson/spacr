@@ -7,17 +7,18 @@ Python, Qt, PyTorch, CUDA, or the scientific stack. During installation they:
 
 1. download a pinned standalone `uv` bootstrap over TLS;
 2. download a private managed CPython 3.12 runtime;
-3. install the portable CPU/MPS PyTorch build by default;
+3. select the PyTorch backend automatically, including CUDA on compatible NVIDIA systems;
 4. install `spacr[qt]` in a private environment;
 5. run `pip check` and import spaCR, Qt, and PyTorch before activating it; and
 6. create the platform's normal application launcher and uninstaller.
 
 No existing system Python is modified. A failed update preserves the previous
-working spaCR environment. Windows offers NVIDIA acceleration as an optional
-installer component; Linux users can request accelerator auto-detection with
-``--torch-backend auto``. The CPU default avoids an accidental multi-gigabyte
-CUDA download and works on every supported machine. Apple's standard PyTorch
-wheel retains Metal Performance Shaders (MPS) support.
+working spaCR environment. Automatic hardware acceleration is selected by
+default. On compatible NVIDIA systems, ``uv`` installs a CUDA-capable PyTorch
+build; elsewhere it falls back safely to the portable build. Users who require
+the smaller CPU-only installation can deselect acceleration on Windows or pass
+``--torch-backend cpu`` on Linux. Apple's standard PyTorch wheel retains Metal
+Performance Shaders (MPS) support.
 
 Installer status, help, errors, and progress are localized for every spaCR UI
 language: English, Swedish, German, Spanish, Simplified Chinese, Portuguese,
@@ -163,9 +164,10 @@ installer/executable for each of the three target platforms:
 **Common contract**
 
 The launcher `spacr_launcher.py` in this directory is the entry point
-every installer wraps — it calls `spacr.gui.gui_app()`. So a single
-launcher spec drives all three build systems; only the packaging /
-metadata / signing differs per platform.
+used by the legacy Windows and macOS bundles. It starts the maintained Qt
+application through `spacr.qt.run()`. The shared `spacr.spec` file defines
+the frozen application; platform-specific scripts then package, sign, or
+archive its output.
 
 **What each build does under the hood**
 

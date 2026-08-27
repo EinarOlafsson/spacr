@@ -9797,6 +9797,19 @@ def retarget_field_tooltips(root: QWidget) -> int:
     Tooltips stay on editors that have no sibling label, whose label already
     has different help, or that carry :data:`DISABLED_REASON_TOOLTIP`.
     """
+    # Hand-built settings panels used to stop at moving the native Qt tooltip
+    # string.  That kept editors quiet, but it left those panels outside the
+    # shared tooltip contract: a native platform tooltip cannot be entered,
+    # does not share HoverTooltip's single rounded surface, and may disappear
+    # while its text is being read.  Keep one filter alive on the owning root
+    # and route every successfully paired label through the same popup used by
+    # AppScreen.  `_ApiTooltipFilter` does not require API metadata; with a
+    # plain authored tooltip it simply displays `apiTooltipHtml` verbatim.
+    event_filter = getattr(root, "_api_tooltip_filter", None)
+    if event_filter is None:
+        event_filter = _ApiTooltipFilter(root)
+        root._api_tooltip_filter = event_filter
+
     moved = 0
     for field in root.findChildren(QWidget):
         if not isinstance(field, _EDITOR_TYPES):
@@ -9820,6 +9833,10 @@ def retarget_field_tooltips(root: QWidget) -> int:
             label.setToolTip(tip)
             label.setToolTipDuration(-1)
             label.setCursor(Qt.WhatsThisCursor)
+        label.setProperty("apiTooltipHtml", tip)
+        label.setProperty("apiTooltipDisplayRole", "tooltip")
+        label.removeEventFilter(event_filter)
+        label.installEventFilter(event_filter)
         field.setToolTip("")
         moved += 1
     return moved
