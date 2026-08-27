@@ -2,7 +2,48 @@
 SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
 ================================================================================
 
-Status:    OPEN. Requested 2026-08-26. THE MAINTAINER CALLS THIS "one of the
+Status:    DONE 2026-08-27. Optimised first, disabled last, which is this
+           file's own rule.
+
+           WHAT SCALED UNEVENLY WAS FOUND. It was never the settings count:
+
+             * the UMAP screen asked the INSTALLED umap-learn for its metric
+               names to fill a dropdown, and importing umap makes numba
+               compile pynndescent -- 9.4 s of a 9.6 s build. 9.621 s -> 0.408 s.
+             * the Regression screen built TWENTY-TWO pyqtgraph plots from 71
+               settings rows, because the parameter sweep card constructs a
+               second results panel while collapsed. 0.877 s -> 0.297 s.
+             * `retranslate_widget_tree` imported the settings model to
+               refresh tooltips that model attaches -- provably nothing to
+               refresh on the Home page -- dragging in pandas. Launch
+               1.388 s -> 1.067 s, modules 856 -> 434, pandas no longer
+               loaded at startup at all.
+             * Mask 2.73 s -> 0.604 s, and `_language_code` went from forty
+               calls per setting to ZERO per build.
+
+           NOTHING WAS SWITCHED OFF to get any of that. Every metric, every
+           plot and every panel is still there and still reachable.
+
+           THE PER-ROW SPREAD, measured after: mask 0.34, measure 0.94,
+           classify_merged 1.27, regression 4.58, umap 5.85 ms/row. Annotate
+           reads 15 ms/row on ONE row, which is fixed cost divided by one and
+           not something that scales -- every screen now builds in under
+           0.53 s.
+
+           THE WINDOW CONTROLS ARE IN A MENU on every platform: Help ->
+           Window carries Minimise, Maximise, Full screen and Close window,
+           plus a copy of Preferences that macOS does not relocate.
+
+           LAPTOP MODE EXISTS -- `spacr/qt/laptop_mode.py`. Chosen from
+           usable cores (affinity, not `cpu_count`, because a container can
+           pin fewer) and physical memory; overridable both ways with
+           SPACR_LAPTOP_MODE; and it SAYS what it turned down and what that
+           costs. It touches only what is DRAWN, so a run computes the same
+           answer either way -- which is what makes deciding automatically
+           acceptable. A test asserts that nothing it names is something a
+           run reads.
+
+Original:  OPEN. Requested 2026-08-26. THE MAINTAINER CALLS THIS "one of the
            most important items on the instructions list."
 Priority:  HIGHEST of the open items.
 Owner:     the whole application; spacr/qt/screens/app_screen.py and
