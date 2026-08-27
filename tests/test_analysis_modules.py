@@ -217,6 +217,13 @@ def test_deep_spacr_binary_metrics_shape():
     assert isinstance(m, dict)
     # Common keys expected in a binary-metrics dict.
     assert any(k in m for k in ("auc", "accuracy", "f1"))
+    # THIS FIXTURE IS PERFECTLY SEPARABLE -- every positive scores above
+    # every negative -- so a working metric returns exactly 1.0. Asserting
+    # only the KEYS let a sign inversion through, which is the one mistake
+    # this function can make and the one that matters most.
+    for key in ("auc", "accuracy", "f1"):
+        if key in m:
+            assert float(m[key]) == pytest.approx(1.0), (key, m[key])
 
 
 def test_deep_spacr_multiclass_metrics_shape():
@@ -227,6 +234,10 @@ def test_deep_spacr_multiclass_metrics_shape():
     ])
     m = DS._multiclass_metrics(y_true, prob)
     assert isinstance(m, dict) and len(m) > 0
+    # Every row's argmax IS its true class, so accuracy is exactly 1.0.
+    for key in ("accuracy", "acc"):
+        if key in m:
+            assert float(m[key]) == pytest.approx(1.0), (key, m[key])
 
 
 # ---------------------------------------------------------------------------
