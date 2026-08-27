@@ -1,0 +1,262 @@
+{
+  "schema": 1,
+  "source": "README.rst",
+  "records": [
+    {
+      "label": "headless-module-list",
+      "source_sha256": "ba692202a90d45cc9c603ecd4496cc0dc0ab15e50cb585983e67a3e4c576dee3",
+      "source": "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "host-modules-heading",
+      "source_sha256": "8974e5e3d47e0eecbbbc6339f970a9f05e5c855e0bc0aa42bfa6e25a5577b722",
+      "source": "Modules available from host screens",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "host-modules-introduction",
+      "source_sha256": "12a5d01d329b5b5525d7816855f4e3f214c4e91a729b3173a6c5d734097bf4b9",
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "make-masks-heading",
+      "source_sha256": "3b6b87a84692b587aa2299fc27a05cbe60c36d7c0c53f37d68e9e3e7e3d780e3",
+      "source": "Make Masks",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "make-masks-tools",
+      "source_sha256": "cf42b5d15a73956955227f308b7278340d7169c0dcd43c4b8b782ce04b030ded",
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "make-masks-recrop",
+      "source_sha256": "c5dc0f507fac105cec72a090640d29182dcb99677f21a2d3f4e0d5f43e659d83",
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "make-masks-cellpose-sam",
+      "source_sha256": "0a66d7dfcafc418b8d544c33f766ee40df8a6dcb12ec4aa855c992c64beba969",
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "objects-settings-heading",
+      "source_sha256": "5320cf91af838c922615828f8276df4446d13c513c12bfa245d9b3f09de909fd",
+      "source": "Objects and settings",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "objects-settings-inventory",
+      "source_sha256": "24b939c6e8e38f0b312c7f55263277e8dca9da0d4405aa2cc83722f6e7628e9c",
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "objects-settings-visibility",
+      "source_sha256": "2e03aefa953cc86eac19f424339cca26dc2e704c5ef13485a756f95018e8fd63",
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "performance-heading",
+      "source_sha256": "3cca4da3c2a1c9529adaa3e2b0e38b7a94d84eb65fc08e0429484abc75276b3a",
+      "source": "Diagnosing performance",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "performance-report-heading",
+      "source_sha256": "f84f94d824bd95e3df7b1c4c3dff1fc57dff13079e145c43b00e83f6fd35786e",
+      "source": "Generate a hardware report and attach it to a performance-related issue",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "performance-report-location",
+      "source_sha256": "ea84a760589415ed93d0dd9086ecdd13b5d2e32e0c2d75c6aa019c15b3e1b021",
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "performance-report-scope",
+      "source_sha256": "f7a25b53879a3d74d166fbc6eeeeb3a83608aaf21e42749381eca6467ff1c0a1",
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "performance-report-platform",
+      "source_sha256": "c9d044f42e7b846be8dc37dbc88d2b39a7a7b0dd86044e4b2545ed5bb33fc49d",
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    },
+    {
+      "label": "support-performance-context",
+      "source_sha256": "75d5a4b6f9960ae3ac303786f491da789e21b9b4eafe434645aa44d1a542e3ba",
+      "source": "Submit bug reports and focused feature requests through `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of this information; include the hardware report when reporting performance problems.",
+      "status": {
+        "de": "reviewed",
+        "sv": "reviewed",
+        "is": "reviewed",
+        "es": "reviewed",
+        "fr": "reviewed",
+        "hi": "reviewed",
+        "ko": "reviewed",
+        "pt": "reviewed",
+        "zh_CN": "reviewed"
+      }
+    }
+  ]
+}

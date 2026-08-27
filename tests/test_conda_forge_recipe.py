@@ -10,7 +10,6 @@ import pytest
 import yaml
 from packaging.requirements import Requirement
 
-
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE = ROOT / "conda-forge" / "recipe" / "recipe.yaml"
 BOT_CONFIG = ROOT / "conda-forge" / "conda-forge.yml"
@@ -149,8 +148,13 @@ def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
 #: `opencv-python-headless 4.9.0.80` is a wrapper whose fourth component is
 #: the wrapper build, not the OpenCV release; conda-forge ships the library
 #: itself as `opencv 4.9.0`, so the two spellings name the same floor.
+#: PyPI's maintained `nvidia-ml-py` distribution uses NVIDIA driver-branch
+#: versions such as `11.450.51`, whereas conda-forge exposes the compatible
+#: `pynvml` line as `11.5`. The translated floors are the minimum compatible
+#: releases in their respective package indexes.
 FLOOR_TRANSLATIONS = {
     "opencv": {"4.9.0.80": "4.9.0"},
+    "pynvml": {"11.450.51": "11.5"},
 }
 
 

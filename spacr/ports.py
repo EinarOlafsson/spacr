@@ -892,14 +892,12 @@ def _port_problems(resolved: ResolvedPort, *, sample: int) -> List[Problem]:
 
 def port_problems(port: Port, root: str, *,
                   sample: int = 3) -> Tuple[Problem, ...]:
-    """Return every blocking problem with one port resolved against ``root``.
+    """Validate one input port after resolving it against ``root``.
 
-    The per-port half of :func:`check_ready`, exposed for callers that hold a
-    :class:`Port` but no module — a screen that says "I want a
-    ``measurements-db``" rather than "I am Measure". The sentences are the
-    ones :func:`check_ready` writes, because they are produced by the same
-    code: a drop that lands on nothing has to name what is missing in exactly
-    the words the readiness check would have used.
+    This is the per-port validation used by :func:`check_ready` and is
+    suitable for callers that have a :class:`Port` without a module key. It
+    returns the same missing-input, count, shape, and table problems as the
+    full readiness check.
 
     :param port: the declaration.
     :param root: absolute project root to resolve it against.

@@ -779,12 +779,10 @@ def assert_run_complete(artifact: Union[str, os.PathLike],
                         timeout: float = RUN_STATUS_READ_TIMEOUT) -> None:
     """Raise :class:`DataIntegrityError` if ``artifact`` is stamped partial.
 
-    The one-liner for downstream code that must not silently analyse a
-    subset. An artifact whose status cannot be read raises
-    :class:`RunStatusUnreadable`, which is a
-    :class:`DataIntegrityError` too — so ``except DataIntegrityError``
-    catches both "this run failed items" and "I cannot tell whether it
-    did", which are the two cases a caller must not proceed past.
+    This guard prevents downstream analysis of incomplete output. An
+    unreadable status raises :class:`RunStatusUnreadable`, a subclass of
+    :class:`DataIntegrityError`, so callers may handle failed runs and
+    unverifiable run status with one exception type.
 
     :param artifact: path of a spaCR output.
     :param timeout: seconds to wait for a locked database.

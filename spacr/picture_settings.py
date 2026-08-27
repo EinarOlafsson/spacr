@@ -935,18 +935,15 @@ MEASURED_MS_PER_CROP: Dict[str, Tuple[float, float]] = {
 
 
 def montage_cap_cost(cap) -> str:
-    """What a montage of ``cap`` objects costs, in one sentence.
+    """Summarize the estimated cost of a montage containing ``cap`` objects.
 
-    :param cap: the most objects one montage may hold.
-    :returns: pages, memory and cutting time, or ``""`` for a cap that is not
-        a positive number.
+    Estimates use the measured page capacities, crop memory, and per-crop
+    timings in :data:`MEASURED_PAGE_SIZES`, :data:`MEASURED_CROP_BYTES`, and
+    :data:`MEASURED_MS_PER_CROP`.
 
-    A CAP IS A DECISION ABOUT WHERE A LIMIT SITS, and the three numbers that
-    decide it are not on screen anywhere else: how many pages the reader has
-    to walk, how much memory the tab holds while they do, and how long they
-    wait before the first one is drawn. Every figure here is measured -- see
-    :data:`MEASURED_PAGE_SIZES`, :data:`MEASURED_CROP_BYTES` and
-    :data:`MEASURED_MS_PER_CROP` -- so raising the cap says what it bought.
+    :param cap: Maximum number of objects in one montage.
+    :returns: Estimated page count, memory use, and crop-extraction time, or
+        ``""`` when ``cap`` is not a positive integer.
     """
     try:
         count = int(cap)

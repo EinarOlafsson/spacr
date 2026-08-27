@@ -163,7 +163,7 @@ def test_the_variance_only_feature_is_flagged_rather_than_missed(planted):
     assert shape.is_shape_not_shift
     assert not result.score_for("none").is_shape_not_shift
     assert "spread rather than level" in result.notice
-    assert "SHAPE, NOT SHIFT" in shape.describe()
+    assert "shape differs without a location shift" in shape.describe()
 
 
 def test_ranking_by_ks_puts_the_variance_feature_back_in_play(planted):

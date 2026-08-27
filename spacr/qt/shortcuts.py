@@ -11,6 +11,7 @@ the whole app is usable without a mouse:
     Ctrl+,        Open Preferences
     Ctrl+/        Open the AI Console
     Ctrl+End      Jump to the newest console line
+    F11           Toggle full screen
     Esc           Close any open dialog / popup
 
 :func:`install` is called once from ``MainWindow.__init__``. Every
@@ -26,7 +27,12 @@ from typing import Callable, List
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
 from PySide6.QtWidgets import (
-    QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QWidget,
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QMainWindow,
+    QVBoxLayout,
+    QWidget,
 )
 
 LOG = logging.getLogger("spacr.qt.shortcuts")
@@ -70,21 +76,10 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
     ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+B",       "Show the full app list", "Navigation"),
+    ShortcutSpec("F11",          "Toggle full screen",     "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
-    # A long run writes thousands of lines and the one that matters is the
-    # last; getting to it must not be a scroll through everything above it.
-    #
-    # WINDOW-WIDE, AND DECLARED ONCE. It was declared twice -- here and in
-    # `SCREEN_SHORTCUTS`, with two different descriptions -- while the only
-    # binding lived on the console panel, which does not exist until a
-    # module screen is built. A key on the cheat sheet that nothing has
-    # bound is worse than one that was never advertised, so `install()`
-    # binds it on the window and this is the one entry describing it.
-    #
-    # UNDER "CONSOLE", which is what it acts on. The category is not only a
-    # heading: the card tiles two categories to a band, so which one a row
-    # sits in decides how the bands pack -- this row inside "Actions" costs
-    # the card two rows, and the card has to fit the window it covers.
+    # Bound at window scope so it is available whenever a module console
+    # exists, and listed under the interface area it controls.
     ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
                  "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
@@ -128,9 +123,9 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
                  "the Make Masks screen"),
-    ShortcutSpec("D",            "Draw",                   "Make Masks",
+    ShortcutSpec("D",            "Draw an object",         "Make Masks",
                  "the Make Masks screen"),
-    ShortcutSpec("V",            "Divide",                 "Make Masks",
+    ShortcutSpec("V",            "Divide an object",       "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Z",            "Zoom",                   "Make Masks",
                  "the Make Masks screen"),
@@ -147,10 +142,9 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 ]
 
 
-#: Window-wide keys that something OTHER than `install()` binds. `Ctrl+B`
-#: opens the full app list and `F11` goes full screen; both are set on menu
-#: actions -- which are real bindings and reach the same place -- so they
-#: belong on the map and do not belong in `install()`'s count.
+#: Window-wide keys that something OTHER than `install()` binds. ``Ctrl+B``
+#: opens the full app list and ``F11`` toggles full screen; both are attached
+#: to window actions. They belong on the map and not in ``install()``'s count.
 BOUND_ELSEWHERE = frozenset({"Ctrl+B", "F11"})
 
 
@@ -190,7 +184,10 @@ def discover(window) -> List[ShortcutSpec]:
     """
     from PySide6.QtGui import QAction
 
-    known = {native(spec.keys) for spec in SHORTCUTS}
+    # Include declared per-screen bindings as well as window-wide ones. A
+    # screen that already exists under the window must not make its declared
+    # shortcut appear a second time as a dynamically discovered key.
+    known = {native(spec.keys) for spec in mapped()}
     out: List[ShortcutSpec] = []
     seen = set()
     try:
@@ -400,7 +397,8 @@ def _toggle_ai(window: QMainWindow) -> None:
         current = None
         for s in window.findChildren(AppScreen):
             if s.isVisible():
-                current = s; break
+                current = s
+                break
         if current is not None and hasattr(current, "_ai_switch"):
             current._ai_switch.setChecked(
                 not current._ai_switch.isChecked()

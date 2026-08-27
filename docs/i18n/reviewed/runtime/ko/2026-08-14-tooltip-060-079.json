@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "organelle_type",
-      "source_sha256": "a059a64fbd26a9c27bdb70cd559f069f7784b9064ba7ed329b3968c1d2783dc6",
-      "source": "Pick what kind of organelle this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelle_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
-      "translation": "소기관 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organelle_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+      "source_sha256": "9aaa385e5611799fe2ba15986f9125c2751d0852b13719a9dee50620736fb599",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelle_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "권장 검출 설정을 채우는 데 사용하는 소기관 형태입니다. 명시적으로 구성한 값은 덮어쓰지 않습니다. 선택지는 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent' 입니다. 형태만으로 검출기가 결정되지는 않습니다. 200 nm 소포는 점상으로, 2 µm 액포는 고리형으로 보이므로 'vesicular' 와 'spherical' 은 organelle_diameter 도 사용합니다. 기본값 'custom' 은 권장값을 적용하지 않습니다."
     },
     {
       "table": "setting_tooltips",
@@ -40,9 +40,9 @@
     {
       "table": "setting_tooltips",
       "key": "organelleb_network_threshold",
-      "source_sha256": "30b8aeaba0c081407b3ba052bf3953f5094af50f79ee68985e32a411b531fe39",
-      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelleb_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelleb_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
-      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organelleb_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelleb_method='ridge' 에서만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+      "source_sha256": "66ad06d75c2b4d4412c97869a3b02bd8f400501a19066669404f02def20e80c1",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelleb_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelleb_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organelleb_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelleb_method='ridge' 에서만 읽으며 알 수 없는 값은 경고 없이 otsu 로 돌아갑니다. 기본값 'otsu'."
     },
     {
       "table": "setting_tooltips",
@@ -61,9 +61,9 @@
     {
       "table": "setting_tooltips",
       "key": "organelleb_type",
-      "source_sha256": "ddd75787628ccd8a5caff1785520ccb39fa44f11c95c6013132656672a5d3ece",
-      "source": "Pick what kind of organelle 2 this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organelleb_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
-      "translation": "소기관 2 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organelleb_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+      "source_sha256": "3213ba31f80093b351b81e14e7d5d222c968a4649973205f6294631f8ae698d5",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelleb_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "권장 검출 설정을 채우는 데 사용하는 소기관 형태입니다. 명시적으로 구성한 값은 덮어쓰지 않습니다. 선택지는 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent' 입니다. 형태만으로 검출기가 결정되지는 않습니다. 200 nm 소포는 점상으로, 2 µm 액포는 고리형으로 보이므로 'vesicular' 와 'spherical' 은 organelleb_diameter 도 사용합니다. 기본값 'custom' 은 권장값을 적용하지 않습니다."
     },
     {
       "table": "setting_tooltips",
@@ -96,9 +96,9 @@
     {
       "table": "setting_tooltips",
       "key": "organellec_network_threshold",
-      "source_sha256": "092d42bb23afe2a3eb42026bfb4ca409efa786562fca8ac94034f6da437a68ef",
-      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organellec_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organellec_method='ridge'; anything unrecognised silently falls back to otsu. Default 'otsu'.",
-      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organellec_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organellec_method='ridge' 에서만 읽으며 알 수 없는 값은 조용히 otsu 로 돌아갑니다. 기본값 'otsu'."
+      "source_sha256": "e2c29c0b568ce5cbbbb5f904e64fdc5b8d0ff1a29539afcb2b78cbffb5d3cc91",
+      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organellec_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organellec_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
+      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organellec_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organellec_method='ridge' 에서만 읽으며 알 수 없는 값은 경고 없이 otsu 로 돌아갑니다. 기본값 'otsu'."
     },
     {
       "table": "setting_tooltips",
@@ -117,9 +117,9 @@
     {
       "table": "setting_tooltips",
       "key": "organellec_type",
-      "source_sha256": "bf98eb555b74e5d496c32658ef552c08ee93be1f3b8daaa5dadfa16a49fcc86e",
-      "source": "Pick what kind of organelle 3 this is and spaCR fills the detection settings for it, printing what it chose; anything you set yourself is never overwritten. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. The name alone does not fix the detector: 'vesicular' and 'spherical' also read organellec_diameter, because a 200 nm vesicle is a dot and a 2 um vacuole is a ring. Default 'custom', which recommends nothing.",
-      "translation": "소기관 3 종류를 고르면 spaCR 이 선택한 값을 출력하며 검출 설정을 채웁니다. 사용자가 직접 지정한 값은 덮어쓰지 않습니다. 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent'. 이름만으로 검출기가 완전히 정해지지는 않습니다. 'vesicular' 와 'spherical' 은 organellec_diameter 도 읽습니다. 200 nm 소포는 점이지만 2 um 액포는 고리이기 때문입니다. 기본값 'custom' 이며 아무것도 권장하지 않습니다."
+      "source_sha256": "20bac301ccde21b4f9e1003a3187faacdabbdd7fd6f154a848878c3627048439",
+      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organellec_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
+      "translation": "권장 검출 설정을 채우는 데 사용하는 소기관 형태입니다. 명시적으로 구성한 값은 덮어쓰지 않습니다. 선택지는 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent' 입니다. 형태만으로 검출기가 결정되지는 않습니다. 200 nm 소포는 점상으로, 2 µm 액포는 고리형으로 보이므로 'vesicular' 와 'spherical' 은 organellec_diameter 도 사용합니다. 기본값 'custom' 은 권장값을 적용하지 않습니다."
     },
     {
       "table": "setting_tooltips",

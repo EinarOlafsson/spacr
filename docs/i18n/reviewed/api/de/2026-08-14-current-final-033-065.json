@@ -52,13 +52,6 @@
       "translation": "Die Hälfte des Routing-Vertrags, die ein *Aufrufer* verwendet. Ein Streudiagramm"
     },
     {
-      "label": "spacr.qt.mask_engine#1",
-      "source_sha256": "9d618d58fbeffee80b43a75e7c24d3c83366a7a974262ba9303635af7dd2b066",
-      "source": "Mirrors the image + mask I/O and label-mutation helpers from `spacr.gui_elements.ModifyMaskApp`, without touching Tk. The Qt screen above this reads/writes `self.image` and `self.mask` directly and calls these helpers for the non-brush operations (fill / relabel / invert / remove small).",
-      "context": "Mirrors the image + mask I/O and label-mutation helpers from `spacr.gui_elements.ModifyMaskApp`, without touching Tk. The Qt application view above this reads/writes `self.image` and `self.mask` directly and calls these helpers for the non-brush operations (fill / relabel / invert / remove small).",
-      "translation": "Spiegelt die Image + Mask I/O und Label-Mutation Helper von `spacr.gui_elements.ModifyMaskApp`, ohne Tk zu berühren. Die Qt-Anwendungsansicht darüber liest/schreibt `self.image` und `self.mask` direkt und ruft diese Helfer für die Nicht-Pinsel-Operationen (füllen / neu beschriften / invertieren / klein entfernen) auf."
-    },
-    {
       "label": "spacr.qt.multi_format#7",
       "source_sha256": "95ace53436365dad3a7c85344b75570b618d4091d13ac4f90c30ebd8bdf37126",
       "source": "Extract images out into the canonical filename format via :func:`explode_to_folder` (writes real .tif files + a ``filename_map.csv``), or",

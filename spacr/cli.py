@@ -225,7 +225,7 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="foreign",
-        summary="Import someone else's images, masks and measurement table as a spaCR project.",
+        summary="Import external images, masks, and a measurement table as a spaCR project.",
         entry="spacr.foreign:import_project",
         defaults=None,
         defaults_entry="spacr.foreign:default_settings",

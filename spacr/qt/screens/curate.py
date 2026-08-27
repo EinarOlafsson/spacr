@@ -224,7 +224,10 @@ class CurateScreen(QWidget):
 # ---------------------------------------------------------------------------
 
 APP_NAME = "Curate"
-APP_DESCRIPTION = "Paint a mask right, and fix tracks by hand — on the record"
+APP_DESCRIPTION = (
+    "Correct segmentation masks and tracking assignments manually while "
+    "recording each edit in the curation log."
+)
 APP_INTRO = (
     "Cellpose merges two touching cells; btrack breaks a track when a cell "
     "leaves focus for a frame. Both are obvious to look at and, until now, "

@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "classes",
+      "source_sha256": "a4c339cac867e72eb0c819222e2f8ee338aa18531a083cb6c5ac5c85c9cf5329",
+      "source": "Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
+      "translation": "Definições de classe no formato nome da classe -> {column, value}; por exemplo, 'pc' pode ser {'column': 'columnID', 'value': 'c3'}. No editor Classes, selecione uma coluna e atribua nomes aos seus valores distintos; as definições podem abranger várias colunas. Uma linha pode, em alternativa, definir um complemento aleatório que contenha objetos não atribuídos a qualquer outra classe, com uma amostra do mesmo tamanho da maior classe. Esta definição determina os objetos que pertencem a cada classe; class_folder_names define as subpastas de treino. Um ficheiro de definições anterior à divisão contém uma lista simples e é convertido durante a leitura. Predefinição {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
+      "translation": "Abundância relativa mínima, 0-1, que um gRNA deve atingir no número total de leituras de um poço para ser retido. Um limiar mais restritivo remove gRNAs de baixa abundância e de contaminação cruzada e reduz o número médio de gRNAs por poço; se ultrapassar o intervalo adequado, todas as linhas são removidas e a execução gera um erro. Utilize None para selecionar automaticamente o limiar que produz target_unique_count gRNAs por poço. Predefinição None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "keep_npz",
+      "source_sha256": "fa9d2f6bfe151597020eeb7012458398b4d95ed020ecff83a8906d214814d9ab",
+      "source": "Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
+      "translation": "Apenas no pipeline de transmissão (pipeline_style='v2'): grava cada lote NPZ em memória em merged/_scratch/ em vez de o descartar, permitindo inspecionar os dados intermédios de uma execução que falhou. Isto aumenta a utilização do disco; ative apenas para diagnóstico. Predefinição False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "Controlo de qualidade da segmentação efetuado quando as máscaras são gravadas, antes da medição. 'off' ignora a pontuação; 'report' pontua todos os campos, grava qc/segmentation_qc_<object>.csv e apresenta os problemas de qualidade detetados; 'flag' grava também um JSON por campo para processamento posterior; 'stop' gera uma exceção quando o resultado da placa é 'fail', após gravar o quadro de pontuações. Nenhum modo elimina ou omite um campo, e 'stop' não gera uma exceção para um resultado 'warn'. Predefinição 'report'."
+    }
+  ]
+}

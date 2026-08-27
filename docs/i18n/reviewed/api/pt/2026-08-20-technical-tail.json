@@ -23,13 +23,6 @@
       "translation": "A correção que o RUN usou, ou ``\"\"`` se a tabela não indicar."
     },
     {
-      "context": "The bold \"3. MERGE THE DATABASES\" line that names one step.",
-      "label": "spacr.qt.widgets.measurement_scan_panel.step_header#0",
-      "source": "The bold \"3. MERGE THE DATABASES\" line that names one step.",
-      "source_sha256": "43637e536c9031bff6f4b6bba6d0f2bbeacf8460ba23052e16faf9af30b2fa10",
-      "translation": "A linha em negrito \"3. MERGE THE DATABASES\" que nomeia uma etapa."
-    },
-    {
       "context": "This is what every tab is drawn from -- see :meth:`refresh_views`. :meth:`results_frame` is the RUN's table and stays whole: the filter is a view, not an edit, and a caller exporting the results must get the fit rather than whatever the user last right-clicked.",
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.filtered_frame#1",
       "source": "This is what every tab is drawn from -- see :meth:`refresh_views`. :meth:`results_frame` is the RUN's table and stays whole: the filter is a view, not an edit, and a caller exporting the results must get the fit rather than whatever the user last right-clicked.",

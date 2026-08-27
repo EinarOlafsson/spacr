@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "b88dde0a647216f4c008f7a8a9f1249ebdaa3c69cc2338a88e6c893a92f277e6",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be kept. Raising it strips low-abundance and bleed-through gRNAs and lowers the mean gRNAs per well; set it too high and every row is removed and the run errors out. Leave None to auto-pick the cutoff giving target_unique_count gRNAs per well. Default None.",
-      "translation": "gRNA 在某个微孔总读数中必须达到的最低相对丰度，范围为 0–1，低于该值的条目不会保留。提高此值会去除低丰度和串扰 gRNAs，并降低每个微孔的平均 gRNAs 数；若设得过高，所有行都会被删除并导致运行报错。设为 None 可自动选择使每个微孔达到 target_unique_count 个 gRNAs 的截断值。默认值为 None。"
+      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
+      "translation": "gRNA 在一个微孔总读数中必须达到的最低相对丰度，范围为 0–1。将此值设得更高会去除低丰度和串扰 gRNAs，并降低每个微孔的平均 gRNAs 数；若设置过高，所有行都会被删除且运行会报错。使用 None 可自动选择使每个微孔达到 target_unique_count 个 gRNAs 的截断值。默认值为 None。"
     },
     {
       "table": "setting_tooltips",
@@ -19,16 +19,16 @@
     {
       "table": "setting_tooltips",
       "key": "ig_baseline",
-      "source_sha256": "d40f4c236c33cbb4a369ce9f2ec498fbf8b4acede884c9460ed734d669745f77",
-      "source": "The 'absence of signal' image integrated gradients integrates away from: 'zero' is black, 'blur' is your own image blurred, 'noise' is random. This choice IS the explanation's reference point and changes the result - a black baseline attributes to everything bright, which on dark-field microscopy means it attributes to the object merely for existing. 'blur' keeps the low-frequency content and asks what the detail contributes. Default 'zero'.",
-      "translation": "积分梯度计算所相对于的 'absence of signal'（无信号）图像：'zero' 表示黑色，'blur' 表示你自己的模糊图像，'noise' 表示随机图像。此选择就是解释的参考点，并会改变结果；黑色基线会把贡献归因于所有亮像素，在暗场显微镜图像中，这意味着对象仅因存在就获得归因。'blur' 保留低频内容，用于询问细节带来的贡献。默认值为 'zero'。"
+      "source_sha256": "4d1d8de21522271a954ecc2895dcda2344af6b1cdbc6f3095bf0d759485485dd",
+      "source": "Reference image used by integrated gradients: 'zero' is black, 'blur' is a blurred copy of the input image, and 'noise' is random. The baseline defines the attribution reference and therefore changes the result. On dark-field images, a zero baseline attributes broadly to bright object signal; a blurred baseline preserves low-frequency content and emphasizes contributions from image detail. Default 'zero'.",
+      "translation": "积分梯度使用的参考图像：'zero' 为黑色，'blur' 为输入图像的模糊副本，'noise' 为随机图像。基线定义归因参考，因此会改变结果。对于暗场图像，零基线会广泛归因于明亮的对象信号；模糊基线保留低频内容，并突出图像细节的贡献。默认值为 'zero'。"
     },
     {
       "table": "setting_tooltips",
       "key": "infection_pca_method",
-      "source_sha256": "63981c0cdf600938a966861a64a682edf804bdeb9199528e60bc7524dbe8a564",
-      "source": "Records which embedding was actually used ('pca', 'umap' or 't-sne'). The pipeline overwrites it from infection_intensity_strategy while QC runs, so a value typed here is ignored - change infection_intensity_strategy to pick the embedding. Read it back afterwards to see what ran. No default: it is an output, empty until QC has run.",
-      "translation": "记录实际使用的嵌入方法（'pca'、'umap' 或 't-sne'）。QC 运行时，流水线会根据 infection_intensity_strategy 覆盖此值，因此在这里输入的值会被忽略；要选择嵌入方法，请更改 infection_intensity_strategy。运行后可读取此项以查看实际使用的方法。无默认值：它是输出，在 QC 运行前为空。"
+      "source_sha256": "fb1c61eb94db4c92911d1ba3bc38d2176ded38c0749315a7158cef49c080f899",
+      "source": "Records the embedding used ('pca', 'umap' or 't-sne'). The pipeline derives and overwrites this value from infection_intensity_strategy during QC; change infection_intensity_strategy to select the embedding. This output remains empty until QC has run. No default.",
+      "translation": "记录所使用的嵌入方法（'pca'、'umap' 或 't-sne'）。流水线在 QC 期间根据 infection_intensity_strategy 计算并覆盖此值；要选择嵌入方法，请更改 infection_intensity_strategy。此输出在 QC 运行前保持为空。无默认值。"
     },
     {
       "table": "setting_tooltips",
@@ -47,16 +47,16 @@
     {
       "table": "setting_tooltips",
       "key": "min_objects_for_threshold",
-      "source_sha256": "0ee6edebf56e12e711351a61864b73c16a51e32ebcb5905bde299a1046c6701b",
-      "source": "Objects a field must hold before a threshold is derived from it alone; below it the field borrows its well's threshold, then its plate's, and the level actually used is written into automatic_source. Raising it makes thresholds steadier and less local, which is the wrong trade when illumination varies across the field of view. Default 10.",
-      "translation": "显微镜视野必须包含的最少对象数，达到此数才单独从该视野推导阈值；低于此数时，视野先借用所属微孔的阈值，再借用所属微孔板的阈值，实际使用的层级会写入 automatic_source。提高此值会使阈值更稳定但更缺乏局部性；当照明在视野内变化时，这种权衡并不合适。默认值为 10。"
+      "source_sha256": "dc3806ab0a6f0a8f7bc499d44487eac17b292eb5fa5760c3b352f51530a2eae4",
+      "source": "Minimum number of objects required to derive a field-specific threshold. Below this count, the field uses its well threshold and then its plate threshold; automatic_source records the level used. Increasing the value improves statistical stability but reduces adaptation to local illumination variation. Default 10.",
+      "translation": "推导视野特异性阈值所需的最少对象数。低于此数量时，该视野先使用所属微孔的阈值，再使用所属微孔板的阈值；automatic_source 会记录实际采用的层级。增大此值可提高统计稳定性，但会降低对局部照明变化的适应性。默认值为 10。"
     },
     {
       "table": "setting_tooltips",
       "key": "model_name",
-      "source_sha256": "a834ded6e6dac86d672a5f8d71145038a55d4199232b9483cfba86ccce5feee9",
-      "source": "Cellpose model to segment with. Cellpose 4 ships exactly one, 'cpsam'; the pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are accepted so old settings files load, but they are mapped to 'cpsam' and reported, because Cellpose resolves them to cpsam silently anyway. Of the three parameters that used to distinguish models, only diameter still does anything under Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and dropped. Leave at 'cpsam' unless you are loading a custom CPSAM checkpoint. Default 'cpsam'.",
-      "translation": "用于分割的 Cellpose 模型。Cellpose 4 只随附一个模型 'cpsam'；为兼容旧设置文件，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但会映射并报告为 'cpsam'，因为 Cellpose 本身也会静默地把它们解析为 cpsam。过去用于区分模型的三个参数中，在 Cellpose 4 下只有 diameter 仍生效（eval 按 30/diameter 缩放图像）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后被丢弃。除非加载自定义 CPSAM 检查点，否则请保留 'cpsam'。默认值为 'cpsam'。"
+      "source_sha256": "65c016f6374310f738870e0a5187bea8e647722182afb3354640aa247d3ed2af",
+      "source": "Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
+      "translation": "用于分割的 Cellpose 模型。Cellpose 4 提供一个标准模型 'cpsam'。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但它们会映射为 'cpsam' 并报告该映射。过去用于区分模型的三个参数中，在 Cellpose 4 中只有 diameter 仍生效（eval 按 30/diameter 缩放图像）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后省略。除非加载自定义 CPSAM 检查点，否则请使用 'cpsam'。默认值为 'cpsam'。"
     },
     {
       "table": "setting_tooltips",
@@ -103,23 +103,23 @@
     {
       "table": "setting_tooltips",
       "key": "outline_color",
-      "source_sha256": "83fa2195b4c8e72bf726523d3d69b9abb24fed01c852e87c7c4ad43258dd4de2",
-      "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string SILENTLY falls back to 'rbg', so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
-      "translation": "用于依次选择细胞、细胞核和病原体轮廓 RGB 颜色的三字母代码：'rgb'、'bgr'、'gbr' 或 'rbg'。默认值 'gbr' 把细胞画成绿色、细胞核画成蓝色、病原体画成红色。无法识别的字符串会静默回退到 'rbg'，因此拼写错误不会报错，而会改变图中的颜色。当轮廓颜色与某个图像数据通道冲突时可更改此项。默认值为 'gbr'。"
+      "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
+      "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
+      "translation": "用于依次选择细胞、细胞核和病原体轮廓 RGB 颜色的三字母代码：'rgb'、'bgr'、'gbr' 或 'rbg'。默认值 'gbr' 把细胞画成绿色、细胞核画成蓝色、病原体画成红色。无法识别的字符串会在不发出警告的情况下回退到 'rbg'，因此拼写错误不会报错，而会改变图中的颜色。当轮廓颜色与某个图像数据通道冲突时可更改此项。默认值为 'gbr'。"
     },
     {
       "table": "setting_tooltips",
       "key": "outline_palette",
-      "source_sha256": "fde777a2db4b3d7d9f5d56f59dc598e0587a6d41cd69644328bf158f0bd1251b",
-      "source": "Which colours the overlay figure draws object outlines in. 'default' is cell red, nucleus blue, pathogen green, organelle yellow. 'colourblind' draws vermillion, sky blue, bluish green and yellow from the Okabe-Ito set. The default's worst confusable pair scores 27 of 255 under deuteranope simulation - cell red beside pathogen green is the pair red-green deficiency removes - against 142 for 'colourblind'. Default 'default', so existing figures do not change under you.",
-      "translation": "叠加图绘制对象轮廓时使用的配色。'default' 使用红色细胞、蓝色细胞核、绿色病原体和黄色细胞器。'colourblind' 使用 Okabe-Ito 配色中的朱红、天蓝、蓝绿色和黄色。在绿色盲模拟下，默认配色最易混淆的一对得分仅为 27/255，因为红细胞轮廓与绿病原体轮廓正是红绿色觉缺陷会消除的组合；'colourblind' 的对应得分为 142。默认值为 'default'，因此现有图不会自动改变。"
+      "source_sha256": "d09a2d1dcd1f785b80b82c4cb1cc4e6bf7710b79199183b78380414834cba5a8",
+      "source": "Colour palette used for object outlines in overlay figures. 'default' assigns red to cells, blue to nuclei, green to pathogens, and yellow to organelles. 'colourblind' uses vermillion, sky blue, bluish green, and yellow from the Okabe-Ito palette. Under deuteranope simulation, the minimum pairwise separation is 27 of 255 for 'default' and 142 for 'colourblind'. Default 'default' preserves the appearance of existing figures.",
+      "translation": "叠加图中对象轮廓使用的调色板。'default' 为细胞分配红色、为细胞核分配蓝色、为病原体分配绿色、为细胞器分配黄色。'colourblind' 使用 Okabe-Ito 调色板中的朱红色、天蓝色、蓝绿色和黄色。在绿色盲模拟下，颜色对的最小间距在 'default' 中为 27/255，在 'colourblind' 中为 142/255。默认值 'default' 可保持现有图的外观。"
     },
     {
       "table": "setting_tooltips",
       "key": "pathogen_area_multiplier",
-      "source_sha256": "f22186222454a9b1db0f8c0c07fe101cc83dba9cf7b74b78e8ca1241a44cec5f",
-      "source": "Splitting trigger expressed as multiples of the MEDIAN pathogen area in the field: only labels larger than this multiple (and larger than pathogen_min_object_area) go to the watershed. Lower it toward 1.5 to split more aggressively, raise it to break up only obvious clumps. Used only when pathogen_intensity_split is True. Default 2.0.",
-      "translation": "以该显微镜视野中病原体面积中位数的倍数表示的拆分触发值：只有面积大于此倍数且大于 pathogen_min_object_area 的标签才会进入分水岭。把它降低到接近 1.5 可更积极地拆分；提高它则只拆分明显的团块。仅当 pathogen_intensity_split 为 True 时使用。默认值为 2.0。"
+      "source_sha256": "a882df63e45d15dbf6152c5a260bde23872d2fa5b883aa18c0d05184688bf854",
+      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_object_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
+      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_object_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
     },
     {
       "table": "setting_tooltips",

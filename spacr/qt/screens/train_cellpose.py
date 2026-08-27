@@ -1,72 +1,32 @@
-"""Cellpose Workbench — fine-tune a model, then segment a folder with it.
+"""Combined interface for fine-tuning and applying Cellpose models.
 
-Two modules used to sit two rows apart in the registry with nothing in
-either line telling a user which one to open: "Train Cellpose — Train
-custom Cellpose models" and "Cellpose Masks — Cellpose mask generation",
-and a third, "Mask — Generate cellpose masks for cells, nuclei and
-pathogens", doing a different job under a name that reads like the second
-one. They are not two modules. They are the two halves of one loop:
-annotate a handful of fields, fine-tune ``cpsam`` on them, run the
-checkpoint over the rest of the folder, look at the masks, annotate the
-ones it got wrong, train again. This screen is that loop.
+The workbench embeds the ``train_cellpose`` and ``cellpose_masks`` workflows
+as Train and Apply tabs, each backed by its own
+:class:`~spacr.qt.screens.app_screen.AppScreen`. The Train tab reads
+``<src>/train/images`` and ``<src>/train/masks`` and writes model checkpoints
+beneath ``<src>/models``. The Apply tab reads ``<src>/*.tif`` from its
+independent source directory and writes masks to ``<src>/masks``.
 
-Layout::
+When the active tab changes, settings named by the ``cellpose_masks``
+propagation map in :mod:`spacr.qt.preview_registry` are copied to the
+destination tab when that tab exposes the corresponding setting. ``src`` and
+``model_name`` are not copied. On entry to Apply, the workbench searches
+``<train-src>/models/cellpose_model/models`` for checkpoints whose names begin
+with the Train tab's ``model_name``. It prefers completed checkpoints over
+periodic ``_epoch_`` checkpoints and selects the most recently modified
+candidate from the preferred group. If found, that path is assigned to
+``custom_model``, which
+:func:`spacr.spacr_cellpose.identify_masks_finetune` resolves before
+``model_name``; otherwise, Apply retains its current model selection.
 
-    ┌──────────────────────────────────────────────────────────────────┐
-    │ Cellpose Workbench   Fine-tune a Cellpose model on your own …  ⓘ │
-    │ Train reads <src>/train/images and <src>/train/masks and writes  │
-    │ the checkpoint under <src>/models.                               │
-    ├──────────────────────────────────────────────────────────────────┤
-    │ ╭───────╮╭───────╮                                               │
-    │ │ Train ││ Apply │                                               │
-    │ ├───────┴┴───────────────────────────────────────────────────────┤
-    │ │  the module's own settings form, console, figures and Run row  │
-    │ ╰────────────────────────────────────────────────────────────────┤
-    │ Apply is set to the model you trained: pv_cpsam_e500_X1000_….    │
-    └──────────────────────────────────────────────────────────────────┘
+Each tab retains its own settings model, console, Run action, drop handling,
+and any registered preview. Search, recipe, and preview integrations are
+installed directly because embedded tabs do not become the current page in
+the main-window stack.
 
-Design notes:
-
-* **Two tabs, two path fields, on purpose.** ``src`` does not mean the
-  same thing on the two halves: training reads ``<src>/train/images``
-  beside ``<src>/train/masks``, and applying reads ``<src>/*.tif`` and
-  writes ``<src>/masks``. One box that silently means either is worse
-  than two screens were, so each tab keeps its own — and the line under
-  the title says which reading is in force on the tab you are looking
-  at. Nothing is carried between the two ``src`` fields, ever.
-
-* **One screen, two live modules.** Each tab is the ordinary
-  :class:`~spacr.qt.screens.app_screen.AppScreen` for its key, not a
-  reimplementation of it: its own settings form, its own console, its
-  own Run button, its own drop target, and — for the Apply half — the
-  Live Preview that :mod:`spacr.qt.preview_registry` declares for
-  ``cellpose_masks``. The seams a screen normally gets from the window's
-  stack watcher are installed here instead, because these two never
-  become the stack's current widget.
-
-* **The knobs cross, the paths do not.** Switching tabs copies the
-  segmentation knobs from the tab you left into the tab you entered, so
-  a diameter chosen for training is the diameter the masks are made at.
-  Which knobs those are is read from the propagation map
-  :mod:`spacr.qt.preview_registry` already declares for ``cellpose_masks``
-  rather than written down a second time here.
-
-* **The model crosses as a checkpoint, not as a string.** ``model_name``
-  is the one shared name that means two different things — on Train it is
-  the name to save the new model under, on Apply it is which model to
-  segment with — so copying the string across would point Apply at a
-  stock model that does not exist. What crosses is the file: once a
-  training run has actually written a checkpoint, opening Apply sets
-  ``custom_model`` to it, which is the setting
-  :func:`spacr.spacr_cellpose.identify_masks_finetune` prefers over
-  ``model_name``. Before a run has produced one, Apply keeps its stock
-  model, so "segment this folder with cpsam" still works on a folder
-  nobody has trained anything on.
-
-* **Both keys stay real.** The screen owns one registry row, but the two
-  modules underneath are untouched: ``spacr-run train_cellpose`` and
-  ``spacr-run cellpose_masks`` run the same entry points with the same
-  settings keys, and a settings CSV written from either tab still loads.
+The combined screen changes only GUI registration. The ``train_cellpose`` and
+``cellpose_masks`` pipeline keys, command-line entry points, and settings-file
+formats remain available.
 """
 from __future__ import annotations
 
@@ -97,8 +57,8 @@ WORKBENCH_TITLE = "Cellpose Workbench"
 
 #: The one line under the name in the registry and beside it on the page.
 WORKBENCH_INTRO = (
-    "Fine-tune a Cellpose model on your own labelled fields, then segment "
-    "a folder of images with it or with a stock model"
+    "Fine-tune a Cellpose model on labelled fields, then apply the trained "
+    "model or a stock model to an image folder."
 )
 
 #: tab index -> (module key, the sentence that says what ``src`` means there).

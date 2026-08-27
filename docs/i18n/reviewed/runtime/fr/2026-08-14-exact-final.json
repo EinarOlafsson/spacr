@@ -11,13 +11,6 @@
     },
     {
       "table": "ui",
-      "key": "Every verdict here was written by the run that produced it -- this screen reads them, it does not score anything, so opening it costs a directory listing rather than minutes of mask loading. A card whose inputs are newer than it is says OUT OF DATE rather than pretending to describe them. A card that says 'missing' means the check has not been run, which is not the same as clean.",
-      "source_sha256": "092a5d255ea9a5d5966c1303174d209390b3a2017ba265ed769ef42645f65696",
-      "source": "Every verdict here was written by the run that produced it -- this screen reads them, it does not score anything, so opening it costs a directory listing rather than minutes of mask loading. A card whose inputs are newer than it is says OUT OF DATE rather than pretending to describe them. A card that says 'missing' means the check has not been run, which is not the same as clean.",
-      "translation": "Chaque verdict a été écrit par l’exécution qui l’a produit. Cet écran les lit sans rien évaluer ; son ouverture ne coûte qu’un parcours de répertoire, et non plusieurs minutes de chargement des masques. Une carte dont les entrées sont plus récentes qu’elle affiche OUT OF DATE au lieu de prétendre les décrire. Une carte affichant 'missing' signifie que la vérification n’a pas été exécutée, ce qui ne veut pas dire qu’elle est réussie."
-    },
-    {
-      "table": "ui",
       "key": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",
       "source_sha256": "f9b38d45f7a37cbd0710f53cfb18e82952ec0a06769fbe6c115260bcd6d3a76e",
       "source": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",

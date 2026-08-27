@@ -2,13 +2,6 @@
   "language": "is",
   "records": [
     {
-      "context": "**model-randomisation sanity check** (Adebayo et al. 2018) — randomise the weights layer by layer and attribute again. A method whose map survives that is an edge detector, and this is the one check that catches it.",
-      "label": "spacr.deep_spacr.analyze_activation_maps#4",
-      "source": "**model-randomisation sanity check** (Adebayo et al. 2018) — randomise the weights layer by layer and attribute again. A method whose map survives that is an edge detector, and this is the one check that catches it.",
-      "source_sha256": "8bdaa7e0b3b943b3332949be6a234aed995a9661c5201b74e01ed2aec9c04f84",
-      "translation": "**Heilbrigðispróf með slembigerð líkans** (Adebayo og samstarfsfólk 2018) — slembigerðu vægin lag fyrir lag og reiknaðu skýringuna aftur. Aðferð sem heldur sama korti eftir það er í raun jaðarskynjari; þetta er prófið sem greinir slíkt."
-    },
-    {
       "context": "*Early availability:* the module works before segmentation. **Lightweight dependencies:** it avoids torch and cellpose. This is tested by ``tests/test_diameter_estimator.py``. :mod:`spacr.validate` parses filename metadata without heavy imports. The alternative ``spacr.utils`` imports torch and cellpose because it defines ``_get_regex`` and ``_extract_filename_metadata``. Equivalent rules appear in ``spacr.validate.METADATA_REGEXES`` and ``spacr.utils._get_regex``. ``spacr.io._rename_and_organize_image_files`` sorts planes by ``chanID``. Position *i* selects one entry. At position *i*, the sorted ``chanID`` corresponds to ``cell_channel``.",
       "label": "spacr.diameter#3",
       "source": "Design constraint: this module must be usable *before* committing to a segmentation run, which means it may not cost what a segmentation run costs. It therefore imports **no torch and no cellpose** — that is a tested property, not an aspiration (see ``tests/test_diameter_estimator.py``). It reuses :mod:`spacr.validate` for filename-metadata parsing, which is the other deliberately dependency-light module in the package (``spacr.utils``, where ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and cellpose at module scope and so cannot be touched from here). The regexes in ``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the channel ordering used below mirrors ``spacr.io._rename_and_organize_image_files``, which concatenates one plane per distinct ``chanID`` in sorted order — so channel index *i* is the *i*-th sorted ``chanID``, exactly as ``cell_channel`` and friends mean it.",
@@ -56,13 +49,6 @@
       "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
       "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
       "translation": "Skreyting stjórnborðs má aldrei stöðva keyrslu. Windows-kóðasíður geta ekki táknað öll úttaksstök spaCR. Til dæmis vantar ``▸`` í cp1252 og cp437, auk cp850 og cp932, *og* einnig cp936; cp1252 vantar rammastafina. Stillingar geta einnig innihaldið ``Δku80`` eða ``µm``. Skrifun þessara gilda í straum sem er ekki UTF-8 veldur ``UnicodeEncodeError``. Í Windows gerist þetta oft þegar stdout er endurbeint af runuvinnslu, ``spacr-run`` eða eldra stjórnborði."
-    },
-    {
-      "context": "Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit RGB PNG but clips a 16-bit single-image data channel one at 255, so the same pixel value survives or saturates depending on how many image data channels its neighbours have. One behaviour, applied here, replaces both.",
-      "label": "spacr.crops.narrow_to_uint8#2",
-      "source": "Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel value survives or saturates depending on how many channels its neighbours have. One behaviour, applied here, replaces both.",
-      "source_sha256": "5951cac9fa1d1f5187941acdff25b85aab85bbc61b6a71d471ec0e4be0055228",
-      "translation": "Viljandi *ekki* hegðun PIL: PIL tekur efra bætið úr 16-bita RGB PNG en klippir 16-bita einnar-rásar mynd við 255. Sama pixlagildi varðveitist því eða mettast eftir því hversu margar myndrásir eru í nágrenninu. Ein samræmd hegðun sem er beitt hér kemur í stað beggja."
     },
     {
       "context": "End-to-end merged-npy workflow for cell/pathogen motility and infection QC.",

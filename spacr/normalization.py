@@ -184,15 +184,12 @@ def _clean_std(values: Sequence[float], channels: int) -> Tuple[float, ...]:
 
 def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
                        ) -> Tuple[Tuple[float, ...], Tuple[float, ...]]:
-    """Per-channel mean and standard deviation of the data itself.
+    """Return the dataset's per-channel mean and standard deviation.
 
-    WHY THIS IS THE ONE WITH AN ARGUMENT BEHIND IT FOR MICROSCOPY. ImageNet's
-    statistics describe photographs: three broadly correlated channels, most
-    of the frame occupied by something. A fluorescence crop is mostly black
-    with one bright compartment, and its channels are unrelated stains whose
-    exposures were set independently. Nothing about 0.485/0.456/0.406
-    describes that, and normalising by it centres the data somewhere that has
-    no meaning for it.
+    Dataset-specific statistics are appropriate when fluorescence channels
+    differ substantially from the natural-image distribution represented by
+    ImageNet statistics. Fluorescence channels may contain independently
+    exposed stains and a large background fraction.
 
     Computed in one streaming pass with the sum-of-squares identity, so a
     dataset that does not fit in memory still yields exact statistics rather
@@ -274,16 +271,10 @@ def apply_crop_dtype(array: np.ndarray, dtype: Any = "original") -> np.ndarray:
     :param dtype: one of :data:`CROP_DTYPES`.
     :returns: the array, unchanged for ``original``.
 
-    NARROWING GOES THROUGH THE ONE RULE. ``uint8`` uses
-    :func:`spacr.crops.narrow_to_uint8`, which is documented there as "the one
-    and only narrowing rule" -- the high byte of a uint16, a linear rescale
-    rather than a clip. A second rescale written here would be a second answer
-    to the question of what a 16-bit value means as an 8-bit one, and the two
-    would disagree on the crop the user compares.
-
-    WIDENING TO ``uint16`` IS A CAST AND NOT A STRETCH. An 8-bit crop asked
-    for as uint16 keeps its numbers; multiplying by 257 to "use the range"
-    would change every measured intensity for no information gained.
+    Conversion to ``uint8`` delegates to
+    :func:`spacr.crops.narrow_to_uint8`, which applies the project's declared
+    16-to-8-bit linear mapping. Conversion to ``uint16`` is a cast rather than
+    an intensity stretch; values from an 8-bit input remain unchanged.
     """
     name = str(dtype or "original").strip().lower()
     if name not in CROP_DTYPES:

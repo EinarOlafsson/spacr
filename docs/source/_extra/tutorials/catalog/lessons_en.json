@@ -44,13 +44,13 @@
           "narration": "Before installing spaCR, choose the official source. PyPI provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "Before installing spacer, choose the official source. pie-P-I provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
+          "speech_text": "Before installing spacer, choose the official source. pypie provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
         },
         {
           "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
           "visual": "pypi_release",
           "hold_after": 0.7,
-          "speech_text": "On pie-P-I, the release header shows the current stable version and the pip install spacer command."
+          "speech_text": "On pypie, the release header shows the current stable version and the pip install spacer command."
         },
         {
           "narration": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
@@ -74,13 +74,13 @@
           "narration": "Conda-forge does not publish spaCR yet. Today, create a Conda environment and install spaCR from PyPI; use the conda-forge channel only after the package is published.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pie-P-I; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
+          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pypie; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
         },
         {
           "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "Use pie-P-I or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
+          "speech_text": "Use pypie or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
         }
       ]
     },
@@ -459,11 +459,11 @@
           "speech_text": "Switch to Flows to inspect the direction field used by [Cellpose](/sˈɛlpˌOz/). Irregular flow patterns can help explain masks that split or merge incorrectly."
         },
         {
-          "narration": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath.",
+          "narration": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath."
+          "speech_text": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image."
         },
         {
           "narration": "Object filters update the cached preview immediately. Raise minimum area only enough to remove obvious fragments; the correct cutoff depends on image scale.",
@@ -764,7 +764,8 @@
           "focus_key": "actions",
           "speech_text": "Run first validates labels and splits, then trains and evaluates the configured model. Review held-out metrics and examples before applying it broadly; spacer stores the checkpoint, predictions, settings, and run record."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "11_classify_ml",
@@ -859,7 +860,8 @@
           "focus_key": "actions",
           "speech_text": "Run validates controls, prepares features, applies any plate correction, evaluates the [classifier](/klˈæsəfIəɹ/), calculates importance, and saves enabled outputs. Review held-out and per-plate behavior before using predictions biologically."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "12_map_barcodes",
@@ -1224,7 +1226,7 @@
       "description": "Inspect which image regions influence a trained vision classifier and test whether those explanations are credible.",
       "objectives": [
         "Match the attribution run to the trained model and inputs.",
-        "Choose an attribution method with appropriate sanity checks.",
+        "Choose an attribution method with appropriate validation controls.",
         "Interpret maps across representative successes and failures."
       ],
       "prerequisite": "Train and validate a vision classifier and retain its exact crop, channel, architecture, and preprocessing metadata.",
@@ -1299,7 +1301,8 @@
           "focus_key": "console",
           "speech_text": "Review maps across correct, incorrect, high-confidence, and low-confidence examples, together with validation checks. Draw biological conclusions only from a validated trained [classifier](/klˈæsəfIəɹ/)."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "17_timelapse",
@@ -1401,7 +1404,8 @@
           "focus_key": "console",
           "speech_text": "A successful project contains time-indexed masks, stable track identities, quality-control records, movies, merged arrays, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
-      ]
+      ],
+      "host_app_key": "mask"
     },
     {
       "id": "18_motility",
@@ -1489,7 +1493,8 @@
           "focus_key": "console",
           "speech_text": "Review per-frame and per-track tables together with trajectory and quality-control figures. Confirm track continuity, calibration units, and group labels before comparing conditions."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "19_train_cellpose",
@@ -1570,7 +1575,8 @@
           "focus_key": "console",
           "speech_text": "After training, test candidate checkpoints on held-out fields and inspect failures, not only loss. spacer saves the checkpoint, settings, run manifest, and paired-field previews together."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "20_cellpose_masks",
@@ -1651,7 +1657,8 @@
           "focus_key": "figures",
           "speech_text": "Inspect representative originals, mask outlines, and flow fields in the figure panel before downstream measurement. Choose normalization and thresholds from those previews rather than copying tutorial values."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "21_model_compare",
@@ -1725,7 +1732,8 @@
           "focus_key": "previews",
           "speech_text": "Choose a model only when the visual differences and metrics improve the errors that matter for the downstream analysis. Equal results are informative and do not demonstrate improvement."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "22_model_zoo",
@@ -1799,7 +1807,8 @@
           "focus_key": "comparison",
           "speech_text": "Model Compare receives both checkpoints and the same fields, so differences in masks and quality metrics can be judged on identical inputs."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "23_agreement",
@@ -1873,7 +1882,8 @@
           "focus_key": "crop",
           "speech_text": "Inspect representative crops before changing labels or class definitions. Aggregate statistics cannot explain why reviewers disagreed."
         }
-      ]
+      ],
+      "host_app_key": "annotate"
     },
     {
       "id": "24_plaque",
@@ -2387,7 +2397,7 @@
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Turn third-party images and label masks into a measured, traceable spaCR project.",
+      "description": "Import third-party images and label masks as a measured, traceable spaCR project.",
       "objectives": [
         "Map external inputs correctly.",
         "Validate the import in Preview.",
@@ -3027,7 +3037,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, spacer produces discrimination, calibration, confusion, leakage, and robustness reports."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "40_run_history",
@@ -3171,7 +3182,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, corrected labels and track changes are stored with provenance so downstream measurements can be refreshed."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "43_illumination",
@@ -3219,7 +3231,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, approved correction fields and diagnostics are saved for reproducible pre-processing."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "44_data_manager",
@@ -3363,7 +3376,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, corrected masks and the curation record remain connected to the original field."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "47_barcode_qc",
@@ -3411,7 +3425,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the report records the selected abundance threshold, supporting diagnostics, and affected wells."
         }
-      ]
+      ],
+      "host_app_key": "map_barcodes"
     },
     {
       "id": "48_hit_list",
@@ -3459,7 +3474,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the filtered hit list retains scores, evidence, annotations, and source identifiers."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "49_methods_results",
@@ -3507,7 +3523,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, editable methods and results documents are exported with a provenance summary."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "50_run_compare",
@@ -3795,7 +3812,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, selected objects and the plot can be exported with stable source identifiers."
         }
-      ]
+      ],
+      "host_app_key": "umap"
     },
     {
       "id": "56_lineage",
@@ -3987,7 +4005,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the H five A D file preserves the selected matrix, annotations, and provenance for downstream analysis."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "60_pca",
@@ -4035,7 +4054,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, scores, loadings, settings, and plots can be exported for reproducible exploration."
         }
-      ]
+      ],
+      "host_app_key": "umap"
     },
     {
       "id": "61_tabulate",
@@ -4534,7 +4554,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the run records fidelity, validation-set permutation importance, SHAP summaries, excluded columns, grouping, back end, and provenance; weak fidelity is reported rather than hidden."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "71_investigate_hit",
@@ -4630,7 +4651,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, PDF and PNG exports are re-rendered from the recorded data and style at the requested size while the original regression results remain unchanged."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "73_parameter_sweep",
@@ -4678,7 +4700,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the resumable results table records every trial's settings, status, discovery count, positive-control rank, duration, output folder, and failure reason."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     }
   ]
 }

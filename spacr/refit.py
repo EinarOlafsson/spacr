@@ -1,17 +1,14 @@
-"""Re-fit the screen from the plot: same data, a different model.
+"""Re-fit a screen from its plot with a different statistical model.
 
 The regression plot's context menu can rerun an analysis with a different
 model, correction method, or FDR threshold.
 
-A RE-FIT IS NOT A RESTYLE, and that is the whole difficulty. Every other
-entry on that right-click menu changes how the figure looks; this one changes
-the numbers. So it is separated on the menu, it says it is re-running, and --
-because :func:`spacr.ml._next_results_folder` already gives every run its own
-folder -- it lands beside the run it came from rather than on top of it. The
-user can compare the two, which is the point of asking for it.
+A re-fit recalculates results rather than changing plot appearance. The menu
+therefore presents it separately from styling actions, and
+:func:`spacr.ml._next_results_folder` writes the result beside the original
+run without overwriting it.
 
-The settings dictionary saved by a run cannot be passed back unchanged. Three
-things in it are wrong for a second run, each in a way that is silent:
+The saved settings require three adjustments before reuse:
 
   * ``plot`` is forced to False on the way out (:func:`spacr.utils.save_settings`
     does it so a reload reproduces the run headlessly), so re-running from the
@@ -23,9 +20,8 @@ things in it are wrong for a second run, each in a way that is silent:
   * ``regression_type`` and ``random_row_column_effects`` can contradict each
     other, and the reconciliation between them refuses rather than guesses.
 
-:func:`refit_settings` deals with all three and SAYS WHAT IT CHANGED, because
-a re-fit that silently dropped a penalty weight is a re-fit whose numbers the
-user cannot account for.
+:func:`refit_settings` applies these adjustments and reports each change,
+including reset backend-specific parameters.
 """
 
 from __future__ import annotations
@@ -69,11 +65,8 @@ RESOLVED_OUTPUT_KEYS = ("results_path", "res_folder", "volcano_path")
 def policed_settings() -> Dict[str, object]:
     """``{setting: the value that means "not asked for"}``.
 
-    Read from :mod:`spacr.regression_spec` -- the module ml itself reads them
-    from -- rather than restated here, so the reset below
-    cannot drift from the check that would refuse the result. The two tables
-    were one table for exactly one commit before this module existed, and a
-    copy would have gone stale the first time a backend gained a knob.
+    Values are read from :mod:`spacr.regression_spec`, the same source used by
+    the regression implementation, so reset behavior tracks backend settings.
     """
     from .regression_spec import _MODEL_LEVEL_DEFAULTS, _RUN_LEVEL_DEFAULTS
 
@@ -85,16 +78,15 @@ def policed_settings() -> Dict[str, object]:
 def prune_for_type(settings: dict, regression_type) -> Tuple[dict, List[str]]:
     """Reset every knob ``regression_type`` cannot read, and name them.
 
-    :param settings: a settings dict; NOT mutated.
+    :param settings: settings mapping; not mutated.
     :param regression_type: the backend about to be fitted. ``None`` means
         "choose from the data", which reads none of the policed knobs -- so
         it prunes as strictly as a named type, for the reason
         :func:`spacr.ml._reject_unused_run_settings` gives.
     :returns: ``(settings, [what was reset])``.
 
-    The knobs are RESET rather than deleted, because a missing key and a key
-    at its default are the same thing to the fit but not to the settings
-    panel, which would show an empty box where it used to show 1.0.
+    Inapplicable settings are reset rather than deleted so the settings panel
+    retains explicit default values.
     """
     from .regression_spec import REGRESSION_SETTINGS_USED
 
@@ -123,7 +115,7 @@ def refit_settings(base: dict, *, regression_type=None,
                    fdr_alpha: Optional[float] = None,
                    level: Optional[str] = None,
                    alpha=None) -> Tuple[dict, List[str]]:
-    """The settings for a second run of the same screen through a new model.
+    """Return settings for re-running a screen with a new model.
 
     :param base: the settings the run on screen used.
     :param regression_type: the new backend, or ``None`` to keep the old one.
@@ -131,23 +123,15 @@ def refit_settings(base: dict, *, regression_type=None,
         to keep the old one. Written to :data:`CORRECTION_KEY`.
     :param fdr_alpha: the new significance level, or ``None`` to keep it.
     :param level: ``'grna'``, ``'gene'`` or ``'both'``, or ``None`` to keep
-        the old one. THE ONE THAT TURNS A BLUP INTO AN ESTIMATE: a mixed fit
-        makes the guide a random effect, so its guide rows are shrunken
-        predictions with no p value. Re-fitting at ``'grna'`` with a
-        fixed-effect model gives a coefficient and a p value per guide
-        instead -- which is the question a user asks the moment they see an
-        empty guide volcano.
-    :param alpha: the new PENALTY weight, where the new backend reads one --
+        the previous value. Mixed models treat guides as random effects and
+        therefore provide shrunken predictions without per-guide p-values;
+        a guide-level fixed-effect model provides coefficients and p-values.
+    :param alpha: the new penalty weight, where the new backend reads one --
         a different number from ``fdr_alpha`` despite the name.
     :returns: ``(settings, [notes for the user])``.
-    :raises ValueError: if ``base`` names no count data, because then there is
-        nothing to re-fit and a run started from it would fail much later
-        with a much worse message.
+    :raises ValueError: if ``base`` names no count data.
 
-    The notes are not decoration. A re-fit that dropped ``alpha`` because the
-    new backend is unpenalised has changed the user's settings on their
-    behalf, and they are entitled to read that sentence before the run starts
-    rather than infer it from a folder name afterwards.
+    Returned notes identify every automatic settings change before execution.
     """
     if not base:
         raise ValueError(
@@ -256,11 +240,9 @@ def refit_settings(base: dict, *, regression_type=None,
 
 
 def destination(settings: dict) -> Optional[str]:
-    """Where a run of ``settings`` would write, without running it.
+    """Return the output directory a run would use without executing it.
 
-    For the sentence that tells the user the re-fit will not overwrite what
-    they are looking at. Asking the folder rule itself, rather than
-    predicting it here, is the only way that sentence stays true.
+    The result uses the same folder-selection rule as the regression run.
     """
     from .ml import _next_results_folder
 
@@ -294,10 +276,9 @@ def settings_of_run(results_path) -> Optional[dict]:
     :param results_path: the results CSV, or the folder holding it.
     :returns: the parsed settings, or ``None`` when the run left none.
 
-    Searched nearest-first: the run's own folder, then ``settings/`` beside
-    the results root. NEAREST-FIRST MATTERS -- the shared ``settings/`` copy
-    is overwritten by every later run of the same screen, so a re-fit seeded
-    from it would offer a model the table on screen was never fitted with.
+    Search proceeds from the run's own folder to ``settings/`` beside the
+    results root. This prioritizes run-specific settings over the shared copy,
+    which later runs may overwrite.
     """
     from .utils import load_settings
 

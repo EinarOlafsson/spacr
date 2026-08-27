@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ Idiomas: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 **Análisis espacial del fenotipo en cribados CRISPR.**
 
-spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, vincula cada célula con el gRNA que recibió e indica qué genes modificaron el fenotipo. Las imágenes de placas y las lecturas FASTQ son la entrada; las mediciones por objeto, los clasificadores entrenados, los tamaños del efecto por guía y por gen y una lista ordenada de resultados son la salida.
+spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados.
 
-Para los cribados CRISPR agrupados y basados en imágenes, este es el flujo de trabajo completo. Si dispone de microscopía de alto contenido sin cribado, las etapas de segmentación, medición, anotación y clasificación pueden ejecutarse por separado.
+Para los cribados CRISPR agrupados y basados en imágenes, spaCR proporciona el flujo de trabajo desde la segmentación de imágenes hasta la priorización de resultados. Para estudios de microscopía de alto contenido sin cribados basados en secuenciación, los módulos de segmentación, medición, anotación y clasificación pueden utilizarse de forma independiente.
 
 Las imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo se guardan en un único proyecto SQLite, por lo que cualquier valor de un resultado puede rastrearse hasta su objeto de origen.
 
@@ -107,7 +106,7 @@ Flujo de trabajo de un vistazo
    :width: 2.5%
    :align: middle
 
-**Data**
+**Datos**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
@@ -115,13 +114,13 @@ Flujo de trabajo de un vistazo
 
 |App_project_browser|
 
-**Results & QC**
+**Resultados y control de calidad**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**Explorar**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,11 +128,11 @@ Flujo de trabajo de un vistazo
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**Ensayos**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Design**
+**Diseño**
 
 |App_experiment_design|\ |App_power|\ |App_dose_response|
 
@@ -415,13 +414,15 @@ Comandos de línea de comandos
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-Establecer ``SPACR_LOG_LEVEL=DEBUG`` al solucionar problemas. Los registros de rotación se escriben en ``~/.spacr/logs/spacr.log``.
+Establezca ``SPACR_LOG_LEVEL=DEBUG`` durante la resolución de problemas. Los registros rotatorios se escriben en ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` enumera los módulos con puntos de entrada de línea de comandos para ejecutarse sin interfaz gráfica. Se omiten los módulos de anotación, curación, comparación y exploración disponibles únicamente en la interfaz gráfica.
 
 
 Qué puede hacer
 ---------------
 
-La mayoría de las cribados siguen seis módulos:
+El flujo de trabajo principal comprende seis módulos:
 
 - **Mask** segmenta células, núcleos, patógenos y orgánulos con Cellpose.
 - **Measure** guarda en SQLite características morfológicas, de intensidad, textura, espaciales y de colocalización, junto con recortes de objetos.
@@ -430,7 +431,28 @@ La mayoría de las cribados siguen seis módulos:
 - **Map Barcodes** asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura.
 - **Regression** estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento.
 
-El mismo proyecto también puede diseñar placas, estimar la potencia, corregir los efectos por lotes, inspeccionar la calidad de segmentación, explorar parcelas y recortes vinculados, exportar AnnData, reanudar el trabajo interrumpido y registrar los ajustes detrás de cada resultado.
+El mismo proyecto también puede diseñar placas, estimar la potencia estadística, corregir efectos de lote, inspeccionar la calidad de la segmentación, explorar gráficos e imágenes recortadas vinculados, exportar AnnData, reanudar procesos interrumpidos y registrar los ajustes asociados a cada resultado.
+
+Módulos disponibles desde sus pantallas anfitrionas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Veinte módulos están integrados en pantallas anfitrionas relacionadas, en lugar de aparecer como mosaicos independientes en la pantalla de inicio. Cada módulo se abre desde la cabecera de su pantalla anfitriona y utiliza el proyecto activo. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP y Make Masks proporcionan estos módulos integrados. Su ayuda y documentación de la API siguen disponibles, y los módulos con puntos de entrada de canalización aún pueden ejecutarse sin interfaz gráfica. La `guía de funciones <../../source/features.rst>`_ enumera cada módulo integrado y su pantalla anfitriona.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks aparece en **Data** y permite corregir manualmente las máscaras de segmentación. Su cabecera también da acceso a los flujos de trabajo de Cellpose. El lienzo tiene nueve herramientas: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** y **Recrop**. Draw crea una etiqueta rellena a partir de un contorno cerrado dibujado a mano alzada. Divide separa un objeto fusionado por una línea definida por el usuario y conserva las etiquetas de todos los demás objetos.
+
+Recrop extrae un campo con un solo objeto de una imagen preparada que contiene varios objetos. Un cuadro delimitador alrededor de un objeto guarda las regiones correspondientes de la imagen y la máscara como un campo nuevo, programa ese campo después del actual y elimina de la cola de curación el campo original con varios objetos. Recrop cambia el campo activo, no los píxeles de las etiquetas.
+
+Al ejecutar Cellpose-SAM desde Make Masks se muestran dos resultados intermedios junto a la máscara: el **mapa de probabilidad celular** y el **campo de flujo**. La máscara se define mediante un umbral sobre el mapa de probabilidad, y las comprobaciones de coherencia del flujo pueden rechazar objetos cuyos flujos derivados difieran del campo predicho. Examine estos resultados para distinguir una probabilidad celular baja de un flujo incoherente al evaluar una máscara incorrecta o incompleta.
+
+Objetos y ajustes
+~~~~~~~~~~~~~~~~~~~~
+
+spaCR admite objetos de célula, núcleo y patógeno, un citoplasma derivado de sus máscaras y entre cero y veintiséis espacios para orgánulos. Cada espacio para orgánulos tiene un canal, diámetro, ajuste predefinido de morfología y método de detección independientes.
+
+El panel de ajustes solo muestra los controles cuando son aplicables. Los espacios para orgánulos por encima de la cantidad configurada se ocultan, los objetos sin un canal asignado se excluyen de la ejecución y los controles específicos de la morfología solo se muestran para el método seleccionado. Los interruptores **3D** y **Time** definen la dimensionalidad: ``z_stack`` activa los ajustes volumétricos, ``timelapse`` activa los ajustes de seguimiento y los ajustes de cuatro dimensiones aparecen cuando ambos están activados.
 
 Elija la siguiente página por lo que desea hacer:
 
@@ -479,10 +501,23 @@ Conjuntos de datos de referencia
    :alt: Abrir la prepublicación de bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+Diagnóstico del rendimiento
+---------------------------
+
+Genere un informe de hardware y adjúntelo a una incidencia relacionada con el rendimiento::
+
+    python tools/spacr_hardware_report.py
+
+El comando imprime un informe y guarda una copia en ``~/.spacr/reports``; la última línea indica la ruta del archivo guardado. ``--quick`` omite las pruebas de rendimiento más largas y ``--out PATH`` selecciona otra ubicación de salida.
+
+El informe no abre ningún proyecto ni lee datos del proyecto. Registra los tiempos de importación y de las bibliotecas numéricas, el escalado de pantalla, las preferencias activas, la construcción de la ventana principal y de las pantallas de los módulos, y el rendimiento de las animaciones. El archivo del informe es la única salida que crea.
+
+El informe también identifica la emulación de la arquitectura del procesador, como una compilación x86_64 de Python en Apple Silicon, y la implementación de BLAS utilizada por NumPy. Ambos factores pueden afectar considerablemente al rendimiento.
+
 Contribuciones y soporte
 ------------------------
 
-Los informes de errores y las solicitudes de funciones concretas son bienvenidos en `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. ``spacr-doctor`` recopila automáticamente la mayor parte de esta información.
+Envíe informes de errores y solicitudes de funciones concretas mediante `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. ``spacr-doctor`` recopila la mayor parte de esta información; incluya el informe de hardware cuando notifique problemas de rendimiento.
 
 Licencia
 ~~~~~~~~~

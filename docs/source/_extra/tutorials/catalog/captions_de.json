@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Bevor Sie spaCR installieren, kennen Sie die drei offiziellen Vertriebswege: PyPI für das freigegebene Python-Paket, GitHub für Quellcode- und Desktop-Installationen und conda-forge nach Veröffentlichung des überarbeiteten Pakets."
+          "narration": "Wählen Sie vor der Installation von spaCR eine offizielle Bezugsquelle. PyPI stellt das veröffentlichte Python-Paket bereit, GitHub den Quellcode und die Desktop-Installationsprogramme; conda-forge wird verfügbar, sobald das Paket dort veröffentlicht ist."
         },
         {
-          "narration": "Auf der Seite spaCR auf PyPI wird die aktuelle stabile Version und der Befehl pip install spacr angezeigt. Die Release-Dateien umfassen ein Python-Rad und ein Quellarchiv."
+          "narration": "Auf PyPI zeigt der Veröffentlichungskopf die aktuelle stabile Version und den Befehl pip install spacr."
         },
         {
-          "narration": "PyPI verknüpft auch mit der Dokumentation, dem Quellrepository und dem Issue Tracker. Überprüfen Sie die erforderlichen Python-Versionen und das Release-Datum, bevor Sie eine bestehende Umgebung ändern."
+          "narration": "Der Bereich Project links führt zur Dokumentation, zur Homepage, zur Fehlerverwaltung und zum Quellcode-Repository."
         },
         {
-          "narration": "Auf GitHub bezeichnet main die freigegebene Quelllinie; nightly enthält neuere Änderungen, die noch getestet werden. Verwenden Sie nightly nur, wenn Sie ausdrücklich eine noch nicht veröffentlichte Änderung benötigen."
+          "narration": "Wählen Sie auf GitHub mit der Branch-Auswahl die gewünschte Quellcodelinie. main ist die veröffentlichte Linie; nightly enthält neuere Änderungen, die noch getestet werden."
         },
         {
-          "narration": "GitHub Releases bietet die Windows-, macOS- und Linux-Installationen, Release-Noten, Python-Paketdateien und SHA-256-Checksumsum."
+          "narration": "Klappen Sie unter einer GitHub-Veröffentlichung Assets auf, um das Installationsprogramm für Windows, macOS oder Linux, die Python-Paketdateien oder die Prüfsummenliste herunterzuladen."
         },
         {
-          "narration": "Das conda-forge-Rezept wird im Repository vorbereitet, aber noch kein spaCR-Paket wird auf dem conda-forge-Kanal veröffentlicht. Erstellen Sie eine Conda-Umgebung und installieren Sie spaCR von PyPI darin."
+          "narration": "Conda-forge veröffentlicht spaCR derzeit noch nicht. Erstellen Sie deshalb eine Conda-Umgebung und installieren Sie spaCR aus PyPI; verwenden Sie den conda-forge-Kanal erst nach Veröffentlichung des Pakets."
         },
         {
-          "narration": "Verwenden Sie PyPI oder pip für eine Python-Umgebung, GitHub Releases für eine native Installation und die nightly-Niederlassung nur für die Entwicklung. Die folgenden Tutorials zeigen jede Installationsroute, ohne die Anwendung zu starten."
+          "narration": "Verwenden Sie PyPI oder pip für eine Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur dann, wenn Sie noch nicht veröffentlichte Änderungen benötigen. Wählen Sie anschließend die Installationsanleitung für Ihren Bezugsweg."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Eine Conda-Umgebung hält spaCR und seine wissenschaftlichen Abhängigkeiten von unabhängigen Projekten getrennt. Python drei Punkt zwölf bietet derzeit die breiteste optionale Paketkompatibilität."
+          "narration": "Verwenden Sie eine Conda-Umgebung, um spaCR und seine wissenschaftlichen Abhängigkeiten zu isolieren. Im Beispiel wird Python 3.12 verwendet, da diese Version derzeit die meisten optionalen Pakete unterstützt."
         },
         {
-          "narration": "Öffnen Sie ein Conda-fähiges Terminal und erstellen Sie eine Umgebung namens spacr mit Python drei Punkt zwölf und pip."
+          "narration": "Öffnen Sie ein Terminal mit aktiviertem Conda und erstellen Sie eine Umgebung namens spacr mit Python 3.12 und pip."
         },
         {
-          "narration": "Aktivieren Sie die Umgebung. Bestätigen Sie, dass Python zur Spacr-Umgebung gehört, bevor Sie etwas installieren."
+          "narration": "Aktivieren Sie die Umgebung. Vergewissern Sie sich vor der Installation, dass Python aus der spacr-Umgebung stammt."
         },
         {
-          "narration": "Upgrade Pip durch den aktiven Python-Interpreter. Die Verwendung von python -m pip verhindert, dass ein anderes Pip-Ausführbares das Paket empfängt."
+          "narration": "Aktualisieren Sie pip über den aktiven Python-Interpreter. Mit python -m pip verhindern Sie, dass ein anderes pip-Programm das Paket installiert."
         },
         {
-          "narration": "Für die Desktop-Anwendung installieren Sie spacr mit dem qt extra. Verwenden Sie das Plain Spacr-Paket für eine kopflose Arbeitsstation oder einen Server."
+          "narration": "Installieren Sie für die Desktop-Anwendung spacr mit dem qt-Extra. Verwenden Sie auf einer Workstation oder einem Server ohne grafische Oberfläche das einfache spacr-Paket."
         },
         {
-          "narration": "Führen Sie vor dem ersten Start spaCR-doctor aus. Das Diagnoseprogramm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardware-Unterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor."
+          "narration": "Führen Sie vor dem ersten Start spacr-doctor aus. Das Programm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardwareunterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor."
         },
         {
-          "narration": "Das conda-forge-Paket ist noch nicht veröffentlicht; führen Sie daher derzeit nicht conda install -c conda-forge spacr aus. Sobald es verfügbar ist, werden das offizielle Rezept und der Kanal im spaCR-Repository verlinkt."
+          "narration": "Wenn spacr-doctor alle Prüfungen besteht, lassen Sie diese Umgebung bei jeder Ausführung von spaCR aktiviert."
         }
       ]
     },
@@ -59,25 +59,25 @@
       "id": "03_pip_install",
       "scenes": [
         {
-          "narration": "Die Pip-Route funktioniert auf Windows, macOS und Linux. Verwenden Sie immer eine isolierte virtuelle Umgebung, anstatt die Python-Installation des Betriebssystems zu modifizieren."
+          "narration": "Die Installation mit pip funktioniert unter Windows, macOS und Linux. Verwenden Sie stets eine isolierte virtuelle Umgebung, statt die Python-Installation des Betriebssystems zu verändern."
         },
         {
-          "narration": "Auf macOS oder Linux erstellen Sie die Umgebung mit Python 3 point 12 und aktivieren Sie sie dann aus dem Bin-Verzeichnis."
+          "narration": "Erstellen Sie die Umgebung unter macOS oder Linux mit Python 3.12 und aktivieren Sie sie anschließend aus ihrem bin-Verzeichnis."
         },
         {
-          "narration": "Verwenden Sie auf Windows den Python-Luncher, um die Umgebung zu erstellen und sie aus dem Scripts-Verzeichnis zu aktivieren."
+          "narration": "Erstellen Sie die Umgebung unter Windows mit dem Python-Launcher und aktivieren Sie sie aus dem Scripts-Verzeichnis."
         },
         {
-          "narration": "Upgrade Pip in der aktiven Umgebung. Der Befehl python -m pip hält die Installation an das Python gebunden, das Sie gerade aktiviert haben."
+          "narration": "Aktualisieren Sie pip in der aktiven Umgebung. Der Befehl python -m pip bindet die Installation an die soeben aktivierte Python-Version."
         },
         {
-          "narration": "Installieren Sie das Plain Spacr-Paket für kopflose Nutzung oder den Spacr mit dem qt extra für die Desktop-Schnittstelle."
+          "narration": "Installieren Sie für den Betrieb ohne grafische Oberfläche das einfache spacr-Paket oder für die Desktop-Oberfläche spacr mit dem qt-Extra."
         },
         {
-          "narration": "Überprüfen Sie die importierte Version und starten Sie spacr-doctor. Alle fehlgeschlagenen Kontrollen zu lösen, bevor die experimentellen Daten eröffnet werden."
+          "narration": "Prüfen Sie die importierte Version und führen Sie spacr-doctor aus. Beheben Sie alle fehlgeschlagenen Prüfungen, bevor Sie experimentelle Daten öffnen."
         },
         {
-          "narration": "Die Umgebung ist jetzt bereit. Halten Sie es immer aktiviert, wenn Sie spaCR verwenden, und verwenden Sie python -m pip install --upgrade spacr, wenn Sie es absichtlich aktualisieren."
+          "narration": "Die Umgebung ist nun einsatzbereit. Aktivieren Sie sie bei jeder Verwendung von spaCR und führen Sie python -m pip install --upgrade spacr nur aus, wenn Sie spaCR gezielt aktualisieren möchten."
         }
       ]
     },
@@ -85,28 +85,28 @@
       "id": "04_platform_installers",
       "scenes": [
         {
-          "narration": "Die leichten nativen Installatoren erstellen eine private Python drei Punkte zwölf Laufzeit, dann herunterladen Qt, PyTorch, spaCR, und seine wissenschaftlichen Abhängigkeiten."
+          "narration": "Die schlanken, plattformspezifischen Installationsprogramme erstellen eine private Python-3.12-Laufzeit und laden anschließend Qt, PyTorch, spaCR und die wissenschaftlichen Abhängigkeiten herunter."
         },
         {
-          "narration": "Herunterladen Sie Installationen nur aus der neuesten spaCR GitHub Release. Vergleichen Sie die Datei mit Ihrem Betriebssystem und verwenden Sie die veröffentlichte SHA-256 Datei, wenn Sie den Download überprüfen müssen."
+          "narration": "Laden Sie Installationsprogramme ausschließlich aus der neuesten spaCR-Veröffentlichung auf GitHub herunter. Wählen Sie die Datei für Ihr Betriebssystem und verwenden Sie bei Bedarf die veröffentlichte SHA-256-Datei, um den Download zu prüfen."
         },
         {
-          "narration": "Auf Windows 10 oder 11 öffnen Sie den Online-Setup-Exekutierbaren. Die tragbare CPU-Installation ist standardmäßig; die NVIDIA-Beschleunigung ist eine optionale Installationskomponente."
+          "narration": "Öffnen Sie unter Windows 10 oder 11 die Online-Setup-Datei. Die portable CPU-Installation ist voreingestellt; NVIDIA-Beschleunigung kann als optionale Installationskomponente ausgewählt werden."
         },
         {
-          "narration": "Öffnen Sie auf macOS 11 oder neueren das universelle Paket für Intel und Apple Silicon. Wenn Gatekeeper das nicht beglaubigte Paket blockiert, nutzen Sie Privacy and Security, Open Anyway, dann laufen Sie es wieder aus."
+          "narration": "Öffnen Sie unter macOS 11 oder neuer das Universalpaket für Intel- und Apple-Silicon-Systeme. Wenn Gatekeeper das nicht notarisierte Paket blockiert, wählen Sie unter Privacy & Security die Option Open Anyway und starten Sie es erneut."
         },
         {
-          "narration": "Auf 64 Bit Linux machen Sie die heruntergeladenen .run-Dateien ausführbar und starten Sie sie dann von einem Terminal aus. Die Standardinstallation verwendet CPU-kompatible PyTorch."
+          "narration": "Machen Sie unter 64-Bit-Linux die heruntergeladene .run-Datei ausführbar und starten Sie sie anschließend in einem Terminal. Die Standardinstallation verwendet eine CPU-kompatible PyTorch-Version."
         },
         {
-          "narration": "Für unterstützte NVIDIA-Hardware auf Linux, passieren Sie --torch-backend auto. Dies wählt die Beschleunigung aus, wenn sie verfügbar ist, ohne CUDA-Bibliotheken zum stillen Standard zu machen."
+          "narration": "Geben Sie unter Linux mit unterstützter NVIDIA-Hardware --torch-backend auto an. Dadurch wird verfügbare Beschleunigung verwendet, ohne CUDA-Bibliotheken als unausgesprochenen Standard vorauszusetzen."
         },
         {
-          "narration": "Jeder Installateur bestätigt den Ersatz vor dem Wechsel von Versionen. Eine unterbrochene Aktualisierung lässt die vorherige Umgebung intakt und install.log bleibt im privaten Installationsverzeichnis spaCR."
+          "narration": "Jedes Installationsprogramm prüft die neue Version, bevor es auf sie umschaltet. Bei einer unterbrochenen Aktualisierung bleibt die vorherige Umgebung intakt; install.log verbleibt im privaten spaCR-Installationsverzeichnis."
         },
         {
-          "narration": "Nach der Installation verwenden Sie den Betriebssystemlauncher. Es ist kein separates Python- oder Conda-Setup erforderlich."
+          "narration": "Starten Sie spaCR nach der Installation über den Programmstarter des Betriebssystems. Eine separate Einrichtung von Python oder Conda ist nicht erforderlich."
         }
       ]
     },
@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Home-Gruppen spaCR-Module nach Workflow, so dass Sie von der Bildverarbeitung über Analyse und Qualitätskontrolle gehen können."
+          "narration": "Home gruppiert die spaCR-Module nach Arbeitsablauf, sodass Sie von der Bildverarbeitung zur Analyse und Qualitätskontrolle wechseln können."
         },
         {
-          "narration": "Verwenden Sie die linke Seitenleiste, um Abschnitte zu wechseln. Wählen Sie Home aus, wann immer Sie zur vollständigen Modulbibliothek zurückkehren möchten."
+          "narration": "Wechseln Sie über die linke Seitenleiste zwischen den Bereichen. Wählen Sie Home, um zur vollständigen Modulübersicht zurückzukehren."
         },
         {
-          "narration": "Durchsuchen Sie die Kategorie-Tabs und Workflow-Zeilen, um ein Modul zu finden. Jede Fliese öffnet einen Workflow, und die Farbe zeigt an, ob das Modul alpha, beta oder stabil ist."
+          "narration": "Durchsuchen Sie die Kategorieregister und Arbeitsablaufzeilen, um ein Modul zu finden. Jede Kachel öffnet einen Arbeitsablauf; ihre Farbe kennzeichnet das Modul als alpha, beta oder stable."
         },
         {
-          "narration": "Das rechte Panel zeigt aktuelle Systemnutzung, Release-Nachrichten und die Modul-State-Legende. Überprüfen Sie die Systemnutzung, bevor Sie teure Arbeiten beginnen."
+          "narration": "Der rechte Bereich zeigt die aktuelle Systemauslastung, Neuigkeiten zu Veröffentlichungen und die Legende zum Modulstatus. Prüfen Sie die Systemauslastung, bevor Sie rechenintensive Aufgaben starten."
         },
         {
-          "narration": "Wählen Sie eine Modulfliese aus, um den Einstellungsbildschirm zu öffnen. Der Modulname und die Beschreibung oben bestätigen, welcher Workflow aktiv ist."
+          "narration": "Wählen Sie eine Modulkachel, um die zugehörigen Einstellungen zu öffnen. Modulname und Beschreibung am oberen Rand bestätigen den aktiven Arbeitsablauf."
         }
       ]
     },
@@ -1806,6 +1806,86 @@
         },
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können Kurvenparameter, Unsicherheit, Diagnose und Quelldaten zusammen exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Explain CV Model. Reproduzieren Sie Vorhersagen der Computer Vision anhand gemessener Merkmale und prüfen Sie, ob die daraus abgeleiteten Erklärungen zuverlässig und frei von Datenlecks sind."
+        },
+        {
+          "narration": "Wählen Sie die Vorhersagedatei auf Objektebene, die zugehörige Messdatenbank, die vorhergesagte Klasse oder Bewertung sowie die Gruppierung nach Mikroplatten-Well oder Platte, die vollständig erhalten bleiben muss."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich das Backend des Surrogatmodells, reservierte Validierungsgruppen, auszuschließende Merkmale, die Anzahl der Permutationswiederholungen und das begrenzte SHAP-Budget."
+        },
+        {
+          "narration": "Prüfen Sie die Ausschlüsse zum Schutz vor Datenlecks und die gruppierte Datenaufteilung. Passen Sie anschließend das Surrogatmodell an und vergleichen Sie seine Validierungstreue mit der Mehrheits-Baseline, bevor Sie die Merkmalsbedeutung interpretieren."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden Modelltreue, Permutationsbedeutung im Validierungssatz, SHAP-Zusammenfassungen, ausgeschlossene Spalten, Gruppierung, Backend und Provenienz protokolliert; eine geringe Modelltreue wird ausgewiesen und nicht verborgen."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Investigate Hit. Führen Sie einen ausgewählten Regressionsbefund auf Kandidatenzellen und quantitative Evidenz aus Mikroplatten-Wells zurück, ohne geprüfte Annotationen zu überschreiben."
+        },
+        {
+          "narration": "Wählen Sie den Regressionslauf, den ausgewählten Befund auf Gen- oder Guide-Ebene, die Phänotyprichtung, den Schwellenwert für die Falschentdeckungsrate, die Guide-Unterstützung und die zugehörige Messdatenbank."
+        },
+        {
+          "narration": "Prüfen Sie im Hauptkonfigurationsbereich die Objekttabelle, die Bewertungsspalte, die Gruppierung nach Mikroplatten-Well, die Evidenzschwellen, die Kovariaten und das optionale kreuzangepasste hierarchische Mischmodell."
+        },
+        {
+          "narration": "Zeigen Sie die nach Bewertung geordneten Kandidatenzellen und die Zusammenfassungen der Mikroplatten-Wells in der Vorschau an. Führen Sie das kreuzangepasste Modell nur aus, wenn der ausgewählte Befund und die Evidenzanforderungen korrekt sind."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows speichert spaCR geordnete Kandidatenzellen, Vergleiche unabhängiger Wells, optionale Wahrscheinlichkeiten dafür, dass jede Zelle dem ausgewählten Phänotyp entspricht, Unsicherheiten und einen versionierten Aufruf, der manuelle Annotationen niemals ersetzt."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Volcano Explorer. Öffnen Sie eine abgeschlossene Regression, untersuchen Sie jeden Punkt, gestalten Sie das Diagramm neu und exportieren Sie eine publikationsgerechte Vektorgrafik, ohne die Analyse erneut auszuführen."
+        },
+        {
+          "narration": "Wählen Sie einen Ordner mit einer abgeschlossenen Regression oder eine Ergebnis-CSV und bestätigen Sie das Ergebnis, die Tabelle auf Guide-Ebene, die Unterstützungsfamilie, die Effektspalte und die Spalte mit den adjustierten P-Werten."
+        },
+        {
+          "narration": "Prüfen Sie im Hauptkonfigurationsbereich Signifikanz- und Effektschwellen, Achsentransformationen, Beschriftungen, Farben, Formen, Annotationen, Achsenunterbrechungen, Schriftarten und Ausgabemaße."
+        },
+        {
+          "narration": "Klicken Sie auf repräsentative Punkte, um deren vollständige Zeilen zu prüfen, führen Sie optionale Annotationen zusammen und vergewissern Sie sich, dass gestalterische Änderungen die zugrunde liegenden Werte und Schwellen unverändert lassen."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden PDF- und PNG-Exporte aus den protokollierten Daten und der protokollierten Gestaltung in der angeforderten Größe neu gerendert, während die ursprünglichen Regressionsergebnisse unverändert bleiben."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Parameter Sweep. Führen Sie eine begrenzte Untersuchung von Regressionseinstellungen durch und vergleichen Sie, welche Schlussfolgerungen gegenüber vertretbaren Analyseentscheidungen robust bleiben."
+        },
+        {
+          "narration": "Ordnen Sie für jede Platte die CSV-Datei mit Bewertungen pro Objekt der CSV-Datei mit Guide-Zählwerten zu, wählen Sie die Antwortspalte und legen Sie einen separaten Ausgabeordner fest."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die zu variierenden Achsen aus, fixieren Sie alle anderen Werte, wählen Sie Raster- oder Zufallsstichproben, begrenzen Sie die Versuche, protokollieren Sie den Startwert und übernehmen Sie die speicherbegrenzte Anzahl paralleler Worker."
+        },
+        {
+          "narration": "Verwenden Sie zunächst Estimate, um die Größe und die Kosten des zulässigen Suchraums zu prüfen. Starten Sie anschließend eine kleine, begrenzte Untersuchung und überwachen Sie erfolgreiche, abgelehnte und fehlgeschlagene Versuche."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows protokolliert die fortsetzbare Ergebnistabelle für jeden Versuch die Einstellungen, den Status, die Anzahl der Entdeckungen, den Rang der Positivkontrolle, die Dauer, den Ausgabeordner und den Fehlergrund."
         }
       ]
     }

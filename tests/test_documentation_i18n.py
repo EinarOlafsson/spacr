@@ -15,6 +15,32 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 8_367
+PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
+    "NOTHING IS LOST IN THE MOVE",
+    "THE FIT IS A MEDIAN FIT",
+    "THE MEDIAN, NOT THE MEAN",
+    "A plain dictionary would do the storing",
+    "They used to be one: both keyed on",
+    "each is a bug this project has already had",
+    "which is the whole point of the three being one module",
+    "WHAT IS KEPT IS THE VERSION, NOT A BARE YES",
+    "THROUGH THE REGISTRATION SEAM",
+    "WHY THIS IS THE ONE WITH AN ARGUMENT BEHIND IT FOR MICROSCOPY",
+    "NARROWING GOES THROUGH THE ONE RULE",
+    "WIDENING TO ``uint16`` IS A CAST AND NOT A STRETCH",
+    "A RE-FIT IS NOT A RESTYLE",
+    "THE ROW IS THE RECIPE, and that is the whole design",
+    "TWO CHECKS, BECAUSE NEITHER IS ENOUGH ALONE",
+    "NOTHING IS INSTALLED. The dry run is mandatory",
+    "THE TRAP, AND WHY IT DECIDES THE OUTPUT SHAPE",
+    "THE TWO ROUTES NEED DIFFERENT THINGS",
+    "WHY THIS EXISTS. :func:`read_well_guide_fractions`",
+    "THE FACTOR IS NOT A NO-OP",
+    "THE THREE KINDS, and the distinction between them",
+    "DISTRIBUTION-FREE INFERENCE IS A SEPARATE AXIS",
+    "NOTHING IS RENAMED",
+)
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
@@ -209,6 +235,88 @@ def test_api_repair_reuses_legacy_cache_only_for_identical_model_input(
     assert repaired == {"spacr.example": source}
 
 
+def test_api_repair_reuses_exact_historical_blocks_inside_changed_docstrings(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    old_source = "Return the task status.\n\nKeep the saved image."
+    old_target = "Retorna o estado da tarefa.\n\nMantém a imagem salva."
+    new_source = "Return the processing status.\n\nKeep the saved image."
+    new_block = "Return the processing status."
+    new_target = "Retorna o estado do processamento."
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: old_source})),
+        encoding="utf-8",
+    )
+    (api_dir / "pt.json").write_text(
+        json.dumps({
+            "schema": 2,
+            "language": "pt",
+            "symbols": {key: {
+                "source_sha256": builder._source_hash(old_source),
+                "source_blocks_sha256":
+                    builder._source_block_hashes(old_source),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(old_source),
+                "text": old_target,
+            }},
+        }),
+        encoding="utf-8",
+    )
+    reviewed = tmp_path / "reviewed"
+    reviewed.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        return {new_block: new_target}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    repaired = builder.repair_api_translations(
+        {key: new_source},
+        "pt",
+        tmp_path / "models",
+        argparse.Namespace(),
+    )
+    assert captured["blocks"] == [new_block]
+    assert repaired == {
+        key: f"{new_target}\n\nMantém a imagem salva."
+    }
+
+
+def test_historical_api_reuse_rejects_unverified_context_hashes():
+    import build_documentation_i18n as builder
+
+    source = "Return the task status."
+    english = {
+        "source_sha256": builder._source_hash(source),
+        "source_blocks_sha256": builder._source_block_hashes(source),
+        "text": source,
+    }
+    translated = {
+        "source_sha256": builder._source_hash(source),
+        "source_blocks_sha256": builder._source_block_hashes(source),
+        "translation_source_blocks_sha256": ["stale-context"],
+        "text": "Retorna o estado da tarefa.",
+    }
+    assert builder._historical_api_block_translations(
+        english, translated, "pt"
+    ) == {}
+    translated["translation_source_blocks_sha256"] = (
+        builder._translation_source_block_hashes(source)
+    )
+    assert builder._historical_api_block_translations(
+        english, translated, "pt"
+    ) == {source: "Retorna o estado da tarefa."}
+
+
 def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
     tmp_path, monkeypatch,
 ):
@@ -330,6 +438,20 @@ def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
         docs, "de", tmp_path / "models", argparse.Namespace(),
     )
     assert repaired == {"spacr.example": target}
+
+
+def test_api_audit_prefers_exact_source_bound_review_to_contextual_rewrite():
+    import build_documentation_i18n as builder
+
+    source = "The cytotoxic compound is one row, with an empty EC50 cell."
+    reviewed = "具有细胞毒性的化合物占一行，且 EC50 单元格为空。"
+    assert builder._contextualize(reviewed, "zh_CN", source) != reviewed
+    assert not builder._api_contextual_repair_required(
+        source, reviewed, "zh_CN", reviewed,
+    )
+    assert builder._api_contextual_repair_required(
+        source, reviewed, "zh_CN",
+    )
 
 
 def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
@@ -741,6 +863,22 @@ third`` without changing the literal.
         ":class:`Result`",
     ):
         assert value in rebuilt
+
+
+def test_rst_heading_underlines_use_unicode_display_width():
+    from build_documentation_i18n import (
+        _rst_display_width,
+        rebuild_document,
+        translatable_blocks,
+    )
+
+    assert _rst_display_width("데이터") == 6
+    assert _rst_display_width("e\N{COMBINING ACUTE ACCENT}") == 1
+    blocks, layout = translatable_blocks("Data\n----\n\nBody.")
+    assert blocks == ["Data", "Body."]
+    assert rebuild_document(layout, ["데이터", "본문."]) == (
+        "데이터\n------\n\n본문."
+    )
 
 
 def test_literal_block_double_colon_is_structural_chrome_for_all_shapes():
@@ -1237,14 +1375,62 @@ def test_readme_language_picker_is_never_sent_through_translation():
     )
 
 
+def test_readme_generated_image_markup_is_never_sent_through_translation():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """.. spacr-workflow-begin
+
+|Workflow_mask|\\ |Workflow_measure|
+
+**Data**
+
+|App_align|\\ |App_convert|
+
+.. spacr-workflow-end
+
+|DataBioStudies| |DataHuggingFace|
+
+Translate this sentence."""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Translate this sentence."]
+    assert rebuild_document(layout, blocks) == source
+
+
+def test_independent_link_translation_preserves_reviewed_link_labels():
+    from build_documentation_i18n import (
+        REVIEWED_README_BLOCKS,
+        _localize_readme_link_labels,
+    )
+
+    support_source = next(
+        source for source in REVIEWED_README_BLOCKS
+        if "github.com/EinarOlafsson/spacr/issues" in source
+    )
+    reviewed = REVIEWED_README_BLOCKS[support_source]["de"]
+    target = "https://github.com/EinarOlafsson/spacr/issues"
+    standalone = f"`GitHub Issues <{target}>`_"
+    localized = _localize_readme_link_labels(
+        f"{reviewed}\n\n{standalone}",
+        "de",
+        [("__readme_link_0__", "GitHub Issues", target)],
+        {"__readme_link_0__": "GitHub Probleme"},
+    )
+    assert localized.startswith(reviewed + "\n\n")
+    assert localized.endswith(f"`GitHub Probleme <{target}>`_")
+
+
 def test_github_summary_has_reviewed_domain_translations():
     from build_documentation_i18n import (
         REVIEWED_README_BLOCKS,
+        REVIEWED_README_EVIDENCE_BLOCKS,
         REVIEWED_README_HEADINGS,
         translatable_blocks,
     )
 
     assert len(REVIEWED_README_BLOCKS) >= 23
+    all_languages = {
+        "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+    }
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
     canonical_blocks, _layout = translatable_blocks(canonical)
     canonical_normalized = re.sub(r"\s+", " ", canonical)
@@ -1254,9 +1440,12 @@ def test_github_summary_has_reviewed_domain_translations():
             is_document_block
             or canonical_normalized.count(source) == 1
         ), source
-        assert set(reviewed) == {
-            "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
-        }
+        expected_languages = (
+            set(REVIEWED_README_EVIDENCE_BLOCKS[source])
+            if source in REVIEWED_README_EVIDENCE_BLOCKS
+            else all_languages
+        )
+        assert set(reviewed) == expected_languages
         for language, target in reviewed.items():
             if not is_document_block:
                 # Link labels are also translated independently so their
@@ -1276,8 +1465,12 @@ def test_github_summary_has_reviewed_domain_translations():
             )
             assert target in contract_localized, (source, language)
     joined = {
-        language: " ".join(block[language] for block in REVIEWED_README_BLOCKS.values())
-        for language in next(iter(REVIEWED_README_BLOCKS.values()))
+        language: " ".join(
+            block[language]
+            for block in REVIEWED_README_BLOCKS.values()
+            if language in block
+        )
+        for language in all_languages
     }
     assert "CRISPR 筛选" in joined["zh_CN"]
     assert "criblages CRISPR" in joined["fr"]
@@ -1291,6 +1484,48 @@ def test_github_summary_has_reviewed_domain_translations():
     assert REVIEWED_README_HEADINGS["Install spaCR"]["hi"] == (
         "spaCR इंस्टॉल करें"
     )
+
+
+def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
+    from build_documentation_i18n import (
+        REVIEWED_README_EVIDENCE_BLOCKS,
+        translatable_blocks,
+    )
+
+    path = (
+        ROOT / "docs" / "i18n" / "reviewed" / "readme"
+        / "2026-08-26-nightly-merge-gaps.json"
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["schema"] == 1
+    assert payload["source"] == "README.rst"
+    records = payload["records"]
+    assert len(records) == 16
+    canonical, _layout = translatable_blocks(
+        (ROOT / "README.rst").read_text(encoding="utf-8")
+    )
+    all_languages = {
+        "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+    }
+    for record in records:
+        source = record["source"]
+        assert canonical.count(source) == 1
+        assert record["source_sha256"] == hashlib.sha256(
+            source.encode("utf-8")
+        ).hexdigest()
+        assert set(record["status"]) == all_languages
+        reviewed_languages = set(
+            REVIEWED_README_EVIDENCE_BLOCKS.get(source, {})
+        )
+        assert {
+            language
+            for language, status in record["status"].items()
+            if status == "reviewed"
+        } == reviewed_languages
+        assert all(
+            status in {"reviewed", "pending_native_review"}
+            for status in record["status"].values()
+        )
 
 
 def test_translation_protection_has_no_nested_tokens_and_round_trips():
@@ -2134,6 +2369,103 @@ def test_incremental_api_generation_reuses_only_current_nonblank_entries(
     }
 
 
+def test_documentation_api_catalog_inventory_and_hashes_are_current():
+    """Ratcheted guard against undocumented API-catalog source drift."""
+    import build_documentation_i18n as builder
+
+    docs = builder.public_docstrings()
+    assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+        "The public documentation inventory changed. Regenerate every API "
+        "catalog, review the diff, and update "
+        "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
+    )
+    expected = set(docs)
+    source_contracts = {
+        key: (
+            builder._source_hash(source),
+            builder._source_block_hashes(source),
+            builder._translation_source_block_hashes(source),
+        )
+        for key, source in docs.items()
+    }
+    api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
+    for language in ("en", *builder.MODEL_SPECS):
+        payload = json.loads(
+            (api_dir / f"{language}.json").read_text(encoding="utf-8")
+        )
+        symbols = payload.get("symbols", {})
+        missing = sorted(expected - set(symbols))
+        extra = sorted(set(symbols) - expected)
+        assert not missing and not extra, (
+            f"{language}: API inventory drift; missing={missing[:10]!r}, "
+            f"extra={extra[:10]!r}"
+        )
+        stale = []
+        for key, (source_hash, block_hashes, context_hashes) in (
+            source_contracts.items()
+        ):
+            record = symbols[key]
+            if (
+                record.get("source_sha256") != source_hash
+                or record.get("source_blocks_sha256") != block_hashes
+                or (
+                    language != "en"
+                    and record.get("translation_source_blocks_sha256")
+                        != context_hashes
+                )
+            ):
+                stale.append(key)
+        assert not stale, (
+            f"{language}: stale API source/hash contracts for "
+            f"{stale[:10]!r}; regenerate the documentation catalogs"
+        )
+
+
+def test_public_api_docstrings_do_not_restore_reviewed_unprofessional_prose():
+    """Keep reviewed development-story and emphatic prose out of the API."""
+    import build_documentation_i18n as builder
+
+    docs = builder.public_docstrings()
+    violations = {
+        symbol: [
+            phrase
+            for phrase in PUBLIC_API_FORBIDDEN_TONE_PHRASES
+            if phrase.casefold() in docstring.casefold()
+        ]
+        for symbol, docstring in docs.items()
+    }
+    violations = {
+        symbol: phrases
+        for symbol, phrases in violations.items()
+        if phrases
+    }
+    assert not violations, (
+        "Public API prose restored reviewed colloquial, changelog-style or "
+        f"all-caps narrative: {violations!r}"
+    )
+
+
+def test_landing_pages_do_not_restore_reviewed_colloquial_prose():
+    """Keep reviewed promotional shorthand out of user-facing entry pages."""
+    landing_text = "\n".join(
+        (ROOT / relative).read_text(encoding="utf-8")
+        for relative in ("README.rst", "docs/source/index.rst")
+    )
+    forbidden = (
+        "Plate images and FASTQ reads go in",
+        "that is the whole path",
+        "when a screen outgrows one desktop",
+    )
+    restored = [
+        phrase for phrase in forbidden
+        if phrase.casefold() in landing_text.casefold()
+    ]
+    assert not restored, (
+        "Landing-page prose restored reviewed colloquial wording: "
+        f"{restored!r}"
+    )
+
+
 def test_api_block_completeness_uses_exact_code_hash_allowlist():
     from build_documentation_i18n import (
         API_EXACT_BLOCK_SHA256_ALLOWLIST,
@@ -2903,10 +3235,24 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
 
 def test_localized_readme_images_have_reviewed_accessible_text():
     from build_documentation_i18n import (
+        README_BADGE_SUBSTITUTIONS,
+        README_INSTALLER_SUBSTITUTIONS,
+        README_RESOURCE_SUBSTITUTIONS,
         REVIEWED_README_MODULE_ALT_TEMPLATES,
+        _readme_logo_alt_text,
+        _readme_substitution_alt_text,
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    assert len(_readme_substitution_alt_text(
+        canonical, README_BADGE_SUBSTITUTIONS,
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 13
+    assert len(_readme_substitution_alt_text(
+        canonical, README_INSTALLER_SUBSTITUTIONS,
+    )) == 4
+    assert len(_readme_substitution_alt_text(
+        canonical, README_RESOURCE_SUBSTITUTIONS,
+    )) == 5
     canonical_workflow = canonical.partition(
         ".. spacr-workflow-begin"
     )[2].partition(".. spacr-workflow-end")[0]
@@ -2928,6 +3274,9 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
         assert len(workflow_alt) == 44
+        # Thirteen badges, 44 linked Home applications, four installer/archive
+        # icons and five resource icons.
+        assert len(alt_text) == 66
         assert all(
             module in alt
             for module, alt in zip(
@@ -2965,6 +3314,45 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)
+
+
+def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
+    """The image generator must not restore English headings or actions."""
+    import importlib.util
+    from readme_i18n import (
+        WORKFLOW_MODULE_ALT_TEMPLATES,
+        WORKFLOW_SECTION_LABELS,
+    )
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("readme_visuals", path)
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    sample = "\n\n".join([
+        *(f"**{section}**" for section in WORKFLOW_SECTION_LABELS["de"]),
+        ".. |App_map| image:: icons/map.png\n"
+        "   :alt: Open the Map Barcodes API",
+    ])
+    monkeypatch.setattr(generator, "_readme_workflow", lambda _prefix: sample)
+
+    assert generator._workflow_markup_for_readme(
+        ROOT / "README.rst", "icons"
+    ) == sample
+    for language, section_labels in WORKFLOW_SECTION_LABELS.items():
+        localized = generator._workflow_markup_for_readme(
+            ROOT / "docs" / "i18n" / "readme"
+            / f"README.{language}.rst",
+            "icons",
+        )
+        for label in section_labels.values():
+            assert f"**{label}**" in localized
+        assert (
+            WORKFLOW_MODULE_ALT_TEMPLATES[language].format(
+                module="Map Barcodes"
+            ) in localized
+        )
+        assert "Open the Map Barcodes API" not in localized
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():

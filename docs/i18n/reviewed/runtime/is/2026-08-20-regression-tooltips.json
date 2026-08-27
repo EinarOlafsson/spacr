@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "p_threshold_kind",
-      "source_sha256": "af1a6bbc195643ccd55993fdf714e9ed57517d1f6d82cd458141d1850f13ecfe",
-      "source": "Whether p_threshold_alpha cuts on the ADJUSTED P value ('adjusted' -- the multiple-testing-corrected column multiple_testing_method produces) or on the raw per-coefficient P ('raw'). The volcano's right-click menu offers the same two, and this is the one the RUN uses, so the exported hits and the plot cannot disagree. 'raw' calls far more genes on a screen of thousands of guides. Anything else is refused rather than falling back. Default 'adjusted'.",
-      "translation": "Velur hvort p_threshold_alpha sé borið saman við leiðrétta P-gildið ('adjusted' — dálkinn sem multiple_testing_method leiðréttir fyrir fjölprófun) eða hráa P-gildið fyrir hvern stuðul ('raw'). Hægri-smellivalmynd eldfjallsritsins býður sömu tvo kosti, og þetta er valið sem RUN keyrir með, svo útflutt marktæk gen og ritið geta ekki verið ósammála. 'raw' kallar mun fleiri gen marktæk í skimun með þúsundum leiðsagna. Öllum öðrum gildum er hafnað í stað þess að nota varagildi. Sjálfgefið er 'adjusted'."
+      "source_sha256": "50f77fc5a0b896e38527f03555e8925b982db0fd4d8928a59a85c1e8e5759bb4",
+      "source": "Whether p_threshold_alpha is applied to the multiple-testing-adjusted p-value ('adjusted') or the raw per-coefficient p-value ('raw'). The analysis run and volcano plot use the same choice, so exported hits and plotted calls remain consistent. 'raw' generally calls more genes in screens with thousands of guides. Other values are rejected. Default 'adjusted'.",
+      "translation": "Hvort p_threshold_alpha er beitt á P-gildi leiðrétt fyrir fjölprófun ('adjusted') eða hrátt P-gildi hvers stuðuls ('raw'). Greiningarkeyrslan og eldfjallaritið nota sama valið, svo útflutt marktæk gen og merkingar í ritinu haldast samræmd. 'raw' skilgreinir almennt fleiri gen sem marktæk í skimunum með þúsundum leiðsagna. Öðrum gildum er hafnað. Sjálfgefið 'adjusted'."
     }
   ]
 }

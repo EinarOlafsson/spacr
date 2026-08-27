@@ -211,29 +211,14 @@ PATH_EXTENSIONS = 3
 def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
                   points: int = PATH_POINTS, depth: float = PATH_DEPTH,
                   required=None, seed: int = 0, **kwargs) -> float:
-    """The penalty with the lowest held-out error. Never the empty fit.
+    """Select a group-lasso penalty by held-out prediction error.
 
-    WHY THIS EXISTS. The shipped default of 0.05 is a number, and whether a
-    number is a large penalty or a small one depends entirely on the scale
-    of the design it is applied to. On the tsg101 screen its ceiling is
-    0.1285, so 0.05 is nearly half of it and every one of the 297 gene
-    blocks came back exactly zero -- from a settings file in which nobody
-    had ever touched the penalty.
-
-    AN ALL-ZERO FIT IS NEVER CHOSEN, even when it has the lowest error.
-    With a weak signal the emptiest model often does predict best on held-out
-    wells, and a screen that answers "no gene does anything" because that
-    minimised a mean squared error has told the user nothing they can check.
-    Candidates that select nothing are dropped, and only if EVERY candidate
-    is empty does the smallest penalty on the path win by default.
-
-    WHICH BLOCKS HAVE TO SURVIVE IS THE CALLER'S TO SAY. A regression
-    design carries plate, row and column dummies beside the guides, and each
-    of those is a singleton group with a far larger correlation than any
-    guide block -- so they stand at penalties that have already emptied
-    every gene. "Something is non-zero" is therefore not the test: on the
-    tsg101 screen it was satisfied by row terms while all 297 gene blocks
-    were zero, which reads downstream as a screen with no hits.
+    A candidate is eligible only when its fit on the complete dataset selects
+    at least one column allowed by ``required`` and its held-out error is
+    finite. If a penalty path contains no eligible candidate, progressively
+    smaller penalties are evaluated for up to :data:`PATH_EXTENSIONS`
+    additional ranges. If no eligible candidate is found, the smallest
+    penalty evaluated is returned.
 
     :param folds: how many held-out splits. Wells, not guides.
     :param required: optional boolean mask over COLUMNS. A penalty counts as

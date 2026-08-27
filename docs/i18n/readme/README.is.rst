@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ Tungumál: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 **Rýmisbundin svipgerðargreining á CRISPR-skimunum.**
 
-spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, tengir hverja frumu við gRNA-ið sem hún fékk og greinir frá því hvaða gen breyttu svipgerðinni. Plötumyndir og FASTQ-raðir eru inntak; mælingar fyrir hvert viðfang, þjálfaðir flokkarar, áhrifastærðir fyrir hverja leiðarsameind og hvert gen og forgangsraðaður niðurstöðulisti eru úttak.
+spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.
 
-Fyrir myndgreindar samsettar CRISPR-skimanir nær þetta yfir allt verkflæðið. Ef þú ert með afkastamiklar smásjármyndir en enga skimun er hægt að keyra aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.
+Fyrir myndgreindar samsettar CRISPR-skimanir býður spaCR upp á verkflæði frá myndaðgreiningu til forgangsröðunar niðurstaðna. Í afkastamiklum smásjárrannsóknum án raðgreiningarmiðaðra skimunar er hægt að nota einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.
 
 Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og brunnaauðkenni eru geymd í einu SQLite-verkefni, þannig að rekja má niðurstöðugildi aftur til viðfangsins sem það kom frá.
 
@@ -107,7 +106,7 @@ Yfirlit yfir verkflæðið
    :width: 2.5%
    :align: middle
 
-**Data**
+**Gögn**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
@@ -115,13 +114,13 @@ Yfirlit yfir verkflæðið
 
 |App_project_browser|
 
-**Results & QC**
+**Niðurstöður og gæðaeftirlit**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**Kanna**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,11 +128,11 @@ Yfirlit yfir verkflæðið
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**Prófanir**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Design**
+**Hönnun**
 
 |App_experiment_design|\ |App_power|\ |App_dose_response|
 
@@ -415,13 +414,15 @@ Skipanalínuskipanir
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-Set ``SPACR_LOG_LEVEL=DEBUG`` þegar ákvarðanir. Rotating logs eru skrifað á ``~/.spacr/logs/spacr.log``.
+Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
 
 
 Það sem hægt er að gera
 -----------------------
 
-Meirihluti skrefna fylgja sex mólum:
+Aðalvinnuflæðið samanstendur af sex einingum:
 
 - **Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.
 - **Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.
@@ -430,7 +431,28 @@ Meirihluti skrefna fylgja sex mólum:
 - **Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.
 - **Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.
 
-Saminn verkefni getur einnig hönnuð plötur, uppgötvað styrk, rétt batch áhrif, athuga afgræðslu gæði, rannsaka tengda plöt og gróðurs, útvarpa AnnData, endurheimta ábreytt vinnu og skráð settingar bak hverra niðurstöðu.
+Sama verkefni má einnig nota til að hanna plötur, meta tölfræðilegan styrk, leiðrétta lotuáhrif, kanna gæði hlutunar, skoða tengd gröf og myndúrklippur, flytja út AnnData, halda áfram vinnslu sem var stöðvuð og skrá stillingarnar sem liggja að baki hverri niðurstöðu.
+
+Einingar sem eru tiltækar úr hýsingarskjám
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tuttugu einingar eru samþættar við tengda hýsingarskjái í stað þess að birtast sem aðskildir reitir á heimaskjánum. Hver eining opnast af hausstiku hýsingarskjásins og notar virka verkefnið. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP og Make Masks bjóða upp á þessar samþættu einingar. Hjálpar- og API-skjöl þeirra eru áfram tiltæk og einingar með inngang fyrir vinnslukeðju má enn keyra án grafísks viðmóts. `Eiginleikahandbókin <../../source/features.rst>`_ listar hverja samþætta einingu og hýsingarskjá hennar.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks birtist undir **Data** og býður upp á handvirka leiðréttingu á hlutunargrímum. Af hausstikunni má einnig opna Cellpose-vinnuferlin. Vinnusvæðið hefur níu verkfæri: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** og **Recrop**. Draw býr til eitt fyllt merki úr lokaðri fríhendisútlínu. Divide aðskilur samvaxinn hlut eftir línu sem notandinn skilgreinir og varðveitir öll önnur hlutamerki.
+
+Recrop dregur út myndsvið með einum hlut úr undirbúinni mynd sem inniheldur marga hluti. Afmarkandi rammi utan um einn hlut skrifar samsvarandi svæði myndar og grímu sem nýtt myndsvið, setur það á eftir núverandi myndsviði í biðröðinni og fjarlægir upprunalega myndsviðið með mörgum hlutum úr yfirferðarröðinni. Recrop breytir virka myndsviðinu en ekki merkjapixlum.
+
+Þegar Cellpose-SAM er keyrt úr Make Masks birtast tvær milliniðurstöður við hlið grímunnar: **líkindakort frumna** og **flæðisvið**. Gríman er skilgreind með þröskuldi á líkindakortinu og samræmispróf á flæði geta hafnað hlutum ef afleitt flæði þeirra víkur frá spáða sviðinu. Skoðaðu þessar niðurstöður til að greina lágar frumulíkur frá ósamræmdu flæði þegar röng eða ófullgerð gríma er metin.
+
+Hlutir og stillingar
+~~~~~~~~~~~~~~~~~~~~
+
+spaCR styður frumu-, kjarna- og sýklahluti, umfrymi sem er leitt af grímum þeirra og frá núll upp í tuttugu og sex hólf fyrir frumulíffæri. Hvert hólf fyrir frumulíffæri hefur sjálfstæða rás, þvermál, forstillingu fyrir lögun og greiningaraðferð.
+
+Stillingaspjaldið birtir stýringar aðeins þegar þær eiga við. Hólf fyrir frumulíffæri umfram stilltan fjölda eru falin, hlutur án úthlutaðrar rásar er útilokaður frá keyrslunni og stýringar sem eiga við tiltekna lögun birtast aðeins fyrir valda aðferð. Rofarnir **3D** og **Time** skilgreina víddirnar: ``z_stack`` virkjar rúmmálsstillingar, ``timelapse`` virkjar rakningarstillingar og fjórvíðar stillingar birtast þegar kveikt er á báðum.
 
 Veldu næsta síðu með því sem þú vilt gera:
 
@@ -479,10 +501,23 @@ Viðmiðunargagnasöfn
    :alt: Opna bioRxiv-forprentið
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+Greining á afköstum
+----------------------
+
+Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::
+
+    python tools/spacr_hardware_report.py
+
+Skipunin birtir skýrslu og vistar afrit undir ``~/.spacr/reports``; síðasta línan tilgreinir slóð vistuðu skrárinnar. ``--quick`` sleppir lengri afkastamælingum og ``--out PATH`` velur annan stað fyrir úttakið.
+
+Skýrslan opnar ekki verkefni og les engin verkefnisgögn. Hún skráir tímasetningar innflutnings og tölulegra safna, skjákvörðun, virkar kjörstillingar, smíði aðalglugga og einingarskjáa og afköst hreyfimynda. Skýrsluskráin er eina úttakið sem hún býr til.
+
+Skýrslan greinir einnig hermun á örgjörvaarkitektúr, svo sem x86_64-útgáfu af Python á Apple Silicon, og BLAS-útfærsluna sem NumPy notar. Hvort tveggja getur haft veruleg áhrif á afköst.
+
 Framlög og aðstoð
 ------------------------
 
-Vel afmarkaðar villuskýrslur og beiðnir um eiginleika eru velkomnar í `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skaltu láta spaCR-útgáfu, stýrikerfi, Python-útgáfu, einingastillingar og viðeigandi bút úr annál fylgja. ``spacr-doctor`` safnar flestum þessara upplýsinga sjálfkrafa.
+Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-mál <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal tilgreina útgáfu spaCR, stýrikerfi, útgáfu Python, stillingar einingarinnar og viðeigandi hluta úr annálnum. ``spacr-doctor`` safnar flestum þessara upplýsinga; láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
 
 Leyfi
 ~~~~~~~~~

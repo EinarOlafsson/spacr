@@ -2002,12 +2002,12 @@ PRIORITY_KEYS: Tuple[str, ...] = (
 
 
 def is_missing(value: Any) -> bool:
-    """Report whether ``value`` counts as missing for an annotation.
+    """Return whether ``value`` represents missing annotation data.
 
-    ``None`` and NaN are missing. So is any object whose ``!=`` against itself
-    is undefined — that is how pandas' ``NA``/``NaT`` sentinels behave, and
-    treating an "I refuse to say" sentinel as present would write the string
-    ``<NA>`` into an OMERO panel.
+    Missing values include ``None``, floating-point NaN, pandas ``NA`` and
+    ``NaT`` sentinels, and objects for which self-inequality cannot be reduced
+    to a boolean. These values are omitted rather than serialized as literal
+    sentinel text in an OMERO map annotation.
 
     :param value: anything.
     :returns: ``True`` when the value is missing.

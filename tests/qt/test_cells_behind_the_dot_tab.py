@@ -1610,5 +1610,5 @@ def test_the_tab_still_fits_the_splitter_it_lives_in(qtbot):
            view._score.toolTip(), view._shape.toolTip()])
     assert "robust scales" in hover
     assert "more than one classifier output" in hover
-    assert "FIELDS TOUCHED" in hover
-    assert "not a per-gene control" in hover
+    assert "source fields accessed" in hover
+    assert "applied to every coefficient" in hover

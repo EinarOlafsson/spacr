@@ -292,19 +292,16 @@ class Gate:
         return ()
 
     def thresholds(self) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
-        """``{column: (low, high)}`` for every threshold this gate can take.
+        """Return editable per-column thresholds represented by this gate.
 
-        NOT :meth:`PolygonGate.bounds`, which is that shape's bounding box
-        and predates this -- hence the different name rather than an
-        override that would have changed what a caller of the old one got
-        back.
+        Thresholds are derived from :meth:`range_filters`, so shapes that are
+        not conjunctions of independent ranges expose only their genuine range
+        constraints. A polygon returns no thresholds, while a cylinder exposes
+        its normal-axis bounds rather than bounds for its elliptical section.
+        This method is distinct from :meth:`PolygonGate.bounds`, which returns
+        a geometric bounding box.
 
-        The design: "the user should also be able to
-        set thresholds for each individual gate for the measurements they are
-        defined by". Derived from :meth:`range_filters`, so a gate whose shape
-        is not a conjunction of ranges offers only the bounds it really has --
-        a cylinder offers its NORMAL and not its oval, which is exactly the
-        axis the user needs in order to bound its height.
+        :returns: Mapping of column names to ``(low, high)`` bounds.
         """
         return {clause.column: (clause.low, clause.high)
                 for clause in self.range_filters()}

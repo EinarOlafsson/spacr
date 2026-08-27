@@ -175,27 +175,15 @@ def upgrade_command(pre_release: bool = False) -> list:
 
 
 def editable_install_location() -> Optional[str]:
-    """The checkout ``spacr`` runs from, or ``None`` for an ordinary install.
+    """Return the active spaCR checkout, or ``None`` for a regular install.
 
     :returns: the absolute path of the working tree, when this interpreter is
         running spaCR out of one.
 
-    TWO CHECKS, BECAUSE NEITHER IS ENOUGH ALONE.
-
-    1. ``direct_url.json`` records ``{"dir_info": {"editable": true}}`` for a
-       pip editable install, which is the authoritative answer -- WHEN IT CAN
-       BE READ. It cannot always: with the current directory inside the
-       checkout, ``importlib.metadata`` resolves ``spacr`` to the SOURCE
-       TREE's own metadata, which carries no ``direct_url.json`` and returns
-       ``None``. Measured while writing this, and it is the state a developer
-       is in most often -- so relying on it alone would have made the guard
-       fail in exactly the case it exists for.
-
-    2. WHERE THE IMPORTED PACKAGE ACTUALLY LIVES. If ``spacr.__file__`` is not
-       under a ``site-packages`` directory, the code being run is a working
-       tree whatever the metadata says. This is the check that answers the
-       real question -- "would ``pip install --upgrade`` replace the source I
-       am editing?" -- and it needs no packaging metadata at all.
+    Detection first reads the PEP 610 ``direct_url.json`` editable-install
+    record. If that metadata is unavailable, it checks whether the imported
+    package resides outside ``site-packages`` and inside a directory containing
+    ``.git`` or ``pyproject.toml``.
     """
     try:
         import importlib.metadata as md
@@ -239,12 +227,9 @@ def run_pip_upgrade(pre_release: bool = False):
 
     :param pre_release: pass ``--pre`` so pre-releases and ``.postN``
         versions are considered.
-    :returns: ``(exit_code, output)``. The output is the combined stdout and
-        stderr, and it is the whole point: these installers launch from a
-        desktop entry with ``Terminal=false``, so anything written to the
-        parent's streams goes nowhere and the GUI used to report a bare exit
-        code with an invitation to "check the terminal" that could not be
-        accepted.
+    :returns: ``(exit_code, output)`` with combined stdout and stderr. Captured
+        output remains available to desktop installations launched without a
+        terminal.
     """
     # NEVER UPGRADE OVER A DEVELOPMENT CHECKOUT. `pip install --upgrade spacr`
     # uninstalls whatever is there and installs from the index -- including
@@ -272,10 +257,8 @@ def run_pip_upgrade(pre_release: bool = False):
 def run_install_command(args, timeout: float = 1800.0):
     """Run one packaging command, capturing everything it said.
 
-    Split out of :func:`run_pip_upgrade` so install offers report failures the
-    same way the updater already does -- a bare exit
-    code with an invitation to "check the terminal" cannot be accepted on an
-    install launched from a desktop entry with ``Terminal=false``.
+    Install offers use the same capture behavior as :func:`run_pip_upgrade`,
+    including when the application was launched without a terminal.
 
     :param args: the argv to run, from :func:`upgrade_command` or
         :func:`install_requirement_command`.
@@ -363,7 +346,7 @@ def pip_available() -> bool:
 
 
 def install_requirement_command(requirement) -> list:
-    """The command that installs ``requirement`` into THIS environment.
+    """Return the command that installs ``requirement`` in this environment.
 
     The same tool choice :func:`upgrade_command` makes -- ``uv`` when this is
     a desktop install whose venv has no pip, ``python -m pip`` otherwise.
@@ -378,7 +361,7 @@ def install_requirement_command(requirement) -> list:
 
 
 def dry_run_command(requirement) -> list:
-    """The command that asks what installing ``requirement`` WOULD do.
+    """Return the command that previews installation of ``requirement``.
 
     pip's ``--report -`` writes a JSON document to stdout and installs
     nothing; ``uv pip install --dry-run`` prints ``+ name==version`` lines.
@@ -433,14 +416,10 @@ class PackageChange:
 
 @dataclass(frozen=True)
 class DryRun:
-    """What ``pip install --dry-run`` said, parsed into decisions.
+    """Represent a parsed ``pip install --dry-run`` result.
 
     ``ok`` is False when the resolver refused, when the tool could not be
-    run, or when nothing machine-readable came back. THAT IS NOT TREATED AS
-    "probably fine": :func:`install_decision` refuses an install whose dry run
-    did not answer, because the whole reason the dry run is mandatory is that
-    the interesting case -- cuML dragging numpy with it -- is invisible until
-    the resolver has spoken.
+    run, or when it returned no machine-readable plan.
     """
 
     requirement: str
@@ -465,7 +444,7 @@ class DryRun:
         return tuple(c for c in self.moves if c.protected)
 
     def summary(self) -> str:
-        """The report a user is shown BEFORE agreeing to anything."""
+        """Return the report shown before installation confirmation."""
         if not self.ok:
             return (f"Could not work out what installing {self.requirement} "
                     f"would change.\n{self.error or ''}".strip())
@@ -493,10 +472,8 @@ def dry_run_install(requirement, timeout: float = 600.0,
                     runner=None) -> DryRun:
     """Ask the packaging tool what installing ``requirement`` would change.
 
-    NOTHING IS INSTALLED. The dry run is mandatory:
-    ``pip install --dry-run --report`` is what caught cuML moving numpy
-    1.26.4 -> 2.2.6, and a user is entitled to see that before agreeing
-    rather than after.
+    This function does not install packages. It resolves and reports proposed
+    additions and version changes so they can be reviewed before installation.
 
     :param requirement: a pip requirement string.
     :param timeout: seconds before the resolver is given up on.

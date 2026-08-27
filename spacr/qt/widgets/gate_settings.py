@@ -313,9 +313,9 @@ class GateSettingsDialog(QDialog):
         self._cmap.addItems(COLOUR_MAPS)
         self._cmap.setCurrentText(self._settings.colour_map)
         self._cmap.setToolTip(
-            "On a dense scatter the colour is the reading, so the "
-            "perceptually uniform maps come first — a map with a bright band "
-            "in it invents a feature in a flat distribution.")
+            "Colour map used for dense scatter plots. Perceptually uniform "
+            "maps are listed first because nonuniform brightness can create "
+            "apparent structure in a uniform distribution.")
         self._cmap.currentTextChanged.connect(
             lambda v: self._change(colour_map=v))
         form.addRow("Colour map", self._cmap)
@@ -324,10 +324,9 @@ class GateSettingsDialog(QDialog):
         self._resolution.addItems(RESOLUTION_MODES)
         self._resolution.setCurrentText(self._settings.resolution_mode)
         self._resolution.setToolTip(
-            "How the cloud is drawn once there are more objects than pixels. "
-            "Binning first (hexbin, histogram, density) is what lets a very "
-            "large table draw at all, and shows where the objects actually "
-            "are — overplotted points hide their own density.")
+            "Rendering method for datasets with more objects than available "
+            "pixels. Hexagonal, histogram and density binning preserve local "
+            "object density that would be obscured by overplotted points.")
         self._resolution.currentTextChanged.connect(
             lambda v: self._change(resolution_mode=v))
         form.addRow("Data resolution", self._resolution)
@@ -336,8 +335,8 @@ class GateSettingsDialog(QDialog):
         self._bins.setRange(10, 2000)
         self._bins.setValue(self._settings.bins)
         self._bins.setToolTip(
-            "Bins per axis when binning. In data terms, not pixels, so the "
-            "same setting means the same thing at any zoom.")
+            "Number of bins per data axis. This value is independent of "
+            "display resolution and zoom.")
         self._bins.valueChanged.connect(lambda v: self._change(bins=int(v)))
         form.addRow("Bins", self._bins)
 
@@ -354,8 +353,8 @@ class GateSettingsDialog(QDialog):
         self._opacity.setSingleStep(0.05)
         self._opacity.setValue(self._settings.point_opacity)
         self._opacity.setToolTip(
-            "Below 1 the overlap itself shows density, which is the cheapest "
-            "way to read a crowded scatter.")
+            "Point opacity. Values below 1 reveal local density through "
+            "overlapping marks.")
         self._opacity.valueChanged.connect(
             lambda v: self._change(point_opacity=float(v)))
         form.addRow("Point opacity", self._opacity)
@@ -365,10 +364,9 @@ class GateSettingsDialog(QDialog):
         self._colour_by.addItems(COLOUR_BY)
         self._colour_by.setCurrentText(self._settings.colour_by)
         self._colour_by.setToolTip(
-            "What the colour map is applied to. 'density' colours each point "
-            "by how crowded it is, which is the reading a scatter of a "
-            "million objects actually carries; 'flat' is one colour. Any "
-            "column name also works.")
+            "Variable mapped to colour. 'density' represents local point "
+            "density, 'flat' uses one colour, and a column name maps values "
+            "from that column.")
         self._colour_by.currentTextChanged.connect(
             lambda v: self._change(colour_by=v))
         form.addRow("Colour by", self._colour_by)

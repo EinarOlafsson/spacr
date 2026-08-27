@@ -21,9 +21,9 @@ plate-to-classification workflow that runs on top of PyTorch,
 Cellpose, scikit-image, and scipy.
 
 It is built for cell biologists running pooled or arrayed CRISPR screens
-who need per-cell measurements out of plate images. The GUI route needs no
-programming; the same steps are available as a scripted pipeline when a
-screen outgrows one desktop.
+who need per-cell measurements from plate images. The GUI route needs no
+programming; the same processing steps are available through the Python API
+for scripted and reproducible workflows.
 
 The GUI groups its applications into six categories: *Core* for the
 segment-measure-classify pipeline, *Data* for import, inspection and hand
@@ -60,8 +60,7 @@ in rather than gone. Home lists whatever the running build offers.
       :link: api/index
       :link-type: doc
 
-      Supported workflow entry points, with the complete module reference
-      available for contributors.
+      Supported workflow entry points and the complete module reference.
 
    .. grid-item-card:: 🎬 Video tutorials
       :link: tutorials/

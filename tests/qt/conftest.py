@@ -6,8 +6,8 @@ pytest-qt is not installed so the rest of the suite still runs.
 from __future__ import annotations
 
 import gc as _gc
-from importlib.util import find_spec
 import os
+from importlib.util import find_spec
 
 import pytest
 
@@ -226,6 +226,24 @@ def _restore_app_registry():
 
 
 @pytest.fixture(autouse=True)
+def _sandbox_remote_execution_state(monkeypatch, tmp_path):
+    """Keep Qt screen smoke tests out of the operator's persistent state.
+
+    Several screens construct the distributed-execution profile store during
+    ordinary navigation.  Without an explicit test directory, those smoke
+    tests try to lock ``~/.local/state/spacr/remote/profiles.json``.  That is
+    both an unintended write to user state and unreliable in read-only CI
+    homes.  The production resolver already exposes this override precisely
+    for tests and managed deployments, so apply it consistently to every Qt
+    test rather than relying on individual screen tests to anticipate which
+    constructors touch the store.
+    """
+    monkeypatch.setenv(
+        "SPACR_REMOTE_STATE_DIR", str(tmp_path / "remote-execution-state")
+    )
+
+
+@pytest.fixture(autouse=True)
 def _restore_console_level_policy():
     """Put the in-app console's level gate back the way the test found it.
 
@@ -362,7 +380,7 @@ def _skip_first_launch_tour():
     that break test isolation. Mark it "seen" for every Qt test so
     MainWindow constructs without the overlay."""
     try:
-        from spacr.qt.first_run import mark_tour_seen, reset_tour_state
+        from spacr.qt.first_run import mark_tour_seen
         mark_tour_seen()
         yield
         # Leave the "seen" flag alone — tests that specifically want

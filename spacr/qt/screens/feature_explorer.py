@@ -272,7 +272,7 @@ class FeatureExplorerScreen(QWidget):
             self._source.setText("Nothing ranked yet.")
             return None
         frame.to_csv(path, index=False)
-        self._source.setText(f"ranking written to {os.path.basename(path)}")
+        self._source.setText(f"Ranking written to {os.path.basename(path)}")
         return path
 
     @property

@@ -641,6 +641,14 @@ def test_notebook_overviews_use_scientific_section_labels(path):
     assert "**What you get.**" not in overview
 
 
+def test_consolidated_notebooks_name_the_current_desktop_route():
+    tool = _tool()
+    for name, route in tool.NOTEBOOK_DESKTOP_ROUTES.items():
+        notebook = json.loads((NOTEBOOKS / name).read_text())
+        overview = "".join(notebook["cells"][0]["source"])
+        assert f"**Desktop route.** {route}" in overview
+
+
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
 def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
         path):
@@ -659,6 +667,11 @@ def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
         "game-changing",
         "seamlessly",
         "delve into",
+        "one object's opinion",
+        "chattier",
+        "faster and blinder",
+        "lucky split was flattering",
+        "slam probabilities",
     )
     assert not [phrase for phrase in banned
                 if phrase.casefold() in markdown.casefold()]

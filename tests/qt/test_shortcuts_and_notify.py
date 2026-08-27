@@ -1,8 +1,6 @@
 """Tests for keyboard shortcuts, OS notify, screen-reader labels."""
 from __future__ import annotations
 
-import pytest
-
 
 def test_shortcuts_spec_covers_every_binding():
     """Every ShortcutSpec must have keys + a label + a category."""
@@ -13,19 +11,19 @@ def test_shortcuts_spec_covers_every_binding():
 
 
 def test_shortcuts_install_adds_qshortcuts(qtbot, qt_theme_applied):
-    from spacr.qt.app import MainWindow
-    from spacr.qt import shortcuts
     from PySide6.QtGui import QShortcut
+
+    from spacr.qt import shortcuts
+    from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
     # install() ran in MainWindow.__init__; count QShortcut children.
     scs = win.findChildren(QShortcut)
     # At least Ctrl+H + Ctrl+1..9 + Ctrl+K + Ctrl+, + Ctrl+/ + F1 + ?
     #
-    # `installed()`, NOT `SHORTCUTS`: `Ctrl+B` is window-wide and is bound on
-    # the menu action that opens the full app list, so it is on the map and
-    # is not install()'s to create. Counting it here called a wired key
-    # missing.
+    # `installed()`, NOT `SHORTCUTS`: `Ctrl+B` and `F11` are window-wide but
+    # are bound on window actions, so they are on the map and are not
+    # install()'s to create.
     assert len(scs) >= len(shortcuts.installed())
 
 
@@ -93,8 +91,9 @@ def test_htile_has_accessibility_labels(qt_theme_applied):
 
 
 def test_sidebar_buttons_have_accessible_names(qtbot, qt_theme_applied):
-    from spacr.qt.app import MainWindow
     from PySide6.QtWidgets import QPushButton
+
+    from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
     # At least the app buttons on the sidebar should carry accessible
@@ -115,11 +114,16 @@ def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
     no nested event loop, because nothing blocks — and closing it is the
     keystroke that a user would actually press.
     """
-    from spacr.qt.shortcuts import (
-        ShortcutOverlay, mapped, native, show_cheat_sheet,
-    )
-    from spacr.qt.app import MainWindow
     from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.app import MainWindow
+    from spacr.qt.shortcuts import (
+        ShortcutOverlay,
+        discover,
+        mapped,
+        native,
+        show_cheat_sheet,
+    )
 
     win = MainWindow()
     qtbot.addWidget(win)
@@ -139,7 +143,10 @@ def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
     # keys too -- the Make Masks tools, the Annotate navigation -- and they
     # are declared in `SCREEN_SHORTCUTS` because a screen binds them and the
     # map has to name them whether that screen is built or not.
-    specs = mapped()
+    # The card also includes window actions discovered at runtime (for
+    # example the platform's Quit action), exactly as the implementation
+    # promises. Count and inspect the same declared-plus-live inventory.
+    specs = mapped() + discover(win)
     categories = {s.category for s in specs}
     assert len(rows) == 2 * len(specs) + len(categories) + 2
     assert all(r.strip() for r in rows)

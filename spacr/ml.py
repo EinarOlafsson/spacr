@@ -9976,18 +9976,16 @@ def ml_analysis(
         labels for ``control_center``.
     :param batch_control_values: negative/reference control value(s).
     :param batch_min_samples: minimum rows or controls per plate.
-    :param batch_covariate_column: metadata column naming the BIOLOGY the
-        correction must protect -- treatment, cell line, timepoint. Only
-        ``combat`` uses it, and for combat it is not optional: the covariate
-        coefficients are kept while the batch ones are subtracted, so a
-        contrast left out of the design lands in the batch term and is
-        removed along with it. Omitting it is how a real effect gets
-        "corrected" away.
-    :param batch_combat_mean_only: adjust each batch's MEAN and leave its
-        variance alone. Use it when a plate is shifted but not differently
-        scaled, or when a batch has too few rows for a stable variance
-        estimate -- the shrunken scale term is the part that goes wrong on
-        small batches. Default False, which adjusts both.
+    :param batch_covariate_column: Metadata column containing a biological
+        covariate that ComBat must preserve, such as treatment, cell line, or
+        time point. Required when ``batch_correction="combat"``; its
+        coefficients remain in the corrected data while estimated batch
+        effects are removed.
+    :param batch_combat_mean_only: If ``True``, ComBat adjusts batch means
+        without scaling batch variances. This can be appropriate when batches
+        differ primarily by location or contain too few observations for
+        stable variance estimates. Default ``False`` adjusts both means and
+        variances.
     :param batch_missing_control: ``error`` or ``skip`` for missing controls.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
@@ -10683,23 +10681,21 @@ def _shap_explainers(model, X_train):
 
 
 def shap_analysis(model, X_train, X_test):
-    """Return a SHAP summary BEESWARM for ``model`` explaining ``X_test``.
+    """Build a SHAP summary beeswarm for ``X_test``.
 
-    Drawn in pyqtgraph rather than by ``shap.summary_plot``, which makes its
-    own matplotlib figure and so cannot be given a scene. This was the last
-    figure on the explanation path keeping a second renderer alive, and the
-    cost of two renderers is that one screen produces two pictures of one
-    number from two code paths that can disagree.
+    The beeswarm is rendered with pyqtgraph so it can be embedded in the same
+    scene-based figure workflow as other model-explanation plots.
 
-    THE RETURN IS A LIVE PLOT, not a file and not a matplotlib figure. The
-    caller decides where it goes, the same as before; :func:`write_plot` is
-    what turns it into a file in the user's chosen format.
+    The function returns a live
+    :class:`~spacr.qt.widgets.fast_plots.FastPlot`; it neither writes a file
+    nor returns a matplotlib figure. Pass the result to :func:`write_plot` to
+    export it in the configured figure format.
 
     :param model: Fitted estimator compatible with ``shap.Explainer``.
     :param X_train: Training features used to seed the explainer.
     :param X_test: Test features to explain.
-    :returns: a ``FastPlot`` holding the beeswarm, or None when there is no
-        Qt to render under -- which is said out loud rather than logged.
+    :returns: A ``FastPlot`` holding the beeswarm, or ``None`` when Qt is
+        unavailable or the attribution matrix cannot be plotted.
     """
     import shap
 

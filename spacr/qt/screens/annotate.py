@@ -2102,10 +2102,9 @@ class AnnotateScreen(QWidget):
         self._btn_coverage.setIcon(iconset.icon("chart"))
         self._btn_coverage.setCursor(Qt.PointingHandCursor)
         self._btn_coverage.setToolTip(
-            "Where the annotations actually came from: how many per class, "
-            "per well, per plate, and per active-learning round. '200 cells "
-            "labelled' means nothing until you know that 190 of them were "
-            "one well."
+            "Summarize annotation provenance by class, well, plate and "
+            "active-learning round. This identifies label sets concentrated "
+            "within a small number of wells or plates."
         )
         self._btn_coverage.clicked.connect(self._on_coverage)
         row.addWidget(self._btn_coverage)

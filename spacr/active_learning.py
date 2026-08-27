@@ -1353,14 +1353,13 @@ def _concentration(counts: "pd.Series") -> Dict[str, Any]:
 def annotation_coverage(db_path: str, annotation_column: str = "annotate",
                         table: str = PNG_TABLE, key: str = PNG_KEY,
                         image_type: Optional[str] = None) -> pd.DataFrame:
-    """Where the annotations actually came from: per class, per well, per plate.
+    """Summarize annotation coverage by class, well, plate and acquisition.
 
-    "I labelled 200 cells" is not a description of a training set. *Which*
-    200 decides what the classifier learns, and the failure this function
-    exists to make visible is the one that never announces itself: 190 of the
-    200 came from a single well, so the model learned that well's staining,
-    focus and confluency rather than the biology, and every held-out number
-    drawn from a random split of those objects is optimistic.
+    The distribution of labels across experimental units determines whether
+    a classifier can generalize beyond acquisition-specific staining, focus
+    and confluency. A label set concentrated within one well can therefore
+    yield optimistic performance under an object-level random split. This
+    function exposes such concentration before model training or evaluation.
 
     Reads ``png_list`` read-only, plus :data:`ROUND_TABLE` when it is there,
     so labels can also be attributed to the active-learning round that
@@ -1606,29 +1605,20 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     display, and so a second consumer does not have to reimplement the
     ``'o5'``-versus-``5`` trap in :func:`_object_label`.
 
-    Order is preserved because it is the whole point of a routed request:
-    "worst errors first" survives the trip only if this does not re-sort into
-    table order. Keys with no crop are dropped — a request may name objects a
-    crop table does not carry, and that is a shorter result, not an error.
+    Input order is preserved so priority rankings such as ``worst errors
+    first`` remain unchanged. Keys without a corresponding crop are omitted.
 
-    **A typed key resolves to that object's own crop.** ``png_list`` records
-    which object type a crop is by which of its ``<type>_id`` columns holds
-    the label (:data:`PNG_ID_COLUMN_TYPES`), so a nucleus 1 and a pathogen 1
-    in the same field are two crops. They used to be one: both keyed on
-    ``plate_r1_c1_f1_1``, this function kept the first, and which of the two
-    you opened depended on the row order of the table. An *untyped* key still
-    keeps the first — it names an object without saying which, which is what
-    it has always meant — and a typed key against a crop table that cannot say
-    what its rows are falls back to the untyped one rather than resolving
-    nothing.
+    Typed keys distinguish objects with the same numeric label in one field.
+    ``png_list`` identifies the object type through the populated
+    ``<type>_id`` column (:data:`PNG_ID_COLUMN_TYPES`), so nucleus 1 and
+    pathogen 1 resolve independently. An untyped key selects the first matching
+    crop. If the table does not expose object-type columns, typed lookup falls
+    back to the corresponding untyped key.
 
-    **A key whose metadata needed escaping still resolves.**
-    :func:`spacr.selection.object_keys` percent-escapes a component carrying
-    the separator, so a ``fieldID`` of ``'f_1'`` arrives as ``'f%5F1'``. The
-    lookup carries both that spelling and the raw one, because a bare join
-    over the crop table's own columns produces the raw one and the two used
-    to miss each other — silently, so a routed selection opened fewer crops
-    than the user picked and said nothing about the ones it dropped.
+    Escaped metadata components are resolved in both encoded and raw form.
+    For example, :func:`spacr.selection.object_keys` represents a ``fieldID``
+    of ``'f_1'`` as ``'f%5F1'``, while a key assembled from crop-table columns
+    contains the raw underscore.
 
     :param db_path: path to ``measurements.db``.
     :param keys: object keys, typed or not. A ``png_path``, a ``prcfo`` or a

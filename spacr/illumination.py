@@ -1495,7 +1495,7 @@ _TOOLTIPS = {
         '(float) - Camera dark offset in raw counts, subtracted before the '
         'gain is applied. Leave at zero unless you measured it from a dark '
         'frame: it is not identifiable from the images themselves, and '
-        'guessing it subtracts real background signal. Default 0.0.'),
+        'an estimated value can subtract genuine background signal. Default 0.0.'),
     'illumination_on_missing': (
         "(str) - What to do with a field whose plate the model does not "
         "cover: 'error' fails that field and stamps the run incomplete, "
@@ -1505,7 +1505,8 @@ _TOOLTIPS = {
         '(bool) - Write the QC figure beside the model: the estimated field '
         'as an image, the intensity-versus-position trend before and after, '
         'and the percentage of the position bias the correction removed. '
-        'Cheap, and the only way to see that it worked. Default True.'),
+        'The figure has low computational cost and provides direct '
+        'verification of the correction. Default True.'),
 }
 
 _TYPES = {

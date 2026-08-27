@@ -39,8 +39,7 @@
 
 .. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
@@ -57,9 +56,9 @@ spaCR
 
 **CRISPR 스크리닝의 공간 표현형 분석.**
 
-spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 각 세포를 전달받은 gRNA와 연결하고 어떤 유전자가 표현형을 바꾸었는지 보고합니다. 플레이트 영상과 FASTQ 리드를 입력하면 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 크기와 우선순위가 지정된 후보 목록이 출력됩니다.
+spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다.
 
-영상 기반 풀드 CRISPR 스크리닝에서는 이것이 전체 작업 흐름입니다. 고함량 현미경 데이터만 있고 스크리닝 실험은 없는 경우에도 분할, 측정, 주석 및 분류 단계를 독립적으로 실행할 수 있습니다.
+영상 기반 풀드 CRISPR 스크리닝에서 spaCR는 영상 분할부터 히트 우선순위 지정까지의 작업 흐름을 제공합니다. 시퀀싱 기반 스크리닝이 없는 고함량 현미경 연구에서는 분할, 측정, 주석, 분류 모듈을 독립적으로 사용할 수 있습니다.
 
 영상, 마스크, 이미지 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자는 하나의 SQLite 프로젝트에 저장되므로 결과의 값을 그 출처 객체까지 추적할 수 있습니다.
 
@@ -107,7 +106,7 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
    :width: 2.5%
    :align: middle
 
-**Data**
+**데이터**
 
 |App_align|\ |App_convert|\ |App_foreign|\ |App_external_masks|\ |App_queue|
 
@@ -115,13 +114,13 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
 
 |App_project_browser|
 
-**Results & QC**
+**결과 및 품질 관리**
 
 |App_plate_view|\ |App_umap|\ |App_train_compare|\ |App_run_history|\ |App_report|
 
 |App_run_compare|\ |App_investigate_hit|\ |App_control_chart|
 
-**Explore**
+**탐색**
 
 |App_pipeline_graph|\ |App_profiler|\ |App_qc_dashboard|\ |App_lineage|\ |App_layer_viewer|
 
@@ -129,11 +128,11 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
 
 |App_feature_explorer|\ |App_outliers|
 
-**Assays**
+**분석**
 
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
-**Design**
+**설계**
 
 |App_experiment_design|\ |App_power|\ |App_dose_response|
 
@@ -337,7 +336,7 @@ spaCR 설치
 -------------
 
 데스크톱 애플리케이션
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 데스크톱 설치에는 개인 Python 환경이 포함되어 있으므로 콘다와 기존 Python 설치가 필요하지 않습니다.
 
@@ -373,9 +372,9 @@ Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행�
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-macOS에서는 ``.pkg`` 파일을 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 다음 항목을 선택하세요: **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**.
+macOS에서는 ``.pkg``\ 를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**\ 를 선택하세요.
 
-업데이트, 제거, 오프라인 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
+업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
 
 Python 설치
 ~~~~~~~~~~~~~~~~~~~
@@ -390,7 +389,7 @@ Python 3.12은 선택적 과학 패키지의 가장 광범위한 선택을 가�
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Python 3.14.1은 지원하지 않습니다. CUDA 작업 흐름에는 Linux를 권장하며 macOS와 Windows도 지원합니다.
+spaCR는 Python **3.9~3.14** 버전을 지원하지만 torchvision이 제외하는 Python 3.14.1은 지원하지 않습니다. CUDA 워크플로에는 Linux를 권장하며 macOS와 Windows도 지원합니다.
 
 서버, 클러스터 또는 CI 실행 환경에서는 Qt를 제외합니다:
 
@@ -399,7 +398,7 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
    python -m pip install spacr
    spacr-run --list
 
-선택적 통합 기능은 별도 extras로 설치합니다: ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]``, ``spacr[czi,nd2,lif]``. 전체 extras 및 Python 버전 호환성 표는 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
+선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\ 과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <../../source/installer_guide.rst>`_\ 를 참조하십시오.
 
 명령줄 진입점
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -415,13 +414,15 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-문제를 해결할 때 환경 변수 ``SPACR_LOG_LEVEL=DEBUG`` 값을 설정합니다. 순환 로그 파일의 경로는 ``~/.spacr/logs/spacr.log`` 입니다.
+문제를 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``\ 로 설정하세요. 순환 로그는 ``~/.spacr/logs/spacr.log``\ 에 기록됩니다.
+
+``spacr-run --list``\ 는 그래픽 인터페이스 없이 실행할 수 있는 명령줄 진입점이 있는 모듈을 나열합니다. GUI에서만 제공되는 주석, 큐레이션, 비교 및 탐색 모듈은 목록에서 제외됩니다.
 
 
 할 수 있는 일
 ---------------
 
-대부분의 스크린은 6 개의 모듈을 따릅니다 :
+기본 워크플로는 6개 모듈로 구성됩니다:
 
 - **Mask** Cellpose로 세포, 핵, 병원체 및 세포소기관을 분할합니다.
 - **Measure** 형태, 강도, 텍스처, 공간 및 공위치 특성과 객체 크롭을 SQLite에 저장합니다.
@@ -430,7 +431,28 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
 - **Map Barcodes** FASTQ 리드를 웰과 gRNA에 매핑하고 풍부도, 충돌 및 커버리지 QC를 제공합니다.
 - **Regression** 연속형, 비율형 및 계수형 반응에 적합한 모델 계열로 가이드, 유전자, 조건 및 대조군 효과를 추정합니다.
 
-같은 프로젝트에서 플레이트를 설계하고, 검정력을 추정하고, 배치 효과를 보정하고, 분할 품질을 검사하고, 연결된 플롯과 이미지 크롭을 탐색하고, AnnData를 내보내고, 중단된 작업을 재개하고, 각 결과에 사용된 설정을 기록할 수도 있습니다.
+동일한 프로젝트에서 플레이트 설계, 검정력 추정, 배치 효과 보정, 세그멘테이션 품질 점검, 연결된 플롯과 크롭 탐색, AnnData 내보내기, 중단된 작업 재개 및 각 결과에 사용된 설정 기록도 수행할 수 있습니다.
+
+호스트 화면에서 사용할 수 있는 모듈
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+20개 모듈은 별도의 Home 타일로 표시되지 않고 관련 호스트 화면에 통합되어 있습니다. 각 모듈은 호스트 화면의 상단 헤더에서 열리며 활성 프로젝트를 사용합니다. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP 및 Make Masks에서 이러한 통합 모듈을 제공합니다. 도움말과 API 문서는 계속 사용할 수 있으며, 파이프라인 진입점이 있는 모듈은 그래픽 인터페이스 없이도 실행할 수 있습니다. `기능 안내서 <../../source/features.rst>`_\ 에는 각 통합 모듈과 해당 호스트 화면이 나열되어 있습니다.
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks는 **Data** 아래에 있으며 세그멘테이션 마스크를 수동으로 수정하는 기능을 제공합니다. 상단 헤더에서 Cellpose 워크플로에도 접근할 수 있습니다. 캔버스에는 아홉 가지 도구가 있습니다: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** 및 **Recrop**. Draw는 자유 형식의 닫힌 윤곽선으로 채워진 레이블 하나를 생성합니다. Divide는 사용자가 지정한 선을 따라 합쳐진 객체를 분리하면서 다른 객체 레이블은 모두 보존합니다.
+
+Recrop은 큐레이션을 위해 준비된 여러 객체 이미지에서 단일 객체 필드를 추출합니다. 한 객체 주위에 경계 상자를 지정하면 대응하는 이미지 및 마스크 영역을 새 필드로 기록하고, 해당 필드를 현재 필드 다음에 배치하며, 원래의 다중 객체 필드를 큐레이션 대기열에서 제거합니다. Recrop은 레이블 픽셀을 편집하는 대신 활성 필드를 바꿉니다.
+
+Make Masks에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력인 **세포 확률 맵**\ 과 **흐름장**\ 이 표시됩니다. 마스크는 확률 맵의 임계값으로 정의되며, 흐름 일관성 검사는 계산된 흐름이 예측된 흐름장과 다른 객체를 제외할 수 있습니다. 잘못되거나 불완전한 마스크를 평가할 때 이 출력들을 확인하여 낮은 세포 확률과 일관되지 않은 흐름을 구분하십시오.
+
+객체 및 설정
+~~~~~~~~~~~~~~~~~~~~
+
+spaCR는 세포, 핵 및 병원체 객체, 이 객체들의 마스크에서 파생되는 세포질, 그리고 0개에서 26개까지의 세포소기관 슬롯을 지원합니다. 각 세포소기관 슬롯에는 독립적인 채널, 직경, 형태 프리셋 및 검출 방법이 있습니다.
+
+설정 패널은 적용되는 경우에만 컨트롤을 표시합니다. 설정된 개수를 초과하는 세포소기관 슬롯은 숨겨지고, 채널이 지정되지 않은 객체는 실행에서 제외되며, 형태별 컨트롤은 선택한 방법에 해당할 때만 표시됩니다. **3D**와 **Time** 스위치는 차원을 정의합니다. ``z_stack``\ 은 체적 설정을 활성화하고, ``timelapse``\ 는 추적 설정을 활성화하며, 두 스위치를 모두 활성화하면 4차원 설정이 표시됩니다.
 
 다음 페이지를 선택하십시오 당신이 원하는 것에 따라 :
 
@@ -451,12 +473,10 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
 시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 및 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 데이터
---------
+------
 
 참조 데이터세트
 ~~~~~~~~~~~~~~~~~~
-
-참조 데이터는 다음 아이콘에서 열 수 있습니다:
 
 |DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
@@ -481,27 +501,40 @@ spaCR는 Python **3.9~3.14**를 지원하지만 torchvision이 제외하는 Pyth
    :alt: bioRxiv 사전 인쇄본 열기
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
+성능 진단
+----------------------
+
+하드웨어 보고서를 생성하여 성능 관련 이슈에 첨부하세요::
+
+    python tools/spacr_hardware_report.py
+
+이 명령은 보고서를 출력하고 ``~/.spacr/reports`` 아래에 사본을 저장하며, 마지막 줄에 저장된 경로를 표시합니다. ``--quick``\ 은 시간이 오래 걸리는 벤치마크를 생략하고, ``--out PATH``\ 는 다른 출력 위치를 지정합니다.
+
+이 보고서는 프로젝트를 열거나 프로젝트 데이터를 읽지 않습니다. 가져오기 및 수치 라이브러리 실행 시간, 디스플레이 배율, 활성 환경 설정, 기본 창과 모듈 화면의 구성, 애니메이션 성능을 기록합니다. 보고서 파일이 생성되는 유일한 출력입니다.
+
+또한 Apple Silicon에서 실행되는 x86_64 Python 빌드와 같은 프로세서 아키텍처 에뮬레이션과 NumPy가 사용하는 BLAS 구현을 확인합니다. 어느 쪽이든 성능에 상당한 영향을 줄 수 있습니다.
+
 기여 및 지원
 ------------------------
 
-오류 보고와 범위가 명확한 기능 요청은 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_에서 접수합니다. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하세요. ``spacr-doctor``가 이 정보의 대부분을 자동으로 수집합니다.
+버그 보고와 범위가 명확한 기능 요청은 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_\ 를 통해 제출하세요. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하십시오. ``spacr-doctor``\ 가 이 정보의 대부분을 수집합니다. 성능 문제를 보고할 때는 하드웨어 보고서도 포함하십시오.
 
 라이선스
 ~~~~~~~~~
 
-현재 개발 브랜치의 소스는 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_에 따라 공개됩니다. 상업적 사용에는 저작권자의 별도 라이선스가 필요합니다. spaCR 1.4.9.9까지의 릴리스는 해당 릴리스와 함께 제공된 MIT License에 따라 계속 사용할 수 있습니다.
+현재 개발 브랜치의 소스는 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_\ 에 따라 공개됩니다. 상업적 사용에는 저작권자의 별도 라이선스가 필요합니다. spaCR 1.4.9.9까지의 릴리스는 해당 릴리스와 함께 제공된 MIT License에 따라 계속 사용할 수 있습니다.
 
 튜토리얼
 ~~~~~~~~~
 
-`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_에는 설치 및 각 애플리케이션 작업 흐름을 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.
+`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_\ 에는 설치 및 각 애플리케이션 워크플로를 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.
 
 spaCR 인용
 ~~~~~~~~~~~~
 
 spaCR가 연구에 기여했다면 다음을 인용해 주세요:
 
-Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii* 기생충의 ESCRT 기능 탈취 조절 인자로 규명합니다.
+Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*\ 의 ESCRT 기능 탈취 조절 인자로 규명합니다.
 
 `BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343317>`_
 

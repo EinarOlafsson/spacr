@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "regression_qc",
-      "source_sha256": "45c1572d3313836cae4e5dffc5d04b13d7ab1de6aaa76a7893634f56003762fa",
-      "source": "Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
-      "translation": "रिग्रेशन QC सूट—विचरण समरूपता, अवशेष, डिज़ाइन, प्रभाव और कैलिब्रेशन पैनल—को <res_folder>/regression_qc/ में अलग-अलग आकृतियों, एक संयुक्त PDF और एक टेक्स्ट रिपोर्ट के रूप में लिखें। प्रत्येक फिट में लगभग 5.8 सेकंड लगते हैं और 19 फ़ाइलें बनती हैं: एक विश्लेषण के लिए यह उचित है, इसलिए यह डिफ़ॉल्ट रूप से चालू रहता है। स्वीप इसे अपने आप बंद कर देता है, क्योंकि सौ ट्रायल में दस मिनट और दो हज़ार ऐसी फ़ाइलें बनेंगी जिन्हें कोई नहीं खोलता; किसी एक ट्रायल को फिर खोलकर उसके डायग्नोस्टिक्स वापस पाएँ। यह हर regression_type पर लागू होता है, क्योंकि किसी भी मॉडल का विनिर्देशन गलत हो सकता है। डिफ़ॉल्ट True है।"
+      "source_sha256": "95e9e6c3c8ae783db6a9395f32b3fd320174cb9b18f06f9418f00cb7a85c8262",
+      "source": "Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
+      "translation": "विचरण समरूपता, अवशेष, डिज़ाइन, प्रभाव और कैलिब्रेशन डायग्नोस्टिक्स को <res_folder>/regression_qc/ में आकृतियों, एक संयुक्त PDF और एक टेक्स्ट रिपोर्ट के रूप में लिखें। एक फिट में लगभग 5.8 सेकंड लगते हैं और 19 फ़ाइलें बनती हैं, इसलिए यह अलग-अलग विश्लेषणों के लिए सक्रिय रहता है, लेकिन हजारों डायग्नोस्टिक फ़ाइलें बनने से रोकने के लिए पैरामीटर स्वीप के दौरान अपने आप निष्क्रिय हो जाता है। चुने गए ट्रायल को फिर खोलकर उसके डायग्नोस्टिक्स बनाए जा सकते हैं। यह प्रत्येक regression_type पर लागू होता है। डिफ़ॉल्ट True।"
     }
   ]
 }

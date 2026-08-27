@@ -24,6 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from tools.readme_i18n import localize_workflow_markup  # noqa: E402
+
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
 WORKFLOW_DIR = ICON_DIR / "workflow"
@@ -57,22 +59,6 @@ _IMAGE_SUBSTITUTION_RE = re.compile(
     r"(?m)^\.\. \|(?P<name>[^|\n]+)\| image::[^\n]*"
     r"(?:\n   [^\n]*)*(?:\n)?"
 )
-
-# Module names stay canonical so the tile, GUI and API title agree. Only the
-# accessibility action is localized. Keep this table aligned with
-# tools/build_documentation_i18n.py, which applies the same reviewed wording
-# when it rebuilds an entire translated README.
-LOCALIZED_ALT_TEMPLATES = {
-    "de": "API für {module} öffnen",
-    "es": "Abrir la API de {module}",
-    "fr": "Ouvrir l’API de {module}",
-    "hi": "{module} API खोलें",
-    "is": "Opna API-skjölin fyrir {module}",
-    "ko": "{module} API 열기",
-    "pt": "Abrir a API de {module}",
-    "sv": "Öppna API-dokumentationen för {module}",
-    "zh_CN": "打开 {module} API",
-}
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
 WORKFLOW_TILE = (13, 14, 16, 255)  # GUI dark-theme surface, #0D0E10
@@ -408,13 +394,13 @@ def _inline_image_row(names: list[str]) -> str:
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
-    import spacr.qt
+    from spacr.qt import register_self_registering_modules
     from spacr.qt.app import APPS
 
-    # This is the same registration pass run() performs before constructing
-    # MainWindow. Reading APPS without it documents only the eager startup
-    # rows and silently omits the lightweight self-registering screens.
-    spacr.qt.register_self_registering_modules()
+    # ``spacr.qt.run`` performs this registration immediately before launch.
+    # Documentation must describe the tiles users actually see after launch,
+    # not the smaller import-time snapshot of the registry.
+    register_self_registering_modules()
     return list(APPS)
 
 
@@ -665,19 +651,6 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def _workflow_alt_template(path: Path) -> str:
-    """Return the reviewed workflow accessibility template for ``path``."""
-    if path == ROOT / "README.rst":
-        return "Open the {module} API"
-    language = path.name.removeprefix("README.").removesuffix(".rst")
-    try:
-        return LOCALIZED_ALT_TEMPLATES[language]
-    except KeyError as exc:
-        raise ValueError(
-            f"{path} has no reviewed workflow alt-text template"
-        ) from exc
-
-
 def _remove_stale_app_assets(current_keys: set[str]) -> list[Path]:
     """Delete generated app tiles whose registry row no longer exists."""
     removed = []
@@ -687,6 +660,15 @@ def _remove_stale_app_assets(current_keys: set[str]) -> list[Path]:
                 path.unlink()
                 removed.append(path)
     return removed
+
+
+def _workflow_markup_for_readme(path: Path, icon_prefix: str) -> str:
+    """Return canonical or reviewed localized markup for one README."""
+    markup = _readme_workflow(icon_prefix)
+    match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
+    if match:
+        return localize_workflow_markup(markup, match.group("language"))
+    return markup
 
 
 def main() -> int:
@@ -736,10 +718,7 @@ def main() -> int:
             else "spacr/resources/icons"
         )
         _replace_workflow_block(
-            readme,
-            _readme_workflow(
-                prefix, alt_template=_workflow_alt_template(readme)
-            ),
+            readme, _workflow_markup_for_readme(readme, prefix)
         )
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)

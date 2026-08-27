@@ -1886,7 +1886,7 @@ _TOOLTIPS = {
         "(str) - dtype of X. Default 'float32' - the scanpy convention and "
         "half the memory of float64."),
     "anndata_row_limit": (
-        '(int) - Hard cap on exported objects, applied after filtering. 0 means no cap. A cap, not a filter: the objects kept are simply the first N in table order. Default 0.'),
+        '(int) - Maximum number of objects exported after filtering. 0 disables the limit. When a limit is set, the first N objects in table order are retained. Default 0.'),
     "anndata_compute_umap": (
         "(bool) - Compute obsm['X_umap'] during the export, through the "
         "same reducer the UMAP app uses. Off by default: it costs minutes "

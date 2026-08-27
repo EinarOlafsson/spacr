@@ -5,23 +5,23 @@
     {
       "table": "setting_tooltips",
       "key": "cell_plate_metadata",
-      "source_sha256": "8bec5dd197cc83031e4d363d2482cce0706b417445b35d304dc94564a72bf85e",
-      "source": "Wells occupied by each entry of cell_types, one inner list per cell type in the same order, e.g. [['c2','c3'],['c4']]. Every identifier must start with 'c' (column) or 'r' (row); anything else is SILENTLY skipped and those wells get no host_cells label. An unlabelled well is not lost -- 'condition' joins whichever labels do exist -- so a typo here quietly changes what is being compared rather than raising. Default None.",
-      "translation": "cell_types की हर प्रविष्टि वाले microplate sample positions; हर cell type के लिए उसी क्रम में एक inner list, जैसे [['c2','c3'],['c4']]। हर identifier को column के लिए 'c' या row के लिए 'r' से शुरू होना चाहिए; अन्य मान चुपचाप छोड़ दिए जाते हैं और उन positions को host_cells label नहीं मिलता। बिना label वाला position खोता नहीं है—'condition' मौजूद labels को जोड़ता है—इसलिए यहाँ typo अपवाद उठाने के बजाय चुपचाप तुलना बदल देता है। डिफ़ॉल्ट None।"
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "cell_types की प्रत्येक प्रविष्टि वाले वेल, प्रत्येक cell type के लिए उसी क्रम में एक आंतरिक सूची के रूप में, जैसे [['c2','c3'],['c4']]। प्रत्येक पहचानकर्ता column के लिए 'c' या row के लिए 'r' से शुरू होना चाहिए; अमान्य पहचानकर्ता बिना अपवाद के छोड़ दिए जाते हैं और उन वेल को host_cells लेबल नहीं मिलता। क्योंकि 'condition' मौजूद लेबलों को जोड़ता है, टाइपिंग त्रुटि बिना त्रुटि उठाए तुलना बदल देती है। डिफ़ॉल्ट None।"
     },
     {
       "table": "setting_tooltips",
       "key": "dry_run",
-      "source_sha256": "3de69269a1c74b108e04df46de3cd80cd2306efaaa565c85e5c3e19cc37056c2",
-      "source": "Validate the settings against the data they point at, print what the run WOULD do, and stop before any compute. Checks that src exists and holds the expected files, that every channel and mask-plane index is inside the number of planes actually present, and that the models, barcode CSVs or measurements.db the run needs are on disk -- each problem printed with a suggested fix, then a plan of what would be segmented, measured and written where. Nothing is written, no model is loaded and the GPU is never touched, so a settings mistake costs seconds instead of a whole run. Default False.",
-      "translation": "Settings को उनके इंगित data से validate करें, run क्या करेगा यह print करें और compute से पहले रुकें। यह जाँचता है कि src मौजूद है और अपेक्षित files रखता है, हर channel और mask-plane index वास्तविक planes की संख्या के भीतर है, तथा आवश्यक models, barcode CSV या measurements.db disk पर हैं। हर समस्या के साथ सुझाया fix और कहाँ क्या segment, measure तथा write होगा इसका plan print होता है। कुछ लिखा नहीं जाता, model load नहीं होता और GPU छुआ नहीं जाता, इसलिए settings mistake की लागत पूरे run के बजाय कुछ seconds रहती है। डिफ़ॉल्ट False।"
+      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
+      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
+      "translation": "चुने गए डेटा के आधार पर सेटिंग्स की पुष्टि करें, नियोजित कार्रवाइयों की रिपोर्ट दें और गणना से पहले रुकें। यह जाँचता है कि src में अपेक्षित फ़ाइलें हैं, channel और mask-plane इंडेक्स मान्य हैं, तथा आवश्यक मॉडल, barcode CSV फ़ाइलें या measurements.db फ़ाइलें मौजूद हैं। हर समस्या को सुझाए गए सुधार के साथ रिपोर्ट किया जाता है, जिसके बाद नियोजित segmentation, measurement और output स्थानों का सारांश दिया जाता है। कोई output नहीं लिखा जाता और कोई मॉडल load नहीं होता। डिफ़ॉल्ट False।"
     },
     {
       "table": "setting_tooltips",
       "key": "focal_gamma",
-      "source_sha256": "a5e2c5f4ad4e92ed095e334197ad6ba921690986bc8e69badb25d82d5c0c3654",
-      "source": "Focusing exponent in the focal-loss weight (1 - p_t)^gamma, applied only when loss_type is focal. 0 reduces it to plain cross-entropy; raising it (typically 1-5) down-weights crops the model already classifies well and pushes gradient onto hard ones. Default 2.0. Increase when one class dominates and training stalls on easy examples.",
-      "translation": "focal-loss weight (1 - p_t)^gamma का focusing exponent, केवल loss_type focal होने पर लागू। 0 इसे साधारण cross-entropy बना देता है; इसे बढ़ाने पर (आमतौर पर 1–5) model द्वारा पहले से अच्छी तरह classify किए निकाले गए क्षेत्रों का weight घटता है और gradient कठिन examples पर जाता है। डिफ़ॉल्ट 2.0। जब एक class हावी हो और training आसान examples पर रुक जाए तब बढ़ाएँ।"
+      "source_sha256": "2fff273f006c1e8711f2c381c518bc97d47a87af99b465a188e99a80ecc7f434",
+      "source": "Focusing exponent in the focal-loss weight (1 - p_t)^gamma, applied only when loss_type is focal. 0 reduces it to cross-entropy; increasing it, typically within 1-5, reduces the contribution of confidently classified crops and increases the relative contribution of difficult samples. Default 2.0. Increase when class imbalance causes training to be dominated by easy examples.",
+      "translation": "focal-loss भार (1 - p_t)^gamma का focusing exponent, जो केवल loss_type के focal होने पर लागू होता है। 0 इसे cross-entropy में बदल देता है; इसे बढ़ाने पर, सामान्यतः 1-5 की सीमा में, उच्च विश्वास से वर्गीकृत image crops का योगदान घटता है और कठिन नमूनों का सापेक्ष योगदान बढ़ता है। डिफ़ॉल्ट 2.0। जब वर्ग असंतुलन के कारण प्रशिक्षण पर आसान उदाहरणों का प्रभुत्व हो, तब इसे बढ़ाएँ।"
     },
     {
       "table": "setting_tooltips",
@@ -33,16 +33,16 @@
     {
       "table": "setting_tooltips",
       "key": "image_size",
-      "source_sha256": "0621faf85074f7e28881f8abe5fc6e5ceb4f67e417646c8482affe52ed24eb5f",
-      "source": "Side length in pixels of the centre crop taken from each object PNG before it reaches the model. Images are cropped, not rescaled, so a larger value zero-pads and a smaller one throws away the object's edges. It is also the resolution the backbone is built at, which matters for ViT/Swin/inception. Match it to the crop size used when the dataset was generated. Default 224.",
-      "translation": "Model तक पहुँचने से पहले हर object PNG से लिए centre crop की side length, pixels में। Images rescale नहीं बल्कि crop होती हैं, इसलिए बड़ा value zero-padding करता है और छोटा value object के edges हटा देता है। Backbone भी इसी resolution पर बनता है, जो ViT/Swin/inception के लिए महत्वपूर्ण है। इसे dataset बनाते समय उपयोग किए crop size से मिलाएँ। डिफ़ॉल्ट 224।"
+      "source_sha256": "765cb33abbf1a7a5a509fe4d52d0f6deb0d397bba91db67c76aa129ab341bb8e",
+      "source": "Side length in pixels of the center crop taken from each object PNG before model input. Images are cropped rather than rescaled, so larger values add zero padding and smaller values discard peripheral object pixels. This value also defines the backbone input resolution and must match the crop size used to generate the dataset. Default 224.",
+      "translation": "मॉडल इनपुट से पहले प्रत्येक ऑब्जेक्ट PNG से लिए गए केंद्रीय क्रॉप की भुजा की लंबाई, पिक्सेल में। छवियों का आकार बदलने के बजाय उन्हें क्रॉप किया जाता है, इसलिए बड़े मान शून्य पैडिंग जोड़ते हैं और छोटे मान ऑब्जेक्ट के किनारे के पिक्सेल हटा देते हैं। यह मान बैकबोन का इनपुट रिज़ॉल्यूशन भी निर्धारित करता है और डेटासेट बनाते समय उपयोग किए गए क्रॉप आकार से मेल खाना चाहिए। डिफ़ॉल्ट 224।"
     },
     {
       "table": "setting_tooltips",
       "key": "plot_cluster_grids",
-      "source_sha256": "13ef07c73e4b53d356ca5ac9c4d5606c92dcdf4cbeb196e340988529f9c1fa21",
-      "source": "Render a second figure with one color-bordered panel per cluster, each filled with up to image_nr example crops from that cluster, and save it as <METHOD>_grid.pdf when save_figure is on. Switch it on when you want the montage; it is an extra figure emitted after the embedding, so with it on the grid, not the graph, is what the run finishes on. Ignored unless plot_images is True. Default False.",
-      "translation": "हर cluster के लिए color-bordered panel वाली दूसरी figure render करें; हर panel में उस cluster के अधिकतम image_nr example extracted image regions हों। save_figure on होने पर इसे <METHOD>_grid.pdf में save करें। Montage चाहिए तो इसे on करें; embedding के बाद यह अतिरिक्त figure निकलती है, इसलिए इसके on होने पर run graph नहीं बल्कि grid पर समाप्त होता है। plot_images True न हो तो इसे ignore किया जाता है। डिफ़ॉल्ट False।"
+      "source_sha256": "32a312cdd50470827a71fe1112a03f016d94c1450c3c7f87b351163582fe97bb",
+      "source": "Render a second figure with one colour-bordered panel per cluster, each containing up to image_nr example crops, and save it as <METHOD>_grid.pdf when save_figure is enabled. The cluster grid is emitted after the embedding and therefore becomes the final displayed figure. Ignored unless plot_images is True. Default False.",
+      "translation": "प्रत्येक cluster के लिए रंगीन सीमा वाला एक panel रखते हुए दूसरी figure बनाएँ; प्रत्येक panel में अधिकतम image_nr उदाहरण image crops होते हैं। save_figure सक्षम होने पर इसे <METHOD>_grid.pdf के रूप में सहेजा जाता है। cluster grid embedding के बाद बनती है, इसलिए यही अंतिम प्रदर्शित figure होती है। plot_images के True न होने पर यह सेटिंग अनदेखी की जाती है। डिफ़ॉल्ट False।"
     },
     {
       "table": "setting_tooltips",
@@ -54,9 +54,9 @@
     {
       "table": "setting_tooltips",
       "key": "png_type",
-      "source_sha256": "c3c6539b01296eb76c7fea36c2ffcc3b471dae760adcb2ee5e1f50ad472ce9b6",
-      "source": "Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
-      "translation": "Training dataset बनाते समय png_list table से लिया जाने वाला object extracted image region type; row तभी रखी जाती है जब उसके PNG path में यह substring हो। पूरे cells, nuclei, parasites, cytoplasm या organelles पर train करने के लिए क्रमशः 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' या 'organelle_png' उपयोग करें। इसे measure_crop द्वारा वास्तव में save किए crop_mode से match होना चाहिए। डिफ़ॉल्ट 'cell_png'।"
+      "source_sha256": "8eb5919bb877e225dc887b7b70a4a791bb8f6be0e9a7f84b36c51c61fc44a642",
+      "source": "Object crop type selected from the png_list table when building the training dataset; a row is retained only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode saved by measure_crop. Default 'cell_png'.",
+      "translation": "प्रशिक्षण डेटासेट बनाते समय png_list तालिका से चुनी जाने वाली ऑब्जेक्ट-क्रॉप किस्म; कोई पंक्ति तभी रखी जाती है जब उसके PNG पथ में यह उपस्ट्रिंग हो। पूरे सेल, नाभिक, परजीवी, साइटोप्लाज्म या कोशिकांग पर प्रशिक्षण के लिए क्रमशः 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' या 'organelle_png' का उपयोग करें। यह measure_crop द्वारा सहेजे गए crop_mode से मेल खाना चाहिए। डिफ़ॉल्ट 'cell_png'।"
     },
     {
       "table": "setting_tooltips",
@@ -89,9 +89,9 @@
     {
       "table": "setting_tooltips",
       "key": "z_projection",
-      "source_sha256": "e839a2d860b98aed39a346001446c03631f755594684bbd26e4b38caf2d77eeb",
-      "source": "How z is collapsed when z_segmentation_mode is 'project'. 'max' takes the brightest value down the stack and is the usual choice for sparse fluorescent objects; 'mean' averages, which suppresses noise but dilutes anything present in only a few planes; 'sum' preserves total signal so intensity stays proportional to how much of the object was in the stack; 'best_focus' discards every plane but the sharpest one, which beats a projection when only one plane is genuinely in focus and a MIP would smear the out-of-focus haze over it. Ignored by the other two modes. Default 'max'.",
-      "translation": "जब z_segmentation_mode 'project' हो तब z collapse करने का तरीका। 'max' stack का brightest value लेता है और sparse fluorescent objects के लिए सामान्य विकल्प है। 'mean' average लेकर noise दबाता है, पर कुछ ही layers में मौजूद object को dilute करता है। 'sum' total signal बचाता है, इसलिए intensity stack में object की मात्रा के proportional रहती है। 'best_focus' सबसे sharp layer छोड़कर बाकी हटाता है; जब केवल एक layer सच में focus हो और MIP out-of-focus haze फैला दे, तब यह projection से बेहतर है। अन्य दो modes में ignore। डिफ़ॉल्ट 'max'।"
+      "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
+      "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
+      "translation": "z_segmentation_mode के 'project' होने पर z को समेटने की विधि। 'max' stack में सबसे चमकीला मान रखता है और विरल fluorescent objects के लिए उपयुक्त है; 'mean' शोर घटाता है, लेकिन कुछ ही planes में मौजूद संकेत को कम करता है; 'sum' कुल संकेत बनाए रखता है; और 'best_focus' केवल सबसे स्पष्ट plane रखता है, जो तब उपयुक्त है जब एक plane focus में हो और maximum-intensity projection में पर्याप्त out-of-focus संकेत शामिल हो जाए। अन्य modes में यह सेटिंग अनदेखी की जाती है। डिफ़ॉल्ट 'max'।"
     }
   ]
 }

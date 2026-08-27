@@ -1,13 +1,13 @@
 """Coverage for reviewed module-summary localization."""
 
 import hashlib
+from importlib import import_module
 
 from spacr.qt.i18n_module_summaries import (
     MODULE_SUMMARIES,
     REVIEWED_SOURCE_HASHES,
     module_summary,
 )
-
 
 NON_ENGLISH = {"sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"}
 
@@ -43,24 +43,16 @@ def _english_summaries():
     ``KeyError`` on the folded keys and reading it with a ``.get`` would
     silently stop checking them.
 
-    TWO tables, not four. ``map_barcodes.FOLD_FALLBACK`` is the one
-    :func:`spacr.qt.screens.map_barcodes.fold_description` reads, so it
-    holds every folded key except Make Masks', which has a
-    ``fold_description`` of its own. Image UMAP and Regression each kept
-    a third and fourth copy that nothing consulted; their entries live
-    in the first table now.
+    ``folded_modules`` applies the same host-local fallback precedence as the
+    buttons themselves.  Reading selected historical fallback tables here
+    would bind reviewed prose to text that the current fold strip no longer
+    renders.
     """
     from spacr.qt.app import APPS
+    from spacr.qt.widgets.fold_strip import folded_modules
 
     sources = {key: summary for key, _name, summary, _section in APPS}
-    for module_name in ("map_barcodes", "make_masks"):
-        try:
-            module = __import__(
-                f"spacr.qt.screens.{module_name}", fromlist=["FOLD_FALLBACK"])
-        except Exception:                                    # noqa: BLE001
-            continue
-        for key, entry in getattr(module, "FOLD_FALLBACK", {}).items():
-            sources.setdefault(key, entry[1])
+    sources.update({key: entry[1] for key, entry in folded_modules().items()})
     return sources
 
 
@@ -78,8 +70,18 @@ def test_reviewed_summary_hashes_match_current_builtin_sources():
     )
 
 
+def test_external_catalogs_use_the_reviewed_module_summaries():
+    """Generated catalogs may not override reviewed scientific summaries."""
+    sources = _english_summaries()
+    for language, reviewed in MODULE_SUMMARIES.items():
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        for key, target in reviewed.items():
+            assert key in sources
+            assert catalog.MODULE_SUMMARIES[key] == target
+
+
 def test_module_summary_uses_reviewed_translation_and_safe_fallback():
-    english = "Generate UMAP embeddings with image glyphs"
+    english = "Visualize UMAP embeddings with image glyphs"
     assert module_summary("umap", english, "de") != english
     assert "UMAP" in module_summary("umap", english, "zh_CN")
     assert module_summary("future_plugin", "Plugin summary", "fr") == "Plugin summary"
@@ -115,6 +117,7 @@ def test_sidebar_module_help_retranslates_semantically(
     qtbot, qt_theme_applied,
 ):
     from PySide6.QtWidgets import QPushButton
+
     from spacr.qt.app import APPS, Sidebar
     from spacr.qt.i18n import retranslate_widget_tree
 

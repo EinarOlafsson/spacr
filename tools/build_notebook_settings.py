@@ -24,8 +24,9 @@ The generator supports three API shapes:
 ``signature``
     The function takes ordinary keyword arguments -- ``custom_volcano_plot``
     has nine, ``ml_analysis`` twenty-eight. Names and defaults come from
-    :func:`inspect.signature` and the tooltip is the function's own
-    ``Parameters`` section or ``:param`` field.
+    :func:`inspect.signature`. Descriptions come from the function's own
+    ``Parameters`` section or ``:param`` field, with the registered tooltip
+    table as a fallback when the docstring omits a parameter.
 
 ``source``
     The function takes a settings dict and NOTHING DECLARES ITS KEYS: it
@@ -361,6 +362,23 @@ _NOTEBOOK_OVERVIEWS = {
         "analysis.",
         "A volcano plot saved with the configured dimensions and file format.",
     ),
+}
+
+
+# Human-readable routes for workflows consolidated into a host module. These
+# are navigation aids; the notebooks continue to call the stable public
+# Python functions pinned in ``NOTEBOOK_SPECS`` below.
+NOTEBOOK_DESKTOP_ROUTES = {
+    "01b_generate_timelapse_masks.ipynb": "Mask → Timelapse",
+    "03_classify_computer_vision.ipynb": "Classify → Computer Vision",
+    "04_classify_machine_learning.ipynb": "Classify → Machine Learning",
+    "08_train_cellpose.ipynb": "Make Masks → Cellpose Workbench → Train",
+    "09_apply_cellpose.ipynb": "Make Masks → Cellpose Workbench → Apply",
+    "14_motility_assay.ipynb": (
+        "Mask → Timelapse, followed by Measure → Motility Assay"
+    ),
+    "24_interpret_vision_model.ipynb": "Classify → Explain CV Model",
+    "30_volcano_plot.ipynb": "Regression → Volcano Explorer",
 }
 
 
@@ -1235,7 +1253,7 @@ def _as_source(text: str) -> List[str]:
 def _render_overview(spec: NotebookSpec) -> str:
     """Return the reviewed scientific overview for ``spec``."""
     title, purpose, use, outputs = spec.overview
-    return "\n".join([
+    lines = [
         f"# {title}",
         "",
         f"**Purpose.** {purpose}",
@@ -1243,6 +1261,11 @@ def _render_overview(spec: NotebookSpec) -> str:
         f"**Recommended use.** {use}",
         "",
         f"**Primary outputs.** {outputs}",
+    ]
+    desktop_route = NOTEBOOK_DESKTOP_ROUTES.get(spec.filename)
+    if desktop_route:
+        lines.extend(["", f"**Desktop route.** {desktop_route}"])
+    lines.extend([
         "",
         "---",
         "",
@@ -1251,6 +1274,7 @@ def _render_overview(spec: NotebookSpec) -> str:
         "> spaCR writes outputs within, or immediately adjacent to, the "
         "configured source directory unless an explicit output path is set.",
     ])
+    return "\n".join(lines)
 
 
 def _render_function_section(entries) -> str:

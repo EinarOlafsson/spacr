@@ -12,13 +12,17 @@ results panel does:
   volcano is pyqtgraph and can honour none of it, so the explorer is
   offered from that plot's own menu as "Publication figure…", seeded with
   the frame already on screen.
-* **Hit List** joins arbitrary annotation CSVs across the WHOLE table --
-  the panel's gene tile annotates only the one selected gene -- recomputes
-  Benjamini-Hochberg over the gene family, adds 95% intervals and per-gene
-  guide sign agreement, and exports CSV, Markdown and self-contained HTML
-  with the filters recorded as data. It arrives as a **Hits tab** in the
-  results panel, beside Coefficients and Guide support, with its own
-  filter bar and its three export buttons as that tab's toolbar.
+* **Hit List** displays one ranked row per gene for the loaded regression
+  run. Backends that report p-values receive Benjamini–Hochberg q-values
+  computed across the genes tested; penalised backends instead rank by
+  bootstrap selection frequency and do not report q-values. Each row includes
+  the effect estimate, a 95% interval when a standard error is available, and
+  gRNA sign agreement when guide-level coefficients are available. Annotation
+  CSVs are collapsed to one row per gene before validated many-to-one joins.
+  The complete :class:`~spacr.qt.screens.hit_list.HitListScreen` is installed
+  as the **Hits** tab after Guide support, follows the run loaded by the
+  results panel, and exports the displayed filtered list as CSV, Markdown, or
+  self-contained HTML.
 * **Methods & Results** builds the run digest -- package versions,
   timings, seed and error policy, per-module parameters parsed out of the
   emitted macro, the segmentation verdict, artifact counts, held-out
@@ -356,18 +360,15 @@ def raise_hits_tab(panel) -> bool:
 # ---------------------------------------------------------------------------
 
 def project_path(screen) -> str:
-    """The project folder behind the run on screen, or "".
+    """Resolve the project directory associated with a regression screen.
 
-    Methods & Results asks the user to type this, and the fold fills it in.
-    Regression has no ``src`` box -- it is handed score and count tables
-    rather than a plate folder -- but the run it produced was written into
-    ``<project>/results/<score>/<kind>``, so the project is the folder
-    above the ``results`` directory the panel is pointed at. A host whose
-    settings form DOES carry ``src`` is the fallback, so the same function
-    serves a screen that knows its project directly.
+    The function first examines the run loaded in the results panel and
+    returns the parent of its nearest ``results`` directory. If no project can
+    be resolved from that run, it reads ``src`` from the screen's settings
+    model. A sequence-valued ``src`` contributes its first entry.
 
-    A list-valued ``src`` -- several plates through one run -- yields the
-    first, which is the one whose ``manifest.json`` the digest reads.
+    :param screen: Regression screen or compatible host.
+    :returns: Project path, or ``""`` when it cannot be determined.
     """
     if screen is None:
         return ""
@@ -514,12 +515,15 @@ def install_extras(screen: QWidget) -> bool:
 
 
 def publication_opener(screen) -> FoldOpener:
-    """``screen``'s one Volcano Explorer opener, built on first use.
+    """Return the shared Volcano Explorer opener for ``screen``.
 
-    ONE WINDOW PER SCREEN. "Publication figure…" on the volcano's own menu
-    and the Volcano Explorer button on the masthead are two handles on one
-    door, so both go through this: pressing either while the explorer is
-    already up raises it instead of drawing the same run twice.
+    The opener is created on first use and retained on the screen. Both the
+    **Publication figure…** command and the masthead action use this instance,
+    so reopening the explorer raises the existing window rather than creating
+    a duplicate with independent state.
+
+    :param screen: Regression screen that owns the publication workflow.
+    :returns: Persistent :class:`~spacr.qt.screens.map_barcodes.FoldOpener`.
     """
     opener = getattr(screen, "_publication_opener", None)
     if not isinstance(opener, FoldOpener):

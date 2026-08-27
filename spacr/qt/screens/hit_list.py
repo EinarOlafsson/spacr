@@ -81,7 +81,7 @@ APP_NAME = "Hit List"
 #: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
 #: that the button actually reads.
 APP_DESCRIPTION = (
-    "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
+    "Filter and rank annotated gene-level hits by effect size, FDR and guide "
     "agreement")
 
 #: What the module does, in a paragraph. This screen draws its own
@@ -89,13 +89,12 @@ APP_DESCRIPTION = (
 #: to build a page; it is the module's own description, and the text a
 #: caller that needs to explain the Hits tab can quote.
 APP_INTRO = (
-    "The deliverable at the end of a screen: one row per gene, ranked, with "
-    "the effect size and its 95% interval, a Benjamini-Hochberg q-value over "
-    "the genes actually tested, how many of the gene's own guides agree in "
-    "sign, and the curated annotation joined on. Filter by FDR, effect, guide "
-    "agreement, direction or free text, then export the exact list you are "
-    "looking at as CSV, Markdown or a self-contained HTML page you can send "
-    "to a collaborator.")
+    "Review one ranked row per gene with its effect estimate, 95% interval "
+    "when available, guide sign agreement, and joined annotations. Backends "
+    "that report p-values receive Benjamini–Hochberg q-values across the genes "
+    "tested; penalised backends rank by bootstrap selection frequency. Filter "
+    "by FDR, effect, guide agreement, direction, or free text, then export the "
+    "displayed rows as CSV, Markdown, or self-contained HTML.")
 
 #: Why there is no ``spacr-run hit_list``.
 #:
@@ -105,10 +104,9 @@ APP_INTRO = (
 #: that have no PySide6 at all, the sentence cannot be imported from here. A
 #: test asserts the two copies are the same string.
 APP_CLI_NOTE = (
-    "Hit List is the interactive view of a regression's ranked hits; "
-    "headless, call spacr.hits.build_hit_list(results_folder, "
-    "metadata_files=[...]) and then .filter(...).write_csv(path) for exactly "
-    "the same table.")
+    "Use Hit List for interactive review and export. In a headless workflow, "
+    "call spacr.hits.build_hit_list(results_folder, metadata_files=[...]), "
+    "then use .filter(...).write_csv(path) to produce the same filtered table.")
 
 #: "Hit List" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
