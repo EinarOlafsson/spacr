@@ -814,8 +814,8 @@ def _iter_masks(source: Any):
     """Yield ``(field_name, loader)`` pairs for whatever the caller passed.
 
     Accepts a folder of ``.npy`` masks (what :mod:`spacr.object` writes), a
-    single ``.npy`` file, a 3-D stack, a mapping of name to mask, or any
-    sequence of 2-D masks. Files are yielded as thunks so only one field is in
+    single ``.npy`` file, a 3-D stack, a mapping of name to mask OR to a
+    callable returning one, or any sequence of 2-D masks. Files are yielded as thunks so only one field is in
     memory at a time — a 1536-field plate must not be loaded to be scored.
     """
     if isinstance(source, (str, os.PathLike)):
@@ -835,7 +835,16 @@ def _iter_masks(source: Any):
 
     if isinstance(source, _abc.Mapping):
         for name, mask in source.items():
-            yield str(name), (lambda m=mask: m)
+            # A CALLABLE VALUE IS A THUNK, not a mask. That is what lets a
+            # caller whose masks are not one-file-per-field -- the v2
+            # pipeline, whose mask is a channel of a merged stack -- be
+            # scored without materialising the plate: a mapping of already
+            # loaded arrays would hold all 1536 fields at once, which is
+            # exactly what the file path above goes out of its way to avoid.
+            if callable(mask):
+                yield str(name), mask
+            else:
+                yield str(name), (lambda m=mask: m)
         return
 
     arr = source
