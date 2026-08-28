@@ -192,6 +192,14 @@ _KEY_FRACTAL_DREAM = "spaceout/fractal_dream"
 _KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
 _KEY_FRACTAL_SPEED_MIN = "spaceout/fractal_speed_min"
 _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
+
+#: The ceiling on spaceout's travel speed.
+#:
+#: Asked for 2026-08-28: "the speed setting in spaceout should be capped at
+#: 1000000 not 9". Speed multiplies the flight's own clock, so nothing
+#: physical sets a limit -- past a few hundred the picture is a blur, which
+#: is a thing somebody may want to see and not a thing to protect them from.
+MAX_FRACTAL_SPEED: float = 1_000_000.0
 _KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
@@ -2055,13 +2063,14 @@ def get_fractal_settings() -> dict:
         "quality": _text(_KEY_FRACTAL_QUALITY, DEFAULT_QUALITY,
                          FRACTAL_QUALITIES),
         "scale": _number(_KEY_FRACTAL_SCALE, DEFAULT_SCALE, 0.25, 2.0),
-        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.15, 8.0),
+        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.15,
+                         MAX_FRACTAL_SPEED),
         "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, 1.5),
         "variable_speed": variable,
         "speed_min": _number(_KEY_FRACTAL_SPEED_MIN, DEFAULT_SPEED_MIN,
-                             0.15, 8.0),
+                             0.15, MAX_FRACTAL_SPEED),
         "speed_max": _number(_KEY_FRACTAL_SPEED_MAX, DEFAULT_SPEED_MAX,
-                             0.15, 8.0),
+                             0.15, MAX_FRACTAL_SPEED),
         "speed_period": _number(_KEY_FRACTAL_SPEED_PERIOD,
                                 DEFAULT_SPEED_PERIOD, 5.0, 300.0),
     }
@@ -2081,11 +2090,15 @@ def set_fractal_settings(**values) -> None:
         "backend": (_KEY_FRACTAL_BACKEND, None),
         "quality": (_KEY_FRACTAL_QUALITY, None),
         "scale": (_KEY_FRACTAL_SCALE, (0.25, 2.0)),
-        "speed": (_KEY_FRACTAL_SPEED, (0.15, 8.0)),
+        # ASKED FOR 2026-08-28: capped at 1000000, not 8. The speed is a
+        # multiplier on the flight's own clock, so there is no physical
+        # ceiling to respect -- past a few hundred the picture becomes a
+        # blur, and someone who wants that has asked for it.
+        "speed": (_KEY_FRACTAL_SPEED, (0.15, MAX_FRACTAL_SPEED)),
         "dream": (_KEY_FRACTAL_DREAM, (0.0, 1.5)),
         "variable_speed": (_KEY_FRACTAL_VARIABLE_SPEED, None),
-        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.15, 8.0)),
-        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.15, 8.0)),
+        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.15, MAX_FRACTAL_SPEED)),
+        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.15, MAX_FRACTAL_SPEED)),
         "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (5.0, 300.0)),
     }
     store = _settings()
@@ -4611,7 +4624,8 @@ class PreferencesDialog:
                                     _fractal_values["scale"], 0.25, 2.0)
             fractal.addRow(tr("Scale"), fractal_scale)
             fractal_speed = _tenths("FractalSpeed",
-                                    _fractal_values["speed"], 0.15, 8.0)
+                                    _fractal_values["speed"], 0.15,
+                                    MAX_FRACTAL_SPEED)
             fractal.addRow(tr("Speed"), fractal_speed)
             fractal_dream = _tenths("FractalDream",
                                     _fractal_values["dream"], 0.0, 1.5)
@@ -4624,11 +4638,11 @@ class PreferencesDialog:
 
             fractal_speed_min = _tenths("FractalSpeedMin",
                                         _fractal_values["speed_min"],
-                                        0.15, 8.0)
+                                        0.15, MAX_FRACTAL_SPEED)
             fractal.addRow(tr("Slowest"), fractal_speed_min)
             fractal_speed_max = _tenths("FractalSpeedMax",
                                         _fractal_values["speed_max"],
-                                        0.15, 8.0)
+                                        0.15, MAX_FRACTAL_SPEED)
             fractal.addRow(tr("Fastest"), fractal_speed_max)
 
             fractal_speed_period = QDoubleSpinBox()
