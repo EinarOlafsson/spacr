@@ -1,0 +1,40 @@
+304 — Release 1.5.0.5, archived on Zenodo
+
+Asked 2026-08-28: "i also need 1.5.0.5 to be a release for zenodo".
+
+WHAT IS ALREADY IN PLACE
+
+  * `.github/workflows/release.yml` tags the commit and publishes a GitHub
+    Release with assets. Zenodo archives GitHub Releases, so the release
+    path spaCR already has is the one Zenodo needs -- nothing new has to be
+    built to publish.
+  * `.zenodo.json` now carries the metadata Zenodo would otherwise guess
+    at: the full author list with Einar's ORCID, the licence, the software
+    type, keywords, and the links to the repository, the documentation and
+    PyPI. Without it a Zenodo record takes its authors from GitHub
+    usernames.
+  * `CITATION.cff` holds the same author list and must have its `version`
+    and `date-released` moved to 1.5.0.5 as part of the bump.
+
+WHAT ONLY THE MAINTAINER CAN DO
+
+  Zenodo archives a repository only after the GitHub–Zenodo integration is
+  switched ON for it, at https://zenodo.org/account/settings/github/ .
+  The toggle has to be set BEFORE the release is published: Zenodo picks up
+  releases made after it is enabled, not before. A release cut first would
+  have to be deleted and re-cut.
+
+THE ORDER, and it matters
+
+  1. enable the Zenodo toggle for EinarOlafsson/spacr;
+  2. get CI green (288) -- a release is the one commit that should not be
+     published red;
+  3. bump the version in setup.py, and CITATION.cff's version and
+     date-released with it;
+  4. merge to main, which triggers release.yml on a setup.py change;
+  5. confirm the DOI Zenodo mints, and add it to CITATION.cff and the
+     README as the citable identifier.
+
+  The DOI from step 5 is a CONCEPT DOI plus a version DOI. Cite the concept
+  one in the README -- it always resolves to the newest release -- and the
+  version one wherever a specific result has to be reproducible.

@@ -1,0 +1,50 @@
+{
+  "title": "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens",
+  "description": "<p>An open-source Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression.</p>",
+  "upload_type": "software",
+  "license": "MIT",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Olafsson, Einar B.",
+      "orcid": "0000-0002-3388-061X"
+    },
+    {"name": "Arnold, Christophe-Sebastien"},
+    {"name": "Kellermeier, Jacob A."},
+    {"name": "Rimple, Patrick A."},
+    {"name": "Kaur, Hargobinder"},
+    {"name": "Wang, Yifan"},
+    {"name": "Sexton, Jonathan Z."},
+    {"name": "Svärd, Staffan"},
+    {"name": "Carruthers, Vern B."},
+    {"name": "O'Meara, Matthew J."}
+  ],
+  "keywords": [
+    "CRISPR-Cas9",
+    "pooled screening",
+    "high-content imaging",
+    "single-cell phenotyping",
+    "image segmentation",
+    "deep learning",
+    "Toxoplasma gondii",
+    "host-pathogen interaction",
+    "spatial phenotype"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/EinarOlafsson/spacr",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://einarolafsson.github.io/spacr/",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://pypi.org/project/spacr/",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    }
+  ]
+}
