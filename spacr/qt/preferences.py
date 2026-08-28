@@ -200,6 +200,12 @@ _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 #: physical sets a limit -- past a few hundred the picture is a blur, which
 #: is a thing somebody may want to see and not a thing to protect them from.
 MAX_FRACTAL_SPEED: float = 1_000_000.0
+
+#: Whether the pointer pulls the backdrop about at all.
+_KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
+#: How far that pull reaches, and how hard it pulls.
+_KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
+_KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
 _KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
@@ -2034,6 +2040,8 @@ def get_fractal_settings() -> dict:
         DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_PATTERN, DEFAULT_QUALITY,
         DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
         DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
+        DEFAULT_FOLLOW_POINTER, DEFAULT_POINTER_SIZE,
+        DEFAULT_POINTER_STRENGTH,
     )
 
     settings = _settings()
@@ -2047,6 +2055,17 @@ def get_fractal_settings() -> dict:
             return clamp(float(settings.value(key, default)), low, high)
         except (TypeError, ValueError):
             return default
+
+    def _truth(key, default):
+        """A stored boolean, however QSettings gave it back.
+
+        An INI file hands every value back as a string, so `bool("false")`
+        is True and a switch the user turned off comes back on.
+        """
+        raw = settings.value(key, default)
+        if isinstance(raw, str):
+            return raw.strip().lower() in ("1", "true", "yes", "on")
+        return bool(raw)
 
     raw_variable = settings.value(_KEY_FRACTAL_VARIABLE_SPEED,
                                   DEFAULT_VARIABLE_SPEED)
@@ -2073,6 +2092,12 @@ def get_fractal_settings() -> dict:
                              0.15, MAX_FRACTAL_SPEED),
         "speed_period": _number(_KEY_FRACTAL_SPEED_PERIOD,
                                 DEFAULT_SPEED_PERIOD, 5.0, 300.0),
+        "pointer_gravity": _truth(_KEY_FRACTAL_POINTER,
+                                  DEFAULT_FOLLOW_POINTER),
+        "pointer_size": _number(_KEY_FRACTAL_POINTER_SIZE,
+                                DEFAULT_POINTER_SIZE, 0.05, 3.0),
+        "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
+                                    DEFAULT_POINTER_STRENGTH, 0.0, 2.0),
     }
 
 
@@ -2100,6 +2125,9 @@ def set_fractal_settings(**values) -> None:
         "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.15, MAX_FRACTAL_SPEED)),
         "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.15, MAX_FRACTAL_SPEED)),
         "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (5.0, 300.0)),
+        "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
+        "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.05, 3.0)),
+        "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, 2.0)),
     }
     store = _settings()
     for name, value in values.items():
@@ -4660,6 +4688,41 @@ class PreferencesDialog:
                                         0.15, MAX_FRACTAL_SPEED)
             fractal.addRow(tr("Fastest"), fractal_speed_max)
 
+            # MOUSE GRAVITY. Asked for 2026-08-28, with a size and a
+            # strength, applying to every pattern and both backends.
+            fractal_pointer = Toggle(tr("Mouse gravity"))
+            fractal_pointer.setObjectName("FractalPointerGravity")
+            fractal_pointer.setChecked(
+                bool(_fractal_values["pointer_gravity"]))
+            fractal_pointer.setToolTip(tr(
+                "Let the backdrop follow the pointer: it drifts toward the "
+                "cursor and is shoved away by a click. The backdrop never "
+                "receives the click itself — it reads where the mouse is "
+                "rather than taking events, so nothing on top of it loses a "
+                "press."))
+            fractal.addRow(tr("Pointer"), fractal_pointer)
+
+            fractal_pointer_size = _tenths(
+                "FractalPointerSize", _fractal_values["pointer_size"],
+                0.05, 3.0)
+            fractal_pointer_size.setToolTip(tr(
+                "How far the pull reaches. 1.0 reaches the short edge of "
+                "the window, so the whole backdrop leans toward the "
+                "pointer; smaller values make a local dimple that follows "
+                "it. Beyond the reach the pull falls off smoothly rather "
+                "than stopping at an edge."))
+            fractal.addRow(tr("Gravity size"), fractal_pointer_size)
+
+            fractal_pointer_strength = _tenths(
+                "FractalPointerStrength",
+                _fractal_values["pointer_strength"], 0.0, 2.0)
+            fractal_pointer_strength.setToolTip(tr(
+                "How hard it pulls. 0 leaves the backdrop still whatever "
+                "the switch says, 1 is the normal lean, and above 1 "
+                "exaggerates it — useful for seeing what the setting does "
+                "before turning it back down."))
+            fractal.addRow(tr("Gravity strength"), fractal_pointer_strength)
+
             fractal_speed_period = QDoubleSpinBox()
             fractal_speed_period.setObjectName("FractalSpeedPeriod")
             fractal_speed_period.setRange(5.0, 300.0)
@@ -5050,6 +5113,9 @@ class PreferencesDialog:
                     speed_min=fractal_speed_min.value(),
                     speed_max=fractal_speed_max.value(),
                     speed_period=fractal_speed_period.value(),
+                    pointer_gravity=fractal_pointer.isChecked(),
+                    pointer_size=fractal_pointer_size.value(),
+                    pointer_strength=fractal_pointer_strength.value(),
                 )
             set_interface_font_weight(font_weight.currentData())
             # ONE VALUE. `set_performance_level` mirrors the level into

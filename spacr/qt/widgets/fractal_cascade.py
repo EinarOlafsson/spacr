@@ -312,7 +312,8 @@ if njit is not None:
         return int(255.0 * red), int(255.0 * green), int(255.0 * blue)
 
     @njit(cache=True, parallel=True, fastmath=True, nogil=True)
-    def render_into(output, t, speed, dream, iterations):
+    def render_into(output, t, speed, dream, iterations,
+                    pointer_x=0.0, pointer_y=0.0, pull=0.0, push=0.0):
         """One complete frame, four spatial samples per pixel.
 
         Every sample is of the SAME instant, so the result is a true
@@ -324,6 +325,12 @@ if njit is not None:
         ) * (0.55 + 0.75 * dream)
         camera_cs = _fast_cos(camera_rotation)
         camera_sn = _fast_sin(camera_rotation)
+        # THE POINTER MOVES THE CAMERA, not the field. Folding it into the
+        # translation below draws the fold toward the cursor and shoves it
+        # away on a click, without a second warp term fighting the one the
+        # pattern already has.
+        toward_x = pointer_x * (pull * 0.30 - push * 0.55)
+        toward_y = pointer_y * (pull * 0.30 - push * 0.55)
         tx = dream * (0.090 * _fast_sin(_FAST_TWO_PI * t / 47.0)
                       + 0.035 * _fast_sin(_FAST_TWO_PI * t / 131.0 + 1.1)
                       + 0.025 * _fast_cos(_FAST_TWO_PI * t / 307.0 + 0.6))
@@ -337,6 +344,8 @@ if njit is not None:
         stretch_y = math.exp(
             0.15 * dream * _fast_cos(_FAST_TWO_PI * t / 107.0 + 1.4))
 
+        tx += toward_x
+        ty += toward_y
         theta = (0.39 + 0.095 * _fast_sin(0.071 * t)
                  + 0.050 * _fast_sin(0.019 * t + 1.4))
         rotation_cs = _fast_cos(theta)
@@ -405,10 +414,23 @@ class CascadeEngine:
         self.output = np.empty((height, width, 3), dtype=np.uint8)
 
     def render(self, width: int, height: int, t: float, speed: float,
-               dream: float, iterations: int) -> np.ndarray:
+               dream: float, iterations: int, pointer_x: float = 0.0,
+               pointer_y: float = 0.0, pull: float = 0.0,
+               push: float = 0.0) -> np.ndarray:
+        """One frame, four spatial samples per pixel.
+
+        THE POINTER ARGUMENTS ARE NOT OPTIONAL IN PRACTICE. The worker
+        passes all ten positionally to whichever engine the pattern chose,
+        and this signature stopped at six -- so every frame raised TypeError,
+        the failure signal fired, no image ever arrived, and the widget
+        painted its fallback colour. That is why the CPU cascade was black
+        while the GPU one was fine and the CPU orbit followed the mouse.
+        """
         from numba import set_num_threads
 
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
-        render_into(self.output, t, speed, dream, iterations)
+        render_into(self.output, t, speed, dream, iterations,
+                    float(pointer_x), float(pointer_y),
+                    float(pull), float(push))
         return self.output.copy()

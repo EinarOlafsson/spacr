@@ -35,3 +35,12 @@ DEFAULT_SPEED_PERIOD: Final[float] = 41.0
 def clamp(value: float, low: float, high: float) -> float:
     """``value`` held inside ``[low, high]``."""
     return low if value < low else high if value > high else value
+
+
+#: How far that pull reaches, in the -1..1 coordinate space the patterns
+#: work in: 1.0 reaches the widget's short edge.
+DEFAULT_POINTER_SIZE: float = 1.0
+
+#: How hard it pulls. 0 is off however the switch is set; above 1
+#: exaggerates.
+DEFAULT_POINTER_STRENGTH: float = 1.0

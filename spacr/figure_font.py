@@ -25,6 +25,10 @@ FAMILY = "Open Sans"
 
 _registered = False
 
+#: What the last completed registration concluded, so a repeat call answers
+#: without re-deriving it.
+_resolved = False
+
 
 def font_dir() -> str:
     """The directory holding the bundled static faces.
@@ -60,25 +64,41 @@ def use_open_sans_for_figures() -> bool:
     :returns: whether Open Sans is now resolvable by name.
     """
     global _registered
+    if _registered:
+        # ALREADY DONE THIS PROCESS. The check below is a set comprehension
+        # over every font matplotlib knows, which is not free either, and
+        # this function is called before every figure is styled.
+        return _resolved
+
     try:
         import matplotlib
         from matplotlib import font_manager
     except Exception:
         return False
 
-    if not _registered:
+    try:
+        available = {f.name for f in font_manager.fontManager.ttflist}
+    except Exception:
+        available = set()
+
+    # ASK BEFORE ADDING. `addfont` is expensive -- it reads the file, builds
+    # a FontProperties and resolves alternative family names, and measured on
+    # the Mask screen the eight bundled faces cost 23 SECONDS of a 13-second
+    # module open, because this ran while the settings panel was being built.
+    # A machine that already has Open Sans installed needs none of it.
+    if FAMILY not in available:
         for path in bundled_faces():
             try:
                 font_manager.fontManager.addfont(path)
             except Exception:
                 # One unreadable face must not cost the other seven.
                 continue
-        _registered = True
+        try:
+            available = {f.name for f in font_manager.fontManager.ttflist}
+        except Exception:
+            available = set()
 
-    try:
-        available = {f.name for f in font_manager.fontManager.ttflist}
-    except Exception:
-        available = set()
+    _registered = True
     if FAMILY not in available:
         return False
 
@@ -87,4 +107,5 @@ def use_open_sans_for_figures() -> bool:
     matplotlib.rcParams["font.family"] = "sans-serif"
     matplotlib.rcParams["font.sans-serif"] = [
         FAMILY, "Helvetica", "Arial", "DejaVu Sans"]
+    globals()["_resolved"] = True
     return True

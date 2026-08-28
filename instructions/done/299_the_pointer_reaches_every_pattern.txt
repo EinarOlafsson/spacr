@@ -1,0 +1,56 @@
+299 — The pointer reaches every pattern, and the cascade draws on CPU
+
+Reported 2026-08-28, from real use of spaceout.
+
+WHAT WORKS: the pointer effect in orbit fold on CPU. And CPU space has one
+too, which reads "more of a window looking direction" -- that is the steer
+rather than warp decision (298) landing as intended.
+
+WHAT DOES NOT:
+
+  a) CPU FOLD-INVERSION CASCADE DRAWS BLACK. Nothing but black; the pattern
+     is unusable on CPU. GPU cascade is fine, so it is the numba path.
+
+  b) THE POINTER REACHES ONLY THE CPU BACKENDS. GPU gets no pointer effect
+     at all, in any pattern. The uniforms exist; nothing feeds them.
+
+  c) GPU SPACE FLOODS THE TERMINAL AND CONSOLE with
+       "WARNING: Value provided for 'u_dream', but this variable was not
+        found in the shader program."
+     once per frame. The space shader has no dream term -- the scene is a
+     star field, and there is nothing to warp -- but the widget sets every
+     uniform it knows regardless of which shader is loaded.
+
+WHAT IS ASKED FOR AS WELL:
+
+  * a MOUSE GRAVITY switch: whether the pointer pulls at all;
+  * a SIZE setting: how far from the pointer the effect reaches;
+  * a STRENGTH setting: how hard it pulls.
+
+  All three in the spaceout Fractal preferences beside the existing rows,
+  with tooltips, and applying to every pattern and both backends.
+
+
+DONE 2026-08-28, (a) (b) (c) and all three settings.
+
+  (a) ONE CAUSE FOR THE BLACK CASCADE AND THE MISSING GPU POINTER, nearly.
+      `CascadeEngine.render` took six parameters; the worker passes ten
+      positionally to whichever engine the pattern chose, because
+      `OrbitEngine.render` grew four pointer arguments. Every cascade frame
+      raised TypeError, the failure signal fired, no image ever arrived, and
+      the widget painted its fallback colour -- which is the near-black it
+      fills with before drawing. The cascade now takes the ten and USES
+      them: the pointer moves its camera rather than adding a second warp
+      term to fight the one the pattern already has.
+  (b) The GPU canvas has a `Pointer` of its own and feeds the four uniforms.
+      `Pointer` samples QCursor rather than receiving events, so one class
+      serves both backends.
+  (c) The uniform update sets only names the loaded shader declares, read
+      out of its source once. The patterns share one update and not one
+      uniform list -- space has no dream term -- and vispy warns per frame
+      per unknown name.
+
+  Mouse gravity, gravity size and gravity strength are in the Fractal tab
+  with tooltips. Size is a REACH and not a hard edge: beyond it the pull
+  falls off smoothly, so a pointer crossing the boundary does not snap the
+  picture.
