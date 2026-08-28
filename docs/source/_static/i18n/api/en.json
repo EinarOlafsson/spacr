@@ -35187,6 +35187,13 @@
       "source_sha256": "ae20b258cd2f45eee4f7c462c4ba2222c0aca845d0085f62ae94666a0fa3c193",
       "text": "Whether a run hashes its inputs and outputs for the manifest."
     },
+    "spacr.qt.preferences.get_interface_font_weight": {
+      "source_blocks_sha256": [
+        "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd"
+      ],
+      "source_sha256": "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd",
+      "text": "Which Open Sans weight the interface uses. 'regular' or 'light'."
+    },
     "spacr.qt.preferences.get_issue_prompt_mode": {
       "source_blocks_sha256": [
         "01a60eed0a47582a2bcb294dab6ac9c9760f003a5e23183b59141959caaee42b",
@@ -35718,6 +35725,14 @@
       ],
       "source_sha256": "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad",
       "text": "Persist the input-hashing choice."
+    },
+    "spacr.qt.preferences.set_interface_font_weight": {
+      "source_blocks_sha256": [
+        "bf28e3e434c90b8846d14ff85402153c092ba0147274c5428d9abcaaafeb9b52",
+        "d06e12ba215a75e21aead1969badfb10b6f1ac283ef9fde7bca5a2a2d0e8d091"
+      ],
+      "source_sha256": "ff76a76eac402305bd0af8c3b4f5d7f86c49741d43dfbb1c0dff4b704e730346",
+      "text": "Persist the weight and apply it to the running application.\n\n:raises ValueError: on anything but 'regular' or 'light'."
     },
     "spacr.qt.preferences.set_issue_prompt_mode": {
       "source_blocks_sha256": [
@@ -47010,6 +47025,65 @@
       "source_sha256": "d2d5034ae29a819c1ebd8c589be6a24c2ef5de0c7f43f21ca67f8e6722f1bab4",
       "text": "Copies of the stacks recorded so far."
     },
+    "spacr.qt.timing": {
+      "source_blocks_sha256": [
+        "62b1134625a0518853de94d357647bd572c6f24e82038df4a1ed2d64c9fd4d61",
+        "44946e4cfb802128058471b9e9368a969c999d9d6eeb64831c547369ef125e1d",
+        "2285e0af18a1007e94a77cd1e2d946452e2dd6cab442ad0509bc0de87d08d20c",
+        "e4bff86113187117dbc0f4e8a72f3fa1df85e42dab937308bab2cf0ce10e825f",
+        "fb5ebb14ed9615d2e08db1823c095f939c768f754516e0e4880e755ce494c225",
+        "c44c90dbbac913a097e2444582442b5f0ed88514fa7e48265bd98ca2748b48a6",
+        "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+        "9240b40491994097776c2ee0bab8aa0c8e5e88a8776578c4ce932735f0b07b19",
+        "75e7ccbcb18896bb527f2171a93ea5adcc7e40d0467008121ddf22b49d213e63"
+      ],
+      "source_sha256": "1879f4925170b91878151d99e837e568b0857a100d2172ff1761cec2568deec8",
+      "text": "What the application actually did, and when, with nothing inferred.\n\nSwitched on with ``SPACR_TIMING=1``. Off, every function here is a few\nattribute lookups and nothing is imported, allocated or written.\n\nWHY THIS EXISTS. Every measurement of spaCR's start-up so far was taken in\na script that imitated the application -- built a MainWindow, called a\nmethod, timed it -- and each one answered a question next to the one being\nasked. A script cannot see the preloader thread competing with a click, a\nstylesheet reapplied four times, or a lazy import that fires the first time\na user opens a panel. This records the real process.\n\nFOUR THINGS ARE RECORDED, all with real wall-clock times:\n\n* SPANS -- named, nested regions of work. ``with span(\"build mask\"):``\n* IMPORTS -- every module import over a threshold, with the importing frame,\n  through a `sys.meta_path` finder rather than by patching ``__import__``.\n* GUI STALLS -- a timer that should fire every 16 ms, recording every time\n  it is late. This is the only honest measure of \"the app froze\": it is the\n  event loop reporting on itself.\n* MARKS -- instants worth a line, like \"window shown\".\n\nThe report is a TIMELINE, not a profile. A profile says which function used\nthe CPU; this says what the user was waiting for and for how long, which is\na different question and the one being asked."
+    },
+    "spacr.qt.timing.begin": {
+      "source_blocks_sha256": [
+        "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c"
+      ],
+      "source_sha256": "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c",
+      "text": "Start recording. Safe to call twice; does nothing when off."
+    },
+    "spacr.qt.timing.mark": {
+      "source_blocks_sha256": [
+        "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a"
+      ],
+      "source_sha256": "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a",
+      "text": "Record an instant. Cheap enough to leave in hot paths."
+    },
+    "spacr.qt.timing.report": {
+      "source_blocks_sha256": [
+        "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae"
+      ],
+      "source_sha256": "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae",
+      "text": "The timeline, as text."
+    },
+    "spacr.qt.timing.span": {
+      "source_blocks_sha256": [
+        "f00674bd911fe0b23c1fdbf899bd419597f6a3912cefc406f9187e59fe165000",
+        "bcbc5461916aac8864d35a51c1f2f55b90d7a6a3d4d8f0e25890281c3634562f"
+      ],
+      "source_sha256": "844eee7ac9615a6064e6794ac9f91864ec6145c22c57ef4e17fb2a4e3852ffb7",
+      "text": "Time a named region, nested under whatever encloses it.\n\nRecords even when the body raises: a span that only appears on success\nhides exactly the slow failures worth seeing."
+    },
+    "spacr.qt.timing.watch_the_gui_thread": {
+      "source_blocks_sha256": [
+        "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
+        "0a19ab5613279547c6a0db5c55b2bd7cbba639b7eb3b2a7efb6aaadf9aae77e5"
+      ],
+      "source_sha256": "89a3c61be925137d894b4c2201b612b11218fd3bf79c1aec422c84fccce57618",
+      "text": "Start the stall watchdog. Returns the timer, or None when off.\n\nA QTimer asked for 16 ms records how late it actually was. THIS IS THE\nONLY HONEST FREEZE MEASUREMENT: it is the event loop reporting on\nitself, from inside the real application, so it cannot miss a stall the\nway an outside script can."
+    },
+    "spacr.qt.timing.write_report": {
+      "source_blocks_sha256": [
+        "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3"
+      ],
+      "source_sha256": "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3",
+      "text": "Write the timeline. Returns the path, or \"\" when timing is off."
+    },
     "spacr.qt.tutorial": {
       "source_blocks_sha256": [
         "ad106562cbfc953c64e8f3d3ed690ae8bb87fea22b8d53a76bc485d53d6db3a5",
@@ -56558,6 +56632,22 @@
       "source_sha256": "a6dc950846e376b43be93f2e3cb3a91c9edc5544cf2c2398c71f9223f3fff2b7",
       "text": "The four-frame temporal window, and nothing else.\n\nHolds no keyframes: the only state is the ring of the last four jitter\nphases, which is what the antialiasing needs and all it needs."
     },
+    "spacr.qt.widgets.fractal_travel.Pointer": {
+      "source_blocks_sha256": [
+        "3356ce45c58fecf5548949e4a5210650c0906c9332a076d30c0d0026deb92b31",
+        "14a17268abe477dc4f322fc7de385d86a4c24f55a08c1efa683703fe7e6a7650",
+        "0032279f350c26667c372d8d55750e6e6eaf9fce69a0ddad6e7d2eeb809da3b2"
+      ],
+      "source_sha256": "d75f3dc15676050e60b5c5a0c8d992aba9911fc5a55685d37d28332b4cecc091",
+      "text": "Where the pointer is, and whether it is pushing.\n\nSAMPLED, NEVER RECEIVED. The backdrop sits behind every control; a\nwidget that accepted mouse events would eat the click meant for the\nbutton on top of it. So nothing here is a mouse handler -- the position\nis read from `QCursor.pos()` on the render tick, and the buttons from\n`QApplication.mouseButtons()`, both of which are global state that costs\nnothing and steals nothing.\n\nCoordinates come back in the -1..1 space the fractals already work in,\nwith (0, 0) at the centre, so a kernel can use them without knowing\nanything about widgets."
+    },
+    "spacr.qt.widgets.fractal_travel.Pointer.sample": {
+      "source_blocks_sha256": [
+        "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2"
+      ],
+      "source_sha256": "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2",
+      "text": "Read the pointer relative to ``widget``. Never raises."
+    },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
       "source_blocks_sha256": [
         "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
@@ -56568,10 +56658,11 @@
     "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
       "source_blocks_sha256": [
         "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
-        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+        "560c889aec07c2aa22c236b3727fdac1d03bed77e81e15030b3cd1abeeb1dc1b",
+        "4c8cd45e04c98cc739deb4e92e38382a8a01fae75c2b684e3a3d6d1803045e8e"
       ],
-      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
-      "text": "The speed to use at ``t`` seconds.\n\nConstant unless `variable_speed` is on, in which case it breathes\naround the set value rather than replacing it -- so the preference\nstill means what it says."
+      "source_sha256": "febc021f95a473b99f0eed1082156f42bbfd10afef006dc0451b8f8af03c3588",
+      "text": "The speed to use at ``t`` seconds.\n\nConstant `speed` unless `variable_speed` is on, in which case it\nsweeps between `speed_min` and `speed_max` -- named bounds rather\nthan a hidden percentage, so what the travel will actually do is\nreadable from the settings instead of inferred from watching it.\n`speed_period` is how long one full sweep takes, which is the \"how\ngradually\" control: a larger number is a slower CHANGE, not a slower\nfractal.\n\nThe bounds are used in whichever order they are given: a min above a\nmax is a swapped pair, not an empty range, and refusing to animate\nwould be a worse answer than animating between the two numbers."
     },
     "spacr.qt.widgets.fractal_travel.Settings": {
       "source_blocks_sha256": [

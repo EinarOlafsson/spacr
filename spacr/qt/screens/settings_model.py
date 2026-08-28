@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
+from .. import timing as _timing
 from ..widgets.availability_panel import (AvailabilityPanel,
                                          disable_combo_row,
                                          run_install_offer)
@@ -7979,9 +7980,6 @@ class SettingsWidgets:
         # renders as long as a widget exists for it. The value stays in
         # `self._defaults` and reaches the run unchanged.
         hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
-        _widgets_span = _span("build widgets",
-                              f"{len(variables)} settings")
-        _widgets_span.__enter__()
         # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
         # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
         # measured as zero timer ticks for the whole build, which is what
@@ -8003,29 +8001,29 @@ class SettingsWidgets:
 
         _BREATH = 0.025
         next_breath = _time.perf_counter() + _BREATH
-        for key, meta in variables.items():
-            if key in hidden_keys:
-                continue
-            if _time.perf_counter() >= next_breath:
-                next_breath = _time.perf_counter() + _BREATH
-                # EXCLUDE user input. A half-built panel must not receive a
-                # click that lands on a widget which is about to move, so the
-                # backdrop repaints and the interface stays alive while the
-                # pointer and keyboard wait the extra second out.
-                QCoreApplication.processEvents(
-                    QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-            kind, options, default = meta
-            widget = self._widget_for(kind, options, default, key)
-            if widget is not None:
-                attach_api_tooltip(
-                    widget,
-                    self.app_key,
-                    key,
-                    _descriptions=self._tooltips,
-                )
-                self._widgets[key] = widget
-
-        _widgets_span.__exit__(None, None, None)
+        with _timing.span("build widgets", f"{len(variables)} settings"):
+            for key, meta in variables.items():
+                if key in hidden_keys:
+                    continue
+                if _time.perf_counter() >= next_breath:
+                    next_breath = _time.perf_counter() + _BREATH
+                    # EXCLUDE user input. A half-built panel must not receive
+                    # a click that lands on a widget which is about to move,
+                    # so the backdrop repaints and the interface stays alive
+                    # while the pointer and keyboard wait the extra second
+                    # out.
+                    QCoreApplication.processEvents(
+                        QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+                kind, options, default = meta
+                widget = self._widget_for(kind, options, default, key)
+                if widget is not None:
+                    attach_api_tooltip(
+                        widget,
+                        self.app_key,
+                        key,
+                        _descriptions=self._tooltips,
+                    )
+                    self._widgets[key] = widget
 
         src_widget = self._widgets.get("src")
         if isinstance(src_widget, QLineEdit):

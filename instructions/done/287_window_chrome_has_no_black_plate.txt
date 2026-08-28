@@ -1,0 +1,34 @@
+================================================================================
+THE WINDOW MARKS HAVE NO BLACK PLATE
+================================================================================
+
+Status:    DONE 2026-08-27. Reproduced in the dark theme, fixed and rendered
+           in a regression test.
+Owner:     spacr/qt/app.py window chrome.
+
+--------------------------------------------------------------------------------
+WHAT WAS REPORTED
+--------------------------------------------------------------------------------
+
+A black box appeared behind the top-right minus, square and x. It must be
+transparent or removed so the three marks sit directly on the menu bar.
+
+--------------------------------------------------------------------------------
+CAUSE AND FIX
+--------------------------------------------------------------------------------
+
+The three ``QToolButton`` backgrounds were already transparent. Their shared
+corner ``QWidget`` was not styled, so it filled itself from MainWindow's black
+first-frame palette and produced one 67-by-19-pixel black plate in the dark
+theme. The corner now has an explicit identity and transparent styled surface;
+all button states remain transparent while only their painted glyph changes on
+hover and press.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The dark-themed menu bar is rendered offscreen. A background pixel inside the
+window-chrome corner must equal the adjacent menu-bar pixel. The test fails on
+the reported revision, where those pixels are ``#000000`` and ``#0d0e10``, and
+passes only when the shared plate is gone.

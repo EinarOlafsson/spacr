@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Stop the moving background — useful while looking at images. It gives its threads back rather than only hiding.",
+      "source_sha256": "0592031d8c97a42f156011d7ec95bab796155840883eb674551ba751c5425243",
+      "source": "Stop the moving background — useful while looking at images. It gives its threads back rather than only hiding.",
+      "translation": "गतिशील पृष्ठभूमि रोकें — छवियों को देखते समय उपयोगी। यह केवल छिपने के बजाय अपने थ्रेड छोड़ देती है।"
+    }
+  ]
+}

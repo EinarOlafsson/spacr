@@ -60,6 +60,35 @@ def test_the_top_right_holds_the_three_in_order(window):
         "the icons are drawn, not shipped")
 
 
+def test_the_three_marks_have_no_black_container_plate(
+        window, qapp, qt_theme_applied):
+    """The corner paints the menu bar, not MainWindow's black first frame.
+
+    The buttons already declared transparent backgrounds, but their parent
+    was a plain QWidget.  It therefore filled itself from the window palette
+    and appeared as one black rectangle behind the minus, square and x.  A
+    rendered-pixel assertion covers the parent surface the old QSS test missed.
+    """
+    from spacr.qt import theme
+
+    theme.apply_qpalette(qapp, "dark")
+    qapp.setStyleSheet(theme.stylesheet("dark"))
+    window.resize(1280, 800)
+    window.show()
+    qapp.processEvents()
+
+    bar = window.menuBar()
+    corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
+    image = bar.grab().toImage()
+    geometry = corner.geometry()
+    beside = image.pixelColor(geometry.left() - 4, geometry.center().y())
+    behind = image.pixelColor(geometry.left(), geometry.center().y())
+
+    assert corner.objectName() == "WindowChrome"
+    assert behind.name() == beside.name()
+
+
+
 def test_nothing_is_left_in_the_top_left(window):
     assert window.menuBar().cornerWidget(Qt.Corner.TopLeftCorner) is None
 
