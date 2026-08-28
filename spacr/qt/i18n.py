@@ -104,15 +104,18 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Help": _row(
         "Hjälp", "Hilfe", "Ayuda", "帮助", "Ajuda",
         "सहायता", "도움말", "Hjálp", "Aide"),
-    "Tutorial (web)": _row(
-        "Handledning (webb)", "Tutorial (Web)", "Tutorial (web)",
-        "教程（网页）", "Tutorial (web)", "ट्यूटोरियल (वेब)",
-        "튜토리얼(웹)", "Kennsla (vefur)", "Tutoriel (web)"),
-    "Documentation (web)": _row(
-        "Dokumentation (webb)", "Dokumentation (Web)",
-        "Documentación (web)", "文档（网页）", "Documentação (web)",
-        "दस्तावेज़ (वेब)", "문서(웹)", "Skjölun (vefur)",
-        "Documentation (web)"),
+    # The "(web)" was dropped from both labels; the keys move with them or
+    # nine languages lose the row. Each translation loses its own bracket
+    # rather than keeping a parenthesis the English no longer has.
+    "Tutorial": _row(
+        "Handledning", "Tutorial", "Tutorial",
+        "教程", "Tutorial", "ट्यूटोरियल",
+        "튜토리얼", "Kennsla", "Tutoriel"),
+    "Documentation": _row(
+        "Dokumentation", "Dokumentation",
+        "Documentación", "文档", "Documentação",
+        "दस्तावेज़", "문서", "Skjölun",
+        "Documentation"),
     "About spaCR": _row(
         "Om spaCR", "Über spaCR", "Acerca de spaCR", "关于 spaCR",
         "Sobre o spaCR", "spaCR के बारे में", "spaCR 정보", "Um spaCR",

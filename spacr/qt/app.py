@@ -12,6 +12,8 @@ import logging
 import os
 import sys
 import threading
+
+from . import timing as _timing
 import traceback
 from typing import List, Optional, Tuple
 
@@ -2278,6 +2280,25 @@ class MainWindow(QMainWindow):
         act_backdrop.toggled.connect(self._set_backdrop_animating)
         self.addAction(act_backdrop)
         self._act_backdrop = act_backdrop
+
+        # PAUSE AND GO FLAT. Ctrl+T stops the animation and leaves the last
+        # frame up, which is still a picture behind the work; this one also
+        # paints the ground flat, which is what "I am looking at images and
+        # want nothing behind them" actually asks for.
+        #
+        # NOT Ctrl+B: that is the app drawer, and the only keyboard route to
+        # it (see the note above `act_all`), so taking it would remove a
+        # panel from keyboard users to gain a decoration toggle.
+        act_flat = QAction("Blank the background", self)
+        act_flat.setObjectName("BlankBackdrop")
+        act_flat.setCheckable(True)
+        act_flat.setShortcut(QKeySequence("Ctrl+Shift+B"))
+        act_flat.setStatusTip(
+            "Pause the background and paint it flat — dark grey in a dark "
+            "theme, white in a light one.")
+        act_flat.toggled.connect(self._set_backdrop_blank)
+        self.addAction(act_flat)
+        self._act_flat = act_flat
         #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+B that
         #: silently does nothing because the dock is hidden is worse than
         #: a menu entry that says so.
@@ -2353,26 +2374,26 @@ class MainWindow(QMainWindow):
         act_setup.triggered.connect(self._show_setup)
         help_menu.addAction(act_setup)
         help_menu.addSeparator()
-        # Label kept verbatim: `spacr/qt/i18n.py` keys its catalog on the
-        # English string, so renaming this action drops its translation in
-        # all nine languages.
-        act_tutorial = QAction("Tutorial (web)", self)
+        # NO ICON AND NO "(web)". The icon was
+        # `SP_MessageBoxInformation`, the platform's blue circled i, which
+        # is the glyph a dialog uses to mean "here is a notice" -- next to
+        # a menu label it read as a badge rather than as an illustration of
+        # anything. That both entries carried the SAME one made it noise
+        # twice over. Where the page opens is said in the status tip, which
+        # is where a detail belongs; a label is for what the thing is.
+        #
+        # The catalog in `spacr/qt/i18n.py` keys on the English string, so
+        # both keys moved with these labels -- renaming here alone would
+        # drop the translation in nine languages.
+        act_tutorial = QAction("Tutorial", self)
         act_tutorial.setStatusTip(
             "Open the interactive spaCR lesson library in a browser.")
-        act_tutorial.setIcon(
-            self.style().standardIcon(
-                QStyle.StandardPixmap.SP_MessageBoxInformation
-            )
-        )
         act_tutorial.triggered.connect(
             lambda: self._open_url(TUTORIALS_URL))
         help_menu.addAction(act_tutorial)
-        act_docs = QAction("Documentation (web)", self)
-        act_docs.setIcon(
-            self.style().standardIcon(
-                QStyle.StandardPixmap.SP_MessageBoxInformation
-            )
-        )
+        act_docs = QAction("Documentation", self)
+        act_docs.setStatusTip(
+            "Open the spaCR documentation in a browser.")
         act_docs.triggered.connect(
             lambda: self._open_url(DOCS_URL))
         help_menu.addAction(act_docs)
@@ -3250,6 +3271,53 @@ class MainWindow(QMainWindow):
                 "App dock." if mode == "hidden" else
                 "Show the full app list.")
 
+    def _set_backdrop_blank(self, blank: bool) -> int:
+        """Pause every backdrop and paint the ground flat. Ctrl+Shift+B.
+
+        :returns: how many backdrops were hidden, so a test can assert a
+            number rather than a screenshot.
+
+        Ctrl+T stops the animation and leaves the last frame on screen,
+        which is still a picture. This hides it as well, so what is behind
+        the work is the theme's own ground -- dark grey in a dark theme and
+        white in a light one, taken from the palette rather than hard-coded,
+        because a hard-coded grey is wrong in one of the two themes by
+        construction.
+
+        The animation is stopped BEFORE hiding: a hidden backdrop still
+        rendering would spend the threads and show nothing for them, which
+        is the worst of both.
+        """
+        hidden = 0
+        try:
+            for child in self.findChildren(QWidget):
+                setter = getattr(child, "set_animating", None)
+                if not callable(setter):
+                    continue
+                try:
+                    if blank:
+                        setter(False)
+                        child.hide()
+                    else:
+                        child.show()
+                        setter(True)
+                    hidden += 1
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("a backdrop would not blank", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not reach the backdrops", exc_info=True)
+        # The ground the backdrop was covering is the theme's own window
+        # colour, so nothing has to be painted -- uncovering it is enough.
+        # Keeping the two toggles agreeing is what stops Ctrl+T from
+        # appearing to do nothing while the background is blanked.
+        act = getattr(self, "_act_backdrop", None)
+        if act is not None:
+            try:
+                act.setChecked(not blank)
+            except Exception:                                # noqa: BLE001
+                pass
+        return hidden
+
     def _set_backdrop_animating(self, on: bool) -> int:
         """Start or stop every backdrop in this window. Ctrl+T.
 
@@ -3542,6 +3610,10 @@ class MainWindow(QMainWindow):
             LOG.exception("Could not install the backdrop for %s", key)
 
     def _build_screen(self, key: str) -> QWidget:
+        with _timing.span("build screen", key):
+            return self._build_screen_timed(key)
+
+    def _build_screen_timed(self, key: str) -> QWidget:
         """Return a freshly-built screen widget for the given app ``key``.
 
         Construction only. The page treatment — clearing the containers and
@@ -3930,6 +4002,7 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
 
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
+    _timing.begin()
     if argv is None:
         argv = sys.argv[1:]
 
@@ -4102,8 +4175,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # the same on every OS regardless of what fonts the user has
     # installed. Registered before applying the stylesheet so any
     # `font-family: "Open Sans"` rule resolves.
-    _load_bundled_fonts()
-    _use_open_sans(app)
+    with _timing.span("fonts"):
+        _load_bundled_fonts()
+        _use_open_sans(app)
 
     # Apply user preferences (theme + font scale) — falls back to the
     # dark defaults on the first launch when nothing is stored yet.
@@ -4190,6 +4264,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
             # where a user who dismissed it would be.
             LOG.debug("could not open the setup screen", exc_info=True)
 
+    _timing.mark("MainWindow")
     win = MainWindow(initial_app=initial_app)
     # Opens at its own size rather than maximised. Maximising assumes a
     # desktop: over X11 forwarding, VNC or a virtual framebuffer the
@@ -4257,4 +4332,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
             LOG.debug("Could not cancel every AI provider", exc_info=True)
     app.aboutToQuit.connect(_drain_ai)
 
-    return app.exec()
+    _timing.mark("entering the event loop")
+    _timing.watch_the_gui_thread(app)
+    try:
+        return app.exec()
+    finally:
+        written = _timing.write_report()
+        if written:
+            print(f"spaCR timing report written to {written}")

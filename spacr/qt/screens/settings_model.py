@@ -7979,6 +7979,9 @@ class SettingsWidgets:
         # renders as long as a widget exists for it. The value stays in
         # `self._defaults` and reaches the run unchanged.
         hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
+        _widgets_span = _span("build widgets",
+                              f"{len(variables)} settings")
+        _widgets_span.__enter__()
         # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
         # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
         # measured as zero timer ticks for the whole build, which is what
@@ -8021,6 +8024,8 @@ class SettingsWidgets:
                     _descriptions=self._tooltips,
                 )
                 self._widgets[key] = widget
+
+        _widgets_span.__exit__(None, None, None)
 
         src_widget = self._widgets.get("src")
         if isinstance(src_widget, QLineEdit):
