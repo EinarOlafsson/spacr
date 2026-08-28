@@ -179,7 +179,10 @@ def test_the_spaceout_backdrop_is_built_rather_than_skipped(qapp, monkeypatch):
     from spacr.qt import theme
     from spacr.qt.widgets import ambient
 
-    theme.enable_spaceout()
+    # SET AND RESTORED. `enable_spaceout` flips a module flag that stays
+    # flipped, so a test that walks away leaves the Fractal tab on the
+    # Preferences dialog for every test after it.
+    monkeypatch.setattr(theme, "_SPACEOUT", True)
     host = QWidget()
     host.resize(400, 300)
     built = ambient._the_spaceout_fractal(host)

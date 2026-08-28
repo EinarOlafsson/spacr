@@ -15,6 +15,22 @@ from spacr.qt.widgets.fractal_mandelbrot import steering_from_one_number
 
 
 @pytest.fixture
+def spaceout_only(monkeypatch):
+    """Turn spaceout on for one test and OFF again afterwards.
+
+    It is a module-level flag, so a test that enables it and walks away
+    leaves the Fractal tab on the Preferences dialog for every test that
+    runs after it -- which is what broke
+    `test_the_dialog_has_the_expected_subject_tabs_in_order`.
+    """
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, "_SPACEOUT", True)
+    yield
+
+
+
+@pytest.fixture
 def store(monkeypatch):
     values = {}
 
@@ -77,26 +93,31 @@ def test_setting_steering_writes_the_three_numbers(store):
         assert values[name] == pytest.approx(value), name
 
 
-def test_steering_is_offered_as_one_field(qtbot):
-    from spacr.qt.theme import enable_spaceout
-
-    enable_spaceout()
+def test_steering_is_offered_as_one_field(qtbot, spaceout_only):
     dlg = P.PreferencesDialog(None)
     qtbot.addWidget(dlg)
     assert dlg.findChild(QDoubleSpinBox, "FractalSteering") is not None
 
 
-def test_the_detail_sits_under_an_advanced_heading(qtbot):
-    """A number somebody needs and cannot reach is worse than a long panel,
-    but it does not belong beside the control it explains."""
-    from spacr.qt.theme import enable_spaceout
+def test_the_derived_numbers_are_settings_but_not_panel_rows(qtbot, spaceout_only):
+    """They are still read by the renderer and still carried by a settings
+    file -- they are simply not offered beside the control that sets them.
 
-    enable_spaceout()
+    Putting them behind an "Advanced" heading was the first attempt and was
+    not what was asked for: it left the same panel with one more row on it,
+    and a hand-set combination could still contradict the control above.
+    """
     dlg = P.PreferencesDialog(None)
     qtbot.addWidget(dlg)
     headings = [l.text() for l in dlg.findChildren(QLabel)
                 if l.objectName() == "FractalGroupHeading"]
-    assert any("Advanced" in h for h in headings), headings
+    assert not any("Advanced" in h for h in headings), headings
+
+    # Still settings, though: the renderer reads them.
+    values = P.get_fractal_settings()
+    for name in ("steering_strength", "steering_interval_decades",
+                 "steering_duration", "speed_min", "speed_max"):
+        assert name in values, name
 
 
 def test_the_same_controls_serve_every_pattern():
@@ -109,3 +130,88 @@ def test_the_same_controls_serve_every_pattern():
                  "pointer_gravity"):
         assert name in values, name
     assert len(PATTERNS) == 4
+
+
+def test_the_camera_follows_continuously_rather_than_moving_in_steps():
+    """Reported twice: "jerkey moovements", then "still jerking arround,
+    the jerks are abit smoother".
+
+    The first fix clamped each move to a fraction of the gap, which made
+    every slide smoother and left the STARTING and STOPPING exactly where it
+    was -- and that alternation is the jerk. A continuous follow never
+    starts and never stops; only its speed changes.
+    """
+    import math
+
+    def follow(target_of, frames=200, duration=4.0, fps=30.0):
+        here = 0.0
+        path = []
+        step = 1.0 / fps
+        for index in range(frames):
+            wanted = target_of(index * step)
+            rate = 1.0 - math.exp(-step / max(0.5, duration))
+            here += rate * (wanted - here)
+            path.append(here)
+        return path
+
+    def stepping(seconds):
+        return [0.0, 0.30, -0.20, 0.45][int(seconds // 2.0) % 4]
+
+    path = follow(stepping)
+    velocity = [b - a for a, b in zip(path, path[1:])]
+    acceleration = [abs(b - a) for a, b in zip(velocity, velocity[1:])]
+
+    # The old shape -- ease over part of the window, then hold -- for
+    # comparison: its acceleration spikes when the move ends.
+    held = []
+    for index in range(200):
+        phase = (index % 60) / 60.0
+        if phase < 0.6:
+            eased = phase / 0.6
+            held.append(eased * eased * (3 - 2 * eased) * 0.3)
+        else:
+            held.append(0.3)
+    old_velocity = [b - a for a, b in zip(held, held[1:])]
+    old_acceleration = [abs(b - a)
+                        for a, b in zip(old_velocity, old_velocity[1:])]
+
+    assert max(acceleration) < max(old_acceleration) / 10.0, (
+        f"following peaks at {max(acceleration):.4f} against "
+        f"{max(old_acceleration):.4f} for discrete moves")
+
+
+def test_the_renderer_reconciles_the_numbers_wherever_they_came_from():
+    """Deriving them in the panel does not stop a settings file, or an
+    older install, carrying a combination that contradicts itself."""
+    import inspect
+
+    from spacr.qt.widgets import fractal_travel as ft
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    # Zero reach means do not steer, not "steer in an arbitrary direction".
+    assert "if strength <= 0.0:" in source
+    # And the move is bounded by the gap at the point of USE.
+    assert "0.45 * interval * seconds_per_decade" in source
+
+
+def test_the_panel_offers_one_control_per_question(qtbot, spaceout_only):
+    """"there need to be fewer options"."""
+    from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QSpinBox
+
+    dlg = P.PreferencesDialog(None)
+    qtbot.addWidget(dlg)
+
+    named = []
+    for kind in (QComboBox, QDoubleSpinBox, QSpinBox):
+        named += [c.objectName() for c in dlg.findChildren(kind)
+                  if c.objectName().startswith("Fractal")]
+
+    # It was twenty-one.
+    assert len(named) <= 10, sorted(named)
+    # And none of the derived numbers is offered beside the control that
+    # already sets it.
+    for gone in ("FractalSpeedMin", "FractalSpeedMax", "FractalSpeedPeriod",
+                 "FractalPointerSize", "FractalPointerStrength",
+                 "Fractal_steering_strength", "Fractal_steering_duration",
+                 "Fractal_steering_interval_decades"):
+        assert gone not in named, gone
