@@ -188,6 +188,9 @@ _KEY_FRACTAL_SCALE = "spaceout/fractal_scale"
 _KEY_FRACTAL_SPEED = "spaceout/fractal_speed"
 _KEY_FRACTAL_DREAM = "spaceout/fractal_dream"
 _KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
+_KEY_FRACTAL_SPEED_MIN = "spaceout/fractal_speed_min"
+_KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
+_KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
 _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
@@ -1798,7 +1801,8 @@ def get_fractal_settings() -> dict:
     """
     from .fractal_defaults import (
         DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_PATTERN, DEFAULT_QUALITY,
-        DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_VARIABLE_SPEED, clamp,
+        DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
+        DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
     )
 
     settings = _settings()
@@ -1831,6 +1835,12 @@ def get_fractal_settings() -> dict:
         "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.15, 8.0),
         "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, 1.5),
         "variable_speed": variable,
+        "speed_min": _number(_KEY_FRACTAL_SPEED_MIN, DEFAULT_SPEED_MIN,
+                             0.15, 8.0),
+        "speed_max": _number(_KEY_FRACTAL_SPEED_MAX, DEFAULT_SPEED_MAX,
+                             0.15, 8.0),
+        "speed_period": _number(_KEY_FRACTAL_SPEED_PERIOD,
+                                DEFAULT_SPEED_PERIOD, 5.0, 300.0),
     }
 
 
@@ -1851,6 +1861,9 @@ def set_fractal_settings(**values) -> None:
         "speed": (_KEY_FRACTAL_SPEED, (0.15, 8.0)),
         "dream": (_KEY_FRACTAL_DREAM, (0.0, 1.5)),
         "variable_speed": (_KEY_FRACTAL_VARIABLE_SPEED, None),
+        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.15, 8.0)),
+        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.15, 8.0)),
+        "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (5.0, 300.0)),
     }
     store = _settings()
     for name, value in values.items():
@@ -3016,6 +3029,9 @@ PREFERENCE_TIPS = {
     "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
     "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
     "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the maximum and is the default. It costs nothing extra to raise.",
+    "Slowest": "The slowest the travel goes when variable speed is on. Ignored when it is off. If this is above Fastest the two are simply used the other way round -- a swapped pair is not an empty range.",
+    "Fastest": "The fastest the travel goes when variable speed is on. Ignored when it is off.",
+    "Sweep time": "How long one full sweep takes, slowest to fastest and back. This is how GRADUAL the change is, not how fast the fractal goes: a larger number means the speed drifts more slowly between the two bounds. Below about ten seconds it stops reading as drift and starts reading as a pulse.",
     "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Laptop mode": "Turns the ambient animation and the backdrop blur down on a small machine. Automatic decides from the cores and memory it finds. Only drawing is affected: a run computes the same answer either way.",
     "Animation blur": "Blur applied to background shapes.",
@@ -4084,6 +4100,39 @@ class PreferencesDialog:
             fractal_variable.setChecked(bool(_fractal_values["variable_speed"]))
             fractal.addRow(tr("Variable speed"), fractal_variable)
 
+            fractal_speed_min = _tenths("FractalSpeedMin",
+                                        _fractal_values["speed_min"],
+                                        0.15, 8.0)
+            fractal.addRow(tr("Slowest"), fractal_speed_min)
+            fractal_speed_max = _tenths("FractalSpeedMax",
+                                        _fractal_values["speed_max"],
+                                        0.15, 8.0)
+            fractal.addRow(tr("Fastest"), fractal_speed_max)
+
+            fractal_speed_period = QDoubleSpinBox()
+            fractal_speed_period.setObjectName("FractalSpeedPeriod")
+            fractal_speed_period.setRange(5.0, 300.0)
+            fractal_speed_period.setSingleStep(5.0)
+            fractal_speed_period.setDecimals(0)
+            fractal_speed_period.setSuffix(tr(" s"))
+            fractal_speed_period.setValue(
+                float(_fractal_values["speed_period"]))
+            fractal.addRow(tr("Sweep time"), fractal_speed_period)
+
+            def _sync_variable_rows(*_args):
+                """Grey the three bounds when the sweep is off.
+
+                They are still SHOWN, so a user can see what turning it on
+                would do; a hidden row is a setting nobody discovers.
+                """
+                on = fractal_variable.isChecked()
+                for box in (fractal_speed_min, fractal_speed_max,
+                            fractal_speed_period):
+                    box.setEnabled(on)
+
+            fractal_variable.toggled.connect(_sync_variable_rows)
+            _sync_variable_rows()
+
 
         laptop_note_label = QLabel()
         laptop_note_label.setObjectName("LaptopModeNote")
@@ -4456,6 +4505,9 @@ class PreferencesDialog:
                     speed=fractal_speed.value(),
                     dream=fractal_dream.value(),
                     variable_speed=fractal_variable.isChecked(),
+                    speed_min=fractal_speed_min.value(),
+                    speed_max=fractal_speed_max.value(),
+                    speed_period=fractal_speed_period.value(),
                 )
             set_laptop_mode(laptop_combo.currentData())
             set_spacr_mode(mode_combo.currentData())

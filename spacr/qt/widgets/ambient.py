@@ -5222,7 +5222,10 @@ def _the_spaceout_fractal(host):
             Settings(pattern=values["pattern"], backend=values["backend"],
                      quality=values["quality"], scale=values["scale"]),
             RuntimeControls(speed=values["speed"], dream=values["dream"],
-                            variable_speed=values["variable_speed"]),
+                            variable_speed=values["variable_speed"],
+                            speed_min=values["speed_min"],
+                            speed_max=values["speed_max"],
+                            speed_period=values["speed_period"]),
         )
         widget.setParent(host)
         widget.setGeometry(host.rect())

@@ -70,11 +70,90 @@ DEFAULT_SCALE: Final[float] = 1.0
 DEFAULT_SPEED: Final[float] = 4.0
 DEFAULT_DREAM: Final[float] = 1.5
 DEFAULT_VARIABLE_SPEED: Final[bool] = False
+#: The pointer pulls the pattern toward it, and a click shoves
+#: it away. On by default: it is the thing that makes the
+#: backdrop feel answerable rather than merely present.
+DEFAULT_FOLLOW_POINTER: Final[bool] = True
+#: The bounds `variable_speed` sweeps between. They bracket DEFAULT_SPEED so
+#: turning it on changes the RANGE and not the average pace.
+DEFAULT_SPEED_MIN: Final[float] = 2.0
+DEFAULT_SPEED_MAX: Final[float] = 6.0
+#: SECONDS FOR ONE FULL SWEEP, slow to fast and back. This is the "how
+#: gradually" control: a larger number is a slower change, not a slower
+#: fractal. Below about ten seconds it stops reading as drift and starts
+#: reading as a pulse.
+DEFAULT_SPEED_PERIOD: Final[float] = 41.0
 
-#: How far `variable_speed` swings the speed, and over how long. Slow enough
-#: that it reads as drift rather than as a pulse.
-_VARIABLE_SPEED_DEPTH: Final[float] = 0.45
-_VARIABLE_SPEED_PERIOD: Final[float] = 41.0
+#: Fallback sweep period, used when a caller supplies none.
+_VARIABLE_SPEED_PERIOD: Final[float] = DEFAULT_SPEED_PERIOD
+
+
+class Pointer:
+    """Where the pointer is, and whether it is pushing.
+
+    SAMPLED, NEVER RECEIVED. The backdrop sits behind every control; a
+    widget that accepted mouse events would eat the click meant for the
+    button on top of it. So nothing here is a mouse handler -- the position
+    is read from `QCursor.pos()` on the render tick, and the buttons from
+    `QApplication.mouseButtons()`, both of which are global state that costs
+    nothing and steals nothing.
+
+    Coordinates come back in the -1..1 space the fractals already work in,
+    with (0, 0) at the centre, so a kernel can use them without knowing
+    anything about widgets.
+    """
+
+    __slots__ = ("x", "y", "pull", "push", "inside")
+
+    def __init__(self) -> None:
+        self.x = 0.0
+        self.y = 0.0
+        #: How strongly the pattern is drawn toward the pointer, 0..1.
+        self.pull = 0.0
+        #: How strongly it is pushed away. Negative pull, kept separate so a
+        #: kernel can shape the two differently -- a shove is not a tug
+        #: backwards.
+        self.push = 0.0
+        self.inside = False
+
+    def sample(self, widget) -> "Pointer":
+        """Read the pointer relative to ``widget``. Never raises."""
+        try:
+            from PySide6.QtGui import QCursor
+            from PySide6.QtWidgets import QApplication
+
+            if widget is None or not widget.isVisible():
+                self.inside = False
+                return self
+            local = widget.mapFromGlobal(QCursor.pos())
+            width = max(1, widget.width())
+            height = max(1, widget.height())
+            denominator = float(min(width, height))
+            self.x = (2.0 * local.x() - width) / denominator
+            self.y = (height - 2.0 * local.y()) / denominator
+            self.inside = (0 <= local.x() < width and 0 <= local.y() < height)
+
+            buttons = QApplication.mouseButtons()
+            from PySide6.QtCore import Qt
+
+            left = bool(buttons & Qt.MouseButton.LeftButton)
+            right = bool(buttons & Qt.MouseButton.RightButton)
+            if not self.inside:
+                # Off the widget it neither pulls nor pushes, rather than
+                # pulling toward an edge it is nowhere near.
+                self.pull = max(0.0, self.pull - 0.08)
+                self.push = max(0.0, self.push - 0.15)
+                return self
+            # EASED, not switched. A pull that appears the instant the
+            # pointer enters reads as a glitch; this reaches full strength
+            # over about a second and lets go about as fast.
+            wanted_pull = 0.0 if (left or right) else 1.0
+            wanted_push = 1.0 if left else (0.6 if right else 0.0)
+            self.pull += 0.06 * (wanted_pull - self.pull)
+            self.push += 0.25 * (wanted_push - self.push)
+        except Exception:                                    # noqa: BLE001
+            self.inside = False
+        return self
 
 
 def clamp(value: float, low: float, high: float) -> float:
@@ -117,19 +196,38 @@ class RuntimeControls:
     speed: float = DEFAULT_SPEED
     dream: float = DEFAULT_DREAM
     variable_speed: bool = DEFAULT_VARIABLE_SPEED
+    #: Whether the pointer pulls the pattern about. Off leaves the kernels
+    #: taking a zero, which costs nothing measurable.
+    follow_pointer: bool = DEFAULT_FOLLOW_POINTER
+    speed_min: float = DEFAULT_SPEED_MIN
+    speed_max: float = DEFAULT_SPEED_MAX
+    speed_period: float = DEFAULT_SPEED_PERIOD
 
     def speed_at(self, t: float) -> float:
         """The speed to use at ``t`` seconds.
 
-        Constant unless `variable_speed` is on, in which case it breathes
-        around the set value rather than replacing it -- so the preference
-        still means what it says.
+        Constant `speed` unless `variable_speed` is on, in which case it
+        sweeps between `speed_min` and `speed_max` -- named bounds rather
+        than a hidden percentage, so what the travel will actually do is
+        readable from the settings instead of inferred from watching it.
+        `speed_period` is how long one full sweep takes, which is the "how
+        gradually" control: a larger number is a slower CHANGE, not a slower
+        fractal.
+
+        The bounds are used in whichever order they are given: a min above a
+        max is a swapped pair, not an empty range, and refusing to animate
+        would be a worse answer than animating between the two numbers.
         """
         if not self.variable_speed:
-            return self.speed
-        swing = 1.0 + _VARIABLE_SPEED_DEPTH * math.sin(
-            2.0 * math.pi * t / _VARIABLE_SPEED_PERIOD)
-        return max(0.05, self.speed * swing)
+            return max(0.05, self.speed)
+        low = min(self.speed_min, self.speed_max)
+        high = max(self.speed_min, self.speed_max)
+        middle = 0.5 * (low + high)
+        half = 0.5 * (high - low)
+        # A period of zero would divide by zero; a tiny one is a strobe.
+        period = max(1.0, float(self.speed_period or _VARIABLE_SPEED_PERIOD))
+        swept = middle + half * math.sin(2.0 * math.pi * t / period)
+        return max(0.05, swept)
 
 
 @dataclass(frozen=True, slots=True)
@@ -254,10 +352,28 @@ if njit is not None:
         return _fast_sin(value + 0.5 * _FAST_PI)
 
     @njit(inline="always", fastmath=True)
-    def _orbit_sample(px, py, width, height, t, speed, dream, iterations):
+    def _orbit_sample(px, py, width, height, t, speed, dream, iterations,
+                      pointer_x, pointer_y, pull, push):
         denominator = float(min(width, height))
         x = (2.0 * px - width) / denominator
         y = (height - 2.0 * py) / denominator
+
+        # THE POINTER BENDS THE PLANE, it does not move the camera. Warping
+        # the sample position pulls the STRUCTURE toward the cursor and
+        # leaves the travel alone, so the fractal still goes where it was
+        # going -- which a camera shove would not.
+        if pull > 0.0 or push > 0.0:
+            to_x = pointer_x - x
+            to_y = pointer_y - y
+            distance2 = to_x * to_x + to_y * to_y + 0.05
+            # 1/r falloff: firm near the pointer, gone by the far corner.
+            strength = (0.55 * pull - 0.95 * push) / distance2
+            if strength > 0.9:
+                strength = 0.9
+            elif strength < -1.4:
+                strength = -1.4
+            x += strength * to_x
+            y += strength * to_y
 
         rotation = (0.24 * _fast_sin(0.17 * t)
                     + 0.11 * _fast_sin(0.043 * t + 1.2))
@@ -350,13 +466,15 @@ if njit is not None:
         return int(255.0 * red), int(255.0 * green), int(255.0 * blue)
 
     @njit(cache=True, parallel=True, fastmath=True, nogil=True)
-    def _render_into(output, t, speed, dream, iterations, jitter_x, jitter_y):
+    def _render_into(output, t, speed, dream, iterations, jitter_x, jitter_y,
+                     pointer_x, pointer_y, pull, push):
         height, width, _channels = output.shape
         for y in prange(height):
             for x in range(width):
                 red, green, blue = _orbit_sample(
                     x + jitter_x, y + jitter_y, width, height,
-                    t, speed, dream, iterations)
+                    t, speed, dream, iterations,
+                    pointer_x, pointer_y, pull, push)
                 output[y, x, 0] = red
                 output[y, x, 1] = green
                 output[y, x, 2] = blue
@@ -419,12 +537,14 @@ class OrbitEngine:
         self.frames = 0
 
     def render(self, width: int, height: int, t: float, speed: float,
-               dream: float, iterations: int) -> np.ndarray:
+               dream: float, iterations: int, pointer_x: float = 0.0,
+               pointer_y: float = 0.0, pull: float = 0.0,
+               push: float = 0.0) -> np.ndarray:
         set_num_threads(self.thread_count)
         self._ensure_size(width, height)
         jitter_x, jitter_y = JITTERS[self.slot]
         _render_into(self.ring[self.slot], t, speed, dream, iterations,
-                     jitter_x, jitter_y)
+                     jitter_x, jitter_y, pointer_x, pointer_y, pull, push)
         if self.frames == 0:
             # Fill the unused history with the first real sample, so the
             # opening frame is the picture rather than a fade up from black.
@@ -515,7 +635,10 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 started = time.perf_counter()
                 frame = self.engine.render(
                     request["width"], request["height"], request["t"],
-                    request["speed"], request["dream"], request["iterations"])
+                    request["speed"], request["dream"], request["iterations"],
+                    request.get("pointer_x", 0.0),
+                    request.get("pointer_y", 0.0),
+                    request.get("pull", 0.0), request.get("push", 0.0))
                 self.frame_ready.emit(frame, time.perf_counter() - started)
             except Exception as error:                       # noqa: BLE001
                 self.failed.emit(f"{type(error).__name__}: {error}")
@@ -573,6 +696,9 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._image = None
             self._image_array = None
             self._error: Optional[str] = None
+            #: Read on the GUI thread each tick. The widget never becomes a
+            #: mouse target -- see `Pointer`.
+            self._pointer = Pointer()
             self._timer.start(30)
 
         # ---------------------------------------------------- winding down
@@ -645,10 +771,19 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             width, height = self._target_size()
             self._render_size = (width, height)
             self._busy = True
+            # SAMPLED ON THE GUI THREAD, sent to the worker as numbers.
+            # QCursor and QApplication are not safe to touch from the render
+            # thread, and by the time the frame is drawn the pointer has
+            # moved anyway -- so the position that matters is the one when
+            # the frame was ASKED for.
+            pointer = self._pointer.sample(self)
             self.render_requested.emit({
                 "width": width, "height": height, "t": self._sim_time,
                 "speed": controls.speed_at(self._sim_time),
                 "dream": controls.dream, "iterations": iterations,
+                "pointer_x": pointer.x, "pointer_y": pointer.y,
+                "pull": pointer.pull if controls.follow_pointer else 0.0,
+                "push": pointer.push if controls.follow_pointer else 0.0,
             })
             self._sim_time += target_period
 

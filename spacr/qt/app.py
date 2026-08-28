@@ -2262,6 +2262,22 @@ class MainWindow(QMainWindow):
             "to the left edge of the window.")
         act_all.triggered.connect(self.toggle_app_drawer)
         self.addAction(act_all)
+
+        # THE BACKDROP OFF AND ON. Registered on the window like Ctrl+B
+        # above, so it works wherever focus is. It STOPS the animation
+        # rather than hiding it: a hidden backdrop that kept rendering would
+        # be the worst of both, spending the cores and showing nothing.
+        act_backdrop = QAction("Animated background", self)
+        act_backdrop.setObjectName("ToggleBackdrop")
+        act_backdrop.setCheckable(True)
+        act_backdrop.setChecked(True)
+        act_backdrop.setShortcut(QKeySequence("Ctrl+T"))
+        act_backdrop.setStatusTip(
+            "Stop the moving background — useful while looking at images. "
+            "It gives its threads back rather than only hiding.")
+        act_backdrop.toggled.connect(self._set_backdrop_animating)
+        self.addAction(act_backdrop)
+        self._act_backdrop = act_backdrop
         #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+B that
         #: silently does nothing because the dock is hidden is worse than
         #: a menu entry that says so.
@@ -3233,6 +3249,34 @@ class MainWindow(QMainWindow):
                 "The app dock is hidden. Turn it back on in Preferences → "
                 "App dock." if mode == "hidden" else
                 "Show the full app list.")
+
+    def _set_backdrop_animating(self, on: bool) -> int:
+        """Start or stop every backdrop in this window. Ctrl+T.
+
+        :returns: how many backdrops answered, so a test can assert a number
+            rather than a screenshot.
+
+        Reaches BOTH kinds. The ambient engines and the spaceout fractal are
+        different classes with different lifetimes, but both answer to
+        `set_animating` -- which is the reason the fractal was given that
+        name rather than only `pause`/`resume`.
+
+        Never raises: a decoration that will not stop must not break a menu.
+        """
+        answered = 0
+        try:
+            for child in self.findChildren(QWidget):
+                setter = getattr(child, "set_animating", None)
+                if not callable(setter):
+                    continue
+                try:
+                    setter(bool(on))
+                    answered += 1
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("a backdrop would not toggle", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not reach the backdrops", exc_info=True)
+        return answered
 
     def toggle_app_drawer(self) -> None:
         """Open (and focus) or close the slide-in app list.
