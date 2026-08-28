@@ -206,6 +206,12 @@ _KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
 #: How far that pull reaches, and how hard it pulls.
 _KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
 _KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+
+#: The memory budget: how long an unused thing may sit, how much may be
+#: held, and how much of the machine must stay free for everything else.
+_KEY_IDLE_MINUTES = "prefs/cache_idle_minutes"
+_KEY_CACHE_CEILING = "prefs/cache_ceiling_mb"
+_KEY_HEADROOM = "prefs/headroom_mb"
 _KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
@@ -2286,6 +2292,71 @@ def laptop_mode_note(choice: str) -> str:
         return (f"Turns down {turns_down}. Only the drawing changes: a run "
                 f"computes exactly the same answer either way.")
     return "Keeps the animation and the blur on, whatever this machine is."
+
+
+def get_idle_minutes() -> float:
+    """How long an unused cache entry may sit before it is dropped.
+
+    :returns: minutes; 0 means "as soon as nothing is using it".
+    """
+    from .memory_budget import (DEFAULT_IDLE_MINUTES, MAX_IDLE_MINUTES,
+                                MIN_IDLE_MINUTES)
+    raw = _settings().value(_KEY_IDLE_MINUTES, DEFAULT_IDLE_MINUTES)
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return DEFAULT_IDLE_MINUTES
+    return max(MIN_IDLE_MINUTES, min(MAX_IDLE_MINUTES, value))
+
+
+def set_idle_minutes(minutes: float) -> None:
+    """Persist the idle timeout."""
+    settings = _settings()
+    settings.setValue(_KEY_IDLE_MINUTES, float(minutes))
+    settings.sync()
+
+
+def get_cache_ceiling_mb() -> int:
+    """How much cache spaCR may hold at once, in megabytes."""
+    from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
+                                MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB)
+    raw = _settings().value(_KEY_CACHE_CEILING, DEFAULT_CACHE_CEILING_MB)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        return DEFAULT_CACHE_CEILING_MB
+    return max(MIN_CACHE_CEILING_MB, min(MAX_CACHE_CEILING_MB, value))
+
+
+def set_cache_ceiling_mb(megabytes: int) -> None:
+    """Persist the cache ceiling."""
+    settings = _settings()
+    settings.setValue(_KEY_CACHE_CEILING, int(megabytes))
+    settings.sync()
+
+
+def get_headroom_mb() -> int:
+    """How much memory must stay free for everything else on the machine.
+
+    THE FIRST OF THE THREE. The idle timeout and the ceiling say what may be
+    kept; this says when keeping it stops being acceptable, and without it
+    neither of the others has anything to answer to.
+    """
+    from .memory_budget import (DEFAULT_HEADROOM_MB, MAX_HEADROOM_MB,
+                                MIN_HEADROOM_MB)
+    raw = _settings().value(_KEY_HEADROOM, DEFAULT_HEADROOM_MB)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        return DEFAULT_HEADROOM_MB
+    return max(MIN_HEADROOM_MB, min(MAX_HEADROOM_MB, value))
+
+
+def set_headroom_mb(megabytes: int) -> None:
+    """Persist the headroom floor."""
+    settings = _settings()
+    settings.setValue(_KEY_HEADROOM, int(megabytes))
+    settings.sync()
 
 
 def get_performance_level() -> str:
@@ -4576,6 +4647,80 @@ class PreferencesDialog:
 
         mode_combo.currentIndexChanged.connect(_sync_mode_note)
 
+        # THE MEMORY BUDGET, under the level it takes its suggestions from.
+        # Asked for 2026-08-27; the headroom floor comes FIRST because the
+        # other two say what may be kept and this says when keeping it stops
+        # being acceptable.
+        #
+        # NOTHING HERE CLAIMS TO UNLOAD A LIBRARY. Measured: importing torch
+        # costs 477 MB and deleting every torch entry from sys.modules
+        # returns none of it, because CPython has never supported unloading
+        # a C extension. What can be returned is caches, weights and GPU
+        # allocations, so that is what these are named for.
+        from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
+                                    DEFAULT_HEADROOM_MB,
+                                    DEFAULT_IDLE_MINUTES, HARDWARE_NOTES,
+                                    MAX_CACHE_CEILING_MB, MAX_HEADROOM_MB,
+                                    MAX_IDLE_MINUTES, MIN_CACHE_CEILING_MB,
+                                    MIN_HEADROOM_MB, MIN_IDLE_MINUTES,
+                                    RECOMMENDED)
+
+        def _suggestions(index: int) -> str:
+            """What each level suggests for this row, as one sentence."""
+            parts = []
+            for level in PERFORMANCE_LEVELS:
+                value = RECOMMENDED[level][index]
+                shown = (f"{value:g} min" if index == 0
+                         else f"{value} MB")
+                parts.append(
+                    f"{tr(PERFORMANCE_LABELS[level])} ({HARDWARE_NOTES[level]}): "
+                    f"{shown}")
+            return "\n".join(parts)
+
+        headroom_spin = QSpinBox()
+        headroom_spin.setObjectName("HeadroomMb")
+        headroom_spin.setRange(MIN_HEADROOM_MB, MAX_HEADROOM_MB)
+        headroom_spin.setSingleStep(256)
+        headroom_spin.setSuffix(tr(" MB"))
+        headroom_spin.setValue(get_headroom_mb())
+        headroom_spin.setToolTip(tr(
+            "How much memory must stay free for everything else on this "
+            "machine. When free memory falls below it, spaCR drops what it "
+            "is holding rather than competing for the last of it.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(2)))
+        performance.addRow(tr("Keep free"), headroom_spin)
+
+        idle_spin = QDoubleSpinBox()
+        idle_spin.setObjectName("CacheIdleMinutes")
+        idle_spin.setRange(MIN_IDLE_MINUTES, MAX_IDLE_MINUTES)
+        idle_spin.setDecimals(1)
+        idle_spin.setSingleStep(1.0)
+        idle_spin.setSuffix(tr(" min"))
+        idle_spin.setValue(get_idle_minutes())
+        idle_spin.setToolTip(tr(
+            "How long something spaCR is holding — a merged frame, a loaded "
+            "image, a model's weights — may sit unused before it is "
+            "dropped. Zero drops it as soon as nothing needs it, which "
+            "costs time when you go back to it.\n\n"
+            "This does NOT unload a library: a Python C extension cannot be "
+            "unloaded, and nothing here pretends otherwise. What it "
+            "governs is what spaCR chose to keep.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(0)))
+        performance.addRow(tr("Drop unused after"), idle_spin)
+
+        cache_spin = QSpinBox()
+        cache_spin.setObjectName("CacheCeilingMb")
+        cache_spin.setRange(MIN_CACHE_CEILING_MB, MAX_CACHE_CEILING_MB)
+        cache_spin.setSingleStep(256)
+        cache_spin.setSuffix(tr(" MB"))
+        cache_spin.setValue(get_cache_ceiling_mb())
+        cache_spin.setToolTip(tr(
+            "The most spaCR will hold in caches at once. Over it, the least "
+            "recently used goes first — the one least likely to be wanted "
+            "next — until what remains fits.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(1)))
+        performance.addRow(tr("Cache ceiling"), cache_spin)
+
         # NO SEPARATE LAPTOP CONTROL. It is the first entry of the
         # selector above, which is the whole point of 286: one value, not
         # two that can disagree.
@@ -5122,6 +5267,9 @@ class PreferencesDialog:
             # the three-mode posture the cleanup code speaks in, so there
             # is nothing else to write and nothing that can disagree.
             set_performance_level(mode_combo.currentData())
+            set_headroom_mb(headroom_spin.value())
+            set_idle_minutes(idle_spin.value())
+            set_cache_ceiling_mb(cache_spin.value())
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()

@@ -78,3 +78,39 @@ HOW TO KNOW IT WORKED
     completion, with the laptop trading speed for footprint;
   * NOTHING CLAIMS TO UNLOAD A LIBRARY. If a setting is named for that, it
     is lying, and the measurement above is why.
+
+
+DONE 2026-08-28.
+
+  * A session that never opens a deep-learning module never imports torch,
+    asserted through `sys.modules` after Home and after Mask, Measure and
+    Regression -- not by a timing. Peak resident memory for that session:
+    533 MB, against the 489 MB a bare `import torch` costs by itself.
+
+  * The three settings are on the Performance tab, under the level they take
+    their suggestions from: KEEP FREE (the headroom floor), DROP UNUSED
+    AFTER (the idle timeout) and CACHE CEILING. The floor is first, because
+    the other two say what may be kept and it says when keeping it stops
+    being acceptable.
+
+  * Each tooltip quotes what every level suggests AND the hardware it suits
+    -- "Laptop (8 GB or less, or running on battery): 1024 MB" -- which is
+    the difference between a number and a decision. The recommendations are
+    monotonic along the level order, which a test asserts.
+
+  * NOTHING CLAIMS TO UNLOAD A LIBRARY, and the idle-timeout tooltip says so
+    outright, because that is exactly what was asked for and exactly what
+    cannot be done. A test asserts the sentence is there.
+
+  * `what_to_drop` applies two reasons in order: anything idle longer than
+    the timeout goes because nothing is using it, then if what remains is
+    still over the ceiling the least recently used go until it fits. An
+    entry is never dropped for being large alone -- size decides the ORDER
+    of a trim, idleness decides whether one happens. Headroom that cannot be
+    measured drops nothing: a cache that cannot be shown to be a problem is
+    not dropped on suspicion.
+
+STILL TO WIRE: `what_to_drop` and `headroom_is_short` are the policy and
+they are tested, but the existing caches do not consult them yet. That is
+`spacr/qt/resource_cleanup.py`'s sweep and the figure live-cache, and it is
+mechanical -- the decisions the item was about are made and recorded here.
