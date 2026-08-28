@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.fractal_cascade#0",
+      "source": "The fold-inversion cascade: the second spaceout pattern.",
+      "context": "The fold-inversion cascade: the second spaceout pattern.",
+      "source_sha256": "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+      "translation": "Fellingar- og umhverfingarflæðið: annað spaceout-mynstrið."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_cascade#4",
+      "source": "the CPU renderer does TRUE SPATIAL 2x2 supersampling inside one frame -- four samples of the same instant, averaged. The orbit pattern's CPU path jitters across four frames instead, which is cheaper but blends different animation times. That is the reason this one costs four times as much per pixel and renders a quarter of the pixels to pay for it.",
+      "context": "the CPU renderer does TRUE SPATIAL 2x2 supersampling inside one frame -- four samples of the same instant, averaged. The orbit pattern's CPU path jitters across four frames instead, which is cheaper but blends different animation times. That is the reason this one costs four times as much per pixel and renders a quarter of the pixels to pay for it.",
+      "source_sha256": "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969",
+      "translation": "CPU-myndgerðarvélin framkvæmir raunverulega staðbundna 2x2-ofursýnatöku innan eins ramma -- fjögur sýni af sama augnablikinu, lögð saman í meðaltal. CPU-ferill sporbrautarmynstursins hliðrar sýnatökunni þess í stað yfir fjóra ramma; það er ódýrara en blandar saman mismunandi tímapunktum hreyfimyndarinnar. Þess vegna kostar þessi aðferð fjórfalt meira á hvern mynddíl og myndgerir fjórðung mynddílanna til að vega upp kostnaðinn."
+    }
+  ]
+}

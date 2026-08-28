@@ -88716,6 +88716,36 @@
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
       ]
     },
+    "spacr.qt.widgets.fractal_cascade": {
+      "source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ],
+      "source_sha256": "b4820ff0beacfabe2fb8952dca6b56ca4b4f01ce254e4cf303617af069aa5126",
+      "text": "Fold-inversion cascade:第二个Spaceout模式。\n\n从维持器的 `fold-inversion fractal cascade` v1.0.0,转向 PySide6. 它是与轨道分裂在 :mod:`spacr.qt.widgets.fractal_travel`的真正不同的分裂,而不是与其他数字相同:\n\n* 地图是一个像Kaliset一样的折叠/逆转 - 反射,转换,旋转,通过一个领域,分散 - 颜色来自TREE ORBIT TRAPS通过这个集合(一个戒指,一个 diagonal 和一个 slant)而不是从逃避数量;\n* 无限的入口旅行是两个超越的逻辑规模的窗户. 输出规模仅在输入者达到相同的视野后落下,因此没有重新设置和没有微观数字失去准确性;\n* CPU 播放器在一个框架内进行 TRUE SPATIAL 2x2 超模拟 - 同一瞬间的四个样本,平均。 轨道模式的 CPU 路径在四个框架上旋转,而不是,这更便宜,但混合不同的动画时间。",
+      "translation_source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ]
+    },
+    "spacr.qt.widgets.fractal_cascade.CascadeEngine": {
+      "source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ],
+      "source_sha256": "bb342939f43252b54640d098afb126257d642603ad597c24a2bf78cc1e962027",
+      "text": "一个超简单的泡沫,没有暂时的历史。\n\n轨道模式保留了四个框架的戒指,因为它的反连接会随着时间的推移进入子像素网络,这将采取一个框架内的所有四个样本,所以在框架之间没有什么可记住的 - 这也是为什么休息和重复它不能显示一个标志。",
+      "translation_source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel": {
       "source_blocks_sha256": [
         "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",

@@ -724,7 +724,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # helpers in `qt.widgets.sweep_runs`; `qt.app.install_the_spaceout_fractal`;
     # and `qt.fractal_defaults`. Nothing retired; every new contract enters the
     # regenerated catalogs in this change.
-    expected = 8508
+    # +2/-0 for the optional fold-inversion Spaceout pattern:
+    # `spacr.qt.widgets.fractal_cascade` and its `CascadeEngine`. Nothing
+    # retired; both contracts enter every regenerated language catalog.
+    expected = 8510
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -739,7 +742,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8627
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8629
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

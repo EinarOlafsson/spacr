@@ -88715,6 +88715,36 @@
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
       ]
     },
+    "spacr.qt.widgets.fractal_cascade": {
+      "source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ],
+      "source_sha256": "b4820ff0beacfabe2fb8952dca6b56ca4b4f01ce254e4cf303617af069aa5126",
+      "text": "Fold-Inversion Cascade : 두 번째 Spaceout 패턴.\n\n보관자에 의하여 `fold-inversion fractal cascade` v1.0.0, 포트에 대 한 PySide6 그것은 진정으로 궤도에서 분열된 것과 다르다. :mod:`spacr.qt.widgets.fractal_travel`다른 숫자와 동일하지 않습니다 :\n\n* 지도는 Kaliset-like fold/inversion입니다. -- 반사, 교환, 회전, 구체를 통해 변환, 분리 -- 그리고 색깔은 그 세트를 통해 3 ORBIT TRAPS에서 나온다 (반지, 다이아고 및 슬랜트) 대신 탈출 계산;\n* 끝없는 내부 여행은 두 개의 덮여있는 logarithmic 스케일 창입니다. 출구 스케이는 출구가 동일한 시야에 도달 한 후에만 떨어져 있으므로 정확성을 잃을 수있는 재설정이나 미생물 번호가 없습니다.\n* CPU 렌더는 TRUE SPATIAL 2x2를 하나의 프레임 내에서 슈퍼 샘플링합니다 - 동일한 순간의 4 개의 표본, 평균. CPU 궤도 패턴의 경로는 대신 4 프레미를 통해 흔들리고, 저렴하지만 다른 애니메이션 시간을 혼합합니다.",
+      "translation_source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ]
+    },
+    "spacr.qt.widgets.fractal_cascade.CascadeEngine": {
+      "source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ],
+      "source_sha256": "bb342939f43252b54640d098afb126257d642603ad597c24a2bf78cc1e962027",
+      "text": "한 번의 훌륭한 뷔페, 전혀 일시적인 역사가 없습니다.\n\n궤도 패턴은 시간이 지남에 따라 하위 픽셀 네트워크를 방해하기 때문에 4 프레임 반지를 유지합니다.이 하나는 하나의 프레미드 내부에있는 모든 4 개의 샘플을 가지고 있으므로 프레마 사이에 기억할 것이 없습니다.",
+      "translation_source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel": {
       "source_blocks_sha256": [
         "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",
