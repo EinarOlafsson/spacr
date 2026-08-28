@@ -528,6 +528,68 @@ def set_figure_style_per_graph(overrides: dict) -> None:
 #: kind of style it is. Merging the two vocabularies would put `label_top_n`
 #: into `rcParams.update`, which raises rather than being ignored.
 _KEY_FIG_STYLE_DEFAULTS = "figures/style_defaults"
+#: Which graph is drawn FIRST, per data shape. ``{shape: graph_type}``.
+#:
+#: Asked for 2026-08-28. Regression already let the user right-click to
+#: change a drawn graph; what it did not have was a say in what was drawn
+#: before the first right-click. Stored per SHAPE rather than as one value
+#: because "Bar" is not an answer for two continuous axes -- a bar needs
+#: groups to summarise, and there are none -- so a single setting would be
+#: ignored by most graphs and look broken.
+_KEY_DEFAULT_GRAPH_TYPES = "figures/default_graph_types"
+
+
+def get_default_graph_types() -> dict:
+    """Every saved default graph type, as ``{shape: graph_type}``.
+
+    :returns: the saved mapping, empty when nothing has been chosen.
+    """
+    import json
+
+    raw = _settings().value(_KEY_DEFAULT_GRAPH_TYPES, "")
+    if isinstance(raw, dict):
+        return {str(k): str(v) for k, v in raw.items() if v}
+    if not isinstance(raw, str) or not raw.strip():
+        return {}
+    try:
+        loaded = json.loads(raw)
+    except ValueError:
+        return {}
+    if not isinstance(loaded, dict):
+        return {}
+    return {str(k): str(v) for k, v in loaded.items() if v}
+
+
+def get_default_graph_type(shape: str) -> str:
+    """The graph type the user wants drawn first for ``shape``.
+
+    :param shape: a `spacr.graph_types` data shape.
+    :returns: the saved graph type, or ``""`` when none is saved.
+
+    Empty rather than the table's default, so `graph_types.default_for` can
+    tell "the user chose this" from "nothing was chosen" -- the table moves
+    when the package does, and a stored copy of it is a preference that has
+    stopped tracking.
+    """
+    return str(get_default_graph_types().get(str(shape), ""))
+
+
+def set_default_graph_type(shape: str, graph_type: str) -> None:
+    """Persist which graph is drawn first for ``shape``.
+
+    :param shape: a `spacr.graph_types` data shape.
+    :param graph_type: a graph type, or ``""`` to go back to the default.
+    """
+    import json
+
+    saved = get_default_graph_types()
+    if graph_type:
+        saved[str(shape)] = str(graph_type)
+    else:
+        saved.pop(str(shape), None)
+    settings = _settings()
+    settings.setValue(_KEY_DEFAULT_GRAPH_TYPES, json.dumps(saved))
+    settings.sync()
 
 
 def get_figure_style_defaults() -> dict:
@@ -4066,6 +4128,40 @@ class PreferencesDialog:
                 fig_format_combo.setCurrentIndex(i); break
         figures.addRow(tr("Figure format"), fig_format_combo)
 
+        # WHICH GRAPH IS DRAWN FIRST. Asked for 2026-08-28. One row per data
+        # SHAPE and not a single control, because "Bar" is not an answer for
+        # two continuous axes -- a bar needs groups to summarise and there
+        # are none -- so one setting would be ignored by most graphs and
+        # look broken. `graph_types.WHY_NOT` says why for each pair, and
+        # only the types that FIT a shape are offered here.
+        from ..graph_types import (DATA_SHAPES, GRAPH_NAMES, DEFAULTS,
+                                   types_for)
+
+        default_graph_combos = {}
+        for shape, shape_caption in DATA_SHAPES:
+            combo = QComboBox()
+            combo.setObjectName(f"DefaultGraphType_{shape}")
+            table_default = DEFAULTS.get(shape, "")
+            combo.addItem(
+                tr("Recommended — {name}").format(
+                    name=tr(GRAPH_NAMES.get(table_default, table_default))),
+                "")
+            for kind in types_for(shape):
+                combo.addItem(tr(GRAPH_NAMES.get(kind, kind)), kind)
+            saved = get_default_graph_type(shape)
+            index = combo.findData(saved) if saved else 0
+            combo.setCurrentIndex(index if index >= 0 else 0)
+            combo.setToolTip(tr(
+                "Which graph is drawn first for {shape}. Right-click any "
+                "graph to change that one; this chooses where they all "
+                "start. Leave it on Recommended to follow spaCR's own "
+                "choice, which moves as the package does."
+            ).format(shape=tr(shape_caption)))
+            figures.addRow(tr("First graph — {shape}").format(
+                shape=tr(shape_caption)), combo)
+            default_graph_combos[shape] = combo
+
+
         png_dpi_combo = QComboBox()
         for dpi in VALID_PNG_DPIS:
             png_dpi_combo.addItem(f"{dpi} dpi", dpi)
@@ -4682,6 +4778,12 @@ class PreferencesDialog:
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
             set_figure_format(fig_format_combo.currentData())
+            for shape, combo in default_graph_combos.items():
+                # Empty data is the "Recommended" row, which CLEARS the
+                # saved choice rather than storing today's table: a stored
+                # copy of a default is a preference that has stopped
+                # tracking the package.
+                set_default_graph_type(shape, combo.currentData() or "")
             set_figure_png_dpi(png_dpi_combo.currentData())
             set_figure_live_cache(live_cache_spin.value())
             set_montage_columns(montage_columns_spin.value())

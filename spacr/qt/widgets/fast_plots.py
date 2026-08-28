@@ -5761,6 +5761,44 @@ class FastPlot(QWidget):
                 action.triggered.connect(
                     lambda _checked=False, k=kind: self._show_as_kind(k))
 
+        # AND A WAY TO MAKE IT THE STARTING POINT. Asked for 2026-08-28: the
+        # right-click menu was right, but it only ever changed the graph in
+        # front of you -- the next one of the same shape was drawn the old
+        # way again. This is the same choice, remembered.
+        #
+        # HERE, where the user is already choosing a graph type, rather than
+        # only in Preferences: the moment somebody decides they prefer a
+        # violin is the moment they are looking at one.
+        if current:
+            show_as.addSeparator()
+            from ...graph_types import shape_of
+
+            try:
+                shape = shape_of(frame, getattr(spec, "group", ""),
+                                 getattr(spec, "value", ""))
+            except Exception:                                # noqa: BLE001
+                shape = ""
+            if shape:
+                remember = show_as.addAction(
+                    f"Always start with {GRAPH_NAMES.get(current, current)}")
+                remember.setToolTip(
+                    "Draw this kind first for every graph of this shape. "
+                    "Right-click still changes any individual graph.")
+                remember.triggered.connect(
+                    lambda _checked=False, k=current, sh=shape:
+                    self._remember_default_kind(sh, k))
+
+    @staticmethod
+    def _remember_default_kind(shape: str, kind: str) -> None:
+        """Persist ``kind`` as what ``shape`` is drawn as first."""
+        try:
+            from ..preferences import set_default_graph_type
+
+            set_default_graph_type(shape, kind)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not remember %r for %r", kind, shape,
+                      exc_info=True)
+
     def _show_as_kind(self, kind: str) -> None:
         try:
             self.show_as(kind)
