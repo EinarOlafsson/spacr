@@ -1,0 +1,53 @@
+301 — The Mandelbrot deep-zoom theme in spaceout
+
+Asked 2026-08-28, with the renderer pasted (v3.2.0) and two sets of
+defaults given.
+
+WHAT IT IS: a continuous deep zoom into one Mandelbrot boundary point. The
+viewport is recalculated every frame -- no previous frame is reused as image
+data -- and the only camera motion is zoom.
+
+THE MATHS THAT MAKES IT POSSIBLE. Beyond about 15 decades a double has no
+bits left to distinguish neighbouring pixels, so the zoom is done by
+PERTURBATION around one high-precision reference orbit:
+
+    dz[n+1] = 2*Z[n]*dz[n] + dz[n]^2 + dc
+
+Z is computed once in arbitrary precision (mpmath) and uploaded as a
+texture; every pixel then iterates only its small offset from it, in the
+precision the hardware has. That is what buys hundreds of decades.
+
+THE TARGET IS A MISIUREWICZ POINT, preperiod 4 period 1, refined at startup
+by solving f_c^5(0) = f_c^4(0). It lies ON the boundary, so it keeps
+revealing structure at any magnification -- an interior point would fade to
+flat colour and an exterior one would escape.
+
+DEFAULTS ASKED FOR (the second set supersedes the first):
+
+    backend gpu, perturbation, supersampling 2, render-scale 1.0, fps 30,
+    zoom-rate 1.0, seconds-per-decade 24, base-iterations 300,
+    iterations-per-decade 55, max-iterations 2200, precision-digits 320,
+    initial-scale 1.25, tile-rows 32, gpu-fp64 OFF,
+    path GUIDED, steering-strength 0.09,
+    steering-interval-decades 0.40, steering-duration 3.8,
+    candidate-count 24
+
+  GUIDED, not fixed: every 0.40 decades it looks for a nearby bounded
+  boundary point and eases the camera onto it over 3.8 s, so the zoom keeps
+  finding new structure instead of descending one shaft.
+
+  FP64 OFF is deliberate. The FP64 shader needs GLSL 400 and many drivers
+  either lack it or emulate it at a large cost; the FP32 path plus
+  perturbation is the one that runs everywhere.
+
+WHAT PORTING TAKES
+
+  * PySide6, not PyQt6 -- two Qt bindings in one process is a segfault.
+  * `mpmath` becomes a dependency, and the reference orbit costs seconds to
+    build, so it must be built OFF the GUI thread and the backdrop must
+    draw something while it is.
+  * It needs a real GL context for the FP32 shader and a texture for the
+    orbit; `platform_can_do_opengl` already answers whether one can exist,
+    and a CPU path exists in the source for machines where it cannot.
+  * The four pointer uniforms and `toward_pointer` go in as they did for
+    the other three, so mouse gravity works here too.
