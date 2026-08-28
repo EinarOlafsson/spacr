@@ -1879,6 +1879,62 @@ def apply_ambient_preferences(app=None) -> None:
 #: them, so the default is at the bottom where a reader lands last).
 SPACR_MODES = ("extra_performance", "performance", "balanced")
 
+#: THE ONE PERFORMANCE SETTING, ordered by how much of the machine spaCR
+#: keeps for itself: least first.
+#:
+#: Laptop was a second control that quietly overrode this one, so a user who
+#: chose Workstation-like behaviour here could have it undone by a setting on
+#: another row -- two answers to one question. It is a LEVEL, not an
+#: independent axis: the most constrained end of the same scale.
+#:
+#: Scientific computation and results are identical at every level. Only
+#: scheduling, caching, memory retention and interface decoration differ.
+PERFORMANCE_LEVELS = ("laptop", "extra_performance", "performance",
+                      "balanced", "workstation")
+
+#: What the dialog calls each level.
+PERFORMANCE_LABELS = {
+    "laptop": "Laptop",
+    "extra_performance": "Extra Performance",
+    "performance": "Performance",
+    "balanced": "Balanced",
+    "workstation": "Workstation",
+}
+
+#: The hardware each level is for, and what it trades. Shown as the level's
+#: tooltip, so the choice can be made without guessing.
+PERFORMANCE_NOTES = {
+    "laptop": (
+        "For a machine with 8 GB of memory or less, or one running on "
+        "battery. spaCR keeps the least: caches are dropped as soon as a "
+        "run finishes, no animated backdrop is drawn, and background work "
+        "is kept to one worker. Everything is recomputed when you go back "
+        "to it, so revisiting a figure is slower."),
+    "extra_performance": (
+        "For a shared machine you do not want spaCR to crowd. It drops its "
+        "own caches, returns unused GPU blocks and retires idle threads at "
+        "launch AND before every run, and every visual setting goes to its "
+        "minimum."),
+    "performance": (
+        "For a machine with other work on it. spaCR frees its caches and "
+        "unused GPU blocks once, at launch, and then leaves the machine "
+        "alone."),
+    "balanced": (
+        "For an ordinary desktop with 16 GB or more. spaCR keeps a working "
+        "set of recent figures and images so going back to one is instant, "
+        "and cleans up when memory runs short."),
+    "workstation": (
+        "For a machine with 64 GB or more that is yours alone. spaCR keeps "
+        "the most: caches, live figures and loaded models stay in memory "
+        "for reuse, and nothing is dropped until you ask. Uses the most "
+        "memory of any level, by design."),
+}
+
+#: The level a machine gets when nothing has been chosen.
+DEFAULT_PERFORMANCE_LEVEL = "balanced"
+
+_KEY_PERFORMANCE_LEVEL = "prefs/performance_level"
+
 #: Balanced. A tool that starts by taking things away from you has made a
 #: decision you did not ask for; the other two are opt-in and both warn.
 DEFAULT_SPACR_MODE = "balanced"
@@ -2131,14 +2187,21 @@ def set_interface_font_weight(weight: str) -> None:
 
 
 def get_laptop_mode() -> str:
-    """Whether laptop mode is forced on, forced off, or measured.
+    """Whether laptop constraints apply.
 
-    The stored value is one of :data:`LAPTOP_MODE_CHOICES`. Anything else --
-    an old file, a hand-edited one -- reads as ``"automatic"``, because a
-    setting nobody can interpret should behave as though it were never set.
+    :returns: ``"on"`` at the Laptop level, otherwise ``"off"``.
+
+    DERIVED, NOT STORED. This was a second control that quietly overrode
+    the mode selector, so a user could choose one posture on one row and
+    have another row undo it -- two answers to one question. Laptop is now
+    the most constrained LEVEL of the single selector, and this answers
+    from it so callers that still ask in these words agree with it.
+
+    There is no ``"automatic"`` any more: it meant "measure the machine and
+    decide", which is a guess presented as a setting. The five levels say
+    which hardware each is for and let the user pick.
     """
-    raw = str(_settings().value(_KEY_LAPTOP_MODE, "automatic"))
-    return raw if raw in LAPTOP_MODE_CHOICES else "automatic"
+    return "on" if get_performance_level() == "laptop" else "off"
 
 
 def set_laptop_mode(choice: str) -> None:
@@ -2184,10 +2247,138 @@ def laptop_mode_note(choice: str) -> str:
     return "Keeps the animation and the blur on, whatever this machine is."
 
 
+def get_performance_level() -> str:
+    """The single performance level, one of :data:`PERFORMANCE_LEVELS`.
+
+    :returns: the stored level, migrating an older pair of settings on
+        first read.
+
+    MIGRATION HAPPENS HERE rather than in a startup step, because every
+    reader of the old settings comes through this function and a migration
+    that only ran at launch would be skipped by a headless run, a test, or
+    a second process. It is idempotent: once a level is stored the old
+    values are never consulted again.
+
+    An explicit Laptop mode of ``on`` becomes ``Laptop`` -- that user asked
+    for the most constrained profile and still gets it. With Laptop off or
+    automatic the previous mode is kept as-is, so ``balanced`` stays
+    ``Balanced``, and nobody's choice is silently changed.
+    """
+    settings = _settings()
+    stored = str(settings.value(_KEY_PERFORMANCE_LEVEL, "") or "")
+    if stored in PERFORMANCE_LEVELS:
+        return stored
+
+    laptop = str(settings.value(_KEY_LAPTOP_MODE, "automatic") or "automatic")
+    previous = str(settings.value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE) or "")
+    if laptop == "on":
+        level = "laptop"
+    elif previous in SPACR_MODES:
+        level = previous
+    else:
+        level = DEFAULT_PERFORMANCE_LEVEL
+
+    # WRITTEN BEFORE THE OLD KEYS ARE TRUSTED AGAIN, so a crash between the
+    # two cannot lose the answer: the worst case is a migration that runs
+    # twice and reaches the same level.
+    try:
+        settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
+        settings.sync()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not store the migrated performance level",
+                  exc_info=True)
+    return level
+
+
+def set_performance_level(level: str) -> None:
+    """Persist the performance level.
+
+    :param level: one of :data:`PERFORMANCE_LEVELS`.
+    :raises ValueError: on an unknown level.
+    """
+    if level not in PERFORMANCE_LEVELS:
+        raise ValueError(f"unknown performance level {level!r}. "
+                         f"Choose from {PERFORMANCE_LEVELS}.")
+    settings = _settings()
+    settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
+    settings.sync()
+    # The two settings this replaced are DERIVED now, and kept in step so
+    # anything still reading them directly agrees with the selector.
+    try:
+        set_spacr_mode(spacr_mode_for_level(level))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not mirror the level into the mode", exc_info=True)
+
+
+def spacr_mode_for_level(level: str) -> str:
+    """The resource posture a level implies, in the old three-mode words.
+
+    :param level: one of :data:`PERFORMANCE_LEVELS`.
+    :returns: one of :data:`SPACR_MODES`.
+
+    Laptop is more constrained than Extra Performance and Workstation is
+    less constrained than Balanced, but neither has its own posture in the
+    cleanup code -- they differ in what is RETAINED, not in how launch
+    cleanup runs. Mapping them onto the nearest existing posture keeps one
+    answer to "how hard does spaCR try to stay out of the way".
+    """
+    return {
+        "laptop": "extra_performance",
+        "extra_performance": "extra_performance",
+        "performance": "performance",
+        "balanced": "balanced",
+        "workstation": "balanced",
+    }.get(str(level), DEFAULT_SPACR_MODE)
+
+
+#: What each level keeps, as multiples of the Balanced allowance.
+#:
+#: MONOTONIC BY CONSTRUCTION, and asserted by a test: the order of
+#: :data:`PERFORMANCE_LEVELS` is meant to be a resource scale, and a table
+#: that broke that order would make the selector a list of unrelated words.
+#: Laptop keeps the least, Workstation the most.
+PERFORMANCE_RETENTION = {
+    "laptop": 0.25,
+    "extra_performance": 0.5,
+    "performance": 0.75,
+    "balanced": 1.0,
+    "workstation": 2.5,
+}
+
+
+def retention_scale(level: str = "") -> float:
+    """How much reusable state this level allows, relative to Balanced.
+
+    :param level: a performance level; the current one when omitted.
+    :returns: a positive multiplier.
+    """
+    level = str(level or get_performance_level())
+    return float(PERFORMANCE_RETENTION.get(level, 1.0))
+
+
+def live_figure_allowance(level: str = "") -> int:
+    """How many figures stay editable at this level.
+
+    :param level: a performance level; the current one when omitted.
+    :returns: a count of at least one.
+
+    A live Figure is what makes a figure restylable -- it still has a
+    legend to toggle and series to recolour -- and each holds its own data
+    arrays, so this is the clearest thing the level scales. At least one,
+    always: a level that kept none would make the right-click menu useless
+    rather than cheap.
+    """
+    base = get_figure_live_cache()
+    return max(1, int(round(base * retention_scale(level))))
+
+
 def get_spacr_mode() -> str:
-    """Which resource posture spaCR is in — one of :data:`SPACR_MODES`."""
-    raw = str(_settings().value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE))
-    return raw if raw in SPACR_MODES else DEFAULT_SPACR_MODE
+    """Which resource posture spaCR is in — one of :data:`SPACR_MODES`.
+
+    DERIVED FROM THE PERFORMANCE LEVEL, which is the one stored setting.
+    Kept because the cleanup code speaks in these three words.
+    """
+    return spacr_mode_for_level(get_performance_level())
 
 
 def set_spacr_mode(mode: str) -> None:
@@ -4263,15 +4454,20 @@ class PreferencesDialog:
         # says "cleanup runs at launch" should be read next to the buttons
         # that say exactly what a cleanup is, or "cleanup" is a word the
         # user has to take on trust.
+        # ONE SELECTOR, FIVE LEVELS, ordered by how much of the machine
+        # spaCR keeps for itself. Laptop used to be a second control that
+        # quietly overrode this one, so a user could choose a posture on
+        # one row and have another row undo it -- two answers to one
+        # question. It is the most constrained end of the same scale.
         mode_combo = QComboBox()
-        mode_combo.setObjectName("SpacrMode")
-        for key in SPACR_MODES:
-            mode_combo.addItem(tr(mode_label(key)), key)
-        current_mode = get_spacr_mode()
+        mode_combo.setObjectName("PerformanceLevel")
+        for key in PERFORMANCE_LEVELS:
+            mode_combo.addItem(tr(PERFORMANCE_LABELS[key]), key)
+        current_mode = get_performance_level()
         for i in range(mode_combo.count()):
             if mode_combo.itemData(i) == current_mode:
                 mode_combo.setCurrentIndex(i); break
-        performance.addRow(tr("spaCR mode"), mode_combo)
+        performance.addRow(tr("Performance"), mode_combo)
 
         mode_note_label = QLabel()
         mode_note_label.setObjectName("SpacrModeNote")
@@ -4280,9 +4476,15 @@ class PreferencesDialog:
 
         def _sync_mode_note(*_args):
             key = mode_combo.currentData()
-            mode_combo.setToolTip(tr(mode_note(key)))
-            text = tr(mode_note(key))
-            warning = mode_warning(key)
+            # EACH LEVEL SAYS WHICH HARDWARE IT IS FOR. A selector whose
+            # entries are five adjectives asks the user to guess; the note
+            # states the memory profile, what is retained and what that
+            # costs.
+            said = PERFORMANCE_NOTES.get(key) or mode_note(
+                spacr_mode_for_level(key))
+            mode_combo.setToolTip(tr(said))
+            text = tr(said)
+            warning = mode_warning(spacr_mode_for_level(key))
             if warning:
                 # Warn on SELECTION, not on Save: a warning that arrives
                 # after the dialog has closed is a report, not a choice.
@@ -4291,19 +4493,9 @@ class PreferencesDialog:
 
         mode_combo.currentIndexChanged.connect(_sync_mode_note)
 
-        # LAPTOP MODE, which until now could only be set through an
-        # environment variable -- which is to say it could not be found.
-        # It sits under the mode because it answers the same question at a
-        # smaller scale: how much of this machine should the WINDOW use.
-        laptop_combo = QComboBox()
-        laptop_combo.setObjectName("LaptopMode")
-        for _key in LAPTOP_MODE_CHOICES:
-            laptop_combo.addItem(tr(LAPTOP_MODE_LABELS[_key]), _key)
-        _current_laptop = get_laptop_mode()
-        for _i in range(laptop_combo.count()):
-            if laptop_combo.itemData(_i) == _current_laptop:
-                laptop_combo.setCurrentIndex(_i)
-                break
+        # NO SEPARATE LAPTOP CONTROL. It is the first entry of the
+        # selector above, which is the whole point of 286: one value, not
+        # two that can disagree.
         font_weight = QComboBox()
         font_weight.setObjectName("InterfaceFontWeight")
         for _key, _label in (("regular", "Regular"), ("light", "Light")):
@@ -4312,7 +4504,6 @@ class PreferencesDialog:
             max(0, font_weight.findData(get_interface_font_weight())))
         appearance.addRow(tr("Interface font"), font_weight)
 
-        performance.addRow(tr("Laptop mode"), laptop_combo)
         # THE SPACEOUT FRACTAL, and ONLY under spaceout. An ordinary launch
         # builds none of these rows, so the hidden mode stays hidden: a
         # settings page advertising it would be the giveaway.
@@ -4438,23 +4629,7 @@ class PreferencesDialog:
             _sync_variable_rows()
 
 
-        laptop_note_label = QLabel()
-        laptop_note_label.setObjectName("LaptopModeNote")
-        laptop_note_label.setWordWrap(True)
-        performance.addRow("", laptop_note_label)
 
-        def _sync_laptop_note(*_args):
-            """Say what the choice will do HERE, before it is saved.
-
-            Automatic is the case that needs it: the label cannot state the
-            outcome, because the outcome depends on the machine reading it.
-            """
-            text = laptop_mode_note(laptop_combo.currentData())
-            laptop_combo.setToolTip(text)
-            laptop_note_label.setText(text)
-
-        laptop_combo.currentIndexChanged.connect(_sync_laptop_note)
-        _sync_laptop_note()
         _sync_mode_note()
 
         def _quit_spacr(parent) -> None:
@@ -4821,8 +4996,10 @@ class PreferencesDialog:
                     speed_period=fractal_speed_period.value(),
                 )
             set_interface_font_weight(font_weight.currentData())
-            set_laptop_mode(laptop_combo.currentData())
-            set_spacr_mode(mode_combo.currentData())
+            # ONE VALUE. `set_performance_level` mirrors the level into
+            # the three-mode posture the cleanup code speaks in, so there
+            # is nothing else to write and nothing that can disagree.
+            set_performance_level(mode_combo.currentData())
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
