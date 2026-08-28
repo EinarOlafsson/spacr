@@ -137,3 +137,92 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp):
         qapp.processEvents()
         worst = max(worst, time.perf_counter() - started)
     assert worst < 0.20, f"{worst * 1000:.0f} ms a keystroke"
+
+
+def test_a_committed_channel_brings_its_settings_back(qapp):
+    """Hiding them was right; they have to come back when asked for."""
+    win = app_module.MainWindow()
+    win.show()
+    win._on_nav_selected("mask")
+    qapp.processEvents()
+    try:
+        screen = win._screens["mask"]
+        before = [k for k in screen._settings_model._widgets
+                  if k.startswith("nucleus_")]
+        assert before == ["nucleus_channel"], before
+
+        field = screen._settings_model._widgets["nucleus_channel"]
+        field.setText("1")
+        field.editingFinished.emit()
+        qapp.processEvents()
+
+        screen = win._screens["mask"]
+        after = [k for k in screen._settings_model._widgets
+                 if k.startswith("nucleus_")]
+        assert len(after) > 10, f"only {len(after)} nucleus settings came back"
+        categories = _categories(screen)
+        assert any("Nucleus Segmentation" in c for c in categories), categories
+        # And the value that asked for them survived.
+        assert str((screen._settings_model.collect() or {}).get(
+            "nucleus_channel")) == "1"
+    finally:
+        win.close()
+
+
+def test_a_raised_count_brings_the_organelle_rows_and_categories(qapp):
+    win = app_module.MainWindow()
+    win.show()
+    win._on_nav_selected("mask")
+    qapp.processEvents()
+    try:
+        screen = win._screens["mask"]
+        assert _categories(screen).count("Organelle Segmentation") == 0
+
+        count = screen._settings_model._widgets["number_of_organelles"]
+        if hasattr(count, "setCurrentText"):
+            count.setCurrentText("2")
+        else:
+            count.setValue(2)
+        qapp.processEvents()
+
+        screen = win._screens["mask"]
+        categories = _categories(screen)
+        assert "Organelle Segmentation" in categories
+        assert "Organelle Segmentation (advanced)" in categories
+        # One channel row per slot the count asked for, and no more.
+        channels = [k for k in screen._settings_model._widgets
+                    if k.endswith("_channel") and "organelle" in k]
+        assert len(channels) == 2, channels
+    finally:
+        win.close()
+
+
+def test_two_rebuilds_keep_what_the_first_one_set(qapp):
+    """A second rebuild collected a nucleus channel of None and took the
+    nucleus settings away again."""
+    win = app_module.MainWindow()
+    win.show()
+    win._on_nav_selected("mask")
+    qapp.processEvents()
+    try:
+        screen = win._screens["mask"]
+        field = screen._settings_model._widgets["nucleus_channel"]
+        field.setText("1")
+        field.editingFinished.emit()
+        qapp.processEvents()
+
+        screen = win._screens["mask"]
+        count = screen._settings_model._widgets["number_of_organelles"]
+        if hasattr(count, "setCurrentText"):
+            count.setCurrentText("2")
+        else:
+            count.setValue(2)
+        qapp.processEvents()
+
+        screen = win._screens["mask"]
+        values = screen._settings_model.collect() or {}
+        assert str(values.get("nucleus_channel")) == "1"
+        assert len([k for k in screen._settings_model._widgets
+                    if k.startswith("nucleus_")]) > 10
+    finally:
+        win.close()

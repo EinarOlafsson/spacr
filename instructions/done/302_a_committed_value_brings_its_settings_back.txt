@@ -35,3 +35,34 @@ reflected in `collect()` without an intervening signal is the question.
 THE RULE THAT MUST HOLD EITHER WAY: this happens on a COMMITTED value --
 Enter, or leaving the field -- and never per keystroke. Running the old
 rule on every character is what made the module hang.
+
+
+FIXED 2026-08-28. Two faults, both about values not reaching the screen
+being built.
+
+  1. A SCREEN IS CONSTRUCTED BEFORE IT IS PARENTED. `_build_settings_panel`
+     asked `self.window()` for the values to shape the form for, and at that
+     moment `window()` answers with the screen itself -- so the values left
+     on the MainWindow were invisible and the form was rebuilt to exactly
+     the shape it already had. They are handed over on
+     `AppScreen.values_the_next_screen_is_built_for` instead, set and
+     cleared by `rebuild_app_screen`, so an ordinary module open still
+     builds from the module's own defaults.
+
+  2. THE NEW WIDGETS WERE BUILT AT THE MODULE'S DEFAULTS. The values
+     settled the SHAPE but not the contents, so the second rebuild
+     collected a nucleus channel of None and took the nucleus settings away
+     again. The defaults are seeded with what the user typed before any
+     widget is made.
+
+MEASURED, driving the real fields:
+
+    at open          : 107 widgets, no nucleus settings, no organelle
+                       categories
+    nucleus_channel=1: 126 widgets, 20 nucleus settings, "Nucleus
+                       Segmentation" back
+    organelles=2     : 235 widgets, both organelle categories, one channel
+                       row per slot, and nucleus_channel still 1
+
+Each rebuild costs about 0.5 s and happens on a COMMITTED value -- Enter or
+leaving the field -- never per keystroke.

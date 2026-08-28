@@ -7945,6 +7945,13 @@ class SettingsWidgets:
         # invented ones left 54 `organelle_*` settings and their categories
         # on a form whose count says zero -- which is the thing the count is
         # supposed to decide.
+        # AND THE WIDGETS ARE BUILT HOLDING WHAT THE USER TYPED. `deciding`
+        # settles the form's SHAPE; without this the new form arrives at the
+        # module's defaults, so a second rebuild collects a nucleus channel
+        # of None and takes the nucleus settings away again.
+        for key, value in (current or {}).items():
+            if str(key) in self._defaults:
+                self._defaults[str(key)] = value
         self._skip_keys = frozenset(self._skip_keys) | frozenset(
             self._organelle_keys_beyond(self._slots_built_for,
                                         self._defaults)

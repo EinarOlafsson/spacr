@@ -3552,11 +3552,16 @@ class MainWindow(QMainWindow):
                 old.deleteLater()
             except Exception:                                # noqa: BLE001
                 LOG.exception("could not retire the %s screen", key)
-        self._pending_screen_values = dict(values or {})
+        from .screens.app_screen import AppScreen
+
+        AppScreen.values_the_next_screen_is_built_for = dict(values or {})
         try:
             self._on_nav_selected(key)
         finally:
-            self._pending_screen_values = None
+            # ALWAYS CLEARED. Every other module open must build from the
+            # module's own defaults, and a value left here would shape the
+            # next screen somebody opened for reasons they could not see.
+            AppScreen.values_the_next_screen_is_built_for = None
         screen = self._screens.get(key)
         if screen is None or not values:
             return
