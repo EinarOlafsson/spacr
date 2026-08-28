@@ -1,0 +1,60 @@
+300 — The organelle count controls its settings AND their categories
+
+Reported 2026-08-28, with visible irritation and fairly: "this seems like it
+should be an easy task".
+
+WHAT IS WRONG. In Mask there are always four "Organelle N — Channel" rows,
+and the categories "Organelle segmentation" and "Organelle segmentation
+advanced" are on screen whatever `number_of_organelles` says. The count is
+supposed to decide both.
+
+WHAT IS ASKED FOR:
+
+  * `number_of_organelles` defaults to 0;
+  * at 0 there are NO organelle settings and NO organelle categories -- the
+    headings go too, not just their contents;
+  * raising the count spawns exactly that many "Organelle N — Channel"
+    rows, and brings the categories back;
+  * THE SAME RULE FOR EVERY OTHER CATEGORY: a category with nothing in it
+    is not shown. "this will help not overwhelm the user."
+
+WHY THE HALF-FIX WAS NOT ENOUGH. The panel already stopped building all 26
+nameable slots and now builds what the count asks for -- which cut Mask from
+1,551 widgets to 363 and from 13.2 s to 4.3 s. But it read the count from
+the module's shipped defaults, which is 4, so four slots are always there.
+The count has to be the live value, and 0 has to mean none.
+
+A CATEGORY IS NOT ITS CONTENTS. Hiding every row in a heading leaves the
+heading, which reads as a section that failed to load rather than one that
+does not apply. The heading has to go with them.
+
+
+DONE 2026-08-28. Measured on Mask, through the real nav path:
+
+    before : 1,551 widgets, 13.23 s, 4 organelle rows always present
+    after  :   107 widgets,  1.45 s, 0 organelle rows and 0 organelle
+             categories at a count of 0; 21 categories, none empty
+
+  * `number_of_organelles` defaults to 0, and 0 means none.
+  * An old settings file still means what it meant: `organelle_count`
+    infers the count from the slots a file actually carries when it names
+    none, so a file written before the count existed and holding four
+    channels still gets four. An explicit count always wins. A key present
+    but blank is a placeholder the panel wrote, not a slot in use.
+  * The control itself always stays, or a run with none could never ask
+    for one.
+  * A category with nothing in it is not shown, nested ones included --
+    pruned deepest first, so an umbrella over nothing but empty
+    sub-headings is empty by the time its parent is judged.
+  * `summarize_organelles_by` is not prefixed by a slot role and kept
+    "Organelle Segmentation (advanced)" alive on its own; at a count of 0
+    every key naming organelles goes.
+  * THE SAME FOR NUCLEUS AND PATHOGEN, asked for in the same breath: an
+    object whose channel names no plane brings no settings. Its channel
+    stays so the run can say it has one after all. CELL IS NEVER GATED --
+    it is the object every other one is measured against, and hiding it on
+    an unset channel would empty the form a user has just opened.
+
+All of it is decided when the panel is built and never while typing, which
+is the distinction the hang taught: worst keystroke into a channel is under
+200 ms and asserted.
