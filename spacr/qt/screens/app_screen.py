@@ -1827,7 +1827,7 @@ class AppScreen(QWidget):
         # would build a form that still says the run has no nucleus.
         self._settings_model = SettingsWidgets(
             self.app_key, parent=content,
-            current=getattr(self.window(), "_pending_screen_values", None))
+            current=AppScreen.values_the_next_screen_is_built_for)
         # ``key -> the heading it belongs to``, for every row the object rule
         # has already decided must not be on the form. `_build_settings_section`
         # fills it and `_lay_out_the_rows_that_are_back` empties it as the rule
@@ -2014,6 +2014,20 @@ class AppScreen(QWidget):
             if any(widget is not None for _label, widget in child_rows):
                 return True
         return False
+
+    #: What the screen ABOUT TO BE BUILT should be shaped for.
+    #:
+    #: A class attribute rather than something read off the window, because
+    #: a screen is constructed BEFORE it is parented: inside
+    #: `_build_settings_panel`, `self.window()` answers with the screen
+    #: itself, so anything left on the MainWindow is invisible there. That
+    #: is why the first attempt rebuilt the form to exactly the shape it
+    #: already had.
+    #:
+    #: Set by `MainWindow.rebuild_app_screen` and cleared by it, so an
+    #: ordinary module open -- which is every other caller -- builds from
+    #: the module's own defaults as it always did.
+    values_the_next_screen_is_built_for = None
 
     #: Settings whose value decides which OTHER settings exist. Changing one
     #: rebuilds the form; changing anything else does not.
