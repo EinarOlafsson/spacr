@@ -215,21 +215,36 @@ _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 #: negative iteration count is not a count. Values that are merely
 #: extravagant are the user's business.
 def _mandelbrot_defaults() -> dict:
-    """The published Mandelbrot defaults, plus supersampling.
+    """What the fractal settings start at, before anyone chooses a level.
 
-    Read from the module that owns them rather than copied, so the panel and
-    the renderer cannot drift apart.
+    THE SHIPPED DEFAULTS ARE THE LIGHT ONES. Asked for 2026-08-28: "make
+    sure that the default settings are easy on the hardware. dont want the
+    first impression to be supper laggy."
+
+    So the numbers that decide COST -- supersampling, render scale and the
+    iteration budget -- come from the `balanced` preset rather than from the
+    Mandelbrot renderer's published set, which is a `high` profile. The
+    published numbers are still what the Mandelbrot pattern documents and
+    what choosing High restores; they are not what a user who has chosen
+    nothing gets.
+
+    Everything that does not cost anything -- the steering behaviour, the
+    starting scale, the precision the reference orbit is built to -- keeps
+    the published value, because making those timid would change what the
+    pattern IS rather than how hard it works.
     """
     try:
         from .widgets.fractal_mandelbrot import DEFAULTS
 
-        return dict(DEFAULTS)
+        published = dict(DEFAULTS)
+        published.update(QUALITY_PRESETS["balanced"])
+        return published
     except Exception:                                        # noqa: BLE001
-        return {"supersampling": 2, "seconds_per_decade": 24.0,
-                "base_iterations": 300, "iterations_per_decade": 55.0,
-                "max_iterations": 2200, "precision_digits": 320,
+        return {"supersampling": 1, "seconds_per_decade": 24.0,
+                "base_iterations": 200, "iterations_per_decade": 40.0,
+                "max_iterations": 1200, "precision_digits": 320,
                 "initial_scale": 1.25, "zoom_rate": 1.0,
-                "render_scale": 1.0, "steering_strength": 0.09,
+                "render_scale": 0.75, "steering_strength": 0.09,
                 "steering_interval_decades": 0.40,
                 "steering_duration": 3.8, "candidate_count": 24,
                 "max_depth": 34.0}
@@ -2162,7 +2177,70 @@ LAPTOP_MODE_LABELS = {
 #: of numbers serve both.
 FRACTAL_PATTERNS = ("orbit", "cascade", "space", "mandelbrot")
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
-FRACTAL_QUALITIES = ("auto", "balanced", "high")
+#: The quality levels, least demanding first.
+#:
+#: ULTRA asked for 2026-08-28, and the level GOVERNS the other numbers: a
+#: quality that only nudged an internal detail count while supersampling,
+#: render scale and the iteration budget sat at whatever they were is a
+#: label rather than a setting.
+#:
+#: `auto` stays first because it is not a level but a refusal to choose one:
+#: it asks the machine.
+FRACTAL_QUALITIES = ("auto", "balanced", "high", "ultra")
+
+#: What each level sets, as ``quality -> {setting: value}``.
+#:
+#: A LEVEL IS A SET OF NUMBERS, not an adjective. These are applied when the
+#: level is chosen, and every one of them remains a field the user can then
+#: change -- picking a level is a starting point, not a lock.
+QUALITY_PRESETS = {
+    "balanced": {
+        "supersampling": 1,
+        "render_scale": 0.75,
+        "base_iterations": 200,
+        "iterations_per_decade": 40.0,
+        "max_iterations": 1200,
+        "scale": 1.0,
+    },
+    "high": {
+        "supersampling": 2,
+        "render_scale": 1.0,
+        "base_iterations": 300,
+        "iterations_per_decade": 55.0,
+        "max_iterations": 2200,
+        "scale": 1.25,
+    },
+    "ultra": {
+        # THE MOST THIS CAN USEFULLY DO. Three samples a side is nine a
+        # pixel -- the cost is the square, and past three the difference is
+        # smaller than the screen can show. The iteration ceiling is the
+        # shader's own bound, so nothing above it would be run anyway.
+        "supersampling": 3,
+        "render_scale": 1.0,
+        "base_iterations": 500,
+        "iterations_per_decade": 90.0,
+        "max_iterations": 2200,
+        "scale": 2.0,
+    },
+}
+
+
+def apply_quality_preset(quality: str) -> dict:
+    """Set the numbers a quality level implies, and return them.
+
+    :param quality: one of :data:`FRACTAL_QUALITIES`.
+    :returns: what was applied; empty for ``auto`` or an unknown level.
+
+    ``auto`` applies nothing on purpose: it means "decide from the machine"
+    and the renderer does that per backend, so writing numbers here would
+    turn a decision that follows the hardware into one frozen at the moment
+    somebody opened Preferences.
+    """
+    preset = QUALITY_PRESETS.get(str(quality))
+    if not preset:
+        return {}
+    set_fractal_settings(**preset)
+    return dict(preset)
 
 
 def get_fractal_settings() -> dict:
@@ -5032,6 +5110,14 @@ class PreferencesDialog:
                 fractal_quality.addItem(tr(_key), _key)
             fractal_quality.setCurrentIndex(
                 max(0, fractal_quality.findData(_fractal_values["quality"])))
+            fractal_quality.setToolTip(tr(
+                "A level is a set of numbers, not an adjective: choosing "
+                "one fills in supersampling, render scale, the iteration "
+                "budget and the scale below. Every one of them stays a "
+                "field you can then change — a level is a starting point, "
+                "not a lock.\n\n"
+                "Auto asks the machine instead, per backend, so it keeps "
+                "following the hardware rather than freezing an answer."))
             fractal.addRow(tr("Quality"), fractal_quality)
 
             def _tenths(name, value, low=None, high=None):
@@ -5112,7 +5198,39 @@ class PreferencesDialog:
             # row that appears and disappears as the pattern changes is the
             # form rearranging itself under the reader -- and these are all
             # numbers a user may want to set BEFORE choosing the pattern.
+            def _quality_fills_the_rest(*_args):
+                """Write the level's numbers into the fields below it.
+
+                LIVE, not at Save: a level that only took effect after the
+                dialog closed would leave the user looking at the old
+                numbers while a different set was about to be stored, with
+                nothing saying which would win.
+                """
+                preset = QUALITY_PRESETS.get(fractal_quality.currentData())
+                if not preset:
+                    return
+                for _name, _value in preset.items():
+                    _box = ({"supersampling": fractal_ss,
+                             "scale": fractal_scale}.get(_name)
+                            or fractal_mandel.get(_name))
+                    if _box is None:
+                        continue
+                    try:
+                        _box.setValue(_value)
+                    except Exception:                        # noqa: BLE001
+                        continue
+
+            # SUB-CATEGORIES, asked for 2026-08-28. Twenty-one fields in
+            # one column is a wall; three headings say which question each
+            # group answers, and a reader looking for the zoom does not have
+            # to read the steering to find it.
+            def _fractal_heading(text: str) -> None:
+                label = QLabel(f"<b>{tr(text)}</b>")
+                label.setObjectName("FractalGroupHeading")
+                fractal.addRow(label)
+
             _mandel_rows = (
+                ("__heading__", "The zoom", ""),
                 ("seconds_per_decade", "Seconds per decade", 
                  "How long one factor of ten of magnification takes. "
                  "Smaller dives faster."),
@@ -5138,10 +5256,12 @@ class PreferencesDialog:
                 ("zoom_rate", "Zoom rate",
                  "A multiplier on the descent. Up and Down change it while "
                  "the backdrop is running."),
+                ("__heading__", "Detail", ""),
                 ("render_scale", "Render scale",
                  "Fraction of the window's pixels actually rendered, "
                  "before being scaled up. Below 1 trades sharpness for "
                  "speed."),
+                ("__heading__", "Steering", ""),
                 ("steering_strength", "Steering strength",
                  "How far off centre the guided path looks for its next "
                  "target."),
@@ -5164,6 +5284,9 @@ class PreferencesDialog:
             )
             fractal_mandel = {}
             for _key, _label, _why in _mandel_rows:
+                if _key == "__heading__":
+                    _fractal_heading(_label)
+                    continue
                 _value = _fractal_values[_key]
                 _box = (_whole(f"Fractal_{_key}", _value)
                         if isinstance(_value, int)
@@ -5171,6 +5294,11 @@ class PreferencesDialog:
                 _box.setToolTip(tr(_why))
                 fractal.addRow(tr(_label), _box)
                 fractal_mandel[_key] = _box
+
+            # CONNECTED HERE, not where the combo was built: the fields it
+            # writes into do not exist until now.
+            fractal_quality.currentIndexChanged.connect(
+                _quality_fills_the_rest)
 
             # MOUSE GRAVITY. Asked for 2026-08-28, with a size and a
             # strength, applying to every pattern and both backends.

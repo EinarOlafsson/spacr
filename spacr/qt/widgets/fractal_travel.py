@@ -279,7 +279,18 @@ def resolved_quality(requested: str, backend: str,
     if requested != "auto":
         return requested
     if backend == "gpu":
+        # CONSERVATIVE ON A GPU TOO. A first impression that stutters is
+        # worse than one that is merely plain, and this cannot know whether
+        # the card is a workstation's or a laptop's -- "high" here would
+        # have asked every machine ever made for four samples a pixel at
+        # native resolution before anyone chose it.
+        #
+        # A GPU still gets more than a CPU: the per-backend budgets below
+        # give it a wider frame and a higher frame-rate cap at the same
+        # level, which is the headroom, without guessing at the hardware.
         return "balanced"
+    # AND THE CPU IS ASKED FOR EVIDENCE FIRST. Sixteen cores is a machine
+    # that can spare some; anything less gets the light profile.
     return "high" if hardware.logical_cpus >= 16 else "balanced"
 
 
@@ -1288,7 +1299,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 try:
                     self._program["u_orbit"] = gloo.Texture2D(
                         np.zeros((1, 1, 4), dtype=np.float32),
-                        interpolation="nearest")
+                        interpolation="nearest",
+                        wrapping="clamp_to_edge")
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not seed the orbit texture",
                               exc_info=True)
@@ -1554,9 +1566,15 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             if orbit is None or getattr(self, "_orbit_uploaded", None) is orbit:
                 return
             try:
+                # CLAMPED AND NEAREST, said outright. The orbit is one row
+                # of 2,201 texels -- not a power of two -- and a driver that
+                # defaults to REPEAT wrapping can refuse a non-power-of-two
+                # texture outright. Nearest because every texel is one
+                # iteration of the reference orbit: interpolating between
+                # two of them is a number that is not on the orbit at all.
                 self._program["u_orbit"] = gloo.Texture2D(
                     orbit.packed, interpolation="nearest",
-                    internalformat="rgba32f")
+                    wrapping="clamp_to_edge", internalformat="rgba32f")
                 self._orbit_uploaded = orbit
             except Exception:                                # noqa: BLE001
                 LOG.exception("could not upload the reference orbit")

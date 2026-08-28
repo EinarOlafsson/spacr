@@ -49,13 +49,31 @@ def test_the_mandelbrot_numbers_are_settings(store):
         assert name in values, name
 
 
-def test_the_published_defaults_are_what_is_offered(store):
+def test_the_published_numbers_survive_where_they_cost_nothing(store):
+    """The published set is a `high` profile, and the shipped defaults are
+    deliberately lighter -- but only where the number decides COST.
+
+    Making the steering timid, or the reference orbit less precise, would
+    change what the pattern IS rather than how hard it works.
+    """
     from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
 
     values = P.get_fractal_settings()
-    for name in ("seconds_per_decade", "base_iterations", "max_iterations",
-                 "precision_digits", "initial_scale", "candidate_count",
-                 "steering_strength", "steering_duration"):
+    for name in ("seconds_per_decade", "precision_digits", "initial_scale",
+                 "candidate_count", "steering_strength",
+                 "steering_duration"):
+        assert values[name] == DEFAULTS[name], name
+
+
+def test_choosing_high_restores_the_published_profile(store):
+    """The published numbers are what High means, not what nobody-chose
+    means."""
+    from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
+
+    P.apply_quality_preset("high")
+    values = P.get_fractal_settings()
+    for name in ("supersampling", "base_iterations",
+                 "iterations_per_decade", "max_iterations"):
         assert values[name] == DEFAULTS[name], name
 
 
@@ -176,3 +194,93 @@ def test_ctrl_r_is_not_taken_when_no_backdrop_is_running(qtbot):
         assert not event.isAccepted()
     finally:
         win.close()
+
+
+def test_there_is_an_ultra_level():
+    """Asked for 2026-08-28."""
+    assert "ultra" in P.FRACTAL_QUALITIES
+    assert P.FRACTAL_QUALITIES.index("ultra") > P.FRACTAL_QUALITIES.index("high")
+
+
+def test_a_level_is_a_set_of_numbers_not_an_adjective():
+    """It has to GOVERN the other settings, or it is only a label."""
+    for name in ("balanced", "high", "ultra"):
+        preset = P.QUALITY_PRESETS[name]
+        for key in ("supersampling", "render_scale", "base_iterations",
+                    "max_iterations", "scale"):
+            assert key in preset, f"{name} does not set {key}"
+
+
+def test_the_levels_are_monotonic():
+    order = ("balanced", "high", "ultra")
+    for key in ("supersampling", "base_iterations", "scale"):
+        values = [P.QUALITY_PRESETS[name][key] for name in order]
+        assert values == sorted(values), (key, values)
+    assert P.QUALITY_PRESETS["ultra"]["supersampling"] == 3
+
+
+def test_applying_a_level_writes_its_numbers(store):
+    applied = P.apply_quality_preset("ultra")
+    assert applied
+    saved = P.get_fractal_settings()
+    assert saved["supersampling"] == 3
+    assert saved["base_iterations"] == 500
+
+    # And it is a starting point, not a lock: the field still wins after.
+    P.set_fractal_settings(supersampling=1)
+    assert P.get_fractal_settings()["supersampling"] == 1
+
+
+def test_auto_writes_nothing(store):
+    """It means "decide from the machine", and the renderer does that per
+    backend; freezing numbers here would end that."""
+    assert P.apply_quality_preset("auto") == {}
+    assert P.apply_quality_preset("nonsense") == {}
+
+
+def test_auto_is_conservative_on_both_backends():
+    """"dont want the first impression to be supper laggy" -- and this
+    cannot know whether the card is a workstation's or a laptop's."""
+    from spacr.qt.widgets.fractal_travel import (HardwareProfile,
+                                                 resolved_quality)
+
+    hardware = HardwareProfile.detect()
+    assert resolved_quality("auto", "gpu", hardware) == "balanced"
+    # An explicit choice is still honoured -- conservatism is a default,
+    # not a ceiling.
+    assert resolved_quality("ultra", "gpu", hardware) == "ultra"
+    assert resolved_quality("high", "cpu", hardware) == "high"
+
+
+def test_the_shipped_defaults_are_the_light_ones(store):
+    """The cost numbers start at `balanced`; High is what restores the
+    Mandelbrot renderer's published profile."""
+    from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
+
+    values = P.get_fractal_settings()
+    light = P.QUALITY_PRESETS["balanced"]
+    for key in ("supersampling", "render_scale", "base_iterations",
+                "max_iterations"):
+        assert values[key] == light[key], key
+        # And they really are lighter than the published set.
+        assert light[key] <= DEFAULTS[key], key
+
+    # What does not cost anything keeps the published value, or the default
+    # would change what the pattern IS rather than how hard it works.
+    assert values["precision_digits"] == DEFAULTS["precision_digits"]
+    assert values["steering_strength"] == DEFAULTS["steering_strength"]
+    assert values["seconds_per_decade"] == DEFAULTS["seconds_per_decade"]
+
+
+def test_the_fractal_panel_has_sub_categories(qtbot):
+    """Twenty-one fields in one column is a wall."""
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.theme import enable_spaceout
+
+    enable_spaceout()
+    dlg = P.PreferencesDialog(None)
+    qtbot.addWidget(dlg)
+    headings = [l.text() for l in dlg.findChildren(QLabel)
+                if l.objectName() == "FractalGroupHeading"]
+    assert len(headings) >= 3, headings

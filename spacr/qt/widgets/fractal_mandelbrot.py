@@ -80,7 +80,17 @@ MISIUREWICZ_GUESS_REAL: Final[str] = "-0.10109636384562"
 MISIUREWICZ_GUESS_IMAG: Final[str] = "0.95628651080914"
 
 #: The most iterations any shader will run. Bounds the orbit texture.
-HARD_MAX_ITERATIONS: Final[int] = 4096
+#:
+#: SMALLER THAN THE ORIGINAL'S 4096, deliberately. This is the loop bound a
+#: GLSL compiler sees, and it is the only shader in spaCR with a loop longer
+#: than ten or a texture fetch inside one -- drivers routinely try to unroll
+#: a constant-bounded loop, and at four thousand iterations of a fetch and
+#: two complex multiplies that is where a compile fails or times out.
+#:
+#: 2304 keeps the published ceiling of 2200 reachable with room over it,
+#: which is what the number is for: iterations above the bound would be
+#: silently ignored rather than refused.
+HARD_MAX_ITERATIONS: Final[int] = 2304
 
 
 FRAGMENT_SHADER: Final[str] = r"""
@@ -96,7 +106,7 @@ uniform float u_pointer_y;
 uniform float u_pull;
 uniform float u_push;
 
-const int HARD_MAX = 4096;
+const int HARD_MAX = 2304;
 const float ESCAPE2 = 256.0;
 
 vec2 cmul(vec2 a, vec2 b) {
