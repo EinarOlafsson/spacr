@@ -3772,6 +3772,55 @@ class MainWindow(QMainWindow):
             w.setText("" if value is None else str(value))
 
 
+def _use_open_sans(app, weight: str = "") -> str:
+    """Make Open Sans the application font, not merely a registered one.
+
+    THE FONTS WERE LOADED AND NEVER APPLIED. `_load_bundled_fonts` registers
+    the family with QFontDatabase, which makes a `font-family: "Open Sans"`
+    stylesheet rule resolvable -- but nothing set the APPLICATION font, so
+    every widget without such a rule used the platform default. That is what
+    Qt was naming in "OpenType support missing for Ubuntu Sans": the app was
+    drawing in the system font, not in the one it ships.
+
+    :param weight: ``'light'`` or ``'regular'``; empty reads the preference.
+    :returns: the family actually applied, or "" when Open Sans is not
+        available -- in which case the platform font is left alone, because a
+        missing font is not a reason to refuse to draw.
+
+    Only these two weights are offered. Bold and SemiBold remain registered,
+    so a stylesheet that asks for emphasis still gets it; what changes is
+    what everything else defaults to.
+    """
+    from PySide6.QtGui import QFont, QFontDatabase
+
+    if "Open Sans" not in set(QFontDatabase.families()):
+        LOG.debug("Open Sans is not registered; leaving the platform font")
+        return ""
+
+    if not weight:
+        try:
+            from .preferences import get_interface_font_weight
+
+            weight = get_interface_font_weight()
+        except Exception:                                    # noqa: BLE001
+            weight = "regular"
+
+    font = QFont("Open Sans")
+    # QFont.Light is 300 and Normal is 400. Asked for by weight rather than
+    # by family name: "Open Sans Light" is a family on some platforms and
+    # not on others, and the weight works on both.
+    font.setWeight(QFont.Weight.Light if str(weight).lower() == "light"
+                   else QFont.Weight.Normal)
+    # The size the platform chose is kept: the font-scale preference is
+    # applied on top of it later, and overriding it here would silently
+    # undo that.
+    existing = app.font()
+    if existing.pointSizeF() > 0:
+        font.setPointSizeF(existing.pointSizeF())
+    app.setFont(font)
+    return font.family()
+
+
 def _load_bundled_fonts() -> None:
     """Register the bundled Open Sans TTFs with :class:`QFontDatabase`.
 
@@ -4054,6 +4103,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # installed. Registered before applying the stylesheet so any
     # `font-family: "Open Sans"` rule resolves.
     _load_bundled_fonts()
+    _use_open_sans(app)
 
     # Apply user preferences (theme + font scale) — falls back to the
     # dark defaults on the first launch when nothing is stored yet.
