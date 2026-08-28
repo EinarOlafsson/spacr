@@ -7932,6 +7932,16 @@ class SettingsWidgets:
         self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
         self._defaults = organelle_slots_beyond_the_count(
             shipped, self._slots_built_for)
+        # AND THE SLOTS THE COUNT DOES NOT ASK FOR ARE NOT BUILT AT ALL,
+        # including the first one. Its keys are in the module's shipped
+        # defaults rather than invented by the panel, so trimming the
+        # invented ones left 54 `organelle_*` settings and their categories
+        # on a form whose count says zero -- which is the thing the count is
+        # supposed to decide.
+        self._skip_keys = frozenset(self._skip_keys) | frozenset(
+            self._organelle_keys_beyond(self._slots_built_for, self._defaults)
+        ) | frozenset(self._keys_of_objects_the_run_has_no_channel_for(
+            self._defaults))
         # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
         # file is not a panel: writing every slot that can be named into
         # every CSV would bury the four a run uses. `collect` leaves these
@@ -8187,6 +8197,87 @@ class SettingsWidgets:
             QTimer.singleShot(0, self._parent, self.refresh_object_visibility)
 
         return _nest_sections(sections)
+
+    @staticmethod
+    def _keys_of_objects_the_run_has_no_channel_for(settings) -> set:
+        """Settings for an object whose channel names no plane.
+
+        :param settings: the defaults the panel is about to build from.
+        :returns: the keys not to build.
+
+        SAME RULE AS THE ORGANELLE COUNT, asked for 2026-08-28: "do the same
+        for the other object classes, except cell". A run with no nucleus
+        channel has no nucleus, and twenty nucleus settings under two
+        headings are twenty settings it will never use.
+
+        CELL IS ALWAYS THERE. It is the object every other one is measured
+        against and the one a run is most likely to want, so hiding it on an
+        unset channel would empty the form a user has only just opened.
+
+        DECIDED WHEN THE PANEL IS BUILT, not while typing. Re-running this on
+        every keystroke is what made the Mask module hang; a channel typed
+        afterwards changes what the run does without rearranging the form
+        under the hands typing it.
+        """
+        gated = ("nucleus", "pathogen")
+        absent = set()
+        for role in gated:
+            value = settings.get(f"{role}_channel")
+            named = value is not None and str(value).strip() != ""
+            if named:
+                continue
+            prefix = f"{role}_"
+            for key in settings:
+                name = str(key)
+                if name == f"{role}_channel":
+                    # THE CHANNEL ITSELF STAYS, or there is no way to say
+                    # the run has this object after all.
+                    continue
+                if name.startswith(prefix):
+                    absent.add(name)
+        return absent
+
+    @staticmethod
+    def _organelle_keys_beyond(count: int, settings) -> set:
+        """Every organelle key belonging to a slot past ``count``.
+
+        :param count: how many slots the run has.
+        :param settings: the defaults the panel is about to build from.
+        :returns: the keys not to build.
+
+        BY ROLE PREFIX, because that is what names a slot. `organelle_` is
+        slot one, `organelleb_` is slot two, and so on; a key belongs to the
+        first role its name starts with, longest first so `organelleb_area`
+        is not read as `organelle_` plus a suffix.
+        """
+        from spacr.organelle_types import ALL_ORGANELLE_ROLES
+
+        from spacr.organelle_types import NUMBER_OF_ORGANELLES
+
+        count = max(0, int(count))
+        keep = {f"{role}_" for role in ALL_ORGANELLE_ROLES[:count]}
+        every = {f"{role}_" for role in ALL_ORGANELLE_ROLES}
+        drop = every - keep
+        beyond = set()
+        for key in settings:
+            name = str(key)
+            if name == NUMBER_OF_ORGANELLES:
+                # THE CONTROL ITSELF ALWAYS STAYS, or a run with no
+                # organelles would have no way to ask for one.
+                continue
+            # Longest prefix first: `organelleb_` before `organelle_`.
+            owner = max((p for p in every if name.startswith(p)),
+                        key=len, default=None)
+            if owner is not None and owner in drop:
+                beyond.add(name)
+            elif count == 0 and "organelle" in name.lower():
+                # A SETTING ABOUT ORGANELLES IN GENERAL, which a slot prefix
+                # does not catch: `summarize_organelles_by` is one, and it
+                # kept "Organelle Segmentation (advanced)" on a form whose
+                # count said none. With no organelles there is nothing for
+                # it to be about.
+                beyond.add(name)
+        return beyond
 
     def grow_to_fit_the_organelle_count(self, count) -> int:
         """Build the organelle slots a raised count now asks for.

@@ -440,10 +440,17 @@ MAX_ORGANELLES = 26
 
 #: How many slots a settings file that says nothing has.
 #:
-#: Four, which is the number spaCR had while the slots were fixed. A settings
-#: file written before the count was a setting therefore keeps every key it
-#: carried and means exactly what it meant.
-DEFAULT_NUMBER_OF_ORGANELLES = 4
+#: NONE. Asked for 2026-08-28: a run has the organelles it says it has, and
+#: a form that opens showing four of them the user never asked for is four
+#: settings and two categories of noise on the busiest screen in the tool.
+#:
+#: A FILE THAT CARRIES ORGANELLE VALUES IS NOT SAYING "NONE", though, and it
+#: was written before the count existed. `organelle_count` infers the count
+#: from the slots such a file actually holds rather than reading this, so an
+#: old settings file still means exactly what it meant. This number is what
+#: a file with no organelle keys AT ALL gets, which is a file that is not
+#: asking for any.
+DEFAULT_NUMBER_OF_ORGANELLES = 0
 
 
 def organelle_role(number: int) -> str:
@@ -569,12 +576,46 @@ def organelle_count(settings: Mapping[str, object]) -> int:
     """
     raw = settings.get(NUMBER_OF_ORGANELLES) if settings else None
     if raw is None or (isinstance(raw, str) and not raw.strip()):
-        return DEFAULT_NUMBER_OF_ORGANELLES
+        return _count_implied_by_the_slots(settings)
     try:
         count = int(float(str(raw).strip()))
     except (TypeError, ValueError):
-        return DEFAULT_NUMBER_OF_ORGANELLES
+        return _count_implied_by_the_slots(settings)
     return max(0, min(count, MAX_ORGANELLES))
+
+
+def _count_implied_by_the_slots(settings: Mapping[str, object]) -> int:
+    """How many slots a file that never named a count is actually using.
+
+    :param settings: a run settings mapping.
+    :returns: the number of slots that carry a value, in ``0..MAX``.
+
+    THE DEFAULT IS NONE, and a file written before the count existed is not
+    claiming to have none -- it is not making a claim at all. Reading the
+    slots it carries is what keeps such a file meaning what it meant when
+    the default was four: a file with four organelle channels still gets
+    four, and one with none gets none.
+
+    A SLOT COUNTS WHEN IT HOLDS SOMETHING. A key present but empty is a
+    placeholder the panel wrote, not a slot the run uses, so the highest
+    slot with a real value decides -- gaps included, because slot three
+    existing means slots one and two do.
+    """
+    if not settings:
+        return 0
+    highest = 0
+    for index, role in enumerate(ALL_ORGANELLE_ROLES[:MAX_ORGANELLES], start=1):
+        prefix = f"{role}_"
+        for key, value in settings.items():
+            if not str(key).startswith(prefix):
+                continue
+            if value is None:
+                continue
+            if isinstance(value, str) and not value.strip():
+                continue
+            highest = max(highest, index)
+            break
+    return min(highest, MAX_ORGANELLES)
 
 
 def active_organelle_roles(

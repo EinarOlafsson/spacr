@@ -1887,6 +1887,23 @@ class AppScreen(QWidget):
         # under the cursor. Initialized in __init__.
         for spec in sections:
             section = self._build_settings_section(spec)
+            # A CATEGORY WITH NOTHING IN IT IS NOT SHOWN. Asked for
+            # 2026-08-28: "this will help not overwhelm the user."
+            #
+            # An empty heading is worse than an absent one. It reads as a
+            # section that failed to load rather than one that does not
+            # apply, and it invites the user to expand it and find out --
+            # which is the cost the request is about. Mask showed "Organelle
+            # segmentation" and "Organelle segmentation advanced" with
+            # nothing under them whenever the run had no organelles.
+            #
+            # DECIDED HERE, over the finished section, rather than by each
+            # thing that can empty one: a heading emptied by the organelle
+            # count, by the maturity filter, or by a rule added later is the
+            # same empty heading.
+            if not self._section_holds_anything(section):
+                section.setParent(None)
+                continue
             if self._settings_tabs is not None:
                 page = QWidget()
                 page_layout = QVBoxLayout(page)
@@ -1963,6 +1980,28 @@ class AppScreen(QWidget):
         self._widget_key_stamp = None
         key = self._widget_key_index().get(id(field))
         return key if key is not None and widgets.get(key) is field else None
+
+    @staticmethod
+    def _section_holds_anything(section) -> bool:
+        """Whether ``section`` has a row, a child heading, or prose.
+
+        :param section: a built :class:`~spacr.qt.widgets.section.Section`.
+        :returns: ``False`` when it would render as a heading over nothing.
+
+        A NESTED HEADING COUNTS ONLY IF IT HOLDS SOMETHING ITSELF, or an
+        umbrella over three empty sub-headings would survive as four empty
+        headings instead of none.
+        """
+        from ..widgets.section import Section
+
+        rows = getattr(section, "_row_widgets", None) or ()
+        if any(widget is not None for _label, widget in rows):
+            return True
+        for child in section.findChildren(Section):
+            child_rows = getattr(child, "_row_widgets", None) or ()
+            if any(widget is not None for _label, widget in child_rows):
+                return True
+        return False
 
     def _build_settings_section(self, spec, depth: int = 0):
         """Build one heading of the settings TREE, and everything under it.
@@ -2088,6 +2127,17 @@ class AppScreen(QWidget):
         # heading is neither a setting nor labelled.
         for child in children:
             nested = self._build_settings_section(child, depth + 1)
+            # AND A NESTED HEADING WITH NOTHING IN IT GOES TOO. Pruning only
+            # at the top left an empty sub-heading inside a category that
+            # was itself kept for its other children -- "Organelle
+            # Segmentation (advanced)" survived a run with no organelles
+            # that way. Deepest first, because this runs inside the
+            # recursion: a child is pruned before its parent is judged, so
+            # an umbrella over nothing but empty sub-headings is empty by
+            # the time the parent asks.
+            if not self._section_holds_anything(nested):
+                nested.setParent(None)
+                continue
             section.add_prose(nested)
             # A HEADING OPENED FROM OUTSIDE OPENS ITS ANCESTORS. The search
             # strip and the command palette expand the section holding a
