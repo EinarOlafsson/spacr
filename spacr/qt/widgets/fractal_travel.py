@@ -441,6 +441,27 @@ class OrbitEngine:
 # The CPU widget -- a render thread, and a paint that never computes
 # ===========================================================================
 
+def _join_on_destroy(widget, thread) -> None:
+    """Quit and wait for ``thread`` when Qt frees ``widget``.
+
+    The handler closes over the THREAD only. `destroyed` is emitted while the
+    widget is being torn down, so anything that touched the widget from here
+    would be reaching into a half-freed object -- which is a second crash on
+    top of the one this prevents.
+    """
+    def _join(*_args):
+        try:
+            thread.quit()
+            thread.wait(5000)
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    try:
+        widget.destroyed.connect(_join)
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
 def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                      hardware: HardwareProfile):
     if njit is None:
@@ -515,7 +536,11 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
             self.setAutoFillBackground(False)
 
-            self._thread = QThread(self)
+            # NOT PARENTED TO self. A QThread whose parent is deleted while it
+            # runs prints "Destroyed while thread is still running" and takes
+            # the process down; the backdrop is reparented and deleted with
+            # its screen, so that is the ordinary path, not an edge case.
+            self._thread = QThread()
             self._worker = _Worker()
             self._worker.moveToThread(self._thread)
             self.render_requested.connect(
@@ -524,6 +549,10 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             self._worker.failed.connect(self._on_failure)
             self._thread.finished.connect(self._worker.deleteLater)
             self._thread.start()
+            # JOINED WHENEVER QT FREES THE WIDGET. `destroyed` fires during
+            # destruction, so the handler must hold the THREAD and never
+            # `self` -- reaching for a half-destroyed widget is its own crash.
+            _join_on_destroy(self, self._thread)
 
             self._timer = QTimer(self)
             self._timer.setSingleShot(True)
@@ -922,6 +951,9 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._render_ema: Optional[float] = None
             self._detail = base_detail
             self._paused = False
+            #: Set once Qt has freed the C++ side. The timer checks it so a
+            #: single late tick does not become an endless retry.
+            self._dead = False
             self._program = gloo.Program(VERTEX_SHADER, _FRAGMENT)
             self._program["a_position"] = np.asarray(
                 [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
@@ -930,6 +962,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._update_uniforms(0.0)
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
                                           connect=self._on_timer, start=True)
+            # STOPPED WHEN QT FREES THE WIDGET, not only when someone calls
+            # shutdown. A backdrop is reparented and deleted with its screen,
+            # which never runs closeEvent.
+            self.native.destroyed.connect(self._on_native_destroyed)
 
         def _update_uniforms(self, elapsed: float) -> None:
             width, height = self.physical_size
@@ -977,10 +1013,30 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._last_sample = time.perf_counter()
 
         def _on_timer(self, _event) -> None:
-            if self._paused:
+            if self._paused or self._dead:
                 return
-            self._update_uniforms(time.perf_counter() - self._started)
-            self.update()
+            try:
+                self._update_uniforms(time.perf_counter() - self._started)
+                self.update()
+            except RuntimeError:
+                # "Internal C++ object already deleted". vispy's Timer is not
+                # a QTimer and is not destroyed with the widget, so it goes on
+                # firing at a canvas Qt has freed -- and vispy's own handler
+                # catches, logs and RETRIES, which is where the 2,4,8...4096
+                # repeat storm comes from. Stop the timer at the first one.
+                self._dead = True
+                self.stop_timer()
+
+        def stop_timer(self) -> None:
+            """Stop the vispy timer. Safe to call twice, and after deletion."""
+            try:
+                self._timer.stop()
+            except Exception:                                # noqa: BLE001
+                pass
+
+        def _on_native_destroyed(self, *_args) -> None:
+            self._dead = True
+            self.stop_timer()
 
         def stats_text(self) -> str:
             width, height = self.physical_size
@@ -1039,8 +1095,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             return self._canvas.stats_text()
 
         def shutdown(self) -> None:
+            """Stop for good. Safe to call twice and after Qt has freed it."""
             try:
-                self._canvas._timer.stop()
+                self._canvas._dead = True
+                self._canvas.stop_timer()
                 self._canvas.close()
             except Exception:                                # noqa: BLE001
                 pass

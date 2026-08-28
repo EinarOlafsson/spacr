@@ -5159,6 +5159,35 @@ class AmbientWidget(QWidget):
 # Integration
 # ---------------------------------------------------------------------------
 
+def _retire_fractals_on(host) -> int:
+    """Shut down and unparent any fractal backdrop already on ``host``.
+
+    :returns: how many were retired, so a test can assert a number instead of
+        counting children by eye.
+
+    Called before a new one is installed. Never raises: failing to clean up
+    an old backdrop must not stop the new screen from getting one.
+    """
+    retired = 0
+    try:
+        for child in list(host.findChildren(QWidget)):
+            if not hasattr(child, "backend_name"):
+                continue
+            try:
+                child.shutdown()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not stop an old fractal", exc_info=True)
+            try:
+                child.setParent(None)
+                child.deleteLater()
+            except Exception:                                # noqa: BLE001
+                pass
+            retired += 1
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not look for old fractals", exc_info=True)
+    return retired
+
+
 def _the_spaceout_fractal(host):
     """The spaceout backdrop, or None when this is an ordinary launch.
 
@@ -5175,6 +5204,13 @@ def _the_spaceout_fractal(host):
             return None
     except Exception:                                        # noqa: BLE001
         return None
+
+    # ONE BACKDROP PER HOST. `install_ambient` is called again whenever a
+    # screen is rebuilt, and the previous fractal was left parented and
+    # RUNNING: four live canvases, four vispy timers and four render threads
+    # were on screen at once, which is what filled the console with
+    # "Internal C++ object already deleted" and ended in a core dump.
+    _retire_fractals_on(host)
 
     try:
         from ..preferences import get_fractal_settings
