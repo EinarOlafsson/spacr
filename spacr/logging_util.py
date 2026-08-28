@@ -192,6 +192,26 @@ _TRACE_SKIP_NAMES = frozenset({
     "heightForWidth",
 })
 
+#: Modules whose functions run on the ANIMATION TIMER, and are never traced.
+#:
+#: MEASURED 2026-08-28, with verbose logging on: spaCR wrote three 5 MB log
+#: files inside one minute and the interface became unusable. The backdrop
+#: shades a frame up to sixty times a second and each frame calls these
+#: helpers hundreds of times -- `ambient._with_alpha` entered and left, each
+#: one formatted and written to disk. Nothing about that trail is diagnostic;
+#: it is the same handful of names repeating until the log rotates and buries
+#: whatever the user was actually trying to catch.
+#:
+#: `_TRACE_SKIP_NAMES` cannot cover this. It names `paintEvent`, but the cost
+#: is in the ordinary helpers the paint calls, which have unremarkable names
+#: and are indistinguishable from any other function by name alone. The
+#: module is the thing they have in common.
+_TRACE_SKIP_MODULES = (
+    "spacr.qt.widgets.ambient",
+    "spacr.qt.widgets.fractal_travel",
+    "spacr.qt.widgets.fractal_cascade",
+)
+
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -477,6 +497,16 @@ def _trace_profile(frame, event, arg):
         return
     if frame.f_code.co_name in _TRACE_SKIP_NAMES:
         return
+    # BEFORE ANY OF THE WORK BELOW. `realpath` is a syscall per event, and
+    # this hook runs on every call and every return in the process -- so a
+    # trace that is not going to be written must cost as little as possible
+    # to decide against. Asking the logger first turns the whole hook into
+    # one dictionary lookup while verbose is off.
+    if not logging.getLogger("spacr.trace").isEnabledFor(logging.DEBUG):
+        return
+    module = frame.f_globals.get("__name__", "spacr")
+    if module.startswith(_TRACE_SKIP_MODULES):
+        return
     filename = os.path.realpath(frame.f_code.co_filename)
     if not filename.startswith(_TRACE_ROOT) or filename == _TRACE_THIS_FILE:
         return
@@ -484,7 +514,6 @@ def _trace_profile(frame, event, arg):
         return
     _TRACE_STATE.busy = True
     try:
-        module = frame.f_globals.get("__name__", "spacr")
         qualname = getattr(
             frame.f_code, "co_qualname", frame.f_code.co_name)
         marker = "→" if event == "call" else "←"

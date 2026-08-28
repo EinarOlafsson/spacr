@@ -2748,11 +2748,27 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     return files, console
 
 
+#: Verbose diagnostic logging is ON unless the user turns it off.
+#:
+#: A bug report is worth far more with a trail behind it, and the trail has
+#: to already exist when the thing goes wrong -- asking a user to turn
+#: logging on and reproduce it is asking for the one run nobody captured.
+#:
+#: THIS WAS ONLY SAFE ONCE VERBOSE WAS CHEAP. With the animation traced it
+#: wrote three 5 MB files a minute and the interface stopped responding;
+#: `spacr.logging_util._TRACE_SKIP_MODULES` is what makes the default
+#: defensible, and the two must not be separated.
+DEFAULT_VERBOSE_LOGGING = True
+
+
 def get_verbose_logging() -> bool:
-    """Return True when the user has opted into the verbose diagnostic
-    logger. Toggled via the Preferences dialog; consulted at startup
-    by :func:`apply_preferences_to_app`."""
-    raw = _settings().value(_KEY_VERBOSE_LOG, False)
+    """Whether package-wide diagnostic tracing is on.
+
+    :returns: the stored choice, defaulting to
+        :data:`DEFAULT_VERBOSE_LOGGING`. Consulted at startup by
+        :func:`apply_preferences_to_app` and toggled in Preferences.
+    """
+    raw = _settings().value(_KEY_VERBOSE_LOG, DEFAULT_VERBOSE_LOGGING)
     if isinstance(raw, str):
         return raw.lower() in ("true", "1", "yes", "on")
     return bool(raw)
