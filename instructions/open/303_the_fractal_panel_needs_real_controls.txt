@@ -1,0 +1,34 @@
+303 — The fractal settings need real controls, and real ranges
+
+Reported 2026-08-28, from using the Mandelbrot theme.
+
+  a) MANDELBROT HAS NO CPU PATH. It draws on the GPU and nothing on CPU.
+     The pasted source has one -- `render_cpu_perturbation`, long-double
+     perturbation in row tiles -- and every other pattern has both, so a
+     machine without a usable GL context gets nothing here.
+
+  b) THE MOUSE DOES NOT STEER THE DIVE. It shifts the sample coordinate,
+     which moves the picture but not the point the zoom descends INTO: the
+     camera centre is fixed and the offset is re-applied every frame, so
+     the effect washes out as the scale shrinks. To steer, the pointer has
+     to move the CENTRE the zoom is converging on -- `u_center_offset` --
+     and that offset has to persist between frames rather than being
+     recomputed from the current cursor position.
+
+  c) UP AND DOWN DO NOT DO WHAT WAS WANTED. In the source they change the
+     zoom rate. Say what they should do here and bind them.
+
+  d) THE PANEL IS TOO SMALL AND ITS RANGES TOO TIGHT:
+       * SCALE is capped at 2.0 and should go far higher;
+       * SUPERSAMPLING is not exposed at all and is called out as "a super
+         important setting" -- it is the one that decides whether the
+         picture is smooth or aliased, and it costs four samples a pixel;
+       * more of the renderer's settings belong on the panel. The
+         Mandelbrot ones with published defaults are: seconds-per-decade,
+         base-iterations, iterations-per-decade, max-iterations,
+         precision-digits, initial-scale, tile-rows, render-scale, fps,
+         zoom-rate, path (fixed/guided) and the four steering numbers.
+
+     A capped setting a user has asked to exceed is a setting that does not
+     work, and the caps here were chosen for the two fold patterns rather
+     than for a renderer that can usefully take far more.
