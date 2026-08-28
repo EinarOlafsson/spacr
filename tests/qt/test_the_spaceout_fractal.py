@@ -823,3 +823,71 @@ def test_the_cascade_module_imports_no_pyqt6():
         elif isinstance(node, ast.ImportFrom) and node.module:
             imported.add(node.module.split(".")[0])
     assert "PyQt6" not in imported
+
+
+# --- every row explains itself ---------------------------------------------
+
+
+FRACTAL_ROWS = ("Pattern", "Backend", "Quality", "Scale", "Speed", "Dream",
+                "Variable speed")
+
+
+@pytest.mark.parametrize("row", FRACTAL_ROWS)
+def test_every_fractal_row_has_a_caption(row):
+    """A caption ships with its row, or the row explains nothing."""
+    from spacr.qt.preferences import PREFERENCE_TIPS
+
+    assert row in PREFERENCE_TIPS
+    assert len(PREFERENCE_TIPS[row]) > 40
+
+
+def test_the_captions_reach_the_labels(qtbot, sandbox, monkeypatch):
+    """A caption in the catalogue that never renders is the same as none.
+
+    `explain_every_row` puts the tooltip on the LABEL, not on the field --
+    checking the field finds nothing and proves nothing.
+    """
+    from PySide6.QtWidgets import QFormLayout, QLabel
+
+    import spacr.qt.theme as theme
+    from spacr.qt.preferences import PreferencesDialog
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    dialog = PreferencesDialog()
+    qtbot.addWidget(dialog)
+
+    explained = {}
+    for form in dialog.findChildren(QFormLayout):
+        for index in range(form.rowCount()):
+            item = form.itemAt(index, QFormLayout.LabelRole)
+            if item is None:
+                continue
+            label = item.widget()
+            if isinstance(label, QLabel):
+                text = (label.text() or "").replace("&", "").strip()
+                if text in FRACTAL_ROWS:
+                    explained[text] = bool((label.toolTip() or "").strip())
+
+    assert set(explained) == set(FRACTAL_ROWS), "a row is missing its label"
+    assert all(explained.values()), f"unexplained: {explained}"
+
+
+def test_the_caption_says_what_the_cascade_costs():
+    """The one number a user needs before choosing it."""
+    from spacr.qt.preferences import PREFERENCE_TIPS
+
+    assert "four times" in PREFERENCE_TIPS["Pattern"]
+
+
+def test_the_backend_caption_says_the_gpu_can_be_absent():
+    from spacr.qt.preferences import PREFERENCE_TIPS
+
+    assert "vispy" in PREFERENCE_TIPS["Backend"]
+
+
+def test_the_scale_caption_says_it_is_not_the_look():
+    """Scale and quality are easy to confuse; the caption separates them."""
+    from spacr.qt.preferences import PREFERENCE_TIPS
+
+    assert "does not change what the fractal looks like" in \
+        PREFERENCE_TIPS["Scale"]
