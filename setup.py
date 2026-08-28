@@ -722,6 +722,12 @@ setup(
             # nothing in Preferences offers it and nothing persists it, so an
             # ordinary `spacr` start can never land in it.
             'spaceout=spacr.qt.spaceout:main',
+            # The least spaCR that can still change a setting. For when a
+            # saved preference is what makes an ordinary start die: it reads
+            # every preference as its default and forces the backdrop, the
+            # setting animations, verbose logging and preloading off, so the
+            # user can get in and re-save the value that broke it.
+            'safespacr=spacr.qt.safespacr:main',
             # Same GUI with the first-run setup screen never offered.
             # For a launch with nobody in front of it: the screen is
             # modal and opens before the main window, so an
