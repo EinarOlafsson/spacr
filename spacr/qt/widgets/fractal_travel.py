@@ -919,6 +919,21 @@ class GpuBackendError(RuntimeError):
     """The GPU renderer could not be built. Always caught by `auto`."""
 
 
+def _heavy_import_lock():
+    """The lock the module preloader holds while importing, or None.
+
+    Imported lazily and defensively: this widget is also usable on its own,
+    with no application around it, and a backdrop must not fail to build
+    because the lock could not be found.
+    """
+    try:
+        from ..app import HEAVY_IMPORT_LOCK
+
+        return HEAVY_IMPORT_LOCK
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
 def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                      hardware: HardwareProfile):
     try:
@@ -1058,7 +1073,17 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
         def __init__(self, parent=None) -> None:
             super().__init__(parent)
-            self._canvas = _Canvas()
+            # UNDER THE HEAVY-IMPORT LOCK. Creating a GL context while the
+            # preloader is bringing torch (and therefore CUDA) up is exactly
+            # the concurrent initialisation `_PipelinePreloader` used to stay
+            # on the GUI thread to avoid. It is on a worker thread now, so
+            # the two take turns instead.
+            lock = _heavy_import_lock()
+            if lock is None:
+                self._canvas = _Canvas()
+            else:
+                with lock:
+                    self._canvas = _Canvas()
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(0)

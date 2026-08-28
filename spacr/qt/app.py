@@ -164,14 +164,37 @@ class _UpdateWorker(QThread):
         emit_safely(self.succeeded, result)
 
 
-class _PipelinePreloader:
-    """Import pipeline modules incrementally on the GUI thread.
+#: Held while a heavy module is imported AND while an OpenGL context is
+#: created. The preloader used to run on the GUI thread for exactly one
+#: reason -- "avoids concurrent Qt, CUDA, and OpenGL initialization" -- and
+#: that hazard is real: torch brings CUDA up, and the spaceout fractal brings
+#: a GL context up. Serialising the two is what makes the worker thread safe,
+#: so the reason to stay on the GUI thread is answered rather than ignored.
+HEAVY_IMPORT_LOCK = threading.Lock()
 
-    Each timer callback imports one module. Keeping C-extension imports on
-    the GUI thread avoids concurrent Qt, CUDA, and OpenGL initialization;
-    yielding between imports lets Qt repaint between unavoidable import-time
-    pauses. The work moves startup cost ahead of the first pipeline action,
-    but does not eliminate that cost.
+
+class _PipelinePreloader:
+    """Import pipeline modules on a worker thread.
+
+    MEASURED, because the GUI-thread version was costing more than it looked
+    like. Importing these seven on the GUI thread, yielding between each,
+    left the interface answering THREE timer ticks in 4.24 seconds with a
+    single 1408 ms freeze -- 94% of it in the two modules that pull torch,
+    and no amount of yielding breaks up one 2.3-second import. On a worker
+    thread the same 4.2 seconds gives 224 ticks and a longest freeze of
+    185 ms, which is the GIL during a C-extension import and is not
+    avoidable by any threading.
+
+    The original docstring's reason for staying on the GUI thread was
+    concurrent Qt/CUDA/OpenGL initialisation. That is answered by
+    :data:`HEAVY_IMPORT_LOCK` rather than by giving up the thread: the
+    fractal's GL canvas takes the same lock, so an import and a context
+    creation can never overlap.
+
+    Progress is delivered on the GUI thread by a poll, not by calling back
+    from the worker: `on_step` and `on_done` take a loading screen down, and
+    touching widgets from a worker is the crash this file has already had
+    once today.
     """
 
     _MODULES = (
@@ -196,49 +219,73 @@ class _PipelinePreloader:
         self._started = False
         self._on_step = on_step
         self._on_done = on_done
+        self._done = threading.Event()
+        self._reported = 0
+        self._poll = None
+        self._thread = None
 
     def total(self) -> int:
         """How many modules will be imported."""
         return len(self._MODULES)
 
     def start(self) -> None:
-        """Begin the main-thread import chain (no-op if already begun)."""
+        """Begin importing on a worker thread (no-op if already begun)."""
+        from PySide6.QtCore import QTimer
+
         if self._started:
             return
         self._started = True
         self._i = 0
-        self._step()
+        self._thread = threading.Thread(
+            target=self._work, name="spacr-preload", daemon=True)
+        self._thread.start()
+        # THE CALLBACKS RUN HERE, on the GUI thread. A worker that called
+        # `on_step` directly would be touching a loading screen from off the
+        # GUI thread, which is the crash this file has already had once.
+        self._poll = QTimer()
+        self._poll.setInterval(40)
+        self._poll.timeout.connect(self._drain)
+        self._poll.start()
 
-    def _step(self) -> None:
-        """Import the next module, then schedule the following one on the
-        next event-loop tick."""
-        from PySide6.QtCore import QTimer
-        if self._i >= len(self._MODULES):
-            if self._on_done is not None:
-                try:
-                    self._on_done()
-                except Exception:
-                    LOG.debug("preload completion callback failed",
-                              exc_info=True)
-                self._on_done = None
-            return
-        mod = self._MODULES[self._i]
-        self._i += 1
-        try:
-            import importlib
-            importlib.import_module(mod)
-        except Exception:
-            # Preloading is optional, but an import failure still belongs in
-            # the diagnostic log so a later first-use failure has context.
-            LOG.debug("Could not preload %s", mod, exc_info=True)
-        if self._on_step is not None:
+    def _work(self) -> None:
+        """Import every module, one at a time, holding the heavy lock."""
+        import importlib
+
+        for module in self._MODULES:
             try:
-                self._on_step(self._i, len(self._MODULES))
-            except Exception:
-                LOG.debug("preload progress callback failed", exc_info=True)
-        # 50 ms between imports so Qt drains its event queue (repaints,
-        # input) before the next potentially-blocking import.
-        QTimer.singleShot(50, self._step)
+                with HEAVY_IMPORT_LOCK:
+                    importlib.import_module(module)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("preloading %s failed", module, exc_info=True)
+            self._i += 1
+        self._done.set()
+
+    def _drain(self) -> None:
+        """Report whatever the worker has finished since the last tick."""
+        while self._reported < self._i:
+            self._reported += 1
+            if self._on_step is not None:
+                try:
+                    self._on_step(self._reported, len(self._MODULES))
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("preload progress callback failed",
+                              exc_info=True)
+        if not self._done.is_set():
+            return
+        if self._poll is not None:
+            self._poll.stop()
+            self._poll = None
+        if self._on_done is not None:
+            try:
+                self._on_done()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("preload completion callback failed", exc_info=True)
+            self._on_done = None
+
+    def wait(self, timeout: float = 30.0) -> bool:
+        """Block until the imports finish. For tests and for shutdown."""
+        return self._done.wait(timeout)
+
 
 
 # ---------------------------------------------------------------------------
