@@ -189,3 +189,68 @@ def test_restarting_with_no_backdrop_is_harmless():
 
     ft._LIVE_CONTROLS.clear()
     assert ft.restart_the_dive() is None
+
+
+def test_the_guided_path_actually_goes_somewhere_different():
+    """Reported 2026-08-28: "it allways heads right to the center of 3
+    lines... how can it allways end up in the same place if steering is
+    implementad." It could not: only the fixed path was built.
+    """
+    orbit = mb.ReferenceOrbit(max_iter=900, digits=120)
+    chosen = []
+    for step in range(6):
+        plan = mb.plan_guided_step(orbit, 1.25, 400, strength=0.09,
+                                   candidates=24, step_index=step)
+        assert plan is not None, f"step {step} found no boundary at all"
+        chosen.append((round(plan[0], 4), round(plan[1], 4)))
+
+    assert len(set(chosen)) >= 3, (
+        f"six steps chose {len(set(chosen))} targets: {chosen}")
+
+
+def test_a_step_heads_the_way_it_was_pointed():
+    """The heading is a constraint, not a preference: scoring every point
+    and penalising the distant ones let the best-scoring point in the frame
+    win whatever direction the step was exploring."""
+    orbit = mb.ReferenceOrbit(max_iter=900, digits=120)
+    angles = []
+    for step in range(8):
+        plan = mb.plan_guided_step(orbit, 1.25, 400, strength=0.09,
+                                   candidates=24, step_index=step)
+        if plan is None:
+            continue
+        angles.append(np.arctan2(plan[1], plan[0]))
+    assert len(angles) >= 4
+    # They must not all point the same way.
+    spread = np.ptp(np.unwrap(np.sort(np.asarray(angles))))
+    assert spread > 0.4, f"every step headed the same way (spread {spread})"
+
+
+def test_the_map_only_targets_the_boundary():
+    """An interior point fades to flat colour and an exterior one escapes;
+    only the edge keeps producing detail at every magnification."""
+    orbit = mb.ReferenceOrbit(max_iter=900, digits=120)
+    escaped, _iterations = mb.perturbation_escape_map(
+        orbit, 96, 54, 1.25, 400)
+    edge = mb.boundary_mask(escaped)
+    assert edge.any()
+    # Every boundary point is bounded and touches something that escapes.
+    rows, cols = np.nonzero(edge)
+    for row, col in list(zip(rows, cols))[:20]:
+        assert not escaped[row, col]
+        neighbours = escaped[max(0, row - 1):row + 2, max(0, col - 1):col + 2]
+        assert neighbours.any()
+    # And the frame's own edge is excluded: a point there may look like a
+    # boundary only because the map stopped.
+    assert not edge[0, :].any() and not edge[-1, :].any()
+    assert not edge[:, 0].any() and not edge[:, -1].any()
+
+
+def test_the_move_is_eased_not_a_jump():
+    assert mb.eased(0.0) == 0.0
+    assert mb.eased(1.0) == 1.0
+    assert mb.eased(0.5) == pytest.approx(0.5)
+    # Gentle at both ends, which is what makes it a steer.
+    assert mb.eased(0.1) < 0.1
+    assert mb.eased(0.9) > 0.9
+    assert mb.eased(-5.0) == 0.0 and mb.eased(5.0) == 1.0

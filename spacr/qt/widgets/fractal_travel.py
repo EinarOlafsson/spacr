@@ -1204,6 +1204,21 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._orbit = None
             self._orbit_thread = None
             if settings.pattern == "mandelbrot":
+                # A PLACEHOLDER BEFORE THE REAL ONE ARRIVES. vispy warns
+                # once per draw for every uniform a linked program has never
+                # been given -- "Program has unset variables: {'u_orbit'}" --
+                # and the real orbit takes seconds to build on its thread.
+                # One black texel costs nothing and the shader reads it as
+                # an orbit at the origin, which draws the interior colour:
+                # the same thing an unset sampler would have drawn, without
+                # the warning.
+                try:
+                    self._program["u_orbit"] = gloo.Texture2D(
+                        np.zeros((1, 1, 4), dtype=np.float32),
+                        interpolation="nearest")
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not seed the orbit texture",
+                              exc_info=True)
                 self._start_the_reference_orbit()
             self._started = time.perf_counter()
             self._last_sample = 0.0
@@ -1324,6 +1339,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._restart_token = token
                 self._depth = 0.0
                 self._zoom_clock = None
+                # BACK TO THE ANCHOR AS WELL. A restart that kept the course
+                # would begin at the surface but already pointed thirty
+                # decades of steering away from the centre.
+                self._centre = (0.0, 0.0)
+                self._move = None
+                self._plan = None
+                self._steer_step = 0
+                self._next_steer = 0.0
             depth = depth_after_restart(
                 getattr(self, "_depth", 0.0),
                 float(DEFAULTS.get("max_depth", 34.0)))
@@ -1336,14 +1359,106 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 int(DEFAULTS["max_iterations"]))
             if orbit is not None:
                 budget = min(budget, orbit.max_iter)
+            centre = self._steer(depth, budget, orbit)
             return {
                 "u_scale": np.float32(
                     scale_at(depth, float(DEFAULTS["initial_scale"]))),
-                "u_center_offset": (np.float32(0.0), np.float32(0.0)),
+                "u_center_offset": (np.float32(centre[0]),
+                                    np.float32(centre[1])),
                 "u_depth": np.float32(depth),
                 "u_orbit_length": np.float32(length),
                 "u_max_iter": np.int32(max(1, int(budget))),
             }
+
+        def _steer(self, depth: float, budget: int, orbit):
+            """Where the dive is heading, in the reference orbit's frame.
+
+            :returns: ``(offset_re, offset_im)`` for ``u_center_offset``.
+
+            WITHOUT THIS THE DIVE ALWAYS ENDS IN THE SAME PLACE. A fixed
+            path descends to one Misiurewicz point for ever -- correct, and
+            the same three lines every time. Every
+            `steering_interval_decades` this looks for a nearby point on the
+            BOUNDARY of one of the black regions, which is the only place
+            that keeps producing detail at any magnification, and eases the
+            camera onto it.
+
+            The look-around runs on a worker thread and renders a 96x54
+            escape map -- 5,184 points against the two million a frame draws
+            -- because it is a decision about where to go, not a picture.
+            """
+            import threading
+
+            from .fractal_mandelbrot import DEFAULTS, eased, plan_guided_step
+
+            if orbit is None:
+                return (0.0, 0.0)
+            here = getattr(self, "_centre", (0.0, 0.0))
+            if str(DEFAULTS.get("path", "guided")) != "guided":
+                return here
+
+            # A move in progress is eased to its end before another is
+            # planned: two overlapping moves are a wobble, not a course.
+            move = getattr(self, "_move", None)
+            if move is not None:
+                start, target, began, seconds = move
+                fraction = (time.perf_counter() - began) / max(0.05, seconds)
+                blend = eased(fraction)
+                self._centre = (start[0] + blend * (target[0] - start[0]),
+                                start[1] + blend * (target[1] - start[1]))
+                if fraction >= 1.0:
+                    self._centre = target
+                    self._move = None
+                    self._steer_step = getattr(self, "_steer_step", 0) + 1
+                    self._next_steer = depth + float(
+                        DEFAULTS["steering_interval_decades"])
+                return self._centre
+
+            plan = getattr(self, "_plan", None)
+            if plan is not None and plan.get("done"):
+                self._plan = None
+                target = plan.get("target")
+                if target is not None:
+                    scale = scale_at(depth,
+                                     float(DEFAULTS["initial_scale"]))
+                    self._move = (
+                        here,
+                        (here[0] + target[0] * scale,
+                         here[1] + target[1] * scale),
+                        time.perf_counter(),
+                        float(DEFAULTS["steering_duration"]))
+                else:
+                    # Nothing on the boundary from here: look again sooner
+                    # rather than giving up on steering for good.
+                    self._next_steer = depth + 0.35 * float(
+                        DEFAULTS["steering_interval_decades"])
+                return here
+
+            if plan is None and depth >= getattr(self, "_next_steer", 0.0):
+                slot = {"done": False, "target": None}
+                self._plan = slot
+
+                def _look():
+                    try:
+                        found = plan_guided_step(
+                            orbit,
+                            scale_at(depth,
+                                     float(DEFAULTS["initial_scale"])),
+                            budget,
+                            strength=float(DEFAULTS["steering_strength"]),
+                            candidates=int(DEFAULTS["candidate_count"]),
+                            step_index=getattr(self, "_steer_step", 0),
+                            offset_re=here[0], offset_im=here[1])
+                    except Exception:                        # noqa: BLE001
+                        LOG.debug("could not plan a steering step",
+                                  exc_info=True)
+                        found = None
+                    slot["target"] = None if found is None else found[:2]
+                    slot["done"] = True
+
+                threading.Thread(target=_look, daemon=True,
+                                 name="spacr-mandelbrot-steer").start()
+            return here
 
         def _upload_the_orbit_if_it_arrived(self) -> None:
             """Put the finished orbit into the shader's texture.

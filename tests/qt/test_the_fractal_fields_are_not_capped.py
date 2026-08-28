@@ -132,3 +132,47 @@ def test_no_backdrop_means_the_key_is_not_taken():
 
     ft._LIVE_CONTROLS.clear()
     assert ft.nudge_zoom_rate(1) == 0.0
+
+
+def test_ctrl_r_restarts_the_backdrop(qtbot):
+    """Asked for 2026-08-28: a hotkey to start the theme from the beginning."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QKeyEvent
+
+    import spacr.qt.app as app_module
+    from spacr.qt.widgets import fractal_travel as ft
+
+    win = app_module.MainWindow()
+    qtbot.addWidget(win)
+    controls = ft.RuntimeControls()
+    ft._LIVE_CONTROLS.clear()
+    ft._LIVE_CONTROLS.append(controls)
+    try:
+        before = controls.restart_token
+        win.keyPressEvent(QKeyEvent(
+            QKeyEvent.Type.KeyPress, Qt.Key.Key_R,
+            Qt.KeyboardModifier.ControlModifier))
+        assert controls.restart_token != before
+    finally:
+        ft._LIVE_CONTROLS.clear()
+        win.close()
+
+
+def test_ctrl_r_is_not_taken_when_no_backdrop_is_running(qtbot):
+    """Or it would swallow the shortcut everywhere else."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QKeyEvent
+
+    import spacr.qt.app as app_module
+    from spacr.qt.widgets import fractal_travel as ft
+
+    win = app_module.MainWindow()
+    qtbot.addWidget(win)
+    ft._LIVE_CONTROLS.clear()
+    try:
+        event = QKeyEvent(QKeyEvent.Type.KeyPress, Qt.Key.Key_R,
+                          Qt.KeyboardModifier.ControlModifier)
+        win.keyPressEvent(event)
+        assert not event.isAccepted()
+    finally:
+        win.close()

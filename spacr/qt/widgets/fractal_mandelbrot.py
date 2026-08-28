@@ -317,3 +317,218 @@ def scale_at(depth: float, initial_scale: float = 1.25) -> float:
     same point.
     """
     return float(initial_scale) * 10.0 ** (-min(float(depth), 307.0))
+
+
+# ---------------------------------------------------------------------------
+# The guided path
+# ---------------------------------------------------------------------------
+#
+# WITHOUT THIS THE DIVE ALWAYS ENDS IN THE SAME PLACE. A fixed path descends
+# to one Misiurewicz point for ever: correct, and the same picture every
+# time. Guided steering looks around every so often, picks a nearby point on
+# the boundary that has structure worth arriving at, and eases the camera
+# onto it -- so the descent keeps finding new things instead of drilling one
+# shaft.
+#
+# THE LOOK-AROUND IS CHEAP ON PURPOSE. It renders a 96x54 escape map, which
+# is 5,184 points against the two million a frame draws, and it runs on a
+# worker thread. It is a decision about where to go, not a picture.
+
+
+def perturbation_escape_map(orbit, width, height, scale, max_iter,
+                            offset_re=0.0, offset_im=0.0):
+    """A low-resolution map of what escapes and how fast.
+
+    :param orbit: the reference :class:`ReferenceOrbit`.
+    :param scale: the viewport's half-height.
+    :returns: ``(escaped, iterations)``, both ``(height, width)``.
+
+    Vectorised over the whole grid rather than looped per pixel: this runs
+    while the backdrop is drawing, and a Python loop over 5,184 points times
+    900 iterations is a second of held GIL.
+    """
+    real = np.asarray(orbit.packed[0, :, 0], dtype=np.float64) \
+        + np.asarray(orbit.packed[0, :, 1], dtype=np.float64)
+    imag = np.asarray(orbit.packed[0, :, 2], dtype=np.float64) \
+        + np.asarray(orbit.packed[0, :, 3], dtype=np.float64)
+
+    aspect = float(width) / float(height)
+    xs = ((np.arange(width, dtype=np.float64) + 0.5) / width * 2.0 - 1.0)
+    ys = ((np.arange(height, dtype=np.float64) + 0.5) / height * 2.0 - 1.0)
+    dc_re = np.broadcast_to(xs * scale * aspect, (height, width)).copy()
+    dc_im = np.broadcast_to(ys[:, None] * scale, (height, width)).copy()
+    dc_re += float(offset_re)
+    dc_im += float(offset_im)
+
+    dz_re = np.zeros((height, width), dtype=np.float64)
+    dz_im = np.zeros((height, width), dtype=np.float64)
+    escaped = np.zeros((height, width), dtype=bool)
+    iterations = np.full((height, width), int(max_iter), dtype=np.int32)
+
+    limit = min(int(max_iter), orbit.max_iter)
+    for n in range(limit):
+        live = ~escaped
+        if not live.any():
+            break
+        zr = real[n]
+        zi = imag[n]
+        z_re = zr + dz_re
+        z_im = zi + dz_im
+        newly = live & ((z_re * z_re + z_im * z_im) > 256.0)
+        if newly.any():
+            escaped |= newly
+            iterations[newly] = n
+        live = ~escaped
+        if not live.any():
+            break
+        ar = dz_re[live]
+        ai = dz_im[live]
+        dz_re[live] = 2.0 * (zr * ar - zi * ai) + (ar * ar - ai * ai) \
+            + dc_re[live]
+        dz_im[live] = 2.0 * (zr * ai + zi * ar) + 2.0 * ar * ai + dc_im[live]
+    return escaped, iterations
+
+
+def boundary_mask(escaped: np.ndarray) -> np.ndarray:
+    """Bounded points that touch an escaping one.
+
+    THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat
+    colour as you descend into it; an exterior one escapes and the frame
+    empties. Only the edge keeps producing detail at every magnification.
+
+    The frame's own edge is excluded: a point there may look like a boundary
+    only because the map stopped.
+    """
+    bounded = ~escaped
+    neighbour_escaped = np.zeros_like(escaped)
+    neighbour_escaped[1:, :] |= escaped[:-1, :]
+    neighbour_escaped[:-1, :] |= escaped[1:, :]
+    neighbour_escaped[:, 1:] |= escaped[:, :-1]
+    neighbour_escaped[:, :-1] |= escaped[:, 1:]
+    edge = bounded & neighbour_escaped
+    edge[[0, -1], :] = False
+    edge[:, [0, -1]] = False
+    return edge
+
+
+def candidate_score(escaped, iterations, row, col, max_iter) -> float:
+    """How interesting the neighbourhood of one point is.
+
+    Three things, because none alone is enough: how often the escape answer
+    CHANGES across the patch (detail), how much the escape TIME varies
+    (depth of structure), and how BALANCED bounded and escaping are (an
+    edge, rather than a speck in a field of one or the other).
+    """
+    r0, r1 = max(0, row - 3), min(escaped.shape[0], row + 4)
+    c0, c1 = max(0, col - 3), min(escaped.shape[1], col + 4)
+    patch = escaped[r0:r1, c0:c1]
+    times = iterations[r0:r1, c0:c1].astype(np.float64) / max(1.0, max_iter)
+    balance = 1.0 - 2.0 * abs(float(patch.mean()) - 0.5)
+    variation = float(times.std())
+    transitions = 0.0
+    if patch.shape[0] > 1:
+        transitions += float(np.mean(patch[1:, :] != patch[:-1, :]))
+    if patch.shape[1] > 1:
+        transitions += float(np.mean(patch[:, 1:] != patch[:, :-1]))
+    return 2.4 * transitions + 1.8 * variation + 0.8 * max(0.0, balance)
+
+
+def plan_guided_step(orbit, scale, max_iter, strength=0.09,
+                     candidates=24, step_index=0, offset_re=0.0,
+                     offset_im=0.0):
+    """Choose where the dive should head next.
+
+    :param strength: how far off centre to look, in screen units.
+    :param candidates: how many directions to try.
+    :param step_index: which step this is; rotates the search.
+    :returns: ``(dx, dy, score)`` in screen units, or ``None`` when the
+        view holds no boundary at all.
+
+    THE DIRECTIONS ARE SPREAD BY THE GOLDEN ANGLE and rotated per step, so
+    consecutive choices do not favour one side of the frame -- which is what
+    makes a "guided" path that always drifts the same way.
+    """
+    width, height = 96, 54
+    escaped, iterations = perturbation_escape_map(
+        orbit, width, height, float(scale), int(max_iter),
+        offset_re, offset_im)
+    edge = boundary_mask(escaped)
+    if not edge.any():
+        return None
+
+    aspect = width / height
+    xs = ((np.arange(width, dtype=np.float64) + 0.5) / width * 2.0 - 1.0)
+    ys = ((np.arange(height, dtype=np.float64) + 0.5) / height * 2.0 - 1.0)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+    screen_x = grid_x
+    screen_y = grid_y
+    radius = np.hypot(screen_x, screen_y)
+    # NOT THE POINT ALREADY UNDER THE CAMERA, and not the far corners: the
+    # first is where it is going anyway and the second is a lurch.
+    eligible = edge & (radius >= 0.025) & (radius <= max(0.34, 2.2 * strength))
+    if not eligible.any():
+        eligible = edge
+
+    best = None
+    phase = step_index * 2.399963229728653          # the golden angle
+    count = max(1, int(candidates))
+
+    # THE HEADING IS A CONSTRAINT, NOT A PREFERENCE. Scoring every boundary
+    # point and merely penalising the distant ones lets the most structured
+    # point in the frame win whatever direction the step is supposed to be
+    # exploring -- measured, six consecutive steps chose two targets between
+    # them, which is a fixed path wearing a guided path's settings.
+    #
+    # Restricting the candidates to an arc around this step's own heading
+    # makes each step go somewhere it has not been, and the golden angle
+    # walks that arc around the frame without ever repeating a heading.
+    point_angle = np.arctan2(screen_y, screen_x)
+    difference = np.abs(np.angle(np.exp(1j * (point_angle - phase))))
+    in_heading = eligible & (difference <= math.pi / 3.0)
+    if in_heading.any():
+        eligible = in_heading
+
+    for index in range(count):
+        # AN ARC PER STEP, not the whole circle. Spread over 360 degrees the
+        # candidate set is nearly the same however the phase is rotated, so
+        # the best-scoring point is the same every time -- which is a fixed
+        # path wearing a guided path's settings. Measured: six consecutive
+        # steps chose one target.
+        #
+        # A third of a circle around this step's own heading gives each step
+        # somewhere different to look while keeping the move a STEER: the
+        # golden angle then walks that window around the frame without ever
+        # repeating a heading.
+        spread = 2.0 * math.pi / 3.0
+        angle = phase + spread * (index / count - 0.5)
+        # Within the arc the candidates fan out, so the choice is still made
+        # between real alternatives rather than one point being scored.
+        want_x = strength * math.cos(angle)
+        want_y = strength * math.sin(angle)
+        distance = (screen_x - want_x) ** 2 + (screen_y - want_y) ** 2
+        masked = np.where(eligible, distance, np.inf)
+        flat = int(np.argmin(masked))
+        row, col = np.unravel_index(flat, masked.shape)
+        if not np.isfinite(masked[row, col]):
+            continue
+        structure = candidate_score(escaped, iterations, int(row), int(col),
+                                    int(max_iter))
+        # A CLOSER TARGET IS WORTH SOMETHING TOO. Left unpenalised the
+        # search would keep choosing the most interesting point in the
+        # frame, which is a jump rather than a steer.
+        penalty = math.sqrt(float(masked[row, col])) / max(0.04, strength)
+        score = structure - 0.32 * penalty
+        if best is None or score > best[2]:
+            best = (float(grid_x[row, col] * aspect),
+                    float(grid_y[row, col]), score)
+    return best
+
+
+def eased(fraction: float) -> float:
+    """Smoothstep, for a camera move that starts and stops gently.
+
+    A linear move between two points is a lurch at both ends; this is the
+    difference between the camera being steered and being teleported.
+    """
+    x = 0.0 if fraction < 0.0 else (1.0 if fraction > 1.0 else float(fraction))
+    return x * x * (3.0 - 2.0 * x)
