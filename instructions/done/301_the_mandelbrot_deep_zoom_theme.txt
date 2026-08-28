@@ -51,3 +51,20 @@ WHAT PORTING TAKES
     and a CPU path exists in the source for machines where it cannot.
   * The four pointer uniforms and `toward_pointer` go in as they did for
     the other three, so mouse gravity works here too.
+
+
+DONE 2026-08-28. The pattern ships, GPU only, with the published defaults
+and the guided path. What it took beyond the port:
+
+  * the guided path had to be BUILT -- the settings were stored and only
+    the fixed path existed, so every dive ended in the same place;
+  * steering by set membership stops working once the zoom is deep, because
+    around a Misiurewicz point the set is measure-zero: it steers by
+    escape-time structure when nothing is bounded;
+  * the depth limit is the REFERENCE ORBIT'S precision (about 15.7 decades
+    for a float32 pair), not the scale's exponent -- running to 34 was why
+    it "ended quickly in a verry pixelated image";
+  * the dive restarts rather than ending, and a settings change returns it
+    to the surface;
+  * the camera follows continuously instead of moving in steps, which is
+    what the reported jerking was.
