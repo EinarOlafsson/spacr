@@ -181,6 +181,7 @@ _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
+_KEY_FONT_WEIGHT = "prefs/interface_font_weight"
 _KEY_FRACTAL_PATTERN = "spaceout/fractal_pattern"
 _KEY_FRACTAL_BACKEND = "spaceout/fractal_backend"
 _KEY_FRACTAL_QUALITY = "spaceout/fractal_quality"
@@ -1885,6 +1886,41 @@ def set_fractal_settings(**values) -> None:
     store.sync()
 
 
+#: The two weights the interface is drawn in. Bold and SemiBold stay
+#: registered for a stylesheet that asks for emphasis; this is what
+#: everything else defaults to.
+INTERFACE_FONT_WEIGHTS = ("regular", "light")
+
+
+def get_interface_font_weight() -> str:
+    """Which Open Sans weight the interface uses. 'regular' or 'light'."""
+    raw = str(_settings().value(_KEY_FONT_WEIGHT, "regular")).strip().lower()
+    return raw if raw in INTERFACE_FONT_WEIGHTS else "regular"
+
+
+def set_interface_font_weight(weight: str) -> None:
+    """Persist the weight and apply it to the running application.
+
+    :raises ValueError: on anything but 'regular' or 'light'.
+    """
+    text = str(weight).strip().lower()
+    if text not in INTERFACE_FONT_WEIGHTS:
+        raise ValueError(f"unknown interface font weight {weight!r}; "
+                         f"expected one of {list(INTERFACE_FONT_WEIGHTS)}")
+    _settings().setValue(_KEY_FONT_WEIGHT, text)
+    _settings().sync()
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .app import _use_open_sans
+
+        instance = QApplication.instance()
+        if instance is not None:
+            _use_open_sans(instance, text)
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
 def get_laptop_mode() -> str:
     """Whether laptop mode is forced on, forced off, or measured.
 
@@ -3033,6 +3069,7 @@ PREFERENCE_TIPS = {
     "Fastest": "The fastest the travel goes when variable speed is on. Ignored when it is off.",
     "Sweep time": "How long one full sweep takes, slowest to fastest and back. This is how GRADUAL the change is, not how fast the fractal goes: a larger number means the speed drifts more slowly between the two bounds. Below about ten seconds it stops reading as drift and starts reading as a pulse.",
     "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+    "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
     "Laptop mode": "Turns the ambient animation and the backdrop blur down on a small machine. Automatic decides from the cores and memory it finds. Only drawing is affected: a run computes the same answer either way.",
     "Animation blur": "Blur applied to background shapes.",
     "Animation speed": "Background-animation speed.",
@@ -4008,6 +4045,14 @@ class PreferencesDialog:
             if laptop_combo.itemData(_i) == _current_laptop:
                 laptop_combo.setCurrentIndex(_i)
                 break
+        font_weight = QComboBox()
+        font_weight.setObjectName("InterfaceFontWeight")
+        for _key, _label in (("regular", "Regular"), ("light", "Light")):
+            font_weight.addItem(tr(_label), _key)
+        font_weight.setCurrentIndex(
+            max(0, font_weight.findData(get_interface_font_weight())))
+        appearance.addRow(tr("Interface font"), font_weight)
+
         performance.addRow(tr("Laptop mode"), laptop_combo)
         # THE SPACEOUT FRACTAL, and ONLY under spaceout. An ordinary launch
         # builds none of these rows, so the hidden mode stays hidden: a
@@ -4509,6 +4554,7 @@ class PreferencesDialog:
                     speed_max=fractal_speed_max.value(),
                     speed_period=fractal_speed_period.value(),
                 )
+            set_interface_font_weight(font_weight.currentData())
             set_laptop_mode(laptop_combo.currentData())
             set_spacr_mode(mode_combo.currentData())
             apply_preferences_to_app()
