@@ -4135,6 +4135,23 @@ def launch(argv: Optional[list[str]] = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
+    # BEFORE THE BACKDROP IS BUILT. Two unclean exits in a row is treated as
+    # a pattern, and the next start is made without the one thing spaCR asks
+    # a driver to do -- because the setting that would turn it off is behind
+    # the window that never appears.
+    from .crash_recovery import (note_that_a_launch_began,
+                                 should_start_without_the_backdrop,
+                                 take_the_backdrop_out_of_this_launch)
+
+    _unclean = note_that_a_launch_began()
+    if should_start_without_the_backdrop(_unclean):
+        take_the_backdrop_out_of_this_launch()
+        LOG.warning(
+            "spaCR did not shut down cleanly %d times running, so this "
+            "start has no animated background. It comes back by itself "
+            "after one clean run; `safespacr` starts with everything off.",
+            _unclean)
+
     # `--no-setup` and friends are taken out first, because the next line
     # reads argv[0] as a module name and would look one of them up.
     from .setup_screen import take_the_setup_flags
@@ -4464,7 +4481,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _timing.mark("entering the event loop")
     _timing.watch_the_gui_thread(app)
     try:
-        return app.exec()
+        code = app.exec()
+        # A RETURN FROM `exec` IS A CLEAN SHUTDOWN, whatever the exit code:
+        # the event loop ran and ended, which a crash never does. Clearing
+        # the count here rather than on code == 0 means a run the user quit
+        # from an error dialog still counts as "it started fine".
+        try:
+            from .crash_recovery import note_a_clean_shutdown
+
+            note_a_clean_shutdown()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not record a clean shutdown", exc_info=True)
+        return code
     finally:
         written = _timing.write_report()
         if written:

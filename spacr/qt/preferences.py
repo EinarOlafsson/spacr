@@ -1342,6 +1342,13 @@ DEFAULT_AMBIENT_ENABLED = True
 def get_ambient_enabled() -> bool:
     """Whether module screens paint the animated background.
 
+    Answers ``False`` outright when ``SPACR_NO_BACKDROP`` is set, whatever
+    is stored. `spacr.qt.crash_recovery` sets it after spaCR has died on
+    launch twice running: the backdrop is the only thing spaCR asks a
+    driver to do at startup, and the setting that would turn it off is
+    behind the window that never appears. Process-local and never saved, so
+    the next clean run brings it back with nothing for the user to undo.
+
     Default ``True``. When this is ``False`` no ambient widget should be
     installed at all — and any already-installed one is hidden and
     stopped by :func:`apply_ambient_preferences`, so the toggle takes
@@ -1360,6 +1367,10 @@ def get_ambient_enabled() -> bool:
     :mod:`spacr.qt.resource_cleanup` uses it, and so does any caller that
     wants the animation back exactly as the user had it.
     """
+    import os
+
+    if os.environ.get("SPACR_NO_BACKDROP"):
+        return False
     if _raw_ambient_animation() == _no_animation_key():
         return False
     return _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
