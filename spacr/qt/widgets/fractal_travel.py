@@ -120,7 +120,8 @@ class Pointer:
     anything about widgets.
     """
 
-    __slots__ = ("x", "y", "pull", "push", "inside")
+    __slots__ = ("x", "y", "pull", "push", "inside", "drag_x", "drag_y",
+                 "_last_x", "_last_y", "_dragging")
 
     def __init__(self) -> None:
         self.x = 0.0
@@ -132,6 +133,15 @@ class Pointer:
         #: backwards.
         self.push = 0.0
         self.inside = False
+        #: How far the pointer moved while held down, since the last frame,
+        #: in the same -1..1 space. Consumed by the renderer and reset, so a
+        #: frame that is dropped does not lose the movement -- it arrives
+        #: with the next one instead.
+        self.drag_x = 0.0
+        self.drag_y = 0.0
+        self._last_x = 0.0
+        self._last_y = 0.0
+        self._dragging = False
 
     def sample(self, widget, size: float = 1.0,
                strength: float = 1.0) -> "Pointer":
@@ -181,6 +191,22 @@ class Pointer:
             # over about a second and lets go about as fast.
             self.pull += 0.06 * (wanted_pull * float(strength) - self.pull)
             self.push += 0.25 * (wanted_push * float(strength) - self.push)
+
+            # DRAG THE VIEW. Asked for 2026-08-28: "best would be if the
+            # user could drag the visual field with the mouse by clicking
+            # and mooving the mouse."
+            #
+            # ACCUMULATED, not assigned: the renderer consumes this and
+            # zeroes it, so a frame dropped under load does not lose the
+            # movement -- it arrives with the next frame instead, and a
+            # slow machine pans by the same total distance as a fast one.
+            held = left or right
+            if held and self._dragging:
+                self.drag_x += self.x - self._last_x
+                self.drag_y += self.y - self._last_y
+            self._dragging = held
+            self._last_x = self.x
+            self._last_y = self.y
         except Exception:                                    # noqa: BLE001
             self.inside = False
         return self
@@ -1500,6 +1526,28 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             if orbit is None:
                 return (0.0, 0.0)
             here = getattr(self, "_centre", (0.0, 0.0))
+
+            # WHAT THE USER DRAGGED COMES FIRST, and moves the centre the
+            # zoom is converging into rather than the sample coordinate --
+            # so it steers the dive instead of sliding the picture, and the
+            # move survives the next frame.
+            #
+            # Scaled by the viewport, so one screen-width of drag moves the
+            # view by one screen-width however deep the zoom has gone.
+            pointer = getattr(self, "_pointer", None)
+            if pointer is not None and (pointer.drag_x or pointer.drag_y):
+                span = scale_at(depth, float(
+                    _mandel_setting("initial_scale")))
+                here = (here[0] - pointer.drag_x * span,
+                        here[1] - pointer.drag_y * span)
+                self._centre = here
+                pointer.drag_x = 0.0
+                pointer.drag_y = 0.0
+                # A DRAG IS A DECISION, so it cancels a steering move in
+                # progress: the camera would otherwise fight the hand.
+                self._move = None
+                self._next_steer = depth + float(
+                    _mandel_setting("steering_interval_decades"))
             if str(DEFAULTS.get("path", "guided")) != "guided":
                 return here
 

@@ -2329,6 +2329,21 @@ class MainWindow(QMainWindow):
         self.addAction(act_backdrop)
         self._act_backdrop = act_backdrop
 
+        # RESTART THE BACKDROP. Listed here rather than left as an
+        # undocumented key: a shortcut nobody can find is one nobody uses,
+        # and this menu is where the other two live.
+        act_restart = QAction("Restart the background", self)
+        act_restart.setObjectName("RestartBackdrop")
+        act_restart.setShortcut(QKeySequence("Ctrl+R"))
+        act_restart.setStatusTip(
+            "Send the animation back to the beginning. The spaceout deep "
+            "zoom restarts its descent; Up and Down change how fast it "
+            "descends, the wheel does the same, and dragging with the "
+            "mouse steers it.")
+        act_restart.triggered.connect(self._restart_the_backdrop)
+        self.addAction(act_restart)
+        self._act_restart_backdrop = act_restart
+
         # PAUSE AND GO FLAT. Ctrl+T stops the animation and leaves the last
         # frame up, which is still a picture behind the work; this one also
         # paints the ground flat, which is what "I am looking at images and
@@ -3528,6 +3543,27 @@ class MainWindow(QMainWindow):
             pass
         self._stack.addWidget(self._startup)
 
+    def _restart_the_backdrop(self) -> bool:
+        """Send the animation back to its beginning.
+
+        :returns: whether a backdrop was there to restart.
+
+        The menu entry and Ctrl+R both come here, so the shortcut and the
+        item cannot drift apart.
+        """
+        try:
+            from .widgets.fractal_travel import (_LIVE_CONTROLS,
+                                                 restart_the_dive)
+
+            if not _LIVE_CONTROLS:
+                return False
+            restart_the_dive()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not restart the backdrop", exc_info=True)
+            return False
+        self.statusBar().showMessage(tr("Backdrop restarted"), 1500)
+        return True
+
     def _steer_the_backdrop(self, steps: int) -> bool:
         """Speed the spaceout descent up or slow it down.
 
@@ -3560,19 +3596,10 @@ class MainWindow(QMainWindow):
 
         key = event.key()
         if (key == Qt.Key.Key_R
-                and event.modifiers() & Qt.KeyboardModifier.ControlModifier):
-            try:
-                from .widgets.fractal_travel import (_LIVE_CONTROLS,
-                                                     restart_the_dive)
-
-                if _LIVE_CONTROLS:
-                    restart_the_dive()
-                    self.statusBar().showMessage(
-                        tr("Backdrop restarted"), 1500)
-                    event.accept()
-                    return
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not restart the backdrop", exc_info=True)
+                and event.modifiers() & Qt.KeyboardModifier.ControlModifier
+                and self._restart_the_backdrop()):
+            event.accept()
+            return
         if key == Qt.Key.Key_Up and self._steer_the_backdrop(1):
             event.accept()
             return

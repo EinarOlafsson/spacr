@@ -294,10 +294,11 @@ FRACTAL_LIMITS = {
                           "a move that takes no time is a jump"),
     "candidate_count": (1, None,
                         "choosing between no candidates chooses nothing"),
-    "max_depth": (0.1, 44.0,
-                  "past about forty-five decades the step between "
-                  "neighbouring pixels underflows to zero, and the whole "
-                  "screen becomes one sample of one point"),
+    "max_depth": (0.1, 16.0,
+                  "the reference orbit is carried as a pair of float32s and "
+                  "reproduces Z to about 2.2e-16, so past roughly sixteen "
+                  "decades the perturbation is measuring noise and the "
+                  "picture turns to mush"),
 }
 
 
