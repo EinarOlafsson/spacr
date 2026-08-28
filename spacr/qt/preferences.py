@@ -5194,14 +5194,12 @@ class PreferencesDialog:
             fractal_variable.setChecked(bool(_fractal_values["variable_speed"]))
             fractal.addRow(tr("Variable speed"), fractal_variable)
 
-            fractal_speed_min = _tenths("FractalSpeedMin",
-                                        _fractal_values["speed_min"],
-                                        0.15, MAX_FRACTAL_SPEED)
-            fractal.addRow(tr("Slowest"), fractal_speed_min)
-            fractal_speed_max = _tenths("FractalSpeedMax",
-                                        _fractal_values["speed_max"],
-                                        0.15, MAX_FRACTAL_SPEED)
-            fractal.addRow(tr("Fastest"), fractal_speed_max)
+            # SLOWEST AND FASTEST ARE GONE FROM THE PANEL. Variable speed
+            # breathes around the Speed above it; two more fields to say
+            # how far is three controls answering one question, and the
+            # three could be set to contradict each other.
+            fractal_speed_min = None
+            fractal_speed_max = None
 
             # SUPERSAMPLING, called out as "a super important setting". It
             # is the one that decides whether the picture is smooth or
@@ -5277,80 +5275,19 @@ class PreferencesDialog:
                 "always settles rather than being caught mid-course."))
             fractal.addRow(tr("Steering"), fractal_steering)
 
-            # EVERYTHING BELOW IS THE DETAIL BEHIND THOSE CONTROLS. It is
-            # kept because a number somebody needs and cannot reach is worse
-            # than a long panel, but it is behind one heading that says so.
-            _fractal_heading("Advanced")
-            _mandel_rows = (
-                ("__heading__", "The zoom", ""),
-                ("seconds_per_decade", "Seconds per decade", 
-                 "How long one factor of ten of magnification takes. "
-                 "Smaller dives faster."),
-                ("base_iterations", "Iterations at the surface",
-                 "How many iterations a frame runs before the zoom has "
-                 "gone anywhere."),
-                ("iterations_per_decade", "Iterations per decade",
-                 "How many more it runs for each factor of ten. Escape "
-                 "time grows with magnification, so a number too small "
-                 "makes the deep frames go solid."),
-                ("max_iterations", "Iteration ceiling",
-                 "The most any frame will run. The shader's loop stops at "
-                 "4096, so a larger number would be ignored."),
-                ("precision_digits", "Reference precision",
-                 "Decimal digits the reference orbit is computed to. This "
-                 "is what buys the depth: past about fifteen decades a "
-                 "float cannot tell neighbouring pixels apart, and the "
-                 "orbit is what every pixel measures its small offset "
-                 "from."),
-                ("initial_scale", "Starting scale",
-                 "How much of the plane is in view before the zoom "
-                 "begins."),
-                ("zoom_rate", "Zoom rate",
-                 "A multiplier on the descent. Up and Down change it while "
-                 "the backdrop is running."),
-                ("__heading__", "Detail", ""),
-                ("render_scale", "Render scale",
-                 "Fraction of the window's pixels actually rendered, "
-                 "before being scaled up. Below 1 trades sharpness for "
-                 "speed."),
-                ("__heading__", "Steering (set by the control above)", ""),
-                ("steering_strength", "Steering strength",
-                 "How far off centre the guided path looks for its next "
-                 "target."),
-                ("steering_interval_decades", "Steer every",
-                 "Decades of descent between one chosen target and the "
-                 "next."),
-                ("steering_duration", "Steering time",
-                 "Seconds the camera takes to ease onto a new target. A "
-                 "move that takes no time is a jump."),
-                ("max_depth", "Restart after",
-                 "Decades of descent before the dive starts again. It has "
-                 "to: the per-pixel offset is a float32 whatever precision "
-                 "the reference orbit has, and past about forty-five "
-                 "decades the step between neighbouring pixels underflows "
-                 "to zero, so the whole screen becomes one sample of one "
-                 "point -- a black frame that never changes."),
-                ("candidate_count", "Candidates considered",
-                 "How many boundary points the guided path scores before "
-                 "choosing. More is a better target and a longer pause."),
-            )
+            # THE DETAIL IS NOT ON THE PANEL. Asked for 2026-08-28:
+            # "there need to be fewer options... one option for speed that
+            # is user facing, one option for steering and so on."
+            #
+            # The twelve numbers behind Speed, Steering and Quality are
+            # still settings -- the renderer reads them and a settings file
+            # can carry them -- but they are DERIVED from the controls
+            # above, and offering both is what let a hand-set combination
+            # contradict itself: strength 0 with an interval of 0.01 and a
+            # duration of 0.1 moved the camera "every second in a random
+            # direction". A panel that offers a number and a control that
+            # overwrite each other is not a choice, it is a trap.
             fractal_mandel = {}
-            for _key, _label, _why in _mandel_rows:
-                if _key == "__heading__":
-                    _fractal_heading(_label)
-                    continue
-                _value = _fractal_values[_key]
-                _box = (_whole(f"Fractal_{_key}", _value)
-                        if isinstance(_value, int)
-                        else _tenths(f"Fractal_{_key}", _value))
-                _box.setToolTip(tr(_why))
-                fractal.addRow(tr(_label), _box)
-                fractal_mandel[_key] = _box
-
-            # CONNECTED HERE, not where the combo was built: the fields it
-            # writes into do not exist until now.
-            fractal_quality.currentIndexChanged.connect(
-                _quality_fills_the_rest)
 
             # MOUSE GRAVITY. Asked for 2026-08-28, with a size and a
             # strength, applying to every pattern and both backends.
@@ -5366,50 +5303,21 @@ class PreferencesDialog:
                 "press."))
             fractal.addRow(tr("Pointer"), fractal_pointer)
 
-            fractal_pointer_size = _tenths(
-                "FractalPointerSize", _fractal_values["pointer_size"],
-                0.05, 3.0)
-            fractal_pointer_size.setToolTip(tr(
-                "How far the pull reaches. 1.0 reaches the short edge of "
-                "the window, so the whole backdrop leans toward the "
-                "pointer; smaller values make a local dimple that follows "
-                "it. Beyond the reach the pull falls off smoothly rather "
-                "than stopping at an edge."))
-            fractal.addRow(tr("Gravity size"), fractal_pointer_size)
+            # ONE MOUSE CONTROL, not three. Size and strength answer
+            # the same question -- how much does it pull -- and offering
+            # both let a size of 3 fight a strength of 0.
+            fractal_pointer_size = None
+            fractal_pointer_strength = None
 
-            fractal_pointer_strength = _tenths(
-                "FractalPointerStrength",
-                _fractal_values["pointer_strength"], 0.0, 2.0)
-            fractal_pointer_strength.setToolTip(tr(
-                "How hard it pulls. 0 leaves the backdrop still whatever "
-                "the switch says, 1 is the normal lean, and above 1 "
-                "exaggerates it — useful for seeing what the setting does "
-                "before turning it back down."))
-            fractal.addRow(tr("Gravity strength"), fractal_pointer_strength)
+            # HOW OFTEN IT BREATHES IS NOT A QUESTION ANYBODY ASKED.
+            # Variable speed uses one sensible period; a field for it was a
+            # third control on the same question as Speed.
+            fractal_speed_period = None
 
-            fractal_speed_period = QDoubleSpinBox()
-            fractal_speed_period.setObjectName("FractalSpeedPeriod")
-            fractal_speed_period.setRange(5.0, 300.0)
-            fractal_speed_period.setSingleStep(5.0)
-            fractal_speed_period.setDecimals(0)
-            fractal_speed_period.setSuffix(tr(" s"))
-            fractal_speed_period.setValue(
-                float(_fractal_values["speed_period"]))
-            fractal.addRow(tr("Sweep time"), fractal_speed_period)
-
-            def _sync_variable_rows(*_args):
-                """Grey the three bounds when the sweep is off.
-
-                They are still SHOWN, so a user can see what turning it on
-                would do; a hidden row is a setting nobody discovers.
-                """
-                on = fractal_variable.isChecked()
-                for box in (fractal_speed_min, fractal_speed_max,
-                            fractal_speed_period):
-                    box.setEnabled(on)
-
-            fractal_variable.toggled.connect(_sync_variable_rows)
-            _sync_variable_rows()
+            # NOTHING TO GREY ANY MORE. The three bounds this used to
+            # enable and disable are not on the panel: variable speed
+            # breathes around Speed by a fixed proportion, so there is one
+            # control and nothing that can disagree with it.
 
 
 
@@ -5774,12 +5682,17 @@ class PreferencesDialog:
                     speed=fractal_speed.value(),
                     dream=fractal_dream.value(),
                     variable_speed=fractal_variable.isChecked(),
-                    speed_min=fractal_speed_min.value(),
-                    speed_max=fractal_speed_max.value(),
-                    speed_period=fractal_speed_period.value(),
+                    # DERIVED FROM SPEED, not set beside it: variable
+                    # speed breathes by a fixed proportion either way.
+                    speed_min=fractal_speed.value() * 0.55,
+                    speed_max=fractal_speed.value() * 1.65,
                     pointer_gravity=fractal_pointer.isChecked(),
-                    pointer_size=fractal_pointer_size.value(),
-                    pointer_strength=fractal_pointer_strength.value(),
+                    # On is the ordinary reach and the ordinary pull;
+                    # off is a strength of zero, which stops it whatever
+                    # else is stored.
+                    pointer_size=1.0,
+                    pointer_strength=(1.0 if fractal_pointer.isChecked()
+                                      else 0.0),
                     supersampling=int(fractal_ss.value()),
                     steering=fractal_steering.value(),
                     **{name: box.value()

@@ -7,6 +7,22 @@ from spacr.qt import preferences as P
 
 
 @pytest.fixture
+def spaceout_only(monkeypatch):
+    """Turn spaceout on for one test and OFF again afterwards.
+
+    It is a module-level flag, so a test that enables it and walks away
+    leaves the Fractal tab on the Preferences dialog for every test that
+    runs after it -- which is what broke
+    `test_the_dialog_has_the_expected_subject_tabs_in_order`.
+    """
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, "_SPACEOUT", True)
+    yield
+
+
+
+@pytest.fixture
 def store(monkeypatch):
     values = {}
 
@@ -152,7 +168,7 @@ def test_no_backdrop_means_the_key_is_not_taken():
     assert ft.nudge_zoom_rate(1) == 0.0
 
 
-def test_ctrl_r_restarts_the_backdrop(qtbot):
+def test_ctrl_r_restarts_the_backdrop(qtbot, spaceout_only):
     """Asked for 2026-08-28: a hotkey to start the theme from the beginning."""
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QKeyEvent
@@ -176,7 +192,7 @@ def test_ctrl_r_restarts_the_backdrop(qtbot):
         win.close()
 
 
-def test_ctrl_r_is_not_taken_when_no_backdrop_is_running(qtbot):
+def test_ctrl_r_is_not_taken_when_no_backdrop_is_running(qtbot, spaceout_only):
     """Or it would swallow the shortcut everywhere else."""
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QKeyEvent
@@ -272,21 +288,24 @@ def test_the_shipped_defaults_are_the_light_ones(store):
     assert values["seconds_per_decade"] == DEFAULTS["seconds_per_decade"]
 
 
-def test_the_fractal_panel_has_sub_categories(qtbot):
-    """Twenty-one fields in one column is a wall."""
-    from PySide6.QtWidgets import QLabel
+def test_the_fractal_panel_is_short_enough_not_to_need_sub_categories(qtbot, spaceout_only):
+    """Twenty-one fields in one column is a wall, and headings were the
+    first answer to it. Removing the fields is the better one: eight
+    controls need no signposting.
+    """
+    from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QSpinBox
 
-    from spacr.qt.theme import enable_spaceout
-
-    enable_spaceout()
     dlg = P.PreferencesDialog(None)
     qtbot.addWidget(dlg)
-    headings = [l.text() for l in dlg.findChildren(QLabel)
-                if l.objectName() == "FractalGroupHeading"]
-    assert len(headings) >= 3, headings
+
+    named = []
+    for kind in (QComboBox, QDoubleSpinBox, QSpinBox):
+        named += [c.objectName() for c in dlg.findChildren(kind)
+                  if c.objectName().startswith("Fractal")]
+    assert len(named) <= 10, sorted(named)
 
 
-def test_the_restart_is_in_the_hotkey_menu(qtbot):
+def test_the_restart_is_in_the_hotkey_menu(qtbot, spaceout_only):
     """A shortcut nobody can find is one nobody uses."""
     from PySide6.QtGui import QAction
 
@@ -306,7 +325,7 @@ def test_the_restart_is_in_the_hotkey_menu(qtbot):
         win.close()
 
 
-def test_the_shortcut_and_the_menu_entry_are_the_same_action(qtbot):
+def test_the_shortcut_and_the_menu_entry_are_the_same_action(qtbot, spaceout_only):
     """Or they drift apart."""
     import inspect
 

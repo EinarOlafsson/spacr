@@ -1465,7 +1465,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 # would begin at the surface but already pointed thirty
                 # decades of steering away from the centre.
                 self._centre = (0.0, 0.0)
-                self._move = None
+                self._target = None
+                self._follow_clock = None
                 self._plan = None
                 self._steer_step = 0
                 self._next_steer = 0.0
@@ -1525,7 +1526,32 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
             if orbit is None:
                 return (0.0, 0.0)
+            # THE NUMBERS ARE MADE TO AGREE HERE, whatever they were set
+            # to. Deriving them from one control stops the panel producing a
+            # contradiction; it does not stop somebody typing one into the
+            # advanced fields, and reported 2026-08-28 with strength 0,
+            # interval 0.01 and duration 0.1 the camera moved "every second
+            # in a random direction".
+            #
+            # Both halves of that are answered below: a strength of zero
+            # means DO NOT STEER -- with no reach there is no direction to
+            # look in, so every choice is arbitrary, which is what "random"
+            # was -- and the move is clamped to a fraction of the gap, so it
+            # always finishes before the next is planned.
+            strength = float(_mandel_setting("steering_strength"))
+            interval = max(0.01, float(
+                _mandel_setting("steering_interval_decades")))
+            seconds_per_decade = max(0.1, float(
+                _mandel_setting("seconds_per_decade")))
+            settle = 0.45 * interval * seconds_per_decade
+            duration = min(float(_mandel_setting("steering_duration")),
+                           settle)
+            duration = max(0.5, duration)
+
             here = getattr(self, "_centre", (0.0, 0.0))
+            if strength <= 0.0:
+                # NOT STEERING IS A SETTING, and the honest reading of zero.
+                return here
 
             # WHAT THE USER DRAGGED COMES FIRST, and moves the centre the
             # zoom is converging into rather than the sample coordinate --
@@ -1543,49 +1569,58 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._centre = here
                 pointer.drag_x = 0.0
                 pointer.drag_y = 0.0
-                # A DRAG IS A DECISION, so it cancels a steering move in
-                # progress: the camera would otherwise fight the hand.
-                self._move = None
-                self._next_steer = depth + float(
-                    _mandel_setting("steering_interval_decades"))
+                # A DRAG IS A DECISION, so it drops the steering target:
+                # the camera would otherwise pull back toward it.
+                self._target = None
+                self._next_steer = depth + interval
             if str(DEFAULTS.get("path", "guided")) != "guided":
                 return here
 
             # A move in progress is eased to its end before another is
             # planned: two overlapping moves are a wobble, not a course.
-            move = getattr(self, "_move", None)
-            if move is not None:
-                start, target, began, seconds = move
-                fraction = (time.perf_counter() - began) / max(0.05, seconds)
-                blend = eased(fraction)
-                self._centre = (start[0] + blend * (target[0] - start[0]),
-                                start[1] + blend * (target[1] - start[1]))
-                if fraction >= 1.0:
-                    self._centre = target
-                    self._move = None
-                    self._steer_step = getattr(self, "_steer_step", 0) + 1
-                    self._next_steer = depth + float(
-                        _mandel_setting("steering_interval_decades"))
-                return self._centre
+            # A CONTINUOUS FOLLOW, NOT A SEQUENCE OF MOVES. Easing from A to
+            # B over a few seconds and then stopping until the next one is
+            # planned makes the picture slide, stop, slide, stop -- and that
+            # alternation IS the jerk. Clamping the move to a fraction of the
+            # gap made each slide smoother and left the starting and stopping
+            # exactly where it was.
+            #
+            # So the camera always eases toward wherever the target
+            # currently is, at a constant rate, and a new plan simply moves
+            # the target. There is no moment when it starts and none when it
+            # stops: the speed changes, and only smoothly.
+            target = getattr(self, "_target", None)
+            if target is not None:
+                now = time.perf_counter()
+                previous = getattr(self, "_follow_clock", None) or now
+                self._follow_clock = now
+                elapsed_seconds = max(0.0, min(0.25, now - previous))
+                # An exponential approach: it covers 1/e of the remaining
+                # distance every `duration` seconds, so it is fastest when
+                # furthest away and gentle as it arrives -- which is what a
+                # camera being steered looks like.
+                rate = 1.0 - math.exp(-elapsed_seconds / max(0.5, duration))
+                here = (here[0] + rate * (target[0] - here[0]),
+                        here[1] + rate * (target[1] - here[1]))
+                self._centre = here
 
             plan = getattr(self, "_plan", None)
             if plan is not None and plan.get("done"):
                 self._plan = None
-                target = plan.get("target")
-                if target is not None:
+                found = plan.get("target")
+                if found is not None:
                     scale = scale_at(depth,
                                      float(_mandel_setting("initial_scale")))
-                    self._move = (
-                        here,
-                        (here[0] + target[0] * scale,
-                         here[1] + target[1] * scale),
-                        time.perf_counter(),
-                        float(_mandel_setting("steering_duration")))
+                    # THE TARGET MOVES; the camera keeps following whatever
+                    # it is, so there is nothing to start or finish.
+                    self._target = (here[0] + found[0] * scale,
+                                    here[1] + found[1] * scale)
+                    self._steer_step = getattr(self, "_steer_step", 0) + 1
+                    self._next_steer = depth + interval
                 else:
                     # Nothing on the boundary from here: look again sooner
                     # rather than giving up on steering for good.
-                    self._next_steer = depth + 0.35 * float(
-                        _mandel_setting("steering_interval_decades"))
+                    self._next_steer = depth + 0.35 * interval
                 return here
 
             if plan is None and depth >= getattr(self, "_next_steer", 0.0):
@@ -1599,7 +1634,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                             scale_at(depth,
                                      float(_mandel_setting("initial_scale"))),
                             budget,
-                            strength=float(_mandel_setting("steering_strength")),
+                            strength=strength,
                             candidates=int(_mandel_setting("candidate_count")),
                             step_index=getattr(self, "_steer_step", 0),
                             offset_re=here[0], offset_im=here[1])
