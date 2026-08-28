@@ -1104,8 +1104,15 @@ class AppScreen(QWidget):
         body.setChildrenCollapsible(False)
 
         # Settings panel (left)
-        body.addWidget(self._build_settings_panel())
+        self._settings_body = body
+        # THE WIDGET ACTUALLY MOUNTED, which is not `_settings_scroll`: the
+        # panel builder wraps the scroll area, so looking the scroll up in
+        # the splitter answered -1 and the rebuild returned having done
+        # nothing.
+        self._settings_panel = self._build_settings_panel()
+        body.addWidget(self._settings_panel)
         self.the_name_carries_the_help()
+        self._watch_the_settings_that_decide_the_form()
         # Runtime panel (right)
         body.addWidget(self._build_runtime_panel())
 
@@ -1815,7 +1822,12 @@ class AppScreen(QWidget):
         layout.setContentsMargins(0, 0, SPACING["sm"], 0)
         layout.setSpacing(SPACING["sm"])
 
-        self._settings_model = SettingsWidgets(self.app_key, parent=content)
+        # THE VALUES ON SCREEN DECIDE THE FORM, not the module's shipped
+        # defaults -- otherwise a nucleus channel the user has just typed
+        # would build a form that still says the run has no nucleus.
+        self._settings_model = SettingsWidgets(
+            self.app_key, parent=content,
+            current=getattr(self.window(), "_pending_screen_values", None))
         # ``key -> the heading it belongs to``, for every row the object rule
         # has already decided must not be on the form. `_build_settings_section`
         # fills it and `_lay_out_the_rows_that_are_back` empties it as the rule
@@ -2002,6 +2014,99 @@ class AppScreen(QWidget):
             if any(widget is not None for _label, widget in child_rows):
                 return True
         return False
+
+    #: Settings whose value decides which OTHER settings exist. Changing one
+    #: rebuilds the form; changing anything else does not.
+    FORM_SHAPING_KEYS = ("number_of_organelles", "nucleus_channel",
+                         "pathogen_channel", "cell_channel")
+
+    def _watch_the_settings_that_decide_the_form(self) -> None:
+        """Rebuild the form when a value that shapes it is COMMITTED.
+
+        NOT ON EVERY KEYSTROKE. That is what made the Mask module hang: the
+        old rule ran a full pass over 1,551 widgets per character typed. A
+        commit is one event per value the user actually settled on -- Enter,
+        or leaving the field -- so typing "1" costs one rebuild rather than
+        one per digit.
+
+        The pair is deliberate. `editingFinished` is the commit for a field
+        somebody types into; `valueChanged` is the commit for a spin box or
+        a combo, where every change is already a decision. A field that has
+        both fires once, because `_rebuild_the_form` compares the shape it
+        would build against the one on screen and returns when they agree.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        for key in self.FORM_SHAPING_KEYS:
+            widget = getattr(model, "_widgets", {}).get(key)
+            if widget is None:
+                continue
+            done = getattr(widget, "editingFinished", None)
+            if done is not None:
+                try:
+                    done.connect(self._rebuild_the_form)
+                    continue
+                except Exception:                            # noqa: BLE001
+                    pass
+            for name in ("valueChanged", "currentIndexChanged"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(self._rebuild_the_form)
+                    break
+                except Exception:                            # noqa: BLE001
+                    continue
+
+    def _form_shape(self) -> tuple:
+        """What the form's shape currently depends on.
+
+        :returns: the committed values of :data:`FORM_SHAPING_KEYS`.
+
+        Compared before rebuilding so a signal that did not actually change
+        the shape -- a second commit of the same value, or the two signals a
+        spin box emits -- costs nothing.
+        """
+        model = getattr(self, "_settings_model", None)
+        values = dict((model.collect() if model is not None else {}) or {})
+        return tuple(str(values.get(key, "")).strip()
+                     for key in self.FORM_SHAPING_KEYS)
+
+    def _rebuild_the_form(self, *_args) -> None:
+        """Rebuild this screen for the shape the values now describe.
+
+        THE WHOLE SCREEN, not the settings panel in place. Swapping the
+        panel inside the splitter is the cheaper move and it is the one that
+        did not work: the widget mounted there is not the scroll area the
+        panel builder records, so the lookup answered -1 and the rebuild
+        returned having done nothing at all. Asking the window to build the
+        screen again is the path that already runs on every module open, and
+        Mask opens in 1.45 s -- which is a fine price for a deliberate
+        change to one value, and no price at all for the typing that used to
+        trigger the old rule.
+
+        WHAT THE USER HAS TYPED SURVIVES. Every current value is collected
+        first and applied to the new screen, so a form that gains twenty
+        nucleus settings does not lose the twelve already filled in.
+        """
+        if getattr(self, "_rebuilding_the_form", False):
+            return
+        shape = self._form_shape()
+        if shape == getattr(self, "_form_shape_on_screen", None):
+            return
+        window = self.window()
+        rebuild = getattr(window, "rebuild_app_screen", None)
+        if not callable(rebuild):
+            return
+        self._rebuilding_the_form = True
+        try:
+            keep = dict((self._settings_model.collect() or {}))
+            rebuild(self.app_key, keep)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not rebuild the settings form")
+        finally:
+            self._rebuilding_the_form = False
 
     def _build_settings_section(self, spec, depth: int = 0):
         """Build one heading of the settings TREE, and everything under it.

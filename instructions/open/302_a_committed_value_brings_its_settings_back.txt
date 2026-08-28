@@ -1,0 +1,37 @@
+302 — A committed value brings its settings back
+
+Reported 2026-08-28: hiding the settings was right, but "if i type 1 in
+nucleus channel i then need to be able to see the nucleus segmentation
+settings, which does not happen at present. same for the other object
+classes. and when number of organelles is more than 0 i should see
+Organelle X Channel in input and metadata as well as the organelle
+segmentation and advanced settings categories."
+
+WHAT WORKS: the hiding. A run with no nucleus channel and no organelles
+builds 107 widgets and 21 categories instead of 1,551 and 27, and opens in
+1.45 s instead of 13.2 s.
+
+WHAT DOES NOT: the reveal. Typing 1 into Nucleus channel and committing it
+rebuilds the screen -- measured at 0.44 s, so the mechanism runs -- but the
+new screen comes back with the same 107 widgets and the typed value lost.
+
+WHAT IS ALREADY PROVEN. `SettingsWidgets(app_key, current={"nucleus_channel":
+"1"})` builds 20 nucleus settings instead of 1. The gating reads the values
+it is given and gets the right answer; what fails is carrying the values on
+screen into the rebuilt one.
+
+WHAT WAS TRIED AND WHY IT WAS ABANDONED. Swapping the settings panel inside
+the splitter in place: `QSplitter.indexOf` answered -1 because the widget
+mounted there is not the scroll area the panel builder records, so the
+rebuild returned having done nothing. Rebuilding the whole screen through
+`MainWindow.rebuild_app_screen` replaced it and does run.
+
+WHERE TO LOOK NEXT: `collect()` on the old screen returns None for
+`nucleus_channel` at the moment the rebuild collects it, even though the
+field holds "1" -- so the values handed to the new screen never carried the
+one that would have changed its shape. Whether `_ScalarEdit.setText` is
+reflected in `collect()` without an intervening signal is the question.
+
+THE RULE THAT MUST HOLD EITHER WAY: this happens on a COMMITTED value --
+Enter, or leaving the field -- and never per keystroke. Running the old
+rule on every character is what made the module hang.

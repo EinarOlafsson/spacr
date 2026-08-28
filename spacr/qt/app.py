@@ -3528,6 +3528,46 @@ class MainWindow(QMainWindow):
             pass
         self._stack.addWidget(self._startup)
 
+    def rebuild_app_screen(self, key: str, values=None) -> None:
+        """Build ``key``'s screen again, carrying ``values`` across.
+
+        :param key: the app whose screen is to be rebuilt.
+        :param values: settings to apply to the new screen.
+
+        WHY A WHOLE SCREEN. Which settings a form holds depends on a few of
+        its own values -- the organelle count, and whether an object's
+        channel names a plane -- so a committed change to one of those means
+        a different form, not a changed one. Rebuilding is the same path
+        every module open already takes.
+
+        The old screen is dropped from the cache and destroyed, so the new
+        one is built from scratch rather than reusing widgets that belong to
+        a shape that no longer applies.
+        """
+        old = self._screens.pop(key, None)
+        if old is not None:
+            try:
+                self._stack.removeWidget(old)
+                old.setParent(None)
+                old.deleteLater()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not retire the %s screen", key)
+        self._pending_screen_values = dict(values or {})
+        try:
+            self._on_nav_selected(key)
+        finally:
+            self._pending_screen_values = None
+        screen = self._screens.get(key)
+        if screen is None or not values:
+            return
+        try:
+            screen._settings_model.apply_settings_dict(dict(values))
+            # Remember the shape this screen was built for, so the signals
+            # that fire while the values are applied do not rebuild it again.
+            screen._form_shape_on_screen = screen._form_shape()
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not carry values into the %s screen", key)
+
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
         if key == "__home__":

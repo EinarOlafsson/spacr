@@ -61,12 +61,24 @@ def test_the_rule_follows_nothing(mask):
     assert model._on_object_switch_changed() is None
 
 
-def test_every_setting_is_still_collected(mask):
-    """Loading all settings must not lose any of them."""
-    collected = mask._settings_model.collect() or {}
-    assert len(collected) > 300
-    for key in ("nucleus_channel", "cell_channel", "pathogen_channel"):
-        assert key in collected
+def test_every_setting_on_the_form_is_collected(mask):
+    """Every setting the form HOLDS is collected.
+
+    The number is smaller than it was, deliberately: a run with no
+    organelles and no nucleus channel does not build those settings at all
+    (300), so counting them was counting the noise that change removed. What
+    matters is that nothing on the form is lost and the settings that decide
+    the form are always there.
+    """
+    model = mask._settings_model
+    collected = model.collect() or {}
+    assert len(collected) > 150
+    for key in ("nucleus_channel", "cell_channel", "pathogen_channel",
+                "number_of_organelles"):
+        assert key in collected, f"{key} decides the form and must be on it"
+    # Nothing the panel built is missing from what it collects.
+    missing = [k for k in model._widgets if k not in collected]
+    assert missing == [], f"{len(missing)} built settings are not collected"
 
 
 def test_a_typed_channel_reaches_the_run(mask, qapp):
