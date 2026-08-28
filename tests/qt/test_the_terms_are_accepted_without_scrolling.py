@@ -180,143 +180,6 @@ class TestRewrittenTermsAskAgain:
         assert terms_module.needs_agreement() is True
 
 
-class TestTheAcceptanceIsGatedOnHavingReachedTheEnd:
-
-    def test_it_starts_disabled(self, slides):
-        assert slides.terms_were_read() is False
-        assert slides._agree.isEnabled() is False
-
-    def test_the_text_is_greyed_too(self, slides):
-        """"the text should also be grayed out" -- one state on both halves,
-        so the page reads as one thing waiting."""
-        assert slides._dim_ink() in slides._terms_body.styleSheet()
-
-    def test_the_greyed_switch_says_why(self, slides, terms_module):
-        assert slides._scroll_hint.isVisibleTo(slides)
-        assert terms_module.SCROLL_HINT[:30] in slides._scroll_hint.text()
-
-    def test_reaching_the_end_enables_it(self, slides, qapp):
-        _scroll_to_the_end(slides, qapp)
-
-        assert slides.terms_were_read() is True
-        assert slides._agree.isEnabled() is True
-
-    def test_reaching_the_end_ungreys_the_text(self, slides, qapp):
-        _scroll_to_the_end(slides, qapp)
-
-        assert slides._terms_body.styleSheet() == ""
-        assert not slides._scroll_hint.isVisibleTo(slides)
-
-    def test_scrolling_back_up_does_not_un_read_them(self, slides, qapp):
-        """A gate that closed behind the reader would take the acceptance
-        away from somebody who had already earned it."""
-        _scroll_to_the_end(slides, qapp)
-        bar = slides._terms_scroll.verticalScrollBar()
-        bar.setValue(0)
-        qapp.processEvents()
-
-        assert slides._agree.isEnabled() is True
-
-    def test_partway_down_is_not_the_end(self, slides, qapp):
-        bar = slides._terms_scroll.verticalScrollBar()
-        bar.setValue(bar.maximum() // 2)
-        qapp.processEvents()
-
-        assert slides._agree.isEnabled() is False
-
-
-class TestAViewportTallEnoughCountsAsRead:
-    """"or a large monitor becomes a trap"."""
-
-    def test_a_document_that_fits_needs_no_scrolling(self, slides, qapp):
-        """The gate is "the end is on screen", not "a scroll bar moved".
-
-        Shrinking the document is the same measurement as growing the
-        viewport -- the scroll range is the difference between the two --
-        and it is the half a test can reach on a headless screen.
-        """
-        assert slides._agree.isEnabled() is False
-        slides._terms_body.setText("These terms fit on one line.")
-        qapp.processEvents()
-
-        assert slides._terms_scroll.verticalScrollBar().maximum() == 0
-        assert slides.terms_were_read() is True
-        assert slides._agree.isEnabled() is True
-
-
-class TestAnUnmeasuredGateIsAClosedGate:
-
-    def test_a_page_that_was_never_shown_has_not_been_read(self, qtbot):
-        """"The end is on screen" cannot be true of a page that is not.
-
-        An unshown scroll area still answers questions about its range, off
-        geometry nothing laid out; believing that answer would open the gate
-        for everybody, so it is not believed.
-        """
-        made = SetupSlides()
-        qtbot.addWidget(made)
-
-        assert made._terms_scroll.isVisible() is False
-        assert made.terms_were_read() is False
-        assert made._agree.isEnabled() is False
-
-    def test_a_page_with_no_scroll_area_is_not_gated(self, slides):
-        """The gate exists to prove the text was seen. With no widget to
-        scroll there is nothing to prove and nothing to refuse."""
-        slides._terms_read = False
-        slides._terms_scroll = None
-
-        assert slides.terms_were_read() is True
-
-
-class TestTheRefusalNamesTheRightObstacle:
-
-    def test_an_unread_document_is_told_to_be_scrolled(self, slides,
-                                                       terms_module):
-        """"tick the box above" is not actionable advice about a box that
-        will not take a tick, so the reason it is greyed is said as well."""
-        slides.next()
-
-        said = slides._agree_note.text()
-        assert terms_module.SCROLL_HINT[:30] in said
-        assert terms_module.WHY_NOT_YET[:30] in said
-
-    def test_a_read_but_unticked_document_is_told_only_to_tick(
-            self, slides, qapp, terms_module):
-        _scroll_to_the_end(slides, qapp)
-        slides.next()
-
-        said = slides._agree_note.text()
-        assert terms_module.SCROLL_HINT[:30] not in said
-        assert terms_module.WHY_NOT_YET[:30] in said
-
-    def test_the_keyboard_is_sent_to_the_terms_not_to_the_dead_switch(
-            self, slides):
-        """A disabled switch cannot take focus, so a Next pressed before the
-        end would leave the caret nowhere and Page Down would do nothing."""
-        slides.next()
-
-        assert slides.focusWidget() is slides._terms_scroll
-
-    def test_the_keyboard_is_sent_to_the_switch_once_it_is_live(
-            self, slides, qapp):
-        _scroll_to_the_end(slides, qapp)
-        slides.next()
-
-        assert slides.focusWidget() is slides._agree
-
-    def test_it_still_will_not_leave_the_slide(self, slides, qapp):
-        _scroll_to_the_end(slides, qapp)
-
-        assert slides.next() == TERMS_INDEX
-
-    def test_a_read_and_ticked_document_moves_on(self, slides, qapp):
-        _scroll_to_the_end(slides, qapp)
-        slides._agree.setChecked(True)
-
-        assert slides.next() == TERMS_INDEX + 1
-
-
 class TestTheChromeIsTranslatedAndTheDocumentIsNot:
 
     def test_the_hint_is_in_every_catalog(self, terms_module):
@@ -345,3 +208,43 @@ class TestTheChromeIsTranslatedAndTheDocumentIsNot:
         from spacr.qt import i18n
 
         assert not i18n.has_translation(terms_module.TERMS[1])
+
+
+class TestTheGateIsOpen:
+    """The acceptance is a choice, not a scrolling exercise.
+
+    Asked for 2026-08-28: "change it so the terms of service dont need to be
+    scrolled through in the startup window." These replace the class that
+    asserted the opposite -- a scroll-gated switch, greyed text and a hint
+    telling the reader to keep dragging.
+    """
+
+    def test_the_switch_is_live_from_the_moment_the_page_opens(self, slides):
+        """Nothing has been scrolled, and the acceptance is still offered."""
+        assert slides._agree.isEnabled() is True
+
+    def test_the_text_is_not_greyed(self, slides):
+        """A greyed page said "wait"; there is nothing to wait for now."""
+        body = getattr(slides, "_terms_body", None)
+        if body is not None:
+            assert "color:" not in (body.styleSheet() or "")
+
+    def test_the_scroll_hint_is_not_shown(self, slides):
+        """"Scroll to the end" would now be an instruction to do nothing."""
+        hint = getattr(slides, "_scroll_hint", None)
+        if hint is not None:
+            assert hint.isVisible() is False
+
+    def test_a_page_that_was_never_shown_is_still_acceptable(self, slides):
+        """The old gate answered False for an unlaid-out page."""
+        assert slides.terms_were_read() is True
+
+    def test_the_document_is_still_there_in_full(self, terms_module):
+        """Removing the gate must not shorten what is being agreed to."""
+        assert len(terms_module.terms_text()) > 2000
+
+    def test_accepting_is_still_recorded(self, terms_module):
+        """The agreement is unchanged: only the greying is gone."""
+        terms_module.record_agreement(terms_module.TERMS_VERSION)
+        assert terms_module.agreed_version() == terms_module.TERMS_VERSION
+        assert terms_module.needs_agreement() is False
