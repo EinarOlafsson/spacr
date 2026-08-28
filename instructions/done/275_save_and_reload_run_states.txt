@@ -2,7 +2,9 @@
 SAVE A RUN'S STATE FROM THE LIST, AND MORE TO READ IN THE LIST
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27.
+Status:    DONE, 2026-08-27. 25 tests. Right-click one run or
+           several to save; the existing restore finds what it wrote.
+           regression_backend and guide_permutations are columns.
 Owner:     spacr/qt/widgets/sweep_runs.py for the menu and the columns,
            spacr/workspace.py for what a state is.
 Follows:   157 (the loaded mark), 146 (a run leaving the table).

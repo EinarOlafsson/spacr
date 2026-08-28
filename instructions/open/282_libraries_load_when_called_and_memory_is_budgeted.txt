@@ -1,0 +1,80 @@
+================================================================================
+LIBRARIES LOAD WHEN CALLED, AND THE USER SETS THE MEMORY BUDGET
+================================================================================
+
+Status:    OPEN, filed 2026-08-27. NOT STARTED. One measurement taken, and
+           it rules out part of the request as asked -- see MEASURED below.
+           The maintainer asked for an opinion on the design as well as the
+           work, and that opinion is owed.
+Owner:     spacr/qt/app.py (the preloader), and whatever cache layer this
+           grows.
+Requested: 2026-08-27.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"can you make it so that libraries get loaded when they are needed not when
+ starting the application or eaven starting the modual, but when the library
+ is called? then there should be a setting for how long the library is
+ loaded for, so on week machines that which is not needed can be unloaded as
+ soon as it is not needed and on stronger machines the machine can hold more
+ in memory ... an option for the time a library is kept in memory while it is
+ not being actively used, and an option for how long something can be in disk
+ and ram cach while not being used before it gets removed, and how much ram
+ and cach the system wants to keep open for new processes ... I want the user
+ to be able controll these things so spacr can function on a laptop, server,
+ and workstation with a wide range of hardware specs. also in the tooltips
+ for the different modes should be system configuration recomendations for
+ each level."
+
+--------------------------------------------------------------------------------
+MEASURED, AND IT DECIDES THE SHAPE
+--------------------------------------------------------------------------------
+
+A PYTHON MODULE CANNOT BE UNLOADED. Measured on this machine:
+
+    baseline                     12 MB
+    after `import torch`        489 MB   (+477)
+    after deleting every torch entry from sys.modules and gc.collect()
+                                489 MB   (0 returned)
+    torch .so regions still mapped afterwards: 63
+
+That is not a spaCR limitation and no setting can change it. C extensions
+register types, allocate static buffers and map shared objects; CPython has
+never supported unloading them. So "a setting for how long the library is
+kept in memory" cannot be built for the libraries that actually cost
+anything -- torch is 477 MB of the problem.
+
+WHAT IS REAL, AND WHAT THE SETTINGS SHOULD GOVERN INSTEAD:
+
+  * DEFERRING the import until first use -- real, and the honest form of
+    "load when called". A session that never opens Classify never pays the
+    477 MB. This is the part worth building.
+  * GPU memory -- `torch.cuda.empty_cache()` returns cached allocations.
+    Real, and on a shared GPU it matters more than RAM.
+  * MODEL WEIGHTS held after a run -- real. Droppable and reloadable.
+  * DATA CACHES: merged frames, image caches, crop caches. Real, and the
+    natural home for an idle timeout and a size ceiling.
+  * A HEADROOM FLOOR -- "keep this much free for new processes" -- is the
+    right control and the maintainer is right that it comes FIRST: the other
+    limits are meaningless until something says when to apply them.
+
+So the request survives almost intact; only the word "library" has to become
+"cache, weights and GPU memory", because that is what can actually be
+returned.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a session that never opens a deep-learning module never imports torch,
+    and that is asserted by `sys.modules` and not by a timing;
+  * the idle timeout, the cache ceiling and the headroom floor are settings,
+    and each one's tooltip says what hardware it suits -- the maintainer
+    asked for "system configuration recomendations for each level" and that
+    is the difference between a number and a decision;
+  * a laptop profile and a workstation profile both run the same pipeline to
+    completion, with the laptop trading speed for footprint;
+  * NOTHING CLAIMS TO UNLOAD A LIBRARY. If a setting is named for that, it
+    is lying, and the measurement above is why.

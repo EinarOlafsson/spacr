@@ -1,0 +1,29 @@
+================================================================================
+THE MEASUREMENT AND CELLS TABS FOLLOW THE LOADED RUN
+================================================================================
+
+Status:    DONE, 2026-08-27. 9 tests.
+Owner:     spacr/qt/screens/app_screen.py.
+Requested: 2026-08-27 -- "i think the measurement and cell tabs are always
+           linked to the last run ...."
+
+--------------------------------------------------------------------------------
+WHAT IT WAS
+--------------------------------------------------------------------------------
+
+Both tabs take zero-argument providers precisely so they can be re-read --
+the scan panel's own docstring says "the tab must not go on showing the
+previous run's inputs" -- but the only thing that re-read them was OPENING
+the tab. The tab a user is LOOKING AT when they load another run is never
+opened again, so it kept the previous run's content while the results panel,
+the summary and the figure grid all moved.
+
+`loaded_run_changed` now reaches both. The montage's grid is emptied rather
+than rebuilt: its contents answer a coefficient selected from the previous
+run's table, which means nothing for the new one.
+
+FOUND WHILE TRACING IT, and left as a finding rather than fixed:
+`SweepRunsPanel.set_loaded_run` is a documented method with NO CALLER
+anywhere. The mark moves only when a run finishes or a folder is opened from
+disk; the method that exists to move it deliberately is wired to nothing.
+See [[spacr_wired_but_never_called]] -- four instances in one session.

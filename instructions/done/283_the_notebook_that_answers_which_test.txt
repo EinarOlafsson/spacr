@@ -1,0 +1,58 @@
+================================================================================
+THE NOTEBOOK THAT ANSWERS WHICH TEST FITS THIS SCREEN
+================================================================================
+
+Status:    DONE, 2026-08-27. Delivered to ~/Desktop/permutation_vs_ols/
+           screen_simulation.ipynb. Not spaCR source, but it is work that
+           was asked for and it belongs on the list.
+Requested: 2026-08-26 and refined repeatedly through 2026-08-27.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED, IN THE END
+--------------------------------------------------------------------------------
+
+"i want to ask the question. given the data i have (independent and dependent
+ variable distrivutions) which method is the appropreate method. so first i
+ need simulated data that have the same shape as my data ... then i need to
+ simulate the data with different numbers of genes that impact the phenotype"
+
+plus: no markdown, minimal text, y-axis labels, guides/well and wells/guide
+matched too, an explanation of each model, which assumptions the data break,
+and a closing verdict naming the scenario each method suits.
+
+--------------------------------------------------------------------------------
+THE ANSWER IT GIVES
+--------------------------------------------------------------------------------
+
+Two of OLS's assumptions break on this screen -- residual normality
+(Shapiro W=0.902, p=3e-32) and row independence (1,781 rows over 606 wells,
+one phenotype each). Constant variance holds.
+
+    method              realised FDR    false calls on a null screen
+    permutation (BH)          0.074                  0.0
+    OLS (BH)                  0.549                  7.4
+    OLS (uncorrected)         0.737                 28.2
+
+against the 0.05 Benjamini-Hochberg promises.
+
+--------------------------------------------------------------------------------
+WHAT WENT WRONG ON THE WAY, BECAUSE IT IS THE LESSON
+--------------------------------------------------------------------------------
+
+The first working version compared the two methods on GAUSSIAN noise. Least
+squares is the OPTIMAL estimator under Gaussian errors, so that benchmark
+was decided before it ran and showed the methods tied. Sweeping seeds and
+effect sizes could never have found it.
+
+Then the simulation was found to be reading the WRONG DATA: its own join of
+the raw score and count files produced 812 wells, 1,356 guides and a
+phenotype sd of 0.27 against the real 606 / 789 / 0.073. Reading
+regression_data.csv -- the table spaCR itself writes -- fixed it.
+
+Then wells-per-guide did not match (2.26 real against 2.57 simulated) and
+weighting made it WORSE. Dealing guides from a pool holding each as often as
+the real library places it matches both design marginals exactly.
+
+The rule, recorded as [[simulation_must_not_assume_the_model]]: verify the
+simulated distributions against the real ones BEFORE concluding anything
+from them. The notebook now does this itself and stops on an assert.

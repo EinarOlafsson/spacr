@@ -2,7 +2,35 @@
 THE ANIMATION NEVER HANGS THE APP, AND THE MOUSE PUSHES IT AROUND
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27.
+Status:    PART B DONE, PART A NOT. Filed 2026-08-27.
+
+           B, THE MOUSE: done. The pointer pulls the pattern and a click
+           shoves it, sampled through QCursor.pos() rather than received, so
+           the backdrop never becomes a mouse target -- a test clicks a real
+           button sitting over a live backdrop to prove the click lands.
+
+           A, THE THREAD: PARTLY, and the honest state is below. The
+           preloader moved to a worker thread and MainWindow() went 3.11s to
+           0.85s. THAT DID NOT FIX WHAT THE MAINTAINER REPORTED. Clicking a
+           module still stalls: 1.48s before the change, 1.58s after. It was
+           reported as fixed on the strength of a measurement of the
+           preloader ALONE, in a script, which is the mistake instruction
+           281 exists to stop from recurring.
+
+           MEASURED SINCE, on the real build:
+             module click, torch cold   2.89 s
+             module click, torch warm   1.24 s
+             widget construction         0.68 s of it
+           and the build now yields to the event loop on a 25 ms deadline,
+           so zero timer ticks during it became a 210 ms worst gap. Better,
+           not fixed.
+
+           A FIRST DIAGNOSIS OF THE REST WAS WRONG and is corrected here:
+           torch is NOT imported by the build. It is already imported by the
+           preloader's thread, and what the build waits on is contention
+           with it. The cold/warm gap is real; the explanation was not. Use
+           SPACR_TIMING=1 (instruction 281) on a real launch before the next
+           attempt -- that is what it was built for.
 Owner:     spacr/qt/widgets/ambient.py (the engines and the shading thread),
            spacr/qt/widgets/fractal_travel.py + fractal_cascade.py.
 Follows:   260, which put the maintainer's two fractals behind spaceout.
