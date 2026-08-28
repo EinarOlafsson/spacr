@@ -891,3 +891,134 @@ def test_the_scale_caption_says_it_is_not_the_look():
 
     assert "does not change what the fractal looks like" in \
         PREFERENCE_TIPS["Scale"]
+
+
+# --- lifetime: the three ways it crashed on a real launch ------------------
+
+
+def test_only_one_backdrop_survives_repeated_installs(qtbot, sandbox,
+                                                      monkeypatch):
+    """`install_ambient` runs again whenever a screen is rebuilt. The old
+    fractal used to stay parented AND RUNNING: four live canvases, four
+    vispy timers and four render threads at once."""
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.preferences import set_fractal_settings
+    from spacr.qt.widgets.ambient import install_ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    set_fractal_settings(backend="cpu")
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(400, 260)
+
+    made = [install_ambient(host, None) for _ in range(3)]
+    live = [c for c in host.findChildren(QWidget)
+            if hasattr(c, "backend_name")]
+    assert len(live) == 1
+    assert all(w._stopped for w in made[:-1]), "an old backdrop kept running"
+    made[-1].shutdown()
+
+
+def test_retiring_reports_how_many_it_stopped(qtbot, sandbox, monkeypatch):
+    from PySide6.QtWidgets import QWidget
+
+    import spacr.qt.theme as theme
+    from spacr.qt.widgets.ambient import _retire_fractals_on, install_ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    host = QWidget()
+    qtbot.addWidget(host)
+    assert _retire_fractals_on(host) == 0
+    install_ambient(host, None)
+    assert _retire_fractals_on(host) == 1
+
+
+def test_retiring_a_host_with_no_backdrop_is_fine(qtbot):
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.widgets.ambient import _retire_fractals_on
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    assert _retire_fractals_on(host) == 0
+
+
+def test_the_render_thread_is_not_parented_to_the_widget():
+    """A QThread whose parent dies while it runs prints "Destroyed while
+    thread is still running" and takes the process with it. The backdrop is
+    reparented and deleted with its screen, so that is the ordinary path."""
+    import inspect
+
+    body = inspect.getsource(F._make_cpu_widget)
+    assert "QThread()" in body
+    assert "QThread(self)" not in body
+
+
+def test_the_thread_is_joined_when_qt_frees_the_widget():
+    import inspect
+
+    assert "_join_on_destroy(self, self._thread)" in inspect.getsource(
+        F._make_cpu_widget)
+
+
+def test_the_joiner_never_touches_the_widget():
+    """`destroyed` fires mid-teardown; reaching for the widget from there is
+    a second crash on top of the one this prevents."""
+    import inspect
+
+    body = inspect.getsource(F._join_on_destroy)
+    inner = body.split("def _join(")[1].split("try:")[0]
+    assert "widget" not in inner
+
+
+def test_a_deleted_backdrop_does_not_take_the_process_down(qtbot, sandbox):
+    """The crash as reported: a backdrop deleted with its parent and no
+    shutdown() call anywhere."""
+    import gc
+
+    from PySide6.QtCore import QEventLoop, QTimer
+    from PySide6.QtWidgets import QWidget
+
+    host = QWidget()
+    host.resize(360, 240)
+    widget = F.create_fractal_widget(F.Settings(backend="cpu"))
+    widget.setParent(host)
+    host.show()
+    loop = QEventLoop()
+    QTimer.singleShot(1500, loop.quit)
+    loop.exec()
+
+    host.deleteLater()
+    del widget, host
+    gc.collect()
+    loop = QEventLoop()
+    QTimer.singleShot(800, loop.quit)
+    loop.exec()
+    gc.collect()          # reaching here at all is the assertion
+
+
+def test_the_gpu_timer_stops_at_the_first_late_tick():
+    """vispy's Timer is not a QTimer and outlives the canvas. Its own
+    handler catches, logs and RETRIES, which is the 2,4,8...4096 storm."""
+    import inspect
+
+    body = inspect.getsource(F._make_gpu_widget)
+    assert "_dead" in body
+    assert "except RuntimeError:" in body
+    assert "self.stop_timer()" in body
+
+
+def test_the_gpu_canvas_stops_when_qt_frees_it():
+    import inspect
+
+    body = inspect.getsource(F._make_gpu_widget)
+    assert "self.native.destroyed.connect(self._on_native_destroyed)" in body
+
+
+def test_shutdown_is_safe_to_call_twice(qtbot, sandbox):
+    widget = F.create_fractal_widget(F.Settings(backend="cpu"))
+    qtbot.addWidget(widget)
+    widget.shutdown()
+    widget.shutdown()
