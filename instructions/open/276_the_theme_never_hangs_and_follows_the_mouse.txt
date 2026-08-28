@@ -1,0 +1,81 @@
+================================================================================
+THE ANIMATION NEVER HANGS THE APP, AND THE MOUSE PUSHES IT AROUND
+================================================================================
+
+Status:    OPEN, filed 2026-08-27.
+Owner:     spacr/qt/widgets/ambient.py (the engines and the shading thread),
+           spacr/qt/widgets/fractal_travel.py + fractal_cascade.py.
+Follows:   260, which put the maintainer's two fractals behind spaceout.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"it would be cool if the theme was not on the same thread as the main so when
+ something is loading the whole app dosnt hang, or if the loading process
+ happens on a different thread. and ith would be cool if the mouse location
+ and the user right and left mouse clicking influenced the theme (the spaceout
+ theme and the blobs and so on). like in stratified if the particals gravitate
+ towards the mouse location and when the user clicks they get repelled."
+
+--------------------------------------------------------------------------------
+A. OFF THE MAIN THREAD -- WHERE IT ALREADY IS, AND WHY THAT IS NOT ENOUGH
+--------------------------------------------------------------------------------
+
+MEASURED BEFORE ANY WORK. Six of the seven ambient engines already shade on
+a background thread: `blobs`, `aurora`, `ripple`, `bokeh`, `cells` and the
+old `fractal` are `_BufferedEngine`s, and `ambient.py` runs them on a plain
+`threading.Thread`. Its own docstring is honest about the limit:
+
+  "What it does not do is speed the shading up. It is the same Python under
+   the same interpreter lock, so it takes the same 26 ms for `cells` under
+   load that the GUI thread took. What changes is *who waits*."
+
+So the GUI thread already avoids the shading. THE HANG THE MAINTAINER SEES
+IS THE GIL, not the thread: a Python engine holds the lock while it shades,
+and a load on the main thread contends for that same lock. The two new
+fractals do NOT have this problem -- their kernels are
+`njit(..., nogil=True)`, which releases it -- and that is the shape the fix
+should take.
+
+  * `drift` is a `DriftEngine(AmbientEngine)` -- NOT buffered, so it shades
+    on the GUI thread outright. That one is a plain bug.
+  * The rest want their inner loops in a form that releases the GIL, or the
+    honest admission in a docstring that they cannot.
+  * "or if the loading process happens on a different thread" -- worth
+    measuring which it actually is before choosing. A load that blocks the
+    GUI thread is a different fix from an animation that does.
+
+--------------------------------------------------------------------------------
+B. THE MOUSE
+--------------------------------------------------------------------------------
+
+NOTHING IN `ambient.py` TRACKS THE CURSOR TODAY -- no `mouseMoveEvent`, no
+`setMouseTracking`, no `QCursor.pos`. This is entirely new.
+
+  * particles GRAVITATE toward the pointer;
+  * a click REPELS them -- and left and right should differ, since the ask
+    names both;
+  * it applies to the spaceout fractals AND to the ordinary themes
+    ("the blobs and so on");
+  * the backdrop takes no mouse events today and MUST NOT START. It sits
+    behind every control; a backdrop that accepted a click would eat the
+    click meant for the button on top of it. The position has to arrive
+    without the widget becoming a mouse target -- an application-level
+    filter, or `QCursor.pos()` sampled on the tick.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a load that pins the GUI thread no longer stalls the animation, and the
+    claim is MEASURED as a frame interval under load rather than asserted;
+  * `drift` shades off the GUI thread like the other six;
+  * moving the pointer visibly pulls the pattern toward it, in the fractals
+    and in the particle themes;
+  * a left click and a right click both push it away, and differently;
+  * every control still receives its own clicks -- a button under the
+    backdrop is not harder to press than before, and a test drives a real
+    click through to a real button to say so;
+  * the influence is off in the ordinary themes if it costs a frame there,
+    or on everywhere if it does not; either is fine, guessing is not.

@@ -3010,6 +3010,13 @@ PREFERENCE_TIPS = {
     "Page opacity": "Page opacity relative to the animated background.",
     # -- the backdrop and the rim --------------------------------------
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
+    "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design.",
+    "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
+    "Quality": "How much detail the fractal is asked for. Balanced costs less per frame; high adds an iteration to the fractal and raises the internal resolution. Automatic chooses from the number of cores on the CPU renderer and uses balanced on the GPU.",
+    "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
+    "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
+    "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the maximum and is the default. It costs nothing extra to raise.",
+    "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Laptop mode": "Turns the ambient animation and the backdrop blur down on a small machine. Automatic decides from the cores and memory it finds. Only drawing is affected: a run computes the same answer either way.",
     "Animation blur": "Blur applied to background shapes.",
     "Animation speed": "Background-animation speed.",
