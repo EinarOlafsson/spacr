@@ -123,6 +123,7 @@ def test_the_launcher_disarms_gl_and_timing_before_qt(monkeypatch):
         seen["timing"] = os.environ.get("SPACR_TIMING")
         seen["no_gl"] = os.environ.get("SPACR_NO_GL")
         seen["safe"] = preferences.in_safe_mode()
+        seen["argv"] = list(argv or [])
         return 0
 
     import spacr.qt as qt_pkg
@@ -133,3 +134,7 @@ def test_the_launcher_disarms_gl_and_timing_before_qt(monkeypatch):
     assert seen["timing"] is None, "timing instrumentation survived safe mode"
     assert seen["no_gl"] == "1"
     assert seen["safe"] is True
+    # Reading preferences as defaults makes "has this profile been set up"
+    # read as "no", so safe mode greeted a long-standing user with the
+    # setup wizard in front of the settings they came to repair.
+    assert "--no-setup" in seen["argv"]

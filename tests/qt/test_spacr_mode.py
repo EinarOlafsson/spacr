@@ -319,16 +319,18 @@ def test_an_unreadable_stash_is_discarded_rather_than_guessed_at(
 # The dialog
 # ---------------------------------------------------------------------------
 
-def test_the_dialog_offers_the_three_modes(qtbot, qt_theme_applied):
+def test_the_dialog_offers_the_five_levels(qtbot, qt_theme_applied):
     from PySide6.QtWidgets import QComboBox
     from spacr.qt.preferences import PreferencesDialog
 
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
-    combo = dlg.findChild(QComboBox, "SpacrMode")
+    combo = dlg.findChild(QComboBox, "PerformanceLevel")
     assert combo is not None
     keys = [combo.itemData(i) for i in range(combo.count())]
-    assert keys == list(prefs.SPACR_MODES)
+    # 286: Laptop is the most constrained LEVEL of this one selector, not a
+    # second control that can override it.
+    assert keys == list(prefs.PERFORMANCE_LEVELS)
     assert combo.currentData() == "balanced"
 
 
@@ -340,7 +342,7 @@ def test_the_dialog_warns_on_selection_not_after_saving(qtbot,
 
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
-    combo = dlg.findChild(QComboBox, "SpacrMode")
+    combo = dlg.findChild(QComboBox, "PerformanceLevel")
     note = dlg.findChild(QLabel, "SpacrModeNote")
     keys = [combo.itemData(i) for i in range(combo.count())]
 
@@ -372,7 +374,7 @@ def test_saving_applies_the_mode_after_the_visual_settings(qtbot,
 
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
-    combo = dlg.findChild(QComboBox, "SpacrMode")
+    combo = dlg.findChild(QComboBox, "PerformanceLevel")
     keys = [combo.itemData(i) for i in range(combo.count())]
     combo.setCurrentIndex(keys.index("extra_performance"))
     dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()

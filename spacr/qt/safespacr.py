@@ -39,10 +39,19 @@ def main(argv: list[str] | None = None) -> int:
     # path, so refusing it has to happen in the environment too.
     os.environ["SPACR_NO_GL"] = "1"
 
-    print("spaCR safe mode: preferences are being READ as defaults; "
-          "the backdrop, setting animations, verbose logging and "
-          "preloading are off. Anything you save is written normally.",
+    print("spaCR safe mode: preferences are being READ as defaults; the "
+          "backdrop, setting animations, verbose logging and preloading "
+          "are off. Anything you save is written normally.",
           file=sys.stderr)
+
+    # AND NO FIRST-RUN SETUP. Reading preferences as defaults means "has
+    # this profile been set up" reads as "no", so safe mode greeted a
+    # long-standing user with the setup wizard -- in front of the settings
+    # they opened it to repair. The flag is the same one `spacr-server`
+    # uses.
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if "--no-setup" not in argv:
+        argv = ["--no-setup", *argv]
 
     from . import run
     return run(argv)

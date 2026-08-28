@@ -309,10 +309,23 @@ def _let_go_of(process) -> None:
     # about connections FROM this object made through the QObject
     # overload, and it left the `finished` lambda connected -- measured,
     # not assumed.
+    import warnings
+
     for signal in ("finished", "readyReadStandardOutput", "errorOccurred",
                    "readyReadStandardError"):
         try:
-            getattr(process, signal).disconnect()
+            # PySide6 WARNS BEFORE IT RAISES. Disconnecting a signal that
+            # was never connected prints "libpyside: Failed to disconnect"
+            # through the warnings machinery and then raises RuntimeError,
+            # so catching the exception alone still left the user reading a
+            # warning about the ordinary case -- a process that never
+            # emitted. Suppressing it here and nowhere wider keeps every
+            # other libpyside warning visible.
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore", message=r".*Failed to disconnect.*",
+                    category=RuntimeWarning)
+                getattr(process, signal).disconnect()
         except (RuntimeError, TypeError, AttributeError):
             # RuntimeError is Qt's "nothing was connected", which is the
             # ordinary case for a process that never emitted.
