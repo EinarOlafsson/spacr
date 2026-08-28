@@ -2299,15 +2299,15 @@ def set_performance_level(level: str) -> None:
     if level not in PERFORMANCE_LEVELS:
         raise ValueError(f"unknown performance level {level!r}. "
                          f"Choose from {PERFORMANCE_LEVELS}.")
+    # THROUGH `set_spacr_mode`, so the visual stashing that entering and
+    # leaving Extra Performance does still happens. It writes both keys.
+    posture = spacr_mode_for_level(level)
+    set_spacr_mode(posture)
+    # `set_spacr_mode` wrote the posture as the level; correct it to the
+    # level the caller actually asked for, which is the finer value.
     settings = _settings()
     settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
     settings.sync()
-    # The two settings this replaced are DERIVED now, and kept in step so
-    # anything still reading them directly agrees with the selector.
-    try:
-        set_spacr_mode(spacr_mode_for_level(level))
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not mirror the level into the mode", exc_info=True)
 
 
 def spacr_mode_for_level(level: str) -> str:
@@ -2398,6 +2398,12 @@ def set_spacr_mode(mode: str) -> None:
     previous = get_spacr_mode()
     settings = _settings()
     settings.setValue(_KEY_SPACR_MODE, mode)
+    # AND THE LEVEL, because that is the value everything reads now. Each of
+    # the three modes is also a level, so setting one is an unambiguous
+    # statement about the other -- and leaving them to disagree is exactly
+    # the two-answers-to-one-question defect 286 removed. Written directly
+    # rather than through `set_performance_level`, which calls back here.
+    settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
         _stash_visuals()

@@ -40,8 +40,8 @@ CONTROLS = {
     "PaneOpacity": "Appearance",
     "FieldFadeEnabled": "Appearance",
     "FontScale": "General",
-    "SpacrMode": "Performance",
-    "SpacrModeNote": "Performance",
+    "PerformanceLevel": "Performance",
+    "SpacrModeNote": "Performance",  # the note under the level selector
     "ClearRamButton": "Performance",
     "ClearVramButton": "Performance",
     "ClearCpuButton": "Performance",
@@ -215,7 +215,7 @@ def test_the_performance_tab_reads_as_one_subject(dialog):
     button_box = dialog.findChild(QDialogButtonBox)
     assert not button_box.isAncestorOf(quit_button), (
         "force quit was moved in with Save/Cancel")
-    assert page.findChild(QComboBox, "SpacrMode") is not None
+    assert page.findChild(QComboBox, "PerformanceLevel") is not None
     note = page.findChild(QLabel, "SpacrModeNote")
     assert note is not None and note.wordWrap()
 
