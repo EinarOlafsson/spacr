@@ -28,7 +28,7 @@ import math
 import re
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Final, Literal, Optional
 
 import numpy as np
@@ -66,7 +66,8 @@ PATTERN_LABELS: Final[dict] = {
     "space": "Space (star field flight)",
     "mandelbrot": "Mandelbrot (perturbation deep zoom)",
 }
-DEFAULT_PATTERN: Final[str] = "orbit"
+from ..fractal_defaults import (DEFAULT_PATTERN,  # noqa: E402
+                               FALLBACK_PATTERN)
 
 DEFAULT_BACKEND: Final[str] = "auto"
 DEFAULT_QUALITY: Final[str] = "auto"
@@ -224,6 +225,10 @@ class RuntimeControls:
     pointer_size: float = DEFAULT_POINTER_SIZE
     #: How hard it pulls. 0 is off; above 1 exaggerates.
     pointer_strength: float = DEFAULT_POINTER_STRENGTH
+    #: A multiplier on the Mandelbrot descent, changed by Up and Down and
+    #: by the wheel while the backdrop is running -- as in the source this
+    #: pattern came from.
+    zoom_rate: float = 1.0
     speed_min: float = DEFAULT_SPEED_MIN
     speed_max: float = DEFAULT_SPEED_MAX
     speed_period: float = DEFAULT_SPEED_PERIOD
@@ -1289,9 +1294,18 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             from .fractal_mandelbrot import (DEFAULTS, depth_decades,
                                              iteration_budget, scale_at)
 
-            depth = depth_decades(
-                elapsed, controls.speed,
-                float(DEFAULTS["seconds_per_decade"]))
+            # THE DEPTH IS INTEGRATED, not recomputed from the elapsed
+            # time: Up and Down change the rate, and a depth derived from
+            # `elapsed * rate` would jump backwards the moment the rate was
+            # lowered, because the whole flight so far would be re-scaled.
+            now = time.perf_counter()
+            previous = getattr(self, "_zoom_clock", None)
+            self._zoom_clock = now
+            if previous is not None:
+                self._depth = getattr(self, "_depth", 0.0) + depth_decades(
+                    now - previous, controls.speed * controls.zoom_rate,
+                    float(DEFAULTS["seconds_per_decade"]))
+            depth = getattr(self, "_depth", 0.0)
             orbit = self._orbit
             length = float(orbit.max_iter + 1) if orbit is not None else 1.0
             budget = iteration_budget(
@@ -1480,6 +1494,74 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
     return GpuFractalWidget()
 
 
+#: Every RuntimeControls a live backdrop is reading, so a key press can
+#: reach the one on screen without the backdrop having to accept events.
+#:
+#: THE BACKDROP MUST NOT TAKE EVENTS. It sits behind every control, and a
+#: widget that accepted the mouse would eat the click meant for the button
+#: on top of it -- which is why the pointer is SAMPLED rather than received.
+#: The same reasoning applies to the keyboard, so Up and Down are handled by
+#: the window and applied here.
+_LIVE_CONTROLS: list = []
+
+#: What one press of Up or Down, or one notch of the wheel, multiplies the
+#: zoom rate by. From the source this pattern came from.
+ZOOM_STEP: Final[float] = 1.12
+
+#: The range a nudge will move within.
+MIN_ZOOM_RATE: Final[float] = 0.05
+MAX_ZOOM_RATE: Final[float] = 20.0
+
+
+def nudge_zoom_rate(steps: int) -> float:
+    """Speed the descent up or slow it down.
+
+    :param steps: how many notches; positive is faster.
+    :returns: the resulting rate, or 0.0 when no backdrop is running.
+
+    Clamped, unlike the settings fields: this is a key held down rather than
+    a number somebody typed, so there is nothing to tell them about and a
+    rate of 10^12 from leaning on an arrow key is not a request.
+    """
+    if not _LIVE_CONTROLS:
+        return 0.0
+    rate = 0.0
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            rate = clamp(controls.zoom_rate * (ZOOM_STEP ** int(steps)),
+                         MIN_ZOOM_RATE, MAX_ZOOM_RATE)
+            controls.zoom_rate = rate
+        except Exception:                                    # noqa: BLE001
+            continue
+    return rate
+
+
+def pattern_for_this_machine(pattern: str, backend: str = "auto") -> str:
+    """The pattern that can actually be drawn here.
+
+    :param pattern: what the user asked for.
+    :param backend: the resolved backend, or ``"auto"``.
+    :returns: ``pattern``, or the fallback when it cannot be drawn.
+
+    MANDELBROT IS GPU-ONLY. It needs a texture of the reference orbit and a
+    shader to perturb around it; there is no numba renderer for it yet. So a
+    machine with no usable GL context gets the orbit fold instead -- which
+    has a CPU renderer and is the cheapest of the three that do -- rather
+    than a backdrop that draws nothing at all.
+
+    Silent, and deliberately: the backdrop is decoration, and a dialog
+    explaining that a machine cannot run one of four ornaments is worth less
+    than the interruption costs.
+    """
+    if str(pattern) != "mandelbrot":
+        return str(pattern)
+    if str(backend) == "cpu":
+        return FALLBACK_PATTERN
+    if not platform_can_do_opengl() or not gpu_is_available():
+        return FALLBACK_PATTERN
+    return "mandelbrot"
+
+
 def create_fractal_widget(settings: Optional[Settings] = None,
                           controls: Optional[RuntimeControls] = None,
                           hardware: Optional[HardwareProfile] = None):
@@ -1493,6 +1575,17 @@ def create_fractal_widget(settings: Optional[Settings] = None,
     """
     settings = (settings or Settings()).validated()
     controls = controls or RuntimeControls()
+    # THE PATTERN THIS MACHINE CAN ACTUALLY DRAW. Mandelbrot is GPU-only,
+    # so a machine with no usable context gets the orbit fold rather than a
+    # backdrop that draws nothing.
+    settings = replace(
+        settings,
+        pattern=pattern_for_this_machine(settings.pattern, settings.backend))
+    # Registered so a key press can reach it; the backdrop itself must not
+    # accept events, or it would eat the clicks meant for the interface in
+    # front of it.
+    if controls not in _LIVE_CONTROLS:
+        _LIVE_CONTROLS.append(controls)
     hardware = hardware or HardwareProfile.detect()
 
     # `gpu_is_available` covers the explicit 'gpu' request as well: asking

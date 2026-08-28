@@ -199,6 +199,115 @@ _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 #: 1000000 not 9". Speed multiplies the flight's own clock, so nothing
 #: physical sets a limit -- past a few hundred the picture is a blur, which
 #: is a thing somebody may want to see and not a thing to protect them from.
+#: What a fractal number must satisfy to be USABLE, as
+#: ``name -> (floor, ceiling, why)``. ``None`` for a bound means there is
+#: none.
+#:
+#: THESE ARE NOT CAPS ON THE FIELD. Asked for 2026-08-28: "dont cap the
+#: settings they are fields if the nuber is to high the code will gracefully
+#: throw an error and thell the user the number is not accepted." A spin box
+#: that silently clamps 8000 to 8 is a control that lies about what it did;
+#: the field takes whatever is typed and `explain_a_fractal_number` says
+#: plainly when a value cannot be used, and why.
+#:
+#: A bound is here only where a value outside it CANNOT WORK -- a
+#: supersampling of 0 takes no samples, a scale of 0 renders nothing, a
+#: negative iteration count is not a count. Values that are merely
+#: extravagant are the user's business.
+def _mandelbrot_defaults() -> dict:
+    """The published Mandelbrot defaults, plus supersampling.
+
+    Read from the module that owns them rather than copied, so the panel and
+    the renderer cannot drift apart.
+    """
+    try:
+        from .widgets.fractal_mandelbrot import DEFAULTS
+
+        return dict(DEFAULTS)
+    except Exception:                                        # noqa: BLE001
+        return {"supersampling": 2, "seconds_per_decade": 24.0,
+                "base_iterations": 300, "iterations_per_decade": 55.0,
+                "max_iterations": 2200, "precision_digits": 320,
+                "initial_scale": 1.25, "zoom_rate": 1.0,
+                "render_scale": 1.0, "steering_strength": 0.09,
+                "steering_interval_decades": 0.40,
+                "steering_duration": 3.8, "candidate_count": 24}
+
+
+_MANDEL_DEFAULTS = _mandelbrot_defaults()
+
+FRACTAL_LIMITS = {
+    "scale": (0.01, None,
+              "a scale of zero or less renders nothing at all"),
+    "speed": (0.0, None, "speed cannot run backwards"),
+    "dream": (0.0, None, "dream is an amount, and cannot be negative"),
+    "speed_min": (0.0, None, "speed cannot run backwards"),
+    "speed_max": (0.0, None, "speed cannot run backwards"),
+    "speed_period": (0.1, None,
+                     "a period of zero would change speed infinitely fast"),
+    "pointer_size": (0.0, None, "a reach cannot be negative"),
+    "pointer_strength": (0.0, None, "a strength cannot be negative"),
+    "supersampling": (1, None,
+                      "fewer than one sample a pixel draws nothing"),
+    "seconds_per_decade": (0.1, None,
+                           "a decade cannot take no time at all"),
+    "base_iterations": (1, None, "a frame needs at least one iteration"),
+    "iterations_per_decade": (0.0, None,
+                              "iterations cannot be taken away as you "
+                              "descend; the picture would go solid"),
+    "max_iterations": (1, 4096,
+                       "the shader's loop is bounded at 4096, so a larger "
+                       "number would be silently ignored"),
+    "precision_digits": (16, None,
+                         "below about sixteen digits the reference orbit "
+                         "is no better than the float it is meant to "
+                         "rescue"),
+    "initial_scale": (0.0000001, None,
+                      "a starting scale of zero has nothing to zoom out of"),
+    "tile_rows": (1, None, "a tile needs at least one row"),
+    "render_scale": (0.05, None,
+                     "below about a twentieth there are not enough pixels "
+                     "to see"),
+    "fps": (1, None, "a frame rate of zero never draws"),
+    "zoom_rate": (0.0, None, "the zoom cannot run backwards"),
+    "steering_strength": (0.0, None, "a strength cannot be negative"),
+    "steering_interval_decades": (0.01, None,
+                                  "steering every zero decades would never "
+                                  "stop choosing a new target"),
+    "steering_duration": (0.1, None,
+                          "a move that takes no time is a jump"),
+    "candidate_count": (1, None,
+                        "choosing between no candidates chooses nothing"),
+}
+
+
+def explain_a_fractal_number(name: str, value) -> str:
+    """Why ``value`` cannot be used for ``name``, or ``""`` if it can.
+
+    :param name: a fractal setting name.
+    :param value: whatever the field holds.
+    :returns: a sentence for the user, empty when the value is fine.
+
+    THE FIELD TAKES ANYTHING; this is what decides whether it WORKS. The
+    message names the setting, the value and the reason, because "invalid
+    input" tells a user only that the software disagrees with them.
+    """
+    floor, ceiling, why = FRACTAL_LIMITS.get(name, (None, None, ""))
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return f"{name}: {value!r} is not a number."
+    if number != number:                                     # NaN
+        return f"{name}: not a number."
+    if floor is not None and number < floor:
+        return (f"{name}: {value} is too small (needs at least {floor}) "
+                f"— {why}.")
+    if ceiling is not None and number > ceiling:
+        return (f"{name}: {value} is too large (at most {ceiling}) "
+                f"— {why}.")
+    return ""
+
+
 MAX_FRACTAL_SPEED: float = 1_000_000.0
 
 #: Whether the pointer pulls the backdrop about at all.
@@ -206,6 +315,21 @@ _KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
 #: How far that pull reaches, and how hard it pulls.
 _KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
 _KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+
+#: Supersampling, and the Mandelbrot renderer's own numbers.
+_KEY_FRACTAL_SUPERSAMPLING = "spaceout/fractal_supersampling"
+_KEY_FRACTAL_SECONDS_PER_DECADE = "spaceout/fractal_seconds_per_decade"
+_KEY_FRACTAL_BASE_ITERATIONS = "spaceout/fractal_base_iterations"
+_KEY_FRACTAL_ITERATIONS_PER_DECADE = "spaceout/fractal_iterations_per_decade"
+_KEY_FRACTAL_MAX_ITERATIONS = "spaceout/fractal_max_iterations"
+_KEY_FRACTAL_PRECISION_DIGITS = "spaceout/fractal_precision_digits"
+_KEY_FRACTAL_INITIAL_SCALE = "spaceout/fractal_initial_scale"
+_KEY_FRACTAL_ZOOM_RATE = "spaceout/fractal_zoom_rate"
+_KEY_FRACTAL_RENDER_SCALE = "spaceout/fractal_render_scale"
+_KEY_FRACTAL_STEERING_STRENGTH = "spaceout/fractal_steering_strength"
+_KEY_FRACTAL_STEERING_INTERVAL_DECADES = "spaceout/fractal_steering_interval_decades"
+_KEY_FRACTAL_STEERING_DURATION = "spaceout/fractal_steering_duration"
+_KEY_FRACTAL_CANDIDATE_COUNT = "spaceout/fractal_candidate_count"
 
 #: The memory budget: how long an unused thing may sit, how much may be
 #: held, and how much of the machine must stay free for everything else.
@@ -2057,10 +2181,25 @@ def get_fractal_settings() -> dict:
         return raw if raw in allowed else default
 
     def _number(key, default, low, high):
+        """A stored number, with only the bounds that are real.
+
+        ``None`` for a bound means there is none: the settings are FIELDS,
+        and a value the user typed is not quietly reduced on the way back
+        out. Only a value that cannot work at all is refused, and
+        `explain_a_fractal_number` is what says so, in words, at the point
+        it is entered.
+        """
         try:
-            return clamp(float(settings.value(key, default)), low, high)
+            value = float(settings.value(key, default))
         except (TypeError, ValueError):
             return default
+        if value != value:                                   # NaN
+            return default
+        if low is not None and value < low:
+            return low
+        if high is not None and value > high:
+            return high
+        return value
 
     def _truth(key, default):
         """A stored boolean, however QSettings gave it back.
@@ -2087,23 +2226,62 @@ def get_fractal_settings() -> dict:
                          FRACTAL_BACKENDS),
         "quality": _text(_KEY_FRACTAL_QUALITY, DEFAULT_QUALITY,
                          FRACTAL_QUALITIES),
-        "scale": _number(_KEY_FRACTAL_SCALE, DEFAULT_SCALE, 0.25, 2.0),
-        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.15,
-                         MAX_FRACTAL_SPEED),
-        "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, 1.5),
+        "scale": _number(_KEY_FRACTAL_SCALE, DEFAULT_SCALE, 0.01,
+                         None),
+        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.0, None),
+        "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, None),
         "variable_speed": variable,
         "speed_min": _number(_KEY_FRACTAL_SPEED_MIN, DEFAULT_SPEED_MIN,
-                             0.15, MAX_FRACTAL_SPEED),
+                             0.0, None),
         "speed_max": _number(_KEY_FRACTAL_SPEED_MAX, DEFAULT_SPEED_MAX,
-                             0.15, MAX_FRACTAL_SPEED),
+                             0.0, None),
         "speed_period": _number(_KEY_FRACTAL_SPEED_PERIOD,
-                                DEFAULT_SPEED_PERIOD, 5.0, 300.0),
+                                DEFAULT_SPEED_PERIOD, 0.1, None),
         "pointer_gravity": _truth(_KEY_FRACTAL_POINTER,
                                   DEFAULT_FOLLOW_POINTER),
         "pointer_size": _number(_KEY_FRACTAL_POINTER_SIZE,
-                                DEFAULT_POINTER_SIZE, 0.05, 3.0),
+                                DEFAULT_POINTER_SIZE, 0.0, None),
         "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
-                                    DEFAULT_POINTER_STRENGTH, 0.0, 2.0),
+                                    DEFAULT_POINTER_STRENGTH, 0.0, None),
+        "supersampling": int(_number(_KEY_FRACTAL_SUPERSAMPLING,
+                          _MANDEL_DEFAULTS["supersampling"],
+                          FRACTAL_LIMITS['supersampling'][0], None)),
+        "seconds_per_decade": _number(_KEY_FRACTAL_SECONDS_PER_DECADE,
+                     _MANDEL_DEFAULTS["seconds_per_decade"],
+                     FRACTAL_LIMITS['seconds_per_decade'][0], None),
+        "base_iterations": int(_number(_KEY_FRACTAL_BASE_ITERATIONS,
+                          _MANDEL_DEFAULTS["base_iterations"],
+                          FRACTAL_LIMITS['base_iterations'][0], None)),
+        "iterations_per_decade": _number(_KEY_FRACTAL_ITERATIONS_PER_DECADE,
+                     _MANDEL_DEFAULTS["iterations_per_decade"],
+                     FRACTAL_LIMITS['iterations_per_decade'][0], None),
+        "max_iterations": int(_number(_KEY_FRACTAL_MAX_ITERATIONS,
+                          _MANDEL_DEFAULTS["max_iterations"],
+                          FRACTAL_LIMITS['max_iterations'][0], None)),
+        "precision_digits": int(_number(_KEY_FRACTAL_PRECISION_DIGITS,
+                          _MANDEL_DEFAULTS["precision_digits"],
+                          FRACTAL_LIMITS['precision_digits'][0], None)),
+        "initial_scale": _number(_KEY_FRACTAL_INITIAL_SCALE,
+                     _MANDEL_DEFAULTS["initial_scale"],
+                     FRACTAL_LIMITS['initial_scale'][0], None),
+        "zoom_rate": _number(_KEY_FRACTAL_ZOOM_RATE,
+                     _MANDEL_DEFAULTS["zoom_rate"],
+                     FRACTAL_LIMITS['zoom_rate'][0], None),
+        "render_scale": _number(_KEY_FRACTAL_RENDER_SCALE,
+                     _MANDEL_DEFAULTS["render_scale"],
+                     FRACTAL_LIMITS['render_scale'][0], None),
+        "steering_strength": _number(_KEY_FRACTAL_STEERING_STRENGTH,
+                     _MANDEL_DEFAULTS["steering_strength"],
+                     FRACTAL_LIMITS['steering_strength'][0], None),
+        "steering_interval_decades": _number(_KEY_FRACTAL_STEERING_INTERVAL_DECADES,
+                     _MANDEL_DEFAULTS["steering_interval_decades"],
+                     FRACTAL_LIMITS['steering_interval_decades'][0], None),
+        "steering_duration": _number(_KEY_FRACTAL_STEERING_DURATION,
+                     _MANDEL_DEFAULTS["steering_duration"],
+                     FRACTAL_LIMITS['steering_duration'][0], None),
+        "candidate_count": int(_number(_KEY_FRACTAL_CANDIDATE_COUNT,
+                          _MANDEL_DEFAULTS["candidate_count"],
+                          FRACTAL_LIMITS['candidate_count'][0], None)),
     }
 
 
@@ -2111,7 +2289,10 @@ def set_fractal_settings(**values) -> None:
     """Persist any subset of the fractal settings.
 
     :raises ValueError: on an unknown name, or a backend/quality outside its
-        set. A number outside its range is clamped, because a slider cannot
+        set. A number is stored as given; only one that cannot work at all
+        is moved, and `explain_a_fractal_number` says so in words before it
+        reaches here. What follows describes the old behaviour, kept because
+        the reasoning about a slider still applies to the two sliders left
         produce one and a hand-edited file should still start.
     """
     from .fractal_defaults import clamp
@@ -2120,20 +2301,46 @@ def set_fractal_settings(**values) -> None:
         "pattern": (_KEY_FRACTAL_PATTERN, None),
         "backend": (_KEY_FRACTAL_BACKEND, None),
         "quality": (_KEY_FRACTAL_QUALITY, None),
-        "scale": (_KEY_FRACTAL_SCALE, (0.25, 2.0)),
+        "scale": (_KEY_FRACTAL_SCALE, (0.01, None)),
         # ASKED FOR 2026-08-28: capped at 1000000, not 8. The speed is a
         # multiplier on the flight's own clock, so there is no physical
         # ceiling to respect -- past a few hundred the picture becomes a
         # blur, and someone who wants that has asked for it.
-        "speed": (_KEY_FRACTAL_SPEED, (0.15, MAX_FRACTAL_SPEED)),
-        "dream": (_KEY_FRACTAL_DREAM, (0.0, 1.5)),
+        "speed": (_KEY_FRACTAL_SPEED, (0.0, None)),
+        "dream": (_KEY_FRACTAL_DREAM, (0.0, None)),
         "variable_speed": (_KEY_FRACTAL_VARIABLE_SPEED, None),
-        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.15, MAX_FRACTAL_SPEED)),
-        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.15, MAX_FRACTAL_SPEED)),
-        "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (5.0, 300.0)),
+        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.0, None)),
+        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.0, None)),
+        "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (0.1, None)),
         "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
-        "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.05, 3.0)),
-        "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, 2.0)),
+        "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.0, None)),
+        "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, None)),
+        "supersampling": (_KEY_FRACTAL_SUPERSAMPLING,
+                (FRACTAL_LIMITS['supersampling'][0], FRACTAL_LIMITS['supersampling'][1])),
+        "seconds_per_decade": (_KEY_FRACTAL_SECONDS_PER_DECADE,
+                (FRACTAL_LIMITS['seconds_per_decade'][0], FRACTAL_LIMITS['seconds_per_decade'][1])),
+        "base_iterations": (_KEY_FRACTAL_BASE_ITERATIONS,
+                (FRACTAL_LIMITS['base_iterations'][0], FRACTAL_LIMITS['base_iterations'][1])),
+        "iterations_per_decade": (_KEY_FRACTAL_ITERATIONS_PER_DECADE,
+                (FRACTAL_LIMITS['iterations_per_decade'][0], FRACTAL_LIMITS['iterations_per_decade'][1])),
+        "max_iterations": (_KEY_FRACTAL_MAX_ITERATIONS,
+                (FRACTAL_LIMITS['max_iterations'][0], FRACTAL_LIMITS['max_iterations'][1])),
+        "precision_digits": (_KEY_FRACTAL_PRECISION_DIGITS,
+                (FRACTAL_LIMITS['precision_digits'][0], FRACTAL_LIMITS['precision_digits'][1])),
+        "initial_scale": (_KEY_FRACTAL_INITIAL_SCALE,
+                (FRACTAL_LIMITS['initial_scale'][0], FRACTAL_LIMITS['initial_scale'][1])),
+        "zoom_rate": (_KEY_FRACTAL_ZOOM_RATE,
+                (FRACTAL_LIMITS['zoom_rate'][0], FRACTAL_LIMITS['zoom_rate'][1])),
+        "render_scale": (_KEY_FRACTAL_RENDER_SCALE,
+                (FRACTAL_LIMITS['render_scale'][0], FRACTAL_LIMITS['render_scale'][1])),
+        "steering_strength": (_KEY_FRACTAL_STEERING_STRENGTH,
+                (FRACTAL_LIMITS['steering_strength'][0], FRACTAL_LIMITS['steering_strength'][1])),
+        "steering_interval_decades": (_KEY_FRACTAL_STEERING_INTERVAL_DECADES,
+                (FRACTAL_LIMITS['steering_interval_decades'][0], FRACTAL_LIMITS['steering_interval_decades'][1])),
+        "steering_duration": (_KEY_FRACTAL_STEERING_DURATION,
+                (FRACTAL_LIMITS['steering_duration'][0], FRACTAL_LIMITS['steering_duration'][1])),
+        "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
+                (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
     }
     store = _settings()
     for name, value in values.items():
@@ -2148,7 +2355,17 @@ def set_fractal_settings(**values) -> None:
         if name == "quality" and value not in FRACTAL_QUALITIES:
             raise ValueError(f"unknown fractal quality {value!r}")
         if bounds is not None:
-            value = clamp(float(value), *bounds)
+            # THE FIELD'S NUMBER IS KEPT. Only a value that cannot work at
+            # all is moved, and `explain_a_fractal_number` is what tells the
+            # user about it before they get here -- a store that silently
+            # reduced 8000 to 8 would make the field a control that lies
+            # about what it did.
+            low, high = bounds
+            value = float(value)
+            if low is not None and value < low:
+                value = low
+            if high is not None and value > high:
+                value = high
         if name == "variable_speed":
             value = bool(value)
         store.setValue(key, value)
@@ -4805,14 +5022,38 @@ class PreferencesDialog:
                 max(0, fractal_quality.findData(_fractal_values["quality"])))
             fractal.addRow(tr("Quality"), fractal_quality)
 
-            def _tenths(name, value, low, high):
-                """A slider in tenths -- QSlider is integer-only."""
+            def _tenths(name, value, low=None, high=None):
+                """A NUMBER FIELD, not a capped slider.
+
+                Asked for 2026-08-28: "dont cap the settings they are fields
+                if the nuber is to high the code will gracefully throw an
+                error and thell the user the number is not accepted." A spin
+                box whose maximum is 2 turns a typed 40 into 2 and shows no
+                sign it did so, which is a control that lies.
+
+                The range is opened to the widest a QDoubleSpinBox has, so
+                the widget refuses nothing; `explain_a_fractal_number` is
+                what decides whether a value can be used, and says why when
+                it cannot.
+                """
                 box = QDoubleSpinBox()
                 box.setObjectName(name)
-                box.setRange(low, high)
+                box.setRange(-1e12, 1e12)
                 box.setSingleStep(0.05)
-                box.setDecimals(2)
+                box.setDecimals(4)
+                box.setKeyboardTracking(False)
                 box.setValue(float(value))
+                return box
+
+            def _whole(name, value, suffix=""):
+                """A whole-number field, equally uncapped."""
+                box = QSpinBox()
+                box.setObjectName(name)
+                box.setRange(-2_000_000_000, 2_000_000_000)
+                box.setKeyboardTracking(False)
+                if suffix:
+                    box.setSuffix(suffix)
+                box.setValue(int(value))
                 return box
 
             fractal_scale = _tenths("FractalScale",
@@ -4839,6 +5080,78 @@ class PreferencesDialog:
                                         _fractal_values["speed_max"],
                                         0.15, MAX_FRACTAL_SPEED)
             fractal.addRow(tr("Fastest"), fractal_speed_max)
+
+            # SUPERSAMPLING, called out as "a super important setting". It
+            # is the one that decides whether the picture is smooth or
+            # aliased, and it costs its own square: 2 is four samples a
+            # pixel, 3 is nine.
+            fractal_ss = _whole(
+                "FractalSupersampling", _fractal_values["supersampling"])
+            fractal_ss.setToolTip(tr(
+                "Samples per pixel along each axis. 1 is none, 2 is four "
+                "samples a pixel and is what the published defaults use, 3 "
+                "is nine. The cost is the square of this number, so it is "
+                "the first thing to turn down on a slow machine and the "
+                "first to turn up on a fast one."))
+            fractal.addRow(tr("Supersampling"), fractal_ss)
+
+            # THE MANDELBROT RENDERER'S OWN SETTINGS. They mean nothing for
+            # the other three patterns and are shown regardless, because a
+            # row that appears and disappears as the pattern changes is the
+            # form rearranging itself under the reader -- and these are all
+            # numbers a user may want to set BEFORE choosing the pattern.
+            _mandel_rows = (
+                ("seconds_per_decade", "Seconds per decade", 
+                 "How long one factor of ten of magnification takes. "
+                 "Smaller dives faster."),
+                ("base_iterations", "Iterations at the surface",
+                 "How many iterations a frame runs before the zoom has "
+                 "gone anywhere."),
+                ("iterations_per_decade", "Iterations per decade",
+                 "How many more it runs for each factor of ten. Escape "
+                 "time grows with magnification, so a number too small "
+                 "makes the deep frames go solid."),
+                ("max_iterations", "Iteration ceiling",
+                 "The most any frame will run. The shader's loop stops at "
+                 "4096, so a larger number would be ignored."),
+                ("precision_digits", "Reference precision",
+                 "Decimal digits the reference orbit is computed to. This "
+                 "is what buys the depth: past about fifteen decades a "
+                 "float cannot tell neighbouring pixels apart, and the "
+                 "orbit is what every pixel measures its small offset "
+                 "from."),
+                ("initial_scale", "Starting scale",
+                 "How much of the plane is in view before the zoom "
+                 "begins."),
+                ("zoom_rate", "Zoom rate",
+                 "A multiplier on the descent. Up and Down change it while "
+                 "the backdrop is running."),
+                ("render_scale", "Render scale",
+                 "Fraction of the window's pixels actually rendered, "
+                 "before being scaled up. Below 1 trades sharpness for "
+                 "speed."),
+                ("steering_strength", "Steering strength",
+                 "How far off centre the guided path looks for its next "
+                 "target."),
+                ("steering_interval_decades", "Steer every",
+                 "Decades of descent between one chosen target and the "
+                 "next."),
+                ("steering_duration", "Steering time",
+                 "Seconds the camera takes to ease onto a new target. A "
+                 "move that takes no time is a jump."),
+                ("candidate_count", "Candidates considered",
+                 "How many boundary points the guided path scores before "
+                 "choosing. More is a better target and a longer pause."),
+            )
+            fractal_mandel = {}
+            for _key, _label, _why in _mandel_rows:
+                _value = _fractal_values[_key]
+                _box = (_whole(f"Fractal_{_key}", _value)
+                        if isinstance(_value, int)
+                        else _tenths(f"Fractal_{_key}", _value))
+                _box.setToolTip(tr(_why))
+                fractal.addRow(tr(_label), _box)
+                fractal_mandel[_key] = _box
 
             # MOUSE GRAVITY. Asked for 2026-08-28, with a size and a
             # strength, applying to every pattern and both backends.
@@ -5268,7 +5581,29 @@ class PreferencesDialog:
                     pointer_gravity=fractal_pointer.isChecked(),
                     pointer_size=fractal_pointer_size.value(),
                     pointer_strength=fractal_pointer_strength.value(),
+                    supersampling=int(fractal_ss.value()),
+                    **{name: box.value()
+                       for name, box in fractal_mandel.items()},
                 )
+                # A NUMBER THAT CANNOT BE USED IS SAID SO, in words, rather
+                # than silently reduced. The fields take anything; this is
+                # where the tool answers.
+                complaints = [
+                    explain_a_fractal_number(name, box.value())
+                    for name, box in
+                    list(fractal_mandel.items())
+                    + [("supersampling", fractal_ss),
+                       ("scale", fractal_scale),
+                       ("speed", fractal_speed)]
+                ]
+                complaints = [text for text in complaints if text]
+                if complaints:
+                    from PySide6.QtWidgets import QMessageBox
+
+                    QMessageBox.warning(
+                        dlg, tr("Some numbers cannot be used"),
+                        tr("These were saved as the nearest value that "
+                           "works:") + "\n\n" + "\n".join(complaints))
             set_interface_font_weight(font_weight.currentData())
             # ONE VALUE. `set_performance_level` mirrors the level into
             # the three-mode posture the cleanup code speaks in, so there

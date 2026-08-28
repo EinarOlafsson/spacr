@@ -13,7 +13,16 @@ from typing import Final
 #: takes the GPU when vispy is importable and the CPU when it is not.
 #: Which fractal family. Kept here with the rest so `preferences` can read
 #: it without importing the widget, and therefore without numba.
-DEFAULT_PATTERN: Final[str] = "orbit"
+#: What spaceout draws unless the user says otherwise.
+#:
+#: MANDELBROT, asked for 2026-08-28 -- but only where a GPU can draw it. It
+#: is the one pattern with no CPU renderer, so `pattern_for_this_machine`
+#: falls back to the orbit fold, which has one and is the cheapest of the
+#: three that do.
+DEFAULT_PATTERN: str = "mandelbrot"
+
+#: What to draw when the Mandelbrot cannot be.
+FALLBACK_PATTERN: str = "orbit"
 
 DEFAULT_BACKEND: Final[str] = "auto"
 DEFAULT_QUALITY: Final[str] = "auto"
