@@ -250,7 +250,54 @@ def _mandelbrot_defaults() -> dict:
                 "max_depth": 34.0}
 
 
-_MANDEL_DEFAULTS = _mandelbrot_defaults()
+class _LazyDefaults(dict):
+    """The Mandelbrot defaults, resolved on first use.
+
+    NOT AT IMPORT. `_mandelbrot_defaults` reaches into
+    `spacr.qt.widgets.fractal_mandelbrot`, and importing that package pulls
+    QtWidgets in -- which `test_preferences_imports_without_touching_the_
+    ambient_widget` exists to prevent, because this module is imported by
+    headless paths that must never build a widget toolkit.
+
+    A dict subclass rather than a function, so every existing
+    `_MANDEL_DEFAULTS[name]` and `.get(name)` reads the same as before.
+    """
+
+    _loaded = False
+
+    def _load(self) -> None:
+        if self._loaded:
+            return
+        # Set FIRST: `_mandelbrot_defaults` cannot recurse into this, but a
+        # failure part-way through must not leave it retrying on every read.
+        self._loaded = True
+        try:
+            self.update(_mandelbrot_defaults())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the fractal defaults", exc_info=True)
+
+    def __getitem__(self, key):
+        self._load()
+        return dict.__getitem__(self, key)
+
+    def get(self, key, default=None):
+        self._load()
+        return dict.get(self, key, default)
+
+    def __contains__(self, key) -> bool:
+        self._load()
+        return dict.__contains__(self, key)
+
+    def keys(self):
+        self._load()
+        return dict.keys(self)
+
+    def items(self):
+        self._load()
+        return dict.items(self)
+
+
+_MANDEL_DEFAULTS = _LazyDefaults()
 
 FRACTAL_LIMITS = {
     "scale": (0.01, None,

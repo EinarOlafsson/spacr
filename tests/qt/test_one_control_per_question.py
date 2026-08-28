@@ -187,11 +187,22 @@ def test_the_renderer_reconciles_the_numbers_wherever_they_came_from():
 
     from spacr.qt.widgets import fractal_travel as ft
 
-    source = inspect.getsource(ft._make_gpu_widget)
+    from spacr.qt.widgets.fractal_mandelbrot import SteeringCamera
+
     # Zero reach means do not steer, not "steer in an arbitrary direction".
-    assert "if strength <= 0.0:" in source
-    # And the move is bounded by the gap at the point of USE.
-    assert "0.45 * interval * seconds_per_decade" in source
+    assert SteeringCamera(strength=0.0).steering is False
+
+    # And a contradictory combination is bounded at the point of USE, not
+    # only where the panel derives it.
+    camera = SteeringCamera(strength=0.5, interval=0.01, duration=100.0,
+                            seconds_per_decade=24.0)
+    gap = camera.interval * camera.seconds_per_decade
+    assert camera.duration <= max(0.5, 0.45 * gap)
+
+    # The canvas defers to it rather than keeping its own copy.
+    source = inspect.getsource(ft._make_gpu_widget)
+    assert "SteeringCamera()" in source
+    assert "camera.advance(" in source
 
 
 def test_the_panel_offers_one_control_per_question(qtbot, spaceout_only):

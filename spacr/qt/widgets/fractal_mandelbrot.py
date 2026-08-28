@@ -643,3 +643,132 @@ def eased(fraction: float) -> float:
     """
     x = 0.0 if fraction < 0.0 else (1.0 if fraction > 1.0 else float(fraction))
     return x * x * (3.0 - 2.0 * x)
+
+
+class SteeringCamera:
+    """Where the dive is pointed, and how it gets there.
+
+    A PLAIN OBJECT WITH NO QT IN IT, on purpose. This logic used to live
+    inside the GPU canvas's `__init__`, which meant it could only be
+    exercised by building a GL context -- so every claim about how smooth it
+    was came from a SIMULATION written beside it rather than from the code
+    that runs. Three "fixed" reports in a row were wrong that way. Here the
+    real thing can be driven frame by frame and measured.
+
+    THE CAMERA FOLLOWS; IT DOES NOT MAKE MOVES. Easing from A to B over a
+    few seconds and then holding until the next target is chosen makes the
+    picture slide, stop, slide, stop -- and that alternation is what reads
+    as jerking. Instead it eases toward wherever the target currently is at
+    a constant rate: choosing a new target moves the target, and nothing
+    starts or stops.
+
+    :param strength: how far off centre to look; 0 means do not steer.
+    :param interval: decades of descent between one target and the next.
+    :param duration: the follow's time constant, in seconds.
+    :param seconds_per_decade: how fast the descent runs.
+    """
+
+    def __init__(self, strength: float = 0.09, interval: float = 0.4,
+                 duration: float = 3.8,
+                 seconds_per_decade: float = 24.0) -> None:
+        self.configure(strength, interval, duration, seconds_per_decade)
+        self.centre = (0.0, 0.0)
+        self.target: Optional[tuple] = None
+        self.step = 0
+        self.next_steer = 0.0
+        self._clock: Optional[float] = None
+
+    def configure(self, strength: float, interval: float, duration: float,
+                  seconds_per_decade: float) -> None:
+        """Reconcile the three numbers, wherever they came from.
+
+        Deriving them from one control stops the panel producing a
+        contradiction; it does not stop an older install or a settings file
+        carrying one. A move longer than the gap before the next re-targets
+        the camera before it has settled, which is the reported jerking, so
+        the duration is bounded here as well as there.
+        """
+        self.strength = max(0.0, float(strength))
+        self.interval = max(0.01, float(interval))
+        self.seconds_per_decade = max(0.1, float(seconds_per_decade))
+        settle = 0.45 * self.interval * self.seconds_per_decade
+        self.duration = max(0.5, min(float(duration), settle))
+
+    @property
+    def steering(self) -> bool:
+        """Whether it will steer at all.
+
+        A strength of zero means DO NOT STEER. With no reach there is no
+        direction to look in, so every choice is arbitrary -- which is what
+        "moves every second in a random direction" was.
+        """
+        return self.strength > 0.0
+
+    def wants_a_target(self, depth: float) -> bool:
+        """Whether it is time to choose somewhere new to head."""
+        return self.steering and float(depth) >= self.next_steer
+
+    def aim_at(self, offset, depth: float, scale: float) -> None:
+        """Point at ``offset``, given in screen units at ``scale``.
+
+        :param offset: ``(dx, dy)`` from `plan_guided_step`, or None when
+            nothing was found -- which asks again sooner rather than giving
+            up on steering for the rest of the dive.
+        """
+        if offset is None:
+            self.next_steer = float(depth) + 0.35 * self.interval
+            return
+        self.target = (self.centre[0] + offset[0] * float(scale),
+                       self.centre[1] + offset[1] * float(scale))
+        self.step += 1
+        self.next_steer = float(depth) + self.interval
+
+    def advance(self, now: float) -> tuple:
+        """Move toward the target, and answer where the camera is.
+
+        :param now: a monotonic clock in seconds.
+        :returns: the centre, as ``(re, im)``.
+
+        An exponential approach: it covers the same FRACTION of whatever
+        distance remains every tick, so it is quickest when furthest away
+        and gentle as it arrives. There is no moment it starts and none it
+        stops.
+
+        A frame that arrives very late -- the machine slept, or a run took
+        the CPU -- is treated as a short one, because a single huge step
+        would put the camera at the target instantly and look like a cut.
+        """
+        previous = self._clock
+        self._clock = float(now)
+        if self.target is None or previous is None:
+            return self.centre
+        elapsed = max(0.0, min(0.25, float(now) - previous))
+        rate = 1.0 - math.exp(-elapsed / self.duration)
+        self.centre = (
+            self.centre[0] + rate * (self.target[0] - self.centre[0]),
+            self.centre[1] + rate * (self.target[1] - self.centre[1]))
+        return self.centre
+
+    def drag(self, dx: float, dy: float, span: float, depth: float) -> tuple:
+        """Move the view by hand, and stop chasing the current target.
+
+        A drag is a decision; leaving the target in place would have the
+        camera pull back toward it and fight the hand.
+        """
+        self.centre = (self.centre[0] - float(dx) * float(span),
+                       self.centre[1] - float(dy) * float(span))
+        self.target = None
+        self.next_steer = float(depth) + self.interval
+        return self.centre
+
+    def restart(self) -> None:
+        """Back to the anchor, as a restart of the dive requires.
+
+        A restart that kept the course would begin at the surface already
+        pointed a whole descent of steering away from the centre.
+        """
+        self.centre = (0.0, 0.0)
+        self.target = None
+        self.step = 0
+        self.next_steer = 0.0
+        self._clock = None
