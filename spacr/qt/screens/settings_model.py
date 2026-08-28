@@ -9844,6 +9844,36 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
     return None
 
 
+def _is_a_settings_field(widget: QWidget) -> bool:
+    """Whether ``widget`` is a setting's editor, whose help belongs on a name.
+
+    :param widget: any widget found under the panel.
+    :returns: ``True`` when its tooltip should move to its row's label.
+
+    A TYPE LIST ALONE WAS TOO NARROW. It named the six Qt editors, and the
+    settings form is largely spaCR's own controls: measured on the Mask
+    screen, 27 ``Toggle`` rows and 3 ``_ListEditor`` rows each had a real
+    name beside them in the form and kept their help on the control anyway,
+    because neither type is a ``QLineEdit``. Carrying a ``settingKey`` is
+    the definitive mark of "this widget is a setting's field", whatever it
+    was built from.
+
+    A CONTROL THAT IS ITS OWN LABEL KEEPS ITS HELP. A checkbox or button
+    with visible text of its own has no separate name to move the help to --
+    hovering its text IS hovering its name -- and taking the tooltip off it
+    would leave that setting with no help anywhere.
+    """
+    from PySide6.QtWidgets import QAbstractButton
+
+    if isinstance(widget, _EDITOR_TYPES):
+        return True
+    if not widget.property("settingKey"):
+        return False
+    if isinstance(widget, QAbstractButton) and (widget.text() or "").strip():
+        return False
+    return True
+
+
 def retarget_field_tooltips(root: QWidget) -> int:
     """Move editor tooltips to the labels that identify their settings.
 
@@ -9877,7 +9907,7 @@ def retarget_field_tooltips(root: QWidget) -> int:
 
     moved = 0
     for field in root.findChildren(QWidget):
-        if not isinstance(field, _EDITOR_TYPES):
+        if not _is_a_settings_field(field):
             continue
         tip = field.toolTip()
         if not tip:
@@ -9900,8 +9930,30 @@ def retarget_field_tooltips(root: QWidget) -> int:
             label.setCursor(Qt.WhatsThisCursor)
         label.setProperty("apiTooltipHtml", tip)
         label.setProperty("apiTooltipDisplayRole", "tooltip")
+        # THE LABEL HAS TO CARRY THE SETTING'S IDENTITY, or the language
+        # pass cannot refresh the help it now owns: `refresh_api_tooltips`
+        # skips any widget without both of these, so a translated caption
+        # would leave the old wording on the name.
+        for prop in ("settingsAppKey", "settingKey",
+                     "apiTooltipDescriptionSource", "apiTooltipDescription"):
+            carried = field.property(prop)
+            if carried:
+                label.setProperty(prop, carried)
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
         field.setToolTip("")
+        # AND THE FIELD HAS TO BE MARKED QUIET, or the move is undone the
+        # next time anything refreshes.
+        #
+        # This is what made every previous attempt at this look fixed and
+        # then not be: the language pass runs on arrival -- a queued call,
+        # so it lands AFTER the panel is built -- walks every widget with a
+        # `settingKey`, and re-applies the html to whatever it finds. A
+        # field with no display role defaults to "tooltip" and was tipped
+        # straight back. "metadata" is the existing word for "this widget
+        # keeps the metadata but says nothing on hover", and
+        # `refresh_api_tooltips` already honours it.
+        field.setProperty("apiTooltipDisplayRole", "metadata")
+        field.removeEventFilter(event_filter)
         moved += 1
     return moved
