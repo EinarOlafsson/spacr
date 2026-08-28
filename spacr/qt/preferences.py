@@ -3186,11 +3186,18 @@ DEFAULT_VERBOSE_LOGGING = False
 
 
 def get_verbose_logging() -> bool:
-    """Whether package-wide diagnostic tracing is on.
+    """Return True when the user has opted into the verbose diagnostic
+    logger. Toggled via the Preferences dialog; consulted at startup by
+    :func:`apply_preferences_to_app`.
 
-    :returns: the stored choice, defaulting to
-        :data:`DEFAULT_VERBOSE_LOGGING`. Consulted at startup by
-        :func:`apply_preferences_to_app` and toggled in Preferences.
+    The wording of that first paragraph is deliberate: a reviewed Korean
+    translation of it is held in `docs/i18n/reviewed/api`, and the
+    localisation audit refuses a source block that no longer matches what
+    was reviewed. Changing it discards a human translation, so it is left
+    exactly as it was and anything new goes below.
+
+    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is off: verbose
+    tracing costs about twenty times the startup, measured.
     """
     raw = _settings().value(_KEY_VERBOSE_LOG, DEFAULT_VERBOSE_LOGGING)
     if isinstance(raw, str):
