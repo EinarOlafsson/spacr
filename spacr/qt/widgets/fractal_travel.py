@@ -229,6 +229,11 @@ class RuntimeControls:
     #: by the wheel while the backdrop is running -- as in the source this
     #: pattern came from.
     zoom_rate: float = 1.0
+    #: Bumped to ask the dive to start again from the surface. A COUNTER
+    #: rather than a flag, so the canvas can tell "asked again" from "still
+    #: asked" without anyone having to clear it -- and two changes made in
+    #: quick succession are two restarts, not one that may be missed.
+    restart_token: int = 0
     speed_min: float = DEFAULT_SPEED_MIN
     speed_max: float = DEFAULT_SPEED_MAX
     speed_period: float = DEFAULT_SPEED_PERIOD
@@ -1291,7 +1296,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             """
             if settings.pattern != "mandelbrot":
                 return {}
-            from .fractal_mandelbrot import (DEFAULTS, depth_decades,
+            from .fractal_mandelbrot import (DEFAULTS, depth_after_restart,
+                                             depth_decades,
                                              iteration_budget, scale_at)
 
             # THE DEPTH IS INTEGRATED, not recomputed from the elapsed
@@ -1305,7 +1311,23 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._depth = getattr(self, "_depth", 0.0) + depth_decades(
                     now - previous, controls.speed * controls.zoom_rate,
                     float(DEFAULTS["seconds_per_decade"]))
-            depth = getattr(self, "_depth", 0.0)
+            # THE DIVE STARTS AGAIN RATHER THAN ENDING IN A BLACK FRAME.
+            # The per-pixel offset is a float32 whatever the reference
+            # orbit's precision, and past about forty-five decades the step
+            # between neighbouring pixels underflows to zero -- one sample
+            # of one point, filling the screen.
+            # ASKED TO START AGAIN. The settings changed, so the dive goes
+            # back to the surface rather than applying new numbers thirty
+            # decades down where they have nothing recognisable to act on.
+            token = getattr(controls, "restart_token", 0)
+            if token != getattr(self, "_restart_token", None):
+                self._restart_token = token
+                self._depth = 0.0
+                self._zoom_clock = None
+            depth = depth_after_restart(
+                getattr(self, "_depth", 0.0),
+                float(DEFAULTS.get("max_depth", 34.0)))
+            self._depth = depth
             orbit = self._orbit
             length = float(orbit.max_iter + 1) if orbit is not None else 1.0
             budget = iteration_budget(
@@ -1511,6 +1533,22 @@ ZOOM_STEP: Final[float] = 1.12
 #: The range a nudge will move within.
 MIN_ZOOM_RATE: Final[float] = 0.05
 MAX_ZOOM_RATE: Final[float] = 20.0
+
+
+def restart_the_dive() -> None:
+    """Send every running backdrop back to the surface.
+
+    Called when the fractal settings change. A dive that resumed at the
+    depth it had reached would apply the new numbers to a viewport thirty
+    decades down, where a changed starting scale or iteration count has
+    nothing recognisable to act on -- so the change looks as though it did
+    nothing.
+    """
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            controls.restart_token += 1
+        except Exception:                                    # noqa: BLE001
+            continue
 
 
 def nudge_zoom_rate(steps: int) -> float:

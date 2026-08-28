@@ -113,3 +113,79 @@ def test_the_pointer_steers_the_dive():
     for name in ("u_pointer_x", "u_pointer_y", "u_pull", "u_push"):
         assert name in declared
     assert source.count("toward_pointer") >= 2
+
+
+def test_the_dive_restarts_instead_of_going_black():
+    """Reported 2026-08-28: the zoom reaches an end and the screen is black.
+
+    Perturbation buys precision for the CENTRE, but the per-pixel offset is
+    still a float32 in the shader, and that is what runs out.
+    """
+    limit = mb.MAX_USEFUL_DEPTH
+    assert mb.depth_after_restart(0.0) == 0.0
+    assert mb.depth_after_restart(limit * 0.5) == pytest.approx(limit * 0.5)
+    # Past the end it is back near the surface, not stuck at the bottom.
+    assert mb.depth_after_restart(limit) == pytest.approx(0.0)
+    assert mb.depth_after_restart(limit + 3.0) == pytest.approx(3.0)
+    # However far past: a frame that arrives after the machine slept lands
+    # where it should rather than skipping a whole descent.
+    assert 0.0 <= mb.depth_after_restart(limit * 7 + 1.5) < limit
+
+
+def test_the_restart_happens_before_the_pixel_step_underflows():
+    """A zero pixel step is one sample of one point, filling the screen."""
+    scale = np.float32(mb.scale_at(mb.MAX_USEFUL_DEPTH,
+                                   mb.DEFAULTS["initial_scale"]))
+    # A pixel on a 1080-tall window.
+    step = np.float32(scale / np.float32(540.0))
+    assert step > 0.0, "the deepest frame already samples a single point"
+    # And with room to spare: the scale is still a normal float32, not a
+    # denormal, where precision degrades before it fails.
+    assert scale > np.finfo(np.float32).tiny, (
+        f"scale {scale:.3e} is denormal at the restart depth")
+
+
+def test_the_restart_depth_is_a_setting_and_is_bounded(monkeypatch):
+    """It is the one fractal number with a real ceiling: past it the
+    picture cannot exist."""
+    from spacr.qt import preferences as P
+
+    assert "max_depth" in P.FRACTAL_LIMITS
+    floor, ceiling, why = P.FRACTAL_LIMITS["max_depth"]
+    assert ceiling is not None and ceiling <= 45
+    assert "underflow" in why
+
+    assert P.explain_a_fractal_number("max_depth", 100) != ""
+    assert P.explain_a_fractal_number("max_depth", 20) == ""
+
+
+def test_changing_the_settings_sends_the_dive_back_to_the_surface():
+    """Reported 2026-08-28: it resumed at the depth it had reached.
+
+    New numbers applied thirty decades down have nothing recognisable to
+    act on, so the change looks as though it did nothing.
+    """
+    from spacr.qt.widgets import fractal_travel as ft
+
+    controls = ft.RuntimeControls()
+    ft._LIVE_CONTROLS.clear()
+    ft._LIVE_CONTROLS.append(controls)
+    try:
+        first = controls.restart_token
+        ft.restart_the_dive()
+        assert controls.restart_token != first
+
+        # A COUNTER, not a flag: two changes in quick succession are two
+        # restarts, and nobody has to remember to clear it.
+        second = controls.restart_token
+        ft.restart_the_dive()
+        assert controls.restart_token != second
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_restarting_with_no_backdrop_is_harmless():
+    from spacr.qt.widgets import fractal_travel as ft
+
+    ft._LIVE_CONTROLS.clear()
+    assert ft.restart_the_dive() is None

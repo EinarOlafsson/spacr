@@ -26,6 +26,26 @@ from typing import Final, Optional
 
 import numpy as np
 
+#: How deep the dive goes before it starts again.
+#:
+#: THE ZOOM HAS AN END, and past it the screen goes black. Perturbation
+#: buys precision for the CENTRE, but the per-pixel offset is still a
+#: float32 in the shader, and that is what runs out. Measured, at the
+#: default starting scale of 1.25 and a 1080-tall window:
+#:
+#:     depth 34: pixel step 2.3e-37   fine
+#:     depth 38: scale is denormal    losing bits
+#:     depth 45: pixel step is ZERO   every pixel samples one point
+#:
+#: A zero pixel step means the whole frame is one sample of one point, which
+#: is the black screen. Thirty-four is chosen before the denormals rather
+#: than at the cliff, because precision degrades through that range rather
+#: than failing at a line -- the picture goes mushy before it goes black.
+#:
+#: At the default twenty-four seconds a decade that is about fourteen
+#: minutes of descent before it begins again.
+MAX_USEFUL_DEPTH: Final[float] = 34.0
+
 #: The published defaults, as asked for on 2026-08-28.
 DEFAULTS: Final[dict] = {
     "supersampling": 2,
@@ -52,6 +72,7 @@ DEFAULTS: Final[dict] = {
     "steering_interval_decades": 0.40,
     "steering_duration": 3.8,
     "candidate_count": 24,
+    "max_depth": MAX_USEFUL_DEPTH,
 }
 
 #: A boundary point to start from, refined at startup.
@@ -265,6 +286,27 @@ def iteration_budget(depth: float, base: int = 300,
     """
     wanted = int(base) + int(round(float(per_decade) * float(depth)))
     return max(int(base), min(int(ceiling), wanted))
+
+
+def depth_after_restart(depth: float,
+                        max_depth: float = MAX_USEFUL_DEPTH) -> float:
+    """Where the dive is, having started again if it reached the end.
+
+    :param depth: decades descended so far.
+    :param max_depth: how deep it may go; see :data:`MAX_USEFUL_DEPTH`.
+    :returns: a depth within range.
+
+    A RESTART, NOT A STOP. The alternative is a backdrop that spends
+    fourteen minutes getting somewhere and then holds a black frame for the
+    rest of the session, which reads as the application having died. Going
+    back to the surface and descending again is what the pattern is for.
+
+    Wrapped with a modulo rather than reset to zero on a comparison, so a
+    frame that arrives late -- the machine was asleep, or a run took the
+    CPU -- lands where it should instead of skipping a whole descent.
+    """
+    limit = max(0.1, float(max_depth))
+    return float(depth) % limit
 
 
 def scale_at(depth: float, initial_scale: float = 1.25) -> float:
