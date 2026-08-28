@@ -389,6 +389,52 @@ def perturbation_escape_map(orbit, width, height, scale, max_iter,
     return escaped, iterations
 
 
+def structure_mask(escaped: np.ndarray, iterations: np.ndarray,
+                   max_iter: int) -> np.ndarray:
+    """Where the picture has detail worth steering toward.
+
+    :returns: a boolean map the same shape as ``escaped``.
+
+    SET MEMBERSHIP IS NOT ENOUGH ONCE THE ZOOM IS DEEP. Around a Misiurewicz
+    point the set is measure-zero: measured on a 96x54 map at a scale of
+    1.25e-3, every pixel escaped and :func:`boundary_mask` found NOTHING, so
+    the guided path stopped steering after two decades and the dive went
+    straight down again.
+
+    What is still there is the escape TIME, and its level sets are the
+    filaments the picture is made of. A pixel whose escape time differs
+    sharply from its neighbours sits on one of those edges -- which is where
+    detail survives at any magnification, and is what the eye reads as
+    structure.
+
+    The true boundary is preferred where it exists, because a bounded point
+    beside an escaping one is the strongest evidence of an edge there is.
+    """
+    edge = boundary_mask(escaped)
+    if edge.any():
+        return edge
+
+    times = iterations.astype(np.float64) / max(1.0, float(max_iter))
+    gradient = np.zeros_like(times)
+    gradient[1:, :] = np.maximum(gradient[1:, :],
+                                 np.abs(times[1:, :] - times[:-1, :]))
+    gradient[:-1, :] = np.maximum(gradient[:-1, :],
+                                  np.abs(times[1:, :] - times[:-1, :]))
+    gradient[:, 1:] = np.maximum(gradient[:, 1:],
+                                 np.abs(times[:, 1:] - times[:, :-1]))
+    gradient[:, :-1] = np.maximum(gradient[:, :-1],
+                                  np.abs(times[:, 1:] - times[:, :-1]))
+    if not np.isfinite(gradient).any() or gradient.max() <= 0.0:
+        return np.zeros_like(escaped)
+    # The steepest tenth: enough candidates to choose between, few enough
+    # that they are all genuinely on a filament.
+    threshold = float(np.quantile(gradient[gradient > 0.0], 0.90))
+    steep = gradient >= max(threshold, 1e-9)
+    steep[[0, -1], :] = False
+    steep[:, [0, -1]] = False
+    return steep
+
+
 def boundary_mask(escaped: np.ndarray) -> np.ndarray:
     """Bounded points that touch an escaping one.
 
@@ -452,7 +498,7 @@ def plan_guided_step(orbit, scale, max_iter, strength=0.09,
     escaped, iterations = perturbation_escape_map(
         orbit, width, height, float(scale), int(max_iter),
         offset_re, offset_im)
-    edge = boundary_mask(escaped)
+    edge = structure_mask(escaped, iterations, int(max_iter))
     if not edge.any():
         return None
 

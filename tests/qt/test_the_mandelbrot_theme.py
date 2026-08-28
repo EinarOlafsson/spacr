@@ -254,3 +254,45 @@ def test_the_move_is_eased_not_a_jump():
     assert mb.eased(0.1) < 0.1
     assert mb.eased(0.9) > 0.9
     assert mb.eased(-5.0) == 0.0 and mb.eased(5.0) == 1.0
+
+
+def test_steering_keeps_working_once_the_zoom_is_deep():
+    """Around a Misiurewicz point the set is measure-zero: measured on a
+    96x54 map at 1.25e-3 every pixel escaped, so a boundary-only rule found
+    nothing and the dive went straight down again after two decades."""
+    orbit = mb.ReferenceOrbit(max_iter=2200, digits=320)
+    for depth in (0.0, 3.0, 8.0, 15.0, 25.0):
+        scale = mb.scale_at(depth, mb.DEFAULTS["initial_scale"])
+        budget = mb.iteration_budget(depth)
+        plan = mb.plan_guided_step(orbit, scale, budget, strength=0.09,
+                                   candidates=24, step_index=2)
+        assert plan is not None, f"no target at depth {depth}"
+
+
+def test_the_true_boundary_is_preferred_where_it_exists():
+    """A bounded point beside an escaping one is the strongest evidence of
+    an edge there is; escape-time gradient is the fallback."""
+    escaped = np.ones((9, 9), dtype=bool)
+    escaped[4, 4] = False
+    iterations = np.full((9, 9), 50, dtype=np.int32)
+    chosen = mb.structure_mask(escaped, iterations, 100)
+    assert chosen[4, 4], "the one bounded point was not chosen"
+    assert np.array_equal(chosen, mb.boundary_mask(escaped))
+
+
+def test_escape_time_structure_is_found_when_nothing_is_bounded():
+    escaped = np.ones((9, 9), dtype=bool)
+    iterations = np.full((9, 9), 10, dtype=np.int32)
+    iterations[:, 5:] = 90            # a sharp filament down the middle
+    chosen = mb.structure_mask(escaped, iterations, 100)
+    assert chosen.any(), "a flat-membership frame yielded no structure"
+    # It is on the step, not out in the uniform regions.
+    rows, cols = np.nonzero(chosen)
+    assert set(cols.tolist()) <= {4, 5}, sorted(set(cols.tolist()))
+
+
+def test_a_frame_with_no_structure_at_all_yields_nothing():
+    """Rather than steering toward noise."""
+    escaped = np.ones((9, 9), dtype=bool)
+    iterations = np.full((9, 9), 42, dtype=np.int32)
+    assert not mb.structure_mask(escaped, iterations, 100).any()
