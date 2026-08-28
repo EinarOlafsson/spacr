@@ -25,6 +25,7 @@ last frame on screen. See :meth:`CpuFractalWidget.pause`.
 from __future__ import annotations
 
 import math
+import re
 import os
 import time
 from dataclasses import dataclass
@@ -75,6 +76,10 @@ DEFAULT_VARIABLE_SPEED: Final[bool] = False
 #: it away. On by default: it is the thing that makes the
 #: backdrop feel answerable rather than merely present.
 DEFAULT_FOLLOW_POINTER: Final[bool] = True
+#: How far the pointer reaches by default: the widget's short edge.
+DEFAULT_POINTER_SIZE: Final[float] = 1.0
+#: How hard it pulls by default.
+DEFAULT_POINTER_STRENGTH: Final[float] = 1.0
 #: The bounds `variable_speed` sweeps between. They bracket DEFAULT_SPEED so
 #: turning it on changes the RANGE and not the average pace.
 DEFAULT_SPEED_MIN: Final[float] = 2.0
@@ -117,8 +122,14 @@ class Pointer:
         self.push = 0.0
         self.inside = False
 
-    def sample(self, widget) -> "Pointer":
-        """Read the pointer relative to ``widget``. Never raises."""
+    def sample(self, widget, size: float = 1.0,
+               strength: float = 1.0) -> "Pointer":
+        """Read the pointer relative to ``widget``. Never raises.
+
+        :param size: how far the effect reaches, in the same -1..1 space as
+            the coordinates -- 1.0 reaches the widget's short edge.
+        :param strength: how hard it pulls, 0 to 2.
+        """
         try:
             from PySide6.QtGui import QCursor
             from PySide6.QtWidgets import QApplication
@@ -145,13 +156,20 @@ class Pointer:
                 self.pull = max(0.0, self.pull - 0.08)
                 self.push = max(0.0, self.push - 0.15)
                 return self
+            # SIZE IS A REACH, not a hard edge. Beyond it the pull falls to
+            # nothing smoothly, so a pointer crossing the boundary does not
+            # snap the picture. `size` is in the same -1..1 space as the
+            # coordinates, so 1.0 reaches the short edge of the widget.
+            distance = math.hypot(self.x, self.y)
+            reach = max(0.05, float(size))
+            within = clamp(1.0 - (distance / reach), 0.0, 1.0)
+            wanted_pull = 0.0 if (left or right) else within
+            wanted_push = within if left else (0.6 * within if right else 0.0)
             # EASED, not switched. A pull that appears the instant the
             # pointer enters reads as a glitch; this reaches full strength
             # over about a second and lets go about as fast.
-            wanted_pull = 0.0 if (left or right) else 1.0
-            wanted_push = 1.0 if left else (0.6 if right else 0.0)
-            self.pull += 0.06 * (wanted_pull - self.pull)
-            self.push += 0.25 * (wanted_push - self.push)
+            self.pull += 0.06 * (wanted_pull * float(strength) - self.pull)
+            self.push += 0.25 * (wanted_push * float(strength) - self.push)
         except Exception:                                    # noqa: BLE001
             self.inside = False
         return self
@@ -200,6 +218,10 @@ class RuntimeControls:
     #: Whether the pointer pulls the pattern about. Off leaves the kernels
     #: taking a zero, which costs nothing measurable.
     follow_pointer: bool = DEFAULT_FOLLOW_POINTER
+    #: How far the pointer's pull reaches, in the -1..1 coordinate space.
+    pointer_size: float = DEFAULT_POINTER_SIZE
+    #: How hard it pulls. 0 is off; above 1 exaggerates.
+    pointer_strength: float = DEFAULT_POINTER_STRENGTH
     speed_min: float = DEFAULT_SPEED_MIN
     speed_max: float = DEFAULT_SPEED_MAX
     speed_period: float = DEFAULT_SPEED_PERIOD
@@ -793,7 +815,8 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             # thread, and by the time the frame is drawn the pointer has
             # moved anyway -- so the position that matters is the one when
             # the frame was ASKED for.
-            pointer = self._pointer.sample(self)
+            pointer = self._pointer.sample(
+                self, controls.pointer_size, controls.pointer_strength)
             self.render_requested.emit({
                 "width": width, "height": height, "t": self._sim_time,
                 "speed": controls.speed_at(self._sim_time),
@@ -1119,9 +1142,21 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         base_detail = 6 if quality == "balanced" else 8
         detail_floor = 5
 
+    # WHAT THIS SHADER ACTUALLY DECLARES, read out of its source once. The
+    # patterns share one uniform update and not one uniform list, and vispy
+    # warns per frame per unknown name rather than ignoring it.
+    _DECLARED = frozenset(
+        match.group(1) for match in
+        re.finditer(r"uniform\s+\w+\s+(u_\w+)\s*;", _FRAGMENT))
+
     class _Canvas(Canvas):
         def __init__(self) -> None:
             super().__init__(keys=None, size=(1200, 760), show=False)
+            # THE SAME POINTER THE CPU PATH USES. It samples QCursor rather
+            # than receiving events, so it needs nothing from the widget
+            # except a rectangle to be relative to -- which is why one class
+            # serves both backends.
+            self._pointer = Pointer()
             self._started = time.perf_counter()
             self._last_sample = 0.0
             self._render_ema: Optional[float] = None
@@ -1149,19 +1184,54 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             height = max(1, int(height))
             speed = controls.speed_at(elapsed)
             state = state_at_seconds(elapsed, speed, controls.dream)
-            self._program["u_resolution"] = (width, height)
-            self._program["u_time"] = np.float32(elapsed)
-            self._program["u_speed"] = np.float32(speed)
-            self._program["u_dream"] = np.float32(controls.dream)
-            self._program["u_palette_phase"] = np.float32(state.palette_phase)
-            self._program["u_tx"] = np.float32(state.tx)
-            self._program["u_ty"] = np.float32(state.ty)
-            self._program["u_rotation"] = np.float32(state.rotation)
-            self._program["u_shear_x"] = np.float32(state.shear_x)
-            self._program["u_shear_y"] = np.float32(state.shear_y)
-            self._program["u_stretch_x"] = np.float32(state.stretch_x)
-            self._program["u_stretch_y"] = np.float32(state.stretch_y)
-            self._program["u_detail"] = np.int32(self._detail)
+            pointer_x, pointer_y, pull, push = self._pointer_state()
+            # ONLY WHAT THIS SHADER DECLARES. The three patterns share this
+            # update but not their uniforms -- space has no dream term, since
+            # a star field has nothing to warp -- and vispy warns once per
+            # frame for every value handed to a name it cannot find. GPU
+            # space printed "Value provided for 'u_dream'" sixty times a
+            # second, into the terminal AND the console.
+            for name, value in (
+                    ("u_resolution", (width, height)),
+                    ("u_time", np.float32(elapsed)),
+                    ("u_speed", np.float32(speed)),
+                    ("u_dream", np.float32(controls.dream)),
+                    ("u_palette_phase", np.float32(state.palette_phase)),
+                    ("u_tx", np.float32(state.tx)),
+                    ("u_ty", np.float32(state.ty)),
+                    ("u_rotation", np.float32(state.rotation)),
+                    ("u_shear_x", np.float32(state.shear_x)),
+                    ("u_shear_y", np.float32(state.shear_y)),
+                    ("u_stretch_x", np.float32(state.stretch_x)),
+                    ("u_stretch_y", np.float32(state.stretch_y)),
+                    ("u_detail", np.int32(self._detail)),
+                    # THE POINTER REACHES THE GPU TOO. These were fed on the
+                    # CPU path only, so the backdrop followed the mouse in
+                    # one backend and ignored it in the other.
+                    ("u_pointer_x", np.float32(pointer_x)),
+                    ("u_pointer_y", np.float32(pointer_y)),
+                    ("u_pull", np.float32(pull)),
+                    ("u_push", np.float32(push)),
+            ):
+                if name in _DECLARED:
+                    self._program[name] = value
+
+        def _pointer_state(self):
+            """``(x, y, pull, push)`` for the shader, in -1..1 space.
+
+            :returns: zeros when the pointer is not being followed, so a
+                shader can multiply by them unconditionally.
+            """
+            if not controls.follow_pointer:
+                return 0.0, 0.0, 0.0, 0.0
+            try:
+                pointer = self._pointer.sample(
+                    self.native, controls.pointer_size,
+                    controls.pointer_strength)
+            except Exception:                                # noqa: BLE001
+                # A backdrop that cannot find the mouse still draws.
+                return 0.0, 0.0, 0.0, 0.0
+            return pointer.x, pointer.y, pointer.pull, pointer.push
 
         def on_resize(self, _event) -> None:
             width, height = self.physical_size

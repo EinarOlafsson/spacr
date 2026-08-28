@@ -7916,8 +7916,22 @@ class SettingsWidgets:
         from spacr.settings import organelle_slots_beyond_the_count
 
         shipped = resolve_default_settings(app_key)
+        # ONLY THE SLOTS THE COUNT ASKS FOR. Building every nameable slot and
+        # hiding the surplus cost the Mask screen 1,551 widgets where a few
+        # hundred would do, and every one of them was constructed, laid out
+        # and walked by each pass over the form before being hidden again.
+        #
+        # `number_of_organelles` says how many a run has, and a run with none
+        # has none: the rows are built when the count is raised (see
+        # `grow_to_fit_the_organelle_count`), which is one deliberate change
+        # to one control rather than something that happens while typing.
+        try:
+            wanted = int(shipped.get("number_of_organelles", 0) or 0)
+        except (TypeError, ValueError):
+            wanted = 0
+        self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
         self._defaults = organelle_slots_beyond_the_count(
-            shipped, PANEL_ORGANELLE_SLOTS)
+            shipped, self._slots_built_for)
         # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
         # file is not a panel: writing every slot that can be named into
         # every CSV would bury the four a run uses. `collect` leaves these
@@ -8173,6 +8187,42 @@ class SettingsWidgets:
             QTimer.singleShot(0, self._parent, self.refresh_object_visibility)
 
         return _nest_sections(sections)
+
+    def grow_to_fit_the_organelle_count(self, count) -> int:
+        """Build the organelle slots a raised count now asks for.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: how many slots the panel holds afterwards.
+
+        THE PANEL OPENS WITH WHAT THE RUN HAS. Building every nameable slot
+        up front and hiding the surplus is what made the Mask screen 1,551
+        widgets; a control that was never built cannot be revealed, so the
+        panel has to be able to grow instead.
+
+        ONE CONTROL, DELIBERATELY CHANGED. This is safe to do here and was
+        not safe to do per keystroke: the count is a single spinbox somebody
+        sets on purpose, where a channel is a field they type digits into.
+        Growing never shrinks -- a slot built once keeps whatever the user
+        has since put in it, and a count lowered and raised again finds its
+        values where it left them.
+        """
+        try:
+            wanted = max(0, int(count or 0))
+        except (TypeError, ValueError):
+            return getattr(self, "_slots_built_for", 0)
+        wanted = min(wanted, PANEL_ORGANELLE_SLOTS)
+        if wanted <= getattr(self, "_slots_built_for", 0):
+            return self._slots_built_for
+
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        shipped = resolve_default_settings(self.app_key)
+        self._defaults = organelle_slots_beyond_the_count(shipped, wanted)
+        self._slots_the_panel_added = {
+            key: value for key, value in self._defaults.items()
+            if key not in shipped}
+        self._slots_built_for = wanted
+        return wanted
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key."""
