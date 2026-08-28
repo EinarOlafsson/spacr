@@ -231,7 +231,8 @@ def _mandelbrot_defaults() -> dict:
                 "initial_scale": 1.25, "zoom_rate": 1.0,
                 "render_scale": 1.0, "steering_strength": 0.09,
                 "steering_interval_decades": 0.40,
-                "steering_duration": 3.8, "candidate_count": 24}
+                "steering_duration": 3.8, "candidate_count": 24,
+                "max_depth": 34.0}
 
 
 _MANDEL_DEFAULTS = _mandelbrot_defaults()
@@ -278,6 +279,10 @@ FRACTAL_LIMITS = {
                           "a move that takes no time is a jump"),
     "candidate_count": (1, None,
                         "choosing between no candidates chooses nothing"),
+    "max_depth": (0.1, 44.0,
+                  "past about forty-five decades the step between "
+                  "neighbouring pixels underflows to zero, and the whole "
+                  "screen becomes one sample of one point"),
 }
 
 
@@ -330,6 +335,7 @@ _KEY_FRACTAL_STEERING_STRENGTH = "spaceout/fractal_steering_strength"
 _KEY_FRACTAL_STEERING_INTERVAL_DECADES = "spaceout/fractal_steering_interval_decades"
 _KEY_FRACTAL_STEERING_DURATION = "spaceout/fractal_steering_duration"
 _KEY_FRACTAL_CANDIDATE_COUNT = "spaceout/fractal_candidate_count"
+_KEY_FRACTAL_MAX_DEPTH = "spaceout/fractal_max_depth"
 
 #: The memory budget: how long an unused thing may sit, how much may be
 #: held, and how much of the machine must stay free for everything else.
@@ -2282,6 +2288,9 @@ def get_fractal_settings() -> dict:
         "candidate_count": int(_number(_KEY_FRACTAL_CANDIDATE_COUNT,
                           _MANDEL_DEFAULTS["candidate_count"],
                           FRACTAL_LIMITS['candidate_count'][0], None)),
+        "max_depth": _number(_KEY_FRACTAL_MAX_DEPTH,
+                             _MANDEL_DEFAULTS["max_depth"],
+                             *FRACTAL_LIMITS["max_depth"][:2]),
     }
 
 
@@ -2341,6 +2350,9 @@ def set_fractal_settings(**values) -> None:
                 (FRACTAL_LIMITS['steering_duration'][0], FRACTAL_LIMITS['steering_duration'][1])),
         "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
                 (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
+        "max_depth": (_KEY_FRACTAL_MAX_DEPTH,
+                      (FRACTAL_LIMITS["max_depth"][0],
+                       FRACTAL_LIMITS["max_depth"][1])),
     }
     store = _settings()
     for name, value in values.items():
@@ -5139,6 +5151,13 @@ class PreferencesDialog:
                 ("steering_duration", "Steering time",
                  "Seconds the camera takes to ease onto a new target. A "
                  "move that takes no time is a jump."),
+                ("max_depth", "Restart after",
+                 "Decades of descent before the dive starts again. It has "
+                 "to: the per-pixel offset is a float32 whatever precision "
+                 "the reference orbit has, and past about forty-five "
+                 "decades the step between neighbouring pixels underflows "
+                 "to zero, so the whole screen becomes one sample of one "
+                 "point -- a black frame that never changes."),
                 ("candidate_count", "Candidates considered",
                  "How many boundary points the guided path scores before "
                  "choosing. More is a better target and a longer pause."),
@@ -5597,6 +5616,17 @@ class PreferencesDialog:
                        ("speed", fractal_speed)]
                 ]
                 complaints = [text for text in complaints if text]
+                # ALWAYS BACK TO THE SURFACE. A dive that resumed where it
+                # was would apply the new numbers thirty decades down, where
+                # a changed starting scale or iteration count has nothing
+                # recognisable to act on -- so the change would look as
+                # though it had done nothing.
+                try:
+                    from .widgets.fractal_travel import restart_the_dive
+
+                    restart_the_dive()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not restart the dive", exc_info=True)
                 if complaints:
                     from PySide6.QtWidgets import QMessageBox
 

@@ -59,10 +59,29 @@ PARTLY DONE 2026-08-28.
   fold where there is no usable context -- it is the only pattern with no
   CPU renderer, and the fold has one.
 
-STILL OPEN:
+  (a) NOT WANTED. "its fine Mandelbrot dosnt need a cpu its fine as it
+      is" -- 2026-08-28. The pattern falls back to the orbit fold where
+      there is no usable context, which is what a machine without a GPU
+      needs; a second renderer for it would be work nobody asked for.
 
-  (a) NO CPU PATH FOR MANDELBROT. `render_cpu_perturbation` in the pasted
-      source is the shape of it: long-double perturbation in row tiles.
+  (e) THE DIVE HAS AN END, and it reached it as a black screen. Fixed: the
+      per-pixel offset is a float32 whatever precision the reference orbit
+      has, and measured at the default starting scale the step between
+      neighbouring pixels goes denormal at 38 decades and reaches ZERO at
+      45 -- one sample of one point, filling the frame. It restarts at 34,
+      chosen before the denormals rather than at the cliff because
+      precision degrades through that range rather than failing at a line.
+      Modulo rather than a reset on a comparison, so a frame arriving after
+      the machine slept lands where it should instead of skipping a whole
+      descent. `max_depth` is a setting, and the only fractal number with a
+      real ceiling.
+
+  (f) A SETTINGS CHANGE RETURNS TO THE SURFACE. It used to resume at the
+      depth it had reached, where a changed starting scale or iteration
+      count has nothing recognisable to act on -- so the change looked as
+      though it had done nothing.
+
+STILL OPEN:
   (b) THE MOUSE DOES NOT STEER THE DIVE. It shifts the sample coordinate,
       which moves the picture but not the point the zoom converges into,
       and being recomputed from the cursor each frame it washes out as the
