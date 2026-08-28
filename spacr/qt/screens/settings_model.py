@@ -7883,7 +7883,7 @@ class SettingsWidgets:
     dict after user edits."""
 
     def __init__(self, app_key: str, parent: Optional[QWidget] = None,
-                 *, skip_keys=()):
+                 *, skip_keys=(), current=None):
         """
         :param skip_keys: settings to build NO widget for.
 
@@ -7925,8 +7925,15 @@ class SettingsWidgets:
         # has none: the rows are built when the count is raised (see
         # `grow_to_fit_the_organelle_count`), which is one deliberate change
         # to one control rather than something that happens while typing.
+        # WHAT THE FORM IS BEING REBUILT FOR. A panel built from the
+        # module's shipped defaults can only ever show what a fresh run has;
+        # when the user types a nucleus channel or raises the organelle
+        # count, the form has to be built for the values ON SCREEN, not the
+        # ones the module ships. `current` is those values.
+        deciding = dict(shipped)
+        deciding.update({str(k): v for k, v in (current or {}).items()})
         try:
-            wanted = int(shipped.get("number_of_organelles", 0) or 0)
+            wanted = int(deciding.get("number_of_organelles", 0) or 0)
         except (TypeError, ValueError):
             wanted = 0
         self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
@@ -7939,9 +7946,10 @@ class SettingsWidgets:
         # on a form whose count says zero -- which is the thing the count is
         # supposed to decide.
         self._skip_keys = frozenset(self._skip_keys) | frozenset(
-            self._organelle_keys_beyond(self._slots_built_for, self._defaults)
+            self._organelle_keys_beyond(self._slots_built_for,
+                                        self._defaults)
         ) | frozenset(self._keys_of_objects_the_run_has_no_channel_for(
-            self._defaults))
+            self._defaults, deciding))
         # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
         # file is not a panel: writing every slot that can be named into
         # every CSV would bury the four a run uses. `collect` leaves these
@@ -8199,7 +8207,8 @@ class SettingsWidgets:
         return _nest_sections(sections)
 
     @staticmethod
-    def _keys_of_objects_the_run_has_no_channel_for(settings) -> set:
+    def _keys_of_objects_the_run_has_no_channel_for(settings,
+                                                    deciding=None) -> set:
         """Settings for an object whose channel names no plane.
 
         :param settings: the defaults the panel is about to build from.
@@ -8221,8 +8230,9 @@ class SettingsWidgets:
         """
         gated = ("nucleus", "pathogen")
         absent = set()
+        answers = deciding if deciding is not None else settings
         for role in gated:
-            value = settings.get(f"{role}_channel")
+            value = answers.get(f"{role}_channel")
             named = value is not None and str(value).strip() != ""
             if named:
                 continue
