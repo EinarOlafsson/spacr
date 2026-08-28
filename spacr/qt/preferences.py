@@ -182,6 +182,7 @@ _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
+_KEY_PRELOAD = "prefs/preload_policy"
 _KEY_FRACTAL_PATTERN = "spaceout/fractal_pattern"
 _KEY_FRACTAL_BACKEND = "spaceout/fractal_backend"
 _KEY_FRACTAL_QUALITY = "spaceout/fractal_quality"
@@ -1890,6 +1891,35 @@ def set_fractal_settings(**values) -> None:
 #: registered for a stylesheet that asks for emphasis; this is what
 #: everything else defaults to.
 INTERFACE_FONT_WEIGHTS = ("regular", "light")
+
+
+#: When the heavy pipeline modules are imported.
+#:
+#: ``'on_demand'`` -- when the operation that needs them is called. The
+#: default, and what instruction 282 asked for.
+#: ``'eager'`` -- at startup, on a worker thread. Only worth it on a machine
+#: that will certainly run a pipeline and would rather wait once at the
+#: beginning; on the maintainer's own machine that wait was TWENTY SECONDS.
+PRELOAD_POLICIES = ("on_demand", "eager")
+
+
+def get_preload_policy() -> str:
+    """When to import torch and the rest. 'on_demand' or 'eager'."""
+    raw = str(_settings().value(_KEY_PRELOAD, "on_demand")).strip().lower()
+    return raw if raw in PRELOAD_POLICIES else "on_demand"
+
+
+def set_preload_policy(policy: str) -> None:
+    """Persist it. Takes effect at the next launch, and says so.
+
+    :raises ValueError: on anything but the two policies.
+    """
+    text = str(policy).strip().lower()
+    if text not in PRELOAD_POLICIES:
+        raise ValueError(f"unknown preload policy {policy!r}; expected one "
+                         f"of {list(PRELOAD_POLICIES)}")
+    _settings().setValue(_KEY_PRELOAD, text)
+    _settings().sync()
 
 
 def get_interface_font_weight() -> str:

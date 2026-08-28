@@ -1837,7 +1837,35 @@ class MainWindow(QMainWindow):
         self._loading_screen = self._install_loading_screen()
         self._preloader = _PipelinePreloader(
             on_step=self._on_preload_step, on_done=self._on_preload_done)
-        if self._loading_screen is None:
+
+        # LOADED WHEN CALLED (instruction 282). Preloading is off by default
+        # now, and the maintainer's own timing report is why. Measured on a
+        # real launch, the preload thread ground for TWENTY SECONDS:
+        #
+        #   spacr.core         15.6 s     spacr.deep_spacr    9.8 s
+        #   torchvision         8.5 s     torch               6.8 s
+        #   torch._dynamo       5.9 s     IPython             2.5 s
+        #   sympy               2.9 s     torch.distributed.fsdp  1.8 s
+        #
+        # The torch COMPILER, sympy, DISTRIBUTED TRAINING and IPython, to
+        # draw a window. Importing them ahead of first use was supposed to
+        # move the cost earlier; what it actually did was spend it while the
+        # user was trying to work, which is worse than spending it when they
+        # ask for the thing that needs it.
+        #
+        # Nothing is lost that was not already paid: the first run of a
+        # pipeline imports what it needs, once, exactly as it would have.
+        from .preferences import get_preload_policy
+
+        if get_preload_policy() != "eager":
+            self._preloader = None
+            if self._loading_screen is not None:
+                try:
+                    self._loading_screen.close()
+                except Exception:                            # noqa: BLE001
+                    pass
+                self._loading_screen = None
+        elif self._loading_screen is None:
             # Headless, or the screen could not be built: keep the old
             # deferred start so a test process is not made to pay 3.1 s of
             # imports it may not need.
