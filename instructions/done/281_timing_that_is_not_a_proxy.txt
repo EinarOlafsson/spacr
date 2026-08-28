@@ -1,0 +1,40 @@
+================================================================================
+TIMING THAT MEASURES THE REAL PROCESS
+================================================================================
+
+Status:    DONE, 2026-08-27. `spacr/qt/timing.py`.
+Owner:     spacr/qt/timing.py, instrumented in app.py and settings_model.py.
+Requested: 2026-08-27 -- "can you just right a really in depthe timing debug
+           that generates a log of evey single thing that happens when spacr
+           is launched and when each modual is loaded. when the preferences
+           are opened. and so on. but not a proxy when this is triggered all
+           this actually happens".
+
+--------------------------------------------------------------------------------
+WHY IT WAS ASKED FOR, WHICH IS THE POINT OF IT
+--------------------------------------------------------------------------------
+
+Every start-up measurement before it was taken in a SCRIPT THAT IMITATED THE
+APPLICATION -- build a MainWindow, call a method, time it. Each answered a
+question next to the one being asked, and one of them was reported to the
+maintainer as "loading no longer freezes the app" when the thing they click
+was untouched. A script cannot see the preloader thread competing with a
+click, or a lazy import that fires the first time a panel opens.
+
+--------------------------------------------------------------------------------
+WHAT IT RECORDS
+--------------------------------------------------------------------------------
+
+  * SPANS -- nested named regions, recorded even when the body raises,
+    because a span that only appears on success hides the slow failures;
+  * IMPORTS over 5 ms, hooked at the loader's `exec_module` rather than at
+    `__import__`, each with the spacr frame that asked for it;
+  * GUI STALLS -- a 16 ms timer reporting how late it actually fired. The
+    only honest freeze measurement there is: the event loop reporting on
+    itself from inside the real process;
+  * MARKS for instants.
+
+    SPACR_TIMING=1 spaceout
+
+Off unless asked, and off it costs one string compare made once. The report
+is written when the application exits and its path is printed.

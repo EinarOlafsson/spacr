@@ -1,0 +1,46 @@
+================================================================================
+XGBOOST SCORES NEVER REACHED THE MONTAGE
+================================================================================
+
+Status:    DONE, 2026-08-27. Verified on the real tsg101 screen: all four
+           plates now join 100% of their score rows -- 204,610 objects that
+           matched zero before.
+Owner:     spacr/predictions.py.
+Requested: 2026-08-27, from a live session.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"i am looking at my xgboost scores and i get: No per-object classification
+ score was found in the attached databases ... i think pred might be
+ hardcoded, when it should be Dependent variable instead of pred which is
+ dependent variable for the CV scores."
+
+--------------------------------------------------------------------------------
+WHAT IT WAS
+--------------------------------------------------------------------------------
+
+The instinct was right and there were THREE causes, each sufficient alone.
+
+1. THE COLUMN NAME. `attach_predictions` looked for a literal `pred`, which
+   is what the CV scores carry. `ml_analysis` writes
+   `prediction_probability_class_1`. `merge_ml_predictions` already knew
+   that name, so MERGING a score file into a database worked while READING
+   the same file in memory failed -- despite a comment promising the two
+   make "the SAME key choice". The names live in SCORE_SOURCE_COLUMNS now.
+
+2. THE JOIN KEY. An ml_analysis CSV has no `path`, so the key must be built
+   from the plate metadata. `_db_keys` could do that and `_result_keys`
+   could not, so one side of the join had a key and the other had None.
+
+3. THE PLATE PREFIX. The rebuilt key skipped `_clean_prcfo`, so
+   `pplate1_r10_c11_f10_o101` met `plate1_r8_c19_f11_o84`. That normaliser's
+   own docstring describes this failure -- "an ML run over 60,816 real cells
+   ... wrote zero scores back" -- and 60,816 is this screen's png_list row
+   count exactly. It was fixed for the stored key and missed for the
+   rebuilt one.
+
+MEASURED: plate1 54,617/54,617, plate2 53,227, plate3 51,495, plate4 45,271.
+tests/test_xgboost_scores_reach_the_montage.py, 11 tests, asserting the
+scores land on the RIGHT objects and not merely that a count matched.

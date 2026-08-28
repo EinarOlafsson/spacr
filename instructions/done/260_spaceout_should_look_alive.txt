@@ -2,7 +2,10 @@
 SPACEOUT SHOULD LOOK ALIVE
 ================================================================================
 
-Status:    REDIRECTED 2026-08-26. The budding-and-beating build was not
+Status:    DONE, 2026-08-27. Both patterns ship, are wired through
+           `install_ambient` (all three call sites), and are settable.
+           92 tests. Superseded twice; the history below is kept.
+           WAS: REDIRECTED 2026-08-26. The budding-and-beating build was not
            what was wanted -- "i liked the older version of the fractals
            better" -- so what is below stands only where it does not
            contradict the new direction in SECTION 0.
@@ -393,3 +396,29 @@ orbit 30.5 fps at 560x360, cascade 19.9 fps at the same size.
 `exp(-LOG_SCALE_BASE) * SCALE_BASE == 1.0` exactly, which is what makes the
 cascade's handoff seamless; a test asserts it rather than trusting the two
 constants to stay consistent.
+
+
+--------------------------------------------------------------------------------
+SECTION 0D -- THE CONTROLS THAT ARRIVED AFTER, 2026-08-27
+--------------------------------------------------------------------------------
+
+Asked for and shipped while finishing this item:
+
+  * TOOLTIPS on all seven fractal rows. The two that matter are the ones a
+    label cannot say: Pattern reports that the cascade costs about four
+    times as much and runs slower BY DESIGN, and Backend that the GPU needs
+    vispy and a real display.
+  * VARIABLE SPEED GOT BOUNDS: Slowest, Fastest, and Sweep time. They
+    replace a hidden 45% swing, so what the travel will do is readable from
+    the settings. Sweep time is the "how gradually" control -- a larger
+    number is a slower CHANGE, not a slower fractal. Swapped bounds are
+    used the other way round rather than refused.
+  * THREE LIFETIME CRASHES, from a real launch: four backdrops alive at
+    once, a vispy timer outliving its canvas (and vispy's own retry turning
+    one error into a 4096-deep storm), and a QThread destroyed while
+    running, which was the core dump. See the commit for each.
+  * THE GPU WIDGET CORE-DUMPS ON THE OFFSCREEN PLATFORM. A segfault is not
+    an exception, so the fallback could never have caught it.
+    `platform_can_do_opengl` gates it, and gates an explicit backend='gpu'
+    too: asking for a renderer this platform would crash on is still a
+    crash.

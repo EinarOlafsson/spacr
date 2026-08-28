@@ -1,0 +1,47 @@
+================================================================================
+BACKDROP HOTKEYS, AND A HELP MENU WITHOUT BADGES
+================================================================================
+
+Status:    DONE, 2026-08-27. 11 tests. ONE DEVIATION, named below.
+Owner:     spacr/qt/app.py, spacr/qt/i18n.py.
+Requested: 2026-08-27, in two messages.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+"in the hot keys there should be a hotkey to toggle the theme on and off if
+ the user is looking at images ... like ctrl+t for theme or similar."
+
+"ctrl + T now stops the background annimation. add a hotkey ctrl+b to pause
+ the animation and make the scree dark gray (dark mode) or white (light
+ mode) ... in the help menue there are two large blue circles with an i in
+ the middle ... remove the circle with the i and remove (web)"
+
+--------------------------------------------------------------------------------
+WHAT SHIPPED
+--------------------------------------------------------------------------------
+
+CTRL+T stops the animation and leaves the last frame up. It stops rather
+than hides: a hidden backdrop still rendering spends the cores and shows
+nothing for them. It reaches both the ambient engines and the spaceout
+fractal through `set_animating`.
+
+CTRL+SHIFT+B pauses AND hides, so what sits behind the work is the theme's
+own ground -- dark grey in a dark theme, white in a light one, taken from
+the palette rather than hard-coded. The animation stops BEFORE the hide, and
+the two toggles are kept agreeing or Ctrl+T appears to do nothing while
+blanked.
+
+THE DEVIATION: Ctrl+Shift+B, not Ctrl+B as asked. Ctrl+B is the app drawer
+and, by its own note, the ONLY keyboard route to it -- a panel otherwise
+summoned by hovering a 6 px strip. Taking it would remove a panel from
+keyboard users to gain a decoration toggle. Raised with the maintainer;
+moving the drawer first is the alternative if Ctrl+B is wanted.
+
+THE HELP MENU loses both blue circled i's and both "(web)" suffixes. The
+icon was SP_MessageBoxInformation, the glyph a dialog uses for a notice,
+which beside a menu label reads as a badge; the same one on both entries
+made it noise twice. No other Help entry has an icon, so they now match.
+Where the page opens moved to the status tip. Both i18n keys moved with the
+labels, or nine languages would have lost the row.

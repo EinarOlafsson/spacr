@@ -1,0 +1,30 @@
+================================================================================
+THE INTERFACE USES THE FONT IT SHIPS
+================================================================================
+
+Status:    DONE, 2026-08-27. 13 tests.
+Owner:     spacr/qt/app.py, spacr/qt/preferences.py.
+Requested: 2026-08-27 -- "i have the open sans font in the application in the
+           font folder so that should be used. i want everything in the
+           application openssans light or regular", alongside the Qt warning
+           "OpenType support missing for Ubuntu Sans".
+
+--------------------------------------------------------------------------------
+WHAT IT WAS
+--------------------------------------------------------------------------------
+
+Open Sans was REGISTERED and never APPLIED. `_load_bundled_fonts` puts the
+family in QFontDatabase, which makes a `font-family: "Open Sans"` stylesheet
+rule resolvable -- and nothing set the APPLICATION font, so every widget
+without such a rule drew in the platform default. Measured before the fix:
+the application font was "Sans Serif".
+
+That is also what the warning was about. Qt was naming Ubuntu Sans because
+Ubuntu Sans was what the application was using -- the message was not about
+a bundled font failing to load.
+
+Two weights, as asked: Regular by default, Light on the Appearance page.
+Chosen by WEIGHT (300/400) rather than by family name, because "Open Sans
+Light" is a family on some platforms and not others. Bold and SemiBold stay
+registered for anything asking for emphasis. The platform's point size is
+kept, since the font-scale preference is applied on top of it.
