@@ -3548,7 +3548,21 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(tr("Home"), 2000)
             return
         if key not in self._screens:
-            self._screens[key] = self._build_screen(key)
+            # SOMETHING ON SCREEN BEFORE THE WORK STARTS. The build cannot
+            # move off the GUI thread -- Qt forbids making widgets anywhere
+            # else, and painting is the GUI thread's too, which is why the
+            # backdrop looked frozen while a module opened even though its
+            # renderer never stopped. What CAN change is that the user is
+            # looking at a module that says it is preparing, rather than at
+            # the old screen doing nothing.
+            #
+            # The build already yields to the event loop on a 25 ms
+            # deadline, so this card animates while the widgets are made.
+            card = self._show_preparing(key)
+            try:
+                self._screens[key] = self._build_screen(key)
+            finally:
+                self._hide_preparing(card)
             # Every screen gets the same page treatment here, because this is
             # the one place they all pass through. It cannot live in
             # `AppScreen`: most screens are not AppScreens — Annotate, Align &
@@ -3656,6 +3670,60 @@ class MainWindow(QMainWindow):
                 backdrop=theme_background_path(resolve_effective_theme()))
         except Exception:
             LOG.exception("Could not install the backdrop for %s", key)
+
+    def _show_preparing(self, key: str):
+        """Put a "preparing" card up before a module is built.
+
+        :returns: the card, to hand back to :meth:`_hide_preparing`, or None
+            when there was nowhere to put one. Never raises: a module must
+            open whether or not its loading card could be shown.
+
+        It is deliberately NOT a progress bar. The build has no honest
+        percentage -- the settings arrive in whatever order the category map
+        lists them -- and a bar that jumps or sits still is worse than a
+        moving thing that promises nothing.
+        """
+        try:
+            from PySide6.QtCore import Qt
+            from PySide6.QtWidgets import QLabel
+
+            from .i18n import tr
+
+            label = registered_metadata(key).get("label") or key
+            card = QLabel(tr("Preparing {name}…").format(name=label), self)
+            card.setObjectName("PreparingCard")
+            card.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            card.setAttribute(
+                Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+            card.setStyleSheet(
+                "background: rgba(10,14,24,200); color: rgb(235,240,245); "
+                "padding: 14px 22px; border-radius: 10px; font-size: 15px;")
+            card.adjustSize()
+            card.move(max(0, (self.width() - card.width()) // 2),
+                      max(0, (self.height() - card.height()) // 2))
+            card.raise_()
+            card.show()
+            # ONE PAINT BEFORE THE WORK. Without this the card is created
+            # and the build starts in the same tick, so it is never drawn
+            # and the user sees the freeze it exists to replace.
+            from PySide6.QtCore import QCoreApplication, QEventLoop
+
+            QCoreApplication.processEvents(
+                QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            return card
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not show the preparing card", exc_info=True)
+            return None
+
+    def _hide_preparing(self, card) -> None:
+        """Take the card down. Safe with None and after any failure."""
+        if card is None:
+            return
+        try:
+            card.hide()
+            card.deleteLater()
+        except Exception:                                    # noqa: BLE001
+            pass
 
     def _build_screen(self, key: str) -> QWidget:
         with _timing.span("build screen", key):
