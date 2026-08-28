@@ -130,3 +130,69 @@ def test_the_cpu_never_pretends_to_draw_mandelbrot():
     source = inspect.getsource(ft.create_fractal_widget)
     assert "FALLBACK_PATTERN" in source
     assert "needs the GPU renderer" in source
+
+
+def test_the_fractal_module_has_a_logger():
+    """It had none, and every LOG call added to it raised NameError.
+
+    Those calls sit in the `except` blocks that REPORT failures, so each one
+    replaced a real error with a NameError about the reporting -- and the
+    backdrop fell back to the old ambient engine for every pattern with
+    nothing anyone could act on.
+    """
+    import logging
+
+    assert hasattr(ft, "LOG")
+    assert isinstance(ft.LOG, logging.Logger)
+
+
+def test_every_logger_name_in_the_backdrop_modules_resolves():
+    """The same omission in a sibling would fail the same way."""
+    import importlib
+    import logging
+    import re
+
+    for name in ("fractal_travel", "fractal_cascade", "fractal_space",
+                 "fractal_mandelbrot", "ambient"):
+        module = importlib.import_module(f"spacr.qt.widgets.{name}")
+        source = open(module.__file__).read()
+        if not re.search(r"\bLOG\.", source):
+            continue
+        assert isinstance(getattr(module, "LOG", None), logging.Logger), (
+            f"{name} calls LOG without defining one")
+
+
+@pytest.mark.parametrize("pattern", ["orbit", "cascade", "space",
+                                     "mandelbrot"])
+def test_every_pattern_builds(qapp, pattern):
+    """All four fell back to the old ambient engine while LOG was missing."""
+    widget = ft.create_fractal_widget(
+        ft.Settings(pattern=pattern, backend="cpu"), ft.RuntimeControls())
+    assert widget is not None
+    assert getattr(widget, "backend_name", None) in ("cpu", "gpu")
+
+
+def test_the_spaceout_backdrop_is_built_rather_than_skipped(qapp, monkeypatch):
+    """Returning None here is what put the old artwork back on screen."""
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import theme
+    from spacr.qt.widgets import ambient
+
+    theme.enable_spaceout()
+    host = QWidget()
+    host.resize(400, 300)
+    built = ambient._the_spaceout_fractal(host)
+    assert built is not None, (
+        "the spaceout backdrop was skipped; the old ambient engine draws")
+
+
+def test_the_orbit_texture_is_seeded_after_the_program_exists():
+    """It ran before `self._program` was assigned, so every GPU build raised
+    AttributeError before it could reach the shader at all."""
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    created = source.index("self._program = gloo.Program")
+    seeded = source.index('self._program["u_orbit"]')
+    assert created < seeded, "the orbit is seeded before the program exists"

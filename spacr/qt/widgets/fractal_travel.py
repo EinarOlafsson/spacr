@@ -28,6 +28,7 @@ import math
 import re
 import os
 import time
+import logging
 from dataclasses import dataclass, replace
 from typing import Final, Literal, Optional
 
@@ -58,6 +59,13 @@ QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
 #: the fold-inversion of v1.0.0, which takes all four samples INSIDE one
 #: frame and is four times the work per pixel because of it.
+#: THIS MODULE HAD NO LOGGER. Every `LOG` call added to it raised
+#: NameError, and because those calls sit in the `except` blocks that report
+#: failures, each one replaced a real error with a NameError about the
+#: reporting -- so a widget that could not be built said nothing anyone
+#: could act on.
+LOG = logging.getLogger("spacr.qt.widgets.fractal_travel")
+
 PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade", "space",
                                     "mandelbrot")
 PATTERN_LABELS: Final[dict] = {
@@ -1288,22 +1296,6 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._orbit = None
             self._orbit_thread = None
             if settings.pattern == "mandelbrot":
-                # A PLACEHOLDER BEFORE THE REAL ONE ARRIVES. vispy warns
-                # once per draw for every uniform a linked program has never
-                # been given -- "Program has unset variables: {'u_orbit'}" --
-                # and the real orbit takes seconds to build on its thread.
-                # One black texel costs nothing and the shader reads it as
-                # an orbit at the origin, which draws the interior colour:
-                # the same thing an unset sampler would have drawn, without
-                # the warning.
-                try:
-                    self._program["u_orbit"] = gloo.Texture2D(
-                        np.zeros((1, 1, 4), dtype=np.float32),
-                        interpolation="nearest",
-                        wrapping="clamp_to_edge")
-                except Exception:                            # noqa: BLE001
-                    LOG.debug("could not seed the orbit texture",
-                              exc_info=True)
                 self._start_the_reference_orbit()
             self._started = time.perf_counter()
             self._last_sample = 0.0
@@ -1317,6 +1309,25 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             self._program["a_position"] = np.asarray(
                 [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
                 dtype=np.float32)
+            if settings.pattern == "mandelbrot":
+                # A PLACEHOLDER UNTIL THE REAL ORBIT ARRIVES, and AFTER the
+                # program exists: this used to run before `self._program`
+                # was assigned, so it raised AttributeError on every build.
+                #
+                # vispy warns once per DRAW for a uniform a linked program
+                # has never been given, and the real orbit takes seconds to
+                # iterate on its thread. One black texel costs nothing and
+                # the shader reads it as an orbit at the origin, which draws
+                # the interior colour -- what an unset sampler drew anyway,
+                # without sixty warnings a second.
+                try:
+                    self._program["u_orbit"] = gloo.Texture2D(
+                        np.zeros((1, 1, 4), dtype=np.float32),
+                        interpolation="nearest",
+                        wrapping="clamp_to_edge")
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not seed the orbit texture",
+                              exc_info=True)
             gloo.set_state(depth_test=False, blend=False)
             self._update_uniforms(0.0)
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
