@@ -57,10 +57,11 @@ QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
 #: the fold-inversion of v1.0.0, which takes all four samples INSIDE one
 #: frame and is four times the work per pixel because of it.
-PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade")
+PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade", "space")
 PATTERN_LABELS: Final[dict] = {
     "orbit": "Orbit fold (temporal 2x2)",
     "cascade": "Fold-inversion cascade (spatial 2x2)",
+    "space": "Space (star field flight)",
 }
 DEFAULT_PATTERN: Final[str] = "orbit"
 
@@ -606,7 +607,17 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
     # frames, so it renders roughly a quarter of the pixels and holds a lower
     # cap to spend the same wall-clock. Sharing one set of numbers would make
     # one of them either wasteful or unusable.
-    if cascade:
+    if settings.pattern == "space":
+        from .fractal_space import SpaceEngine
+
+        engine_factory = SpaceEngine
+        # MOSTLY EMPTY SKY IS CHEAP. Each pixel walks six layers of a 3x3
+        # neighbourhood and three object slots, and almost every cell misses
+        # -- so it carries a wider frame and a higher cap than either fold.
+        iterations = 0
+        target_fps = max(15, min(settings.fps, 30 if quality == "balanced" else 26))
+        base_pixels = 300_000.0 if quality == "balanced" else 460_000.0
+    elif cascade:
         from .fractal_cascade import CascadeEngine
 
         engine_factory = CascadeEngine
@@ -1089,7 +1100,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         raise GpuBackendError(str(error)) from error
 
     quality = resolved_quality(settings.quality, "gpu", hardware)
-    if settings.pattern == "cascade":
+    if settings.pattern == "space":
+        from .fractal_space import FRAGMENT_SHADER as _FRAGMENT
+
+        # THE SCENE HAS NO ITERATION COUNT. Its cost is six parallax star
+        # layers and three object slots, all fixed, so the adaptive detail
+        # loop has nothing to turn down. The numbers are equal so a frame
+        # that runs long cannot make the picture change.
+        base_detail = 4
+        detail_floor = 4
+    elif settings.pattern == "cascade":
         from .fractal_cascade import FRAGMENT_SHADER as _FRAGMENT
 
         base_detail = 5 if quality == "balanced" else 6

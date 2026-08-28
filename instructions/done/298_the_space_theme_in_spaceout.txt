@@ -1,0 +1,26 @@
+298 — The space theme, in spaceout
+
+Asked 2026-08-28: "incorporate the space theme from here into spaceout",
+with the unified psychedelic-themes script (v1.7.2) pasted in full.
+
+WHAT IT IS: forward flight through a dark star field with sparse celestial
+objects. Predominantly black, with a very low-amplitude broad hue field, six
+parallax star layers, and three object slots that pass by -- mostly stars,
+occasionally a lit planet or a bright sun with a halo.
+
+WHERE IT GOES: another pattern beside `travel` and `cascade`, chosen in the
+spaceout Fractal preferences, same as the other two. Not a fourth backdrop
+engine: it reuses the existing GPU/CPU pattern seam.
+
+BOTH BACKENDS. The pasted script has a GLSL `render_space` /
+`space_star_field` / `space_object` and a Numba `_cpu_space_color` /
+`_cpu_space_object_color` that agree. spaceout already chooses between them,
+and a pattern that only had one would be the only one that could not run on
+the other.
+
+PORT TO PySide6, not PyQt6. The script imports PyQt6; spaCR is PySide6, and
+two Qt bindings in one process is a segfault, not an import error.
+
+NO GL ON A PLATFORM THAT CANNOT HOST IT. `platform_can_do_opengl` already
+answers this and honours SPACR_NO_GL; a QOpenGLWidget on the offscreen
+platform dumps core rather than raising, so no `except` can catch it.
