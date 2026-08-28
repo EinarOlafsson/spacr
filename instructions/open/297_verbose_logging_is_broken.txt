@@ -1,0 +1,67 @@
+297 — Verbose logging is broken
+
+Reported 2026-08-28: "write on verbose logging (broken)".
+
+MEASURED THE SAME DAY, through the real `apply_preferences_to_app` path.
+
+1. YOU PAY FOR THE TRACE AND THE OUTPUT IS THROWN AWAY.
+
+   Turning verbose on installs the profile hook, sets `spacr.trace` to
+   DEBUG, and starts formatting a record for every call and every return in
+   the process. The file level policy then filters DEBUG out:
+
+       get_verbose_logging()  -> True
+       spacr.trace level      -> DEBUG
+       get_log_file_levels()  -> {INFO, WARNING, ERROR, CRITICAL}   <- no DEBUG
+
+   So the records are built at full cost and discarded at the handler. The
+   two settings are independent and contradict each other, and the one the
+   user did not touch wins. Whatever verbose means, it cannot mean "do all
+   the work and write none of it".
+
+   Turning verbose on must make DEBUG reach the file. Either the level
+   policy gains DEBUG with it, or the trace records bypass the policy --
+   but the tracer must not run when nothing will be written.
+
+2. THE TRACER STILL RAISES DURING INTERPRETER SHUTDOWN.
+
+       Exception ignored in: <function _removeHandlerRef ...>
+         File "spacr/logging_util.py", line 512, in _trace_profile
+         File ".../logging/__init__.py", line 1391, in getLogger
+       TypeError: 'NoneType' object is not callable
+
+   An earlier guard checked that this module's own globals were still
+   there. That is not enough: `logging`'s internals are torn down too, so
+   `logging.getLogger` itself fails from inside a finaliser. The hook has
+   to be uninstallable, or defended against its own dependencies vanishing.
+
+3. IT IS STILL EXPENSIVE FOR WHAT IT SAYS.
+
+   Twenty calls to `spacr.version.get_version()` wrote 5,520 bytes -- 276
+   bytes per call, for a function that takes no arguments and returns a
+   string. The paint path is excluded (294) but ordinary work is not, and
+   a trail nobody can read through is not a trail.
+
+HOW TO KNOW IT WORKED
+  * with verbose on, DEBUG records reach the log file, and a test asserts
+    the file grows;
+  * with verbose off, the hook is not installed and nothing is formatted;
+  * a process that enables verbose and exits prints no "Exception ignored
+    in" from the tracer;
+  * the cost per traced call is stated in the tooltip, measured not
+    guessed.
+
+
+FIXED 2026-08-28, points 1 and 2:
+
+  * `get_log_file_levels` adds DEBUG while verbose is on, so the records
+    the tracer builds actually reach the file. Added on READ, never stored,
+    so the user's own level choice is untouched and DEBUG goes away again
+    when verbose is turned off.
+  * `_trace_profile` guards its whole body. Guarding this module's globals
+    was not enough -- `logging`'s own are torn down too, so `getLogger`
+    itself fails from inside a finaliser.
+
+STILL OPEN: point 3, the cost. 276 bytes per traced call is too much for a
+trail anyone can read, and the tooltip still does not say what verbose
+costs.
