@@ -3584,6 +3584,19 @@ class MainWindow(QMainWindow):
                 retranslate_widget_tree(self._screens[key])
             except Exception:
                 LOG.exception("Could not translate the %s screen", key)
+        # THE HELP GOES ON THE NAMES, for every screen and not only the
+        # ones built from settings rows. Here because this is the one place
+        # they all pass through, and after the translate above: that pass
+        # re-applies each setting's tooltip to whatever carries its key, so
+        # moving the help before it runs is undone a moment later.
+        try:
+            from .screens.settings_model import retarget_field_tooltips
+
+            retarget_field_tooltips(self._screens[key])
+        except Exception:
+            # Help in the wrong place is a blemish, never a reason for a
+            # module not to open.
+            LOG.exception("Could not retarget help on the %s screen", key)
         self._stack.setCurrentWidget(self._screens[key])
         # Move this app to the end of the visit list. Revisiting an app
         # has to count as the most recent visit — otherwise "Add current

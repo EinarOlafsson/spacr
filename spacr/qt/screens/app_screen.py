@@ -826,6 +826,16 @@ class _LateCaptionTranslator(QObject):
             from ..i18n import retranslate_widget_tree
 
             retranslate_widget_tree(widget)
+            # AND THE HELP GOES BACK ONTO THE NAMES. The pass above walks
+            # every widget carrying a `settingKey` and re-applies its
+            # tooltip, which is what kept putting the help back on the
+            # field: this runs on ARRIVAL, so it lands after the panel was
+            # built and after any earlier move. Doing it here, immediately
+            # after, means a row that arrives late is treated exactly like
+            # one that was there from the start.
+            from .settings_model import retarget_field_tooltips
+
+            retarget_field_tooltips(widget)
         except RuntimeError:
             # The panel was closed again before the pass ran. Nothing to
             # translate is not a failure.
@@ -2358,9 +2368,13 @@ class AppScreen(QWidget):
         """
         from .settings_model import retarget_field_tooltips
 
-        panel = getattr(self, "_settings_scroll", None) or self
+        # THE WHOLE SCREEN, not just the settings column. A module's own
+        # panels -- the regression sweep's group boxes, for one -- sit
+        # outside that scroll area and have names of their own to move the
+        # help onto; sweeping only the column left them popping from the
+        # control.
         try:
-            return int(retarget_field_tooltips(panel))
+            return int(retarget_field_tooltips(self))
         except Exception:
             # Help that failed to move is a blemish, never a reason for a
             # module not to open.
