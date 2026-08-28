@@ -45,6 +45,10 @@ _FAST_TWO_PI: Final[float] = 2.0 * math.pi
 
 FRAGMENT_SHADER: Final[str] = """
 uniform vec2 u_resolution;
+uniform float u_pointer_x;
+uniform float u_pointer_y;
+uniform float u_pull;
+uniform float u_push;
 uniform float u_time;
 uniform float u_speed;
 uniform float u_dream;
@@ -139,10 +143,22 @@ vec4 fractal_window(vec2 p) {
     return mix(a, b, blend);
 }
 
+
+// THE POINTER IS THE POINT EVERYTHING FLOWS TO. Shifting the coordinate
+// ORIGIN toward the cursor moves the centre the pattern radiates from,
+// rather than adding a second warp on top of the one it already has --
+// which would read as a smear rather than as a centre. A click pushes the
+// origin away instead, so the flow reverses around it.
+vec2 toward_pointer(vec2 uv) {
+    vec2 target = vec2(u_pointer_x, u_pointer_y);
+    return uv - target * (u_pull - 0.85 * u_push);
+}
+
 vec3 render_sample(vec2 fragment_position) {
     float denominator = min(u_resolution.x, u_resolution.y);
     vec2 uv = (2.0 * fragment_position - u_resolution) / denominator;
     uv *= 1.08;
+    uv = toward_pointer(uv);
 
     uv = rotate2(uv, u_rotation);
     uv = mat2(u_stretch_x, u_shear_x, u_shear_y, u_stretch_y) * uv;
