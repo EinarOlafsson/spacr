@@ -3544,7 +3544,54 @@ class MainWindow(QMainWindow):
         one is built from scratch rather than reusing widgets that belong to
         a shape that no longer applies.
         """
-        old = self._screens.pop(key, None)
+        from .screens.app_screen import AppScreen
+
+        old = self._screens.get(key)
+        # BUILT BEFORE THE OLD ONE IS TAKEN AWAY. Removing it from the stack
+        # first drops the window to whatever is left showing -- Home -- so
+        # typing a channel value sent the user back to the start screen and
+        # then returned them, which is not a visibility toggle by any
+        # reading. The stack only ever changes once the replacement exists.
+        AppScreen.values_the_next_screen_is_built_for = dict(values or {})
+        try:
+            fresh = self._build_screen(key)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not rebuild the %s screen", key)
+            return
+        finally:
+            # ALWAYS CLEARED. Every other module open must build from the
+            # module's own defaults, and a value left here would shape the
+            # next screen somebody opened for reasons they could not see.
+            AppScreen.values_the_next_screen_is_built_for = None
+
+        try:
+            self._theme_screen(fresh, key)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not theme the rebuilt %s screen", key)
+        try:
+            from .i18n import retranslate_widget_tree
+
+            retranslate_widget_tree(fresh)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not translate the rebuilt %s screen", key)
+        try:
+            from .screens.settings_model import retarget_field_tooltips
+
+            retarget_field_tooltips(fresh)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not retarget help on the %s screen", key)
+
+        # THE SHAPE IT WAS BUILT FOR, recorded before it is shown: the
+        # signals that fire as it settles would otherwise see a shape they
+        # have no record of and rebuild it again.
+        try:
+            fresh._form_shape_on_screen = fresh._form_shape()
+        except Exception:                                    # noqa: BLE001
+            pass
+
+        self._screens[key] = fresh
+        self._stack.addWidget(fresh)
+        self._stack.setCurrentWidget(fresh)
         if old is not None:
             try:
                 self._stack.removeWidget(old)
@@ -3552,26 +3599,6 @@ class MainWindow(QMainWindow):
                 old.deleteLater()
             except Exception:                                # noqa: BLE001
                 LOG.exception("could not retire the %s screen", key)
-        from .screens.app_screen import AppScreen
-
-        AppScreen.values_the_next_screen_is_built_for = dict(values or {})
-        try:
-            self._on_nav_selected(key)
-        finally:
-            # ALWAYS CLEARED. Every other module open must build from the
-            # module's own defaults, and a value left here would shape the
-            # next screen somebody opened for reasons they could not see.
-            AppScreen.values_the_next_screen_is_built_for = None
-        screen = self._screens.get(key)
-        if screen is None or not values:
-            return
-        try:
-            screen._settings_model.apply_settings_dict(dict(values))
-            # Remember the shape this screen was built for, so the signals
-            # that fire while the values are applied do not rebuild it again.
-            screen._form_shape_on_screen = screen._form_shape()
-        except Exception:                                    # noqa: BLE001
-            LOG.exception("could not carry values into the %s screen", key)
 
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
