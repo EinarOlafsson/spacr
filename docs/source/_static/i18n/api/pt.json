@@ -88715,6 +88715,36 @@
         "f7b5c7450a73f9e4a1b9efb40575f3aecf1b5bd528808a75ee30c90937cab746"
       ]
     },
+    "spacr.qt.widgets.fractal_cascade": {
+      "source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ],
+      "source_sha256": "b4820ff0beacfabe2fb8952dca6b56ca4b4f01ce254e4cf303617af069aa5126",
+      "text": "A cascata de inversão de dobra: o segundo padrão de espaço.\n\nDo mantenedor `fold-inversion fractal cascade` v1.0.0, portado para  PySide6. É um fractal genuinamente diferente da órbita dobrada em  :mod:`spacr.qt.widgets.fractal_travel`, não o mesmo com outros números:\n\n* o mapa é uma dobra/inversão tipo Kaliset -- refletir, trocar, girar, inverter através de uma esfera, deslocar -- e a cor vem de TRS TRAPS ORBIT através desse conjunto (um anel, uma diagonal e uma inclinação) em vez de uma contagem de escape;\n* a viagem interna infinita é duas janelas de escala logarítmica sobrepostas. A escala de saída é descartada apenas uma vez que a entrada atingiu a mesma visão, então não há redefinição e nenhum número microscópico para perder a precisão;\n* o renderizador CPU faz uma superamostragem TRUE SPATIAL 2x2 dentro de um quadro - quatro amostras do mesmo instante, com média. O caminho  CPU do padrão de órbita oscila em quatro quadros, o que é mais barato, mas combina diferentes tempos de animação. Essa é a razão pela qual este custa quatro vezes mais por pixel e renderiza um quarto dos pixels para pagar por isso.",
+      "translation_source_blocks_sha256": [
+        "c33c952b64df5b225d8d7bf23d996ad68770df17dd9a2f0c20755bc2ce02304e",
+        "8edcec470751bad0f322baea93368a63cab85b3472478e82d178e33c0c370247",
+        "460a02604bbe53cd6af44410c47f11995fcb0a5c2e93437e109743ef79ba4362",
+        "0c4e80165da4f93b4282d42287cf771bf2b3318a2cc5d609f3e0c6fb01aa3957",
+        "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969"
+      ]
+    },
+    "spacr.qt.widgets.fractal_cascade.CascadeEngine": {
+      "source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ],
+      "source_sha256": "bb342939f43252b54640d098afb126257d642603ad597c24a2bf78cc1e962027",
+      "text": "Um tampão superamostrado. Nenhum histórico temporal.\n\nO padrão de órbita mantém um anel de quatro quadros porque seu antialiasing percorre a grade de sub-pixels ao longo do tempo. Este leva todas as quatro amostras dentro de um único quadro, então não há nada a lembrar entre os quadros - que é também por isso que pausar e retomar não pode mostrar uma costura.",
+      "translation_source_blocks_sha256": [
+        "3e0fad21c8dc4ebc77411215b55b64c304ebb8b0adf68ab3303ea6a90f11cf34",
+        "b6e308a77eb06986dfb49e39b08a594f3e9bb322dfe5fd5de469a1020ad06741"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel": {
       "source_blocks_sha256": [
         "f4a2144e89a5fd6937f071e3bb8cff95d3db251cd8e911252c2400712e832798",

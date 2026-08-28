@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.fractal_cascade#4",
+      "source": "the CPU renderer does TRUE SPATIAL 2x2 supersampling inside one frame -- four samples of the same instant, averaged. The orbit pattern's CPU path jitters across four frames instead, which is cheaper but blends different animation times. That is the reason this one costs four times as much per pixel and renders a quarter of the pixels to pay for it.",
+      "context": "the CPU renderer does TRUE SPATIAL 2x2 supersampling inside one frame -- four samples of the same instant, averaged. The orbit pattern's CPU path jitters across four frames instead, which is cheaper but blends different animation times. That is the reason this one costs four times as much per pixel and renders a quarter of the pixels to pay for it.",
+      "source_sha256": "9517d747610020943bb4977ca85240bd4e7266cc54447110b432369f01c98969",
+      "translation": "Der CPU-Renderer führt echtes räumliches 2x2-Supersampling innerhalb eines einzelnen Frames aus -- vier Abtastungen desselben Zeitpunkts, die gemittelt werden. Der CPU-Pfad des Orbit-Musters verwendet stattdessen Jitter über vier Frames; dies ist weniger rechenaufwendig, mischt jedoch unterschiedliche Animationszeitpunkte. Deshalb benötigt dieses Muster pro Pixel viermal so viel Rechenaufwand und rendert zum Ausgleich nur ein Viertel der Pixel."
+    }
+  ]
+}
