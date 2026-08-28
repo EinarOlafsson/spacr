@@ -1064,45 +1064,25 @@ class SetupSlides(QDialog):
         self._draw_the_terms_gate(self.terms_were_read())
 
     def terms_were_read(self) -> bool:
-        """Whether the end of the terms has been on screen.
+        """Always ``True``: the acceptance is not gated on scrolling.
 
-        LATCHED ONCE IT HAS. Scrolling back up does not un-read what was
-        read, and a gate that closed again behind the reader would take the
-        acceptance away from somebody who had already earned it.
+        THE SCROLL GATE IS GONE. Asked for 2026-08-28: "change it so the
+        terms of service dont need to be scrolled through in the startup
+        window." Dragging a scroll bar to the bottom of a long document is
+        not reading it -- it is a ritual that delays the reader who does not
+        care and does nothing for the one who does.
 
-        A VIEWPORT TALL ENOUGH FOR THE WHOLE DOCUMENT COUNTS AS READ: the
-        question is whether the end is on screen, not whether a scroll bar
-        moved, or a large monitor becomes a trap.
+        WHAT IS NOT GONE IS THE ACCEPTANCE. The full text is still on the
+        page and still scrollable for anyone who wants it, the checkbox is
+        still explicit, and :func:`spacr.qt.terms.record_agreement` still
+        records the version and the moment. Only the greying is removed.
+
+        Kept as a method rather than deleted because the slide, the Next
+        button and the tests all ask this question, and one answer in one
+        place is easier to be sure of than a gate removed from four.
         """
-        if getattr(self, "_terms_read", False):
-            return True
-        scroll = getattr(self, "_terms_scroll", None)
-        if scroll is None:
-            # NO SCROLL AREA IS NOT A CLOSED GATE. The page could not be
-            # built with one, so there is nothing to scroll and nothing to
-            # gate; refusing the acceptance would be refusing the licence
-            # over a widget that is missing.
-            self._terms_read = True
-            return True
-        try:
-            bar = scroll.verticalScrollBar()
-            on_screen = scroll.isVisible()
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("the terms scroll area cannot be measured",
-                      exc_info=True)
-            return False
-        if bar is None or not on_screen:
-            # THE PAGE IS NOT ON SCREEN, so there is no answer to give:
-            # "the end is on screen" cannot be true of a page that is not.
-            # A scroll area that has never been shown reports whatever its
-            # unlaid-out geometry implies, and believing that would open
-            # the gate before the terms had a reader.
-            return False
-        if bar.maximum() <= bar.minimum():
-            self._terms_read = True
-        elif bar.value() >= bar.maximum() - TERMS_END_SLACK:
-            self._terms_read = True
-        return bool(self._terms_read)
+        self._terms_read = True
+        return True
 
     def _draw_the_terms_gate(self, read: bool) -> None:
         """Put the gate's one state on both halves of the page."""
