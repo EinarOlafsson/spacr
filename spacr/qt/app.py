@@ -2344,6 +2344,19 @@ class MainWindow(QMainWindow):
         self.addAction(act_restart)
         self._act_restart_backdrop = act_restart
 
+        # THE BACKDROP ON ITS OWN, full screen. Ctrl+Shift+F because Ctrl+F
+        # is search everywhere and F11 is the window's own full screen --
+        # this is a third thing: the animation with nothing else on top.
+        act_saver = QAction("Full-screen background", self)
+        act_saver.setObjectName("ShowScreensaver")
+        act_saver.setShortcut(QKeySequence("Ctrl+Shift+F"))
+        act_saver.setStatusTip(
+            "Show only the animated background, full screen, like a "
+            "screensaver. Any key or click brings the window back.")
+        act_saver.triggered.connect(self._show_the_screensaver)
+        self.addAction(act_saver)
+        self._act_screensaver = act_saver
+
         # PAUSE AND GO FLAT. Ctrl+T stops the animation and leaves the last
         # frame up, which is still a picture behind the work; this one also
         # paints the ground flat, which is what "I am looking at images and
@@ -3542,6 +3555,33 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
         self._stack.addWidget(self._startup)
+
+    def _show_the_screensaver(self) -> bool:
+        """Open the backdrop full screen, with nothing else on it.
+
+        :returns: whether it opened.
+
+        A WINDOW OF ITS OWN rather than this one made full screen: hiding
+        spaCR's widgets means remembering what was visible, what had focus,
+        which docks were open and where the splitters were -- and getting
+        any of that wrong leaves the layout rearranged by something meant to
+        be a screensaver. A separate window has nothing to restore.
+        """
+        try:
+            from .screensaver import show_screensaver
+
+            saver = show_screensaver(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not open the full-screen background")
+            return False
+        if saver is None:
+            return False
+        # HELD, or Python frees the only reference and the window closes the
+        # instant it opens.
+        self._screensaver = saver
+        saver.destroyed.connect(
+            lambda *_a: setattr(self, "_screensaver", None))
+        return True
 
     def _restart_the_backdrop(self) -> bool:
         """Send the animation back to its beginning.
