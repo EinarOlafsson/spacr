@@ -294,6 +294,8 @@ FRACTAL_LIMITS = {
                           "a move that takes no time is a jump"),
     "candidate_count": (1, None,
                         "choosing between no candidates chooses nothing"),
+    "steering": (0.0, 1.0,
+                 "steering is an amount between none and restless"),
     "max_depth": (0.1, 16.0,
                   "the reference orbit is carried as a pair of float32s and "
                   "reproduces Z to about 2.2e-16, so past roughly sixteen "
@@ -352,6 +354,8 @@ _KEY_FRACTAL_STEERING_INTERVAL_DECADES = "spaceout/fractal_steering_interval_dec
 _KEY_FRACTAL_STEERING_DURATION = "spaceout/fractal_steering_duration"
 _KEY_FRACTAL_CANDIDATE_COUNT = "spaceout/fractal_candidate_count"
 _KEY_FRACTAL_MAX_DEPTH = "spaceout/fractal_max_depth"
+#: The one user-facing steering control, 0..1.
+_KEY_FRACTAL_STEERING = "spaceout/fractal_steering"
 
 #: The memory budget: how long an unused thing may sit, how much may be
 #: held, and how much of the machine must stay free for everything else.
@@ -2367,6 +2371,9 @@ def get_fractal_settings() -> dict:
         "candidate_count": int(_number(_KEY_FRACTAL_CANDIDATE_COUNT,
                           _MANDEL_DEFAULTS["candidate_count"],
                           FRACTAL_LIMITS['candidate_count'][0], None)),
+        "steering": _number(_KEY_FRACTAL_STEERING,
+                            _MANDEL_DEFAULTS.get("steering", 0.35),
+                            0.0, 1.0),
         "max_depth": _number(_KEY_FRACTAL_MAX_DEPTH,
                              _MANDEL_DEFAULTS["max_depth"],
                              *FRACTAL_LIMITS["max_depth"][:2]),
@@ -2429,6 +2436,7 @@ def set_fractal_settings(**values) -> None:
                 (FRACTAL_LIMITS['steering_duration'][0], FRACTAL_LIMITS['steering_duration'][1])),
         "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
                 (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
+        "steering": (_KEY_FRACTAL_STEERING, (0.0, 1.0)),
         "max_depth": (_KEY_FRACTAL_MAX_DEPTH,
                       (FRACTAL_LIMITS["max_depth"][0],
                        FRACTAL_LIMITS["max_depth"][1])),
@@ -2445,6 +2453,21 @@ def set_fractal_settings(**values) -> None:
             raise ValueError(f"unknown fractal backend {value!r}")
         if name == "quality" and value not in FRACTAL_QUALITIES:
             raise ValueError(f"unknown fractal quality {value!r}")
+        if name == "steering":
+            # ONE CONTROL, THREE NUMBERS, derived together so they cannot
+            # contradict each other. Set by hand a short interval and a long
+            # duration make the camera re-target before it has finished
+            # moving, which is the jerkiness reported on 2026-08-28.
+            from .widgets.fractal_mandelbrot import steering_from_one_number
+
+            store.setValue(key, float(value))
+            derived = steering_from_one_number(
+                float(value),
+                float(get_fractal_settings().get("seconds_per_decade", 24.0)))
+            for _name, _value in derived.items():
+                _key, _ = keys[_name]
+                store.setValue(_key, _value)
+            continue
         if bounds is not None:
             # THE FIELD'S NUMBER IS KEPT. Only a value that cannot work at
             # all is moved, and `explain_a_fractal_number` is what tells the
@@ -5230,6 +5253,34 @@ class PreferencesDialog:
                 label.setObjectName("FractalGroupHeading")
                 fractal.addRow(label)
 
+            # ONE CONTROL PER QUESTION, and the same questions whichever
+            # pattern is chosen. Asked for 2026-08-28: "there need to be
+            # fewer options for speed so one option for speed that is user
+            # facing, one option for steering and so on... mak the settings
+            # easy to navigate aross themes."
+            #
+            # Speed is already one field above. Steering is one here, and it
+            # DERIVES the three numbers it stands for -- set by hand they
+            # contradict each other, and a short interval with a long
+            # duration is the jerkiness that was reported.
+            fractal_steering = _tenths(
+                "FractalSteering", _fractal_values["steering"], 0.0, 1.0)
+            fractal_steering.setRange(0.0, 1.0)
+            fractal_steering.setSingleStep(0.05)
+            fractal_steering.setToolTip(tr(
+                "How much the view wanders while it descends. 0 goes "
+                "straight down; 1 keeps looking for somewhere more "
+                "interesting.\n\n"
+                "It sets how far each move reaches, how often one happens "
+                "and how long it takes, together — a move never takes more "
+                "than half the gap before the next, at any setting, so it "
+                "always settles rather than being caught mid-course."))
+            fractal.addRow(tr("Steering"), fractal_steering)
+
+            # EVERYTHING BELOW IS THE DETAIL BEHIND THOSE CONTROLS. It is
+            # kept because a number somebody needs and cannot reach is worse
+            # than a long panel, but it is behind one heading that says so.
+            _fractal_heading("Advanced")
             _mandel_rows = (
                 ("__heading__", "The zoom", ""),
                 ("seconds_per_decade", "Seconds per decade", 
@@ -5262,7 +5313,7 @@ class PreferencesDialog:
                  "Fraction of the window's pixels actually rendered, "
                  "before being scaled up. Below 1 trades sharpness for "
                  "speed."),
-                ("__heading__", "Steering", ""),
+                ("__heading__", "Steering (set by the control above)", ""),
                 ("steering_strength", "Steering strength",
                  "How far off centre the guided path looks for its next "
                  "target."),
@@ -5730,6 +5781,7 @@ class PreferencesDialog:
                     pointer_size=fractal_pointer_size.value(),
                     pointer_strength=fractal_pointer_strength.value(),
                     supersampling=int(fractal_ss.value()),
+                    steering=fractal_steering.value(),
                     **{name: box.value()
                        for name, box in fractal_mandel.items()},
                 )

@@ -194,6 +194,54 @@ void main() {
 """
 
 
+def steering_from_one_number(steering: float, seconds_per_decade: float
+                             ) -> dict:
+    """Turn one "how much does it wander" control into three numbers.
+
+    :param steering: 0 (straight down) to 1 (restless).
+    :param seconds_per_decade: how fast the dive descends, which is what
+        turns an interval in decades into an interval in seconds.
+    :returns: ``{"steering_strength", "steering_interval_decades",
+        "steering_duration"}``.
+
+    THREE NUMBERS THAT MUST AGREE. Set by hand they can contradict each
+    other, and the interesting failure is the one reported on 2026-08-28:
+    steering at its minimum gave JERKY movement, because a short interval
+    re-targets faster than a long duration can finish a move, so the camera
+    never settles and every frame is mid-course-correction.
+
+    Derived together they cannot disagree. The move always takes a fixed
+    FRACTION of the interval -- never more than half -- so there is always
+    as much settled time as moving time whatever the control says. That is
+    what makes the low end calm rather than twitchy: at zero it simply
+    stops steering, and the way down to it is gentler moves further apart,
+    not the same moves crammed together.
+    """
+    amount = 0.0 if steering < 0.0 else (1.0 if steering > 1.0 else
+                                         float(steering))
+    seconds = max(0.1, float(seconds_per_decade))
+
+    # Restless steers about every 0.4 decades; calm about every 3.
+    interval = 3.0 - 2.6 * amount
+    # And reaches less far when it is calm, so a rare move is also a small
+    # one rather than a lurch after a long wait.
+    strength = 0.02 + 0.16 * amount
+    # HALF THE INTERVAL AT MOST, which is the rule that removes the
+    # jerkiness: however short the interval gets, the move finishes with
+    # time to spare before the next is planned.
+    duration = min(6.0, 0.45 * interval * seconds)
+    return {
+        "steering_strength": round(strength, 4),
+        "steering_interval_decades": round(interval, 4),
+        "steering_duration": round(max(0.5, duration), 4),
+    }
+
+
+#: What the single Steering control says when it is at each end.
+STEERING_AT_REST: Final[float] = 0.0
+DEFAULT_STEERING: Final[float] = 0.35
+
+
 def exact_misiurewicz_center(digits: int = 320):
     """Refine the boundary target to ``digits`` decimal places.
 
