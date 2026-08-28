@@ -173,8 +173,35 @@ def types_for(shape: str) -> Tuple[str, ...]:
 
 
 def default_for(shape: str) -> str:
-    """Return the default graph type for a data shape."""
-    return DEFAULTS[str(shape)]
+    """The graph type drawn FIRST for ``shape``.
+
+    :param shape: one of the keys of :data:`DATA_SHAPES`.
+    :returns: a graph type from :data:`GRAPH_TYPES`.
+    :raises KeyError: if ``shape`` is unsupported.
+
+    THE USER'S CHOICE COMES FIRST. Asked for 2026-08-28: the preference
+    "decides which graph is drawn FIRST", and right-click still changes it
+    afterwards. Every graph in spaCR reaches its starting form through this
+    one function, so honouring the preference here reaches all of them
+    rather than only the screen it was noticed on.
+
+    A SAVED CHOICE THAT DOES NOT FIT THE DATA IS IGNORED. Someone who
+    prefers bars has not asked for a bar of a continuous x against a
+    continuous y -- that is a different graph of different data, and
+    :data:`WHY_NOT` says so. The table's own default is used instead, which
+    is what a user who never expressed a preference gets.
+    """
+    shape = str(shape)
+    fallback = DEFAULTS[shape]                    # KeyError for a bad shape
+    try:
+        from .qt.preferences import get_default_graph_type
+
+        chosen = str(get_default_graph_type(shape) or "")
+    except Exception:
+        # No Qt, no stored preferences, or a preference file that cannot be
+        # read: a figure still has to be drawn.
+        return fallback
+    return chosen if chosen and fits(shape, chosen) else fallback
 
 
 def fits(shape: str, graph_type: str) -> bool:
