@@ -21,6 +21,15 @@ DEFAULT_SCALE: Final[float] = 1.0
 DEFAULT_SPEED: Final[float] = 4.0
 DEFAULT_DREAM: Final[float] = 1.5
 DEFAULT_VARIABLE_SPEED: Final[bool] = False
+#: The pointer pulls the pattern toward it; a click shoves it away.
+DEFAULT_FOLLOW_POINTER: Final[bool] = True
+#: The bounds variable speed sweeps between. They bracket DEFAULT_SPEED, so
+#: turning it on changes the RANGE and not the average pace.
+DEFAULT_SPEED_MIN: Final[float] = 2.0
+DEFAULT_SPEED_MAX: Final[float] = 6.0
+#: Seconds for one full sweep, slow to fast and back -- the "how gradually"
+#: control. A larger number is a slower change, not a slower fractal.
+DEFAULT_SPEED_PERIOD: Final[float] = 41.0
 
 
 def clamp(value: float, low: float, high: float) -> float:

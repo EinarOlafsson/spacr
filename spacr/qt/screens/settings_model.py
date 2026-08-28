@@ -7979,9 +7979,38 @@ class SettingsWidgets:
         # renders as long as a widget exists for it. The value stays in
         # `self._defaults` and reaches the run unchanged.
         hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
+        # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
+        # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
+        # measured as zero timer ticks for the whole build, which is what
+        # "the theme freezes when I click a module" is. Qt requires widgets
+        # on the GUI thread, so this cannot move; what it can do is stop
+        # holding the thread for the entire run.
+        #
+        # `processEvents` and not a chunked timer: the caller expects a built
+        # panel when this returns, and handing it a half-built one to be
+        # finished later would move the bug into every consumer.
+        from PySide6.QtCore import QCoreApplication, QEventLoop
+
+        # BREATHING ON TIME, NOT ON COUNT. Every 60 widgets left a worst gap
+        # of 324 ms, because the widgets are not equally expensive and a
+        # fixed count breathes at the wrong moments. A deadline gives up the
+        # thread whenever this loop has held it too long, whatever it was
+        # building.
+        import time as _time
+
+        _BREATH = 0.025
+        next_breath = _time.perf_counter() + _BREATH
         for key, meta in variables.items():
             if key in hidden_keys:
                 continue
+            if _time.perf_counter() >= next_breath:
+                next_breath = _time.perf_counter() + _BREATH
+                # EXCLUDE user input. A half-built panel must not receive a
+                # click that lands on a widget which is about to move, so the
+                # backdrop repaints and the interface stays alive while the
+                # pointer and keyboard wait the extra second out.
+                QCoreApplication.processEvents(
+                    QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:

@@ -201,9 +201,18 @@ def test_every_setting_round_trips(sandbox):
     set_fractal_settings(pattern="cascade", backend="cpu", quality="high",
                          scale=0.5, speed=2.0, dream=0.25,
                          variable_speed=True)
-    assert get_fractal_settings() == {
-        "pattern": "cascade", "backend": "cpu", "quality": "high",
-        "scale": 0.5, "speed": 2.0, "dream": 0.25, "variable_speed": True}
+    stored = get_fractal_settings()
+    # The four the test set, checked by name rather than by whole-dict
+    # equality: this file has now grown the sweep bounds and the sweep time,
+    # and an exact dict makes every future setting a failing test rather
+    # than a new row.
+    assert stored["pattern"] == "cascade"
+    assert stored["backend"] == "cpu"
+    assert stored["quality"] == "high"
+    assert stored["scale"] == 0.5
+    assert stored["speed"] == 2.0
+    assert stored["dream"] == 0.25
+    assert stored["variable_speed"] is True
 
 
 def test_a_number_out_of_range_is_clamped(sandbox):
