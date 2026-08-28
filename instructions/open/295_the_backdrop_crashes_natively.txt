@@ -1,0 +1,30 @@
+295 — spaCR dies with a native crash, no Python frame
+
+Reported 2026-08-28 ("spacr just crashed", then "crashed again").
+
+WHAT THE LOG SHOWS (~/.spacr/logs/spacr-crash.log):
+
+* Repeated `Fatal Python error: Segmentation fault` and `Fatal Python error:
+  Aborted`, across many pids and predating the verbose-logging change.
+* The two entries that captured a Python frame both read:
+
+      spacr/qt/app.py, line 4119 in launch
+      spacr/qt/__init__.py, line 350 in run
+      spacr/qt/spaceout.py, line 29 in main
+
+  with PySide6.QtOpenGLWidgets and PySide6.QtOpenGL among the loaded
+  extension modules -- the GL fractal path.
+* The most recent crashes wrote no Python frame at all.
+* One run's ordinary log ends mid-paint inside the ambient backdrop
+  (`_BufferedEngine.shade` -> `_FrameProducer.publish`) and the next line is a
+  fresh process.
+
+NOT memory: `free` showed 100 GB available and the kernel log records no OOM
+kill.
+
+TO PIN IT: rerun with faulthandler dumping ALL threads (not just the current
+one) and a GL context created under a serialised lock, and record which thread
+is in native code at the abort. A QPixmap or a QWidget touched off the GUI
+thread aborts exactly like this; the producer thread is documented as
+QImage-only, so the candidates are the GL context and anything the fractal
+widgets touch during teardown.

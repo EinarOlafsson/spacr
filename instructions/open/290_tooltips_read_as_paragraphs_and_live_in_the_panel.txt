@@ -1,0 +1,19 @@
+290 — Tooltips read as paragraphs, and Preferences shows them in its own strip
+
+Asked 2026-08-28.
+
+a) Tooltip text is JUSTIFIED.
+
+b) In Preferences, the strip that says "hover a control to see what it does"
+   is where the help belongs -- not in a floating tooltip window. Hovering a
+   Preferences control writes its help into that strip.
+
+c) The Clear run / VRAM / CPU / Disk space / Quit buttons currently pop help
+   at the bottom of the window. Put it in paragraph form and make it take
+   less space.
+
+d) Move the tooltips strip ABOVE the Defaults / Close / Open buttons.
+
+e) Delete the standing sentences "Theme, font, scale and the animation
+   background apply instantly on save." and the "colour blind mode ..."
+   sentence. They are noise on every visit.
