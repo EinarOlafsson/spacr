@@ -4406,7 +4406,11 @@ class PreferencesDialog:
                 "cpu": "ClearCpuButton", "disk": "CheckDiskButton",
             }[action])
             from . import resource_cleanup
-            button.setToolTip(resource_cleanup.confirmation_text(action))
+            # THE SHORT FORM ON HOVER. The confirmation still shows the full
+            # bulleted promise when the button is pressed; a hint bar that
+            # grew to eight lines made the dialog jump as the pointer moved
+            # between two buttons.
+            button.setToolTip(resource_cleanup.summary_text(action))
             button.clicked.connect(lambda: run_resource_action(action, dlg))
             performance.addRow(tr(row_label), button)
             return button
@@ -4508,15 +4512,12 @@ class PreferencesDialog:
 
         outer.addWidget(tabs)
 
-        preview = QLabel(
-            "<span style='color:gray;'>Theme, font scale and the "
-            "animated background apply instantly on Save. Colour-blind "
-            "mode affects plot colours the next time a figure is "
-            "generated.</span>"
-        )
-        preview.setTextFormat(Qt.RichText)
-        preview.setWordWrap(True)
-        outer.addWidget(preview)
+        # NO STANDING SENTENCES UNDER THE TABS. Two of them sat here on
+        # every visit -- what applies instantly on Save, and when
+        # colour-blind mode reaches a figure -- and a paragraph that is
+        # always true of the whole dialog is not read after the first time.
+        # Whatever a particular control does belongs to that control, and
+        # the hint bar below says it on hover.
 
         # Buttons
         buttons = QDialogButtonBox(
@@ -4722,12 +4723,66 @@ class PreferencesDialog:
         # asked for.
         from .widgets.hint_bar import HintBar
         hints = HintBar(parent=dlg)
-        dlg.layout().addWidget(hints)
+        # ABOVE THE BUTTONS, not under them. Asked for 2026-08-28. Appending
+        # put the explanation below Defaults/Close/Open, which reads as a
+        # footnote to the buttons rather than as the answer to the control
+        # the pointer is on -- and puts it furthest from the tabs it
+        # describes.
+        layout = dlg.layout()
+        row_of_buttons = layout.indexOf(buttons)
+        if row_of_buttons >= 0:
+            layout.insertWidget(row_of_buttons, hints)
+        else:
+            layout.addWidget(hints)
         # EVERY ROW EXPLAINED, ON ITS LABEL. Done here, over the finished
         # dialog, so a row added anywhere above is covered without the
         # author having to remember the rule.
         explain_every_row(dlg)
+        _everything_explains_itself_in_the_strip(dlg, hints)
         return dlg
+
+
+def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
+    """Move every remaining tooltip in ``dialog`` into ``bar``.
+
+    :param dialog: the finished Preferences dialog.
+    :param bar: its :class:`~spacr.qt.widgets.hint_bar.HintBar`.
+    :returns: how many were moved, so a test can assert a number.
+
+    THE STRIP IS THE ANSWER, NOT A SECOND ONE. Asked for 2026-08-28: "in the
+    preference pannel where it says hover a controll to see what it does,
+    this is where the tooltip should be, not in a tooltip window." A control
+    that both writes to the strip and pops a window answers twice, and the
+    window covers the strip it is duplicating.
+
+    `explain_every_row` pairs a row's label with its field, which reached 5
+    of this dialog's controls; the other 125 are labels and buttons that are
+    not settings rows -- log levels, figure options, the resource actions --
+    and each kept a tooltip of its own. Sweeping the finished dialog cannot
+    miss a shape, including one added later.
+
+    The strip's own label is skipped: it is the thing being written to.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    from .widgets.hint_bar import HintBar
+
+    moved = 0
+    for widget in dialog.findChildren(QWidget):
+        if isinstance(widget, HintBar) or widget is bar:
+            continue
+        if not (widget.toolTip() or "").strip():
+            continue
+        try:
+            # An empty `text` takes the widget's own tooltip and clears it,
+            # so the sentence MOVES rather than being said in two places.
+            if bar.explain(widget):
+                moved += 1
+        except Exception:                                    # noqa: BLE001
+            # Help that will not move is a blemish, never a reason for
+            # Preferences not to open.
+            continue
+    return moved
 
 
 def _refresh_owner_window(parent) -> None:

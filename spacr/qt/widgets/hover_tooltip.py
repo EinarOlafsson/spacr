@@ -417,7 +417,12 @@ class HoverTooltip(QFrame):
         # AlignVCenter would float the prose down to the middle of the square
         # while the widget's top edge stayed put — top-aligned by geometry
         # and centred to the eye, which is not what was asked for.
-        self._label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        # JUSTIFIED. Asked for 2026-08-28. A tooltip is a paragraph of prose
+        # in a narrow fixed-width popup, which is where a ragged right edge
+        # is most visible: every line ends somewhere different and the block
+        # reads as an offcut rather than as a paragraph. Qt justifies rich
+        # text, and the popup is rich text already.
+        self._label.setAlignment(Qt.AlignJustify | Qt.AlignTop)
         column.addWidget(self._label)
 
         self._links = QWidget(self._text_column)
