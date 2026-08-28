@@ -32,3 +32,39 @@ Reported 2026-08-28, from using the Mandelbrot theme.
      A capped setting a user has asked to exceed is a setting that does not
      work, and the caps here were chosen for the two fold patterns rather
      than for a renderer that can usefully take far more.
+
+
+PARTLY DONE 2026-08-28.
+
+  (c) DONE. Up, Down and the wheel change the zoom rate by 1.12 a notch, as
+      in the source. Handled by the WINDOW and not the backdrop: the
+      backdrop must not accept events, or it would eat the clicks meant for
+      the interface in front of it -- the same reason the pointer is
+      sampled rather than received. Reaching the window at all means
+      nothing else wanted the key, so an arrow pressed in a table still
+      moves the selection. The depth is INTEGRATED rather than recomputed
+      from elapsed time, or lowering the rate would rewind the whole
+      descent.
+
+  (d) DONE. The caps are gone: the fields take any number, and
+      `explain_a_fractal_number` says in words when a value cannot be used
+      and why. A bound exists only where a value CANNOT work -- zero
+      samples a pixel, a scale of zero, a 4096 shader loop -- and merely
+      extravagant numbers are the user's business. Scale 40 is kept; it
+      used to become 2 silently. Supersampling is a setting, and so are the
+      twelve Mandelbrot numbers, read from the module that publishes them
+      so the panel and the renderer cannot drift.
+
+  ALSO: Mandelbrot on GPU is the default pattern, falling back to the orbit
+  fold where there is no usable context -- it is the only pattern with no
+  CPU renderer, and the fold has one.
+
+STILL OPEN:
+
+  (a) NO CPU PATH FOR MANDELBROT. `render_cpu_perturbation` in the pasted
+      source is the shape of it: long-double perturbation in row tiles.
+  (b) THE MOUSE DOES NOT STEER THE DIVE. It shifts the sample coordinate,
+      which moves the picture but not the point the zoom converges into,
+      and being recomputed from the cursor each frame it washes out as the
+      scale shrinks. Steering needs the pointer to move `u_center_offset`
+      and that offset to PERSIST between frames.

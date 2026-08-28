@@ -3528,6 +3528,57 @@ class MainWindow(QMainWindow):
             pass
         self._stack.addWidget(self._startup)
 
+    def _steer_the_backdrop(self, steps: int) -> bool:
+        """Speed the spaceout descent up or slow it down.
+
+        :param steps: notches; positive is faster.
+        :returns: whether a backdrop took it.
+
+        Up, Down and the wheel, as in the renderer this pattern came from.
+        Handled HERE rather than by the backdrop, which must not accept
+        events: it sits behind every control, and a widget that took the
+        mouse would eat the click meant for the button on top of it.
+
+        Reaching the window at all means nothing else wanted the key, so an
+        arrow pressed in a table or a list still moves the selection.
+        """
+        try:
+            from .widgets.fractal_travel import nudge_zoom_rate
+
+            rate = nudge_zoom_rate(steps)
+        except Exception:                                    # noqa: BLE001
+            return False
+        if not rate:
+            return False
+        self.statusBar().showMessage(tr("Zoom rate {rate:.2f}×").format(
+            rate=rate), 1200)
+        return True
+
+    def keyPressEvent(self, event) -> None:
+        """Up and Down change the spaceout zoom rate."""
+        from PySide6.QtCore import Qt
+
+        key = event.key()
+        if key == Qt.Key.Key_Up and self._steer_the_backdrop(1):
+            event.accept()
+            return
+        if key == Qt.Key.Key_Down and self._steer_the_backdrop(-1):
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def wheelEvent(self, event) -> None:
+        """The wheel does the same, a notch at a time."""
+        notches = 0
+        try:
+            notches = int(event.angleDelta().y() / 120)
+        except Exception:                                    # noqa: BLE001
+            notches = 0
+        if notches and self._steer_the_backdrop(notches):
+            event.accept()
+            return
+        super().wheelEvent(event)
+
     def rebuild_app_screen(self, key: str, values=None) -> None:
         """Build ``key``'s screen again, carrying ``values`` across.
 
