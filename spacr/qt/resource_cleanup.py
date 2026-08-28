@@ -740,8 +740,57 @@ def confirmation_title(action: str) -> str:
 
 
 def confirmation_text(action: str) -> str:
-    """What ``action`` will actually do, in words, before it does it."""
+    """What ``action`` will actually do, in words, before it does it.
+
+    The long form, for the confirmation the user is asked to agree to. A
+    bulleted list is right there: they are about to authorise it, and the
+    bullets are what they are authorising.
+    """
     return _CONFIRMATIONS[action][1]
+
+
+#: The same promise as :data:`_CONFIRMATIONS`, as one sentence.
+#:
+#: A HINT BAR IS NOT A CONFIRMATION DIALOG. The long forms are four to eight
+#: lines of bulleted text, and the strip under the Preferences tabs grew to
+#: fit whichever one the pointer was over -- so moving between two buttons
+#: made the dialog jump. Asked for 2026-08-28: "presented in paragraph form
+#: and made to take less space."
+#:
+#: What is dropped is the enumeration, never the limit: each of these still
+#: says what the action will NOT do, because that is the part a user is
+#: uneasy about on a shared machine.
+_SUMMARIES: Dict[str, str] = {
+    "ram": (
+        "Drops spaCR's own caches and runs a garbage collection. No other "
+        "program is touched, and the next preview is slower because its "
+        "images are read again. You are told how much was actually freed."
+    ),
+    "vram": (
+        "Releases any model still held and returns the GPU blocks torch has "
+        "reserved but is not using. VRAM held by another process cannot be "
+        "reclaimed, and memory a running spaCR job is using is left alone."
+    ),
+    "cpu": (
+        "Retires spaCR's finished worker threads and lowers its torch and "
+        "OpenCV thread counts. No process is killed and no running or queued "
+        "job is stopped; threads still doing work are left alone."
+    ),
+    "disk": (
+        "Reads the free space on every drive this project touches and "
+        "reports it. Nothing is written, moved or deleted."
+    ),
+}
+
+
+def summary_text(action: str) -> str:
+    """One paragraph saying what ``action`` does.
+
+    :param action: ``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.
+    :returns: the short form for a hover, falling back to the long form so a
+        new action is never left with no help at all.
+    """
+    return _SUMMARIES.get(action) or _CONFIRMATIONS[action][1]
 
 
 # ---------------------------------------------------------------------------
