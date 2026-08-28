@@ -266,6 +266,37 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     fraction = float(holdout)
     if not np.isfinite(fraction) or not 0.0 < fraction < 1.0:
         raise ValueError("holdout must be a finite fraction strictly between 0 and 1")
+
+    # NOTHING TO SPLIT, SAID HERE RATHER THAN BY SKLEARN (issue #110).
+    #
+    # An empty label array falls all the way through to `train_test_split`
+    # and surfaces as
+    #
+    #     ValueError: With n_samples=0, test_size=0.2 the train set will be
+    #     empty
+    #
+    # which names neither the setting that is wrong nor what to do about it,
+    # and is filed against spaCR rather than read as a data problem. Every
+    # other degenerate shape below is already refused in words; this was the
+    # one that was not.
+    #
+    # The named-holdout path divides by `len(y)` to report the cell fraction,
+    # so an empty array is a ZeroDivisionError there instead. Both are
+    # answered by refusing before either can happen.
+    if len(y) == 0:
+        raise ValueError(
+            "there are no labelled objects to split, so a classifier cannot "
+            "be trained or scored. This usually means the control values "
+            "matched no rows, or that filtering removed every row before the "
+            "split. Check that positive_control and negative_control name "
+            "values present in the control column, and that any measurement "
+            "filters still leave objects behind.")
+    if len(group_values) != len(y):
+        # A group per label is what every split below assumes; a mismatch
+        # silently misaligns the two and produces a split that looks valid.
+        raise ValueError(
+            f"the split has {len(group_values)} group labels for {len(y)} "
+            f"objects. These must correspond one to one.")
     if len(y) != len(group_values):
         raise ValueError("group-aware splitting requires one group per label")
     if len(y) < 2:

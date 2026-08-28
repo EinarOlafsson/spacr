@@ -9606,10 +9606,11 @@ class SettingsWidgets:
             or id(widget) in getattr(self, "_headings_of_absent_slots", {}))
         if not contested:
             return
-        if self._object_rule_pass_queued or self._parent is None:
-            return
-        self._object_rule_pass_queued = True
-        QTimer.singleShot(0, self._parent, self._reassert_object_visibility)
+        # NOTHING TO RE-ASSERT. The rule is applied once, when the panel is
+        # built; a row shown afterwards by the search releasing its filter is
+        # meant to stay shown. Re-queueing a pass here is what turned one
+        # keystroke into a walk of the whole form.
+        return
 
     def _reassert_object_visibility(self) -> None:
         self._object_rule_pass_queued = False
@@ -9669,18 +9670,35 @@ class SettingsWidgets:
             label.setVisible(visible)
 
     def _connect_object_visibility_signals(self) -> None:
-        """Follow the switches, the count and the types as they are changed.
+        """Deliberately connects nothing. The form is decided when it opens.
 
-        Bound method, not a lambda: see INVARIANTS 4 for what a closure
-        connected to a Qt signal costs.
+        THE RULE USED TO FOLLOW EVERY KEYSTROKE, and that is what made the
+        Mask module hang: `_on_object_switch_changed` fired on each character
+        typed into a channel and ran the whole pass synchronously -- reading
+        every value on the panel, deciding all 1,551 gated rows, and BUILDING
+        the rows it had decided to show. Typing "1" into Nucleus channel did
+        that once per keypress, on the GUI thread, so the window stopped
+        answering.
+
+        Asked for 2026-08-28: "just when the module is opened load all
+        settings... i dont want the module hanging whenever the user types a
+        value into a channel setting". So the rule runs ONCE, from
+        `build_sections`, and a value typed afterwards changes what the run
+        does without rearranging the form under the hands typing it.
+
+        A row that is on the form and does not apply is a smaller defect than
+        a module that stops responding -- and the settings a run ignores it
+        has always ignored quietly anyway.
+
+        Kept as a method rather than deleted because `build_sections` calls
+        it, and one place saying why nothing is connected is clearer than a
+        missing call nobody can ask about.
         """
-        for key in sorted(self._object_visibility_keys()):
-            widget = self._widgets.get(key)
-            if widget is not None:
-                _connect_value_changed(widget, self._on_object_switch_changed)
+        return
 
     def _on_object_switch_changed(self, *_args) -> None:
-        self.refresh_object_visibility()
+        """No longer connected. See `_connect_object_visibility_signals`."""
+        return
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):
