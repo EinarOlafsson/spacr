@@ -87,3 +87,20 @@ STILL OPEN:
       and being recomputed from the cursor each frame it washes out as the
       scale shrinks. Steering needs the pointer to move `u_center_offset`
       and that offset to PERSIST between frames.
+
+
+DONE 2026-08-28, all of it.
+
+  (a) not wanted -- Mandelbrot falls back to the orbit fold without a GPU.
+  (b) the pointer moves the CENTRE the zoom converges into, and dragging
+      with a button held steers the dive.
+  (c) Up, Down and the wheel change the zoom rate, as in the source, and
+      Ctrl+R restarts -- both in the hotkey menu.
+  (d) the caps are gone: the fields take any number and
+      `explain_a_fractal_number` says when one cannot work and why.
+
+AND THE PANEL WAS CUT from twenty-one controls to eight. The first attempt
+put the detail behind an "Advanced" heading, which was the same panel with
+one more row on it and still let a hand-set combination contradict the
+control above. The derived numbers are settings the renderer reads; they
+are not offered beside the control that sets them.
