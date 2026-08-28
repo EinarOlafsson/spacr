@@ -65,3 +65,33 @@ FIXED 2026-08-28, points 1 and 2:
 STILL OPEN: point 3, the cost. 276 bytes per traced call is too much for a
 trail anyone can read, and the tooltip still does not say what verbose
 costs.
+
+
+FIXED 2026-08-28. All three points.
+
+  1. `get_log_file_levels` adds DEBUG while verbose is on, so the records
+     the tracer builds reach the file. Added on READ, never stored, so the
+     user's own level choice is untouched.
+  2. `_trace_profile` guards its whole body: `logging`'s globals are torn
+     down at shutdown too, so `getLogger` itself failed inside finalisers.
+  3. 276 bytes per traced call became 156. On a trace record the level is
+     always DEBUG, the logger is always `spacr.trace`, and the file and line
+     were this module's own tracer rather than the traced code -- three
+     fields saying nothing and one actively misleading.
+     `_CompactTraceFormat` gives that one logger a short format and leaves
+     every other record's prefix alone.
+
+AND THE DEFAULT WENT BACK TO OFF, which is the finding that matters most.
+Measured on this machine, offscreen:
+
+    verbose off : 3.05 s to a usable Home screen
+    verbose on  : 65.28 s, with Mask still not open when the run was cut
+
+Twenty times the startup. The tracer fires on every call and every return,
+and startup is where a Python application makes the most calls it will ever
+make; excluding the paint path and halving the line length took it from
+unusable to merely large. A trail that exists before the bug is worth
+having, which is why on-by-default was tried -- making it affordable means
+NOT tracing every call. Sampling, or tracing only the module a run is in,
+would do it. Until that exists the honest default is off, and the tooltip
+now states both numbers so the choice can be made knowingly.

@@ -59,6 +59,34 @@ FILE_FORMAT = (
 )
 STREAM_FORMAT = "%(levelname)s %(name)s: %(message)s"
 
+
+class _CompactTraceFormat(logging.Formatter):
+    """The ordinary format, except for `spacr.trace`, which gets a short one.
+
+    MEASURED (297): twenty calls to a no-argument function wrote 5,520 bytes
+    -- 276 a call, of which the message itself is about forty. The rest is a
+    prefix repeated on every line, and three of its fields say nothing here:
+    the level is always DEBUG, the logger is always `spacr.trace`, and the
+    file and line are always this module's own tracer rather than the code
+    being traced, which is actively misleading.
+
+    A trail nobody can read through is not a trail. What is left is the time
+    and the arrow, which is what the reader is actually following.
+    """
+
+    #: Time only, to the millisecond: a trace is read for ORDER and for where
+    #: a gap is, and the date is the same on every line of one run.
+    TRACE_FORMAT = "%(asctime)s %(message)s"
+
+    def __init__(self, fmt: str, datefmt: str = None):
+        super().__init__(fmt, datefmt)
+        self._trace = logging.Formatter(self.TRACE_FORMAT, "%H:%M:%S")
+
+    def format(self, record: logging.LogRecord) -> str:
+        if record.name == "spacr.trace":
+            return self._trace.format(record)
+        return super().format(record)
+
 #: Third-party loggers that spam INFO records — capped at WARNING.
 QUIET_LOGGERS: tuple[str, ...] = (
     "PIL",
@@ -310,7 +338,7 @@ def setup_logging(level: Optional[int] = None,
         # handler underneath whatever thread is logging.
         file_h.setLevel(logging.DEBUG)
         file_h.addFilter(_file_filter(_levels_at_or_above(level)))
-        file_h.setFormatter(logging.Formatter(FILE_FORMAT))
+        file_h.setFormatter(_CompactTraceFormat(FILE_FORMAT))
         root.addHandler(file_h)
         _install_level_handlers(resolved_path, _levels_at_or_above(level))
 
@@ -370,7 +398,7 @@ def _install_level_handlers(master_path: Path, levels: Iterable[int]) -> None:
                     f"spaCR could not open {path}: {exc}\n")
                 continue
             handler.setLevel(logging.DEBUG)
-            handler.setFormatter(logging.Formatter(FILE_FORMAT))
+            handler.setFormatter(_CompactTraceFormat(FILE_FORMAT))
             handler.addFilter(LevelSetFilter())
             root.addHandler(handler)
             _LEVEL_HANDLERS[level] = handler

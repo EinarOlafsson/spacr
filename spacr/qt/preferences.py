@@ -3066,17 +3066,24 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     return files, console
 
 
-#: Verbose diagnostic logging is ON unless the user turns it off.
+#: Verbose diagnostic logging is OFF unless the user turns it on.
 #:
-#: A bug report is worth far more with a trail behind it, and the trail has
-#: to already exist when the thing goes wrong -- asking a user to turn
-#: logging on and reproduce it is asking for the one run nobody captured.
+#: IT WAS BRIEFLY THE DEFAULT, and the measurement that reversed that is
+#: worth keeping: on this machine, offscreen, reaching a usable Home screen
+#: took 3.05 s with verbose off and 65.28 s with it on -- and the Mask
+#: module had still not finished opening when the run was cut short.
 #:
-#: THIS WAS ONLY SAFE ONCE VERBOSE WAS CHEAP. With the animation traced it
-#: wrote three 5 MB files a minute and the interface stopped responding;
-#: `spacr.logging_util._TRACE_SKIP_MODULES` is what makes the default
-#: defensible, and the two must not be separated.
-DEFAULT_VERBOSE_LOGGING = True
+#: The tracer fires on every call and every return in the process, and
+#: startup is where a Python application makes the most calls it will ever
+#: make. Excluding the paint path and halving the line length (297) took the
+#: cost from unusable to merely large; neither makes twenty times the
+#: startup acceptable as something a user did not ask for.
+#:
+#: A trail that exists before the bug is genuinely worth having, which is
+#: why this was tried. Making it affordable means not tracing every call --
+#: sampling, or tracing only the module a run is in -- and until that exists
+#: the honest default is off.
+DEFAULT_VERBOSE_LOGGING = False
 
 
 def get_verbose_logging() -> bool:
@@ -4286,10 +4293,18 @@ class PreferencesDialog:
         # the active ConsolePanel. Aimed at bug reports.
         verbose_check = Toggle(tr("Enable verbose logging"))
         verbose_check.setToolTip(
-            "When on, every spaCR log record — plus INFO-level chatter "
-            "from cellpose, torch, PIL and matplotlib — echoes into "
-            "the active app's Console. Very chatty; leave off unless "
-            "you're triaging a bug."
+            "Records every spaCR function entered and left, plus "
+            "INFO-level chatter from cellpose, torch, PIL and matplotlib, "
+            "and echoes every record into the active app's Console. It is "
+            "what makes a bug report worth reading.\n\n"
+            "IT IS EXPENSIVE, measured rather than estimated: starting "
+            "spaCR took 3 seconds with this off and 65 seconds with it on, "
+            "because startup is where the most function calls happen. Each "
+            "traced call writes about 156 bytes.\n\n"
+            "So turn it on to reproduce a specific problem, and off again "
+            "afterwards. The animated background is never traced whatever "
+            "this says: it draws sixty frames a second and tracing it wrote "
+            "megabytes a minute."
         )
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
