@@ -1,0 +1,8 @@
+292 — The startup window does not make you scroll the terms of service
+
+Asked 2026-08-28: "change it so the terms of service dont need to be scrolled
+through in the startup window."
+
+Accepting must not require dragging a scrollbar to the bottom of a long box.
+Show it in a form that fits, with the full text reachable for anyone who wants
+it.

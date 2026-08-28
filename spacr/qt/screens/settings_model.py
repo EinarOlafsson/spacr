@@ -6420,6 +6420,15 @@ def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
     for child in candidate.findChildren(QWidget):
         if child.property("settingHelpLabel"):
             return child
+    # BEFORE THE HOST HAS EVER BEEN DECORATED there is no marked child to
+    # find, because `settingHelpLabel` is set by the decoration pass
+    # itself -- so the first pass over a freshly built form got the host
+    # back and treated the row as having no name at all. The first
+    # labelled child is the caption `add_row` put there, and taking it is
+    # as deterministic as the marked one: a host holds one caption.
+    for child in candidate.findChildren(QLabel):
+        if child.text().strip():
+            return child
     return candidate
 
 
@@ -7873,7 +7882,18 @@ class SettingsWidgets:
     Section widgets on a screen. `.collect()` returns the current settings
     dict after user edits."""
 
-    def __init__(self, app_key: str, parent: Optional[QWidget] = None):
+    def __init__(self, app_key: str, parent: Optional[QWidget] = None,
+                 *, skip_keys=()):
+        """
+        :param skip_keys: settings to build NO widget for.
+
+            For a FOLD, which mounts one module's extra settings onto
+            another's panel. The timelapse fold on the mask screen built all
+            364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and
+            kept the 14 that mask does not already have, discarding the rest
+            because the host already owns them. Naming them here skips them
+            instead, which is the same result for 4% of the work.
+        """
         """Load the app's default settings dict and prepare an empty widget map.
 
         :param app_key: id of the app whose settings are being edited.
@@ -7881,6 +7901,8 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        #: Settings to build no widget for. See __init__'s docstring.
+        self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
         # EVERY SLOT THAT CAN BE NAMED, not the four the module ships. A
         # control that was never built cannot be revealed, so a panel whose
         # defaults stop at `number_of_organelles` slots can only ever render
@@ -7979,7 +8001,8 @@ class SettingsWidgets:
         # `self._widgets`, so a key left out of every category still
         # renders as long as a widget exists for it. The value stays in
         # `self._defaults` and reaches the run unchanged.
-        hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
+        hidden_keys = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
+        hidden_keys.update(self._skip_keys)
         # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
         # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
         # measured as zero timer ticks for the whole build, which is what
@@ -9774,6 +9797,16 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         return None
 
     def _named(widget) -> Optional[QWidget]:
+        # THE NAME MAY BE INSIDE A HOST. `Section.add_row` wraps the
+        # caption in a `SettingLabelWithInfo` whenever the row wants it
+        # right-aligned against its field, which is the settings form's
+        # normal shape -- so the layout hands back a plain `QWidget` and
+        # the `isinstance` below rejected it. Measured on Mask: 1,541 of
+        # 1,657 rows kept their help on the field for this reason alone,
+        # and 13 labels had it. `_unwrap_setting_label` is the existing
+        # answer to "what is the real label in there"; it returns the
+        # widget unchanged when there is no host to unwrap.
+        widget = _unwrap_setting_label(widget)
         if not (isinstance(widget, QLabel) and widget.text().strip()):
             return None
         # A label with a pointing hand is this repository's convention for

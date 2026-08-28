@@ -799,7 +799,13 @@ class CategoryFold:
             return False
         from .settings_model import SettingsWidgets
 
-        model = SettingsWidgets(self.key, parent=content)
+        # ONLY WHAT THIS FOLD ADDS. The loop below keeps a row exactly when
+        # the host does not already hold its key, so building the rest was
+        # 96% waste: the timelapse fold on the mask screen built 364
+        # settings to keep 14, at 1,148 ms on every module open. The host's
+        # own keys are skipped up front instead.
+        already = set(getattr(host_model, "_widgets", {}))
+        model = SettingsWidgets(self.key, parent=content, skip_keys=already)
         built = model.build_sections()
         held = set(getattr(host_model, "_widgets", {}))
         by_widget = _widget_keys(model)

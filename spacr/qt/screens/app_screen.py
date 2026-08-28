@@ -1095,6 +1095,7 @@ class AppScreen(QWidget):
 
         # Settings panel (left)
         body.addWidget(self._build_settings_panel())
+        self.the_name_carries_the_help()
         # Runtime panel (right)
         body.addWidget(self._build_runtime_panel())
 
@@ -2331,6 +2332,40 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-index the settings search", exc_info=True)
 
+    def the_name_carries_the_help(self) -> int:
+        """Move every settings tooltip off its field and onto its NAME.
+
+        :returns: how many were moved, so a test can assert a number.
+
+        THE HOVER TARGET IS THE SETTING'S NAME. Hovering the box you type
+        in pops the help over the value you are reading or editing, and a
+        field can be focused and clicked, so the popup fights the
+        interaction. The name is inert, which makes it the calm target.
+
+        `retarget_field_tooltips` is how the rest of the tool does this --
+        every dialog and side panel calls it at the end of its `__init__`
+        -- and the main settings form was the one place that never did.
+        Measured on Mask: 1,538 fields carried their own tooltip and 13
+        labels had one. `_lay_out_setting_row` moves the help for a row it
+        lays out itself, which is 77 of that screen's 1,657; the rest
+        arrive from the lazy row builder, the deferred "rows that are
+        back" pass, and a fold mounting another module's categories.
+
+        Run again after rows appear later, since it only ever moves a
+        tooltip that is still on a field: it is idempotent by
+        construction, and a second pass over rows already moved finds
+        nothing to do.
+        """
+        from .settings_model import retarget_field_tooltips
+
+        panel = getattr(self, "_settings_scroll", None) or self
+        try:
+            return int(retarget_field_tooltips(panel))
+        except Exception:
+            # Help that failed to move is a blemish, never a reason for a
+            # module not to open.
+            return 0
+
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
 
@@ -2418,6 +2453,7 @@ class AppScreen(QWidget):
             # the input field itself is left alone so
             # focus / edit interactions aren't disturbed.
             field.setToolTip("")
+
             # SettingsWidgets may already have disabled an
             # algorithm-specific field before this visual label
             # exists. Bind them now and mirror the state; later

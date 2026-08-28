@@ -1,0 +1,14 @@
+293 — The default graph type is a setting, and it governs every graph
+
+Asked 2026-08-28.
+
+In settings there is a DEFAULT GRAPH TYPE -- Bar, Jitter, Bar+Jitter, Box,
+Violin, and so on -- and it decides which graph is drawn FIRST, along with
+that graph's own settings.
+
+Today Regression has most of this: it draws bar-with-jitter and the user can
+right-click to change it. The right-click menu is right; the starting point is
+not. The setting must dictate what is drawn from the start.
+
+THE SAME BEHAVIOUR FOR EVERY GRAPH IN SPACR, not only Regression: the setting
+chooses the initial form, and right-click still changes it afterwards.

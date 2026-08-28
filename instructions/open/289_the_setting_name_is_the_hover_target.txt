@@ -1,0 +1,44 @@
+289 — The setting NAME is the hover target, throughout
+
+Asked repeatedly, most recently 2026-08-28: "in all settings i dont know how
+many times i have said this, when the mouse hovers over the settings name the
+tooltip should appear not when the tooltip is hovered above the field the
+setting is for, please change this throughout."
+
+MEASURED on the Mask form (driving a real MainWindow through
+_on_nav_selected("mask")), before any fix:
+
+    rows the user can reach : 106
+    help on the FIELD       :  93
+    help on the NAME        :  13
+
+Why the existing machinery missed them:
+
+* `retarget_field_tooltips` is the shared pass every dialog and side panel
+  runs at the end of __init__. AppScreen -- the main settings form, and the
+  one with the most settings -- never called it at all.
+* `_sibling_label_for` pairs a field with its name through the layout. It
+  required a bare QLabel, but `Section.add_row` wraps the caption in a
+  `SettingLabelWithInfo` host whenever the row is right-aligned, which is the
+  settings form's normal shape.
+* `_unwrap_setting_label` only returned a child already carrying
+  `settingHelpLabel`, and that property is set BY the decoration pass -- so on
+  a first pass over a fresh form there was nothing to find.
+* `AppScreen._lay_out_setting_row` does move the help, correctly, but it lays
+  out 77 of that screen's 1,657 rows. The rest arrive from the lazy row
+  builder, the deferred "rows that are back" pass, and a fold mounting
+  another module's categories.
+
+DONE so far: AppScreen now runs the shared pass; the pairing unwraps the host;
+the unwrapper falls back to the first labelled child. That moved 52.
+
+STILL OPEN: 93 reachable rows whose form row has NO label item at all
+(`itemAt(i, LabelRole)` is None) -- src, cell_channel, nucleus_channel,
+pathogen_channel, number_of_organelles, organelle_channel and similar. Their
+caption is not a form label, so the layout cannot pair them. Find where those
+rows are added and give the pass a way to reach their name.
+
+VERIFY the way the user meets it: drive a real MainWindow, count reachable
+rows (skip isHidden()), and assert help-on-the-field is zero. Counting
+`_widgets` is misleading -- touching it materialises lazy widgets that were
+never placed, which is what made an earlier count read 1,551.

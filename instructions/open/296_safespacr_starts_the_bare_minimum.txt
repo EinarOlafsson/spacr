@@ -1,0 +1,25 @@
+296 — `safespacr` starts the bare minimum
+
+Asked 2026-08-28, while spaCR was crashing on launch: "there should be a start
+spacr in safe mode triggered by safespacr that turns everything it can off and
+just starts the bare minimum, so settings can be changed and resaved e.g."
+
+A console entry point `safespacr` beside `spacr` and `spaceout`. It brings up
+the least that can still show and save settings, and turns OFF everything that
+is not needed to do that:
+
+* no animated backdrop, no fractal, no OpenGL of any kind -- the crash log
+  points at the GL path (295), so safe mode must never create a GL context;
+* no preloading, no background import thread;
+* no verbose tracing, whatever the saved preference says (294);
+* no GPU probe, no CUDA import;
+* plain widgets, default font, no theme animation.
+
+WHY IT MATTERS: when a saved preference is what makes spaCR die on launch,
+there is currently no way in. Safe mode has to be reachable without reading
+the preference that is breaking it -- so it must not load the same preferences
+path that a normal start does, or it inherits the fault it exists to escape.
+It reads settings, lets the user change and RE-SAVE them, and exits.
+
+Verify by making a normal start impossible -- write a preference that crashes
+it -- and asserting `safespacr` still opens and can rewrite that value.

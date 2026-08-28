@@ -1,0 +1,22 @@
+294 — Verbose logging must be cheap before it can be the default
+
+Asked 2026-08-28: "verbose logging should be on by default".
+
+MEASURED THE SAME DAY, with verbose on: spaCR wrote three 5 MB log files
+inside one minute and the interface became "supper laggy". `spacr.trace` logs
+every function ENTRY and EXIT, and that includes the backdrop's per-frame
+paint path -- `ambient._with_alpha` entered and left thousands of times a
+second, each one formatted and written to disk.
+
+So the ask cannot ship as it stands. Make verbose cheap first:
+
+* never trace the per-frame paint path (ambient, the fractals, anything on
+  the animation timer);
+* the trace hook costs nothing when the level is not enabled -- check before
+  formatting, not after;
+* keep the log bounded, and say in the tooltip what it costs.
+
+THEN turn it on by default.
+
+NOT the cause of the crashes: the crash log holds `Segmentation fault` and
+`Aborted` entries from before verbose was enabled. See 295.
