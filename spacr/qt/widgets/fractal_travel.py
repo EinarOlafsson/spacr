@@ -833,7 +833,29 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             physical_height = max(180, round(logical_height * device_scale))
             aspect = physical_width / physical_height
             requested = base_pixels * self._adaptive_scale ** 2
-            requested = max(180_000.0, min(1_250_000.0, requested))
+
+            # RENDER SCALE, which was a setting nobody read. It is the
+            # fraction of the window's own pixels to shade, so 1.0 is native
+            # and anything less trades sharpness for speed -- the direct
+            # answer to "how do i get the image sharper".
+            try:
+                render_scale = float(_render_scale())
+            except Exception:                                # noqa: BLE001
+                render_scale = 1.0
+            native = float(physical_width) * float(physical_height)
+            if render_scale > 0.0:
+                requested = native * render_scale * render_scale
+
+            # THE CEILING IS THE SCREEN, not a number chosen for one
+            # pattern. It used to stop at 1,250,000 pixels whatever the
+            # settings said, so past a certain point raising the scale did
+            # nothing at all and there was no way to tell -- which is the
+            # same complaint as the capped fields, one layer down.
+            #
+            # Shading more pixels than the display has is still waste, so
+            # that is where it stops; `scale` above 1 is what asks for the
+            # full native resolution rather than a fraction of it.
+            requested = max(180_000.0, min(native, requested))
             width = int(round(math.sqrt(requested * aspect)))
             height = int(round(width / aspect))
             width = min(physical_width, max(320, width))
@@ -1217,6 +1239,27 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         match.group(1) for match in
         re.finditer(r"uniform\s+\w+\s+(u_\w+)\s*;", _FRAGMENT))
 
+    #: The saved Mandelbrot numbers, read once when the backdrop is built.
+    #:
+    #: THE RENDERER READ THE MODULE'S DEFAULTS. Every one of the twelve
+    #: settings the panel offers was collected, stored and then ignored --
+    #: "changing render scale changes nothing", and the same was true of all
+    #: of them. The published defaults are the FALLBACK now, not the answer.
+    def _mandel_setting(name, fallback=None):
+        from .fractal_mandelbrot import DEFAULTS as _PUBLISHED
+
+        try:
+            from ..preferences import get_fractal_settings
+
+            saved = get_fractal_settings()
+        except Exception:                                    # noqa: BLE001
+            saved = {}
+        if name in saved and saved[name] is not None:
+            return saved[name]
+        if fallback is not None:
+            return fallback
+        return _PUBLISHED[name]
+
     class _Canvas(Canvas):
         def __init__(self) -> None:
             super().__init__(keys=None, size=(1200, 760), show=False)
@@ -1319,8 +1362,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             def _work():
                 try:
                     orbit = ReferenceOrbit(
-                        max_iter=int(DEFAULTS["max_iterations"]),
-                        digits=int(DEFAULTS["precision_digits"]))
+                        max_iter=int(_mandel_setting("max_iterations")),
+                        digits=int(_mandel_setting("precision_digits")))
                 except Exception:                            # noqa: BLE001
                     LOG.exception("could not build the reference orbit")
                     return
@@ -1355,7 +1398,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             if previous is not None:
                 self._depth = getattr(self, "_depth", 0.0) + depth_decades(
                     now - previous, controls.speed * controls.zoom_rate,
-                    float(DEFAULTS["seconds_per_decade"]))
+                    float(_mandel_setting("seconds_per_decade")))
             # THE DIVE STARTS AGAIN RATHER THAN ENDING IN A BLACK FRAME.
             # The per-pixel offset is a float32 whatever the reference
             # orbit's precision, and past about forty-five decades the step
@@ -1379,14 +1422,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 self._next_steer = 0.0
             depth = depth_after_restart(
                 getattr(self, "_depth", 0.0),
-                float(DEFAULTS.get("max_depth", 34.0)))
+                float(_mandel_setting("max_depth", 34.0)))
             self._depth = depth
             orbit = self._orbit
             length = float(orbit.max_iter + 1) if orbit is not None else 1.0
             budget = iteration_budget(
-                depth, int(DEFAULTS["base_iterations"]),
-                float(DEFAULTS["iterations_per_decade"]),
-                int(DEFAULTS["max_iterations"]))
+                depth, int(_mandel_setting("base_iterations")),
+                float(_mandel_setting("iterations_per_decade")),
+                int(_mandel_setting("max_iterations")))
             if orbit is not None:
                 budget = min(budget, orbit.max_iter)
             # A FAULT IN THE STEERING MUST NOT STOP THE PICTURE. This
@@ -1401,7 +1444,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 centre = getattr(self, "_centre", (0.0, 0.0))
             return {
                 "u_scale": np.float32(
-                    scale_at(depth, float(DEFAULTS["initial_scale"]))),
+                    scale_at(depth, float(_mandel_setting("initial_scale")))),
                 "u_center_offset": (np.float32(centre[0]),
                                     np.float32(centre[1])),
                 "u_depth": np.float32(depth),
@@ -1451,7 +1494,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                     self._move = None
                     self._steer_step = getattr(self, "_steer_step", 0) + 1
                     self._next_steer = depth + float(
-                        DEFAULTS["steering_interval_decades"])
+                        _mandel_setting("steering_interval_decades"))
                 return self._centre
 
             plan = getattr(self, "_plan", None)
@@ -1460,18 +1503,18 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 target = plan.get("target")
                 if target is not None:
                     scale = scale_at(depth,
-                                     float(DEFAULTS["initial_scale"]))
+                                     float(_mandel_setting("initial_scale")))
                     self._move = (
                         here,
                         (here[0] + target[0] * scale,
                          here[1] + target[1] * scale),
                         time.perf_counter(),
-                        float(DEFAULTS["steering_duration"]))
+                        float(_mandel_setting("steering_duration")))
                 else:
                     # Nothing on the boundary from here: look again sooner
                     # rather than giving up on steering for good.
                     self._next_steer = depth + 0.35 * float(
-                        DEFAULTS["steering_interval_decades"])
+                        _mandel_setting("steering_interval_decades"))
                 return here
 
             if plan is None and depth >= getattr(self, "_next_steer", 0.0):
@@ -1483,10 +1526,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                         found = plan_guided_step(
                             orbit,
                             scale_at(depth,
-                                     float(DEFAULTS["initial_scale"])),
+                                     float(_mandel_setting("initial_scale"))),
                             budget,
-                            strength=float(DEFAULTS["steering_strength"]),
-                            candidates=int(DEFAULTS["candidate_count"]),
+                            strength=float(_mandel_setting("steering_strength")),
+                            candidates=int(_mandel_setting("candidate_count")),
                             step_index=getattr(self, "_steer_step", 0),
                             offset_re=here[0], offset_im=here[1])
                     except Exception:                        # noqa: BLE001
@@ -1729,6 +1772,21 @@ def nudge_zoom_rate(steps: int) -> float:
     return rate
 
 
+def _render_scale() -> float:
+    """The saved render scale, or 1.0 -- native resolution.
+
+    MODULE LEVEL, because both builders need it: it was defined inside the
+    GPU one and read from the CPU one, which is a NameError at the moment a
+    frame is sized.
+    """
+    try:
+        from ..preferences import get_fractal_settings
+
+        return float(get_fractal_settings().get("render_scale", 1.0))
+    except Exception:                                        # noqa: BLE001
+        return 1.0
+
+
 def pattern_for_this_machine(pattern: str, backend: str = "auto") -> str:
     """The pattern that can actually be drawn here.
 
@@ -1787,5 +1845,19 @@ def create_fractal_widget(settings: Optional[Settings] = None,
         try:
             return _make_gpu_widget(settings, controls, hardware)
         except Exception:                                    # noqa: BLE001
-            pass
+            # SAID OUT LOUD. This swallowed every GPU failure without a
+            # word, so a shader that would not compile looked exactly like a
+            # machine with no GPU -- and the Mandelbrot pattern, which has
+            # no CPU renderer, came out as the orbit fold with nothing
+            # anywhere to say why.
+            LOG.warning("the GPU backdrop could not be built; falling back "
+                        "to the CPU renderer", exc_info=True)
+    if settings.pattern == "mandelbrot":
+        # AND THE CPU CANNOT DRAW THIS ONE. Handing it to the CPU builder
+        # silently produced the orbit fold, because that is what its final
+        # `else` does -- so the user chose Mandelbrot and got something
+        # else with no indication anything had happened.
+        LOG.warning("the Mandelbrot pattern needs the GPU renderer; "
+                    "drawing %s instead", FALLBACK_PATTERN)
+        settings = replace(settings, pattern=FALLBACK_PATTERN)
     return _make_cpu_widget(settings, controls, hardware)

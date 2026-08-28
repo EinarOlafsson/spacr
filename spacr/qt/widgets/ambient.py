@@ -5221,11 +5221,19 @@ def _the_spaceout_fractal(host):
         widget = create_fractal_widget(
             Settings(pattern=values["pattern"], backend=values["backend"],
                      quality=values["quality"], scale=values["scale"]),
+            # EVERY SAVED CONTROL, not most of them. The three pointer
+            # settings were collected, stored and never passed, so Mouse
+            # gravity could not be turned off: `RuntimeControls` defaults it
+            # to on, and nothing here ever said otherwise.
             RuntimeControls(speed=values["speed"], dream=values["dream"],
                             variable_speed=values["variable_speed"],
                             speed_min=values["speed_min"],
                             speed_max=values["speed_max"],
-                            speed_period=values["speed_period"]),
+                            speed_period=values["speed_period"],
+                            follow_pointer=bool(values["pointer_gravity"]),
+                            pointer_size=values["pointer_size"],
+                            pointer_strength=values["pointer_strength"],
+                            zoom_rate=values["zoom_rate"]),
         )
         widget.setParent(host)
         widget.setGeometry(host.rect())
