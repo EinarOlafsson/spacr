@@ -682,6 +682,16 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
         @Slot(object)
         def render(self, request: object) -> None:
+            """Shade one frame and hand it back, if anyone is still there.
+
+            A FRAME CAN FINISH AFTER ITS WIDGET IS GONE. The shading runs on
+            this thread while the GUI thread may be closing the window or
+            swapping the pattern, and Qt deletes the worker's C++ side with
+            it -- so `emit` raises "Signal source has been deleted". The
+            except below then emitted the FAILURE signal, which raised the
+            same way, and an exception escaping a slot on a QThread takes
+            the process down: "Aborted (core dumped)".
+            """
             try:
                 started = time.perf_counter()
                 frame = self.engine.render(
@@ -690,9 +700,29 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                     request.get("pointer_x", 0.0),
                     request.get("pointer_y", 0.0),
                     request.get("pull", 0.0), request.get("push", 0.0))
-                self.frame_ready.emit(frame, time.perf_counter() - started)
             except Exception as error:                       # noqa: BLE001
-                self.failed.emit(f"{type(error).__name__}: {error}")
+                self._say_something(self.failed,
+                                    f"{type(error).__name__}: {error}")
+                return
+            self._say_something(self.frame_ready, frame,
+                                time.perf_counter() - started)
+
+        @staticmethod
+        def _say_something(signal, *args) -> None:
+            """Emit, unless the object that owns the signal has been freed.
+
+            The last thing this thread does with a widget that is being
+            destroyed, so it must never raise: nothing is listening, and an
+            exception here ends the process rather than the frame.
+            """
+            try:
+                signal.emit(*args)
+            except RuntimeError:
+                # "Signal source has been deleted" -- the widget went away
+                # while this frame was being shaded. There is nobody to tell.
+                pass
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not deliver a frame", exc_info=True)
 
     class CpuFractalWidget(QWidget):
         """The orbit-fold fractal, rendered off the GUI thread.
@@ -1359,7 +1389,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 int(DEFAULTS["max_iterations"]))
             if orbit is not None:
                 budget = min(budget, orbit.max_iter)
-            centre = self._steer(depth, budget, orbit)
+            # A FAULT IN THE STEERING MUST NOT STOP THE PICTURE. This
+            # returns the uniforms for the whole frame, and a NameError in
+            # the course-plotting once left every one of them unset -- so
+            # the pattern drew nothing at all, silently, which is a far
+            # worse failure than a dive that goes straight down.
+            try:
+                centre = self._steer(depth, budget, orbit)
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not steer the dive")
+                centre = getattr(self, "_centre", (0.0, 0.0))
             return {
                 "u_scale": np.float32(
                     scale_at(depth, float(DEFAULTS["initial_scale"]))),
@@ -1389,7 +1428,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             """
             import threading
 
-            from .fractal_mandelbrot import DEFAULTS, eased, plan_guided_step
+            from .fractal_mandelbrot import (DEFAULTS, eased,
+                                             plan_guided_step, scale_at)
 
             if orbit is None:
                 return (0.0, 0.0)
