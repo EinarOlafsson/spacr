@@ -75,6 +75,33 @@ def _explain_the_inotify_line() -> None:
         file=sys.stderr)
 
 
+def _quiet_vispy_logging() -> None:
+    """Stop vispy narrating the backdrop into the terminal.
+
+    It logs a WARNING for every uniform a linked program has not been given
+    and for each shader it recompiles, once per DRAW -- sixty lines a second
+    behind a window nobody is debugging. The messages are about a decoration
+    and reach a user who did not ask for them.
+
+    ERROR is still let through: a shader that will not compile is a backdrop
+    that will not draw, and that is worth saying.
+    """
+    import logging
+
+    for name in ("vispy", "vispy.gloo", "vispy.app"):
+        try:
+            logging.getLogger(name).setLevel(logging.ERROR)
+        except Exception:                                    # noqa: BLE001
+            continue
+    try:
+        from vispy import set_log_level
+
+        set_log_level("error")
+    except Exception:                                        # noqa: BLE001
+        # vispy is optional; a machine without it has no backdrop to quiet.
+        pass
+
+
 def _install_quiet_qt_logging() -> None:
     """Drop known-harmless Qt log lines, pass everything else through.
 
@@ -325,6 +352,7 @@ def run(argv: list[str] | None = None) -> int:
     # before the pipeline preloader reaches cellpose.
     _quiet_gtk_accessibility()
     _install_quiet_qt_logging()
+    _quiet_vispy_logging()
     _quiet_library_warnings()
 
     if len(argv) == 1 and argv[0] in _VERSION_FLAGS:

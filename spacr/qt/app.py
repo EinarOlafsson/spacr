@@ -3555,10 +3555,24 @@ class MainWindow(QMainWindow):
         return True
 
     def keyPressEvent(self, event) -> None:
-        """Up and Down change the spaceout zoom rate."""
+        """Up and Down change the spaceout zoom rate; Ctrl+R starts over."""
         from PySide6.QtCore import Qt
 
         key = event.key()
+        if (key == Qt.Key.Key_R
+                and event.modifiers() & Qt.KeyboardModifier.ControlModifier):
+            try:
+                from .widgets.fractal_travel import (_LIVE_CONTROLS,
+                                                     restart_the_dive)
+
+                if _LIVE_CONTROLS:
+                    restart_the_dive()
+                    self.statusBar().showMessage(
+                        tr("Backdrop restarted"), 1500)
+                    event.accept()
+                    return
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not restart the backdrop", exc_info=True)
         if key == Qt.Key.Key_Up and self._steer_the_backdrop(1):
             event.accept()
             return
