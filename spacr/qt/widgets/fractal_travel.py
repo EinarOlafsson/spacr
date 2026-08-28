@@ -58,11 +58,13 @@ QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
 #: the fold-inversion of v1.0.0, which takes all four samples INSIDE one
 #: frame and is four times the work per pixel because of it.
-PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade", "space")
+PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade", "space",
+                                    "mandelbrot")
 PATTERN_LABELS: Final[dict] = {
     "orbit": "Orbit fold (temporal 2x2)",
     "cascade": "Fold-inversion cascade (spatial 2x2)",
     "space": "Space (star field flight)",
+    "mandelbrot": "Mandelbrot (perturbation deep zoom)",
 }
 DEFAULT_PATTERN: Final[str] = "orbit"
 
@@ -1140,7 +1142,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         raise GpuBackendError(str(error)) from error
 
     quality = resolved_quality(settings.quality, "gpu", hardware)
-    if settings.pattern == "space":
+    if settings.pattern == "mandelbrot":
+        from .fractal_mandelbrot import FRAGMENT_SHADER as _FRAGMENT
+
+        # ITERATIONS, NOT FOLD DEPTH. The adaptive loop turns `_detail` down
+        # when a frame runs long, and here that is the iteration budget --
+        # which is also what the zoom needs MORE of as it descends, so the
+        # floor is high enough that a deep frame does not go solid.
+        base_detail = 6
+        detail_floor = 5
+    elif settings.pattern == "space":
         from .fractal_space import FRAGMENT_SHADER as _FRAGMENT
 
         # THE SCENE HAS NO ITERATION COUNT. Its cost is six parallax star
@@ -1174,6 +1185,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # except a rectangle to be relative to -- which is why one class
             # serves both backends.
             self._pointer = Pointer()
+            # THE REFERENCE ORBIT, for the Mandelbrot pattern only. Built on
+            # a worker thread because iterating a few thousand points at 320
+            # decimal digits takes seconds, and the backdrop has to keep
+            # drawing while it happens -- until it arrives the shader has an
+            # all-zero orbit, which renders as the flat interior colour
+            # rather than as a stall.
+            self._orbit = None
+            self._orbit_thread = None
+            if settings.pattern == "mandelbrot":
+                self._start_the_reference_orbit()
             self._started = time.perf_counter()
             self._last_sample = 0.0
             self._render_ema: Optional[float] = None
@@ -1229,9 +1250,85 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                     ("u_pointer_y", np.float32(pointer_y)),
                     ("u_pull", np.float32(pull)),
                     ("u_push", np.float32(push)),
-            ):
+            ) + tuple(self._mandelbrot_uniforms(elapsed).items()):
                 if name in _DECLARED:
                     self._program[name] = value
+            self._upload_the_orbit_if_it_arrived()
+
+        def _start_the_reference_orbit(self) -> None:
+            """Iterate Z off the GUI thread and upload it when it is ready."""
+            import threading
+
+            from .fractal_mandelbrot import DEFAULTS, ReferenceOrbit
+
+            def _work():
+                try:
+                    orbit = ReferenceOrbit(
+                        max_iter=int(DEFAULTS["max_iterations"]),
+                        digits=int(DEFAULTS["precision_digits"]))
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not build the reference orbit")
+                    return
+                # HANDED OVER BY ASSIGNMENT, which is atomic, rather than
+                # touched into the GL program from this thread: a GL call
+                # off the thread that owns the context is undefined.
+                self._orbit = orbit
+
+            self._orbit_thread = threading.Thread(
+                target=_work, name="spacr-mandelbrot-orbit", daemon=True)
+            self._orbit_thread.start()
+
+        def _mandelbrot_uniforms(self, elapsed: float) -> dict:
+            """The zoom's own uniforms for this instant.
+
+            :returns: ``{}`` for every other pattern, so the shared update
+                can splice it in unconditionally.
+            """
+            if settings.pattern != "mandelbrot":
+                return {}
+            from .fractal_mandelbrot import (DEFAULTS, depth_decades,
+                                             iteration_budget, scale_at)
+
+            depth = depth_decades(
+                elapsed, controls.speed,
+                float(DEFAULTS["seconds_per_decade"]))
+            orbit = self._orbit
+            length = float(orbit.max_iter + 1) if orbit is not None else 1.0
+            budget = iteration_budget(
+                depth, int(DEFAULTS["base_iterations"]),
+                float(DEFAULTS["iterations_per_decade"]),
+                int(DEFAULTS["max_iterations"]))
+            if orbit is not None:
+                budget = min(budget, orbit.max_iter)
+            return {
+                "u_scale": np.float32(
+                    scale_at(depth, float(DEFAULTS["initial_scale"]))),
+                "u_center_offset": (np.float32(0.0), np.float32(0.0)),
+                "u_depth": np.float32(depth),
+                "u_orbit_length": np.float32(length),
+                "u_max_iter": np.int32(max(1, int(budget))),
+            }
+
+        def _upload_the_orbit_if_it_arrived(self) -> None:
+            """Put the finished orbit into the shader's texture.
+
+            ON THE GUI THREAD, from inside the draw, because that is where
+            the GL context lives. Uploaded once: `_orbit_uploaded` is the
+            orbit object itself, so a rebuilt one would be noticed.
+            """
+            orbit = self._orbit
+            if orbit is None or getattr(self, "_orbit_uploaded", None) is orbit:
+                return
+            try:
+                self._program["u_orbit"] = gloo.Texture2D(
+                    orbit.packed, interpolation="nearest",
+                    internalformat="rgba32f")
+                self._orbit_uploaded = orbit
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not upload the reference orbit")
+                # Marked done regardless, or a driver that refuses the
+                # format would be asked again sixty times a second.
+                self._orbit_uploaded = orbit
 
         def _pointer_state(self):
             """``(x, y, pull, push)`` for the shader, in -1..1 space.

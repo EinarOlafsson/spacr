@@ -2030,7 +2030,7 @@ LAPTOP_MODE_LABELS = {
 #: The defaults are the maintainer's two command lines. `auto` picks the GPU
 #: when vispy is importable and the CPU otherwise, which is what lets one set
 #: of numbers serve both.
-FRACTAL_PATTERNS = ("orbit", "cascade", "space")
+FRACTAL_PATTERNS = ("orbit", "cascade", "space", "mandelbrot")
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
 FRACTAL_QUALITIES = ("auto", "balanced", "high")
 
@@ -3628,7 +3628,7 @@ PREFERENCE_TIPS = {
     "Page opacity": "Page opacity relative to the animated background.",
     # -- the backdrop and the rim --------------------------------------
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
-    "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest of the three and the one that competes least with what you are reading.",
+    "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest of the three and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
     "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
     "Quality": "How much detail the fractal is asked for. Balanced costs less per frame; high adds an iteration to the fractal and raises the internal resolution. Automatic chooses from the number of cores on the CPU renderer and uses balanced on the GPU.",
     "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",

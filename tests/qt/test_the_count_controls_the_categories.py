@@ -226,3 +226,55 @@ def test_two_rebuilds_keep_what_the_first_one_set(qapp):
                     if k.startswith("nucleus_")]) > 10
     finally:
         win.close()
+
+
+def test_the_rebuild_never_shows_the_home_screen(qapp):
+    """Typing a channel value sent the user back to Home and returned them.
+
+    Removing the old screen from the stack first drops the window to
+    whatever is left showing; the replacement has to exist before the stack
+    changes at all.
+    """
+    win = app_module.MainWindow()
+    win.show()
+    win._on_nav_selected("mask")
+    qapp.processEvents()
+    try:
+        seen = []
+        stack = win._stack
+        stack.currentChanged.connect(
+            lambda i: seen.append(type(stack.widget(i)).__name__))
+
+        field = win._screens["mask"]._settings_model._widgets[
+            "nucleus_channel"]
+        field.setText("1")
+        field.editingFinished.emit()
+        qapp.processEvents()
+
+        assert "StartupScreen" not in seen, seen
+        assert all(name == "AppScreen" for name in seen), seen
+        assert type(stack.currentWidget()).__name__ == "AppScreen"
+    finally:
+        win.close()
+
+
+def test_the_rebuild_reports_no_error(qapp, caplog):
+    """`SettingsWidgets` has no apply/set method; the values are carried by
+    seeding the defaults the widgets are built from."""
+    import logging
+
+    win = app_module.MainWindow()
+    win.show()
+    win._on_nav_selected("mask")
+    qapp.processEvents()
+    try:
+        with caplog.at_level(logging.ERROR):
+            field = win._screens["mask"]._settings_model._widgets[
+                "nucleus_channel"]
+            field.setText("1")
+            field.editingFinished.emit()
+            qapp.processEvents()
+        bad = [r for r in caplog.records if "mask screen" in r.getMessage()]
+        assert bad == [], [r.getMessage() for r in bad]
+    finally:
+        win.close()
