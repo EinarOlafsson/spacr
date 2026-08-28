@@ -56152,6 +56152,16 @@
         "7545b190c70e75ed7ef6f873fc659ea4042ca19e1e041dbbd23e361d3635d015"
       ]
     },
+    "spacr.qt.preferences.get_interface_font_weight": {
+      "source_blocks_sha256": [
+        "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd"
+      ],
+      "source_sha256": "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd",
+      "text": "जिस Open Sans का वजन इंटरफ़ेस का उपयोग करता है. 'regular' या 'light'.",
+      "translation_source_blocks_sha256": [
+        "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd"
+      ]
+    },
     "spacr.qt.preferences.get_issue_prompt_mode": {
       "source_blocks_sha256": [
         "01a60eed0a47582a2bcb294dab6ac9c9760f003a5e23183b59141959caaee42b",
@@ -56938,6 +56948,18 @@
       "text": "इनपुट-हैश विकल्प जारी रखें।",
       "translation_source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
+      ]
+    },
+    "spacr.qt.preferences.set_interface_font_weight": {
+      "source_blocks_sha256": [
+        "bf28e3e434c90b8846d14ff85402153c092ba0147274c5428d9abcaaafeb9b52",
+        "d06e12ba215a75e21aead1969badfb10b6f1ac283ef9fde7bca5a2a2d0e8d091"
+      ],
+      "source_sha256": "ff76a76eac402305bd0af8c3b4f5d7f86c49741d43dfbb1c0dff4b704e730346",
+      "text": "वजन को बनाए रखें और इसे चलने वाले अनुप्रयोग पर लागू करें।\n\n:raises ValueError: किसी भी चीज पर 'regular' या 'light' के अलावा।",
+      "translation_source_blocks_sha256": [
+        "bf28e3e434c90b8846d14ff85402153c092ba0147274c5428d9abcaaafeb9b52",
+        "d06e12ba215a75e21aead1969badfb10b6f1ac283ef9fde7bca5a2a2d0e8d091"
       ]
     },
     "spacr.qt.preferences.set_issue_prompt_mode": {
@@ -74133,6 +74155,96 @@
         "d2d5034ae29a819c1ebd8c589be6a24c2ef5de0c7f43f21ca67f8e6722f1bab4"
       ]
     },
+    "spacr.qt.timing": {
+      "source_blocks_sha256": [
+        "62b1134625a0518853de94d357647bd572c6f24e82038df4a1ed2d64c9fd4d61",
+        "44946e4cfb802128058471b9e9368a969c999d9d6eeb64831c547369ef125e1d",
+        "2285e0af18a1007e94a77cd1e2d946452e2dd6cab442ad0509bc0de87d08d20c",
+        "e4bff86113187117dbc0f4e8a72f3fa1df85e42dab937308bab2cf0ce10e825f",
+        "fb5ebb14ed9615d2e08db1823c095f939c768f754516e0e4880e755ce494c225",
+        "c44c90dbbac913a097e2444582442b5f0ed88514fa7e48265bd98ca2748b48a6",
+        "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+        "9240b40491994097776c2ee0bab8aa0c8e5e88a8776578c4ce932735f0b07b19",
+        "75e7ccbcb18896bb527f2171a93ea5adcc7e40d0467008121ddf22b49d213e63"
+      ],
+      "source_sha256": "1879f4925170b91878151d99e837e568b0857a100d2172ff1761cec2568deec8",
+      "text": "क्या आवेदन वास्तव में किया गया था, और कब, कुछ भी निष्कर्ष नहीं है।\n\n``SPACR_TIMING=1`` के साथ स्विच किया गया. बंद, यहां प्रत्येक फ़ंक्शन में कुछ गुण खोजें हैं और कुछ भी आयात, आवंटित या लिखित नहीं है।\n\nअब तक spaCR के स्टार्ट-अप का प्रत्येक माप एक स्क्रिप्ट में लिया गया था जो एप्लिकेशन का अनुकरण करता था - एक MainWindow बनाया, एक विधि को बुलाया, इसे टाइम किया - और प्रत्येक ने पूछे जाने वाले के बगल में एक सवाल का जवाब दिया. एक स्प्रिप्ट एक क्लिक के साथ प्रतिस्पर्धा करने वाले स्वतंत्र निष्पादन मार्ग को नहीं देख सकता है, एक स्टाइल शीट को चार बार फिर से लागू किया गया है, या एक नाजुक आयात जो पहली बार आग लगाता है जब एक उपयोगकर्ता एक पैनल खोलता है. यह वास्तविक प्रक्रिया को रिकॉर्ड करता है.\n\nचार चीजें रिकॉर्ड की गई हैं, सभी वास्तविक दीवार घड़ी के समय के साथ:\n\n* स्पेन - नामित, काम के निचले क्षेत्रों। ``with span(\"build mask\"):``\n* आयात - प्रत्येक मॉड्यूल एक सीमा से अधिक आयात करता है, आयात फ्रेम के साथ, एक `sys.meta_path` खोजकर्ता के माध्यम से, ``__import__`` पैचिंग के बजाय।\n* GUI STALLS - एक टाइमर जो हर 16 ms में आग लगाना चाहिए, हर बार जब यह देर हो जाती है रिकॉर्डिंग. यह \"the app froze\" का एकमात्र ईमानदार मापदंड है: यह घटना चक्र रिपोर्टिंग है।\n* मार्क्स - एक लाइन के लायक क्षण, जैसे \"window shown\"।\n\nएक प्रोफ़ाइल बताता है कि कौन सी फ़ंक्शन CPU का उपयोग किया गया था; यह बताती है कि उपयोगकर्ता क्या इंतजार कर रहा था और कितनी देर तक, जो एक अलग सवाल है और एक पूछा जाता है।",
+      "translation_source_blocks_sha256": [
+        "62b1134625a0518853de94d357647bd572c6f24e82038df4a1ed2d64c9fd4d61",
+        "44946e4cfb802128058471b9e9368a969c999d9d6eeb64831c547369ef125e1d",
+        "bf3ec71a7207d73fd72755b9a299292ebc1179b8538d1108b4333160eed96069",
+        "e4bff86113187117dbc0f4e8a72f3fa1df85e42dab937308bab2cf0ce10e825f",
+        "fb5ebb14ed9615d2e08db1823c095f939c768f754516e0e4880e755ce494c225",
+        "c44c90dbbac913a097e2444582442b5f0ed88514fa7e48265bd98ca2748b48a6",
+        "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+        "9240b40491994097776c2ee0bab8aa0c8e5e88a8776578c4ce932735f0b07b19",
+        "75e7ccbcb18896bb527f2171a93ea5adcc7e40d0467008121ddf22b49d213e63"
+      ]
+    },
+    "spacr.qt.timing.begin": {
+      "source_blocks_sha256": [
+        "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c"
+      ],
+      "source_sha256": "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c",
+      "text": "दो बार कॉल करने के लिए सुरक्षित; बंद होने पर कुछ भी नहीं करता है।",
+      "translation_source_blocks_sha256": [
+        "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c"
+      ]
+    },
+    "spacr.qt.timing.mark": {
+      "source_blocks_sha256": [
+        "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a"
+      ],
+      "source_sha256": "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a",
+      "text": "एक पल रिकॉर्ड करें. गर्म मार्गों पर जाने के लिए पर्याप्त सस्ता है.",
+      "translation_source_blocks_sha256": [
+        "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a"
+      ]
+    },
+    "spacr.qt.timing.report": {
+      "source_blocks_sha256": [
+        "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae"
+      ],
+      "source_sha256": "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae",
+      "text": "पाठ के रूप में टाइमलाइन।",
+      "translation_source_blocks_sha256": [
+        "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae"
+      ]
+    },
+    "spacr.qt.timing.span": {
+      "source_blocks_sha256": [
+        "f00674bd911fe0b23c1fdbf899bd419597f6a3912cefc406f9187e59fe165000",
+        "bcbc5461916aac8864d35a51c1f2f55b90d7a6a3d4d8f0e25890281c3634562f"
+      ],
+      "source_sha256": "844eee7ac9615a6064e6794ac9f91864ec6145c22c57ef4e17fb2a4e3852ffb7",
+      "text": "समय एक नामित क्षेत्र है, जो कुछ भी इसे शामिल करता है के तहत झुका हुआ है।\n\nरिकॉर्ड, यहां तक कि जब शरीर उठता है: एक स्पेन जो केवल सफलता पर दिखाई देता है, वास्तव में धीमी गति से असफलताओं को छिपाता है जो देखने लायक हैं।",
+      "translation_source_blocks_sha256": [
+        "f00674bd911fe0b23c1fdbf899bd419597f6a3912cefc406f9187e59fe165000",
+        "bcbc5461916aac8864d35a51c1f2f55b90d7a6a3d4d8f0e25890281c3634562f"
+      ]
+    },
+    "spacr.qt.timing.watch_the_gui_thread": {
+      "source_blocks_sha256": [
+        "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
+        "0a19ab5613279547c6a0db5c55b2bd7cbba639b7eb3b2a7efb6aaadf9aae77e5"
+      ],
+      "source_sha256": "89a3c61be925137d894b4c2201b612b11218fd3bf79c1aec422c84fccce57618",
+      "text": "टाइमर को वापस करें, या None जब बंद हो जाता है।\n\nएक QTimer 16 ms रिकॉर्ड के लिए पूछा कि यह वास्तव में कितना देर हो चुकी है. यह एकमात्र ईमानदार फ्रीज़ माप है: यह घटना लूप रिपोर्टिंग खुद पर है, वास्तविक अनुप्रयोग के अंदर से, इसलिए यह एक स्टॉल नहीं छोड़ सकता है जिस तरह से एक बाहरी स्क्रिप्ट कर सकता है.",
+      "translation_source_blocks_sha256": [
+        "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
+        "0a19ab5613279547c6a0db5c55b2bd7cbba639b7eb3b2a7efb6aaadf9aae77e5"
+      ]
+    },
+    "spacr.qt.timing.write_report": {
+      "source_blocks_sha256": [
+        "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3"
+      ],
+      "source_sha256": "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3",
+      "text": "समय लाइन लिखें. मार्ग वापस, या \"\" जब समय समाप्त हो जाता है.",
+      "translation_source_blocks_sha256": [
+        "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3"
+      ]
+    },
     "spacr.qt.tutorial": {
       "source_blocks_sha256": [
         "ad106562cbfc953c64e8f3d3ed690ae8bb87fea22b8d53a76bc485d53d6db3a5",
@@ -88801,6 +88913,30 @@
         "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.Pointer": {
+      "source_blocks_sha256": [
+        "3356ce45c58fecf5548949e4a5210650c0906c9332a076d30c0d0026deb92b31",
+        "14a17268abe477dc4f322fc7de385d86a4c24f55a08c1efa683703fe7e6a7650",
+        "0032279f350c26667c372d8d55750e6e6eaf9fce69a0ddad6e7d2eeb809da3b2"
+      ],
+      "source_sha256": "d75f3dc15676050e60b5c5a0c8d992aba9911fc5a55685d37d28332b4cecc091",
+      "text": "जहां संकेतक है, और क्या यह धक्का दे रहा है।\n\nबैकअप हर नियंत्रण के पीछे बैठता है; एक विगेट जो माउस घटनाओं को स्वीकार करता है, उस पर बटन के लिए क्लिक करने का मतलब खाता है. इसलिए यहां कुछ भी नहीं है एक माउसी व्यापारी - रेंडर टिक पर स्थिति `QCursor.pos()` से पढ़ी जाती है, और `QApplication.mouseButtons()` से बटन, जिनमें से दोनों वैश्विक स्थिति हैं जो कुछ भी खर्च नहीं करती है और कुछ भी चुराती नहीं है।\n\nसमन्वय -1..1 अंतरिक्ष में वापस आते हैं जिनमें फ्रैक्टल्स पहले से ही काम कर रहे हैं, केंद्र में (0, 0) के साथ, इसलिए एक कोर उन्हें विजेक्ट्स के बारे में कुछ भी जानने के बिना उपयोग कर सकता है।",
+      "translation_source_blocks_sha256": [
+        "3356ce45c58fecf5548949e4a5210650c0906c9332a076d30c0d0026deb92b31",
+        "14a17268abe477dc4f322fc7de385d86a4c24f55a08c1efa683703fe7e6a7650",
+        "0032279f350c26667c372d8d55750e6e6eaf9fce69a0ddad6e7d2eeb809da3b2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Pointer.sample": {
+      "source_blocks_sha256": [
+        "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2"
+      ],
+      "source_sha256": "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2",
+      "text": "``widget`` के संबंध में संकेतक पढ़ें. कभी नहीं फेंकता.",
+      "translation_source_blocks_sha256": [
+        "b07aeaeff795cb4654ed69ff5ef3cafbb25ef79ce7c4ae889d2501dc5b4c8ca6"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
       "source_blocks_sha256": [
         "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
@@ -88814,13 +88950,15 @@
     "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
       "source_blocks_sha256": [
         "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
-        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+        "560c889aec07c2aa22c236b3727fdac1d03bed77e81e15030b3cd1abeeb1dc1b",
+        "4c8cd45e04c98cc739deb4e92e38382a8a01fae75c2b684e3a3d6d1803045e8e"
       ],
-      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
-      "text": "उपयोग करने की गति ``t`` सेकंड में है।\n\nनिरंतर, जब तक कि `variable_speed` पर नहीं है, जिस मामले में यह इसे प्रतिस्थापित करने के बजाय सेट मूल्य के चारों ओर सांस लेता है - इसलिए प्राथमिकता अभी भी इसका मतलब है कि यह क्या कहता है।",
+      "source_sha256": "febc021f95a473b99f0eed1082156f42bbfd10afef006dc0451b8f8af03c3588",
+      "text": "उपयोग करने की गति ``t`` सेकंड में है।\n\nनिरंतर `speed` जब तक कि `variable_speed` पर नहीं है, जिस मामले में यह `speed_min` और `speed_max` के बीच झुकता है - एक छिपे हुए प्रतिशत के बजाय नामित सीमाओं, इसलिए यात्रा वास्तव में क्या करेगी सेटिंग्स से पढ़ा जा सकता है इसके बजाए इसे देखने से निष्कर्ष निकाला जाएगा. `speed_period` यह है कि एक पूर्ण झुकने में कितना समय लगता है, जो \"how gradually\" नियंत्रण है: एक बड़ी संख्या एक धीमी बदलाव है, एक कम फ्रैक्टल नहीं।\n\nसीमाओं का उपयोग किसी भी आदेश में किया जाता है जो वे दिए जाते हैं: एक मिनट एक मैक्स से ऊपर एक विनिमय जोड़ी है, एक खाली रेंज नहीं है, और एनीमेशन करने से इनकार करना दो संख्याओं के बीच एनिमेशन की तुलना में एक खराब जवाब होगा।",
       "translation_source_blocks_sha256": [
         "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
-        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+        "560c889aec07c2aa22c236b3727fdac1d03bed77e81e15030b3cd1abeeb1dc1b",
+        "4c8cd45e04c98cc739deb4e92e38382a8a01fae75c2b684e3a3d6d1803045e8e"
       ]
     },
     "spacr.qt.widgets.fractal_travel.Settings": {

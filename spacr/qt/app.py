@@ -2001,6 +2001,14 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QHBoxLayout, QWidget
 
         corner = QWidget(self)
+        corner.setObjectName("WindowChrome")
+        # A plain QWidget paints its own Window palette role.  MainWindow's
+        # first-frame palette is deliberately black, so leaving this corner
+        # implicit produced one black rectangle behind the three otherwise
+        # transparent marks.  Paint no surface here: the menu bar is the
+        # title bar and must remain visible through the whole corner widget.
+        corner.setAutoFillBackground(False)
+        corner.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
         row = QHBoxLayout(corner)
         row.setContentsMargins(0, 0, 6, 0)
         row.setSpacing(2)
@@ -2039,8 +2047,20 @@ class MainWindow(QMainWindow):
         # rounded plate behind a 10 px mark reads as a button growing a
         # background rather than as the mark itself lighting up, which is
         # what was asked for.
-        corner.setStyleSheet(
-            "QToolButton { background: transparent; border: none; }")
+        corner.setStyleSheet("""
+            QWidget#WindowChrome {
+                background: transparent;
+                border: none;
+            }
+            QWidget#WindowChrome QToolButton,
+            QWidget#WindowChrome QToolButton:hover,
+            QWidget#WindowChrome QToolButton:pressed,
+            QWidget#WindowChrome QToolButton:checked,
+            QWidget#WindowChrome QToolButton:disabled {
+                background: transparent;
+                border: none;
+            }
+        """)
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
         self._window_buttons = corner

@@ -1,0 +1,75 @@
+================================================================================
+ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
+================================================================================
+
+Status:    OPEN, filed 2026-08-27. HIGH PRIORITY performance configuration.
+Owner:     spacr/qt/preferences.py, startup resource policy, cache policy,
+           ambient quality, setup screen, translations, tutorials and tests.
+Follows:   282 and 284. Supersedes the separate Laptop mode selector.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+Laptop mode is the most constrained performance level, not an independent
+setting. Replace the separate spaCR mode and Laptop mode controls with one
+ordered selector containing exactly these five choices:
+
+    Laptop
+    Extra Performance
+    Performance
+    Balanced
+    Workstation
+
+--------------------------------------------------------------------------------
+THE CONTRACT
+--------------------------------------------------------------------------------
+
+1. ONE VALUE, NOT TWO INTERACTING OVERRIDES
+
+There is one stored performance level and one Preferences control. Application
+startup, visual quality, worker/resource policy, cache policy and run cleanup
+all derive from that value. No hidden Laptop override may continue changing a
+choice made in the five-level selector.
+
+2. ORDER MEANS RESOURCE SCALE
+
+``Laptop`` is the lowest-memory, lowest-background-cost profile and
+``Workstation`` is the profile that retains the most reusable state. Extra
+Performance and Performance sit between Laptop and Balanced exactly in the
+order shown above. Scientific computation and results do not change between
+levels; only scheduling, caching, memory retention and interface decoration do.
+
+3. MIGRATE EXISTING PREFERENCES
+
+An existing explicit Laptop-mode ``on`` value migrates to ``Laptop``. With
+Laptop mode off or automatic, preserve the existing spaCR mode where possible;
+the previous ``balanced`` value remains ``Balanced``. Perform the migration
+once and remove the obsolete preference only after the new value is durable.
+
+4. EXPLAIN THE HARDWARE DECISION
+
+Each level's tooltip states the intended hardware profile, memory/cache
+behavior, animation behavior and cleanup trade-off in concrete language. The
+same names and meanings appear in first-run setup, API documentation, every
+supported language and the tutorials.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Preferences and first-run setup expose exactly the five levels above, in
+    that order, with no separate Laptop mode control;
+  * a fresh process reads one canonical performance value and all resource,
+    cache, animation and cleanup decisions derive from it;
+  * migration tests cover every legacy spaCR mode crossed with ``on``, ``off``
+    and ``automatic`` Laptop values, including repeated startup;
+  * Laptop has the smallest measured retained-memory and background workload;
+    Workstation has the largest reusable cache allowance; all intermediate
+    profiles are monotonic between them;
+  * representative pipelines produce equivalent scientific outputs at all
+    five levels;
+  * runtime/API translation ratchets include the five names, tooltips and
+    migration messages in all nine supported languages;
+  * installation and Home tutorials show the single five-level control rather
+    than the removed Laptop setting.

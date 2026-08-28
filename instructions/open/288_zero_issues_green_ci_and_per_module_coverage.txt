@@ -1,0 +1,66 @@
+================================================================================
+ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
+================================================================================
+
+Status:    OPEN, filed 2026-08-27. RELEASE-BLOCKING.
+Owner:     the complete spaCR source tree, tests and GitHub workflows.
+Precedes:  253's version, main-branch and history publication actions.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+Fix all GitHub issues, make every GitHub test pass, and bring every spaCR
+module to 100% test coverage.
+
+--------------------------------------------------------------------------------
+THE CONTRACT
+--------------------------------------------------------------------------------
+
+1. GITHUB ISSUES
+
+Read every open issue against the current code. Close an issue only when its
+acceptance criteria are implemented and verified, or when the issue is a
+demonstrable duplicate/obsolete report with that evidence recorded. Do not
+roll back a later implementation to match an older issue. An issue that needs
+external information remains explicitly open rather than being declared fixed.
+
+2. ONE GREEN COMMIT
+
+Every required GitHub workflow and every job in those workflows must complete
+successfully on the same final commit. A cancelled, skipped-by-error, stale-
+branch or superseded run is not a passing badge. Local tests are diagnostics;
+the GitHub run is the release evidence.
+
+3. 100% FOR EACH MODULE
+
+Measure statement and branch coverage per source module on a frozen worktree.
+Every module reaches 100%; one heavily tested module cannot average away an
+untested one. Tests exercise observable behavior and contain meaningful
+assertions. Do not use ``# pragma: no cover``, omit files from configuration,
+or delete reachable code merely to alter the denominator. Truly dead code may
+be removed only after proving it is unreachable and unneeded.
+
+4. KEEP THE RESULT RATCHETED
+
+CI fails when a new module lacks a coverage row, when any existing module
+drops below 100%, or when a prohibited coverage exclusion appears. The report
+artifact identifies uncovered lines and branches by module.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * GitHub reports no open actionable issue for the spaCR repository, with a
+    recorded disposition and verification link for every issue examined;
+  * all required workflows are green on one SHA that equals the final nightly
+    head, including every supported Python, operating-system, packaging,
+    installer, documentation, integration, network, GPU and slow-test job;
+  * a clean frozen-worktree coverage run reports 100% statements and branches
+    for every spaCR module, with no omitted module and no ``pragma: no cover``;
+  * tests fail after deliberately adding an uncovered executable line or a new
+    unlisted module, proving the per-module guard is active;
+  * the README badge resolves to the successful required workflow rather than
+    a cancelled or non-required run;
+  * instruction 253 may proceed only after all of the above remain true on the
+    commit proposed for publication.

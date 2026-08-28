@@ -56152,6 +56152,16 @@
         "7545b190c70e75ed7ef6f873fc659ea4042ca19e1e041dbbd23e361d3635d015"
       ]
     },
+    "spacr.qt.preferences.get_interface_font_weight": {
+      "source_blocks_sha256": [
+        "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd"
+      ],
+      "source_sha256": "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd",
+      "text": "Vilket Open Sans väger gränssnittet använder. 'regular' eller 'light'.",
+      "translation_source_blocks_sha256": [
+        "624afd7f074aef83add1ee62d8a5192ce0146b76baccebaaf23b865f1bad15cd"
+      ]
+    },
     "spacr.qt.preferences.get_issue_prompt_mode": {
       "source_blocks_sha256": [
         "01a60eed0a47582a2bcb294dab6ac9c9760f003a5e23183b59141959caaee42b",
@@ -56938,6 +56948,18 @@
       "text": "Håll fast vid det input-hatande valet.",
       "translation_source_blocks_sha256": [
         "3f82ea7eec5989131317593b50ae5efadd48c46d1828d9b9851bd8dc628c36ad"
+      ]
+    },
+    "spacr.qt.preferences.set_interface_font_weight": {
+      "source_blocks_sha256": [
+        "bf28e3e434c90b8846d14ff85402153c092ba0147274c5428d9abcaaafeb9b52",
+        "d06e12ba215a75e21aead1969badfb10b6f1ac283ef9fde7bca5a2a2d0e8d091"
+      ],
+      "source_sha256": "ff76a76eac402305bd0af8c3b4f5d7f86c49741d43dfbb1c0dff4b704e730346",
+      "text": "Håll vikten och applicera den på den löpande applikationen.\n\n:raises ValueError: på något annat än 'regular' eller 'light'.",
+      "translation_source_blocks_sha256": [
+        "bf28e3e434c90b8846d14ff85402153c092ba0147274c5428d9abcaaafeb9b52",
+        "d06e12ba215a75e21aead1969badfb10b6f1ac283ef9fde7bca5a2a2d0e8d091"
       ]
     },
     "spacr.qt.preferences.set_issue_prompt_mode": {
@@ -74133,6 +74155,96 @@
         "d2d5034ae29a819c1ebd8c589be6a24c2ef5de0c7f43f21ca67f8e6722f1bab4"
       ]
     },
+    "spacr.qt.timing": {
+      "source_blocks_sha256": [
+        "62b1134625a0518853de94d357647bd572c6f24e82038df4a1ed2d64c9fd4d61",
+        "44946e4cfb802128058471b9e9368a969c999d9d6eeb64831c547369ef125e1d",
+        "2285e0af18a1007e94a77cd1e2d946452e2dd6cab442ad0509bc0de87d08d20c",
+        "e4bff86113187117dbc0f4e8a72f3fa1df85e42dab937308bab2cf0ce10e825f",
+        "fb5ebb14ed9615d2e08db1823c095f939c768f754516e0e4880e755ce494c225",
+        "c44c90dbbac913a097e2444582442b5f0ed88514fa7e48265bd98ca2748b48a6",
+        "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+        "9240b40491994097776c2ee0bab8aa0c8e5e88a8776578c4ce932735f0b07b19",
+        "75e7ccbcb18896bb527f2171a93ea5adcc7e40d0467008121ddf22b49d213e63"
+      ],
+      "source_sha256": "1879f4925170b91878151d99e837e568b0857a100d2172ff1761cec2568deec8",
+      "text": "Vad ansökan faktiskt gjorde, och när, utan någon slutsats.\n\nSlår på med ``SPACR_TIMING=1``. Av, varje funktion här är några attribut lookups och ingenting importeras, tilldelas eller skrivs.\n\nVARFÖR DETTA EXISTERAR. Varje mätning av spaCR s start togs hittills i ett skript som imiterade programmet -- byggt en MainWindow, kallad en metod, tidsinställd det -- och var och en besvarade en fråga bredvid den som ställdes. Ett skript kan inte se den oberoende körsökvägen för förladdare som konkurrerar med ett klick, ett stilblad som återanvänds fyra gånger, eller en lat import som avfyrar första gången en användare öppnar en panel. Det här registrerar den verkliga processen.\n\nFYRA TIDEN ÄR REORDERADE, alla med riktiga vägg-klocka tider:\n\n* SPANS -- namngivna, inhägnade arbetsområden. ``with span(\"build mask\"):``\n* IMPORTS -- varje modul importerar över en tröskel, med den importerande ramen, genom en `sys.meta_path` finder snarare än genom att lappa ``__import__``.\n* GUI STALLS -- en timer som ska avfyra var 16 ms, inspelning varje gång det är sent. Detta är det enda ärliga måttet på \"the app froze\": det är händelseloopen som rapporterar om sig själv.\n* Marks -- ögonblick värda en rad, som \"window shown\".\n\nRapporten är en TIMELINE, inte en profil. En profil säger vilken funktion som använde CPU; detta säger vad användaren väntade på och hur länge, vilket är en annan fråga och den som ställs.",
+      "translation_source_blocks_sha256": [
+        "62b1134625a0518853de94d357647bd572c6f24e82038df4a1ed2d64c9fd4d61",
+        "44946e4cfb802128058471b9e9368a969c999d9d6eeb64831c547369ef125e1d",
+        "bf3ec71a7207d73fd72755b9a299292ebc1179b8538d1108b4333160eed96069",
+        "e4bff86113187117dbc0f4e8a72f3fa1df85e42dab937308bab2cf0ce10e825f",
+        "fb5ebb14ed9615d2e08db1823c095f939c768f754516e0e4880e755ce494c225",
+        "c44c90dbbac913a097e2444582442b5f0ed88514fa7e48265bd98ca2748b48a6",
+        "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+        "9240b40491994097776c2ee0bab8aa0c8e5e88a8776578c4ce932735f0b07b19",
+        "75e7ccbcb18896bb527f2171a93ea5adcc7e40d0467008121ddf22b49d213e63"
+      ]
+    },
+    "spacr.qt.timing.begin": {
+      "source_blocks_sha256": [
+        "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c"
+      ],
+      "source_sha256": "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c",
+      "text": "Börja spela in. Säker att ringa två gånger, gör ingenting när av.",
+      "translation_source_blocks_sha256": [
+        "40780542e97019a296429fe28b40c1446692c6b049f3703a47d86c66bd734e8c"
+      ]
+    },
+    "spacr.qt.timing.mark": {
+      "source_blocks_sha256": [
+        "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a"
+      ],
+      "source_sha256": "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a",
+      "text": "Det är billigt nog att gå på heta stigar.",
+      "translation_source_blocks_sha256": [
+        "554de08c5300ac733a6a94cc34192a1a402a3d55f1311fd5731ab38d03b3c81a"
+      ]
+    },
+    "spacr.qt.timing.report": {
+      "source_blocks_sha256": [
+        "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae"
+      ],
+      "source_sha256": "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae",
+      "text": "Tidslinjen, som text.",
+      "translation_source_blocks_sha256": [
+        "23d5c840a929522cee314abd7b186e99717bfc2197d37f7e9cfc54653375fcae"
+      ]
+    },
+    "spacr.qt.timing.span": {
+      "source_blocks_sha256": [
+        "f00674bd911fe0b23c1fdbf899bd419597f6a3912cefc406f9187e59fe165000",
+        "bcbc5461916aac8864d35a51c1f2f55b90d7a6a3d4d8f0e25890281c3634562f"
+      ],
+      "source_sha256": "844eee7ac9615a6064e6794ac9f91864ec6145c22c57ef4e17fb2a4e3852ffb7",
+      "text": "Tid ett namngivet område, inhägnat under vad som än omsluter det.\n\nRekord även när kroppen höjer: en spännvidd som bara visas på framgång döljer exakt de långsamma misslyckanden värt att se.",
+      "translation_source_blocks_sha256": [
+        "f00674bd911fe0b23c1fdbf899bd419597f6a3912cefc406f9187e59fe165000",
+        "bcbc5461916aac8864d35a51c1f2f55b90d7a6a3d4d8f0e25890281c3634562f"
+      ]
+    },
+    "spacr.qt.timing.watch_the_gui_thread": {
+      "source_blocks_sha256": [
+        "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
+        "0a19ab5613279547c6a0db5c55b2bd7cbba639b7eb3b2a7efb6aaadf9aae77e5"
+      ],
+      "source_sha256": "89a3c61be925137d894b4c2201b612b11218fd3bf79c1aec422c84fccce57618",
+      "text": "Starta stallvakten. Returnerar timern, eller None när den är avstängd.\n\nA QTimer frågade om 16 ms registrerar hur sent det faktiskt var. DETTA ÄR DEN ENDAST HENE FRIZE MÄTNINGEN: det är händelseloopen som rapporterar om sig själv, inifrån det verkliga programmet, så det kan inte missa ett uppehåll på det sätt ett externt skript kan.",
+      "translation_source_blocks_sha256": [
+        "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
+        "0a19ab5613279547c6a0db5c55b2bd7cbba639b7eb3b2a7efb6aaadf9aae77e5"
+      ]
+    },
+    "spacr.qt.timing.write_report": {
+      "source_blocks_sha256": [
+        "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3"
+      ],
+      "source_sha256": "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3",
+      "text": "Skriv tidslinjen. Returnerar sökvägen, eller \"\" när timingen är av.",
+      "translation_source_blocks_sha256": [
+        "6a1b78235cd67f171911f348eeb6c60315d18470751cf2c23810b81d577ce4f3"
+      ]
+    },
     "spacr.qt.tutorial": {
       "source_blocks_sha256": [
         "ad106562cbfc953c64e8f3d3ed690ae8bb87fea22b8d53a76bc485d53d6db3a5",
@@ -88801,6 +88913,30 @@
         "b505e337e38132f5f538d2dc8bf4aa8fbc105c31e1e555306154045ea67d7880"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.Pointer": {
+      "source_blocks_sha256": [
+        "3356ce45c58fecf5548949e4a5210650c0906c9332a076d30c0d0026deb92b31",
+        "14a17268abe477dc4f322fc7de385d86a4c24f55a08c1efa683703fe7e6a7650",
+        "0032279f350c26667c372d8d55750e6e6eaf9fce69a0ddad6e7d2eeb809da3b2"
+      ],
+      "source_sha256": "d75f3dc15676050e60b5c5a0c8d992aba9911fc5a55685d37d28332b4cecc091",
+      "text": "Var pekaren är, och om den trycker.\n\nPROVLEDAT, ALDRIG REDIT. Bakgrunden sitter bakom varje kontroll; en komponent som accepterade mushändelser skulle äta det klick som är avsett för knappen ovanpå den. Så ingenting här är en mushanterare – positionen läses från `QCursor.pos()` på renderingstickingen, och knapparna från `QApplication.mouseButtons()`, vilka båda är globala tillstånd som inte kostar någonting och stjäl ingenting.\n\nKoordinaterna kommer tillbaka i -1.1-rymden som fraktalerna redan arbetar i, med (0, 0) i mitten, så att en kärna kan använda dem utan att veta något om widgets.",
+      "translation_source_blocks_sha256": [
+        "3356ce45c58fecf5548949e4a5210650c0906c9332a076d30c0d0026deb92b31",
+        "14a17268abe477dc4f322fc7de385d86a4c24f55a08c1efa683703fe7e6a7650",
+        "0032279f350c26667c372d8d55750e6e6eaf9fce69a0ddad6e7d2eeb809da3b2"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.Pointer.sample": {
+      "source_blocks_sha256": [
+        "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2"
+      ],
+      "source_sha256": "c4170f24c1d20c3b4d2e6ac102ac52fdc1959d0785fbfc794120cfe8841e7cf2",
+      "text": "Läs pekaren i förhållande till ``widget``. Kastar aldrig.",
+      "translation_source_blocks_sha256": [
+        "b07aeaeff795cb4654ed69ff5ef3cafbb25ef79ce7c4ae889d2501dc5b4c8ca6"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
       "source_blocks_sha256": [
         "244b91af42c69c92d52dfe79f91640e4b78a9b7bb56553a4ed38ad2d2d88e2c6"
@@ -88814,13 +88950,15 @@
     "spacr.qt.widgets.fractal_travel.RuntimeControls.speed_at": {
       "source_blocks_sha256": [
         "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
-        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+        "560c889aec07c2aa22c236b3727fdac1d03bed77e81e15030b3cd1abeeb1dc1b",
+        "4c8cd45e04c98cc739deb4e92e38382a8a01fae75c2b684e3a3d6d1803045e8e"
       ],
-      "source_sha256": "ac92409338212d5602ed56af9b9699efb01545da9fe76d137acad6b16f55b75c",
-      "text": "Hastigheten som ska användas vid ``t`` sekunder.\n\nKonstant om inte `variable_speed` är på, i vilket fall det andas runt det inställda värdet snarare än att ersätta det - så preferensen betyder fortfarande vad den säger.",
+      "source_sha256": "febc021f95a473b99f0eed1082156f42bbfd10afef006dc0451b8f8af03c3588",
+      "text": "Hastigheten som ska användas vid ``t`` sekunder.\n\nKonstant `speed` om inte `variable_speed` är på, i vilket fall det sveper mellan `speed_min` och `speed_max` -- namngivna gränser snarare än en dold procentsats, så vad resan faktiskt kommer att göra är läsbar från inställningarna istället för att härledas från att titta på den. `speed_period` är hur lång en full svep tar, vilket är \"how gradually\" kontroll: ett större tal är en långsammare förändring, inte en långsammare fraktal.\n\nGränserna används i vilken ordning de än anges: en min över ett max är ett swappat par, inte ett tomt område, och att vägra att animatera skulle vara ett sämre svar än att animera mellan de två talen.",
       "translation_source_blocks_sha256": [
         "8eb1a70932f9764017f5f2ea6d75f8725e139e8a9b29c8035524c0e7b63707e5",
-        "89c618c81349da45ec5eca8ddaf953fdc3dee8a3f0677c9bc391d1e556ab7618"
+        "560c889aec07c2aa22c236b3727fdac1d03bed77e81e15030b3cd1abeeb1dc1b",
+        "4c8cd45e04c98cc739deb4e92e38382a8a01fae75c2b684e3a3d6d1803045e8e"
       ]
     },
     "spacr.qt.widgets.fractal_travel.Settings": {

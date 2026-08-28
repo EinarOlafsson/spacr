@@ -1,0 +1,56 @@
+================================================================================
+REGRESSION OPENS IN LAPTOP AND EXTRA-PERFORMANCE MODES
+================================================================================
+
+Status:    DONE 2026-08-27. Reproduced, fixed and covered by the ordinary Qt
+           suite.
+Priority:  BLOCKING REGRESSION.
+Owner:     spacr/qt/screens/settings_model.py and its real-screen tests.
+
+--------------------------------------------------------------------------------
+WHAT WAS REPORTED
+--------------------------------------------------------------------------------
+
+With Laptop mode enabled and spaCR mode set to Extra Performance, opening the
+Regression module failed with:
+
+    Failed to build settings for 'regression': name '_span' is not defined
+
+The failure was introduced when timing instrumentation wrapped settings-widget
+construction but called an alias that the module never imported. It was not
+specific to Regression or to the two performance preferences; any screen that
+reached ``SettingsWidgets._build_sections`` on that revision could fail.
+
+--------------------------------------------------------------------------------
+THE FIX
+--------------------------------------------------------------------------------
+
+Use the same lightweight ``spacr.qt.timing`` module as the application and
+enter its ``span`` through a real ``with`` statement. Besides resolving the
+missing name, the context now records a failed widget build correctly and
+always closes when construction raises.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * enable Laptop mode and Extra Performance, open Regression through the
+    real application route, and obtain a populated interactive settings panel;
+  * no ``_span`` name remains in ``settings_model.py``;
+  * a focused test constructs Regression settings under those preferences and
+    would fail on the exact missing-name revision;
+  * timing disabled and ``SPACR_TIMING=1`` both build the panel, and the latter
+    records the ``build widgets`` span;
+  * the test is part of the ordinary GitHub suite rather than a manual-only
+    reproduction.
+
+--------------------------------------------------------------------------------
+VERIFIED
+--------------------------------------------------------------------------------
+
+``tests/qt/test_app_screen.py`` passes all 24 tests. Its dedicated regression
+test enables Laptop mode and Extra Performance, builds the real Regression
+screen, requires a populated ``regression_type`` field, enables timing and
+requires the ``build widgets`` span. The same file's existing parameterized
+screen test covers the timing-disabled path. No bare ``_span`` reference
+remains in the settings model.

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.qt.timing#6",
+      "source": "GUI STALLS -- a timer that should fire every 16 ms, recording every time it is late. This is the only honest measure of \"the app froze\": it is the event loop reporting on itself.",
+      "context": "GUI STALLS -- a timer that should fire every 16 ms, recording every time it is late. This is the only honest measure of \"the app froze\": it is the event loop reporting on itself.",
+      "source_sha256": "df21a54e4219cf9867ece4bf543f9d7d0ce9bb732bf0ca007d7a86de0b39245f",
+      "translation": "GUI 卡顿 -- 一个本应每 16 ms 触发一次的定时器，会记录每次延迟。这是衡量 \"the app froze\" 的唯一可靠方法：由事件循环报告自身的运行情况。"
+    }
+  ]
+}

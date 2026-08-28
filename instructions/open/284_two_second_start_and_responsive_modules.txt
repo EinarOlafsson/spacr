@@ -1,0 +1,92 @@
+================================================================================
+HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
+================================================================================
+
+Status:    OPEN, filed 2026-08-27. HIGH PRIORITY.
+Owner:     spacr/qt startup, application registration, module factories,
+           optional-dependency boundaries, preload policy, and timing.
+Depends:   276 for animation continuity and 282 for lazy loading and memory
+           budgets. This instruction supplies their user-visible performance
+           targets and cannot close while either dependency still fails them.
+
+--------------------------------------------------------------------------------
+WHAT WAS ASKED
+--------------------------------------------------------------------------------
+
+spaCR is currently very slow to start and many modules are slow to open. On
+lower-end hardware the delays approach unusable. Heavy libraries must be
+loaded only when the operation that needs them is called. Systems with ample
+RAM may retain reusable caches, while lower-memory systems must avoid or
+release optional caches, model weights and other reclaimable state.
+
+The required user-visible budgets are:
+
+  * spaCR reaches a usable Home screen within 2.0 seconds;
+  * a module becomes interactive within 2.0 to 4.0 seconds, with 4.0 seconds
+    the hard upper bound rather than the expected value for every module;
+  * the animated background continues to produce frames while a module loads.
+    A module becoming ready must not be preceded by a frozen interface.
+
+These are HIGH-PRIORITY product requirements, not optional benchmark work.
+
+--------------------------------------------------------------------------------
+THE IMPLEMENTATION CONTRACT
+--------------------------------------------------------------------------------
+
+1. MEASURE THE REAL USER PATH
+
+Use the in-application timing seam from instruction 281. Measure process start
+through a usable Home screen and an actual click through an interactive module.
+Import-only scripts, constructor-only timings and preloader timings are useful
+diagnostics but are not acceptance measurements. Record cold and warm values,
+the machine profile, and peak resident memory.
+
+2. IMPORT AT THE CALL BOUNDARY
+
+Heavy optional dependencies are imported when the operation that needs them is
+called, not merely because spaCR started or because the user opened a module.
+Opening a configuration screen must not import a training or segmentation
+stack that will never run. This must be asserted through ``sys.modules`` in a
+fresh process, not inferred from elapsed time.
+
+Python extension modules cannot honestly be unloaded. Lower-memory operation
+therefore releases what can be released: data caches, decoded images, model
+weights, allocator caches and GPU cache. Item 282 owns the configurable idle
+timeout, cache ceiling, headroom floor, and laptop/workstation profiles.
+
+3. KEEP THE INTERFACE ALIVE
+
+Registration, discovery, imports, model inspection and other preparation that
+can safely run outside the GUI thread must do so. Work that must create Qt
+widgets on the GUI thread is divided into bounded event-loop slices. During
+the complete click-to-ready interval, timing instrumentation must show that
+the event loop and ambient frame stream continue to advance. A spinner over a
+blocked event loop is not progress.
+
+4. DO NOT BUY SPEED WITH WRONGNESS
+
+Lazy loading must preserve the same settings, module capabilities, results,
+errors and cleanup as the eager path. Do not silently omit an optional feature,
+lower analysis quality, or report a module ready before its controls work.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * on the documented lower-end reference profile, a cold supported launch
+    reaches an interactive Home screen in at most 2.0 seconds;
+  * every registered module reaches an interactive state in at most 4.0
+    seconds on that profile, and the measured distribution identifies which
+    modules exceed 2.0 seconds instead of hiding them behind one mean;
+  * fresh-process tests prove that starting spaCR and merely opening a module
+    do not import heavy optional dependencies until the operation calls them;
+  * the same representative pipelines complete under the laptop and
+    workstation memory profiles, with equivalent scientific results;
+  * frame/event-loop measurements cover the entire click-to-ready interval
+    and show no stopped animation or multi-second GUI gap;
+  * cold/warm startup time, every registered module's click-to-ready time,
+    peak resident memory and worst GUI/frame interval are written as a
+    reproducible benchmark artifact and guarded by tests with explicit,
+    hardware-normalized thresholds;
+  * item 276's responsiveness criteria and item 282's memory/lazy-loading
+    criteria are complete, not merely referenced.

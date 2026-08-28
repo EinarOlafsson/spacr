@@ -58,6 +58,32 @@ def test_app_screen_settings_widgets_populated(qtbot, qt_theme_applied):
     assert "src" in settings
 
 
+def test_regression_settings_build_in_laptop_extra_performance_mode(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The supported low-resource path reaches a real Regression panel.
+
+    Timing instrumentation once wrapped widget construction with an undefined
+    ``_span`` alias.  The screen catches construction errors and displays them
+    in its console, so checking only that the outer widget exists would let the
+    exact regression pass unnoticed.  Assert both the populated model and the
+    timing record produced by the corrected call site.
+    """
+    from spacr.qt import preferences, timing
+
+    preferences.set_laptop_mode("on")
+    preferences.set_spacr_mode("extra_performance")
+    monkeypatch.setattr(timing, "ENABLED", True)
+    timing._SPANS.clear()
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+
+    assert screen._settings_model is not None
+    assert screen._settings_model._widgets
+    assert "regression_type" in screen._settings_model._widgets
+    assert any(row["name"] == "build widgets" for row in timing._SPANS)
+
+
 def test_app_titles_cover_apps():
     for key in ("mask", "measure", "classify", "umap"):
         assert key in APP_TITLES

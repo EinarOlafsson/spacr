@@ -2,14 +2,15 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    OPEN on item 1 only, and only on THE CATALOG REBUILD, which needs
-           the translation models rather than a call site. Everything the
-           application itself can do is done: the shell, the five
-           value-carrying combo entries in
-           `spacr/qt/widgets/live_preview.py`, two more dropdowns in the
-           same file that were translating their VALUES, and Qt's own menu
-           text. Items 2 to 7 are done; 7 needed a root command the
-           maintainer has since run.
+Status:    DONE. The final 2026-08-27 source sweep rebuilt and audited all
+           runtime and API catalogs. The source-bound runtime inventory is
+           pinned at 997 setting tooltips, 192 category descriptions, 2,625
+           UI captions and 64 module summaries in every supported language.
+           The localized API inventory is pinned at 8,640 public symbols in
+           every language. Reviewed evidence replaces every model-rejected
+           residual; no exact-English or wrong-script residual remains.
+           Items 2 to 7 were already complete and remain covered by their
+           focused tests.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------
@@ -158,16 +159,14 @@ with no missing-file error and nothing left underneath answering for them.
 `tests/qt/test_the_live_preview_dropdowns_follow_the_language.py` covers
 both, hi included.
 
-STILL OPEN, and it is not a call site:
-
-  a. THE CATALOG REBUILD. The nine external catalogs are stale against the
-     current source: 29 UI strings, six settings-category blurbs (the
-     Advanced-settings tree, whose headings the panel now draws) and one
-     setting, `calibrate_fraction_threshold`, have no row in any of them.
-     Three tests in `tests/qt/test_external_i18n_catalogs.py` fail on that
-     backlog and were already failing before this pass. It needs
-     `tools/build_i18n_catalogs.py`, which needs the translation models,
-     so it is not something a call-site pass can hand-write.
+THE CATALOG REBUILD IS DONE. The final source sweep discovered and admitted
+every current runtime source, including thirteen UI captions added after the
+earlier count in this note. The external runtime audit passes across all nine
+translated catalogs, its exact inventory/fingerprint ratchet passes, and the
+30 external-catalog tests pass. The public API grew by eleven documented
+symbols to 8,640; all ten API manifests carry the exact current inventory and
+source hashes. The API audit passes for all nine translated catalogs, with
+reviewed Hindi and Chinese evidence for the two model-rejected residuals.
 
 CHECKED AND NOT DEFECTS: "Cellpose Workbench" is in `_ROWS` and every
 registry name and section name resolves, so `tests/qt/test_i18n.py` is
