@@ -12,7 +12,11 @@ from typing import Any, Mapping, NamedTuple, Optional, Tuple
 
 #: Default settings applied to every figure before per-graph overrides.
 GENERAL_DEFAULTS: dict[str, Any] = {
-    "font_family": "DejaVu Sans",
+    # The face spaCR ships, registered with the font manager by
+    # `spacr.figure_font` so the name resolves on a machine that never had
+    # Open Sans installed. DejaVu Sans was matplotlib's fallback, not a
+    # choice.
+    "font_family": "Open Sans",
     "font_size": 11.0,
     "title_size": 13.0,
     "label_size": 11.0,
@@ -304,10 +308,16 @@ def rc_params(style: Mapping[str, Any]) -> dict:
     dict
         Matplotlib parameter names and values derived from ``style``.
     """
+    # NAMING THE FAMILY IS NOT ENOUGH. A family matplotlib cannot resolve is
+    # a silent fallback to DejaVu Sans, not an error, so the bundled files
+    # have to be in the font manager before the name is used. Idempotent.
+    from .figure_font import use_open_sans_for_figures
+    use_open_sans_for_figures()
+
     spines = SPINE_PRESETS.get(str(style.get("spines", "all")),
                                SPINE_PRESETS["all"])
     params = {
-        "font.family": style.get("font_family", "DejaVu Sans"),
+        "font.family": style.get("font_family", "Open Sans"),
         "font.size": float(style.get("font_size", 11.0)),
         "axes.titlesize": float(style.get("title_size", 13.0)),
         "axes.labelsize": float(style.get("label_size", 11.0)),

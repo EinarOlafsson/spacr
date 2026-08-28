@@ -267,13 +267,24 @@ def rc(target: str = "screen", *, frame: str = "L",
     picked_ink = ink or chosen_ink()
     picked_line = line or chosen_line_ink()
     colour = resolve_ink(target, picked_ink)
+    from ..figure_font import FAMILY as _FIGURE_FAMILY
+    from ..figure_font import use_open_sans_for_figures
+    use_open_sans_for_figures()
     line_colour = resolve_line_ink(target, ink=picked_ink, line=picked_line)
     ground = TRANSPARENT if ground is None else ground
     params = {
         "figure.dpi": 120,
         "savefig.dpi": 300,
         "font.family": "sans-serif",
-        "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"],
+        # OPEN SANS SHIPS WITH SPACR, so it is always there to resolve.
+        # Naming "Helvetica" first meant a Linux machine without it fell
+        # silently back to DejaVu Sans, and figures came out in a different
+        # face from the interface around them -- and in a different face on
+        # each contributor's machine. `use_open_sans_for_figures` registers
+        # the bundled files with the font manager, which is what makes the
+        # name resolve at all; the rest of the list stays as a fallback.
+        "font.sans-serif": [_FIGURE_FAMILY, "Helvetica", "Arial",
+                            "DejaVu Sans"],
         "font.size": TYPE_SCALE["tick"],
         "axes.labelsize": TYPE_SCALE["label"],
         "axes.titlesize": TYPE_SCALE["label"],

@@ -2014,10 +2014,24 @@ def set_preload_policy(policy: str) -> None:
     _settings().sync()
 
 
+#: Body text is Light. Asked for 2026-08-28: "light for text and regular for
+#: titles". Only the APPLICATION font is set from this -- the headings,
+#: buttons and section titles carry their own `font-weight` in the
+#: stylesheet (400 and above), so making the default body weight lighter
+#: does not thin the titles with it.
+DEFAULT_INTERFACE_FONT_WEIGHT = "light"
+
+
 def get_interface_font_weight() -> str:
-    """Which Open Sans weight the interface uses. 'regular' or 'light'."""
-    raw = str(_settings().value(_KEY_FONT_WEIGHT, "regular")).strip().lower()
-    return raw if raw in INTERFACE_FONT_WEIGHTS else "regular"
+    """Which Open Sans weight the interface's body text uses.
+
+    :returns: ``'light'`` or ``'regular'``, defaulting to
+        :data:`DEFAULT_INTERFACE_FONT_WEIGHT`.
+    """
+    raw = str(_settings().value(
+        _KEY_FONT_WEIGHT, DEFAULT_INTERFACE_FONT_WEIGHT)).strip().lower()
+    return raw if raw in INTERFACE_FONT_WEIGHTS \
+        else DEFAULT_INTERFACE_FONT_WEIGHT
 
 
 def set_interface_font_weight(weight: str) -> None:

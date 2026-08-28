@@ -495,6 +495,13 @@ def _trace_profile(frame, event, arg):
     """
     if event not in {"call", "return"}:
         return
+    # AT INTERPRETER SHUTDOWN the module globals this hook reads are set to
+    # None while finalisers are still running -- `ZipFile.__del__` is one --
+    # and the hook is still installed. `co_name in None` then raises, and
+    # Python prints "Exception ignored in" for every such finaliser. A
+    # tracing aid must never alter, or comment on, the code it observes.
+    if _TRACE_SKIP_NAMES is None or logging is None:
+        return
     if frame.f_code.co_name in _TRACE_SKIP_NAMES:
         return
     # BEFORE ANY OF THE WORK BELOW. `realpath` is a syscall per event, and
@@ -505,7 +512,7 @@ def _trace_profile(frame, event, arg):
     if not logging.getLogger("spacr.trace").isEnabledFor(logging.DEBUG):
         return
     module = frame.f_globals.get("__name__", "spacr")
-    if module.startswith(_TRACE_SKIP_MODULES):
+    if _TRACE_SKIP_MODULES and module.startswith(_TRACE_SKIP_MODULES):
         return
     filename = os.path.realpath(frame.f_code.co_filename)
     if not filename.startswith(_TRACE_ROOT) or filename == _TRACE_THIS_FILE:

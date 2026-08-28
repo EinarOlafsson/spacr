@@ -102,3 +102,22 @@ def test_verbose_is_on_by_default():
         assert preferences.get_verbose_logging() is True
     finally:
         preferences.QSettings = real
+
+
+def test_the_hook_survives_interpreter_shutdown():
+    """At teardown the module globals are None while finalisers still run."""
+    import types
+
+    frame = types.SimpleNamespace(
+        f_code=types.SimpleNamespace(co_name="close", co_filename=__file__,
+                                     co_qualname="ZipFile.close"),
+        f_globals={"__name__": "zipfile"})
+
+    saved = logging_util._TRACE_SKIP_NAMES
+    logging_util._TRACE_SKIP_NAMES = None
+    try:
+        # Must not raise: Python prints "Exception ignored in" for every
+        # finaliser that trips over a tracing aid.
+        assert logging_util._trace_profile(frame, "call", None) is None
+    finally:
+        logging_util._TRACE_SKIP_NAMES = saved
