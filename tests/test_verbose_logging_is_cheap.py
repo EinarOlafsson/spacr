@@ -80,11 +80,16 @@ def test_the_hook_is_cheap_when_verbose_is_off():
         f"tracing cost {traced:.4f}s against {plain:.4f}s untraced")
 
 
-def test_verbose_is_on_by_default():
-    """Asked for 2026-08-28 — and only defensible now that it is cheap."""
+def test_verbose_is_off_by_default():
+    """Measured: 3.05 s to Home with it off, 65.28 s with it on.
+
+    It was briefly the default -- a trail that exists before the bug is
+    genuinely worth having. Twenty times the startup is not something to
+    give a user who did not ask for it.
+    """
     from spacr.qt import preferences
 
-    assert preferences.DEFAULT_VERBOSE_LOGGING is True
+    assert preferences.DEFAULT_VERBOSE_LOGGING is False
 
     class _Empty:
         def value(self, key, default=None, type=None):
@@ -99,7 +104,7 @@ def test_verbose_is_on_by_default():
     real = preferences.QSettings
     preferences.QSettings = lambda *a, **k: _Empty()
     try:
-        assert preferences.get_verbose_logging() is True
+        assert preferences.get_verbose_logging() is False
     finally:
         preferences.QSettings = real
 
@@ -193,3 +198,46 @@ def test_the_tracer_survives_logging_being_torn_down():
         assert logging_util._trace_profile(frame, "call", None) is None
     finally:
         logging_util.logging = saved
+
+
+def test_a_trace_line_is_not_mostly_prefix():
+    """297: the prefix was longer than the message it introduced.
+
+    On a trace record the level is always DEBUG, the logger is always
+    `spacr.trace`, and the file and line are this module's own tracer rather
+    than the traced code -- so three of the ordinary prefix's fields say
+    nothing here, and one of them misleads.
+    """
+    import logging as _logging
+
+    from spacr.logging_util import FILE_FORMAT, _CompactTraceFormat
+
+    formatter = _CompactTraceFormat(FILE_FORMAT)
+
+    traced = _logging.LogRecord(
+        "spacr.trace", _logging.DEBUG, __file__, 1,
+        "%s %s", ("→", "spacr.version.get_version"), None)
+    line = formatter.format(traced)
+    assert "DEBUG" not in line
+    assert "spacr.trace" not in line
+    assert "logging_util" not in line
+    assert "spacr.version.get_version" in line
+    assert len(line) < 60, f"a trace line is still {len(line)} characters"
+
+    # Everything else keeps the full prefix, which is where it earns its keep.
+    ordinary = _logging.LogRecord(
+        "spacr.core", _logging.INFO, __file__, 42, "started", (), None)
+    assert "INFO" in formatter.format(ordinary)
+    assert "spacr.core" in formatter.format(ordinary)
+
+
+def test_the_tooltip_says_what_verbose_costs():
+    """A default nobody can weigh is a default nobody can turn off knowingly."""
+    import inspect
+
+    from spacr.qt import preferences
+
+    source = inspect.getsource(preferences.PreferencesDialog)
+    assert "156 bytes" in source, "the per-call cost is not stated"
+    assert "65 seconds" in source, "the startup cost is not stated"
+    assert "never traced" in source, "the paint-path exclusion is not stated"

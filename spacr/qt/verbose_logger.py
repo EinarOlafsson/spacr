@@ -200,10 +200,14 @@ def _ensure_file_handler() -> RotatingFileHandler:
         # If we can't open the file, don't crash — just skip file
         # logging so the app still runs.
         return None                                                       # type: ignore[return-value]
-    handler.setFormatter(logging.Formatter(
-        fmt="%(asctime)s %(name)s %(levelname)s  %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    ))
+    # COMPACT FOR THE TRACE, ordinary for everything else. See
+    # `_CompactTraceFormat`: on a trace line the level is always DEBUG, the
+    # logger is always `spacr.trace`, and the date is the same on every line
+    # of one run -- so the prefix was longer than the message it introduced.
+    from ..logging_util import _CompactTraceFormat
+
+    handler.setFormatter(_CompactTraceFormat(
+        "%(asctime)s %(name)s %(levelname)s  %(message)s"))
     handler.setLevel(logging.INFO)
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
