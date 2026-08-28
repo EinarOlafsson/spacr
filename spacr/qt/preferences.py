@@ -2994,10 +2994,31 @@ def _parse_levels(raw, fallback) -> frozenset:
 
 
 def get_log_file_levels() -> frozenset:
-    """Levels written to the log files. The master switch of the pair."""
+    """Levels written to the log files. The master switch of the pair.
+
+    :returns: the levels the file handler admits.
+
+    VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings
+    contradict each other and the one the user did not touch wins.
+    Measured 2026-08-28: with verbose on, the profile hook was installed,
+    `spacr.trace` was at DEBUG, and a record was built for every call and
+    every return in the process -- then dropped at the handler, because the
+    file levels were {INFO, WARNING, ERROR, CRITICAL}. All of the cost and
+    none of the trail.
+
+    Whatever verbose means, it cannot mean "do the work and write none of
+    it". It is not stored into the level preference: the user's own choice
+    of levels is left exactly as they set it, and DEBUG goes away again
+    when they turn verbose off.
+    """
+    import logging as _logging
+
     from ..logging_util import DEFAULT_FILE_LEVELS
-    return _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
-                         DEFAULT_FILE_LEVELS)
+    levels = _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
+                           DEFAULT_FILE_LEVELS)
+    if get_verbose_logging():
+        levels = frozenset(levels) | {_logging.DEBUG}
+    return frozenset(levels)
 
 
 def get_log_console_levels() -> frozenset:

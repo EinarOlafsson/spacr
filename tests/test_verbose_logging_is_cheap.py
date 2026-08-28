@@ -121,3 +121,75 @@ def test_the_hook_survives_interpreter_shutdown():
         assert logging_util._trace_profile(frame, "call", None) is None
     finally:
         logging_util._TRACE_SKIP_NAMES = saved
+
+
+def test_verbose_actually_writes_debug_to_the_file(monkeypatch):
+    """All of the cost and none of the trail was the defect (297).
+
+    The hook was installed and `spacr.trace` set to DEBUG, then the file
+    level policy dropped DEBUG at the handler -- so a record was built for
+    every call in the process and thrown away.
+    """
+    import logging as _logging
+
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "get_verbose_logging", lambda: True)
+    with_verbose = preferences.get_log_file_levels()
+    assert _logging.DEBUG in with_verbose
+
+    monkeypatch.setattr(preferences, "get_verbose_logging", lambda: False)
+    without = preferences.get_log_file_levels()
+    assert _logging.DEBUG not in without, (
+        "DEBUG survived verbose being turned off")
+
+
+def test_verbose_does_not_rewrite_the_users_level_choice(monkeypatch):
+    """DEBUG is added on read, never stored over what the user chose."""
+    from spacr.qt import preferences
+
+    written = {}
+
+    class _Mem:
+        def value(self, key, default=None, type=None):
+            return written.get(key, default)
+
+        def setValue(self, key, value):
+            written[key] = value
+
+        def sync(self):
+            pass
+
+    monkeypatch.setattr(preferences, "_settings", lambda: _Mem())
+    monkeypatch.setattr(preferences, "get_verbose_logging", lambda: True)
+
+    preferences.get_log_file_levels()
+    assert preferences._KEY_LOG_FILE_LEVELS not in written, (
+        "reading the levels wrote to the user's preferences")
+
+
+def test_the_tracer_survives_logging_being_torn_down():
+    """`logging`'s own globals go too, so `getLogger` fails in a finaliser."""
+    import types
+
+    frame = types.SimpleNamespace(
+        f_code=types.SimpleNamespace(co_name="_removeHandlerRef",
+                                     co_filename=__file__,
+                                     co_qualname="_removeHandlerRef"),
+        f_globals={"__name__": "logging"})
+
+    saved = logging_util.logging
+    class _Dead:
+        DEBUG = 10
+
+        @staticmethod
+        def getLogger(_name=None):
+            raise TypeError("'NoneType' object is not callable")
+
+    logging_util.logging = _Dead
+    try:
+        # Must not raise: Python prints "Exception ignored in" otherwise,
+        # once per finaliser, for every process that enabled verbose.
+        assert logging_util._trace_profile(frame, "call", None) is None
+    finally:
+        logging_util.logging = saved

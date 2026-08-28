@@ -495,15 +495,29 @@ def _trace_profile(frame, event, arg):
     """
     if event not in {"call", "return"}:
         return
-    # AT INTERPRETER SHUTDOWN the module globals this hook reads are set to
-    # None while finalisers are still running -- `ZipFile.__del__` is one --
-    # and the hook is still installed. `co_name in None` then raises, and
-    # Python prints "Exception ignored in" for every such finaliser. A
+    # AT INTERPRETER SHUTDOWN the hook is still installed while everything
+    # it depends on is being torn down -- this module's globals are set to
+    # None, and so are `logging`'s own, so even `logging.getLogger` fails
+    # from inside a finaliser (`_removeHandlerRef` is one). Guarding this
+    # module alone was not enough; the whole body is guarded, because a
     # tracing aid must never alter, or comment on, the code it observes.
+    #
+    # A bare `except` is right here and almost nowhere else: there is no
+    # caller to report to -- Python prints "Exception ignored in" and
+    # carries on -- and the only alternative is noise in every process
+    # that ever enabled verbose logging.
+    try:
+        return _trace_one_event(frame, event)
+    except BaseException:                                    # noqa: BLE001
+        return None
+
+
+def _trace_one_event(frame, event):
+    """The body of :func:`_trace_profile`, minus its shutdown guard."""
     if _TRACE_SKIP_NAMES is None or logging is None:
-        return
+        return None
     if frame.f_code.co_name in _TRACE_SKIP_NAMES:
-        return
+        return None
     # BEFORE ANY OF THE WORK BELOW. `realpath` is a syscall per event, and
     # this hook runs on every call and every return in the process -- so a
     # trace that is not going to be written must cost as little as possible
