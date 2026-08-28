@@ -944,6 +944,10 @@ uniform float u_time;
 uniform float u_speed;
 uniform float u_dream;
 uniform float u_palette_phase;
+uniform float u_pointer_x;
+uniform float u_pointer_y;
+uniform float u_pull;
+uniform float u_push;
 uniform float u_tx;
 uniform float u_ty;
 uniform float u_rotation;
@@ -1017,10 +1021,23 @@ float field(vec2 uv) {
     return total;
 }
 
+
+// THE POINTER IS THE POINT EVERYTHING FLOWS TO. Shifting the coordinate
+// ORIGIN toward the cursor moves the centre the pattern radiates from,
+// rather than adding a second warp on top of the one the pattern already
+// has -- which would read as a smear rather than as a centre.
+//
+// A click pushes the origin away instead, so the flow reverses around it.
+vec2 toward_pointer(vec2 uv) {
+    vec2 target = vec2(u_pointer_x, u_pointer_y);
+    return uv - target * (u_pull - 0.85 * u_push);
+}
+
 vec3 render_sample(vec2 fragment_position) {
     float denominator = min(u_resolution.x, u_resolution.y);
     vec2 uv = (2.0 * fragment_position - u_resolution) / denominator;
     uv *= 1.10;
+    uv = toward_pointer(uv);
     uv += 0.06 * u_dream * vec2(
         sin(0.23 * u_time + 1.1 * uv.y),
         cos(0.21 * u_time - 1.1 * uv.x));
