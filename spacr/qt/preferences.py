@@ -265,8 +265,100 @@ MAX_FIG_LIVE_CACHE = 500
 DEFAULT_FIG_DYNAMIC = True
 
 
-def _settings() -> QSettings:
-    return QSettings(_ORG, _APP)
+#: Set by :func:`enable_safe_mode` before anything reads a preference.
+#: Process-local and never persisted: safe mode is a way IN, not a state to
+#: get stuck in, so an ordinary `spacr` start can never inherit it.
+_SAFE_MODE = False
+
+
+#: What safe mode turns OFF outright, rather than leaving to a default.
+#:
+#: DEFAULTS ARE NOT SAFE BY THEMSELVES. The animated backdrop is on by
+#: default, and the backdrop and the GL path it can take are exactly what
+#: the crash log points at -- so a safe mode that merely ignored the stored
+#: preferences would start the very thing it exists to avoid. Verbose
+#: logging is here for the same reason: it traces per-frame paint calls and
+#: writes megabytes a minute, which is its own way of making the interface
+#: unusable.
+_SAFE_OVERRIDES = {}
+
+
+class _DefaultsForReadingRealForWriting:
+    """Reads answer with the caller's default; writes reach the real store.
+
+    THE POINT OF SAFE MODE IS TO ESCAPE A SAVED VALUE. When a preference is
+    what makes spaCR die on launch, a safe mode that reads that same
+    preference inherits the fault it exists to escape -- so here every read
+    returns the fallback the caller passed, exactly as a first-ever launch
+    would see it, without consulting the stored value at all.
+
+    Writes are NOT shadowed. The user opened safe mode to change a setting
+    and save it, and a write that went to a scratch file would leave the
+    broken value in place and the next ordinary start would die again.
+
+    :param real: the ``QSettings`` writes are forwarded to.
+    """
+
+    def __init__(self, real: QSettings):
+        self._real = real
+
+    def value(self, key, default=None, type=None):
+        """A forced-safe value where there is one, else the caller's default.
+
+        :returns: the entry in :data:`_SAFE_OVERRIDES` for ``key``, or
+            ``default`` -- so every other getter falls back to its own
+            documented default without a branch of its own.
+        """
+        if key in _SAFE_OVERRIDES:
+            return _SAFE_OVERRIDES[key]
+        return default
+
+    def setValue(self, key, value) -> None:
+        """Write through to the real store."""
+        self._real.setValue(key, value)
+
+    def remove(self, key) -> None:
+        """Remove from the real store."""
+        self._real.remove(key)
+
+    def sync(self) -> None:
+        """Flush the real store."""
+        self._real.sync()
+
+
+def _fill_safe_overrides() -> None:
+    """Populate :data:`_SAFE_OVERRIDES` once the key names exist."""
+    _SAFE_OVERRIDES.update({
+        _KEY_AMBIENT_ENABLED: False,
+        _KEY_SETTING_ANIMATIONS: False,
+        _KEY_VERBOSE_LOG: False,
+        _KEY_PRELOAD: "on_demand",
+    })
+
+
+def enable_safe_mode() -> None:
+    """Read preferences as defaults for the rest of this process.
+
+    Called by the ``safespacr`` entry point before any preference is read.
+    Idempotent.
+    """
+    global _SAFE_MODE
+    _fill_safe_overrides()
+    _SAFE_MODE = True
+
+
+def in_safe_mode() -> bool:
+    """Whether this process is running in safe mode.
+
+    :returns: ``True`` after :func:`enable_safe_mode`.
+    """
+    return _SAFE_MODE
+
+
+def _settings():
+    """The preference store: the real one, or safe mode's read shadow."""
+    real = QSettings(_ORG, _APP)
+    return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
 
 
 # ---------------------------------------------------------------------------

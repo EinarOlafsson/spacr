@@ -282,6 +282,12 @@ def platform_can_do_opengl() -> bool:
     `create_fractal_widget` would never run. Every test and every headless
     launch is that platform.
     """
+    # SAFE MODE REFUSES GL OUTRIGHT. `safespacr` exists because the crash
+    # log points here, and a safe start that still built a GL canvas would
+    # be no safer than the ordinary one. Read from the environment because
+    # the context can be created before any preference has been read.
+    if os.environ.get("SPACR_NO_GL"):
+        return False
     platform = str(os.environ.get("QT_QPA_PLATFORM", "")).strip().lower()
     if platform.startswith(("offscreen", "minimal", "vnc")):
         return False
