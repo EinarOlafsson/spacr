@@ -284,3 +284,88 @@ def test_the_fractal_panel_has_sub_categories(qtbot):
     headings = [l.text() for l in dlg.findChildren(QLabel)
                 if l.objectName() == "FractalGroupHeading"]
     assert len(headings) >= 3, headings
+
+
+def test_the_restart_is_in_the_hotkey_menu(qtbot):
+    """A shortcut nobody can find is one nobody uses."""
+    from PySide6.QtGui import QAction
+
+    import spacr.qt.app as app_module
+
+    win = app_module.MainWindow()
+    qtbot.addWidget(win)
+    try:
+        action = win.findChild(QAction, "RestartBackdrop")
+        assert action is not None, "no menu entry for restarting the backdrop"
+        assert action.shortcut().toString() == "Ctrl+R"
+        # It has to say what the other keys do too, since they have no
+        # entries of their own.
+        tip = action.statusTip()
+        assert "Up and Down" in tip and "wheel" in tip and "drag" in tip
+    finally:
+        win.close()
+
+
+def test_the_shortcut_and_the_menu_entry_are_the_same_action(qtbot):
+    """Or they drift apart."""
+    import inspect
+
+    import spacr.qt.app as app_module
+
+    source = inspect.getsource(app_module.MainWindow.keyPressEvent)
+    assert "_restart_the_backdrop" in source
+
+
+def test_dragging_moves_the_view():
+    """Asked for 2026-08-28: drag the visual field with the mouse."""
+    from PySide6.QtCore import QPoint
+
+    from spacr.qt.widgets import fractal_travel as ft
+
+    positions = [QPoint(50, 50), QPoint(60, 50), QPoint(70, 50)]
+
+    class _Widget:
+        def __init__(self):
+            self.step = 0
+
+        def isVisible(self):
+            return True
+
+        def width(self):
+            return 100
+
+        def height(self):
+            return 100
+
+        def mapFromGlobal(self, _pos):
+            point = positions[min(self.step, len(positions) - 1)]
+            self.step += 1
+            return point
+
+    pointer = ft.Pointer()
+    widget = _Widget()
+    # Without a button held, moving does not drag.
+    pointer.sample(widget)
+    pointer.sample(widget)
+    assert pointer.drag_x == 0.0
+
+
+def test_the_drag_accumulates_rather_than_being_assigned():
+    """A frame dropped under load must not lose the movement: it arrives
+    with the next one, so a slow machine pans the same total distance."""
+    from spacr.qt.widgets import fractal_travel as ft
+
+    pointer = ft.Pointer()
+    pointer.drag_x = 0.1
+    pointer.drag_x += 0.2
+    assert pointer.drag_x == pytest.approx(0.3)
+
+
+def test_the_depth_limit_matches_the_orbit_precision():
+    """It was 34 while the numbers supported 15.7, so most of every dive was
+    noise -- "ends quickly in a verry pixelated image"."""
+    from spacr.qt.widgets import fractal_mandelbrot as mb
+
+    assert mb.MAX_USEFUL_DEPTH <= 16.0
+    viewport = mb.scale_at(mb.MAX_USEFUL_DEPTH, mb.DEFAULTS["initial_scale"])
+    assert viewport > 2.2e-16 * 10

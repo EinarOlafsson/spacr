@@ -28,23 +28,30 @@ import numpy as np
 
 #: How deep the dive goes before it starts again.
 #:
-#: THE ZOOM HAS AN END, and past it the screen goes black. Perturbation
-#: buys precision for the CENTRE, but the per-pixel offset is still a
-#: float32 in the shader, and that is what runs out. Measured, at the
-#: default starting scale of 1.25 and a 1080-tall window:
+#: THE ZOOM HAS AN END, and it is the REFERENCE ORBIT'S precision that sets
+#: it -- not the scale's exponent, which is what an earlier version measured
+#: and got wrong by a factor of two.
 #:
-#:     depth 34: pixel step 2.3e-37   fine
-#:     depth 38: scale is denormal    losing bits
-#:     depth 45: pixel step is ZERO   every pixel samples one point
+#: Perturbation asks the shader for z = Z + dz, where dz is about the size
+#: of one viewport. For that sum to mean anything, Z has to be known to
+#: better than dz. Z is carried through the texture as a pair of float32s,
+#: high plus low, and measured against a 320-digit reference the pair
+#: reproduces it to 2.2e-16 absolute -- about 15.7 decades.
 #:
-#: A zero pixel step means the whole frame is one sample of one point, which
-#: is the black screen. Thirty-four is chosen before the denormals rather
-#: than at the cliff, because precision degrades through that range rather
-#: than failing at a line -- the picture goes mushy before it goes black.
+#: Running past that does not go black; it goes MUSHY, which is worse
+#: because it looks like a rendering fault rather than an end. Reported
+#: 2026-08-28: "the mandelbrot theme ends quickly in a verry pixelated
+#: image" -- it was being run to 34 decades, more than twice as deep as the
+#: numbers support, so most of every dive was noise.
 #:
-#: At the default twenty-four seconds a decade that is about fourteen
-#: minutes of descent before it begins again.
-MAX_USEFUL_DEPTH: Final[float] = 34.0
+#: Fourteen leaves a margin below 15.7, because the error grows with the
+#: iteration count and the figure above is measured over 400 of them.
+#:
+#: At twenty-four seconds a decade that is about five and a half minutes of
+#: descent before it starts again. GOING DEEPER MEANS CARRYING Z MORE
+#: PRECISELY -- a third float in the texture would buy roughly another seven
+#: decades -- and not raising this number.
+MAX_USEFUL_DEPTH: Final[float] = 14.0
 
 #: The published defaults, as asked for on 2026-08-28.
 DEFAULTS: Final[dict] = {

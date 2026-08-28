@@ -132,17 +132,20 @@ def test_the_dive_restarts_instead_of_going_black():
     assert 0.0 <= mb.depth_after_restart(limit * 7 + 1.5) < limit
 
 
-def test_the_restart_happens_before_the_pixel_step_underflows():
-    """A zero pixel step is one sample of one point, filling the screen."""
-    scale = np.float32(mb.scale_at(mb.MAX_USEFUL_DEPTH,
-                                   mb.DEFAULTS["initial_scale"]))
-    # A pixel on a 1080-tall window.
-    step = np.float32(scale / np.float32(540.0))
-    assert step > 0.0, "the deepest frame already samples a single point"
-    # And with room to spare: the scale is still a normal float32, not a
-    # denormal, where precision degrades before it fails.
-    assert scale > np.finfo(np.float32).tiny, (
-        f"scale {scale:.3e} is denormal at the restart depth")
+def test_the_restart_happens_while_the_orbit_is_still_accurate():
+    """It goes MUSHY before it goes black, which is worse: it looks like a
+    rendering fault rather than an end."""
+    # Z is carried as a float32 pair and reproduces the 320-digit value to
+    # about 2.2e-16; the viewport at the restart depth must still be larger
+    # than that, or the perturbation is measuring the error.
+    viewport = mb.scale_at(mb.MAX_USEFUL_DEPTH, mb.DEFAULTS["initial_scale"])
+    assert viewport > 2.2e-16 * 10, (
+        f"at depth {mb.MAX_USEFUL_DEPTH} the viewport is {viewport:.2e}, "
+        f"inside the reference orbit's own error")
+
+    # And the scale is nowhere near a float32 denormal, which is the limit
+    # an earlier version measured and mistook for this one.
+    assert np.float32(viewport) > np.finfo(np.float32).tiny
 
 
 def test_the_restart_depth_is_a_setting_and_is_bounded(monkeypatch):
@@ -152,11 +155,15 @@ def test_the_restart_depth_is_a_setting_and_is_bounded(monkeypatch):
 
     assert "max_depth" in P.FRACTAL_LIMITS
     floor, ceiling, why = P.FRACTAL_LIMITS["max_depth"]
-    assert ceiling is not None and ceiling <= 45
-    assert "underflow" in why
+    assert ceiling is not None and ceiling <= 16
+    # The reason has to name what actually runs out, or the next person
+    # raises the number again: it is the reference orbit's precision, not
+    # the scale's exponent.
+    assert "float32" in why and "2.2e-16" in why
 
     assert P.explain_a_fractal_number("max_depth", 100) != ""
-    assert P.explain_a_fractal_number("max_depth", 20) == ""
+    assert P.explain_a_fractal_number("max_depth", 20) != ""
+    assert P.explain_a_fractal_number("max_depth", 12) == ""
 
 
 def test_changing_the_settings_sends_the_dive_back_to_the_surface():
