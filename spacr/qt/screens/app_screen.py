@@ -6208,6 +6208,18 @@ class AppScreen(QWidget):
                 explorer.close()
             except Exception:
                 pass
+        # pyqtgraph deliberately makes PlotItem/ViewBox context menus
+        # parentless top-level windows. The ordinary QWidget close cascade
+        # cannot reach them, so one closed regression screen otherwise leaves
+        # hundreds of live widgets for every later palette/style pass. Retire
+        # only menus found in this screen's own graphics scenes; a global
+        # QApplication sweep or gc.collect over live Qt wrappers is unsafe.
+        try:
+            from ..widget_cleanup import retire_pyqtgraph_menus
+
+            retire_pyqtgraph_menus(self)
+        except (ImportError, RuntimeError):
+            pass
         super().closeEvent(event)
 
     def _shutdown_settings_widgets(self) -> None:

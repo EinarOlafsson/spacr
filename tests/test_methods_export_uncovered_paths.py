@@ -214,3 +214,43 @@ def test_results_omit_the_effect_size_sentence_when_there_is_no_effect_size():
     assert "median" not in text
     assert ("- TSG101 (7251): effect 2.4, p = 4e-06, q = 0.002, 3 of 4 gRNAs "
             "agreeing.") in text
+
+
+def test_a_screen_with_no_hits_does_not_report_an_effect_of_nan():
+    """An empty screen has no largest effect, and must not claim one.
+
+    ``hits.summary()`` reports ``float("nan")`` for ``max_abs_effect`` when no
+    guide cleared the threshold. ``nan is not None``, so a plain None-check
+    lets it through and the methods section renders the sentence "The largest
+    absolute effect among them was nan, with a median of nan." into text that
+    goes to a journal.
+    """
+    digest = {
+        "statistics": {
+            "n_tested": 12, "n_significant": 0, "alpha": 0.05,
+            "n_up": 0, "n_down": 0, "n_corroborated": 0,
+            "max_abs_effect": float("nan"),
+            "median_abs_effect": float("nan"),
+        },
+    }
+
+    text = render_results(digest)
+
+    assert "nan" not in text
+    assert "largest absolute effect" not in text
+
+
+def test_a_screen_with_hits_still_reports_its_largest_effect():
+    """Screening out nan must not screen out a real effect size."""
+    digest = {
+        "statistics": {
+            "n_tested": 12, "n_significant": 3, "alpha": 0.05,
+            "n_up": 2, "n_down": 1, "n_corroborated": 2,
+            "max_abs_effect": 1.75, "median_abs_effect": 0.5,
+        },
+    }
+
+    text = render_results(digest)
+
+    assert "The largest absolute effect among them was 1.75" in text
+    assert "median of 0.5" in text

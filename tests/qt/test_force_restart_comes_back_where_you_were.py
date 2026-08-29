@@ -284,3 +284,187 @@ def test_the_run_is_not_restarted_only_the_configuration(qtbot):
 
     screen = window._screens["regression"]
     assert getattr(screen, "_thread", None) is None
+
+
+def _flush_deferred_widget_deletes():
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    QCoreApplication.processEvents()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+
+def _pyqtgraph_menu_roots(owner):
+    """Return only menu roots belonging to graphics scenes under ``owner``."""
+    from pyqtgraph import PlotItem, ViewBox
+    from PySide6.QtWidgets import QGraphicsView
+
+    menus = {}
+    seen_viewboxes = set()
+    for view in owner.findChildren(QGraphicsView):
+        scene = view.scene()
+        for item in list(scene.items()) if scene is not None else []:
+            if isinstance(item, PlotItem):
+                menu = getattr(item, "ctrlMenu", None)
+                if menu is not None:
+                    menus[id(menu)] = menu
+            if not isinstance(item, ViewBox) or id(item) in seen_viewboxes:
+                continue
+            seen_viewboxes.add(id(item))
+            menu = getattr(item, "menu", None)
+            if menu is not None:
+                menus[id(menu)] = menu
+    return menus
+
+
+def test_closing_the_main_window_retires_its_app_screens_plot_menus(qapp):
+    """A parent close must run AppScreen cleanup, not just delete its tree."""
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.app import MainWindow
+    from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
+
+    window = MainWindow(initial_app="regression")
+    screen = window._screens["regression"]
+    owned_menus = _pyqtgraph_menu_roots(screen)
+    assert len(owned_menus) >= 10, "the regression plot menus were not built"
+
+    try:
+        assert window.close() is True
+        _flush_deferred_widget_deletes()
+        live_ids = {id(widget) for widget in QApplication.allWidgets()}
+        survivors = set(owned_menus) & live_ids
+        assert survivors == set(), (
+            "MainWindow.close() bypassed AppScreen.closeEvent and retained "
+            f"{len(survivors)} parentless pyqtgraph menu roots")
+    finally:
+        # Keep a failing regression isolated from the next test as well.
+        retire_pyqtgraph_menus(screen)
+        screen.close()
+        window.deleteLater()
+        _flush_deferred_widget_deletes()
+
+
+def test_the_main_window_honours_an_app_screen_that_refuses_to_close(
+        qapp, monkeypatch):
+    """A live worker's rejected close must keep its parent window alive."""
+    from PySide6.QtGui import QCloseEvent
+
+    from spacr.qt.app import MainWindow
+    from spacr.qt.screens.app_screen import AppScreen
+
+    window = MainWindow()
+    screen = AppScreen("mask")
+    window._screens["mask"] = screen
+    window._stack.addWidget(screen)
+    refused = []
+    event = QCloseEvent()
+
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            screen, "close", lambda: refused.append(True) or False)
+        window.closeEvent(event)
+
+    assert refused == [True]
+    assert not event.isAccepted()
+    assert not window._closing
+
+    screen.close()
+    window.deleteLater()
+    _flush_deferred_widget_deletes()
+
+
+def test_the_main_window_closes_each_distinct_owned_app_screen_once(
+        qapp, monkeypatch):
+    """Cached aliases must neither skip a screen nor tear one down twice."""
+    from PySide6.QtGui import QCloseEvent
+
+    from spacr.qt.app import MainWindow
+    from spacr.qt.screens.app_screen import AppScreen
+
+    window = MainWindow()
+    first = AppScreen("mask")
+    second = AppScreen("measure")
+    window._screens = {
+        "mask": first,
+        "mask-alias": first,
+        "measure": second,
+    }
+    window._stack.addWidget(first)
+    window._stack.addWidget(second)
+    closed = []
+    event = QCloseEvent()
+
+    with monkeypatch.context() as patch:
+        patch.setattr(first, "close", lambda: closed.append("mask") or True)
+        patch.setattr(
+            second, "close", lambda: closed.append("measure") or True)
+        window.closeEvent(event)
+
+    assert closed == ["mask", "measure"]
+    assert event.isAccepted()
+
+    first.close()
+    second.close()
+    window.deleteLater()
+    _flush_deferred_widget_deletes()
+
+
+def test_rebuilding_closes_before_delete_and_keeps_the_workspace_provider(
+        qapp, monkeypatch):
+    """Replacing a form runs its teardown and republishes its live state."""
+    from spacr import workspace
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow(initial_app="mask")
+    old = window._screens["mask"]
+    values = dict(old._settings_model.collect() or {})
+    order = []
+    close = old.close
+    delete_later = old.deleteLater
+
+    def recorded_close():
+        order.append("close")
+        return close()
+
+    def recorded_delete_later():
+        order.append("deleteLater")
+        return delete_later()
+
+    monkeypatch.setattr(old, "close", recorded_close)
+    monkeypatch.setattr(old, "deleteLater", recorded_delete_later)
+
+    try:
+        window.rebuild_app_screen("mask", values)
+        fresh = window._screens["mask"]
+        assert fresh is not old
+        assert order == ["close", "deleteLater"]
+        assert workspace.providers()["mask:settings"]() is fresh
+    finally:
+        window.close()
+        window.deleteLater()
+        _flush_deferred_widget_deletes()
+
+
+def test_a_rebuild_refusal_keeps_the_old_screen_and_workspace(
+        qapp, monkeypatch):
+    """A form rebuild must not destroy a screen whose worker is still live."""
+    from spacr import workspace
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow(initial_app="mask")
+    old = window._screens["mask"]
+    values = dict(old._settings_model.collect() or {})
+
+    with monkeypatch.context() as patch:
+        patch.setattr(old, "close", lambda: False)
+        window.rebuild_app_screen("mask", values)
+
+    try:
+        assert window._screens["mask"] is old
+        assert window._stack.currentWidget() is old
+        assert workspace.providers()["mask:settings"]() is old
+    finally:
+        old.close()
+        window.deleteLater()
+        _flush_deferred_widget_deletes()
