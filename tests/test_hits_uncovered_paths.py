@@ -129,6 +129,15 @@ class _RowDuplicatingFrame(pd.DataFrame):
     def _constructor(self):
         return _RowDuplicatingFrame
 
+    def _constructor_from_mgr(self, mgr, axes):
+        # Required on pandas 2.2.x, harmless on 2.3+. A subclass overriding
+        # only `_constructor` sends pandas down `self._constructor(mgr)` on
+        # every internal reconstruction, and 2.2 DeprecationWarns there. The
+        # min-deps CI job pins the declared floor pandas==2.2.1 and turns
+        # warnings into errors, so overriding this hook is what makes the
+        # fixture correct across the whole declared range.
+        return _RowDuplicatingFrame._from_mgr(mgr, axes=axes)
+
     def merge(self, right, **kwargs):
         merged = pd.DataFrame.merge(pd.DataFrame(self), right, **kwargs)
         return pd.concat([merged, merged], ignore_index=True)
