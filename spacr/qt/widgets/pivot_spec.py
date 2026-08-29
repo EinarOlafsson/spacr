@@ -636,7 +636,11 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     for value in spec.values:
         wanted = [_PANDAS_NAMES[a] for a in spec.aggs if a in _PANDAS_NAMES]
         table = grouped[value].agg(wanted)
-        if isinstance(table, pd.Series):  # pragma: no cover - `n` is always in
+        # DEFENSIVE, and unreachable while pandas keeps its documented
+        # shape: `SeriesGroupBy.agg` returns a DataFrame for a LIST of
+        # function names however short the list is, and `wanted` is always a
+        # non-empty list because `n` is always in `spec.aggs`.
+        if isinstance(table, pd.Series):  # pragma: no cover - see above
             table = table.to_frame(name=wanted[0])
         if QUANTILE in spec.aggs:
             table = table.assign(

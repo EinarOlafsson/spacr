@@ -1221,7 +1221,10 @@ def _reasons_per_feature(scores: np.ndarray, matrix: np.ndarray,
     reasons = [""] * scores.shape[0]
     for row in np.flatnonzero(flags):
         offending = np.flatnonzero(scores[row] > spec.threshold())
-        if offending.size == 0:  # pragma: no cover - flags come from scores
+        # A scan's own flags come from these scores, so this only trips
+        # for a caller that supplied its own. Such a row gets no
+        # sentence rather than an invented one.
+        if offending.size == 0:
             continue
         order = offending[np.argsort(scores[row][offending])[::-1]][:3]
         bits = []
