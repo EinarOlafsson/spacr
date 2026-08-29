@@ -49,14 +49,23 @@ never costs a screen the strip it already had, in either registration order.
 """
 from __future__ import annotations
 
+import html
 import inspect
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                               QPushButton, QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QApplication,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 LOG = logging.getLogger("spacr.qt.prerun")
 
@@ -100,6 +109,12 @@ REFRESH_DELAY_MS = 450
 
 #: Findings shown before the user asks for the rest.
 _FINDINGS_COLLAPSED = 2
+
+#: Field-name links shown inline before one compact "browse all" link.  A
+#: 1536-field positional finding must not turn the Measure screen into a
+#: thousand-line hyperlink list; every field remains reachable with one click
+#: and then Left/Right inside the browser.
+_FIELD_LINKS_SHOWN = 8
 
 #: Object types the diameter estimator offers, in report order.
 _DIAMETER_OBJECTS: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
@@ -178,7 +193,7 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
         color: {palette['fg']};
         background: transparent;
     }}
-    QLabel#PrerunSub, QLabel#PrerunNote {{
+    QLabel#PrerunSub, QLabel#PrerunNote, QLabel#QCFieldLinks {{
         color: {palette['fg_muted']};
         background: transparent;
     }}
@@ -221,7 +236,7 @@ except Exception:            # pragma: no cover - decoration is not load-bearing
 # ---------------------------------------------------------------------------
 
 class _ShowFilter(QObject):
-    """Calls back when the watched widget is shown.
+    """Follow a watched widget's visible lifetime; consume nothing.
 
     A module screen is built once and kept, so ``__init__`` fires exactly
     once — while *returning* to the screen, which is when a mask run on
@@ -229,17 +244,24 @@ class _ShowFilter(QObject):
     ``Show``.
     """
 
-    def __init__(self, on_show, parent=None) -> None:
+    def __init__(self, on_show, parent=None, *, on_hide=None) -> None:
         super().__init__(parent)
         self._on_show = on_show
+        self._on_hide = on_hide
 
     def eventFilter(self, obj, event) -> bool:      # noqa: N802 - Qt override
-        """Forward a Show event and never consume it."""
+        """Forward Show/Hide/Close events and never consume them."""
         if event.type() == QEvent.Show:
             try:
                 self._on_show()
             except Exception:
                 LOG.exception("pre-run refresh failed on show")
+        elif event.type() in (QEvent.Hide, QEvent.Close):
+            try:
+                if self._on_hide is not None:
+                    self._on_hide()
+            except Exception:
+                LOG.exception("pre-run cleanup failed on hide")
         return False
 
 
@@ -450,6 +472,8 @@ class SegQCBanner(_JobMixin, QFrame):
         self._digest = None
         self._expanded = False
         self._cache_key: Optional[Tuple] = None
+        self._field_browser = None
+        self._field_targets: Tuple[Any, ...] = ()
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -516,7 +540,9 @@ class SegQCBanner(_JobMixin, QFrame):
         self._timer.setInterval(REFRESH_DELAY_MS)
         self._timer.timeout.connect(self.refresh)
 
-        self._show_filter = _ShowFilter(self._on_screen_shown, self)
+        self._show_filter = _ShowFilter(
+            self._on_screen_shown, self,
+            on_hide=self._close_field_browser)
         try:
             screen.installEventFilter(self._show_filter)
         except Exception:
@@ -611,6 +637,9 @@ class SegQCBanner(_JobMixin, QFrame):
         digest = self._digest
         if digest is None:
             return
+        # A refreshed scorecard can point at a different set of fields.  Do
+        # not leave an already-open browser navigating the previous digest.
+        self._close_field_browser()
         verdict = digest.verdict
         title = {
             "ok": "Segmentation QC — passed",
@@ -662,6 +691,13 @@ class SegQCBanner(_JobMixin, QFrame):
     def _draw_findings(self, digest) -> None:
         self._clear_findings()
         findings = list(digest.findings)
+        try:
+            from .widgets.qc_field_browser import targets_from_digest
+
+            self._field_targets = targets_from_digest(digest)
+        except Exception:
+            LOG.exception("could not resolve segmentation-QC browser targets")
+            self._field_targets = ()
         if not findings:
             self._btn_more.hide()
             self._findings_box.setVisible(False)
@@ -681,6 +717,7 @@ class SegQCBanner(_JobMixin, QFrame):
                 f"• {finding.headline}",
                 _SEVERITY_NAME.get(finding.severity, "PrerunHeadline"))
             layout.addWidget(head)
+            self._add_field_links(layout, finding)
             if self._expanded and finding.detail:
                 layout.addWidget(_label(finding.detail, "PrerunSub"))
             if finding.fix:
@@ -692,6 +729,116 @@ class SegQCBanner(_JobMixin, QFrame):
         self._btn_more.setVisible(bool(extra) or self._expanded)
         self._btn_more.setText(
             "Show less" if self._expanded else f"Show all {len(findings)} findings")
+
+    def _add_field_links(self, layout: QVBoxLayout, finding: Any) -> None:
+        """Render field stems as links into the plate-aware browser."""
+        digest = self._digest
+        if digest is None:
+            return
+        try:
+            from .widgets.qc_field_browser import finding_targets
+
+            targets = finding_targets(
+                digest, finding, getattr(self, "_field_targets", ()))
+        except Exception:
+            LOG.exception("could not resolve segmentation-QC field links")
+            return
+        if not targets:
+            return
+        from .i18n import tr
+
+        link_targets: Dict[str, Any] = {}
+        anchors: List[str] = []
+        for index, target in enumerate(targets[:_FIELD_LINKS_SHOWN]):
+            href = str(index)
+            link_targets[href] = target
+            anchors.append(
+                f'<a href="{href}">{html.escape(target.field)}</a>')
+        if len(targets) > _FIELD_LINKS_SHOWN:
+            href = "all"
+            link_targets[href] = targets[0]
+            browse_all = html.escape(tr(
+                "Browse all {count} implicated fields…", count=len(targets)))
+            anchors.append(
+                f'<a href="{href}">{browse_all}</a>')
+        label = QLabel(html.escape(tr("Inspect fields:")) + " "
+                       + " · ".join(anchors),
+                       self._findings_box)
+        label.setObjectName("QCFieldLinks")
+        label.setWordWrap(True)
+        label.setTextFormat(Qt.RichText)
+        label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        label.setOpenExternalLinks(False)
+        label.setToolTip(tr(
+            "Open the merged image, mask overlays, and this field's QC flags."))
+        label.linkActivated.connect(
+            lambda href, mapping=link_targets: self._on_field_link(
+                mapping.get(str(href))))
+        layout.addWidget(label)
+
+    def _measure_run_active(self) -> bool:
+        """Whether this screen's pipeline worker is currently in flight."""
+        thread = getattr(self._screen, "_thread", None)
+        if thread is None:
+            return False
+        try:
+            return bool(thread.isRunning())
+        except (AttributeError, RuntimeError):
+            return False
+
+    def _on_field_link(self, target: Any) -> None:
+        """Open the browser at exactly the field whose link was activated."""
+        if target is None or self._digest is None:
+            return
+        browser = self._field_browser
+        if browser is not None:
+            try:
+                if browser.open_at(target.field, target.plate_root):
+                    browser.show()
+                    browser.raise_()
+                    browser.activateWindow()
+                    return
+            except RuntimeError:
+                self._field_browser = None
+        try:
+            from .widgets.qc_field_browser import (
+                QCFieldBrowser,
+                targets_from_digest,
+            )
+
+            factory = getattr(self, "_field_browser_factory", None)
+            if factory is None:
+                factory = QCFieldBrowser
+            targets = getattr(self, "_field_targets", ())
+            if not targets:
+                targets = targets_from_digest(self._digest)
+            browser = factory(
+                targets,
+                initial_field=target.field,
+                initial_plate_root=target.plate_root,
+                run_active=self._measure_run_active,
+                parent=self,
+            )
+            browser.destroyed.connect(self._on_field_browser_destroyed)
+            self._field_browser = browser
+            browser.show()
+            browser.raise_()
+            browser.activateWindow()
+        except Exception:
+            LOG.exception("could not open the segmentation-QC field browser")
+
+    def _on_field_browser_destroyed(self, *_args) -> None:
+        self._field_browser = None
+
+    def _close_field_browser(self) -> None:
+        browser = getattr(self, "_field_browser", None)
+        if browser is None:
+            return
+        self._field_browser = None
+        try:
+            browser.close()
+        except RuntimeError:
+            pass
 
     def _on_toggle_findings(self) -> None:
         self._expanded = not self._expanded
@@ -888,7 +1035,7 @@ class DiameterPanel(_JobMixin, QFrame):
         def _job(box: Dict[str, Any]) -> None:
             fn = box["estimator"]
             if fn is None:
-                from ..diameter import estimate_diameters as fn      # noqa: N806
+                from ..diameter import estimate_diameters as fn  # noqa: N806
             box["estimates"] = fn(
                 box["src"],
                 box["channels"],
