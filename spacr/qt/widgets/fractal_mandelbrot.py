@@ -781,3 +781,83 @@ class SteeringCamera:
         self.step = 0
         self.next_steer = 0.0
         self._clock = None
+
+
+def a_more_interesting_anchor(orbit, budget: int = 600,
+                              candidates: int = 64):
+    """Pick a point the dive will still find structure at, once, up front.
+
+    :param orbit: the reference orbit to look around.
+    :param budget: iterations for the survey.
+    :param candidates: how many points to score at the surface.
+    :returns: ``(dx, dy)`` in screen units, or None if nothing is found.
+
+    SURFACE STRUCTURE IS NOT ENOUGH, and scoring only that is how the first
+    attempt "focuses into a monocolor area": a point can sit on a busy edge
+    at the starting scale and be flat a few decades in, because the edge was
+    a boundary of something the dive immediately passes through.
+
+    So every candidate is CHECKED AT DEPTH. The best few by surface score
+    are surveyed again at a hundredth of the scale, and the one that still
+    varies there is chosen. That is a direct test of the thing that matters:
+    will there be anything to look at after the descent.
+
+    The choice happens once, before anything moves, so the dive is exactly
+    as steady as a fixed path -- because it is one.
+    """
+    escaped, iterations = perturbation_escape_map(
+        orbit, 128, 72, 1.25, int(budget))
+    interesting = structure_mask(escaped, iterations, int(budget))
+    if not interesting.any():
+        return None
+
+    height, width = escaped.shape
+    aspect = width / height
+    xs = ((np.arange(width, dtype=np.float64) + 0.5) / width * 2.0 - 1.0)
+    ys = ((np.arange(height, dtype=np.float64) + 0.5) / height * 2.0 - 1.0)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+
+    rows, cols = np.nonzero(interesting)
+    if len(rows) > int(candidates):
+        # Evenly through the list rather than the first N, which would all
+        # come from the top of the frame.
+        pick = np.linspace(0, len(rows) - 1, int(candidates)).astype(int)
+        rows, cols = rows[pick], cols[pick]
+
+    shortlist = []
+    for row, col in zip(rows, cols):
+        # NOT THE VERY EDGE OF THE FRAME: a point there is half outside the
+        # survey, so its neighbourhood is scored on missing data.
+        if math.hypot(float(grid_x[row, col]),
+                      float(grid_y[row, col])) > 0.85:
+            continue
+        surface = candidate_score(escaped, iterations, int(row), int(col),
+                                  int(budget))
+        shortlist.append((surface,
+                          float(grid_x[row, col]) * aspect,
+                          float(grid_y[row, col])))
+    if not shortlist:
+        return None
+    shortlist.sort(key=lambda row: row[0], reverse=True)
+
+    best = None
+    for _surface, dx, dy in shortlist[:8]:
+        # A HUNDREDTH OF THE SCALE: far enough in that anything shallow has
+        # been passed through, near enough that the reference orbit is still
+        # accurate there.
+        deep_escaped, deep_iterations = perturbation_escape_map(
+            orbit, 48, 27, 1.25 / 100.0, int(budget),
+            dx * 1.25, dy * 1.25)
+        spread = float(deep_iterations.astype(np.float64).std())
+        share = float(deep_escaped.mean())
+        # A frame that entirely escapes or entirely does not is one colour,
+        # however busy its surface looked.
+        if share < 0.02 or share > 0.98:
+            continue
+        if best is None or spread > best[0]:
+            best = (spread, dx, dy)
+    if best is None:
+        # Nothing survived the deeper look: the surface best is still a
+        # better guess than the middle of the frame.
+        return shortlist[0][1], shortlist[0][2]
+    return best[1], best[2]

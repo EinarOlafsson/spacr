@@ -1,0 +1,226 @@
+"""The keys reach the backdrop, and one control drives each group."""
+from __future__ import annotations
+
+import pytest
+from PySide6.QtGui import QAction
+
+import spacr.qt.app as app_module
+from spacr.qt import preferences as P
+from spacr.qt.widgets import fractal_travel as ft
+
+
+@pytest.fixture
+def store(monkeypatch):
+    values = {}
+
+    class _Mem:
+        def value(self, key, default=None, type=None):
+            return values.get(key, default)
+
+        def setValue(self, key, value):
+            values[key] = value
+
+        def sync(self):
+            pass
+
+    monkeypatch.setattr(P, "_settings", lambda: _Mem())
+    monkeypatch.setattr(P, "_SAFE_MODE", False)
+    return values
+
+
+def test_two_backdrops_with_the_same_settings_both_register():
+    """`RuntimeControls` is a dataclass, so `in` compares field by field: a
+    new backdrop matching a previous one was never added, and the keys then
+    drove a stale object no canvas reads."""
+    first = ft.RuntimeControls()
+    second = ft.RuntimeControls()
+    assert first == second, "the test needs two that compare equal"
+    assert first is not second
+
+    ft._LIVE_CONTROLS.clear()
+    try:
+        for controls in (first, second):
+            if not any(e is controls for e in ft._LIVE_CONTROLS):
+                ft._LIVE_CONTROLS.append(controls)
+        assert len(ft._LIVE_CONTROLS) == 2
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_the_keys_reach_the_newest_backdrop(qapp):
+    ft._LIVE_CONTROLS.clear()
+    try:
+        ft.create_fractal_widget(
+            ft.Settings(pattern="orbit", backend="cpu"),
+            ft.RuntimeControls())
+        newest = ft.RuntimeControls()
+        ft.create_fractal_widget(
+            ft.Settings(pattern="orbit", backend="cpu"), newest)
+
+        before = newest.zoom_rate
+        assert ft.nudge_zoom_rate(1) != 0.0
+        assert newest.zoom_rate != before
+
+        ft.restart_the_dive()
+        assert newest.restart_token != 0
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_the_list_does_not_grow_without_bound(qapp):
+    """Nothing else can trim it: a destroyed backdrop leaves its controls."""
+    ft._LIVE_CONTROLS.clear()
+    try:
+        for _ in range(30):
+            ft.create_fractal_widget(
+                ft.Settings(pattern="orbit", backend="cpu"),
+                ft.RuntimeControls())
+        assert len(ft._LIVE_CONTROLS) <= 8
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_a_saved_speed_reaches_a_running_backdrop(store):
+    """"i change speed and nothing fucking happens" -- the backdrop keeps
+    the controls it was built with."""
+    controls = ft.RuntimeControls(speed=1.0)
+    ft._LIVE_CONTROLS.clear()
+    ft._LIVE_CONTROLS.append(controls)
+    try:
+        P.set_fractal_settings(speed=4.0)
+        assert ft.apply_saved_controls() == 1
+        assert controls.speed == pytest.approx(4.0)
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_one_speed_drives_every_speed_setting(store):
+    """"take all the speed settings and have them be controled by one"."""
+    P.set_fractal_settings(speed=2.0)
+    values = P.get_fractal_settings()
+    assert values["speed"] == 2.0
+    assert values["zoom_rate"] == 2.0
+    assert values["speed_min"] == pytest.approx(1.1)
+    assert values["speed_max"] == pytest.approx(3.3)
+    # A DURATION goes the other way: twice the speed is half the time.
+    assert values["seconds_per_decade"] == pytest.approx(12.0)
+
+
+def test_one_scale_drives_every_scale_setting(store):
+    P.set_fractal_settings(scale=2.0)
+    values = P.get_fractal_settings()
+    assert values["scale"] == 2.0
+    assert values["render_scale"] == 2.0
+    # Whole samples a side, so it steps.
+    assert values["supersampling"] == 2
+    P.set_fractal_settings(scale=0.5)
+    assert P.get_fractal_settings()["supersampling"] == 1
+
+
+def test_speed_is_monotonic(store):
+    """Higher must never mean slower, whichever setting it reaches."""
+    P.set_fractal_settings(speed=1.0)
+    slow = P.get_fractal_settings()["seconds_per_decade"]
+    P.set_fractal_settings(speed=3.0)
+    fast = P.get_fractal_settings()["seconds_per_decade"]
+    assert fast < slow
+
+
+@pytest.mark.parametrize("name,shortcut", [
+    ("RestartBackdrop", "Ctrl+R"),
+    ("ToggleBackdrop", "Ctrl+T"),
+    ("ShowScreensaver", "Ctrl+Shift+F"),
+])
+def test_the_shortcuts_are_bound(qtbot, name, shortcut):
+    win = app_module.MainWindow()
+    qtbot.addWidget(win)
+    try:
+        action = win.findChild(QAction, name)
+        assert action is not None, name
+        assert action.shortcut().toString() == shortcut
+    finally:
+        win.close()
+
+
+def test_no_two_actions_claim_the_same_shortcut(qtbot):
+    """Ctrl+B was asked for as the blank-background key and quietly went to
+    Ctrl+Shift+B, because the app drawer already held it."""
+    win = app_module.MainWindow()
+    qtbot.addWidget(win)
+    try:
+        seen = {}
+        for action in win.findChildren(QAction):
+            key = action.shortcut().toString()
+            if not key:
+                continue
+            assert key not in seen, (
+                f"{key} is claimed by both {seen[key]} and "
+                f"{action.objectName() or action.text()}")
+            seen[key] = action.objectName() or action.text()
+        assert "Ctrl+B" in seen
+    finally:
+        win.close()
+
+
+def test_the_arrow_keys_go_forward_and_back():
+    """"so i could go slow and fast forward and back" -- the rate is a
+    velocity, not a magnitude, so stepping down through zero comes back out
+    of the zoom rather than stopping at the slowest descent."""
+    controls = ft.RuntimeControls()
+    ft._LIVE_CONTROLS.clear()
+    ft._LIVE_CONTROLS.append(controls)
+    try:
+        assert controls.zoom_rate > 0
+
+        # Down, repeatedly: it must cross zero rather than stalling at the
+        # floor for ever.
+        for _ in range(80):
+            ft.nudge_zoom_rate(-1)
+        assert controls.zoom_rate < 0, controls.zoom_rate
+
+        # And back up again the same way.
+        for _ in range(80):
+            ft.nudge_zoom_rate(1)
+        assert controls.zoom_rate > 0, controls.zoom_rate
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_the_speed_is_still_bounded_in_both_directions():
+    """A key held down is not a request for ten to the twelfth."""
+    controls = ft.RuntimeControls()
+    ft._LIVE_CONTROLS.clear()
+    ft._LIVE_CONTROLS.append(controls)
+    try:
+        for _ in range(400):
+            ft.nudge_zoom_rate(1)
+        assert abs(controls.zoom_rate) <= ft.MAX_ZOOM_RATE
+        for _ in range(800):
+            ft.nudge_zoom_rate(-1)
+        assert abs(controls.zoom_rate) <= ft.MAX_ZOOM_RATE
+    finally:
+        ft._LIVE_CONTROLS.clear()
+
+
+def test_dragging_works_on_the_steady_path_too():
+    """Refusing it there would mean the only way to look somewhere else was
+    to turn on the search that shook."""
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    drag = source.index("camera.drag(")
+    guided = source.index('!= "guided"')
+    assert drag < guided, (
+        "the drag is handled after the fixed path returns, so it never runs")
+
+
+def test_nothing_aims_the_dive_automatically():
+    """Surveying the surface for a "more interesting" point was tried and
+    made it worse: a point on a busy edge at the starting scale measured
+    completely flat three decades in, because surface structure does not
+    predict what survives a descent."""
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    assert "_aim_once" not in source
+    assert "a_more_interesting_anchor" not in source

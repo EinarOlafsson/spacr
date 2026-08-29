@@ -2306,7 +2306,11 @@ class MainWindow(QMainWindow):
         # a panel a keyboard user does not have -- and deleting the action
         # would take the shortcut with it.
         act_all = QAction("All apps", self)
-        act_all.setShortcut(QKeySequence("Ctrl+B"))
+        # MOVED OFF Ctrl+B, which was asked for as the blank-background key
+        # -- twice, and it was quietly given to Ctrl+Shift+B because this
+        # already held it. A shortcut somebody asks for by name and gets
+        # something else from is worse than an unfamiliar one.
+        act_all.setShortcut(QKeySequence("Ctrl+Shift+A"))
         act_all.setStatusTip(
             "Show the full app list. Also revealed by moving the pointer "
             "to the left edge of the window.")
@@ -2368,7 +2372,7 @@ class MainWindow(QMainWindow):
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
-        act_flat.setShortcut(QKeySequence("Ctrl+Shift+B"))
+        act_flat.setShortcut(QKeySequence("Ctrl+B"))
         act_flat.setStatusTip(
             "Pause the background and paint it flat — dark grey in a dark "
             "theme, white in a light one.")
