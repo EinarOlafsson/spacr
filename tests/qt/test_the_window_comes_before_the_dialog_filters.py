@@ -86,15 +86,24 @@ def clean_filters(qapp):
     from spacr.qt.app import _DIALOG_FILTERS
 
     was_there = _what_is_installed(qapp)
+    # Preserve the real installers before the test gets a chance to
+    # monkeypatch one of them.  A pre-existing filter must be restored during
+    # teardown even when the test deliberately makes its public installer
+    # raise; otherwise fixture finalization calls the test double and turns a
+    # passing assertion into an order-dependent teardown error.
+    installers = {
+        function_name: getattr(importlib.import_module(module_name),
+                               function_name)
+        for module_name, function_name in _DIALOG_FILTERS
+    }
     _forget_the_filters(qapp)
     try:
         yield qapp
     finally:
         _forget_the_filters(qapp)
-        for module_name, function_name in _DIALOG_FILTERS:
+        for _module_name, function_name in _DIALOG_FILTERS:
             if was_there.get(function_name):
-                getattr(importlib.import_module(module_name),
-                        function_name)(qapp)
+                installers[function_name](qapp)
 
 
 def test_the_installer_puts_all_three_on(clean_filters):
