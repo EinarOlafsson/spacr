@@ -1000,7 +1000,7 @@ def render_results(digest: Mapping[str, Any]) -> str:
             f"positive effect and {statistics.get('n_down')} with a negative "
             f"one. {statistics.get('n_corroborated')} of them were "
             f"corroborated by two or more gRNAs agreeing in sign.")
-        if statistics.get("max_abs_effect") is not None:
+        if _finite(statistics.get("max_abs_effect")) is not None:
             lines.append(
                 f"The largest absolute effect among them was "
                 f"{statistics['max_abs_effect']}, with a median of "

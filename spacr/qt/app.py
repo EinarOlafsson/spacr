@@ -3257,6 +3257,32 @@ class MainWindow(QMainWindow):
             event.ignore()
             self._closing = False
             return
+        # Closing a parent widget does not deliver a close event to its child
+        # widgets. AppScreen.closeEvent owns cleanup that cannot be left to
+        # Qt's child-destruction cascade, notably its parentless pyqtgraph
+        # menus and background job runners. Ask each owned screen to close
+        # while it is still intact, and honour a screen that defers shutdown
+        # because one of its workers has not reached a safe boundary.
+        from .screens.app_screen import AppScreen
+        seen_screens = set()
+        for screen in list(getattr(self, "_screens", {}).values()):
+            if not isinstance(screen, AppScreen) or id(screen) in seen_screens:
+                continue
+            seen_screens.add(id(screen))
+            try:
+                accepted = screen.close()
+            except RuntimeError:
+                continue          # already deleted -- nothing left to drain
+            except Exception:                                # noqa: BLE001
+                LOG.exception("Could not close an owned application screen")
+                event.ignore()
+                self._closing = False
+                return
+            if accepted is False:
+                LOG.warning("Shutdown deferred by an application screen")
+                event.ignore()
+                self._closing = False
+                return
         self._closing = True
         from .widgets.console_panel import ConsolePanel
         for panel in self.findChildren(ConsolePanel):
@@ -3730,11 +3756,37 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentWidget(fresh)
         if old is not None:
             try:
+                # ``deleteLater`` alone bypasses ``AppScreen.closeEvent``.
+                # Closing first retires workers, workspace providers, figure
+                # resources and parentless pyqtgraph menus. The replacement
+                # was built first so the stack never flashes Home while the
+                # comparatively expensive form is constructed.
+                if old.close() is False:
+                    # A running worker may deliberately defer close. Keep
+                    # that live screen instead of destroying work in flight,
+                    # and retire the unused replacement cleanly.
+                    self._stack.removeWidget(fresh)
+                    fresh.setParent(None)
+                    fresh.close()
+                    fresh.deleteLater()
+                    self._screens[key] = old
+                    self._stack.setCurrentWidget(old)
+                    old.register_workspace()
+                    return
+                # The old screen and the replacement own the same stable
+                # workspace keys. Old's close withdrew them, so publish the
+                # replacement again after teardown.
+                fresh.register_workspace()
                 self._stack.removeWidget(old)
                 old.setParent(None)
                 old.deleteLater()
             except Exception:                                # noqa: BLE001
                 LOG.exception("could not retire the %s screen", key)
+                try:
+                    fresh.register_workspace()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not restore %s workspace", key,
+                              exc_info=True)
 
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
