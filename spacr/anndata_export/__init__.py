@@ -273,7 +273,7 @@ def require_anndata():
     """
     try:
         import anndata
-    except ImportError as exc:                        # pragma: no cover - env
+    except ImportError as exc:
         module = (getattr(exc, "name", None) or "anndata").split(".", 1)[0]
         raise AnnDataExtraMissing(
             ANNDATA_MISSING_MESSAGE.format(module=module)) from exc
@@ -1574,9 +1574,10 @@ def export_anndata(db_path: Union[str, os.PathLike],
     out_path = os.path.abspath(os.path.expanduser(os.fspath(out_path)))
     adata, result = build_anndata(db_path, settings=settings, **kwargs)
 
-    parent = os.path.dirname(out_path)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    # `out_path` was made absolute just above, so its dirname is never
+    # empty -- at worst it is "/" -- and there is no falsy case for a guard
+    # to catch. `exist_ok` covers the directory already being there.
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     adata.write_h5ad(out_path, compression=compression)
 
@@ -1647,7 +1648,7 @@ def _register(out_path: str, db_path: str,
                 "obsm": list(result.obsm_keys),
             })
         return record.artifact_id
-    except Exception as exc:                       # pragma: no cover - env
+    except Exception as exc:
         warnings.warn(
             f"the AnnData export at {out_path} was written but could not be "
             f"registered with spacr.artifacts ({exc}). Its provenance is "
@@ -1718,7 +1719,7 @@ def _stamp_parent_file(child_path: str, parent_path: str,
         provenance["relationships"] = relationships
         adata.uns["spacr"] = provenance
         adata.write_h5ad(child_path)
-    except Exception as exc:                       # pragma: no cover - env
+    except Exception as exc:
         warnings.warn(
             f"could not record the parent file in {child_path}: {exc}",
             RuntimeWarning, stacklevel=2)
