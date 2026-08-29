@@ -2,8 +2,9 @@
 THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
 ================================================================================
 
-Status:   OPEN — diagnosed; the code fix exists but has not reached users.
-Severity: every install at or below 1.5.0.1, on every platform
+Status:   OPEN — Linux/macOS escaped in 1.5.0.4; the Windows fix still awaits
+          the confirmed 1.5.0.5 release.
+Severity: every install at or below 1.5.0.1, plus Windows 1.5.0.4
 Reported: "pip returned exit code 1. Check the terminal for details."
 
 --------------------------------------------------------------------------------
@@ -85,3 +86,34 @@ WHAT WAS ALREADY DONE
 
 Nothing in this file is a code change; the code is right. The only reason
 this is unfinished is distribution.
+
+--------------------------------------------------------------------------------
+2026-08-29 — RE-AUDIT: TWO OF THREE PLATFORMS SHIPPED; WINDOWS DID NOT
+--------------------------------------------------------------------------------
+
+The public PyPI wheel and three GitHub installer assets for 1.5.0.4 were
+published on 2026-08-10. That release contains ``find_uv`` and
+``upgrade_command``, so running the 1.5.0.4 installer is an external escape
+for affected Linux and macOS installations.
+
+The published 1.5.0.4 wheel is not a complete Windows fix. Its ``find_uv``
+checks only ``<root>/bootstrap/uv``, while the published Windows bootstrap
+writes ``<root>/bootstrap/uv.exe`` and does not put that private directory on
+``PATH``. Commit ``10e53a3d`` added ``uv.exe`` discovery after the release;
+that source fix therefore still has to ship in 1.5.0.5.
+
+The manual, no-sudo escape commands for Linux, macOS and Windows now live in
+``docs/source/installer_guide.rst``. They name the original broken installers'
+actual default roots, including macOS's historical ``SpaCR`` capitalization.
+
+The native online-installer workflow already imports ``upgrade_command`` from
+each installed private environment and requires the uv form on Linux, Windows
+and macOS. It now also asserts that ``pip`` is genuinely absent in each of
+those environments, so the acceptance test proves the reported bootstrap
+boundary instead of merely proving that uv is preferred when pip happens to
+be available.
+
+REMAINS: publish the tested 1.5.0.5 wheel and all three native installers, then
+verify their installed acceptance jobs. Publishing PyPI/GitHub/Zenodo assets
+is public and irreversible and therefore requires the maintainer confirmation
+recorded by the release instructions; source tests cannot close this item.
