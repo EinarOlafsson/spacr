@@ -127,6 +127,13 @@
       "source_sha256": "fa9d2f6bfe151597020eeb7012458398b4d95ed020ecff83a8906d214814d9ab",
       "source": "Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch under merged/_scratch/ instead of discarding it, so intermediate data from a failed run can be inspected. This increases disk usage; enable it only for diagnosis. Default False.",
       "translation": "仅适用于流式流水线（pipeline_style='v2'）：将每个内存中的 NPZ 批次写入 merged/_scratch/，而不是将其丢弃，以便检查失败运行的中间数据。此选项会增加磁盘使用量；仅在诊断时启用。默认值为 False。"
+    },
+    {
+      "table": "ui",
+      "key": "{location}: {path}",
+      "source_sha256": "13b03467705caf8c0752953600611e411dd769c0e6a72c1c81c20d5916c4f126",
+      "source": "{location}: {path}",
+      "translation": "{location}：路径 {path}"
     }
   ]
 }

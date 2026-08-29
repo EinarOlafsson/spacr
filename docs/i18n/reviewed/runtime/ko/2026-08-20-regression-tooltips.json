@@ -25,13 +25,6 @@
   },
   {
    "table": "setting_tooltips",
-   "key": "model_plate_position",
-   "source_sha256": "15d2fc9ee646e3401c1beeb2a6b413f7928648e2370d563dc83f47f002b0eece",
-   "source": "Include rowID and columnID terms to model spatial plate effects. random_row_column_effects selects fixed or random terms. Enabling random row or column effects requires this setting. Default False; enable when edge, row, or column effects are plausible.",
-   "translation": "공간적 플레이트 효과를 모델링하기 위해 rowID 와 columnID 항을 포함합니다. random_row_column_effects 는 고정 항 또는 임의 항을 선택합니다. 행 또는 열의 임의 효과를 활성화하려면 이 설정이 필요합니다. 기본값 False 이며 가장자리, 행 또는 열 효과가 있을 가능성이 있을 때 활성화하십시오."
-  },
-  {
-   "table": "setting_tooltips",
    "key": "p_threshold_alpha",
    "source_sha256": "5d104a3b1eb941f1148c733764bafc64712df0f82f56d67097fd8fba7794b147",
    "source": "P-value threshold used to call a coefficient a hit and to draw the volcano-plot reference line. It applies to the P-value type selected by p_threshold_kind, keeping results_significant.csv and the corresponding figure consistent. Supply a fraction strictly between 0 and 1; 5 is rejected as an invalid representation of 5%. Default 0.05.",

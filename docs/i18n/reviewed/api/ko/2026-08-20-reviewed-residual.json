@@ -14,6 +14,13 @@
       "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
       "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
       "translation": ":func:`spacr.figures.stats.compare`은 사용 가능한 그룹과 유효한 가정 검정을 바탕으로 Student t-test, Welch t-test, Mann-Whitney U test, one-way ANOVA, Welch ANOVA 또는 Kruskal-Wallis test를 선택합니다."
+    },
+    {
+      "context": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading singleton is removed and a leading RGB dimension is transposed to image-channel-last. Other three-dimensional shapes reach ``imshow`` and raise ``TypeError``.",
+      "label": "spacr.utils.SaliencyMapGenerator.plot_activation_grid#3",
+      "source": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading singleton is removed and a leading RGB dimension is transposed to channels-last. Other three-dimensional shapes reach ``imshow`` and raise ``TypeError``.",
+      "source_sha256": "0cdab3798d06933071a3aab1a0afdefa79d9b66ac5df35dd5065e5c9129ee427",
+      "translation": "최소 ``N``개의 항목을 포함하는 torch 텐서입니다. ``overlay``가 false인 경우에도 매 반복에서 인덱싱되어 CPU 로 이동하므로, numpy 배열은 어느 경우든 ``AttributeError``를 발생시킵니다. 각 항목은 ``(H, W)``, ``(1, H, W)`` 또는 ``(3, H, W)``일 수 있습니다. 선행 단일 차원은 제거되고, 선행 RGB 차원은 채널-마지막 형식으로 전치됩니다. 그 밖의 3차원 형태는 ``imshow``에 전달되어 ``TypeError``를 발생시킵니다."
     }
   ],
   "schema": 1

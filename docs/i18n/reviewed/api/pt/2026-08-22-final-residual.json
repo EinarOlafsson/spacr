@@ -14,6 +14,13 @@
       "source": "The direct identifier columns are preferred. When they are incomplete, crop paths provide a documented fallback from which plate, well, field, and object identifiers can be recovered. Each successful join reports the route used and the number of matched rows; a join with no matches raises an error.",
       "source_sha256": "6eb814aaa48f36d16773cc87a9d3c83e3e711884b26c27b6054f8c7c6316cc12",
       "translation": "As colunas de identificadores diretos têm preferência. Quando estão incompletas, os caminhos das regiões de imagem extraídas fornecem uma alternativa documentada a partir da qual podem ser recuperados os identificadores de microplaca, poço, campo microscópico e objeto. Cada associação concluída informa a rota utilizada e o número de linhas correspondentes; uma associação sem correspondências gera um erro."
+    },
+    {
+      "context": "Work list *event* without waiting for capacity.",
+      "label": "spacr.flowview.collector.Collector.emit#0",
+      "source": "Queue *event* without waiting for capacity.",
+      "source_sha256": "7dd9952da0c1eb212241e3bdd5a9dd4c97542923ed3e5490d8ecc024ade75ed9",
+      "translation": "Adiciona *event* à fila sem esperar por capacidade."
     }
   ],
   "schema": 1

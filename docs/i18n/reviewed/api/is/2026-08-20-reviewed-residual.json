@@ -112,6 +112,13 @@
       "source": "detector : {\"ORB\",\"SIFT\"} Feature detector for keypoint matching. nfeatures : int Feature budget for detector. max_keypoints : Optional[int] Hard cap on kept keypoints after detection (by detector’s internal ranking). downsample : float in (0,1] Downsample factor for feature/score pass. ransac_thresh_px : float Reprojection threshold (pixels) for affine estimation (downsampled space). allow_scale : bool If False, constrain to rotation+translation (or translation only if allow_rotation=False). allow_rotation : bool If False, constrain to translation only. outdir : str Output directory for images/csv. opencv_threads : int Limit OpenCV internal threading (avoid oversubscription).",
       "source_sha256": "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
       "translation": "detector : {\"ORB\",\"SIFT\"} Eiginleikaskynjari fyrir samsvörun lykilpunkta. nfeatures : int Fjöldamörk eiginleika fyrir skynjarann. max_keypoints : Optional[int] Hörð mörk á fjölda lykilpunkta sem eru geymdir eftir greiningu, samkvæmt röðun skynjarans. downsample : float in (0,1] Minnkunarhlutfall fyrir eiginleikagreiningu og stigagjöf. ransac_thresh_px : float Endurvörpunarþröskuldur í pixlum fyrir affine-mat í minnkuðu rúmi. allow_scale : bool Ef False eru snúningur og hliðrun leyfð en ekki kvörðun; ef allow_rotation=False er aðeins hliðrun leyfð. allow_rotation : bool Ef False er aðeins hliðrun leyfð. outdir : str Úttaksmappa fyrir myndir og csv. opencv_threads : int Hámarksfjöldi OpenCV-þráða til að forðast ofnýtingu."
+    },
+    {
+      "context": "Request shutdown and return whether the thread stopped in time.",
+      "label": "spacr.flowview.feeder.MultiprocessingFeeder.stop#0",
+      "source": "Request shutdown and return whether the thread stopped in time.",
+      "source_sha256": "8c546040e7a61b878b08adf7b7d240242f7da7612424c50d8218496ba97a9dd0",
+      "translation": "Óskar eftir stöðvun og skilar því hvort þráðurinn hafi stöðvast innan tímamarkanna."
     }
   ],
   "schema": 1

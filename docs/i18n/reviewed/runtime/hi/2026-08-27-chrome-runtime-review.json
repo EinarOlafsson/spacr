@@ -120,6 +120,13 @@
       "source_sha256": "34b8bd264bf59b981e3c05a31ccab201f0f7f510ebe518b28bcca19adbca70d2",
       "source": "Intercept value",
       "translation": "इंटरसेप्ट मान"
+    },
+    {
+      "table": "ui",
+      "key": "{location}: {path}",
+      "source_sha256": "13b03467705caf8c0752953600611e411dd769c0e6a72c1c81c20d5916c4f126",
+      "source": "{location}: {path}",
+      "translation": "{location}: पथ {path}"
     }
   ]
 }
