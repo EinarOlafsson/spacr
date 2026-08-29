@@ -11,39 +11,84 @@ person rediscovers it and makes the same call from scratch, or worse,
 "fixes" one that was intentional.
 
 --------------------------------------------------------------------------------
-1. barcodes_grna.csv has three duplicated protospacers
+STATUS RECONCILIATION -- 2026-08-29
 --------------------------------------------------------------------------------
 
-Confirmed by reading the file. NOT a data-loading bug.
+The deliberately unresolved items in this record are now these five decisions
+or external checks:
 
-Left alone because a duplicated protospacer can be a screen-design
-decision -- the same guide targeting two library positions -- and only the
-person who designed the library knows which it is here. Changing it
-silently would corrupt a mapping that may be correct.
+  * whether the three shared sequences in the original 1,385-row TSG101 guide
+    library were intentional is a library-designer decision;
+  * retiring the remaining Space wallpaper/code is a product decision;
+  * an empty GLCM needs a downstream missing-feature policy before it can emit
+    an honest missing value;
+  * strict concurrency-probe input validation needs a compatibility decision;
+  * the Korean ``min_cell_count`` tooltip needs external language/domain
+    review against the current English contract.
 
-If it IS wrong, the fix is in the library file, not in the code that reads
-it. If it is right, `map_barcodes` should probably say so out loud rather
-than leaving the reader to wonder.
+The old coverage count is historical and the final 100% statement-and-branch
+target is tracked by instruction 288. The timelapse, calibration,
+activation-grid, outlier, crop, align, layers and lineage defects below are
+fixed. Historical reproductions remain in this file so the reason for each
+repair is not lost; their inline status, rather than the original
+present-tense description, is authoritative.
 
 --------------------------------------------------------------------------------
-2. timelapse.py calls the feature selector without coercing
+1. bundled barcodes_grna.csv duplicates
+   [FIXED 2026-08-15; ORIGINAL TSG101 DESIGN DECISION REMAINS EXTERNAL]
+--------------------------------------------------------------------------------
+
+The original TSG101 input contained 1,385 data rows. Three sequences were
+shared by more than one guide name, across EIGHT rows in all (3 + 3 + 2).
+Reachable nightly commit ``6e386141`` removed all eight ambiguous rows from
+the bundled ``spacr/resources/data/barcodes_grna.csv``. The shipped file now
+contains exactly 1,377 data rows and zero duplicated sequences. The usable
+count is therefore 1,385 - 8 = 1,377, not 1,382; three was the number of
+distinct shared sequences, not the number of ambiguous rows.
+
+The importer is independently safe for an external library that still has
+this shape: ``map_sequences_to_names`` removes every row carrying a shared
+sequence, reports those sequences, leaves matching reads unassigned, and
+continues with the usable rows. A library with no usable barcode still raises.
+
+What remains unresolved is the provenance question. Only the TSG101 library
+designer can say whether those shared sequences were intentional. Do not
+silently assign any of them to one gene, and do not edit an external source
+library on the assumption that the bundled-file decision answers that
+experimental-design question.
+
+--------------------------------------------------------------------------------
+2. timelapse.py called the feature selector without coercing
+   [FIXED 2026-08-29]
 --------------------------------------------------------------------------------
 
 The same class of fault as the Classify (ML) `ModelFeatureSchemaError`
 that WAS fixed: a column arrives as object dtype and the selector expects
 numeric.
 
-Not fixed because it needs a real timelapse dataset to reproduce, and
-guessing at the coercion is how the first one got written wrong. Reproduce
-it, then apply the same fix Classify (ML) got.
+Reachable nightly commit ``e67a6fa6`` applies the Classify schema boundary to
+the real PCA and XGBoost timelapse QC paths. It identifies only features the
+selected model can consume, coerces numeric text in a candidate-only frame,
+and raises ``ModelFeatureSchemaError`` with the bad column/value when an
+actual candidate is malformed. Unrelated metadata and other fluorescence
+channels are not coerced, and the durable measurement frame keeps its
+original dtypes.
+
+``tests/test_timelapse_model_feature_schema.py`` reproduces SQLite-shaped
+numeric-text and all-NULL object columns through combined and per-well PCA,
+both PCA and XGBoost schema errors, and the valid one-feature XGBoost case.
+The repair was also validated in the broader timelapse cohorts (203 tests on
+Python 3.12 and 126 on Python 3.9).
 
 --------------------------------------------------------------------------------
-3. 102 modules under 90% test coverage
+3. historical coverage baseline; current target is tracked by instruction 288
 --------------------------------------------------------------------------------
 
-Not a bug; a standing goal. The pinned target is every module above 90%,
-worked in the order measure -> plot -> timelapse -> gui_elements.
-`timelapse` is NOT legacy and should not be skipped as if it were.
+Not a bug; a standing goal. ``102 modules under 90%`` was the measured baseline
+when this entry was written, not a current count. The release target is now
+100% statement AND branch coverage per module, with the prohibited coverage
+pragmas reconciled, and instruction 288 owns the current counts and evidence.
+``timelapse`` is NOT legacy and must not be skipped as if it were.
 
 Note for whoever runs coverage: `pytest --cov` needs the sitecustomize
 torch pre-import shim or it dies with a `_has_torch_function` crash. That
@@ -53,7 +98,8 @@ is in the coverage runner notes, not here.
 4. The Space theme retirement was left half-finished
 --------------------------------------------------------------------------------
 
-`3e11c796` retired Space as a selectable theme. Still present:
+Reachable nightly commit ``44006a10`` retired Space as a selectable theme.
+Still present:
 
     spacr/resources/themes/deep_field.jpg     1.4 MB, still ships
     spacr/qt/imagery.py :: SPACE_PHOTO_VARIANTS = ("deep_field",)
@@ -238,16 +284,19 @@ seed, and the clamped validation fraction.
 STATUS 2026-08-10: the three image-attribution defects above are FIXED (both
 `show_cam_on_image` ones and `invert_image`), each with regression tests in
 `tests/test_cov_utils_saliency_gradcam.py` and
-`tests/test_cov_utils_mask_metrics.py`. The remaining four in this list --
-the dead seed, the clamped validation fraction, the object-count label and
-`MergedCropSource.get_many` -- are still open.
+`tests/test_cov_utils_mask_metrics.py`. The sentence that formerly called the
+other four "still open" is obsolete: the dead seed, clamped validation
+fraction and object-count label were fixed in ``39efa5e0``;
+``MergedCropSource.get_many`` was reconciled in ``2b36b712`` as an intentional
+fail-loud contract, with non-optional return annotations and a regression.
+No defect in this N+1 list remains open.
 
 --------------------------------------------------------------------------------
 2026-08-10 - TWENTY OF THE ABOVE ARE NOW FIXED
 --------------------------------------------------------------------------------
 
 Requested 2026-08-10 — "fix all bugs and logic that leads to erroneous and
-missleading results". Commit 0ea68bb2.
+missleading results". Reachable nightly commit ``39efa5e0``.
 
 Fixed, with the reproduction re-run before and after each:
 
@@ -334,7 +383,7 @@ levels (1.108 ms vs 1.206 ms per region), so the correct statistic is
 affordable -- it just renames every existing homogeneity column.
 
 --------------------------------------------------------------------------------
-2026-08-11 - FOUND BY DOCUMENTING PARAMETERS. Each was REPRODUCED, not inferred.
+2026-08-11 - FOUND BY DOCUMENTING PARAMETERS. ALL ARE NOW FIXED.
 --------------------------------------------------------------------------------
 
 Writing `:param:` lines for 48 functions meant reading what each parameter
@@ -343,21 +392,24 @@ and the following defects, every one verified by calling the function.
 
 WRONG OUTPUT
 
-  utils.plot_images_by_cluster SILENTLY DROPS THE LAST CLUSTER. `colors` is
+  FIXED 2026-08-29 -- utils.plot_images_by_cluster SILENTLY DROPPED THE LAST
+  CLUSTER. `colors` was
   bound by `zip(np.unique(labels), colors)` and the colour itself is never
   used -- only the zip LENGTH has an effect. Because np.unique counts the -1
   DBSCAN noise label, a palette sized to the real clusters is one short and
   the final cluster is plotted not at all. Verified: labels {-1,0,1} with a
   2-colour palette plots cluster 0 only; a 4-colour palette plots both.
 
-  utils.plot_grid PAINTS ONE CLUSTER IN TWO DIFFERENT COLOURS. The panel
+  FIXED 2026-08-29 -- utils.plot_grid PAINTED ONE CLUSTER IN TWO DIFFERENT
+  COLOURS. The panel
   border uses `colors[label]` (a direct integer index) while the side-legend
   swatch is positional. With cluster keys {0, 3} and a 4-colour palette,
   cluster 3's border is colors[3] and its swatch is colors[1]. Verified by
   reading the patch facecolors back off the figure. A reader matching
   swatches to panels matches them wrongly.
 
-  utils.plot_activation_grid(overlay=False) DRAWS NO IMAGE AT ALL -- not the
+  FIXED 2026-08-11 -- utils.plot_activation_grid(overlay=False) DREW NO IMAGE
+  AT ALL -- not the
   input, not the saliency or Grad-CAM map. The result is a grid of bare
   class-label boxes on empty axes (verified: len(ax.get_images()) == 0 for
   every panel). `normalize` is then dead too. An incomplete last row also
@@ -365,31 +417,36 @@ WRONG OUTPUT
 
 SILENT NO-OP DRESSED AS SUCCESS
 
-  classifier_evaluation.cross_calibrate_probabilities DOES NOT VALIDATE
+  FIXED 2026-08-11 -- classifier_evaluation.cross_calibrate_probabilities DID
+  NOT VALIDATE
   y_true against the probability columns. A label of 7 against a 2-column
   matrix makes every fold's fit_temperature raise inside its try/except, each
   falls back to temperature 1.0, and the function returns UNCALIBRATED
   probabilities with only a printed warning. Verified: all four folds
   returned 1.0. A caller who does not watch stdout is told calibration ran.
 
-  classifier_evaluation.calibration_table accepts an out-of-range label the
+  FIXED 2026-08-11 -- classifier_evaluation.calibration_table accepted an
+  out-of-range label the
   same way: y_true=[5,5] against 2 columns matches no class, so every
   observed_frequency reads 0.0 and the reliability curve looks
   catastrophically miscalibrated rather than raising.
 
-  calibration_table on EMPTY input returns a DataFrame of shape (0, 0) -- no
+  FIXED 2026-08-11 -- calibration_table on EMPTY input returned a DataFrame of
+  shape (0, 0) -- no
   rows AND no columns -- so downstream code indexing 'class_name' or 'bin'
   gets a KeyError instead of an empty column.
 
 DISAGREEING TWINS
 
-  The two plot_activation_grid implementations disagree on map shape. The
+  FIXED 2026-08-11 -- the two plot_activation_grid implementations disagreed
+  on map shape. The
   saliency one transposes a leading 3 to channels-last, so (N,H,W) and
   (N,3,H,W) both work while (N,1,H,W) raises; the Grad-CAM one has no
   transpose, so (N,3,H,W) raises there instead. Same name, same signature,
   incompatible inputs.
 
-  utils.remove_outliers_by_group's two methods disagree on tiny groups. A
+  FIXED 2026-08-11 -- utils.remove_outliers_by_group's two methods disagreed
+  on tiny groups. A
   one-row group has std=NaN, so 'zscore' DELETES it while 'iqr' keeps it.
   Verified on a 6-row frame: 'iqr' keeps the singleton and drops the 50.0
   outlier; 'zscore' drops the singleton and KEEPS the 50.0, because the
@@ -402,10 +459,15 @@ claimed it filters for "> upper and < lower". The code uses `|`: it is a
 two-tailed selection that KEEPS the extremes, and passing upper < lower makes
 the conditions cover the line so nothing is filtered at all.
 
-WHY THESE ARE LISTED RATHER THAN FIXED HERE: each changes what a figure or a
-table shows, and three of them are in the plotting layer where the right fix
-is a judgement about what the user should see (should a short palette raise,
-cycle, or extend?). They are ranked wrong-output first.
+STATUS 2026-08-29: none of the defects in this sweep remains open. Reachable
+nightly commit ``4ca7cf45`` refuses labels outside calibration columns and
+returns a correctly columned empty calibration table. ``48480a8b`` draws the
+activation map when ``overlay=False``, gives Saliency and Grad-CAM the same
+``(H,W)``/``(1,H,W)``/``(3,H,W)`` map contract, hides unused panels, keeps a
+singleton under both outlier methods, and rejects a negative threshold.
+``2b36b712`` visits every non-noise cluster and resolves one color consistently
+for its panel and legend. The regressions exercise the formerly wrong output;
+the original reproductions above are retained as history, not current state.
 
 --------------------------------------------------------------------------------
 2026-08-11 - THE SECOND DOCUMENTATION SWEEP. Each verified by execution.
@@ -516,14 +578,13 @@ provable result.
 
 
 --------------------------------------------------------------------------------
-2026-08-16 - THE i18n CATALOGS ARE 44 STRINGS STALE, IN ALL NINE LANGUAGES
+2026-08-16 - THE 44-STRING i18n GAP [FIXED 2026-08-20]
 --------------------------------------------------------------------------------
 
 Found while working on the regression figure surface, not requested.
 
 `tests/qt/test_external_i18n_catalogs.py::
- test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` is RED on
-nightly and has been for a while:
+ test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` was RED:
 
     KeyError: '0 is invisible, 1 is solid:'
 
@@ -533,7 +594,8 @@ are in the plot restyle menus alone -- "Point size", "Size in pixels:",
 "0 is invisible, 1 is solid:" -- so a non-English user right-clicking a graph
 gets English dialogs.
 
-NOT FIXED BY HAND, DELIBERATELY. `tools/build_i18n_catalogs.py` regenerates
+NOT FIXED BY HAND AT THE TIME, DELIBERATELY.
+`tools/build_i18n_catalogs.py` regenerates
 them with a translation model (`--model-root`), and 396 strings typed in by
 someone who does not speak nine languages is how a catalog acquires
 plausible-looking wrong entries that nobody can audit. The tool exists; run
@@ -542,12 +604,19 @@ it.
 Whoever does: the same run should check whether the gap is a one-off or
 whether every UI string added since the last regeneration has been missing,
 because the second is a process problem and the fix is a CI check that fails
-the build when the scraper finds a string with no catalog entry -- which is
-exactly what this test does, and it has been red instead of blocking.
+the build when the scraper finds a string with no catalog entry.
+
+STATUS 2026-08-29: this specific gap is closed. The current nightly catalogs
+all contain the three named strings (including ``0 is invisible, 1 is
+solid:``), and the runtime regression enumerates the canonical source tables
+for every supported locale. This does NOT close the broader final-source
+translation audit: instruction 306 owns freshness and semantic review on the
+release tree, including any strings added after this historical 44-string
+batch.
 
 
 --------------------------------------------------------------------------------
-2026-08-17 - ONE REVIEWED KOREAN TOOLTIP DROPPED RATHER THAN LEFT WRONG
+2026-08-17 - ONE KOREAN TOOLTIP STILL NEEDS EXTERNAL REVIEW
 --------------------------------------------------------------------------------
 
 `min_cell_count`'s English tooltip was corrected: it said "Default None." and
@@ -558,16 +627,20 @@ as designed -- `tools/build_i18n_catalogs.py` pins a reviewed entry to the
 EXACT English it was translated from, so a source edit makes the entry stale
 rather than silently shipping a translation of a superseded string.
 
-The record was REMOVED rather than re-pinned. Re-pinning would have kept a
+The reviewed record was REMOVED rather than re-pinned. Re-pinning would have kept a
 Korean tooltip that states a default the software does not have, which is
 worse than no translation: a reader of the English sees "Default 100" and a
 reader of the Korean sees "Default None", and only one of them is right.
-Korean now falls back to the English for this one tooltip.
+At that point Korean fell back to English for this one tooltip.
 
-TO RESTORE IT: re-translate that single entry with
-`tools/build_i18n_catalogs.py` and put the record back. It is one string.
+STATUS 2026-08-29: still open for external Korean language/domain review. The
+current English contract is more specific -- default 100 for regression and
+25 for the screen -- and the generated Korean catalog now contains Korean
+prose, so the old statement that it falls back to English is no longer current.
+That generated prose does not state the two current defaults, however, and a
+catalog entry is not evidence that a qualified reviewer found its scientific
+meaning correct. Re-translate/review it against the exact current English and
+record that evidence; never restore the superseded ``Default None`` entry.
 
-This is the same debt as the 44-string catalog gap recorded above, reached
-from the other direction -- there, English strings with no translation; here,
-a translation whose English moved. Both are fixed by one run of the
-generator, which needs the translation model.
+This is no longer the same debt as the fixed 44-string inventory gap above.
+Inventory presence is mechanical; this remaining item is semantic review.
