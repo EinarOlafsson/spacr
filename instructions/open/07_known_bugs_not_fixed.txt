@@ -429,6 +429,14 @@ SILENT WRONG OUTPUT
   narrowing WRAPS MODULO: a uint16 pixel of 300 read with dtype='uint8'
   comes back as 44.
 
+  FIXED 2026-08-29. ``_TileReader.window`` now validates every requested
+  channel against the assembled site before reading, so merged, 2-D,
+  channel-first, TIFF and split-file storage all reject the same negative or
+  out-of-range index with ``AlignError``. Integer narrowing follows the
+  canvas writer's round-and-clip policy: uint16 300 becomes uint8 255, never
+  44. Focused regressions cover merged, channel-first, single-plane and split
+  layouts plus narrowing.
+
   layers.Canvas.for_grid with depth=None pins every out-of-plane axis at
   world 0 rather than at that axis's own translate. For a 3-D layer with
   origin z=10.0 the canvas sits off the volume and EVERY LAYER RENDERS BLANK

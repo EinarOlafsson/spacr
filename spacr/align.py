@@ -683,6 +683,28 @@ def _channel_last(array):
 # Windowed tile access
 # ---------------------------------------------------------------------------
 
+def _cast_window(block: np.ndarray, dtype: np.dtype, path: str) -> np.ndarray:
+    """Cast tile pixels without integer wraparound.
+
+    Integer output follows the same round-and-clip policy as the final canvas
+    writer. Non-finite floating pixels cannot be represented honestly by an
+    integer image, so they fail the tile instead of turning into an arbitrary
+    sentinel during ``astype``.
+    """
+    dtype = np.dtype(dtype)
+    values = np.asarray(block)
+    if np.issubdtype(dtype, np.integer):
+        if (np.issubdtype(values.dtype, np.floating)
+                and not np.isfinite(values).all()):
+            raise AlignError(
+                f'{path}: non-finite pixels cannot be converted to {dtype}')
+        if np.issubdtype(values.dtype, np.floating):
+            values = np.rint(values)
+        limits = np.iinfo(dtype)
+        values = np.clip(values, limits.min, limits.max)
+    return values.astype(dtype, copy=False)
+
+
 class _TileReader:
     """Memory-mapped, windowed access to one site's pixels.
 
@@ -771,51 +793,50 @@ class _TileReader:
         :param x1: one past the last column, over-wide allowed as for ``y1``
             and reversed rejected as for ``y1``. A window entirely outside
             the tile is all zeros, not an error.
-        :param channels: indices in output order — result plane ``k`` holds
-            ``channels[k]``, repeating an index repeats the plane, and an
-            empty sequence yields an ``(h, w, 0)`` array. What an index
-            *selects* depends on how the site is stored: when
+        :param channels: non-negative indices in output order — result plane
+            ``k`` holds ``channels[k]``, repeating an index repeats the plane,
+            and an empty sequence yields an ``(h, w, 0)`` array. Every index
+            is validated against the assembled site's channel count before
+            any pixels are read. What a valid index *selects* depends on how
+            the site is stored: when
             :attr:`Tile.channel_paths` is set it picks the sibling file and
             only plane 0 of that file is ever read, so additional planes
             inside a sibling are unreachable from here; otherwise it picks a
-            plane of the single file. Out-of-range and negative indices are
-            not handled uniformly — see below.
+            plane of the single file.
         :param dtype: dtype of the returned array, and of the cast applied
-            to the tile's pixels. That cast is a plain ``astype``: narrowing
-            a ``uint16`` tile to ``uint8`` wraps modulo — 300 comes back as
-            44 — it does not rescale or clip. Passing ``None`` does not mean
+            to the tile's pixels. Narrowing to an integer rounds floating
+            values and clips to the target range, matching the final canvas
+            writer; it never wraps modulo. Passing ``None`` does not mean
             "the tile's own dtype"; it resolves through ``np.dtype`` to
             ``float64``.
 
-        An index the site does not have behaves differently per backing
-        store, which is worth knowing before relying on either. A merged
-        ``(H, W, C)`` ``.npy`` is served by
-        :meth:`~spacr.crops.MergedField.read_window`, which raises
-        ``CropError``; every other layout — 2-D or channel-first ``.npy``,
-        TIFF, split channel files — silently leaves that output plane zero.
-        On the silent paths a negative index is not rejected either: for a
-        single-file tile it wraps Python-style, so ``-1`` reads the last
-        plane, while for split channel files it is filtered out to zeros.
+        :raises AlignError: if a channel is negative or out of range, or a
+            non-finite floating pixel is requested in an integer dtype.
         """
-        out = np.zeros((int(y1 - y0), int(x1 - x0), len(channels)),
-                       dtype=np.dtype(dtype))
-        for k, channel in enumerate(channels):
+        requested = [int(channel) for channel in channels]
+        available = self.shape[2]
+        for channel in requested:
+            if not 0 <= channel < available:
+                raise AlignError(
+                    f'{self.tile.path}: channel {channel} out of range for '
+                    f'a site with {available} channels')
+        target_dtype = np.dtype(dtype)
+        out = np.zeros((int(y1 - y0), int(x1 - x0), len(requested)),
+                       dtype=target_dtype)
+        for k, channel in enumerate(requested):
             if self._split_channels:
-                group, plane = int(channel), 0
-                if not 0 <= group < len(self._sources):
-                    continue
+                group, plane = channel, 0
             else:
-                group, plane = 0, int(channel)
+                group, plane = 0, channel
             field = self._fields[group]
             if field is not None:
                 sub = field.read_window(int(y0), int(y1), int(x0), int(x1),
-                                        [plane], dtype=dtype)
-                out[:, :, k] = sub[:, :, 0]
+                                        [plane], dtype=field.dtype)
+                out[:, :, k] = _cast_window(
+                    sub[:, :, 0], target_dtype, self.tile.path)
                 continue
             source = self._sources[group]
             height, width = int(source.shape[0]), int(source.shape[1])
-            if plane >= int(source.shape[2]):
-                continue
             sy0, sy1 = max(0, int(y0)), min(height, int(y1))
             sx0, sx1 = max(0, int(x0)), min(width, int(x1))
             if sy1 <= sy0 or sx1 <= sx0:
@@ -823,7 +844,7 @@ class _TileReader:
             dy, dx = sy0 - int(y0), sx0 - int(x0)
             block = np.asarray(source[sy0:sy1, sx0:sx1, plane])
             out[dy:dy + (sy1 - sy0), dx:dx + (sx1 - sx0), k] = \
-                block.astype(dtype, copy=False)
+                _cast_window(block, target_dtype, self.tile.path)
         return out
 
     def close(self) -> None:
@@ -1770,8 +1791,8 @@ def _feather_width(plan: AlignPlan, tiles: Sequence[Tile]) -> int:
             continue
         (ay0, ay1, ax0, ax1), _ = windows
         span = min(ay1 - ay0, ax1 - ax0)
-        if span > 0:
-            widths.append(int(span))
+        # _overlap_windows returns None unless both dimensions are positive.
+        widths.append(int(span))
     smallest = min(min(t.height, t.width) for t in tiles)
     if not widths:
         return 1
@@ -2326,8 +2347,8 @@ def save_coordinates(plan: Union[AlignPlan, Iterable[AlignPlan]],
     frame = pd.DataFrame(rows, columns=list(ALIGN_COLUMNS))
 
     parent = os.path.dirname(os.path.abspath(os.fspath(db_path)))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    # dirname(abspath(...)) is always an absolute, non-empty directory.
+    os.makedirs(parent, exist_ok=True)
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
         frame.to_sql(table, connection, if_exists=if_exists, index=False)
