@@ -87,6 +87,12 @@ def test_the_run_itself_is_fine():
 
 def _run_that_stalls_in(tmp_path, hook, marker, args, body, env_extra):
     """Run one passing test under a plugin that never leaves ``hook``."""
+    # A real file in the probe directory keeps every supported pytest rooted
+    # at the synthetic suite.  Pytest 8.0 derives the root from ``-c
+    # /dev/null`` as ``/dev`` and then attempts to collect system-managed
+    # entries such as ``/dev/::tmp``; collection can fail before the loop-end
+    # watchdog is ever armed, which tests the filesystem instead of teardown.
+    (tmp_path / "pytest.ini").write_text("[pytest]\n")
     (tmp_path / "conftest.py").write_text(
         _SUITE_CONFTEST.format(repo=REPO))
     (tmp_path / "stalling_plugin.py").write_text(
@@ -101,7 +107,7 @@ def _run_that_stalls_in(tmp_path, hook, marker, args, body, env_extra):
     return subprocess.run(
         [sys.executable, "-m", "pytest", "test_one.py", "-q",
          "-p", "no:randomly", "-p", "no:cacheprovider",
-         "-p", "stalling_plugin", "-c", "/dev/null"],
+         "-p", "stalling_plugin", "-c", "pytest.ini"],
         cwd=str(tmp_path), env=env, capture_output=True, text=True,
         timeout=PATIENCE_S)
 
