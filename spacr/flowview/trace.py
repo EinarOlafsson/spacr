@@ -107,6 +107,15 @@ class _NullStage:
 
     node_id: None = None
 
+    def __call__(self, function: _Function) -> _Function:
+        return function
+
+    def __enter__(self) -> "_NullStage":
+        return self
+
+    def __exit__(self, exc_type: object, exc: BaseException | None, tb: object) -> bool:
+        return False
+
     def progress(self, current: int, total: int) -> None:
         return None
 
@@ -242,9 +251,11 @@ def stage(
     produces: Iterable[str] = (),
     params: Mapping[str, Any] | None = None,
     node_id: str | None = None,
-) -> _StageSpec:
+) -> _StageSpec | _NullStage:
     """Describe one stage for use as a decorator or context manager."""
 
+    if not is_enabled():
+        return _NULL_STAGE
     return _StageSpec(
         label,
         kind=kind,
