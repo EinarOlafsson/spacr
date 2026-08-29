@@ -14,7 +14,15 @@ def markers(tmp_path, monkeypatch):
     monkeypatch.setattr(crash_recovery, "_folder", lambda: str(tmp_path))
     monkeypatch.delenv("SPACR_NO_GL", raising=False)
     monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
-    return tmp_path
+    try:
+        yield tmp_path
+    finally:
+        # ``take_the_backdrop_out_of_this_launch`` writes these directly to
+        # ``os.environ``.  Remove that simulated crash state before the next
+        # test starts; the monkeypatch fixture will then restore any value
+        # the parent process genuinely supplied.
+        os.environ.pop("SPACR_NO_GL", None)
+        os.environ.pop("SPACR_NO_BACKDROP", None)
 
 
 def test_a_clean_run_leaves_nothing_behind(markers):
