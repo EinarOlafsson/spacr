@@ -332,7 +332,13 @@ def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> QShortcut:
         if existing.key() == sequence:
             return existing
     sc = QShortcut(sequence, window)
-    sc.setContext(Qt.ApplicationShortcut)
+    # One spaCR window owns one set of bindings.  ApplicationShortcut makes
+    # every still-live window's copy eligible, including a window waiting on
+    # deferred deletion after a rebuild/test teardown.  Qt then calls the key
+    # ambiguous and fires neither copy.  WindowShortcut still reaches every
+    # child control in the active window, which is the promised scope, while
+    # another open spaCR window keeps its own independent bindings.
+    sc.setContext(Qt.WindowShortcut)
     sc.activated.connect(cb)
     return sc
 
