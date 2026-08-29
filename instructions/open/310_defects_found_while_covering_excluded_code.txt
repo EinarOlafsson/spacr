@@ -109,6 +109,30 @@ places where that is impossible without deleting working defensive code, and
 that decision belongs to a human.
 
 --------------------------------------------------------------------------------
+2b. TWO LATENT DEFECTS IN DEAD ATTRIBUTION CODE  (lane: spacr/guide_attribution.py)
+--------------------------------------------------------------------------------
+
+Both are unreachable today -- proved by exhaustive and random fuzzing -- so
+neither is a live bug. They are recorded because each would be SILENT
+corruption of a scientific result if the guard above it ever did fire, and
+because the obvious "fix" at each site does not actually recover.
+
+  * L487 ``if columns.size != n:`` then ``columns[:n]``. Slicing does not
+    recover: ``linear_sum_assignment`` on an (n x m) matrix with m < n matches
+    only m rows, so ``assigned`` would be shorter than the cell count -- cells
+    dropped from the attribution without a word -- and ``order =
+    np.empty(n)`` would carry UNINITIALISED memory into ``best`` and then into
+    ``degeneracy``. Verified against scipy directly.
+  * L675 ``density[dead, :] = weights`` in ``posterior_multivariate``. Copied
+    from ``posterior``, where it is live and correct. Here it sets ``density =
+    prior`` and the following ``r = density * weights`` applies the prior a
+    SECOND time, so a dead row would start from prior-squared, not the prior
+    the comment promises.
+
+If either guard is ever made reachable, the body must be rewritten, not
+uncommented.
+
+--------------------------------------------------------------------------------
 3b. FURTHER PRAGMAS PROVED UNREACHABLE, LEFT IN PLACE
 --------------------------------------------------------------------------------
 
@@ -149,9 +173,13 @@ that decision belongs to a human.
   * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
     lists a subclass beside its base; ``OSError`` alone is equivalent.
   * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
-    FAILS at present: public API surface 8613 vs reviewed 8612. Measured before
-    the coverage sweep began and not caused by it -- no docstring was added to
-    spacr/ by this work. It needs the ratchet bumped and
+    FAILS at present: public API surface 8613 vs reviewed 8612. THE EXTRA
+    SYMBOL IS ``spacr.qt.widgets.fast_plots.FastPlot.closeEvent`` -- a Qt
+    addition from the concurrent packaging/GUI session, not from the coverage
+    sweep. Proved by parsing HEAD's and the working copy's versions of the
+    coverage session's own files and getting identical symbol sets and
+    docstrings. tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current
+    fails for the same reason. Both need the ratchet bumped and
     tools/build_documentation_i18n.py re-run. Lane: docs.
 
 --------------------------------------------------------------------------------
