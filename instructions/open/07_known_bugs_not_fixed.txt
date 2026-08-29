@@ -448,6 +448,14 @@ SILENT WRONG OUTPUT
   'plate1_r1_c1_f1_3' and the call returns cell 7 -- the first root in
   field-then-label order -- whichever the caller meant.
 
+  FIXED 2026-08-29. ``tree_for`` now gathers every family containing the
+  requested key before returning. An untyped collision inside one family
+  still identifies that family, preserving legacy lookup, while the same key
+  in different families raises ``LineageError`` and names every match instead
+  of choosing the first sorted root. Typed nucleus and pathogen keys continue
+  to resolve their respective families. A focused regression recreates the
+  documented cell-7/cell-8 failure.
+
 SHAPE THAT BREAKS BATCHING
 
   crop_source.crop_at never calls _resize while crop_object does, so the same

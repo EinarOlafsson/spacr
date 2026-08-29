@@ -54,8 +54,8 @@ so the collapse can be reproduced on demand rather than only remembered.
 from __future__ import annotations
 
 import os
-import sqlite3
-from dataclasses import dataclass, field as _field
+from dataclasses import dataclass
+from dataclasses import field as _field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -409,21 +409,27 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
     :param typed: must agree with how ``key`` is spelled, and nothing checks
         that it does. A typed key searched with ``typed=False`` — or a legacy
         untyped one searched with the default — returns ``None``, the same
-        answer as "no such object". With ``typed=False`` a key that names two
-        objects returns the first root holding either of them, in field then
-        label order, so a nucleus 1 and a pathogen 1 sitting in *different*
-        cells resolve to whichever cell sorts first.
+        answer as "no such object". With ``typed=False``, collisions inside
+        one family still identify that family, but a key found in different
+        families raises rather than choosing whichever root sorts first.
     :raises LineageError: when ``root`` is missing from ``frames``, or when a
         table that is present cannot be named. The forest is built before the
         search, so a ``nucleus`` table without its field columns raises even
         when the wanted key belongs to a pathogen. A key that is merely not
-        there is ``None``, not an exception.
+        there is ``None``, not an exception. Also raised when ``key`` names
+        objects in more than one family; use typed keys to disambiguate them.
     """
     wanted = str(key)
+    matches: List[LineageNode] = []
     for node in build_forest(frames, root=root, typed=typed):
         if node.find(wanted) is not None:
-            return node
-    return None
+            matches.append(node)
+    if len(matches) > 1:
+        families = ", ".join(node.node_id for node in matches)
+        raise LineageError(
+            f"key {wanted!r} names objects in multiple lineage families: "
+            f"{families}. Use a typed object key to choose one family.")
+    return matches[0] if matches else None
 
 
 def orphans(frames: Mapping[str, pd.DataFrame], *,

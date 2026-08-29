@@ -243,6 +243,27 @@ def test_asking_about_a_key_that_names_two_objects_finds_the_cell(frames):
     assert tree.key == "plate1_r1_c1_f1_7"
 
 
+def test_a_legacy_key_in_two_families_refuses_to_guess(frames):
+    """An untyped child key cannot silently select the first matching cell.
+
+    Nucleus 3 belongs to cell 8 while pathogen 3 belongs to cell 7. Their
+    typed keys identify both families exactly; the legacy spelling collapses
+    the two objects and therefore has no single honest family to return.
+    """
+    frames["nucleus"] = _rows("nucleus", [(F1, 3, 8)])
+    frames["pathogen"] = _rows("pathogen", [(F1, 3, 7)])
+
+    with pytest.raises(lin.LineageError, match="multiple lineage families") \
+            as excinfo:
+        lin.tree_for(frames, "plate1_r1_c1_f1_3", typed=False)
+
+    message = str(excinfo.value)
+    assert "cell:plate1_r1_c1_f1_7" in message
+    assert "cell:plate1_r1_c1_f1_8" in message
+    assert lin.tree_for(frames, "plate1_r1_c1_f1_nucleus3").label == 8
+    assert lin.tree_for(frames, "plate1_r1_c1_f1_pathogen3").label == 7
+
+
 def test_asking_about_something_that_is_not_there_returns_nothing(frames):
     assert lin.tree_for(frames, "plate9_r9_c9_f9_9") is None
 
