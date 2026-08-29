@@ -161,7 +161,7 @@ jobs:
   current-python-installs:
     name: ${{ matrix.python-version }} installs, from wheels only
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -183,6 +183,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: pip must accept spacr on Python ${{ matrix.python-version }}
         run: |
@@ -230,7 +231,7 @@ jobs:
                   --only-binary :all: \
                   --no-binary trackpy,matplotlib-venn,gputil \
                   --extra-index-url https://download.pytorch.org/whl/cpu \
-                  ".[qt]" 2>&1)
+                  . 2>&1)
           rc=$?
           set -e
           echo "$out"
@@ -268,8 +269,112 @@ jobs:
           print("OK: optional native features are extras-only.")
           PY
 
+      - name: Install the core graph and import spaCR
+        # The dry-run above proves that the graph resolves without a compiler;
+        # this step proves the resulting environment really imports.  It is a
+        # fresh setup-python environment with no spaCR extras installed, on
+        # every interpreter claimed by Requires-Python.
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0,<3.0" "torchvision>=0.15,<1.0"
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu .
+          python - <<'PY'
+          import importlib.metadata as metadata
+          import spacr
+
+          assert spacr.__version__
+          absent = []
+          for distribution in (
+              "trackastra", "ultrack", "torchcam", "mahotas",
+              "pylibCZIrw", "btrack", "catboost", "lightgbm",
+          ):
+              try:
+                  metadata.version(distribution)
+              except metadata.PackageNotFoundError:
+                  absent.append(distribution)
+          assert len(absent) == 8, (
+              "an extras-only distribution leaked into the core install: "
+              + ", ".join(sorted(set((
+                  "trackastra", "ultrack", "torchcam", "mahotas",
+                  "pylibCZIrw", "btrack", "catboost", "lightgbm",
+              )) - set(absent)))
+          )
+          print("core-only import OK", spacr.__version__)
+          PY
+
   # -------------------------------------------------------------------------
-  # 3. The platform grid: install, import, and (off Linux) the full suite as
+  # 3. The advertised fractal extra constructs the shipped default renderer.
+  #
+  # VisPy is core because DEFAULT_PATTERN is Mandelbrot, but the historical
+  # `fractal` extra remains a supported spelling.  Installing it is not proof
+  # that its dynamically loaded Qt/OpenGL backend can start, so this cell uses
+  # Mesa under Xvfb and constructs the real widget rather than importing a
+  # module or mocking the backend.
+  # -------------------------------------------------------------------------
+  fractal-runtime:
+    name: Fractal extra constructs the default renderer
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install a software OpenGL display
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            xvfb libegl1 libgl1 libgl1-mesa-dri libxkbcommon-x11-0
+
+      - name: Install the advertised fractal extra
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0,<3.0" "torchvision>=0.15,<1.0"
+          python -m pip install \
+            --extra-index-url https://download.pytorch.org/whl/cpu \
+            ".[fractal]"
+
+      - name: Construct and paint the default renderer
+        env:
+          QT_QPA_PLATFORM: xcb
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a python - <<'PY'
+          from PySide6.QtWidgets import QApplication
+
+          from spacr.qt.fractal_defaults import DEFAULT_PATTERN
+          from spacr.qt.widgets.fractal_travel import (
+              Settings,
+              create_fractal_widget,
+          )
+
+          assert DEFAULT_PATTERN == "mandelbrot"
+          app = QApplication.instance() or QApplication([])
+          widget = create_fractal_widget(Settings())
+          try:
+              widget.resize(320, 200)
+              widget.show()
+              for _ in range(12):
+                  app.processEvents()
+              assert widget.backend_name == "gpu", (
+                  "the installed default silently fell back to CPU"
+              )
+              assert widget.isVisible()
+              print("default fractal renderer constructed and painted")
+          finally:
+              widget.shutdown()
+              widget.close()
+              app.processEvents()
+          PY
+
+  # -------------------------------------------------------------------------
+  # 4. The platform grid: install, import, and (off Linux) the full suite as
   #    an informational step.
   #
   # Platforms deliberately absent, with reasons, so nobody re-derives them:
@@ -574,7 +679,7 @@ jobs:
             -n 3 --dist loadfile -q --no-header --tb=short
 
   # -------------------------------------------------------------------------
-  # 4. Upstream wheel availability. Informational, never blocking.
+  # 5. Upstream wheel availability. Informational, never blocking.
   #
   # Every "cannot support Python 3.13" and "cannot install on ARM Linux"
   # claim in the compatibility plan rests on which wheels exist on PyPI --

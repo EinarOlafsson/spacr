@@ -699,6 +699,29 @@ def test_the_default_fractal_renderer_is_core_and_bundled():
     assert "include packaging/spacr.spec" in manifest
 
 
+def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
+    """Dependency declarations are exercised as installs, not only parsed.
+
+    The six-version job must actually import from a core-only environment.
+    Separately, the compatibility alias has to construct and paint the real
+    VisPy widget under a software OpenGL display; an import-only check would
+    miss VisPy's dynamically selected Qt backend.
+    """
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]' in workflow
+    assert "Install the core graph and import spaCR" in workflow
+    assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
+    assert "import spacr" in workflow
+    assert "an extras-only distribution leaked into the core install" in workflow
+
+    assert "fractal-runtime:" in workflow
+    assert '".[fractal]"' in workflow
+    assert "xvfb-run -a python" in workflow
+    assert 'assert DEFAULT_PATTERN == "mandelbrot"' in workflow
+    assert 'assert widget.backend_name == "gpu"' in workflow
+    assert "app.processEvents()" in workflow
+
 @pytest.mark.parametrize(
     "banned, why",
     [
