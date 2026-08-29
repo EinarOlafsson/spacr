@@ -653,15 +653,24 @@ def test_tracker_extras_follow_their_upstream_python_ranges():
     """The aggregate extra resolves on 3.9 through 3.14.
 
     Trackastra requires Python 3.10 or newer. Ultrack 0.8 supports 3.13 but
-    declares a strict Python 3.14 ceiling. The same markers must appear in the
-    named extra and the spelled-out ``all`` union.
+    declares a strict Python 3.14 ceiling; older ultrack metadata admits 3.9
+    while its required geff release does not. Both depend on torch, whose
+    wheels end at Python 3.12 on Intel macOS. The same complete markers must
+    appear in the named extra and the spelled-out ``all`` union.
     """
     from packaging.requirements import Requirement
 
     extras = _extras()
     expected = {
-        "trackastra": 'python_version >= "3.10"',
-        "ultrack": 'python_version < "3.14"',
+        "trackastra": (
+            'python_version >= "3.10" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")'
+        ),
+        "ultrack": (
+            'python_version >= "3.10" and python_version < "3.14" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")'
+        ),
     }
     for name, marker in expected.items():
         for extra in (name, "all"):
