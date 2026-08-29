@@ -21,6 +21,13 @@
       "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
       "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
       "translation": ":func:`spacr.figures.stats.compare` wählt anhand der verfügbaren Gruppen und aussagekräftigen Annahmeprüfungen den Student-t-Test, Welch-t-Test, Mann-Whitney-U-Test, die einfaktorielle ANOVA, Welch-ANOVA oder den Kruskal-Wallis-Test aus."
+    },
+    {
+      "context": "Enable tracing globally and optionally install a run collector.",
+      "label": "spacr.flowview.trace.enable#0",
+      "source": "Enable tracing globally and optionally install a run collector.",
+      "source_sha256": "b12d6e5d2a29b4b0fb51aa0a1c8d2e7728696af852ed00387ad1aa1c5237b252",
+      "translation": "Aktiviert die Ablaufverfolgung global und installiert optional einen Kollektor für Verarbeitungssitzungen."
     }
   ],
   "schema": 1

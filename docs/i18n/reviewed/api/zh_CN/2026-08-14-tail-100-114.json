@@ -67,10 +67,10 @@
     },
     {
       "label": "spacr.utils.SaliencyMapGenerator.plot_activation_grid#3",
-      "source_sha256": "5cafd5967a4aa0369241ade46431c0d4ff14a80ccee0d6e8c8144b518450224a",
-      "source": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)`` raise ``TypeError`` from ``imshow``.",
-      "context": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is transposed to image-channel-last, so ``(1, H, W)`` and ``(2, H, W)`` raise ``TypeError`` from ``imshow``.",
-      "translation": "至少包含 ``N`` 个条目的 torch 张量。即使 ``overlay`` 为 false，每次迭代也会为它建立索引并移动到 CPU，因此 numpy 数组无论如何都会抛出 ``AttributeError``。每个条目必须为 ``(H, W)`` 或 ``(3, H, W)``：只有首维为 ``3`` 时才转置为图像通道在末尾，所以 ``(1, H, W)`` 和 ``(2, H, W)`` 会抛出 ``TypeError``，该异常来自 ``imshow``。"
+      "source_sha256": "0cdab3798d06933071a3aab1a0afdefa79d9b66ac5df35dd5065e5c9129ee427",
+      "source": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading singleton is removed and a leading RGB dimension is transposed to channels-last. Other three-dimensional shapes reach ``imshow`` and raise ``TypeError``.",
+      "context": "torch tensor of at least ``N`` entries. It is indexed and moved to the CPU on every iteration even when ``overlay`` is false, so a numpy array raises ``AttributeError`` either way. Each entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading singleton is removed and a leading RGB dimension is transposed to image-channel-last. Other three-dimensional shapes reach ``imshow`` and raise ``TypeError``.",
+      "translation": "至少包含 ``N`` 个条目的 torch 张量。即使 ``overlay`` 为 false，也会在每次迭代中索引它并将其移到 CPU，因此无论哪种模式，numpy 数组都会引发 ``AttributeError``。每个条目可以是 ``(H, W)``、``(1, H, W)`` 或 ``(3, H, W)``；前导单例维度会被移除，前导 RGB 维度会被转置为通道末置格式。其他三维形状会传入 ``imshow`` 并引发 ``TypeError``。"
     },
     {
       "label": "spacr.utils.augment_image#2",

@@ -172,13 +172,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "dry_run",
-      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
-      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
-      "translation": "根据所选数据验证设置，报告计划执行的操作，并在计算前停止。检查 src 是否包含预期文件、通道和掩膜平面索引是否有效，以及必需的模型、条形码 CSV 文件或 measurements.db 文件是否存在。每个问题都会连同建议的修正方法一起报告，随后汇总计划的分割、测量和输出位置。不写入任何输出，也不加载模型。默认值为 False。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_intensity_mode",
       "source_sha256": "a8db8c7560e2173450133c8f7ec87162cd9399c89641285a4eddead905c84d0f",
       "source": "Action applied when the quality-control classification disagrees with the mask-based label. 'relabel' replaces the label and retains the cell; 'remove' excludes cells with discordant mask and intensity evidence. Unknown values fall back to 'relabel'. Default 'relabel'.",
@@ -578,9 +571,9 @@
     },
     {
       "table": "ui",
-      "key": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
-      "source_sha256": "8bef9790944c9c2ed7a93f9fec0ce5ac6a38f1b4de4e8499d732e6e4361f64d6",
-      "source": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "key": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "3648e84647b7195025a60a1399dc3c107993832a14b1808898c128ece76c5a5e",
+      "source": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
       "translation": "蒙太奇中显示的平面。输入 Annotate 使用的颜色字母——r、g、b，或 'r,g,b'、'rg'、'b' 等组合——每个字母都会解析为对应的源通道。也接受 '0,1,2' 等源通道索引。\n\n留空时，会从 measurements.db 读回该次运行自身的 png_dims，使图像裁剪与该次运行写入的 PNG 一致。"
     },
     {

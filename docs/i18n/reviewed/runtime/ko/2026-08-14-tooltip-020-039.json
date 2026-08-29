@@ -18,13 +18,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "dry_run",
-      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
-      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
-      "translation": "선택한 데이터에 대해 설정을 검증하고 예정된 작업을 보고한 뒤 계산 전에 중지합니다. src 에 예상 파일이 있는지, 채널 및 마스크 평면 인덱스가 유효한지, 필요한 모델, barcode CSV 파일 또는 measurements.db 파일이 있는지 검사합니다. 각 문제는 권장 수정 사항과 함께 보고되며, 이어서 예정된 분할, 측정 및 출력 위치의 요약이 표시됩니다. 출력은 기록되지 않고 모델도 불러오지 않습니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "expected_end",
       "source_sha256": "532977eddbbb1d45214aec1cf68b7173f3402339123008ba82e8529b44d7589a",
       "source": "Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",

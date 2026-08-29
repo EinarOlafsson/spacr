@@ -11,13 +11,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "dry_run",
-      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
-      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
-      "translation": "चुने गए डेटा के आधार पर सेटिंग्स की पुष्टि करें, नियोजित कार्रवाइयों की रिपोर्ट दें और गणना से पहले रुकें। यह जाँचता है कि src में अपेक्षित फ़ाइलें हैं, channel और mask-plane इंडेक्स मान्य हैं, तथा आवश्यक मॉडल, barcode CSV फ़ाइलें या measurements.db फ़ाइलें मौजूद हैं। हर समस्या को सुझाए गए सुधार के साथ रिपोर्ट किया जाता है, जिसके बाद नियोजित segmentation, measurement और output स्थानों का सारांश दिया जाता है। कोई output नहीं लिखा जाता और कोई मॉडल load नहीं होता। डिफ़ॉल्ट False।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "focal_gamma",
       "source_sha256": "2fff273f006c1e8711f2c381c518bc97d47a87af99b465a188e99a80ecc7f434",
       "source": "Focusing exponent in the focal-loss weight (1 - p_t)^gamma, applied only when loss_type is focal. 0 reduces it to cross-entropy; increasing it, typically within 1-5, reduces the contribution of confidently classified crops and increases the relative contribution of difficult samples. Default 2.0. Increase when class imbalance causes training to be dominated by easy examples.",

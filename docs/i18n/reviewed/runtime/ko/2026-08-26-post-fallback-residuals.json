@@ -130,9 +130,9 @@
     },
     {
       "table": "ui",
-      "key": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
-      "source_sha256": "8bef9790944c9c2ed7a93f9fec0ce5ac6a38f1b4de4e8499d732e6e4361f64d6",
-      "source": "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "key": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "3648e84647b7195025a60a1399dc3c107993832a14b1808898c128ece76c5a5e",
+      "source": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
       "translation": "montage에 표시할 평면입니다. Annotate에서 사용하는 색상 문자 r, g, b 또는 'r,g,b', 'rg', 'b' 와 같은 조합을 입력하면 각 문자가 해당 소스 채널에 연결됩니다. '0,1,2' 와 같은 소스 채널 인덱스도 사용할 수 있습니다.\n\n비워 두면 실행의 png_dims 를 measurements.db 에서 읽으므로 crop이 해당 실행에서 기록한 PNG 와 일치합니다."
     },
     {

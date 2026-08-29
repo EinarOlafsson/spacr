@@ -113,6 +113,13 @@
       "source_sha256": "0691093a025e53e2463538f9b69e4bf1048bde1402911ba88aa008248d73743a",
       "source": "Result level. For regression, 'both' writes results_grna.csv and results_gene.csv and corrects each family separately; 'grna' reports guide effects, and 'gene' pools guides by gene. Nonparametric inference also honours this choice. Mixed models disable it because they estimate gene effects with guides nested inside genes. For proportion plots, the same key selects 'object', 'well', or 'plate' aggregation. Default 'both' for regression and 'object' for proportions.",
       "translation": "결과 수준입니다. 회귀에서 'both' 옵션은 results_grna.csv 및 results_gene.csv 파일을 기록하고 각 계열을 별도로 보정합니다. 'grna' 옵션은 가이드 효과를 보고하고, 'gene' 옵션은 가이드를 유전자별로 통합합니다. 비모수 추론에도 이 선택이 적용됩니다. 혼합 모형은 유전자 내에 중첩된 가이드로 유전자 효과를 추정하므로 이 설정을 비활성화합니다. 비율 플롯에서 같은 키는 'object', 'well' 또는 'plate' 중 하나를 집계 수준으로 선택합니다. 회귀의 기본값은 'both' 옵션이고 비율의 기본값은 'object' 옵션입니다."
+    },
+    {
+      "table": "ui",
+      "key": "{location}: {path}",
+      "source_sha256": "13b03467705caf8c0752953600611e411dd769c0e6a72c1c81c20d5916c4f126",
+      "source": "{location}: {path}",
+      "translation": "{location}: 경로 {path}"
     }
   ]
 }

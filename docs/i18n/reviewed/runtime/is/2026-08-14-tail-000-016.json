@@ -39,13 +39,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "dry_run",
-      "source_sha256": "519266e158b45bc8a62c48c9becbbdc55443c6d6b0034fb3a47d5ac8a119ffaf",
-      "source": "Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
-      "translation": "Sannprófa stillingar gagnvart völdum gögnum, birta fyrirhugaðar aðgerðir og stöðva fyrir útreikning. Athugað er að src innihaldi væntar skrár, að vísar rása og grímumyndlaga séu gild og að nauðsynleg líkön, barcode CSV-skrár eða measurements.db-skrár séu til staðar. Hvert vandamál er birt með tillögu að leiðréttingu og síðan samantekt á fyrirhugaðri hlutun, mælingu og staðsetningu útaks. Ekkert ñttak er skrifað og ekkert líkan hlaðið. Sjálfgefið False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "outline_color",
       "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
       "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",

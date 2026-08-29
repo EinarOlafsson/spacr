@@ -66,13 +66,6 @@
       "translation": "coordenada no espaço físico do elemento 0 ao longo de cada eixo. O padrão é zero. Este é o deslocamento da região de imagem extraída: um bloco recortado de um mosaico preserva sua posição no mosaico ao registrar aqui esse deslocamento."
     },
     {
-      "label": "spacr.lineage.tree_for#7",
-      "source_sha256": "8e4f866d04b55eef6e1c05a12d165a4f59a68f9d8df09f313cc32844f5e40fb7",
-      "source": "when ``root`` is missing from ``frames``, or when a table that is present cannot be named. The forest is built before the search, so a ``nucleus`` table without its field columns raises even when the wanted key belongs to a pathogen. A key that is merely not there is ``None``, not an exception.",
-      "context": "when ``root`` is missing from ``frames``, or when a table that is present cannot be named. The forest is built before the search, so a ``nucleus`` table without its field columns raises even when the wanted structured-data name belongs to a pathogen. A structured-data name that is merely not there is ``None``, not an exception.",
-      "translation": "quando ``root`` está ausente de ``frames`` ou quando não é possível nomear uma tabela presente. A floresta é construída antes da busca; portanto, uma tabela ``nucleus`` sem suas colunas de campo gera uma exceção mesmo quando o nome de dados estruturados procurado pertence a um patógeno. Um nome de dados estruturados que simplesmente não está presente resulta em ``None``, não em uma exceção."
-    },
-    {
       "label": "spacr.macro.Macro#1",
       "source_sha256": "0a79e14b07d37fa3c46826ebf5e54d7d58c6da3e4130b57c4f3c3db33ba2bc29",
       "source": "A chain grows while consecutive runs stay connected — the next module consumes what the previous one produced, on the same project. A run that connects to nothing starts a new :class:`Macro`, because a script that welds two unrelated plates together is not a reproduction of either.",

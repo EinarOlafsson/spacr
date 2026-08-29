@@ -176,6 +176,13 @@
       "source_sha256": "95e9e6c3c8ae783db6a9395f32b3fd320174cb9b18f06f9418f00cb7a85c8262",
       "source": "Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
       "translation": "Skriv diagnostik för varianshomogenitet, residualer, design, inflytande och kalibrering till <res_folder>/regression_qc/ som figurer, en sammanslagen PDF och en textrapport. En anpassning tar cirka 5.8 sekunder och skriver 19 filer. Funktionen är därför aktiverad för enskilda analyser men inaktiveras automatiskt under parametersvep för att undvika tusentals diagnostikfiler. Öppna en vald prövning igen för att generera dess diagnostik. Gäller för alla regression_type. Standard: True."
+    },
+    {
+      "table": "ui",
+      "key": "{location}: {path}",
+      "source_sha256": "13b03467705caf8c0752953600611e411dd769c0e6a72c1c81c20d5916c4f126",
+      "source": "{location}: {path}",
+      "translation": "{location}: sökväg {path}"
     }
   ]
 }

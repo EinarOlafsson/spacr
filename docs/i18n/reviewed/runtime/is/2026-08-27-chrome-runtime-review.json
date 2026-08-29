@@ -106,6 +106,13 @@
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",
       "source": "Definition of the fitted intercept. 'fitted' estimates it from the data as the predicted response when every predictor is at its reference level; in a one-hot gene design, this reference is the gene omitted by patsy and may not have a useful biological interpretation. 'control' subtracts the negative controls' mean response before fitting and suppresses the intercept term, so every coefficient is a difference from the controls. 'zero' fits through the origin. 'value' fixes the intercept at intercept_value. Default 'fitted'.",
       "translation": "Skilgreining á metnum skurðpunkti. 'fitted' metur hann út frá gögnunum sem spágildi svarsins þegar allar skýribreytur eru á viðmiðunarstigi sínu; í genahönnun með tvíkosta vísakóðun er viðmiðið genið sem patsy sleppir og það hefur hugsanlega enga gagnlega líffræðilega túlkun. 'control' dregur meðalsvar neikvæðu viðmiðanna frá áður en líkanið er metið og sleppir skurðliðnum, þannig að hver stuðull er mismunur miðað við viðmiðin. 'zero' þvingar aðhvarfið í gegnum núllpunktinn. 'value' festir skurðpunktinn við intercept_value. Sjálfgefið: 'fitted'."
+    },
+    {
+      "table": "ui",
+      "key": "{location}: {path}",
+      "source_sha256": "13b03467705caf8c0752953600611e411dd769c0e6a72c1c81c20d5916c4f126",
+      "source": "{location}: {path}",
+      "translation": "{location}: slóð {path}"
     }
   ]
 }
