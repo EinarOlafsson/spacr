@@ -1,22 +1,20 @@
-"""The lost-conftest guard names the cause it can show, not the cause it knew.
+"""The lost-conftest guard names the collection evidence it can show.
 
 When a conftest's fixtures stop reaching the tests underneath it, pytest says
 ``fixture 'qt_theme_applied' not found`` once per test and never says why.
 tests/conftest.py replaces that with a message about the cause -- and there is
 more than one cause it could be:
 
-* the directory was collected TWICE and the tests were reached through the
-  second node, which is the collection-ordering fault this repository was
-  bitten by and which ``_OneNodePerDirectory`` prevents;
+* the directory was collected TWICE, violating the one-node collection
+  invariant even though supported pytest 8.x fixture matching is nodeid-based;
 * the directory was collected ONCE and the conftest was evicted anyway -- taken
   out of ``sys.modules``, reloaded, or unregistered by something in the run.
 
-The second was the first hypothesis when the fault was found, and it was wrong:
-the evidence pinned at the bottom of this file shows one conftest module,
-registered, unchanged, while ``tests/qt`` answers with two collection nodes. So
-the message may not print "collected twice" as an article of faith. It looks at
-the collected tree, and a directory that was collected once is reported as an
-eviction with the ordering fault ruled out for the reader instead of at them.
+The evidence pinned at the bottom shows one conftest module, registered and
+unchanged, while ``tests/qt`` answers with two collection nodes. It also pins
+that fixtures remain visible in that shape on supported pytest 8.x. The report
+therefore states the observed duplicate without claiming object identity is
+the fixture-matching rule.
 """
 from __future__ import annotations
 
@@ -35,9 +33,9 @@ from tests.conftest import (
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
-#: The shape that loses the fixtures: a Qt file, a bare non-Qt file that makes
-#: pytest re-collect ``tests``, then a second Qt file reached through the node
-#: that re-collection built.
+#: The shape that duplicates directory nodes: a Qt file, a bare non-Qt file
+#: that makes pytest re-collect ``tests``, then a second Qt file reached
+#: through the node that re-collection built.
 _INTERLEAVED = ("tests/qt/test_ambient_none.py",
                 "tests/test_crop_format.py",
                 "tests/qt/test_demo_menu.py")
@@ -187,9 +185,8 @@ def test_a_node_the_conftest_was_not_parsed_against_counts_as_a_duplicate():
 
     ``-k`` and the file shard both drop tests, and they drop them after the
     tree is built. When everything hanging off the first node goes, the
-    second node is all that is left to see -- and it is the node that lost
-    the fixtures, so the run must still be told the directory was collected
-    twice rather than that its conftest was evicted.
+    second node is all that is left to see. The run must still report that the
+    directory was collected twice rather than calling the tree single-node.
     """
     parsed_against = _directory("tests/qt")
     survivor = _directory("tests/qt")
@@ -212,11 +209,11 @@ def test_a_tree_with_no_directory_nodes_answers_that_it_did_not_look():
 
 
 def test_the_parse_nodes_are_read_off_the_running_session(request):
-    """This session's own conftests are bound to the nodes in this chain.
+    """A representative node is recovered for each conftest baseid.
 
-    Both halves matter: the fixtures of ``tests`` are parsed against a real
-    directory node, and it is the very node this test hangs off -- which is
-    the healthy state the guard exists to keep.
+    The fixture definition carries a stable nodeid on supported pytest 8.x;
+    the reporting helper maps it back to the real directory node in this
+    test's chain.
     """
     parse_nodes = directory_conftest_parse_nodes(
         request.session._fixturemanager)
@@ -298,33 +295,32 @@ def test_every_lost_fixture_is_still_listed_before_the_cause():
 # The interleaving, run for real
 # ---------------------------------------------------------------------------
 
-def test_the_real_interleaving_is_reported_as_a_directory_collected_twice(
+def test_the_real_interleaving_follows_pytests_fixture_matching_model(
         tmp_path):
-    """The live fault picks the ordering branch, with the duplicate shown.
+    """The disabled canonicaliser exposes the matching model pytest uses.
 
-    Run with the canonicaliser off, so the hazard is the real one and not a
-    fabricated table. What is asserted is the branch: a message that called
-    this an eviction would have the diagnosis exactly backwards.
+    Supported pytest 8.x releases match ``FixtureDef.baseid`` against
+    ancestor nodeids, so fixtures remain visible despite the duplicate
+    collection node.
     """
     done, output = _collect_interleaved(tmp_path, disable_canonicaliser=True)
 
-    assert done.returncode != 0, output[-3000:]
-    assert "Collected twice: tests/qt." in output, output[-3000:]
-    assert "COLLECTION ORDERING fault" in output, output[-3000:]
+    assert done.returncode == 0, output[-3000:]
+    assert "COLLECTION ORDERING fault" not in output, output[-3000:]
+    assert "fixture 'qt_theme_applied' not found" not in output, output[-3000:]
     assert "EVICTED" not in output, output[-3000:]
 
 
-def test_the_lost_fixtures_are_not_a_conftest_that_went_missing(tmp_path):
+def test_the_duplicate_nodes_are_not_a_conftest_that_went_missing(tmp_path):
     """The evidence for the branch above: one module, two directory nodes.
 
     The first hypothesis about this fault was that something in the run --
     the file that walks the package with ast, or the one that clears module
     caches -- evicted tests/qt/conftest.py from ``sys.modules``. It did not.
-    In the run that loses the fixtures the conftest is one module object,
-    still registered as a plugin, and ``tests/qt`` answers with two
-    collection nodes; and with the canonicaliser back on it answers with
-    one. If that ever stops being true the guard is naming the wrong cause,
-    and this is where it shows.
+    With the canonicaliser disabled, the conftest remains one registered
+    module and ``tests/qt`` answers with two collection nodes. With the
+    canonicaliser enabled it answers with one. The test above separately
+    proves supported pytest keeps the fixtures visible in either tree.
     """
     probe = [("spacr_qt_conftest_probe", _MODULE_PROBE)]
 
