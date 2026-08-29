@@ -346,6 +346,15 @@ def run(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
+    # FIRST IN THE PUBLIC ENTRY POINT.  ``app`` imports PySide, and the
+    # registration pass below may import modules that own live hooks.  A
+    # clock begun inside ``launch()`` misses both and cannot claim
+    # process-to-interactive timing.  The timing module itself is stdlib-only
+    # while disabled; begin() is a single environment-guarded return.
+    from . import timing as _timing
+
+    _timing.begin()
+
     # Before anything imports Qt, GTK or torch: the AT-SPI variable is only
     # read while GTK loads, the Qt handler has to be in place before the
     # first widget lays out text, and the warning filter has to be in place

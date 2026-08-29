@@ -466,26 +466,60 @@ def startup(say: Report) -> None:
 
 
 def screens(say: Report, quick: bool) -> None:
-    with _section(say, "building each module screen" + ("" if quick else f" [{SLOW}]")):
-        app = _app()
-        from spacr.qt.screens.app_screen import AppScreen
-        keys = ("measure", "mask", "regression", "classify_merged")
-        if not quick:
-            keys += ("annotate", "map_barcodes", "umap", "external_masks")
-        for key in keys:
-            start = _clock()
-            try:
-                screen = AppScreen(key)
-                app.processEvents()
-                took = _clock() - start
-                rows = len(screen._settings_model.collect())
-                per = (took / rows * 1000) if rows else 0.0
-                say.timed(f"build {key}", took,
-                          f"{rows} rows, {per:.1f} ms/row")
-                start = _clock(); screen.grab()
-                say.timed(f"  paint {key}", _clock() - start)
-            except Exception as exc:                         # noqa: BLE001
-                say.failed(f"build {key}", exc)
+    title = "every live module: click to painted usable state"
+    with _section(say, title + ("" if quick else f" [{SLOW}]")):
+        if quick:
+            say("  skipped by --quick; the complete registry sweep is never")
+            say("  replaced with a hand-picked subset. Run without --quick or")
+            say("  use tools/spacr_startup_benchmark.py directly.")
+            return
+
+        # A fresh child is essential here. Earlier report sections import the
+        # scientific stack deliberately; measuring modules in this process
+        # would call every heavy screen warm and understate the user path.
+        import json
+        import subprocess
+        import tempfile
+        from pathlib import Path
+
+        driver = Path(__file__).with_name("spacr_startup_benchmark.py")
+        with tempfile.TemporaryDirectory(prefix="spacr-hardware-modules-") as raw:
+            output = Path(raw) / "modules.json"
+            command = [
+                sys.executable, str(driver), "--runs", "1", "--record-only",
+                "--out", str(output), "--package-root",
+                str(Path(__file__).resolve().parents[1]),
+            ]
+            if os.environ.get("QT_QPA_PLATFORM") == "offscreen":
+                command.append("--offscreen")
+            done = subprocess.run(
+                # The worker owns a 3600 s last-resort timeout and preserves
+                # its last atomic checkpoint.  Give the driver one minute to
+                # recover that evidence and write the combined artifact.
+                command, capture_output=True, text=True, timeout=3660)
+            if not output.is_file():
+                say.item("registry benchmark", "FAILED (no JSON artifact)")
+                for line in (done.stderr or "").splitlines()[-6:]:
+                    say(f"    {line}")
+                return
+            artifact = json.loads(output.read_text(encoding="utf-8"))
+
+        keys = artifact.get("registry_keys", [])
+        say.item("live registry", f"{len(keys)} app(s)")
+        run = (artifact.get("runs") or [{}])[0]
+        benchmark = run.get("benchmark", {})
+        measured = benchmark.get("measured_keys", [])
+        say.item("measured registry", f"{len(measured)} app(s)")
+        say.item("sets equal", measured == keys)
+        for row in benchmark.get("results", []):
+            detail = str(row.get("detail", "?"))
+            seconds = float(row.get("duration_s", 0.0))
+            stall = row.get("worst_event_loop_stall_ms")
+            stall_text = "unknown" if stall is None else f"{float(stall):.0f} ms"
+            error = f"  FAILED: {row['error']}" if row.get("error") else ""
+            say.timed(detail, seconds, f"worst event gap {stall_text}{error}")
+        for violation in benchmark.get("violations", []):
+            say(f"  BUDGET VIOLATION: {violation}")
 
 
 def backdrop(say: Report) -> None:

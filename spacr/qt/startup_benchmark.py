@@ -1,0 +1,359 @@
+"""Controlled real-entry-point startup and module-readiness benchmark.
+
+This module is imported only when ``SPACR_BENCHMARK_JSON`` names an output
+file.  The ordinary application therefore pays no import or QObject cost for
+it.  The benchmark still runs the ordinary ``spacr.qt.run`` path: once Home
+has really painted, it presses each live sidebar button and waits for the
+production timing probe to observe a painted, enabled control.  After the
+last registry key it writes one JSON artifact and exits Qt deliberately.
+"""
+from __future__ import annotations
+
+import json
+import os
+import time
+from typing import Callable, Iterable, Optional
+
+from PySide6.QtCore import QObject, QTimer
+
+from . import timing
+
+OUTPUT_ENV = "SPACR_BENCHMARK_JSON"
+RUN_LABEL_ENV = "SPACR_BENCHMARK_RUN"
+TIMEOUT_ENV = "SPACR_BENCHMARK_TIMEOUT_S"
+DEFAULT_TIMEOUT_S = 30.0
+SETTLE_MS = 32
+
+
+def _timeout_seconds() -> float:
+    try:
+        return max(1.0, min(300.0, float(os.environ.get(
+            TIMEOUT_ENV, DEFAULT_TIMEOUT_S))))
+    except (TypeError, ValueError):
+        return DEFAULT_TIMEOUT_S
+
+
+class BenchmarkController(QObject):
+    """Advance through Home and an exact snapshot of the live app registry."""
+
+    def __init__(self, app, window, keys: Iterable[str], output: str, *,
+                 timeout_s: Optional[float] = None,
+                 live_keys: Optional[Callable[[], Iterable[str]]] = None,
+                 ) -> None:
+        super().__init__(app)
+        self.app = app
+        self.window = window
+        self.keys = tuple(str(key) for key in keys)
+        self._live_keys = live_keys
+        self.output = str(output)
+        self.timeout_s = _timeout_seconds() if timeout_s is None else float(
+            timeout_s)
+        self.results: list[dict] = []
+        self.phase = "home"
+        self.current_key: Optional[str] = None
+        self.index = 0
+        self._pending: Optional[dict] = None
+        self._timeout_pending = False
+        self._finished = False
+        self._written = False
+        self._attempt_started = time.perf_counter()
+        self._attempt_started_elapsed = timing.elapsed()
+
+        self.timeout = QTimer(self)
+        self.timeout.setSingleShot(True)
+        self.timeout.timeout.connect(self._timed_out)
+        timing.subscribe_readiness(self._ready)
+        app.aboutToQuit.connect(self._application_quit)
+        self._arm_timeout()
+
+    def _arm_timeout(self) -> None:
+        self._timeout_pending = False
+        self._attempt_started = time.perf_counter()
+        self._attempt_started_elapsed = timing.elapsed()
+        self.timeout.start(max(1, int(self.timeout_s * 1000.0)))
+
+    def _ready(self, entry: dict) -> None:
+        if (self._finished or self._pending is not None
+                or self._timeout_pending):
+            return
+        expected = "__home__" if self.phase == "home" else self.current_key
+        if entry.get("detail") != expected:
+            return
+        expected_name = (
+            "interactive Home" if self.phase == "home"
+            else "interactive module"
+        )
+        if entry.get("name") != expected_name:
+            return
+        self.timeout.stop()
+        self._pending = dict(entry)
+        # Let the 16 ms watchdog report a timer delayed by the click handler
+        # before this interval is sealed.  The readiness timestamp remains
+        # the first settled paint; only the stall inventory waits two frames.
+        QTimer.singleShot(SETTLE_MS, self._settle_ready)
+
+    def _settle_ready(self) -> None:
+        if self._pending is None or self._finished:
+            return
+        entry = self._pending
+        self._pending = None
+        state = timing.snapshot()
+        start = float(entry.get("started_at", 0.0))
+        end = float(state["elapsed_s"])
+        interval_stalls = timing.stalls_between(start, end, state["stalls"])
+        entry["worst_event_loop_stall_ms"] = max(
+            (float(row["overlap_ms"]) for row in interval_stalls), default=0.0)
+        entry["worst_overlapping_frame_interval_ms"] = max(
+            (float(row["late_ms"]) for row in interval_stalls), default=0.0)
+        entry["event_loop_stall_budget_met"] = (
+            entry["worst_event_loop_stall_ms"] < timing.STALL_BUDGET_MS
+        )
+        entry["stall_samples"] = len(interval_stalls)
+        self.results.append(entry)
+        self._checkpoint()
+        print(
+            f"benchmark ready: {entry['detail']} "
+            f"{entry['duration_s']:.3f}s, worst gap "
+            f"{entry['worst_event_loop_stall_ms']:.0f}ms",
+            flush=True,
+        )
+        if self.phase == "home":
+            self.phase = "module"
+        else:
+            self.index += 1
+            self.current_key = None
+        self._advance_after_watchdog()
+
+    def _advance_after_watchdog(self) -> None:
+        """Do not let checkpoint/prewarm work contaminate the next click."""
+        checkpoint_ended = timing.elapsed()
+
+        def _after_beat() -> None:
+            latest = timing.last_gui_beat_at()
+            if latest is not None and latest <= checkpoint_ended:
+                QTimer.singleShot(SETTLE_MS, _after_beat)
+                return
+            self._advance()
+
+        # Unit environments may not install the production watchdog; ``None``
+        # deliberately falls through after the same two-frame settle.
+        QTimer.singleShot(SETTLE_MS, _after_beat)
+
+    def _advance(self) -> None:
+        if self._finished:
+            return
+        if self.index >= len(self.keys):
+            QTimer.singleShot(SETTLE_MS, self._finish)
+            return
+        key = self.keys[self.index]
+        self.current_key = key
+        self._arm_timeout()
+        buttons = [
+            button for button in getattr(self.window._sidebar, "_items", ())
+            if str(button.property("navKey") or "") == key
+        ]
+        if len(buttons) != 1:
+            self._record_error(
+                key, f"expected one live sidebar button, found {len(buttons)}")
+            return
+        button = buttons[0]
+        if not button.isEnabled():
+            self._record_error(key, "the live sidebar button is disabled")
+            return
+        # QAbstractButton.click() is the same signal path as a user release:
+        # Sidebar.nav_selected -> MainWindow._on_nav_selected.  Calling the
+        # screen factory directly is the constructor proxy this benchmark
+        # exists to replace.
+        try:
+            button.click()
+        except BaseException as error:                      # noqa: BLE001
+            self.timeout.stop()
+            self._record_error(
+                key, f"{type(error).__name__}: {error}", already_stopped=True)
+
+    def _timed_out(self) -> None:
+        if self._finished or self._timeout_pending:
+            return
+        detail = "__home__" if self.phase == "home" else str(self.current_key)
+        self._timeout_pending = True
+        timing.cancel_interactive(detail=str(detail))
+        # Let an overdue watchdog beat run before sealing the failed interval.
+        # Readiness is rejected while this is pending, so the deadline stays
+        # decisive even when a paint was queued behind the same long block.
+        QTimer.singleShot(
+            SETTLE_MS,
+            lambda: self._record_error(
+                detail,
+                f"no painted usable state within {self.timeout_s:.1f} seconds",
+                already_stopped=True,
+            ),
+        )
+
+    def _record_error(self, detail: str, message: str, *,
+                      already_stopped: bool = False) -> None:
+        if not already_stopped:
+            self.timeout.stop()
+        self._timeout_pending = False
+        timing.cancel_interactive(detail=str(detail))
+        duration = (
+            timing.elapsed() if self.phase == "home"
+            else max(0.0, time.perf_counter() - self._attempt_started)
+        )
+        attempt_started_elapsed = (
+            0.0 if self.phase == "home" else self._attempt_started_elapsed
+        )
+        state = timing.snapshot()
+        interval_stalls = timing.stalls_between(
+            attempt_started_elapsed, float(state["elapsed_s"]), state["stalls"])
+        worst_stall = max(
+            (float(row["overlap_ms"]) for row in interval_stalls), default=0.0)
+        raw_worst = max(
+            (float(row["late_ms"]) for row in interval_stalls), default=0.0)
+        self.results.append({
+            "name": ("interactive Home" if self.phase == "home"
+                     else "interactive module"),
+            "detail": str(detail),
+            "duration_s": duration,
+            "budget_s": (timing.HOME_BUDGET_S if self.phase == "home"
+                         else timing.MODULE_BUDGET_S),
+            "within_budget": False,
+            "worst_event_loop_stall_ms": worst_stall,
+            "worst_overlapping_frame_interval_ms": raw_worst,
+            "event_loop_stall_budget_met": worst_stall < timing.STALL_BUDGET_MS,
+            "stall_samples": len(interval_stalls),
+            "error": str(message),
+        })
+        self._checkpoint()
+        print(f"benchmark failed: {detail}: {message}", flush=True)
+        if self.phase == "home":
+            # Without a usable Home, no click path exists to benchmark.  Do
+            # not disguise that by calling private factories instead.
+            self._finish("Home never became interactive")
+            return
+        self.index += 1
+        # The screen can finish painting after its overdue timeout has been
+        # delivered.  Clear the key before the next settled advance so
+        # that late readiness cannot terminate this attempt a second time and
+        # skip the following registry row.
+        self.current_key = None
+        self._advance_after_watchdog()
+
+    def _current_registry_keys(self) -> tuple[str, ...]:
+        if self._live_keys is None:
+            return self.keys
+        return tuple(str(key) for key in self._live_keys())
+
+    def _violations(self, current_keys: Iterable[str]) -> list[str]:
+        violations: list[str] = []
+        final_keys = tuple(str(key) for key in current_keys)
+        if final_keys != self.keys:
+            violations.append(
+                "the live registry changed during the benchmark sweep")
+        measured = [
+            str(row.get("detail")) for row in self.results
+            if row.get("detail") != "__home__"
+        ]
+        if measured != list(self.keys):
+            violations.append(
+                "measured app sequence does not equal the live registry exactly")
+        by_detail = {str(row.get("detail")): row for row in self.results}
+        expected = ("__home__", *self.keys)
+        for detail in expected:
+            row = by_detail.get(detail)
+            if row is None:
+                violations.append(f"{detail}: missing readiness record")
+                continue
+            if row.get("error"):
+                violations.append(f"{detail}: {row['error']}")
+            if row.get("within_budget") is not True:
+                violations.append(
+                    f"{detail}: no readiness record meeting the "
+                    f"{row.get('budget_s')} s budget")
+            if row.get("event_loop_stall_budget_met") is not True:
+                violations.append(
+                    f"{detail}: event-loop stall reached the 500 ms ceiling")
+        return violations
+
+    def _artifact(self, exit_reason: str) -> dict:
+        artifact = timing.snapshot()
+        final_keys = self._current_registry_keys()
+        measured = [
+            str(row.get("detail")) for row in self.results
+            if row.get("detail") != "__home__"
+        ]
+        artifact["benchmark"] = {
+            "run": os.environ.get(RUN_LABEL_ENV, "benchmark"),
+            "exit_reason": str(exit_reason),
+            "registry_keys": list(self.keys),
+            "registry_count": len(self.keys),
+            "final_registry_keys": list(final_keys),
+            "registry_stable": final_keys == self.keys,
+            "measured_keys": measured,
+            "measured_count": len(measured),
+            "registry_matches_measurements": measured == list(self.keys),
+            "results": list(self.results),
+            "violations": self._violations(final_keys),
+        }
+        return artifact
+
+    def _persist(self, exit_reason: str) -> str:
+        """Atomically replace the artifact; return an error message or ``""``."""
+        temporary = f"{self.output}.{os.getpid()}.tmp"
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(self.output)),
+                        exist_ok=True)
+            with open(temporary, "w", encoding="utf-8") as handle:
+                json.dump(self._artifact(exit_reason), handle,
+                          indent=2, sort_keys=True)
+                handle.write("\n")
+            os.replace(temporary, self.output)
+        except Exception as error:                           # noqa: BLE001
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
+            return str(error)
+        return ""
+
+    def _write(self, exit_reason: str) -> None:
+        if self._written:
+            return
+        error = self._persist(exit_reason)
+        if error:
+            print(f"could not write spaCR benchmark artifact: {error}")
+            return
+        self._written = True
+
+    def _checkpoint(self) -> None:
+        """Preserve completed states even if a later screen kills the process."""
+        self._persist("registry sweep in progress")
+
+    def _finish(self, reason: str = "registry sweep complete") -> None:
+        if self._finished:
+            return
+        self._finished = True
+        self.timeout.stop()
+        timing.unsubscribe_readiness(self._ready)
+        self._write(reason)
+        self.app.quit()
+
+    def _application_quit(self) -> None:
+        if not self._written:
+            self._write("application quit before registry sweep completed")
+
+
+def maybe_start(app, window) -> Optional[BenchmarkController]:
+    """Install the controller named by the environment, or return ``None``."""
+    output = os.environ.get(OUTPUT_ENV, "").strip()
+    if not output:
+        return None
+    from .app import APPS
+
+    def _live_keys() -> tuple[str, ...]:
+        return tuple(key for key, _name, _description, _section in APPS)
+
+    keys = _live_keys()
+    if len(keys) != len(set(keys)):
+        raise ValueError("the live application registry contains duplicate keys")
+    return BenchmarkController(
+        app, window, keys, output, live_keys=_live_keys)
