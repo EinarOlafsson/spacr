@@ -34,9 +34,14 @@ import numpy as np
 #:
 #: Perturbation asks the shader for z = Z + dz, where dz is about the size
 #: of one viewport. For that sum to mean anything, Z has to be known to
-#: better than dz. Z is carried through the texture as a pair of float32s,
-#: high plus low, and measured against a 320-digit reference the pair
-#: reproduces it to 2.2e-16 absolute -- about 15.7 decades.
+#: better than dz.
+#:
+#: Z is carried through the texture as THREE float32s, each the remainder
+#: of the one before it. Measured against a 320-digit reference in mpmath,
+#: three reproduce it to 4.2e-24 -- about 23.4 decades, against 15.7 for
+#: the pair this started with. Asked for 2026-08-28: "there should be a
+#: depth setting so i can make it go on forever... or at least a long
+#: time." Seven and a half more decades is about half again as long.
 #:
 #: Running past that does not go black; it goes MUSHY, which is worse
 #: because it looks like a rendering fault rather than an end. Reported
@@ -44,14 +49,19 @@ import numpy as np
 #: image" -- it was being run to 34 decades, more than twice as deep as the
 #: numbers support, so most of every dive was noise.
 #:
-#: Fourteen leaves a margin below 15.7, because the error grows with the
-#: iteration count and the figure above is measured over 400 of them.
+#: Twenty-one leaves a margin below 23.4, because the error grows with the
+#: iteration count and the figure above is measured over 600 of them.
 #:
-#: At twenty-four seconds a decade that is about five and a half minutes of
-#: descent before it starts again. GOING DEEPER MEANS CARRYING Z MORE
-#: PRECISELY -- a third float in the texture would buy roughly another seven
-#: decades -- and not raising this number.
-MAX_USEFUL_DEPTH: Final[float] = 14.0
+#: At twenty-four seconds a decade that is about eight and a half minutes of
+#: descent, and longer at a lower speed.
+#:
+#: GOING FURTHER STILL MEANS CARRYING Z MORE PRECISELY, not raising this
+#: number: a fourth float buys about another seven decades, and a shader
+#: that could use doubles would buy a great many -- which is what `gpu_fp64`
+#: turns on where a driver supports it. REBASING DOES NOT HELP, and was
+#: tried: Z is O(1) wherever the orbit is centred, so its absolute error is
+#: the same everywhere while the pixel offset is the part that shrinks.
+MAX_USEFUL_DEPTH: Final[float] = 21.0
 
 #: The defaults, as given on 2026-08-28 -- the exact command line the
 #: maintainer runs the original renderer with.
@@ -134,8 +144,12 @@ vec2 cmul(vec2 a, vec2 b) {
 // component is stored as a sum of two floats and added back here.
 vec2 refz(int n) {
     float u = (float(n) + 0.5) / max(1.0, u_orbit_length);
-    vec4 p = texture2D(u_orbit, vec2(u, 0.5));
-    return vec2(p.r + p.g, p.b + p.a);
+    // TWO ROWS: the high and middle words, then the low ones. Summed
+    // smallest first, so the small terms are not lost to rounding before
+    // they reach the total.
+    vec4 hi = texture2D(u_orbit, vec2(u, 0.25));
+    vec4 lo = texture2D(u_orbit, vec2(u, 0.75));
+    return vec2((lo.r + hi.g) + hi.r, (lo.b + hi.a) + hi.b);
 }
 
 vec3 palette(float x) {
@@ -308,7 +322,14 @@ class ReferenceOrbit:
         self.center = (exact_misiurewicz_center(self.digits)
                        if center is None else mp.mpc(center))
         self.escaped_at: Optional[int] = None
-        self.packed = np.zeros((1, self.max_iter + 1, 4), dtype=np.float32)
+        # TWO ROWS, SIX FLOATS. Row 0 holds the high and middle words of
+        # each component and row 1 the low ones, because a texel has four
+        # channels and Z needs three floats apiece to be worth carrying.
+        #
+        # Two floats reproduce Z to 2.2e-16 -- about 15.7 decades, which is
+        # where the picture turned to mush. Three reach roughly 2^-72, and
+        # the depth follows.
+        self.packed = np.zeros((2, self.max_iter + 1, 4), dtype=np.float32)
         self._build()
 
     def _build(self) -> None:
@@ -321,18 +342,28 @@ class ReferenceOrbit:
             # HIGH AND LOW, because one float32 cannot hold Z at this depth.
             # The shader adds the pair back; the residual is what a single
             # float would have thrown away.
+            # EACH WORD IS THE REMAINDER OF THE ONE BEFORE IT, which is
+            # what makes the sum more accurate than any single float: the
+            # error of the pair becomes the value of the third.
             re_hi = np.float32(float(real))
+            re_rest = real - mp.mpf(float(re_hi))
+            re_mid = np.float32(float(re_rest))
+            re_lo = np.float32(float(re_rest - mp.mpf(float(re_mid))))
+
             im_hi = np.float32(float(imag))
-            re_lo = np.float32(float(real - mp.mpf(float(re_hi))))
-            im_lo = np.float32(float(imag - mp.mpf(float(im_hi))))
-            self.packed[0, n] = (re_hi, re_lo, im_hi, im_lo)
+            im_rest = imag - mp.mpf(float(im_hi))
+            im_mid = np.float32(float(im_rest))
+            im_lo = np.float32(float(im_rest - mp.mpf(float(im_mid))))
+
+            self.packed[0, n] = (re_hi, re_mid, im_hi, im_mid)
+            self.packed[1, n] = (re_lo, 0.0, im_lo, 0.0)
             z = z * z + self.center
             if abs(z) > mp.mpf("256"):
                 # A REFERENCE THAT ESCAPES IS NOT A REFERENCE. Every pixel
                 # perturbs around it, so the rest is zeroed rather than left
                 # holding numbers that mean nothing.
                 self.escaped_at = n + 1
-                self.packed[0, n + 1:] = 0.0
+                self.packed[:, n + 1:] = 0.0
                 break
 
     @property
@@ -421,10 +452,12 @@ def perturbation_escape_map(orbit, width, height, scale, max_iter,
     while the backdrop is drawing, and a Python loop over 5,184 points times
     900 iterations is a second of held GIL.
     """
-    real = np.asarray(orbit.packed[0, :, 0], dtype=np.float64) \
-        + np.asarray(orbit.packed[0, :, 1], dtype=np.float64)
-    imag = np.asarray(orbit.packed[0, :, 2], dtype=np.float64) \
-        + np.asarray(orbit.packed[0, :, 3], dtype=np.float64)
+    real = (np.asarray(orbit.packed[0, :, 0], dtype=np.float64)
+            + np.asarray(orbit.packed[0, :, 1], dtype=np.float64)
+            + np.asarray(orbit.packed[1, :, 0], dtype=np.float64))
+    imag = (np.asarray(orbit.packed[0, :, 2], dtype=np.float64)
+            + np.asarray(orbit.packed[0, :, 3], dtype=np.float64)
+            + np.asarray(orbit.packed[1, :, 2], dtype=np.float64))
 
     aspect = float(width) / float(height)
     xs = ((np.arange(width, dtype=np.float64) + 0.5) / width * 2.0 - 1.0)

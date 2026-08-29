@@ -402,6 +402,6 @@ def test_the_depth_limit_matches_the_orbit_precision():
     noise -- "ends quickly in a verry pixelated image"."""
     from spacr.qt.widgets import fractal_mandelbrot as mb
 
-    assert mb.MAX_USEFUL_DEPTH <= 16.0
+    assert mb.MAX_USEFUL_DEPTH <= 23.0
     viewport = mb.scale_at(mb.MAX_USEFUL_DEPTH, mb.DEFAULTS["initial_scale"])
-    assert viewport > 2.2e-16 * 10
+    assert viewport > 4.2e-24 * 10

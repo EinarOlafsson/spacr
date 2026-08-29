@@ -224,3 +224,49 @@ def test_nothing_aims_the_dive_automatically():
     source = inspect.getsource(ft._make_gpu_widget)
     assert "_aim_once" not in source
     assert "a_more_interesting_anchor" not in source
+
+
+def test_the_mandelbrot_is_dragged_not_attracted():
+    """"when mouse gravity is on for mandelbrot it should only be drag and
+    drop... not pointer position."
+
+    The other three patterns are fields that can be warped toward a point.
+    A deep zoom is a camera: pulling its coordinates toward wherever the
+    mouse rests slides the picture continuously, which reads as the image
+    drifting away from you rather than as anything you did.
+    """
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    body = source[source.index("def _pointer_state"):]
+    body = body[:body.index("def on_resize")]
+
+    # The position-driven terms are withheld for this pattern only.
+    assert 'settings.pattern == "mandelbrot"' in body
+    assert "return pointer.x, pointer.y, 0.0, 0.0" in body
+    # And the others keep them.
+    assert "return pointer.x, pointer.y, pointer.pull, pointer.push" in body
+
+
+def test_the_pointer_is_still_sampled_so_the_drag_accumulates():
+    """Withholding pull and push must not stop the sampling: that is what
+    fills `drag_x`, which the steering consumes."""
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    body = source[source.index("def _pointer_state"):]
+    body = body[:body.index("def on_resize")]
+    sampled = body.index("self._pointer.sample(")
+    withheld = body.index('settings.pattern == "mandelbrot"')
+    assert sampled < withheld, (
+        "the pattern is checked before the pointer is sampled, so the drag "
+        "would never accumulate")
+
+
+def test_the_drag_is_read_after_the_pointer_is_sampled():
+    """Otherwise a drag is always one frame stale."""
+    import inspect
+
+    source = inspect.getsource(ft._make_gpu_widget)
+    assert source.index("self._pointer_state()") < \
+        source.index("self._mandelbrot_uniforms(elapsed)")
