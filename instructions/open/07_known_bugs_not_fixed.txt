@@ -2,6 +2,9 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
+Status: OPEN — mixed historical record; every deliberately left defect must
+        be re-audited and either fixed, explicitly accepted, or proven obsolete.
+
 Each of these was measured rather than suspected. Each has a reason for
 not being fixed, and the reason is the useful part -- otherwise the next
 person rediscovers it and makes the same call from scratch, or worse,

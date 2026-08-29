@@ -1079,11 +1079,9 @@ class SetupSlides(QDialog):
     def terms_were_read(self) -> bool:
         """Always ``True``: the acceptance is not gated on scrolling.
 
-        THE SCROLL GATE IS GONE. Asked for 2026-08-28: "change it so the
-        terms of service dont need to be scrolled through in the startup
-        window." Dragging a scroll bar to the bottom of a long document is
-        not reading it -- it is a ritual that delays the reader who does not
-        care and does nothing for the one who does.
+        THE SCROLL GATE IS GONE. Dragging a scroll bar to the bottom of a long
+        document does not prove it was read, so scrolling is not a condition
+        of acceptance.
 
         WHAT IS NOT GONE IS THE ACCEPTANCE. The full text is still on the
         page and still scrollable for anyone who wants it, the checkbox is

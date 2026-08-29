@@ -3864,7 +3864,15 @@ def measure_crop(settings):
                             settings=settings)
                         return
 
-                if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
+                # Secondary organelle slots beyond ``number_of_organelles``
+                # are intentionally absent from the settings mapping. Missing
+                # therefore means the same thing as an explicit ``None``:
+                # this run has no mask/minimum for that optional slot. Direct
+                # indexing made every ordinary one-organelle Measure demo die
+                # on the first undeclared slot (``organelleb_mask_dim``).
+                if not all(isinstance(settings.get(key), int)
+                           or settings.get(key) is None
+                           for key in int_setting_keys):
                     print(f"WARNING: {int_setting_keys} must all be integers")
                     raise_if_strict(
                         f"{int_setting_keys} must all be int or None. "

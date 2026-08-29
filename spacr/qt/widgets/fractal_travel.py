@@ -1,7 +1,7 @@
 """The spaceout fractal: a GPU shader when there is one, Numba otherwise.
 
-Ported from the maintainer's `fractal_travel.py` v2.1.0. Two renderers,
-not one engine with a switch:
+Ported from `fractal_travel.py` v2.1.0. Two renderers, not one engine with a
+switch:
 
 * **GPU** -- VisPy/gloo with a GLSL fragment shader, four spatial samples per
   physical pixel, and a detail loop that adapts from sampled GPU time.
@@ -213,6 +213,7 @@ class Pointer:
 
 
 def clamp(value: float, low: float, high: float) -> float:
+    """Return ``value`` limited to the inclusive ``low``/``high`` range."""
     return low if value < low else high if value > high else value
 
 
@@ -301,6 +302,11 @@ class RuntimeControls:
 
 @dataclass(frozen=True, slots=True)
 class HardwareProfile:
+    """CPU capacity used to choose a conservative automatic render quality.
+
+    :param logical_cpus: logical processors available to the application.
+    """
+
     logical_cpus: int
 
     @staticmethod
@@ -310,6 +316,18 @@ class HardwareProfile:
 
 def resolved_quality(requested: str, backend: str,
                      hardware: HardwareProfile) -> str:
+    """Resolve ``auto`` to a quality the selected backend can sustain.
+
+    Explicit quality names pass through unchanged. GPU auto mode uses the
+    balanced profile because GPU capacity is otherwise unknown; CPU auto mode
+    uses high only when at least sixteen logical processors are available.
+
+    :param requested: ``auto``, ``balanced``, ``high``, or a future explicit
+        quality name.
+    :param backend: resolved renderer backend, normally ``gpu`` or ``cpu``.
+    :param hardware: detected logical-CPU capacity.
+    :returns: the explicit quality name to apply.
+    """
     if requested != "auto":
         return requested
     if backend == "gpu":
@@ -1471,6 +1489,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 camera = getattr(self, "_camera", None)
                 if camera is not None:
                     camera.restart()
+                self._refine_due = None
+                self._refined = None
 
                 self._plan = None
                 self._steer_step = 0
@@ -1562,7 +1582,20 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                                    depth)
                 pointer.drag_x = 0.0
                 pointer.drag_y = 0.0
+                # THE REFERENCE FOLLOWS THE CAMERA. Perturbation measures
+                # every pixel as a small offset from ONE orbit, so a camera
+                # that walks away from it takes the picture with it:
+                # measured, a reference 0.3 away escapes at iteration six
+                # and the detail in the dragged view falls to nothing.
+                self._refine_due = 0.0
                 return here
+
+            # AND KEEPS FOLLOWING IT DOWN. Each refinement is picked out of
+            # the current view, and the view shrinks -- so a reference
+            # accurate to a pixel now is accurate to a hundredth of that two
+            # decades on. Measured: refining every decade holds the picture
+            # sharp to eleven, against one or two without.
+            self._refine_the_reference(camera, orbit, budget, depth, span)
 
             if str(_mandel_setting("path", "fixed")) != "guided":
                 # NO AUTOMATIC AIMING. Choosing a "more interesting" point
@@ -1611,6 +1644,62 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
             return camera.advance(time.perf_counter())
 
+        def _refine_the_reference(self, camera, orbit, budget, depth, span):
+            """Move the reference back onto the boundary, now and then.
+
+            Surveyed and rebuilt on a worker thread: the survey is a 96x54
+            escape map and the rebuild iterates the orbit at full precision,
+            neither of which belongs in a frame.
+            """
+            import threading
+
+            from .fractal_mandelbrot import (REFINE_EVERY,
+                                             best_reference_in_view,
+                                             rebased_orbit)
+
+            landed = getattr(self, "_refined", None)
+            if landed is not None:
+                self._refined = None
+                centre, fresh = landed
+                if fresh is not None:
+                    self._orbit = fresh
+                    # The camera is now sitting ON the new reference, so
+                    # its offset starts again from nothing.
+                    camera.centre = (0.0, 0.0)
+                    camera.target = None
+                self._refine_due = depth + REFINE_EVERY
+                return
+
+            if getattr(self, "_refine_thread_running", False):
+                return
+            due = getattr(self, "_refine_due", None)
+            if due is None:
+                self._refine_due = depth + REFINE_EVERY
+                return
+            if depth < due:
+                return
+
+            here = camera.centre
+            digits = int(_mandel_setting("precision_digits"))
+            ceiling = int(_mandel_setting("max_iterations"))
+            self._refine_thread_running = True
+
+            def _work():
+                try:
+                    offset = best_reference_in_view(
+                        orbit, here[0], here[1], span, int(budget))
+                    self._refined = rebased_orbit(
+                        orbit, offset[0], offset[1], digits, ceiling)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not refine the reference",
+                              exc_info=True)
+                    self._refined = (None, None)
+                finally:
+                    self._refine_thread_running = False
+
+            threading.Thread(target=_work, daemon=True,
+                             name="spacr-mandelbrot-refine").start()
+
         def _upload_the_orbit_if_it_arrived(self) -> None:
             """Put the finished orbit into the shader's texture.
 
@@ -1644,9 +1733,9 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             :returns: zeros when the pointer is not being followed, so a
                 shader can multiply by them unconditionally.
 
-            THE MANDELBROT IS DRAGGED, NOT ATTRACTED. Asked for 2026-08-28:
-            with mouse gravity on it should be "only be drag and drop", not
-            the pointer's POSITION pulling the view about.
+            THE MANDELBROT IS DRAGGED, NOT ATTRACTED. Mouse interaction moves
+            it only through drag input; the pointer's stationary position does
+            not pull the view about.
             
             The other three patterns are fields that can be warped toward a
             point and look right doing it. A deep zoom is a camera: pulling
@@ -1829,9 +1918,9 @@ def apply_saved_controls() -> int:
     :returns: how many were updated.
 
     THE BACKDROP KEEPS THE CONTROLS IT WAS BUILT WITH. Saving Preferences
-    wrote the new speed to the store and restarted the dive, and the running
-    `RuntimeControls` went on holding the old number -- which is why
-    "i change speed and nothing fucking happens". Reported 2026-08-28.
+    writes new values to the store, but an existing `RuntimeControls` object
+    otherwise continues holding its old values. This function synchronises
+    every live object so changes take effect immediately.
 
     Everything that can change while a backdrop is on screen is pushed here.
     What cannot -- the pattern, the backend, the shader -- still needs the

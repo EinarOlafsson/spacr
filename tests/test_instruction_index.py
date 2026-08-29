@@ -71,6 +71,24 @@ def test_duplicate_instruction_numbers_are_ordered_by_filename():
     assert rows == sorted(rows, key=lambda row: (int(row[0]), row[2]))
 
 
+def test_titles_are_read_from_both_instruction_formats():
+    """Recent concise records must not become blank index rows."""
+    tool = _tool()
+    assert tool._instruction_title(
+        ["=" * 80, "A STRUCTURED TITLE", "=" * 80], "305", "fallback"
+    ) == "A STRUCTURED TITLE"
+    assert tool._instruction_title(
+        ["304 — Release 1.5.0.5, archived on Zenodo", "", "Asked today"],
+        "304", "fallback"
+    ) == "Release 1.5.0.5, archived on Zenodo"
+
+
+def test_rendered_index_has_no_trailing_whitespace():
+    tool = _tool()
+    assert not [line for line in tool.render().splitlines()
+                if line != line.rstrip()]
+
+
 def test_codex_owned_open_files_are_marked_do_not_touch():
     """Two sessions editing one file is how work gets lost."""
     tool = _tool()

@@ -1,7 +1,7 @@
 """Real tests for :mod:`spacr.profiler`.
 
 The profiler's whole claim is that it works on the fitted object rather than
-on a re-fit, and that it works on ALL of them: seventeen backends whose
+on a re-fit, and that it works on ALL of them: twenty backends whose
 prediction APIs disagree in three different ways. So most of this file is
 parametrised over :data:`spacr.ml.REGRESSION_TYPES` with models fitted by
 :func:`spacr.ml.regression_model` itself, on a design with a planted
@@ -106,12 +106,12 @@ def _fit(regression_type, design):
 def test_the_backend_list_is_the_one_ml_publishes():
     from spacr.ml import REGRESSION_TYPES
 
-    # 19 since instruction 133 added 'group_lasso' and 'rra'. The names are
+    # Twenty after spline joined the inventory. The names are
     # asserted beside the count so this cannot go stale in the direction where
     # a backend is REMOVED and another added on the same day and the number
     # still matches.
-    assert len(REGRESSION_TYPES) == 19
-    assert {"group_lasso", "rra"} <= set(REGRESSION_TYPES)
+    assert len(REGRESSION_TYPES) == 20
+    assert {"group_lasso", "rra", "spline"} <= set(REGRESSION_TYPES)
 
 
 @pytest.mark.parametrize("regression_type", [

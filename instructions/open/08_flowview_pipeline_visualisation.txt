@@ -2,7 +2,7 @@
 FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
 ================================================================================
 
-Status:   specified, not started. REQUESTED AGAIN 2026-08-06 with
+Status:   OPEN — specified, not started. REQUESTED AGAIN 2026-08-06 with
           a placement decision -- see the note directly below.
 Source:   written by the maintainer; reproduced here in full and unedited
           below the line, because it is an implementation specification and

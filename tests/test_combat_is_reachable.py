@@ -45,7 +45,7 @@ import pytest
 #:
 #: ``test_this_list_is_every_module_that_corrects_batches`` below is what
 #: keeps the next one from being forgotten the same way.
-CORRECTS_BATCHES = ["umap", "ml_analyze", "regression", "classify_merged"]
+CORRECTS_BATCHES = ["umap", "regression", "classify_merged"]
 
 
 def test_this_list_is_every_module_that_corrects_batches():

@@ -179,11 +179,10 @@ def default_for(shape: str) -> str:
     :returns: a graph type from :data:`GRAPH_TYPES`.
     :raises KeyError: if ``shape`` is unsupported.
 
-    THE USER'S CHOICE COMES FIRST. Asked for 2026-08-28: the preference
-    "decides which graph is drawn FIRST", and right-click still changes it
-    afterwards. Every graph in spaCR reaches its starting form through this
-    one function, so honouring the preference here reaches all of them
-    rather than only the screen it was noticed on.
+    THE USER'S CHOICE COMES FIRST. The preference decides which compatible
+    graph is drawn first, and right-click can still change it afterwards.
+    Every graph in spaCR reaches its starting form through this function, so
+    the preference applies consistently across screens.
 
     A SAVED CHOICE THAT DOES NOT FIT THE DATA IS IGNORED. Someone who
     prefers bars has not asked for a bar of a continuous x against a

@@ -87,7 +87,7 @@ def test_organelle_defaults_cover_every_organelle_slot():
     """spaCR supports organelle, organelleb, organellec, organelled
     (instruction 76). A filler that only knows the first leaves the others
     unset, and the run fails much later with a missing key."""
-    filled = {}
+    filled = {"number_of_organelles": 4}
     S._set_organelle_defaults(filled)
 
     prefixes = {key.split("_")[0] for key in filled if key.startswith("organelle")}

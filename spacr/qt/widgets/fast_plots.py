@@ -1589,9 +1589,9 @@ class FastPlot(QWidget):
 
         SEPARATE FROM :meth:`offer_refit` DELIBERATELY, and the menu says so.
         These curves are laid over a fit that has already happened; none of
-        them replaces it, and none of them decides a hit. That is the whole
-        reason instruction 254 puts them in a different category from the
-        entries in ``regression_type``.
+        them replaces it, and none of them decides a hit. They therefore
+        belong to a different category from the inferential entries in
+        ``regression_type``.
         """
         self._smoothers = on_change
         self._smoother_chosen = str(chosen or "")
@@ -8913,4 +8913,3 @@ class ResultsTable(QWidget):
         if clipboard is not None:
             clipboard.setText(text)
         return text
-

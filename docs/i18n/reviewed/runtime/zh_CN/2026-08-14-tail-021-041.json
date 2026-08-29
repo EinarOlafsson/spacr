@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "organelled_channel",
-      "source_sha256": "babcf6421a6742cab45cda3688d5a931220320651027fdb080ea8d24fcb19e9f",
-      "source": "Zero-indexed raw acquisition channel segmented into organelle 4 masks by whichever organelled_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle 4 mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle 4 segmentation entirely. Default None.",
-      "translation": "从零开始编号的原始采集图像数据通道；由 organelled_method 选择的方法（otsu、adaptive、log、dog、ridge、hysteresis、cellpose、unet）把它分割为细胞器 4 掩模。设为整数会在 merged/ 中加入一个细胞器 4 掩模图像层，并在 GUI 中启用 Organelle 设置类别；设为 None 会完全跳过细胞器 4 分割。默认值为 None。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "outline_color",
       "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
       "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",

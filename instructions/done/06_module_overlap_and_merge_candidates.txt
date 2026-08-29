@@ -2,7 +2,7 @@
 MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
 ================================================================================
 
-Status:   measured and delivered. NO CODE WRITTEN, on purpose.
+Status:   DONE — measured and delivered. NO CODE WRITTEN, on purpose.
 Why:      which modules exist is a product decision, not a refactor.
 
 --------------------------------------------------------------------------------

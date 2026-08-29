@@ -8792,83 +8792,16 @@ MORPHOLOGY_FEATURES = (
 
 #: The feature group meaning "the shape of the object, whatever it was
 #: stained with". Spelled out because it is a value a user picks, not an
-#: implementation detail.
-MORPHOLOGY = 'morphology'
+#: implementation detail. Its canonical reader lives in the lightweight
+#: settings module so merely opening Classify does not import this module's
+#: torch/cv2/matplotlib stack.
+from .settings import (
+    FEATURE_SELECTION_MORPHOLOGY as MORPHOLOGY,
+    canonical_feature_selection as feature_selection,
+)
 
 #: Every group the panel offers, in the order it offers them.
 FEATURE_GROUPS = (0, 1, 2, 3, MORPHOLOGY)
-
-
-def feature_selection(value):
-    """What the user asked the model to look at, in canonical form.
-
-    ONE SETTING, FIVE SHAPES, because a user picking a feature space is
-    answering one question and the answer arrives from four different
-    doors: a chip strip in the panel, a settings CSV, a script, and the
-    module's own default.
-
-    Returns ``None`` for "every feature", an ``int`` for one channel, the
-    string ``'morphology'``, a free-text substring filter, or a list mixing
-    channels and morphology.
-
-    Accepted:
-
-    ==========================  ==========================================
-    ``None``, ``''``, ``[]``    every feature
-    ``'all'``                   every feature
-    ``1``, ``'1'``              channel 1
-    ``[1, 2]``, ``'1,2'``       channels 1 and 2 together
-    ``'morphology'``            shape only, any object
-    ``[1, 'morphology']``       channel 1's intensities AND the shapes
-    ``'mean_intensity'``        anything whose column name contains it
-    ==========================  ==========================================
-
-    A single-member list collapses to its member, so ``[1]`` and ``1`` name
-    the same feature space AND the same results folder -- otherwise the
-    panel's chip strip would quietly write its answers somewhere the older
-    integer setting never did.
-    """
-    if value is None:
-        return None
-    if isinstance(value, str):
-        text = value.strip()
-        if not text or text.lower() in ('all', 'none'):
-            return None
-        if text.lower() == MORPHOLOGY:
-            return MORPHOLOGY
-        if ',' in text:
-            return feature_selection([part for part in text.split(',')])
-        try:
-            return int(text)
-        except ValueError:
-            return text
-    if isinstance(value, bool):
-        # A checkbox that reached here is a mistake worth naming, because
-        # True would otherwise be read as channel 1.
-        raise ValueError(
-            f"channel_of_interest={value!r} is a boolean; it names no "
-            f"channel. Use a channel number, 'morphology', or None for "
-            f"every feature.")
-    if isinstance(value, (int, np.integer)):
-        return int(value)
-    if isinstance(value, (list, tuple, set)):
-        members = [feature_selection(item) for item in value]
-        members = [m for m in members if m is not None]
-        # Order-preserving de-duplication: the same group twice is the same
-        # feature space, and a permutation must not change the output path.
-        seen, unique = set(), []
-        for member in members:
-            key = (type(member).__name__, member)
-            if key not in seen:
-                seen.add(key)
-                unique.append(member)
-        if not unique:
-            return None
-        return unique[0] if len(unique) == 1 else unique
-    raise ValueError(
-        f"channel_of_interest={value!r} is a {type(value).__name__}; it "
-        f"must be a channel number, 'morphology', a column-name fragment, a "
-        f"list of those, or None for every feature.")
 
 
 def feature_columns(columns, selection):

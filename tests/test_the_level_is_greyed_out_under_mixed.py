@@ -135,10 +135,12 @@ def test_level_is_greyed_out_under_mixed_and_the_reason_says_why(level_rule):
     assert "kept and saved" in reason        # the value is not discarded
 
 
-def test_a_fresh_dict_greys_the_level_out_because_mixed_is_now_the_default(
+def test_a_fresh_nonparametric_dict_keeps_the_level_live(
         level_rule):
-    """The two halves of this instruction have to agree with each other."""
-    assert level_rule["predicate"](_regression_defaults(), {}) is False
+    """The permutation path reads level even though it fits no mixed model."""
+    settings = _regression_defaults()
+    assert settings["inference"] == "nonparametric"
+    assert level_rule["predicate"](settings, {}) is True
 
 
 @pytest.mark.parametrize("family", ["ols", "wls", "lasso", "quantile", "glm"])
@@ -158,11 +160,11 @@ def test_random_row_column_effects_greys_the_level_out_too(level_rule):
     assert "random_row_column_effects" in reason
 
 
-def test_the_rule_watches_both_settings_it_depends_on(level_rule):
+def test_the_rule_watches_every_setting_it_depends_on(level_rule):
     """`sources` is what the panel reconnects; a missing source means the
     control does not re-grey when that widget changes."""
     assert set(level_rule["sources"]) == {
-        "regression_type", "random_row_column_effects"}
+        "regression_type", "random_row_column_effects", "inference"}
 
 
 def test_the_other_modules_level_is_never_greyed_by_this_rule(level_rule):
@@ -185,7 +187,12 @@ def test_the_other_modules_level_is_never_greyed_by_this_rule(level_rule):
 
 def test_the_regression_panel_offers_the_three_levels_as_a_dropdown():
     built = convert_settings_dict_for_gui(_regression_defaults())
-    assert built["level"] == ("combo", ["both", "grna", "gene"], "both")
+    kind, options, default = built["level"]
+    assert kind == "combo"
+    assert [value for value, _label in options] == ["both", "grna", "gene"]
+    assert all(" — " in label and len(label) > len(value)
+               for value, label in options)
+    assert default == "both"
 
 
 def test_the_proportion_panels_keep_their_own_level_vocabulary():

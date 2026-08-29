@@ -80,11 +80,14 @@ def test_a_key_is_traced_back_to_the_slot_that_owns_it():
 
 def test_an_unreadable_number_keeps_the_file_openable():
     """A typo in one number may not cost the whole settings file."""
-    assert organelle_count({}) == 4
+    assert organelle_count({}) == 0
     assert organelle_count({"number_of_organelles": 7}) == 7
     assert organelle_count({"number_of_organelles": "7"}) == 7
-    assert organelle_count({"number_of_organelles": None}) == 4
-    assert organelle_count({"number_of_organelles": "seven"}) == 4
+    assert organelle_count({"number_of_organelles": None}) == 0
+    assert organelle_count({"number_of_organelles": "seven"}) == 0
+    assert organelle_count({
+        "number_of_organelles": "seven", "organelleb_channel": 2,
+    }) == 2
     # Above the cap it is clamped rather than raised, because the value came
     # off disk and the alternative is refusing to open the file.
     assert organelle_count({"number_of_organelles": 99}) == MAX_ORGANELLES
@@ -96,7 +99,8 @@ def test_an_unreadable_number_keeps_the_file_openable():
 
 def test_seven_yields_seven_slots_of_real_settings():
     """Not seven channels: seven copies of every organelle setting."""
-    four = S.set_default_settings_preprocess_generate_masks({"src": "/tmp/s"})
+    four = S.set_default_settings_preprocess_generate_masks(
+        {"src": "/tmp/s", "number_of_organelles": 4})
     seven = S.set_default_settings_preprocess_generate_masks(
         {"src": "/tmp/s", "number_of_organelles": 7})
 
@@ -272,9 +276,7 @@ def test_the_count_control_carries_the_number_the_file_holds(qapp):
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    panel = SettingsWidgets("mask")
-    panel._defaults = S.set_default_settings_preprocess_generate_masks(
-        {"src": "/tmp/s", "number_of_organelles": 7})
+    panel = SettingsWidgets("mask", current={"number_of_organelles": 7})
     panel.build_sections()
     assert panel._widgets["number_of_organelles"].currentText() == "7"
     assert panel.collect()["number_of_organelles"] == 7
@@ -286,7 +288,7 @@ def test_the_count_itself_is_declared_like_any_other_setting():
     assert S.categories["Organelle"][0] == "number_of_organelles"
     for factory in (S.set_default_settings_preprocess_generate_masks,
                     S.get_measure_crop_settings):
-        assert factory({"src": "/tmp/s"})["number_of_organelles"] == 4
+        assert factory({"src": "/tmp/s"})["number_of_organelles"] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -305,8 +307,7 @@ def test_the_panel_builds_a_control_for_every_slot_the_number_asks_for(qapp):
     from spacr.qt.screens.settings_model import SettingsWidgets
 
     def built_slots(defaults):
-        panel = SettingsWidgets("mask")
-        panel._defaults = defaults
+        panel = SettingsWidgets("mask", current=defaults)
         panel.build_sections()
         return panel, {role for key in panel._widgets
                        for role in [organelle_role_of(key)] if role}
@@ -338,8 +339,7 @@ def test_a_slot_the_panel_does_not_draw_still_reaches_the_run(qapp):
     lowered = S.set_default_settings_preprocess_generate_masks(
         dict(seven, number_of_organelles=2))
 
-    panel = SettingsWidgets("mask")
-    panel._defaults = lowered
+    panel = SettingsWidgets("mask", current=lowered)
     panel.build_sections()
     collected = panel.collect()
 

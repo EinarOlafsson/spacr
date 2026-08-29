@@ -1,10 +1,7 @@
 """Run well on a small machine without becoming a smaller application.
 
-THE RULE THIS FILE ANSWERS TO, in the maintainer's words: "just turning
-things of is one strategy, but my best case scenario is being able to keep
-as many features as possible just optimizing them so they also run on worse
-hardware." So this is the FALLBACK, reached after the optimisations, and it
-turns down what is decorative rather than removing what a module does.
+This is the fallback reached after normal optimisations. It turns down
+decorative rendering costs instead of removing application features.
 
 Nothing here changes what a run computes. Every setting it touches is
 about how the application is DRAWN.

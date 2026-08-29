@@ -3,7 +3,7 @@ statsmodels writes one for.
 
 THE CONTRACT IS THE DELIVERABLE, so the contract is what these tests assert.
 :func:`spacr.regression_summary.build_run_summary` returns every name in
-:data:`spacr.regression_summary.CONTRACT` for every one of the nineteen
+:data:`spacr.regression_summary.CONTRACT` for every one of the twenty
 :data:`spacr.regression_spec.REGRESSION_TYPES` crossed with both inferences,
 and each name is answered — with a number, or with a sentence saying why this
 mode cannot have one. A blank is not allowed and neither is a zero standing in
@@ -211,7 +211,7 @@ def ols_fit():
 
 
 # ---------------------------------------------------------------------------
-# 1. THE WHOLE PRODUCT. Nineteen types times two inferences, no hole.
+# 1. THE WHOLE PRODUCT. Every type times two inferences, no hole.
 # ---------------------------------------------------------------------------
 
 def _check_every_field_is_answered(summary):
@@ -254,7 +254,7 @@ def test_the_contract_holds_with_a_fitted_model_too(regression_type, inference,
     """The same product, with a real model attached.
 
     The model is an OLS fit whatever the type string says, and deliberately
-    so: what is being asserted is that the branch matrix — nineteen type
+    so: what is being asserted is that the branch matrix — twenty type
     strings against a model that DOES report an R2, a log-likelihood and a
     design matrix — never leaves a field unanswered. Reading a real fit is
     where the exceptions live; the type string is what chooses the sentence.

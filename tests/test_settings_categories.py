@@ -527,6 +527,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
+    "spline_knots", "spline_degree",
     "hinge_threshold", "hinge_n_boot",
     "lasso_n_boot", "lasso_selection_threshold",
     # HOW MANY ORGANELLE SLOTS the run has. The slots stopped being a fixed

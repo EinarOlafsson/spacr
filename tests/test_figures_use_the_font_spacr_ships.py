@@ -26,15 +26,17 @@ def test_registering_makes_the_name_resolvable():
 def test_a_drawn_figure_actually_uses_it():
     """Drive a real figure and read the face off the rendered text."""
     import matplotlib.pyplot as plt
+    from spacr.figure_style import GENERAL_DEFAULTS, rc_params
 
     figure_font.use_open_sans_for_figures()
-    fig, ax = plt.subplots()
-    try:
-        ax.set_title("title")
-        fig.canvas.draw()
-        chosen = ax.title.get_fontname()
-    finally:
-        plt.close(fig)
+    with plt.rc_context(rc_params(GENERAL_DEFAULTS)):
+        fig, ax = plt.subplots()
+        try:
+            ax.set_title("title")
+            fig.canvas.draw()
+            chosen = ax.title.get_fontname()
+        finally:
+            plt.close(fig)
 
     assert chosen == figure_font.FAMILY, (
         f"the title rendered in {chosen!r}, not {figure_font.FAMILY!r}")

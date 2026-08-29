@@ -1,0 +1,170 @@
+================================================================================
+THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
+================================================================================
+
+Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING.
+Owner:     packaging, startup, module loading, execution and resource cleanup.
+Precedes:  253's final sweep and every 1.5.0.5 publication action.
+Requested: 2026-08-28 — "make sure the pakeage loads and runs optimally"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Items 55, 262, 268, 282 and 284 already measured and improved startup,
+module construction, lazy imports and memory policy. Their dated measurements
+are evidence about those trees, not proof about the final release tree. Item
+282 also records one unfinished integration: the tested cleanup policy exists,
+but every live cache was not yet shown to consult it.
+
+This is a final installed-package audit. It must exercise a wheel or sdist in
+a clean environment as well as the checkout, because an editable import can
+make broken packaging look healthy. "Optimally" means within explicit budgets,
+with no known avoidable measured hotspot left unexplained; it does not mean an
+unsupported claim of a theoretical optimum.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-28 — CURRENT DEFECTS
+--------------------------------------------------------------------------------
+
+  * A wheel built from the frozen 1.5.0.4 tree installed and imported, but
+    ``packaging/online/smoke_installed.py`` crashed in Measure with
+    ``KeyError: 'organelleb_mask_dim'``. The pipeline indexed optional
+    secondary-organelle keys which are intentionally absent beyond
+    ``number_of_organelles``. Missing now means the same as explicit ``None``.
+    Five direct Measure/Crop end-to-end tests pass, and a newly built clean
+    wheel completed the installed one-field Measure smoke. This finding is
+    fixed in the working tree; the final frozen artifact still has to repeat
+    that proof with the rest of this item.
+  * Merely opening ``classify_merged`` grew a fresh process from 263.4 MB / 508
+    modules to 1031.5 MB / 5,318 modules and imported torch, cv2, IPython and
+    matplotlib.pyplot. The chained-bar applicability refresh canonicalised
+    ``channel_of_interest`` by importing ``spacr.utils.feature_selection``.
+    The canonical reader now lives in lightweight ``spacr.settings`` and
+    ``spacr.utils`` re-exports that one implementation. Re-driven through the
+    actual navigation path: 0.774 seconds, 369.8 MB, and none of
+    ``spacr.utils``, torch, torchvision, cv2, IPython or matplotlib.pyplot was
+    imported. A fresh-process regression test drives the same path.
+  * The actual ``spacr.qt.run`` entry point still imports pandas while building
+    the theme stylesheet: widget-QSS discovery imports the Annotate screen,
+    which imports linked selection, which imports pandas. A direct
+    ``MainWindow`` probe misses this path and is therefore not a launch test.
+  * The timing clock starts inside ``launch()``, after ``spacr.qt.run`` has
+    imported the app and registered modules. Its "entering event loop" mark is
+    also before the first paint/event, so neither boundary proves interactive
+    Home time.
+  * The existing performance artifact sampled six modules while the live app
+    registry contains 44. It cannot support the claim that every module meets
+    the budget.
+  * ``resource_cleanup.what_to_drop`` and ``headroom_is_short`` have no
+    production callers. The declared laptop live-figure allowance is five,
+    while ``FigureQueue.live_figure_cap()`` still returns 20 from a separate
+    preference. Item 282's own trailing record says this wiring remains.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A package that imports in the checkout but fails after installation is not a
+working release. A package that eventually opens while blocking the event loop,
+eagerly importing unused scientific stacks, or retaining unbounded caches is
+not usable on the laptops, workstations and servers spaCR promises to support.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. BUILD AND INSTALL THE ACTUAL ARTIFACTS
+
+Build the wheel and sdist from a clean frozen tree. Install them without the
+checkout on ``sys.path`` in every supported Python/OS CI cell. Assert the
+resolved ``spacr.__file__`` and drive the public import, command entry points,
+Home screen and representative pipelines. Inventory the files in the artifacts
+so packaging omissions cannot hide behind an editable installation.
+
+2. MEASURE THE REAL USER PATH
+
+Record cold and warm process-start-to-interactive-Home time, every registered
+module's click-to-interactive time, peak RSS, GPU allocation where applicable,
+and worst event-loop/frame interval. Use the in-application timing seam rather
+than constructor-only or import-only proxies. Record the hardware/software
+profile beside every result.
+
+The artifact's app-key set must equal the live registry exactly. Readiness is
+the first painted, enabled and usable control state, not constructor return or
+the point immediately before entering the event loop.
+
+The accepted lower-end reference budgets remain at most 5.0 seconds to an
+interactive Home screen and 10.0 seconds for every module to become
+interactive. During either interval there must be no event-loop stall of 500
+ms or longer. Report every module individually; an average cannot hide one
+unusable module.
+
+3. LOAD HEAVY LIBRARIES AT THE OPERATION BOUNDARY
+
+In fresh processes, assert that opening spaCR or a configuration screen does
+not import training, segmentation, GPU or model stacks until the operation
+that uses them runs. Preserve capabilities and errors: speed cannot be bought
+by silently omitting an optional feature or reporting readiness before the
+controls work.
+
+The phase audit explicitly includes the real ``spacr.qt.run`` entry point and
+``classify_merged``. Startup must not import pandas, scipy, sklearn, torch or
+equivalent pipeline stacks; opening Classify must not import its training
+stack, opening Mask must not import its segmentation stack, and opening
+Regression must not import a fitting stack.
+
+4. WIRE THE RESOURCE BUDGET TO REAL CACHES
+
+Audit decoded-image, figure, merged-data, model-weight, allocator and GPU
+caches. The idle timeout, cache ceiling and free-memory floor from item 282
+must govern each applicable live cache, with bounded cleanup and observable
+accounting. Do not claim Python extension libraries can be unloaded; release
+only state that the runtime can honestly return or evict.
+
+5. PROFILE BEFORE CHANGING CODE
+
+Profile startup, the slowest module opens and representative pipelines. Fix
+avoidable work in descending measured cost. Any hotspot responsible for at
+least 10% of one accepted path must be removed, reduced, moved safely off the
+GUI thread, or retained with a written correctness/complexity reason and its
+measured cost. Scientific results from optimized and reference paths must
+agree under the existing reproducibility tolerances.
+
+6. KEEP THE RESULT RATCHETED
+
+Check correctness in required CI and publish reproducible timing/resource
+artifacts. Put stable structural guarantees in ordinary tests; use explicit
+hardware-normalized thresholds for performance so noisy runners neither fail
+randomly nor permit an unbounded regression.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a clean wheel and sdist install, import and launch in every supported CI
+    environment, with ``spacr.__file__`` resolving inside that installation;
+  * the installed Home screen is interactive within 5.0 seconds and every
+    registered module within 10.0 seconds on the documented lower-end profile;
+  * the benchmark app keys equal the live registry exactly, and readiness is
+    observed after first paint with usable controls rather than inferred;
+  * the complete click-to-ready traces contain no event-loop stall of 500 ms
+    or longer, and report cold/warm time, peak RSS and the slowest frame gap;
+  * fresh-process ``sys.modules`` checks prove unused heavy dependencies are
+    absent until their operation boundary;
+  * every applicable live cache obeys the configured timeout, ceiling and
+    headroom policy in tests using real registered entries, a controlled clock,
+    measured sizes and headroom; in-use entries survive, and laptop/workstation
+    profiles change the real caps while producing equivalent scientific output;
+  * profiles and dispositions account for every >=10% hotspot on an accepted
+    path, and the benchmark artifact names every retained cost honestly;
+  * required CI contains guards for artifact contents, installed execution,
+    lazy imports, resource cleanup, responsiveness and performance regression.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not promise to unload imported Python extension libraries; CPython cannot
+reliably do that. Do not lower scientific quality, skip supported modules, or
+precompute hidden work before timing begins to make a benchmark look faster.

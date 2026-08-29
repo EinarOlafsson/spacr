@@ -165,9 +165,9 @@ def refuse(name: str, *, rows: int = 0, ordered: bool = True,
 class Curve:
     """A fitted curve to draw over a scatter, and what it is.
 
-    NEVER A HIT LIST. `p_values` does not exist on this object on purpose:
-    a diagnostic that could be mistaken for a test is the thing instruction
-    254 says is worse than not offering the method at all.
+        NEVER A HIT LIST. `p_values` does not exist on this object on purpose:
+        a diagnostic that could be mistaken for an inferential test would be
+        more misleading than omitting the method.
     """
 
     method: str
@@ -267,10 +267,10 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
 class Agreement:
     """Two rankings of the same guides, and where they disagree.
 
-    THE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. Instruction 212
-    said what the point is: "IS THIS EFFECT THE DATA, OR IS IT THE MODEL?
-    Two fits agreeing is worth more than either alone, and where they
-    disagree the disagreement is itself the finding."
+        THE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. It asks whether an
+        effect is supported by the data or induced by the model: agreement
+        strengthens the result, while disagreement is itself a finding to
+        inspect.
     """
 
     method: str

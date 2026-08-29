@@ -31,34 +31,6 @@
       "translation": "Placa, poço, classe, nome do ficheiro…"
     },
     {
-      "table": "setting_tooltips",
-      "key": "organelle_morphology",
-      "source_sha256": "d478357f7cc9517ec8b85fa3e7a75fd967af1f6233bc8bb9a5547999d8f02370",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "Família de formas do organelo alvo; seleciona o fluxo de segmentação e restringe os valores válidos de organelle_method. 'spots' designa estruturas pontuais, como vesículas e gotículas lipídicas; 'network' designa estruturas filamentosas, como mitocôndrias e túbulos do retículo endoplasmático; 'irregular' designa estruturas sólidas irregulares, como o aparelho de Golgi e lisossomas; e 'ring' designa estruturas ocas, como endossomas e autofagossomas. Uma combinação de morfologia e método incompatível gera um erro antes do carregamento das imagens. Padrão 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelleb_morphology",
-      "source_sha256": "af54ac24514b77aaff8a440cccd92f9881cf812d689946a1b2dc4d2704367b35",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelleb_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "Família de formas do organelo alvo; seleciona o fluxo de segmentação e restringe os valores válidos de organelleb_method. 'spots' designa estruturas pontuais, como vesículas e gotículas lipídicas; 'network' designa estruturas filamentosas, como mitocôndrias e túbulos do retículo endoplasmático; 'irregular' designa estruturas sólidas irregulares, como o aparelho de Golgi e lisossomas; e 'ring' designa estruturas ocas, como endossomas e autofagossomas. Uma combinação de morfologia e método incompatível gera um erro antes do carregamento das imagens. Padrão 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organellec_morphology",
-      "source_sha256": "7565cf3851b7dfa129f041ec3dd63e879c30e04498d9972215dd989781530b53",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organellec_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "Família de formas do organelo alvo; seleciona o fluxo de segmentação e restringe os valores válidos de organellec_method. 'spots' designa estruturas pontuais, como vesículas e gotículas lipídicas; 'network' designa estruturas filamentosas, como mitocôndrias e túbulos do retículo endoplasmático; 'irregular' designa estruturas sólidas irregulares, como o aparelho de Golgi e lisossomas; e 'ring' designa estruturas ocas, como endossomas e autofagossomas. Uma combinação de morfologia e método incompatível gera um erro antes do carregamento das imagens. Padrão 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_morphology",
-      "source_sha256": "d80216c1efa21f7834cb21b867140ef7c75a2e5154d623d29e18237e4797f61a",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelled_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "Família de formas do organelo alvo; seleciona o fluxo de segmentação e restringe os valores válidos de organelled_method. 'spots' designa estruturas pontuais, como vesículas e gotículas lipídicas; 'network' designa estruturas filamentosas, como mitocôndrias e túbulos do retículo endoplasmático; 'irregular' designa estruturas sólidas irregulares, como o aparelho de Golgi e lisossomas; e 'ring' designa estruturas ocas, como endossomas e autofagossomas. Uma combinação de morfologia e método incompatível gera um erro antes do carregamento das imagens. Padrão 'spots'."
-    },
-    {
       "table": "ui",
       "key": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
       "source_sha256": "6d2971f9d8239a5ba4ef8dd76284995fb6706f8ad93929863bcd9cb5e093b000",

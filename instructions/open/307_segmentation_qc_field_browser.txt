@@ -2,6 +2,8 @@
 SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
 ================================================================================
 
+Status: OPEN — the field browser and reversible quarantine are not built.
+
 Feature request, scoped against the code on 2026-08-06 but NOT built.
 
 What the user asked for:

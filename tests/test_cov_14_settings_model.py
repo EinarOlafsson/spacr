@@ -563,12 +563,13 @@ def test_a_canonical_reader_that_fails_leaves_the_value_alone(monkeypatch):
     Start button -- down with it. The handler contains the failure and notes
     it through the module's own logger.
     """
-    from spacr import utils
+    from spacr import settings
 
     def _explode(value):
         raise RuntimeError("cannot canonicalise that")
 
-    monkeypatch.setattr(utils, "feature_selection", _explode, raising=False)
+    monkeypatch.setattr(
+        settings, "canonical_feature_selection", _explode, raising=False)
 
     widgets = sm.SettingsWidgets("regression")
 

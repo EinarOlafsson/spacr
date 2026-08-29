@@ -130,7 +130,7 @@ def test_a_settings_file_written_before_the_type_existed_says_nothing():
 def test_measure_offers_the_type_for_every_slot():
     """Measure cannot answer the question without being told what it is
     measuring, and the mask module's copy never reaches a measure run."""
-    defaults = S.get_measure_crop_settings({})
+    defaults = S.get_measure_crop_settings({"number_of_organelles": 4})
     from spacr.object_roles import ORGANELLE_ROLES
     for role in ORGANELLE_ROLES:
         assert defaults[f"{role}_type"] == S.DEFAULT_ORGANELLE_TYPE
@@ -172,7 +172,8 @@ def test_the_type_is_on_the_measure_panel_and_not_in_a_leftover_bucket(qapp):
     layout = categories_for_app("measure", S.categories)
     assert "organelle_type" in layout["Mask & Channel Mapping"]
 
-    sections = SettingsWidgets("measure").build_sections()
+    sections = SettingsWidgets(
+        "measure", current={"number_of_organelles": 1}).build_sections()
     titles = [title for title, _rows in sections]
     assert "Additional Settings" not in titles and "Other" not in titles
     mapping = dict(sections)["Mask & Channel Mapping"]

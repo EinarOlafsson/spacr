@@ -1,0 +1,191 @@
+================================================================================
+THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
+================================================================================
+
+Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING.
+Owner:     public API prose, settings tooltips, documentation and i18n catalogs.
+Precedes:  253's final sweep and every 1.5.0.5 publication action.
+Requested: 2026-08-28 — "sweep the tool tips and API and make sure the API
+           and tooltips are properly translated"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Items 61, 63, 65, 83 and 112 built and audited the English API, tooltips,
+docstrings and translated catalogs. Their counts are dated snapshots. The
+public surface has continued to change, so passing an old count or preserving
+a stale source hash is not evidence that the final release is complete or
+correct.
+
+This instruction is a source-to-rendered-output sweep on the final tree. It
+checks meaning as well as presence: a translated sentence can be complete,
+fresh and wrong in context, and an English tooltip can satisfy a length test
+while describing a default the code no longer uses.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-28 — CURRENT DEFECTS ON THE FROZEN HEAD
+--------------------------------------------------------------------------------
+
+The first source-to-rendered audit found that the existing headline coverage
+report is comparing generated catalogs to generated English manifests rather
+than to current source, so its 100% is not a current-source measurement:
+
+  * live runtime source has 4,462 entries, while each generated catalog has
+    4,880. Strict audit reports 224 stale setting labels, 224 stale tooltips,
+    33 missing UI strings, three stale UI strings and source-hash drift per
+    locale;
+  * 63 reviewed-runtime evidence rows in Spanish, Icelandic, Korean,
+    Portuguese and Simplified Chinese refer to removed organelle keys. Both
+    catalog audit commands abort on the first stale reviewed record;
+  * the live public API inventory has 8,602 canonical symbols plus 119 aliases,
+    but every API catalog is missing 81 current canonical symbols. The checked
+    coverage report is older still;
+  * three top-level public objects have no docstring, 12 public docstrings
+    expose private instruction/date/maintainer history, and a clean render
+    leaks 47 raw reStructuredText markers across 28 pages;
+  * a warning-as-error Sphinx build reaches every page but exits with two
+    AutoAPI ``Unknown type: placeholder`` warnings caused by duplicate imports
+    in ``spacr/qt/screens/trellis.py``. The current workflow ignores that exit
+    code whenever ``index.html`` exists, so it is not actually a ``-W`` gate;
+  * the current public-member boundary is only top-level definitions. An AST
+    inventory finds 860 public-named class members without docstrings and 195
+    documented functions whose ``:param:`` fields omit 518 real parameters;
+    these need classification before a claim about the whole API is possible;
+  * the objective English tooltip suite is green and a fresh build resolves
+    all 763 emitted links. Do not invent a link defect. Twelve ``KNOWN_THIN``
+    exceptions remain unverified, units are not guarded, and default checks
+    look only for the word rather than equality with the live default;
+  * unexplained exact-English UI translations remain for ``Tutorial`` in
+    German, Spanish and Portuguese, and ``Documentation`` in French.
+
+These counts describe the frozen head before work on this instruction. The
+final source inventory will move while defects are repaired, so regenerate all
+counts together on the final tree rather than copying these numbers into a
+ratchet.
+
+--------------------------------------------------------------------------------
+PROGRESS 2026-08-28 — LIVE-INVENTORY COVERAGE MEASUREMENT
+--------------------------------------------------------------------------------
+
+``tools/audit_i18n_coverage.py`` now extracts runtime entries with
+``canonical_sources()`` and API entries with ``public_docstrings()``. A target
+entry counts only when its key exists and its stored hash matches that live
+English source; orphaned runtime and API records are reported separately.
+
+``tests/test_i18n_coverage_audit.py`` supplies an invalid generated English API
+manifest, refuses any import of the generated English runtime catalog, and
+proves that source-stale target records do not count as current or translated.
+The real report is therefore red against the catalogs still awaiting final
+regeneration instead of reproducing their stale 100% denominator. Catalogs
+were deliberately not regenerated while source and docstring repairs remain in
+flight.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The tooltip is often the only explanation beside a scientific setting. A
+wrong default, unit, option or API link can yield plausible but incorrect
+analysis. The same defect in a translated catalog reaches only one locale and
+can escape an English-only test run. API documentation is a public contract
+and must describe the code that ships.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. INVENTORY THE WHOLE SURFACE FROM SOURCE
+
+Generate one canonical inventory of every public module, class, function,
+method and parameter; every registered setting tooltip; and every supported
+locale. Compare that inventory with the built package, documentation pages,
+runtime catalogs and API catalogs. Missing, duplicated, orphaned or stale
+entries are failures, not fallback successes.
+
+``tools/audit_i18n_coverage.py`` must compare catalogs to this live inventory,
+not to another generated manifest which can be stale in the same direction.
+
+2. CHECK THE ENGLISH CONTRACT AGAINST THE CODE
+
+Verify signatures, parameter names, return/error behavior, defaults, choices,
+units and cross-references against their implementations. Every setting has a
+useful tooltip in the established house shape, declares its type and actual
+default, names a unit when one applies, explains conditional applicability,
+and links only to a real canonical API page in a fresh documentation build.
+
+Rewrite only prose with a concrete defect. Keep user-facing text directed at
+the user, concise enough to scan, specific enough to choose a value, and free
+of private development history or instruction references.
+
+Define the public class-member boundary explicitly before measuring it. Once
+defined, parameter documentation is checked in both directions: no ghost
+``:param:`` names and no undocumented required public parameters.
+
+3. CHECK EVERY TRANSLATION FOR COMPLETENESS AND MEANING
+
+For every supported language, require source-current entries for the API and
+tooltips. Check placeholder and markup parity, protected scientific/database
+identifiers, URLs, option literals and the spaCR wordmark mechanically. Treat
+text identical to English as untranslated unless it is on a reviewed
+reasoned allowlist. Review domain terms and context-sensitive words in their
+actual rendered sentence; a dictionary-valid but scientifically wrong word
+is a defect.
+
+Translations remain in external locale files, not inside Python docstrings.
+Unsafe or low-confidence scientific prose must fall back explicitly and be
+reported, rather than being counted as translated.
+
+4. DRIVE THE RENDERED EXPERIENCE
+
+Build the documentation from an empty output directory with warnings treated
+as errors. Exercise the language selector and runtime language switching on
+representative settings-heavy modules, then verify that tooltip text, API
+navigation, formatting, links and fallbacks are readable in the actual UI and
+rendered pages. Record which content was reviewed by a person or language
+model, the sampling method, and the exact remainder; do not call an unnamed
+sample an exhaustive sweep.
+
+5. KEEP THE RESULT RATCHETED
+
+Run the inventory, freshness, signature/default, placeholder, protected-term,
+untranslated-entry, link-resolution and documentation-build checks in required
+CI. A new public symbol, setting or locale entry must fail until its English
+contract and all required catalogs are current.
+
+The documentation workflow must honor the warning-as-error Sphinx exit code;
+the existence of a partially built ``index.html`` cannot convert a red build
+to green. The real catalogs, not two-symbol synthetic fixtures alone, must be
+driven through the runtime and browser language selectors.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * source, package, documentation, tooltip and locale inventories agree, with
+    zero missing, duplicate, orphaned or stale required entries;
+  * every public signature/default/cross-reference check passes against the
+    implementation, and a clean warning-as-error documentation build succeeds;
+  * every tooltip has the correct type and default, a unit where applicable,
+    accurate applicability text and a link that resolves in that fresh build;
+  * every former ``KNOWN_THIN`` exception has been verified and either fixed
+    or replaced by a narrowly reasoned invariant rather than a blanket waiver;
+  * every supported API and tooltip catalog has current source hashes, matching
+    placeholders/markup and protected identifiers, with zero unexplained
+    English-identical or low-confidence entries;
+  * runtime language switching and the documentation language selector show
+    the translated text and safe fallbacks in the rendered UI/pages;
+  * a written review report names the languages and exact proportion reviewed,
+    lists every explicit fallback or allowlisted untranslated term, and records
+    the disposition of every defect found;
+  * all mechanical guarantees run in required CI and fail when a synthetic
+    stale docstring, missing tooltip translation or broken API link is added.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not translate database column names, setting keys, code literals, object
+roles or scientific identifiers whose spelling is part of the data contract.
+Do not count an English fallback as a completed translation, and do not insert
+translated API prose into the Python source beside the canonical English.

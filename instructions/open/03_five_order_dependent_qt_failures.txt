@@ -2,7 +2,7 @@
 FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
 ================================================================================
 
-Status:   not diagnosed. Two leaks of the same family ARE closed; start there.
+Status:   OPEN — later leaks were fixed, but the combined suite is still red.
 Severity: test-only. None of these affects the running application.
 
 --------------------------------------------------------------------------------
@@ -247,3 +247,21 @@ as a leak. Two false positives cost an hour that way.
   thread happened to be in, which was find_contours. That is not the culprit;
   the culprit is that it ran off the main thread at all. Do not go hunting in
   skimage.
+
+--------------------------------------------------------------------------------
+2026-08-28 — RETURNED TO THE LIVE QUEUE
+--------------------------------------------------------------------------------
+
+The legacy record was found outside both ``open/`` and ``done/`` and was
+re-driven before being classified. This combined-order command is red:
+
+    xvfb-run -a python -m pytest -q -p no:randomly \
+      tests/qt/test_photo_themes.py tests/qt/test_polish.py \
+      tests/qt/test_all_module_smoke.py tests/qt/test_cov_qt_app.py
+
+Result: 82 failed, 238 passed. The process ended with 6,637 live widgets and
+825 top-level windows. Many smoke factories returned ``None`` after earlier
+tests, and later launch tests inherited a monkeypatched ``threading`` object
+without ``Event``. This is direct evidence of order-dependent global state;
+the precise polluters and all independent failure families still need to be
+isolated rather than treating the first traceback as the cause of all 82.

@@ -64,19 +64,42 @@ STAGE: Dict[str, str] = {
 }
 
 
-def _entries(folder: str) -> List[Tuple[str, str, str]]:
-    """``(number, title, filename)`` for one folder, in numeric order.
+def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
+    """Return a title from either instruction format used in the ledger.
 
-    The title is line 2 of the file, which is the convention every
-    instruction follows -- line 1 and line 3 are the ``====`` rules.
+    Older records put an uppercase title between ``====`` rules. Recent
+    records begin directly with ``NNN — Title``. The index used to assume
+    only the first form, which silently produced blank rows as soon as the
+    second form reached ``open/`` or ``done/``.
     """
+    if (len(lines) >= 3 and lines[0].strip()
+            and set(lines[0].strip()) == {"="} and lines[1].strip()):
+        return lines[1].strip()
+
+    prefix = f"{number} —"
+    for line in lines:
+        candidate = line.strip()
+        if not candidate:
+            continue
+        if candidate.startswith(prefix):
+            title = candidate[len(prefix):].strip()
+            if title:
+                return title
+        if set(candidate) <= {"=", "-"}:
+            continue
+        return candidate
+    return fallback
+
+
+def _entries(folder: str) -> List[Tuple[str, str, str]]:
+    """``(number, title, filename)`` for one folder, in numeric order."""
     out = []
     for path in (INSTRUCTIONS / folder).glob("*.txt"):
         number = path.name.split("_", 1)[0]
         if not number.isdigit():
             continue
         lines = path.read_text(errors="replace").splitlines()
-        title = lines[1].strip() if len(lines) > 1 else path.stem
+        title = _instruction_title(lines, number, path.stem)
         out.append((number, title, path.name))
     # Instruction 84 exists twice, so the numeric id is not a unique sort
     # key.  ``Path.glob`` preserves the filesystem's directory-entry order,
@@ -144,7 +167,7 @@ def render(today: str = "") -> str:
         "",
     ]
     for number, title, name in open_rows:
-        lines.append(f"  {number:>3}  {title}")
+        lines.append(f"  {number:>3}  {title}".rstrip())
         note = _note_for(number)
         if note:
             lines.append(f"       {note}")
@@ -153,7 +176,7 @@ def render(today: str = "") -> str:
 
     lines += ["-" * 80, "DONE", "-" * 80, ""]
     for number, title, _name in done_rows:
-        lines.append(f"  {number:>3}  {title}")
+        lines.append(f"  {number:>3}  {title}".rstrip())
     lines.append("")
     return "\n".join(lines)
 

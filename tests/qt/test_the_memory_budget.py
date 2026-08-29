@@ -3,6 +3,10 @@ from __future__ import annotations
 
 import sys
 import time
+import os
+import subprocess
+import textwrap
+from pathlib import Path
 
 import pytest
 from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox
@@ -28,6 +32,48 @@ def test_a_session_that_opens_no_deep_learning_module_never_imports_torch(
             "opening ordinary modules pulled in 477 MB of torch")
     finally:
         win.close()
+
+
+def test_opening_classify_does_not_import_its_operation_stack():
+    """Collecting a configuration form must not allocate the training stack.
+
+    This is a fresh process because ``sys.modules`` is the assertion and any
+    earlier ML test would make a same-process pass or failure meaningless.
+    It drives the real navigation/chaining path: the regression was caused by
+    the chaining bar collecting every setting, not by constructing the bare
+    ``SettingsWidgets`` in isolation.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    script = textwrap.dedent(
+        f"""
+        import os, sys
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        from pathlib import Path
+        from PySide6.QtWidgets import QApplication
+        import spacr
+        assert Path(spacr.__file__).resolve().is_relative_to(
+            Path({str(repo)!r}).resolve())
+        from spacr.qt.app import MainWindow
+        app = QApplication.instance() or QApplication([])
+        win = MainWindow()
+        win._on_nav_selected('classify_merged')
+        app.processEvents()
+        forbidden = {{
+            'spacr.utils', 'torch', 'torchvision', 'cv2', 'IPython',
+            'matplotlib.pyplot',
+        }}
+        imported = sorted(forbidden.intersection(sys.modules))
+        win.close()
+        assert not imported, imported
+        """
+    )
+    env = os.environ.copy()
+    env["QT_QPA_PLATFORM"] = "offscreen"
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=str(repo), env=env,
+        capture_output=True, text=True, timeout=45,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_every_level_has_a_recommendation_and_the_hardware_it_suits():

@@ -5,12 +5,14 @@ import logging
 import sys
 import os, ast
 from copy import deepcopy
+from numbers import Integral
 from .organelle_types import (ALL_ORGANELLE_ROLES,
                               DEFAULT_NUMBER_OF_ORGANELLES,
                               DEFAULT_TYPE as DEFAULT_ORGANELLE_TYPE,
                               NUMBER_OF_ORGANELLES, active_organelle_roles,
                               apply_preset, declared_organelle_roles,
-                              organelle_number, organelle_slot_label,
+                              organelle_count, organelle_number,
+                              organelle_slot_label,
                               slot_setting)
 
 LOG = logging.getLogger(__name__)
@@ -25,6 +27,72 @@ LOG = logging.getLogger(__name__)
 #: many slots a run actually shows is `number_of_organelles`, read through
 #: :func:`spacr.organelle_types.active_organelle_roles`.
 ORGANELLE_SLOT_ROLES = ALL_ORGANELLE_ROLES
+
+#: The feature-group value meaning shape measurements rather than an image
+#: channel. Kept in this lightweight settings module because a configuration
+#: screen must be able to canonicalise its own value without importing the
+#: training/image stack in ``spacr.utils``.
+FEATURE_SELECTION_MORPHOLOGY = 'morphology'
+
+
+def canonical_feature_selection(value):
+    """Return ``channel_of_interest`` in the one form spaCR stores.
+
+    ``None``, an empty value and ``'all'`` mean every feature. One channel is
+    an integer, several channels are an order-preserving list, morphology is
+    the literal ``'morphology'``, and other strings are column-name filters.
+    A one-member collection collapses to its member so the settings panel
+    cannot turn channel ``3`` into a different results path named ``[3]``.
+
+    This function deliberately uses only the standard library. It runs while
+    configuration widgets are collected, before the user starts a pipeline;
+    importing numpy/torch/cv2 merely to normalise a combo-box answer made
+    opening Classify allocate hundreds of megabytes.
+
+    :param value: scalar, string, or collection supplied by a settings widget,
+        CSV, script or default.
+    :returns: ``None``, an integer, a string, or an order-preserving list.
+    :raises ValueError: when the value cannot name a feature selection.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+        if not text or text.lower() in ('all', 'none'):
+            return None
+        if text.lower() == FEATURE_SELECTION_MORPHOLOGY:
+            return FEATURE_SELECTION_MORPHOLOGY
+        if ',' in text:
+            return canonical_feature_selection(
+                [part for part in text.split(',')])
+        try:
+            return int(text)
+        except ValueError:
+            return text
+    if isinstance(value, bool):
+        # bool is an Integral, but True is not an honest spelling of channel 1.
+        raise ValueError(
+            f"channel_of_interest={value!r} is a boolean; it names no "
+            "channel. Use a channel number, 'morphology', or None for "
+            "every feature.")
+    if isinstance(value, Integral):
+        return int(value)
+    if isinstance(value, (list, tuple, set)):
+        members = [canonical_feature_selection(item) for item in value]
+        members = [member for member in members if member is not None]
+        seen, unique = set(), []
+        for member in members:
+            key = (type(member).__name__, member)
+            if key not in seen:
+                seen.add(key)
+                unique.append(member)
+        if not unique:
+            return None
+        return unique[0] if len(unique) == 1 else unique
+    raise ValueError(
+        f"channel_of_interest={value!r} is a {type(value).__name__}; it "
+        "must be a channel number, 'morphology', a column-name fragment, a "
+        "list of those, or None for every feature.")
 
 
 def _organelle_slot_key(key, role):
@@ -1099,6 +1167,10 @@ def get_measure_crop_settings(settings=None):
     """
     if settings is None:
         settings = {}
+    # Infer a pre-count settings file before defaults add placeholder
+    # ``organelle_*`` keys. Once those placeholders exist they cannot be
+    # distinguished from a legacy file that genuinely requested slot one.
+    _requested_organelle_count = organelle_count(settings)
     # Coerce bracketed strings (e.g. channels "[0,1,2,3]" imported from a CSV) back into
     # Python lists/tuples. The Qt drag-and-drop settings import reads CSV cells as raw
     # strings and does not run them through check_settings(), so without this measure_crop
@@ -1206,8 +1278,18 @@ def get_measure_crop_settings(settings=None):
     # side does, because it is the same objects being measured: a run that
     # segmented five organelles has five sets of masks to measure and a panel
     # that offered two would leave three of them unreachable.
-    settings.setdefault(NUMBER_OF_ORGANELLES, DEFAULT_NUMBER_OF_ORGANELLES)
+    settings.setdefault(NUMBER_OF_ORGANELLES, _requested_organelle_count)
     for _role in declared_organelle_roles(settings)[1:]:
+        settings.setdefault(f'{_role}_mask_dim', None)
+        settings.setdefault(f'{_role}_min_size', 0)
+        settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
+    # The measurement schema currently has four concrete organelle object
+    # tables. Keep every inactive secondary table explicit and disabled even
+    # when ``number_of_organelles`` is zero or one. Downstream readers iterate
+    # that fixed schema, while the UI still uses ``number_of_organelles`` to
+    # decide which slots are visible; ``None`` here does not activate a slot.
+    from .schema import ORGANELLE_ROLES as _MEASURED_ORGANELLE_ROLES
+    for _role in _MEASURED_ORGANELLE_ROLES[1:]:
         settings.setdefault(f'{_role}_mask_dim', None)
         settings.setdefault(f'{_role}_min_size', 0)
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
@@ -4041,7 +4123,7 @@ tooltips = {
     "edge_transparency": "(float) - Outline opacity on a 0-100 scale: 0 hides the outline and 100 makes it fully opaque. Intermediate values blend the outline with the image. Default 100.",
     "edge_image": "(bool) - Draw the object outline over the source image. False draws the outline on a blank background so that boundary geometry can be evaluated independently of image intensity. Default False.",
     "object_size": "(int/list) - The smallest object, in pixels, that is outlined at all. Debris below it is skipped rather than traced. Default (0, 0) — no minimum.",
-    "show_all_in_well": "(bool) - Display every cell in the well and highlight the selected cells, rather than displaying selected cells alone. Highlighting matches the annotation app. When disabled, only cells already attributed to the guide are shown, so the visible fraction is necessarily 1. Disable this setting only when isolated selected cells are required. Default True.",
+    "show_all_in_well": "(bool) - Display every cell in the well and highlight the selected cells, rather than displaying selected cells alone. Highlighting matches the annotation app. When disabled, only cells already attributed to the guide are shown, so every visible cell is selected and the visible fraction is necessarily 1. Disable this setting only when isolated selected cells are required. Default True.",
     "half_widths": "(float) - Set the score-window half-width in robust scales (1.4826 × median absolute deviation) on either side of the score implied by the coefficient. This value applies to every coefficient. It changes the range described in the montage caption, not the number of cells shown; the displayed count comes from guide-fraction estimates so narrow windows do not leave wells underrepresented. Default 1.0.",
     "baseline": "(str) - Reference used to compute a coefficient's implied score: 'screen_median' (all wells), 'control_median' (non-targeting controls), or 'zero'. Use the control baseline when a global screen shift makes the screen median unsuitable as the reference. Default 'screen_median'.",
     "cap": "(int) - Maximum number of objects drawn for one coefficient across all wells. This limit prevents impractically large montages; the caption reports when the limit is applied and how many objects are omitted. Memory use and page count increase in proportion to this value: at 2000, a well tab contains about 280 MB of thumbnails across 33-83 pages. Default 2000.",
@@ -4162,7 +4244,7 @@ tooltips = {
     # The time axis on top of the z axis. These say plainly where the 4-D
     # plumbing stops, for the same reason the 3D ones above do: a user must
     # not read them and believe spaCR tracks objects through volumes today.
-    "t_stack": '(bool) - When enabled, spaCR requires each field to be a (T, Z, Y, X) volume. Standard image ingestion collapses z by maximum-intensity projection, so data processed through that path are not compatible. Enable this setting only when passing volumes to spacr.zstack.segment_4d through the Python API, and specify t_axis_order because shape alone cannot identify the time axis. When disabled, no 4-D processing occurs. Default False.',
+    "t_stack": '(bool) - When enabled, spaCR requires each field to be a (T, Z, Y, X) volume. Standard image ingestion collapses z by maximum-intensity projection, so a run using that path stops with an error instead of pretending the projected data are 4-D. Enable this setting only when passing volumes to spacr.zstack.segment_4d through the Python API, and specify t_axis_order because shape alone cannot identify the time axis. When disabled, no 4-D processing occurs. Default False.',
     "t_axis_order": "(str or None) - Which of the two leading axes is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Real microscopes write both and the array shape cannot distinguish them, so spaCR raises an error until the axis order is specified. An incorrect value does not raise an exception; it links objects at corresponding lateral positions in adjacent z planes and interprets those displacements as temporal motion, producing invalid velocity estimates. Verify the setting against the acquisition axis order. Default None.",
     "t_axis": "(int or None) - Index of the time axis in the incoming array, as an alternative to spelling out the whole order in t_axis_order; the z axis is then taken to be the other of the two leading axes, or whatever z_axis says. Use it for an acquisition whose axes are not in either of the two standard orders. When both this and t_axis_order are set they must agree, and spaCR stops if they do not rather than silently preferring one. Default None.",
     "frame_interval_s": "(float or None) - Seconds between consecutive timepoints, obtained from the acquisition metadata. It converts frame indices into physical time in the tracks table and displacement per frame into speed. It does not affect object linking, so an incorrect value rescales reported velocities without changing track identities. None uses the motility module's seconds_per_frame setting. Default None.",
@@ -4197,7 +4279,7 @@ tooltips = {
     "cells": "(list) - Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.",
     "cells_per_well": "(int) - Minimum cells a well must contribute to survive recruitment analysis; wells below it, and every cell in them, are dropped before the by-well plots and CSVs are produced. Raise it to suppress noisy, sparsely populated wells at the cost of losing those wells. Default 0, which keeps every well.",
     "channel_dims": '(list) - Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, but _calculate_recruitment writes fixed column names without channel identifiers. Runs with different values can therefore produce identically named columns containing measurements from different channels. Default [0, 1, 2, 3].',
-    "channel_of_interest": "(int, list, or str) - Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combined measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
+    "channel_of_interest": "(int, list, or str) - Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
     "chunk_size": "(int) - Number of FASTQ reads read into memory and handed to each worker batch. Larger chunks cut per-batch overhead and make the progress bar coarser but raise peak RAM per job; smaller chunks stream more gently on low-memory machines. Also sets how many reads are processed when test is True. Default 100000.",
     "classes": "(dict) - Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
     "class_folder_names": "(list of str) - Ordered training folder names. Each must exactly match a subfolder under src/train and src/test; its position becomes the integer label, and the list length sets the classifier-head width. Training raises FileNotFoundError with missing and available folders when a name is absent. Generate Training Dataset replaces this list with the folders it wrote. This setting identifies crop locations; 'classes' defines their semantic labels. Default ['nc','pc'].",
@@ -4216,7 +4298,7 @@ tooltips = {
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
-    "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. The estimator is (exceedances + 1) / (permutations + 1), where exceedances are permuted statistics at least as extreme as the observed statistic; the minimum attainable value is therefore 1 / (permutations + 1). Values of 1,000, 10,000, and 200,000 resolve minima of approximately 1e-3, 1e-4, and 5e-6, respectively. Increase the count when results accumulate at this resolution limit; runtime increases linearly. Default 200000.",
+    "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. The estimator is (exceedances + 1) / (permutations + 1), where exceedances are permuted statistics at least as extreme as the observed statistic; this imposes a hard floor of 1 / (permutations + 1). Values of 1,000, 10,000, and 200,000 resolve floors of approximately 1e-3, 1e-4, and 5e-6, respectively. Increase the count when results accumulate at this resolution floor; runtime increases linearly. Default 200000.",
     "guide_permutation_seed": "(int) - Random seed for reproducible residual permutations. Keep it fixed to reproduce exact empirical P values; change it to check Monte Carlo sensitivity. Default 0.",
     "grna_statistic": "(str) - What the permutation test measures between a gRNA's well fractions and the well phenotype. 'pearson' is a partial correlation, which is linear and is moved by an extreme well in proportion to how extreme it is. 'rank' is the same quantity computed on the ranked phenotype, so it responds to order rather than magnitude and no single well can move it far. Both cost one matrix product, so the choice does not change how long the test takes. Default 'pearson'.",
     "guide_permutation_block": "(str) - Column defining exchangeability blocks for permutations, normally plateID. Residuals are never shuffled between its levels. Default 'plateID'.",
@@ -4263,7 +4345,7 @@ tooltips = {
     "fraction_threshold": "(float) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
     "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
-    "mixed_precision": "(bool) - Enable automatic mixed precision for supported accelerator operations during training. Runtime and memory effects depend on the hardware and model architecture. Floating-point differences can affect exact reproducibility, so comparisons should use the same precision mode. Unsupported hardware disables this mode with an explicit message. Default False.",
+    "mixed_precision": "(bool) - Enable automatic mixed precision for supported accelerator operations during training. On a modern graphics card it can make training roughly twice as fast while using less memory, although the gain depends on the model and hardware. Floating-point differences can affect exact reproducibility, so compare runs only when they use the same precision mode. Unsupported hardware disables this mode with an explicit message. Default False.",
     "gradient_accumulation": "(bool) - Sum gradients over several batches before each optimizer step, producing an effective batch size of batch_size x gradient_accumulation_steps without additional GPU memory. Enable when batch_size must be reduced to fit available VRAM and the resulting training trajectory is unstable. Remaining gradients are applied at the end of each epoch. Default True.",
     "gradient_accumulation_steps": "(int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.",
     "grayscale": "(bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -> [1,0], cyto2 -> [2,1], nucleus -> [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True.",
@@ -4359,7 +4441,7 @@ tooltips = {
     "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "regression_qc": "(bool) - Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
-    "model_plate_position": "(bool) - Include rowID and columnID terms to model spatial plate effects. random_row_column_effects selects fixed or random terms. Enabling random row or column effects requires this setting. Default False; enable when edge, row, or column effects are plausible.",
+    "model_plate_position": "(bool) - Include rowID and columnID terms to model spatial plate effects. random_row_column_effects selects fixed or random terms. Enabling random row or column effects requires this setting. In the reference screen these terms were jointly significant at p = 6.7e-23, so enable them when edge, row, or column effects are plausible. Default False.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
@@ -4380,7 +4462,7 @@ tooltips = {
     "test": "(bool) - In classifier training, run the held-out evaluation pass, either with train or alone to score an existing model. In the sequencing barcode mapper, process only the first read chunk and print a preview so the regex and barcode CSVs can be validated quickly. Default False.",
     "test_images": "(int) - How many plate/well/field image sets are copied into a test/ folder when test_mode is on; every channel file belonging to a chosen set is copied together. Raise it for a broader smoke test, lower it for a faster one. Forced to 1 for timelapse runs so a full sequence stays intact. Default 10.",
     "test_mode": "(bool) - Run the pipeline on a small random subset instead of the whole folder. Mask generation copies test_images (default 10) complete image sets into <src>/test and works there; measure_crop copies test_nr (default 10) merged arrays into test/merged. Both also force verbose and plot on. Use it to check channel assignment, diameters and thresholds before committing to a full plate. Default False.",
-    "dry_run": "(bool) - Validate settings against the selected data, report the planned operations, and stop before computation. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. No output is written and no model is loaded. Default False.",
+    "dry_run": "(bool) - Validate settings against the selected data, report the planned operations, and stop before any compute begins. Checks that src contains the expected files, channel and mask-plane indices are valid, and required models, barcode CSV files, or measurements.db files are present. Each problem is reported with a suggested correction, followed by a summary of the planned segmentation, measurement, and output locations. Nothing is written and no model is loaded. Default False.",
     "test_nr": "(int) - How many files are sampled at random from merged/ into test/merged when test_mode is on in the measure-and-crop pipeline, so measurement runs on a small subset. Raise it if a handful of fields is not representative; each extra file costs a full measurement pass. Default 10.",
     "treatment_loc": "(list of lists) - Plate wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2'],['r3']]. Identifiers must start with 'r' (row) or 'c' (column); wells you do not list get no treatment label. Used by the vision-score annotation step. No default - supply it alongside treatments.",
     "treatments": "(list) - Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin'].",
@@ -4741,7 +4823,7 @@ tooltips = {
     'shap_sample': "(bool) - Run SHAP on a subsample rather than every object. Runtime and memory use increase with row count. Subsampling reduces computational cost but omits local explanations for excluded objects. Disable when attribution is required for every object. Default True.",
     'value_col': "(str) - Measurement column compared with threshold to classify each object as positive. Objects strictly above the threshold are annotated 'above'; the remainder are annotated 'below', and the reported percentage per well is the fraction above. Select the column representing the phenotype, such as a recruitment ratio or mean intensity. Results from different value_col settings are not directly comparable. Default None; must be supplied.",
     'outline_color': "(str) - Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
-    'crop_dtype': "(str) - Data type used for saved crop files. 'original' preserves the pipeline output, including uint16 data from a 16-bit camera. 'uint8' converts using the same high-byte rule as the PNG path. 'uint16' casts an 8-bit crop without rescaling because multiplication by 257 would change measured intensities without adding information. This setting controls storage size and compatibility with other software; it does not change training precision. ToTensor converts the input to floating point in [0,1]. Default 'original'.",
+    'crop_dtype': "(str) - Data type used for saved crop files. 'original' preserves the pipeline output, including uint16 data from a 16-bit camera. 'uint8' converts using the same high-byte rule as the PNG path. 'uint16' casts an 8-bit crop without rescaling because multiplication by 257 would change measured intensities without adding information. This setting controls storage size and compatibility with other software; it does NOT change training precision. ToTensor converts the input to floating point in [0,1]. Default 'original'.",
     'input_mean': "(list or None) - Per-channel means for input_statistics='custom' or 'dataset', on the 0-1 scale ToTensor produces. One value is broadcast to every channel, which is what a single-stain dataset wants. Compute the dataset ones with spacr.normalization.dataset_statistics rather than guessing. Ignored unless input_statistics asks for them. Default None.",
     'input_std': "(list or None) - Per-channel standard deviations paired with input_mean. Zero values are replaced with 1.0 to prevent division by zero and non-finite training losses; a zero standard deviation indicates a constant channel. Default None.",
     'input_statistics': "(str) - Mean and standard deviation used by the loader when normalize_input is enabled. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. 'dataset' estimates per-channel statistics from the current data and may be appropriate for fluorescence images whose intensity distribution differs from photographs. 'custom' uses input_mean and input_std. Default 'symmetric'.",
@@ -4753,7 +4835,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - Substring that must occur in a crop path for that crop to enter the dataset, for example 'cell_png' or 'nucleus_png'. The legacy name png_type remains accepted, although the setting performs only path filtering. Default 'cell_png'.",
-    'crop_source': "(str) - Select where image crops come from. Viewers use 'png' (LOAD IMAGES) for exported crops in data/ or 'merged' (STREAM IMAGES) to cut from merged/*.npy using the measurements database; spaCR reports any fallback. Training uses 'pre_generated' for existing crops, 'on_demand' to cut during training, or 'generate' to write a crop set first. Controls that do not apply to the selected source are disabled. Default 'png' in viewers and 'pre_generated' in training.",
+    'crop_source': "(str) - Select where image crops come from. 'load_images' reads exported crops from data/, while 'stream_images' cuts them from merged/*.npy using the measurements database; spaCR reports any fallback. Legacy settings spellings are migrated automatically. Controls that do not apply to the selected source are disabled. Viewers default to loading exported crops and training defaults to loading an existing crop set.",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - Columns containing each object's position when generating crops on demand from a database instead of masks, for example ['centroid_x', 'centroid_y']. This method supports only bounding-box crops because coordinates do not define object boundaries. None uses the merged masks and is the default. Default None.",
     'crop_shape': "(str) - 'bounding_box' cuts the smallest rectangle containing the object; 'object' masks everything outside it away. Database-sourced crops can only be bounding boxes. Default 'bounding_box'.",
@@ -7018,7 +7100,10 @@ def _set_organelle_defaults(settings):
     and every write is a ``setdefault``. Lowering the number is therefore
     reversible -- raising it again finds the old answers still there.
     """
-    settings.setdefault(NUMBER_OF_ORGANELLES, DEFAULT_NUMBER_OF_ORGANELLES)
+    # Read legacy intent before adding placeholder slot values. An explicit
+    # count wins; otherwise a non-empty old slot activates that slot while a
+    # genuinely empty mapping stays at zero.
+    settings.setdefault(NUMBER_OF_ORGANELLES, organelle_count(settings))
     defaults = {
         # General
         'organelle_channel': None,

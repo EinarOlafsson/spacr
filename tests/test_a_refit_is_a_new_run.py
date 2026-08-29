@@ -98,6 +98,7 @@ def test_every_backend_can_be_refit_into(regression_type):
     loaded = _base(alpha=0.3, l1_ratio=0.9, cov_type="HC3", quantile=0.25,
                    hinge_threshold=0.5, huber_t=2.0, lasso_n_boot=50,
                    lasso_selection_threshold=0.9, hinge_n_boot=50,
+                   spline_knots=7, spline_degree=2,
                    # Instruction 133's two new backends: the group lasso's
                    # block penalty, and RRA's ranking depth and null size.
                    group_lasso_lambda=0.2, rra_alpha=0.5,
@@ -105,7 +106,7 @@ def test_every_backend_can_be_refit_into(regression_type):
     # THE LIST ABOVE IS A SECOND COPY and this is what stops it going stale
     # quietly. A knob added to the defaults table and not to it is simply
     # absent from `loaded`, and the assertion below then raises KeyError from
-    # inside the loop -- 19 red parametrisations that all say 'KeyError' and
+    # inside the loop -- one red parametrisation per backend saying 'KeyError' and
     # none that say which table is behind.
     missing = sorted(set(refit.policed_settings()) - set(loaded))
     assert not missing, (

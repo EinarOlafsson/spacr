@@ -56,6 +56,18 @@ class _FactoryHost(QObject):
         # so a no-op stub will not do.
         return "mask", {}
 
+    def _build_screen_timed(self, key):
+        """Follow the real timing wrapper into the real implementation.
+
+        ``MainWindow._build_screen`` deliberately delegates construction to
+        ``_build_screen_timed``.  The generic ``__getattr__`` stubs ordinary
+        MainWindow slots as no-ops, so without this explicit delegate it also
+        turned the construction method into a no-op and every screen in this
+        smoke test became ``None``.  A real MainWindow resolves this method on
+        its class, so the stand-in must do the same.
+        """
+        return MainWindow._build_screen_timed(self, key)
+
     def __getattr__(self, name):
         # Only reached when normal lookup fails, so QObject's own attributes
         # and the override above still win.  `vars()` rather than `getattr`:
@@ -66,6 +78,46 @@ class _FactoryHost(QObject):
         raise AttributeError(
             f"MainWindow._build_screen wired {name!r}, but MainWindow does "
             f"not define it")
+
+
+def _retire_graphics_menus(screen):
+    """Delete parentless pyqtgraph menus owned by ``screen``.
+
+    PlotItem/ViewBox close paths detach their context menus instead of
+    deleting them. That is sensible for one application process, but a smoke
+    sweep that constructs every screen leaves hundreds of top-level QMenus
+    behind unless their exact owning graphics scenes retire them explicitly.
+    """
+    try:
+        from PySide6.QtWidgets import QGraphicsView, QMenu
+        from pyqtgraph import PlotItem, ViewBox
+    except ImportError:
+        return
+
+    def _retire(menu):
+        if menu is None:
+            return
+        for child in reversed(menu.findChildren(QMenu)):
+            child.close()
+            child.deleteLater()
+        menu.close()
+        menu.deleteLater()
+
+    seen = set()
+    for graphics_view in screen.findChildren(QGraphicsView):
+        scene = graphics_view.scene()
+        items = list(scene.items()) if scene is not None else []
+        for item in items:
+            if isinstance(item, PlotItem):
+                _retire(getattr(item, "ctrlMenu", None))
+        for item in items:
+            if not isinstance(item, ViewBox) or id(item) in seen:
+                continue
+            seen.add(id(item))
+            menu = getattr(item, "menu", None)
+            item.close()
+            _retire(menu)
+            item.menu = None
 
 
 def _setting_row_contract(screen: AppScreen, qapp) -> None:
@@ -189,12 +241,21 @@ def test_a_list_valued_setting_can_build_its_editor(qtbot, qt_theme_applied):
 
 @pytest.mark.parametrize("app_key", list(_module_params()))
 def test_every_registered_module_constructs_shows_and_renders(
-        qtbot, qt_theme_applied, app_key):
+        qtbot, qt_theme_applied, monkeypatch, app_key):
     """Exercise the real screen factory and one composed dark-theme frame."""
+    if app_key == "run_history":
+        # Showing this screen intentionally starts its background refresh.
+        # A smoke test must not walk the operator's real ~/.spacr/runs tree:
+        # that can take longer than the screen's close budget and leave a
+        # Python worker traversing Path objects while later tests collect Qt
+        # wrappers, which has reproduced a native crash.  Keep the real
+        # QThread/start/show/close path and make only its external data empty.
+        monkeypatch.setattr(
+            "spacr.qt.screens.run_history.search_runs", lambda: [])
     install_button_roles(qt_theme_applied)
     host = _FactoryHost()
     screen = MainWindow._build_screen(host, app_key)
-    qtbot.addWidget(screen)
+    qtbot.addWidget(screen, before_close_func=_retire_graphics_menus)
     screen.resize(1200, 720)
     screen.show()
     qt_theme_applied.processEvents()
@@ -231,7 +292,7 @@ def _slots_build_screen_reaches_for() -> list:
     is asked about the new name without anyone remembering to say so.
     """
     return sorted(
-        name for name in MainWindow._build_screen.__code__.co_names
+        name for name in MainWindow._build_screen_timed.__code__.co_names
         if name.startswith("_on_") or name.startswith("_snapshot_"))
 
 
@@ -274,7 +335,7 @@ def test_training_runs_does_not_override_qwidget_metric():
 
 @pytest.mark.parametrize("app_key", list(_module_params()))
 def test_every_module_console_can_be_jumped_to_the_end(
-        qtbot, qt_theme_applied, app_key):
+        qtbot, qt_theme_applied, monkeypatch, app_key):
     """Walked, not named: whatever console a module builds carries the gesture.
 
     The way to the bottom of a long log belongs where the console is built
@@ -287,9 +348,12 @@ def test_every_module_console_can_be_jumped_to_the_end(
 
     from spacr.qt.widgets.console_panel import ConsolePanel
 
+    if app_key == "run_history":
+        monkeypatch.setattr(
+            "spacr.qt.screens.run_history.search_runs", lambda: [])
     host = _FactoryHost()
     screen = MainWindow._build_screen(host, app_key)
-    qtbot.addWidget(screen)
+    qtbot.addWidget(screen, before_close_func=_retire_graphics_menus)
     consoles = screen.findChildren(ConsolePanel)
     if isinstance(screen, ConsolePanel):
         consoles.append(screen)

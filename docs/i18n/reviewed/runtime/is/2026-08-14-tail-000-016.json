@@ -46,27 +46,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "organelleb_channel",
-      "source_sha256": "046fe15d2662f17e81ac5a45b0cfa17bcec4cb1c8eb91769ec11c91329be6dae",
-      "source": "Zero-indexed raw acquisition channel segmented into organelle 2 masks by whichever organelleb_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle 2 mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle 2 segmentation entirely. Default None.",
-      "translation": "Núllgrundaður hrámyndrásarvísir sem er hlutaður í frumulíffæri 2 grímur með þeirri organelleb_method aðferð sem er valin (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Heiltölugildi bætir frumulíffæri 2 grímumyndlagi við merged/ og opnar Organelle stillingaflokka í GUI; None sleppir hlutun frumulíffæris 2 alveg. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organellec_channel",
-      "source_sha256": "281ba5f106b630296e3ee7f38f112574bfac307f93f85b31c087bbab6e923ffe",
-      "source": "Zero-indexed raw acquisition channel segmented into organelle 3 masks by whichever organellec_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle 3 mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle 3 segmentation entirely. Default None.",
-      "translation": "Núllgrundaður hrámyndrásarvísir sem er hlutaður í frumulíffæri 3 grímur með þeirri organellec_method aðferð sem er valin (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Heiltölugildi bætir frumulíffæri 3 grímumyndlagi við merged/ og opnar Organelle stillingaflokka í GUI; None sleppir hlutun frumulíffæris 3 alveg. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_channel",
-      "source_sha256": "babcf6421a6742cab45cda3688d5a931220320651027fdb080ea8d24fcb19e9f",
-      "source": "Zero-indexed raw acquisition channel segmented into organelle 4 masks by whichever organelled_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle 4 mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle 4 segmentation entirely. Default None.",
-      "translation": "Núllgrundaður hrámyndrásarvísir sem er hlutaður í frumulíffæri 4 grímur með þeirri organelled_method aðferð sem er valin (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Heiltölugildi bætir frumulíffæri 4 grímumyndlagi við merged/ og opnar Organelle stillingaflokka í GUI; None sleppir hlutun frumulíffæris 4 alveg. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "outline_color",
       "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
       "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
