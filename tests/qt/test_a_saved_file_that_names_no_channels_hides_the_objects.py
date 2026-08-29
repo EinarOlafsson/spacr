@@ -14,7 +14,10 @@ reads as absent to anything written ``if not channel``.
 Both are driven the whole way here: written with :func:`spacr.utils.
 save_settings`, read back with the screen's own CSV loader, and applied
 through the bulk apply an Import lands in -- with the event loop running,
-because the panel answers on the next turn of it.
+because the panel answers on the next turn of it.  Cell is the deliberate
+reference-object exception: instruction 300 keeps its controls available
+even when no cell channel is named, while every optional object still follows
+its own saved channel.
 """
 from __future__ import annotations
 
@@ -66,7 +69,7 @@ def _write_and_read_back(tmp_path, settings: dict) -> dict:
 # A file that names no channels
 # ---------------------------------------------------------------------------
 
-def test_a_file_that_names_no_channel_leaves_every_object_off_the_form(
+def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
         qtbot, tmp_path):
     """The whole route: save a panel with nothing switched on, open it."""
     screen, model = _screen(qtbot)
@@ -81,17 +84,29 @@ def test_a_file_that_names_no_channel_leaves_every_object_off_the_form(
     qtbot.wait(1)
 
     for role, follower in FOLLOWERS.items():
-        assert reopened.setting_row_is_visible(follower) is False, (
-            f"{follower} is on the form with {role}_channel unset")
-        # The switch itself stays -- there would be nothing left to turn the
-        # object back on with.
-        assert reopened.setting_row_is_visible(f"{role}_channel") is True
+        expected = role == "cell"
+        assert reopened.setting_row_is_visible(follower) is expected, (
+            f"{follower} visibility disagrees with the saved "
+            f"{role}_channel")
+        if role == "organelle":
+            # This file also says there are zero organelles. The optimized
+            # form therefore builds no slot at all; the count is the control
+            # that can ask for its first slot.
+            assert reopened_model.collect()["number_of_organelles"] == 0
+            assert f"{role}_channel" not in reopened_model._widgets
+            assert reopened.setting_row_is_visible(
+                "number_of_organelles") is True
+        else:
+            # Non-slot switches stay -- there would be nothing left to turn
+            # the object back on with.
+            assert reopened.setting_row_is_visible(
+                f"{role}_channel") is True
     assert reopened_model.collect()["cell_channel"] is None
 
 
-def test_a_file_that_omits_the_channel_entirely_loads_and_hides_it(
+def test_a_file_that_omits_channels_keeps_only_the_reference_object(
         qtbot, tmp_path):
-    """Absence is not an error, and it is not a channel either."""
+    """Absence is not a channel; cell alone remains available by design."""
     screen, model = _screen(qtbot)
     settings = {k: v for k, v in model.collect().items()
                 if not k.endswith("_channel")}
@@ -102,8 +117,10 @@ def test_a_file_that_omits_the_channel_entirely_loads_and_hides_it(
     reopened.apply_settings_dict(loaded)
     qtbot.wait(1)
 
-    assert reopened.setting_row_is_visible("cell_diameter") is False
+    assert reopened.setting_row_is_visible("cell_diameter") is True
     assert reopened.setting_row_is_visible("cell_channel") is True
+    assert reopened.setting_row_is_visible("nucleus_diameter") is False
+    assert reopened.setting_row_is_visible("nucleus_channel") is True
 
 
 # ---------------------------------------------------------------------------
@@ -132,10 +149,17 @@ def test_the_rule_reads_a_saved_none_as_absent_and_a_saved_zero_as_present():
     """The two values, put to the rule itself, with nothing else moving."""
     from spacr.qt.screens.settings_model import keys_hidden_by_their_object
 
-    panel = ("cell_channel", "cell_diameter")
+    panel = ("nucleus_channel", "nucleus_diameter")
     for absent in (None, "None", "none", "", "  "):
         assert keys_hidden_by_their_object(
-            panel, {"cell_channel": absent}) == {"cell_diameter"}, absent
+            panel, {"nucleus_channel": absent}) == {
+                "nucleus_diameter"}, absent
     for present in (0, "0", 3, "3"):
         assert keys_hidden_by_their_object(
-            panel, {"cell_channel": present}) == set(), present
+            panel, {"nucleus_channel": present}) == set(), present
+
+    # Cell is the reference-object exception and therefore is never gated.
+    assert keys_hidden_by_their_object(
+        ("cell_channel", "cell_diameter"),
+        {"cell_channel": None},
+    ) == set()
