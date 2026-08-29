@@ -321,7 +321,8 @@ def installed_version(name) -> Optional[str]:
     """The version of ``name`` installed here, or ``None`` if it is absent."""
     try:
         from importlib.metadata import PackageNotFoundError, version
-    except Exception:                                    # pragma: no cover
+    except Exception:
+        # A bundler that ships only what it saw imported can leave this out.
         return None
     try:
         return str(version(str(name)))
@@ -492,7 +493,7 @@ def dry_run_install(requirement, timeout: float = 600.0,
         return DryRun(str(requirement), False,
                       error=f"The resolver did not answer within "
                             f"{int(timeout)} seconds.")
-    except Exception as exc:                             # pragma: no cover
+    except Exception as exc:
         return DryRun(str(requirement), False, error=str(exc))
 
     out = str(getattr(completed, "stdout", "") or "")

@@ -2,7 +2,7 @@
 FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
 ================================================================================
 
-Status:   OPEN — later leaks were fixed, but the combined suite is still red.
+Status:   DONE, 2026-08-29 — the exact combined-order reproducer is green.
 Severity: test-only. None of these affects the running application.
 
 --------------------------------------------------------------------------------
@@ -265,3 +265,19 @@ tests, and later launch tests inherited a monkeypatched ``threading`` object
 without ``Event``. This is direct evidence of order-dependent global state;
 the precise polluters and all independent failure families still need to be
 isolated rather than treating the first traceback as the cause of all 82.
+
+--------------------------------------------------------------------------------
+2026-08-29 — CLOSED AGAINST THE RECORDED ORDER, ON A CLEAN CURRENT TREE
+--------------------------------------------------------------------------------
+
+The exact four-file command above was rerun serially, with ``-p no:randomly``
+and the offscreen Qt platform, from an isolated clone of nightly at
+``f5f5aa17019ec435fae4621754aa3f08988af6fb``. The resolved ``spacr.__file__``
+was asserted inside that clone before pytest started.
+
+Result: **320 passed in 356.08 seconds**. The five named victims pass in the
+same process after ``test_photo_themes.py``; there are no failed factories,
+inherited monkeypatches, or surviving red family in the instruction's exact
+reproducer. This closes the test-only item on the same scope that reopened it.
+The full stable-SHA Qt and CI gates remain release gates under instructions
+288 and 305 and are not weakened by this focused closeout.
