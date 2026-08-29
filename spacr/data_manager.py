@@ -342,7 +342,7 @@ def _real(path: str) -> str:
     """Return ``path`` with symlinks resolved, for containment checks."""
     try:
         return os.path.realpath(path)
-    except OSError:                    # pragma: no cover - exotic filesystems
+    except OSError:                    # exotic filesystems that will not resolve
         return path
 
 
