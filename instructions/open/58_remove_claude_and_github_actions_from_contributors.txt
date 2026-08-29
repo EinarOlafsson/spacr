@@ -2,10 +2,10 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    DONE, 2026-08-15. The immutable closeout commit precedes the
-           approved rewrite; the off-disk mirror backup, all-ref rewrite,
-           force-push and post-rewrite verification are the final repository
-           operations, so no later commit can invalidate or describe them.
+Status:    REOPENED, 2026-08-29. Claude attribution is absent from current
+           remote history, but six default-branch commits still carry the
+           github-actions committer identity and GitHub's homepage fragment
+           remains stale for both names.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -259,6 +259,61 @@ stale local `ci-*` / `codex-*` topic branches. None of that reaches GitHub --
 `origin/main` is clean -- but pushing local `main` would republish the 38.
 Reset it to `origin/main` before anyone uses it.
 
-NOT CHECKED HERE: the contributors page itself. That is a GitHub-side
-recompute, this file already says it can lag and can need a support request,
-and a stale entry there is not a failed rewrite.
+--------------------------------------------------------------------------------
+2026-08-29 -- REOPENED: SIX BOT COMMITTERS SURVIVED, AND THE SIDEBAR IS STALE
+--------------------------------------------------------------------------------
+
+A fresh audit used the object IDs returned by ``git ls-remote --heads --tags``
+rather than stale local topic/archive refs. Current remote branches and tags
+contain no Claude author, committer or Co-Authored-By trailer, and no commit is
+authored by github-actions[bot]. However, six commits reachable from both
+``main`` and ``nightly`` still have this exact committer identity:
+
+    github-actions <github-actions@github.com>
+
+The six commit IDs are ``ba68b3c7``, ``25479878``, ``3681d262``, ``ce8ce1e7``,
+``695ad72d`` and ``513321df``. They are three duplicated 2025-04-11
+``Auto-build docs`` events. Their authors were rewritten to EinarOlafsson, but
+their committers were not. GitHub's commit REST response maps that committer
+email to ``invalid-email-address``, not to ``github-actions[bot]``, and the
+contributors API counts author email rather than committer text. These six are
+therefore not the standard contributors-API source, but the request to remove
+the Actions identity from all current commits still includes them.
+
+A fresh mirror also exposed the more likely sidebar source: GitHub's read-only
+``refs/pull/*`` namespace still retains 38 real Claude Co-Authored-By trailers
+and seven commits actually mapped to ``github-actions[bot]``. They survive
+under pull-request refs 94, 95, 96, 97, 99, 100, 102, 103, 104, 105, 106, 107
+and 109 even though no current branch or tag reaches them. Repository owners
+cannot force-push or delete those server-owned refs.
+
+GitHub's current data layers disagree in a way a browser refresh cannot fix:
+
+  * ``GET /repos/EinarOlafsson/spacr/contributors`` and
+    ``/stats/contributors`` return only EinarOlafsson and jak18015;
+  * the public ``contributors_list`` homepage fragment still returns four
+    entries: EinarOlafsson, jak18015, claude and github-actions[bot], even with
+    a cache-busting query and ``Cache-Control: no-cache``.
+
+WHAT REMAINS, still last in repository order:
+
+  1. after every product change is committed and pushed, make another verified
+     off-repository mirror backup;
+  2. rewrite only the six exact github-actions committer identities across all
+     current remote branches and release tags, preserving every tree and both
+     human contributors, then force-push with exact old-ref leases;
+  3. verify all reachable remote author, committer and trailer identities;
+  4. ask GitHub Support to detach/reindex the stale pull-request attribution
+     and rebuild the repository homepage contributors cache, because the
+     authoritative contributors API is already clean while the separately
+     rendered sidebar fragment is not.
+
+Do not attempt an empty commit, branch toggle, visibility toggle or browser
+cache clear as a substitute. None removes the six reachable committer records,
+and none provides a supported invalidation of GitHub's server-side sidebar
+fragment.
+
+The public contributors graph and both contributor REST endpoints have now
+been checked and contain only EinarOlafsson and jak18015. The four-name result
+is isolated to the public homepage fragment, so it is a GitHub-side indexing
+problem after the current-history cleanup, not local browser cache.
