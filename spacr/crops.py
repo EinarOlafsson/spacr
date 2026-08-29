@@ -86,7 +86,7 @@ import numpy as np
 try:
     # Normal package import: schema is the dependency-light role registry.
     from .schema import ALL_ROLES, ORGANELLE_ROLES, SEGMENTED_ROLES
-except ImportError:  # pragma: no cover - exercised by the standalone probe
+except ImportError:  # exercised by the standalone probe
     # ``tests/test_crops.py`` loads this file directly, without a package, to
     # prove the thumbnail path does not pull in spacr (and therefore torch).
     # Load the same standalone schema source under a private module name; do
@@ -884,8 +884,14 @@ def _merged_field_cache_bytes(field: MergedField) -> int:
     arrays = [getattr(field, "array", None)]
     arrays.extend(getattr(field, "_derived", {}).values())
     for index in getattr(field, "_indices", {}).values():
-        arrays.extend(value for value in vars(index).values()
-                      if hasattr(value, "nbytes"))
+        # A label index defines __slots__ and therefore has no __dict__, so
+        # vars() raised TypeError here and took the whole memory sweep with it
+        # the moment any cached field had been indexed -- i.e. always, after
+        # the first crop was cut out of it.
+        slots = getattr(type(index), "__slots__", None)
+        held = ([getattr(index, name, None) for name in slots] if slots
+                else list(vars(index).values()))
+        arrays.extend(value for value in held if hasattr(value, "nbytes"))
     total = 0
     seen = set()
     for value in arrays:
