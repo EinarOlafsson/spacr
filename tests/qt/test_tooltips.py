@@ -21,7 +21,8 @@ def test_every_app_api_link_targets_an_existing_module():
     assert not missing, "\n".join(missing)
 
 
-def test_pipeline_app_api_links_follow_the_actual_backend():
+def _pipeline_api_link_mismatches() -> list[str]:
+    """Registry rows whose help link and executable backend disagree."""
     from spacr.cli import INTERACTIVE_ONLY
     from spacr.qt.app import APPS
     from spacr.qt.bridge import resolve_pipeline_entry
@@ -37,7 +38,30 @@ def test_pipeline_app_api_links_follow_the_actual_backend():
         linked = _APP_API_MODULE[app_key].replace("/", ".")
         if linked != expected:
             mismatches.append(f"{app_key}: links {linked}, runs {expected}")
+    return mismatches
+
+
+def test_pipeline_app_api_links_follow_the_actual_backend():
+    mismatches = _pipeline_api_link_mismatches()
     assert not mismatches, "\n".join(mismatches)
+
+
+def test_a_self_registered_browser_does_not_become_a_pipeline_app():
+    """Order regression: Feature Dictionary used to pollute this inventory."""
+    from spacr.qt import app as app_mod
+    from spacr.qt import theme as theme_mod
+    from spacr.qt.widgets import feature_dictionary as fd
+
+    existed = any(row[0] == fd.APP_KEY for row in app_mod.APPS)
+    qss_existed = fd.OBJECT_NAME in theme_mod.widget_qss_names()
+    fd.register()
+    try:
+        assert not _pipeline_api_link_mismatches()
+    finally:
+        if not existed:
+            app_mod.unregister_app(fd.APP_KEY)
+        if not qss_existed:
+            theme_mod.unregister_widget_qss(fd.OBJECT_NAME)
 
 
 def test_type_hint_from_expected_types():

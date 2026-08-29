@@ -83,6 +83,10 @@ LOG = logging.getLogger("spacr.qt.feature_dictionary")
 APP_KEY = "feature_dict"
 APP_NAME = "Feature Dictionary"
 APP_DESC = "Search definitions of measured features by name or concept"
+APP_CLI_NOTE = (
+    "Feature Dictionary is an interactive browser; open it from spaCR's "
+    "Help menu or call spacr.feature_dict from Python."
+)
 APP_NAME_TRANSLATIONS = (
     "Egenskapsordlista", "Merkmalswörterbuch",
     "Diccionario de características", "特征词典",
@@ -582,6 +586,7 @@ def register() -> bool:
                 stage=STAGE_ALPHA,
                 translations=APP_NAME_TRANSLATIONS,
                 api_module="feature_dict",
+                cli_note=APP_CLI_NOTE,
             )
     except Exception:
         # A registry that cannot take one more app is not a reason for the
