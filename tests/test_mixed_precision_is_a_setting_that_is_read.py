@@ -166,7 +166,9 @@ class TestTheLoopUsesIt:
         from spacr import deep_spacr
 
         source = inspect.getsource(deep_spacr.train_model)
-        assert "GradScaler" in source
+        scaler_source = inspect.getsource(deep_spacr._gradient_scaler)
+        assert "_gradient_scaler" in source
+        assert "GradScaler" in scaler_source
         assert "scaler.scale(loss).backward()" in source
         assert "scaler.step(optimizer)" in source
 
