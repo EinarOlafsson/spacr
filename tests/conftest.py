@@ -25,7 +25,6 @@ pytest-qt provides.
 """
 from __future__ import annotations
 
-import gc
 import os
 import sqlite3
 import sys
@@ -325,19 +324,12 @@ def _inside_allowed_root(path) -> bool:
     return False
 
 
-#: How many retained widgets make a collection worth its cost at a test
-#: boundary. The same threshold ``tests/qt/conftest.py`` uses, for the same
-#: reason: collecting a large heap is not free and most tests leave nothing
-#: worth collecting.
-QT_COLLECT_ABOVE_WIDGETS = 2000
-
-
 @pytest.fixture(autouse=True)
 def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
-    """Keep Qt's retained tree bounded for EVERY qt test, not just tests/qt.
+    """Deliver owner-requested Qt deletions for every Qt test boundary.
 
     ``tests/qt/conftest.py`` already delivers pending ``deleteLater`` calls
-    and collects the retained tree at each test boundary — but a conftest
+    at each test boundary — but a conftest
     only reaches its own directory, and the ``qt`` marker is much wider than
     that directory. Well over a hundred modules directly under ``tests/``
     carry ``@pytest.mark.qt``, build real widgets, and ran with none of that
@@ -360,13 +352,13 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
     here: a run that has not already loaded it has no widgets to flush, so
     the fixture reads one entry in ``sys.modules`` and yields.
 
-    Nothing is reached across. ``sendPostedEvents`` delivers deletions their
-    owners already requested, and the collector only ever touches what
-    nothing references — both at SETUP, where the previous test's teardown is
-    complete and no widget is part-way through being closed. Reaching across
-    live widgets at TEARDOWN is what made an earlier cleanup fixture crash
-    this suite three different ways; that fixture and this one differ in
-    exactly that phase.
+    Nothing is reached across. ``sendPostedEvents`` delivers only deletions
+    their owners already requested, at SETUP where the previous test's
+    teardown is complete. Do not run Python's cycle collector here: a wrapper
+    can be unreachable while its C++ QThread is still running, and CI proved
+    that collecting such a live Qt heap can segfault inside ``gc.collect``.
+    Qt objects must instead be registered with ``qtbot`` or explicitly call
+    ``deleteLater``; this boundary only completes that ownership protocol.
 
     Ordered behind the QSettings sandbox, and depending on it by name rather
     than by where it sits in this file, because destroying a widget can run
@@ -382,10 +374,6 @@ def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
             if app is not None:
                 module.QApplication.sendPostedEvents(
                     None, QEvent.DeferredDelete)
-                if len(app.allWidgets()) >= QT_COLLECT_ABOVE_WIDGETS:
-                    gc.collect()
-                    module.QApplication.sendPostedEvents(
-                        None, QEvent.DeferredDelete)
         except Exception:                                        # noqa: BLE001
             pass
     yield
