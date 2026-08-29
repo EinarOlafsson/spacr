@@ -8209,14 +8209,20 @@ class SettingsWidgets:
         # Zero delay, so it lands on the next turn of the event loop, before
         # the panel has been painted.
         #
-        # BOUND TO THE PANEL'S OWN WIDGET, which is the three-argument form's
-        # whole point: the connection is dropped when that widget is
-        # destroyed, so a screen closed inside the same turn is not reached
-        # into afterwards. Nothing is scheduled at all without one -- a
-        # `SettingsWidgets` built with no parent is being used for its values
-        # and has no rows to lay out.
+        # OWNED BY THE PANEL'S OWN WIDGET. PySide 6.6 cannot bind a Python
+        # callable through QTimer.singleShot's receiver overload, so use a
+        # real single-shot timer instead. Its QObject parent cancels the pass
+        # when a screen is destroyed inside the same turn; delete it after a
+        # successful pass so a long-lived panel does not collect dead timers.
+        # Nothing is scheduled at all without a parent -- a SettingsWidgets
+        # built with no parent is being used for its values and has no rows
+        # to lay out.
         if self._parent is not None:
-            QTimer.singleShot(0, self._parent, self.refresh_object_visibility)
+            timer = QTimer(self._parent)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self.refresh_object_visibility)
+            timer.timeout.connect(timer.deleteLater)
+            timer.start(0)
 
         return _nest_sections(sections)
 
