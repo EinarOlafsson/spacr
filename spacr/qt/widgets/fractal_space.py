@@ -24,7 +24,7 @@ import numpy as np
 
 try:
     from numba import njit, prange
-except Exception:                                            # pragma: no cover
+except Exception:
     njit = None
     prange = range
 
@@ -379,7 +379,7 @@ if njit is not None:
                     out[row, col, 2] = int(255.0 * ab / 4.0)
         return out
 
-else:                                                        # pragma: no cover
+else:
     def sample_space(*_args, **_kwargs):
         raise RuntimeError("numba is required for the CPU space renderer")
 
