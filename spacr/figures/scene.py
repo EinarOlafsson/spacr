@@ -1124,6 +1124,17 @@ def _translate_colorbar(plot, axes, look, report: SceneReport) -> None:
 
 def _translate_axes(plot, axes, look, report: SceneReport) -> None:
     """Put everything on one matplotlib ``Axes`` into one pyqtgraph plot."""
+    from matplotlib import collections as mpl_collections
+    from matplotlib.collections import LineCollection, PathCollection, PolyCollection
+    from matplotlib.image import AxesImage
+    from matplotlib.legend import Legend
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Rectangle
+    from matplotlib.text import Text
+
+    fill_between_collection = getattr(
+        mpl_collections, "FillBetweenPolyCollection", None)
+
     if _colorbar_of(axes) is not None:
         _translate_colorbar(plot, axes, look, report)
         return
@@ -1135,23 +1146,25 @@ def _translate_axes(plot, axes, look, report: SceneReport) -> None:
             continue
         if name in IGNORED or _is_chrome_artist(artist):
             continue
-        if name == "Line2D":
+        if isinstance(artist, Line2D):
             report.items += _add_line(plot, artist, axes, look)
-        elif name in ("Text", "Annotation"):
+        elif isinstance(artist, Text):
             if getattr(artist, "arrow_patch", None) is not None:
                 report.notes.append("an annotation's arrow was not carried")
             report.items += _add_text(plot, artist, axes, look, report)
-        elif name == "Rectangle":
+        elif isinstance(artist, Rectangle):
             rectangles.append(artist)
-        elif name == "PathCollection":
+        elif isinstance(artist, PathCollection):
             report.items += _add_path_collection(plot, artist, look)
-        elif name == "LineCollection":
+        elif isinstance(artist, LineCollection):
             report.items += _add_line_collection(plot, artist, look)
-        elif name == "PolyCollection":
+        elif (type(artist) is PolyCollection
+              or (fill_between_collection is not None
+                  and isinstance(artist, fill_between_collection))):
             report.items += _add_poly_collection(plot, artist, look)
-        elif name == "AxesImage":
+        elif isinstance(artist, AxesImage):
             report.items += _add_image(plot, artist, look)
-        elif name == "Legend":
+        elif isinstance(artist, Legend):
             report.items += _add_legend(plot, artist, look)
         elif name not in CARRIED:
             report.missing.append(name)
