@@ -86,6 +86,12 @@ Current behaviour is pinned by
 tests/test_hits_uncovered_paths.py::test_only_an_explicit_label_protects_a_bare_veupathdb_accession,
 so that test must be UPDATED, not deleted, when the behaviour changes.
 
+FIXED 2026-08-29. ``guide_of`` and the vectorized ``family_labels`` path now
+share one ``_is_guide_token`` predicate: a token is a guide only when
+normalizing it to a gene id removes a suffix. Thus ``TGGT1_231640`` remains a
+gene while ``TGGT1_231640_3`` remains a guide, and the updated regression test
+asserts both public functions agree on all three explicit/bare spellings.
+
 --------------------------------------------------------------------------------
 3. PRAGMAS DELIBERATELY LEFT, WITH THE ARGUMENT FOR EACH
 --------------------------------------------------------------------------------

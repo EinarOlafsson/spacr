@@ -25,7 +25,8 @@ if str(_REPO_ROOT) not in sys.path:
 
 from spacr import hits as hits_module                           # noqa: E402
 from spacr.hits import (Hit, HitList, build_hit_list,           # noqa: E402
-                        coefficient_levels, guide_of, join_metadata)
+                        coefficient_levels, family_labels, guide_of,
+                        join_metadata)
 
 
 def _one_gene_frames():
@@ -101,16 +102,16 @@ def test_an_unlabelled_term_without_a_numeric_suffix_names_no_guide():
     assert guide_of("fraction[233460]") is None
 
 
-def test_only_an_explicit_label_protects_a_bare_veupathdb_accession():
-    """Shape alone cannot tell ``TGGT1_231640`` from a guide, and does not try.
-
-    Both spellings end in an underscore and digits, so an unlabelled term is
-    read as a guide either way. The ``gene[...]`` label is what makes the
-    distinction, which is why every table spaCR writes carries one.
-    """
+def test_a_bare_veupathdb_accession_is_a_gene_not_a_guide():
+    """The accession's own underscore is not a guide suffix."""
     assert guide_of("fraction[TGGT1_231640_3]") == "TGGT1_231640_3"
-    assert guide_of("fraction[TGGT1_231640]") == "TGGT1_231640"
+    assert guide_of("fraction[TGGT1_231640]") is None
     assert guide_of("gene_fraction:gene[TGGT1_231640]") is None
+    assert family_labels([
+        "fraction[TGGT1_231640_3]",
+        "fraction[TGGT1_231640]",
+        "gene_fraction:gene[TGGT1_231640]",
+    ]).tolist() == ["grna", "gene", "gene"]
 
 
 # ---------------------------------------------------------------------------
