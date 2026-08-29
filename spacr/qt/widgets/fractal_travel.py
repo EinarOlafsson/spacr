@@ -217,7 +217,7 @@ def clamp(value: float, low: float, high: float) -> float:
     return low if value < low else high if value > high else value
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Settings:
     """What the picture is made of. Every field is a Preferences row."""
 
@@ -246,7 +246,7 @@ class Settings:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class RuntimeControls:
     """What the user can move while it is running."""
 
@@ -300,7 +300,7 @@ class RuntimeControls:
         return max(0.05, swept)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class HardwareProfile:
     """CPU capacity used to choose a conservative automatic render quality.
 
@@ -1194,7 +1194,7 @@ void main() {
 """
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class CameraState:
     """Where the GPU field is looking, at one instant."""
 
