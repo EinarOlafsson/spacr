@@ -15,17 +15,17 @@ fixture is that the path it resolves to really is inside ``tmp_path``.
 """
 from __future__ import annotations
 
-import pytest
+import gc
 
-from PySide6.QtCore import QPoint, QSettings
+import pytest
+from PySide6.QtCore import QEvent, QPoint, QSettings
 from PySide6.QtGui import QColor, QImage, QPainter, QRegion
-from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox,
-                               QWidget)
+from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox, QWidget
+from shiboken6 import isValid
 
 from spacr.qt import preferences as prefs
 from spacr.qt import theme as theme_mod
 from spacr.qt.widgets import field_fade as ff
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -344,6 +344,7 @@ def test_the_preferences_dialog_carries_the_toggle(qtbot, prefs_sandbox,
                                                    qapp):
     """A preference the user cannot reach is not a preference."""
     from PySide6.QtWidgets import QDialogButtonBox
+
     from spacr.qt.widgets.toggle import Toggle
 
     _apply(qapp)
@@ -521,6 +522,52 @@ def test_a_broken_palette_does_not_stop_a_field_drawing(qtbot, prefs_sandbox,
     assert image.size() == widget.size()
     assert any("Field fade could not paint" in r.getMessage()
                for r in caplog.records)
+
+
+def test_the_field_owner_outlives_its_native_painter(qapp, monkeypatch):
+    """Cyclic GC cannot delete a field's paint device mid-paint.
+
+    A Qt child wrapper does not keep its top-level Python owner reachable.
+    Constructing a painter can allocate and therefore run cyclic GC; without
+    the owner pin in the event filter, collecting the unreachable window
+    deletes the child's C++ object before ``QPainter.end()`` and segfaults.
+
+    The fake painter makes the pre-fix failure an ordinary assertion instead
+    of deliberately crashing pytest. Generation-zero collection reaches the
+    graph built here without sweeping unrelated, long-lived Qt wrappers.
+    """
+    alive = []
+
+    class _CollectingPainter:
+        def __init__(self, device):
+            self.device = device
+            self.active = True
+            gc.collect(0)
+            alive.append(isValid(device))
+
+        def isActive(self):  # noqa: N802 - QPainter contract
+            return self.active
+
+        def end(self):
+            gc.collect(0)
+            alive.append(isValid(self.device))
+            self.active = False
+
+    monkeypatch.setattr(ff, "QPainter", _CollectingPainter)
+    monkeypatch.setattr(ff, "paint_field_fade", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(ff, "field_fade_enabled", lambda: True)
+
+    owner = QWidget()
+    owner._cycle = owner
+    field = QLineEdit(owner)
+    del owner
+
+    event_filter = ff._FieldFadeFilter()
+    assert event_filter.eventFilter(
+        field, QEvent(QEvent.Type.Paint)) is False
+    assert alive == [True, True]
+
+    field.window().deleteLater()
 
 
 def test_repaint_fields_reaches_every_live_field(qtbot, prefs_sandbox, qapp):
