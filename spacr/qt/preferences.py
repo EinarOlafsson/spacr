@@ -5429,6 +5429,29 @@ class PreferencesDialog:
                 "always settles rather than being caught mid-course."))
             fractal.addRow(tr("Steering"), fractal_steering)
 
+            # DEPTH, asked for by name on 2026-08-28: "i want controll over
+            # the decades". It was a setting all along and was taken off the
+            # panel in the cut-down, which is the same mistake as hiding the
+            # numbers behind Advanced -- a control somebody asks for and
+            # cannot find is not a control.
+            fractal_depth = _tenths(
+                "FractalMaxDepth", _fractal_values["max_depth"], 0.1, 23.0)
+            fractal_depth.setDecimals(1)
+            fractal_depth.setSingleStep(1.0)
+            fractal_depth.setToolTip(tr(
+                "How many factors of ten the zoom descends before it starts "
+                "again. At the default speed each decade takes 24 seconds, "
+                "so 21 is about eight and a half minutes — and slower "
+                "Speed makes it longer.\n\n"
+                "It stops rather than running for ever because the "
+                "reference orbit is carried as three 32-bit floats, which "
+                "reproduce it to about 4.2e-24: past roughly 23 decades the "
+                "perturbation is measuring its own error and the picture "
+                "turns to mush. Going deeper needs more precision, not a "
+                "larger number here — which is why this one refuses to go "
+                "above it."))
+            fractal.addRow(tr("Depth (decades)"), fractal_depth)
+
             def _steering_only_matters_when_guided(*_args):
                 """Grey Steering on the fixed path, where it does nothing.
 
@@ -5864,6 +5887,7 @@ class PreferencesDialog:
                     supersampling=int(fractal_ss.value()),
                     path=fractal_path.currentData(),
                     steering=fractal_steering.value(),
+                    max_depth=fractal_depth.value(),
                     **{name: box.value()
                        for name, box in fractal_mandel.items()},
                 )
@@ -5874,7 +5898,8 @@ class PreferencesDialog:
                     explain_a_fractal_number(name, box.value())
                     for name, box in
                     list(fractal_mandel.items())
-                    + [("supersampling", fractal_ss),
+                    + [("max_depth", fractal_depth),
+                       ("supersampling", fractal_ss),
                        ("scale", fractal_scale),
                        ("speed", fractal_speed)]
                 ]
