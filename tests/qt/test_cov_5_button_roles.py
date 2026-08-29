@@ -15,7 +15,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtCore import QEvent
+from PySide6.QtWidgets import QPushButton, QWidget
 
 from spacr.qt import button_roles as br
 
@@ -75,6 +76,24 @@ def test_repolishing_a_deleted_button_does_nothing(qapp):
     assert br._repolish(dead) is None
 
 
+def test_repolishing_without_a_style_still_requests_the_repaint(monkeypatch):
+    """A host adapter may expose no style; updating it remains harmless."""
+    updated = []
+
+    class UnstyledButton:
+        def style(self):
+            return None
+
+        def update(self):
+            updated.append(True)
+
+    monkeypatch.setattr(br, "alive", lambda _button: True)
+
+    br._repolish(UnstyledButton())
+
+    assert updated == [True]
+
+
 def test_marking_a_deleted_button_busy_does_nothing(qapp):
     """Setting the busy state on a dead button is a silent no-op.
 
@@ -86,6 +105,117 @@ def test_marking_a_deleted_button_busy_does_nothing(qapp):
 
     assert br.set_button_busy(dead, True) is None
     assert br.set_button_busy(dead, False) is None
+
+
+def test_repeating_the_same_busy_state_is_a_noop(qapp, monkeypatch):
+    """An unchanged state does not pay for another stylesheet repolish."""
+    button = QPushButton("Run")
+    button.setProperty("buttonActionBusy", True)
+    repolished = []
+    monkeypatch.setattr(br, "_repolish", repolished.append)
+
+    br.set_button_busy(button, True)
+
+    assert repolished == []
+    button.deleteLater()
+
+
+def test_classifying_a_deleted_button_does_nothing(qapp):
+    """A teardown event for a dead button is ignored at the filter boundary.
+
+    Qt 6.6 can deliver a queued polish or parent-change event after a dialog
+    deleted the C++ button.  The signal connection still retains the Python
+    wrapper, but even asking it for its icon raises ``RuntimeError``.
+    """
+    dead = QPushButton("Cancel")
+    _delete_cpp_side(dead)
+
+    assert br._SemanticButtonFilter().classify(dead) is None
+
+
+def test_adopting_a_spinner_for_a_deleted_button_does_nothing(qapp):
+    """The second half of a show event observes the same liveness boundary."""
+    dead = QPushButton("Clear console")
+    _delete_cpp_side(dead)
+
+    assert br._adopt_activity_spinner(dead) is None
+
+
+def test_a_spinner_that_cannot_attach_is_retried_later(
+        qapp, monkeypatch):
+    """A failed attempt does not set the success-only ownership latch."""
+    from spacr.qt.widgets import activity_spinner
+
+    host = QWidget()
+    button = QPushButton("Clear console", host)
+    host._btn_clear = button
+    monkeypatch.setattr(activity_spinner, "attach_activity_spinner",
+                        lambda _host: None)
+
+    br._adopt_activity_spinner(button)
+
+    assert button.property(br._SPINNER_PROPERTY) is None
+    host.deleteLater()
+
+
+def test_classification_swallows_only_a_reentrant_deletion(
+        qapp, monkeypatch):
+    """A real RuntimeError stays visible; deletion during a Qt call does not."""
+    button = object()
+    answers = iter((True, False, True, True))
+    real_alive = br.alive
+
+    def staged_alive(candidate):
+        # The application-wide event filter keeps receiving ordinary Qt
+        # traffic while this test runs.  Only script liveness for the
+        # synthetic object under test; real widgets must continue through the
+        # real predicate instead of consuming this four-step scenario.
+        if candidate is button:
+            return next(answers)
+        return real_alive(candidate)
+
+    monkeypatch.setattr(br, "alive", staged_alive)
+
+    def refuse(_self, _button):
+        raise RuntimeError("classification failed")
+
+    monkeypatch.setattr(br._SemanticButtonFilter, "_classify_live", refuse)
+    event_filter = br._SemanticButtonFilter()
+
+    assert event_filter.classify(button) is None
+    with pytest.raises(RuntimeError, match="classification failed"):
+        event_filter.classify(button)
+
+
+def test_a_button_named_primary_is_positive_whatever_it_says(qapp):
+    """Object identity supplies the role when translated text cannot."""
+    button = QPushButton("Proceed with the analysis")
+    button.setObjectName("PrimaryButton")
+
+    br._SemanticButtonFilter().classify(button)
+
+    assert button.property("buttonActionRole") == "positive"
+    button.deleteLater()
+
+
+def test_settling_a_deleted_clicked_button_does_nothing(qapp):
+    """A dialog may close before the zero-delay click callback is delivered."""
+    dead = QPushButton("Close")
+    _delete_cpp_side(dead)
+
+    assert br._SemanticButtonFilter._settle_after_handler(dead) is None
+
+
+def test_event_filter_rechecks_liveness_after_classification(qapp):
+    """Qt 6.6 may delete a dialog button during its parent-change event."""
+    class DeletesWhileClassifying(br._SemanticButtonFilter):
+        def classify(self, button):
+            _delete_cpp_side(button)
+
+    button = QPushButton("Cancel")
+
+    assert DeletesWhileClassifying().eventFilter(
+        button, QEvent(QEvent.ParentChange)) is False
 
 
 def test_a_danger_button_reads_as_negative_whatever_it_says(qapp):
