@@ -1,7 +1,9 @@
 """PyTorch dataset generation, classification, inference, and attribution."""
 
 import contextlib
+import functools
 import os, torch, time, gc, datetime, logging
+import sys
 torch.backends.cudnn.benchmark = True
 import numpy as np
 import pandas as pd
@@ -37,6 +39,66 @@ from .torch_artifacts import (
 # inside its own functions, so naming it here costs nothing at
 # import time.
 from .figures.style import figure_style, theme_target
+
+
+_FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
+
+
+def _flowview_event(action, *args):
+    """Reach optional Classify tracing only when it is already enabled.
+
+    The ordinary direct-call path performs no FlowView import.  The
+    environment opt-in mirrors :func:`spacr.classify.classify`, while a live
+    panel or the merged Classify entry point has already loaded and enabled
+    ``spacr.flowview.trace`` before this function is reached.
+    """
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in _FLOWVIEW_TRUE_VALUES:
+            return False
+        try:
+            from .flowview import trace as trace_module
+        except BaseException:
+            return False
+    try:
+        if not trace_module.is_enabled():
+            return False
+        from .flowview import _classify_stages
+
+        return bool(getattr(_classify_stages, f"_{action}")(*args))
+    except BaseException:
+        return False
+
+
+def _flowview_pipeline(family):
+    """Finish or fail the active graph without changing pipeline semantics."""
+
+    def decorate(function):
+        @functools.wraps(function)
+        def observed(*args, **kwargs):
+            settings = args[0] if args else kwargs.get("settings")
+            active = _flowview_event("begin", settings, family)
+            try:
+                result = function(*args, **kwargs)
+            except BaseException as scientific_error:
+                if active:
+                    _flowview_event("fail", scientific_error)
+                raise
+            if active:
+                _flowview_event("finish")
+            return result
+
+        return observed
+
+    return decorate
+
+
+def _flowview_advance(node_id):
+    """Record one real operation boundary, or do nothing when disabled."""
+
+    _flowview_event("advance", node_id)
 
 
 def _class_folder_names(settings):
@@ -1443,6 +1505,7 @@ def _cross_validate_model(settings, num_classes):
         print("Cross-validation produced no fold results.")
         return None
 
+    _flowview_advance("evaluation")
     fold_df = pd.DataFrame(rows)
     summary_df = summarize_cv_metrics(fold_df)
     _print_cv_report(fold_df, summary_df, k)
@@ -1572,6 +1635,7 @@ def train_test_model(settings):
     from .io import generate_loaders, CLASS_BALANCE_MODES
     from .settings import get_train_test_model_settings
 
+    _flowview_advance("dataset")
     settings = get_train_test_model_settings(settings)
 
     # random_seed used to reach the split helpers below and nothing else:
@@ -1683,6 +1747,9 @@ def train_test_model(settings):
     model = None
     model_path = None
     cv_result_loc = None
+
+    if settings['train']:
+        _flowview_advance("split")
 
     if settings['train'] and cv_folds >= 2:
         # k-fold replaces the single split entirely: every crop is validated
@@ -1797,6 +1864,7 @@ def train_test_model(settings):
             return None
 
     if settings['test']:
+        _flowview_advance("evaluation")
         test, _, _ = generate_loaders(
             src,
             mode='test',
@@ -2554,7 +2622,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         ``resume_checkpoint`` does not exist.
     """
 
-
+    _flowview_advance("model")
     if channels is None:
         channels = ['r', 'g', 'b']
     from .io import _save_model, _save_progress
@@ -2744,6 +2812,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         print(amp_note)
     scaler = _gradient_scaler(device, enabled=mixed_precision)
 
+    _flowview_advance("training")
     print('Training ...')
     for epoch in range(start_epoch, epochs + 1):
         model.train()
@@ -3719,6 +3788,7 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
     return report.matched_rows
 
 
+@_flowview_pipeline("cv")
 def deep_spacr(settings=None):
     """Run the full spacr deep-learning pipeline: build dataset, train, apply model, merge predictions into the measurements DB.
 
@@ -3791,10 +3861,12 @@ def deep_spacr(settings=None):
 
     # persist a snapshot of the config for reproducibility
     save_settings(settings, name='DL_model')
+    _flowview_advance("tables")
 
     # 2) dataset generation (train/test)
     if settings.get('train') or settings.get('test'):
         if settings.get('generate_training_dataset'):
+            _flowview_advance("dataset")
             print("Generating train and test datasets ...")
             train_path, test_path = generate_training_dataset(settings)
             print(f'Generated Train set: {train_path}')
@@ -3840,6 +3912,7 @@ def deep_spacr(settings=None):
     if needs_tar and (
             not tar_path or not os.path.isabs(tar_path)
             or not os.path.exists(tar_path)):
+        _flowview_advance("dataset")
         print("Generating full dataset tar ...")
         tar_path = generate_dataset(settings)
         if not tar_path or not os.path.isfile(tar_path):
@@ -3853,6 +3926,7 @@ def deep_spacr(settings=None):
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):
             # -- run inference and get the results DataFrame --
+            _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)
 
             # -- NEW: save the top-N most confident images per class --
@@ -3865,6 +3939,7 @@ def deep_spacr(settings=None):
 
             # -- NEW: merge predictions back into the measurements database --
             # settings['src'] can be a string or list; use the first entry
+            _flowview_advance("scores")
             src_list = settings['src'] if isinstance(settings['src'], list) else [settings['src']]
             for src in src_list:
                 db_path = os.path.join(src, 'measurements', 'measurements.db')

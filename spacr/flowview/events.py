@@ -73,6 +73,14 @@ class StageFailed:
     error: str
 
 
+@dataclass(frozen=True)
+class _StageSkipped:
+    """Mark one deliberately bypassed private pipeline stage."""
+
+    node_id: str
+    at: float
+
+
 FlowEvent = Union[
     NodeAdded,
     EdgeAdded,
@@ -82,6 +90,7 @@ FlowEvent = Union[
     StageThumbnail,
     StageCompleted,
     StageFailed,
+    _StageSkipped,
 ]
 
 

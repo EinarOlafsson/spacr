@@ -1,5 +1,6 @@
 """Classical machine-learning and regression analysis pipelines."""
 
+import functools
 import logging
 import os, sys, re
 import pandas as pd
@@ -73,6 +74,59 @@ from .openmp_guard import single_threaded_openmp, guarded_n_jobs  # see spacr/op
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 LOG = logging.getLogger("spacr.ml")
+
+_FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
+
+
+def _flowview_event(action, *args):
+    """Reach optional Classify tracing without importing it when disabled."""
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in _FLOWVIEW_TRUE_VALUES:
+            return False
+        try:
+            from .flowview import trace as trace_module
+        except BaseException:
+            return False
+    try:
+        if not trace_module.is_enabled():
+            return False
+        from .flowview import _classify_stages
+
+        return bool(getattr(_classify_stages, f"_{action}")(*args))
+    except BaseException:
+        return False
+
+
+def _flowview_pipeline(family):
+    """Finish or fail the active graph without changing scientific output."""
+
+    def decorate(function):
+        @functools.wraps(function)
+        def observed(*args, **kwargs):
+            settings = args[0] if args else kwargs.get("settings")
+            active = _flowview_event("begin", settings, family)
+            try:
+                result = function(*args, **kwargs)
+            except BaseException as scientific_error:
+                if active:
+                    _flowview_event("fail", scientific_error)
+                raise
+            if active:
+                _flowview_event("finish")
+            return result
+
+        return observed
+
+    return decorate
+
+
+def _flowview_advance(node_id):
+    """Record one real operation boundary, or do nothing when disabled."""
+
+    _flowview_event("advance", node_id)
 
 from scipy.stats import kstest, normaltest
 
@@ -9635,6 +9689,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
 
 @single_threaded_openmp('classical ML training')
+@_flowview_pipeline("ml")
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
@@ -9703,6 +9758,7 @@ def generate_ml_scores(settings):
 
     settings = set_default_analyze_screen(settings)
     save_settings(settings, name='generate_ml_scores', show=True)
+    _flowview_advance("tables")
 
     srcs = settings['src']
     
@@ -9815,6 +9871,8 @@ def generate_ml_scores(settings):
             settings['negative_control'] = str(unique_values[1]) if len(unique_values) > 1 else str(int(unique_values[0]) + 1)
             print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
+    _flowview_advance("dataset")
+
     # RECRUITMENT NEEDS EXACTLY ONE CHANNEL, and the setting can now name
     # several, or a shape group, or nothing. `feature_selection` returns a
     # bare int only for the one-channel case -- which is the only case in
@@ -9898,6 +9956,7 @@ def generate_ml_scores(settings):
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df, _ = output
 
     #settings_df.to_csv(settings_csv, index=False)
+    _flowview_advance("scores")
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
@@ -10124,6 +10183,8 @@ def ml_analysis(
         :func:`generate_ml_scores` — wraps this call with DB I/O.
     """
     
+    _flowview_advance("dataset")
+
     def _match_control_values(series, control):
         """
         Return a boolean mask selecting rows in `series` that match `control`.
@@ -10415,6 +10476,8 @@ def ml_analysis(
         after_pruning = len(X.columns)
         print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
+    _flowview_advance("split")
+
     # Split on an actual experimental unit. The index is the canonical prcfo
     # in merged measurement frames, even when filtering removed its component
     # metadata columns from X.
@@ -10455,6 +10518,8 @@ def ml_analysis(
     df['split_cell_fraction'] = split_report.cell_fraction
     df['split_group_fraction'] = split_report.group_fraction
     
+    _flowview_advance("model")
+
     # Initialize the model based on model_type
     if model_type == 'random_forest':
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
@@ -10510,6 +10575,8 @@ def ml_analysis(
     # report on the object makes grouping provenance travel with such a model
     # rather than existing only in stdout or the scored CSV.
     model.spacr_split_report_ = split_report.to_dict()
+
+    _flowview_advance("training")
 
     # Perform k-fold cross-validation
     if cross_validation:
@@ -10620,6 +10687,8 @@ def ml_analysis(
         report_dict = classification_report(
             y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
+
+    _flowview_advance("evaluation")
 
     # ``model_metrics.csv`` is the classical model's durable card. Repeat the
     # scalar provenance on its rows so it survives CSV and remains filterable.
