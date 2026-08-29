@@ -1537,7 +1537,11 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 seconds_per_decade=float(
                     _mandel_setting("seconds_per_decade")))
 
-            if str(_mandel_setting("path", "guided")) != "guided":
+            # FIXED MEANS FIXED. Checked before the camera is configured
+            # or a search is queued: the search is what moves the camera,
+            # and the maintainer's report was that the movement itself is
+            # the shake, not how it is smoothed.
+            if str(_mandel_setting("path", "fixed")) != "guided":
                 return camera.centre
             if not camera.steering:
                 return camera.centre

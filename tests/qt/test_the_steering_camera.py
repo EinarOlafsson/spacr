@@ -151,3 +151,48 @@ def test_nothing_found_asks_again_sooner_rather_than_giving_up():
     camera.aim_at(None, depth=10.0, scale=1.0)
     assert camera.target is None
     assert 10.0 < camera.next_steer < 11.0
+
+
+def test_the_fixed_path_never_moves_the_camera():
+    """"its still shake y its just the search setting s" -- and it is.
+
+    The search MOVES the camera; no amount of smoothing the motion removes
+    the fact that it is being moved. On the fixed path there is nothing to
+    smooth because nothing moves.
+    """
+    from spacr.qt import preferences as P
+
+    assert P.get_fractal_settings()["path"] == "fixed"
+
+    camera = SteeringCamera(strength=0.09)
+    # The canvas returns the centre without advancing on the fixed path.
+    path = [camera.centre for _ in range(600)]
+    assert all(point == (0.0, 0.0) for point in path)
+
+
+def test_the_defaults_are_the_command_line_that_was_given():
+    """Handed over on 2026-08-28, and it supersedes the lighter profile an
+    earlier instruction had implied."""
+    from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
+
+    assert DEFAULTS["supersampling"] == 2
+    assert DEFAULTS["render_scale"] == 1.0
+    assert DEFAULTS["fps"] == 30
+    assert DEFAULTS["zoom_rate"] == 1.0
+    assert DEFAULTS["seconds_per_decade"] == 24.0
+    assert DEFAULTS["base_iterations"] == 300
+    assert DEFAULTS["iterations_per_decade"] == 55.0
+    assert DEFAULTS["max_iterations"] == 2200
+    assert DEFAULTS["precision_digits"] == 320
+    assert DEFAULTS["initial_scale"] == 1.25
+    assert DEFAULTS["tile_rows"] == 32
+    assert DEFAULTS["gpu_fp64"] is False
+    assert DEFAULTS["path"] == "fixed"
+
+
+def test_the_guided_path_is_still_reachable():
+    """Kept, and not what a user who has chosen nothing gets."""
+    from spacr.qt import preferences as P
+
+    assert "guided" in ("fixed", "guided")
+    assert P.explain_a_fractal_number("steering", 0.5) == ""

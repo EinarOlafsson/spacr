@@ -53,7 +53,17 @@ import numpy as np
 #: decades -- and not raising this number.
 MAX_USEFUL_DEPTH: Final[float] = 14.0
 
-#: The published defaults, as asked for on 2026-08-28.
+#: The defaults, as given on 2026-08-28 -- the exact command line the
+#: maintainer runs the original renderer with.
+#:
+#: PATH IS FIXED. Guided steering was built, and it shook: the search moves
+#: the camera, and no amount of smoothing the MOTION removes the fact that
+#: it is being moved at all. "just go back to this for now" -- so the dive
+#: descends to one point and stays pointed at it, which is what the original
+#: does at these settings and what looked right.
+#:
+#: The steering code is kept and reachable by setting `path` to "guided";
+#: it is not what a user who has chosen nothing gets.
 DEFAULTS: Final[dict] = {
     "supersampling": 2,
     "render_scale": 1.0,
@@ -66,15 +76,14 @@ DEFAULTS: Final[dict] = {
     "precision_digits": 320,
     "initial_scale": 1.25,
     "tile_rows": 32,
-    # FP64 OFF DELIBERATELY. The double-precision shader needs GLSL 400, and
-    # many drivers either lack it or emulate it at a cost far larger than the
-    # precision is worth here -- perturbation is what buys the depth, not the
-    # shader's float width. Float32 plus perturbation runs everywhere.
+    # FP64 OFF. The double-precision shader needs GLSL 400, which many
+    # drivers lack or emulate at a cost far larger than the precision is
+    # worth: perturbation is what buys the depth, not the shader's float
+    # width.
     "gpu_fp64": False,
-    # GUIDED, not fixed: every 0.40 decades it looks for a nearby bounded
-    # boundary point and eases the camera onto it, so the zoom keeps finding
-    # new structure instead of descending one shaft forever.
-    "path": "guided",
+    "path": "fixed",
+    # Kept so a guided path can still be asked for, at the values the
+    # original uses for it.
     "steering_strength": 0.09,
     "steering_interval_decades": 0.40,
     "steering_duration": 3.8,

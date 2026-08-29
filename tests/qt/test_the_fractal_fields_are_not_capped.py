@@ -268,24 +268,24 @@ def test_auto_is_conservative_on_both_backends():
     assert resolved_quality("high", "cpu", hardware) == "high"
 
 
-def test_the_shipped_defaults_are_the_light_ones(store):
-    """The cost numbers start at `balanced`; High is what restores the
-    Mandelbrot renderer's published profile."""
+def test_the_shipped_defaults_are_the_ones_that_were_given(store):
+    """They were the `balanced` preset for a while, to keep the first
+    impression light. The maintainer then handed over the command line they
+    actually run -- supersampling 2, render scale 1.0 -- and a later
+    instruction wins over an earlier inference.
+
+    Choosing Balanced still gives the lighter profile; it is simply not
+    what a user who has chosen nothing gets.
+    """
     from spacr.qt.widgets.fractal_mandelbrot import DEFAULTS
 
     values = P.get_fractal_settings()
-    light = P.QUALITY_PRESETS["balanced"]
     for key in ("supersampling", "render_scale", "base_iterations",
-                "max_iterations"):
-        assert values[key] == light[key], key
-        # And they really are lighter than the published set.
-        assert light[key] <= DEFAULTS[key], key
+                "max_iterations", "seconds_per_decade", "precision_digits"):
+        assert values[key] == DEFAULTS[key], key
 
-    # What does not cost anything keeps the published value, or the default
-    # would change what the pattern IS rather than how hard it works.
-    assert values["precision_digits"] == DEFAULTS["precision_digits"]
-    assert values["steering_strength"] == DEFAULTS["steering_strength"]
-    assert values["seconds_per_decade"] == DEFAULTS["seconds_per_decade"]
+    light = P.QUALITY_PRESETS["balanced"]
+    assert light["supersampling"] < DEFAULTS["supersampling"]
 
 
 def test_the_fractal_panel_is_short_enough_not_to_need_sub_categories(qtbot, spaceout_only):

@@ -236,15 +236,18 @@ def _mandelbrot_defaults() -> dict:
     try:
         from .widgets.fractal_mandelbrot import DEFAULTS
 
-        published = dict(DEFAULTS)
-        published.update(QUALITY_PRESETS["balanced"])
-        return published
+        # EXACTLY WHAT WAS GIVEN. An earlier version overrode the cost
+        # numbers with the `balanced` preset to keep the first impression
+        # light; the maintainer then handed over the command line they
+        # actually run, supersampling 2 and render scale 1.0 among it, and
+        # a later instruction wins over an earlier inference.
+        return dict(DEFAULTS)
     except Exception:                                        # noqa: BLE001
-        return {"supersampling": 1, "seconds_per_decade": 24.0,
-                "base_iterations": 200, "iterations_per_decade": 40.0,
-                "max_iterations": 1200, "precision_digits": 320,
+        return {"supersampling": 2, "seconds_per_decade": 24.0,
+                "base_iterations": 300, "iterations_per_decade": 55.0,
+                "max_iterations": 2200, "precision_digits": 320,
                 "initial_scale": 1.25, "zoom_rate": 1.0,
-                "render_scale": 0.75, "steering_strength": 0.09,
+                "render_scale": 1.0, "steering_strength": 0.09,
                 "steering_interval_decades": 0.40,
                 "steering_duration": 3.8, "candidate_count": 24,
                 "max_depth": 34.0}
@@ -403,6 +406,8 @@ _KEY_FRACTAL_CANDIDATE_COUNT = "spaceout/fractal_candidate_count"
 _KEY_FRACTAL_MAX_DEPTH = "spaceout/fractal_max_depth"
 #: The one user-facing steering control, 0..1.
 _KEY_FRACTAL_STEERING = "spaceout/fractal_steering"
+#: "fixed" descends to one point; "guided" searches as it goes.
+_KEY_FRACTAL_PATH = "spaceout/fractal_path"
 
 #: The memory budget: how long an unused thing may sit, how much may be
 #: held, and how much of the machine must stay free for everything else.
@@ -2418,6 +2423,9 @@ def get_fractal_settings() -> dict:
         "candidate_count": int(_number(_KEY_FRACTAL_CANDIDATE_COUNT,
                           _MANDEL_DEFAULTS["candidate_count"],
                           FRACTAL_LIMITS['candidate_count'][0], None)),
+        "path": _text(_KEY_FRACTAL_PATH,
+                      _MANDEL_DEFAULTS.get("path", "fixed"),
+                      ("fixed", "guided")),
         "steering": _number(_KEY_FRACTAL_STEERING,
                             _MANDEL_DEFAULTS.get("steering", 0.35),
                             0.0, 1.0),
@@ -2483,6 +2491,7 @@ def set_fractal_settings(**values) -> None:
                 (FRACTAL_LIMITS['steering_duration'][0], FRACTAL_LIMITS['steering_duration'][1])),
         "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
                 (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
+        "path": (_KEY_FRACTAL_PATH, None),
         "steering": (_KEY_FRACTAL_STEERING, (0.0, 1.0)),
         "max_depth": (_KEY_FRACTAL_MAX_DEPTH,
                       (FRACTAL_LIMITS["max_depth"][0],
@@ -5308,6 +5317,27 @@ class PreferencesDialog:
             # DERIVES the three numbers it stands for -- set by hand they
             # contradict each other, and a short interval with a long
             # duration is the jerkiness that was reported.
+            # THE PATH, and Steering only means anything when it is
+            # guided. Fixed is the default because the search moves the
+            # camera and that is what shook -- smoothing the motion does
+            # not remove the fact that it is being moved.
+            fractal_path = QComboBox()
+            fractal_path.setObjectName("FractalPath")
+            for _key, _label in (("fixed", "Straight down"),
+                                 ("guided", "Search as it goes")):
+                fractal_path.addItem(tr(_label), _key)
+            fractal_path.setCurrentIndex(
+                max(0, fractal_path.findData(_fractal_values["path"])))
+            fractal_path.setToolTip(tr(
+                "Straight down descends to one point on the boundary and "
+                "stays pointed at it — the steadiest picture, and what the "
+                "published settings use.\n\n"
+                "Search as it goes looks for somewhere more interesting "
+                "every so often and moves the camera onto it. It finds more "
+                "variety, and moving the camera is visible: the Steering "
+                "control below sets how much."))
+            fractal.addRow(tr("Path"), fractal_path)
+
             fractal_steering = _tenths(
                 "FractalSteering", _fractal_values["steering"], 0.0, 1.0)
             fractal_steering.setRange(0.0, 1.0)
@@ -5321,6 +5351,20 @@ class PreferencesDialog:
                 "than half the gap before the next, at any setting, so it "
                 "always settles rather than being caught mid-course."))
             fractal.addRow(tr("Steering"), fractal_steering)
+
+            def _steering_only_matters_when_guided(*_args):
+                """Grey Steering on the fixed path, where it does nothing.
+
+                Shown rather than hidden, so it is clear that choosing the
+                other path is what makes it live -- a control that vanishes
+                is one the user has to rediscover.
+                """
+                fractal_steering.setEnabled(
+                    fractal_path.currentData() == "guided")
+
+            fractal_path.currentIndexChanged.connect(
+                _steering_only_matters_when_guided)
+            _steering_only_matters_when_guided()
 
             # THE DETAIL IS NOT ON THE PANEL. Asked for 2026-08-28:
             # "there need to be fewer options... one option for speed that
@@ -5741,6 +5785,7 @@ class PreferencesDialog:
                     pointer_strength=(1.0 if fractal_pointer.isChecked()
                                       else 0.0),
                     supersampling=int(fractal_ss.value()),
+                    path=fractal_path.currentData(),
                     steering=fractal_steering.value(),
                     **{name: box.value()
                        for name, box in fractal_mandel.items()},
