@@ -13,7 +13,6 @@ from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
-
 POSITIVE_PREFIXES = ("run", "propagate")
 NEGATIVE_PREFIXES = (
     "stop", "close", "cancel", "abort", "delete", "remove", "clear",
@@ -123,6 +122,8 @@ def _adopt_activity_spinner(button: QPushButton) -> None:
     ``getattr`` calls, and only until it finds the one button it is looking
     for.
     """
+    if not alive(button):
+        return
     if button.property(_SPINNER_PROPERTY):
         return
     host = button.parentWidget()
@@ -141,6 +142,23 @@ class _SemanticButtonFilter(QObject):
     """Tag buttons globally and preserve Run's fill until work completes."""
 
     def classify(self, button: QPushButton) -> None:
+        # A queued event can outlive the C++ widget while a signal connection
+        # still retains its Python wrapper.  Every operation below crosses
+        # into Qt, so reject that wrapper at the single entry boundary.
+        if not alive(button):
+            return
+        try:
+            self._classify_live(button)
+        except RuntimeError:
+            # Qt 6.6 can delete a dialog button re-entrantly while
+            # ``parentWidget()`` delivers another construction event.  Keep
+            # real RuntimeErrors visible, but a wrapper that became invalid
+            # during that call has no remaining state to classify.
+            if alive(button):
+                raise
+
+    def _classify_live(self, button: QPushButton) -> None:
+        """Apply the semantic role after the entry liveness check."""
         # spaCR's dialog buttons are text, not text-plus-glyph. Qt's platform
         # styles put a standard icon on the standard roles — a cross on
         # Cancel and Close, a downward arrow on Save — which reads as system
@@ -201,10 +219,11 @@ class _SemanticButtonFilter(QObject):
             if event_type in (
                     QEvent.Show, QEvent.Polish, QEvent.ParentChange):
                 self.classify(watched)
-                _adopt_activity_spinner(watched)
+                if alive(watched):
+                    _adopt_activity_spinner(watched)
             elif event_type == QEvent.EnabledChange:
                 self.classify(watched)
-                if (watched.isEnabled()
+                if (alive(watched) and watched.isEnabled()
                         and watched.property("buttonActionBusy") is True):
                     set_button_busy(watched, False)
         return False

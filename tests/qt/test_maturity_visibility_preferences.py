@@ -166,18 +166,24 @@ def test_open_settings_toggle_in_place_without_losing_sections(
     beta = [section for section in sections if section.maturity() == "beta"]
     stable = [section for section in sections if section.maturity() == "stable"]
     assert beta and stable
-    assert all(not section.isHidden() for section in sections)
+    # Dimension switches are an independent visibility gate. Turn them on so
+    # this test leaves maturity as the only reason a section can be hidden.
+    for dimension in ("z", "t"):
+        screen.set_dimension(dimension, True)
+    baseline = {section: section.isHidden() for section in sections}
+    assert any(not baseline[section] for section in beta)
+    assert any(not baseline[section] for section in stable)
 
     maturity_prefs.set_show_beta(False)
     screen.refresh_maturity_visibility()
     assert all(section.isHidden() for section in beta)
-    assert all(not section.isHidden() for section in stable)
+    assert all(section.isHidden() == baseline[section] for section in stable)
     assert not screen._maturity_notice.isHidden()
     assert "Beta settings are hidden" in screen._maturity_notice.text()
 
     maturity_prefs.set_show_beta(True)
     screen.refresh_maturity_visibility()
-    assert all(not section.isHidden() for section in beta)
+    assert all(section.isHidden() == baseline[section] for section in sections)
     assert screen._maturity_notice.isHidden()
 
 

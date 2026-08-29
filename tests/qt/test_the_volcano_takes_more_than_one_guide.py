@@ -6,14 +6,13 @@ API that works perfectly and is wired to nothing.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
 pytest.importorskip("pyqtgraph")
 
-from PySide6.QtCore import Qt         # noqa: E402
+from PySide6.QtCore import Qt  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
 
@@ -23,11 +22,12 @@ def app():
 
 
 @pytest.fixture
-def volcano(app):
+def volcano(app, qtbot):
     """A keyed scatter with six points at known coordinates."""
     from spacr.qt.widgets.fast_plots import FastPlot
 
     plot = FastPlot(title="volcano")
+    qtbot.addWidget(plot)
     frame = pd.DataFrame({
         "grna": [f"g{i}" for i in range(6)],
         "coefficient": [-2.0, -1.0, 0.0, 1.0, 2.0, 3.0],
@@ -315,7 +315,7 @@ class TestTheConsumersReadTheSameList:
     the actual work."""
 
     @pytest.fixture
-    def panel(self, app):
+    def panel(self, app, qtbot):
         from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
         frame = pd.DataFrame({
@@ -324,6 +324,7 @@ class TestTheConsumersReadTheSameList:
             "p_value": [0.01, 0.2, 0.9, 0.001, 1e-5, 0.4],
         })
         one = RegressionResultsPanel()
+        qtbot.addWidget(one)
         one.set_frame(frame)
         return one
 
@@ -350,33 +351,38 @@ class TestTheConsumersReadTheSameList:
         panel._select_many_from_a_plot(["g0"])
         assert panel.table.selected_keys() == before
 
-    def test_the_montage_holds_all_of_them_and_shows_one(self, app):
+    def test_the_montage_holds_all_of_them_and_shows_one(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         view = CellMontageView()
+        qtbot.addWidget(view)
         view.set_coefficients(["g0", "g3", "g4"])
         assert view.selected_coefficients() == ["g0", "g3", "g4"]
         assert view._key == "g4", "the most recent is the one shown"
 
-    def test_the_montage_steps_through_the_selection(self, app):
+    def test_the_montage_steps_through_the_selection(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         view = CellMontageView()
+        qtbot.addWidget(view)
         view.set_coefficients(["g0", "g3", "g4"])
         assert view.show_next_coefficient() == "g0"
         assert view.show_next_coefficient() == "g3"
 
-    def test_a_single_selection_has_nowhere_to_step(self, app):
+    def test_a_single_selection_has_nowhere_to_step(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         view = CellMontageView()
+        qtbot.addWidget(view)
         view.set_coefficients(["g0"])
         assert view.show_next_coefficient() is None
 
-    def test_an_empty_selection_is_a_state_the_consumers_handle(self, app):
+    def test_an_empty_selection_is_a_state_the_consumers_handle(
+            self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         view = CellMontageView()
+        qtbot.addWidget(view)
         view.set_coefficients([])
         assert view.selected_coefficients() == []
 
@@ -392,10 +398,11 @@ class TestTheMontageShowsTheWholeSelection:
     """
 
     @pytest.fixture
-    def view(self, app):
+    def view(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         one = CellMontageView()
+        qtbot.addWidget(one)
         one.set_coefficients(["g1", "g2", "g3"])
         return one
 
@@ -427,17 +434,20 @@ class TestTheMontageShowsTheWholeSelection:
         assert view._queue == []
         assert view._build_the_next_queued() is False
 
-    def test_an_empty_selection_queues_nothing(self, app):
+    def test_an_empty_selection_queues_nothing(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
         one = CellMontageView()
+        qtbot.addWidget(one)
         one.set_coefficients([])
         assert one.build_every_selected() == 0
 
-    def test_the_queue_is_empty_at_rest(self, app):
+    def test_the_queue_is_empty_at_rest(self, app, qtbot):
         from spacr.qt.widgets.cell_montage_view import CellMontageView
 
-        assert CellMontageView()._queue == []
+        one = CellMontageView()
+        qtbot.addWidget(one)
+        assert one._queue == []
 
     def test_the_tabs_are_what_keeps_the_selection_visible(self):
         """Asserted on the code, because it is a promise `_drop_montage`
