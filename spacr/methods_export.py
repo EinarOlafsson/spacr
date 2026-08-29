@@ -250,7 +250,7 @@ def _supported(token: str, allowed: Set[float]) -> bool:
         value = float(token)
     except ValueError:                                # pragma: no cover
         return False
-    if not math.isfinite(value):                      # pragma: no cover
+    if not math.isfinite(value):
         return False
     if value in ALWAYS_ALLOWED or -value in ALWAYS_ALLOWED:
         return True
@@ -260,7 +260,7 @@ def _supported(token: str, allowed: Set[float]) -> bool:
     decimals = len(mantissa.split(".")[1]) if "." in mantissa else 0
     try:
         exponent = int(exponent_text) if exponent_text else 0
-    except ValueError:                                # pragma: no cover
+    except ValueError:
         exponent = 0
     counted = decimals == 0 and not exponent_text
     tolerance = 0.5 * (10.0 ** (exponent - decimals))
