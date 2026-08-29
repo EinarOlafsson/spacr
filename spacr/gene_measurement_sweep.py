@@ -605,7 +605,7 @@ def _write(figure, path) -> None:
         from .figure_style import export_colour, saved_figure_appearance
 
         look = saved_figure_appearance()
-    except Exception:                        # pragma: no cover - style absent
+    except Exception:                        # style absent
         look = None
     if look is not None and getattr(look, "flip", False):
         ground = getattr(look, "ground", None)
@@ -711,14 +711,14 @@ def _readable(figure, *axes) -> str:
         from .figures.style import resolve_ink, theme_target
 
         ink = resolve_ink(theme_target())
-    except Exception:                        # pragma: no cover - style absent
+    except Exception:                        # style absent
         pass
     # TRANSPARENT, not a colour of our own: the page the figure lands on is
     # the application's, and painting white behind it is what makes a dark
     # theme look broken.
     try:
         figure.patch.set_alpha(0.0)
-    except Exception:                        # pragma: no cover - defensive
+    except Exception:                        # defensive
         pass
     for axis in axes:
         if axis is None:
@@ -744,7 +744,7 @@ def _readable(figure, *axes) -> str:
             if legend is not None:
                 for text in legend.get_texts():
                     text.set_color(ink)
-        except Exception:                    # pragma: no cover - defensive
+        except Exception:                    # defensive
             continue
     return ink
 
