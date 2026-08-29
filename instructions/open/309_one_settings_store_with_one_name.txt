@@ -1,0 +1,109 @@
+================================================================================
+SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
+================================================================================
+
+Status:    OPEN, filed 2026-08-29.
+Owner:     spacr/qt. Filed by the coverage session, which has not edited any
+           file under spacr/qt/ and will not.
+Requested: 2026-08-29 -- arising from "each spacr install should have its own
+           individual settings and be self contained", where the user then
+           decided the SHARING is correct and should stay: "the per shared cash
+           is fine leave it". This item is therefore NOT about isolating
+           settings per environment. It is about the split and the drift found
+           while answering that question.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR writes preferences to TWO stores under TWO different organisation and
+application names:
+
+  * ``QSettings("spacr", "qt")`` -- Linux ~/.config/spacr/qt.conf -- used by
+    spacr/qt/first_run.py:41-42, install_consent.py:25, preferences.py:636,
+    settings_search.py:93 and walkthrough.py:56.
+  * ``QSettings("Olafsson Lab", "spaCR")`` -- Linux
+    ~/.config/Olafsson Lab/spaCR.conf -- used by spacr/qt/prefs.py:14-20 and
+    nothing else. It holds the "recent paths" per app key.
+
+Two further facts, both verified rather than inferred:
+
+  * prefs.py's module docstring states "The organization/application name is
+    set by ``launch()`` in ``spacr.qt.app``". That is FALSE. prefs.py passes
+    ``ORG, APP`` explicitly, which overrides the application-level names. And
+    there are ZERO bare ``QSettings()`` calls anywhere in spacr/, so the
+    ``setApplicationName("spaCR")`` / ``setOrganizationName("Olafsson Lab")``
+    pair at spacr/qt/app.py:4552-4553 is dead configuration: nothing reads it.
+  * The drift has already stranded data. On a developer machine
+    ~/.config/Olafsson Lab/ contains BOTH ``spaCR.conf`` and ``SpaCR.conf``.
+    Two spellings of the same application name are two different files on a
+    case-sensitive filesystem, so some settings were written under a third
+    name and are now orphaned and unreachable.
+
+Sharing across installs is CORRECT and must not change. QSettings resolves
+from organisation and application name plus the OS user's config location, so
+a pip install, an editable install and the .deb/.dmg/.exe bundle all reach the
+same store -- nothing in packaging/ overrides HOME or XDG_CONFIG_HOME, and the
+bundles are plain, not Snap/Flatpak/AppImage. That is the intended behaviour
+and this item preserves it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Recent paths cannot be cleared, migrated, exported or backed up alongside
+every other preference, because they live in a different file under a
+different name. A user who resets their settings keeps stale recent paths; a
+user who copies their config to a new machine loses them. The orphaned
+``SpaCR.conf`` shows the failure mode is not theoretical -- settings have
+already been lost to a name that nothing reads any more.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Pick ONE organisation/application pair and use it everywhere. ``("spacr",
+   "qt")`` is the one five modules already use, so moving prefs.py costs one
+   migration rather than five.
+2. Change spacr/qt/prefs.py to that pair. On first read after the change,
+   copy any keys found in the old ``("Olafsson Lab", "spaCR")`` store into the
+   new one, then leave the old file alone rather than deleting it, so a
+   downgrade does not lose data. Correct the format going forward and convert
+   what exists -- do not preserve the split.
+3. Also migrate any keys found under the case-drift spelling
+   ``("Olafsson Lab", "SpaCR")``, which is unreachable from code today.
+4. Either delete the dead ``setOrganizationName``/``setApplicationName`` pair
+   at spacr/qt/app.py:4552-4553, or make every call site use bare
+   ``QSettings()`` so those names become the single source of truth. Do not
+   leave configuration that nothing reads.
+5. Fix prefs.py's docstring, which currently documents behaviour the code does
+   not have.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A test that writes a recent path and a preference, then asserts both land
+    in the SAME QSettings file.
+  * A migration test: seed a temporary config directory with the old
+    ``Olafsson Lab/spaCR`` keys AND the ``SpaCR`` case-drift spelling, start
+    spaCR, and assert every key is readable through the new store.
+  * ``grep -rn 'QSettings(' spacr/`` shows exactly one organisation and
+    application pair.
+  * Sharing is unchanged: two installs on different interpreters still read
+    each other's settings.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Per-environment settings isolation was considered and REJECTED by the user on
+2026-08-29. Do not key the settings path on sys.prefix or add a
+SPACR_CONFIG_DIR override as a default behaviour change. Sandboxing
+XDG_CONFIG_HOME remains the way to get a clean first-run for testing, and
+tests must keep doing it so they never write a developer's real config.
+
+SEPARATE, NOT FIXED HERE: setup.py declares ``protobuf>=5.28.3`` with no upper
+bound. A 2026-08-29 install on Python 3.10 resolved protobuf 7.36.0, which a
+co-installed wandb rejects. That is a dependency-bounds question and belongs
+with item 308, not with settings.
