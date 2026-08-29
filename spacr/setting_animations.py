@@ -252,7 +252,7 @@ def measure_visible_change(path) -> float:
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # pragma: no cover - no imaging
+    except Exception:                       # no imaging
         return 1.0
     try:
         frames = []
@@ -308,7 +308,7 @@ def _animation_frames(path):
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # pragma: no cover - no imaging
+    except Exception:                       # no imaging
         return None
     frames = []
     try:
@@ -346,7 +346,7 @@ def measure_border_artifact(path) -> float:
     """
     try:
         import numpy as np
-    except Exception:                       # pragma: no cover - no imaging
+    except Exception:                       # no imaging
         return 0.0
     frames = _animation_frames(path)
     if not frames or len(frames) < 2:
@@ -412,24 +412,6 @@ _OBJECT_CLOSING = 13
 _MIN_OBJECT_PIXELS = 60
 
 
-def _animation_frames(path):
-    """Decode a GIF into a list of RGB arrays, or an empty list."""
-    import numpy as np
-    from PIL import Image
-
-    frames = []
-    try:
-        with Image.open(path) as image:
-            while True:
-                frames.append(np.asarray(image.convert("RGB"), dtype=np.int16))
-                image.seek(image.tell() + 1)
-    except EOFError:
-        pass
-    except Exception:
-        return []
-    return frames
-
-
 def measure_border_object_removal(path) -> Dict[str, int]:
     """Classify what a "remove border objects" animation actually removes.
 
@@ -465,7 +447,7 @@ def measure_border_object_removal(path) -> Dict[str, int]:
     from scipy import ndimage
 
     frames = _animation_frames(path)
-    if len(frames) < _STEADY_FRAMES_NEEDED:
+    if not frames or len(frames) < _STEADY_FRAMES_NEEDED:
         raise SettingAnimationError(f"{path}: not enough frames to compare")
 
     height = frames[0].shape[0]
