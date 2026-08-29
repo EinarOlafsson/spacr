@@ -79,7 +79,7 @@ import time
 from collections import OrderedDict
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
 
@@ -985,24 +985,13 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
 # ---------------------------------------------------------------------------
 
 def _region_for(fld: MergedField, spec: CropSpec):
-    """Return ``(centroid_yx, region_bounds, region_mask_or_None)``.
+    """Return ``(centroid_yx, region_bounds, region_mask)``.
 
-    ``region_mask`` is the boolean region restricted to ``region_bounds``; when
-    it is ``None`` the region covers the whole field (the ``iterations=0``
-    dilation quirk, see below) and no masking is applied.
-
-    Mirrors ``_measure_crop_core`` exactly, including two behaviours that are
-    almost certainly bugs but are matched rather than fixed, because an
-    annotation made on a PNG has to be comparable with a crop cut here:
-
-    * with ``use_bounding_box`` *and* ``dilate`` both on, the PNG path measures
-      the region area with ``np.sum(region)`` on a mask filled with the *label
-      value*, not with ``True`` -- so the dilation radius is inflated by
-      ``sqrt(label)``;
-    * when the dilation radius rounds down to 0, the PNG path calls
-      ``scipy.ndimage.binary_dilation(..., iterations=0)``, which means "repeat
-      until nothing changes" and fills the entire field -- the crop ends up
-      being an unmasked window centred on the middle of the field.
+    ``region_mask`` is always the boolean region restricted to
+    ``region_bounds``. Bounding-box dilation is based on the number of pixels,
+    independent of the object's integer label. A dilation radius that rounds
+    down to zero is skipped, because ``scipy.ndimage.binary_dilation`` assigns
+    a different, surprising meaning to ``iterations=0`` (dilate to stability).
     """
     H, W, _ = fld.shape
     idx = None
@@ -3107,16 +3096,15 @@ class CropSource:
         from PIL import Image
         return Image.fromarray(self.get(row))
 
-    def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
         """Return crops for many rows. Overridden by sources that can batch.
 
         :param rows: rows to crop. The result has one entry per row in the
             same order, so a caller can zip the two. This base implementation
             is a plain loop over :meth:`get` and therefore raises on the first
             row it cannot crop, and so does the one override shipped here,
-            on :class:`MergedCropSource` -- despite the ``Optional`` in the
-            return type, no implementation in this module ever puts ``None``
-            in the list, so a caller need not test for it.
+            on :class:`MergedCropSource`. Successful calls therefore never
+            contain ``None``.
         """
         return [self.get(r) for r in rows]
 
@@ -3428,7 +3416,7 @@ class MergedCropSource(CropSource):
         """
         return png_view(self.get_array(row))
 
-    def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
         """Return crops for many rows, opening each merged file only once.
 
         :param rows: rows to crop; :meth:`spec_for` says which fields each has
@@ -3437,6 +3425,8 @@ class MergedCropSource(CropSource):
             merged file so each ``.npy`` is memory-mapped and label-indexed
             once for the whole bucket. Every spec is built up front, so one
             row missing its label fails the batch before any file is opened.
+            The default fail-loud extraction policy means successful calls
+            never contain ``None``.
         """
         rows = list(rows)
         specs = [self.spec_for(r) for r in rows]
@@ -3448,7 +3438,9 @@ class MergedCropSource(CropSource):
             crops = extract_crops(path, [specs[i] for i in positions])
             for i, crop in zip(positions, crops):
                 out[i] = png_view(crop) if crop is not None else None
-        return out
+        # ``extract_crops`` supports a separate ``on_error='none'`` API, but
+        # this source deliberately uses its default fail-loud contract.
+        return cast(List[np.ndarray], out)
 
 
 def _looks_like_experiment_root(src: str) -> str:
