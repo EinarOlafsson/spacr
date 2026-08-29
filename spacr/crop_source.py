@@ -235,6 +235,18 @@ def _as_indices(value, what: str) -> List[int]:
         raise CropSourceError(f"{what}={value!r} is not a list of planes") from exc
 
 
+def _positive_size(value: Any) -> int:
+    """Return an integer crop side, refusing an empty or inverted image."""
+    try:
+        side = int(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise CropSourceError(
+            f"size={value!r} is not a positive integer") from exc
+    if side <= 0:
+        raise CropSourceError(f"size must be positive, got {value!r}")
+    return side
+
+
 def object_bounds(mask: np.ndarray, label: int) -> Optional[Tuple[int, int, int, int]]:
     """``(row0, row1, col0, col1)`` of one labelled object, or None if absent.
 
@@ -261,9 +273,11 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
         ``object`` zeroes everything outside the object itself. The background
         around a cell is sometimes signal and sometimes contamination, which
         is why this is a choice rather than a default.
-    :param size: resize the result to ``size × size`` when given.
+    :param size: resize the result to ``size × size`` when given. It must
+        be positive; ``None`` preserves the object's natural bounding box.
     :returns: ``(h, w, len(channels))``, or None if the object is not there.
-    :raises CropSourceError: a plane the array does not have.
+    :raises CropSourceError: a plane the array does not have, or an explicit
+        ``size`` that is not positive.
     """
     if shape not in CROP_SHAPES:
         raise CropSourceError(
@@ -277,6 +291,7 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
         raise CropSourceError(
             f"extract_channels asks for plane {max(planes)} but the merged "
             f"array has {array.shape[2]}")
+    target_size = _positive_size(size) if size is not None else None
 
     bounds = object_bounds(mask, label)
     if bounds is None:
@@ -292,8 +307,8 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
     if shape == "object":
         inside = (mask[row0:row1, col0:col1] == label)
         cut = cut * inside[:, :, None]
-    if size:
-        cut = _resize(cut, int(size))
+    if target_size is not None:
+        cut = _resize(cut, target_size)
     return cut
 
 
@@ -319,24 +334,32 @@ def crop_at(array: np.ndarray, row: float, column: float, *,
         the array does not have raises ``IndexError``, and a negative one
         silently counts back from the last plane. An empty list yields a
         zero-channel crop rather than None.
-    :param size: the box asked for, not the shape returned -- nothing on this
-        path is resized or padded, unlike ``size`` in :func:`crop_object`. The
-        side is rounded DOWN to even (``size=5`` cuts 4 px) and never falls
-        below 2 (``0`` and negative values cut 2 px), and an array edge clips
-        it further, so a coordinate near a border yields a smaller crop than
-        one from the middle.
-    :returns: ``(h, w, len(channels))`` as float32, or None when the box falls
-        entirely off the array.
-    :raises CropSourceError: ``channels`` is None, or is not planes.
+    :param size: the positive side length returned. Odd sizes keep the rounded
+        coordinate at index ``size // 2``. A box crossing an array edge is
+        zero-padded rather than clipped or rescaled, preserving its centre and
+        pixel scale.
+    :returns: ``(size, size, len(channels))`` as float32, or None when the box
+        falls entirely off the array.
+    :raises CropSourceError: ``channels`` is None or is not planes, or ``size``
+        is not positive.
     """
     planes = _as_indices(channels, "extract_channels")
-    half = max(1, int(size) // 2)
+    side = _positive_size(size)
     r, c = int(round(float(row))), int(round(float(column)))
-    row0, row1 = max(0, r - half), min(array.shape[0], r + half)
-    col0, col1 = max(0, c - half), min(array.shape[1], c + half)
-    if row1 <= row0 or col1 <= col0:
+    row0, row1 = r - side // 2, r - side // 2 + side
+    col0, col1 = c - side // 2, c - side // 2 + side
+    source_row0, source_row1 = max(0, row0), min(array.shape[0], row1)
+    source_col0, source_col1 = max(0, col0), min(array.shape[1], col1)
+    if source_row1 <= source_row0 or source_col1 <= source_col0:
         return None
-    return array[row0:row1, col0:col1, :][:, :, planes].astype(np.float32)
+    cut = array[source_row0:source_row1, source_col0:source_col1, :][
+        :, :, planes].astype(np.float32)
+    return np.pad(
+        cut,
+        ((source_row0 - row0, row1 - source_row1),
+         (source_col0 - col0, col1 - source_col1),
+         (0, 0)),
+        mode="constant")
 
 
 def _resize(image: np.ndarray, size: int) -> np.ndarray:

@@ -6,12 +6,21 @@ import numpy as np
 import pytest
 
 from spacr.crop_source import (
-    CROP_SOURCE_ALIASES, CROP_SOURCE_OPTIONS, CROP_SOURCES, CropSourceError,
-    crop_at, crop_object, crops_from_merged, inapplicable_settings,
-    mask_plane_for, matches_path, normalise_extension, resolve_source,
-    select_crops, stream_planes, validate,
+    CROP_SOURCE_ALIASES,
+    CROP_SOURCE_OPTIONS,
+    CropSourceError,
+    crop_at,
+    crop_object,
+    crops_from_merged,
+    inapplicable_settings,
+    mask_plane_for,
+    matches_path,
+    normalise_extension,
+    resolve_source,
+    select_crops,
+    stream_planes,
+    validate,
 )
-
 
 # ---------------------------------------------------------------------------
 # Which source
@@ -263,10 +272,13 @@ def test_a_coordinate_crop_is_a_fixed_box():
     assert cut.shape == (4, 4, 2)
 
 
-def test_a_coordinate_at_the_edge_is_clipped_not_refused():
+def test_a_coordinate_at_the_edge_is_zero_padded_to_the_fixed_size():
     array = _merged()
     cut = crop_at(array, 0, 0, channels=[0], size=6)
-    assert cut is not None and cut.shape[0] == 3
+    assert cut is not None and cut.shape == (6, 6, 1)
+    assert not cut[:3, :, :].any()
+    assert not cut[:, :3, :].any()
+    assert np.all(cut[3:, 3:, 0] == 7.0)
 
 
 def test_a_coordinate_outside_the_image_gives_nothing():

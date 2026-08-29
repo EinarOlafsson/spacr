@@ -472,6 +472,14 @@ SHAPE THAT BREAKS BATCHING
   `half = max(1, int(size) // 2)` also makes the box side always even and
   never below 2, so size=5 cuts 4 px and size=0 or -4 cut 2 px.
 
+  FIXED 2026-08-29. ``size`` is now the exact positive side length on both
+  crop helpers. ``crop_at`` preserves the rounded coordinate and pixel scale,
+  zero-padding any part of its fixed window that crosses the array edge;
+  only a window with no overlap still returns None. Odd sides remain odd, and
+  centre and border crops can be stacked directly. ``crop_object(size=None)``
+  still returns the object's natural box, while an explicit zero, negative or
+  invalid size is refused instead of becoming a different shape silently.
+
 RESOURCE LEAKS
 
   database_concurrency.run_concurrency_probe leaks its temporary directory
@@ -501,12 +509,10 @@ QUIET COERCION
   and means "do not set it", so the probe reports DELETE -- a quiet non-WAL
   run rather than an error.
 
-WHY LISTED RATHER THAN FIXED: every one is a decision about intended
-behaviour, not a repair. Should an out-of-range channel raise everywhere, or
-zero-fill everywhere? Should crop_at pad like crop_object, or should the
-setting be renamed on one of the two paths? Ranked silent-wrong-output first;
-`layers.for_grid` and `lineage.tree_for` are the two that produce a confident
-wrong answer rather than a crash.
+WHY THE REMAINING CASE IS LISTED RATHER THAN FIXED: strict integer coercion
+and accepting ``journal_mode=None`` are decisions about which historical
+inputs the concurrency probe should keep accepting, not repairs with one
+provable result.
 
 
 --------------------------------------------------------------------------------
