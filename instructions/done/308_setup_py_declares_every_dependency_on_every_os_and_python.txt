@@ -3,7 +3,7 @@ SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
 OPERATING SYSTEM AND EVERY PYTHON FROM 3.9 UP
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29. RELEASE-BLOCKING for 1.5.0.5.
+Status:    DONE, 2026-08-29. Verified on nightly commit b2dd50ff.
 Owner:     packaging. Filed by the coverage session; it has NOT edited setup.py,
            packaging/ or any workflow, and will not. This item is entirely the
            packaging session's to execute.
@@ -238,6 +238,40 @@ NOT FIXED HERE: mahotas needs a compiler on 3.13/3.14 and pylibCZIrw on 3.14.
 Both are known, documented, and confined to optional extras that plain
 ``pip install spacr`` does not pull.
 
-NOT TOUCHED: instructions/00_INDEX.txt has no row for this item, because the
-packaging session held that file dirty when this was filed. Add the row when
-that tree is clean.
+NOW DONE: ``instructions/00_INDEX.txt`` was regenerated when this item closed;
+the original filing could not add its row because another session held the
+index dirty at that moment.
+
+--------------------------------------------------------------------------------
+2026-08-29 — COMPLETED AND VERIFIED
+--------------------------------------------------------------------------------
+
+VisPy is now a core dependency while the historical ``fractal`` extra remains
+a supported spelling. The default Mandelbrot renderer is therefore present in
+plain installs and in the frozen desktop application. The shared PyInstaller
+spec explicitly discovers the local spaCR package and VisPy's PySide6 backend;
+the final clean Linux bundle contained every spaCR runtime module, launched
+offscreen for 60 seconds without a missing-module error, and contained the
+default renderer rather than silently substituting an incidental host package.
+
+The impossible resolver combinations are expressed as environment markers:
+Intel macOS omits torch/torchvision from Python 3.13 onward, trackastra starts
+at Python 3.10, and ultrack stops before Python 3.14. The aggregate ``all``
+extra carries the identical limits. The Qt import census exemption is gone,
+``spacr-doctor`` reports the fractal capability, and the compatibility workflow
+installs core-only and constructs the default renderer under software OpenGL.
+
+Final evidence on commit ``b2dd50ff``:
+
+  * GitHub ``compat-matrix`` run 33279949072 completed successfully;
+  * the dependency census, packaging metadata and PyInstaller structural
+    cohort passed 48/48 in a clean isolated checkout;
+  * the broader packaging/smoke cohort passed 655 tests before the commit;
+  * the deterministic bundle was 7,160,977,392 bytes / 9,037 files, 24.4%
+    smaller and 44% fewer files than the original blanket-collection build;
+  * the real frozen GUI stayed alive until the controlled 60-second timeout
+    with ``spacr.qt.prerun``, ``spacr.qt.maturity``, TensorBoard and the VisPy
+    PySide6 backend present, while undeclared host extras were absent.
+
+This completes dependency declaration and bundle completeness. Startup and
+per-screen resource budgets remain separately owned by instruction 305.
