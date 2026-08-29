@@ -5589,9 +5589,9 @@ category_dependencies = {
     'motility_analysis': ['Motility (beta)', 'Motility Advanced (beta)'],
 }
 
-category_group_dependencies = {
-    'Merge split objects': ['postprocess_nucleus_masks'],
-}
+# Compatibility hook for callers that still inspect the settings dependency
+# tables. No live setting currently gates a category by group membership.
+category_group_dependencies = {}
 
 category_integer_dependencies = {
     ('cell_channel', 'cell_mask_dim'): ['Cell'],

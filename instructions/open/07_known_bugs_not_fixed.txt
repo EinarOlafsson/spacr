@@ -286,10 +286,14 @@ arriving as its default was indistinguishable from a real zero. It would have
 swallowed the two counts added by the frac_missing fix. Now
 `dataclasses.replace`.
 
-STILL OPEN from the list above: the four `postprocess_*_masks` phantoms
-(registered dead, correctly, and not deletable -- see the settings entry), and
-`MergedCropSource.get_many` raising where its `List[Optional[...]]` return
-type says it skips.
+STATUS 2026-08-29: all four `postprocess_*_masks` settings were already
+removed from defaults, types, tooltips and categories. The last surviving
+reference, a `category_group_dependencies` entry for
+`postprocess_nucleus_masks`, is now gone; the compatibility map remains empty
+for callers that inspect it, and the retired-settings regression scans that
+map too. `MergedCropSource.get_many` deliberately remains fail-loud and its
+public return annotation and documentation now say so, with a regression that
+proves successful batches cannot contain `None`.
 
 --------------------------------------------------------------------------------
 N+2. An EMPTY GLCM returns plausible numbers instead of nothing, for most
