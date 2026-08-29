@@ -2,7 +2,7 @@
 SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29.
+Status:    DONE, 2026-08-29.
 Owner:     spacr/qt. Filed by the coverage session, which has not edited any
            file under spacr/qt/ and will not.
 Requested: 2026-08-29 -- arising from "each spacr install should have its own
@@ -107,3 +107,32 @@ SEPARATE, NOT FIXED HERE: setup.py declares ``protobuf>=5.28.3`` with no upper
 bound. A 2026-08-29 install on Python 3.10 resolved protobuf 7.36.0, which a
 co-installed wandb rejects. That is a dependency-bounds question and belongs
 with item 308, not with settings.
+
+--------------------------------------------------------------------------------
+2026-08-29 -- DONE
+--------------------------------------------------------------------------------
+
+``spacr.qt.prefs`` now writes to the same ``QSettings("spacr", "qt")`` store
+as every other preference helper.  Its first access copies missing keys from
+both historical ``Olafsson Lab/spaCR`` and case-drifted ``Olafsson Lab/SpaCR``
+stores.  Canonical values win conflicts, and neither old store is changed or
+deleted, so a downgrade remains safe.
+
+The redundant post-construction ``setApplicationName`` /
+``setOrganizationName`` calls were removed from ``spacr.qt.app``.  macOS menu
+and display naming still happens through ``name_the_application`` before the
+``QApplication`` constructor; settings storage no longer depends on those UI
+identity names.
+
+Acceptance evidence:
+
+* The new same-store and two-spelling migration tests pass alongside the
+  existing recent-path, preference, and real-launch contract: 64/64 on both
+  current Python and the minimum Python 3.9/PySide6 6.6 environment.
+* A current interpreter wrote a recent path and the Python 3.9 interpreter
+  read it; Python 3.9 then wrote a theme and the current interpreter read it.
+  Both resolved to the one file ``spacr/qt.conf`` under a temporary
+  ``XDG_CONFIG_HOME``.
+* The migration test proves both legacy namespaces are read, pre-existing
+  canonical values are retained, and the legacy key/value maps remain byte-
+  for-value unchanged.

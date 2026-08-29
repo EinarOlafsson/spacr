@@ -2420,8 +2420,10 @@ def test_launch_opens_the_requested_app(launched, qtbot):
 
     shim = launched["shims"][0]
     assert shim.exec_calls == 1
-    assert shim.app_name == "spaCR"
-    assert shim.org_name == "Olafsson Lab"
+    assert shim.app_name is None
+    assert shim.org_name is None
+    assert shim.applicationName() == "spaCR"
+    assert shim.organizationName() == "Olafsson Lab"
     assert "QWidget" in (shim.stylesheet or ""), "theme was never applied"
 
     win = launched["window"]()

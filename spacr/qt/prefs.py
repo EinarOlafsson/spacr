@@ -1,23 +1,57 @@
-"""
-Small QSettings wrapper for per-user persistence of "recent" paths.
+"""Per-user persistence of recent paths in spaCR's canonical Qt store.
 
-The organization/application name is set by `launch()` in
-`spacr.qt.app`, so this module works with the platform-appropriate
-settings backend (macOS plist, Windows registry, Linux INI file).
+Recent paths used to live under two legacy ``Olafsson Lab`` namespaces.
+The first access copies their keys into ``QSettings("spacr", "qt")`` without
+deleting or overwriting either legacy store, so upgrades and downgrades both
+remain safe.
 """
 from __future__ import annotations
 
+from threading import RLock
 from typing import List
 
 from PySide6.QtCore import QSettings
 
-ORG = "Olafsson Lab"
-APP = "spaCR"
+ORG = "spacr"
+APP = "qt"
+
+_LEGACY_NAMESPACES = (
+    ("Olafsson Lab", "spaCR"),
+    ("Olafsson Lab", "SpaCR"),
+)
+_MIGRATED_FILES: set[str] = set()
+_MIGRATION_LOCK = RLock()
+
+
+def _migrate_legacy_settings(current: QSettings) -> None:
+    """Copy missing keys from both historical recent-path stores once.
+
+    Existing values in the canonical store win: they were written by newer
+    code and must not be replaced if an older spaCR build subsequently writes
+    to a legacy store.  The old stores are read only and deliberately remain
+    intact so downgrading cannot lose a user's recent paths.
+    """
+    current_file = str(current.fileName())
+    with _MIGRATION_LOCK:
+        if current_file in _MIGRATED_FILES:
+            return
+        for organization, application in _LEGACY_NAMESPACES:
+            legacy = QSettings(organization, application)
+            if str(legacy.fileName()) == current_file:
+                continue
+            legacy.sync()
+            for key in legacy.allKeys():
+                if not current.contains(key):
+                    current.setValue(key, legacy.value(key))
+        current.sync()
+        _MIGRATED_FILES.add(current_file)
 
 
 def _s() -> QSettings:
-    """Return a QSettings pinned to the spaCR organization/app namespace."""
-    return QSettings(ORG, APP)
+    """Return spaCR's canonical store after a non-destructive migration."""
+    settings = QSettings(ORG, APP)
+    _migrate_legacy_settings(settings)
+    return settings
 
 
 def get_last_source(app_key: str) -> str:
