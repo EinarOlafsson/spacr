@@ -4532,14 +4532,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _install_thread_guard()
     except Exception:
         pass
-    # RESTATED ON THE INSTANCE, and it is only a restatement. These two
-    # lines used to be the ONLY place the application was named, which was
-    # after the constructor and therefore after macOS had already built its
-    # application menu from whatever `argv[0]` happened to be.
-    # `name_the_application` above is the one that fixes that; these keep an
-    # application constructed by some other route named too.
-    app.setApplicationName("spaCR")
-    app.setOrganizationName("Olafsson Lab")
     # Logged as MEASURED rather than as intended: a name that silently failed
     # to take looks exactly like one that worked until somebody opens the
     # menu on a Mac, and this line is what a bug report can be read against.
