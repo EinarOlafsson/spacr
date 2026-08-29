@@ -270,3 +270,65 @@ def test_the_drag_is_read_after_the_pointer_is_sampled():
     source = inspect.getsource(ft._make_gpu_widget)
     assert source.index("self._pointer_state()") < \
         source.index("self._mandelbrot_uniforms(elapsed)")
+
+
+def test_the_depth_is_a_control_on_the_panel(qtbot):
+    """"i want controll over the decades" -- it was a setting all along and
+    was taken off the panel in the cut-down, which is the same mistake as
+    hiding numbers behind an Advanced heading."""
+    from PySide6.QtWidgets import QDoubleSpinBox
+
+    from spacr.qt import theme
+
+    monkeypatch_spaceout = getattr(theme, "_SPACEOUT")
+    theme._SPACEOUT = True
+    try:
+        dlg = P.PreferencesDialog(None)
+        qtbot.addWidget(dlg)
+        box = dlg.findChild(QDoubleSpinBox, "FractalMaxDepth")
+        assert box is not None, "no depth control"
+        assert box.value() > 0
+        # It says why it stops, or the next person raises it and gets mush.
+        # Read from the hint bar's register: Preferences moves every
+        # tooltip there so a control answers in the strip rather than in a
+        # window over it.
+        from spacr.qt.widgets.hint_bar import HintBar
+
+        said = " ".join(str(text) for text in
+                        getattr(dlg.findChildren(HintBar)[0], "_hints",
+                                {}).values())
+        assert "4.2e-24" in said and "precision" in said
+    finally:
+        theme._SPACEOUT = monkeypatch_spaceout
+
+
+def test_the_depth_can_be_set_and_is_bounded_by_the_precision(store):
+    P.set_fractal_settings(max_depth=18.0)
+    assert P.get_fractal_settings()["max_depth"] == 18.0
+
+    # Above what three float32s can support it is refused in words rather
+    # than silently accepted and drawn as noise.
+    said = P.explain_a_fractal_number("max_depth", 40)
+    assert "too large" in said
+    assert "4.2e-24" in said
+    assert P.explain_a_fractal_number("max_depth", 20) == ""
+
+
+def test_the_panel_is_still_short(qtbot):
+    """Adding a control back must not undo the consolidation."""
+    from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QSpinBox
+
+    from spacr.qt import theme
+
+    was = theme._SPACEOUT
+    theme._SPACEOUT = True
+    try:
+        dlg = P.PreferencesDialog(None)
+        qtbot.addWidget(dlg)
+        named = []
+        for kind in (QComboBox, QDoubleSpinBox, QSpinBox):
+            named += [c.objectName() for c in dlg.findChildren(kind)
+                      if c.objectName().startswith("Fractal")]
+        assert len(named) <= 11, sorted(named)
+    finally:
+        theme._SPACEOUT = was
