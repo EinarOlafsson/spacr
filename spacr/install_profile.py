@@ -194,5 +194,5 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     return 0
 
 
-if __name__ == "__main__":  # pragma: no cover - exercised as a module
+if __name__ == "__main__":  # exercised as a module by runpy in the tests
     raise SystemExit(main())
