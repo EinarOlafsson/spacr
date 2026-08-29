@@ -488,11 +488,11 @@ def _recommended_worker_budget(*, measured_gib=None, requested=None) -> dict:
     try:
         import psutil
         available = psutil.virtual_memory().available / (1024 ** 3)
-    except Exception:  # pragma: no cover - psutil is a dependency, but be safe
+    except Exception:  # psutil is a dependency, but be safe
         pass
     try:
         cores = max(len(os.sched_getaffinity(0)) - 2, 1)
-    except AttributeError:  # pragma: no cover - non-Linux
+    except AttributeError:  # non-Linux
         cores = max((os.cpu_count() or 2) - 2, 1)
 
     if available is None:
@@ -573,7 +573,7 @@ def memory_is_low(floor_gib: float = 8.0) -> bool:
     try:
         import psutil
         return psutil.virtual_memory().available / (1024 ** 3) < floor_gib
-    except Exception:  # pragma: no cover
+    except Exception:
         return False
 
 
@@ -618,12 +618,12 @@ def _pin_threads(count: int = 1) -> None:
         from threadpoolctl import threadpool_limits
         global _THREAD_LIMITS
         _THREAD_LIMITS = threadpool_limits(limits=count)
-    except Exception:  # pragma: no cover - threadpoolctl may be absent
+    except Exception:  # threadpoolctl may be absent
         pass
     try:
         import torch
         torch.set_num_threads(count)
-    except Exception:  # pragma: no cover - torch may be absent
+    except Exception:  # torch may be absent
         pass
 
 
@@ -641,14 +641,14 @@ def be_polite() -> None:
     """
     try:
         os.nice(19)
-    except (OSError, AttributeError):  # pragma: no cover
+    except (OSError, AttributeError):
         pass
     try:
         # Linux only, and best effort: a container or a hardened kernel may
         # refuse the write, which is not a reason to fail a sweep.
         with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as handle:
             handle.write("800")
-    except OSError:  # pragma: no cover - not Linux, or not permitted
+    except OSError:  # not Linux, or not permitted
         pass
     try:
         import subprocess
@@ -656,7 +656,7 @@ def be_polite() -> None:
         # yield the disk to anything interactive.
         subprocess.run(["ionice", "-c", "3", "-p", str(os.getpid())],
                        check=False, capture_output=True)
-    except Exception:  # pragma: no cover - best effort
+    except Exception:  # best effort
         pass
 
 
@@ -689,7 +689,7 @@ def containment_available() -> bool:
              "-p", "MemoryMax=64M", "-p", "MemorySwapMax=0", "true"],
             capture_output=True, timeout=10)
         return probe.returncode == 0
-    except Exception:  # pragma: no cover - no user manager
+    except Exception:  # no user manager
         return False
 
 
@@ -737,7 +737,7 @@ def free_memory_gb() -> float:
             for line in handle:
                 if line.startswith("MemAvailable:"):
                     return int(line.split()[1]) / 1e6
-    except OSError:  # pragma: no cover - not Linux
+    except OSError:  # not Linux
         pass
     return float("inf")
 
@@ -826,7 +826,7 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
         try:
             with open(out_path) as handle:
                 return json.load(handle)
-        except Exception:  # pragma: no cover - truncated by a kill
+        except Exception:  # truncated by a kill
             pass
     # No result file: the child was killed before it could write one. The cap
     # is the likeliest reason and worth naming, because "killed" and "crashed"
@@ -884,7 +884,7 @@ def _trial_settings(base_settings, trial, destination, *, qc: bool = False):
     try:
         from .utils import save_settings
         save_settings(dict(settings), name="regression", show=False)
-    except Exception:  # pragma: no cover - never lose a trial over its record
+    except Exception:  # never lose a trial over its record
         pass
     return settings, folder
 
