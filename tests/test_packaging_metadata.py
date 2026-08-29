@@ -719,6 +719,11 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     assert '".[fractal]"' in workflow
     assert "xvfb-run -a python" in workflow
     assert "libxcb-cursor0" in workflow
+    assert "libxcb-icccm4" in workflow
+    assert "libxcb-keysyms1" in workflow
+    assert "Verify Qt xcb plugin dependencies resolve" in workflow
+    assert '["ldd", str(plugin)]' in workflow
+    assert 'assert "not found" not in result.stdout' in workflow
     assert 'assert DEFAULT_PATTERN == "mandelbrot"' in workflow
     assert 'assert widget.backend_name == "gpu"' in workflow
     assert "app.processEvents()" in workflow

@@ -329,7 +329,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-            xvfb libegl1 libgl1 libgl1-mesa-dri libxcb-cursor0 \
+            xvfb libegl1 libgl1 libgl1-mesa-dri libx11-xcb1 \
+            libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 \
             libxkbcommon-x11-0
 
       - name: Install the advertised fractal extra
@@ -340,6 +343,32 @@ jobs:
           python -m pip install \
             --extra-index-url https://download.pytorch.org/whl/cpu \
             ".[fractal]"
+
+      - name: Verify Qt xcb plugin dependencies resolve
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          from PySide6.QtCore import QLibraryInfo
+
+          plugin = (
+              Path(QLibraryInfo.path(QLibraryInfo.PluginsPath))
+              / "platforms"
+              / "libqxcb.so"
+          )
+          assert plugin.is_file(), f"Qt xcb platform plugin is absent: {plugin}"
+          result = subprocess.run(
+              ["ldd", str(plugin)],
+              check=True,
+              capture_output=True,
+              text=True,
+          )
+          print(result.stdout, end="")
+          assert "not found" not in result.stdout, (
+              "Qt xcb plugin has unresolved shared-library dependencies"
+          )
+          PY
 
       - name: Construct and paint the default renderer
         env:
