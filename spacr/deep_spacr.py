@@ -115,8 +115,28 @@ def autocasting(on, device):
     if not on:
         yield
         return
-    with torch.autocast(device_type=device.type, dtype=torch.float16):
+    # CPU autocast accepted float16 only in newer Torch releases.  The
+    # supported 2.1 floor accepts bfloat16 there; CUDA uses float16 in every
+    # supported release. Production enables AMP only for CUDA, but keeping
+    # this helper valid for either device makes its context-manager contract
+    # independently testable on CPU-only hosts.
+    dtype = torch.bfloat16 if device.type == "cpu" else torch.float16
+    with torch.autocast(device_type=device.type, dtype=dtype):
         yield
+
+
+def _gradient_scaler(device, enabled):
+    """Build a no-op or CUDA gradient scaler across supported Torch 2.x.
+
+    ``torch.amp.GradScaler(device, ...)`` was added after the supported 2.1
+    floor. Torch 2.1 exposes the same CUDA scaler under ``torch.cuda.amp``.
+    Mixed precision is enabled only for CUDA, so the legacy implementation is
+    equivalent rather than a reduced-precision fallback.
+    """
+    scaler = getattr(getattr(torch, "amp", None), "GradScaler", None)
+    if scaler is not None:
+        return scaler(device.type, enabled=enabled)
+    return torch.cuda.amp.GradScaler(enabled=enabled)
 
 
 def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
@@ -2722,7 +2742,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         device)
     if amp_note:
         print(amp_note)
-    scaler = torch.amp.GradScaler(device.type, enabled=mixed_precision)
+    scaler = _gradient_scaler(device, enabled=mixed_precision)
 
     print('Training ...')
     for epoch in range(start_epoch, epochs + 1):
