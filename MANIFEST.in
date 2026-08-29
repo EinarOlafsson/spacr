@@ -88,9 +88,10 @@ prune spacr/resources/home
 # `grep -r` finds zero references to any of the three. Only
 # loading_spinner.gif is used (gui_core.py:69). Kept in git, not shipped.
 exclude spacr/resources/icons/loading_spinner_1.gif
-exclude spacr/resources/icons/loading_spinner_logo.gif
-exclude spacr/resources/icons/loading_spinner_logo (1).gif
-exclude spacr/resources/icons/loading_spinner_logo
+# One glob is intentional: distutils splits manifest arguments on spaces, so
+# spelling ``loading_spinner_logo (1).gif`` literally treated it as two
+# patterns and leaked the 2.4 MB review render into every wheel and sdist.
+exclude spacr/resources/icons/loading_spinner_logo*
 
 # ---------------------------------------------------------------------------
 # The built docs are not a distribution artefact. Docs live at

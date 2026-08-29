@@ -197,6 +197,14 @@ the facade literal against installed distribution metadata, and runs
 sdist-installed facade boundary; the job still has to be green on the final
 frozen release SHA.
 
+The first real inventory audit caught an exclusion that only looked correct:
+``MANIFEST.in`` split the unescaped space in
+``loading_spinner_logo (1).gif`` and shipped that unreferenced 2,428,884-byte
+review render in both artifacts. A single ``loading_spinner_logo*`` pattern
+now excludes every unused logo variant. CI now compares both built inventories
+against all tracked runtime Python and resource files, failing for either a
+missing runtime file or any model/review asset that is deliberately excluded.
+
 This closes only the non-Qt facade/CLI metadata hotspot. The item stays OPEN
 for real post-paint Home readiness, all-module click-to-ready traces, event-loop
 stall and RSS measurements, heavy-stack operation boundaries, cache-budget
