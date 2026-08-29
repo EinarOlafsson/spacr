@@ -462,10 +462,17 @@ def watch_interactive(
             self.root_painted = False
             self.painted_controls.clear()
             try:
-                self.root.update()
+                # QTableWidget and QListWidget overload ``update`` with a
+                # QModelIndex argument. Calling the bound method with no
+                # arguments therefore raises TypeError even though the
+                # QWidget repaint overload is the one this probe needs.
+                # Invoke QWidget's implementation explicitly for every
+                # subclass so readiness instrumentation cannot break the
+                # very table/list screens it is measuring.
+                QWidget.update(self.root)
                 for control in self.controls:
                     if control.isVisible():
-                        control.update()
+                        QWidget.update(control)
             except RuntimeError:
                 self._retire()
                 return

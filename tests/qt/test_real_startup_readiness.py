@@ -16,8 +16,10 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
+    QListWidget,
     QPushButton,
     QStackedWidget,
+    QTableWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -130,6 +132,26 @@ def test_a_painted_but_disabled_control_is_not_interactive(
     root.update()
     qtbot.waitUntil(lambda: len(seen) == 1, timeout=2000)
     assert seen[0]["painted_usable_controls"] == 1
+
+
+@pytest.mark.parametrize("view_type", (QTableWidget, QListWidget))
+def test_item_view_update_overloads_cannot_break_readiness(
+        qtbot, enabled_timing, view_type):
+    root = _PaintedRoot()
+    layout = QVBoxLayout(root)
+    view = view_type(root)
+    layout.addWidget(view)
+    qtbot.addWidget(root)
+    seen = []
+    timing.subscribe_readiness(seen.append)
+    timing.watch_interactive(root, "interactive module", "item-view")
+
+    root.show()
+    QTimer.singleShot(0, timing.event_loop_started)
+    qtbot.waitUntil(lambda: len(seen) == 1, timeout=2000)
+
+    assert seen[0]["painted_usable_controls"] == 1
+    assert seen[0]["controls"] == [view_type.__name__]
 
 
 def test_public_run_begins_timing_before_qt_setup_app_import_and_registration():
