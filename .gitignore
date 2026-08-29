@@ -167,6 +167,7 @@ tutorial_colab.ipynb
 
 #do not include docs
 /docs/*
+!/docs/flowview.md
 !/docs/source/
 !/docs/i18n/
 !/docs/i18n/**
