@@ -558,7 +558,7 @@ def join_metadata(frame: pd.DataFrame,
         joined = joined.merge(
             annotation, on="gene", how="left", validate="many_to_one",
             suffixes=("", f"_meta{index + 1}"))
-        if len(joined) != before:  # pragma: no cover - validate already raises
+        if len(joined) != before:  # validate="many_to_one" already raises
             raise ValueError(
                 f"joining {os.path.basename(str(path))} changed the row count "
                 f"from {before} to {len(joined)}; the annotation is not one "
@@ -1114,7 +1114,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
         from .annotation import annotate
         before, had = len(joined), set(joined.columns)
         joined = annotate(joined, key_column="gene", quiet=True)
-        if len(joined) != before:  # pragma: no cover - many_to_one raises
+        if len(joined) != before:  # annotate's many_to_one join raises
             raise ValueError(
                 f"the Toxoplasma annotation changed the row count from "
                 f"{before} to {len(joined)}.")
@@ -1122,7 +1122,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
         notes.append(
             f"Bundled Toxoplasma annotation joined by gene number: "
             f"{len(gained)} column(s).")
-    if len(joined) != len(table):  # pragma: no cover - validate already raises
+    if len(joined) != len(table):  # validate="many_to_one" already raises
         raise ValueError(
             f"the metadata join changed the row count from {len(table)} to "
             f"{len(joined)}; the annotation is not one row per gene.")
