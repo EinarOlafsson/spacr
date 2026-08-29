@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: New PEP 440 version (for example 1.4.9.9)
+        description: New 3- or 4-component numeric version (for example 1.4.9.9)
         required: true
         type: string
       target_branch:
@@ -84,6 +84,7 @@ jobs:
               fi
             fi
           fi
+          python packaging/release.py verify >/dev/null
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           echo "release_required=$release_required" >> "$GITHUB_OUTPUT"
@@ -97,9 +98,9 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py
+          git add setup.py CITATION.cff
           if git diff --cached --quiet; then
-            echo "setup.py already declares $VERSION; continuing idempotently."
+            echo "Release metadata already declares $VERSION; continuing idempotently."
           else
             git commit -m "chore(release): bump version to $VERSION"
             git push origin "HEAD:$TARGET_BRANCH"

@@ -254,17 +254,26 @@ def _committed_rows():
     return rows[1:]          # the first block is the header row
 
 
-def test_the_committed_page_marks_the_version_setup_py_ships():
-    """Exactly one row is the current one, and it is not decided by hand.
+def test_the_committed_page_marks_the_version_the_readme_advertises():
+    """Exactly one row is current, and it matches the public download links.
 
-    Without this the page reads as a list of *old* versions and the reader
-    cannot tell which one the README's icons point at.
+    A version-bump commit precedes the native installer build, so ``setup.py``
+    names the next package while the README honestly keeps advertising the
+    previous installers. The collect job moves both sets of links together.
     """
     R = _release_helper()
-    current = R.read_version(ROOT / "setup.py")
+    readme = (ROOT / "README.rst").read_text(encoding="utf-8")
+    advertised = set()
+    for _label, suffix in R.PLATFORMS:
+        matches = list(R._installer_url_pattern(suffix).finditer(readme))
+        assert len(matches) == 1, (suffix, len(matches))
+        match = matches[0]
+        assert match.group("tag_version") == match.group("file_version")
+        advertised.add(match.group("tag_version"))
+    assert len(advertised) == 1
     marked = [version for version, _cells, is_current in _committed_rows()
               if is_current]
-    assert marked == [current]
+    assert marked == [advertised.pop()]
 
 
 def test_every_link_in_a_row_belongs_to_that_row_s_version():

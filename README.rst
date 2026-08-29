@@ -27,8 +27,8 @@
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
    :alt: PolyForm Noncommercial license
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
@@ -651,7 +651,7 @@ Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies
 EAF1 as a *T. gondii* modulator of ESCRT subversion.
 
 `bioRxiv preprint <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ ·
-`software archive <https://doi.org/10.5281/zenodo.21343317>`_
+`software archive <https://doi.org/10.5281/zenodo.21343316>`_
 
 Acknowledgments
 ~~~~~~~~~~~~~~~

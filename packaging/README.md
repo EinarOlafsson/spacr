@@ -58,14 +58,21 @@ assets on the matching GitHub release. The version is always read from
 # Print the current package version
 python packaging/release.py version
 
-# Validate and increment the one canonical version
+# Validate and increment setup.py and CITATION.cff together
 python packaging/release.py bump 1.4.9.9
+
+# Verify package and citation metadata still name the same release
+python packaging/release.py verify
 
 # After the three native builders have populated dist/online
 python packaging/release.py collect --branch main
 ```
 
-The native installers cannot all be generated on one local operating system.
+The bump command also moves ``CITATION.cff``'s ``version`` and
+``date-released`` fields. An idempotent rerun preserves the date already
+recorded for that release. Release versions have three or four numeric
+components; prerelease labels and non-version names are rejected. The native
+installers cannot all be generated on one local operating system.
 The GitHub workflow runs each builder on its matching native runner and then
 calls the collection command once all three artifacts exist.
 
@@ -81,7 +88,7 @@ collect` moves the links forward without touching the icons.
 Run **Actions → release spaCR → Run workflow**, enter the new version, and
 leave the target as `main`. `.github/workflows/release.yml` then:
 
-1. validates and commits the version increment;
+1. validates and commits the package and citation version increment;
 2. builds and validates the wheel and source distribution;
 3. publishes to PyPI using trusted publishing and waits until that immutable
    version is available from the PyPI API;
@@ -94,7 +101,8 @@ leave the target as `main`. `.github/workflows/release.yml` then:
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
 There is also a branch-native path: changing ``VERSION`` in `setup.py` and
-pushing that commit to `main` automatically runs
+the matching version/date in ``CITATION.cff``, then pushing that commit to
+`main`, automatically runs
 steps 2-6 for the already-incremented version. Rerunning the same version is
 safe: an existing PyPI artifact is not uploaded twice, existing release
 assets are replaced, and an existing tag must already point to the exact
@@ -114,6 +122,14 @@ One-time repository setup:
 No PyPI API token is stored in GitHub. If `main` has branch
 protection, allow `github-actions[bot]` to push these two release commits or
 replace the direct-push steps with your protected-branch merge policy.
+
+Zenodo receives every GitHub Release event for this repository. Consequently,
+GitHub Releases are reserved for version tags of the form ``v1.5.0`` or
+``v1.5.0.5``; example data and other auxiliary downloads must use workflow
+artifacts or a separate repository instead. The README cites the stable concept
+DOI, ``10.5281/zenodo.21343316``. Once Zenodo archives a version, put that
+release's newly minted version DOI in ``CITATION.cff``; never substitute an
+older release's version DOI for the concept DOI in the README.
 
 ## Conda-forge releases
 
