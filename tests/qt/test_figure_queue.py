@@ -624,6 +624,8 @@ class TestPdfRenderIsOffTheGuiThread:
         assert escaped == [], (
             "an exception reached the Qt event loop: "
             f"{[e[0].__name__ for e in escaped]} {[str(e[1]) for e in escaped]}")
+        assert runner.pending_jobs() == 0
+        assert not runner.is_busy()
         assert runner.active_jobs() >= 0     # the runner survived the widget
 
 
