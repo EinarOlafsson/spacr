@@ -748,18 +748,23 @@ class Canvas:
             transposes the result. An axis the spacing does not have, or the
             same axis twice, raises :exc:`LayerError`.
         :param depth: world coordinate for the axes outside the plane.
-            Defaults to empty, which pins them at world ``0`` rather than at
-            the spacing's own origin: for a stack whose ``z`` translate is
-            10.0 the default canvas sits off the volume entirely and layers
-            render blank, so pass ``depth={"z": 10.0}`` to land on plane 0.
-            Entries naming an in-plane axis are kept but never consulted.
+            When omitted, each out-of-plane axis is pinned at the spacing's
+            own origin, so a translated volume starts on its first plane.
+            Passing a mapping selects those world coordinates explicitly;
+            entries naming an in-plane axis are kept but never consulted.
         """
         r = spacing.axis_index(axes[0])
         c = spacing.axis_index(axes[1])
+        if depth is None:
+            depth = {
+                axis: spacing.translate[index]
+                for index, axis in enumerate(spacing.axes)
+                if axis not in axes
+            }
         return cls(origin=(spacing.translate[r], spacing.translate[c]),
                    step=(spacing.scale[r], spacing.scale[c]),
                    shape=(int(shape[r]), int(shape[c])),
-                   axes=axes, depth=depth or {}, units=spacing.units)
+                   axes=axes, depth=depth, units=spacing.units)
 
     @classmethod
     def covering(cls, source: Any, *, height: Optional[int] = None,

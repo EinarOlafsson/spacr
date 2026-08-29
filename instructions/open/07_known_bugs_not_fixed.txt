@@ -443,6 +443,12 @@ SILENT WRONG OUTPUT
   -- coverage 0.0, no error, no warning. Verified: LabelsLayer and ImageLayer
   both give coverage 0.0 by default and 12.0 with depth={'z': 10.0}.
 
+  FIXED 2026-08-29. An omitted depth now pins every out-of-plane axis to
+  that axis's own spacing translate, so the identity canvas for a translated
+  volume begins on its first plane. An explicit mapping remains authoritative,
+  including an explicit empty mapping. The regression renders both an
+  ImageLayer and a LabelsLayer at z=10 and proves neither is blank.
+
   lineage.tree_for(typed=False) RESOLVES A COLLIDING KEY TO THE WRONG FAMILY.
   With nucleus 3 in cell 8 and pathogen 3 in cell 7, both collapse to
   'plate1_r1_c1_f1_3' and the call returns cell 7 -- the first root in
