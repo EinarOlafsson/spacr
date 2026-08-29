@@ -482,7 +482,7 @@ def build_graph(project: Union[str, os.PathLike, None] = None, *,
                        "output yet.",))
         try:
             registry = Registry(path=target, project=root or None, create=False)
-        except (FileNotFoundError, OSError) as exc:  # rare, but it is a race
+        except OSError as exc:  # rare, but it is a race
             return PipelineGraph(
                 project=root, registry_file=target, modules=module_graph(),
                 notes=(f"Could not open the artifact registry: {exc}",))
