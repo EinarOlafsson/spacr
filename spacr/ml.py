@@ -2967,8 +2967,6 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
         is then nothing for this backend to do that statsmodels does not do
         better), or when the normal equations are singular.
     """
-    from pyfixest.core.demean import demean
-
     columns = list(getattr(X, 'columns', []))
     if not columns:
         raise ValueError(
@@ -3012,6 +3010,23 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
                 "WLS weights must be finite and positive (they are per-well "
                 f"cell counts); got {np.nanmin(w)}-{np.nanmax(w)}.")
 
+    # Degrees of freedom are a property of the design, not of pyfixest's
+    # projection.  Check them before importing the optional backend so an
+    # invalid request gets the same useful diagnosis on Python 3.9, where
+    # pyfixest itself is unavailable.
+    p_full = len(keep) + n_absorbed_params
+    df_resid = n - p_full
+    if df_resid <= 0:
+        raise ValueError(
+            f"the design has {p_full} parameters ({len(keep)} reported plus "
+            f"{n_absorbed_params} absorbed) for {n} observations, so there "
+            f"are no residual degrees of freedom to estimate a standard "
+            f"error from.")
+
+    # Import only after backend-independent validation. pyfixest requires
+    # Python >=3.10, while spaCR's supported floor is Python 3.9.
+    from pyfixest.core.demean import demean
+
     stacked = np.asfortranarray(
         np.column_stack([y_flat, np.asarray(X[keep], dtype=float)]))
     # tol is on the alternating projections, not on the answer: 1e-10 is
@@ -3050,14 +3065,6 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
     # would report the standard errors of a model that never had the 36
     # nuisance parameters, which is smaller than the truth and is exactly the
     # way an absorbing fit gets its inference wrong.
-    p_full = len(keep) + n_absorbed_params
-    df_resid = n - p_full
-    if df_resid <= 0:
-        raise ValueError(
-            f"the design has {p_full} parameters ({len(keep)} reported plus "
-            f"{n_absorbed_params} absorbed) for {n} observations, so there "
-            f"are no residual degrees of freedom to estimate a standard "
-            f"error from.")
     rss = float(resid @ (resid * w))
     scale = rss / df_resid
     try:
@@ -3240,8 +3247,6 @@ def _fit_glum_glm(X, y, regression_type, weights=None, exposure=None):
     :raises ValueError: for a family glum cannot fit, or a response the family
         refuses.
     """
-    from glum import GeneralizedLinearRegressor
-
     columns = list(getattr(X, 'columns', []))
     if not columns:
         raise ValueError(
@@ -3303,6 +3308,11 @@ def _fit_glum_glm(X, y, regression_type, weights=None, exposure=None):
             f"{type(family).__name__} family; spaCR routes poisson, binomial "
             f"and gaussian through it. Fit with "
             f"regression_backend='statsmodels'.")
+
+    # Keep validation independent of the optional solver. glum requires
+    # Python >=3.10, so Python 3.9 callers must still receive spaCR's precise
+    # input error instead of an unrelated ModuleNotFoundError.
+    from glum import GeneralizedLinearRegressor
 
     # alpha=0 is the UNPENALISED fit, which is the only one that can agree
     # with statsmodels. fit_intercept=False because patsy already put an
@@ -10742,7 +10752,20 @@ def _shap_explainers(model, X_train):
     import shap
 
     try:
-        yield shap.Explainer(model, X_train), ""
+        # Older supported SHAP releases accept XGBoost here and silently
+        # choose their automatic tree explainer; newer releases reject the
+        # same categorical model and reach the explicit TreeExplainer below.
+        # In both cases say which semantics the panel used.  The note cannot
+        # be tied only to the fallback or identical runs become silent on the
+        # minimum dependency stack.
+        automatic_note = ""
+        if type(model).__module__.split(".", 1)[0] == "xgboost":
+            automatic_note = (
+                "SHAP: XGBoost was accepted by the automatic tree "
+                "explainer, so the panel shows tree contributions rather "
+                "than a model-agnostic estimate."
+            )
+        yield shap.Explainer(model, X_train), automatic_note
     except Exception:                                        # noqa: BLE001
         LOG.debug("the default SHAP explainer would not build",
                   exc_info=True)
