@@ -119,7 +119,7 @@ def detach_from_window_manager(dialog: Any) -> Any:
     """
     try:
         from PySide6.QtCore import Qt
-    except Exception:                       # pragma: no cover - headless import
+    except Exception:                       # headless import
         return dialog
     try:
         flags = dialog.windowFlags()
@@ -128,7 +128,7 @@ def detach_from_window_manager(dialog: Any) -> Any:
         # leave the dialog bit standing and change nothing.
         dialog.setWindowFlags((flags & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window)
-    except Exception:                       # pragma: no cover
+    except Exception:
         # Decoration must never be load-bearing (INVARIANTS 10): a dialog
         # that cannot be detached is still a dialog the user can use.
         pass
@@ -138,6 +138,21 @@ def detach_from_window_manager(dialog: Any) -> Any:
 #: Marks a dialog this module has already taken in hand, so a dialog shown,
 #: hidden and shown again is not rebuilt on every show.
 RESIZABLE = "spacrMadeResizable"
+
+#: Marks a dialog the application filter has already detached.
+#:
+#: ON THE DIALOG, NOT IN A SET OF `id()`s, and the difference is whether a
+#: settings window opens attached the SECOND time it is opened. Every modal
+#: dialog in spaCR is a temporary -- `PreferencesDialog(...).exec()` builds
+#: it, runs it and drops it -- and CPython hands the address of a released
+#: object straight back to the next one of the same size: measured here,
+#: twenty out of twenty new dialogs landed on the address of the dialog
+#: just released, and three hundred opened and closed in a row occupied
+#: five distinct addresses between them. An `id()` remembered in the filter
+#: therefore matched a dialog it had never seen, which was skipped and left
+#: glued to the main window -- the complaint this filter exists to answer.
+#: A mark on the object dies with the object.
+FILTER_DETACHED = "spacrDetachedByFilter"
 
 #: Marks a dialog whose contents were moved into a scroll area. Separate
 #: from :data:`RESIZABLE` because only some of them need it: a dialog with
@@ -610,10 +625,11 @@ class _DetachEveryDialog:
     when it appears. Measured order on PySide6: WinIdChange, Polish, Show,
     ShowToParent.
 
-    Each dialog is detached ONCE. The flag change is idempotent, but doing
-    it repeatedly on a dialog that is shown, hidden and shown again would
-    recreate the native window every time and lose its position -- which is
-    the thing this exists to protect.
+    Each dialog is detached ONCE, and the mark that says so is
+    :data:`FILTER_DETACHED`, set on the dialog itself. The flag change is
+    idempotent, but doing it repeatedly on a dialog that is shown, hidden
+    and shown again would recreate the native window every time and lose
+    its position -- which is the thing this exists to protect.
 
     AND THE RESIZING RIDES ON THE SAME EVENT, for the same reason there is
     one filter and not one call per dialog. It is NOT held to Polish,
@@ -624,9 +640,6 @@ class _DetachEveryDialog:
     :func:`open_at_its_natural_size`, where the measurement is.
     """
 
-    def __init__(self):
-        self._done: set = set()
-
     def eventFilter(self, obj, event):        # noqa: N802 - Qt naming
         try:
             from PySide6.QtCore import QEvent
@@ -634,16 +647,15 @@ class _DetachEveryDialog:
 
             polished = event.type() == QEvent.Type.Polish
             if polished and isinstance(obj, QDialog):
-                key = id(obj)
                 # ALREADY DONE BY THE GLASS INSTALLER, which detaches and
                 # goes frameless in ONE flags change. Doing it again here
                 # recreates the native window a second time, and on some
                 # window managers what comes back has square opaque
                 # corners behind the rounded card.
                 if obj.property(_GLASS_DETACHED):
-                    self._done.add(key)
-                elif key not in self._done:
-                    self._done.add(key)
+                    obj.setProperty(FILTER_DETACHED, True)
+                elif not obj.property(FILTER_DETACHED):
+                    obj.setProperty(FILTER_DETACHED, True)
                     detach_from_window_manager(obj)
             # AND THE SAME EVENT MAKES IT RESIZABLE. Polish OR Show: the
             # flags above may only be rewritten before the window is
@@ -659,7 +671,7 @@ class _DetachEveryDialog:
             if event.type() == QEvent.Type.Show \
                     and obj.property(OPENS_AT) is not None:
                 open_at_its_natural_size(obj)
-        except Exception:                     # pragma: no cover
+        except Exception:
             # INVARIANTS 10 again: a dialog that cannot be detached is still
             # a dialog. This filter sees every event in the application and
             # must never be the reason one of them is lost.
@@ -716,7 +728,7 @@ def detach_all_dialogs(app) -> bool:
         app.installEventFilter(_DETACHER)
         _DETACHED_APP = app
         return True
-    except Exception:                         # pragma: no cover
+    except Exception:
         _DETACHER = None
         _DETACHED_APP = None
         return False
