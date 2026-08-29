@@ -2,7 +2,7 @@
 THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
 ================================================================================
 
-Status:   OPEN — half done. The panel takes many; the loader supplies one.
+Status:   DONE, 2026-08-29 — sibling fields stream in off the GUI thread.
 Severity: a requested feature that looks finished and is not
 
 --------------------------------------------------------------------------------
@@ -90,3 +90,25 @@ Do not raise MAX_FIELDS_CEILING to make a demo look better. Each field
 holds every rendered frame for every (objects, tracks) combination it has
 been asked for; eight 30-frame fields is already a substantial cache. If
 more are genuinely wanted, make the cache evict instead.
+
+--------------------------------------------------------------------------------
+2026-08-29 — COMPLETE
+--------------------------------------------------------------------------------
+
+Commit ``0646283e`` makes the selected field unconditionally first, then
+streams sibling sources from the existing ``sibling_sources`` enumeration
+through a dedicated serialized ``JobRunner``. Each extra field reads every
+raw frame once, segments and links away from the GUI thread, relabels masks
+by that field's own track ids, and appears as soon as it is ready. Raising the
+Fields cap retains the first field and loads only the new target. Lowering it
+drops surplus arrays immediately and requests interruption of the one
+in-flight surplus field; cancellation is checked between expensive frames.
+
+Verification on the committed three-file patch:
+
+  * five new end-to-end/controller regressions pass on Python 3.12 and the
+    minimum Python 3.9 / PySide6 6.6 stack;
+  * the related preview/movie/source/responsiveness/contract cohort passes
+    265/265 on both supported stacks;
+  * the exact former 320-test order-dependent Qt reproducer remains green;
+  * fatal Ruff, compileall and ``git diff --check`` are green.
