@@ -867,5 +867,5 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     return 0
 
 
-if __name__ == "__main__":               # pragma: no cover - module entry
+if __name__ == "__main__":               # the module entry point
     raise SystemExit(main())

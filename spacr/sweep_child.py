@@ -22,7 +22,7 @@ for _variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
 try:
     with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as _handle:
         _handle.write("800")
-except OSError:  # pragma: no cover - not Linux, or not permitted
+except OSError:  # not Linux, or not permitted
     pass
 
 import json  # noqa: E402

@@ -110,7 +110,7 @@ def _who(value: Optional[str]) -> str:
         return str(value).strip()
     try:
         name = getpass.getuser().strip()
-    except Exception:  # pragma: no cover - platform account lookup failure
+    except Exception:  # a platform account lookup failure is not an error here
         name = ""
     return name or "unknown"
 

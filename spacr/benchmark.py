@@ -82,7 +82,7 @@ def _rss_bytes() -> int:
     """Resident set size now, in bytes, or 0 where it cannot be read."""
     try:
         import resource
-    except ImportError:                      # pragma: no cover - Windows
+    except ImportError:                      # Windows
         return 0
     usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     # ru_maxrss is KILOBYTES on Linux and BYTES on macOS. Getting this
