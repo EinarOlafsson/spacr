@@ -463,7 +463,7 @@ def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
         right = 1.0 - (extent.width / fig_width) - pad
         # A legend wider than the figure would invert the axes; clamp instead.
         fig.subplots_adjust(right=max(min(right, 0.98), min_axes_width))
-    except Exception:  # pragma: no cover - layout is never worth an exception
+    except Exception:  # layout is never worth an exception
         pass
 
 
