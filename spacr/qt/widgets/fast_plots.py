@@ -6034,6 +6034,16 @@ class FastPlot(QWidget):
             # theme to them, so it runs on a plain theme switch too.
             self.apply_text_style()
 
+    def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
+        """Retire the parentless menus that belong to this plot."""
+        try:
+            from ..widget_cleanup import retire_pyqtgraph_menus
+
+            retire_pyqtgraph_menus(self)
+        except (ImportError, RuntimeError):
+            pass
+        super().closeEvent(event)
+
 
 class VolcanoPlot(FastPlot):
     """Effect against -log10(p), with the FDR carried by colour and a line.
