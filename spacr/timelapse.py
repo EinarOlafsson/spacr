@@ -4476,6 +4476,12 @@ def _infection_qc_pca_clustering(
     except Exception:  # optional
         umap = None
 
+    # Keep the caller's measurements frame as the durable record.  Feature
+    # coercion below is deliberately limited to a candidate-only view, and the
+    # merge near the end writes to a shallow working copy before changing key
+    # dtypes or adding the adjusted call.
+    source_all_df = all_df
+
     # ------------------------------------------------------------------
     # Helper: evaluate an embedding + clustering
     # ------------------------------------------------------------------
@@ -4754,15 +4760,50 @@ def _infection_qc_pca_clustering(
     if cols_to_drop:
         all_df = all_df.drop(columns=cols_to_drop)
 
-    # ------------------------------------------------------------------
-    # Build per-cell feature table
-    # ------------------------------------------------------------------
-    numeric_cols = [
+    # The infection call cannot also be a grouping key or a feature. Both make
+    # the aggregation frame name one column twice.  Check the name-based
+    # candidate set before coercion so even a text-backed feature cannot evade
+    # this guard merely because pandas typed it ``object``.
+    pathogen_token = f"ch{pathogen_chan}".lower()
+    feature_candidates = [
         c
         for c in all_df.columns
         if c.startswith("cell_")
-        and c not in {"cellID"}
-        and pd.api.types.is_numeric_dtype(all_df[c])
+        and c != "cellID"
+        and (
+            "ch" not in c.lower()
+            or pathogen_token in c.lower()
+        )
+    ]
+    if infection_col in key_cols or infection_col in feature_candidates:
+        role = (
+            "a grouping key"
+            if infection_col in key_cols
+            else "a cell_* feature"
+        )
+        print(
+            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} is also "
+            f"{role}; it cannot be both the call and what the call is made from. "
+            "Skipping embedding QC."
+        )
+        return all_df, infection_col
+
+    # ------------------------------------------------------------------
+    # Build per-cell feature table
+    # ------------------------------------------------------------------
+    # SQLite/pandas represents both numeric text and an all-NULL REAL column
+    # as object dtype.  Filtering on dtype first silently discarded the former
+    # and made the advertised PCA/UMAP/t-SNE QC a no-op.  Coerce only columns
+    # this model can actually use: unrelated metadata and other fluorescence
+    # channels must neither be converted nor turn into schema errors.
+    candidate_frame = schema.coerce_model_feature_types(
+        all_df.loc[:, feature_candidates],
+        extra_features=feature_candidates,
+    )
+    numeric_cols = [
+        c
+        for c in feature_candidates
+        if pd.api.types.is_numeric_dtype(candidate_frame[c])
     ]
     if not numeric_cols:
         print(
@@ -4771,27 +4812,12 @@ def _infection_qc_pca_clustering(
         )
         return all_df, infection_col
 
-    # The infection call cannot also be a grouping key or a feature. Both make
-    # `cols_for_group` name one column twice, so `all_df[cols_for_group]` is a
-    # frame with a duplicated column and every later `cell_level[c]` is a
-    # DataFrame rather than a Series. Measured before this guard existed: a
-    # forty-row table with infection_col='cell_area' died sixty lines further
-    # down on `if s.notna().sum() < 10:` with "The truth value of a Series is
-    # ambiguous", and infection_col='cellID' died in `groupby` with "Grouper
-    # for 'cellID' not 1-dimensional". Neither message names the setting that
-    # caused it. This module skips rather than raises everywhere else, so it
-    # skips here too.
-    if infection_col in key_cols or infection_col in numeric_cols:
-        role = "a grouping key" if infection_col in key_cols else "a cell_* feature"
-        print(
-            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} is also "
-            f"{role}; it cannot be both the call and what the call is made from. "
-            "Skipping embedding QC."
-        )
-        return all_df, infection_col
-
-    cols_for_group = key_cols + numeric_cols + [infection_col]
-    tmp = all_df[cols_for_group].copy()
+    # Start from the durable columns and attach the coerced candidate values to
+    # this disposable aggregation frame.  The returned frame therefore keeps
+    # the database's original dtypes and metadata exactly as supplied.
+    tmp = all_df[key_cols + [infection_col]].copy()
+    for column in numeric_cols:
+        tmp[column] = candidate_frame[column]
     tmp.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     group = tmp.groupby(key_cols, observed=True)
@@ -5108,6 +5134,8 @@ def _infection_qc_pca_clustering(
     # Map adjusted infection back to all_df (frame level)
     # ------------------------------------------------------------------
     # Ensure key dtypes match
+    if all_df is source_all_df:
+        all_df = all_df.copy(deep=False)
     for col in key_cols:
         all_df[col] = all_df[col].astype(cell_level[col].dtype)
 
@@ -7052,6 +7080,8 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     settings["infection_pca_data"] = None
     settings["infection_xgb_importance"] = None
 
+    source_all_df = all_df
+
     # IMPORTANT: drop any existing adjusted_* / infection_prob* from DB reuse
     cols_to_drop = [
         c
@@ -7063,6 +7093,10 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     ]
     if cols_to_drop:
         all_df = all_df.drop(columns=cols_to_drop)
+    if all_df is source_all_df:
+        # Assignments below repair labels and key dtypes on this run's working
+        # frame; the database-shaped frame supplied by the caller is immutable.
+        all_df = all_df.copy(deep=False)
 
     orig_infection_col = infection_col
 
@@ -7116,19 +7150,58 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             raise KeyError(f"[_infection_qc_xgboost] Required column {col!r} not in all_df.")
 
     # ------------------------------------------------------------------
+    # Decide which object type's features to use (tracked_object)
+    # ------------------------------------------------------------------
+    tracked_object = str(settings.get("tracked_object", "cell")).strip().lower()
+    if tracked_object not in {"cell", "nucleus", "pathogen"}:
+        print(
+            f"[_infection_qc_xgboost] Unknown tracked_object={tracked_object!r}; "
+            "falling back to 'cell'."
+        )
+        tracked_object = "cell"
+    obj_prefix = f"{tracked_object}_"
+
+    # Name the real XGBoost candidates before aggregation.  Numeric text was
+    # previously discarded by ``median(numeric_only=True)`` and could never
+    # reach the schema validator below.  Restricting coercion to the chosen
+    # object, pathogen channel and non-centroid inputs also means an unrelated
+    # metadata column cannot abort a model that would never consume it.
+    pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
+    pattern_ch = re.compile(r"ch(\d+)\b")
+    feature_candidates = []
+    for column in all_df.columns:
+        if column == orig_infection_col or not pattern_obj.match(column):
+            continue
+        if "centroid" in column.lower():
+            continue
+        channel_match = pattern_ch.search(column)
+        if channel_match and channel_match.group(1) != str(pathogen_chan):
+            continue
+        feature_candidates.append(column)
+
+    candidate_frame = schema.coerce_model_feature_types(
+        all_df.loc[:, feature_candidates],
+        extra_features=feature_candidates,
+    )
+
+    # ------------------------------------------------------------------
     # Aggregate to per-object level (median across frames)
     # ------------------------------------------------------------------
+    aggregation_df = all_df.copy(deep=False)
+    for column in feature_candidates:
+        aggregation_df[column] = candidate_frame[column]
+
     agg_cols = [
         c
-        for c in all_df.columns
+        for c in aggregation_df.columns
         if c not in (key_cols + ["frame", "timeID", orig_infection_col])
     ]
 
-    group = all_df.groupby(key_cols, observed=True)
+    group = aggregation_df.groupby(key_cols, observed=True)
     cell_level = group[agg_cols].median(numeric_only=True).reset_index()
 
     infection_any = (
-        all_df.groupby(key_cols, observed=True)[orig_infection_col]
+        aggregation_df.groupby(key_cols, observed=True)[orig_infection_col]
         .max()
         .reset_index()
     )
@@ -7156,18 +7229,6 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
 
     if "n_pathogens" in cell_level.columns:
         cell_level["n_pathogens"] = cell_level["n_pathogens"].fillna(0)
-
-    # ------------------------------------------------------------------
-    # Decide which object type's features to use (tracked_object)
-    # ------------------------------------------------------------------
-    tracked_object = str(settings.get("tracked_object", "cell")).strip().lower()
-    if tracked_object not in {"cell", "nucleus", "pathogen"}:
-        print(
-            f"[_infection_qc_xgboost] Unknown tracked_object={tracked_object!r}; "
-            "falling back to 'cell'."
-        )
-        tracked_object = "cell"
-    obj_prefix = f"{tracked_object}_"
 
     # ------------------------------------------------------------------
     # Decide pathogen-channel intensity column for this tracked_object
@@ -7204,8 +7265,6 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     numeric_cols = schema.model_feature_columns(cell_level)
 
     feature_cols = []
-    pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
-    pattern_ch = re.compile(r"ch(\d+)\b")
 
     # `numeric_cols` cannot contain `orig_infection_col`, 'frame' or 'timeID':
     # `agg_cols` above already excludes all three from the per-cell table, and
@@ -7676,11 +7735,22 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
 
             scaler = StandardScaler()
             X_scaled_panel = scaler.fit_transform(X_panel)
+            # XGBoost can legitimately train on one surviving feature.  PCA
+            # cannot request two components from that matrix, but the panel
+            # contract is always a pair of plotting coordinates.  Fit the one
+            # available component and pad only the display coordinate with a
+            # zero axis; the fitted classifier and its feature set are
+            # unchanged.
+            panel_components = min(2, X_scaled_panel.shape[1])
             pca = PCA(
-                n_components=2,
+                n_components=panel_components,
                 random_state=int(settings.get("infection_pca_random_state", 0)),
             )
             coords = pca.fit_transform(X_scaled_panel)
+            if panel_components == 1:
+                coords = np.column_stack(
+                    [coords[:, 0], np.zeros(coords.shape[0], dtype=float)]
+                )
             labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
             pca_payload = {
                 "coords": coords,
