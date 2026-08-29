@@ -19,6 +19,8 @@ produce the same result, because they are the same code.
 """
 from __future__ import annotations
 
+import os
+import sys
 from typing import Any, Dict, Mapping, Tuple
 
 #: The two classifier families, in the order the settings panel offers them.
@@ -71,6 +73,35 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
 
 class ClassifierFamilyError(ValueError):
     """A classifier family spaCR does not have."""
+
+
+def _begin_flowview_run(settings: Mapping[str, Any]) -> object | None:
+    """Start a live graph only when optional FlowView tracing is enabled.
+
+    The common disabled path is a module-cache lookup and an environment
+    check; importantly, it imports no FlowView code.  A panel can enable the
+    already-loaded trace module, while ``SPACR_FLOWVIEW`` opts a headless run
+    in through the same lazy boundary.
+    """
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in {
+            "1",
+            "on",
+            "true",
+            "yes",
+        }:
+            return None
+        from .flowview import trace as trace_module
+
+    if not trace_module.is_enabled():
+        return None
+
+    from .flowview.classify_blueprint import _install_classify_collector
+
+    return _install_classify_collector(settings)
 
 
 def resolve_family(settings: Mapping[str, Any]) -> str:
@@ -170,6 +201,15 @@ def classify(settings: Mapping[str, Any]) -> Any:
     ml_model_type = (
         resolve_ml_model_type(settings) if family == "ml" else None
     )
+
+    # FlowView is optional observability.  Its complete setup boundary is
+    # failure-isolated so neither a renderer fault nor malformed trace state
+    # can replace a pipeline result or exception.
+    try:
+        _begin_flowview_run(settings)
+    except Exception:
+        pass
+
     resolved = dict(normalize_classes(normalize_settings(settings)))
 
     if family == "cv":

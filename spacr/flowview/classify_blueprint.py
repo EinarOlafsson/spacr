@@ -107,4 +107,28 @@ def classify_graph(
     )
 
 
+def _install_classify_collector(settings: Mapping[str, Any]):
+    """Install a fresh collector for one enabled Classify invocation.
+
+    This is intentionally private: :mod:`spacr.classify` calls it through a
+    lazy import so the disabled entry point does not import FlowView.  The
+    caller owns failure isolation because tracing must never affect a
+    scientific run.
+    """
+
+    from .collector import Collector
+    from .trace import enable
+
+    started_at = time.time()
+    collector = Collector(
+        classify_graph(
+            settings,
+            run_id=f"classify-{time.time_ns()}",
+            started_at=started_at,
+        )
+    )
+    enable(collector)
+    return collector
+
+
 __all__ = ["CLASSIFY_NODE_IDS", "classify_graph"]
