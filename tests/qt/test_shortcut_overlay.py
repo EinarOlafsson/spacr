@@ -17,6 +17,7 @@ from PySide6.QtWidgets import QLabel, QWidget
 from spacr.qt.shortcuts import (
     SHORTCUTS,
     ShortcutOverlay,
+    _bind,
     install,
     show_cheat_sheet,
 )
@@ -209,6 +210,39 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
               if not a.shortcut().isEmpty()}
     for keys in declared:
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
+
+
+def test_two_live_windows_do_not_make_their_shortcuts_ambiguous(qtbot):
+    """A second spaCR window has its own keys, not a competing app-global
+    copy of the first window's keys.
+
+    Qt suppresses both callbacks when two ``ApplicationShortcut`` objects
+    carry one sequence.  That used to make Ctrl+End intermittent after an
+    old window survived until deferred deletion; driving two live windows is
+    the order-independent regression for that failure.
+    """
+    from PySide6.QtWidgets import QMainWindow
+
+    first = QMainWindow()
+    second = QMainWindow()
+    qtbot.addWidget(first)
+    qtbot.addWidget(second)
+    first.resize(320, 200)
+    second.resize(320, 200)
+    first.show()
+    second.show()
+
+    fired = []
+    one = _bind(first, "Ctrl+Alt+9", lambda: fired.append("first"))
+    two = _bind(second, "Ctrl+Alt+9", lambda: fired.append("second"))
+    assert one.context() == two.context() == Qt.WindowShortcut
+
+    second.raise_()
+    second.activateWindow()
+    qtbot.waitUntil(second.isActiveWindow, timeout=2000)
+    qtbot.keyClick(second, Qt.Key_9, Qt.ControlModifier | Qt.AltModifier)
+
+    assert fired == ["second"]
 
 
 def _open_console(window, qtbot):
