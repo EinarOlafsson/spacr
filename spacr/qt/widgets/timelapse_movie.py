@@ -351,6 +351,8 @@ class TimelapseMoviePanel(QWidget):
     comparing against.
     """
 
+    max_fields_changed = Signal(int)
+
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setObjectName("TimelapseMoviePanel")
@@ -456,6 +458,7 @@ class TimelapseMoviePanel(QWidget):
         preview: a user lowering this has just been told the machine is
         short of memory, and the setting has to give it back now.
         """
+        previous = self._max_fields
         self._max_fields = max(1, min(int(count), MAX_FIELDS_CEILING))
         if self._fields_spin.value() != self._max_fields:
             self._fields_spin.blockSignals(True)
@@ -466,6 +469,8 @@ class TimelapseMoviePanel(QWidget):
             movie.pause()
             self._stack.removeWidget(movie)
             movie.deleteLater()
+        if self._max_fields != previous:
+            self.max_fields_changed.emit(self._max_fields)
 
     def max_fields(self) -> int:
         return self._max_fields

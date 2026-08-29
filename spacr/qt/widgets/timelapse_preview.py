@@ -48,7 +48,7 @@ import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -784,27 +784,142 @@ class TimelapseRequest:
     sequence: Optional[FrameSequence] = None
     mask_sequence: Optional[FrameSequence] = None
     cached_masks: Optional[np.ndarray] = None
+    cached_images: Optional[np.ndarray] = None
     seg: Dict[str, Any] = field(default_factory=dict)
     track: Dict[str, Any] = field(default_factory=dict)
+    include_images: bool = False
+
+
+class MovieFieldCancelled(RuntimeError):
+    """A queued movie field was abandoned before it retained its arrays."""
+
+
+def movie_worker_interrupted() -> bool:
+    """Whether the JobRunner thread executing this field was cancelled."""
+    try:
+        return bool(QThread.currentThread().isInterruptionRequested())
+    except RuntimeError:
+        return True
+
+
+def _check_movie_cancelled(cancelled: Optional[Callable[[], bool]]) -> None:
+    if cancelled is not None and cancelled():
+        raise MovieFieldCancelled("movie field cancelled")
+
+
+def _read_sequence_frames(
+        sequence: FrameSequence,
+        cancelled: Optional[Callable[[], bool]] = None) -> np.ndarray:
+    """Read one sequence once, checking cancellation between every frame."""
+    frames = []
+    for index in range(len(sequence)):
+        _check_movie_cancelled(cancelled)
+        frames.append(np.asarray(sequence.frame(index)))
+    _check_movie_cancelled(cancelled)
+    return np.stack(frames, axis=0)
+
+
+def _read_and_segment_sequence(
+        sequence: FrameSequence,
+        params: Dict[str, Any],
+        cancelled: Optional[Callable[[], bool]] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Read and segment each frame once, returning raw images and masks."""
+    frames = []
+    masks = []
+    for index in range(len(sequence)):
+        _check_movie_cancelled(cancelled)
+        image = np.asarray(sequence.frame(index))
+        frames.append(image)
+        masks.append(segment_frame(image, params))
+    _check_movie_cancelled(cancelled)
+    shapes = {mask.shape for mask in masks}
+    if len(shapes) != 1:
+        raise ValueError(
+            f"frames segmented to different shapes {sorted(shapes)}; the "
+            "sequence is not a single field of view.")
+    return (np.stack(frames, axis=0),
+            np.stack(masks, axis=0).astype(np.int32))
 
 
 def run_preview_pass(req: TimelapseRequest) -> Dict[str, Any]:
     """Do the work of one preview: masks (maybe cached), then linking."""
     masks = req.cached_masks
+    images = req.cached_images
     segmented = False
     if masks is None:
         if req.mask_sequence is not None:
             masks = _as_label_stack(req.mask_sequence,
                                     int(req.seg.get("mask_channel", 0)))
         elif req.sequence is not None:
-            masks = segment_sequence(req.sequence, req.seg)
+            if req.include_images:
+                images, masks = _read_and_segment_sequence(
+                    req.sequence, req.seg)
+            else:
+                masks = segment_sequence(req.sequence, req.seg)
             segmented = True
         else:
             raise ValueError("Load a sequence first.")
     masks = np.asarray(masks)
+    if req.include_images and images is None and req.sequence is not None:
+        images = _read_sequence_frames(req.sequence)
     tracks = link_tracks(masks, **req.track)
     return {"masks": masks, "tracks": tracks, "segmented": segmented,
-            "masks_built": req.cached_masks is None}
+            "masks_built": req.cached_masks is None, "images": images}
+
+
+def build_movie_field(
+        path, *, max_frames: int, seg: Dict[str, Any],
+        track: Dict[str, Any], cached_masks: Optional[np.ndarray] = None,
+        cancelled: Optional[Callable[[], bool]] = None,
+) -> Dict[str, Any]:
+    """Open, segment and link one additional field without touching Qt UI.
+
+    Raw frames are retained for the movie, so a cache miss reads each frame
+    exactly once and hands that same array to segmentation.  ``cancelled`` is
+    checked between frames and before linking; the production callback reads
+    the worker QThread's interruption flag, which lets lowering the Fields cap
+    stop an expensive sibling before it retains the rest of the sequence.
+    """
+    source = Path(os.fspath(path))
+    sequence = FrameSequence.open(source, max_frames=max_frames)
+    _check_movie_cancelled(cancelled)
+    if cached_masks is None:
+        images, masks = _read_and_segment_sequence(
+            sequence, seg, cancelled=cancelled)
+        segmented = True
+    else:
+        images = _read_sequence_frames(sequence, cancelled=cancelled)
+        masks = np.asarray(cached_masks)
+        if int(masks.shape[0]) != len(sequence):
+            raise ValueError(
+                f"cached masks have {masks.shape[0]} frames but "
+                f"{source.name} now has {len(sequence)}")
+        segmented = False
+    _check_movie_cancelled(cancelled)
+    tracks = link_tracks(masks, **track)
+    _check_movie_cancelled(cancelled)
+    return {
+        "source": str(source),
+        "title": source.name or str(source),
+        "images": images,
+        "masks": masks,
+        "labels": relabel_by_track(masks, tracks),
+        "tracks": tracks,
+        "channel": int(seg.get("channel", 0)),
+        "segmented": segmented,
+    }
+
+
+def movie_field_payload(**kwargs) -> Dict[str, Any]:
+    """Never let one bad sibling strand the remaining movie-field queue."""
+    try:
+        return build_movie_field(**kwargs)
+    except MovieFieldCancelled:
+        return {"cancelled": True, "source": str(kwargs.get("path", ""))}
+    except Exception as exc:                                      # noqa: BLE001
+        LOG.info("timelapse movie field failed: %s", exc, exc_info=True)
+        return {"error": str(exc), "source": str(kwargs.get("path", ""))}
 
 
 class _TimelapseWorker(QThread):
@@ -919,16 +1034,31 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         # synchronously without the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="timelapse preview")
+        # Additional fields are deliberately serialized through their own
+        # runner.  One Cellpose field at a time keeps the GUI responsive
+        # without multiplying model/GPU memory by the Fields setting, and a
+        # cap change can cancel this queue without disturbing a source open.
+        self._movie_jobs = JobRunner(
+            self, threaded=threaded, app_key="timelapse movie fields")
         #: Bumped whenever a newer open supersedes the one in flight.
         self._load_token = 0
         self._sequence: Optional[FrameSequence] = None
         self._mask_sequence: Optional[FrameSequence] = None
         self._masks: Optional[np.ndarray] = None
+        self._movie_images: Optional[np.ndarray] = None
         self._tracked: Optional[np.ndarray] = None
         self._tracks = None
         self._raw_tracks = None
         self._stats: Optional[TrackStats] = None
         self._mask_cache: Dict[tuple, np.ndarray] = {}
+        self._movie_fields: Dict[str, Dict[str, Any]] = {}
+        self._movie_sources: List[str] = []
+        self._movie_pending_path: Optional[str] = None
+        self._movie_pending_key: Optional[tuple] = None
+        self._movie_generation = 0
+        self._movie_seg_key: Optional[tuple] = None
+        self._movie_track_key: Optional[tuple] = None
+        self._movie_failures: Dict[str, tuple] = {}
         self._worker: Optional[_TimelapseWorker] = None
         # A worker whose result has landed but whose QThread may still be
         # unwinding. Held until ``finished`` so it is never collected mid-run.
@@ -1291,9 +1421,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
-        runner = getattr(self, "_jobs", None)
-        if runner is not None:
-            runner.shutdown()
+        for name in ("_jobs", "_movie_jobs"):
+            runner = getattr(self, name, None)
+            if runner is not None:
+                runner.shutdown()
 
     def load_sequence(self, path) -> bool:
         """Synchronously open ``path`` as the preview sequence.
@@ -1313,8 +1444,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
     def _install_sequence(self, path, seq) -> bool:
         """Adopt an already-opened sequence and redraw."""
+        self._reset_movie_fields(clear_panel=True)
         self._sequence = seq
         self._masks = None
+        self._movie_images = None
         self._tracked = None
         self._tracks = None
         self._mask_cache.clear()
@@ -1640,8 +1773,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             sequence=self._sequence,
             mask_sequence=self._mask_sequence,
             cached_masks=cached,
+            cached_images=self._movie_images,
             seg=self._seg_params(),
             track=self._track_params(),
+            include_images=getattr(self, "_movie_panel", None) is not None,
         )
         self._relink_btn.setEnabled(False)
         if cached is not None:
@@ -1733,6 +1868,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         masks = result["masks"]
         self._masks = masks
+        self._movie_images = result.get("images")
         sig = getattr(self, "_pending_signature", None)
         if sig is not None:
             self._mask_cache[sig] = masks
@@ -1772,36 +1908,250 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self.propagate_settings()
         self.preview_ready.emit(self._stats)
 
-    def _push_to_movie(self) -> None:
-        """Hand the finished pass to the movie panel, if one is attached.
+    @staticmethod
+    def _freeze_movie_value(value):
+        """Hash nested setting values without weakening their identity."""
+        if isinstance(value, dict):
+            return tuple(sorted(
+                (str(key), TimelapsePreviewPanel._freeze_movie_value(item))
+                for key, item in value.items()))
+        if isinstance(value, (list, tuple)):
+            return tuple(TimelapsePreviewPanel._freeze_movie_value(item)
+                         for item in value)
+        return value
 
-        `self._tracked` and not `self._masks`: the movie's colours are only
-        meaningful once the labels ARE track ids, which is what
-        `relabel_by_track` produced two lines up. Feeding it the raw masks
-        would give every object a colour that changes whenever the
-        segmentation renumbers, which is the opposite of what the movie is
-        being watched for.
+    def _movie_setting_keys(self) -> Tuple[tuple, tuple]:
+        """Segmentation and linking identities shared by every field."""
+        seg = dict(self._seg_params())
+        seg["max_frames"] = int(self._max_frames.value())
+        return (self._freeze_movie_value(seg),
+                self._freeze_movie_value(self._track_params()))
+
+    def _reset_movie_fields(self, *, clear_panel: bool = False) -> None:
+        """Cancel sibling work and release every retained movie-field array."""
+        self._movie_generation += 1
+        runner = getattr(self, "_movie_jobs", None)
+        if runner is not None:
+            runner.cancel()
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        self._movie_fields.clear()
+        self._movie_sources.clear()
+        self._movie_failures.clear()
+        self._movie_seg_key = None
+        self._movie_track_key = None
+        if clear_panel:
+            movie = getattr(self, "_movie_panel", None)
+            if movie is not None:
+                movie.set_fields([])
+
+    def _movie_source_paths(self) -> List[str]:
+        """Current field first, followed by its cached sibling listing.
+
+        ``open_sequence_payload`` obtains that listing with
+        :func:`sibling_sources` on its worker and ``_on_sequence_loaded``
+        adopts it into ``ImageSetSampler``.  The fallback is for synchronous
+        programmatic callers, whose existing selector refresh already uses
+        the same helper.
+        """
+        current_path = getattr(self, "_sequence_path", None)
+        if current_path is None:
+            return []
+        current = str(current_path)
+        siblings = []
+        for item in self._sampler.sets:
+            try:
+                siblings.append(str(item.path()))
+            except Exception:                                  # noqa: BLE001
+                continue
+        if not siblings:
+            siblings = [str(path) for path in sibling_sources(
+                current_path, FRAME_SUFFIXES,
+                directories=current_path.is_dir())]
+        # Preserve sibling_sources' deterministic order, but the field the
+        # user chose is unconditionally first.
+        return [current] + [path for path in siblings if path != current]
+
+    def _desired_movie_sources(self) -> List[str]:
+        movie = getattr(self, "_movie_panel", None)
+        if movie is None:
+            return []
+        return list(self._movie_sources[: max(1, int(movie.max_fields()))])
+
+    def _movie_entry_is_current(self, entry: Optional[dict]) -> bool:
+        return bool(
+            entry
+            and entry.get("_seg_key") == self._movie_seg_key
+            and entry.get("_track_key") == self._movie_track_key
+            and not entry.get("_needs_refresh"))
+
+    def _present_movie_fields(self) -> None:
+        """Publish completed current-generation fields in source order."""
+        movie = getattr(self, "_movie_panel", None)
+        if movie is None:
+            return
+        ready = []
+        for source in self._desired_movie_sources():
+            entry = self._movie_fields.get(source)
+            if self._movie_entry_is_current(entry):
+                ready.append(entry)
+        movie.set_fields(ready)
+
+    def _cancel_pending_movie_field(self) -> None:
+        self._movie_generation += 1
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        runner = getattr(self, "_movie_jobs", None)
+        if runner is not None:
+            runner.cancel()
+
+    def _refresh_movie_targets(self) -> None:
+        """Trim to the live cap, then start at most one missing field."""
+        desired = self._desired_movie_sources()
+        desired_set = set(desired)
+        for source in list(self._movie_fields):
+            if source not in desired_set:
+                self._movie_fields.pop(source, None)
+        for source in list(self._movie_failures):
+            if source not in desired_set:
+                self._movie_failures.pop(source, None)
+
+        wanted_key = (self._movie_seg_key, self._movie_track_key)
+        pending = self._movie_pending_path
+        if pending is not None and (
+                pending not in desired_set
+                or self._movie_pending_key != wanted_key):
+            # Jobs are serialized, and build_movie_field checks the QThread's
+            # interruption flag between frames. Lowering the cap therefore
+            # cancels the one surplus field instead of letting a whole queue
+            # segment and then throwing its arrays away.
+            self._cancel_pending_movie_field()
+            pending = None
+
+        self._present_movie_fields()
+        if pending is not None:
+            return
+
+        source = None
+        cached_masks = None
+        for candidate in desired:
+            entry = self._movie_fields.get(candidate)
+            if self._movie_entry_is_current(entry):
+                continue
+            if self._movie_failures.get(candidate) == wanted_key:
+                continue
+            source = candidate
+            if (entry is not None
+                    and entry.get("_seg_key") == self._movie_seg_key):
+                cached_masks = entry.get("masks")
+            break
+        if source is None:
+            return
+
+        generation = self._movie_generation
+        self._movie_pending_path = source
+        self._movie_pending_key = wanted_key
+        kwargs = {
+            "path": source,
+            "max_frames": int(self._max_frames.value()),
+            "seg": dict(self._seg_params()),
+            "track": dict(self._track_params()),
+            "cached_masks": cached_masks,
+            "cancelled": movie_worker_interrupted,
+        }
+        self._status.setText(
+            f"Loading movie field {desired.index(source) + 1} "
+            f"of {len(desired)}…")
+        self._movie_jobs.submit(
+            lambda _kwargs=kwargs: movie_field_payload(**_kwargs),
+            lambda result, _source=source, _generation=generation,
+                   _key=wanted_key: self._on_movie_field_done(
+                       _source, _generation, _key, result))
+
+    def _on_movie_field_done(self, source: str, generation: int,
+                             wanted_key: tuple, result) -> None:
+        """Install one sibling result on the GUI thread, then take the next."""
+        if (generation != self._movie_generation
+                or wanted_key != (self._movie_seg_key,
+                                  self._movie_track_key)):
+            return
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        if not isinstance(result, dict) or result.get("cancelled"):
+            self._refresh_movie_targets()
+            return
+        if result.get("error"):
+            self._movie_failures[source] = wanted_key
+            self._status.setText(
+                f"Movie field {Path(source).name} failed: {result['error']}")
+            self._refresh_movie_targets()
+            return
+        result["_seg_key"] = self._movie_seg_key
+        result["_track_key"] = self._movie_track_key
+        result["_needs_refresh"] = False
+        self._movie_fields[source] = result
+        self._present_movie_fields()
+        shown = len([
+            path for path in self._desired_movie_sources()
+            if self._movie_entry_is_current(self._movie_fields.get(path))])
+        self._status.setText(f"Movie ready · {shown} field(s)")
+        self._refresh_movie_targets()
+
+    def _on_movie_field_limit_changed(self, _count: int) -> None:
+        """Apply a lower cap immediately; a higher one resumes the queue."""
+        self._refresh_movie_targets()
+
+    def _push_to_movie(self) -> None:
+        """Publish the selected field, then stream sibling fields as ready.
+
+        Every ``labels`` stack is relabelled by track id. Additional fields
+        are opened, segmented and linked on ``_movie_jobs`` one at a time;
+        only the selected field is assembled here, and its raw frames normally
+        arrived with the preview worker result. If the movie was attached
+        after that result, masks are shown briefly while the raw frames are
+        read and re-linked off the GUI thread.
         """
         movie = getattr(self, "_movie_panel", None)
         if movie is None:
             return
-        seq = self._sequence
-        if seq is not None and len(seq):
-            images = np.stack([seq.frame(i) for i in range(len(seq))])
-        elif self._masks is not None:
-            images = self._masks
-        else:
+        if self._masks is None or self._tracked is None:
             movie.set_fields([])
             return
-        title = getattr(self, "_source_label", None)
-        movie.set_fields([{
-            "title": title.text() if hasattr(title, "text") else "Field",
+        source_path = getattr(self, "_sequence_path", None)
+        source = str(source_path) if source_path is not None else "Field"
+        seg_key, track_key = self._movie_setting_keys()
+        if (self._movie_seg_key is not None and seg_key != self._movie_seg_key):
+            self._cancel_pending_movie_field()
+            self._movie_fields.clear()
+            self._movie_failures.clear()
+        elif (self._movie_track_key is not None
+              and track_key != self._movie_track_key):
+            self._cancel_pending_movie_field()
+            self._movie_failures.clear()
+        self._movie_seg_key = seg_key
+        self._movie_track_key = track_key
+        self._movie_sources = self._movie_source_paths() or [source]
+
+        images = self._movie_images
+        needs_refresh = images is None and self._sequence is not None
+        if images is None:
+            # A truthful, immediately available placeholder. It is replaced
+            # by raw source frames on the movie worker before being counted as
+            # a current/ready entry.
+            images = self._masks
+        self._movie_fields[source] = {
+            "source": source,
+            "title": Path(source).name or "Field",
             "images": images,
+            "masks": self._masks,
             "labels": self._tracked,
             "tracks": self._tracks,
-            "channel": int(self._channel.value())
-            if hasattr(self, "_channel") else 0,
-        }])
+            "channel": int(self._channel.value()),
+            "_seg_key": seg_key,
+            "_track_key": track_key,
+            "_needs_refresh": needs_refresh,
+        }
+        self._refresh_movie_targets()
 
     def attach_movie_panel(self, movie) -> None:
         """Wire a :class:`TimelapseMoviePanel` to this preview.
@@ -1810,7 +2160,17 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         optional: the panel is built by two different callers and a screen
         that only wants the stats view should not pay for the frames.
         """
+        previous = getattr(self, "_movie_panel", None)
+        if previous is not None and previous is not movie:
+            try:
+                previous.max_fields_changed.disconnect(
+                    self._on_movie_field_limit_changed)
+            except (RuntimeError, TypeError):
+                pass
         self._movie_panel = movie
+        if previous is not movie:
+            movie.max_fields_changed.connect(
+                self._on_movie_field_limit_changed)
         self._push_to_movie()
 
     # -- rendering ---------------------------------------------------------
