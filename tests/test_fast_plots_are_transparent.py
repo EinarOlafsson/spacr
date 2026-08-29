@@ -65,6 +65,30 @@ def test_the_widget_does_not_paint_its_own_background(plot):
     assert plot.autoFillBackground() is False
 
 
+def test_closing_retires_the_plot_context_menus(qapp):
+    """A closed plot must not leave pyqtgraph's parentless menus behind."""
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QApplication, QMenu
+
+    from spacr.qt.widgets.fast_plots import FastPlot
+
+    before = {id(widget) for widget in QApplication.topLevelWidgets()}
+    widget = FastPlot(title="owned menus")
+    menus = {
+        id(menu)
+        for menu in QApplication.topLevelWidgets()
+        if isinstance(menu, QMenu) and id(menu) not in before
+    }
+
+    widget.close()
+    widget.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+    remaining = {id(widget) for widget in QApplication.allWidgets()}
+    assert len(menus) >= 2, "the real pyqtgraph menu tree was not built"
+    assert menus.isdisjoint(remaining)
+
+
 def test_restyle_re_inks_a_live_plot(plot):
     """pyqtgraph resolves foreground at construction, so without this a
     theme switch leaves every open plot drawing its old ink -- and on a
