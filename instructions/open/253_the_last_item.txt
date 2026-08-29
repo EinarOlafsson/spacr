@@ -5,6 +5,11 @@ THE LAST ITEM: GO THROUGH THE WHOLE LIST AGAIN, THEN SHIP
 Status:    OPEN. Requested 2026-08-25. THIS ITEM IS LAST BY CONSTRUCTION --
            it cannot be closed until every other item is.
 Owner:     the whole tree.
+Depends:   every other open item. At this reconciliation that is 01, 02, 03,
+           05, 07, 08, 288, 304, 305, 306 and 307; the live index remains
+           authoritative if more work is discovered.
+Requested: 2026-08-28 — "then finish all items on the linstructions list
+           including these."
 
 --------------------------------------------------------------------------------
 WHAT WAS ASKED

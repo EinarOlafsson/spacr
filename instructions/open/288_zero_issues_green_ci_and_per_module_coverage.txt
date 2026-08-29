@@ -5,6 +5,7 @@ ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
 Status:    OPEN, filed 2026-08-27. RELEASE-BLOCKING.
 Owner:     the complete spaCR source tree, tests and GitHub workflows.
 Precedes:  253's version, main-branch and history publication actions.
+Requested: 2026-08-28 — "get the library to 100% test coverage"
 
 --------------------------------------------------------------------------------
 WHAT WAS ASKED
@@ -12,6 +13,33 @@ WHAT WAS ASKED
 
 Fix all GitHub issues, make every GitHub test pass, and bring every spaCR
 module to 100% test coverage.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-28 — THE CURRENT RELEASE TREE IS NOT CLOSE TO THIS CONTRACT
+--------------------------------------------------------------------------------
+
+The first frozen-tree audit found:
+
+  * 490 shipped ``spacr/**/*.py`` modules, while the only saved per-file
+    baseline covers 302 rows, omits 200 current modules and retains 12 deleted
+    ones;
+  * that 2026-08-10 statement-only baseline is 121,662 / 136,889 statements
+    (88.876%), with 62 rows at 100%, 240 below and two at zero; it contains no
+    branch measurement;
+  * 304 prohibited ``# pragma: no cover`` occurrences across 104 tracked
+    modules;
+  * no required workflow invokes coverage, publishes a per-module artifact or
+    runs a negative ratchet test, and neither ``main`` nor ``nightly`` has a
+    required branch-protection check configured;
+  * 46,877 collected tests on the current tree;
+  * the current GitHub head is red: the Slow job has four Measure-demo
+    failures and the docs job reports stale reviewed runtime source. The
+    Measure crash was reproduced from a clean installed wheel, not only from
+    the checkout.
+
+The local ``.coverage`` file is not a baseline: it contains only
+``spacr/qt/hidpi.py``. Regenerate evidence from a frozen tree rather than
+merging it with that partial file.
 
 --------------------------------------------------------------------------------
 THE CONTRACT
@@ -40,6 +68,12 @@ untested one. Tests exercise observable behavior and contain meaningful
 assertions. Do not use ``# pragma: no cover``, omit files from configuration,
 or delete reachable code merely to alter the denominator. Truly dead code may
 be removed only after proving it is unreachable and unneeded.
+
+The renewed request says "the library", so the denominator is every shipped
+Python module in the distributions, not only ``spacr/`` files that happen to
+be imported by the default test command. Package discovery, the coverage
+inventory and the wheel/sdist contents must agree. A shipped module missing
+from the inventory is a failure, not zero work hidden outside the report.
 
 4. KEEP THE RESULT RATCHETED
 

@@ -1699,7 +1699,7 @@ class CellMontageView(QWidget):
         self._channels.setPlaceholderText("as the run saved them")
         self._channels.setVisible(False)
         self._channels.setToolTip(
-            "Planes displayed in the montage. Enter the color letters used "
+            "Planes displayed in the montage. Enter the colour letters used "
             "by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', "
             "or 'b' — and each letter is resolved to the corresponding "
             "source channel. Source-channel indices such as '0,1,2' are "

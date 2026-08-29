@@ -4,9 +4,9 @@ WHY THIS EXISTS. ``regression_results.summary_text`` relays the *statsmodels*
 summary, verbatim and deliberately: the point of asking for the statsmodels
 summary is to get the statsmodels summary, and a re-implementation would
 differ from every textbook a reader compares it against. That is correct, and
-it means the tab has exactly one source — so the eighteen of nineteen
-:data:`spacr.regression_spec.REGRESSION_TYPES` that statsmodels does not write
-one for got nothing, and ``inference='nonparametric'`` got
+it means the tab has exactly one source — so most of
+:data:`spacr.regression_spec.REGRESSION_TYPES` got nothing because statsmodels
+does not write a summary for them, and ``inference='nonparametric'`` got
 
     No summary: this run came back without a fitted model, so there is none
     to summarise.
@@ -201,7 +201,9 @@ LABELS: Dict[Tuple[str, str], str] = {
 COMPARISON_FIELDS: Dict[str, str] = {
     "dependent_variable": "dependent_variable",
     "regression_type": "regression_type",
+    "regression_backend": "backend",
     "inference": "inference",
+    "guide_permutations": "permutations",
     "analysis_unit": "analysis_unit",
     "agg_type": "agg_type",
     "transform": "transform",
@@ -2349,7 +2351,7 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
                       regression_type=None) -> Optional[str]:
     """Write this run's spaCR summary into its own folder, and return the path.
 
-    CALLED ON EVERY RUN, for every one of the nineteen regression types and
+    CALLED ON EVERY RUN, for every supported regression type and
     both inferences. It writes the file
     :func:`spacr.qt.widgets.regression_results.find_summary_file` already
     reads back, so a run re-opened from disk shows this summary with no GUI

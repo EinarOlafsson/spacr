@@ -1608,6 +1608,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # than quietly reporting ordinary errors under a robust label.
             "cov_type",
             "alpha", "l1_ratio", "quantile", "huber_t",
+            "spline_knots", "spline_degree",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
             "lasso_selection_threshold",
             # One knob per family, filed with the rest of them:
@@ -6503,7 +6504,7 @@ class _ValueCombo(QComboBox):
     settings the two are the same string. They are not the same for a menu
     that explains itself: ``regression_type`` stores ``'quantile'`` and shows
     ``'quantile -- robust/semiparametric: ...'`` so the user can tell the
-    nineteen families apart.
+    supported families apart.
 
     Qt's ``setCurrentText`` matches the CAPTION and, on a non-editable combo,
     silently does nothing when there is no match. So the ordinary way to say
@@ -7930,8 +7931,9 @@ class SettingsWidgets:
         # when the user types a nucleus channel or raises the organelle
         # count, the form has to be built for the values ON SCREEN, not the
         # ones the module ships. `current` is those values.
+        current_values = {str(k): v for k, v in (current or {}).items()}
         deciding = dict(shipped)
-        deciding.update({str(k): v for k, v in (current or {}).items()})
+        deciding.update(current_values)
         try:
             wanted = int(deciding.get("number_of_organelles", 0) or 0)
         except (TypeError, ValueError):
@@ -7949,9 +7951,14 @@ class SettingsWidgets:
         # settles the form's SHAPE; without this the new form arrives at the
         # module's defaults, so a second rebuild collects a nucleus channel
         # of None and takes the nucleus settings away again.
-        for key, value in (current or {}).items():
-            if str(key) in self._defaults:
-                self._defaults[str(key)] = value
+        from spacr.organelle_types import organelle_role_of
+        from spacr.settings import expected_types
+
+        for key, value in current_values.items():
+            if key in self._defaults or (
+                    organelle_role_of(key) is not None
+                    and key in expected_types):
+                self._defaults[key] = value
         self._skip_keys = frozenset(self._skip_keys) | frozenset(
             self._organelle_keys_beyond(self._slots_built_for,
                                         self._defaults)
@@ -7965,7 +7972,7 @@ class SettingsWidgets:
         # user or a loaded file, is written out whatever the count is.
         self._slots_the_panel_added = {
             key: value for key, value in self._defaults.items()
-            if key not in shipped}
+            if key not in shipped and key not in current_values}
         self._widgets: Dict[str, QWidget] = {}
         # What the object rule decided last, and the rows watching to see
         # that it sticks. See `_guard_hidden_rows`.
@@ -8221,10 +8228,9 @@ class SettingsWidgets:
         :param settings: the defaults the panel is about to build from.
         :returns: the keys not to build.
 
-        SAME RULE AS THE ORGANELLE COUNT, asked for 2026-08-28: "do the same
-        for the other object classes, except cell". A run with no nucleus
-        channel has no nucleus, and twenty nucleus settings under two
-        headings are twenty settings it will never use.
+        A run with no nucleus channel has no nucleus, so nucleus-specific
+        settings under multiple headings would be settings the run can never
+        use. The same rule applies to the other optional object classes.
 
         CELL IS ALWAYS THERE. It is the object every other one is measured
         against and the one a run is most likely to want, so hiding it on an
@@ -8832,7 +8838,7 @@ class SettingsWidgets:
     #: same feature space, but a panel that rewrites a default makes every
     #: settings file differ from it and breaks "has this been changed?".
     CANONICAL_READERS = {
-        "channel_of_interest": "spacr.utils:feature_selection",
+        "channel_of_interest": "spacr.settings:canonical_feature_selection",
     }
 
     def _canonical(self, key: str, value: Any) -> Any:
@@ -9838,11 +9844,9 @@ class SettingsWidgets:
         that once per keypress, on the GUI thread, so the window stopped
         answering.
 
-        Asked for 2026-08-28: "just when the module is opened load all
-        settings... i dont want the module hanging whenever the user types a
-        value into a channel setting". So the rule runs ONCE, from
-        `build_sections`, and a value typed afterwards changes what the run
-        does without rearranging the form under the hands typing it.
+        The rule therefore runs ONCE, from `build_sections`. A value typed
+        afterwards changes what the run does without repeatedly rebuilding or
+        rearranging the form under the hands typing it.
 
         A row that is on the form and does not apply is a smaller defect than
         a module that stops responding -- and the settings a run ignores it

@@ -40,7 +40,13 @@ from spacr.qt.screens.settings_model import (
 @pytest.fixture(scope="module")
 def mask_tree(qapp):
     """The mask panel's sections. Mask is the module with the most of them."""
-    return SettingsWidgets("mask").build_sections()
+    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
+
+    return SettingsWidgets("mask", current={
+        "number_of_organelles": PANEL_ORGANELLE_SLOTS,
+        "nucleus_channel": 1,
+        "pathogen_channel": 2,
+    }).build_sections()
 
 
 def _walk(sections):
@@ -88,7 +94,13 @@ def test_a_flat_reader_sees_every_row_exactly_once(mask_tree):
     flat = [widget for _title, rows in mask_tree for _label, widget in rows]
     assert len(flat) == len({id(w) for w in flat}), "a row rendered twice"
 
-    model = SettingsWidgets("mask")
+    from spacr.qt.screens.settings_model import PANEL_ORGANELLE_SLOTS
+
+    model = SettingsWidgets("mask", current={
+        "number_of_organelles": PANEL_ORGANELLE_SLOTS,
+        "nucleus_channel": 1,
+        "pathogen_channel": 2,
+    })
     model.build_sections()
     assert len(flat) == len(model._widgets)
 

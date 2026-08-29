@@ -217,9 +217,8 @@ _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 def _mandelbrot_defaults() -> dict:
     """What the fractal settings start at, before anyone chooses a level.
 
-    THE SHIPPED DEFAULTS ARE THE LIGHT ONES. Asked for 2026-08-28: "make
-    sure that the default settings are easy on the hardware. dont want the
-    first impression to be supper laggy."
+    THE SHIPPED DEFAULTS ARE THE LIGHT ONES, keeping first launch responsive
+    on modest hardware.
 
     So the numbers that decide COST -- supersampling, render scale and the
     iteration budget -- come from the `balanced` preset rather than from the
@@ -3576,11 +3575,9 @@ def get_log_file_levels() -> frozenset:
 
     VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings
     contradict each other and the one the user did not touch wins.
-    Measured 2026-08-28: with verbose on, the profile hook was installed,
-    `spacr.trace` was at DEBUG, and a record was built for every call and
-    every return in the process -- then dropped at the handler, because the
-    file levels were {INFO, WARNING, ERROR, CRITICAL}. All of the cost and
-    none of the trail.
+    With verbose on, the profile hook emits DEBUG records for calls and
+    returns. Omitting DEBUG from the file handler would incur all of that cost
+    while discarding the resulting trail.
 
     Whatever verbose means, it cannot mean "do the work and write none of
     it". It is not stored into the level preference: the user's own choice
@@ -5280,11 +5277,9 @@ class PreferencesDialog:
             def _tenths(name, value, low=None, high=None):
                 """A NUMBER FIELD, not a capped slider.
 
-                Asked for 2026-08-28: "dont cap the settings they are fields
-                if the nuber is to high the code will gracefully throw an
-                error and thell the user the number is not accepted." A spin
-                box whose maximum is 2 turns a typed 40 into 2 and shows no
-                sign it did so, which is a control that lies.
+                A spin box whose maximum is 2 turns a typed 40 into 2 without
+                explaining the change. These settings accept the typed number
+                and let validation report clearly when it cannot be used.
 
                 The range is opened to the widest a QDoubleSpinBox has, so
                 the widget refuses nothing; `explain_a_fractal_number` is
@@ -5976,11 +5971,9 @@ def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
     :param bar: its :class:`~spacr.qt.widgets.hint_bar.HintBar`.
     :returns: how many were moved, so a test can assert a number.
 
-    THE STRIP IS THE ANSWER, NOT A SECOND ONE. Asked for 2026-08-28: "in the
-    preference pannel where it says hover a controll to see what it does,
-    this is where the tooltip should be, not in a tooltip window." A control
-    that both writes to the strip and pops a window answers twice, and the
-    window covers the strip it is duplicating.
+    THE STRIP IS THE ANSWER, NOT A SECOND ONE. A control that both writes to
+    the explanatory strip and pops a tooltip window answers twice, and the
+    window can cover the strip it duplicates.
 
     `explain_every_row` pairs a row's label with its field, which reached 5
     of this dialog's controls; the other 125 are labels and buttons that are

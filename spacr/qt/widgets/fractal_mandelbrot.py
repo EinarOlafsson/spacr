@@ -227,11 +227,10 @@ def steering_from_one_number(steering: float, seconds_per_decade: float
     :returns: ``{"steering_strength", "steering_interval_decades",
         "steering_duration"}``.
 
-    THREE NUMBERS THAT MUST AGREE. Set by hand they can contradict each
-    other, and the interesting failure is the one reported on 2026-08-28:
-    steering at its minimum gave JERKY movement, because a short interval
-    re-targets faster than a long duration can finish a move, so the camera
-    never settles and every frame is mid-course-correction.
+    THREE NUMBERS THAT MUST AGREE. Set independently they can contradict each
+    other: a short interval can re-target faster than a long move can finish,
+    leaving the camera permanently mid-course-correction and making even
+    minimal steering look jerky.
 
     Derived together they cannot disagree. The move always takes a fixed
     FRACTION of the interval -- never more than half -- so there is always
@@ -894,3 +893,119 @@ def a_more_interesting_anchor(orbit, budget: int = 600,
         # better guess than the middle of the frame.
         return shortlist[0][1], shortlist[0][2]
     return best[1], best[2]
+
+
+#: How often to move the reference onto the boundary again, in decades.
+#:
+#: MEASURED 2026-08-28, descending from a dragged view: refining every two
+#: decades stays sharp to six, every one to ELEVEN, and every half only to
+#: nine and a half -- refining too often accumulates the small error each
+#: one introduces faster than it removes the old one.
+#:
+#: The reason it works at all is that the view shrinks. A boundary point
+#: picked out of a 96x54 survey is accurate to a pixel, and a pixel is a
+#: hundred times smaller after two more decades -- so each refinement is a
+#: hundredfold better than the one before it, and the reference converges
+#: on the boundary as fast as the camera leaves it.
+REFINE_EVERY: Final[float] = 1.0
+
+
+def best_reference_in_view(orbit, offset_re: float, offset_im: float,
+                           scale: float, max_iter: int):
+    """The point in the current view that makes the best reference.
+
+    :param orbit: the reference the view is currently drawn against.
+    :param offset_re: where the camera sits, relative to that reference.
+    :param scale: the viewport's half-height.
+    :returns: ``(dx, dy)`` relative to the CURRENT reference, or None.
+
+    A REFERENCE HAS TO BE IN THE SET. Perturbation measures every pixel as a
+    small offset from one orbit, and that orbit has to stay bounded for as
+    many iterations as the frame runs -- so it must be a point of the
+    Mandelbrot set, not merely somewhere near it.
+
+    That is what breaks when the view is dragged. Measured 2026-08-28: a
+    reference placed 0.3 from the anchor escapes at iteration SIX, and the
+    detail in the dragged view falls to nothing -- the picture pixelates
+    within a minute where a fixed camera stayed sharp for many. The camera
+    had walked away from the only point the maths was anchored to.
+
+    So after a drag the reference moves too, onto the longest-surviving
+    point in the new view: bounded if there is one, and otherwise whatever
+    escapes last, which is the nearest thing to the set the view contains.
+    """
+    escaped, iterations = perturbation_escape_map(
+        orbit, 96, 54, float(scale), int(max_iter),
+        float(offset_re), float(offset_im))
+
+    height, width = escaped.shape
+    aspect = width / height
+    xs = ((np.arange(width, dtype=np.float64) + 0.5) / width * 2.0 - 1.0)
+    ys = ((np.arange(height, dtype=np.float64) + 0.5) / height * 2.0 - 1.0)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+
+    # IN THE SET, AND ON ITS EDGE. Both halves matter and they pull
+    # opposite ways.
+    #
+    # In the set, because a reference that escapes is not one. On the edge,
+    # because the interior is where the picture stops changing: taking the
+    # point furthest INSIDE was tried and gives a bounded reference whose
+    # neighbourhood is solid colour two decades down -- measured, detail
+    # 304 at the surface and 0.0 at depth two.
+    #
+    # A boundary point is bounded and has an escaping neighbour, which is
+    # exactly the pair of conditions.
+    bounded = ~escaped
+    edge = boundary_mask(escaped)
+    if edge.any():
+        # Among the boundary points, the one whose neighbourhood varies
+        # most: that is where the structure is densest and so where a
+        # descent keeps finding something.
+        best_row, best_col, best_score = -1, -1, -1.0
+        rows, cols = np.nonzero(edge)
+        for row, col in zip(rows, cols):
+            score = candidate_score(escaped, iterations, int(row), int(col),
+                                    int(max_iter))
+            if score > best_score:
+                best_row, best_col, best_score = int(row), int(col), score
+        row, col = best_row, best_col
+    elif bounded.any():
+        # No edge in view: somewhere inside, which at least keeps the
+        # reference valid until the camera is moved again.
+        row, col = np.unravel_index(int(np.argmax(bounded.astype(np.int8))),
+                                    bounded.shape)
+    else:
+        # Nothing of the set at all: the longest-lived point is the nearest
+        # thing to it this view contains.
+        row, col = np.unravel_index(int(np.argmax(iterations)),
+                                    iterations.shape)
+
+    return (float(offset_re) + float(grid_x[row, col]) * aspect * scale,
+            float(offset_im) + float(grid_y[row, col]) * scale)
+
+
+def rebased_orbit(orbit, dx: float, dy: float, digits: int = 320,
+                  max_iter: int = 2200):
+    """A new reference at ``(dx, dy)`` from the current one.
+
+    :returns: ``(centre, orbit)``, or ``(None, None)`` when the result
+        escapes too early to be usable.
+
+    A REFERENCE THAT ESCAPES IS NOT ONE, so a candidate that does not
+    survive most of the iteration budget is refused and the caller keeps
+    what it has: a poor reference draws noise, where an old one merely
+    draws a view that is off centre.
+    """
+    import mpmath as mp
+
+    mp.mp.dps = int(digits)
+    centre = mp.mpc(
+        mp.re(orbit.center) + mp.mpf(np.format_float_scientific(
+            np.float64(dx), precision=17, unique=False)),
+        mp.im(orbit.center) + mp.mpf(np.format_float_scientific(
+            np.float64(dy), precision=17, unique=False)))
+    fresh = ReferenceOrbit(max_iter=int(max_iter), digits=int(digits),
+                           center=centre)
+    if not fresh.is_bounded and (fresh.escaped_at or 0) < int(max_iter) * 0.9:
+        return None, None
+    return centre, fresh

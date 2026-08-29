@@ -89,7 +89,9 @@ def test_a_text_value_still_picks_its_vocabulary():
     assert resolved is not None
     kind, options, default = resolved
     assert default == word
-    assert word in options
+    stored = [option[0] if isinstance(option, tuple) else option
+              for option in options]
+    assert word in stored
     assert kind
 
 

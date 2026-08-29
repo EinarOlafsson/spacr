@@ -59,34 +59,6 @@
       "translation": "표준화 및 임베딩 전에 이름에 'intensity', 'p75', 'p95' 또는 'max' 가 포함된 음수가 아닌 특성에 log1p를 적용합니다. 이는 상위 꼬리를 압축하고 소수의 고강도 세포가 미치는 영향을 줄입니다. 동적 범위가 넓은 병원체 염색에는 활성화를 고려하십시오. 기본값 False."
     },
     {
-      "table": "setting_tooltips",
-      "key": "organelle_morphology",
-      "source_sha256": "d478357f7cc9517ec8b85fa3e7a75fd967af1f6233bc8bb9a5547999d8f02370",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelle_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelleb_morphology",
-      "source_sha256": "af54ac24514b77aaff8a440cccd92f9881cf812d689946a1b2dc4d2704367b35",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelleb_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelleb_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organellec_morphology",
-      "source_sha256": "7565cf3851b7dfa129f041ec3dd63e879c30e04498d9972215dd989781530b53",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organellec_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organellec_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_morphology",
-      "source_sha256": "d80216c1efa21f7834cb21b867140ef7c75a2e5154d623d29e18237e4797f61a",
-      "source": "Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelled_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",
-      "translation": "대상 소기관의 형태 유형입니다. 분할 파이프라인을 선택하고 유효한 organelled_method 값을 제한합니다. 'spots' 는 소포 및 지질 방울과 같은 점상 구조를, 'network' 는 미토콘드리아 및 소포체 세관과 같은 필라멘트 구조를, 'irregular' 는 골지체 및 리소좀과 같은 고형 불규칙 구조를, 'ring' 은 엔도좀 및 오토파고좀과 같은 속이 빈 구조를 나타냅니다. 지원되지 않는 형태-방법 조합은 이미지를 불러오기 전에 오류를 발생시킵니다. 기본값 'spots'."
-    },
-    {
       "table": "categories",
       "key": "Image source, planes read by the module, and normalization or inversion applied before analysis. An empty result can indicate a channel index assigned to an empty plane.",
       "source_sha256": "9e2c74616703be4a5c2cba812e3670cc8324e99e7cb0e1f077d52d535df4bb19",

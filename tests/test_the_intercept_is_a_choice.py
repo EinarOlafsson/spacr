@@ -225,11 +225,19 @@ def test_the_pinned_number_is_live_when_the_intercept_is_pinned():
     assert rule['predicate']({'intercept': 'value'}, None)
 
 
-def test_the_dropdown_itself_is_never_greyed():
-    """Nothing else decides what the intercept may be, so it is always live."""
+def test_the_dropdown_is_greyed_when_no_model_is_fitted():
+    """Permutation inference fits no line, so there is no intercept to set."""
     from spacr.settings import get_setting_dependencies
 
-    assert get_setting_dependencies().get('intercept') is None
+    rule = get_setting_dependencies()['intercept']
+    assert set(rule['sources']) == {'inference', 'analysis_mode'}
+    settings = {'inference': 'nonparametric'}
+    assert rule['predicate'](settings, {}) is False
+    reason = rule['reason'](settings, {})
+    assert 'fits no model' in reason
+    assert 'kept and saved' in reason
+    assert rule['predicate']({'inference': 'parametric'}, {}) is True
+    assert rule['predicate']({'inference': 'auto'}, {}) is True
 
 
 def test_perform_regression_forwards_what_the_panel_set():

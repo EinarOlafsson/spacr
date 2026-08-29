@@ -49,7 +49,7 @@ def _regression_type_choices():
         whose second is the line the dropdown shows -- the family's name, the
         kind of fit it is, and what it assumes.
 
-    Nineteen unlabelled names in one alphabetical list is a menu that hides
+    A long list of unlabelled names in alphabetical order is a menu that hides
     its own contents: the quantile fit, the two robust losses and the rank
     aggregation were all on it and none of them could be found.
     :func:`spacr.regression_families.regression_family_choices` places each
@@ -258,7 +258,7 @@ def convert_settings_dict_for_gui(settings):
         # quasi_binomial, elasticnet, hinge and horseshoe. So the panel
         # could pick a type that fails and could not reach a third of the
         # ones that work.
-        # (value, label) PAIRS, GROUPED BY WHAT THEY ASSUME. Nineteen bare
+        # (value, label) PAIRS, GROUPED BY WHAT THEY ASSUME. Bare
         # names in one alphabetical list hid the four families a user was
         # looking for; the label says whether the fit is parametric,
         # robust/semiparametric or rank-based and what it assumes. The

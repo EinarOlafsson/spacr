@@ -2,7 +2,7 @@
 THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
 ================================================================================
 
-Status:   diagnosed, fix is already in the repo, has not reached users
+Status:   OPEN — diagnosed; the code fix exists but has not reached users.
 Severity: every install at or below 1.5.0.1, on every platform
 Reported: "pip returned exit code 1. Check the terminal for details."
 

@@ -167,7 +167,7 @@ REGRESSION_SETTINGS_USED = {
 RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
                       'hinge_n_boot')
 
-#: The nine knobs that reach the estimator, and the value of each that means
+#: The knobs that reach the estimator, and the value of each that means
 #: "not asked for". Comparing against these is what lets a GUI post every
 #: widget on the panel without every widget counting as a request.
 #:
@@ -188,6 +188,12 @@ _MODEL_LEVEL_DEFAULTS = {
     'quantile': 0.5,
     'hinge_threshold': None,
     'huber_t': 1.345,
+    # Spline OLS changes only the nuisance-covariate design. These defaults
+    # must live in the same table as every other policed estimator setting so
+    # a re-fit from spline to another family resets them instead of carrying
+    # settings the new family cannot read.
+    'spline_knots': 4,
+    'spline_degree': 3,
     # Instruction 133's two new backends. Their defaults are the ones
     # `spacr.group_lasso` and `spacr.rra` document for themselves, so a panel
     # that posts the untouched widget posts the value the module would have

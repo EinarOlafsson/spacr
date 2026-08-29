@@ -41,7 +41,6 @@ from ..widgets.trellis_spec import TrellisSpec
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..app_catalog import declared_app, register_declared
-from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.trellis")
 
@@ -245,12 +244,6 @@ def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
     return TrellisScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
-_ROW = declared_app(APP_KEY)
 # The row this screen puts in the registry is declared in
 # `spacr.qt.app_catalog`, which is what lets the app be registered without
 # importing this module -- the launch reads the table, not the screen. These

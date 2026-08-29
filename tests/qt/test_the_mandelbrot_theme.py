@@ -367,3 +367,76 @@ def test_the_escape_map_reads_all_three_words():
     source = inspect.getsource(mb.perturbation_escape_map)
     assert "orbit.packed[1, :, 0]" in source
     assert "orbit.packed[1, :, 2]" in source
+
+
+def test_a_reference_must_be_in_the_set():
+    """Perturbation measures every pixel as a small offset from ONE orbit,
+    and that orbit must stay bounded for as long as the frame runs."""
+    orbit = mb.ReferenceOrbit(max_iter=1200, digits=320)
+    # A point well away from the anchor is outside the set: measured, one
+    # 0.3 away escapes at iteration six.
+    centre, fresh = mb.rebased_orbit(orbit, 0.3, 0.2, 320, 1200)
+    assert fresh is None, "an escaping reference was accepted"
+
+
+def test_the_reference_is_moved_onto_the_boundary_not_into_the_middle():
+    """Both halves matter and pull opposite ways: in the set, because a
+    reference that escapes is not one; on its edge, because the interior is
+    where the picture stops changing."""
+    orbit = mb.ReferenceOrbit(max_iter=1200, digits=320)
+    offset = mb.best_reference_in_view(orbit, 0.3, 0.2,
+                                       mb.scale_at(0.0, 1.25), 1200)
+    assert offset is not None
+
+    centre, fresh = mb.rebased_orbit(orbit, offset[0], offset[1], 320, 1200)
+    assert fresh is not None, "no usable reference was found in the view"
+    assert fresh.is_bounded
+
+    # And it still has structure a couple of decades down, which taking the
+    # point furthest INSIDE did not: that measured 304 at the surface and
+    # 0.0 at depth two.
+    escaped, iterations = mb.perturbation_escape_map(
+        fresh, 64, 36, mb.scale_at(2.0, 1.25), 900)
+    assert float(iterations.astype(float).std()) > 20.0
+
+
+def test_refining_carries_a_dragged_view_much_deeper():
+    """"the picture becomes pixelated much much much faster than it did
+    before... i was hoping it would be several levels."
+
+    A boundary point picked out of a survey is accurate to a pixel, and the
+    view shrinks -- so each refinement is far better than the one before,
+    and the reference converges on the boundary as fast as the camera
+    leaves it.
+    """
+    def descend(refine):
+        orbit = mb.ReferenceOrbit(max_iter=1200, digits=320)
+        offset = mb.best_reference_in_view(orbit, 0.3, 0.2,
+                                           mb.scale_at(0.0, 1.25), 1200)
+        _centre, orbit = mb.rebased_orbit(orbit, offset[0], offset[1],
+                                          320, 1200)
+        deepest = 0.0
+        depth = 0.0
+        while depth < 8.0:
+            depth += 1.0
+            if refine:
+                where = mb.best_reference_in_view(
+                    orbit, 0.0, 0.0, mb.scale_at(depth, 1.25), 1200)
+                _c, fresh = mb.rebased_orbit(orbit, where[0], where[1],
+                                             320, 1200)
+                if fresh is not None:
+                    orbit = fresh
+            _escaped, iterations = mb.perturbation_escape_map(
+                orbit, 48, 27, mb.scale_at(depth, 1.25), 900)
+            if float(iterations.astype(float).std()) > 5.0:
+                deepest = depth
+        return deepest
+
+    assert descend(refine=True) > descend(refine=False)
+
+
+def test_the_refinement_interval_is_the_measured_one():
+    """Every two decades stays sharp to six, every one to eleven, every half
+    only to nine and a half -- refining too often accumulates the small
+    error each one introduces faster than it removes the old one."""
+    assert mb.REFINE_EVERY == 1.0

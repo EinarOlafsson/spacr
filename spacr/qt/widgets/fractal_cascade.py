@@ -1,7 +1,7 @@
 """The fold-inversion cascade: the second spaceout pattern.
 
-From the maintainer's `fold-inversion fractal cascade` v1.0.0, ported to
-PySide6. It is a genuinely different fractal from the orbit-fold in
+Ported from the `fold-inversion fractal cascade` v1.0.0 to PySide6. It is a
+genuinely different fractal from the orbit-fold in
 :mod:`spacr.qt.widgets.fractal_travel`, not the same one with other numbers:
 
 * the map is a Kaliset-like fold/inversion -- reflect, swap, rotate, invert

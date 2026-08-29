@@ -4,48 +4,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "organelled_model_name",
-      "source_sha256": "7307659e81e742dde575028406dd94492cf222e8eeaa37ccab48a88b8bd0398e",
-      "source": "Cellpose model used when organelled_method='cellpose'. Cellpose 4 provides only 'cpsam'; the pre-SAM names are accepted and mapped to it. Change this only to point at a custom CPSAM-architecture checkpoint. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
-      "translation": "organelled_method='cellpose' 일 때 사용할 Cellpose 모델입니다. Cellpose 4 는 'cpsam' 만 제공하며 SAM 이전 이름도 허용한 뒤 이 값으로 바꿉니다. 사용자 CPSAM 구조 체크포인트를 가리킬 때만 변경하십시오. 모델을 구분하던 세 매개변수 중 diameter 만 계속 작동하고 eval 은 30/diameter 로 크기를 조절합니다. model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록하고 제거합니다. 기본값 'cpsam'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_network_threshold",
-      "source_sha256": "648a210390c0c2c037516f735f230484d9ea1544741deb8af6bae65b34e94b22",
-      "source": "How the ridge-filter response is binarised: 'otsu' takes one global cut-off from the response histogram, 'adaptive' uses a local threshold (organelled_adaptive_block_size / _offset) and keeps faint filaments in dim regions at the cost of extra background. Only read by organelled_method='ridge'; anything unrecognised falls back to otsu without warning. Default 'otsu'.",
-      "translation": "능선 필터 반응을 이진화하는 방법입니다. 'otsu' 는 반응 히스토그램의 전역 절단값 하나를 쓰고, 'adaptive' 는 국소 임계값(organelled_adaptive_block_size / _offset) 을 사용해 어두운 영역의 희미한 필라멘트를 더 보존하지만 배경도 늘립니다. organelled_method='ridge' 에서만 읽으며 알 수 없는 값은 경고 없이 otsu 로 돌아갑니다. 기본값 'otsu'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_ridge_filter",
-      "source_sha256": "7e4c7cf75147fae31b7ee1ab08d04cff4248c34bc41043a0f879ad52faf003dd",
-      "source": "Which vesselness filter enhances filaments before thresholding: 'frangi' (classic, crisp on well-separated tubules), 'sato' (more tolerant of varying thickness), 'meijering' (tuned for thin neurite-like fibres). All run with black_ridges=False, i.e. bright filaments on a dark background. Default 'frangi'; try 'sato' when frangi drops faint filaments.",
-      "translation": "임계값 처리 전에 필라멘트를 강조할 vesselness 필터입니다. 'frangi' 는 고전적이고 잘 분리된 세관에서 선명하며, 'sato' 는 두께 변화에 더 관대하고, 'meijering' 은 얇은 신경돌기 모양 섬유에 맞춰져 있습니다. 모두 black_ridges=False 로 어두운 배경의 밝은 필라멘트를 처리합니다. 기본값 'frangi' 이며 frangi 가 희미한 필라멘트를 놓치면 'sato' 를 시도하십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_ring_fill_method",
-      "source_sha256": "f8763726750395963f3cdba653570009f829b74e84d8c8ff90a24e92138778b5",
-      "source": "How detected ring walls become solid objects: 'flood' fills every background component that does not touch the image border - accurate, but leaks through any gap in the wall - while 'convex' takes the convex hull of each wall component, which tolerates broken rings but overshoots concave shapes. Default 'flood'; switch to 'convex' when rings come out unfilled.",
-      "translation": "검출된 고리 벽을 단단한 객체로 채우는 방법입니다. 'flood' 는 이미지 경계에 닿지 않는 모든 배경 성분을 채워 정확하지만 벽의 틈으로 샐 수 있습니다. 'convex' 는 각 벽 성분의 볼록 껍질을 사용해 끊긴 고리를 견디지만 오목한 모양을 넘겨 채웁니다. 기본값 'flood' 이며 고리가 채워지지 않으면 'convex' 로 바꾸십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_type",
-      "source_sha256": "a92bbeb3e9d4e28db0c8248f4fe72357b950cd352694c1a16d9cb7021cd1345d",
-      "source": "Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelled_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
-      "translation": "권장 검출 설정을 채우는 데 사용하는 소기관 형태입니다. 명시적으로 구성한 값은 덮어쓰지 않습니다. 선택지는 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal', 'crescent' 입니다. 형태만으로 검출기가 결정되지는 않습니다. 200 nm 소포는 점상으로, 2 µm 액포는 고리형으로 보이므로 'vesicular' 와 'spherical' 은 organelled_diameter 도 사용합니다. 기본값 'custom' 은 권장값을 적용하지 않습니다."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_unet_model_path",
-      "source_sha256": "8194d3bd2b9ff029f9911e69aec6984aca0c492fa457392a5d428a8c4352abdc",
-      "source": "Path to a serialised PyTorch model used when organelled_method='unet'. It must be a torch.load-able whole module, not a state_dict, and take z-scored (B,1,H,W) input returning (B,1,H,W) logits; extra output channels are silently ignored except the first. A missing or invalid path raises before segmentation starts. Default None.",
-      "translation": "organelled_method='unet' 일 때 사용할 직렬화 PyTorch 모델 경로입니다. state_dict 가 아니라 torch.load 로 읽을 수 있는 전체 모듈이어야 하며, z-score 처리된 (B,1,H,W) 입력을 받아 (B,1,H,W) logits 를 반환해야 합니다. 추가 출력 채널은 첫 채널 외에는 조용히 무시합니다. 경로가 없거나 잘못되면 분할 전에 오류를 냅니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "outline_palette",
       "source_sha256": "d09a2d1dcd1f785b80b82c4cb1cc4e6bf7710b79199183b78380414834cba5a8",
       "source": "Colour palette used for object outlines in overlay figures. 'default' assigns red to cells, blue to nuclei, green to pathogens, and yellow to organelles. 'colourblind' uses vermillion, sky blue, bluish green, and yellow from the Okabe-Ito palette. Under deuteranope simulation, the minimum pairwise separation is 27 of 255 for 'default' and 142 for 'colourblind'. Default 'default' preserves the appearance of existing figures.",

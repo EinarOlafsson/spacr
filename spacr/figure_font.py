@@ -57,9 +57,11 @@ def bundled_faces() -> List[str]:
 
 
 def use_open_sans_for_figures() -> bool:
-    """Register the bundled faces and make them matplotlib's default.
+    """Register the bundled faces with Matplotlib's font manager.
 
-    Idempotent, and safe to call before any figure is drawn.
+    Idempotent and safe to call before any figure is drawn.  This deliberately
+    does not alter process-wide ``rcParams``: the two house-style helpers put
+    Open Sans in their scoped parameter dictionaries instead.
 
     :returns: whether Open Sans is now resolvable by name.
     """
@@ -71,7 +73,6 @@ def use_open_sans_for_figures() -> bool:
         return _resolved
 
     try:
-        import matplotlib
         from matplotlib import font_manager
     except Exception:
         return False
@@ -102,10 +103,5 @@ def use_open_sans_for_figures() -> bool:
     if FAMILY not in available:
         return False
 
-    # KEEP A FALLBACK CHAIN. The rcParam is a list for a reason: if a future
-    # build ships without the font data, a figure should still be drawn.
-    matplotlib.rcParams["font.family"] = "sans-serif"
-    matplotlib.rcParams["font.sans-serif"] = [
-        FAMILY, "Helvetica", "Arial", "DejaVu Sans"]
     globals()["_resolved"] = True
     return True

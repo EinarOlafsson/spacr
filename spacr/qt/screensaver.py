@@ -1,8 +1,4 @@
-"""The backdrop on its own, full screen, until a key is pressed.
-
-Asked for 2026-08-28: "there should also be a hotkey to just fullscreen the
-theme and not see anything else like a screen saver. then hit any button to
-exit."
+"""Show the backdrop alone, full screen, until any input is received.
 
 A SEPARATE WINDOW, not the main one made full screen. Hiding spaCR's own
 widgets and restoring them afterwards means remembering what was visible,

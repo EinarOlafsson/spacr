@@ -53,34 +53,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "organelle_resample",
-      "source_sha256": "ec813fb832b699796dc26f04a4412a2b1d46ba6b1012d518775fe84b8310d0f1",
-      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle path. Default True; retain the default unless reduced runtime is required.",
-      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelleb_resample",
-      "source_sha256": "5a9abc39e00bd6f6a3e2166930abe5d7c14ddbbc6272998dbbe3e5288522bc4f",
-      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 2 path. Default True; retain the default unless reduced runtime is required.",
-      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 2 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organellec_resample",
-      "source_sha256": "791ebce361fe81c5972a84cc2e5e18f03a0255bd6c7348ea2220cb0305b32ed7",
-      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 3 path. Default True; retain the default unless reduced runtime is required.",
-      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 3 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "organelled_resample",
-      "source_sha256": "ce8726183fe34d4b60a02574a2b767832c7eaa1d2090d17a218cf7f73b76a9e9",
-      "source": "Deprecated. Passed to Cellpose as resample: when True the flows are recomputed at full resolution instead of on the downsampled grid, giving smoother and slightly more accurate outlines for a little extra time. Still forwarded to model.eval on the organelle 4 path. Default True; retain the default unless reduced runtime is required.",
-      "translation": "사용 중단 예정입니다. Cellpose 에 resample 로 전달됩니다. True 이면 축소된 격자 대신 전체 해상도에서 flow 를 다시 계산하여 실행 시간이 약간 늘어나는 대신 더 매끄럽고 조금 더 정확한 윤곽선을 생성합니다. 소기관 4 경로에서는 여전히 model.eval 로 전달됩니다. 기본값 True 이며 실행 시간 단축이 필요한 경우가 아니면 기본값을 유지하십시오."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "outline_color",
       "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
       "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",

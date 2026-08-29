@@ -3527,6 +3527,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'quantile': quantile,
         'hinge_threshold': hinge_threshold,
         'huber_t': huber_t,
+        'spline_knots': spline_knots,
+        'spline_degree': spline_degree,
         'group_lasso_lambda': group_lasso_lambda,
         'rra_alpha': rra_alpha,
         'rra_permutations': rra_permutations,
@@ -3970,11 +3972,10 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _spline():
         """OLS on a design whose COVARIATES carry a spline basis.
 
-        The guide columns are untouched, which is what keeps this in
-        instruction 254's category A: one coefficient and one P value per
-        guide survive, so the volcano, the hit list and the attribution all
-        read the result with no special case. What becomes free to bend is
-        the nuisance the straight line was assuming away.
+        The guide columns are untouched, so one coefficient and one P value
+        per guide survive. The volcano, hit list and attribution can therefore
+        read the result with no special case. What becomes free to bend is the
+        nuisance trend that the straight line was assuming away.
 
         A column is treated as a covariate when it is CONTINUOUS and is not
         a guide or gene term -- an indicator has nothing to bend through,
@@ -8669,7 +8670,7 @@ def _perform_regression(settings):
             model, file_path=os.path.join(res_folder, SUMMARY_FILENAME))
 
     # THE spaCR SUMMARY, for EVERY mode -- instruction 156. The block above
-    # writes the statsmodels summary and only two of the nineteen regression
+    # writes the statsmodels summary and only two of the supported regression
     # types reach it; a nonparametric run has no fitted model at all, so it got
     # nothing. This writes what spaCR itself knows about the fit -- the design,
     # the assumptions with their tests, the call, and what was excluded -- so a

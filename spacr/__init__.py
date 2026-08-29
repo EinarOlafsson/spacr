@@ -216,8 +216,8 @@ _DOCUMENTED_SUBMODULES: Final[tuple[str, ...]] = (
     # Diagnostic figures for a fitted regression.
     "regression_qc",
     "regression_failure",
-    # spaCR's OWN summary of a run, for the eighteen of nineteen regression
-    # types statsmodels writes none for and for the permutation path, which
+    # spaCR's OWN summary of a run, for the regression types statsmodels writes
+    # none for and for the permutation path, which
     # has no fitted model at all. Every field is a number or a stated reason.
     "regression_summary",
     # Where each gene's protein lives, for colouring ONE compartment against

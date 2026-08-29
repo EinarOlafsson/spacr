@@ -1,8 +1,8 @@
-"""The nineteen regression families are grouped by what they assume.
+"""The twenty regression families are grouped by what they assume.
 
 Every one of them was already there -- the quantile fit, the two robust
 losses and the rank aggregation included -- and none of them could be found,
-because nineteen unlabelled names in one alphabetical list is a menu that
+because twenty unlabelled names in one alphabetical list is a menu that
 hides its own contents. The grouping is the discoverability half; the stored
 values do not move, so no settings file changes meaning.
 
@@ -35,7 +35,7 @@ def test_every_family_that_fits_is_placed_exactly_once():
     assert set(placed) == FITTABLE, (
         f"unplaced: {sorted(FITTABLE - set(placed))}; "
         f"placed but not fittable: {sorted(set(placed) - FITTABLE)}")
-    assert len(placed) == 19
+    assert len(placed) == 20
 
 
 def test_the_groups_are_the_three_honest_ones():

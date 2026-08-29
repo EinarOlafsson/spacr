@@ -2,7 +2,7 @@
 THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
 ================================================================================
 
-Status:   half done. The panel takes many, the loader supplies one.
+Status:   OPEN — half done. The panel takes many; the loader supplies one.
 Severity: a requested feature that looks finished and is not
 
 --------------------------------------------------------------------------------

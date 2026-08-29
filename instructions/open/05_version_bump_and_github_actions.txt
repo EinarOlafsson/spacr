@@ -2,7 +2,7 @@
 THE VERSION BUMP AND GETTING ACTIONS GREEN
 ================================================================================
 
-Status:   deferred on request, twice. Nothing is blocked on it.
+Status:   OPEN — merged with release blockers 288, 304 and terminal item 253.
 Current:  spacr/version.py reports 1.5.0.2
 
 --------------------------------------------------------------------------------

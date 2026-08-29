@@ -72,8 +72,60 @@ from spacr.qt.widgets.home import AppTile, HomePage
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
     w = MainWindow()
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     return w
+
+
+def _close_owned_screens(window):
+    """Retire screens before their MainWindow loses ownership of them.
+
+    Several pyqtgraph views create parentless context-menu windows. Closing
+    only the outer MainWindow leaves those menus reachable through Python
+    signal cycles even after Qt deletes the parent screen, so a test process
+    that opens many windows accumulates hundreds of live top-level widgets.
+    The window's own screen registry is the exact ownership boundary; close
+    only those children and let pytest-qt delete the window normally.
+    """
+    for screen in list(getattr(window, "_screens", {}).values()):
+        # pyqtgraph's ViewBox menus are deliberately parentless top-level
+        # windows and ViewBox.close() does not retire them. Find only the
+        # ViewBoxes in graphics scenes owned by this screen; never sweep the
+        # QApplication or touch another test's widgets.
+        try:
+            from PySide6.QtWidgets import QGraphicsView, QMenu
+            from pyqtgraph import PlotItem, ViewBox
+
+            def _retire_menu(menu):
+                if menu is None:
+                    return
+                for child in reversed(menu.findChildren(QMenu)):
+                    child.close()
+                    child.deleteLater()
+                menu.close()
+                menu.deleteLater()
+
+            seen = set()
+            for graphics_view in screen.findChildren(QGraphicsView):
+                scene = graphics_view.scene()
+                items = list(scene.items()) if scene is not None else []
+                for item in items:
+                    if isinstance(item, PlotItem):
+                        _retire_menu(getattr(item, "ctrlMenu", None))
+                for item in items:
+                    if not isinstance(item, ViewBox) or id(item) in seen:
+                        continue
+                    seen.add(id(item))
+                    menu = getattr(item, "menu", None)
+                    item.close()
+                    _retire_menu(menu)
+                    item.menu = None
+        except (ImportError, RuntimeError):
+            pass
+        try:
+            screen.close()
+            screen.deleteLater()
+        except RuntimeError:
+            pass
 
 
 class _ModalRecorder:
@@ -1177,11 +1229,12 @@ def test_help_menu_urls_open_in_a_browser(win, monkeypatch):
     import webbrowser
     opened = []
     monkeypatch.setattr(webbrowser, "open", opened.append)
+    wanted = {"Tutorial", "Documentation"}
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "Help":
             continue
         for act in top.menu().actions():
-            if act.text().endswith("(web)"):
+            if act.text().replace("&", "") in wanted:
                 act.trigger()
         break
     # Asserted against the module's own constants rather than literals. This
@@ -2070,11 +2123,24 @@ def test_every_preloaded_module_actually_exists():
     assert not missing, f"preloader points at modules that don't exist: {missing}"
 
 
-def test_the_preloader_walks_its_module_list_one_tick_at_a_time(monkeypatch):
-    from PySide6.QtCore import QTimer
-    scheduled: list = []
+def test_the_preloader_imports_on_its_worker_and_reports_on_the_poll(
+        monkeypatch):
     imported: list = []
+    steps: list = []
+    done: list = []
     real_import = importlib.import_module
+
+    class _HeldThread:
+        """Record ``start`` without running the target concurrently."""
+
+        def __init__(self, target=None, name=None, daemon=None):
+            self.target = target
+            self.name = name
+            self.daemon = daemon
+            self.started = False
+
+        def start(self):
+            self.started = True
 
     def _fake_import(name):
         imported.append(name)
@@ -2082,36 +2148,49 @@ def test_the_preloader_walks_its_module_list_one_tick_at_a_time(monkeypatch):
             raise ImportError("nope")
         return real_import(name)
 
-    monkeypatch.setattr(QTimer, "singleShot",
-                        lambda ms, cb: scheduled.append((ms, cb)))
     monkeypatch.setattr(importlib, "import_module", _fake_import)
+    # Patch the module reference, not ``threading.Thread`` itself. The latter
+    # is the process-wide threading module and turns a focused test double
+    # into ambient state for every importer in the process.
+    monkeypatch.setattr(
+        app_mod, "threading",
+        types.SimpleNamespace(Thread=_HeldThread, Event=threading.Event),
+    )
 
-    pre = _PipelinePreloader()
+    pre = _PipelinePreloader(
+        on_step=lambda i, n: steps.append((i, n)),
+        on_done=lambda: done.append(1),
+    )
     monkeypatch.setattr(pre, "_MODULES", ("spacr.no_such_module", "json"))
     pre.start()
 
-    # A failing import is swallowed and the chain continues.
-    assert imported == ["spacr.no_such_module"]
-    assert [ms for ms, _cb in scheduled] == [50]
+    assert pre._thread.started is True
+    assert pre._thread.name == "spacr-preload"
+    assert pre._thread.daemon is True
+    assert imported == [], "start() ran imports on the caller thread"
 
-    pre.start()          # already started: must not restart the chain
-    assert imported == ["spacr.no_such_module"]
-    assert len(scheduled) == 1
+    worker = pre._thread
+    pre.start()                         # already started: no second worker
+    assert pre._thread is worker
 
-    scheduled.pop()[1]()
+    # Run the captured worker body deterministically. A failing import is
+    # swallowed and the chain continues, but callbacks remain pending until
+    # the GUI-side poll drains them.
+    worker.target()
     assert imported == ["spacr.no_such_module", "json"]
-    assert len(scheduled) == 1
-
-    scheduled.pop()[1]()          # past the end: stops, imports nothing more
-    assert imported == ["spacr.no_such_module", "json"]
-    assert scheduled == []
+    assert steps == [] and done == []
+    pre._drain()
+    assert steps == [(1, 2), (2, 2)]
+    assert done == [1]
+    pre._drain()                         # completion is delivered only once
+    assert done == [1]
     assert pre._i == 2
 
 
 def test_the_window_can_open_straight_into_an_app(qtbot, qt_theme_applied):
     """``spacr-qt mask`` opens on Mask, not on Home."""
     w = MainWindow(initial_app="mask")
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     assert w._stack.currentWidget() is w._screens["mask"]
     assert w._status_app_label.text() == "Mask"
 
@@ -2125,7 +2204,7 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
     monkeypatch.delattr(spacr.qt, "shortcuts", raising=False)
     monkeypatch.delattr(spacr.qt, "first_run", raising=False)
     w = MainWindow()
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     assert w._stack.currentWidget() is w._startup
     from PySide6.QtGui import QShortcut
     assert not w.findChildren(QShortcut), (
@@ -2139,10 +2218,13 @@ def test_shortcuts_are_installed_when_the_module_is_available(win):
         assert keys in bound, f"{keys} was never bound"
 
 
-def test_the_main_window_schedules_the_preloader_but_not_immediately(win):
-    assert isinstance(win._preloader, _PipelinePreloader)
-    assert win._preloader._started is False, (
-        "the preloader must not import torch/cellpose during __init__")
+def test_the_main_window_does_not_preload_pipelines_by_default(win):
+    # The default is intentionally loaded-on-call: eager startup spent twenty
+    # seconds importing torch/compiler/distributed stacks on the maintainer's
+    # machine. The eager path remains covered in
+    # test_libraries_load_when_called.py.
+    assert win._preloader is None
+    assert win._loading_screen is None
 
 
 # ===========================================================================
@@ -2304,11 +2386,19 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
         attributes.append((args, len(made)))
 
     _factory.setAttribute = _set_attribute
+    _factory.instance = lambda: made[-1] if made else qapp
 
     _ThreadShim.instances = []
     monkeypatch.setattr(app_mod, "QApplication", _factory)
-    monkeypatch.setattr(app_mod, "threading",
-                        types.SimpleNamespace(Thread=_ThreadShim))
+    # ``app_mod`` also uses Event for the optional pipeline preloader. A
+    # Thread-only namespace made every MainWindow constructor fail before the
+    # launch test reached the pre-warm it meant to record. Keep the real
+    # threading surface and replace only Thread on an isolated proxy.
+    threading_proxy = types.SimpleNamespace(
+        **{name: getattr(threading, name) for name in dir(threading)}
+    )
+    threading_proxy.Thread = _ThreadShim
+    monkeypatch.setattr(app_mod, "threading", threading_proxy)
 
     state = {"shims": made, "threads": _ThreadShim.instances,
              "attributes": attributes,
@@ -2335,7 +2425,7 @@ def test_launch_opens_the_requested_app(launched, qtbot):
     assert "QWidget" in (shim.stylesheet or ""), "theme was never applied"
 
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     assert win.isVisible()
     assert win._status_app_label.text() == "Measure"
     assert "measure" in win._screens
@@ -2350,7 +2440,7 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
     assert launched["shims"][0].argv == ["spacr-qt"]
 
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     assert win._screens == {}
     assert win._stack.currentWidget() is win._startup
     assert win._status_app_label.text() == "Home"
@@ -2431,7 +2521,7 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
                                                       monkeypatch):
     app_mod.launch([])
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
 
     assert len(launched["threads"]) == 1
     thread = launched["threads"][0]
@@ -2470,7 +2560,7 @@ def test_launch_drains_the_ai_consoles_on_quit(launched, qtbot, monkeypatch):
     from spacr.qt.widgets.console_panel import ConsolePanel
     app_mod.launch(["mask"])
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
 
     shim = launched["shims"][0]
     assert len(shim.aboutToQuit.callbacks) == 1
@@ -2520,7 +2610,7 @@ def test_launch_survives_a_qimagereader_without_an_allocation_limit(
     monkeypatch.setattr(qtgui, "QImageReader", _OldQImageReader)
     assert app_mod.launch([]) == 0
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     win.close()
 
 

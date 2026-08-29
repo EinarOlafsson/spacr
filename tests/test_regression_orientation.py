@@ -1048,6 +1048,14 @@ def test_quantile_outside_the_open_unit_interval_is_refused(bad):
 COVERED_ELSEWHERE = {
     "mixed": "test_mixed_recovers_the_fixed_effect_over_a_real_random_intercept",
     "hinge": "test_hinge_recovers_the_sign_of_both_planted_effects",
+    # The spline expands continuous nuisance covariates, so the simple x_pos /
+    # x_neg design above no longer has one coefficient per planted covariate.
+    # Its screen-shaped ground-truth test instead verifies the contract that
+    # matters: guide columns stay intact and the planted gene is recovered.
+    "spline": (
+        "tests/test_regression_types.py"
+        "::test_every_regression_type_runs_and_recovers_the_planted_effect"
+    ),
     # ADVI: too slow for this file. The signal case and the hit/non-hit
     # separation are pinned by test_regression_types.py (marked slow) and the
     # null case by test_power_model.test_null_screen_auroc_is_near_chance.
