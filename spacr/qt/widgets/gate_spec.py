@@ -273,14 +273,14 @@ class Gate:
                 f"another one, not inside itself")
 
     @property
-    def kind(self) -> str:  # pragma: no cover - overridden
+    def kind(self) -> str:  # overridden
         raise NotImplementedError
 
     @property
-    def columns(self) -> Tuple[str, ...]:  # pragma: no cover - overridden
+    def columns(self) -> Tuple[str, ...]:  # overridden
         raise NotImplementedError
 
-    def mask(self, frame: pd.DataFrame) -> np.ndarray:  # pragma: no cover
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
         raise NotImplementedError
 
     def range_filters(self) -> Tuple[RangeFilter, ...]:
@@ -319,10 +319,10 @@ class Gate:
             f"can be given "
             + (", ".join(self.thresholds()) or "no thresholds at all"))
 
-    def describe(self) -> str:  # pragma: no cover - overridden
+    def describe(self) -> str:  # overridden
         raise NotImplementedError
 
-    def to_dict(self) -> Dict[str, Any]:  # pragma: no cover - overridden
+    def to_dict(self) -> Dict[str, Any]:  # overridden
         raise NotImplementedError
 
     def with_parent(self, parent: Optional[str]) -> "Gate":
@@ -1984,7 +1984,7 @@ def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
     """
     try:
         from sklearn.metrics import silhouette_score
-    except Exception as exc:                       # pragma: no cover
+    except Exception as exc:
         raise ClusterError(f"clustering needs scikit-learn ({exc})") from exc
 
     if int(steps) < 2:
@@ -2070,7 +2070,7 @@ def _fit_labels(work, *, method: str, eps: float, min_samples: int):
     if name == "hdbscan":
         try:
             from sklearn.cluster import HDBSCAN
-        except ImportError as exc:                 # pragma: no cover
+        except ImportError as exc:
             raise ClusterError(
                 "HDBSCAN needs scikit-learn 1.3 or newer; choose DBSCAN or "
                 f"upgrade scikit-learn ({exc})") from exc
