@@ -999,6 +999,12 @@ setup(
             'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
+        # `pip install spacr[flowview]` — the optional live pipeline graph.
+        # Its model, tracing, layout, and static exporters stay headless-safe;
+        # the live panel reuses the PySide6 binding already pinned by core.
+        # Repeating the identical pin keeps the documented feature command
+        # valid without introducing another drawing or graph dependency.
+        'flowview': ['PySide6>=6.6,<7'],
         # Backwards-compatible feature spelling. VisPy is now core because the
         # installed application's DEFAULT_PATTERN needs it, but keeping the
         # extra means existing ``spacr[fractal]`` commands remain valid.
