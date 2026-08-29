@@ -120,7 +120,7 @@ def residual_diagnostics(model) -> dict:
         out["jarque_bera_p"] = float(jb_p)
         out["residual_skew"] = float(skew)
         out["residual_kurtosis"] = float(kurtosis)
-    except Exception:  # pragma: no cover - statsmodels shape varies
+    except Exception:  # statsmodels shape varies
         pass
 
     exog = getattr(model, "model", None)
@@ -139,10 +139,17 @@ def residual_diagnostics(model) -> dict:
                 # is only worth attempting on a narrow one.
                 if exog.shape[1] <= 30:
                     out["white_p"] = float(het_white(residuals, exog)[1])
-        except Exception:  # pragma: no cover - singular or too wide
+        except Exception:  # singular or too wide
             pass
 
-    if fitted.size == residuals.size and residuals.size > 2:
+    # AGAINST `good`, NOT AGAINST THE MASKED RESIDUALS. `residuals` was already
+    # narrowed to its finite entries above, so comparing its length to the FULL
+    # fitted vector asks the wrong question twice: a fit with a single
+    # non-finite residual silently loses its trend slope, and a fit whose
+    # fitted values are a different length entirely reaches `fitted[good]` with
+    # a mask longer than the array and raises IndexError -- which every caller
+    # swallows, costing the whole residual block rather than this one statistic.
+    if fitted.size == good.size and residuals.size > 2:
         try:
             slope, _intercept = np.polyfit(fitted[good], residuals, 1)
             out["residual_trend_slope"] = float(slope)
@@ -324,7 +331,7 @@ def design_diagnostics(model) -> dict:
         # leaving the identifiability question unanswered.
         try:
             rank = int(np.linalg.matrix_rank(exog))
-        except np.linalg.LinAlgError:  # pragma: no cover - degenerate exog
+        except np.linalg.LinAlgError:  # degenerate exog
             return out
     rank = int(rank)
     residual_df = getattr(model, "df_resid", None)
@@ -417,11 +424,11 @@ def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
     out: dict[str, Any] = {}
     try:
         from .guide_concordance import guide_support
-    except Exception:  # pragma: no cover
+    except Exception:
         return out
     try:
         support = guide_support(results, alpha=alpha)
-    except Exception:  # pragma: no cover - odd table
+    except Exception:  # odd table
         return out
     if support is None or not len(support) or "gene_p" not in support:
         return out
@@ -508,7 +515,7 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
             verdict = score_design(design)
             out["qc_design"] = str(getattr(verdict, "level", ""))
             scored.append(verdict)
-        except Exception:   # pragma: no cover - one panel must not sink a row
+        except Exception:   # one panel must not sink a row
             pass
 
     inference = {
@@ -560,13 +567,13 @@ def summarise_trial(output: Mapping[str, Any],
     ):
         try:
             row.update(block())
-        except Exception:  # pragma: no cover - a metric must not sink a trial
+        except Exception:  # a metric must not sink a trial
             pass
     # LAST, because it reads the statistics the blocks above just wrote --
     # the verdicts are a judgement ON the row, not another measurement.
     try:
         row.update(qc_verdicts(row))
-    except Exception:  # pragma: no cover - see above
+    except Exception:  # see above
         pass
     return row
 
