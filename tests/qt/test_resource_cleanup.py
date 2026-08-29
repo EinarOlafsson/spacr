@@ -21,6 +21,7 @@ there, and no amount of exercising the happy path can assert an absence.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -161,6 +162,55 @@ def test_nothing_cached_is_reported_as_nothing_cached(monkeypatch):
     result = rc.clear_ram()
     assert result.details == ()
     assert "nothing was cached" in result.summary().lower()
+
+
+def test_headless_ram_cleanup_still_collects_python_garbage(monkeypatch):
+    calls = []
+    monkeypatch.setattr(rc, "_qt_application_is_running", lambda: False)
+    monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
+    monkeypatch.setattr(
+        rc.gc, "collect", lambda: calls.append("collect") or 3)
+    monkeypatch.setattr(rc, "process_rss", lambda: 1024)
+
+    result = rc.clear_ram()
+
+    assert calls == ["collect"]
+    assert "3 unreachable objects collected" in result.details
+    assert "skipped" not in result.note.lower()
+
+
+def test_gui_ram_cleanup_never_collects_live_qt_wrappers(monkeypatch):
+    monkeypatch.setattr(rc, "_qt_application_is_running", lambda: True)
+    monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
+    monkeypatch.setattr(
+        rc.gc, "collect",
+        lambda: pytest.fail("gc.collect reached a live Qt heap"))
+    monkeypatch.setattr(rc, "process_rss", lambda: 1024)
+
+    result = rc.clear_ram()
+
+    assert result.details == ()
+    assert "garbage collection was skipped" in result.note
+
+
+def test_only_a_real_qapplication_counts_as_a_live_gui(qapp, monkeypatch):
+    """A headless QCoreApplication must keep the ordinary GC path."""
+    class _CoreApplication:
+        pass
+
+    core = _CoreApplication()
+
+    class _Application:
+        @staticmethod
+        def instance():
+            return core
+
+    class _Widgets:
+        QApplication = _Application
+
+    assert rc._qt_application_is_running() is True
+    monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", _Widgets)
+    assert rc._qt_application_is_running() is False
 
 
 def test_the_vram_cleanup_says_what_it_cannot_do(monkeypatch):
@@ -325,7 +375,10 @@ def test_every_confirmation_names_what_will_happen(action):
 
 
 def test_the_confirmations_name_the_specific_mechanism():
-    assert "garbage collection" in rc.confirmation_text("ram")
+    ram = rc.confirmation_text("ram").lower()
+    assert "garbage collection" in ram
+    assert "will not force" in ram
+    assert "without forcing" in rc.summary_text("ram").lower()
     assert "empty_cache" in rc.confirmation_text("vram")
     assert "torch" in rc.confirmation_text("cpu")
     assert "read" in rc.confirmation_text("disk")

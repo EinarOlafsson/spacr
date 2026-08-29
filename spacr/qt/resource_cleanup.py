@@ -37,13 +37,16 @@ What each button can honestly do
 --------------------------------
 
 ``clear RAM``
-    ``gc.collect()``, plus dropping spaCR's own caches: the merged-field LRU
+    Drops spaCR's own caches: the merged-field LRU
     (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image
     stacks), the file-format and DB-format caches, the zoomed-animation
     cache, the icon and preview ``lru_cache``s, the filter-kind cache, every
     live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and
-    Qt's own ``QPixmapCache``. It cannot return memory the allocator has
-    decided to keep, and it says so when the measured RSS does not move.
+    Qt's own ``QPixmapCache``. A process with no live Qt application also
+    runs ``gc.collect()``. The GUI deliberately does not: walking a heap of
+    live Qt wrappers can enter already-retired C++ objects and crash the
+    process. It cannot return memory the allocator has decided to keep, and
+    it says so when the measured RSS does not move.
 
 ``clear VRAM``
     ``torch.cuda.empty_cache()``, which hands the CUDA driver back the
@@ -409,8 +412,27 @@ def _clear_pixmap_cache() -> List[str]:
         return []
 
 
+def _qt_application_is_running() -> bool:
+    """Whether a loaded PySide application owns live Qt wrappers.
+
+    Do not import Qt to answer this.  A headless cleanup must stay headless,
+    both for launch cost and so it keeps the ordinary ``gc.collect`` path.
+    """
+    import sys
+
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    application = getattr(widgets, "QApplication", None)
+    if application is None:
+        return False
+    try:
+        instance = application.instance()
+        return isinstance(instance, application)
+    except Exception:
+        return False
+
+
 def clear_ram(*, aggressive: bool = False) -> Reclaim:
-    """Drop spaCR's own caches and collect. Measured RSS before and after.
+    """Drop spaCR's own caches, measured by RSS before and after.
 
     :param aggressive: also drop the caches that are expensive to rebuild
         (thumbnails, icon pixmaps). The mild form keeps them, because a
@@ -427,20 +449,29 @@ def clear_ram(*, aggressive: bool = False) -> Reclaim:
         details.extend(_clear_lru_caches())
         details.extend(_clear_thumbnail_caches())
         details.extend(_clear_pixmap_cache())
-    collected = gc.collect()
-    if collected:
-        details.append(f"{collected} unreachable objects collected")
+    qt_is_live = _qt_application_is_running()
+    if not qt_is_live:
+        collected = gc.collect()
+        if collected:
+            details.append(f"{collected} unreachable objects collected")
     after = process_rss()
-    note = ""
+    notes: List[str] = []
+    if qt_is_live:
+        notes.append(
+            "A full Python garbage collection was skipped while Qt widgets "
+            "were live.")
     if not before or not after:
+        notes.insert(0, "this process's memory use could not be read")
         return Reclaim("ram", before, after, tuple(details), measured=False,
-                       note="this process's memory use could not be read")
+                       note=" ".join(notes))
     if not details:
-        note = ("Nothing was cached, so there was nothing to drop.")
+        notes.insert(0, "Nothing was cached, so there was nothing to drop.")
     elif before <= after:
-        note = ("The caches are gone; the allocator has not handed those "
-                "pages back to the OS, so the process size did not move.")
-    return Reclaim("ram", before, after, tuple(details), note=note)
+        notes.insert(
+            0, "The caches are gone; the allocator has not handed those "
+               "pages back to the OS, so the process size did not move.")
+    return Reclaim("ram", before, after, tuple(details),
+                   note=" ".join(notes))
 
 
 # ---------------------------------------------------------------------------
@@ -691,8 +722,10 @@ _CONFIRMATIONS: Dict[str, Tuple[str, str]] = {
         "Clear RAM",
         "spaCR will:\n"
         "  • drop its own caches — merged image fields, file-format lookups, "
-        "thumbnails, icon and preview pixmaps;\n"
-        "  • run a full garbage collection.\n\n"
+        "thumbnails, icon and preview pixmaps.\n\n"
+        "It will not force a full Python garbage collection while Qt "
+        "widgets are live: collecting those wrappers can crash the "
+        "application.\n\n"
         "It will not touch any other program, and it will not drop the "
         "operating system's page cache. Cached images are read from disk "
         "again the next time a screen needs them, so the next preview will "
@@ -762,9 +795,10 @@ def confirmation_text(action: str) -> str:
 #: uneasy about on a shared machine.
 _SUMMARIES: Dict[str, str] = {
     "ram": (
-        "Drops spaCR's own caches and runs a garbage collection. No other "
-        "program is touched, and the next preview is slower because its "
-        "images are read again. You are told how much was actually freed."
+        "Drops spaCR's own caches without forcing Python garbage collection "
+        "over live Qt widgets. No other program is touched, and the next "
+        "preview is slower because its images are read again. You are told "
+        "how much was actually freed."
     ),
     "vram": (
         "Releases any model still held and returns the GPU blocks torch has "
