@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import operator
 import os
 import queue
 import shutil
@@ -529,6 +530,35 @@ class ConcurrencyProbeResult:
         return result
 
 
+def _positive_probe_count(name: str, value: Any) -> int:
+    """Return one genuine positive integer, without lossy coercion."""
+    if isinstance(value, bool):
+        raise TypeError(
+            f"{name} must be a positive integer, got {value!r}")
+    try:
+        count = operator.index(value)
+    except TypeError as exc:
+        raise TypeError(
+            f"{name} must be a positive integer, got {value!r}") from exc
+    if count < 1:
+        raise ValueError(f"{name} must be at least 1, got {count}")
+    return int(count)
+
+
+def _probe_journal_mode(value: Any) -> str:
+    """Return the explicit SQLite mode a stress probe must exercise."""
+    if not isinstance(value, str):
+        raise DatabaseConfigurationError(
+            f"journal_mode must be one of {sorted(SAFE_JOURNAL_MODES)}, "
+            f"got {value!r}.")
+    requested = value.strip().upper()
+    if requested not in SAFE_JOURNAL_MODES:
+        raise DatabaseConfigurationError(
+            f"journal_mode must be one of {sorted(SAFE_JOURNAL_MODES)}, "
+            f"got {value!r}.")
+    return requested
+
+
 def run_concurrency_probe(
     path: Optional[os.PathLike | str] = None,
     *,
@@ -557,36 +587,35 @@ def run_concurrency_probe(
         inspection.
     :param writers: concurrent writer threads. Each owns a connection opened
         with a 50 ms busy timeout and commits one transaction per row, so
-        ``expected_rows`` is ``writers * writes_per_writer``.
+        ``expected_rows`` is ``writers * writes_per_writer``. Must be a
+        genuine positive integer; booleans, text and floats are refused.
     :param readers: concurrent read-only threads polling ``COUNT(*)`` until
         the last writer exits. They move only ``reader_queries``, never
         ``expected_rows``; at least one is required, so a writers-only probe
-        cannot be expressed.
+        cannot be expressed. Must be a genuine positive integer.
     :param writes_per_writer: rows each writer inserts, one row per
-        transaction.
+        transaction. Must be a genuine positive integer.
     :param journal_mode: mode applied once by the setup connection and then
         inherited by every worker connection. Only ``"WAL"`` (the default)
         and ``"DELETE"`` are accepted, case-insensitively; anything else
-        raises :exc:`DatabaseConfigurationError` from :func:`connect` after
-        the scratch database has already been created. Passing ``None`` skips
-        the PRAGMA, leaving the new database in SQLite's default DELETE mode.
+        raises :exc:`DatabaseConfigurationError` after the scratch database
+        has already been created. ``None`` is refused: a stress result must
+        state which locking mode it actually intended to exercise.
     :returns: result whose ``journal_mode`` is read back from the finished
         database rather than echoed from this argument, and whose ``errors``
         carry per-thread failures instead of raising.
     :raises ValueError: when ``writers``, ``readers``, or
-        ``writes_per_writer`` is below 1. All three are coerced with
-        :func:`int` first, so ``2.9`` silently becomes 2.
+        ``writes_per_writer`` is below 1.
+    :raises TypeError: when one of the work sizes is not an integer. In
+        particular, ``2.9`` is not silently truncated and ``"2"`` is not
+        accepted merely because the CLI parser would have converted it.
+    :raises DatabaseConfigurationError: when ``journal_mode`` is not an
+        explicit ``"WAL"`` or ``"DELETE"`` string.
     """
-    writers = int(writers)
-    readers = int(readers)
-    writes_per_writer = int(writes_per_writer)
-    for name, value in (
-        ("writers", writers),
-        ("readers", readers),
-        ("writes_per_writer", writes_per_writer),
-    ):
-        if value < 1:
-            raise ValueError(f"{name} must be at least 1, got {value}")
+    writers = _positive_probe_count("writers", writers)
+    readers = _positive_probe_count("readers", readers)
+    writes_per_writer = _positive_probe_count(
+        "writes_per_writer", writes_per_writer)
     temporary_dir = None
     if path is None:
         temporary_dir = tempfile.mkdtemp(prefix="spacr-db-concurrency-")
@@ -612,6 +641,7 @@ def run_concurrency_probe(
     # join deadline is a normal return, guarded by `not alive` at the end, and
     # its database is worth keeping to look at.
     try:
+        journal_mode = _probe_journal_mode(journal_mode)
         return _run_probe(
             db_path, writers=writers, readers=readers,
             writes_per_writer=writes_per_writer, journal_mode=journal_mode,

@@ -356,6 +356,34 @@ def test_probe_rejects_nonpositive_work_sizes(keyword):
         run_concurrency_probe(**options)
 
 
+@pytest.mark.parametrize(
+    "invalid", [True, 1.9, "2", None],
+)
+@pytest.mark.parametrize(
+    "keyword", ["writers", "readers", "writes_per_writer"],
+)
+def test_probe_refuses_lossy_or_implicit_work_size_coercion(keyword, invalid):
+    """A diagnostic never reports a different workload from the one asked."""
+    options = {"writers": 1, "readers": 1, "writes_per_writer": 1}
+    options[keyword] = invalid
+    with pytest.raises(
+        TypeError, match=rf"{keyword} must be a positive integer"
+    ):
+        run_concurrency_probe(**options)
+
+
+@pytest.mark.parametrize("invalid", [None, 1, "", "TRUNCATE"])
+def test_probe_requires_an_explicit_supported_journal_mode(invalid):
+    """A result cannot quietly mean DELETE when no mode was requested."""
+    with pytest.raises(
+        DatabaseConfigurationError, match="journal_mode must be one of"
+    ):
+        run_concurrency_probe(
+            writers=1, readers=1, writes_per_writer=1,
+            journal_mode=invalid,
+        )
+
+
 def test_health_check_is_read_only_and_reports_integrity(tmp_path):
     path = tmp_path / "health.sqlite"
     _create_database(path, journal_mode="WAL")
