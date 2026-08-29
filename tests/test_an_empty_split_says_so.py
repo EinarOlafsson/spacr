@@ -33,7 +33,9 @@ def test_mismatched_group_and_label_counts_are_refused():
     """A mismatch misaligns the two and produces a split that looks valid."""
     with pytest.raises(ValueError) as caught:
         grouped_split(["a", "b"], [0, 1, 0], 0.2, group_by="well")
-    assert "one to one" in str(caught.value)
+    message = str(caught.value)
+    assert "one group per label" in message
+    assert "2 groups for 3 labels" in message
 
 
 def test_a_real_split_is_unaffected():
