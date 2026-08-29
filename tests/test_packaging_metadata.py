@@ -718,6 +718,7 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     assert "fractal-runtime:" in workflow
     assert '".[fractal]"' in workflow
     assert "xvfb-run -a python" in workflow
+    assert "libxcb-cursor0" in workflow
     assert 'assert DEFAULT_PATTERN == "mandelbrot"' in workflow
     assert 'assert widget.backend_name == "gpu"' in workflow
     assert "app.processEvents()" in workflow
