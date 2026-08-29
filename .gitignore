@@ -204,6 +204,12 @@ tutorial_colab.ipynb
 /scratch/
 /path/
 
+# Local-only agent guidance and retired task notes. Keep recoverable copies
+# outside the repository; these directories are not part of the product.
+/.claude/skills/
+/skill/
+/to_do/
+
 build/
 
 # catboost writes a training log beside the working directory

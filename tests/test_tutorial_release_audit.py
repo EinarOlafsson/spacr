@@ -345,17 +345,3 @@ def test_frame_sampler_recreates_a_reviewable_still(tmp_path):
     frames.extract_frame(video, 0.5, image, 160)
     assert image.is_file()
     assert image.stat().st_size > 0
-
-
-def test_tutorial_release_skill_has_no_template_placeholders():
-    skill_path = (
-        ROOT / ".claude" / "skills" / "tutorial-release-audit" / "SKILL.md"
-    )
-    skill = skill_path.read_text(encoding="utf-8")
-    contract = (skill_path.parent / "references" / "release-contract.md").read_text(
-        encoding="utf-8"
-    )
-    assert "TODO" not in skill
-    assert "tools/verify_tutorial_live.py" in skill
-    assert "tools/sample_tutorial_frames.py" in skill
-    assert "verify_audio_release.py" in contract
