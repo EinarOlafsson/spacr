@@ -1,0 +1,132 @@
+================================================================================
+DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
+================================================================================
+
+Status:    OPEN, filed 2026-08-29. A RUNNING LIST -- appended to as the
+           coverage sweep reaches more modules.
+Owner:     mixed; each entry names its own lane.
+Requested: 2026-08-29 -- "continue with the tests and dont stop until the tests
+           are complete and all moduals are 100% covered", under the standing
+           rule that a bug found in passing gets fixed or queued, never just
+           narrated.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Item 288 requires the 304 prohibited ``# pragma: no cover`` markers to go. Code
+behind a pragma has, by construction, never executed under test, so the sweep
+that removes them is also a bug hunt. Four defects found this way are ALREADY
+FIXED and pushed, and are recorded here only so they are not re-derived:
+
+  * spacr/trial_metrics.py:145 -- compared a masked residual array's length
+    against the unmasked fitted length, raising IndexError out of a function
+    both callers wrap in one try. Cost every residual statistic, not just the
+    slope it guarded. Fixed in a7048150.
+  * spacr/projects.py:760,769 -- an artifacts.db that is not valid SQLite
+    raised sqlite3.DatabaseError past a too-narrow ``except
+    _dm.DataManagerError`` and past an unguarded ``_registry_for()``, so one
+    corrupt plate took down the entire project browse. Fixed.
+  * spacr/seg_qc.py:2226 -- ``int(float(...))`` on an ``inf`` cell raises
+    OverflowError, which was not in the except tuple (``nan`` raises
+    ValueError and WAS caught), so an infinite count escaped read_scorecard's
+    "never raises" contract into every caller of read_digest. Fixed.
+  * spacr/methods_export.py:1003 -- ``is not None`` does not screen NaN, and
+    hits.summary() reports NaN for max_abs_effect on a screen with no hits, so
+    a methods section rendered "The largest absolute effect among them was
+    nan, with a median of nan" into manuscript text. Fixed.
+
+The entries below are NOT fixed. Each was found with a test proving the
+current behaviour, and each was left because fixing it needs a decision or a
+file outside the finder's lane.
+
+--------------------------------------------------------------------------------
+1. THE FIGURE SAVE MODE HAS NO WAY TO BE SET  (lane: spacr/qt)
+--------------------------------------------------------------------------------
+
+spacr/figure_style.py:831 reads
+``getattr(preferences, "get_figure_save_mode", None)``. No such function
+exists: spacr/qt/preferences.py does not define it, and a repo-wide grep finds
+the name ONLY at that one line. So the branch is dead in production and the
+saved-figure export mode can be set exclusively through the
+``SPACR_FIGURE_SAVE_MODE`` environment variable -- the GUI offers no control
+at all. The docstring's claim that the environment variable "takes precedence
+over the Qt preference store" describes a store that was never wired up.
+
+This is spaCR's commonest defect shape: finished code with no caller. The
+``# pragma: no cover - needs Qt`` marker is exactly what kept it invisible.
+
+TO DO: add ``get_figure_save_mode()`` to spacr/qt/preferences.py and a
+Preferences control that sets it, or delete the branch and the docstring
+sentence. Do not leave a third state where the code reads a setting nothing
+can write. Assert the CALL SITE, not just the function.
+
+--------------------------------------------------------------------------------
+2. A BARE VEuPATHDB ACCESSION IS CLASSIFIED AS A GUIDE  (lane: spacr/hits.py)
+--------------------------------------------------------------------------------
+
+``guide_of("fraction[TGGT1_231640]")`` returns ``"TGGT1_231640"`` -- a guide --
+because the shape rule ``_\d+$`` matches the accession's own numeric tail.
+Only the explicit spelling protects it:
+``guide_of("gene_fraction:gene[TGGT1_231640]") is None``.
+
+Consequence: an unlabelled gene term lands in the *grna* testing family rather
+than the gene family, which changes which multiple-testing family a term is
+corrected within. Every table spaCR writes today carries the label, so this
+reaches only legacy or hand-built formulas -- but it is a scientific
+classification error, not a cosmetic one, which is why it is filed rather than
+patched in passing.
+
+A fix must change BOTH ``guide_of`` and ``family_labels``: family_labels
+computes ``suffix_guide`` independently and its docstring promises it agrees
+with guide_of, so changing one alone makes the docstring false. The candidate
+rule is ``_gene_id_of(token) != token``.
+
+Current behaviour is pinned by
+tests/test_hits_uncovered_paths.py::test_only_an_explicit_label_protects_a_bare_veupathdb_accession,
+so that test must be UPDATED, not deleted, when the behaviour changes.
+
+--------------------------------------------------------------------------------
+3. PRAGMAS DELIBERATELY LEFT, WITH THE ARGUMENT FOR EACH
+--------------------------------------------------------------------------------
+
+These are NOT oversights and must not be "fixed" by inventing a test:
+
+  * spacr/methods_export.py:182 and :251 -- ``except ValueError`` around
+    ``float(token)`` where the token already matched
+    ``[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?``. All 0x110000 codepoints were
+    brute-forced: no character the regex accepts is rejected by ``float()``
+    (CPython normalises every Nd digit), and huge magnitudes return inf rather
+    than raising. Unreachable by construction.
+  * spacr/gene_measurement_sweep.py:1149 -- the ``continue`` for a gene in
+    ``summary.index`` with no rows in ``frame``. summary.index comes from
+    ``frame.groupby("gene")``, so every key has at least one row; NaN is
+    excluded twice (``notna()`` filter and groupby's own NaN drop). This is
+    unconditionally dead defensive code with no pragma on it.
+
+If item 288's contract requires literally zero uncovered lines, these are the
+places where that is impossible without deleting working defensive code, and
+that decision belongs to a human.
+
+--------------------------------------------------------------------------------
+4. SMALLER OBSERVATIONS
+--------------------------------------------------------------------------------
+
+  * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
+    lists a subclass beside its base; ``OSError`` alone is equivalent.
+  * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
+    FAILS at present: public API surface 8613 vs reviewed 8612. Measured before
+    the coverage sweep began and not caused by it -- no docstring was added to
+    spacr/ by this work. It needs the ratchet bumped and
+    tools/build_documentation_i18n.py re-run. Lane: docs.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Entry 1: a test asserts a Preferences control writes the value that
+    figure_style.py:831 reads back, driven through the real widget.
+  * Entry 2: guide_of and family_labels agree on a bare accession, and the
+    pinning test above is updated to the new expectation rather than removed.
+  * Entry 3: each surviving pragma is either deleted with a real covering
+    test, or recorded in the item-288 artifact as a named, argued exclusion.
