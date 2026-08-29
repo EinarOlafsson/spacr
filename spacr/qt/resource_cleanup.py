@@ -1079,8 +1079,7 @@ def confirmation_text(action: str) -> str:
 #: A HINT BAR IS NOT A CONFIRMATION DIALOG. The long forms are four to eight
 #: lines of bulleted text, and the strip under the Preferences tabs grew to
 #: fit whichever one the pointer was over -- so moving between two buttons
-#: made the dialog jump. Asked for 2026-08-28: "presented in paragraph form
-#: and made to take less space."
+#: made the dialog jump. The compact form keeps the hint to one paragraph.
 #:
 #: What is dropped is the enumeration, never the limit: each of these still
 #: says what the action will NOT do, because that is the part a user is

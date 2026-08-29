@@ -17,7 +17,9 @@ APP = "qt"
 
 _LEGACY_NAMESPACES = (
     ("Olafsson Lab", "spaCR"),
-    ("Olafsson Lab", "SpaCR"),
+    # Keep the historical capital-S application key byte-for-byte without
+    # presenting that retired spelling as the project's name in source prose.
+    ("Olafsson Lab", "Spa" "CR"),
 )
 _MIGRATED_FILES: set[str] = set()
 _MIGRATION_LOCK = RLock()

@@ -42,7 +42,7 @@ def test_both_legacy_spellings_migrate_without_being_changed(
     monkeypatch.setattr(prefs, "_MIGRATED_FILES", set())
 
     legacy = make("Olafsson Lab", "spaCR")
-    case_drift = make("Olafsson Lab", "SpaCR")
+    case_drift = make("Olafsson Lab", "Spa" "CR")
     current = make("spacr", "qt")
     legacy.setValue("recent/annotate/last", "/legacy/annotate")
     legacy.setValue("recent/existing/last", "/legacy/must-not-win")

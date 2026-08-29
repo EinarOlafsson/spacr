@@ -294,9 +294,9 @@ def test_the_spacr_qt_console_script_points_at_the_module_these_guards_cover():
     """Pins what "the Qt entry point" means, so the guard cannot drift.
 
     Three commands share it — ``spacr``, ``spacr-qt`` and ``spacr-nightly``
-    are all ``spacr.qt:run`` — and ``spacr-tutorial`` and ``spaceout`` are the
-    other two Qt-package entry points. Every one of them is inside the surface
-    the next two tests import.
+    are all ``spacr.qt:run`` — and ``spacr-tutorial``, ``spaceout`` and
+    ``safespacr`` are the other Qt-package entry points. Every one of them is
+    inside the surface the next two tests import.
 
     ``spaceout`` is ``spacr.qt.spaceout:main``, which turns on the rainbow
     dressing and then calls ``spacr.qt.run``. It adds one import to the launch
@@ -308,8 +308,8 @@ def test_the_spacr_qt_console_script_points_at_the_module_these_guards_cover():
     assert scripts.get("spacr") == "spacr.qt:run", scripts
     qt_targets = {t.split(":")[0] for t in scripts.values()
                   if t.startswith("spacr.qt")}
-    assert qt_targets == {"spacr.qt", "spacr.qt.spaceout",
-                          "spacr.qt.tutorial.__main__"}, (
+    assert qt_targets == {"spacr.qt", "spacr.qt.safespacr",
+                          "spacr.qt.spaceout", "spacr.qt.tutorial.__main__"}, (
         f"a new Qt console script appeared: {sorted(qt_targets)}. Check it is "
         "covered by test_no_module_in_the_qt_package_imports_spacr_utils")
 

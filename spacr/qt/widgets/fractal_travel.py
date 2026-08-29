@@ -51,9 +51,9 @@ Quality = Literal["auto", "balanced", "high"]
 BACKENDS: Final[tuple[str, ...]] = ("auto", "gpu", "cpu")
 QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 
-#: The maintainer's own defaults, given as two command lines. `auto` picks
-#: the GPU when vispy is importable and the CPU otherwise, which is what
-#: makes one set of numbers serve both.
+#: Reference defaults shared by both renderers. `auto` picks the GPU when
+#: vispy is importable and the CPU otherwise, which makes one set of numbers
+#: serve both.
 #: Which fractal. Two genuinely different families, not one with knobs:
 #: `orbit` is the orbit-fold of `fractal_travel.py` v2.1.0, whose CPU path
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is

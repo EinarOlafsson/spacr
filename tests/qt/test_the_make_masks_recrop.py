@@ -20,7 +20,7 @@ each has a test of its own:
 * what survives is renumbered from one, so the new field is a field rather
   than a view of another one.
 
-WHAT "RETIRED" MEANS IN SPACR. This screen's queue is a folder walked by
+WHAT "RETIRED" MEANS IN spaCR. This screen's queue is a folder walked by
 :func:`~spacr.qt.mask_engine.list_images`, not a table. spaCR's crop
 database -- ``png_list`` -- is keyed on each crop's absolute path and has
 no lifecycle column, so there is no row to set to "recropped" and none a

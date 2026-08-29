@@ -16,7 +16,7 @@ from __future__ import annotations
 import os
 from typing import List
 
-#: Body text is Light; titles are Regular. Asked for 2026-08-28.
+#: Body text is Light; titles are Regular.
 BODY_WEIGHT = "light"
 TITLE_WEIGHT = "regular"
 

@@ -158,13 +158,18 @@ def test_a_run_whose_interpreter_will_not_exit_still_reports_and_stops(
     repo = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
     (tmp_path / "conftest.py").write_text(_LEAKY_CONFTEST.format(repo=repo))
     (tmp_path / "test_leaks_a_thread.py").write_text(_LEAKY_TEST)
+    # A real local config keeps pytest 8.0's rootdir inside this temporary
+    # project. ``-c /dev/null`` makes that release use ``/dev`` as root and
+    # walk back through all of ``/tmp`` while resolving the explicit test,
+    # which can encounter unrelated root-only directories before collection.
+    (tmp_path / "pytest.ini").write_text("[pytest]\n")
 
     env = dict(__import__("os").environ)
     env["SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"] = "3"
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "test_leaks_a_thread.py",
          "-q", "-p", "no:randomly", "-p", "no:cacheprovider",
-         "-p", "no:cov", "-c", "/dev/null"],
+         "-p", "no:cov", "-c", "pytest.ini"],
         cwd=str(tmp_path), env=env, capture_output=True, text=True,
         timeout=300)
 

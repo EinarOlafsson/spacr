@@ -295,10 +295,8 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
         # A group per label is what every split below assumes; a mismatch
         # silently misaligns the two and produces a split that looks valid.
         raise ValueError(
-            f"the split has {len(group_values)} group labels for {len(y)} "
-            f"objects. These must correspond one to one.")
-    if len(y) != len(group_values):
-        raise ValueError("group-aware splitting requires one group per label")
+            "group-aware splitting requires one group per label; the split "
+            f"has {len(group_values)} groups for {len(y)} labels")
     if len(y) < 2:
         raise ValueError("a train/test split needs at least two labelled cells")
     classes = np.unique(y)
