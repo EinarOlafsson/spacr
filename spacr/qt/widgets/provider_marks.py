@@ -411,7 +411,7 @@ class ProviderMark(QWidget):
     def paintEvent(self, event):                # noqa: N802 - Qt naming
         try:
             self._paint()
-        except Exception:                        # pragma: no cover
+        except Exception:
             # Decoration is never load-bearing: an unpainted mark is still a
             # control that answers the question when it is clicked.
             pass
