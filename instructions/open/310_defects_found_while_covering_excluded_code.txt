@@ -115,6 +115,42 @@ places where that is impossible without deleting working defensive code, and
 that decision belongs to a human.
 
 --------------------------------------------------------------------------------
+0. A TEST THAT SEGFAULTS, AND WHY NO FULL-SUITE COVERAGE RUN FINISHES
+--------------------------------------------------------------------------------
+
+tests/test_regression_screen_layout.py::test_right_clicking_the_live_tile_offers_the_graphs_own_menu
+SEGFAULTS -- a core dump, not an exception -- under
+QT_QPA_PLATFORM=offscreen, at spacr/qt/screens/app_screen.py:6763 in
+``_pinned_menu`` by way of spacr/qt/widgets/figure_grid_view.py:511. It kills
+the whole pytest process rather than failing a test.
+
+This is why no whole-library coverage run has ever completed. Two attempts on
+2026-08-29 died this way: the first wedged at 96% with its xdist workers idle
+in ``execnet.serve`` while pytest-timeout printed faulthandler dumps every
+five minutes -- the classic signature of a worker whose process vanished while
+the master waited on it.
+
+Until it is fixed, ANY of these is required for a full-suite coverage run:
+excluding that file, running with ``-p no:cacheprovider --timeout-method=thread``
+so a dead worker is reaped, or running that file in its own process.
+
+This is a REAL defect, not just a test-harness annoyance: a right-click on a
+live figure tile is an ordinary user action, and it takes the interpreter down
+rather than raising. It is filed here because it was found by the coverage
+sweep, but it belongs to whoever owns the figure grid.
+
+--------------------------------------------------------------------------------
+0b. A PERFORMANCE TEST THAT CANNOT SURVIVE INSTRUMENTATION
+--------------------------------------------------------------------------------
+
+tests/test_fast_plots.py::TestTheLastGraphIsNotSlowAnyMore::test_the_plain_volcano_is_immediate
+fails ONLY under ``--cov`` (measured 36 ms against a 30 ms budget) and passes
+uninstrumented. A wall-clock budget that tight cannot hold with a tracer
+installed, so the test makes coverage and performance measurement mutually
+exclusive. Either raise the budget under coverage, mark it to skip when a
+tracer is active, or measure it outside the coverage job.
+
+--------------------------------------------------------------------------------
 2b. TWO LATENT DEFECTS IN DEAD ATTRIBUTION CODE  (lane: spacr/guide_attribution.py)
 --------------------------------------------------------------------------------
 
@@ -173,14 +209,9 @@ uncommented.
     database. A worker that finishes inside the join window therefore produces
     a clean result AND a leftover temporary directory. Harmless in effect, but
     the docstring says the survivor is "a worker that outlives the join
-    deadline", which is not what the code does.
-
-    FIXED 2026-08-29. The final liveness check now builds the actual survivor
-    list used by both error reporting and scratch retention. A worker that
-    exits in the last join window leaves neither a false stall error nor a
-    disposable database behind; a genuinely live worker is still retained for
-    inspection. The deterministic delayed-``is_alive`` regression now asserts
-    that the scratch path is removed.
+    deadline", which is not what the code does. Current behaviour is pinned by
+    a test, so a deliberate fix will surface as a failing assertion rather
+    than silently.
   * spacr/crops.py ``_region_for`` -- the docstring still documents a ``None``
     return the code can no longer produce. The ``binary_dilation(iterations=0)``
     quirk that produced it was fixed by the ``if px > 0`` guard, so every path
