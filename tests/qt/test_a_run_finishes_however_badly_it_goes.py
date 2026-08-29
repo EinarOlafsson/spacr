@@ -637,6 +637,34 @@ def test_a_figure_shown_by_the_pipeline_reaches_the_gallery(qtbot):
     assert seen[0][1], "the figure was prerendered for the tile"
 
 
+def test_a_figure_open_before_the_run_is_not_claimed_by_the_gallery(qtbot):
+    """A worker publishes only figures made by that run.
+
+    pyplot's registry is process-global, so an unrelated screen may own an
+    open figure when the run starts.  Figure numbers are reusable; object
+    identity is the ownership boundary.
+    """
+    import matplotlib.pyplot as plt
+
+    stale = plt.figure()
+    seen = []
+
+    def _draws(_settings):
+        fresh = plt.figure()
+        plt.show()
+        assert fresh is not stale
+
+    worker = B.PipelineWorker(_draws, {})
+    worker.figure_ready.connect(lambda fig, png: seen.append((fig, png)))
+    try:
+        worker.run()
+    finally:
+        plt.close("all")
+
+    assert len(seen) == 1
+    assert seen[0][0] is not stale
+
+
 def test_a_shown_figure_that_cannot_be_prerendered_is_still_handed_over(
         qtbot, monkeypatch):
     from spacr.qt.widgets import figure_queue

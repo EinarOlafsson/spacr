@@ -1039,9 +1039,32 @@ class PipelineWorker(QObject):
             if matplotlib.get_backend().lower() != "agg":
                 matplotlib.use("Agg", force=True)
             import matplotlib.pyplot as plt
+            from matplotlib._pylab_helpers import Gcf
             worker = self
             emitted_ids = set()
             fig_counter = [0]
+
+            def _registered_figures():
+                """Yield existing pyplot figures without creating one.
+
+                ``pyplot.figure(number)`` is both a lookup and a constructor.
+                The numbers below come from pyplot's process-wide registry,
+                but another thread can close one between the two calls.  Read
+                its manager directly so capture never recreates a figure and
+                accidentally assigns it to this run.
+                """
+                for number in list(plt.get_fignums()):
+                    manager = Gcf.get_fig_manager(number)
+                    if manager is not None:
+                        yield manager.canvas.figure
+
+            # pyplot's registry is process-global.  A figure that was already
+            # open before this worker began belongs to its caller (or to a
+            # different screen), not to this run.  Hold the objects, rather
+            # than only their figure numbers: pyplot reuses a closed number
+            # and the replacement must still be eligible for this run.
+            preexisting_figures = tuple(_registered_figures())
+            preexisting_ids = {id(fig) for fig in preexisting_figures}
 
             def _already_emitted(fig):
                 """Return whether this figure was emitted during this run.
@@ -1071,13 +1094,17 @@ class PipelineWorker(QObject):
                 # savefig touches no Qt) — the expensive part — so the GUI
                 # thread only does a cheap file-move + pixmap load and never
                 # hangs while figures stream in.
-                for num in list(plt.get_fignums()):
-                    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-                    # rcParams reach an artist when it is CREATED, so a
-                    # context opened after `plt.subplots` would leave the
-                    # spines, ticks and labels at the caller's globals.
+                for fig in _registered_figures():
+                    # Holding the baseline objects for the run prevents their
+                    # IDs from being reused, so this lookup stays both exact
+                    # and constant-time even after a long interactive session.
+                    if id(fig) in preexisting_ids:
+                        continue
+                    # The creation site owns the artists' house style; a
+                    # context opened here cannot retroactively restyle them.
+                    # Keep render-time Matplotlib work scoped to the same
+                    # target without changing process-wide rcParams.
                     with figure_style(theme_target()):
-                        fig = plt.figure(num)
                         already_emitted = _already_emitted(fig)
                         if already_emitted and not getattr(
                                 fig, "_spacr_live_update", False):

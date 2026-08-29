@@ -186,11 +186,18 @@ def test_the_verdict_is_drawn_on_the_panel(tmp_path, png_preference):
         image = Image.open(path).convert("RGB")
         width, height = image.size
         band = np.asarray(image.crop((0, int(height * 0.72),
-                                      int(width * 0.75), height)))
-        return int((np.abs(band.astype(int) - np.array(ink)).sum(-1) < 60).sum())
+                                      int(width * 0.75), height))).astype(int)
+        # Anti-aliasing blends the one-pixel glyphs and border with the page,
+        # so some supported renderers produce no pixels close to the literal
+        # source RGB value.  Their hue still has the same two strong channel
+        # separations; grayscale labels and axes have neither.
+        red_over_green = max(10, (ink[0] - ink[1]) // 4)
+        red_over_blue = max(10, (ink[0] - ink[2]) // 4)
+        return int(((band[..., 0] - band[..., 1] > red_over_green)
+                    & (band[..., 0] - band[..., 2] > red_over_blue)).sum())
 
-    # At 120 dpi the badge text is ~100 px of ink; the passing panel is 0, so
-    # the discrimination is not marginal even though the count is small.
+    # The text and its boxed edge produce hundreds of hue-matched pixels; the
+    # passing panel is exactly 0.
     assert badge_pixels(by_name["vif"].path) > 50
     # The passing panel is not stamped in the failing ink.
     assert badge_pixels(by_name["qq_residuals"].path) == 0
