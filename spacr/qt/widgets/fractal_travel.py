@@ -1445,9 +1445,13 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             previous = getattr(self, "_zoom_clock", None)
             self._zoom_clock = now
             if previous is not None:
-                self._depth = getattr(self, "_depth", 0.0) + depth_decades(
-                    now - previous, controls.speed * controls.zoom_rate,
-                    float(_mandel_setting("seconds_per_decade")))
+                # SIGNED, and floored at the surface: Down past zero backs
+                # out of the zoom, and there is nothing above the starting
+                # scale to back out into.
+                step = (now - previous) * controls.speed * controls.zoom_rate \
+                    / max(0.1, float(_mandel_setting("seconds_per_decade")))
+                self._depth = max(0.0,
+                                  getattr(self, "_depth", 0.0) + step)
             # THE DIVE STARTS AGAIN RATHER THAN ENDING IN A BLACK FRAME.
             # The per-pixel offset is a float32 whatever the reference
             # orbit's precision, and past about forty-five decades the step
@@ -1467,6 +1471,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 camera = getattr(self, "_camera", None)
                 if camera is not None:
                     camera.restart()
+
                 self._plan = None
                 self._steer_step = 0
                 self._next_steer = 0.0
@@ -1537,20 +1542,20 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 seconds_per_decade=float(
                     _mandel_setting("seconds_per_decade")))
 
-            # FIXED MEANS FIXED. Checked before the camera is configured
-            # or a search is queued: the search is what moves the camera,
-            # and the maintainer's report was that the movement itself is
-            # the shake, not how it is smoothed.
-            if str(_mandel_setting("path", "fixed")) != "guided":
-                return camera.centre
-            if not camera.steering:
-                return camera.centre
-
+            # FIXED MEANS FIXED -- but not "aimed at the least interesting
+            # place in the frame". The anchor is chosen ONCE, before
+            # anything moves, and then never again: the dive is exactly as
+            # steady as a fixed path because it IS one, and the survey
+            # costs a fraction of a second on a worker thread while the
+            # backdrop is already drawing.
+            #
+            # Continuous steering is what shook; choosing where to point
+            # before the descent starts moves nothing.
+            # DRAGGING WORKS ON EITHER PATH. It is the user moving the
+            # camera, and refusing that on the steady path would mean the
+            # only way to look somewhere else was to turn on the search
+            # that shook.
             span = scale_at(depth, float(_mandel_setting("initial_scale")))
-
-            # WHAT THE USER DRAGGED COMES FIRST, and moves the centre the
-            # zoom converges into rather than the sample coordinate -- so it
-            # steers the dive instead of sliding the picture.
             pointer = getattr(self, "_pointer", None)
             if pointer is not None and (pointer.drag_x or pointer.drag_y):
                 here = camera.drag(pointer.drag_x, pointer.drag_y, span,
@@ -1558,6 +1563,22 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 pointer.drag_x = 0.0
                 pointer.drag_y = 0.0
                 return here
+
+            if str(_mandel_setting("path", "fixed")) != "guided":
+                # NO AUTOMATIC AIMING. Choosing a "more interesting" point
+                # by surveying the surface was tried and made it worse: a
+                # point on a busy edge at the starting scale was measured
+                # going completely flat three decades in -- entirely interior at
+                # one candidate, entirely exterior at another -- because
+                # surface structure does not predict what survives a
+                # descent. Only a genuinely special point does, and the
+                # reference centre already is one.
+                #
+                # The camera is steered BY HAND instead: drag to move it,
+                # and the arrow keys change the speed and the direction.
+                return camera.centre
+            if not camera.steering:
+                return camera.centre
 
             plan = getattr(self, "_plan", None)
             if plan is not None and plan.get("done"):
@@ -1786,6 +1807,47 @@ MIN_ZOOM_RATE: Final[float] = 0.05
 MAX_ZOOM_RATE: Final[float] = 20.0
 
 
+def apply_saved_controls() -> int:
+    """Push the saved settings into every running backdrop.
+
+    :returns: how many were updated.
+
+    THE BACKDROP KEEPS THE CONTROLS IT WAS BUILT WITH. Saving Preferences
+    wrote the new speed to the store and restarted the dive, and the running
+    `RuntimeControls` went on holding the old number -- which is why
+    "i change speed and nothing fucking happens". Reported 2026-08-28.
+
+    Everything that can change while a backdrop is on screen is pushed here.
+    What cannot -- the pattern, the backend, the shader -- still needs the
+    backdrop rebuilding, which is what changing a screen does anyway.
+    """
+    try:
+        from ..preferences import get_fractal_settings
+
+        values = get_fractal_settings()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fractal settings", exc_info=True)
+        return 0
+
+    updated = 0
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            controls.speed = float(values["speed"])
+            controls.dream = float(values["dream"])
+            controls.variable_speed = bool(values["variable_speed"])
+            controls.speed_min = float(values["speed_min"])
+            controls.speed_max = float(values["speed_max"])
+            controls.speed_period = float(values["speed_period"])
+            controls.follow_pointer = bool(values["pointer_gravity"])
+            controls.pointer_size = float(values["pointer_size"])
+            controls.pointer_strength = float(values["pointer_strength"])
+            controls.zoom_rate = float(values["zoom_rate"])
+            updated += 1
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not update a live backdrop", exc_info=True)
+    return updated
+
+
 def restart_the_dive() -> None:
     """Send every running backdrop back to the surface.
 
@@ -1817,8 +1879,32 @@ def nudge_zoom_rate(steps: int) -> float:
     rate = 0.0
     for controls in list(_LIVE_CONTROLS):
         try:
-            rate = clamp(controls.zoom_rate * (ZOOM_STEP ** int(steps)),
-                         MIN_ZOOM_RATE, MAX_ZOOM_RATE)
+            # SIGNED, AND THE KEY CHANGES THE VALUE, NOT THE MAGNITUDE.
+            # Asked for 2026-08-28: "so i could go slow and fast forward and
+            # back". Down means "less", all the way through zero into
+            # backing out of the zoom; Up means "more".
+            #
+            # Stepping the magnitude multiplicatively and flipping the sign
+            # at the floor OSCILLATES: every press at the floor swaps the
+            # direction, so holding Down never gets anywhere. Which side of
+            # zero the rate is on has to decide whether a step grows or
+            # shrinks it.
+            rate = float(controls.zoom_rate)
+            for _ in range(abs(int(steps))):
+                going_up = int(steps) > 0
+                if (rate > 0) == going_up:
+                    # Away from zero on the side it is already on.
+                    rate = rate * ZOOM_STEP if rate > 0 else rate * ZOOM_STEP
+                else:
+                    # Toward zero, and through it when there is nowhere
+                    # left to shrink to.
+                    shrunk = rate / ZOOM_STEP
+                    if abs(shrunk) < MIN_ZOOM_RATE:
+                        rate = MIN_ZOOM_RATE if going_up else -MIN_ZOOM_RATE
+                    else:
+                        rate = shrunk
+                magnitude = clamp(abs(rate), MIN_ZOOM_RATE, MAX_ZOOM_RATE)
+                rate = magnitude if rate >= 0 else -magnitude
             controls.zoom_rate = rate
         except Exception:                                    # noqa: BLE001
             continue
@@ -1888,8 +1974,18 @@ def create_fractal_widget(settings: Optional[Settings] = None,
     # Registered so a key press can reach it; the backdrop itself must not
     # accept events, or it would eat the clicks meant for the interface in
     # front of it.
-    if controls not in _LIVE_CONTROLS:
+    # BY IDENTITY, NOT BY VALUE. `RuntimeControls` is a dataclass, so `in`
+    # compares field by field: a new backdrop whose settings happen to match
+    # a previous one was never added, and the keys then drove a stale object
+    # that no canvas reads. That is why Ctrl+R and Up and Down stopped
+    # working after the first backdrop was replaced.
+    #
+    # The list is also trimmed here, because nothing else can: a backdrop
+    # that has been destroyed leaves its controls behind, and updating a few
+    # dead ones is harmless while letting the list grow without bound is not.
+    if not any(existing is controls for existing in _LIVE_CONTROLS):
         _LIVE_CONTROLS.append(controls)
+    del _LIVE_CONTROLS[:-8]
     hardware = hardware or HardwareProfile.detect()
 
     # `gpu_is_available` covers the explicit 'gpu' request as well: asking

@@ -354,6 +354,72 @@ FRACTAL_LIMITS = {
 }
 
 
+#: Every setting that is really about SPEED, and what one Speed of 1.0
+#: means for each.
+#:
+#: ONE CONTROL, SIX NUMBERS. Asked for 2026-08-28: "take all the speed
+#: settings and have them be controled by one speed setting". They were six
+#: separate fields answering one question, and three of them could be set
+#: into contradicting the other three.
+#:
+#: Speed multiplies the first four and DIVIDES seconds-per-decade, because
+#: that one is a duration: a bigger number there is a slower dive, and a
+#: control called Speed that made things slower as it rose would be a trap.
+SPEED_GROUP = {
+    "speed": 1.0,
+    "zoom_rate": 1.0,
+    "speed_min": 0.55,
+    "speed_max": 1.65,
+    "speed_period": 41.0,
+}
+
+#: The duration that Speed divides rather than multiplies.
+SPEED_SECONDS_PER_DECADE: float = 24.0
+
+#: Every setting that is really about SCALE -- how much is drawn, and how
+#: finely -- and what one Scale of 1.0 means for each.
+#:
+#: Supersampling is a whole number of samples a side, so it steps rather
+#: than scaling smoothly: below 1.0 it is 1, and it reaches 2 and 3 as the
+#: control rises. The cost is its square, which is why it is the last thing
+#: to go up.
+SCALE_GROUP = {
+    "scale": 1.0,
+    "render_scale": 1.0,
+}
+
+
+def speed_group_values(speed: float) -> dict:
+    """What one Speed means for every setting that follows it.
+
+    :param speed: the single user-facing number.
+    :returns: ``{setting: value}`` for the whole group.
+    """
+    amount = max(0.01, float(speed))
+    values = {name: round(base * amount, 4)
+              for name, base in SPEED_GROUP.items()}
+    # A DURATION, so it goes the other way: twice the speed is half the
+    # time a decade takes.
+    values["seconds_per_decade"] = round(
+        SPEED_SECONDS_PER_DECADE / amount, 4)
+    return values
+
+
+def scale_group_values(scale: float) -> dict:
+    """What one Scale means for every setting that follows it.
+
+    :param scale: the single user-facing number.
+    :returns: ``{setting: value}`` for the whole group.
+    """
+    amount = max(0.05, float(scale))
+    values = {name: round(base * amount, 4)
+              for name, base in SCALE_GROUP.items()}
+    # Whole samples a side: 1 below 1.5, then 2, then 3 at 2.5 and above.
+    values["supersampling"] = 1 if amount < 1.5 else (2 if amount < 2.5
+                                                      else 3)
+    return values
+
+
 def explain_a_fractal_number(name: str, value) -> str:
     """Why ``value`` cannot be used for ``name``, or ``""`` if it can.
 
@@ -2251,33 +2317,30 @@ FRACTAL_QUALITIES = ("auto", "balanced", "high", "ultra")
 #: level is chosen, and every one of them remains a field the user can then
 #: change -- picking a level is a starting point, not a lock.
 QUALITY_PRESETS = {
+    # A LEVEL SETS THE GROUP'S CONTROL, not its members. Scale derives
+    # render scale and supersampling, so a preset that also named those
+    # fought the derivation and whichever was written last won -- which is
+    # how choosing High stopped giving High's supersampling.
     "balanced": {
-        "supersampling": 1,
-        "render_scale": 0.75,
+        "scale": 0.75,
         "base_iterations": 200,
         "iterations_per_decade": 40.0,
         "max_iterations": 1200,
-        "scale": 1.0,
     },
     "high": {
-        "supersampling": 2,
-        "render_scale": 1.0,
+        "scale": 1.75,
         "base_iterations": 300,
         "iterations_per_decade": 55.0,
         "max_iterations": 2200,
-        "scale": 1.25,
     },
     "ultra": {
-        # THE MOST THIS CAN USEFULLY DO. Three samples a side is nine a
-        # pixel -- the cost is the square, and past three the difference is
-        # smaller than the screen can show. The iteration ceiling is the
-        # shader's own bound, so nothing above it would be run anyway.
-        "supersampling": 3,
-        "render_scale": 1.0,
+        # 2.5 is where supersampling reaches three samples a side, which is
+        # nine a pixel. Past three the difference is smaller than the screen
+        # can show and the cost is the square.
+        "scale": 2.5,
         "base_iterations": 500,
         "iterations_per_decade": 90.0,
         "max_iterations": 2200,
-        "scale": 2.0,
     },
 }
 
@@ -2509,6 +2572,20 @@ def set_fractal_settings(**values) -> None:
             raise ValueError(f"unknown fractal backend {value!r}")
         if name == "quality" and value not in FRACTAL_QUALITIES:
             raise ValueError(f"unknown fractal quality {value!r}")
+        if name in ("speed", "scale"):
+            # ONE CONTROL, ITS WHOLE GROUP. Six fields answered "how fast"
+            # and three answered "how finely"; set by hand they could
+            # contradict each other, and changing the one a user thinks of
+            # as Speed left the other five where they were.
+            derived = (speed_group_values(value) if name == "speed"
+                       else scale_group_values(value))
+            store.setValue(key, float(value))
+            for _name, _value in derived.items():
+                if _name == name:
+                    continue
+                _key, _ = keys[_name]
+                store.setValue(_key, _value)
+            continue
         if name == "steering":
             # ONE CONTROL, THREE NUMBERS, derived together so they cannot
             # contradict each other. Set by hand a short interval and a long
@@ -5808,8 +5885,15 @@ class PreferencesDialog:
                 # recognisable to act on -- so the change would look as
                 # though it had done nothing.
                 try:
-                    from .widgets.fractal_travel import restart_the_dive
+                    from .widgets.fractal_travel import (
+                        apply_saved_controls, restart_the_dive)
 
+                    # THE NEW NUMBERS REACH THE RUNNING BACKDROP. It keeps
+                    # the controls it was built with, so writing them to the
+                    # store and restarting the dive left the old speed in
+                    # place -- which is why changing Speed appeared to do
+                    # nothing at all.
+                    apply_saved_controls()
                     restart_the_dive()
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not restart the dive", exc_info=True)

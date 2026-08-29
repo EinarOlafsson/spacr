@@ -88,9 +88,11 @@ def test_choosing_high_restores_the_published_profile(store):
 
     P.apply_quality_preset("high")
     values = P.get_fractal_settings()
-    for name in ("supersampling", "base_iterations",
-                 "iterations_per_decade", "max_iterations"):
+    for name in ("base_iterations", "iterations_per_decade",
+                 "max_iterations"):
         assert values[name] == DEFAULTS[name], name
+    # And High's scale reaches the published supersampling of two.
+    assert values["supersampling"] == DEFAULTS["supersampling"]
 
 
 def test_a_number_that_cannot_work_is_explained_not_clamped_silently():
@@ -149,13 +151,17 @@ def test_up_and_down_change_the_zoom_rate():
         assert faster == pytest.approx(start * ft.ZOOM_STEP)
         slower = ft.nudge_zoom_rate(-1)
         assert slower == pytest.approx(start)
-        # A key held down does not reach 10^12.
+
+        # A key held down does not reach 10^12, in either direction. Down
+        # goes THROUGH zero into backing out of the zoom, so the floor is
+        # on the magnitude rather than on the value.
         for _ in range(200):
             ft.nudge_zoom_rate(1)
-        assert controls.zoom_rate <= ft.MAX_ZOOM_RATE
+        assert abs(controls.zoom_rate) <= ft.MAX_ZOOM_RATE
         for _ in range(400):
             ft.nudge_zoom_rate(-1)
-        assert controls.zoom_rate >= ft.MIN_ZOOM_RATE
+        assert abs(controls.zoom_rate) <= ft.MAX_ZOOM_RATE
+        assert abs(controls.zoom_rate) >= ft.MIN_ZOOM_RATE
     finally:
         ft._LIVE_CONTROLS.clear()
 
@@ -219,26 +225,33 @@ def test_there_is_an_ultra_level():
 
 
 def test_a_level_is_a_set_of_numbers_not_an_adjective():
-    """It has to GOVERN the other settings, or it is only a label."""
+    """It has to GOVERN the other settings, or it is only a label -- and it
+    does so through the group controls rather than beside them."""
     for name in ("balanced", "high", "ultra"):
         preset = P.QUALITY_PRESETS[name]
-        for key in ("supersampling", "render_scale", "base_iterations",
-                    "max_iterations", "scale"):
+        for key in ("scale", "base_iterations", "max_iterations"):
             assert key in preset, f"{name} does not set {key}"
+        # Not the members of a group whose control it already sets.
+        assert "supersampling" not in preset
+        assert "render_scale" not in preset
 
 
 def test_the_levels_are_monotonic():
     order = ("balanced", "high", "ultra")
-    for key in ("supersampling", "base_iterations", "scale"):
+    for key in ("base_iterations", "scale"):
         values = [P.QUALITY_PRESETS[name][key] for name in order]
         assert values == sorted(values), (key, values)
-    assert P.QUALITY_PRESETS["ultra"]["supersampling"] == 3
+    # And Ultra's scale reaches the top supersampling step.
+    assert P.scale_group_values(
+        P.QUALITY_PRESETS["ultra"]["scale"])["supersampling"] == 3
 
 
 def test_applying_a_level_writes_its_numbers(store):
     applied = P.apply_quality_preset("ultra")
     assert applied
     saved = P.get_fractal_settings()
+    # Through the group control, which is the point.
+    assert saved["scale"] == 2.5
     assert saved["supersampling"] == 3
     assert saved["base_iterations"] == 500
 
@@ -284,8 +297,12 @@ def test_the_shipped_defaults_are_the_ones_that_were_given(store):
                 "max_iterations", "seconds_per_decade", "precision_digits"):
         assert values[key] == DEFAULTS[key], key
 
+    # Balanced is lighter through its SCALE, which is the group control:
+    # naming supersampling beside it is what made the presets fight the
+    # derivation.
     light = P.QUALITY_PRESETS["balanced"]
-    assert light["supersampling"] < DEFAULTS["supersampling"]
+    assert P.scale_group_values(light["scale"])["supersampling"] <= \
+        DEFAULTS["supersampling"]
 
 
 def test_the_fractal_panel_is_short_enough_not_to_need_sub_categories(qtbot, spaceout_only):
