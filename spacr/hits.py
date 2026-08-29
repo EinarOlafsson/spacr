@@ -190,9 +190,7 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     explicit_guide = series.str.contains(
         r":grna\[", case=False, regex=True, na=False
     ).to_numpy()
-    suffix_guide = token.str.contains(
-        r"_\d+$", regex=True, na=False
-    ).to_numpy()
+    suffix_guide = token.fillna("").map(_is_guide_token).to_numpy(dtype=bool)
     guide = np.where(explicit_gene, False,
                      np.where(explicit_guide, True, suffix_guide))
     return np.where(tested, np.where(guide, "grna", "gene"),
@@ -309,6 +307,13 @@ def _gene_id_of(token: Any) -> Optional[str]:
     return parts[0] or None
 
 
+def _is_guide_token(token: Any) -> bool:
+    """Whether ``token`` adds a guide suffix to its normalized gene id."""
+    text = str(token or "").strip()
+    gene = _gene_id_of(text)
+    return bool(text and gene and gene != text)
+
+
 def guide_of(feature: Any) -> Optional[str]:
     """Extract the guide identifier from a model term.
 
@@ -336,7 +341,7 @@ def guide_of(feature: Any) -> Optional[str]:
         return None
     if re.search(r":grna\[", feature_text, flags=re.IGNORECASE):
         return token
-    return token if re.search(r"_\d+$", token) else None
+    return token if _is_guide_token(token) else None
 
 
 def benjamini_hochberg(p_values: Sequence[Any]) -> np.ndarray:
