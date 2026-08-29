@@ -1066,6 +1066,11 @@ CORE_MODULES: Tuple[Tuple[str, str], ...] = (
     ("torch", "torch"),
     ("torchvision", "torchvision"),
     ("cellpose", "cellpose"),
+    # VisPy backs the installed application's default Mandelbrot renderer.
+    # It remains available through the historical ``fractal`` extra spelling,
+    # but it is a core dependency now; a missing install is therefore a broken
+    # environment, not an optional feature the doctor may report as absent.
+    ("vispy", "vispy"),
 )
 
 

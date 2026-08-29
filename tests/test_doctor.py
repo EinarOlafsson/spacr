@@ -1018,6 +1018,11 @@ def test_core_dependency_check_passes_in_this_environment(ctx):
     assert row.status == PASS
 
 
+def test_the_default_fractal_renderer_is_a_core_doctor_check():
+    """A core install missing VisPy must not receive a healthy diagnosis."""
+    assert ("vispy", "vispy") in doctor.CORE_MODULES
+
+
 def test_core_dependency_check_names_the_distribution_to_install(ctx, monkeypatch):
     monkeypatch.setattr(
         doctor, "CORE_MODULES", (("numpy", "numpy"), ("skimage", "scikit-image"))
