@@ -482,7 +482,7 @@ def build_graph(project: Union[str, os.PathLike, None] = None, *,
                        "output yet.",))
         try:
             registry = Registry(path=target, project=root or None, create=False)
-        except (FileNotFoundError, OSError) as exc:  # pragma: no cover - rare
+        except (FileNotFoundError, OSError) as exc:  # rare, but it is a race
             return PipelineGraph(
                 project=root, registry_file=target, modules=module_graph(),
                 notes=(f"Could not open the artifact registry: {exc}",))
@@ -573,7 +573,7 @@ def _staleness(registry: Registry, records: Sequence[Artifact],
         try:
             verdicts[record.artifact_id] = registry.is_stale(
                 record.artifact_id, settings=settings)
-        except Exception:  # pragma: no cover - registry raced us
+        except Exception:  # the registry raced us
             verdicts[record.artifact_id] = Staleness(
                 record.artifact_id, False,
                 ("Could not check this artifact's provenance.",), ())
@@ -676,7 +676,7 @@ def format_graph(graph: PipelineGraph, *, width: int = 100) -> str:
         lines.append(f"  Step {column + 1}")
         for artifact_id in row:
             node = graph.node(artifact_id)
-            if node is None:  # pragma: no cover - layers come from nodes
+            if node is None:  # layers normally come from nodes
                 continue
             mark = {STATE_CURRENT: "ok", STATE_STALE: "STALE",
                     STATE_MISSING: "MISSING"}[node.state]
