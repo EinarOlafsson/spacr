@@ -73,14 +73,22 @@ def test_the_fallback_says_so_in_the_debug_log(qtbot, monkeypatch, caplog):
     """A panel that quietly stops painting its surface must leave a trace."""
     from spacr.qt import theme
 
-    monkeypatch.setattr(theme, "palette_for",
-                        lambda *a, **k: (_ for _ in ()).throw(
-                            RuntimeError("no palette for that theme")))
     view = _view(qtbot)
 
-    with caplog.at_level(logging.DEBUG,
-                         logger="spacr.qt.widgets.folding_summary"):
-        assert view._reading_surface() == "transparent"
+    # ``palette_for`` is process-global and the shared Qt application may
+    # repaint unrelated live widgets between assertions.  Keep the simulated
+    # failure around the synchronous call that owns it so those repaints do
+    # not turn this local fallback check into an event-loop failure.
+    with monkeypatch.context() as local_patch:
+        local_patch.setattr(
+            theme,
+            "palette_for",
+            lambda *a, **k: (_ for _ in ()).throw(
+                RuntimeError("no palette for that theme")),
+        )
+        with caplog.at_level(logging.DEBUG,
+                             logger="spacr.qt.widgets.folding_summary"):
+            assert view._reading_surface() == "transparent"
 
     assert any("reading surface" in record.message
                for record in caplog.records)

@@ -352,13 +352,25 @@ def test_the_shortcut_and_the_menu_entry_are_the_same_action(qtbot, spaceout_onl
     assert "_restart_the_backdrop" in source
 
 
-def test_dragging_moves_the_view():
-    """Asked for 2026-08-28: drag the visual field with the mouse."""
-    from PySide6.QtCore import QPoint
+def test_dragging_moves_the_view(monkeypatch, qapp):
+    """Asked for 2026-08-28: drag the visual field with the mouse.
+
+    ``QApplication.mouseButtons()`` is process-global input state.  A Qt test
+    elsewhere can leave an offscreen backend reporting a held button until
+    its next event-loop turn, so this unit test names the input it is testing
+    instead of inheriting whichever button the previous test last sent.
+    """
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtWidgets import QApplication
 
     from spacr.qt.widgets import fractal_travel as ft
 
-    positions = [QPoint(50, 50), QPoint(60, 50), QPoint(70, 50)]
+    positions = [QPoint(50, 50), QPoint(60, 50),
+                 QPoint(70, 50), QPoint(80, 50)]
+    buttons = {"held": Qt.MouseButton.NoButton}
+    monkeypatch.setattr(
+        QApplication, "mouseButtons",
+        staticmethod(lambda: buttons["held"]))
 
     class _Widget:
         def __init__(self):
@@ -384,6 +396,14 @@ def test_dragging_moves_the_view():
     pointer.sample(widget)
     pointer.sample(widget)
     assert pointer.drag_x == 0.0
+
+    # Pressing establishes the drag anchor; only movement while the button
+    # remains held pans the camera.
+    buttons["held"] = Qt.MouseButton.LeftButton
+    pointer.sample(widget)
+    assert pointer.drag_x == 0.0
+    pointer.sample(widget)
+    assert pointer.drag_x == pytest.approx(0.2)
 
 
 def test_the_drag_accumulates_rather_than_being_assigned():
