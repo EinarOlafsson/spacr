@@ -1814,10 +1814,11 @@ class FigureQueue(QWidget):
             LOG.debug("spilled figure #%d from RAM (PNG kept)", old_idx)
 
     def live_figure_cap(self) -> int:
-        """How many recent figures keep their live matplotlib Figure."""
+        """How many recent figures this machine profile keeps editable."""
         try:
-            from ..preferences import get_figure_live_cache
-            return int(get_figure_live_cache())
+            from ..preferences import live_figure_allowance
+
+            return int(live_figure_allowance())
         except Exception:  # pragma: no cover - headless / no QSettings
             return 20
 

@@ -45,6 +45,21 @@ def test_the_live_figure_cap_is_the_users_number(queue, monkeypatch):
     assert not any(queue.has_live_figure(i) for i in range(0, 5))
 
 
+@pytest.mark.parametrize(
+    ("level", "expected"),
+    [("laptop", 5), ("balanced", 20), ("workstation", 50)],
+)
+def test_the_live_cap_obeys_the_active_machine_profile(
+        queue, monkeypatch, level, expected):
+    """The performance level governs the real FigureQueue, not only a label."""
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "get_figure_live_cache", lambda: 20)
+    monkeypatch.setattr(preferences, "get_performance_level", lambda: level)
+
+    assert queue.live_figure_cap() == expected
+
+
 def test_an_evicted_figure_is_still_viewable(queue, monkeypatch):
     """Releasing the Figure must not lose the figure."""
     monkeypatch.setattr(queue, "live_figure_cap", lambda: 3)
