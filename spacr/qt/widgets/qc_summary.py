@@ -146,7 +146,7 @@ def _read_segmentation(src: Any, reader=None) -> QCCard:
         if reader is None:
             from ...seg_qc import read_digest as reader
         digest = reader(src)
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception as exc:  # defensive
         card.verdict = "error"
         card.headline = f"Could not read the segmentation scorecards: {exc}"
         return card
@@ -177,7 +177,7 @@ def _flag_explanations(scorecards: Sequence[Any]) -> List[str]:
     """
     try:
         from ...seg_qc import FLAG_GUIDANCE, explain_flag
-    except Exception:  # pragma: no cover - defensive
+    except Exception:  # defensive
         return []
     seen: List[str] = []
     for scorecard in scorecards:
@@ -237,7 +237,7 @@ def _read_leakage(src: Any) -> QCCard:
     try:
         from ...classifier_evaluation import EVALUATION_FILES
         name = EVALUATION_FILES["leakage"]
-    except Exception:  # pragma: no cover - defensive
+    except Exception:  # defensive
         name = "leakage.json"
     path, mtime = _newest_under(root, name)
     if not path:
@@ -248,6 +248,9 @@ def _read_leakage(src: Any) -> QCCard:
     card.source, card.mtime = path, mtime
     try:
         payload = json.loads(open(path, encoding="utf-8").read())
+        if not isinstance(payload, dict):
+            raise TypeError(
+                f"expected a JSON object, found {type(payload).__name__}")
     except Exception as exc:
         card.verdict = "error"
         card.headline = f"Could not read {os.path.basename(path)}: {exc}"
@@ -327,7 +330,7 @@ def _read_units(src: Any) -> QCCard:
 
     try:
         from ...measurement_schema import MEASUREMENT_STAMP_COLUMNS
-    except Exception:  # pragma: no cover - defensive
+    except Exception:  # defensive
         MEASUREMENT_STAMP_COLUMNS = ("measurement_ndim", "measurement_units")
 
     try:
@@ -417,6 +420,9 @@ def _read_plate(src: Any) -> QCCard:
     card.source, card.mtime = path, mtime
     try:
         payload = json.loads(open(path, encoding="utf-8").read())
+        if not isinstance(payload, dict):
+            raise TypeError(
+                f"expected a JSON object, found {type(payload).__name__}")
     except Exception as exc:
         card.verdict = "error"
         card.headline = f"Could not read {os.path.basename(path)}: {exc}"
@@ -452,6 +458,9 @@ def _read_agreement(src: Any) -> QCCard:
     card.source, card.mtime = path, mtime
     try:
         payload = json.loads(open(path, encoding="utf-8").read())
+        if not isinstance(payload, dict):
+            raise TypeError(
+                f"expected a JSON object, found {type(payload).__name__}")
     except Exception as exc:
         card.verdict = "error"
         card.headline = f"Could not read {os.path.basename(path)}: {exc}"
