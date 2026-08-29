@@ -96,6 +96,50 @@ jobs:
       - name: twine check
         run: python -m twine check dist/*
 
+      - name: Install and run the built wheel and sdist
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=$(python packaging/release.py version)
+          wheel=$(find dist -maxdepth 1 -type f -name '*.whl' -print -quit)
+          sdist=$(find dist -maxdepth 1 -type f -name '*.tar.gz' -print -quit)
+          test -n "$wheel"
+          test -n "$sdist"
+
+          for artifact in "$wheel" "$sdist"; do
+            artifact_name=$(basename "$artifact")
+            environment="$RUNNER_TEMP/spacr-artifact-${artifact_name//[^A-Za-z0-9]/-}"
+            python -m venv "$environment"
+            "$environment/bin/python" -m pip install --upgrade pip
+            "$environment/bin/python" -m pip install --no-deps "$artifact"
+
+            EXPECTED_VERSION="$expected" SPACR_DISABLE_PLUGINS=1 \
+              "$environment/bin/python" -I - <<'PY'
+          import importlib.metadata
+          import os
+          import site
+          from pathlib import Path
+
+          import spacr
+
+          installed = Path(spacr.__file__).resolve()
+          roots = tuple(Path(path).resolve() for path in site.getsitepackages())
+          assert any(installed.is_relative_to(root) for root in roots), (
+              f"spacr resolved outside the isolated install: {installed}"
+          )
+          assert spacr.__version__ == os.environ["EXPECTED_VERSION"]
+          assert importlib.metadata.version("spacr") == spacr.__version__
+          print(f"installed {spacr.__version__} from {installed}")
+          PY
+
+            version=$(SPACR_DISABLE_PLUGINS=1 \
+              "$environment/bin/spacr-run" --version)
+            test "$version" = "$expected"
+            listing=$(SPACR_DISABLE_PLUGINS=1 \
+              "$environment/bin/spacr-run" --list)
+            grep -q '^  measure' <<<"$listing"
+          done
+
       - name: Assert the built metadata carries Requires-Python
         # The regression this guards: setup.py used to declare no
         # python_requires at all, and pyproject.toml was three lines of
