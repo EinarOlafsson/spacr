@@ -56,8 +56,8 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPoint, QRect, QSettings
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import (QApplication, QMainWindow, QStackedWidget,
-                               QWidget)
+from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow,
+                               QStackedWidget, QWidget)
 
 from spacr.qt import preferences as prefs
 
@@ -645,28 +645,31 @@ def test_the_probe_can_see_the_black_pane(qtbot, app_theme_restored,
         "made the running app black")
 
 
-def test_a_late_registered_block_reaches_a_styled_application(qt_theme_applied):
-    """The seam that made the fix invisible in the running app.
+def test_a_late_registered_block_reaches_the_app_before_its_first_widget(
+        qtbot, qt_theme_applied):
+    """The registration seam closes the first-paint race synchronously.
 
     ``app.py`` imports a screen's module inside the branch that builds it,
     which is long after the launch stylesheet was generated — so a block
     registered at module import is not in the sheet that is live, and the
-    screen opens unstyled however correct its rule is.
-    :func:`spacr.qt.theme.ensure_widget_qss_applied` is what closes it, and
-    this is the case it exists for.
+    screen used to open unstyled however correct its rule was.  Registration
+    happens above the module's widget class, so it must update the live sheet
+    before construction can reach that class.
     """
     from spacr.qt.theme import ensure_widget_qss_applied, register_widget_qss
 
     name = "_TestLateBlock"
+    assert name not in qt_theme_applied.styleSheet(), (
+        "the fixture's stylesheet must predate this registration")
     register_widget_qss(name, lambda palette, opacity:
                         "QLabel#_TestLateBlock { color: #ff00ff; }",
                         replace=True)
     try:
-        assert name not in qt_theme_applied.styleSheet(), (
-            "the fixture's stylesheet predates this registration; that is "
-            "the whole premise")
-        assert ensure_widget_qss_applied(name) is True
         assert name in qt_theme_applied.styleSheet()
+        # Only now can the first widget from the late module be constructed.
+        widget = QLabel()
+        widget.setObjectName(name)
+        qtbot.addWidget(widget)
         # Idempotent: a second call has nothing to fix.
         assert ensure_widget_qss_applied(name) is False
     finally:

@@ -10,10 +10,13 @@ A row does not need the screen any more. :mod:`spacr.qt.app_catalog` declares
 the key, the name, the sentence, the section, the stage and the NAME of the
 screen factory, and :func:`spacr.qt.app_catalog.register_declared` registers
 all of that without importing anything; the screen is imported the first time
-somebody opens it. A screen that contributes a stylesheet block still has to
-be executed before the first sheet is composed, and that list is
-:data:`spacr.qt.theme.WIDGET_QSS_MODULES`, which loads them at that moment.
+somebody opens it. A screen that contributes a stylesheet block registers it
+at that import, and :func:`spacr.qt.theme.register_widget_qss` puts it into the
+live application sheet synchronously, before its first widget is constructed.
+:data:`spacr.qt.theme.WIDGET_QSS_MODULES` remains the inventory used when an
+exhaustive/static stylesheet is explicitly requested.
 
 So: to add a screen, declare its row in ``app_catalog`` and — if it registers
-a QSS block — name it in ``WIDGET_QSS_MODULES``. Do not import it here.
+a QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain
+complete. Do not import it here merely for startup styling.
 """

@@ -3087,10 +3087,12 @@ _WIDGET_QSS: Dict[str, object] = {}
 
 #: Every module that registers a widget QSS block **at import time**.
 #:
-#: These modules must be imported before the application stylesheet is
-#: composed; otherwise their widgets fall through to the generic background
-#: rule until a later stylesheet rebuild. Order follows registration order,
-#: with later rules winning ties.
+#: This is the exhaustive/static stylesheet inventory.  The public
+#: :func:`stylesheet` default imports it so documentation, screenshots and
+#: callers that request one complete sheet retain that contract.  Production
+#: startup skips the imports: a module's own :func:`register_widget_qss` call
+#: synchronously updates the already-live sheet when that screen is opened.
+#: Order follows registration order, with later rules winning ties.
 WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.settings_search",
     "spacr.qt.screens.annotate",
@@ -3116,8 +3118,8 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
     # The fold page strip every module screen grows when a fold is opened.
-    # A page can be opened long after launch, so the module re-applies the
-    # sheet then as well -- but the block belongs in the first sheet too.
+    # A page can be opened long after launch, so its import-time registration
+    # updates the live sheet then; exhaustive sheets include it up front too.
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
@@ -3153,14 +3155,24 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
 )
 
 _QSS_REGISTRARS_LOADED = False
+# True only while the explicit exhaustive loader is walking the registrar
+# modules.  Registrations made during that walk are collected by the outer
+# ``stylesheet()`` call; trying to restyle after every import would turn one
+# sweep into dozens of nested preference applications.
+_QSS_REGISTRARS_LOADING = False
+# A late registrar can arrive while a preference application is already
+# rebuilding the sheet (field fade does exactly that).  The outer rebuild
+# will include it, so a recursive rebuild is both unnecessary and unsafe.
+_QSS_RESTYLE_IN_PROGRESS = False
 
 
 def load_widget_qss_registrars() -> Tuple[str, ...]:
     """Import :data:`WIDGET_QSS_MODULES` so their blocks are registered.
 
-    Called from :func:`stylesheet` before it composes anything, so the very
-    first sheet of a session carries every rule rather than acquiring them
-    as screens happen to be opened.
+    Called by the exhaustive/default :func:`stylesheet` path before it
+    composes anything.  The production preference path opts out so unopened
+    data screens do not import their scientific dependencies merely to
+    contribute decoration.
 
     Idempotent, and the flag is set BEFORE the imports rather than after:
     several of these modules call :func:`stylesheet` while being imported,
@@ -3172,27 +3184,36 @@ def load_widget_qss_registrars() -> Tuple[str, ...]:
 
     :returns: the module names that imported cleanly.
     """
-    global _QSS_REGISTRARS_LOADED
+    global _QSS_REGISTRARS_LOADED, _QSS_REGISTRARS_LOADING
     if _QSS_REGISTRARS_LOADED:
         return ()
     _QSS_REGISTRARS_LOADED = True
+    _QSS_REGISTRARS_LOADING = True
 
     import importlib
 
     loaded = []
-    for name in WIDGET_QSS_MODULES:
-        try:
-            importlib.import_module(name)
-        except Exception:
-            LOG.debug("could not load the widget QSS in %s", name,
-                      exc_info=True)
-        else:
-            loaded.append(name)
+    try:
+        for name in WIDGET_QSS_MODULES:
+            try:
+                importlib.import_module(name)
+            except Exception:
+                LOG.debug("could not load the widget QSS in %s", name,
+                          exc_info=True)
+            else:
+                loaded.append(name)
+    finally:
+        _QSS_REGISTRARS_LOADING = False
     return tuple(loaded)
 
 
 def register_widget_qss(name: str, fn, *, replace: bool = False):
     """Register a QSS block appended to every generated stylesheet.
+
+    If a ``QApplication`` already carries a spaCR stylesheet and the block is
+    not in it, registration synchronously rebuilds that live sheet.  Screen
+    modules register before defining their widget class, which closes the
+    first-paint race without importing unopened screens at startup.
 
     :param name: stable identifier, normally the widget's ``objectName``.
         It is what the block is reported and unregistered by; it does not
@@ -3235,6 +3256,14 @@ def register_widget_qss(name: str, fn, *, replace: bool = False):
             f"widget QSS {name!r} is already registered; pass replace=True "
             "if that is really what you mean")
     _WIDGET_QSS[name] = fn
+    # Production startup deliberately does not import every screen merely to
+    # harvest its stylesheet.  When one of those modules is imported later,
+    # registration happens before its widget class can be constructed; make
+    # the block live synchronously at this seam so the widget's first paint is
+    # styled.  The exhaustive loader has its own outer composition and must
+    # not re-apply once per module.
+    if not _QSS_REGISTRARS_LOADING:
+        ensure_widget_qss_applied(name)
     return fn
 
 
@@ -3257,12 +3286,12 @@ _WIDGET_QSS_MARKER = "/* --- registered widget QSS: {name} --- */"
 def ensure_widget_qss_applied(*names: str) -> bool:
     """Re-apply the application stylesheet if ``names`` are missing from it.
 
-    The registration seam has one seam of its own, and it is silent. A block
-    is registered at its module's **import**, and the application stylesheet
-    is generated **once at launch**, before ``MainWindow`` exists. A screen
-    that ``app.py`` imports lazily — inside the ``if key == …`` branch that
-    builds it — therefore registers its block minutes after the only
-    stylesheet that would have carried it, and the screen opens unstyled.
+    A block is registered at its module's **import**, while the application
+    stylesheet is first generated before ``MainWindow`` exists.  Production
+    startup intentionally leaves unopened screen modules unimported, so
+    :func:`register_widget_qss` calls this synchronously as each one arrives.
+    Registration is above the module's widget class: the rebuilt sheet is
+    therefore live before the first instance can be constructed or painted.
 
     That is not hypothetical: Model Compare's panels were given a page
     surface, the test that measures them passed (a test imports the module
@@ -3272,13 +3301,17 @@ def ensure_widget_qss_applied(*names: str) -> bool:
     ``spacr.qt.SELF_REGISTERING_MODULES`` are imported at launch and never
     had the problem, which is why it went unnoticed for as long as it did.
 
-    Call this from the constructor of a screen whose module registers a
-    block. It is a no-op in every case except the one it exists for: no
-    ``QApplication``, no stylesheet yet, or the block already present.
+    Existing constructor calls remain useful, idempotent defence for blocks
+    registered from inside functions.  It is a no-op with no
+    ``QApplication``, no stylesheet yet, a rebuild already in progress, or
+    when every requested block is already present.
 
     :param names: registered block names the caller needs to be live.
     :returns: ``True`` if the stylesheet was regenerated.
     """
+    global _QSS_RESTYLE_IN_PROGRESS
+    if _QSS_RESTYLE_IN_PROGRESS:
+        return False
     try:
         from PySide6.QtWidgets import QApplication
     except Exception:  # pragma: no cover - PySide6 is a hard dependency here
@@ -3298,11 +3331,14 @@ def ensure_widget_qss_applied(*names: str) -> bool:
         from .preferences import apply_preferences_to_app
     except Exception:
         return False
+    _QSS_RESTYLE_IN_PROGRESS = True
     try:
         apply_preferences_to_app(app)
     except Exception:
         LOG.exception("Could not re-apply the stylesheet for %s", names)
         return False
+    finally:
+        _QSS_RESTYLE_IN_PROGRESS = False
     return True
 
 
@@ -3416,7 +3452,8 @@ def registered_widget_qss(palette: dict,
 
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
                background: Optional[str] = None,
-               surface_opacity: Optional[float] = None) -> str:
+               surface_opacity: Optional[float] = None, *,
+               load_widget_registrars: bool = True) -> str:
     """Return the QSS string that styles every custom widget in the app.
 
     Blocks registered with :func:`register_widget_qss` are appended after
@@ -3431,13 +3468,19 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
         first run mid-generation gets) falls back to a flat gradient.
     :param surface_opacity: optional user-requested alpha for all shared
         module surfaces. ``None`` uses the theme's designed scrims.
+    :param load_widget_registrars: import every module that contributes a
+        widget block before composing.  This remains the public default for
+        exhaustive callers and tests.  Application startup passes ``False``
+        so an unopened data screen cannot pull the scientific stack into the
+        first frame; a late :func:`register_widget_qss` applies itself before
+        that screen's first widget can be constructed.
     """
     base = palette_for(theme)
-    # Before anything is composed: a block that is not registered yet is
-    # not in the sheet, and its widget falls through to the blanket
-    # `QWidget { background-color: bg }` -- black on the dark theme. See
-    # `WIDGET_QSS_MODULES`.
-    load_widget_qss_registrars()
+    # Exhaustive callers get every known block in one static sheet.  The live
+    # application opts out and lets `register_widget_qss` install a module's
+    # block synchronously when that module is first opened.
+    if load_widget_registrars:
+        load_widget_qss_registrars()
 
     S = SPACING
     R = RADIUS
