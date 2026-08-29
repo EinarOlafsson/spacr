@@ -109,9 +109,43 @@ places where that is impossible without deleting working defensive code, and
 that decision belongs to a human.
 
 --------------------------------------------------------------------------------
+3b. FURTHER PRAGMAS PROVED UNREACHABLE, LEFT IN PLACE
+--------------------------------------------------------------------------------
+
+  * spacr/data_manager.py:333 -- ``return f"{value:.1f} PB"`` after the loop in
+    ``human_bytes``. The loop is
+    ``for unit in ("B", ..., "PB"): if abs(value) < 1000.0 or unit == "PB":
+    return ...``. On the final iteration the ``unit == "PB"`` disjunct is
+    unconditionally true, so the loop cannot complete -- including for NaN,
+    where ``abs(nan) < 1000.0`` is False but the disjunct still returns.
+    Deleting the line would make loop completion return None instead, so it
+    stays.
+  * spacr/database_concurrency.py:281 -- the ``else:`` on the BEGIN retry loop.
+    ``attempts = max(1, int(attempts))`` and the body either breaks, re-raises
+    a non-busy error, or raises DatabaseBusy when ``attempt == attempts``,
+    which is guaranteed on the last iteration. The loop cannot fall through.
+  * spacr/layers.py:1223->1225 -- ``CanvasLink.lock()``'s ``if leader is not
+    None:``. ``_leader()`` is called immediately after ``_locked[str(key)] =
+    True``, and ``self[key]`` has already raised unless the key exists, so a
+    leader always exists. Verified empirically across every route into
+    ``lock()``. This one has NO pragma; it is simply an uncoverable arc.
+    Deleting the guard would reach 100% and was DECLINED: it mirrors the guard
+    in ``add()``, where the same condition is genuinely reachable.
+
+--------------------------------------------------------------------------------
 4. SMALLER OBSERVATIONS
 --------------------------------------------------------------------------------
 
+  * spacr/database_concurrency.py ``_run_probe`` (739-742, 771) -- the final
+    ``if thread.is_alive()`` re-check can suppress the "did not finish within
+    30 seconds" error, but the ``alive`` list it re-checks is not rebuilt, so
+    ``if temporary_dir is not None and not alive`` still keeps the scratch
+    database. A worker that finishes inside the join window therefore produces
+    a clean result AND a leftover temporary directory. Harmless in effect, but
+    the docstring says the survivor is "a worker that outlives the join
+    deadline", which is not what the code does. Current behaviour is pinned by
+    a test, so a deliberate fix will surface as a failing assertion rather
+    than silently.
   * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
     lists a subclass beside its base; ``OSError`` alone is equivalent.
   * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
