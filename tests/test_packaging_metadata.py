@@ -695,6 +695,9 @@ def test_the_default_fractal_renderer_is_core_and_bundled():
         encoding="utf-8")
     assert '"vispy"' in spec
 
+    manifest = (REPO_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    assert "include packaging/spacr.spec" in manifest
+
 
 @pytest.mark.parametrize(
     "banned, why",
