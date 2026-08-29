@@ -322,7 +322,11 @@ dependencies = [
     # unexpected keyword argument 'rng'`, which is what the min-deps job hit.
     # 0.47.0 publishes cp39 wheels, so the floor stays reachable on 3.9.
     'shap>=0.47.0,<1.0',
-    'torch>=2.0,<3.0',
+    # PyTorch stopped publishing Intel-macOS wheels after CPython 3.12.  Keep
+    # the rest of spaCR installable on that interpreter/platform pair instead
+    # of asking pip to resolve an artifact that does not exist. Apple silicon,
+    # Windows and Linux retain the normal dependency.
+    'torch>=2.0,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13"',
     # THE THREE REGRESSION BACKENDS THAT COST NOTHING TO SHIP (220).
     # Measured 2026-08-21 rather than estimated:
     #
@@ -368,7 +372,7 @@ dependencies = [
     # `model_name='maxvit_t'` (0.14.0). torchvision pins torch exactly, and
     # 0.15.x is the release built against torch 2.0 — so `torch>=2.0` above
     # already implies 0.15. This line now says that instead of implying it.
-    'torchvision>=0.15,<1.0',
+    'torchvision>=0.15,<1.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13"',
     # `torch-geometric`, `transformers`, `segmentation_models_pytorch` and
     # `monai` REMOVED: zero imports, zero string references, zero dynamic
     # references. Together they were the four most expensive names on the
@@ -427,6 +431,16 @@ dependencies = [
     'PySide6>=6.6,<7',
     'qtawesome>=1.3,<2',
     'pyqtgraph>=0.13.3,<1',
+    # Pure-Python arbitrary precision used by the selectable Mandelbrot
+    # backdrop.  That pattern is offered by the installed desktop app, so it
+    # must not depend on SymPy happening to bring mpmath transitively.
+    'mpmath>=1.3,<2',
+    # The shipped backdrop defaults to the Mandelbrot deep zoom, whose shader
+    # is implemented with VisPy/gloo. VisPy is imported only when a backdrop
+    # is constructed, so declaring its wheel here makes the documented/default
+    # GUI complete without adding work to ``import spacr`` or configuration
+    # screens. Headless machines still take the guarded CPU fallback.
+    'vispy>=0.14,<1.0',
     'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     # KEPT despite zero imports, and deliberately so. Both are pandas'
@@ -818,7 +832,9 @@ setup(
         # (timelapse_mode='trackastra'). Optional because it pulls its own
         # pretrained weights on first use; trackpy/btrack/iou stay available
         # without it. BSD-3, PyTorch-only, no TensorFlow.
-        'trackastra': ['trackastra>=0.5,<1.0'],
+        'trackastra': [
+            'trackastra>=0.5,<1.0; python_version >= "3.10"',
+        ],
         # `pip install spacr[ultrack]` — global-optimisation object tracking
         # (timelapse_mode='ultrack'). Kept alongside trackastra rather than
         # replacing it: ultrack solves segmentation and linking as one integer
@@ -826,13 +842,13 @@ setup(
         # is the better zero-config generalist. Optional because it brings an
         # ILP solver and a database backend. BSD-3, no TensorFlow.
         #
-        # Not installable on Python 3.13: every ultrack release from 0.1.0
-        # through 0.7.2 declares `requires-python >=3.9,<3.13` (checked
-        # 2026-07-27). pip refuses cleanly, naming the Python version, so a
-        # 3.13 user gets a sentence rather than a traceback — but it is why
-        # `spacr[all]` cannot be installed on 3.13 either. Use
-        # `timelapse_mode='trackastra'` there; trackastra has no such ceiling.
-        'ultrack': ['ultrack>=0.6,<1.0'],
+        # Ultrack 0.8 adds Python 3.13 support and retains an explicit <3.14
+        # ceiling.  The marker makes requesting the extra on 3.14 a clean
+        # no-op instead of an unsatisfiable installation; spaCR's other
+        # tracking modes remain available there.
+        'ultrack': [
+            'ultrack>=0.6,<1.0; python_version < "3.14"',
+        ],
         # `pip install spacr[attribution]` — the five torchcam CAM variants
         # (gradcam, gradcam_pp, scorecam, xgradcam, layercam) in
         # spacr/attribution.py. Optional for exactly one reason, and it is a
@@ -976,6 +992,10 @@ setup(
             'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
+        # Backwards-compatible feature spelling. VisPy is now core because the
+        # installed application's DEFAULT_PATTERN needs it, but keeping the
+        # extra means existing ``spacr[fractal]`` commands remain valid.
+        'fractal': ['vispy>=0.14,<1.0'],
         # `spacr-tutorial` — renders narrated MP4 tutorials for every
         # module. ffmpeg is required at runtime (system package) and a
         # Piper voice model is fetched on first run.
@@ -1153,24 +1173,10 @@ setup(
         # of the extras it claims to aggregate, so it cannot drift.
         #
         # ---------------------------------------------------------------
-        # `spacr[all]` DOES NOT INSTALL ON PYTHON 3.13, and the reason is not
-        # anything above. It is `ultrack`: every release from 0.1.0 through
-        # 0.7.2 declares `requires-python >=3.9,<3.13`, so pip on 3.13 says
-        #
-        #     ERROR: Ignored the following versions that require a different
-        #     python version: ... 0.7.2 Requires-Python >=3.9,<3.13
-        #     ERROR: No matching distribution found for ultrack<1.0,>=0.6
-        #
-        # (measured 2026-07-27, CPython 3.13.14). That is upstream's ceiling,
-        # not ours, and it is a CLEAN refusal — which is precisely why
-        # torchcam is still excluded above even though `all` is already
-        # unusable on 3.13: a clean "requires a different python version" is a
-        # message a user can act on, and a numpy source build is not. When
-        # ultrack ships a 3.13 release this note comes out and `all` works
-        # again with no other change.
-        #
-        # On 3.13 use `spacr[qt,tutorial,trackastra,boosting,czi,nd2,lif,zernike]`,
-        # which is `all` minus ultrack, or simply `spacr[qt,zernike]`.
+        # Ultrack 0.8 now supports Python 3.13 and declares <3.14. Trackastra
+        # declares >=3.10. Their markers below keep ``all`` resolvable at both
+        # ends of spaCR's 3.9--3.14 range while installing each tracker where
+        # upstream actually supports it.
         #
         # `spacr[all]` also pulls mahotas, which has no cp313 wheel and builds
         # from sdist. That one is deliberate and fine — asking for
@@ -1188,10 +1194,11 @@ setup(
             # `pip install spacr[qt]`, which is the one thing the name of
             # this extra promises cannot happen.
             'pyqtgraph>=0.13.3,<1',
+            'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
-            'trackastra>=0.5,<1.0',
-            'ultrack>=0.6,<1.0',
+            'trackastra>=0.5,<1.0; python_version >= "3.10"',
+            'ultrack>=0.6,<1.0; python_version < "3.14"',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
             'pylibCZIrw>=5.0.0,<7.0',

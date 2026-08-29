@@ -639,36 +639,61 @@ def test_attribution_extra_is_not_in_all():
     )
 
 
-def test_the_python_313_limits_of_the_extras_are_written_down():
-    """Two extras cannot be installed on Python 3.13, and both are upstream.
-
-    This test does not assert the limitation — it asserts that the limitation
-    is *documented next to the pin*, because the failure mode it guards is
-    somebody re-deriving it from a confusing pip error six months from now.
-    Both were measured in a throwaway CPython 3.13.14 env on 2026-07-27:
-
-    * ``ultrack`` — every release from 0.1.0 through 0.7.2 declares
-      ``requires-python >=3.9,<3.13``. pip refuses cleanly. This is what makes
-      ``spacr[all]`` uninstallable on 3.13, *not* torchcam.
-    * ``torchcam`` — declares ``numpy<2.0.0``, which has no cp313 wheel, so a
-      plain install backtracks into a numpy 1.26.4 source build.
-
-    Neither is a spaCR bug and neither blocks ``pip install spacr``, which is
-    the promise that matters and which resolves entirely to wheels on 3.13.
-    """
+def test_the_torchcam_python_313_limit_is_written_down():
+    """The attribution extra's upstream NumPy ceiling remains documented."""
     src = SETUP_PY.read_text(encoding="utf-8")
-    for needle, why in (
-        ("requires-python >=3.9,<3.13",
-         "ultrack's own Python ceiling, which is what stops spacr[all] on 3.13"),
-        ("numpy<2.0.0",
-         "torchcam's spurious numpy pin, the reason it is an extra at all"),
-    ):
-        assert needle in src, (
-            f"setup.py no longer documents {needle!r} ({why}). If the upstream "
-            f"limitation is gone, say so and widen the extra; do not just "
-            f"delete the note — the next person will hit the same pip error "
-            f"with no explanation."
-        )
+    assert "numpy<2.0.0" in src, (
+        "setup.py no longer documents torchcam's spurious NumPy pin. If the "
+        "upstream limitation is gone, widen the extra with resolver evidence; "
+        "do not silently delete the reason it remains outside `all`."
+    )
+
+
+def test_tracker_extras_follow_their_upstream_python_ranges():
+    """The aggregate extra resolves on 3.9 through 3.14.
+
+    Trackastra requires Python 3.10 or newer. Ultrack 0.8 supports 3.13 but
+    declares a strict Python 3.14 ceiling. The same markers must appear in the
+    named extra and the spelled-out ``all`` union.
+    """
+    from packaging.requirements import Requirement
+
+    extras = _extras()
+    expected = {
+        "trackastra": 'python_version >= "3.10"',
+        "ultrack": 'python_version < "3.14"',
+    }
+    for name, marker in expected.items():
+        for extra in (name, "all"):
+            matches = [Requirement(spec) for spec in extras[extra]
+                       if _name_of(spec) == name]
+            assert len(matches) == 1, f"{extra}: expected one {name} pin"
+            assert str(matches[0].marker) == marker
+
+
+def test_intel_macos_313_does_not_request_nonexistent_torch_wheels():
+    """Core metadata excludes only the unsupported Intel-macOS combination."""
+    from packaging.requirements import Requirement
+
+    for name in ("torch", "torchvision"):
+        matches = [Requirement(spec) for spec in _core_dependencies()
+                   if _name_of(spec) == name]
+        assert len(matches) == 1
+        marker = str(matches[0].marker)
+        assert 'sys_platform != "darwin"' in marker
+        assert 'platform_machine != "x86_64"' in marker
+        assert 'python_version < "3.13"' in marker
+
+
+def test_the_default_fractal_renderer_is_core_and_bundled():
+    """A documented install and a PyInstaller app both contain VisPy."""
+    core = {_name_of(spec) for spec in _core_dependencies()}
+    assert "vispy" in core
+    assert any(_name_of(spec) == "vispy" for spec in _extras()["fractal"])
+
+    spec = (REPO_ROOT / "packaging" / "spacr.spec").read_text(
+        encoding="utf-8")
+    assert '"vispy"' in spec
 
 
 @pytest.mark.parametrize(
@@ -801,8 +826,9 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     """
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
-    aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
-                  "czi", "nd2", "lif", "zernike", "btrack", "anndata")
+    aggregated = ("qt", "fractal", "tutorial", "trackastra", "ultrack",
+                  "boosting", "czi", "nd2", "lif", "zernike", "btrack",
+                  "anndata")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"

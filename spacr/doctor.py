@@ -1108,6 +1108,7 @@ def check_core_dependencies(ctx: Context) -> Result:
 #: Extras whose absence is normal but whose *partial* presence is not.
 OPTIONAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "qt": ("PySide6", "qtawesome"),
+    "fractal": ("vispy",),
     "umap": ("umap-learn",),
     "boosting": ("catboost", "lightgbm"),
     "czi": ("pylibCZIrw", "czifile"),
