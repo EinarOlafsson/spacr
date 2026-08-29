@@ -24,11 +24,20 @@ from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QRectF, Qt
 from PySide6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
-from PySide6.QtWidgets import (QAbstractItemView, QAbstractSpinBox,
-                               QApplication, QComboBox, QLineEdit)
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QAbstractSpinBox,
+    QApplication,
+    QComboBox,
+    QLineEdit,
+)
 
-from ..theme import (FIELD_FADE_STOPS, field_chrome, field_fade_alpha,
-                     register_widget_qss)
+from ..theme import (
+    FIELD_FADE_STOPS,
+    field_chrome,
+    field_fade_alpha,
+    register_widget_qss,
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -226,6 +235,11 @@ class _FieldFadeFilter(QObject):
             return False
         if not field_fade_enabled() or not fades(obj):
             return False
+        # A child wrapper does not keep its top-level Python owner reachable.
+        # If cyclic GC collects that owner while a painter is active, Qt
+        # deletes the child's native paint device and ``QPainter.end()``
+        # segfaults. Keep the owner alive until the native painter is closed.
+        paint_owner = obj.window()
         painter = None
         try:
             painter = QPainter(obj)
@@ -243,6 +257,7 @@ class _FieldFadeFilter(QObject):
             # later, which is a blank field rather than an unstyled one.
             if painter is not None and painter.isActive():
                 painter.end()
+            del paint_owner
         # False, always: the widget still has to draw its text on top.
         return False
 
