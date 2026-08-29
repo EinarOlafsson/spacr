@@ -1,0 +1,243 @@
+================================================================================
+SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
+OPERATING SYSTEM AND EVERY PYTHON FROM 3.9 UP
+================================================================================
+
+Status:    OPEN, filed 2026-08-29. RELEASE-BLOCKING for 1.5.0.5.
+Owner:     packaging. Filed by the coverage session; it has NOT edited setup.py,
+           packaging/ or any workflow, and will not. This item is entirely the
+           packaging session's to execute.
+Requested: 2026-08-29 -- "we added a bunch of themes to spacrs spaceout mode.
+           are all the dependenceies included in setup.py to make sure all of
+           these run on other machines?" and "make sure it knows to change
+           setup.py to accommodate the new dependencies and make fixes to
+           setup.py so that spacr runns on all operating systems and on all
+           versions of python beyond 3.9."
+Relates:   305 (installed package loads and runs optimally) owns startup and
+           resource budgets; this item owns what the metadata DECLARES. They
+           overlap in setup.py, so land them in one working tree, not two.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured 2026-08-29 by AST census, real interpreter runs and joint pip
+resolves. Findings below were each re-checked by an independent adversarial
+pass; one candidate finding was refuted and is recorded under DELIBERATELY
+NOT DONE so it is not re-derived.
+
+THE SPACEOUT THEMES. The whole backdrop chain -- spacr/qt/spaceout.py,
+spacr/qt/screensaver.py and spacr/qt/widgets/fractal_{travel,mandelbrot,
+space,cascade}.py, plus the modules they pull one level out -- imports exactly
+seven third-party top-level names: numpy, numba, llvmlite, mpmath, PySide6,
+psutil and vispy. Six are already in the core ``dependencies`` list. No
+OpenGL, PyOpenGL or glfw package is imported anywhere in the chain, and spaCR
+never imports QOpenGLWidget itself; that happens only inside vispy's own
+PySide6 backend, and QtOpenGLWidgets ships in PySide6-Essentials, so it is
+present for anyone who has PySide6 at all.
+
+vispy is the sole exception. It is declared only in ``extras_require['fractal']``
+(setup.py:986) and inside ``'all'`` (setup.py:1199). So ``pip install spacr``,
+``pip install "spacr[qt]"`` -- the GUI install README.rst:421 documents -- and
+``pip install -r requirements.txt`` all leave it out.
+
+A missing vispy does NOT crash, and that is by design and by request: the
+fallback to the CPU orbit fold is what was asked for. Verified empirically
+with a sys.meta_path finder that raises ImportError for vispy:
+``gpu_is_available()`` -> False, ``resolve_backend('auto')`` -> 'cpu',
+``pattern_for_this_machine('mandelbrot', *)`` -> 'orbit' for all three
+backends, ``create_fractal_widget()`` -> CpuFractalWidget for every backend
+argument, and both real entry points (``install_the_spaceout_fractal``,
+``install_ambient``) returned normally with no traceback, no signal and exit
+0. Every touch point is lazy and guarded: a non-importing
+``importlib.util.find_spec`` probe at fractal_travel.py:411 (wrapped 405-413),
+the only real import inside ``_make_gpu_widget`` at fractal_travel.py:1254
+(wrapped 1252-1261, re-raised as GpuBackendError), and a logging-quieting
+block at spacr/qt/__init__.py:91-102. There is no module-scope vispy import
+anywhere under spacr/.
+
+The defect is therefore not the fallback. It is that the fallback is
+UNIVERSAL. ``DEFAULT_PATTERN`` is ``"mandelbrot"``
+(spacr/qt/fractal_defaults.py:22), the one pattern with no CPU renderer, so
+every documented install ships a ``spaceout`` command whose own default theme
+cannot run, and silently draws the orbit fold instead. Nothing tells the user
+why, and nothing names the extra that fixes it.
+
+Three consequences make it worse than a default-value problem:
+
+  * THE DESKTOP BUNDLES CAN NEVER HAVE IT. All three packaging scripts
+    (packaging/build_{debian,macos,windows}.*) install core only, and
+    packaging/spacr.spec contains zero vispy references -- so PyInstaller
+    would not bundle it even if it were installed at build time. A user who
+    installs the shipped .deb, .dmg or .exe cannot obtain the GPU backdrop at
+    all, and has no pip environment in which to add the extra.
+  * ``spacr-doctor`` has no ``fractal`` row, so the one tool built to report
+    missing extras reports PASS while the GPU backdrop is unavailable.
+  * The Preferences backend note blames a missing vispy even when vispy IS
+    installed and the real cause is a headless platform, and in neither case
+    does it name ``pip install "spacr[fractal]"``.
+
+OPERATING SYSTEMS AND PYTHON VERSIONS. pyproject.toml:63 declares
+``requires-python = ">=3.9,<3.15,!=3.14.1"`` and the classifiers claim 3.9
+through 3.14. Three declared combinations cannot install:
+
+  * INTEL macOS on CPython 3.13 or 3.14: no torch or torchvision wheel exists,
+    so plain ``pip install spacr`` fails with "No matching distribution found
+    for torch<3.0,>=2.0". On 3.14 there is additionally no numba/llvmlite
+    wheel for that platform, so pip falls back to an llvmlite source build
+    needing LLVM 20 and cmake. Apple-silicon macOS is unaffected.
+  * ``pip install spacr[all]`` on CPython 3.14: ultrack has no release in the
+    declared ``>=0.6,<1.0`` range for 3.14.
+  * ``pip install spacr[all]`` or ``spacr[trackastra]`` on CPython 3.9: every
+    trackastra release requires >=3.10.
+
+And setup.py's own ``all`` note, plus a packaging test, still assert the now
+STALE claim that ultrack blocks Python 3.13. It no longer does. A 3.13 user is
+steered away from an extra that works, while the 3.14 user who actually hits
+the wall gets no warning.
+
+WHAT IS ALREADY GOOD, so it is not re-investigated. Measured on a real
+CPython 3.9.25 interpreter, not inferred: all 2,483 .py files in the repo
+compile; there are zero PEP 604 ``X | Y`` unions in runtime-evaluated
+annotations anywhere in the tree (all six spaceout/fractal modules carry
+``from __future__ import annotations``); no post-3.9 typing or stdlib API
+appears in spacr/ at all; no dataclass uses ``slots=`` or ``kw_only=``. The
+six fractal modules import, all four patterns build and render, and the
+repo's own 228 spaceout/fractal tests pass on 3.9.25. Separately, every core
+dependency resolves to a wheel on every claimed interpreter on Linux x86-64,
+Linux aarch64 and Windows x86-64, with zero source builds -- numba resolves to
+0.67.0 and llvmlite to 0.49.0, both publishing cp313 AND cp314 wheels, and
+vispy resolves to 0.16.2, which ships cp39 through cp314. The three
+sdist-only packages CI already exempts (trackpy, matplotlib-venn, GPUtil) are
+pure Python.
+
+WHAT NOTHING CHECKS. ``tests/test_declared_dependencies_match_imports.py`` is
+a live, working import census -- confirmed empirically to fire on an
+undeclared third-party import -- but it EXEMPTS all 272 files of spacr/qt/
+(line 186), on a justification setup.py has since falsified by moving
+PySide6, qtawesome and pyqtgraph into the core dependencies. No current
+offender hides behind that exemption; the hole is latent, not active. Beyond
+it, nothing asserts that a core-dependencies-only environment can import
+spaCR; the ``fractal`` extra is installed by no CI job, named by no code and
+asserted by no test; and .github/constraints/ holds exactly one file
+(minimum-py39.txt), so 20 of 26 extras have declared floors that nothing ever
+installs.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A dependency that is only ever present by accident is a dependency that
+disappears on someone else's machine, which is the whole question that was
+asked. Today the answer is that the spaceout themes' own default theme does
+not run on any documented install, and cannot run at all for desktop-installer
+users -- silently, with no diagnostic, on a feature that is the first thing a
+new user sees.
+
+Separately, spaCR's metadata promises six interpreters and every mainstream
+OS. Three of those promised combinations fail at ``pip install``. A
+requires-python range and a classifier list are a contract; a combination
+that cannot install is a broken one, and the failure lands on a user rather
+than on CI.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. DECIDE WHERE vispy BELONGS, THEN MAKE THE DEFAULT HONEST (setup.py)
+
+   Two defensible options; pick one deliberately rather than leaving today's
+   mismatch:
+
+   (a) Promote vispy to core ``dependencies``. It has wheels on cp39 through
+       cp314 on every supported platform, so it costs a wheel download and no
+       build. The default theme then runs on every documented install.
+   (b) Keep it an extra, and change ``DEFAULT_PATTERN``
+       (spacr/qt/fractal_defaults.py:22) to a pattern that HAS a CPU renderer,
+       so the shipped default is one the shipped dependencies can draw.
+
+   Do not ship the current combination, where the declared default requires a
+   package the documented install command does not provide.
+
+2. MAKE THE DESKTOP BUNDLES MATCH THE DECISION (packaging/)
+
+   If vispy becomes core, add it to packaging/spacr.spec's hiddenimports and
+   confirm all three build_* scripts install it; vispy loads its backend
+   dynamically, so PyInstaller will not find it by static analysis. If it
+   stays an extra, state in the item and in the installer docs that the
+   desktop bundles ship the CPU backdrop only -- a bundle user has no pip
+   environment and cannot add it later.
+
+3. FIX THE THREE UNINSTALLABLE COMBINATIONS (setup.py, pyproject.toml)
+
+   Add environment markers so the resolver never selects an impossible
+   combination, rather than narrowing requires-python and dropping
+   interpreters that otherwise work:
+     * torch/torchvision: exclude Intel macOS on 3.13+ with a marker on
+       platform_machine/sys_platform, or narrow the classifiers to match.
+     * ultrack in ``all``: add ``python_version < "3.14"``.
+     * trackastra in ``all`` and in its own extra: add
+       ``python_version >= "3.10"``.
+   Then delete the stale ultrack-blocks-3.13 claim from setup.py's ``all``
+   note and from the packaging test that asserts it, and replace it with the
+   3.14 fact.
+
+4. CLOSE THE CENSUS HOLE (tests/test_declared_dependencies_match_imports.py)
+
+   Remove the spacr/qt/ exemption at line 186 and delete the justification
+   that setup.py has falsified. Verified: there is no current offender, so
+   this should pass immediately. COORDINATE FIRST -- the packaging session
+   held 38 files under spacr/qt/ dirty on 2026-08-29, and a census over
+   half-edited files will fail confusingly. Land it when that tree is clean.
+
+5. ASSERT THE MINIMUM ENVIRONMENT, AND THE EXTRA
+
+   Add a test that a core-dependencies-only environment imports spaCR, since
+   that is the class of bug this whole item is about and nothing currently
+   catches it. Add a CI cell that installs ``spacr[fractal]`` and asserts the
+   GPU path is at least constructible, since no job installs that extra today.
+   Give ``spacr-doctor`` a ``fractal`` row, and make the Preferences backend
+   note name ``pip install "spacr[fractal]"`` and distinguish "vispy missing"
+   from "headless platform" -- it currently reports the former for both.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * In a fresh environment built from core dependencies only, on each of
+    CPython 3.9 through 3.14: ``pip install .`` succeeds, ``import spacr``
+    succeeds, and launching the backdrop draws the pattern
+    ``DEFAULT_PATTERN`` names -- not a silent substitute.
+  * ``pip install --dry-run --only-binary :all: ".[all]"`` resolves on 3.9,
+    3.13 and 3.14, and on Intel macOS for every interpreter the classifiers
+    claim. Every combination that cannot resolve is excluded by a marker
+    rather than failing at install time.
+  * ``tests/test_declared_dependencies_match_imports.py`` passes with the
+    spacr/qt/ exemption removed.
+  * A PyInstaller bundle built from packaging/spacr.spec launches the
+    backdrop on a machine with no spaCR pip environment, and the pattern it
+    draws matches the decision recorded in step 1.
+  * ``spacr-doctor`` reports the fractal extra's true state on both a core
+    install and a ``[fractal]`` install.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+REFUTED, do not re-derive: the claim that "no CI job installs core-only" is
+false. .github/workflows/compat-matrix.yml:342-347 (Linux py3.9 floor) and
+:382-388 (Linux py3.14) both set ``extras: "qt,dev"`` with experimental
+cells. The accurate statement is the narrower one recorded above: no job
+installs the ``fractal`` extra, and no test asserts a core-only import.
+
+NOT A DEPENDENCY PROBLEM: numba, llvmlite, vispy and mpmath all have 3.13 and
+3.14 builds inside spaCR's declared ranges. This was the first hypothesis and
+it is wrong; the wheel matrix is healthy. Do not widen or lower those bounds.
+
+NOT FIXED HERE: mahotas needs a compiler on 3.13/3.14 and pylibCZIrw on 3.14.
+Both are known, documented, and confined to optional extras that plain
+``pip install spacr`` does not pull.
+
+NOT TOUCHED: instructions/00_INDEX.txt has no row for this item, because the
+packaging session held that file dirty when this was filed. Add the row when
+that tree is clean.
