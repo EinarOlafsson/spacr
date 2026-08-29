@@ -244,7 +244,7 @@ class Colormap:
             out[..., c] = np.interp(t, self._stops, self._colors[:, c])
         return out
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
         return f"Colormap({self.name!r}, {len(self._colors)} stops)"
 
     def __eq__(self, other: Any) -> bool:
@@ -307,7 +307,7 @@ def colormap(spec: Any) -> Colormap:
             return COLORMAPS[key]
         if key in _NAMED_COLORS or key.startswith("#"):
             return _ramp(key, key)
-        try:  # pragma: no cover - depends on the installed matplotlib
+        try:  # depends on the installed matplotlib
             from matplotlib import colormaps as _mpl_colormaps
             mpl = _mpl_colormaps[key]
             samples = [tuple(mpl(v)[:3]) for v in np.linspace(0.0, 1.0, 16)]
@@ -1700,7 +1700,7 @@ class Layer:
         return (f"{self._name} ({self.kind}) · {self._blending} · "
                 f"{self._opacity:.0%}{vis}")
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
         return f"<{type(self).__name__} {self._name!r} {self.shape}>"
 
 
