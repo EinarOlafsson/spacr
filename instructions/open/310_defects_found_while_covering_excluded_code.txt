@@ -176,6 +176,20 @@ uncommented.
     deadline", which is not what the code does. Current behaviour is pinned by
     a test, so a deliberate fix will surface as a failing assertion rather
     than silently.
+  * spacr/crops.py ``_region_for`` -- the docstring still documents a ``None``
+    return the code can no longer produce. The ``binary_dilation(iterations=0)``
+    quirk that produced it was fixed by the ``if px > 0`` guard, so every path
+    now returns an ndarray. Confirmed by brute force over 57,600 field/spec
+    combinations: zero None regions. The stale sentence should go.
+  * tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name STARTED
+    FAILING during the 2026-08-29 session -- it is NOT pre-existing. The
+    offenders spell the name "SpaCR" at docs/source/installer_guide.rst:101
+    and :107, and tests/test_readme_presentation.py:313-319. Both are outside
+    the coverage session's lane. Lane: docs.
+  * spacr/fit_resources.py ``readable`` and spacr/mixed_gpu.py ``_readable``
+    are byte-identical implementations in two modules. Deduplicating them
+    would couple mixed_gpu to fit_resources, so it was left alone; noted only
+    so the duplication is a decision rather than an accident.
   * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
     lists a subclass beside its base; ``OSError`` alone is equivalent.
   * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
