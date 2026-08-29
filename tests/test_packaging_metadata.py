@@ -744,6 +744,20 @@ def test_ci_installs_and_runs_both_built_distribution_formats():
     assert '"$environment/bin/spacr-run" --list' in workflow
 
 
+def test_built_artifacts_are_audited_for_required_and_forbidden_files():
+    """Runtime omissions and accidentally bundled review assets fail CI."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+    manifest = (REPO_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+
+    assert "Audit built artifact inventories" in workflow
+    assert '["git", "ls-files", "spacr"]' in workflow
+    assert 'f"{label} omits runtime files: {missing}"' in workflow
+    assert 'f"{label} ships excluded files: {forbidden}"' in workflow
+    assert '"spacr/resources/icons/loading_spinner_logo (1).gif"' in workflow
+    assert "exclude spacr/resources/icons/loading_spinner_logo*" in manifest
+    assert "exclude spacr/resources/icons/loading_spinner_logo (1).gif" not in manifest
+
+
 @pytest.mark.parametrize(
     "banned, why",
     [
