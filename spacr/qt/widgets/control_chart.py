@@ -866,7 +866,7 @@ class Violation:
 
     def where(self) -> str:
         """The plates in words — ``"plate P17"`` or ``"plates P22-P30"``."""
-        if not self.plates:  # pragma: no cover - a violation always has points
+        if not self.plates:
             return "no plates"
         if len(self.plates) == 1:
             return f"plate {self.plates[0]}"
@@ -1058,8 +1058,15 @@ class ControlChartResult:
                 f"there is no point {index}; this chart has {len(self)} "
                 f"plate(s)")
         magnitude = abs(float(self.z[int(index)]))
-        if not np.isfinite(magnitude):  # pragma: no cover - guarded upstream
-            return 0
+        if not np.isfinite(magnitude):
+            # ``value - centre`` overflows to infinity when a plate sits at the
+            # far end of the float range from the centre line — rare, but a raw
+            # intensity column reaches it. Such a point is further outside the
+            # limits than any finite one, so the outermost band is the honest
+            # answer: ``int(inf)`` raises, and calling it zone 0 would paint the
+            # worst plate of the campaign the colour of one that never left one
+            # sigma, while rule 1 flags it in the same breath.
+            return 3
         return min(3, int(magnitude))
 
     # -- frames ----------------------------------------------------------
@@ -1110,7 +1117,7 @@ class ControlChartResult:
 
     def headline(self) -> str:
         """One sentence about the campaign, including the bad news."""
-        if not len(self):  # pragma: no cover - refused before a result exists
+        if not len(self):
             return "no plates."
         if self.degenerate:
             return (f"every one of the {len(self)} plates reported the same "
@@ -1493,7 +1500,7 @@ def _estimate(values: np.ndarray, sizes: np.ndarray, sds: np.ndarray,
         mad = float(np.median(np.abs(values - centre)))
         return centre, MAD_SCALE * mad
 
-    raise ControlChartError(  # pragma: no cover - the spec validates first
+    raise ControlChartError(
         f"unknown estimator {estimator!r}")
 
 
