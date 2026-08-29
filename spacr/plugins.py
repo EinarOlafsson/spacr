@@ -23,7 +23,6 @@ import os
 import re
 import threading
 from dataclasses import dataclass, field
-from importlib import metadata
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 __all__ = [
@@ -386,6 +385,13 @@ def _coerce_plugin(value: Any) -> SpacrPlugin:
 
 
 def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
+    # Importing the metadata machinery costs more than the rest of this
+    # dependency-light SDK. Keep the documented SPACR_DISABLE_PLUGINS path a
+    # true opt-out: _build_registry() returns before reaching this generator,
+    # so a headless CLI that disables plugins never imports or scans package
+    # metadata at all.
+    from importlib import metadata
+
     try:
         discovered = metadata.entry_points()
         points = (

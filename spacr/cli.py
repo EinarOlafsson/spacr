@@ -1789,7 +1789,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return exc.code if isinstance(exc.code, int) else EXIT_USAGE
 
     if args.version:
-        from .version import __version__
+        from ._version import __version__
         print(__version__)
         return EXIT_OK
 

@@ -660,7 +660,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "github.actor != 'github-actions[bot]'" in workflow
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
-    assert "git add setup.py CITATION.cff" in workflow
+    assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "needs.verify-pypi.result == 'success'" in workflow
@@ -740,7 +740,9 @@ def test_repository_package_and_citation_metadata_name_the_same_release():
     setup = ROOT / "setup.py"
 
     assert helper.verify_release_metadata(
-        setup, ROOT / "CITATION.cff"
+        setup,
+        ROOT / "CITATION.cff",
+        package_version_path=ROOT / "spacr" / "_version.py",
     ) == helper.read_version(setup)
 
 
@@ -771,29 +773,40 @@ def test_release_helper_bumps_setup_and_citation_together(tmp_path):
         'date-released: "2026-08-10"\n',
         encoding="utf-8",
     )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
 
     assert helper.bump_release(
         setup,
         citation,
         "1.2.4",
+        package_version_path=package_version,
         release_date="2026-08-29",
     ) == "1.2.4"
-    assert helper.verify_release_metadata(setup, citation) == "1.2.4"
+    assert helper.verify_release_metadata(
+        setup,
+        citation,
+        package_version_path=package_version,
+    ) == "1.2.4"
     assert 'VERSION = "1.2.4"' in _text(setup)
+    assert helper.read_package_version(package_version) == "1.2.4"
     assert 'version: "1.2.4"' in _text(citation)
     assert 'date-released: "2026-08-29"' in _text(citation)
     assert 'doi: "10.5281/zenodo.99999999"' in _text(citation)
 
     # A workflow rerun must not rewrite the historical release date.
     citation_after_bump = _text(citation)
+    package_after_bump = _text(package_version)
     assert helper.bump_release(
         setup,
         citation,
         "1.2.4",
+        package_version_path=package_version,
         release_date="2099-01-01",
         allow_current=True,
     ) == "1.2.4"
     assert _text(citation) == citation_after_bump
+    assert _text(package_version) == package_after_bump
 
 
 def test_release_helper_rejects_stale_citation_before_writing_setup(tmp_path):
@@ -806,19 +819,24 @@ def test_release_helper_rejects_stale_citation_before_writing_setup(tmp_path):
         'version: "1.2.2"\ndate-released: "2026-07-01"\n',
         encoding="utf-8",
     )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
     original_setup = _text(setup)
     original_citation = _text(citation)
+    original_package = _text(package_version)
 
     with pytest.raises(ValueError, match="Cannot bump"):
         helper.bump_release(
             setup,
             citation,
             "1.2.4",
+            package_version_path=package_version,
             release_date="2026-08-29",
         )
 
     assert _text(setup) == original_setup
     assert _text(citation) == original_citation
+    assert _text(package_version) == original_package
 
 
 def test_release_verifier_rejects_a_nonversion_github_release_name(tmp_path):
@@ -846,16 +864,50 @@ def test_release_helper_repairs_an_old_setup_only_bump(tmp_path):
         'version: "1.2.3"\ndate-released: "2026-08-10"\n',
         encoding="utf-8",
     )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
 
     assert helper.bump_release(
         setup,
         citation,
         "1.2.4",
+        package_version_path=package_version,
         release_date="2026-08-29",
         allow_current=True,
     ) == "1.2.4"
     assert helper.read_citation_metadata(citation) == (
         "1.2.4", "2026-08-29")
+    assert helper.read_package_version(package_version) == "1.2.4"
+
+
+def test_release_helper_rejects_stale_facade_before_writing(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.3"\ndate-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.2"\n', encoding="utf-8")
+    originals = tuple(
+        _text(path) for path in (setup, citation, package_version)
+    )
+
+    with pytest.raises(ValueError, match="Cannot bump"):
+        helper.bump_release(
+            setup,
+            citation,
+            "1.2.4",
+            package_version_path=package_version,
+            release_date="2026-08-29",
+        )
+
+    assert tuple(
+        _text(path) for path in (setup, citation, package_version)
+    ) == originals
 
 
 def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path):
