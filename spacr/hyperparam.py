@@ -3548,9 +3548,11 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                                   l2_leaf_reg=reg_lambda, random_state=seed,
                                   verbose=False)
     if mt == "svm":
+        from sklearn.calibration import CalibratedClassifierCV
         from sklearn.svm import SVC
-        return SVC(probability=True, C=1.0 / max(reg_lambda, 1e-9),
-                   random_state=seed)
+        return CalibratedClassifierCV(
+            estimator=SVC(random_state=seed), method="sigmoid", cv=3,
+            n_jobs=n_jobs, ensemble=False)
     if mt == "mlp":
         from sklearn.neural_network import MLPClassifier
         return MLPClassifier(max_iter=max(200, n_estimators),

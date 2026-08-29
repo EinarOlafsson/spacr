@@ -1471,7 +1471,7 @@ class TestSklearnBackend:
         ("extra_trees", "ExtraTreesClassifier"),
         ("logistic_regression", "LogisticRegression"),
         ("gradient_boosting", "HistGradientBoostingClassifier"),
-        ("svm", "SVC"),
+        ("svm", "CalibratedClassifierCV"),
         ("mlp", "MLPClassifier"),
     ])
     def test_every_always_available_backend_builds(self, model_type, expected):
