@@ -63,6 +63,9 @@ _NEEDS_QT = pytest.mark.skipif(not _HAS_PYSIDE6,
 #: a failure says which one arrived rather than "something got heavier".
 HEAVY = ("spacr.utils", "torch", "cellpose", "tensorflow", "cv2", "tkinter",
          "IPython", "matplotlib.pyplot")
+# Scientific roots that are legitimate after a user opens a data screen, but
+# have no work to do while the application is only applying its first theme.
+STARTUP_SCIENTIFIC = ("pandas", "scipy", "sklearn", "torch")
 
 _PREAMBLE = f"""
 import json, os, resource, sys, time
@@ -108,6 +111,48 @@ registered = spacr.qt.register_self_registering_modules()
 report(seconds=time.perf_counter() - start,
        registered=list(registered),
        expected=list(spacr.qt.SELF_REGISTERING_MODULES))
+"""
+
+#: The real initial styling path, not merely an import approximation.  It
+#: creates QApplication, runs the same self-registration pass as ``run()``,
+#: and calls the production preference function that sets the live QSS.
+#: Model Compare is then imported as a representative on-demand screen; its
+#: module-level registrar must update that QSS before any screen instance is
+#: constructed.
+QT_APPLICATION_PREFERENCES = _PREAMBLE + f"""
+import importlib, os, tempfile
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+os.environ["XDG_CONFIG_HOME"] = tempfile.mkdtemp(prefix="spacr-perf-config-")
+os.environ["XDG_CACHE_HOME"] = tempfile.mkdtemp(prefix="spacr-perf-cache-")
+start = time.perf_counter()
+import spacr.qt
+spacr.qt._quiet_gtk_accessibility()
+spacr.qt._install_quiet_qt_logging()
+from spacr.qt.app import launch
+registered = spacr.qt.register_self_registering_modules()
+from PySide6.QtWidgets import QApplication
+app = QApplication([])
+from spacr.qt.preferences import apply_preferences_to_app
+apply_start = time.perf_counter()
+apply_preferences_to_app(app)
+apply_seconds = time.perf_counter() - apply_start
+roots = {STARTUP_SCIENTIFIC!r}
+initial_scientific = [name for name in roots if name in sys.modules]
+late_module = "spacr.qt.screens.model_compare"
+late_module_absent = late_module not in sys.modules
+before = app.styleSheet()
+model_compare = importlib.import_module(late_module)
+marker = "/* --- registered widget QSS: %s --- */" % (
+    model_compare.MODEL_PANEL_NAME,
+)
+report(seconds=time.perf_counter() - start,
+       apply_seconds=apply_seconds,
+       qss_chars=len(before),
+       registered=list(registered),
+       expected=list(spacr.qt.SELF_REGISTERING_MODULES),
+       initial_scientific=initial_scientific,
+       late_module_absent=late_module_absent,
+       late_marker_live=marker in app.styleSheet())
 """
 
 #: Every module in the Qt package, imported one by one. ``walk_packages``
@@ -326,6 +371,39 @@ def test_the_spacr_qt_launch_path_never_imports_spacr_utils():
         f"the spacr-qt launch path held {result['rss_mb']:.0f} MB resident; "
         "it measured 172 MB. Memory is not noisy the way wall clock is, so "
         "this ceiling is 3.5x and means something")
+
+
+@_NEEDS_QT
+@pytest.mark.qt
+def test_initial_preferences_are_light_and_late_widget_qss_is_synchronous():
+    """Apply the real first QSS without importing unopened data screens.
+
+    ``stylesheet()`` remains exhaustive by default for callers that ask for
+    a complete static sheet.  The application path is intentionally lazy:
+    pandas, SciPy, scikit-learn and Torch belong to work a user starts, not
+    to setting a palette.  A screen imported later registers above its widget
+    class, and that registration must be present in the live application QSS
+    before the first instance of the class can be constructed.
+    """
+    result = best_of(QT_APPLICATION_PREFERENCES, runs=2)
+    assert result["registered"] == result["expected"], (
+        f"only {result['registered']} of {result['expected']} registered")
+    assert result["qss_chars"] > 30_000, (
+        f"the application received only {result['qss_chars']} QSS characters; "
+        "the lightweight path appears to have skipped the base stylesheet")
+    assert result["initial_scientific"] == [], (
+        "applying the initial preferences imported unopened scientific "
+        f"backends: {result['initial_scientific']}")
+    assert result["apply_seconds"] < 0.5, (
+        f"initial preference application blocked for "
+        f"{result['apply_seconds']:.2f} s; the first-frame budget is 0.5 s")
+    assert result["seconds"] < 5.0, (
+        f"the launch prelude plus live preferences took {result['seconds']:.2f} s")
+    assert result["late_module_absent"] is True, (
+        "the representative on-demand screen was already imported at startup")
+    assert result["late_marker_live"] is True, (
+        "the late screen's registered block was not in the live stylesheet "
+        "before its first widget could be constructed")
 
 
 @_NEEDS_QT

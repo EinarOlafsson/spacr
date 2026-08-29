@@ -28,10 +28,9 @@ from .console_panel import ConsolePanel
 from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
-# Imported here, not lazily: it registers its QSS block through
-# `theme.register_widget_qss`, and `launch()` builds the stylesheet before the
-# first window. A block registered after that call is missing from the
-# stylesheet the application is actually given.
+# Kept eager because it is a cheap, public widget.  If it contributes QSS,
+# `theme.register_widget_qss` also makes a late block live synchronously; QSS
+# registration is no longer a reason to import a heavy widget at launch.
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
 from .section import Section

@@ -673,6 +673,62 @@ def test_two_widgets_cannot_quietly_claim_one_name(qss_sandbox):
         theme_mod.register_widget_qss("NotCallable", "QFrame {}")
 
 
+def test_the_exhaustive_loader_collects_without_restyling_per_import(
+        qss_sandbox, monkeypatch):
+    """One explicit inventory sweep gets one outer composition, not N more."""
+    import importlib
+
+    restyles = []
+    modules = ("spacr.qt.probe_one", "spacr.qt.probe_two")
+
+    def fake_import(name):
+        theme_mod.register_widget_qss(
+            name, lambda palette, opacity, target=name:
+            f"QWidget#{target} {{ color: red; }}")
+        return object()
+
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADING", False)
+    monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES", modules)
+    monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied",
+                        lambda *names: restyles.append(names))
+    monkeypatch.setattr(importlib, "import_module", fake_import)
+
+    assert theme_mod.load_widget_qss_registrars() == modules
+    assert restyles == []
+    assert theme_mod._QSS_REGISTRARS_LOADING is False
+
+
+def test_a_registration_during_restyle_does_not_recurse(
+        qapp, qss_sandbox, monkeypatch):
+    """Field fade and similar late registrations join the outer rebuild."""
+    from spacr.qt import preferences
+
+    previous = qapp.styleSheet()
+    qapp.setStyleSheet("QWidget { color: red; }")
+    applications = []
+
+    def apply_once(app):
+        applications.append(app)
+        theme_mod.register_widget_qss(
+            "Nested", lambda palette, opacity:
+            "QFrame#Nested { color: blue; }")
+        app.setStyleSheet(theme_mod.stylesheet(
+            load_widget_registrars=False))
+
+    monkeypatch.setattr(preferences, "apply_preferences_to_app", apply_once)
+    try:
+        theme_mod.register_widget_qss(
+            "Outer", lambda palette, opacity:
+            "QFrame#Outer { color: green; }")
+        assert applications == [qapp]
+        assert "registered widget QSS: Outer" in qapp.styleSheet()
+        assert "registered widget QSS: Nested" in qapp.styleSheet()
+        assert theme_mod._QSS_RESTYLE_IN_PROGRESS is False
+    finally:
+        qapp.setStyleSheet(previous)
+
+
 def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
                                                        qss_sandbox):
     """End to end: register, apply, and read the pixel back.

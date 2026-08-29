@@ -3867,7 +3867,7 @@ def apply_preferences_to_app(app=None) -> None:
 
     app.setStyleSheet(stylesheet(
         theme=theme, font_scale=scale, background=background,
-        surface_opacity=get_pane_opacity()))
+        surface_opacity=get_pane_opacity(), load_widget_registrars=False))
 
     # A field whose QSS did not change still has to redraw: turning the
     # effect off while its block was already empty changes only what the
