@@ -310,13 +310,13 @@ def test_installer_guide_gives_old_desktop_builds_the_pipless_escape():
         "~/.local/share/spacr/venv/bin/python spacr"
     ) in guide
     assert (
-        '"$HOME/Library/Application Support/spaCR/bootstrap/uv" pip install '
-        '--upgrade --python "$HOME/Library/Application Support/spaCR/venv/'
+        '"$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install '
+        '--upgrade --python "$HOME/Library/Application Support/SpaCR/venv/'
         'bin/python" spacr'
     ) in guide
     assert (
-        '"$env:LOCALAPPDATA\\spaCR\\bootstrap\\uv.exe" pip install '
-        '--upgrade --python "$env:LOCALAPPDATA\\spaCR\\venv\\Scripts\\'
+        '"$env:LOCALAPPDATA\\SpaCR\\bootstrap\\uv.exe" pip install '
+        '--upgrade --python "$env:LOCALAPPDATA\\SpaCR\\venv\\Scripts\\'
         'python.exe" spacr'
     ) in guide
 
