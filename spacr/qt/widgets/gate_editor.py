@@ -166,7 +166,7 @@ def _gate_tree_qss(palette, opacity=None) -> str:
 try:
     from ..theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(QSS_NAME, _gate_tree_qss, replace=True)
-except Exception:      # pragma: no cover - decoration is not load-bearing
+except Exception:      # decoration is not load-bearing
     LOG.debug("could not register the gate tree stylesheet", exc_info=True)
 
 __all__ = ["GateCanvas", "GateTree", "GateEditorPanel", "TOOL_LABELS"]
@@ -273,7 +273,7 @@ class GateCanvas(GraphCanvas):
             # hand, and the point of snapping is only about the FINAL view.
             self._canvas.mpl_connect("button_release_event",
                                      self._on_button_release)
-        except Exception:      # pragma: no cover - no canvas in a bare test
+        except Exception:      # no canvas in a bare test
             LOG.debug("no scroll events available", exc_info=True)
         #: Which plane the pending polygon's vertices were clicked on, as
         #: (first, second). A polygon spanning two planes is not one shape.
@@ -647,7 +647,7 @@ class GateCanvas(GraphCanvas):
         # axis lock exists to replace. Disabled so the two cannot fight.
         try:
             ax.disable_mouse_rotation()
-        except Exception:      # pragma: no cover - older matplotlib
+        except Exception:      # older matplotlib
             LOG.debug("could not take over 3d rotation", exc_info=True)
         if self._view_angles is not None:
             ax.view_init(elev=self._view_angles[0], azim=self._view_angles[1])
