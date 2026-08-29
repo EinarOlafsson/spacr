@@ -737,9 +737,16 @@ def _run_probe(
         for thread in alive:
             thread.join(timeout=1.0)
         alive = [thread for thread in threads if thread.is_alive()]
+    # ``is_alive`` can change between the post-join snapshot above and this
+    # final check. Keep only workers that are still alive now, so a thread
+    # that exits in that small window is neither reported as stalled nor used
+    # to preserve an otherwise disposable scratch database.
+    survivors = []
     for thread in alive:
-        if thread.is_alive():  # explicit for type checkers and readability
+        if thread.is_alive():
             errors.put(f"thread {thread.name} did not finish within 30 seconds")
+            survivors.append(thread)
+    alive = survivors
     elapsed = time.monotonic() - started
 
     verify = connect(db_path, readonly=True, timeout=2)

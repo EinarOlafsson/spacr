@@ -173,9 +173,14 @@ uncommented.
     database. A worker that finishes inside the join window therefore produces
     a clean result AND a leftover temporary directory. Harmless in effect, but
     the docstring says the survivor is "a worker that outlives the join
-    deadline", which is not what the code does. Current behaviour is pinned by
-    a test, so a deliberate fix will surface as a failing assertion rather
-    than silently.
+    deadline", which is not what the code does.
+
+    FIXED 2026-08-29. The final liveness check now builds the actual survivor
+    list used by both error reporting and scratch retention. A worker that
+    exits in the last join window leaves neither a false stall error nor a
+    disposable database behind; a genuinely live worker is still retained for
+    inspection. The deterministic delayed-``is_alive`` regression now asserts
+    that the scratch path is removed.
   * spacr/crops.py ``_region_for`` -- the docstring still documents a ``None``
     return the code can no longer produce. The ``binary_dilation(iterations=0)``
     quirk that produced it was fixed by the ``if px > 0`` guard, so every path

@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-import shutil
 import sqlite3
 import threading
 import types
@@ -249,10 +248,9 @@ def test_a_worker_that_finished_in_the_join_window_is_not_reported_as_stalled(
     """The probe looks once more before blaming a thread for not finishing.
 
     Every worker here has really exited by the time the deadline is checked,
-    and the probe's final ``is_alive()`` says so -- so no thread is recorded
-    as having missed the 30-second deadline and the run is clean. The scratch
-    database is nonetheless kept, because the list of stragglers was built
-    before that final look.
+    and the probe's final ``is_alive()`` says so. No thread is recorded as
+    having missed the deadline, and the disposable scratch database is
+    removed because there is no real straggler left to inspect.
     """
     monkeypatch.setattr(dc, "threading", types.SimpleNamespace(
         Thread=_ReportsItselfAliveAfterFinishing,
@@ -262,15 +260,10 @@ def test_a_worker_that_finished_in_the_join_window_is_not_reported_as_stalled(
 
     result = dc.run_concurrency_probe(
         writers=1, readers=1, writes_per_writer=3, journal_mode="DELETE")
-    try:
-        assert result.errors == ()
-        assert result.actual_rows == result.expected_rows == 3
-        assert result.ok is True
-        assert os.path.isfile(result.path), (
-            "the straggler list was still truthy, so the scratch database "
-            "was kept for inspection")
-    finally:
-        shutil.rmtree(os.path.dirname(result.path), ignore_errors=True)
+    assert result.errors == ()
+    assert result.actual_rows == result.expected_rows == 3
+    assert result.ok is True
+    assert not os.path.exists(result.path)
 
 
 # ---------------------------------------------------------------------------
