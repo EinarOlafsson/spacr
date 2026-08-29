@@ -584,8 +584,8 @@ def test_reader_shape_reports_the_assembled_site(tmp_path):
         reader.close()
 
 
-def test_window_zero_pads_and_ignores_channels_that_do_not_exist(tmp_path):
-    """Every out-of-range read is zeros, never an exception or garbage."""
+def test_window_zero_pads_and_rejects_channels_that_do_not_exist(tmp_path):
+    """Off-image pixels are zero, but a nonexistent channel is an error."""
     data = _texture(20, 24, seed=9)
     path = _save(tmp_path, 'plate1_B07_001.npy', data)
     tile = align.Tile(path=path, shape=(20, 24, 1))
@@ -601,8 +601,11 @@ def test_window_zero_pads_and_ignores_channels_that_do_not_exist(tmp_path):
         assert np.all(reader.window(100, 110, 0, 4, [0]) == 0)
         assert np.all(reader.window(0, 4, -50, -40, [0]) == 0)
 
-        # A plane this tile does not have.
-        assert np.all(reader.window(0, 4, 0, 4, [3]) == 0)
+        # A plane this tile does not have is never a plausible black image.
+        with pytest.raises(align.AlignError, match='channel 3.*1 channels'):
+            reader.window(0, 4, 0, 4, [3])
+        with pytest.raises(align.AlignError, match='channel -1.*1 channels'):
+            reader.window(0, 4, 0, 4, [-1])
     finally:
         reader.close()
 
@@ -612,11 +615,74 @@ def test_window_zero_pads_and_ignores_channels_that_do_not_exist(tmp_path):
                        channel_paths=(path, other))
     reader = align._TileReader(split)
     try:
-        both = reader.window(0, 4, 0, 4, [0, 1, 7])
-        assert both.shape == (4, 4, 3)
+        both = reader.window(0, 4, 0, 4, [0, 1])
+        assert both.shape == (4, 4, 2)
         assert both[:, :, 0].tolist() == data[:4, :4].astype(np.float32).tolist()
         assert both[:, :, 1].tolist() == (data[:4, :4] + 1).astype(np.float32).tolist()
-        assert np.all(both[:, :, 2] == 0), 'channel 7 does not exist'
+        with pytest.raises(align.AlignError, match='channel 7.*2 channels'):
+            reader.window(0, 4, 0, 4, [0, 1, 7])
+    finally:
+        reader.close()
+
+
+def test_every_tile_layout_rejects_the_same_invalid_channel(tmp_path):
+    """Merged and channel-first arrays obey the same channel contract."""
+    channel_first = np.stack([
+        _texture(12, 14, seed=1),
+        _texture(12, 14, seed=2),
+    ])
+    first_path = _save(
+        tmp_path, 'plate1_B07_003.npy', channel_first)
+    merged_path = _save(
+        tmp_path, 'plate1_B07_004.npy', np.moveaxis(channel_first, 0, -1))
+
+    for path, shape in (
+            (first_path, (12, 14, 2)),
+            (merged_path, (12, 14, 2))):
+        reader = align._TileReader(align.Tile(path=path, shape=shape))
+        try:
+            with pytest.raises(
+                    align.AlignError, match='channel 2.*2 channels'):
+                reader.window(0, 4, 0, 4, [2])
+            with pytest.raises(
+                    align.AlignError, match='channel -1.*2 channels'):
+                reader.window(0, 4, 0, 4, [-1])
+        finally:
+            reader.close()
+
+
+def test_window_narrowing_clips_instead_of_wrapping(tmp_path):
+    """A uint16 intensity of 300 must saturate, not become uint8 value 44."""
+    data = np.array([[0, 254], [255, 300]], dtype=np.uint16)
+    path = _save(tmp_path, 'plate1_B07_005.npy', data)
+    reader = align._TileReader(align.Tile(path=path, shape=(2, 2, 1)))
+    try:
+        narrowed = reader.window(0, 2, 0, 2, [0], dtype=np.uint8)
+        assert narrowed[:, :, 0].tolist() == [[0, 254], [255, 255]]
+    finally:
+        reader.close()
+
+
+def test_float_window_rounds_and_refuses_nonfinite_integer_pixels(tmp_path):
+    """Integer output cannot silently invent a value for NaN or infinity."""
+    finite = np.array([[-1.2, 1.6], [254.6, 300.0]], dtype=np.float32)
+    path = _save(tmp_path, 'plate1_B07_006.npy', finite)
+    reader = align._TileReader(align.Tile(path=path, shape=(2, 2, 1)))
+    try:
+        narrowed = reader.window(0, 2, 0, 2, [0], dtype=np.uint8)
+        assert narrowed[:, :, 0].tolist() == [[0, 2], [255, 255]]
+    finally:
+        reader.close()
+
+    invalid = finite.copy()
+    invalid[0, 0] = np.nan
+    invalid_path = _save(tmp_path, 'plate1_B07_007.npy', invalid)
+    reader = align._TileReader(
+        align.Tile(path=invalid_path, shape=(2, 2, 1)))
+    try:
+        with pytest.raises(
+                align.AlignError, match='non-finite pixels.*uint8'):
+            reader.window(0, 2, 0, 2, [0], dtype=np.uint8)
     finally:
         reader.close()
 
