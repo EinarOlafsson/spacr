@@ -40,6 +40,7 @@ Public API::
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
+        get_figure_save_mode, set_figure_save_mode,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
         get_dock_mode, set_dock_mode,
@@ -60,6 +61,10 @@ Values:
   accessors remain for old settings, but Space is not a selectable theme.
 * ``space_seed``: int; retained for deterministic legacy Space backgrounds.
 * ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].
+* ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
+  (default ``"print"``). Controls the page and figure-element colours used
+  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local
+  override; see :func:`spacr.figure_style.figure_save_mode`.
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
@@ -524,10 +529,13 @@ DEFAULT_CB_MODE = "off"
 # Figure rendering
 _KEY_FIG_FORMAT = "prefs/figure_format"
 _KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
+_KEY_FIG_SAVE_MODE = "prefs/figure_save_mode"
 VALID_FIG_FORMATS = ("png", "pdf")
 DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
 DEFAULT_PNG_DPI = 300
+VALID_FIG_SAVE_MODES = ("print", "screen", "transparent")
+DEFAULT_FIG_SAVE_MODE = "print"
 
 # How many of the most recent figures keep their LIVE matplotlib Figure, and
 # what happens to the ones past that.
@@ -974,6 +982,48 @@ def set_figure_format(fmt: str) -> None:
         raise ValueError(f"unknown figure format {fmt!r}. "
                           f"Choose from {VALID_FIG_FORMATS}.")
     _settings().setValue(_KEY_FIG_FORMAT, fmt)
+
+
+def get_figure_save_mode() -> str:
+    """Return the saved figure appearance mode, defaulting to ``print``.
+
+    The environment override belongs to
+    :func:`spacr.figure_style.figure_save_mode`, not here. Keeping this getter
+    store-only lets the Preferences dialog show what it will persist even
+    while a command-line or notebook process temporarily overrides it.
+
+    Returns
+    -------
+    {'print', 'screen', 'transparent'}
+        Persisted mode, or ``print`` when the stored value is invalid.
+    """
+    raw = str(_settings().value(
+        _KEY_FIG_SAVE_MODE, DEFAULT_FIG_SAVE_MODE)).strip().lower()
+    return (raw if raw in VALID_FIG_SAVE_MODES
+            else DEFAULT_FIG_SAVE_MODE)
+
+
+def set_figure_save_mode(mode: str) -> None:
+    """Persist the saved-figure appearance mode.
+
+    Parameters
+    ----------
+    mode : {'print', 'screen', 'transparent'}
+        ``print`` writes a light page with dark figure elements, ``screen``
+        preserves the displayed appearance, and ``transparent`` removes the
+        page background.
+
+    Raises
+    ------
+    ValueError
+        If *mode* is not a supported figure save mode.
+    """
+    normalized = str(mode).strip().lower()
+    if normalized not in VALID_FIG_SAVE_MODES:
+        raise ValueError(
+            f"unknown figure save mode {mode!r}. "
+            f"Choose from {VALID_FIG_SAVE_MODES}.")
+    _settings().setValue(_KEY_FIG_SAVE_MODE, normalized)
 
 
 def get_figure_live_cache() -> int:
@@ -4919,6 +4969,31 @@ class PreferencesDialog:
         maturity_col.addWidget(beta_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
+        # The appearance shared by every saved-figure renderer. This differs
+        # from Figure format below: format governs the app's Figures panel;
+        # save mode governs the page and figure-element colours used when a
+        # figure is written. `spacr.figure_style.figure_save_mode` is the one
+        # production resolver and gives the environment override precedence.
+        figure_save_mode_combo = QComboBox()
+        figure_save_mode_combo.setObjectName("FigureSaveMode")
+        figure_save_mode_combo.addItem(tr("Print (light page)"), "print")
+        figure_save_mode_combo.addItem(tr("Screen (as shown)"), "screen")
+        figure_save_mode_combo.addItem(
+            tr("Transparent (no page)"), "transparent")
+        figure_save_mode_combo.setToolTip(tr(
+            "How saved figures handle their background, text and lines. "
+            "Print uses a light page with dark figure elements; Screen "
+            "keeps the colours shown in spaCR; Transparent removes the "
+            "page and chooses figure-element colours for the current theme. "
+            "SPACR_FIGURE_SAVE_MODE can temporarily override this setting "
+            "for command-line and notebook runs."
+        ))
+        save_mode_index = figure_save_mode_combo.findData(
+            get_figure_save_mode())
+        figure_save_mode_combo.setCurrentIndex(
+            save_mode_index if save_mode_index >= 0 else 0)
+        figures.addRow(tr("Figure save mode"), figure_save_mode_combo)
+
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
         #
@@ -5733,6 +5808,7 @@ class PreferencesDialog:
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
                 _select(cb_combo, get_color_blind_mode())
+                _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
                 _select(png_dpi_combo, get_figure_png_dpi())
                 live_cache_spin.setValue(get_figure_live_cache())
@@ -5832,6 +5908,7 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
+            set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
             for shape, combo in default_graph_combos.items():
                 # Empty data is the "Recommended" row, which CLEARS the

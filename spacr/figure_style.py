@@ -828,11 +828,9 @@ def figure_save_mode() -> str:
     try:                                   # the GUI's own answer, when there is one
         from .qt import preferences
 
-        getter = getattr(preferences, "get_figure_save_mode", None)
-        if getter is not None:
-            stored = str(getter()).strip().lower()
-            if stored in SAVE_MODES:
-                return stored
+        stored = str(preferences.get_figure_save_mode()).strip().lower()
+        if stored in SAVE_MODES:
+            return stored
     except Exception:
         pass
     return "print"
