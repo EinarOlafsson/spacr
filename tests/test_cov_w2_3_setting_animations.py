@@ -291,16 +291,12 @@ def test_a_file_that_is_not_an_animation_shows_nothing(tmp_path):
     assert SA._animation_frames(not_a_gif) == []
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "setting_animations.py defines _animation_frames twice (lines 300 and "
-    "415); the second shadows the first and drops its guarded imports, so "
-    "the documented 'None if it cannot be read' contract is unreachable"))
 def test_an_installation_without_pillow_reports_no_frames_rather_than_raising(
         monkeypatch, tmp_path):
     """Decoding is optional; the measurements say so by returning ``None``.
 
-    The definition that carries this contract is shadowed by a second one
-    later in the module, which imports Pillow unguarded.
+    The decoder imports Pillow inside the function, so a machine with no
+    imaging stack reads ``None`` back rather than an ImportError.
     """
     real_import = builtins.__import__
 
