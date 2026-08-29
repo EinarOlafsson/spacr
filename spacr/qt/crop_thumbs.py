@@ -30,6 +30,9 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
+import time
+import weakref
 from collections import OrderedDict
 from typing import Any, Dict, Optional, Tuple
 
@@ -53,6 +56,17 @@ DEFAULT_CAPACITY = 96
 #: The longest edge of a cached thumbnail, in pixels. Big enough to see a
 #: parasite in, small enough that a hundred of them do not cost real memory.
 DEFAULT_SIZE = 192
+
+
+# Weak registration makes every live thumbnail cache observable to the
+# process-wide budget without making the cleanup service the reason a closed
+# screen stays alive.
+_LIVE_CACHES: "weakref.WeakSet[CropThumbnails]" = weakref.WeakSet()
+
+
+def live_thumbnail_caches():
+    """A snapshot of the decoded-thumbnail caches that still have owners."""
+    return tuple(_LIVE_CACHES)
 
 
 def resolve_crop_path(path: str, db_path: str = "") -> str:
@@ -102,12 +116,19 @@ class CropThumbnails:
         self.capacity = max(1, int(capacity))
         self._cache: "OrderedDict[Tuple[Any, ...], Optional[QPixmap]]" = \
             OrderedDict()
+        self._last_used: Dict[Tuple[Any, ...], float] = {}
+        self._bytes: Dict[Tuple[Any, ...], int] = {}
         #: Counters, for a status line and for the tests that assert a hover
         #: sweep decoded each crop once rather than once per mouse event.
         self.hits = 0
         self.misses = 0
         self.decodes = 0
         self.failures = 0
+        _LIVE_CACHES.add(self)
+        cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+        install = getattr(cleanup, "install_budget_sweep", None)
+        if callable(install):
+            install()
 
     # -- keys ---------------------------------------------------------------
     def _key(self, path: str) -> Tuple[Any, ...]:
@@ -140,6 +161,7 @@ class CropThumbnails:
         if key not in self._cache:
             return None
         self._cache.move_to_end(key)
+        self._last_used[key] = time.time()
         self.hits += 1
         return self._cache[key]
 
@@ -156,6 +178,7 @@ class CropThumbnails:
         key = self._key(str(path))
         if key in self._cache:
             self._cache.move_to_end(key)
+            self._last_used[key] = time.time()
             self.hits += 1
             return self._cache[key]
         self.misses += 1
@@ -184,8 +207,45 @@ class CropThumbnails:
                pixmap: Optional[QPixmap]) -> None:
         self._cache[key] = pixmap
         self._cache.move_to_end(key)
+        self._last_used[key] = time.time()
+        self._bytes[key] = self._pixmap_bytes(pixmap)
         while len(self._cache) > self.capacity:
-            self._cache.popitem(last=False)
+            old, _ = self._cache.popitem(last=False)
+            self._last_used.pop(old, None)
+            self._bytes.pop(old, None)
+
+    @staticmethod
+    def _pixmap_bytes(pixmap: Optional[QPixmap]) -> int:
+        """Storage represented by a pixmap, without copying its pixels."""
+        if pixmap is None or pixmap.isNull():
+            return 0
+        try:
+            return max(0, int(pixmap.width()) * int(pixmap.height())
+                       * int(pixmap.depth()) // 8)
+        except (AttributeError, TypeError, ValueError):
+            return 0
+
+    def cache_budget_entries(self):
+        """``(key, bytes, last use, in use)`` rows for the global sweep.
+
+        A QLabel/QGraphicsItem that is displaying a pixmap owns its own
+        implicitly-shared Qt value.  Removing this lookup entry cannot blank
+        that control, so no thumbnail entry needs pinning here.
+        """
+        now = time.time()
+        return [
+            (key, int(self._bytes.get(key, self._pixmap_bytes(pixmap))),
+             float(self._last_used.get(key, now)), False)
+            for key, pixmap in list(self._cache.items())
+        ]
+
+    def drop_cache_budget_entry(self, key) -> bool:
+        """Evict one decoded thumbnail selected by the memory policy."""
+        existed = key in self._cache
+        self._cache.pop(key, None)
+        self._last_used.pop(key, None)
+        self._bytes.pop(key, None)
+        return existed
 
     # -- housekeeping -------------------------------------------------------
     def prime(self, path: str) -> Optional[QPixmap]:
@@ -207,6 +267,8 @@ class CropThumbnails:
     def clear(self) -> None:
         """Drop everything. For a new source, or a screen closing."""
         self._cache.clear()
+        self._last_used.clear()
+        self._bytes.clear()
 
     def describe(self) -> str:
         """One line of cache health, for a status bar."""

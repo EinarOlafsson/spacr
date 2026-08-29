@@ -16,17 +16,28 @@ from __future__ import annotations
 
 import logging
 import shutil
-import threading
+import sys
 import tempfile
+import threading
+import time
+import weakref
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
-from PySide6.QtCore import Signal, QEvent, QSize, Qt, QTimer
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QIcon, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
-    QDialog, QFrame, QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, QStackedWidget, QVBoxLayout, QWidget,
+    QDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from ..hidpi import scaled_for
@@ -120,6 +131,18 @@ def set_figure_text_size_override(fig, size: int) -> None:
 #: RE-ENTRANT, because the render path styles before it renders; a plain Lock
 #: would deadlock the first time one call did both.
 FIGURE_LOCK = threading.RLock()
+
+
+# The budget service holds no FigureQueue strongly.  Closing a screen remains
+# sufficient to retire its queue; while it is live, the service can account
+# for the two genuinely reclaimable layers it owns (editable Figures and
+# decoded full-resolution pixmaps).
+_LIVE_QUEUES: "weakref.WeakSet[FigureQueue]" = weakref.WeakSet()
+
+
+def live_figure_queues():
+    """A snapshot of FigureQueues that still have a real owner."""
+    return tuple(_LIVE_QUEUES)
 
 
 def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
@@ -536,6 +559,8 @@ class FigureQueue(QWidget):
         # "Editable figures kept" preference, ordered by USE so restoring an
         # old figure does not immediately evict it again.
         self._figures: "OrderedDict[int, object]" = OrderedDict()
+        self._figure_last_used: Dict[int, float] = {}
+        self._figure_bytes: Dict[int, int] = {}
         # index -> the figure's own name, taken ONCE when it arrives.
         #
         # A NAME IS NOT A CACHE. `figure_titles` used to read the label off
@@ -559,6 +584,8 @@ class FigureQueue(QWidget):
         self._runs: list = []
         # LRU cache of index -> full-res QPixmap (capped at ram_cap).
         self._ram: "OrderedDict[int, QPixmap]" = OrderedDict()
+        self._ram_last_used: Dict[int, float] = {}
+        self._ram_bytes: Dict[int, int] = {}
         self._tempdir: Optional[Path] = None
         self._current = -1
         # Crisp vector-page renders run off the GUI thread. JobRunner is the
@@ -580,6 +607,11 @@ class FigureQueue(QWidget):
         self._preview_pending = False
         #: Set by the owning screen; see :meth:`set_propagate_callback`.
         self._propagate_cb = None
+        _LIVE_QUEUES.add(self)
+        cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+        install = getattr(cleanup, "install_budget_sweep", None)
+        if callable(install):
+            install()
         self._build_ui()
 
     # -- construction ------------------------------------------------------
@@ -970,6 +1002,10 @@ class FigureQueue(QWidget):
         thread, so the UI stays responsive while many figures stream in."""
         if id(fig) in self._fig_index:
             idx = self._fig_index[id(fig)]
+            if idx in self._figures:
+                self._figure_last_used[idx] = time.time()
+                self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
+                self._figures.move_to_end(idx)
             if prerendered_png and Path(prerendered_png).is_file():
                 self._refresh_live_figure(idx, prerendered_png)
             self.show_index(idx)
@@ -979,6 +1015,8 @@ class FigureQueue(QWidget):
         self._count += 1
         self._fig_index[id(fig)] = idx
         self._figures[idx] = fig
+        self._figure_last_used[idx] = time.time()
+        self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
         # BEFORE the trim, not after: this figure is the newest, but a
         # `live_figure_cap` of 1 evicts it on the very next arrival and a name
         # read later would already be gone.
@@ -1076,6 +1114,9 @@ class FigureQueue(QWidget):
         # live-figure cap exists to prevent. Viewing an old figure keeps
         # showing the picture; restyling it is what earns a restore.
         live = self._figures.get(idx) if self.has_live_figure(idx) else None
+        if live is not None:
+            self._figures.move_to_end(idx)
+            self._figure_last_used[idx] = time.time()
         if live is not None and self.show_live_canvas(live):
             if self._list.currentRow() != idx:
                 self._list.blockSignals(True)
@@ -1190,6 +1231,10 @@ class FigureQueue(QWidget):
         self._titles = _shift(self._titles)
         self._png_paths = _shift(self._png_paths)
         self._ram = _shift(self._ram)
+        self._figure_last_used = _shift(self._figure_last_used)
+        self._figure_bytes = _shift(self._figure_bytes)
+        self._ram_last_used = _shift(self._ram_last_used)
+        self._ram_bytes = _shift(self._ram_bytes)
         self._pdf_state = _shift(self._pdf_state)
         # `_fig_index` is the one keyed the OTHER way round -- id(fig) to
         # index -- so it is rebuilt rather than shifted, and the ids of the
@@ -1319,9 +1364,13 @@ class FigureQueue(QWidget):
         self._show_raster()
         self._list.clear()
         self._ram.clear()
+        self._ram_last_used.clear()
+        self._ram_bytes.clear()
         self._png_paths.clear()
         self._fig_index.clear()
         self._figures.clear()
+        self._figure_last_used.clear()
+        self._figure_bytes.clear()
         self._titles.clear()
         self._pdf_state.clear()
         self._count = 0
@@ -1803,14 +1852,75 @@ class FigureQueue(QWidget):
             LOG.debug("preview render failed: %s", error)
         return None
 
+    @staticmethod
+    def _pixmap_bytes(pixmap: QPixmap) -> int:
+        """Storage represented by a Qt pixmap, without copying its pixels."""
+        if pixmap is None or pixmap.isNull():
+            return 0
+        try:
+            return max(0, int(pixmap.width()) * int(pixmap.height())
+                       * int(pixmap.depth()) // 8)
+        except (AttributeError, TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _measure_live_figure_bytes(figure) -> int:
+        """Measure the Figure's retained plot arrays and canvas buffer.
+
+        Serialising a pathological Figure just to size it can itself block the
+        event loop.  The dominant owned allocations are directly measurable
+        without copying: line/image/collection arrays and the RGBA canvas.
+        The root object's shallow size is included, while array identities are
+        deduplicated because matplotlib may expose one buffer through several
+        artists.
+        """
+        total = sys.getsizeof(figure)
+        seen = set()
+        try:
+            width, height = figure.canvas.get_width_height()
+            total += max(0, int(width)) * max(0, int(height)) * 4
+        except Exception:                                      # noqa: BLE001
+            pass
+        for axis in getattr(figure, "axes", ()):
+            values = []
+            for line in getattr(axis, "lines", ()):
+                try:
+                    values.extend((line.get_xdata(), line.get_ydata()))
+                except Exception:                              # noqa: BLE001
+                    continue
+            for image in getattr(axis, "images", ()):
+                try:
+                    values.append(image.get_array())
+                except Exception:                              # noqa: BLE001
+                    continue
+            for collection in getattr(axis, "collections", ()):
+                for reader in ("get_array", "get_offsets"):
+                    try:
+                        values.append(getattr(collection, reader)())
+                    except Exception:                          # noqa: BLE001
+                        continue
+            for value in values:
+                if value is None or id(value) in seen:
+                    continue
+                seen.add(id(value))
+                try:
+                    total += max(0, int(value.nbytes))
+                except (AttributeError, TypeError, ValueError):
+                    continue
+        return max(0, int(total))
+
     def _cache_pixmap(self, idx: int, pixmap: QPixmap) -> None:
         """Insert into the LRU RAM cache, evicting the oldest beyond the
         cap. The PNG on disk is untouched, so an evicted figure can be
         reloaded on demand."""
         self._ram[idx] = pixmap
         self._ram.move_to_end(idx)
+        self._ram_last_used[idx] = time.time()
+        self._ram_bytes[idx] = self._pixmap_bytes(pixmap)
         while len(self._ram) > self._ram_cap:
             old_idx, _ = self._ram.popitem(last=False)
+            self._ram_last_used.pop(old_idx, None)
+            self._ram_bytes.pop(old_idx, None)
             LOG.debug("spilled figure #%d from RAM (PNG kept)", old_idx)
 
     def live_figure_cap(self) -> int:
@@ -1833,6 +1943,54 @@ class FigureQueue(QWidget):
     def live_figure_count(self) -> int:
         """How many live Figures are currently retained."""
         return len(self._figures)
+
+    def cache_budget_entries(self):
+        """Measured, timestamped entries for the process-wide RAM policy.
+
+        The selected item is the one a live canvas or zoom view is actively
+        presenting and is pinned.  While a preview/render worker is using
+        Figures, every editable Figure is pinned; spilling one concurrently
+        would close matplotlib state under that worker.  Full-resolution
+        pixmaps other than the selected one remain safe to reload from PNG.
+        """
+        now = time.time()
+        figures_busy = bool(self._preview_busy or self._jobs.is_busy())
+        rows = []
+        for idx, figure in list(self._figures.items()):
+            size = self._figure_bytes.get(idx)
+            if size is None:
+                size = self._measure_live_figure_bytes(figure)
+                self._figure_bytes[idx] = size
+            rows.append((("figure", idx), int(size),
+                         float(self._figure_last_used.get(idx, now)),
+                         figures_busy or idx == self._current))
+        for idx, pixmap in list(self._ram.items()):
+            size = self._ram_bytes.get(idx)
+            if size is None:
+                size = self._pixmap_bytes(pixmap)
+                self._ram_bytes[idx] = size
+            rows.append((("pixmap", idx), int(size),
+                         float(self._ram_last_used.get(idx, now)),
+                         idx == self._current))
+        return rows
+
+    def drop_cache_budget_entry(self, record_key) -> bool:
+        """Evict one policy-selected entry, rechecking its live-use pin."""
+        kind, idx = record_key
+        idx = int(idx)
+        if idx == self._current:
+            return False
+        if kind == "figure":
+            if self._preview_busy or self._jobs.is_busy():
+                return False
+            return self._evict_live_figure(idx)
+        if kind != "pixmap" or idx not in self._ram:
+            return False
+        self._ram.pop(idx, None)
+        self._ram_last_used.pop(idx, None)
+        self._ram_bytes.pop(idx, None)
+        LOG.debug("spilled figure #%d from RAM by memory policy", idx)
+        return True
 
     def _trim_live_figures(self) -> None:
         """Keep only the most recent N live Figures, SPILLING the rest.
@@ -1862,8 +2020,6 @@ class FigureQueue(QWidget):
         cap = max(int(self.live_figure_cap()), 1)
         if len(self._figures) <= cap:
             return
-        import matplotlib.pyplot as plt
-
         # LEAST RECENTLY USED, not lowest-numbered. Trimming by index looks
         # equivalent while figures only ever arrive in order -- but the moment
         # an old figure is restored so the user can restyle it, index order
@@ -1871,14 +2027,26 @@ class FigureQueue(QWidget):
         # `_figures` is insertion-ordered and every access moves its key to
         # the end, so the front of it is genuinely the coldest.
         for old in list(self._figures)[:len(self._figures) - cap]:
-            figure = self._figures.pop(old, None)
-            self._spill_figure(old, figure)
-            # Close it, or matplotlib's own registry keeps it alive and the
-            # cap frees nothing.
-            try:
+            self._evict_live_figure(old)
+
+    def _evict_live_figure(self, idx: int) -> bool:
+        """Spill and close one editable Figure while keeping its raster."""
+        if idx not in self._figures:
+            return False
+        figure = self._figures.pop(idx, None)
+        self._figure_last_used.pop(idx, None)
+        self._figure_bytes.pop(idx, None)
+        self._spill_figure(idx, figure)
+        # Close it, or matplotlib's own registry keeps it alive and the cache
+        # policy has removed a lookup without releasing the object.
+        try:
+            import matplotlib.pyplot as plt
+
+            with FIGURE_LOCK:
                 plt.close(figure)
-            except Exception:  # pragma: no cover - defensive
-                pass
+        except Exception:  # pragma: no cover - defensive
+            pass
+        return True
 
     def _spill_path(self, idx: int) -> Optional[Path]:
         """Where ``idx``'s pickled Figure lives, if the temp dir exists."""
@@ -1941,6 +2109,9 @@ class FigureQueue(QWidget):
         if previous is not None:
             self._fig_index.pop(id(previous), None)
         self._figures[index] = fig
+        self._figures.move_to_end(index)
+        self._figure_last_used[index] = time.time()
+        self._figure_bytes[index] = self._measure_live_figure_bytes(fig)
         self._fig_index[id(fig)] = index
         # The spill holds a pickle of the OLD figure; leaving it would let a
         # later eviction restore the picture this call replaced.
@@ -1967,6 +2138,7 @@ class FigureQueue(QWidget):
         """
         if idx in self._figures:
             self._figures.move_to_end(idx)     # asked for = most recently used
+            self._figure_last_used[idx] = time.time()
             return self._figures[idx]
         if not self.dynamic_figures_enabled():
             return None
@@ -1982,6 +2154,8 @@ class FigureQueue(QWidget):
             LOG.debug("figure %d could not be restored: %s", idx, error)
             return None
         self._figures[idx] = figure
+        self._figure_last_used[idx] = time.time()
+        self._figure_bytes[idx] = self._measure_live_figure_bytes(figure)
         self._trim_live_figures()
         return self._figures.get(idx, figure)
 
@@ -2047,6 +2221,7 @@ class FigureQueue(QWidget):
         """
         if idx in self._ram:
             self._ram.move_to_end(idx)   # mark as recently used
+            self._ram_last_used[idx] = time.time()
             return self._display_pixmap(idx, self._ram[idx])
         path = self._png_paths.get(idx)
         if path and Path(path).is_file():
