@@ -78,7 +78,7 @@ def _as_hex(colour, fallback: str = "#1f77b4") -> str:
                 and isinstance(value[0], (list, tuple, np.ndarray)):
             value = value[0]
         return to_hex(value, keep_alpha=False)
-    except Exception:  # pragma: no cover - genuinely unreadable colour
+    except Exception:  # genuinely unreadable colour
         return fallback
 
 
@@ -173,7 +173,7 @@ class FigureSettingsDialog(QDialog):
         try:
             import pickle
             self._snapshot = pickle.dumps(figure)
-        except Exception:  # pragma: no cover - artists that will not pickle
+        except Exception:  # artists that will not pickle
             pass
         # The per-figure text size is an ATTRIBUTE, and `reject` restores the
         # figure by copying axes out of the snapshot rather than by swapping
@@ -182,7 +182,7 @@ class FigureSettingsDialog(QDialog):
         try:
             from .figure_queue import figure_text_size_override
             self._text_size_at_open = figure_text_size_override(figure)
-        except Exception:  # pragma: no cover - figure_queue unavailable
+        except Exception:  # figure_queue unavailable
             self._text_size_at_open = 0
 
         # Coalesce redraws. Every control calls _changed(); this restarts a
@@ -251,7 +251,7 @@ class FigureSettingsDialog(QDialog):
         """Add every Image UMAP setting, live against this figure."""
         try:
             from .umap_figure_settings import UmapFigureSettings
-        except Exception:  # pragma: no cover - UMAP support absent
+        except Exception:  # UMAP support absent
             return
         values = dict(self._umap_payload.get("settings") or {})
         self._umap_settings = UmapFigureSettings(values, self)
@@ -324,13 +324,13 @@ class FigureSettingsDialog(QDialog):
                 self._figure.patch.set_facecolor(restored.patch.get_facecolor())
                 self._figure.set_size_inches(*restored.get_size_inches())
                 self._changed()
-            except Exception:  # pragma: no cover - restore is best-effort
+            except Exception:  # restore is best-effort
                 pass
         try:
             from .figure_queue import set_figure_text_size_override
             set_figure_text_size_override(
                 self._figure, getattr(self, "_text_size_at_open", 0))
-        except Exception:  # pragma: no cover - figure_queue unavailable
+        except Exception:  # figure_queue unavailable
             pass
         super().reject()
 
@@ -378,7 +378,7 @@ class FigureSettingsDialog(QDialog):
                           else colormap(index / max(count - 1, 1)))
                 try:
                     artist.set_color(colour)
-                except Exception:  # pragma: no cover - artist without colour
+                except Exception:  # artist without colour
                     pass
             self._changed()
         palette.currentIndexChanged.connect(apply_palette)
@@ -573,7 +573,7 @@ class FigureSettingsDialog(QDialog):
             for key in METHODS:
                 correction.addItem(key, key)
             correction.setCurrentText("fdr_bh")
-        except Exception:              # pragma: no cover - module absent
+        except Exception:              # module absent
             correction.addItem("fdr_bh", "fdr_bh")
         correction.setToolTip(
             "Adjust p-values across all comparisons shown in this panel. "
@@ -746,13 +746,13 @@ class FigureSettingsDialog(QDialog):
             try:
                 current_font_colour = _as_hex(
                     figure.axes[0].xaxis.label.get_color())
-            except Exception:      # pragma: no cover - odd colour spec
+            except Exception:      # odd colour spec
                 pass
             try:
                 spines = list(figure.axes[0].spines.values())
                 if spines:
                     current_line_colour = _as_hex(spines[0].get_edgecolor())
-            except Exception:      # pragma: no cover - odd colour spec
+            except Exception:      # odd colour spec
                 current_line_colour = current_font_colour
         form.addRow("Line colour",
                     _colour_button(current_line_colour, set_line_ink))
@@ -995,12 +995,12 @@ class FigureSettingsDialog(QDialog):
             def set_colour(colour, a=artist):
                 try:
                     a.set_color(colour)
-                except Exception:  # pragma: no cover - artist without colour
+                except Exception:  # artist without colour
                     pass
                 self._changed()
             try:
                 current = artist.get_color()
-            except Exception:  # pragma: no cover
+            except Exception:
                 current = "#1f77b4"
             form.addRow("  Colour", _colour_button(current, set_colour))
 
@@ -1016,7 +1016,7 @@ class FigureSettingsDialog(QDialog):
                     if hasattr(raw, "__len__") and not isinstance(raw, str):
                         raw = raw[0] if len(raw) else 1.0
                     width_value = float(raw)
-                except Exception:  # pragma: no cover
+                except Exception:
                     width_value = 1.0
                 line_width.setValue(width_value)
                 line_width.valueChanged.connect(
@@ -1038,7 +1038,7 @@ class FigureSettingsDialog(QDialog):
                 marker.setRange(0.0, 40.0)
                 try:
                     marker.setValue(float(artist.get_markersize()))
-                except Exception:  # pragma: no cover
+                except Exception:
                     marker.setValue(6.0)
                 marker.valueChanged.connect(
                     lambda value, a=artist: (a.set_markersize(value),
@@ -1058,7 +1058,7 @@ class FigureSettingsDialog(QDialog):
             alpha.setSingleStep(0.05)
             try:
                 alpha.setValue(float(artist.get_alpha() or 1.0))
-            except Exception:  # pragma: no cover
+            except Exception:
                 alpha.setValue(1.0)
             alpha.valueChanged.connect(
                 lambda value, a=artist: (a.set_alpha(value), self._changed()))
@@ -1122,7 +1122,7 @@ def apply_line_colour(figure, colour) -> int:
             else:
                 artist.set_color(colour)
             touched += 1
-        except Exception:                        # pragma: no cover - odd spec
+        except Exception:                        # odd spec
             continue
     for axis in getattr(figure, "axes", ()):
         # THE TICK MARKS, SEPARATELY, and `color=` only. `colors=` would set
@@ -1132,7 +1132,7 @@ def apply_line_colour(figure, colour) -> int:
         # so a colour set on the objects is lost at the next autoscale.
         try:
             axis.tick_params(color=colour, which="both")
-        except Exception:                        # pragma: no cover
+        except Exception:
             continue
     return touched
 
@@ -1158,14 +1158,14 @@ def apply_font_colour(figure, colour) -> int:
         try:
             item.set_color(colour)
             touched += 1
-        except Exception:                        # pragma: no cover
+        except Exception:
             continue
     for axis in getattr(figure, "axes", ()):
         # The labels are regenerated on every draw, so the colour has to be
         # set on the TICK rather than only on today's label objects.
         try:
             axis.tick_params(labelcolor=colour, which="both")
-        except Exception:                        # pragma: no cover
+        except Exception:
             continue
     return touched
 
@@ -1184,7 +1184,7 @@ def figure_follows_the_theme(figure) -> None:
 
         _bg, font = get_figure_colors()
         line = get_figure_line_colour()
-    except Exception:                            # pragma: no cover - no store
+    except Exception:                            # no store
         font = line = "#000000"
     apply_line_colour(figure, line)
     apply_font_colour(figure, font)
@@ -1224,7 +1224,7 @@ def graph_style_as_dict(general=None, per_graph=None) -> dict:
                 general = get_figure_style()
             if per_graph is None:
                 per_graph = get_figure_style_per_graph()
-        except Exception:                    # pragma: no cover - no store
+        except Exception:                    # no store
             general, per_graph = general or {}, per_graph or {}
     return {
         "spacr_style_kind": GRAPH_STYLE_FILE_KIND,
@@ -1799,8 +1799,15 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         Context menu owned by ``parent``.
     """
     menu = QMenu(parent)
+    # AN OWNER FOR THE ACTIONS, WHICH IS NOT ALWAYS `parent`. `QMenu.addAction`
+    # does not adopt an action built here, so a QAction whose only reference is
+    # a local name and whose parent is `None` is collected the moment this
+    # function returns -- and the menu comes back holding Save, the two
+    # submenus and nothing else. `add_graph_style_file_entries` already falls
+    # back this way for the same reason.
+    owner = parent if parent is not None else menu
     if figure is None:
-        action = QAction(tr("This figure can no longer be restyled"), parent)
+        action = QAction(tr("This figure can no longer be restyled"), owner)
         action.setEnabled(False)
         menu.addAction(action)
         return menu
@@ -1895,7 +1902,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         _notify()
 
     legend_present = any(a.get_legend() is not None for a in axes)
-    legend_action = QAction(tr("Legend"), parent)
+    legend_action = QAction(tr("Legend"), owner)
     legend_action.setCheckable(True)
     legend_action.setChecked(
         legend_present and all(a.get_legend().get_visible()
@@ -1912,7 +1919,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     legend_action.toggled.connect(toggle_legend)
     menu.addAction(legend_action)
 
-    grid_action = QAction(tr("Grid"), parent)
+    grid_action = QAction(tr("Grid"), owner)
     grid_action.setCheckable(True)
     grid_action.setChecked(any(line.get_visible()
                                for axis in axes
@@ -1927,7 +1934,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         submenu = QMenu(name, scales)
         scales.addMenu(submenu)
         for scale in AXIS_SCALES:
-            action = QAction(tr(scale), parent)
+            action = QAction(tr(scale), owner)
             action.triggered.connect(
                 lambda _checked=False, s=scale, m=setter:
                 _apply(lambda a: getattr(a, m)(s)))
@@ -1952,14 +1959,14 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         try:
             if axes:
                 current = _as_hex(axes[0].xaxis.label.get_color())
-        except Exception:                        # pragma: no cover
+        except Exception:
             pass
         chosen = pick_colour(parent, current, title)
         if chosen.isValid():
             apply_to(figure, chosen.name())
             _notify()
 
-    line_action = QAction(tr("Line colour…"), parent)
+    line_action = QAction(tr("Line colour…"), owner)
     line_action.setToolTip(tr(
         "Every line in the figure, the axis spines and the tick marks "
         "included. The numbers beside the ticks are text and follow the "
@@ -1968,7 +1975,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         lambda: _pick_ink(tr("Line colour"), apply_line_colour))
     appearance.addAction(line_action)
 
-    font_action = QAction(tr("Font colour…"), parent)
+    font_action = QAction(tr("Font colour…"), owner)
     font_action.setToolTip(tr(
         "Every piece of text in the figure: the title, the axis labels, the "
         "tick labels, the legend and any annotation."))
@@ -1976,7 +1983,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         lambda: _pick_ink(tr("Font colour"), apply_font_colour))
     appearance.addAction(font_action)
 
-    theme_action = QAction(tr("Follow the theme (colours)"), parent)
+    theme_action = QAction(tr("Follow the theme (colours)"), owner)
     theme_action.setToolTip(tr(
         "Put both colours back to the app theme and the figure preferences."))
     theme_action.triggered.connect(
@@ -1984,7 +1991,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     appearance.addAction(theme_action)
 
     menu.addSeparator()
-    save = QAction(tr("Save figure as…"), parent)
+    save = QAction(tr("Save figure as…"), owner)
     save.setToolTip(tr(
         "Write this figure to a file using its current plot styling and the "
         "configured export background, format and resolution."))
@@ -1995,7 +2002,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # change all of theis for the saved graph, get a preview then save."
     # Beside the direct save rather than replacing it: writing what is on
     # screen is one click and remains one click.
-    styled = QAction(tr("Save figure with a preview…"), parent)
+    styled = QAction(tr("Save figure with a preview…"), owner)
     styled.setToolTip(tr(
         "Choose the ink, background, grid, size and resolution for the saved "
         "file, preview the result, then export it. The figure on screen is "
@@ -2005,7 +2012,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
     add_graph_style_file_entries(menu, parent, on_change=on_change)
 
-    settings = QAction(tr("Figure settings…"), parent)
+    settings = QAction(tr("Figure settings…"), owner)
     if open_settings is not None:
         settings.triggered.connect(lambda: open_settings())
     menu.addAction(settings)
@@ -2139,7 +2146,7 @@ def save_figure_as(parent, figure, path: str = "") -> str:
     extension = os.path.splitext(path)[1].lower().lstrip(".")
     try:
         from ...plot import FIGURE_FORMATS, print_ready, save_figure
-    except Exception:                    # pragma: no cover - Qt-only build
+    except Exception:                    # Qt-only build
         FIGURE_FORMATS, print_ready, save_figure = (), None, None
 
     if save_figure is not None and extension in FIGURE_FORMATS:
@@ -2161,7 +2168,7 @@ def save_figure_as(parent, figure, path: str = "") -> str:
                                    get_figure_png_dpi)
         background, _foreground = get_figure_colors()
         dpi = get_figure_png_dpi()
-    except Exception:                    # pragma: no cover - no settings store
+    except Exception:                    # no settings store
         background, dpi = "none", 200
 
         def figure_bg_is_transparent(value):
@@ -2338,7 +2345,7 @@ def style_choices_for(name: str) -> tuple:
         from ...figure_style import style_choices
 
         return tuple(style_choices(name))
-    except Exception:                   # pragma: no cover - import guard
+    except Exception:                   # import guard
         return tuple(_FALLBACK_CHOICES.get(name, ()))
 
 
