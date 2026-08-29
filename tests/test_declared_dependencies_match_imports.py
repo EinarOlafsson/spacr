@@ -175,16 +175,6 @@ IMPORT_TO_DIST = {
 # ---------------------------------------------------------------------------
 EXCLUDED_DIRS = ("_generators",)
 
-# Subpackages whose module-scope imports are satisfied by an extra ON PURPOSE.
-#
-# `spacr/qt/` is the PySide6 GUI. `import spacr` does not import it, the
-# `spacr-run` headless CLI never touches it, and PySide6 is ~150 MB that
-# cluster users have no use for — so PySide6 lives in the `qt` extra and the
-# GUI subpackage is unimportable without it by design. That trade-off is
-# asserted separately, and deliberately, by
-# tests/test_packaging_metadata.py::test_console_scripts_and_extras_agree_about_qt.
-EXTRA_GATED_SUBPACKAGES = {"spacr/qt/": "qt"}
-
 #: Distributions spaCR reaches only through a string literal, so no import
 #: statement exists for the table below to be checked against. See
 #: `test_umap_is_reached_through_a_string_literal_and_must_not_be_removed`,
@@ -327,8 +317,6 @@ def _module_scope_imports() -> dict[str, set[str]]:
     for path in sorted(PKG.rglob("*.py")):
         rel = str(path.relative_to(REPO_ROOT))
         if not _is_censused(rel):
-            continue
-        if any(rel.startswith(p) for p in EXTRA_GATED_SUBPACKAGES):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"),
                          filename=str(path))
