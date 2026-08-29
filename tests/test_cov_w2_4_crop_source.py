@@ -18,7 +18,6 @@ import pytest
 from spacr import crop_source as cs
 from spacr.crop_source import CropSourceError
 
-
 # ---------------------------------------------------------------------------
 # resolve_source
 # ---------------------------------------------------------------------------
@@ -244,19 +243,81 @@ def test_a_coordinate_crop_is_centred_and_rounded_half_to_even(merged):
     assert cut[0, 0, 0] == 8 * 24 + 8
 
 
-def test_the_side_is_rounded_down_to_even_and_never_below_two(merged):
-    assert cs.crop_at(merged, 12, 12, channels=[0], size=5).shape[:2] == (4, 4)
-    assert cs.crop_at(merged, 12, 12, channels=[0], size=0).shape[:2] == (2, 2)
+@pytest.mark.parametrize("size", [1, 4, 5])
+def test_the_requested_side_is_exact_for_even_and_odd_sizes(merged, size):
+    cut = cs.crop_at(merged, 12, 12, channels=[0], size=size)
+    assert cut.shape == (size, size, 1)
+    assert cut[size // 2, size // 2, 0] == 12 * 24 + 12
 
 
-def test_an_edge_coordinate_yields_a_smaller_crop_not_a_padded_one(merged):
-    cut = cs.crop_at(merged, 0, 0, channels=[0], size=8)
-    assert cut.shape[:2] == (4, 4)
+def test_both_array_edges_are_zero_padded_without_rescaling(merged):
+    top_left = cs.crop_at(merged, 0, 0, channels=[0], size=8)
+    assert top_left.shape == (8, 8, 1)
+    assert not top_left[:4, :, :].any()
+    assert not top_left[:, :4, :].any()
+    assert np.array_equal(top_left[4:, 4:, 0], merged[:4, :4, 0])
+
+    bottom_right = cs.crop_at(merged, 23, 23, channels=[0], size=8)
+    assert bottom_right.shape == (8, 8, 1)
+    assert np.array_equal(bottom_right[:5, :5, 0], merged[19:, 19:, 0])
+    assert not bottom_right[5:, :, :].any()
+    assert not bottom_right[:, 5:, :].any()
+
+
+def test_a_box_larger_than_the_array_is_padded_to_the_requested_side(merged):
+    cut = cs.crop_at(merged, 12, 12, channels=[1], size=30)
+    assert cut.shape == (30, 30, 1)
+    assert np.count_nonzero(cut) == 24 * 24
+
+
+def test_a_partly_outside_coordinate_keeps_its_overlap_and_fixed_shape(merged):
+    cut = cs.crop_at(merged, -1, 12, channels=[1], size=4)
+    assert cut.shape == (4, 4, 1)
+    assert not cut[:3, :, :].any()
+    assert np.all(cut[3, :, 0] == 7.0)
+
+
+def test_coordinate_crops_from_centre_and_edges_can_be_stacked(merged):
+    cuts = [
+        cs.crop_at(merged, row, column, channels=[0, 1], size=5)
+        for row, column in ((0, 0), (12, 12), (23, 23), (-1, 12))
+    ]
+    assert np.stack(cuts).shape == (4, 5, 5, 2)
+
+
+def test_a_coordinate_crop_preserves_channel_order_and_float32(merged):
+    cut = cs.crop_at(merged, 12, 12, channels=[1, 0], size=3)
+    assert cut.dtype == np.float32
+    assert cut[1, 1, 0] == 7.0
+    assert cut[1, 1, 1] == 12 * 24 + 12
 
 
 def test_a_box_entirely_off_the_array_is_none(merged):
     assert cs.crop_at(merged, -50, 5, channels=[0], size=4) is None
     assert cs.crop_at(merged, 5, 500, channels=[0], size=4) is None
+
+
+@pytest.mark.parametrize("size", [0, -4, None, "wide", np.inf])
+def test_a_coordinate_crop_refuses_a_nonpositive_or_invalid_size(merged, size):
+    with pytest.raises(CropSourceError, match="size.*positive"):
+        cs.crop_at(merged, 5, 5, channels=[0], size=size)
+
+
+@pytest.mark.parametrize("size", [0, -4])
+def test_an_object_crop_refuses_a_nonpositive_requested_size(merged, size):
+    with pytest.raises(CropSourceError, match="size.*positive"):
+        cs.crop_object(merged, merged[:, :, 2], 1, channels=[0], size=size)
+
+
+def test_an_object_crop_with_no_requested_size_keeps_its_natural_box(merged):
+    cut = cs.crop_object(
+        merged, merged[:, :, 2], 1, channels=[0], size=None)
+    assert cut.shape == (6, 6, 1)
+
+
+def test_an_object_crop_accepts_an_odd_requested_size(merged):
+    cut = cs.crop_object(merged, merged[:, :, 2], 1, channels=[0], size=5)
+    assert cut.shape == (5, 5, 1)
 
 
 def test_a_coordinate_crop_with_no_planes_named_is_refused(merged):
