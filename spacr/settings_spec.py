@@ -11,11 +11,11 @@ libraries.
 from __future__ import annotations
 
 import sys
-from .organelle_types import (ALL_ORGANELLE_ROLES as _ORGANELLE_SLOT_ROLES,
-                              DEFAULT_NUMBER_OF_ORGANELLES,
-                              DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
-                              MAX_ORGANELLES,
-                              TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
+
+from .organelle_types import ALL_ORGANELLE_ROLES as _ORGANELLE_SLOT_ROLES
+from .organelle_types import DEFAULT_NUMBER_OF_ORGANELLES, MAX_ORGANELLES
+from .organelle_types import DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT
+from .organelle_types import TYPE_ORDER as _ORGANELLE_TYPE_ORDER
 from .schema import ALL_ROLES
 
 __all__ = ["convert_settings_dict_for_gui"]
@@ -114,6 +114,24 @@ def _torchvision_model_names():
     return list(_TORCHVISION_MODELS_CURATED)
 
 
+def _cellpose_model_names():
+    """Return live Cellpose choices without loading the numerical stack.
+
+    A cold settings-panel build needs only the shipped fallback.  Once either
+    Cellpose or :mod:`spacr.settings` is already loaded, the lightweight
+    accessor in ``settings`` can add installed and user-registered models
+    without making this module responsible for a heavy first import.
+    """
+    settings_name = f"{__package__}.settings"
+    if (settings_name not in sys.modules
+            and "cellpose.models" not in sys.modules):
+        return ["cpsam"]
+
+    from .settings import cellpose_model_choices
+
+    return list(cellpose_model_choices())
+
+
 #: Settings whose widget cannot be decided from the NAME alone, because two
 #: modules use that name for two different closed vocabularies. The value in
 #: hand decides; anything not listed falls through to the name-keyed table.
@@ -193,8 +211,7 @@ def convert_settings_dict_for_gui(settings):
     # torch (~2.5 s) and this runs while a settings page is being built, so
     # the accessor reads the API only when Cellpose is already loaded and
     # degrades to the shipped list otherwise. It is never empty.
-    from .settings import cellpose_model_choices
-    cellpose_models = list(cellpose_model_choices())
+    cellpose_models = _cellpose_model_names()
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
 
     variables = {}
