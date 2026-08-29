@@ -761,6 +761,9 @@ class _Movie:
     def set_fields(self, fields):
         self.fields = fields
 
+    def max_fields(self):
+        return 1
+
 
 def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel,
                                                                  frame_dir):
@@ -771,6 +774,8 @@ def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel,
     watched for.
     """
     panel.load_sequence_async(frame_dir)
+    panel._masks = _synthetic_masks()
+    panel._movie_images = np.zeros((N_FRAMES, H, W), dtype=np.uint16)
     panel._tracked = _synthetic_masks()
     panel._tracks = pd.DataFrame({"frame": [0], "track_id": [1],
                                  "x": [1.0], "y": [1.0]})
@@ -798,6 +803,7 @@ def test_the_movie_falls_back_to_the_masks_when_there_is_no_image_sequence(
     panel._movie_panel = movie
     panel._sequence = None
     panel._masks = _synthetic_masks()
+    panel._tracked = panel._masks
 
     panel._push_to_movie()
 
