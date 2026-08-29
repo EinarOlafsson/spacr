@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Small release helper used locally and by GitHub Actions.
 
-The native builders remain platform-specific. This helper owns the two pieces
-that must be identical everywhere: changing the single package version and
-collecting native online installers into the repository while updating the
-README download links in every supported documentation language.
+The native builders remain platform-specific. This helper owns the release
+metadata that must stay identical and collects native online installers into
+the repository while updating the README download links in every supported
+documentation language.
 """
 
 from __future__ import annotations
@@ -20,6 +20,8 @@ from packaging.version import InvalidVersion, Version
 
 VERSION_PATTERN = re.compile(
     r'^(VERSION\s*=\s*)(["\'])([^"\']+)(["\'])$', re.MULTILINE)
+PACKAGE_VERSION_PATTERN = re.compile(
+    r'^(__version__\s*=\s*)(["\'])([^"\']+)(["\'])$', re.MULTILINE)
 PROJECT_RELEASE_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 README_BEGIN = ".. spacr-installer-links-begin"
 README_END = ".. spacr-installer-links-end"
@@ -79,6 +81,35 @@ def read_version(setup_path: Path) -> str:
     if not match:
         raise ValueError(f"Could not find VERSION in {setup_path}")
     return match.group(3)
+
+
+def read_package_version(package_version_path: Path) -> str:
+    """Return the lightweight version literal used by ``import spacr``."""
+    match = PACKAGE_VERSION_PATTERN.search(
+        package_version_path.read_text(encoding="utf-8")
+    )
+    if not match:
+        raise ValueError(
+            f"Could not find __version__ in {package_version_path}"
+        )
+    return match.group(3)
+
+
+def _updated_package_version_text(
+    package_version_path: Path,
+    requested: str,
+) -> tuple[str, str]:
+    """Return ``(current, updated text)`` for the lightweight literal."""
+    text = package_version_path.read_text(encoding="utf-8")
+    match = PACKAGE_VERSION_PATTERN.search(text)
+    if not match:
+        raise ValueError(
+            f"Could not find __version__ in {package_version_path}"
+        )
+    current = match.group(3)
+    replacement = f'{match.group(1)}"{requested}"'
+    updated = text[:match.start()] + replacement + text[match.end():]
+    return current, updated
 
 
 def _bumped_version_text(
@@ -175,8 +206,13 @@ def read_citation_metadata(citation_path: Path) -> tuple[str, str]:
     return version, released
 
 
-def verify_release_metadata(setup_path: Path, citation_path: Path) -> str:
-    """Require package and citation versions to describe the same release."""
+def verify_release_metadata(
+    setup_path: Path,
+    citation_path: Path,
+    *,
+    package_version_path: Path | None = None,
+) -> str:
+    """Require every release-version source to describe the same release."""
     version = read_version(setup_path)
     citation_version, _released = read_citation_metadata(citation_path)
     try:
@@ -195,6 +231,13 @@ def verify_release_metadata(setup_path: Path, citation_path: Path) -> str:
             f"{setup_path} declares {version}, but {citation_path} declares "
             f"{citation_version}"
         )
+    if package_version_path is not None:
+        package_version = read_package_version(package_version_path)
+        if package_version != version:
+            raise ValueError(
+                f"{setup_path} declares {version}, but "
+                f"{package_version_path} declares {package_version}"
+            )
     return version
 
 
@@ -203,15 +246,16 @@ def bump_release(
     citation_path: Path,
     requested: str,
     *,
+    package_version_path: Path | None = None,
     release_date: str | None = None,
     allow_current: bool = False,
 ) -> str:
-    """Validate both files, then bump package and citation metadata together.
+    """Validate all files, then bump package and citation metadata together.
 
     An idempotent rerun preserves the date already recorded for the requested
     release. If a previous helper updated only ``setup.py``, ``allow_current``
-    repairs the older citation metadata using today's date. All metadata
-    checks run before either file is written; the two filesystem writes remain
+    repairs older citation or facade metadata using today's date. All metadata
+    checks run before any file is written; the filesystem writes remain
     sequential rather than a cross-file transaction.
     """
     new, current, updated_setup = _bumped_version_text(
@@ -221,6 +265,32 @@ def bump_release(
     parsed_citation = Version(citation_version)
     parsed_current = Version(current)
     parsed_new = Version(new)
+
+    package_version = current
+    updated_package = None
+    if package_version_path is not None:
+        package_version, updated_package = _updated_package_version_text(
+            package_version_path,
+            new,
+        )
+        try:
+            parsed_package = Version(package_version)
+        except InvalidVersion as exc:
+            raise ValueError(
+                f"Package version {package_version!r} in "
+                f"{package_version_path} is not valid"
+            ) from exc
+        if parsed_new > parsed_current and parsed_package != parsed_current:
+            raise ValueError(
+                f"Cannot bump {setup_path} from {current}: "
+                f"{package_version_path} declares {package_version}"
+            )
+        if parsed_new == parsed_current and parsed_package > parsed_new:
+            raise ValueError(
+                f"Cannot repair {package_version_path}: its version "
+                f"{package_version} is newer than {setup_path} version "
+                f"{current}"
+            )
 
     if parsed_new > parsed_current and parsed_citation != parsed_current:
         raise ValueError(
@@ -252,7 +322,13 @@ def bump_release(
 
     setup_path.write_text(updated_setup, encoding="utf-8")
     citation_path.write_text(citation_text, encoding="utf-8")
-    return verify_release_metadata(setup_path, citation_path)
+    if package_version_path is not None:
+        package_version_path.write_text(updated_package, encoding="utf-8")
+    return verify_release_metadata(
+        setup_path,
+        citation_path,
+        package_version_path=package_version_path,
+    )
 
 
 def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
@@ -716,6 +792,12 @@ def main() -> int:
     bump_parser.add_argument(
         "--citation", type=Path, default=Path("CITATION.cff"))
     bump_parser.add_argument(
+        "--package-version",
+        type=Path,
+        default=Path("spacr/_version.py"),
+        help="facade version literal kept synchronized with release metadata",
+    )
+    bump_parser.add_argument(
         "--date",
         dest="release_date",
         help="release date in YYYY-MM-DD form (defaults to today)",
@@ -731,6 +813,12 @@ def main() -> int:
     verify_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     verify_parser.add_argument(
         "--citation", type=Path, default=Path("CITATION.cff"))
+    verify_parser.add_argument(
+        "--package-version",
+        type=Path,
+        default=Path("spacr/_version.py"),
+        help="facade version literal verified against release metadata",
+    )
 
     collect_parser = subparsers.add_parser("collect")
     collect_parser.add_argument("--source", type=Path, default=Path("dist/online"))
@@ -769,11 +857,16 @@ def main() -> int:
             args.setup,
             args.citation,
             args.new_version,
+            package_version_path=args.package_version,
             release_date=args.release_date,
             allow_current=args.allow_current,
         ))
     elif args.command == "verify":
-        print(verify_release_metadata(args.setup, args.citation))
+        print(verify_release_metadata(
+            args.setup,
+            args.citation,
+            package_version_path=args.package_version,
+        ))
     elif args.command == "index":
         import json
         releases = (

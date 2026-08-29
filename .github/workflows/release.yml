@@ -98,7 +98,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff
+          git add setup.py CITATION.cff spacr/_version.py
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else

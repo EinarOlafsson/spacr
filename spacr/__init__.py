@@ -5,9 +5,13 @@ from __future__ import annotations
 import os as _os
 import warnings as _warnings
 from importlib import import_module
-from typing import Final
 
-from .version import __version__
+# ``spacr.version`` answers detailed environment/version queries and therefore
+# imports ``importlib.metadata``.  That machinery was more than 60% of a clean
+# installed ``import spacr`` even though the wheel already knows its version.
+# The release helper keeps this literal synchronized with setup.py; callers
+# that explicitly import ``spacr.version`` retain the metadata-backed API.
+from ._version import __version__
 
 # Third-party FutureWarnings that fire at import — noise the user
 # can't act on from inside spaCR. Silenced before the modules that trigger
@@ -54,7 +58,7 @@ _warnings.filterwarnings(
 # The submodules this package documents, in the order that groups them by
 # what they are for. This is the frozen-bundle floor, not the whole list --
 # see `_SUBMODULES` below, which adds whatever else is on disk.
-_DOCUMENTED_SUBMODULES: Final[tuple[str, ...]] = (
+_DOCUMENTED_SUBMODULES: tuple[str, ...] = (
     "api",
     "core",
     "schema",
@@ -430,7 +434,7 @@ def _submodules_on_disk() -> frozenset[str]:
 #: in its own directory had drifted four separate times, each landing a
 #: module that existed but could not be reached through the package, so the
 #: names are taken from the directory whenever there is one to read.
-_SUBMODULES: Final[tuple[str, ...]] = tuple(sorted(
+_SUBMODULES: tuple[str, ...] = tuple(sorted(
     set(_DOCUMENTED_SUBMODULES) | _submodules_on_disk()
 ))
 
@@ -443,7 +447,7 @@ __all__ = [
     "run_measure",
 ]
 
-_FACADE_NAMES: Final[frozenset[str]] = frozenset({
+_FACADE_NAMES: frozenset[str] = frozenset({
     "MaskConfig", "MeasureConfig", "run_mask", "run_measure",
 })
 

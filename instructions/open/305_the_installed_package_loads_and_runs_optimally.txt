@@ -168,3 +168,28 @@ DELIBERATELY NOT DONE
 Do not promise to unload imported Python extension libraries; CPython cannot
 reliably do that. Do not lower scientific quality, skip supported modules, or
 precompute hidden work before timing begins to make a benchmark look faster.
+
+--------------------------------------------------------------------------------
+2026-08-29 — INSTALLED FACADE HOTSPOT REMOVED; ITEM REMAINS OPEN
+--------------------------------------------------------------------------------
+
+An installed-wheel profile identified ``importlib.metadata`` as more than
+60 percent of the cold ``import spacr`` path. The package facade now reads a
+release-synchronised lightweight literal while the explicit public
+``spacr.version`` module retains its metadata-backed inspection API. In clean,
+dependency-free wheel environments on Python 3.12.4 (Ryzen 9 5950X), the
+median cold import fell from 38.692 ms to 7.314 ms (81.1 percent), and loaded
+modules fell from 160 to 77. The plugin-disable path also defers entry-point
+metadata, cutting its CLI import and ``--list`` paths by 52.2 and 47.1 percent.
+
+Portable subprocess ratchets now prove that the facade and plugin-disabled
+CLI import neither scientific libraries nor distribution metadata. Release
+tooling verifies and bumps ``setup.py``, ``spacr/_version.py`` and
+``CITATION.cff`` together, including an installed-wheel build and bump
+simulation. The normal plugin-enabled CLI deliberately retains its entry-point
+scan so installed plugins remain visible in ``MODULES`` and ``--list``.
+
+This closes only the non-Qt facade/CLI metadata hotspot. The item stays OPEN
+for real post-paint Home readiness, all-module click-to-ready traces, event-loop
+stall and RSS measurements, heavy-stack operation boundaries, cache-budget
+wiring, the sdist-installed path and the complete supported CI matrix.
