@@ -428,7 +428,7 @@ def apply(kind: Optional[str] = None,
         palette = style.get("palette")
         if palette:
             _apply_palette(palette)
-    except Exception:  # pragma: no cover - never fail a run over styling
+    except Exception:  # never fail a run over styling
         pass
     return style
 
@@ -559,11 +559,11 @@ def to_rgb(colour) -> Optional[tuple]:
             return None
         if len(values) in (3, 4):
             return tuple(values[:3])
-    try:                                   # pragma: no cover - optional path
+    try:                                   # the colour spellings only matplotlib reads
         from matplotlib.colors import to_rgba
 
         red, green, blue, alpha = to_rgba(colour)
-    except Exception:                      # pragma: no cover
+    except Exception:
         return None
     return None if alpha == 0 else (red, green, blue)
 
@@ -825,7 +825,7 @@ def figure_save_mode() -> str:
     requested = os.environ.get("SPACR_FIGURE_SAVE_MODE", "").strip().lower()
     if requested in SAVE_MODES:
         return requested
-    try:                                   # pragma: no cover - needs Qt
+    try:                                   # the GUI's own answer, when there is one
         from .qt import preferences
 
         getter = getattr(preferences, "get_figure_save_mode", None)
@@ -833,7 +833,7 @@ def figure_save_mode() -> str:
             stored = str(getter()).strip().lower()
             if stored in SAVE_MODES:
                 return stored
-    except Exception:                      # pragma: no cover
+    except Exception:
         pass
     return "print"
 
