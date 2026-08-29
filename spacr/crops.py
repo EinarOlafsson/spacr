@@ -73,7 +73,10 @@ import json
 import os
 import re
 import sqlite3
+import sys
 import tempfile
+import time
+from collections import OrderedDict
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
@@ -855,13 +858,78 @@ def _load_mmap(path: str):
 # A tiny LRU of open fields, so a grid that walks a handful of fields keeps
 # their label indices between calls. Keyed on (path, mtime, size) so a
 # regenerated merged file is never served from a stale entry.
-_FIELD_CACHE: "Dict[Tuple[str, int, int], MergedField]" = {}
+_FIELD_CACHE: "OrderedDict[Tuple[str, int, int], MergedField]" = OrderedDict()
 _FIELD_CACHE_MAX = 8
+# Epoch seconds are kept separately so the cache's public values remain real
+# ``MergedField`` objects.  The resource-budget sweep reads this clock and the
+# measured byte count without having to wrap (and thereby change) them.
+_FIELD_CACHE_USED: "Dict[Tuple[str, int, int], float]" = {}
 
 
 def clear_field_cache() -> None:
     """Drop every cached :class:`MergedField` (and its label indices)."""
     _FIELD_CACHE.clear()
+    _FIELD_CACHE_USED.clear()
+
+
+def _merged_field_cache_bytes(field: MergedField) -> int:
+    """Bytes addressable through a cached field, counted without reading it.
+
+    A merged array is memory-mapped, so ``nbytes`` describes the mapping
+    without faulting its pages into RAM.  Derived masks and label indices are
+    ordinary arrays and are added once each.  This is deliberately an
+    accounting measurement, not an RSS guess: RSS includes shared pages and
+    allocator state that this one cache cannot honestly claim to own.
+    """
+    arrays = [getattr(field, "array", None)]
+    arrays.extend(getattr(field, "_derived", {}).values())
+    for index in getattr(field, "_indices", {}).values():
+        arrays.extend(value for value in vars(index).values()
+                      if hasattr(value, "nbytes"))
+    total = 0
+    seen = set()
+    for value in arrays:
+        if value is None or id(value) in seen:
+            continue
+        seen.add(id(value))
+        try:
+            total += max(0, int(value.nbytes))
+        except (AttributeError, TypeError, ValueError):
+            continue
+    return total
+
+
+def cache_budget_entries():
+    """Budget records for the live merged-field cache.
+
+    Each row is ``(opaque key, measured bytes, last-use epoch, in-use)``.
+    Removing a field from this dictionary cannot invalidate a caller that is
+    already using it -- that caller owns its own reference -- so entries are
+    safely evictable here.  The active object itself survives until the caller
+    releases it.
+    """
+    now = time.time()
+    return [
+        (key, _merged_field_cache_bytes(field),
+         float(_FIELD_CACHE_USED.get(key, now)), False)
+        for key, field in list(_FIELD_CACHE.items())
+    ]
+
+
+def drop_cache_budget_entry(key) -> bool:
+    """Evict one merged field selected by the global memory policy."""
+    existed = key in _FIELD_CACHE
+    _FIELD_CACHE.pop(key, None)
+    _FIELD_CACHE_USED.pop(key, None)
+    return existed
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Start the GUI sweep if resource cleanup was registered before Qt."""
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
 
 
 def _cache_key(path: str) -> Tuple[str, int, int]:
@@ -893,11 +961,16 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
     key = _cache_key(path)
     cached = _FIELD_CACHE.get(key)
     if cached is not None and cached.mask_dims == dims:
+        _FIELD_CACHE.move_to_end(key)
+        _FIELD_CACHE_USED[key] = time.time()
         return cached
     fld = MergedField(path, mask_dims=dims)
     if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
-        _FIELD_CACHE.pop(next(iter(_FIELD_CACHE)))
+        oldest, _ = _FIELD_CACHE.popitem(last=False)
+        _FIELD_CACHE_USED.pop(oldest, None)
     _FIELD_CACHE[key] = fld
+    _FIELD_CACHE_USED[key] = time.time()
+    _ensure_cache_budget_sweep()
     return fld
 
 

@@ -82,18 +82,20 @@ import gc
 import logging
 import os
 import shutil
-from dataclasses import dataclass, field
+import sys
+import time
+from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.qt.resource_cleanup")
 
 __all__ = [
-    "Reclaim", "DiskEntry", "DiskReport",
+    "Reclaim", "DiskEntry", "DiskReport", "BudgetSweep",
     "clear_ram", "clear_vram", "clear_cpu", "disk_report",
     "confirmation_title", "confirmation_text", "ACTIONS",
     "MODEL_RELEASERS", "process_rss", "cuda_reserved",
     "run_launch_cleanup", "run_pre_run_cleanup", "install_run_hook",
-    "register",
+    "register", "sweep_memory_budget", "install_budget_sweep",
 ]
 
 #: The four buttons, in the order Preferences shows them.
@@ -123,7 +125,15 @@ _DICT_CACHES: Tuple[Tuple[str, str], ...] = (
     ("spacr.crops", "_FORMAT_CACHE"),
     ("spacr.crops", "_DB_FORMAT_CACHE"),
     ("spacr.qt.widgets.data_filter_panel", "_KINDS_CACHE"),
+    ("spacr.qt.annotate_engine", "_MASK_CACHE"),
+    ("spacr.qt.annotate_engine", "_EDGE_CACHE"),
 )
+
+# A sweep does bounded work on the GUI thread.  If more is required, the next
+# five-second tick continues it; no single pass can pickle/spill hundreds of
+# figures and turn a memory safeguard into the event-loop freeze it prevents.
+BUDGET_SWEEP_INTERVAL_MS = 5000
+BUDGET_SWEEP_MAX_ENTRIES = 64
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +236,43 @@ class DiskReport:
         return min(self.entries, key=lambda e: e.free, default=None)
 
 
+@dataclass(frozen=True)
+class BudgetSweep:
+    """Observable result of applying the user's live-cache policy.
+
+    ``before_mb``/``after_mb`` are sums of the cache owners' measured entry
+    sizes, not process RSS.  That makes the accounting stable and attributable:
+    shared pages and Python's allocator cannot make an evicted entry appear to
+    have grown.  RSS remains the measurement reported by :class:`Reclaim` for
+    the explicit Clear RAM action.
+    """
+
+    before_mb: float = 0.0
+    after_mb: float = 0.0
+    dropped: Tuple[str, ...] = ()
+    retained_in_use: Tuple[str, ...] = ()
+    pressure: bool = False
+    complete: bool = True
+    models_released: int = 0
+    vram_freed: int = 0
+    errors: Tuple[str, ...] = ()
+
+    @property
+    def freed_mb(self) -> float:
+        """Measured cache bytes removed by this sweep, in MiB."""
+        return max(0.0, float(self.before_mb) - float(self.after_mb))
+
+
+@dataclass(frozen=True)
+class _BudgetEntry:
+    token: str
+    label: str
+    megabytes: float
+    last_used: float
+    in_use: bool
+    drop: Callable[[], bool]
+
+
 def human_bytes(count: int) -> str:
     """``1536`` -> ``"1.5 KB"``. Two significant places, never a fake one."""
     value = float(max(0, int(count)))
@@ -307,6 +354,239 @@ def _thread_count() -> int:
 
 
 # ---------------------------------------------------------------------------
+# The live-cache budget
+# ---------------------------------------------------------------------------
+
+def _loaded_cache_owners():
+    """Return cache owners already present in this process; import nothing.
+
+    A cleanup whose purpose is to release memory must never import the screen
+    or pipeline that owns it.  Module caches expose the same two-method
+    protocol as object caches; widget-owned caches publish weak snapshots, so
+    observing them cannot extend their lifetime.
+    """
+    owners = []
+    for module_name in ("spacr.crops", "spacr.qt.annotate_engine"):
+        module = sys.modules.get(module_name)
+        if (module is not None
+                and callable(getattr(module, "cache_budget_entries", None))
+                and callable(getattr(module, "drop_cache_budget_entry", None))):
+            owners.append(module)
+    for module_name, accessor_name in (
+            ("spacr.qt.crop_thumbs", "live_thumbnail_caches"),
+            ("spacr.qt.widgets.figure_queue", "live_figure_queues")):
+        module = sys.modules.get(module_name)
+        accessor = getattr(module, accessor_name, None)
+        if not callable(accessor):
+            continue
+        try:
+            owners.extend(accessor())
+        except Exception:                                      # noqa: BLE001
+            LOG.debug("could not enumerate %s", module_name, exc_info=True)
+    # A buggy screen must not make the same owner count twice.
+    return tuple({id(owner): owner for owner in owners}.values())
+
+
+def _owner_label(owner) -> str:
+    return str(getattr(owner, "__name__", "")
+               or f"{type(owner).__module__}.{type(owner).__name__}")
+
+
+def _collect_budget_entries(owners=None):
+    records: List[_BudgetEntry] = []
+    errors: List[str] = []
+    for owner in tuple(_loaded_cache_owners() if owners is None else owners):
+        label = _owner_label(owner)
+        try:
+            rows = owner.cache_budget_entries()
+        except Exception as exc:                               # noqa: BLE001
+            errors.append(f"{label}: inventory failed ({exc})")
+            LOG.debug("could not inventory %s", label, exc_info=True)
+            continue
+        for ordinal, row in enumerate(rows):
+            try:
+                key, byte_count, last_used, in_use = row
+                token = f"cache-{len(records):08d}"
+                key_label = repr(key)
+                if len(key_label) > 160:
+                    key_label = key_label[:157] + "..."
+
+                def _drop(owner=owner, key=key):
+                    return bool(owner.drop_cache_budget_entry(key))
+
+                records.append(_BudgetEntry(
+                    token=token,
+                    label=f"{label}[{key_label}]",
+                    megabytes=max(0, int(byte_count)) / (1024.0 * 1024.0),
+                    last_used=float(last_used),
+                    in_use=bool(in_use),
+                    drop=_drop,
+                ))
+            except Exception as exc:                           # noqa: BLE001
+                errors.append(f"{label} entry {ordinal}: invalid ({exc})")
+                LOG.debug("invalid cache entry from %s", label, exc_info=True)
+    return records, errors
+
+
+def _budget_values(idle_minutes, ceiling_mb):
+    from .memory_budget import (
+        DEFAULT_CACHE_CEILING_MB,
+        DEFAULT_IDLE_MINUTES,
+    )
+
+    if idle_minutes is None or ceiling_mb is None:
+        try:
+            from .preferences import get_cache_ceiling_mb, get_idle_minutes
+
+            if idle_minutes is None:
+                idle_minutes = get_idle_minutes()
+            if ceiling_mb is None:
+                ceiling_mb = get_cache_ceiling_mb()
+        except Exception:                                    # noqa: BLE001
+            idle_minutes = (DEFAULT_IDLE_MINUTES
+                            if idle_minutes is None else idle_minutes)
+            ceiling_mb = (DEFAULT_CACHE_CEILING_MB
+                          if ceiling_mb is None else ceiling_mb)
+    return max(0.0, float(idle_minutes)), max(0.0, float(ceiling_mb))
+
+
+def _a_run_is_active() -> bool:
+    """Read the already-loaded registry without importing the Qt bridge."""
+    bridge = sys.modules.get("spacr.qt.bridge")
+    registry = bridge.registry if bridge is not None else None
+    if not callable(registry):
+        return False
+    try:
+        return bool(registry().active())
+    except Exception:                                        # noqa: BLE001
+        return True
+
+
+def _release_models_under_pressure() -> int:
+    """Drop registered warm models only when no run can be using them."""
+    if _a_run_is_active():
+        return 0
+    released = 0
+    for releaser in list(MODEL_RELEASERS):
+        try:
+            released += max(0, int(releaser() or 0))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a model releaser failed", exc_info=True)
+    return released
+
+
+def sweep_memory_budget(*, now: Optional[float] = None,
+                        idle_minutes: Optional[float] = None,
+                        ceiling_mb: Optional[float] = None,
+                        headroom_short: Optional[bool] = None,
+                        max_entries: int = BUDGET_SWEEP_MAX_ENTRIES,
+                        owners=None) -> BudgetSweep:
+    """Apply idle age, one global byte ceiling, and the free-memory floor.
+
+    :param now: epoch seconds; explicit so a controlled-clock test can drive
+        real cache entries.
+    :param idle_minutes: override for tests; otherwise the live preference.
+    :param ceiling_mb: global RAM-cache ceiling; otherwise the preference.
+    :param headroom_short: controlled pressure state for tests.  When omitted,
+        :func:`spacr.qt.memory_budget.headroom_is_short` is measured before
+        and after each pressure eviction, stopping as soon as the floor is
+        restored.
+    :param max_entries: hard bound on evictions in this call.
+    :param owners: optional owner sequence for an isolated test; production
+        discovers all already-loaded registered caches.
+    :returns: measured, attributable accounting for the pass.
+
+    In-use entries are excluded before either policy is evaluated.  Their
+    bytes still count against the one process-wide ceiling, so a pinned 100 MB
+    Figure leaves 100 MB less room for evictable thumbnails; applying a full
+    ceiling independently to every cache would multiply the user's setting by
+    the number of open screens.
+    """
+    from . import memory_budget
+
+    instant = time.time() if now is None else float(now)
+    idle, ceiling = _budget_values(idle_minutes, ceiling_mb)
+    entries, errors = _collect_budget_entries(owners)
+    before = sum(row.megabytes for row in entries)
+    pinned = [row for row in entries if row.in_use]
+    candidates = [row for row in entries if not row.in_use]
+    pinned_mb = sum(row.megabytes for row in pinned)
+    available_ceiling = max(0.0, ceiling - pinned_mb)
+    policy_tokens = memory_budget.what_to_drop(
+        [(row.token, row.megabytes, row.last_used) for row in candidates],
+        instant, idle_minutes=idle, ceiling_mb=available_ceiling)
+    by_token = {row.token: row for row in candidates}
+    normal = [by_token[token] for token in policy_tokens if token in by_token]
+
+    explicit_pressure = headroom_short is not None
+    pressure = (bool(headroom_short) if explicit_pressure
+                else memory_budget.headroom_is_short())
+    limit = max(0, int(max_entries))
+    attempted = set()
+    dropped: List[str] = []
+    freed = 0.0
+
+    def _evict(row: _BudgetEntry) -> bool:
+        nonlocal freed
+        attempted.add(row.token)
+        try:
+            removed = bool(row.drop())
+        except Exception as exc:                              # noqa: BLE001
+            errors.append(f"{row.label}: eviction failed ({exc})")
+            LOG.debug("could not evict %s", row.label, exc_info=True)
+            return False
+        if removed:
+            dropped.append(row.label)
+            freed += row.megabytes
+        return removed
+
+    for row in normal:
+        if len(attempted) >= limit:
+            break
+        _evict(row)
+
+    # Headroom is a hard floor, not another per-cache size.  Once ordinary
+    # idle/ceiling evictions have run, release the coldest remaining entries
+    # until the measured floor is restored or this bounded pass is exhausted.
+    remaining = sorted((row for row in candidates
+                        if row.token not in attempted),
+                       key=lambda row: row.last_used)
+    pressure_remaining = pressure
+    if pressure_remaining and not explicit_pressure:
+        pressure_remaining = memory_budget.headroom_is_short()
+    while pressure_remaining and remaining and len(attempted) < limit:
+        row = remaining.pop(0)
+        _evict(row)
+        pressure_remaining = (True if explicit_pressure
+                              else memory_budget.headroom_is_short())
+
+    models_released = 0
+    vram_freed = 0
+    if pressure_remaining and len(attempted) < limit and not _a_run_is_active():
+        models_released = _release_models_under_pressure()
+        # CUDA allocator blocks are reclaimable state too.  This never imports
+        # torch or initialises a CUDA context; clear_vram has both guards.
+        result = clear_vram(release_models=False)
+        vram_freed = result.freed
+
+    pending_normal = any(row.token not in attempted for row in normal)
+    pending_pressure = bool(pressure_remaining and remaining)
+    complete = not pending_normal and not pending_pressure
+    after = max(0.0, before - freed)
+    return BudgetSweep(
+        before_mb=before,
+        after_mb=after,
+        dropped=tuple(dropped),
+        retained_in_use=tuple(row.label for row in pinned),
+        pressure=pressure,
+        complete=complete,
+        models_released=models_released,
+        vram_freed=vram_freed,
+        errors=tuple(errors),
+    )
+
+
+# ---------------------------------------------------------------------------
 # RAM
 # ---------------------------------------------------------------------------
 
@@ -325,8 +605,13 @@ def _clear_lru_caches() -> List[str]:
                 value = getattr(module, attr)
             except Exception:
                 continue
-            clear = getattr(value, "cache_clear", None)
-            info = getattr(value, "cache_info", None)
+            try:
+                clear = getattr(value, "cache_clear", None)
+                info = getattr(value, "cache_info", None)
+            except Exception:
+                LOG.debug("could not inspect %s.%s", name, attr,
+                          exc_info=True)
+                continue
             if not callable(clear) or not callable(info):
                 continue
             try:
@@ -353,6 +638,9 @@ def _clear_dict_caches() -> List[str]:
         held = len(cache)
         try:
             cache.clear()
+            metadata = getattr(module, f"{attribute}_USED", None)
+            if isinstance(metadata, dict):
+                metadata.clear()
             done.append(f"{module_name}.{attribute} ({held} entries)")
         except Exception:
             LOG.debug("could not clear %s.%s", module_name, attribute,
@@ -374,7 +662,7 @@ def _clear_thumbnail_caches() -> List[str]:
     if thumbs_module is None or widgets_module is None:
         return done
     cls = getattr(thumbs_module, "CropThumbnails", None)
-    app = getattr(widgets_module, "QApplication").instance()
+    app = widgets_module.QApplication.instance()
     if cls is None or app is None:
         return done
     cleared = 0
@@ -402,11 +690,15 @@ def _clear_pixmap_cache() -> List[str]:
     """Qt's own pixmap cache — spaCR's process, spaCR's memory."""
     try:
         from PySide6.QtGui import QPixmapCache
-        held = int(QPixmapCache.totalUsed())
-        if not held:
-            return []
+
+        # Qt 6 removed ``totalUsed`` from the Python API. Absence of an
+        # accounting reading must not turn into absence of the cleanup: clear
+        # the cache either way, and report a byte count only when Qt supplied
+        # one. Inventing a count would violate Reclaim's measured contract.
+        total_used = getattr(QPixmapCache, "totalUsed", None)
+        held = int(total_used()) if callable(total_used) else None
         QPixmapCache.clear()
-        return [f"Qt pixmap cache ({held} KB)"]
+        return [f"Qt pixmap cache ({held} KB)"] if held else []
     except Exception:
         LOG.debug("could not clear the Qt pixmap cache", exc_info=True)
         return []
@@ -926,6 +1218,8 @@ def run_pre_run_cleanup(app_key: str = "") -> List[Reclaim]:
 _INSTALLED = False
 _LAUNCH_DONE = False
 _SEEN_RUNS: set = set()
+_BUDGET_TIMER = None
+_BUDGET_SWEEP_PENDING = False
 
 
 def _on_registry_changed() -> None:
@@ -945,12 +1239,80 @@ def _on_registry_changed() -> None:
     _SEEN_RUNS.intersection_update(live)
     fresh = [handle for handle in handles if id(handle) not in _SEEN_RUNS]
     if not fresh:
+        # A run just finished (or the registry only shed a handle).  Its
+        # caches are no longer in use; let the event loop settle, then apply
+        # the same global policy the periodic sweep uses.
+        _request_budget_sweep()
         return
     _SEEN_RUNS.update(id(handle) for handle in fresh)
     try:
         run_pre_run_cleanup(getattr(fresh[0], "app_key", ""))
     except Exception:
         LOG.debug("the pre-run cleanup failed", exc_info=True)
+
+
+def _budget_tick() -> None:
+    global _BUDGET_SWEEP_PENDING
+    _BUDGET_SWEEP_PENDING = False
+    try:
+        result = sweep_memory_budget()
+        if result.dropped or result.models_released or result.vram_freed:
+            LOG.info(
+                "memory budget: %.1f -> %.1f MiB; %d cache entries, "
+                "%d model references and %s VRAM released",
+                result.before_mb, result.after_mb, len(result.dropped),
+                result.models_released, human_bytes(result.vram_freed))
+        elif result.errors:
+            LOG.debug("memory budget sweep: %s", "; ".join(result.errors))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the live-cache budget sweep failed", exc_info=True)
+
+
+def _request_budget_sweep() -> None:
+    """Queue a sweep after the current Qt signal/paint has returned."""
+    global _BUDGET_SWEEP_PENDING
+    if _BUDGET_SWEEP_PENDING:
+        return
+    _BUDGET_SWEEP_PENDING = True
+    try:
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(0, _budget_tick)
+    except Exception:                                        # noqa: BLE001
+        _BUDGET_SWEEP_PENDING = False
+        # No event loop means the periodic integration is inapplicable.  The
+        # explicit ``sweep_memory_budget`` API remains usable by headless code.
+        LOG.debug("could not queue the live-cache sweep", exc_info=True)
+
+
+def install_budget_sweep() -> bool:
+    """Install the bounded periodic policy sweep on the live QApplication."""
+    global _BUDGET_TIMER
+    if _BUDGET_TIMER is not None:
+        try:
+            if _BUDGET_TIMER.isActive():
+                return True
+        except RuntimeError:
+            _BUDGET_TIMER = None
+    try:
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QApplication
+
+        app = QApplication.instance()
+        if app is None:
+            return False
+        timer = QTimer(app)
+        timer.setObjectName("LiveCacheBudgetSweep")
+        timer.setInterval(BUDGET_SWEEP_INTERVAL_MS)
+        timer.setSingleShot(False)
+        timer.timeout.connect(_budget_tick)
+        timer.start()
+        _BUDGET_TIMER = timer
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not install the live-cache budget sweep",
+                  exc_info=True)
+        return False
 
 
 def install_run_hook() -> bool:
@@ -982,6 +1344,7 @@ def register() -> bool:
     """
     global _LAUNCH_DONE
     install_run_hook()
+    install_budget_sweep()
     if not _LAUNCH_DONE:
         _LAUNCH_DONE = True
         try:

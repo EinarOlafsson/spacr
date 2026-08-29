@@ -15,15 +15,15 @@ import colorsys
 import contextlib
 import logging
 import os
-import re
 import queue
+import re
 import sqlite3
+import sys
 import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional,
-                    Sequence, Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 from PIL import Image
@@ -31,11 +31,20 @@ from skimage.exposure import rescale_intensity
 
 from spacr.database_concurrency import (
     connect as connect_database,
+)
+from spacr.database_concurrency import (
     transaction,
 )
 
-
 LOG = logging.getLogger("spacr.qt.annotate_engine")
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Start the GUI sweep if resource cleanup was registered before Qt."""
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
 
 
 # ---------------------------------------------------------------------------
@@ -345,6 +354,7 @@ _MASK_CACHE_SIZE = 512
 
 #: The cache itself: {(channel bytes, shape, sigma, factor): mask}.
 _MASK_CACHE: "OrderedDict" = None
+_MASK_CACHE_USED: Dict[Any, float] = {}
 
 
 def _foreground_mask(channel, sigma: float, factor: float):
@@ -358,6 +368,7 @@ def _foreground_mask(channel, sigma: float, factor: float):
     global _MASK_CACHE
     if _MASK_CACHE is None:
         _MASK_CACHE = OrderedDict()
+        _ensure_cache_budget_sweep()
 
     from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter
     from skimage.filters import threshold_otsu
@@ -368,6 +379,7 @@ def _foreground_mask(channel, sigma: float, factor: float):
     cached = _MASK_CACHE.get(key)
     if cached is not None:
         _MASK_CACHE.move_to_end(key)
+        _MASK_CACHE_USED[key] = time.time()
         return cached
 
     smoothed = gaussian_filter(contiguous.astype(np.float32), sigma=sigma)
@@ -381,13 +393,16 @@ def _foreground_mask(channel, sigma: float, factor: float):
     mask = binary_fill_holes(mask)
 
     _MASK_CACHE[key] = mask
+    _MASK_CACHE_USED[key] = time.time()
     while len(_MASK_CACHE) > _MASK_CACHE_SIZE:
-        _MASK_CACHE.popitem(last=False)
+        old, _ = _MASK_CACHE.popitem(last=False)
+        _MASK_CACHE_USED.pop(old, None)
     return mask
 
 
 #: {(mask bytes, shape, thickness): edge}
 _EDGE_CACHE: "OrderedDict" = None
+_EDGE_CACHE_USED: Dict[Any, float] = {}
 
 
 def _edge_of(mask, thickness: int):
@@ -398,12 +413,14 @@ def _edge_of(mask, thickness: int):
     global _EDGE_CACHE
     if _EDGE_CACHE is None:
         _EDGE_CACHE = OrderedDict()
+        _ensure_cache_budget_sweep()
 
     packed = np.packbits(np.ascontiguousarray(mask))
     key = (hash(packed.tobytes()), tuple(np.shape(mask)), int(thickness))
     cached = _EDGE_CACHE.get(key)
     if cached is not None:
         _EDGE_CACHE.move_to_end(key)
+        _EDGE_CACHE_USED[key] = time.time()
         return cached
 
     edge = find_boundaries(mask, mode="inner").astype(np.uint8)
@@ -411,8 +428,10 @@ def _edge_of(mask, thickness: int):
         edge = dilation(edge > 0, disk(thickness)).astype(np.uint8)
 
     _EDGE_CACHE[key] = edge
+    _EDGE_CACHE_USED[key] = time.time()
     while len(_EDGE_CACHE) > _MASK_CACHE_SIZE:
-        _EDGE_CACHE.popitem(last=False)
+        old, _ = _EDGE_CACHE.popitem(last=False)
+        _EDGE_CACHE_USED.pop(old, None)
     return edge
 
 
@@ -421,6 +440,34 @@ def forget_outline_masks() -> None:
     global _MASK_CACHE, _EDGE_CACHE
     _MASK_CACHE = None
     _EDGE_CACHE = None
+    _MASK_CACHE_USED.clear()
+    _EDGE_CACHE_USED.clear()
+
+
+def cache_budget_entries():
+    """Measured records for decoded outline arrays retained between draws."""
+    rows = []
+    now = time.time()
+    for kind, cache, used in (
+            ("mask", _MASK_CACHE, _MASK_CACHE_USED),
+            ("edge", _EDGE_CACHE, _EDGE_CACHE_USED)):
+        for key, value in list((cache or {}).items()):
+            rows.append(((kind, key), max(0, int(value.nbytes)),
+                         float(used.get(key, now)), False))
+    return rows
+
+
+def drop_cache_budget_entry(record_key) -> bool:
+    """Evict one decoded array selected by the global memory policy."""
+    kind, key = record_key
+    cache = _MASK_CACHE if kind == "mask" else _EDGE_CACHE
+    used = _MASK_CACHE_USED if kind == "mask" else _EDGE_CACHE_USED
+    if cache is None:
+        return False
+    existed = key in cache
+    cache.pop(key, None)
+    used.pop(key, None)
+    return existed
 
 
 # ---------------------------------------------------------------------------
