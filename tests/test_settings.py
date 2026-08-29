@@ -92,7 +92,7 @@ def test_setter_preserves_caller_supplied_values(fname):
 # ---------------------------------------------------------------------------
 
 DICT_ATTRS = [
-    "categories", "category_dependencies", "category_group_dependencies",
+    "categories", "category_dependencies",
     "category_integer_dependencies", "category_value_dependencies",
     "descriptions", "expected_types", "tooltips",
 ]
@@ -102,6 +102,11 @@ DICT_ATTRS = [
 def test_module_dict_is_non_empty(name):
     d = getattr(S, name)
     assert isinstance(d, dict) and len(d) > 0, f"{name} should be a non-empty dict"
+
+
+def test_category_group_dependencies_contains_no_retired_setting():
+    """The compatibility hook must not resurrect a deleted settings key."""
+    assert S.category_group_dependencies == {}
 
 
 def test_descriptions_mask_help_typo_fixes_persisted():
