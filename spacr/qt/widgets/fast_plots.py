@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 _MIN_PDF_RESOLUTION = 72
 _MAX_PDF_RESOLUTION = 2400
 
-try:  # pragma: no cover - exercised by the import guard test
+try:  # exercised by the import guard test
     import pyqtgraph as pg
     from pyqtgraph import ScatterPlotItem
     HAVE_PYQTGRAPH = True
@@ -764,7 +764,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
             from ..preferences import set_figure_style_default
 
             set_figure_style_default(kind, style_as_dict(style))
-        except Exception:       # pragma: no cover - no settings store
+        except Exception:       # no settings store
             _say("There is no settings store to save a default into.")
             return
         _say(f"Every {kind} figure from now on starts from this style. "
@@ -775,7 +775,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
             from ..preferences import clear_figure_style_default
 
             cleared = clear_figure_style_default(kind)
-        except Exception:       # pragma: no cover - no settings store
+        except Exception:       # no settings store
             return
         _say(f"The saved {kind} default is gone; new figures use the "
              f"package's own." if cleared else
@@ -799,7 +799,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
         from ..preferences import get_figure_style_default
 
         has_default = bool(get_figure_style_default(kind))
-    except Exception:           # pragma: no cover - no settings store
+    except Exception:           # no settings store
         pass
     action = menu.addAction("Clear the default", _clear_default)
     # Greyed when there is nothing to clear (106), and it doubles as the
@@ -826,7 +826,7 @@ def apply_default_style(style, on_change=None) -> list:
         from ..preferences import get_figure_style_default
 
         saved = get_figure_style_default(style_kind(style))
-    except Exception:           # pragma: no cover - no settings store
+    except Exception:           # no settings store
         return []
     return apply_style_dict(style, saved, on_change) if saved else []
 
@@ -1069,7 +1069,7 @@ def _figure_colors() -> tuple:
         from ..preferences import get_figure_colors
 
         return get_figure_colors()
-    except Exception:      # pragma: no cover - no settings store available
+    except Exception:      # no settings store available
         return "none", _FALLBACK_FOREGROUND
 
 
@@ -1248,7 +1248,7 @@ class FastPlot(QWidget):
             from ..theme import make_transparent
 
             make_transparent(self, self.plot, self.plot.viewport())
-        except Exception:                   # pragma: no cover - theme absent
+        except Exception:                   # theme absent
             pass
         layout.addWidget(self.plot, 1)
 
@@ -1867,7 +1867,7 @@ class FastPlot(QWidget):
         for name in frame.columns:
             try:
                 distinct = frame[name].astype(str).nunique(dropna=False)
-            except Exception:       # pragma: no cover - an unhashable cell
+            except Exception:       # an unhashable cell
                 continue
             if 2 <= int(distinct) <= MAX_SHAPE_VALUES:
                 found.append(str(name))
@@ -2016,7 +2016,7 @@ class FastPlot(QWidget):
         # plot argue with the person driving it.
         try:
             plot_item.vb.sigRangeChangedManually.connect(self._forget_pins)
-        except Exception:               # pragma: no cover - no such signal
+        except Exception:               # no such signal
             pass
 
     def _forget_pins(self, *_args) -> None:
@@ -2038,19 +2038,25 @@ class FastPlot(QWidget):
                           self._counts_of(x, y))
         if isinstance(item, pg.InfiniteLine):
             angle = float(getattr(item, "angle", 90.0)) % 180.0
-            value = float(item.value())
+            # THE ANGLE IS ASKED FIRST, AND THAT ORDER IS THE POINT.
+            # `InfiniteLine.value()` answers with a scalar only for the two
+            # orthogonal angles; an oblique line answers with the whole
+            # ``[x, y]`` position, and `float()` of a list is a TypeError --
+            # so reading the value before the branch made adding a diagonal
+            # line to any plot in this module raise out of `addItem` instead
+            # of reaching the branch written to ignore it.
             if angle == 90.0:
-                x, y = np.array([value]), None
+                x, y = np.array([float(item.value())]), None
             elif angle == 0.0:
-                x, y = None, np.array([value])
-            else:                       # pragma: no cover - no oblique lines
+                x, y = None, np.array([float(item.value())])
+            else:                       # an oblique line moves on neither axis
                 return None
             return _Drawn(item, x, y, blocks, "line", self._counts_of(x, y))
         if isinstance(item, pg.BarGraphItem):
             try:
                 edges = [np.atleast_1d(np.asarray(v, dtype="float64"))
                          for v in item._getNormalizedCoords()]
-            except Exception:           # pragma: no cover - an odd bar spec
+            except Exception:           # an odd bar spec
                 # A BAR WE CANNOT READ IS A BAR WE CANNOT MOVE, and a scale
                 # that leaves one item behind is the bug this file is fixing.
                 blocks = {"x": "one of the bars cannot be re-measured",
@@ -2074,7 +2080,7 @@ class FastPlot(QWidget):
         if callable(getter):
             try:
                 data = getter()
-            except Exception:           # pragma: no cover - an empty curve
+            except Exception:           # an empty curve
                 return None
             if not data or data[0] is None or data[1] is None:
                 return None
@@ -2138,7 +2144,7 @@ class FastPlot(QWidget):
         edge = "left" if axis == "y" else "bottom"
         try:
             named = getattr(self.plot.getAxis(edge), "_tickLevels", None)
-        except Exception:               # pragma: no cover - absent axis
+        except Exception:               # absent axis
             named = None
         if named:
             # THE AXIS IS A LIST OF GROUPS. A control panel's x and an effect
@@ -2374,7 +2380,7 @@ class FastPlot(QWidget):
             return
         try:
             axis = self.plot.getAxis("left")
-        except Exception:                   # pragma: no cover - absent axis
+        except Exception:                   # absent axis
             return
         original_values = axis.tickValues
         original_strings = axis.tickStrings
@@ -2749,7 +2755,7 @@ class FastPlot(QWidget):
         for name in ("bottom", "left"):
             try:
                 axis = self.plot.getAxis(name)
-            except Exception:           # pragma: no cover - absent axis
+            except Exception:           # absent axis
                 continue
             axis.setTextPen(pen)
             if size is not None:
@@ -2789,7 +2795,7 @@ class FastPlot(QWidget):
                 continue
             try:
                 label.setColor(QColor(colour))
-            except Exception:       # pragma: no cover - not a labelled line
+            except Exception:       # not a labelled line
                 pass
         legend = getattr(self.plot.plotItem, "legend", None)
         if legend is not None:
@@ -2799,7 +2805,7 @@ class FastPlot(QWidget):
                     continue
                 try:
                     text.setText(text.text, color=colour)
-                except Exception:   # pragma: no cover - an odd legend item
+                except Exception:   # an odd legend item
                     pass
 
     # ----------------------------------------------------------------- lines
@@ -2842,7 +2848,7 @@ class FastPlot(QWidget):
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = self.plot.getAxis(edge)
-            except Exception:           # pragma: no cover - absent axis
+            except Exception:           # absent axis
                 continue
             if axis is not None:
                 found.append(axis)
@@ -2925,7 +2931,7 @@ class FastPlot(QWidget):
                 # in the old ink unless this line is here.
                 try:
                     axis.setTickPen(axis_pen)
-                except Exception:   # pragma: no cover - older pyqtgraph
+                except Exception:   # older pyqtgraph
                     pass
         # THE CAPTIONS ARE NOT TOUCHED HERE. "p=0.05" is text and follows the
         # font control -- see :meth:`apply_text_style`.
@@ -3829,7 +3835,7 @@ class FastPlot(QWidget):
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = plot_item.getAxis(edge)
-            except Exception:                            # pragma: no cover
+            except Exception:
                 continue
             if axis is None:
                 continue
@@ -4262,7 +4268,7 @@ class FastPlot(QWidget):
             self.plot.plotItem.legend = None
             try:
                 self.plot.plotItem.scene().removeItem(legend)
-            except Exception:  # pragma: no cover - already detached
+            except Exception:  # already detached
                 pass
 
     def set_status(self, text: str) -> None:
@@ -4502,7 +4508,7 @@ class FastPlot(QWidget):
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:               # pragma: no cover - already gone
+            except Exception:               # already gone
                 pass
             self._highlight = None
         if key is None:
@@ -4562,7 +4568,7 @@ class FastPlot(QWidget):
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:               # pragma: no cover - already gone
+            except Exception:               # already gone
                 pass
             self._highlight = None
         self._selected_keys = wanted
@@ -4683,7 +4689,7 @@ class FastPlot(QWidget):
         for ring in self._extra_highlights:
             try:
                 self.plot.removeItem(ring)
-            except Exception:               # pragma: no cover - already gone
+            except Exception:               # already gone
                 pass
         self._extra_highlights = []
 
@@ -5510,7 +5516,7 @@ class FastPlot(QWidget):
             # anyone compositing onto their own colour.
             try:
                 exporter.parameters()["background"] = self._export_ground()
-            except (KeyError, TypeError):   # pragma: no cover - older pyqtgraph
+            except (KeyError, TypeError):   # older pyqtgraph
                 pass
             self._shape_the_image(exporter, width_mm, height_mm)
             exporter.export(path)
@@ -5902,7 +5908,7 @@ class FastPlot(QWidget):
                 width, blockSignal=exporter.widthChanged)
             parameters.param("height").setValue(
                 height, blockSignal=exporter.heightChanged)
-        except Exception:       # pragma: no cover - a different exporter API
+        except Exception:       # a different exporter API
             pass
 
     def snapshot(self, width: int = SNAPSHOT_PX[0], *, ground=None):
@@ -5973,7 +5979,7 @@ class FastPlot(QWidget):
                 exporter.parameters().param("height").setValue(
                     max(1, int(round(int(width) * float(ratio)))),
                     blockSignal=exporter.heightChanged)
-            except Exception:           # pragma: no cover - other exporter
+            except Exception:           # other exporter
                 pass
         try:
             # TRANSPARENT BY DEFAULT, like the tile behind it. The
@@ -5987,7 +5993,7 @@ class FastPlot(QWidget):
             # preview of something else.
             exporter.parameters()["background"] = (
                 QColor(0, 0, 0, 0) if ground is None else ground)
-        except (KeyError, TypeError):   # pragma: no cover - old pyqtgraph
+        except (KeyError, TypeError):   # old pyqtgraph
             pass
         image = exporter.export(toBytes=True)
         if image is None or image.isNull():
@@ -6013,7 +6019,7 @@ class FastPlot(QWidget):
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = self.plot.getAxis(edge)
-            except Exception:               # pragma: no cover - absent axis
+            except Exception:               # absent axis
                 continue
             axis.setPen(axis_pen)
             axis.setTextPen(axis_pen)
@@ -6367,7 +6373,7 @@ class VolcanoPlot(FastPlot):
             if brush_list is not None:
                 try:
                     base = QColor(brush_list[index].color())
-                except Exception:       # pragma: no cover - an odd brush
+                except Exception:       # an odd brush
                     base = default
             value = strength[index] if index < len(strength) else np.nan
             fraction = 0.0 if np.isnan(value) else float(value)
@@ -7388,7 +7394,7 @@ class EffectRankPlot(FastPlot):
             from ...figures.panels import label_series
 
             return label_series(frame).to_numpy()
-        except Exception:              # pragma: no cover - figures unavailable
+        except Exception:              # figures unavailable
             if label_column in getattr(frame, "columns", ()):
                 return frame[label_column].astype(str).to_numpy()
             return np.array([str(i) for i in range(len(frame))])
@@ -7606,7 +7612,7 @@ class BinnedPlot(FastPlot):
             if not item.sceneBoundingRect().contains(position):
                 return
             point = item.vb.mapSceneToView(position)
-        except Exception:          # pragma: no cover - no viewbox to map into
+        except Exception:          # no viewbox to map into
             return
         # THE BAR IS FOUND IN DATA UNITS. `mapSceneToView` answers in DRAWN
         # units, which are log10 of the data while the x axis is logged, and
@@ -7624,7 +7630,7 @@ class BinnedPlot(FastPlot):
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:           # pragma: no cover - already gone
+            except Exception:           # already gone
                 pass
         # An OUTLINE, not a refill: the same reason the scatter marker is an
         # open ring. A solid bar in the highlight colour would hide how tall
