@@ -1023,6 +1023,30 @@ def test_the_default_fractal_renderer_is_a_core_doctor_check():
     assert ("vispy", "vispy") in doctor.CORE_MODULES
 
 
+def test_a_missing_default_fractal_runtime_fails_with_a_copyable_fix(
+        ctx, monkeypatch):
+    """Exercise the failure, not only VisPy's presence in a constant."""
+    import importlib
+
+    real_import = importlib.import_module
+
+    def import_without_vispy(name, *args, **kwargs):
+        if name == "vispy":
+            raise ModuleNotFoundError("No module named 'vispy'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(doctor, "CORE_MODULES", (("vispy", "vispy"),))
+    monkeypatch.setattr(importlib, "import_module", import_without_vispy)
+
+    row = doctor.check_core_dependencies(ctx)
+
+    assert row.status == FAIL
+    assert row.fix == "python -m pip install vispy"
+    assert row.details == (
+        "vispy: vispy (ModuleNotFoundError: No module named 'vispy')",
+    )
+
+
 def test_core_dependency_check_names_the_distribution_to_install(ctx, monkeypatch):
     monkeypatch.setattr(
         doctor, "CORE_MODULES", (("numpy", "numpy"), ("skimage", "scikit-image"))

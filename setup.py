@@ -833,7 +833,9 @@ setup(
         # pretrained weights on first use; trackpy/btrack/iou stay available
         # without it. BSD-3, PyTorch-only, no TensorFlow.
         'trackastra': [
-            'trackastra>=0.5,<1.0; python_version >= "3.10"',
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
         ],
         # `pip install spacr[ultrack]` — global-optimisation object tracking
         # (timelapse_mode='ultrack'). Kept alongside trackastra rather than
@@ -843,11 +845,16 @@ setup(
         # ILP solver and a database backend. BSD-3, no TensorFlow.
         #
         # Ultrack 0.8 adds Python 3.13 support and retains an explicit <3.14
-        # ceiling.  The marker makes requesting the extra on 3.14 a clean
-        # no-op instead of an unsatisfiable installation; spaCR's other
-        # tracking modes remain available there.
+        # ceiling.  Its older releases declare 3.9, but their ``geff>=1``
+        # dependency starts at Python 3.10, so 3.9 never resolves in practice.
+        # Both tracking extras also depend on torch; Intel macOS has no torch
+        # wheel from Python 3.13 onward.  The markers describe those real
+        # transitive limits so requesting an unavailable tracker is a clean
+        # no-op while spaCR's trackpy/btrack/IoU modes remain available.
         'ultrack': [
-            'ultrack>=0.6,<1.0; python_version < "3.14"',
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
         ],
         # `pip install spacr[attribution]` — the five torchcam CAM variants
         # (gradcam, gradcam_pp, scorecam, xgradcam, layercam) in
@@ -1003,7 +1010,12 @@ setup(
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
+            # Piper itself has an abi3 Intel-macOS wheel, but its onnxruntime
+            # dependency has no cp314 Intel wheel. Keep the renderer available
+            # everywhere else and let 3.14 Intel Macs use the non-narrated
+            # tutorial path rather than fail the aggregate install.
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
         ],
         # The AI Console shells out to vendor coding-agent CLIs
         # (`claude`, `codex`, `gemini`) so authentication piggy-backs
@@ -1017,8 +1029,10 @@ setup(
         # These name readers for vendor microscope formats. pylibCZIrw is
         # intentionally optional and imported only when its streaming CZI
         # converter is selected: it does not yet publish a CPython 3.14
-        # wheel. The pure-Python czifile reader remains in core, so CZI data
-        # is still readable on 3.14.
+        # wheel. The environment marker is part of the feature contract, not
+        # merely documentation: requesting ``spacr[czi]`` on 3.14 must keep
+        # the installation usable and the pure-Python czifile reader remains
+        # available there.
         #
         # Which of these actually gate the platform matrix (re-verified
         # against the PyPI JSON API on 2026-07-27, not assumed):
@@ -1036,10 +1050,19 @@ setup(
         #     constrain no platform and no Python version; these extras are
         #     organisational, not load-bearing.
         # ------------------------------------------------------------------
-        'czi': ['pylibCZIrw>=5.0.0,<7.0', 'czifile'],
+        'czi': [
+            'pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
+            'czifile',
+        ],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
-        'zernike': ['mahotas>=1.4.13,<2.0'],
+        # mahotas publishes wheels only through CPython 3.12. Measurement
+        # already treats Zernike as optional and says when it was skipped, so
+        # keep the advertised extra compiler-free and resolvable on 3.13/3.14
+        # instead of making ``spacr[all]`` fail for one descriptor family.
+        'zernike': [
+            'mahotas>=1.4.13,<2.0; python_version < "3.13"',
+        ],
         # btrack loads a native tracker library. Keeping it behind a lazy
         # feature boundary lets the rest of timelapse run on new Python
         # versions while upstream wheels catch up.
@@ -1173,17 +1196,16 @@ setup(
         # of the extras it claims to aggregate, so it cannot drift.
         #
         # ---------------------------------------------------------------
-        # Ultrack 0.8 now supports Python 3.13 and declares <3.14. Trackastra
-        # declares >=3.10. Their markers below keep ``all`` resolvable at both
-        # ends of spaCR's 3.9--3.14 range while installing each tracker where
-        # upstream actually supports it.
+        # Ultrack 0.8 supports Python 3.13 and declares <3.14. Trackastra
+        # declares >=3.10. Both require torch, so their shared Intel-macOS
+        # marker also follows the core torch marker. Ultrack's transitive
+        # ``geff`` floor excludes 3.9 even though old ultrack metadata did not.
         #
-        # `spacr[all]` also pulls mahotas, which has no cp313 wheel and builds
-        # from sdist. That one is deliberate and fine — asking for
-        # *everything* may reasonably require a toolchain, and unlike torchcam
-        # it succeeds where one exists (verified: mahotas 1.4.18 built and ran
-        # against numpy 2.4.4 on 3.13). A plain `pip install spacr` never
-        # needs a compiler, which is the whole point of the split.
+        # mahotas is present through Python 3.12, its last wheel line. On 3.14
+        # pylibCZIrw is unavailable too. Their markers omit those native
+        # implementations while leaving the rest of the aggregate installable.
+        # Every named extra carries the identical marker; ``all`` remains the
+        # exact union instead of growing its own platform policy.
         # ---------------------------------------------------------------
         'all': [
             'PySide6>=6.6,<7',
@@ -1196,16 +1218,21 @@ setup(
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
-            'trackastra>=0.5,<1.0; python_version >= "3.10"',
-            'ultrack>=0.6,<1.0; python_version < "3.14"',
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
-            'pylibCZIrw>=5.0.0,<7.0',
+            'pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
             'czifile',
             'nd2reader>=3.3.0,<4.0',
             'readlif',
-            'mahotas>=1.4.13,<2.0',
+            'mahotas>=1.4.13,<2.0; python_version < "3.13"',
             'btrack>=0.7.0,<1.0',
             'anndata>=0.10,<0.13',
         ],
