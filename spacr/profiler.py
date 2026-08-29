@@ -270,7 +270,7 @@ class FittedLinear:
         """Predict on the response scale, applying :attr:`link`."""
         frame = _as_frame(exog)
         eta = _linear_predictor(self, frame)
-        if eta is None:                                # pragma: no cover
+        if eta is None:
             raise TypeError("no coefficients to predict from")
         return np.asarray(LINKS[self.link](eta), dtype=float).ravel()
 
