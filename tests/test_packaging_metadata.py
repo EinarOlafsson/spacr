@@ -728,6 +728,22 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     assert 'assert widget.backend_name == "gpu"' in workflow
     assert "app.processEvents()" in workflow
 
+
+def test_ci_installs_and_runs_both_built_distribution_formats():
+    """A build artifact must work away from the checkout, not merely exist."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    assert "Install and run the built wheel and sdist" in workflow
+    assert "for artifact in \"$wheel\" \"$sdist\"" in workflow
+    assert 'pip install --no-deps "$artifact"' in workflow
+    assert '"$environment/bin/python" -I' in workflow
+    assert "spacr resolved outside the isolated install" in workflow
+    assert 'importlib.metadata.version("spacr") == spacr.__version__' in workflow
+    assert workflow.count("SPACR_DISABLE_PLUGINS=1") >= 3
+    assert '"$environment/bin/spacr-run" --version' in workflow
+    assert '"$environment/bin/spacr-run" --list' in workflow
+
+
 @pytest.mark.parametrize(
     "banned, why",
     [

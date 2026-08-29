@@ -189,7 +189,15 @@ tooling verifies and bumps ``setup.py``, ``spacr/_version.py`` and
 simulation. The normal plugin-enabled CLI deliberately retains its entry-point
 scan so installed plugins remain visible in ``MODULES`` and ``--list``.
 
+The compatibility metadata job now installs the freshly built wheel and sdist
+separately, without dependencies and outside the checkout. For each artifact
+it asserts that ``spacr.__file__`` is inside the isolated environment, checks
+the facade literal against installed distribution metadata, and runs
+``spacr-run --version`` and ``--list``. This closes the previously untested
+sdist-installed facade boundary; the job still has to be green on the final
+frozen release SHA.
+
 This closes only the non-Qt facade/CLI metadata hotspot. The item stays OPEN
 for real post-paint Home readiness, all-module click-to-ready traces, event-loop
 stall and RSS measurements, heavy-stack operation boundaries, cache-budget
-wiring, the sdist-installed path and the complete supported CI matrix.
+wiring, and the complete supported CI matrix.
