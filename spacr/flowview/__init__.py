@@ -12,6 +12,7 @@ from .events import (
     StageStarted,
     StageThumbnail,
 )
+from .export import export
 from .model import Edge, Node, NodeKind, NodeState, RunGraph
 from .trace import disable, enable, get_collector, is_enabled, stage
 
@@ -33,6 +34,7 @@ __all__ = [
     "StageThumbnail",
     "disable",
     "enable",
+    "export",
     "get_collector",
     "is_enabled",
     "stage",
