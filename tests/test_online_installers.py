@@ -659,6 +659,8 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "--allow-current" in workflow
     assert "github.actor != 'github-actions[bot]'" in workflow
     assert "VERSION remains $version" in workflow
+    assert "python packaging/release.py verify" in workflow
+    assert "git add setup.py CITATION.cff" in workflow
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "needs.verify-pypi.result == 'success'" in workflow
@@ -694,6 +696,25 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert workflow.index("  verify-pypi:") < workflow.index("  installers:")
 
 
+def test_zenodo_facing_github_release_automation_is_version_only():
+    workflow_dir = ROOT / ".github" / "workflows"
+    release_markers = (
+        "gh release create",
+        "softprops/action-gh-release",
+        "actions/create-release",
+    )
+    publishers = [
+        path.name
+        for path in sorted(workflow_dir.glob("*.yml"))
+        if any(marker in _text(path) for marker in release_markers)
+    ]
+
+    assert publishers == ["release.yml"]
+    workflow = _text(RELEASE_WORKFLOW)
+    assert "New 3- or 4-component numeric version" in workflow
+    assert 'echo "tag=v$version"' in workflow
+
+
 def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
     helper = _release_module()
 
@@ -710,6 +731,131 @@ def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
     assert helper.read_version(setup) == "1.2.4"
     with pytest.raises(ValueError, match="valid Python package version"):
         helper.bump_version(setup, "not a version")
+    with pytest.raises(ValueError, match="three or four numeric components"):
+        helper.bump_version(setup, "1.2.5rc1")
+
+
+def test_repository_package_and_citation_metadata_name_the_same_release():
+    helper = _release_module()
+    setup = ROOT / "setup.py"
+
+    assert helper.verify_release_metadata(
+        setup, ROOT / "CITATION.cff"
+    ) == helper.read_version(setup)
+
+
+def test_every_readme_uses_the_zenodo_concept_doi():
+    concept_doi = "10.5281/zenodo.21343316"
+    old_version_record = "21343317"
+    readmes = [ROOT / "README.rst"] + [
+        ROOT / "docs" / "i18n" / "readme" / f"README.{code}.rst"
+        for code in _release_module().LOCALIZED_README_CODES
+    ]
+
+    assert len(readmes) == 10
+    for readme in readmes:
+        text = _text(readme)
+        assert concept_doi in text, readme
+        assert old_version_record not in text, readme
+
+
+def test_release_helper_bumps_setup_and_citation_together(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'cff-version: 1.2.0\ndoi: "10.5281/zenodo.99999999"\n'
+        'version: "1.2.3"\n'
+        'date-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        release_date="2026-08-29",
+    ) == "1.2.4"
+    assert helper.verify_release_metadata(setup, citation) == "1.2.4"
+    assert 'VERSION = "1.2.4"' in _text(setup)
+    assert 'version: "1.2.4"' in _text(citation)
+    assert 'date-released: "2026-08-29"' in _text(citation)
+    assert 'doi: "10.5281/zenodo.99999999"' in _text(citation)
+
+    # A workflow rerun must not rewrite the historical release date.
+    citation_after_bump = _text(citation)
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        release_date="2099-01-01",
+        allow_current=True,
+    ) == "1.2.4"
+    assert _text(citation) == citation_after_bump
+
+
+def test_release_helper_rejects_stale_citation_before_writing_setup(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.2"\ndate-released: "2026-07-01"\n',
+        encoding="utf-8",
+    )
+    original_setup = _text(setup)
+    original_citation = _text(citation)
+
+    with pytest.raises(ValueError, match="Cannot bump"):
+        helper.bump_release(
+            setup,
+            citation,
+            "1.2.4",
+            release_date="2026-08-29",
+        )
+
+    assert _text(setup) == original_setup
+    assert _text(citation) == original_citation
+
+
+def test_release_verifier_rejects_a_nonversion_github_release_name(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.4rc1"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.4rc1"\ndate-released: "2026-08-29"\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="three or four numeric components"):
+        helper.verify_release_metadata(setup, citation)
+
+
+def test_release_helper_repairs_an_old_setup_only_bump(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.4"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.3"\ndate-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        release_date="2026-08-29",
+        allow_current=True,
+    ) == "1.2.4"
+    assert helper.read_citation_metadata(citation) == (
+        "1.2.4", "2026-08-29")
 
 
 def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path):

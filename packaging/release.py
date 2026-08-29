@@ -13,12 +13,14 @@ import argparse
 import hashlib
 import re
 import shutil
+from datetime import date
 from pathlib import Path
 
 from packaging.version import InvalidVersion, Version
 
 VERSION_PATTERN = re.compile(
     r'^(VERSION\s*=\s*)(["\'])([^"\']+)(["\'])$', re.MULTILINE)
+PROJECT_RELEASE_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 README_BEGIN = ".. spacr-installer-links-begin"
 README_END = ".. spacr-installer-links-end"
 PLATFORMS = (
@@ -79,32 +81,178 @@ def read_version(setup_path: Path) -> str:
     return match.group(3)
 
 
-def bump_version(
+def _bumped_version_text(
     setup_path: Path,
     requested: str,
     *,
     allow_current: bool = False,
-) -> str:
+) -> tuple[str, str, str]:
+    """Return ``(new, current, updated setup.py text)`` after validation."""
     try:
         new = Version(requested)
     except InvalidVersion as exc:
         raise ValueError(f"{requested!r} is not a valid Python package version") from exc
+    if PROJECT_RELEASE_PATTERN.fullmatch(str(new)) is None:
+        raise ValueError(
+            f"Release version {requested!r} must have three or four numeric "
+            "components"
+        )
     current_text = setup_path.read_text(encoding="utf-8")
     match = VERSION_PATTERN.search(current_text)
     if not match:
         raise ValueError(f"Could not find VERSION in {setup_path}")
     current = Version(match.group(3))
     if new == current and allow_current:
-        return str(current)
+        return str(current), str(current), current_text
     if new <= current:
         raise ValueError(
             f"New version {new} must be greater than current version {current}")
     replacement = f'{match.group(1)}"{new}"'
-    setup_path.write_text(
-        current_text[:match.start()] + replacement + current_text[match.end():],
-        encoding="utf-8",
+    updated = current_text[:match.start()] + replacement + current_text[match.end():]
+    return str(new), str(current), updated
+
+
+def bump_version(
+    setup_path: Path,
+    requested: str,
+    *,
+    allow_current: bool = False,
+) -> str:
+    new, _current, updated = _bumped_version_text(
+        setup_path, requested, allow_current=allow_current)
+    setup_path.write_text(updated, encoding="utf-8")
+    return new
+
+
+def _citation_field(text: str, field: str, citation_path: Path) -> re.Match[str]:
+    """Find one quoted top-level CFF field and fail on ambiguous metadata."""
+    pattern = re.compile(
+        rf'^(?P<prefix>{re.escape(field)}\s*:\s*)'
+        r'(?P<quote>["\'])(?P<value>[^"\']+)(?P=quote)(?P<suffix>[ \t]*)$',
+        re.MULTILINE,
     )
-    return str(new)
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise ValueError(
+            f"Expected exactly one quoted {field} field in {citation_path}, "
+            f"found {len(matches)}"
+        )
+    return matches[0]
+
+
+def _replace_citation_field(
+    text: str,
+    field: str,
+    value: str,
+    citation_path: Path,
+) -> str:
+    match = _citation_field(text, field, citation_path)
+    return text[:match.start("value")] + value + text[match.end("value"):]
+
+
+def read_citation_metadata(citation_path: Path) -> tuple[str, str]:
+    """Return and validate the version and release date in ``CITATION.cff``."""
+    text = citation_path.read_text(encoding="utf-8")
+    version = _citation_field(text, "version", citation_path).group("value")
+    released = _citation_field(
+        text, "date-released", citation_path).group("value")
+    try:
+        Version(version)
+    except InvalidVersion as exc:
+        raise ValueError(
+            f"CITATION version {version!r} is not a valid Python package version"
+        ) from exc
+    try:
+        parsed_date = date.fromisoformat(released)
+    except ValueError as exc:
+        raise ValueError(
+            f"CITATION date-released {released!r} is not an ISO date"
+        ) from exc
+    if parsed_date.isoformat() != released:
+        raise ValueError(
+            f"CITATION date-released {released!r} must use YYYY-MM-DD"
+        )
+    return version, released
+
+
+def verify_release_metadata(setup_path: Path, citation_path: Path) -> str:
+    """Require package and citation versions to describe the same release."""
+    version = read_version(setup_path)
+    citation_version, _released = read_citation_metadata(citation_path)
+    try:
+        parsed_version = Version(version)
+    except InvalidVersion as exc:
+        raise ValueError(
+            f"Release version {version!r} is not a valid Python package version"
+        ) from exc
+    if PROJECT_RELEASE_PATTERN.fullmatch(str(parsed_version)) is None:
+        raise ValueError(
+            f"Release version {version!r} must have three or four numeric "
+            "components"
+        )
+    if citation_version != version:
+        raise ValueError(
+            f"{setup_path} declares {version}, but {citation_path} declares "
+            f"{citation_version}"
+        )
+    return version
+
+
+def bump_release(
+    setup_path: Path,
+    citation_path: Path,
+    requested: str,
+    *,
+    release_date: str | None = None,
+    allow_current: bool = False,
+) -> str:
+    """Validate both files, then bump package and citation metadata together.
+
+    An idempotent rerun preserves the date already recorded for the requested
+    release. If a previous helper updated only ``setup.py``, ``allow_current``
+    repairs the older citation metadata using today's date. All metadata
+    checks run before either file is written; the two filesystem writes remain
+    sequential rather than a cross-file transaction.
+    """
+    new, current, updated_setup = _bumped_version_text(
+        setup_path, requested, allow_current=allow_current)
+    citation_text = citation_path.read_text(encoding="utf-8")
+    citation_version, _citation_date = read_citation_metadata(citation_path)
+    parsed_citation = Version(citation_version)
+    parsed_current = Version(current)
+    parsed_new = Version(new)
+
+    if parsed_new > parsed_current and parsed_citation != parsed_current:
+        raise ValueError(
+            f"Cannot bump {setup_path} from {current}: {citation_path} "
+            f"declares {citation_version}"
+        )
+    if parsed_new == parsed_current and parsed_citation > parsed_new:
+        raise ValueError(
+            f"Cannot repair {citation_path}: its version {citation_version} "
+            f"is newer than {setup_path} version {current}"
+        )
+
+    if parsed_citation != parsed_new or citation_version != new:
+        released = release_date or date.today().isoformat()
+        try:
+            parsed_date = date.fromisoformat(released)
+        except ValueError as exc:
+            raise ValueError(
+                f"Release date {released!r} is not an ISO date"
+            ) from exc
+        if parsed_date.isoformat() != released:
+            raise ValueError(
+                f"Release date {released!r} must use YYYY-MM-DD"
+            )
+        citation_text = _replace_citation_field(
+            citation_text, "version", new, citation_path)
+        citation_text = _replace_citation_field(
+            citation_text, "date-released", released, citation_path)
+
+    setup_path.write_text(updated_setup, encoding="utf-8")
+    citation_path.write_text(citation_text, encoding="utf-8")
+    return verify_release_metadata(setup_path, citation_path)
 
 
 def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
@@ -566,10 +714,23 @@ def main() -> int:
     bump_parser.add_argument("new_version")
     bump_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     bump_parser.add_argument(
+        "--citation", type=Path, default=Path("CITATION.cff"))
+    bump_parser.add_argument(
+        "--date",
+        dest="release_date",
+        help="release date in YYYY-MM-DD form (defaults to today)",
+    )
+    bump_parser.add_argument(
         "--allow-current",
         action="store_true",
         help="treat an already-current requested version as an idempotent rerun",
     )
+
+    verify_parser = subparsers.add_parser(
+        "verify", help="verify setup.py and CITATION.cff release metadata")
+    verify_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
+    verify_parser.add_argument(
+        "--citation", type=Path, default=Path("CITATION.cff"))
 
     collect_parser = subparsers.add_parser("collect")
     collect_parser.add_argument("--source", type=Path, default=Path("dist/online"))
@@ -604,11 +765,15 @@ def main() -> int:
     if args.command == "version":
         print(read_version(args.setup))
     elif args.command == "bump":
-        print(bump_version(
+        print(bump_release(
             args.setup,
+            args.citation,
             args.new_version,
+            release_date=args.release_date,
             allow_current=args.allow_current,
         ))
+    elif args.command == "verify":
+        print(verify_release_metadata(args.setup, args.citation))
     elif args.command == "index":
         import json
         releases = (

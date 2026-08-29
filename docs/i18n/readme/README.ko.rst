@@ -27,8 +27,8 @@
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
    :alt: PolyForm 비상업용 라이선스
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
@@ -548,7 +548,7 @@ spaCR가 연구에 기여했다면 다음을 인용해 주세요:
 
 Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*\ 의 ESCRT 기능 탈취 조절 인자로 규명합니다.
 
-`BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343317>`_
+`BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343316>`_
 
 감사의 말
 ~~~~~~~~~~~~~~~

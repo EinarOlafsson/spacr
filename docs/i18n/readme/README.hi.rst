@@ -27,8 +27,8 @@
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
    :alt: PolyForm गैर-व्यावसायिक लाइसेंस
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
@@ -548,7 +548,7 @@ spaCR का संदर्भ
 
 Olafsson EB, *et al.* एक संयोजित छवि-आधारित CRISPR स्क्रीनिंग EAF1 को *T. gondii* के रूप में पहचानती है ESCRT उप-विवाद का मॉड्यूलर।
 
-`BioRxiv प्रीप्रिंट <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `सॉफ्टवेयर संग्रह <https://doi.org/10.5281/zenodo.21343317>`_ के लिए
+`BioRxiv प्रीप्रिंट <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `सॉफ्टवेयर संग्रह <https://doi.org/10.5281/zenodo.21343316>`_ के लिए
 
 आभार
 ~~~~~~~~~~~~~~~

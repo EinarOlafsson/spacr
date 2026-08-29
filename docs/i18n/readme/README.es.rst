@@ -27,8 +27,8 @@
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
    :alt: Licencia PolyForm Noncommercial
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: DOI de Zenodo
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
@@ -548,7 +548,7 @@ Si spaCR contribuye a su investigación, cite:
 
 Olafsson EB, *et al.* Una cribado de imagen agrupada basada en CRISPR identifica EAF1 como un modulador *T. gondii* de subversión ESCRT.
 
-`preimpresión de bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `archivo de software <https://doi.org/10.5281/zenodo.21343317>`_
+`preimpresión de bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `archivo de software <https://doi.org/10.5281/zenodo.21343316>`_
 
 Agradecimientos
 ~~~~~~~~~~~~~~~
