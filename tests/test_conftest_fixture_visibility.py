@@ -1,21 +1,16 @@
 """A conftest's fixtures reach every test in its directory, in any order.
 
-pytest scopes a conftest's fixtures to the DIRECTORY the conftest sits in,
-and binds that scope to the directory's collection NODE OBJECT. Collect the
-same directory twice -- which pytest does when a bare file path follows it on
-the command line -- and the second node is one the conftest was never parsed
-against, so every fixture defined there, autouse ones included, vanishes for
-the tests underneath it.
+Supported pytest 8.x scopes those fixtures by ``FixtureDef.baseid`` and
+matches that stable nodeid against each test's ancestors. A mixed list of
+file arguments can still make pytest construct two Directory objects for one
+path, but that duplication does not itself hide fixtures under this matching
+model.
 
-It vanishes QUIETLY: the tests that ran before the second collection still
-pass, so the summary line reads as a partial success while a whole file
-errors with "fixture 'qt_theme_applied' not found". The person it bites is
-the one running "the files I touched", which is what WORKFLOW.md asks for.
-
-So two things are pinned here. A directory answers with one collection node
-for the whole session, and if that ever stops being true the run stops with a
-message about the ORDERING instead of leaving a missing-fixture error for
-somebody to misread.
+Two independent invariants are pinned here: directory collection is
+canonicalised to one node for plugins that keep node-local state, and every
+registered directory fixture remains requestable by its own tests. If either
+changes, collection stops with the violated invariant instead of cascading
+into one missing-fixture error per test.
 """
 from __future__ import annotations
 
@@ -103,27 +98,26 @@ def test_a_qt_file_after_a_non_qt_file_still_sees_the_qt_conftest(tmp_path):
 
 def test_without_the_canonical_directory_node_the_run_stops_and_says_why(
         tmp_path):
-    """The same arguments, with the fix switched off: loud, and fast.
+    """The same arguments, with the canonical-node invariant switched off.
 
-    This is the mutation proof for the test above -- it shows the hazard is
-    still real and that the guard, not luck, is what keeps the run honest.
-    A missing-fixture error 29 times over taught nobody what went wrong, so
-    what is asserted here is that the message blames the ORDERING.
+    Supported pytest 8.x releases resolve fixtures by ``baseid``, so the
+    direct duplicate-node check stops the mutation before it can become a raw
+    missing-fixture cascade.
     """
     _skip_in_the_child()
     done = _interleaved_run(tmp_path, disable_canonicaliser=True)
     output = done.stdout + done.stderr
     assert done.returncode != 0, output[-3000:]
-    assert "COLLECTION ORDERING fault" in output, output[-3000:]
-    assert "the conftest in tests/qt" in output, output[-3000:]
+    assert "tests/qt has two collection nodes" in output, output[-3000:]
+    assert "COLLECTION ORDERING fault" not in output, output[-3000:]
+    assert "fixture 'qt_theme_applied' not found" not in output, output[-3000:]
 
 
 def test_a_directory_answers_with_one_collection_node(request):
     """No two nodes in this run's tree claim the same directory.
 
     Held over the session actually collected, so any invocation shape that
-    reintroduces a duplicate directory node fails here rather than in
-    whichever unlucky test file loses its fixtures.
+    reintroduces a duplicate directory node fails here at the invariant.
     """
     by_nodeid = {}
     for item in request.session.items:
@@ -131,9 +125,8 @@ def test_a_directory_answers_with_one_collection_node(request):
             if isinstance(node, pytest.Directory):
                 first = by_nodeid.setdefault(node.nodeid, node)
                 assert first is node, (
-                    f"{node.nodeid} has two collection nodes; every conftest "
-                    "fixture defined there is invisible to the tests reached "
-                    "through the second one")
+                    f"{node.nodeid} has two collection nodes; directory-"
+                    "scoped plugin state can diverge between them")
 
 
 def test_the_expected_fixtures_are_read_off_the_running_session(request):
@@ -179,8 +172,10 @@ class _FixtureManager:
         self._visible = visible
         self._arg2fixturedefs = {}
 
-    def getfixturedefs(self, argname, node):
-        return self._visible.get(id(node), {}).get(argname, ())
+    def getfixturedefs(self, argname, requester):
+        nodeid = (requester if isinstance(requester, str)
+                  else requester.nodeid)
+        return self._visible.get(nodeid, {}).get(argname, ())
 
 
 def _chain(directory):
@@ -191,7 +186,7 @@ def test_a_conftest_fixture_its_own_tests_cannot_request_is_reported():
     """The failure this exists to catch, named by directory and by fixture."""
     directory = _Node("tests/qt")
     item = _Item("tests/qt/test_x.py::test_y", _chain(directory))
-    manager = _FixtureManager({id(item): {"rng": ("a fixturedef",)}})
+    manager = _FixtureManager({item.nodeid: {"rng": ("a fixturedef",)}})
 
     lost = lost_directory_conftest_fixtures(
         manager, [item],
@@ -204,8 +199,8 @@ def test_a_conftest_whose_fixtures_all_resolve_reports_nothing():
     """Empty is the healthy answer, so the guard cannot cry wolf."""
     directory = _Node("tests/qt")
     item = _Item("tests/qt/test_x.py::test_y", _chain(directory))
-    manager = _FixtureManager({id(item): {"rng": ("a fixturedef",),
-                                          "qt_theme_applied": ("another",)}})
+    manager = _FixtureManager({item.nodeid: {"rng": ("a fixturedef",),
+                                             "qt_theme_applied": ("another",)}})
 
     lost = lost_directory_conftest_fixtures(
         manager, [item],
@@ -225,8 +220,10 @@ def test_two_nodes_for_one_directory_are_both_examined():
     stale_dir = _Node("tests/qt")
     healthy = _Item("tests/qt/test_x.py::test_y", _chain(healthy_dir))
     orphan = _Item("tests/qt/test_z.py::test_w", _chain(stale_dir))
-    manager = _FixtureManager({id(healthy): {"qt_theme_applied": ("a def",)},
-                               id(orphan): {}})
+    manager = _FixtureManager({
+        healthy.nodeid: {"qt_theme_applied": ("a def",)},
+        orphan.nodeid: {},
+    })
 
     lost = lost_directory_conftest_fixtures(
         manager, [healthy, orphan], {"tests/qt": {"qt_theme_applied"}})
@@ -373,7 +370,7 @@ def test_a_lost_conftest_stops_collection_rather_than_the_test():
     """The run ends at collection, before 29 setups error one at a time."""
     directory = _Node("tests/qt")
     item = _Item("tests/qt/test_x.py::test_y", _chain(directory))
-    manager = _FixtureManager({id(item): {}})
+    manager = _FixtureManager({item.nodeid: {}})
     manager._arg2fixturedefs = {
         "qt_theme_applied": [_fixturedef_of(_directory_stub("/repo/tests/qt",
                                                             "tests/qt"))]}

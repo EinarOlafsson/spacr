@@ -830,12 +830,12 @@ def pytest_sessionfinish(session, exitstatus):
 # One collection node per directory
 # ---------------------------------------------------------------------------
 #
-# A conftest's fixtures are scoped to the DIRECTORY the conftest sits in, and
-# pytest binds that scope to the Directory collection NODE OBJECT: a fixture
-# is visible to a test only when the very node the conftest was parsed
-# against is in that test's parent chain (``FixtureManager._matchfactories``
-# prefers ``fixturedef.node in node.iter_parents()`` over the nodeid string,
-# and ``_node_autousenames`` is keyed by node object too).
+# A conftest's fixtures are scoped to the DIRECTORY the conftest sits in.
+# Every supported pytest 8.x release records that scope as
+# ``FixtureDef.baseid`` and matches it against ancestor nodeids. pytest 8.0
+# passes a nodeid string into ``getfixturedefs``; pytest 8.4 passes the Node,
+# but the visibility rule on either side of that private-API change is the
+# same stable nodeid ancestry.
 #
 # ``Session.collect`` re-collects a directory WITHOUT de-duplicating it when a
 # bare FILE path is named on the command line ("for backward compat, files
@@ -845,16 +845,17 @@ def pytest_sessionfinish(session, exitstatus):
 # and the conftest is not parsed a second time, because that parse is deferred
 # to the FIRST Directory collection and consumed there.
 #
-# The result is silent: every fixture defined in that directory's conftest,
-# autouse ones included, becomes invisible to the tests underneath it.
+# Duplicate Directory objects therefore do not by themselves hide fixtures on
+# supported pytest. They are still canonicalised because collection hooks and
+# plugins may keep node-local state, and one path answering with two nodes is
+# an unstable tree whose behaviour can otherwise depend on argument order.
 #
 #     pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py
 #
 # collects tests/qt, then re-collects tests for the bare middle file, then
-# reaches test_c through the SECOND tests/qt node. Every test in test_c errors
-# with "fixture 'qt_theme_applied' not found" while the summary line still
-# says the first two files passed. It bites exactly the person running "the
-# files I touched", which is what WORKFLOW.md asks for.
+# reaches test_c through the SECOND tests/qt node. The invariant below folds
+# those duplicate directory nodes together while deliberately leaving file
+# duplication alone.
 #
 # Making a directory answer with ONE node for the whole session removes the
 # hazard at its source: the conftest parse and the tests underneath it then
@@ -903,6 +904,27 @@ class _OneNodePerDirectory:
         return report
 
 
+def _directory_fixture_nodeid(fixturedef):
+    """Return the directory nodeid for a fixture defined by a conftest.
+
+    Supported pytest 8.x records the stable, path-like ``baseid``. Accept a
+    node-bearing representation defensively as well, but do not mistake a
+    fixture defined in a test module for a directory fixture: only functions
+    whose source really is a ``conftest.py`` qualify through ``baseid``.
+    """
+    node = getattr(fixturedef, "node", None)
+    if isinstance(node, pytest.Directory):
+        return node.nodeid
+
+    baseid = getattr(fixturedef, "baseid", None)
+    function = getattr(fixturedef, "func", None)
+    code = getattr(function, "__code__", None)
+    source = getattr(code, "co_filename", "")
+    if baseid and Path(source).name == "conftest.py":
+        return baseid
+    return None
+
+
 def directory_fixture_expectations(fixture_manager):
     """Map a directory's nodeid to the fixture names its conftest defines.
 
@@ -922,9 +944,9 @@ def directory_fixture_expectations(fixture_manager):
     expectations = {}
     for argname, fixturedefs in registry.items():
         for fixturedef in fixturedefs:
-            node = getattr(fixturedef, "node", None)
-            if isinstance(node, pytest.Directory):
-                expectations.setdefault(node.nodeid, set()).add(argname)
+            nodeid = _directory_fixture_nodeid(fixturedef)
+            if nodeid is not None:
+                expectations.setdefault(nodeid, set()).add(argname)
     return expectations
 
 
@@ -948,21 +970,27 @@ def lost_directory_conftest_fixtures(fixture_manager, items, expectations):
         if signature in checked:
             continue
         checked.add(signature)
+        # pytest 8.4 changed this private API's second argument from a nodeid
+        # string to the requesting Node. Support the whole declared pytest
+        # 8.x range without catching lookup failures that should remain
+        # visible to the suite.
+        requester = (item if pytest.version_tuple[:2] >= (8, 4)
+                     else item.nodeid)
         for node in chain:
             for argname in sorted(expectations.get(node.nodeid, ())):
-                if not fixture_manager.getfixturedefs(argname, item):
+                if not fixture_manager.getfixturedefs(argname, requester):
                     lost.append((node.nodeid, argname, item.nodeid))
     return lost
 
 
-def directory_conftest_parse_nodes(fixture_manager):
-    """Map a directory nodeid to the node its conftest was parsed against.
+def directory_conftest_parse_nodes(fixture_manager, items=None):
+    """Map each conftest directory nodeid to its collection-tree node.
 
-    A conftest is parsed the first time its directory is collected and every
-    fixture it defines is bound to THAT node object. Reading the node back is
-    how a report can tell "these tests were reached through a second node for
-    the directory" from "the fixtures went missing some other way" instead of
-    naming a cause it has not checked.
+    A fixture definition may expose its collection node directly; supported
+    pytest 8.x instead exposes the stable ``FixtureDef.baseid``. In that case,
+    recover a representative node with the same nodeid from collected item
+    chains. This preserves the duplicate-node diagnosis without claiming that
+    fixture visibility itself depends on node identity.
 
     A pytest that keeps its registry somewhere else answers with nothing, for
     the same reason ``directory_fixture_expectations`` does.
@@ -971,10 +999,21 @@ def directory_conftest_parse_nodes(fixture_manager):
     if not registry:
         return {}
     parse_nodes = {}
+    nodeids = set()
     for fixturedefs in registry.values():
         for fixturedef in fixturedefs:
             node = getattr(fixturedef, "node", None)
             if isinstance(node, pytest.Directory):
+                parse_nodes.setdefault(node.nodeid, node)
+            nodeid = _directory_fixture_nodeid(fixturedef)
+            if nodeid is not None:
+                nodeids.add(nodeid)
+    if items is None:
+        session = getattr(fixture_manager, "session", None)
+        items = getattr(session, "items", ())
+    for item in items or ():
+        for node in item.listchain():
+            if isinstance(node, pytest.Directory) and node.nodeid in nodeids:
                 parse_nodes.setdefault(node.nodeid, node)
     return parse_nodes
 
@@ -984,10 +1023,9 @@ def directories_collected_twice(items, parse_nodes=None):
 
     Two distinct node objects carrying one nodeid in the collected tree is
     the direct evidence. ``parse_nodes`` adds the other half: a directory
-    node that is not the one its conftest was parsed against was collected
-    twice even when the tests hanging off the first node are all gone -- a
-    ``-k`` selection or a shard can take them away exactly when the duplicate
-    did its damage.
+    node distinct from the representative conftest-directory node was
+    collected twice even when the tests hanging off the first node are all
+    gone -- a ``-k`` selection or a shard can remove that half of the evidence.
 
     ``None`` means there was nothing to look at: no collection node in the
     whole list was a directory, so no duplicate was ruled either in or out.
@@ -1012,12 +1050,13 @@ def directories_collected_twice(items, parse_nodes=None):
 
 
 _ORDERING_CAUSE = (
-    "This is a COLLECTION ORDERING fault, not a missing fixture. A "
-    "directory whose conftest defines fixtures was collected twice and "
-    "the tests were reached through the second node, which the conftest "
-    "was never parsed against, so every fixture in it -- autouse ones "
-    "included -- silently disappeared. It is triggered by interleaving "
-    "files from different directories in one invocation, e.g. "
+    "This run has a COLLECTION ORDERING fault alongside the missing "
+    "fixture: a directory whose conftest defines fixtures was collected "
+    "twice. Supported pytest 8.x matches those fixtures by stable baseid, "
+    "so the duplicate node alone does not explain their disappearance; it "
+    "is nevertheless a second violated invariant that must be repaired or "
+    "ruled out before diagnosing plugin state. The duplicate is triggered "
+    "by interleaving files from different directories, e.g. "
     "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
     "\n"
     "tests/conftest.py keeps one collection node per directory to "
@@ -1027,14 +1066,13 @@ _ORDERING_CAUSE = (
     "line reads as a pass.")
 
 _EVICTED_CAUSE = (
-    "The conftest was EVICTED, not out-ordered. Each directory listed above "
-    "was collected exactly ONCE in this run, so the collection-ordering "
-    "fault this guard was built for does not explain it and has already been "
-    "ruled out for you. The conftest was imported and its fixtures were "
-    "registered, and then they stopped being reachable: something took the "
-    "module out from under pytest -- cleared it from sys.modules, reloaded "
-    "it, or unregistered the plugin. Look at what the files in this run do "
-    "to module state, and run them one file at a time to find which.")
+    "The conftest was EVICTED, not accompanied by a duplicate directory. "
+    "Each directory listed above was collected exactly ONCE in this run, so "
+    "the collection-tree invariant has been ruled out. The conftest was "
+    "imported and its fixtures were registered, and then they stopped being "
+    "reachable: something may have cleared it from sys.modules, reloaded it, "
+    "or unregistered the plugin. Look at what the files in this run do to "
+    "module state, and run them one file at a time to find which.")
 
 
 def _conftest_fixtures_went_missing(lost, collected_twice=None):
@@ -1042,10 +1080,9 @@ def _conftest_fixtures_went_missing(lost, collected_twice=None):
 
     ``collected_twice`` is the set of directory nodeids the run holds more
     than one collection node for, and it picks which CAUSE is named. A
-    duplicated directory is the ordering fault; a directory collected once is
-    not, and calling it one would send the reader after the single thing that
-    has already been ruled out. ``None`` means nobody looked, and the message
-    keeps the ordering wording it has always had.
+    duplicated directory adds the ordering diagnosis; a directory collected
+    once does not. ``None`` means nobody looked, and the message keeps the
+    conservative ordering wording used for that evidence-free case.
     """
     listed = "\n".join(
         f"    {argname!r} comes from the conftest in {directory}, and "
@@ -1093,7 +1130,7 @@ def _check_directory_conftest_fixtures(session, items):
     if not lost:
         return
     collected_twice = directories_collected_twice(
-        items, directory_conftest_parse_nodes(fixture_manager))
+        items, directory_conftest_parse_nodes(fixture_manager, items))
     raise pytest.UsageError(
         _conftest_fixtures_went_missing(lost, collected_twice))
 
