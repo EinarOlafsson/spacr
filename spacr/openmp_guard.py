@@ -34,7 +34,14 @@ __all__ = [
 
 # Substrings that identify an OpenMP runtime image. `libgomp` is GCC's and
 # `libiomp5` is Intel's; mixing any two of the three is the same hazard.
-_OPENMP_MARKERS = ("libomp.", "libgomp.", "libiomp5.", "libomp5.")
+# Wheels may content-hash a bundled runtime before its extension (PyTorch
+# 2.1 ships ``libgomp-a34b3233.so.1``). Match that spelling as well as the
+# ordinary ``libgomp.so.1`` form, or the supported dependency floor looks as
+# though no runtime is resident even while OpenMP is active.
+_OPENMP_MARKERS = (
+    "libomp.", "libomp-", "libgomp.", "libgomp-",
+    "libiomp5.", "libiomp5-", "libomp5.", "libomp5-",
+)
 
 _OFF = {"0", "off", "false", "no"}
 _ON = {"1", "on", "true", "yes"}

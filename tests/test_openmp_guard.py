@@ -106,6 +106,14 @@ class TestResidentRuntimes:
 
         assert found == ["/opt/intel/libiomp5.so", "/usr/lib/libgomp.so.1"]
 
+    def test_recognises_a_content_hashed_wheel_runtime(self, monkeypatch):
+        """PyTorch's minimum-version wheel inserts a hash before ``.so``."""
+        path = "/wheel/torch/lib/libgomp-a34b3233.so.1"
+        monkeypatch.setattr(openmp_guard.sys, "platform", "linux")
+        monkeypatch.setattr(openmp_guard, "_linux_images", lambda: [path])
+
+        assert openmp_guard.resident_openmp_runtimes() == [path]
+
     def test_unknown_platform_reports_nothing(self, monkeypatch):
         monkeypatch.setattr(openmp_guard.sys, "platform", "win32")
         assert openmp_guard.resident_openmp_runtimes() == []
