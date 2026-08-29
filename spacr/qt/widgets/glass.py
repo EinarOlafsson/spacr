@@ -775,8 +775,18 @@ class _GlassInstaller(QObject):
 
 
 #: The one installed filter. Held so it is not collected, and so a second
-#: call is a no-op rather than a second filter on every event in the app.
+#: call on the same application is a no-op rather than a second filter on
+#: every event in that application.
 _INSTALLED: Optional[_GlassInstaller] = None
+
+#: The application that owns :data:`_INSTALLED`.
+#:
+#: IDEMPOTENCE IS PER APPLICATION, not per Python process.  A test harness
+#: can launch spaCR against a stand-in application and then return to its real
+#: QApplication; an embedded host can likewise tear one application down and
+#: build another.  The old filter cannot serve the new application, so the
+#: owner has to be remembered alongside it.
+_INSTALLED_APP = None
 
 
 def install_glass_everywhere(application=None) -> bool:
@@ -787,22 +797,37 @@ def install_glass_everywhere(application=None) -> bool:
     settings, and the thirty-odd others -- is treated on its first show
     without knowing anything about this module.
     """
-    global _INSTALLED
+    global _INSTALLED, _INSTALLED_APP
 
-    if _INSTALLED is not None:
-        return False
     try:
         from PySide6.QtWidgets import QApplication
 
         application = application or QApplication.instance()
         if application is None:
             return False
-        _INSTALLED = _GlassInstaller(application)
-        application.installEventFilter(_INSTALLED)
+        if _INSTALLED is not None and _INSTALLED_APP is application:
+            return False
+
+        # A filter belongs to the object it was installed on.  Forgetting
+        # only the owner and retaining the filter makes a later application
+        # look "already installed" while receiving no events at all.
+        if _INSTALLED is not None:
+            try:
+                if _INSTALLED_APP is not None:
+                    _INSTALLED_APP.removeEventFilter(_INSTALLED)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("the old glass filter would not come off",
+                          exc_info=True)
+
+        installed = _GlassInstaller(application)
+        application.installEventFilter(installed)
+        _INSTALLED = installed
+        _INSTALLED_APP = application
         return True
     except Exception:                                        # noqa: BLE001
         LOG.debug("the glass filter would not install", exc_info=True)
         _INSTALLED = None
+        _INSTALLED_APP = None
         return False
 
 
@@ -820,18 +845,22 @@ def uninstall_glass_everywhere(application=None) -> bool:
     :returns: ``True`` if an installed filter was registered when the call
         began; ``False`` if no filter was installed.
     """
-    global _INSTALLED
+    global _INSTALLED, _INSTALLED_APP
 
     if _INSTALLED is None:
         return False
     try:
         from PySide6.QtWidgets import QApplication
 
-        application = application or QApplication.instance()
+        # Remove it from the object that owns it.  The optional argument is
+        # retained for callers written before ownership was tracked, and is
+        # the fallback for an installation made by such an older module.
+        application = _INSTALLED_APP or application or QApplication.instance()
         if application is not None:
             application.removeEventFilter(_INSTALLED)
     except Exception:                                        # noqa: BLE001
         LOG.debug("the glass filter would not come off", exc_info=True)
     finally:
         _INSTALLED = None
+        _INSTALLED_APP = None
     return True
