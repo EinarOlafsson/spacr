@@ -113,7 +113,14 @@ def _beta_density(scores: np.ndarray, effect: float,
     eps = 1e-6
     x = np.clip(np.asarray(scores, dtype=float), eps, 1.0 - eps)
     base = min(max(float(centre), eps), 1.0 - eps)
-    mean = 1.0 / (1.0 + math.exp(-(math.log(base / (1.0 - base)) + float(effect))))
+    shifted = math.log(base / (1.0 - base)) + float(effect)
+    # `1 / (1 + exp(-shifted))` RAISES OverflowError once shifted drops below
+    # about -709, so a guide with a large negative effect killed the whole
+    # well instead of being attributed. Saturating there is not an
+    # approximation: the clamp on the next line already pins the mean at
+    # `eps` for every shift below about -14, so the value returned is
+    # identical to what the unclamped expression produced.
+    mean = 0.0 if shifted < -700.0 else 1.0 / (1.0 + math.exp(-shifted))
     mean = min(max(mean, eps), 1.0 - eps)
     spread = float(scale) if scale and scale > 0 else 0.1
     # Concentration from the spread: var = mean(1-mean)/(1+nu) inverted.
