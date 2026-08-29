@@ -18,6 +18,7 @@ from .events import (
     StageProgress,
     StageStarted,
     StageThumbnail,
+    _StageSkipped,
 )
 from .model import Node, NodeState, RunGraph
 
@@ -200,6 +201,15 @@ class Collector:
             if changed:
                 self._skip_descendants(event.node_id, event.at)
             return changed
+        if isinstance(event, _StageSkipped):
+            return self._replace_node(
+                event.node_id,
+                lambda node: replace(
+                    node,
+                    state=NodeState.SKIPPED,
+                    ended_at=event.at,
+                ),
+            )
         return False
 
     def _skip_descendants(self, node_id: str, at: float) -> None:
