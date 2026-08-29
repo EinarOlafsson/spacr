@@ -2,7 +2,7 @@
 SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
 ================================================================================
 
-Status: OPEN — the field browser and reversible quarantine are not built.
+Status: DONE — shipped in 075adb21 and reverified on 2026-08-29.
 
 Feature request, scoped against the code on 2026-08-06 but NOT built.
 
@@ -156,3 +156,31 @@ one had the identical bug and is fixed by the same change.
 If you add more registered widget stylesheets, use pane_surface() rather
 than the palette for any container background, or they will have this bug
 too.
+
+--------------------------------------------------------------------------------
+2026-08-29 — COMPLETION RECORD
+--------------------------------------------------------------------------------
+
+Commit ``075adb21`` implements the requested feature rather than merely its
+styling half:
+
+  * ``spacr/qc_quarantine.py`` owns atomic quarantine/restore operations,
+    conflict detection, audit sidecars, listing and status checks. Only the
+    merged ``.npy`` moves to the sibling ``merged_quarantined/`` directory;
+    mask stacks remain untouched and restore is reversible.
+  * ``spacr/qt/widgets/qc_field_browser.py`` reads merged stacks deliberately,
+    shows all available mask layers and every QC verdict for a field, moves
+    through the flagged-field set with buttons or arrow keys, and supports
+    quarantine/restore from the keyboard. Missing and duplicate files produce
+    explicit states rather than crashes.
+  * ``spacr/qt/prerun.py`` renders field names as links and opens the browser
+    at the selected field. Quarantine is disabled while Measure is active;
+    the advisory banner remains non-blocking and ``BLOCKS_RUN`` remains False.
+
+Clean-tree verification at ``cde2b73d`` ran the quarantine, browser and
+pre-run suites under both the current interpreter and the declared Python 3.9
+minimum: ``46 passed`` in each environment. Those tests include the move and
+restore round trip, immutable masks, ``merged/*.npy`` exclusion, audit JSON,
+clicked-field positioning, stale/missing fields, active-run refusal, keyboard
+navigation and the non-blocking invariant. The implementation therefore meets
+all acceptance points in this instruction and the item is closed.
