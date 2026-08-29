@@ -218,7 +218,14 @@ class JobRunner(QObject):
         try:
             self._settled.emit(job_id, bool(ok))
         except RuntimeError:
-            pass
+            # The runner's C++ half died with its parent before this worker
+            # finished.  No queued receiver remains to retire the pending
+            # result, but the Python closure still owns ``self`` and may clear
+            # its bookkeeping safely under the GIL.  Do not drop ``_jobs``
+            # here: its strong references keep the QThread alive until the
+            # worker has actually stopped.
+            self._pending.pop(job_id, None)
+            self._busy = bool(self._pending)
 
     def _on_settled(self, job_id: int, ok: bool) -> None:
         """Finish one job by id. Always on the GUI thread."""
