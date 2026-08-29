@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-293 done / 15 open (95%).
+294 done / 14 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -26,9 +26,6 @@ OPEN
 
    01  THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
        01_pip_upgrade_is_broken_for_installed_builds.txt
-
-   02  THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
-       02_multi_fov_loader_for_the_timelapse_movie.txt
 
    05  THE VERSION BUMP AND GETTING ACTIONS GREEN
        05_version_bump_and_github_actions.txt
@@ -74,6 +71,7 @@ OPEN
 DONE
 --------------------------------------------------------------------------------
 
+   02  THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
    03  FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
    04  THE TESTS MEASURE A FONT SCALE NO USER HAS
    06  MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
