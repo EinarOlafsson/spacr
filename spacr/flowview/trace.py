@@ -12,7 +12,7 @@ import time
 import traceback
 from typing import Any, Callable, Iterable, Mapping, TypeVar, cast
 
-from spacr._version import __version__
+from spacr import __version__
 
 from .collector import Collector
 from .events import (
