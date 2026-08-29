@@ -346,11 +346,11 @@ FRACTAL_LIMITS = {
                         "choosing between no candidates chooses nothing"),
     "steering": (0.0, 1.0,
                  "steering is an amount between none and restless"),
-    "max_depth": (0.1, 16.0,
-                  "the reference orbit is carried as a pair of float32s and "
-                  "reproduces Z to about 2.2e-16, so past roughly sixteen "
-                  "decades the perturbation is measuring noise and the "
-                  "picture turns to mush"),
+    "max_depth": (0.1, 23.0,
+                  "the reference orbit is carried as three float32s and "
+                  "reproduces Z to about 4.2e-24, so past roughly "
+                  "twenty-three decades the perturbation is measuring noise "
+                  "and the picture turns to mush"),
 }
 
 

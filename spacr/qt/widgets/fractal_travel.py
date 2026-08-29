@@ -1643,6 +1643,20 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
             :returns: zeros when the pointer is not being followed, so a
                 shader can multiply by them unconditionally.
+
+            THE MANDELBROT IS DRAGGED, NOT ATTRACTED. Asked for 2026-08-28:
+            with mouse gravity on it should be "only be drag and drop", not
+            the pointer's POSITION pulling the view about.
+            
+            The other three patterns are fields that can be warped toward a
+            point and look right doing it. A deep zoom is a camera: pulling
+            its coordinates toward wherever the mouse happens to rest slides
+            the picture continuously, which reads as the image drifting away
+            from you rather than as anything you did.
+
+            The pointer is still SAMPLED, because that is what accumulates
+            the drag -- `_steer` consumes it. Only `pull` and `push`, which
+            are the position-driven terms, are withheld.
             """
             if not controls.follow_pointer:
                 return 0.0, 0.0, 0.0, 0.0
@@ -1653,6 +1667,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             except Exception:                                # noqa: BLE001
                 # A backdrop that cannot find the mouse still draws.
                 return 0.0, 0.0, 0.0, 0.0
+            if settings.pattern == "mandelbrot":
+                return pointer.x, pointer.y, 0.0, 0.0
             return pointer.x, pointer.y, pointer.pull, pointer.push
 
         def on_resize(self, _event) -> None:

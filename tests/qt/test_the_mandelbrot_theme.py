@@ -41,7 +41,8 @@ def test_the_reference_orbit_stays_bounded():
     around it."""
     orbit = mb.ReferenceOrbit(max_iter=400, digits=120)
     assert orbit.is_bounded
-    assert orbit.packed.shape == (1, 401, 4)
+    # Two rows since Z gained a third word.
+    assert orbit.packed.shape == (2, 401, 4)
     assert orbit.packed.dtype == np.float32
 
 
@@ -51,6 +52,9 @@ def test_the_low_words_carry_the_precision_a_float_would_lose():
     orbit = mb.ReferenceOrbit(max_iter=200, digits=120)
     assert np.abs(orbit.packed[0, :, 1]).max() > 0.0
     assert np.abs(orbit.packed[0, :, 3]).max() > 0.0
+    # And the third word carries something too, or it is not worth its row.
+    assert np.abs(orbit.packed[1, :, 0]).max() > 0.0
+    assert np.abs(orbit.packed[1, :, 2]).max() > 0.0
 
 
 def test_deeper_gets_more_iterations():
@@ -141,7 +145,7 @@ def test_the_restart_happens_while_the_orbit_is_still_accurate():
     # about 2.2e-16; the viewport at the restart depth must still be larger
     # than that, or the perturbation is measuring the error.
     viewport = mb.scale_at(mb.MAX_USEFUL_DEPTH, mb.DEFAULTS["initial_scale"])
-    assert viewport > 2.2e-16 * 10, (
+    assert viewport > 4.2e-24 * 10, (
         f"at depth {mb.MAX_USEFUL_DEPTH} the viewport is {viewport:.2e}, "
         f"inside the reference orbit's own error")
 
@@ -157,15 +161,15 @@ def test_the_restart_depth_is_a_setting_and_is_bounded(monkeypatch):
 
     assert "max_depth" in P.FRACTAL_LIMITS
     floor, ceiling, why = P.FRACTAL_LIMITS["max_depth"]
-    assert ceiling is not None and ceiling <= 16
+    assert ceiling is not None and ceiling <= 24
     # The reason has to name what actually runs out, or the next person
     # raises the number again: it is the reference orbit's precision, not
     # the scale's exponent.
-    assert "float32" in why and "2.2e-16" in why
+    assert "float32" in why and "4.2e-24" in why
 
     assert P.explain_a_fractal_number("max_depth", 100) != ""
-    assert P.explain_a_fractal_number("max_depth", 20) != ""
-    assert P.explain_a_fractal_number("max_depth", 12) == ""
+    assert P.explain_a_fractal_number("max_depth", 30) != ""
+    assert P.explain_a_fractal_number("max_depth", 20) == ""
 
 
 def test_changing_the_settings_sends_the_dive_back_to_the_surface():
@@ -305,3 +309,61 @@ def test_a_frame_with_no_structure_at_all_yields_nothing():
     escaped = np.ones((9, 9), dtype=bool)
     iterations = np.full((9, 9), 42, dtype=np.int32)
     assert not mb.structure_mask(escaped, iterations, 100).any()
+
+
+def test_the_orbit_carries_three_floats_not_two():
+    """"there should be a depth setting so i can make it go on forever...
+    or at least a long time."
+
+    Depth is bounded by how accurately Z reaches the shader, and Z is
+    carried in the texture. Two float32s reproduce it to 1.9e-16; three, each
+    the remainder of the one before, reach 4.2e-24.
+    """
+    orbit = mb.ReferenceOrbit(max_iter=400, digits=320)
+    # Two rows: the high and middle words, then the low ones.
+    assert orbit.packed.shape == (2, 401, 4)
+
+    mp.mp.dps = 320
+    z = mp.mpc(0)
+    worst_pair = mp.mpf(0)
+    worst_triple = mp.mpf(0)
+    for n in range(400):
+        hi = mp.mpf(float(orbit.packed[0, n, 0]))
+        mid = mp.mpf(float(orbit.packed[0, n, 1]))
+        low = mp.mpf(float(orbit.packed[1, n, 0]))
+        truth = mp.re(z)
+        worst_pair = max(worst_pair, abs(truth - (hi + mid)))
+        worst_triple = max(worst_triple, abs(truth - (hi + mid + low)))
+        z = z * z + orbit.center
+
+    assert worst_triple < worst_pair / 1e6, (
+        f"three floats reach {mp.nstr(worst_triple, 4)} against "
+        f"{mp.nstr(worst_pair, 4)} for two")
+    # Which is what the depth limit is set from.
+    decades = float(-mp.log10(worst_triple))
+    assert decades > mb.MAX_USEFUL_DEPTH, (decades, mb.MAX_USEFUL_DEPTH)
+
+
+def test_the_depth_limit_leaves_a_margin():
+    """The error grows with the iteration count, and the figure is measured
+    over a few hundred of them."""
+    assert mb.MAX_USEFUL_DEPTH == 21.0
+    assert mb.scale_at(mb.MAX_USEFUL_DEPTH,
+                       mb.DEFAULTS["initial_scale"]) > 4.2e-24 * 100
+
+
+def test_the_shader_sums_the_words_smallest_first():
+    """Adding the large word first would round the small ones away before
+    they reached the total, which is the whole point of carrying them."""
+    source = mb.FRAGMENT_SHADER
+    assert "(lo.r + hi.g) + hi.r" in source
+    assert "(lo.b + hi.a) + hi.b" in source
+
+
+def test_the_escape_map_reads_all_three_words():
+    """The survey and the shader must agree about where the orbit is."""
+    import inspect
+
+    source = inspect.getsource(mb.perturbation_escape_map)
+    assert "orbit.packed[1, :, 0]" in source
+    assert "orbit.packed[1, :, 2]" in source
