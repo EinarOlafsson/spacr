@@ -14,7 +14,7 @@ person rediscovers it and makes the same call from scratch, or worse,
 STATUS RECONCILIATION -- 2026-08-29
 --------------------------------------------------------------------------------
 
-The deliberately unresolved items in this record are now these five decisions
+The deliberately unresolved items in this record are now these four decisions
 or external checks:
 
   * whether the three shared sequences in the original 1,385-row TSG101 guide
@@ -22,7 +22,6 @@ or external checks:
   * retiring the remaining Space wallpaper/code is a product decision;
   * an empty GLCM needs a downstream missing-feature policy before it can emit
     an honest missing value;
-  * strict concurrency-probe input validation needs a compatibility decision;
   * the Korean ``min_cell_count`` tooltip needs external language/domain
     review against the current English contract.
 
@@ -565,16 +564,14 @@ RESOURCE LEAKS
 
 QUIET COERCION
 
-  run_concurrency_probe int()-coerces its three counts before the >= 1 check,
-  so writers=2.9 becomes 2 and writes_per_writer=3.7 becomes 3 with no
-  warning; strings work too. journal_mode is typed `str` but None is accepted
-  and means "do not set it", so the probe reports DELETE -- a quiet non-WAL
-  run rather than an error.
-
-WHY THE REMAINING CASE IS LISTED RATHER THAN FIXED: strict integer coercion
-and accepting ``journal_mode=None`` are decisions about which historical
-inputs the concurrency probe should keep accepting, not repairs with one
-provable result.
+  FIXED 2026-08-29. ``run_concurrency_probe`` no longer truncates floats or
+  accepts text/booleans as work sizes: its type-annotated counts must be
+  genuine positive integers, while the shipped CLI remains compatible because
+  argparse already produces integers. ``journal_mode`` must be an explicit
+  ``WAL`` or ``DELETE`` string; ``None`` can no longer produce a quiet DELETE
+  run whose result describes a mode the caller never selected. Focused
+  regressions cover every count, lossy input class and unsupported/implicit
+  journal mode.
 
 
 --------------------------------------------------------------------------------
