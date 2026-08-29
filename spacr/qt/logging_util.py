@@ -32,7 +32,6 @@ from ..logging_util import (
     setup_logging as _package_setup_logging,
 )
 
-
 # ---------------------------------------------------------------------------
 # Path shims — kept for backwards compatibility with existing callers /
 # tests that import log_dir/log_path from spacr.qt.logging_util.
@@ -58,6 +57,19 @@ def log_path() -> Path:
 # Qt-side log handler — bridges Python logging → Qt signal
 # ---------------------------------------------------------------------------
 
+
+class _RecordRelay(QObject):
+    """Own the Qt signal separately from ``logging.Handler.emit``.
+
+    PySide 6.6 misbinds a signal declared on a QObject/logging.Handler
+    multiple-inheritance class: ``signal.emit(text, level)`` resolves back to
+    the handler's one-argument ``emit(record)`` method. A plain QObject relay
+    avoids that name collision while preserving the public signal instance.
+    """
+
+    record_ready = Signal(str, int)
+
+
 class QtLogHandler(QObject, logging.Handler):
     """A logging.Handler that emits every formatted record over a Qt
     signal so QWidget slots (running on the main thread) can display
@@ -67,11 +79,13 @@ class QtLogHandler(QObject, logging.Handler):
         once per record.
     """
 
-    record_ready = Signal(str, int)   # (formatted line, levelno)
-
     def __init__(self, level: int = logging.INFO):
         QObject.__init__(self)
         logging.Handler.__init__(self, level=level)
+        self._record_relay = _RecordRelay(self)
+        # Keep the existing ``handler.record_ready.connect(...)`` contract;
+        # only the QObject that owns the signal changes.
+        self.record_ready = self._record_relay.record_ready
         self.setFormatter(logging.Formatter(
             "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             datefmt="%H:%M:%S",
