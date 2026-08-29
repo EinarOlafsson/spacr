@@ -298,6 +298,29 @@ def test_installer_guide_is_distinct_from_the_version_archive():
     assert "   installers" in index
 
 
+def test_installer_guide_gives_old_desktop_builds_the_pipless_escape():
+    """The broken updater cannot be the only route to its own repair."""
+    guide = _read(INSTALLER_GUIDE)
+
+    assert "No module named pip" in guide
+    assert "Windows 1.5.0.4" in guide
+    assert "administrator access nor a reinstall" in guide
+    assert (
+        "~/.local/share/spacr/bootstrap/uv pip install --upgrade --python "
+        "~/.local/share/spacr/venv/bin/python spacr"
+    ) in guide
+    assert (
+        '"$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install '
+        '--upgrade --python "$HOME/Library/Application Support/SpaCR/venv/'
+        'bin/python" spacr'
+    ) in guide
+    assert (
+        '"$env:LOCALAPPDATA\\SpaCR\\bootstrap\\uv.exe" pip install '
+        '--upgrade --python "$env:LOCALAPPDATA\\SpaCR\\venv\\Scripts\\'
+        'python.exe" spacr'
+    ) in guide
+
+
 def test_reference_resources_are_linked_rounded_buttons():
     from PIL import Image
 

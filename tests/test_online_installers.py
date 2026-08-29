@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
+import importlib.util
+import json
 import os
 import re
 import subprocess
-import importlib.util
-import json
 from pathlib import Path
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 ONLINE = ROOT / "packaging" / "online"
@@ -634,6 +633,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "assert torch.backends.mps.is_available()" in workflow
     assert workflow.count("smoke_installed.py") == 3
     assert workflow.count("from spacr.updater import upgrade_command") == 3
+    assert workflow.count("find_spec('pip') is None") == 3
     assert "bootstrap/uv').resolve()" in workflow
     assert "'bootstrap'/'uv.exe'" in workflow
     assert workflow.count("install-profile.json") >= 3

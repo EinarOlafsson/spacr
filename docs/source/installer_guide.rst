@@ -78,6 +78,39 @@ update leaves the previous working environment in place. Project folders and
 results are not stored in the installation directory and are not removed by
 an update.
 
+Recovering an older desktop installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Desktop builds at version 1.5.0.1 and earlier, plus the Windows 1.5.0.4
+build, can try ``python -m pip`` even though their private environment has no
+``pip``. If **Help → Check for updates** reports ``No module named pip``, run
+the command for the original installation below. It uses the installer's
+private ``uv`` executable to update that same environment; it needs neither
+administrator access nor a reinstall.
+
+Linux:
+
+.. code-block:: bash
+
+   ~/.local/share/spacr/bootstrap/uv pip install --upgrade --python ~/.local/share/spacr/venv/bin/python spacr
+
+macOS:
+
+.. code-block:: bash
+
+   "$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" spacr
+
+Windows PowerShell:
+
+.. code-block:: powershell
+
+   & "$env:LOCALAPPDATA\SpaCR\bootstrap\uv.exe" pip install --upgrade --python "$env:LOCALAPPDATA\SpaCR\venv\Scripts\python.exe" spacr
+
+These are the original installers' default roots. If a different destination
+was selected during installation, replace the root before ``bootstrap`` and
+``venv`` with that destination. Installers built from version 1.5.0.5 and
+later carry the corrected updater and do not depend on ``python -m pip``.
+
 Update an environment installed from conda-forge with:
 
 .. code-block:: bash
