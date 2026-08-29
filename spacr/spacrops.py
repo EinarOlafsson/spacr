@@ -677,7 +677,12 @@ class spacrStitcher:
         pts, desc = self._detect_and_describe(I8)
         # post-cap (if requested)
         if self.max_keypoints is not None and pts.shape[0] > self.max_keypoints:
-            idx = np.argsort(-np.linalg.norm(pts - pts.mean(0), axis=1))[:self.max_keypoints]
+            distances = np.linalg.norm(pts - pts.mean(0), axis=1)
+            # NumPy's default quicksort does not define which equal-distance
+            # point wins. Use the original index as an explicit descending
+            # tie-break so minimum and newest NumPy keep the same descriptors.
+            idx = np.lexsort((-np.arange(pts.shape[0]), -distances))[
+                :self.max_keypoints]
             pts = pts[idx]
             desc = desc[idx]
         return dict(ds8=I8, Hds=np.int32(Hds), Wds=np.int32(Wds),

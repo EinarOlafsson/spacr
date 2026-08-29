@@ -3785,7 +3785,12 @@ def _invasion_threshold(values, method='otsu'):
         return float('nan')
     try:
         threshold = float(functions[method](values))
-    except (ValueError, RuntimeError):
+    # Depending on NumPy/skimage versions an unrepresentable histogram range
+    # is rejected as ValueError, overflows during bin construction, or reaches
+    # the final integer-bin lookup as IndexError.  All three mean the sample
+    # cannot support a threshold; none should abort the rest of the well.
+    except (ValueError, RuntimeError, FloatingPointError,
+            OverflowError, IndexError):
         return float('nan')
     return _invasion_centre_threshold(values, threshold)
 
