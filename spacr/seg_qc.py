@@ -2224,7 +2224,7 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
                         metrics[key] = float("nan")
                 try:
                     n_objects = int(float(row.get("n_objects") or 0))
-                except (TypeError, ValueError):
+                except (TypeError, ValueError, OverflowError):
                     n_objects = 0
                 metrics.setdefault("n_objects", float(n_objects))
                 out.append(FieldQC(
