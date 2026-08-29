@@ -72,7 +72,7 @@ def application():
     from PySide6.QtWidgets import QApplication
 
     app = QApplication.instance()
-    if app is None:                       # pragma: no cover - ready() made it
+    if app is None:                       # ready() usually made it
         return None, NO_PLATFORM
     return app, ""
 

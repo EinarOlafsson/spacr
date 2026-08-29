@@ -195,7 +195,7 @@ def napari_available() -> bool:
 
     try:
         return find_spec("napari") is not None
-    except (ImportError, ValueError):         # pragma: no cover - broken meta
+    except (ImportError, ValueError):         # a broken meta path
         return False
 
 

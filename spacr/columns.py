@@ -60,7 +60,7 @@ class ColumnNotFound(KeyError):
         #: columns are grouped together.
         self.available = list(available)
 
-    def __str__(self) -> str:                       # pragma: no cover - trivial
+    def __str__(self) -> str:                       # trivial
         return self.message
 
 

@@ -1235,7 +1235,7 @@ def _call(obj: Any, *names: str, default: Any = None) -> Any:
         if callable(method):
             try:
                 return method()
-            except Exception:                      # pragma: no cover - server
+            except Exception:                      # the server said no
                 return default
     return default
 
