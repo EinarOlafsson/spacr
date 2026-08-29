@@ -637,7 +637,7 @@ def _discard_scratch(db_path: str, temporary_dir: Optional[str]) -> None:
                 os.remove(db_path + suffix)
             except OSError:
                 pass
-    except Exception:      # pragma: no cover - shutil already swallows
+    except Exception:      # below OSError: a path the OS rejects outright
         LOG.debug("could not remove the probe's scratch database",
                   exc_info=True)
 
