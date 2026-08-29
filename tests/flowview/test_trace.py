@@ -58,6 +58,41 @@ def test_disabled_decorator_is_identical_and_context_is_a_null_object(tmp_path):
     assert collector.pending == 0
 
 
+def test_a_stage_disabled_before_use_stays_a_single_boolean_no_op(monkeypatch):
+    flowview.disable()
+
+    def construction_would_be_work():
+        raise AssertionError("disabled tracing constructed a stage")
+
+    monkeypatch.setattr(trace, "_StageSpec", construction_would_be_work)
+    inactive = flowview.stage(
+        "No work",
+        kind="not-a-node-kind",
+        consumes=iter(("input",)),
+        params={"unread": object()},
+    )
+
+    def plain():
+        return "unchanged"
+
+    assert inactive(plain) is plain
+    with inactive as active:
+        assert active.node_id is None
+
+
+def test_a_prepared_stage_can_be_disabled_before_decoration_or_entry():
+    flowview.enable(_collector())
+    prepared = flowview.stage("Prepared")
+    flowview.disable()
+
+    def plain():
+        return "unchanged"
+
+    assert prepared(plain) is plain
+    with prepared as active:
+        assert active.node_id is None
+
+
 def test_enabled_context_records_artifacts_progress_metrics_and_thumbnail(tmp_path):
     collector = _collector()
     flowview.enable(collector)
