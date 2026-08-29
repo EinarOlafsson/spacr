@@ -11,6 +11,7 @@ from .export import export as export_graph
 from .layout import GraphLayout, layout_graph
 from .model import Edge, Node, RunGraph
 from .theme import CANVAS, CARD, TEXT_PRIMARY, TEXT_SECONDARY
+from .trace import get_collector
 
 QT_INSTALL_COMMAND = "pip install spacr[flowview]"
 QT_MISSING_MESSAGE = (
@@ -183,6 +184,10 @@ else:
                 f"QPlainTextEdit {{ background: {CANVAS}; border: 1px solid #FFFFFF1A; }}"
             )
             self._collector = collector
+            try:
+                self._follow_global_collector = collector is get_collector()
+            except Exception:
+                self._follow_global_collector = False
             self._export_path_provider = export_path_provider
             self._snapshot = collector.snapshot()
             self._revision = -1
@@ -263,6 +268,15 @@ else:
         def refresh(self, *, force: bool = False) -> bool:
             """Drain events and repaint only when the graph content changed."""
 
+            if self._follow_global_collector:
+                try:
+                    current_collector = get_collector()
+                except Exception:
+                    current_collector = self._collector
+                if current_collector is not self._collector:
+                    self._collector = current_collector
+                    self._revision = -1
+
             self._collector.drain()
             self.sample_note.setVisible(bool(self._collector.sampled))
             revision = self._collector.revision
@@ -288,8 +302,11 @@ else:
                     )
             self._topology = topology
             self._layout = layout
-            if self._selected_node_id is not None:
+            if self._selected_node_id in graph.nodes:
                 self._show_inspector(graph.nodes[self._selected_node_id])
+            elif self._selected_node_id is not None:
+                self._selected_node_id = None
+                self.inspector.clear()
 
         def _rebuild_scene(self, graph: RunGraph, layout: GraphLayout) -> None:
             selected_node_id = self._selected_node_id

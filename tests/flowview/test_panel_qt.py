@@ -9,6 +9,7 @@ from types import ModuleType
 
 import pytest
 
+from spacr.flowview import trace
 from spacr.flowview.collector import Collector
 from spacr.flowview.events import (
     EdgeAdded,
@@ -248,6 +249,46 @@ def test_panel_validates_interval_handles_empty_graph_and_auto_starts(qtbot):
     assert live.graph.run_id == "empty"
     assert live.scene.items() == []
     live.close()
+
+
+@pytest.mark.skipif(not HAS_QT, reason="PySide6 is not installed")
+def test_panel_follows_replaced_global_collector_safely(qtbot, monkeypatch):
+    previous_collector = trace.get_collector()
+    previous_enabled = trace.is_enabled()
+    first = Collector(_graph())
+    trace.enable(first)
+    live = panel.FlowViewPanel(first, auto_start=False)
+    qtbot.addWidget(live)
+
+    try:
+        second_graph = RunGraph(
+            "next-run",
+            5.0,
+            {"fresh": Node("fresh", "Fresh run", NodeKind.INPUT)},
+            [],
+            "test",
+            "next-digest",
+        )
+        second = Collector(second_graph)
+        trace.enable(second)
+        live._selected_node_id = "model"
+
+        assert live.refresh() is True
+        assert live.graph.run_id == "next-run"
+        assert set(live._node_items) == {"fresh"}
+        assert live._selected_node_id is None
+
+        def broken_lookup():
+            raise RuntimeError("trace registry unavailable")
+
+        monkeypatch.setattr(panel, "get_collector", broken_lookup)
+        assert live.refresh() is False
+        assert live.graph.run_id == "next-run"
+    finally:
+        live.close()
+        trace.enable(previous_collector)
+        if not previous_enabled:
+            trace.disable()
 
 
 @pytest.mark.skipif(not HAS_QT, reason="PySide6 is not installed")
