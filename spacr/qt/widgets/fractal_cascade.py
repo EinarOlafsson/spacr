@@ -27,7 +27,7 @@ import numpy as np
 
 try:
     from numba import njit, prange
-except Exception:                                            # pragma: no cover
+except Exception:
     njit = None
     prange = range
 
@@ -401,7 +401,7 @@ if njit is not None:
                 output[y, x, 1] = green // 4
                 output[y, x, 2] = blue // 4
 
-else:                                                        # pragma: no cover
+else:
 
     def render_into(*_args, **_kwargs):
         raise RuntimeError("numba is required for the cascade CPU backend")
