@@ -44,6 +44,7 @@ class Collector:
         self._queue_lock = threading.Lock()
         self._state_lock = threading.RLock()
         self._sampled = threading.Event()
+        self._revision = 0
 
     @property
     def sampled(self) -> bool:
@@ -56,6 +57,13 @@ class Collector:
         """Number of events waiting to be folded."""
 
         return self._queue.qsize()
+
+    @property
+    def revision(self) -> int:
+        """Monotonic graph revision for renderers that can skip idle work."""
+
+        with self._state_lock:
+            return self._revision
 
     def clear_sampled(self) -> None:
         """Acknowledge and clear the queue-saturation indicator."""
@@ -85,15 +93,21 @@ class Collector:
             take = available if limit is None else min(available, max(0, limit))
             events = [self._queue.get_nowait() for _ in range(take)]
         with self._state_lock:
+            changed = False
             for event in events:
-                self._fold_unlocked(event)
+                changed = self._fold_unlocked(event) or changed
+            if changed:
+                self._revision += 1
         return len(events)
 
     def fold(self, event: object) -> bool:
         """Fold one event immediately, returning whether it was recognised."""
 
         with self._state_lock:
-            return self._fold_unlocked(event)
+            changed = self._fold_unlocked(event)
+            if changed:
+                self._revision += 1
+            return changed
 
     def snapshot(self) -> RunGraph:
         """Return a detached, renderer-safe graph snapshot."""
@@ -183,7 +197,8 @@ class Collector:
                     error=event.error,
                 ),
             )
-            self._skip_descendants(event.node_id, event.at)
+            if changed:
+                self._skip_descendants(event.node_id, event.at)
             return changed
         return False
 

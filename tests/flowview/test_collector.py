@@ -37,12 +37,16 @@ def test_queue_is_bounded_drop_oldest_and_reports_sampling():
     assert collector.emit(NodeAdded(first)) is True
     assert collector.emit(NodeAdded(second)) is True
     assert collector.emit(NodeAdded(third)) is False
+    assert collector.revision == 0
     assert collector.pending == 2
     assert collector.sampled is True
     assert collector.drain(-1) == 0
+    assert collector.revision == 0
     assert collector.drain(1) == 1
+    assert collector.revision == 1
     assert collector.pending == 1
     assert collector.drain() == 1
+    assert collector.revision == 2
     assert set(collector.snapshot().nodes) == {"second", "third"}
 
     collector.clear_sampled()
@@ -116,12 +120,23 @@ def test_out_of_order_updates_are_ignored_but_start_can_declare_a_node():
     assert collector.fold(StageCompleted("missing", 3.0)) is False
     assert collector.fold(StageFailed("missing", 3.0, "failed")) is False
     assert collector.fold(object()) is False
+    assert collector.revision == 0
 
     observed = Node("observed", "Observed", NodeKind.PROCESS, params={"x": 1})
     assert collector.fold(StageStarted(observed, 5.0)) is True
+    assert collector.revision == 1
     node = collector.snapshot().nodes["observed"]
     assert node.state is NodeState.RUNNING
     assert node.started_at == 5.0
+
+
+def test_an_unknown_failure_does_not_skip_known_descendants():
+    child = Node("child", "Child", NodeKind.OUTPUT)
+    collector = Collector(_graph([child], [Edge("missing", "child")]))
+
+    assert collector.fold(StageFailed("missing", 3.0, "failed")) is False
+    assert collector.revision == 0
+    assert collector.snapshot().nodes["child"].state is NodeState.PENDING
 
 
 def test_failure_marks_every_descendant_skipped_even_when_edges_cycle():
