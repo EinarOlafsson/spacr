@@ -1031,7 +1031,7 @@ def _fit_outcome(column: str, payload) -> ColumnFit:
     if results is not None:
         try:
             n_results = int(len(results))
-        except TypeError:                     # pragma: no cover - odd payload
+        except TypeError:                     # a payload with no length
             n_results = 0
     if results is None and not folder:
         return ColumnFit(column=column, ok=False,
@@ -1988,7 +1988,7 @@ class DatabaseMergePanel(QWidget):
         """
         try:
             self._progress_relayed.emit(str(stage), int(done), int(total))
-        except RuntimeError:                 # pragma: no cover - teardown race
+        except RuntimeError:                 # teardown race
             pass
 
     def _on_progress(self, stage: str, done: int, total: int) -> None:
@@ -2569,14 +2569,14 @@ class ColumnRegressionPanel(QWidget):
         """Called BY THE WORKER before each fit. Emits, and nothing else."""
         try:
             self._started_relayed.emit(str(column), int(index), int(total))
-        except RuntimeError:                 # pragma: no cover - teardown race
+        except RuntimeError:                 # teardown race
             pass
 
     def _relay_result(self, outcome: ColumnFit) -> None:
         """Called BY THE WORKER after each fit. Emits, and nothing else."""
         try:
             self._result_relayed.emit(outcome)
-        except RuntimeError:                 # pragma: no cover - teardown race
+        except RuntimeError:                 # teardown race
             pass
 
     def _on_queue_progress(self, column: str, index: int, total: int) -> None:
