@@ -128,6 +128,45 @@ def test_marker_expressions_partition_resource_and_structural_suites():
         assert expression in workflow
 
 
+def test_the_real_nas_pipeline_is_owned_by_the_gpu_suite():
+    """A mounted NAS must not make hosted CPU CI run Cellpose SAM."""
+    path = ROOT / "tests" / "test_e2e_real_pipeline.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, (ast.List, ast.Tuple))
+    markers = {
+        element.attr
+        for element in assignment.value.elts
+        if isinstance(element, ast.Attribute)
+    }
+
+    assert {"slow", "nas", "gpu"} <= markers
+
+
+def test_the_nas_suite_keeps_a_bounded_non_gpu_availability_node():
+    """The NAS lane must remain non-empty without owning GPU inference."""
+    path = ROOT / "tests" / "test_nas_resource_availability.py"
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, ast.Attribute)
+
+    assert assignment.value.attr == "nas"
+    assert "pytest.mark.gpu" not in source
+    assert "paths_available" in source
+    assert "timeout=5.0" in source
+
+
 def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
     """Measured high-RSS nodes must not overlap in the parallel fast job."""
     missing = []

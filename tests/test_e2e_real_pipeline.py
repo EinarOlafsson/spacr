@@ -30,7 +30,7 @@ R1_FASTQ = "/nas_mnt/data/sequencing/seq_3/EO1_R1_001.fastq.gz"
 WELLS = ["E01", "E02", "L01", "L02"]     # E→row5(c1/c2), L→row12(c1/c2)
 FIELDS = ["F001", "F009"]                # 2 fields/well → 8 fields, 2 columns
 
-pytestmark = [pytest.mark.slow, pytest.mark.nas]
+pytestmark = [pytest.mark.slow, pytest.mark.nas, pytest.mark.gpu]
 
 # Probe autofs in a bounded child process: a connected NAS enables the suite
 # automatically, while a disconnected mount cannot stall test collection.
