@@ -201,7 +201,7 @@ class PreprocessingContext:
         self.volumetric = bool(volumetric)
         self.spacing = None if spacing is None else tuple(spacing)
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
         return (f'PreprocessingContext(file_name={self.file_name!r}, '
                 f'channels={self.channels!r}, volumetric={self.volumetric!r})')
 
@@ -284,7 +284,7 @@ class RegionContext:
                     len(labels), self.ndim)
         return self._centroids
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
         return (f'RegionContext(object_type={self.object_type!r}, '
                 f'file_name={self.file_name!r}, shape={self.mask.shape!r})')
 
