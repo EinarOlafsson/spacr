@@ -303,12 +303,17 @@ def test_module_measure_crop_writes_measurements_db(tmp_path):
     plate = _make_stub_dataset(tmp_path / "measure_full")
     mask_settings = _mask_settings_for(plate)
     preprocess_generate_masks(mask_settings)
-    # Measure uses many of the same settings; borrow the dict.
+    # Measure uses many of the same layout settings, so borrow the dict, but
+    # not ``normalize``: Mask uses that name for a boolean preprocessing
+    # switch, whereas Measure accepts False or a [low, high] crop-percentile
+    # pair.  Removing the Mask-only value selects Measure's shipped False
+    # default without inventing crop-normalization semantics.
     measure_settings = dict(mask_settings)
+    measure_settings.pop("normalize", None)
     measure_settings["src"] = str(plate)
-    # Unguarded: preprocess_generate_masks has just run over this same plate
-    # with these same settings, so measure_crop is being handed the layout it
-    # was designed to consume. Failing here is the finding.
+    # Unguarded: preprocess_generate_masks has just run over this same plate,
+    # so measure_crop is being handed the layout it was designed to consume.
+    # Failing here is the finding.
     measure_crop(measure_settings)
     dbs = list(plate.rglob("measurements.db"))
     assert dbs, "measure_crop wrote no measurements.db under plate"
