@@ -440,8 +440,8 @@ MAX_ORGANELLES = 26
 
 #: How many slots a settings file that says nothing has.
 #:
-#: NONE. Asked for 2026-08-28: a run has the organelles it says it has, and
-#: a form that opens showing four of them the user never asked for is four
+#: NONE. A run has the organelles it says it has, and a form that opens
+#: showing four unconfigured slots adds four
 #: settings and two categories of noise on the busiest screen in the tool.
 #:
 #: A FILE THAT CARRIES ORGANELLE VALUES IS NOT SAYING "NONE", though, and it

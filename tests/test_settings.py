@@ -105,12 +105,13 @@ def test_module_dict_is_non_empty(name):
 
 
 def test_descriptions_mask_help_typo_fixes_persisted():
-    """Direct assertion for the fix(settings) typos in the 'mask' help text."""
+    """The concise module blurb still names its input, output, and next step."""
     mask = S.descriptions["mask"]
     assert "Downloade" not in mask
     assert "menue" not in mask
-    assert "Download the training set" in mask
-    assert "menu bar" in mask
+    assert "Generate labeled masks" in mask
+    assert "microscopy images" in mask
+    assert "consumed by Measure" in mask
 
 
 def test_expected_types_has_common_keys():

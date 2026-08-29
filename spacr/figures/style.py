@@ -276,7 +276,7 @@ def rc(target: str = "screen", *, frame: str = "L",
         "figure.dpi": 120,
         "savefig.dpi": 300,
         "font.family": "sans-serif",
-        # OPEN SANS SHIPS WITH SPACR, so it is always there to resolve.
+        # OPEN SANS SHIPS WITH spaCR, so it is always there to resolve.
         # Naming "Helvetica" first meant a Linux machine without it fell
         # silently back to DejaVu Sans, and figures came out in a different
         # face from the interface around them -- and in a different face on

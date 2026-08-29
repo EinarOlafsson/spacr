@@ -222,8 +222,8 @@ _TRACE_SKIP_NAMES = frozenset({
 
 #: Modules whose functions run on the ANIMATION TIMER, and are never traced.
 #:
-#: MEASURED 2026-08-28, with verbose logging on: spaCR wrote three 5 MB log
-#: files inside one minute and the interface became unusable. The backdrop
+#: With verbose logging on, animation tracing can write three 5 MB log files
+#: inside one minute and make the interface unusable. The backdrop
 #: shades a frame up to sixty times a second and each frame calls these
 #: helpers hundreds of times -- `ambient._with_alpha` entered and left, each
 #: one formatted and written to disk. Nothing about that trail is diagnostic;

@@ -111,12 +111,12 @@ def _table_from_answer(answer, why: str):
         run is the rule and a second dialog on top of the first is how a
         wrong answer becomes a loop.
     """
-    import sqlite3
+    from .tabular import read_database
 
     database, table, column = answer
     try:
-        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
-            frame = pd.read_sql_query(f'SELECT * FROM "{table}"', db)
+        frame = read_database(
+            database, table, migrate=False, read_only=True, report=None)[0]
     except Exception as problem:                             # noqa: BLE001
         raise ValueError(f"{why}, but {table} could not be read "
                          f"({problem})") from problem

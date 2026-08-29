@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from typing import Final
 
-#: The maintainer's own two command lines, as one set of numbers. `auto`
-#: takes the GPU when vispy is importable and the CPU when it is not.
+#: Reference defaults for both renderers. `auto` takes the GPU when vispy is
+#: importable and the CPU when it is not.
 #: Which fractal family. Kept here with the rest so `preferences` can read
 #: it without importing the widget, and therefore without numba.
 #: What spaceout draws unless the user says otherwise.
 #:
-#: MANDELBROT, asked for 2026-08-28 -- but only where a GPU can draw it. It
-#: is the one pattern with no CPU renderer, so `pattern_for_this_machine`
+#: Mandelbrot is the default only where a GPU can draw it. It is the one
+#: pattern with no CPU renderer, so `pattern_for_this_machine`
 #: falls back to the orbit fold, which has one and is the cheapest of the
 #: three that do.
 DEFAULT_PATTERN: str = "mandelbrot"

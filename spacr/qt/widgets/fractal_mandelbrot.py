@@ -39,15 +39,13 @@ import numpy as np
 #: Z is carried through the texture as THREE float32s, each the remainder
 #: of the one before it. Measured against a 320-digit reference in mpmath,
 #: three reproduce it to 4.2e-24 -- about 23.4 decades, against 15.7 for
-#: the pair this started with. Asked for 2026-08-28: "there should be a
-#: depth setting so i can make it go on forever... or at least a long
-#: time." Seven and a half more decades is about half again as long.
+#: a pair. Seven and a half more decades makes the useful dive about half
+#: again as long.
 #:
 #: Running past that does not go black; it goes MUSHY, which is worse
-#: because it looks like a rendering fault rather than an end. Reported
-#: 2026-08-28: "the mandelbrot theme ends quickly in a verry pixelated
-#: image" -- it was being run to 34 decades, more than twice as deep as the
-#: numbers support, so most of every dive was noise.
+#: because it looks like a rendering fault rather than an end. At 34 decades,
+#: more than twice as deep as the numbers support, most of every dive is
+#: noise.
 #:
 #: Twenty-one leaves a margin below 23.4, because the error grows with the
 #: iteration count and the figure above is measured over 600 of them.
@@ -897,8 +895,8 @@ def a_more_interesting_anchor(orbit, budget: int = 600,
 
 #: How often to move the reference onto the boundary again, in decades.
 #:
-#: MEASURED 2026-08-28, descending from a dragged view: refining every two
-#: decades stays sharp to six, every one to ELEVEN, and every half only to
+#: In a dragged-view descent, refining every two decades stays sharp to six,
+#: every one to ELEVEN, and every half only to
 #: nine and a half -- refining too often accumulates the small error each
 #: one introduces faster than it removes the old one.
 #:
@@ -924,9 +922,9 @@ def best_reference_in_view(orbit, offset_re: float, offset_im: float,
     many iterations as the frame runs -- so it must be a point of the
     Mandelbrot set, not merely somewhere near it.
 
-    That is what breaks when the view is dragged. Measured 2026-08-28: a
-    reference placed 0.3 from the anchor escapes at iteration SIX, and the
-    detail in the dragged view falls to nothing -- the picture pixelates
+    That is what breaks when the view is dragged. A reference placed 0.3
+    from the anchor escapes at iteration SIX, and the detail in the dragged
+    view falls to nothing -- the picture pixelates
     within a minute where a fixed camera stayed sharp for many. The camera
     had walked away from the only point the maths was anchored to.
 

@@ -193,22 +193,17 @@ _KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
 _KEY_FRACTAL_SPEED_MIN = "spaceout/fractal_speed_min"
 _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 
-#: The ceiling on spaceout's travel speed.
-#:
-#: Asked for 2026-08-28: "the speed setting in spaceout should be capped at
-#: 1000000 not 9". Speed multiplies the flight's own clock, so nothing
-#: physical sets a limit -- past a few hundred the picture is a blur, which
-#: is a thing somebody may want to see and not a thing to protect them from.
+#: Spaceout speed is deliberately not capped. It multiplies the flight's own
+#: clock, so nothing physical sets a limit -- past a few hundred the picture
+#: is a blur, which is a valid visual choice rather than an invalid value.
 #: What a fractal number must satisfy to be USABLE, as
 #: ``name -> (floor, ceiling, why)``. ``None`` for a bound means there is
 #: none.
 #:
-#: THESE ARE NOT CAPS ON THE FIELD. Asked for 2026-08-28: "dont cap the
-#: settings they are fields if the nuber is to high the code will gracefully
-#: throw an error and thell the user the number is not accepted." A spin box
-#: that silently clamps 8000 to 8 is a control that lies about what it did;
-#: the field takes whatever is typed and `explain_a_fractal_number` says
-#: plainly when a value cannot be used, and why.
+#: THESE ARE NOT CAPS ON THE FIELD. A spin box that silently clamps 8000 to 8
+#: is a control that lies about what it did; the field takes whatever is typed
+#: and `explain_a_fractal_number` says plainly when a value cannot be used,
+#: and why.
 #:
 #: A bound is here only where a value outside it CANNOT WORK -- a
 #: supersampling of 0 takes no samples, a scale of 0 renders nothing, a
@@ -356,10 +351,8 @@ FRACTAL_LIMITS = {
 #: Every setting that is really about SPEED, and what one Speed of 1.0
 #: means for each.
 #:
-#: ONE CONTROL, SIX NUMBERS. Asked for 2026-08-28: "take all the speed
-#: settings and have them be controled by one speed setting". They were six
-#: separate fields answering one question, and three of them could be set
-#: into contradicting the other three.
+#: ONE CONTROL, SIX NUMBERS. Separate fields would answer one question six
+#: times, and three of them could contradict the other three.
 #:
 #: Speed multiplies the first four and DIVIDES seconds-per-decade, because
 #: that one is a duration: a bigger number there is a slower dive, and a
@@ -817,9 +810,9 @@ def set_figure_style_per_graph(overrides: dict) -> None:
 _KEY_FIG_STYLE_DEFAULTS = "figures/style_defaults"
 #: Which graph is drawn FIRST, per data shape. ``{shape: graph_type}``.
 #:
-#: Asked for 2026-08-28. Regression already let the user right-click to
-#: change a drawn graph; what it did not have was a say in what was drawn
-#: before the first right-click. Stored per SHAPE rather than as one value
+#: Regression already lets the user right-click to change a drawn graph; this
+#: setting also controls what is drawn before the first right-click. Stored
+#: per SHAPE rather than as one value
 #: because "Bar" is not an answer for two continuous axes -- a bar needs
 #: groups to summarise, and there are none -- so a single setting would be
 #: ignored by most graphs and look broken.
@@ -2294,15 +2287,14 @@ LAPTOP_MODE_LABELS = {
 #: in an ordinary launch, and these functions are the only readers, so a
 #: normal session neither shows them nor is affected by them.
 #:
-#: The defaults are the maintainer's two command lines. `auto` picks the GPU
-#: when vispy is importable and the CPU otherwise, which is what lets one set
-#: of numbers serve both.
+#: The reference defaults use `auto`, which picks the GPU when vispy is
+#: importable and the CPU otherwise, so one set of numbers serves both.
 FRACTAL_PATTERNS = ("orbit", "cascade", "space", "mandelbrot")
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
 #: The quality levels, least demanding first.
 #:
-#: ULTRA asked for 2026-08-28, and the level GOVERNS the other numbers: a
-#: quality that only nudged an internal detail count while supersampling,
+#: A quality level GOVERNS the other numbers: one that only nudged an internal
+#: detail count while supersampling,
 #: render scale and the iteration budget sat at whatever they were is a
 #: label rather than a setting.
 #:
@@ -2626,11 +2618,11 @@ INTERFACE_FONT_WEIGHTS = ("regular", "light")
 
 #: When the heavy pipeline modules are imported.
 #:
-#: ``'on_demand'`` -- when the operation that needs them is called. The
-#: default, and what instruction 282 asked for.
+#: ``'on_demand'`` -- when the operation that needs them is called. This is
+#: the default so an ordinary launch does not pay for unused pipeline imports.
 #: ``'eager'`` -- at startup, on a worker thread. Only worth it on a machine
 #: that will certainly run a pipeline and would rather wait once at the
-#: beginning; on the maintainer's own machine that wait was TWENTY SECONDS.
+#: beginning; profiling shows that wait can reach TWENTY SECONDS.
 PRELOAD_POLICIES = ("on_demand", "eager")
 
 
@@ -2653,8 +2645,8 @@ def set_preload_policy(policy: str) -> None:
     _settings().sync()
 
 
-#: Body text is Light. Asked for 2026-08-28: "light for text and regular for
-#: titles". Only the APPLICATION font is set from this -- the headings,
+#: Body text is Light and titles are Regular. Only the APPLICATION font is
+#: set from this -- the headings,
 #: buttons and section titles carry their own `font-weight` in the
 #: stylesheet (400 and above), so making the default body weight lighter
 #: does not thin the titles with it.

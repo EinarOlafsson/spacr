@@ -154,10 +154,10 @@ def tables_in(database: str) -> list:
     "this file holds no tables" is the sentence the form needs rather than
     an exception it would have to catch anyway.
     """
-    import sqlite3
+    from ..database_concurrency import connect
 
     try:
-        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
+        with connect(database, readonly=True) as db:
             rows = db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' "
                 "ORDER BY name").fetchall()
@@ -168,10 +168,10 @@ def tables_in(database: str) -> list:
 
 def columns_in(database: str, table: str) -> list:
     """Every column of one table, in the order the table declares them."""
-    import sqlite3
+    from ..database_concurrency import connect
 
     try:
-        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as db:
+        with connect(database, readonly=True) as db:
             rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     except Exception:                                    # noqa: BLE001
         return []

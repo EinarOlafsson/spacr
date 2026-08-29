@@ -98,13 +98,13 @@ macOS:
 
 .. code-block:: bash
 
-   "$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" spacr
+   "$HOME/Library/Application Support/spaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/spaCR/venv/bin/python" spacr
 
 Windows PowerShell:
 
 .. code-block:: powershell
 
-   & "$env:LOCALAPPDATA\SpaCR\bootstrap\uv.exe" pip install --upgrade --python "$env:LOCALAPPDATA\SpaCR\venv\Scripts\python.exe" spacr
+   & "$env:LOCALAPPDATA\spaCR\bootstrap\uv.exe" pip install --upgrade --python "$env:LOCALAPPDATA\spaCR\venv\Scripts\python.exe" spacr
 
 These are the original installers' default roots. If a different destination
 was selected during installation, replace the root before ``bootstrap`` and
