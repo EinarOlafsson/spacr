@@ -73,6 +73,18 @@ ASSET = re.compile(
     r"\bSpaCR-[\w.*<>-]+-(?:Windows|macOS|Linux)[\w.*-]*"
     r"\.(?:exe|pkg|run|dmg|deb|zip|tar\.gz)")
 
+#: The first 1.5.0.x installers created these case-sensitive directories and
+#: one old QSettings namespace. Their recovery and migration code must keep
+#: those bytes even though ordinary prose must spell the project ``spaCR``.
+#: Match only the literal identifiers so ``SpaCR`` elsewhere on the same line
+#: still fails. ``\\+`` also recognizes doubled backslashes inside Python
+#: string literals without widening the Windows path exemption.
+LEGACY_IDENTIFIERS = re.compile(
+    r"Application Support/SpaCR/"
+    r"|\$env:LOCALAPPDATA\\+SpaCR\\+"
+    r'|"Olafsson Lab", "SpaCR"'
+)
+
 
 def _project_files():
     for path in sorted(ROOT.rglob("*")):
@@ -104,6 +116,7 @@ def _offenders():
             # so a line that names an installer AND mis-cases the project
             # still fails on the second one.
             line = ASSET.sub("", line)
+            line = LEGACY_IDENTIFIERS.sub("", line)
             if defines_a_constant and "SPACR" in line:
                 # `SPACR` IS AN IDENTIFIER IN THIS FILE, not a mention of the
                 # project. Several tests do `SPACR = <path to the package>`
@@ -164,4 +177,3 @@ def test_the_environment_variables_keep_their_case():
             continue
         hits.extend(re.findall(r"SPACR_[A-Z0-9_]+", text))
     assert hits, "no SPACR_ environment variables found; the exemption is stale"
-
