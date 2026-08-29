@@ -2239,6 +2239,12 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
     except OSError as exc:
         return [], f"{os.path.basename(path)} unreadable ({type(exc).__name__})"
     except csv.Error as exc:
+        # Python <=3.11 rejects a NUL while iterating the CSV; 3.12+ accepts
+        # it and the explicit checks above reject it. Keep one diagnosis on
+        # every supported interpreter so callers do not have to parse a
+        # version-specific stdlib message.
+        if "nul" in str(exc).lower():
+            return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
         return [], f"{os.path.basename(path)} is not readable as CSV ({exc})"
     return out, ""
 
