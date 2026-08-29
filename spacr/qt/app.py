@@ -3790,6 +3790,7 @@ class MainWindow(QMainWindow):
 
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
+        interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
             # Re-read the things that go stale while Home is off screen:
             # the plate queue, the run journal and the disk/GPU figures.
@@ -3806,6 +3807,11 @@ class MainWindow(QMainWindow):
             # retranslation.
             self._status_app_label.setText(tr("Home"))
             self.statusBar().showMessage(tr("Home"), 2000)
+            _timing.watch_interactive(
+                self._startup, "interactive Home", "__home__",
+                started_at=interaction_started,
+                budget_s=_timing.HOME_BUDGET_S,
+            )
             return
         if key not in self._screens:
             # SOMETHING ON SCREEN BEFORE THE WORK STARTS. The build cannot
@@ -3858,6 +3864,14 @@ class MainWindow(QMainWindow):
             # module not to open.
             LOG.exception("Could not retarget help on the %s screen", key)
         self._stack.setCurrentWidget(self._screens[key])
+        # Constructor return is not readiness.  The event filter records only
+        # after this page and one of its enabled controls have both painted on
+        # an event-loop turn, which is the state a user can actually operate.
+        _timing.watch_interactive(
+            self._screens[key], "interactive module", key,
+            started_at=interaction_started,
+            budget_s=_timing.MODULE_BUDGET_S,
+        )
         # Move this app to the end of the visit list. Revisiting an app
         # has to count as the most recent visit — otherwise "Add current
         # plate" on the Queue screen picks up whichever app was OPENED
@@ -4664,6 +4678,29 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     _timing.mark("MainWindow")
     win = MainWindow(initial_app=initial_app)
+    benchmark_controller = None
+    if os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
+        from .startup_benchmark import maybe_start as _maybe_start_benchmark
+
+        # This is an explicitly requested, unattended acceptance run.  An
+        # instrumentation setup error must fail the worker promptly instead
+        # of opening a GUI that can sit until the driver's outer timeout.
+        benchmark_controller = _maybe_start_benchmark(app, win)
+
+    # Home is not ready because its constructor returned or because show()
+    # was called.  Install before show so no paint can escape the observer;
+    # the probe also requires a callback delivered after app.exec() begins
+    # and an enabled, visible control whose own paint event has completed.
+    if win._stack.currentWidget() is win._startup:
+        _timing.watch_interactive(
+            win._startup, "interactive Home", "__home__",
+            started_at=_timing.process_started_at(),
+            budget_s=_timing.HOME_BUDGET_S,
+        )
+    # Retain the optional controller with the window.  QObject parenting is
+    # sufficient for C++ lifetime, but the explicit Python reference avoids
+    # wrapper collection differences across the supported PySide releases.
+    win._startup_benchmark_controller = benchmark_controller
     # Opens at its own size rather than maximised. Maximising assumes a
     # desktop: over X11 forwarding, VNC or a virtual framebuffer the
     # "available geometry" is whatever the remote session claims, which is
@@ -4732,6 +4769,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     _timing.mark("entering the event loop")
     _timing.watch_the_gui_thread(app)
+    # Unlike the mark above, this callback can run only after exec() has begun
+    # dispatching.  Readiness probes refuse to report before it arrives.
+    from PySide6.QtCore import QTimer as _TimingQTimer
+
+    _TimingQTimer.singleShot(0, _timing.event_loop_started)
     try:
         code = app.exec()
         # A RETURN FROM `exec` IS A CLEAN SHUTDOWN, whatever the exit code:
