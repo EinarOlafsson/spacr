@@ -355,7 +355,7 @@ def _summary_filenames() -> tuple:
     """
     try:
         from ...ml import SUMMARY_FILENAMES
-    except Exception:                  # pragma: no cover - ml unavailable
+    except Exception:                  # ml unavailable
         # Named rather than guessed: without the writer there is nothing to
         # agree with, and inventing the list here would be the second source
         # of truth this indirection exists to avoid.
@@ -614,7 +614,7 @@ def backend_of(path) -> Optional[str]:
         return None
     try:
         from ...hits import NO_P_VALUE_TYPES
-    except Exception:                  # pragma: no cover - hits unavailable
+    except Exception:                  # hits unavailable
         return None
     parts = {
         re.sub(r"_\d+$", "", part.strip().lower())
@@ -1419,7 +1419,7 @@ class RegressionResultsPanel(QWidget):
             if self.tabs.indexOf(page) < 0:
                 return False
             self.tabs.setCurrentWidget(page)
-        except (RuntimeError, TypeError):             # pragma: no cover
+        except (RuntimeError, TypeError):
             return False
         return True
 
@@ -2014,7 +2014,7 @@ class RegressionResultsPanel(QWidget):
         started = self._load_jobs.submit(
             lambda: self._read_run(path),
             self._finish_load)
-        if not started:                      # pragma: no cover - JobRunner
+        if not started:                      # JobRunner
             self._set_loading(False)         # always returns True today
         return bool(started)
 
@@ -2191,7 +2191,7 @@ class RegressionResultsPanel(QWidget):
         """
         try:
             from ...hits import coefficient_levels
-        except Exception:              # pragma: no cover - hits unavailable
+        except Exception:              # hits unavailable
             return frame
         columns = list(getattr(frame, "columns", ()))
         if "level" in columns or "feature" not in columns:
@@ -2766,7 +2766,7 @@ class RegressionResultsPanel(QWidget):
             return {}
         try:
             from ...hits import gene_of
-        except Exception:              # pragma: no cover - hits unavailable
+        except Exception:              # hits unavailable
             return {}
         terms = {}
         for feature in frame["feature"].astype(str):
@@ -2781,11 +2781,11 @@ class RegressionResultsPanel(QWidget):
         """Per-gene guide agreement, ordered by gene p."""
         try:
             from ...guide_concordance import guide_support
-        except Exception:  # pragma: no cover - module unavailable
+        except Exception:  # module unavailable
             return
         try:
             support = guide_support(frame)
-        except Exception:  # pragma: no cover - odd table shape
+        except Exception:  # odd table shape
             self.support.set_frame(None)
             self.agreement.set_support(None)
             return
@@ -3378,7 +3378,7 @@ class RegressionResultsPanel(QWidget):
         """
         try:
             from ...hits import coefficient_levels
-        except Exception:              # pragma: no cover - hits unavailable
+        except Exception:              # hits unavailable
             return None
         return coefficient_levels(frame)
 
@@ -3763,7 +3763,7 @@ class RegressionResultsPanel(QWidget):
             return None
         try:
             from ...hits import tested_family
-        except Exception:              # pragma: no cover - hits unavailable
+        except Exception:              # hits unavailable
             return None
         return tested_family(frame["feature"])
 
