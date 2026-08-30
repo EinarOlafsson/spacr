@@ -1,13 +1,10 @@
-"""Why the covariance guard in the absorbing backend cannot fire.
+"""Why singular absorbed designs are refused before backend arithmetic.
 
 :func:`spacr.ml._fit_absorbed_least_squares` builds the demeaned cross-product
-matrix ``xtx`` once and then touches it twice: ``np.linalg.solve`` for the
-coefficients, and ``np.linalg.inv`` for the covariance. Only the first of
-those two guards is reachable, because both calls decide singularity from the
-same LU factorisation of the same unmodified array and the right-hand side
-plays no part in that decision. These tests pin both halves of the argument:
-the solve is what refuses a rank-deficient design, and numpy really does
-answer ``inv`` for every matrix ``solve`` has just accepted.
+matrix ``xtx`` once.  An explicit rank check must reject a deficient design
+before ``np.linalg.solve`` because LAPACK backends are not required to raise
+for every numerically singular matrix.  The test below pins that refusal to
+the library's invariant instead of one backend's exception behaviour.
 """
 from __future__ import annotations
 
@@ -20,13 +17,11 @@ pytest.importorskip("pyfixest")
 from spacr.ml import _fit_absorbed_least_squares  # noqa: E402
 
 
-def test_a_rank_deficient_absorbed_design_fails_at_the_solve_not_the_inverse():
-    """The refusal chains from the LinAlgError the coefficient solve raised.
+def test_a_rank_deficient_absorbed_design_fails_before_the_solve(monkeypatch):
+    """The explicit rank guard refuses the design without entering LAPACK.
 
-    ``xtx`` is never rebuilt between the two calls, so a design that is
-    singular reaches the covariance inverse only if the solve let it through.
-    Asserting the chained cause -- not just the message -- is what shows which
-    of the two guards actually fired.
+    A backend-dependent ``LinAlgError`` is deliberately not the cause: some
+    supported LAPACK builds return an arbitrary solution for this matrix.
     """
     n = 12
     x = np.arange(n, dtype=float)
@@ -39,6 +34,11 @@ def test_a_rank_deficient_absorbed_design_fails_at_the_solve_not_the_inverse():
     })
     y = 2.0 * x + 1.0
 
+    def solve_was_reached(*_args, **_kwargs):
+        pytest.fail("rank-deficient normal equations reached np.linalg.solve")
+
+    monkeypatch.setattr(np.linalg, "solve", solve_was_reached)
+
     with pytest.raises(ValueError) as excinfo:
         _fit_absorbed_least_squares(X, y)
 
@@ -48,4 +48,4 @@ def test_a_rank_deficient_absorbed_design_fails_at_the_solve_not_the_inverse():
     assert "cross-product matrix is singular" not in message, (
         "the covariance guard reported this, which means the solve let a "
         "singular design through")
-    assert isinstance(excinfo.value.__cause__, np.linalg.LinAlgError)
+    assert excinfo.value.__cause__ is None
