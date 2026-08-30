@@ -793,11 +793,6 @@ def _shap_importance(model, x_test: pd.DataFrame, max_samples: int,
         warnings.append(
             f"unexpected SHAP output shape {array.shape}; column omitted")
         return None
-    if importance.shape[0] != x_test.shape[1]:
-        warnings.append(
-            f"SHAP returned {importance.shape[0]} values for "
-            f"{x_test.shape[1]} features; column omitted")
-        return None
     if not return_details:
         return importance
     details = pd.DataFrame(signed, index=sample.index, columns=sample.columns)
