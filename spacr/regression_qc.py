@@ -576,7 +576,15 @@ def condition_number(X):
     raw_sv = np.linalg.svd(Xm, compute_uv=False)
 
     def _ratio(sv):
-        if sv.size == 0 or sv[-1] <= 0:
+        if sv.size == 0:
+            return np.inf
+        # LAPACK implementations do not all return an exact zero for the
+        # same rank-deficient matrix. Use the numerical-rank threshold behind
+        # ``numpy.linalg.matrix_rank`` so a duplicated predictor is singular
+        # on every supported runner, including when roundoff leaves a tiny
+        # positive final singular value.
+        tolerance = np.finfo(sv.dtype).eps * max(Xm.shape) * float(sv[0])
+        if sv[-1] <= tolerance:
             return np.inf
         return float(sv[0] / sv[-1])
 

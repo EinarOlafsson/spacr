@@ -94,6 +94,21 @@ def test_a_singular_design_reports_an_infinite_condition_number():
     assert "singular" in rq.condition_verdict(scaled)
 
 
+def test_a_roundoff_sized_singular_value_is_still_singular(monkeypatch):
+    """LAPACK may report exact rank deficiency as a tiny positive value."""
+    almost_zero = np.finfo(float).eps ** 2
+    spectra = iter((np.array([1.0, almost_zero]),
+                    np.array([2.0, almost_zero])))
+    monkeypatch.setattr(rq.np.linalg, "svd",
+                        lambda *_args, **_kwargs: next(spectra))
+
+    scaled, unscaled, singular_values = rq.condition_number(np.eye(2))
+
+    assert not np.isfinite(scaled)
+    assert not np.isfinite(unscaled)
+    assert singular_values[-1] == almost_zero
+
+
 # ---------------------------------------------------------------------------
 # calibration
 # ---------------------------------------------------------------------------
