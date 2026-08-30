@@ -158,7 +158,10 @@ def test_a_style_block_that_cannot_be_registered_costs_no_page(monkeypatch,
     monkeypatch.setattr(theme, "register_widget_qss", refuse)
 
     with caplog.at_level(logging.DEBUG, logger=mb.LOG.name):
-        mb._ensure_pages_qss()
+        # The screen scopes a successfully registered late style.  This path
+        # refuses during registration, so no real widget is needed, but the
+        # call must still honour the production helper's screen contract.
+        mb._ensure_pages_qss(None)
 
     assert any("fold page QSS" in record.getMessage()
                for record in caplog.records)

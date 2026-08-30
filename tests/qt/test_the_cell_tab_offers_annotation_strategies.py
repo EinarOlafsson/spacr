@@ -521,11 +521,18 @@ def test_the_action_strip_wraps_at_the_largest_zoom_without_clipping(
     every control must retain its full hint inside the wrapping host.
     """
     from spacr.qt import preferences
+    from spacr.qt.app import _load_bundled_fonts
     from spacr.qt.theme import stylesheet
 
     original_sheet = qt_theme_applied.styleSheet()
     view = None
     try:
+        # Real startup registers spaCR's bundled Open Sans faces before it
+        # applies this stylesheet.  A bare pytest QApplication does not, so
+        # hosted Linux otherwise measures an unrelated system fallback and
+        # makes this geometry contract depend on test order (another test may
+        # happen to register the font first).
+        _load_bundled_fonts()
         qt_theme_applied.setStyleSheet(stylesheet(
             font_scale=preferences.FONT_SCALE_MAX))
         view = CellMontageView(threaded=False)

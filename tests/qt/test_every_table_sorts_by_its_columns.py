@@ -8,6 +8,7 @@ model call proves nothing about what the user sees.
 """
 from __future__ import annotations
 
+import sys
 import time
 
 import pytest
@@ -181,6 +182,10 @@ def test_a_refill_does_not_scramble_the_rows_of_a_sorted_table(qapp):
     table.deleteLater()
 
 
+@pytest.mark.skipif(
+    sys.gettrace() is not None,
+    reason="wall-clock sorting budget requires an uninstrumented process",
+)
 def test_fifty_thousand_rows_sort_without_the_window_going_away(qapp):
     values = [(i * 7919) % 50000 for i in range(50000)]
     table = QTableWidget(0, 3)
