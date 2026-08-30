@@ -1189,25 +1189,40 @@ def test_convert_to_yokogawa_czi_reader_failure(tmp_path, monkeypatch, capsys):
 
 
 class _StubLifImage:
+    """Mirrors readlif 0.6.5's LifImage: snake_case, channels off the image.
+
+    `Dims` is namedtuple("Dims", "x y z t m") -- there is no `c` -- so the
+    channel count lives on the image itself. spacr.io used to read
+    `dims.c`, which never existed and silently pinned every LIF to one
+    channel; see tests/test_cov_lif_uses_the_real_readlif_api.py.
+    """
+
     def __init__(self, drop_z=None):
-        self.dims = types.SimpleNamespace(t=1, z=2, c=2)
+        self.dims = types.SimpleNamespace(x=4, y=4, z=2, t=1, m=1)
+        self.channels = 2
         self.drop_z = drop_z
 
-    def getFrame(self, z=0, t=0, c=0):
+    def get_frame(self, z=0, t=0, c=0):
         if self.drop_z is not None and z == self.drop_z:
             raise IndexError("missing plane")
         return np.full((4, 4), z + 1, np.uint16)
 
 
 def _stub_readlif(images):
-    class _Reader:
+    """The real surface: `readlif.reader.LifFile(...).get_iter_image()`.
+
+    The old camelCase names (`readlif.Reader`, `getIterImage`, `getFrame`)
+    do not exist in readlif 0.6.5, which is why every LIF import raised
+    AttributeError on its first line until 97b78fe8.
+    """
+    class _LifFile:
         def __init__(self, path):
             self.path = path
 
-        def getIterImage(self):
+        def get_iter_image(self):
             return list(images)
 
-    return types.SimpleNamespace(Reader=_Reader)
+    return types.SimpleNamespace(reader=types.SimpleNamespace(LifFile=_LifFile))
 
 
 def test_convert_to_yokogawa_lif_mips_z_stack(tmp_path, monkeypatch):
