@@ -1509,6 +1509,14 @@ multi-channel selection remains in its folder name, and punctuation-only text
 such as ``"---"`` becomes ``x`` instead of collapsing a path component to an
 empty string.
 
+A third route reaches the stale-line-number trap described in sections 7 and
+20.  In this case another lane had uncommitted ``settings_model.py`` changes
+which were absent from the measured revision.  The artifact's missing lines
+9686--9688 named an ``except Exception`` handler, while those line numbers in
+the shared tree held a return and two comments.  coverage.py never reports a
+comment as missing, so a missing-line result that lands on comments is itself
+proof that the artifact and inspected tree disagree.
+
 --------------------------------------------------------------------------------
 39. COVERAGE-ONLY TOOLING BROKE EVERY LEAN TEST JOB DURING COLLECTION
 --------------------------------------------------------------------------------
