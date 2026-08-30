@@ -3036,6 +3036,16 @@ def _indirect_runtime_ui_sources() -> set[str]:
 
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
+    # Compact-catalog ownership is registered lazily by the screens that own
+    # those captions.  Make this standalone extractor establish the same
+    # state as ``canonical_sources`` before subtracting ``i18n._ROWS``;
+    # otherwise its result depends on whether Setup or Home was imported by
+    # an earlier test (``Animation`` was the observed drift).
+    import spacr.qt
+
+    spacr.qt.register_self_registering_modules()
+    import spacr.qt.widgets.setup_slides  # noqa: F401
+
     found: set[str] = set()
     for path in sorted((ROOT / "spacr" / "qt").rglob("*.py")):
         if "i18n_catalogs" in path.parts:
