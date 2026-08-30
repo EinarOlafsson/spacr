@@ -2017,3 +2017,74 @@ behaviour is unambiguous, fix it. Where the fix requires choosing what
 the software should do, report it and stop. The difference is not how
 sure you are that the code is wrong; it is whether "right" has one
 answer.
+
+==============================================================================
+34. figure_queue's TEARDOWN SWEEP HAS NEVER DISCONNECTED ANYTHING
+==============================================================================
+
+Found by a round-5 agent, verified here, NOT fixed -- switching it on is
+a behaviour change, not a correction.
+
+`_teardown_canvas` (spacr/qt/widgets/figure_queue.py:1662-1671) walks the
+canvas's callback registry looking for callbacks owned by the two widgets
+about to die:
+
+    owner = getattr(getattr(proxy, "func", None), "__self__", None)
+    if owner is not None and id(owner) in doomed:
+        canvas.mpl_disconnect(cid)
+
+No proxy in the registry has a `.func`. Measured against the pinned
+matplotlib 3.8.4, every entry is one of
+
+    matplotlib.cbook._StrongRef      (holds its target in `._obj`)
+    weakref.WeakMethod               (yields its target when CALLED)
+
+so `getattr(proxy, "func", None)` is `None` for all of them, `owner` is
+always `None`, and the loop disconnects nothing. It has presumably never
+disconnected anything on this matplotlib.
+
+WHAT IT COSTS
+
+Less than it looks. The explicit loop above it disconnects the toolbar's
+own `_id_press`/`_id_release`/`_id_drag`/`_id_zoom`/`_id_pan`, which is
+the real work, and matplotlib stores bound methods as `WeakMethod`, so a
+callback owned by a dead widget mostly evaporates on its own. The sweep
+is a belt to that braces. But the comment above it says "a stale callback
+of any kind is a crash here", and for anything the explicit list does not
+name, that belt is not fastened.
+
+WHY IT IS NOT FIXED HERE
+
+Reading the owner correctly is easy --
+
+    target = proxy() if isinstance(proxy, weakref.WeakMethod) else \
+             getattr(proxy, "_obj", None)
+    owner = getattr(target, "__self__", None)
+
+-- but the effect is to switch on a loop that has been inert for its
+whole life, and the block's own comment records that matplotlib keeps its
+own entries in that registry, "the pylab figure manager's _cidgcf among
+them". Making the sweep work means it starts disconnecting things, and
+what it would disconnect has never been observed. That is a change to
+behaviour on a teardown path, and it wants a deliberate decision and a
+run behind it rather than a drive-by.
+
+The two honest options are to make it work as above, or to delete it and
+rely on the explicit ids plus WeakMethod, which is what has actually been
+happening. Either is better than a loop that reads as protection and
+provides none.
+
+THE SHAPE, WHICH IS THE REUSABLE PART
+
+`getattr(x, "name", None)` inside a `try: ... except Exception: pass` can
+never fail out loud. A wrong attribute name and a legitimately absent one
+are the same silent `None`, so the code degrades to a no-op that looks
+exactly like a clean pass. Every ingredient here is individually
+reasonable defensive style; together they hide a dead loop.
+
+Where a defensive accessor is guarding something that matters, assert the
+shape once -- in a test, against the real library -- so the guard fails
+loudly when the library changes underneath it. The agent that found this
+did exactly that: its test installs a proxy of the shape the sweep is
+written against, so the contract is now pinned even though the sweep does
+not yet meet it.
