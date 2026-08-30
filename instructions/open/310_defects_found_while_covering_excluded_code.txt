@@ -1255,3 +1255,22 @@ guards, so the test protects the new policy rather than rejecting it.
 THE GENERAL RULE. A budget subtracts instrumentation that exists before the
 measured path, a no-op test compares state around the no-op, and a workflow
 test describes the policy currently promised by that workflow.
+
+--------------------------------------------------------------------------------
+28. FOURTEEN NOTEBOOKS DESCRIBED SETTINGS THE LIBRARY NO LONGER HAS
+--------------------------------------------------------------------------------
+
+Coverage shard 2 ran the checked-in notebook generator ratchet and found 14
+stale notebooks. Their generated settings cells still described
+``normalize_plots`` as effective, ``save`` as a mask-only three-boolean field,
+and ``number_of_organelles`` as defaulting to four. The live contracts now say
+that normalization field is retained only for compatibility, saving is
+module-specific, and a fresh run has zero optional organelles.
+
+Regenerated all affected notebooks from the single settings/tooltips source.
+The generator's check mode now reports every notebook current, and the full
+398-test notebook contract suite passes.
+
+THE GENERAL RULE. A generated tutorial is executable documentation, not a
+snapshot to update only near release. Any source contract change must land its
+generated notebook cells in the same tested tree.
