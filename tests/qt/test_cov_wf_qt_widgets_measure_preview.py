@@ -183,23 +183,19 @@ def test_the_selectors_refresh_before_any_array_is_loaded(panel, tmp_path):
 
 
 def test_a_new_cap_with_no_sentence_to_show_keeps_the_status_line(
-        panel, monkeypatch, tmp_path):
+        panel, tmp_path):
     """A resample must only overwrite the status line when it has something to say.
 
-    The cap spinbox reports the new sample on the status line. When the sampler
-    produces no sentence -- nothing enumerated to describe -- writing it anyway
-    would blank whatever the line last said, which is usually the crop count or
-    the reason the last pass could not run.
+    The cap spinbox reports a real sample on the status line. A fresh sampler's
+    technically truthful ``showing all 0 image sets`` is not a useful update:
+    it must not erase the crop count or the reason the last load failed.
     """
-    monkeypatch.setattr(MP, "apply_sample_to_combo",
-                        lambda *_args, **_kwargs: "")
     panel._status.setText("2 object(s) · 1 category")
     panel._on_max_sets_changed(7)
-    assert panel.sample_note() == ""
+    assert panel.sample_note() == "showing all 0 image sets"
     assert panel._status.text() == "2 object(s) · 1 category"
 
     # With a real sample behind it the same call does report, capitalised.
-    monkeypatch.undo()
     panel.load_array(_merged_folder(tmp_path)[0])
     panel._on_max_sets_changed(2)
     assert panel.sample_note().startswith("showing ")

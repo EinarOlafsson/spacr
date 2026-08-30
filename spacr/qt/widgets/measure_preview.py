@@ -827,9 +827,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if not self._sampler.set_max(int(value)):
             return
         self._refresh_source_selectors()
-        if self.sample_note():
-            self._status.setText(
-                self.sample_note()[:1].upper() + self.sample_note()[1:])
+        if not self._sampler.total:
+            return
+        self._status.setText(
+            self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def _on_fov_changed(self, *_args) -> None:
         """Load the field of view the user picked from the dropdown."""
