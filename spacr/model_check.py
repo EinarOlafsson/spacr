@@ -135,6 +135,29 @@ def _head_size(model) -> Optional[int]:
     return size
 
 
+def _known_builtin_models() -> set[str]:
+    """Return the TorchVision factories this installation can build.
+
+    Importing TorchVision is deferred until the user asks for a compatibility
+    check.  If that optional stack is unavailable or broken, the lightweight
+    settings inventory still lets the checker reject misspellings without
+    making the settings screen import torch during startup.
+    """
+    from .settings_spec import _TORCHVISION_MODELS_CURATED
+
+    known = set(_TORCHVISION_MODELS_CURATED)
+    try:
+        from torchvision import models as torchvision_models
+
+        known.update(torchvision_models.list_models(
+            module=torchvision_models))
+    except (ImportError, AttributeError):
+        pass
+    except Exception:
+        LOG.debug("could not read TorchVision's model registry", exc_info=True)
+    return known
+
+
 def check_model(settings: Mapping[str, Any]) -> ModelReport:
     """Whether the chosen model can train on the chosen data and classes.
 
@@ -170,12 +193,8 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
                           "saved model cannot be checked",))
         head = _head_size(model)
     else:
-        try:
-            from .model_zoo import KNOWN_MODELS
-            known = set(KNOWN_MODELS)
-        except Exception:
-            known = set()
-        if known and name not in known:
+        known = _known_builtin_models()
+        if name not in known:
             problems.append(
                 f"{name!r} is not a model spaCR knows; choose one of "
                 f"{', '.join(sorted(known)[:8])}…")

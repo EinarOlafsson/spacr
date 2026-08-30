@@ -1,56 +1,63 @@
-"""What ``check_model`` reports for a model name that does not exist.
-
-The answer today is: nothing, and this file pins that rather than asserting
-what the code was clearly meant to do. ``check_model`` tries
-``from .model_zoo import KNOWN_MODELS`` inside a bare ``except Exception``, and
-``KNOWN_MODELS`` does not exist -- the name appears nowhere in the package
-except at that import. So ``known`` is always the empty set, ``if known and
-name not in known`` is always False, and the "is not a model spaCR knows"
-complaint can never be emitted.
-
-Recorded in instruction 310. When the check is given a real source of model
-names, these tests must be UPDATED to the new expectation rather than deleted:
-they are the record of what the behaviour was, and the reason the change is a
-fix rather than a regression.
-"""
+"""``check_model`` validates names against the real TorchVision vocabulary."""
 from __future__ import annotations
 
-import pytest
+import builtins
 
 
-def test_the_registry_the_check_asks_for_does_not_exist():
-    """The root cause, asserted directly so a fix is visible here first.
+def test_the_checker_reads_an_existing_model_registry():
+    from spacr.model_check import _known_builtin_models
 
-    This is spaCR's commonest defect shape inverted: not finished code with no
-    caller, but a caller reading a name nothing defines -- and a bare except
-    turning that into silence rather than an error.
-    """
-    with pytest.raises(ImportError):
-        from spacr.model_zoo import KNOWN_MODELS       # noqa: F401
+    known = _known_builtin_models()
+    assert "maxvit_t" in known
+    assert "resnet50" in known
+    assert "maxvit_tt" not in known
 
 
-def test_an_unknown_model_name_earns_no_complaint_today():
-    """Current behaviour, pinned.
+def test_the_checker_keeps_a_lightweight_registry_without_torchvision(
+        monkeypatch):
+    """An optional import failure cannot turn validation off again."""
+    from spacr.model_check import _known_builtin_models
 
-    A user typing 'maxvit_tt' gets no complaint from the checker -- the
-    validation that exists for exactly this typo cannot fire. The failure is
-    deferred to training, where it surfaces as a torchvision AttributeError
-    long after the click.
-    """
+    real_import = builtins.__import__
+
+    def unavailable(name, *args, **kwargs):
+        if name == "torchvision":
+            raise ImportError("torchvision is not installed")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", unavailable)
+
+    known = _known_builtin_models()
+    assert "maxvit_t" in known
+    assert "maxvit_tt" not in known
+
+
+def test_a_broken_live_registry_does_not_disable_the_curated_one(monkeypatch):
+    """A third-party registry failure is contained by the click-time checker."""
+    from torchvision import models
+
+    from spacr.model_check import _known_builtin_models
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("registry is broken")
+
+    monkeypatch.setattr(models, "list_models", broken)
+
+    assert "resnet50" in _known_builtin_models()
+
+
+def test_an_unknown_model_name_is_refused_before_training():
+    """A typo is named by the checker, not deferred to model construction."""
     from spacr.model_check import check_model
 
     report = check_model({"model_type": "maxvit_tt", "classes": ["a", "b"]})
 
-    assert not [p for p in report.problems
-                if "not a model spaCR knows" in p]
+    assert report.ok is False
+    assert [p for p in report.problems if "not a model spaCR knows" in p]
 
 
-def test_a_known_model_name_also_earns_no_complaint():
-    """The contrast that shows the check is silent either way.
-
-    If the branch were live, this test and the one above would differ. That
-    they agree is the evidence that nothing is being checked.
-    """
+def test_a_known_model_name_earns_no_model_name_complaint():
+    """The registry distinguishes a real backbone from the typo above."""
     from spacr.model_check import check_model
 
     report = check_model({"model_type": "maxvit_t", "classes": ["a", "b"]})
