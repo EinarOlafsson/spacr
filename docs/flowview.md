@@ -186,6 +186,11 @@ event and export behavior.
 
 ## Run-record lifecycle
 
+- During an enabled Classify run, an active run journal receives the same
+  stage boundaries and scalar metrics as the live graph. The final
+  `manifest.json` stores them under `stages`, and `log.txt` appends one
+  compact `FlowView stage ...` line per stage; no second timing clock is
+  sampled.
 - Treat `Collector.snapshot()` as immutable renderer input.
 - Store the JSON export with the run's other reproducibility records.
 - Retain thumbnail files for SVG or HTML exports that have not yet been made.

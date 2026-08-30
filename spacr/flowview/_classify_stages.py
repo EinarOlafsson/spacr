@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 import threading
 import time
 import traceback
@@ -22,6 +23,7 @@ from .events import (
     NodeAdded,
     StageCompleted,
     StageFailed,
+    StageMetric,
     StageStarted,
     _StageSkipped,
 )
@@ -71,6 +73,43 @@ def _emit(collector: Collector, event: object) -> bool:
         return False
 
 
+def _journal_stage(
+    node_id: str,
+    *,
+    label: str | None = None,
+    state: str | None = None,
+    started_at: float | None = None,
+    ended_at: float | None = None,
+    metrics: Mapping[str, float | int | str] | None = None,
+) -> bool:
+    """Mirror one FlowView observation into the active run journal."""
+
+    try:
+        journal = sys.modules.get("spacr.run_journal")
+        current = getattr(journal, "current_run", None)
+        if not callable(current):
+            return False
+        run = current()
+        recorder = getattr(run, "_record_stage", None)
+        if not callable(recorder):
+            return False
+        recorder(
+            node_id,
+            label=label,
+            state=state,
+            started_at=started_at,
+            ended_at=ended_at,
+            metrics=dict(metrics or {}),
+        )
+        return True
+    except BaseException:
+        try:
+            _LOG.debug("FlowView run-journal stage recording failed", exc_info=True)
+        except BaseException:
+            pass
+        return False
+
+
 def _node(collector: Collector, node_id: str) -> tuple[Node, bool]:
     """Return the predeclared node and whether it was already in the graph."""
 
@@ -88,6 +127,7 @@ def _skip(collector: Collector, node_id: str, at: float) -> None:
     if not declared:
         _emit(collector, NodeAdded(node))
     _emit(collector, _StageSkipped(node_id, at))
+    _journal_stage(node_id, label=node.label, state="skipped", ended_at=at)
 
 
 def _fresh_collector(settings: Mapping[str, Any], family: str) -> Collector:
@@ -129,6 +169,13 @@ def _begin(settings: Mapping[str, Any] | None, family: str) -> bool:
                 collector = _fresh_collector(supplied, family)
             _STATES[collector] = _RunState()
         _advance("source")
+        source = supplied.get("src")
+        source_count = (
+            len(source)
+            if isinstance(source, (list, tuple, set, frozenset))
+            else int(source is not None)
+        )
+        _metric("sources", source_count)
         return True
     except BaseException:
         try:
@@ -159,6 +206,7 @@ def _advance(node_id: str, *, at: float | None = None) -> bool:
             previous = state.current
             if previous is not None:
                 _emit(collector, StageCompleted(previous, boundary))
+                _journal_stage(previous, state="done", ended_at=boundary)
             for skipped_id in CLASSIFY_NODE_IDS[
                 state.last_index + 1 : target_index
             ]:
@@ -168,12 +216,39 @@ def _advance(node_id: str, *, at: float | None = None) -> bool:
             if not declared:
                 _emit(collector, NodeAdded(node))
             _emit(collector, StageStarted(node, boundary))
+            _journal_stage(
+                node_id,
+                label=node.label,
+                state="running",
+                started_at=boundary,
+            )
             state.current = node_id
             state.last_index = target_index
         return True
     except BaseException:
         try:
             _LOG.debug("FlowView Classify stage transition failed", exc_info=True)
+        except BaseException:
+            pass
+        return False
+
+
+def _metric(name: str, value: float | int | str) -> bool:
+    """Attach one count or scalar to the currently active Classify stage."""
+
+    try:
+        collector = get_collector()
+        with _LOCK:
+            state = _STATES.get(collector)
+            if state is None or state.finished or state.current is None:
+                return False
+            node_id = state.current
+            emitted = _emit(collector, StageMetric(node_id, str(name), value))
+            journaled = _journal_stage(node_id, metrics={str(name): value})
+        return emitted or journaled
+    except BaseException:
+        try:
+            _LOG.debug("FlowView Classify metric emission failed", exc_info=True)
         except BaseException:
             pass
         return False
@@ -190,6 +265,7 @@ def _finish(*, at: float | None = None) -> bool:
             if state is None or state.finished or state.current is None:
                 return False
             _emit(collector, StageCompleted(state.current, ended_at))
+            _journal_stage(state.current, state="done", ended_at=ended_at)
             for skipped_id in CLASSIFY_NODE_IDS[state.last_index + 1 :]:
                 _skip(collector, skipped_id, ended_at)
             state.finished = True
@@ -221,6 +297,15 @@ def _fail(error: BaseException, *, at: float | None = None) -> bool:
             except BaseException:
                 detail = f"{type(error).__name__}: exception text unavailable"
             _emit(collector, StageFailed(state.current, ended_at, detail))
+            _journal_stage(state.current, state="failed", ended_at=ended_at)
+            for skipped_id in CLASSIFY_NODE_IDS[state.last_index + 1 :]:
+                node, _declared = _node(collector, skipped_id)
+                _journal_stage(
+                    skipped_id,
+                    label=node.label,
+                    state="skipped",
+                    ended_at=ended_at,
+                )
             state.finished = True
         return True
     except BaseException:

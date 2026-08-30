@@ -128,6 +128,12 @@ def _flowview_advance(node_id):
 
     _flowview_event("advance", node_id)
 
+
+def _flowview_metric(name, value):
+    """Record one scalar on the active stage, or do nothing when disabled."""
+
+    _flowview_event("metric", name, value)
+
 from scipy.stats import kstest, normaltest
 
 import matplotlib
@@ -9780,6 +9786,10 @@ def generate_ml_scores(settings):
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
         df = pd.concat([df, dft])
+
+    _flowview_metric("objects", len(df))
+    _flowview_metric("databases", len(srcs))
+    _flowview_metric("tables", len(tables) * len(srcs))
     
     try:
         df = calculate_shortest_distance(df, 'pathogen', 'nucleus')
@@ -9956,6 +9966,8 @@ def generate_ml_scores(settings):
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df, _ = output
 
     #settings_df.to_csv(settings_csv, index=False)
+    _flowview_metric("objects", len(output[0]))
+    _flowview_metric("test_objects", len(output[5]))
     _flowview_advance("scores")
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
@@ -10012,9 +10024,21 @@ def generate_ml_scores(settings):
     settings['table_name'] = 'png_list'
     settings['update_column'] = ML_CLASS_COLUMN
     settings['match_column'] = 'prcfo'
+    matched_objects = 0
+    unmatched_objects = 0
     for src in srcs:
-        merge_ml_predictions(df, os.path.join(src, 'measurements', 'measurements.db'),
-                             table=settings['table_name'])
+        report = merge_ml_predictions(
+            df,
+            os.path.join(src, 'measurements', 'measurements.db'),
+            table=settings['table_name'],
+        )
+        if report is not None:
+            matched_objects += report.matched_rows
+            unmatched_objects += report.unmatched_db_rows
+    _flowview_metric("objects", len(df))
+    _flowview_metric("matched_objects", matched_objects)
+    _flowview_metric("unmatched_objects", unmatched_objects)
+    _flowview_metric("databases", len(srcs))
 
     return [output, plate_heatmap]
 
@@ -10476,6 +10500,9 @@ def ml_analysis(
         after_pruning = len(X.columns)
         print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
+    _flowview_metric("objects", len(df))
+    _flowview_metric("training_objects", len(combined_df))
+    _flowview_metric("features", len(features))
     _flowview_advance("split")
 
     # Split on an actual experimental unit. The index is the canonical prcfo
@@ -10518,6 +10545,9 @@ def ml_analysis(
     df['split_cell_fraction'] = split_report.cell_fraction
     df['split_group_fraction'] = split_report.group_fraction
     
+    _flowview_metric("objects", len(X))
+    _flowview_metric("train_objects", len(X_train))
+    _flowview_metric("test_objects", len(X_test))
     _flowview_advance("model")
 
     # Initialize the model based on model_type
@@ -10576,6 +10606,7 @@ def ml_analysis(
     # rather than existing only in stdout or the scored CSV.
     model.spacr_split_report_ = split_report.to_dict()
 
+    _flowview_metric("features", len(X.columns))
     _flowview_advance("training")
 
     # Perform k-fold cross-validation
@@ -10688,6 +10719,8 @@ def ml_analysis(
             y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
 
+    _flowview_metric("objects", len(X))
+    _flowview_metric("features", len(features))
     _flowview_advance("evaluation")
 
     # ``model_metrics.csv`` is the classical model's durable card. Repeat the

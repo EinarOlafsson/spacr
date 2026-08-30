@@ -14,6 +14,7 @@ network, GPU or Cellpose is involved.
 """
 from __future__ import annotations
 
+import json
 import os
 import sqlite3
 import sys
@@ -226,6 +227,106 @@ def test_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path,
     # every object got *its own* score, matched on prcfo
     by_prcfo = dict(zip(png_back["prcfo"], png_back["predictions"]))
     assert by_prcfo == dict(zip(scored_df["prcfo"], scored_df["predictions"]))
+
+
+def test_classify_flowview_matches_run_journal_and_database(
+    tmp_path, rng, monkeypatch
+):
+    """The public ML adapter leaves one reconciled graph and run record."""
+    from spacr import flowview, run_journal
+    from spacr.checkpoint import fingerprint
+    from spacr.classify import classify
+    from spacr.flowview.classify_blueprint import CLASSIFY_NODE_IDS
+    from spacr.flowview.model import NodeState
+
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: runs)
+    src = _make_src(tmp_path, "flowview_plate", rng)
+    settings = _ml_settings(src, classifier_family="ml")
+
+    previous_collector = flowview.get_collector()
+    previous_enabled = flowview.is_enabled()
+    flowview.enable()
+    try:
+        with run_journal.open_run("classify", settings) as run:
+            result = classify(settings)
+        collector = flowview.get_collector()
+        collector.drain()
+        graph = collector.snapshot()
+    finally:
+        flowview.enable(previous_collector)
+        if not previous_enabled:
+            flowview.disable()
+
+    assert len(result[0][0]) == N_OBJ
+    assert graph.settings_digest == fingerprint(settings)
+    assert tuple(graph.nodes) == CLASSIFY_NODE_IDS
+    assert all(
+        node.state is NodeState.DONE for node in graph.nodes.values()
+    )
+
+    manifest = json.loads(
+        (run.dir / "manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["schema_version"] == 3
+    assert [stage["id"] for stage in manifest["stages"]] == list(
+        CLASSIFY_NODE_IDS
+    )
+    evidence_by_id = {
+        stage["id"]: stage for stage in manifest["stages"]
+    }
+    for node_id, node in graph.nodes.items():
+        evidence = evidence_by_id[node_id]
+        assert evidence["label"] == node.label
+        assert evidence["state"] == node.state.value
+        assert evidence["started_at"] == node.started_at
+        assert evidence["ended_at"] == node.ended_at
+        assert evidence["duration_s"] == node.ended_at - node.started_at
+        assert evidence["metrics"] == node.metrics
+
+    assert graph.nodes["source"].metrics == {"sources": 1}
+    assert graph.nodes["tables"].metrics == {
+        "objects": N_OBJ,
+        "databases": 1,
+        "tables": 4,
+    }
+    assert graph.nodes["dataset"].metrics["objects"] == N_OBJ
+    assert graph.nodes["dataset"].metrics["training_objects"] == 32
+    split_metrics = graph.nodes["split"].metrics
+    assert split_metrics["objects"] == 32
+    assert (
+        split_metrics["train_objects"] + split_metrics["test_objects"]
+        == split_metrics["objects"]
+    )
+    assert graph.nodes["training"].metrics["objects"] == 32
+    assert graph.nodes["evaluation"].metrics["objects"] == N_OBJ
+    assert graph.nodes["scores"].metrics == {
+        "objects": N_OBJ,
+        "matched_objects": N_OBJ,
+        "unmatched_objects": 0,
+        "databases": 1,
+    }
+
+    with sqlite3.connect(
+        os.path.join(src, "measurements", "measurements.db")
+    ) as connection:
+        written = connection.execute(
+            "SELECT COUNT(*) FROM png_list "
+            "WHERE predictions IS NOT NULL AND ml_pred IS NOT NULL"
+        ).fetchone()[0]
+    assert written == graph.nodes["scores"].metrics["matched_objects"]
+
+    log_text = (run.dir / "log.txt").read_text(encoding="utf-8")
+    for stage in manifest["stages"]:
+        assert (
+            f"FlowView stage {stage['id']} state={stage['state']}"
+            in log_text
+        )
+        encoded_metrics = json.dumps(
+            stage["metrics"], sort_keys=True, separators=(",", ":")
+        )
+        assert f"metrics={encoded_metrics}" in log_text
 
 
 def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rng):

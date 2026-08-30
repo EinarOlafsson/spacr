@@ -101,6 +101,21 @@ def _flowview_advance(node_id):
     _flowview_event("advance", node_id)
 
 
+def _flowview_metric(name, value):
+    """Record one scalar on the active stage, or do nothing when disabled."""
+
+    _flowview_event("metric", name, value)
+
+
+def _loader_object_count(loader):
+    """Return a loader's object count when its dataset exposes one."""
+
+    try:
+        return len(loader.dataset)
+    except BaseException:
+        return None
+
+
 def _class_folder_names(settings):
     """The ordered training-folder names for ``settings``.
 
@@ -1776,6 +1791,13 @@ def train_test_model(settings):
             group_by=settings.get('cv_group_by', 'well'),
         )
 
+        train_objects = _loader_object_count(train)
+        validation_objects = _loader_object_count(val)
+        if train_objects is not None:
+            _flowview_metric("train_objects", train_objects)
+        if validation_objects is not None:
+            _flowview_metric("validation_objects", validation_objects)
+
         if hasattr(train, 'dataset') and hasattr(val, 'dataset'):
             from .classifier_evaluation import (
                 audit_split_leakage, write_leakage_audit,
@@ -1901,6 +1923,7 @@ def train_test_model(settings):
                                                   loader_name_list='test',
                                                   epoch=1,
                                                   loss_type=settings['loss_type'])
+        _flowview_metric("objects", len(result))
 
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
@@ -2812,6 +2835,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         print(amp_note)
     scaler = _gradient_scaler(device, enabled=mixed_precision)
 
+    _flowview_metric("classes", head_dim)
+    train_objects = _loader_object_count(train_loaders)
+    if train_objects is not None:
+        _flowview_metric("train_objects", train_objects)
     _flowview_advance("training")
     print('Training ...')
     for epoch in range(start_epoch, epochs + 1):
@@ -3080,6 +3107,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             print(f"Could not write the model card for {final_path} "
                   f"({type(exc).__name__}: {exc}). The weights are unaffected.")
 
+    if train_objects is not None:
+        _flowview_metric("objects", train_objects)
     return model, final_path
 
 def generate_activation_map(settings):
@@ -3928,6 +3957,7 @@ def deep_spacr(settings=None):
             # -- run inference and get the results DataFrame --
             _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)
+            _flowview_metric("objects", len(df))
 
             # -- NEW: save the top-N most confident images per class --
             # dst sits next to the tar file, in a subfolder called 'top_examples'
@@ -3941,9 +3971,15 @@ def deep_spacr(settings=None):
             # settings['src'] can be a string or list; use the first entry
             _flowview_advance("scores")
             src_list = settings['src'] if isinstance(settings['src'], list) else [settings['src']]
+            matched_objects = 0
             for src in src_list:
                 db_path = os.path.join(src, 'measurements', 'measurements.db')
-                merge_predictions_into_db(df, db_path)
+                matched = merge_predictions_into_db(df, db_path)
+                if matched is not None:
+                    matched_objects += matched
+            _flowview_metric("objects", len(df))
+            _flowview_metric("matched_objects", matched_objects)
+            _flowview_metric("databases", len(src_list))
 
         else:
             print(f"Model path {model_path} not found; skipping model application.")

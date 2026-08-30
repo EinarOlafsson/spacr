@@ -75,7 +75,7 @@ from .macro import begin_recording, finish_recording
 
 LOG = logging.getLogger("spacr.run_journal")
 
-MANIFEST_SCHEMA_VERSION = 2
+MANIFEST_SCHEMA_VERSION = 3
 """Current on-disk reproducibility-manifest schema."""
 
 #: Ceiling on files inventoried under any one setting-derived root. A
@@ -515,6 +515,7 @@ class Run:
     provenance_warnings: List[str] = field(default_factory=list)
     run_warnings: List[str] = field(default_factory=list)
     environment: Dict[str, Any] = field(default_factory=dict)
+    stages: List[Dict[str, Any]] = field(default_factory=list)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
     _path_candidates: List[Tuple[str, Path, bool]] = field(
@@ -619,6 +620,76 @@ class Run:
             # field-specific text thousands of times.
             if len(self.run_warnings) < 500:
                 self.run_warnings.append(text)
+
+    def _record_stage(
+        self,
+        stage_id: Any,
+        *,
+        label: Any = None,
+        state: Any = None,
+        started_at: Any = None,
+        ended_at: Any = None,
+        metrics: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Merge one pipeline-stage observation into the run record.
+
+        Instrumentation calls this at the same boundary used for its live
+        graph, so ``manifest.json`` and the graph share exact timestamps
+        rather than trying to reconcile two clocks after the run. Repeated
+        calls update the existing stage in place and preserve first-seen
+        order. Invalid diagnostics are ignored: provenance must never replace
+        a scientific result or exception.
+
+        :param stage_id: stable stage identifier.
+        :param label: optional human-readable stage label.
+        :param state: optional lifecycle state such as ``running`` or ``done``.
+        :param started_at: optional Unix epoch start timestamp.
+        :param ended_at: optional Unix epoch terminal timestamp.
+        :param metrics: scalar counts or measurements to merge.
+        """
+        try:
+            identifier = str(stage_id).strip()
+            if not identifier:
+                return
+            stage = next(
+                (item for item in self.stages if item.get("id") == identifier),
+                None,
+            )
+            if stage is None:
+                stage = {
+                    "id": identifier,
+                    "label": str(label) if label is not None else identifier,
+                    "state": "pending",
+                    "started_at": None,
+                    "ended_at": None,
+                    "duration_s": None,
+                    "metrics": {},
+                }
+                self.stages.append(stage)
+            elif label is not None:
+                stage["label"] = str(label)
+            if state is not None:
+                stage["state"] = str(state)
+            if started_at is not None:
+                stage["started_at"] = float(started_at)
+            if ended_at is not None:
+                stage["ended_at"] = float(ended_at)
+            if metrics:
+                stage_metrics = stage.setdefault("metrics", {})
+                for name, value in metrics.items():
+                    stage_metrics[str(name)] = value
+            start = stage.get("started_at")
+            end = stage.get("ended_at")
+            stage["duration_s"] = (
+                float(end) - float(start)
+                if start is not None and end is not None
+                else None
+            )
+        except BaseException:
+            try:
+                LOG.debug("could not record pipeline stage evidence", exc_info=True)
+            except BaseException:
+                pass
 
     # -- private -----------------------------------------------------------
     def _record_tree(
@@ -854,6 +925,7 @@ class Run:
             "output_tree_sha256": _json_digest(self.output_hashes),
             "provenance_warnings": self.provenance_warnings,
             "warnings":       self.run_warnings,
+            "stages":         self.stages,
             "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
@@ -878,15 +950,14 @@ class Run:
                 w.writerow([k, "" if v is None else str(v)])
 
     def _snapshot_log_tail(self, n: int = 200) -> None:
-        """Copy the last ``n`` application-log lines into this run folder."""
+        """Copy the application tail and append this run's stage evidence."""
+        lines: List[str] = []
         try:
             from .logging_util import log_path
             src = log_path()
-            if not src.exists():
-                return
-            with open(src, encoding="utf-8", errors="replace") as f:
-                lines = f.readlines()
-            (self.dir / "log.txt").write_text("".join(lines[-n:]))
+            if src.exists():
+                with open(src, encoding="utf-8", errors="replace") as f:
+                    lines = f.readlines()
         except Exception as exc:
             # This is the run's own record of what it printed, and it is the
             # first thing anyone opens when a run went wrong. A folder with no
@@ -894,6 +965,35 @@ class Run:
             # failed", so say which it was — but do not fail the run over it.
             LOG.warning("could not copy the last %d log lines into %s (%s)",
                         n, self.dir, exc)
+        try:
+            stage_lines = []
+            for stage in self.stages:
+                metrics = json.dumps(
+                    stage.get("metrics") or {},
+                    default=str,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                stage_lines.append(
+                    "FlowView stage "
+                    f"{stage.get('id')} state={stage.get('state')} "
+                    f"started_at={stage.get('started_at')} "
+                    f"ended_at={stage.get('ended_at')} "
+                    f"duration_s={stage.get('duration_s')} metrics={metrics}\n"
+                )
+            if not lines and not stage_lines:
+                return
+            content = "".join(lines[-n:])
+            if content and not content.endswith("\n"):
+                content += "\n"
+            (self.dir / "log.txt").write_text(
+                content + "".join(stage_lines), encoding="utf-8",
+            )
+        except Exception as exc:
+            LOG.warning(
+                "could not write run log snapshot into %s (%s)", self.dir, exc
+            )
 
 
 # ---------------------------------------------------------------------------
