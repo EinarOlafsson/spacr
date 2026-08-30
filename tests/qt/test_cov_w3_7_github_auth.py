@@ -110,6 +110,22 @@ def test_outside_a_test_run_there_is_nothing_to_refuse(monkeypatch):
     assert github_auth._refuse_writes_under_test() is None
 
 
+def test_real_transport_is_refused_at_every_github_api_boundary(monkeypatch):
+    """Search, comment and creation all stop before credential discovery."""
+    assert github_auth._HTTP_OPEN is github_auth._REAL_HTTP_OPEN
+
+    def _credential_leak():
+        pytest.fail("a refused test call consulted the developer credential")
+
+    monkeypatch.setattr(github_auth, "resolve_token", _credential_leak)
+    assert github_auth.find_issue_by_fingerprint("owner/name", "abc123") == (
+        False, None)
+    assert github_auth.comment_on_issue("owner/name", 114, "Seen again.") == (
+        False, "refusing GitHub network access from inside a test run")
+    assert github_auth.create_issue("owner/name", "title", "body") == (
+        False, "refusing GitHub network access from inside a test run")
+
+
 # ---------------------------------------------------------------------------
 # Searching for an existing report
 # ---------------------------------------------------------------------------
