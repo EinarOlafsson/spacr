@@ -1,6 +1,6 @@
 """What spaCR's process TREE costs while it runs, under its own setting.
 
-WHY THIS IS NOT THE READINGS SPACR ALREADY TAKES. Every resource figure in
+WHY THIS IS NOT THE READINGS spaCR ALREADY TAKES. Every resource figure in
 the package counts the CALLING process: `spacr.fit_resources.host_rss` reads
 ``/proc/self/statm``, `spacr.qt.timing` reads its own resident size, and the
 parameter sweep's floor reads the MACHINE's free memory, which cannot tell
