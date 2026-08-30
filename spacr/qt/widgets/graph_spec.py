@@ -627,6 +627,7 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     """Split ``frame`` into the grid ``spec``'s facet channels describe.
 
     :param frame: the rows to place into panels (post-filter, post-sample).
+    :param spec: graph channels and facet columns that define the grid.
     :param levels_source: where the *levels* come from, when that is not
         ``frame``. The renderer passes the pre-sample frame, so a level that
         exists in the population but drew no rows in the sample still gets its
@@ -813,6 +814,9 @@ def scales_for(frame: pd.DataFrame, spec: GraphSpec,
 
     :param frame: the rows that will be drawn — post-filter and post-sample,
         so the limits bound what is actually on screen.
+    :param spec: graph channels, kind and bin count to scale.
+    :param kinds: mapping from column names to continuous or categorical
+        axis kinds.
     :param grid: needed only for :attr:`Scales.count_limit`, which is the
         maximum over panels and therefore cannot be computed from the frame
         alone.
