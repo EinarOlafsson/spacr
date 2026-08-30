@@ -488,6 +488,54 @@ def test_a_source_that_is_neither_a_file_nor_a_folder_offers_no_image(
     assert LP.first_supported_image(tmp_path / "never-existed") is None
 
 
+def test_files_that_are_not_images_are_skipped_over_not_stopped_at(tmp_path):
+    """A plate folder is full of things that are not images.
+
+    settings.csv, a README, a .DS_Store, the run's own log -- and every one of
+    them sorts before the .tif on some plates. Stopping at the first file
+    rather than the first IMAGE would report "no supported preview image
+    found" for a folder that is nothing but images and one text file.
+    """
+    (tmp_path / "0_settings.csv").write_text("a,b\n")
+    (tmp_path / "1_readme.txt").write_text("notes")
+    (tmp_path / "2_field.tif").write_bytes(b"\x00")
+
+    found = LP.first_supported_image(tmp_path)
+
+    assert found is not None
+    assert found.name == "2_field.tif"
+
+
+def test_a_folder_of_nothing_but_unsupported_files_offers_no_image(tmp_path):
+    """The honest answer, and the one the caller turns into a message.
+
+    Returning the first file regardless would hand the previewer a CSV to
+    decode, and the error the user sees would be about image formats rather
+    than about the folder they picked.
+    """
+    (tmp_path / "settings.csv").write_text("a,b\n")
+    (tmp_path / "notes.txt").write_text("notes")
+
+    assert LP.first_supported_image(tmp_path) is None
+
+
+def test_the_first_image_in_sorted_order_wins_across_subfolders(tmp_path):
+    """Traversal stops at the first match instead of listing a whole plate.
+
+    Sorted case-insensitively so the answer does not depend on the
+    filesystem's own order -- two machines previewing the same plate should
+    show the same field.
+    """
+    (tmp_path / "B_later").mkdir()
+    (tmp_path / "A_first").mkdir()
+    (tmp_path / "B_later" / "z.tif").write_bytes(b"\x00")
+    (tmp_path / "A_first" / "a.tif").write_bytes(b"\x00")
+
+    found = LP.first_supported_image(tmp_path)
+
+    assert found is not None and found.name == "a.tif"
+
+
 def test_a_folder_that_cannot_be_walked_says_so_rather_than_reporting_empty(
         tmp_path, monkeypatch):
     """"No supported preview image found" for a folder full of images, with
