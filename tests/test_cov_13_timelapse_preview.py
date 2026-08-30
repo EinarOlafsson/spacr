@@ -755,28 +755,46 @@ def test_drawing_a_frame_of_an_empty_sequence_draws_nothing(panel):
 # ---------------------------------------------------------------------------
 
 class _Movie:
-    def __init__(self):
+    """Stands in for the movie panel `_push_to_movie` publishes into.
+
+    `max_fields()` is part of that interface, not decoration:
+    `_movie_source_paths` slices the sibling list to it, so a double
+    without it makes the panel raise AttributeError rather than publish.
+    """
+
+    def __init__(self, max_fields=4):
         self.fields = None
+        self._max_fields = max_fields
 
     def set_fields(self, fields):
         self.fields = fields
 
     def max_fields(self):
-        return 1
+        return self._max_fields
 
 
-def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel,
-                                                                 frame_dir):
+def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel):
     """The movie's colours are only meaningful once the labels ARE track ids.
 
     Feeding it the raw masks would recolour every object whenever the
     segmentation renumbered, which is the opposite of what the movie is being
     watched for.
     """
-    panel.load_sequence_async(frame_dir)
+    # No load_sequence_async here. Loading moved onto a worker, and it
+    # rewrites _tracked when it lands -- so the original version of this
+    # test raced its own fixture and compared the published labels against
+    # an array the worker had since replaced. The subject is
+    # _push_to_movie, so the loader's product is supplied directly and the
+    # race is gone.
+    #
+    # _masks and _tracked both have to be set: the method publishes
+    # nothing unless it has labels, and falls back to the masks for images.
+    # Their contents differ deliberately, so "the movie was given the
+    # tracked stack" is a claim that can fail; two look-alike arrays would
+    # pass whichever one arrived.
+    panel._movie_images = _synthetic_masks()
     panel._masks = _synthetic_masks()
-    panel._movie_images = np.zeros((N_FRAMES, H, W), dtype=np.uint16)
-    panel._tracked = _synthetic_masks()
+    panel._tracked = _synthetic_masks() * 2
     panel._tracks = pd.DataFrame({"frame": [0], "track_id": [1],
                                  "x": [1.0], "y": [1.0]})
     movie = _Movie()
@@ -787,7 +805,14 @@ def test_the_movie_gets_the_loaded_frames_and_the_tracked_labels(panel,
     assert movie.fields is not None and len(movie.fields) == 1
     field = movie.fields[0]
     assert field["images"].shape[0] == N_FRAMES
-    assert field["labels"] is panel._tracked
+    # By content rather than identity: loading runs on a worker now, and
+    # it can replace `_tracked` with an equal array between the assignment
+    # above and the push, which made the old `is` check racy. What has to
+    # hold is that the movie is shown the TRACKED stack and not the raw
+    # masks -- the whole point of the method, since the colours are track
+    # ids.
+    assert np.array_equal(field["labels"], panel._tracked)
+    assert not np.array_equal(field["labels"], panel._masks)
     assert field["tracks"] is panel._tracks
     assert field["title"]
 
@@ -803,7 +828,11 @@ def test_the_movie_falls_back_to_the_masks_when_there_is_no_image_sequence(
     panel._movie_panel = movie
     panel._sequence = None
     panel._masks = _synthetic_masks()
-    panel._tracked = panel._masks
+    # Tracked labels are required before anything is published at all --
+    # the movie colours by track id, so untracked masks would recolour
+    # every object on each resegmentation. The fallback under test is the
+    # IMAGE one: with no raw sequence, the masks stand in as the frames.
+    panel._tracked = _synthetic_masks()
 
     panel._push_to_movie()
 
