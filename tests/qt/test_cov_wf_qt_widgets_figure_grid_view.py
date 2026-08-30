@@ -323,11 +323,12 @@ def test_a_restored_fold_actually_hides_that_runs_figures(grid):
     """
     grid.set_figures([_pixmap(400, 300), _pixmap(400, 300)],
                      sections=[("run one", 0, 2)])
+    original_width = grid._target
 
     assert grid.apply_workspace_state(
-        {"collapsed": [["run one", 0]], "cell_width": 260}) is True
+        {"collapsed": [["run one", 0]]}) is True
 
-    assert grid._target == 260
+    assert grid._target == original_width
     assert grid.is_section_collapsed("run one", 0) is True
     assert [cell.isHidden() for cell in grid._cells] == [True, True]
 
