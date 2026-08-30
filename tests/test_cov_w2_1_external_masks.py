@@ -609,3 +609,42 @@ def test_a_field_with_no_mask_at_all_is_a_blocking_error(tmp_path):
     assert not plan.ok
     assert any("intensity field(s) have no matching mask" in message
                for message in plan.errors)
+
+
+def test_a_float_image_holding_whole_numbers_is_accepted(tmp_path):
+    """Float dtype is not the fault; a fractional VALUE is.
+
+    A microscope export saved as float32 that happens to hold 0, 1, 2 ... is
+    lossless in Measure's uint16 arrays, and refusing it would send the user
+    off to re-export a file that was already fine. The two checks above --
+    finite, and equal to its own floor -- are what separate that from the
+    normalised 0-1 image that would become an array of zeros.
+
+    So this asserts the float branch runs and lets the image THROUGH, which
+    the refusal tests either side of it cannot show.
+    """
+    images, cells = _one_field(tmp_path)
+    whole = np.indices((32, 32))[0].astype(np.float32) * 3.0
+    assert whole.dtype.kind == "f" and np.all(whole == np.floor(whole))
+    _write(images / "fov001_C2.tif", whole)
+    settings = _settings(tmp_path, images, cells)
+    plan = em.plan_external_masks(settings)
+
+    em.run_external_masks(plan, settings)
+
+
+def test_a_float_image_of_whole_numbers_still_has_to_fit_uint16(tmp_path):
+    """Passing the floor check is not passing the range check.
+
+    93000.0 is a whole number and does not fit, and the two guards are
+    separate: an implementation that returned early once the values were
+    integral would wrap it to 27464 with nothing said.
+    """
+    images, cells = _one_field(tmp_path)
+    values = np.full((32, 32), 93000.0, dtype=np.float32)
+    _write(images / "fov001_C2.tif", values)
+    settings = _settings(tmp_path, images, cells)
+    plan = em.plan_external_masks(settings)
+
+    with pytest.raises(ConfigurationError, match="uint16"):
+        em.run_external_masks(plan, settings)
