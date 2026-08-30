@@ -554,6 +554,18 @@ class SaveFigureDialog(QDialog):
                 name = chosen.name()
                 index = box.findData(name)
                 if index < 0:
+                    # CASE-INSENSITIVELY, because QColor.name() answers in
+                    # lower case and the shipped entries are written upper.
+                    # An exact match misses "white" for #ffffff and inserts a
+                    # second, visually identical row -- once for every time
+                    # the user picks a colour the list already had.
+                    lowered = name.lower()
+                    for position in range(box.count()):
+                        data = box.itemData(position)
+                        if isinstance(data, str) and data.lower() == lowered:
+                            index = position
+                            break
+                if index < 0:
                     # Before the chooser, so the chooser stays last.
                     index = box.count() - 1
                     box.insertItem(index, name, name)
