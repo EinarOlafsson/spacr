@@ -42,6 +42,41 @@ The local ``.coverage`` file is not a baseline: it contains only
 merging it with that partial file.
 
 --------------------------------------------------------------------------------
+MEASURED 2026-08-29 — EXACT CURRENT INVENTORY AND HONEST CARRY-FORWARD
+--------------------------------------------------------------------------------
+
+The package boundary is now counted from the same ``setuptools.find_packages``
+discovery used by ``setup.py``, rather than treating every Python helper under
+``spacr/`` as a wheel module:
+
+  * 486 Python modules are shipped across nine discovered packages;
+  * the source tree contains 491 ``spacr/**/*.py`` files. The five that are not
+    distributed are the four
+    ``spacr/resources/home/versions/_generators/*.py`` scripts and
+    ``spacr/resources/icons/backup_icons/_generators/``'s icon generator;
+  * coverage.py's static analysis of those 486 current files finds 196,438
+    statements and 59,950 branches, plus 726 currently excluded lines;
+  * the prohibited-exclusion count remains 304 ``# pragma: no cover``
+    occurrences across 104 shipped modules.
+
+There is still no honest current whole-library coverage percentage. The best
+frozen statement-only run (2026-08-26) measured 473 non-empty source files at
+174,864 / 192,775 statements (90.709%), but 178 current shipped modules have
+changed since that snapshot and 16 are new. Only 292 current shipped modules
+are byte-for-byte identical to a row in that report; their defensible carried
+forward result is 72,317 / 78,671 statements (91.923%), with 137 modules at
+100%. Branches were not enabled in that run, so it supplies no branch
+numerator and must not be presented as satisfying this instruction.
+
+The first current branch-measured slice now has nine modules at exactly 100%:
+437 / 437 statements and 170 / 170 branches. Behavioral tests closed real
+gaps in ``regression_families``, ``annotation_umap_qc``, ``well_scope`` and
+``figures.spread``; the other five verified modules are ``cli_leakage``,
+``cli_plugins``, ``column_groups``, ``image_colors`` and ``training_basis``.
+This is a measured gain and a reusable starting slice, not a substitute for
+the missing frozen whole-library branch run.
+
+--------------------------------------------------------------------------------
 THE CONTRACT
 --------------------------------------------------------------------------------
 
@@ -98,3 +133,54 @@ HOW TO KNOW IT WORKED
     a cancelled or non-required run;
   * instruction 253 may proceed only after all of the above remain true on the
     commit proposed for publication.
+
+THE FAILING-TEST COUNT, RESOLVED (2026-08-30)
+---------------------------------------------
+The green-CI clause was being read against ~421 failing tests. Running each
+failing FILE on its own showed what that number actually was:
+
+    160 files with failures in the full run
+    146 pass alone            -- isolation artifacts, not defects
+     14 fail alone            -- the real list
+
+Of the 14, nine are now green and each is written up in its own commit:
+
+  test_instruction_index.py        stale generated index during an in-flight
+                                   instruction move; rebuilt
+  test_test_suite_hygiene.py       four assertion-free tests of mine, given
+                                   real assertions rather than a ratchet entry
+  test_cov_2_ome_zarr.py           asserted an optional extra was ABSENT, which
+                                   is a fact about the machine; now stated
+  ...search_strip / launch probes  child interpreters built an environment from
+                                   scratch and lost CONDA_PREFIX, so Qt could
+                                   not find its platform plugin (tests/child_env.py)
+  ...backdrop_is_rounded           a real defect; see 310 section 14
+  ...hotkey_map_is_the_whole_map   a real gap; Q was bound and on no map
+  ...window_comes_before_dialog    a real regression; five stylesheet
+                                   compositions per launch, see 314
+  test_registration_seams.py       the restyle mutated the registry the tests
+                                   were observing
+  test_the_name_is_spaCR.py        my own module mis-cased the project name
+
+FIVE REMAIN, AND THEY ARE ONE ITEM, NOT FIVE
+  tests/qt/test_external_i18n_catalogs.py
+  tests/qt/test_i18n_caption_ratchet.py      (partly; my captions are clear)
+  tests/test_documentation_i18n.py
+  tests/test_api_i18n_extractor.py           (partly; my dunders are clear)
+  -- all say the same thing: the public documentation inventory grew by 82
+  symbols and the nine locale catalogs have not been regenerated for them.
+
+    public API surface   8694, ratchet at 8612   (+82)
+    documentation keys   8813, ratchet at 8731   (+82)
+
+Eighteen of the 82 are mine (`spacr.resource_log`). The rest are the
+field-browser/quarantine and flowview work, whose source AND catalogs are
+uncommitted in the shared tree right now. Closing this means running
+tools/build_documentation_i18n.py over nine locales and reviewing the diff,
+which would overwrite that in-flight work -- so it belongs to whoever lands
+the last of those modules, not to the coverage lane. The numbers above are
+what that change has to move.
+
+NOT counted as failures: the two `test_i18n_caption_ratchet` cases still red
+are the generated field-browser strings ('Active merged copy', 'Segmentation
+QC field browser', ...) from the same uncommitted work.
