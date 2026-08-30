@@ -160,6 +160,12 @@ EVAL_SECONDS = 8.0
 class _SlowModel:
     "Stands in for cpsam: native work that does not come back for a while."
     def eval(self, image, **kwargs):
+        # Cyclic GC is process-wide and may run in whichever Python thread
+        # crosses its allocation threshold. Coverage made that the page
+        # QThread in CI; force the same legal timing here so reclaiming a
+        # GUI-owned settings tree off-thread can never become intermittent.
+        import gc
+        gc.collect()
         time.sleep(EVAL_SECONDS)
         import numpy as np
         mask = np.zeros(image.shape[:2], dtype=np.int32)
@@ -220,6 +226,7 @@ def test_picking_cellpose_and_closing_does_not_take_the_process_down(tmp_path):
     """
     proc = _run_child(tmp_path, CELLPOSE_CHILD, "child_cellpose.py")
     _assert_exited_cleanly(proc)
+    assert "QBasicTimer::stop" not in proc.stderr, proc.stderr
     assert "CHILD-OK" in proc.stdout, proc.stdout + proc.stderr
     assert "OUTLINE-METHOD cellpose" in proc.stdout
     assert "WORKER-RUNNING True" in proc.stdout
@@ -239,12 +246,68 @@ def test_the_close_returns_instead_of_waiting_out_the_whole_page(tmp_path):
     """
     proc = _run_child(tmp_path, CELLPOSE_CHILD, "child_cellpose_timing.py")
     _assert_exited_cleanly(proc)
+    assert "QBasicTimer::stop" not in proc.stderr, proc.stderr
     line = [l for l in proc.stdout.splitlines() if l.startswith("CLOSED-IN")]
     assert line, proc.stdout
     closed_in = float(line[0].split()[1])
     assert closed_in < 15.0, (
         f"the close took {closed_in}s, so it waited out more than one "
         f"channel's inference:\n{proc.stdout}")
+
+
+def test_the_settings_tree_stays_owned_until_gui_thread_deletion(
+        qtbot, monkeypatch):
+    """A worker-thread GC cannot become the settings dialog's destructor.
+
+    The dialog's signals and bound methods form cycles.  ``deleteLater`` is
+    safe only while a Python owner keeps the wrapper alive until Qt processes
+    that deferred delete on the GUI thread; otherwise any Python worker can
+    become the thread that runs the QWidget destructors.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication, QDialog
+
+    from spacr.qt.screens import annotate as annotate_module
+
+    screen = annotate_module.AnnotateScreen()
+    qtbot.addWidget(screen)
+    monkeypatch.setattr(
+        annotate_module._SettingsDialog, "exec",
+        lambda self: QDialog.Rejected,
+    )
+
+    screen._on_open_settings()
+
+    dialog = screen._settings_dialog
+    assert dialog is not None
+    assert dialog.parent() is screen
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert screen._settings_dialog is None
+
+
+def test_an_already_deleted_settings_tree_drops_the_retained_shell(
+        qtbot, monkeypatch):
+    """A parent teardown can beat the modal's own DeferredDelete request."""
+    from PySide6.QtWidgets import QDialog
+
+    from spacr.qt.screens import annotate as annotate_module
+
+    screen = annotate_module.AnnotateScreen()
+    qtbot.addWidget(screen)
+    monkeypatch.setattr(
+        annotate_module._SettingsDialog, "exec",
+        lambda self: QDialog.Rejected,
+    )
+
+    def already_gone(_dialog):
+        raise RuntimeError("Internal C++ object already deleted")
+
+    monkeypatch.setattr(
+        annotate_module._SettingsDialog, "deleteLater", already_gone)
+
+    screen._on_open_settings()
+
+    assert screen._settings_dialog is None
 
 
 def test_a_real_cellpose_outline_asks_before_every_channel():
