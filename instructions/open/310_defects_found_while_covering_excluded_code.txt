@@ -913,3 +913,31 @@ outer condition rejects it. The retained tests still assert useful behaviour:
 that spreadsheet residue matches no rows without raising normally, yet raises
 ``ControlNotFound`` under ``strict=True``. They do not claim to cover the
 unreachable inner arc.
+
+--------------------------------------------------------------------------------
+17. THE FALSE FALL-THROUGH ARC OF A CLEANUP GUARD CANNOT EXIST
+--------------------------------------------------------------------------------
+
+``spacr/errors.py`` binds ``conn = None``, converts a connection failure into
+``RunStatusUnreadable``, and closes an opened connection in ``finally``:
+
+    conn = None
+    try:
+        conn = connect(...)
+        ...
+    except sqlite3.Error as exc:
+        raise RunStatusUnreadable(...) from exc
+    finally:
+        if conn is not None:
+            conn.close()
+    records = []
+
+Coverage can observe the true arc into ``close`` and the normal fall-through
+after closing. It cannot observe the guard being false and then falling
+through: ``conn`` stays ``None`` only when ``connect`` raises, in which case
+the converted exception remains in flight after ``finally``. The new test
+still proves the guard's correctness by making ``connect`` fail and asserting
+that the caller receives the database-specific error rather than a cleanup
+``AttributeError`` about ``NoneType``. The impossible arc is removed from the
+coverage denominator by source simplification only if that can preserve this
+exception-masking protection; a pragma is not an acceptable substitute.
