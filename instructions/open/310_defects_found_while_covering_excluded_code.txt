@@ -574,3 +574,45 @@ cannot return the guarded value; a loop whose last iteration always returns; and
 a guard whose precondition the caller four lines above has just established.
 Each is worth a shared helper or a comment rather than a pragma, and none is
 worth deleting.
+
+--------------------------------------------------------------------------------
+10. A MODEL-NAME CHECK THAT CAN NEVER FIRE  (lane: spacr/model_check.py)
+--------------------------------------------------------------------------------
+
+spacr/model_check.py:173-181 reads
+
+    try:
+        from .model_zoo import KNOWN_MODELS
+        known = set(KNOWN_MODELS)
+    except Exception:
+        known = set()
+    if known and name not in known:
+        problems.append(f"{name!r} is not a model spaCR knows; ...")
+
+``KNOWN_MODELS`` DOES NOT EXIST. A repo-wide grep finds the name at exactly two
+lines, both of them this import and the line under it. So the except always
+runs, ``known`` is always empty, the ``if`` is always False, and the complaint
+can never be emitted.
+
+CONSEQUENCE: ``check_model`` -- whose whole job is answering "can this model
+train on this data" before a click turns into an hour of training -- does not
+notice a misspelled model name. A user typing 'maxvit_tt' is told nothing, and
+finds out inside training as a torchvision AttributeError.
+
+THIS IS ENTRY 1'S SHAPE INVERTED. Entry 1 was finished code with no caller
+(``get_figure_save_mode``); this is a caller reading a name nothing defines,
+with a bare ``except Exception`` converting the ImportError into silence. Both
+are invisible without coverage, and a bare except is what makes this one
+survive every test run.
+
+THE FIX NEEDS A DECISION, which is why it is filed and not taken. There is no
+product-level registry of classifier names: ``spacr.utils.TorchModel`` resolves
+them straight off ``torchvision.models`` by attribute, so torchvision's own
+registry is the only authority. Whether to validate against it, and how to word
+the message when torchvision is absent, belongs to the classifier lane.
+
+Current behaviour is pinned by
+tests/test_the_model_check_cannot_currently_name_an_unknown_model.py, including
+an assertion that the import itself fails. Those tests must be UPDATED when the
+check is given a real source, not deleted -- they are the record that makes the
+change a fix rather than a regression.
