@@ -279,3 +279,34 @@ strings and 64 module summaries.  The rendered API inventory is 8,817 symbol
 documents: 8,698 canonical documents plus 119 rendered aliases.  Exact
 locale-by-locale reviewed counts and arithmetic remainders are recorded in
 ``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- CATALOGS GREEN; SEMANTIC DEBT REMAINS
+--------------------------------------------------------------------------------
+
+The final source-to-catalog rebuild now reaches the current inventory in all
+nine locales.  The independent live-source report records 4,978/4,978 runtime
+entries and 8,817/8,817 API documents per locale, with zero runtime or API
+orphans.  Both catalog builders' strict audits pass.  The browser ratchet
+drives every one of the 8,817 rendered symbol IDs through every complete real
+locale catalog rather than exercising only a representative page.
+
+The settings-default review now pins 674 parseable comparisons.  Of the 52
+module-specific variants, 21 were already accurate and 31 required explicit
+shared-tooltip wording; all four configuration defects found by that review
+were repaired, leaving zero known configuration defects in that inventory.
+The rebuild failed closed on two Korean protected-syntax tails and on the new
+Regression ``guide_nuisance_columns`` tooltip.  Source-bound reviewed records
+now cover those Korean tails and the regression tooltip in every locale; the
+last one specifically prevents the microplate noun ``well`` from being shipped
+as the adjective ``well`` or ``good``.
+
+This is still not honest closure.  After limiting generated ``:ivar:`` credit
+to required dataclass/NamedTuple fields and canonicalizing only exact curated
+aliases, the reverse-direction API ratchet still records 3,713 required
+parameters without a structured description across 2,541 public callables.
+The unit and conditional-applicability inventories are mechanical ratchets,
+not an exhaustive prose review, and no exhaustive fluent-speaker review of all
+nine locale catalogs is recorded.  Item 306 therefore remains OPEN and
+release-blocking; the exact reviewed proportions and remainders are in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.

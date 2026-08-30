@@ -27,15 +27,15 @@ runtime percentage is not a unique-string percentage.
 
 | Language | Reviewed runtime sources | Of 4,978 | Arithmetic remainder | Reviewed API blocks | Of 8,817 | Arithmetic remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 110 | 2.21% | 4,868 | 181 | 2.05% | 8,636 |
-| German | 80 | 1.61% | 4,898 | 126 | 1.43% | 8,691 |
-| Spanish | 87 | 1.75% | 4,891 | 27 | 0.31% | 8,790 |
-| Simplified Chinese | 234 | 4.70% | 4,744 | 152 | 1.72% | 8,665 |
-| Portuguese | 91 | 1.83% | 4,887 | 130 | 1.47% | 8,687 |
-| Hindi | 99 | 1.99% | 4,879 | 83 | 0.94% | 8,734 |
-| Korean | 215 | 4.32% | 4,763 | 114 | 1.29% | 8,703 |
-| Icelandic | 105 | 2.11% | 4,873 | 592 | 6.71% | 8,225 |
-| French | 88 | 1.77% | 4,890 | 115 | 1.30% | 8,702 |
+| Swedish | 111 | 2.23% | 4,867 | 181 | 2.05% | 8,636 |
+| German | 81 | 1.63% | 4,897 | 126 | 1.43% | 8,691 |
+| Spanish | 88 | 1.77% | 4,890 | 27 | 0.31% | 8,790 |
+| Simplified Chinese | 235 | 4.72% | 4,743 | 152 | 1.72% | 8,665 |
+| Portuguese | 92 | 1.85% | 4,886 | 131 | 1.49% | 8,686 |
+| Hindi | 100 | 2.01% | 4,878 | 86 | 0.98% | 8,731 |
+| Korean | 218 | 4.38% | 4,760 | 116 | 1.32% | 8,701 |
+| Icelandic | 106 | 2.13% | 4,872 | 598 | 6.78% | 8,219 |
+| French | 89 | 1.79% | 4,889 | 117 | 1.33% | 8,700 |
 
 In addition, `tools/i18n_reviewed_ui.py` pins 84 context-sensitive UI sources
 in every locale: 84 x 9 = 756 reviewed source/target pairs.  Those rows overlap
@@ -56,6 +56,14 @@ in several documents, and static reviewed vocabularies overlap external review
 files.  There was no unnamed statistical sample and no claim of exhaustive
 semantic review.
 
+The final settings-default pass records the Regression
+`guide_nuisance_columns` tooltip in every locale after model output confused a
+microplate well with the adjective “well” in several languages.  Korean also
+has reviewed `loss_type` and `normalize` records where protected syntax caused
+the model candidates to fail closed.  Each record is bound to the exact current
+source and passes the same production syntax, script, and semantic gates as the
+generated catalogs.
+
 The final source-bound repair reviewed all four blocks of
 `spacr.__main__.main` in each language: two unchanged source blocks plus the
 new successful process-exit-code and `SystemExit(2)` parser-error contract
@@ -75,11 +83,15 @@ had left in English.  Other regenerated changes were mechanically audited but
 are not added to the reviewed count.
 
 The final hard-tail review records the FlowView `NodeItem` card description in
-Swedish, German, Spanish, and Simplified Chinese; the even-odd ray-casting
-description for Spanish `points_in_polygon`; and three technical blocks from
-the Simplified Chinese Freedman-Lane guide-permutation documentation.  Each
-record is bound to its exact current source block, contextual model input, and
-SHA-256 hash, and passes the protected-literal and target-script gates.
+Swedish, German, Spanish, Simplified Chinese, Icelandic, and French; the
+even-odd ray-casting description for Spanish `points_in_polygon`; and three
+technical blocks from the Simplified Chinese Freedman-Lane guide-permutation
+documentation.  It also records the Portuguese and Icelandic icon lookup
+contract, three Hindi worker/measurement-panel blocks, two Korean
+measurement-panel blocks, four other Icelandic worker/fractal/refit blocks,
+and the French same-instant supersampling contract.  All 22 records are bound
+to their exact current source block, contextual model input, and SHA-256 hash,
+and pass the protected-literal and target-script gates.
 
 ## Explicit English identities and fallbacks
 
@@ -150,35 +162,45 @@ every emitted tooltip API link against the fresh output.
 
 Runtime tests drive real catalogs through Qt language switching.  Browser tests
 exercise rendering, selector persistence, malformed/stale payload fallback, and
-request races with two-symbol synthetic catalogs.  A separate browser ratchet
-now loads, validates, selects, and renders all nine complete real 8,817-document
-payloads on one representative real module/class page.  It does not render
-every API page.  Dedicated mutations delete a Swedish tooltip translation and
-inject a broken tooltip API URL; the runtime audit and link resolver respectively
-turn red.  Synthetic source-staleness and partial-Sphinx failures remain covered.
+request races with two-symbol synthetic catalogs.  The exhaustive browser
+ratchet constructs one AutoAPI-shaped document containing every exact English
+symbol ID, then loads all nine complete real catalogs and requires exactly
+8,817 translated panels whose IDs equal that full symbol union for each locale.
+It therefore drives every catalog document through the frontend without the
+cost and weaker state isolation of 8,817 separate Chrome launches.  Dedicated
+mutations delete a Swedish tooltip translation and inject a broken tooltip API
+URL; the runtime audit and link resolver respectively turn red.  Synthetic
+source-staleness and partial-Sphinx failures remain covered.
 
 The former twelve `KNOWN_THIN` tooltip waivers are gone.  Each now passes the
 ordinary type, length, non-tautology, default-presence, and link checks and is
 separately pinned to implementation facts.  Unit ratchets cover all 110
 diameter/radius keys plus explicit `_px` and `_um` keys.  Across registered app
-defaults, 675 parseable tooltip/default comparisons are pinned: 619 match
-directly and 56 module-specific variants have an exact no-substitution digest.
+defaults, all 674 parseable tooltip/default comparisons are pinned: 622 match
+directly and all 52 module-specific variants have explicit expected values and
+review reasons.  Of those variants, 21 were already accurate and 31 prompted
+shared-tooltip repairs; the four configuration defects found by the review were
+also repaired, leaving zero known configuration defects in this inventory.
 Forty-seven inactive real-default dependency cases spanning 33 settings must
 also state which source setting made them inapplicable.  These are concrete
-mechanical advances, not proof that every unit, conditional sentence, or one of
-the 56 shared-tooltip variants has been semantically reviewed.
+mechanical advances, not proof that every remaining unit or conditional
+sentence outside these ratchets has been semantically reviewed.
 
 API parameter checks reject ghost `:param:` names and contradictory literal
-defaults.  The reverse-direction ratchet now inventories the exact AutoAPI
-field-list boundary, but records rather than excuses 4,165 required parameters
-without a `:param:` field across 2,703 public callables.  Its count and digest
-fail on additions or substitutions; the debt is still nonzero.
+defaults.  Required generated dataclass and NamedTuple fields count an exact
+rendered `:ivar:` description; ordinary callables cannot use that rule.
+Curated AutoAPI aliases count at their canonical target only after signatures
+and rendered prose match exactly, while canonical debt remains counted once.
+After those narrow boundary rules, the reverse-direction ratchet records 3,713
+required parameters without a structured description across 2,541 public
+callables.  Its count and digest fail on additions or substitutions; the debt
+is still nonzero.
 
 ## Disposition
 
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 4,165 required-parameter omissions are resolved, the
+move to done only after the 3,713 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.

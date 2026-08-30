@@ -422,3 +422,30 @@ instruction remains OPEN for the accepted lower-end cold/warm registry traces,
 RSS/GPU evidence, complete supported frozen-artifact matrix, and measured
 dispositions for every hotspot responsible for at least 10 percent of an
 accepted path.  No version, tag or release action was taken.
+
+--------------------------------------------------------------------------------
+2026-08-30 — RELEASE TIMING EVIDENCE NOW FAILS CLOSED AT INVOCATION
+--------------------------------------------------------------------------------
+
+The startup driver previously accepted a one-process artifact and inherited
+``QT_QPA_PLATFORM=offscreen`` even when the operator intended a release timing
+run.  Its combined artifact could say ``offscreen: false`` while the worker had
+actually selected a headless Qt plugin.  ``--record-only`` could also turn a
+red artifact into exit zero under the same nominal release invocation.
+
+The explicit ``--release-acceptance`` protocol now requires exactly two fresh
+processes sharing only the isolated filesystem cache: one cold and one warm.
+It rejects ``--offscreen``, ``--record-only`` and inherited ``offscreen``,
+``minimal``, ``minimalegl`` or ``vnc`` Qt platforms before starting a worker,
+then independently rejects a headless platform reported by either worker.
+The ordinary one-process diagnostic mode remains available for instruction
+314's repeated cold Regression gate.  Twenty-two new focused tests and all 41
+existing startup-driver tests pass.
+
+This closes an evidence-integrity gap, not the performance evidence itself.
+The current Codex process observes a zero-sized display and the machine is
+running coverage partitions, so any timing taken here would violate this
+instruction's real-display and quiet-machine requirements.  Item 305 remains
+OPEN for accepted lower-end cold/warm checkout, wheel and sdist traces,
+RSS/GPU evidence, the complete supported frozen-artifact matrix, representative
+pipeline profiles and measured dispositions for every >=10-percent hotspot.
