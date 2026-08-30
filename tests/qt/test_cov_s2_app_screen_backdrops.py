@@ -24,6 +24,7 @@ pytest.importorskip("pytestqt")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -35,8 +36,12 @@ def _boom(*_args, **_kwargs):
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 class TestTheAmbientBackdrop:
@@ -175,16 +180,26 @@ class TestRethemingTheProseBoxes:
 
         screen._retheme_section_explainers()
 
+        assert screen._section_explainers == {}
+
     def test_a_palette_that_will_not_resolve_leaves_every_box_as_it_was(
             self, screen, monkeypatch):
         from spacr.qt import theme
 
+        palette_attempts = []
+
+        def refusing_palette():
+            palette_attempts.append(True)
+            raise RuntimeError("the palette is unavailable")
+
         monkeypatch.setattr(screen, "_section_explainers",
                             {"Paths": types.SimpleNamespace(setHtml=_boom)},
                             raising=False)
-        monkeypatch.setattr(theme, "active_palette", _boom)
+        monkeypatch.setattr(theme, "active_palette", refusing_palette)
 
         screen._retheme_section_explainers()
+
+        assert palette_attempts == [True]
 
     def test_a_box_that_was_removed_with_its_section_is_skipped(self, screen,
                                                                  monkeypatch):
@@ -218,6 +233,8 @@ class TestRethemingTheProseBoxes:
         monkeypatch.setattr(screen, "_model_explainer", None, raising=False)
 
         screen._refresh_model_explainer()
+
+        assert screen._model_explainer is None
 
     def test_a_setting_that_will_not_be_read_falls_back_to_its_default(
             self, screen, monkeypatch):
@@ -258,9 +275,17 @@ def test_collapsing_a_sub_heading_leaves_the_umbrella_open(qtbot):
 
 def test_a_parent_heading_that_has_gone_is_not_an_error():
     """The signal outlives the section on a screen being torn down."""
+    expansion_checks = []
+
+    def vanished_heading():
+        expansion_checks.append(True)
+        raise RuntimeError("the heading has gone")
+
     AppScreen._open_the_headings_above(object(), True)
     AppScreen._open_the_headings_above(
-        types.SimpleNamespace(is_expanded=_boom), True)
+        types.SimpleNamespace(is_expanded=vanished_heading), True)
+
+    assert expansion_checks == [True]
 
 
 class TestBuildingTheScreenWhenAnEnrolmentFails:

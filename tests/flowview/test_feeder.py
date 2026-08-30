@@ -232,4 +232,6 @@ def test_importing_feeder_does_not_import_qt_in_a_fresh_process():
         "-c",
         "import sys; import spacr.flowview.feeder; assert 'PySide6' not in sys.modules",
     ]
-    subprocess.run(command, check=True)
+    completed = subprocess.run(command, capture_output=True, text=True)
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout == ""

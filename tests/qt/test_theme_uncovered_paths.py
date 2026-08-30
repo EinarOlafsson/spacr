@@ -236,9 +236,13 @@ class _ViewportlessScrollArea(QAbstractScrollArea):
         return None
 
 
-def test_making_nothing_transparent_is_not_an_error(qtbot):
+def test_making_nothing_transparent_is_not_an_error(qapp):
     """Callers pass a widget that may not have been built yet."""
-    theme.make_transparent(None)
+    before = tuple(qapp.topLevelWidgets())
+    result = theme.make_transparent(None)
+
+    assert result is None
+    assert tuple(qapp.topLevelWidgets()) == before
 
 
 def test_a_scroll_area_with_no_viewport_still_gets_tagged(qtbot):

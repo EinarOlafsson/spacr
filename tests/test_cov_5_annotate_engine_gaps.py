@@ -94,8 +94,15 @@ def test_a_bordered_crop_keeps_its_own_pixels_inside_the_frame():
 
 def test_no_column_and_no_database_are_both_nothing_to_do(tmp_path):
     """Called on every page load, so it must be cheap and silent when idle."""
-    AE.ensure_annotation_column("", "test")
-    AE.ensure_annotation_column(str(tmp_path / "absent.db"), "test")
+    absent = tmp_path / "absent.db"
+
+    outcomes = (
+        AE.ensure_annotation_column("", "test"),
+        AE.ensure_annotation_column(str(absent), "test"),
+    )
+
+    assert outcomes == (None, None)
+    assert not absent.exists(), "checking must not create an empty database"
 
 
 # ---------------------------------------------------------------------------

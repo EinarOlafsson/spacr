@@ -34,7 +34,6 @@ class _FactoryHost(QObject):
         return "mask", {}
 
     def _build_screen_timed(self, key):
-        """Follow the production wrapper into the real screen factory."""
         return MainWindow._build_screen_timed(self, key)
 
     def __getattr__(self, name):
@@ -78,13 +77,7 @@ def test_every_view_a_module_builds_sorts_descending_first(
         qtbot, qt_theme_applied, app_key):
     """Measured on the widget: sorting on, and a fresh column starts down."""
     host = _FactoryHost()
-    try:
-        screen = MainWindow._build_screen(host, app_key)
-    except Exception as error:                               # noqa: BLE001
-        # Whether every module can be BUILT is
-        # ``test_all_module_smoke``'s question, and answering it here as
-        # well would report someone else's breakage as a sorting failure.
-        pytest.skip(f"{app_key} does not build: {error}")
+    screen = MainWindow._build_screen(host, app_key)
     qtbot.addWidget(screen)
     screen.resize(1200, 720)
     screen.show()

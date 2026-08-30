@@ -1003,14 +1003,14 @@ def test_the_joiner_never_touches_the_widget():
 def test_a_deleted_backdrop_does_not_take_the_process_down(qtbot, sandbox):
     """The crash as reported: a backdrop deleted with its parent and no
     shutdown() call anywhere."""
-    import gc
-
     from PySide6.QtCore import QEventLoop, QTimer
     from PySide6.QtWidgets import QWidget
 
     host = QWidget()
     host.resize(360, 240)
     widget = F.create_fractal_widget(F.Settings(backend="cpu"))
+    destroyed = []
+    widget.destroyed.connect(lambda: destroyed.append(True))
     widget.setParent(host)
     host.show()
     loop = QEventLoop()
@@ -1018,12 +1018,17 @@ def test_a_deleted_backdrop_does_not_take_the_process_down(qtbot, sandbox):
     loop.exec()
 
     host.deleteLater()
-    del widget, host
-    gc.collect()
     loop = QEventLoop()
     QTimer.singleShot(800, loop.quit)
     loop.exec()
-    gc.collect()          # reaching here at all is the assertion
+
+    assert destroyed == [True], "deleting the host must retire its backdrop"
+    # Keep the wrappers owned until Qt has processed deleteLater and the
+    # backdrop's destroyed hook has joined its renderer.  Dropping the last
+    # Python references before that event races automatic cyclic GC against
+    # a still-running native thread -- the test would manufacture the crash
+    # it is meant to guard against.
+    del widget, host
 
 
 def test_the_gpu_timer_stops_at_the_first_late_tick():
@@ -1049,3 +1054,7 @@ def test_shutdown_is_safe_to_call_twice(qtbot, sandbox):
     qtbot.addWidget(widget)
     widget.shutdown()
     widget.shutdown()
+
+    assert widget._stopped is True
+    assert not widget._timer.isActive()
+    assert not widget._thread.isRunning()

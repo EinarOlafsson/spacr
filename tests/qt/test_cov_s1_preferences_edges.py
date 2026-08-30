@@ -286,12 +286,20 @@ def test_a_store_that_refuses_to_be_written_is_a_cosmetic_loss(store,
                                                                monkeypatch):
     """A read-only configuration directory is a real state, and the ambient
     migration is decoration. It may not take a launch down with it."""
-    def _refuses(*_args, **_kwargs):
+    attempted = []
+
+    def _refuses(*args, **_kwargs):
+        attempted.append(args)
         raise OSError(30, "Read-only file system")
 
     monkeypatch.setattr(store, "setValue", _refuses)
 
-    prefs._migrate_ambient_motion()      # must not raise
+    result = prefs._migrate_ambient_motion()
+
+    assert result is None
+    assert attempted == [
+        (prefs._KEY_AMBIENT_SCALE, prefs.AMBIENT_MOTION_SCALE)
+    ], "the migration reached its version-marker write before degrading"
 
 
 # ---------------------------------------------------------------------------
@@ -449,9 +457,15 @@ def test_applying_preferences_with_no_application_does_nothing(store,
     run before (and after) there is an app."""
     from PySide6.QtWidgets import QApplication
 
-    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
+    instance_lookups = []
+    monkeypatch.setattr(
+        QApplication, "instance",
+        staticmethod(lambda: instance_lookups.append(True) or None))
 
-    prefs.apply_preferences_to_app()      # must not raise
+    result = prefs.apply_preferences_to_app()
+
+    assert result is None
+    assert instance_lookups == [True], "the fallback application was consulted"
 
 
 def test_every_optional_step_of_a_preferences_save_may_fail_on_its_own(

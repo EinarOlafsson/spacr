@@ -26,6 +26,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QSplitter, QWidget                 # noqa: E402
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -37,8 +38,12 @@ def _boom(*_args, **_kwargs):
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 class TestRememberingTheRuntimeSplit:
@@ -91,10 +96,20 @@ class TestRememberingTheRuntimeSplit:
         splitter.addWidget(QWidget())
         splitter.addWidget(QWidget())
         monkeypatch.setattr(console_panel, "get_split_state", lambda _k: None)
-        monkeypatch.setattr(console_panel, "set_split_state", _boom)
+        save_attempts = []
+
+        def refusing_store(key, state):
+            save_attempts.append((key, state))
+            raise RuntimeError("the layout store is unavailable")
+
+        monkeypatch.setattr(console_panel, "set_split_state", refusing_store)
         screen._remember_runtime_splitter(splitter)
 
         splitter.splitterMoved.emit(10, 1)
+
+        assert len(save_attempts) == 1
+        assert save_attempts[0][0] == "regression::runtime"
+        assert screen._runtime_splitter is splitter
 
 
 class TestTheHintStrips:
@@ -108,6 +123,8 @@ class TestTheHintStrips:
         screen._sync_category_hint_height()
         screen.show_category_hint("Paths")
         screen.clear_category_hint()
+
+        assert (screen._hint_strip, screen._category_hint) == (None, None)
 
     def test_a_pinned_category_comes_back_when_the_pointer_leaves(self,
                                                                    screen):
@@ -128,17 +145,23 @@ class TestTheOptionalCards:
 
         screen._on_lp_switch(True)
 
+        assert screen._live_preview_card is None
+
     def test_a_module_with_no_preview_card_ignores_the_toggle(self, screen,
                                                                monkeypatch):
         monkeypatch.setattr(screen, "_preview_card_attr", "", raising=False)
 
         screen._on_preview_switch(True)
 
+        assert screen._preview_card_attr == ""
+
     def test_a_module_with_no_sweep_card_ignores_the_toggle(self, screen,
                                                              monkeypatch):
         monkeypatch.setattr(screen, "_sweep_card", None, raising=False)
 
         screen._on_sweep_switch(True)
+
+        assert screen._sweep_card is None
 
     def test_opening_the_sweep_seeds_it_from_the_form(self, screen,
                                                        monkeypatch, qtbot):
@@ -172,17 +195,29 @@ class TestTheOptionalCards:
     def test_a_module_that_is_not_the_image_umap_keeps_one_gpu_answer(
             self, screen, monkeypatch):
         """The switch is the anchor, and only the UMAP screen has one."""
+        gpu_requests = []
         monkeypatch.setattr(screen, "_hyperparam",
-                            types.SimpleNamespace(apply_settings=_boom),
+                            types.SimpleNamespace(
+                                request_gpu_enabled=lambda *args, **kwargs:
+                                gpu_requests.append((args, kwargs))),
                             raising=False)
 
         screen._on_umap_gpu_switch(True)
 
+        assert gpu_requests == []
+
     def test_a_module_with_no_explorer_ignores_the_interactive_toggle(
             self, screen, monkeypatch):
+        queue_actions = []
         monkeypatch.setattr(screen, "_umap_explorer", None, raising=False)
+        monkeypatch.setattr(screen, "_figure_queue", types.SimpleNamespace(
+            hide=lambda: queue_actions.append("hide"),
+            show=lambda: queue_actions.append("show"),
+            count=lambda: 1), raising=False)
 
         screen._on_interactive_switch(True)
+
+        assert queue_actions == []
 
     def test_a_static_figure_with_no_payload_flips_no_switch(self, screen,
                                                               monkeypatch):
@@ -206,23 +241,42 @@ class TestTheAiSwitchDefault:
         """A preference is not a reason for a module screen to fail to build."""
         from spacr.qt import preferences
 
-        monkeypatch.setattr(preferences, "get_ai_on_by_default", _boom)
+        reads = []
+        checks = []
+
+        def refusing_preference():
+            reads.append(True)
+            raise RuntimeError("the preference store is unavailable")
+
+        monkeypatch.setattr(preferences, "get_ai_on_by_default",
+                            refusing_preference)
         monkeypatch.setattr(screen, "_ai_switch",
-                            types.SimpleNamespace(setChecked=_boom),
+                            types.SimpleNamespace(setChecked=checks.append),
                             raising=False)
 
         screen._apply_ai_default()
+
+        assert reads == [True]
+        assert checks == []
 
     def test_a_switch_that_will_not_take_it_is_not_fatal_either(self, screen,
                                                                  monkeypatch):
         from spacr.qt import preferences
 
+        checks = []
+
+        def refusing_switch(value):
+            checks.append(value)
+            raise RuntimeError("the switch has gone")
+
         monkeypatch.setattr(preferences, "get_ai_on_by_default", lambda: True)
         monkeypatch.setattr(screen, "_ai_switch",
-                            types.SimpleNamespace(setChecked=_boom),
+                            types.SimpleNamespace(setChecked=refusing_switch),
                             raising=False)
 
         screen._apply_ai_default()
+
+        assert checks == [True]
 
 
 class TestTheConsoleAndPreferencesButtons:
@@ -364,15 +418,30 @@ class TestReportingTheDesignThatWasRead:
     def test_a_design_scan_that_cannot_be_submitted_is_not_fatal(self, screen,
                                                                   monkeypatch):
         """The scan is a sentence beside the run, not part of it."""
-        monkeypatch.setattr(screen._jobs, "submit", _boom)
+        submissions = []
+
+        def refusing_submit(work, callback):
+            submissions.append((work, callback))
+            raise RuntimeError("the job runner is shutting down")
+
+        monkeypatch.setattr(screen._jobs, "submit", refusing_submit)
 
         screen._announce_the_fit({"src": "/data"})
+
+        assert len(submissions) == 1
+        assert submissions[0][1] == screen._on_design_scanned
 
 
 class TestOpeningARowFromTheRunsTab:
 
-    def test_a_row_that_is_not_a_record_opens_nothing(self, screen):
+    def test_a_row_that_is_not_a_record_opens_nothing(self, screen,
+                                                       monkeypatch):
+        pending = ("the current run", "/data/current")
+        monkeypatch.setattr(screen, "_pending_trial", pending, raising=False)
+
         screen._show_trial("not a record")
+
+        assert screen._pending_trial == pending
 
     def test_a_screen_with_no_results_panel_opens_no_row(self, screen,
                                                           monkeypatch):
@@ -386,16 +455,29 @@ class TestOpeningARowFromTheRunsTab:
         assert said == []
 
     def test_a_result_arriving_without_a_payload_changes_nothing(self,
-                                                                  screen):
+                                                                  screen,
+                                                                  monkeypatch):
+        updates = []
+        monkeypatch.setattr(screen, "_update_run_in_runs_tab",
+                            lambda **fields: updates.append(fields))
+
         screen._on_pipeline_result(None)
         screen._on_pipeline_result("not a payload")
+
+        assert updates == []
 
     def test_a_trial_answer_with_nothing_pending_is_ignored(self, screen,
                                                              monkeypatch):
         """The read is on a worker; its answer can outlive what asked for it."""
+        loaded = []
         monkeypatch.setattr(screen, "_pending_trial", None, raising=False)
+        monkeypatch.setattr(screen, "_load_trial_figures",
+                            lambda folder: loaded.append(folder))
 
         screen._on_trial_loaded(True)
+
+        assert loaded == []
+        assert screen._pending_trial is None
 
 
 class TestTheRemainingOptionalParts:
@@ -433,13 +515,16 @@ class TestTheRemainingOptionalParts:
         """Off by default means untouched, not explicitly unchecked."""
         from spacr.qt import preferences
 
+        checks = []
         monkeypatch.setattr(preferences, "get_ai_on_by_default",
                             lambda: False)
         monkeypatch.setattr(screen, "_ai_switch",
-                            types.SimpleNamespace(setChecked=_boom),
+                            types.SimpleNamespace(setChecked=checks.append),
                             raising=False)
 
         screen._apply_ai_default()
+
+        assert checks == []
 
     def test_a_console_that_will_not_take_the_explanation_still_switches(
             self, screen, monkeypatch):

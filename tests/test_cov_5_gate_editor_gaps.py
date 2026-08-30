@@ -123,12 +123,19 @@ def test_a_scale_matplotlib_refuses_leaves_the_axis_alone(canvas):
     canvas._x_scale = "symlog"
     ax = canvas._figure.axes[0]
 
-    def refuse(_scale):
+    attempted = []
+
+    def refuse(scale):
+        attempted.append(scale)
         raise ValueError("unknown scale")
 
     ax.set_xscale = refuse
 
-    canvas.decorate_axes(ax)     # must not raise out of the paint path
+    result = canvas.decorate_axes(ax)
+
+    assert result is None
+    assert attempted == ["symlog"]
+    assert ax.get_xscale() == "linear", "the rejected scale was not installed"
 
 
 def test_a_column_the_frame_does_not_carry_is_not_positive(canvas):

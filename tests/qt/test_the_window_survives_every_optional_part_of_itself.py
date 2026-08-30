@@ -209,7 +209,12 @@ def test_an_upgrade_with_no_helper_installed_says_so_and_starts_nothing(
 # --------------------------------------------------------------------------
 
 def test_a_host_that_was_never_built_has_no_switch_to_press(win):
-    win._switch_a_fold_on("a host nobody opened", "timelapse")
+    before = dict(win._screens)
+
+    result = win._switch_a_fold_on("a host nobody opened", "timelapse")
+
+    assert result is None
+    assert win._screens == before, "a lookup must not manufacture the host"
 
 
 def test_a_host_whose_fold_set_cannot_be_read_is_left_alone(win, monkeypatch,

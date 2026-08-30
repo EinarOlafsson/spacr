@@ -27,6 +27,7 @@ from PySide6.QtGui import QPixmap                                # noqa: E402
 from PySide6.QtWidgets import QLineEdit, QWidget                 # noqa: E402
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -38,8 +39,12 @@ def _boom(*_args, **_kwargs):
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 class TestTheGeneTilePhotograph:
@@ -189,6 +194,8 @@ class TestTheExampleDownloadProgress:
 
         screen._say_the_download_is_moving("counts.csv", 25, 100)
 
+        assert screen._example_data_button is None
+
 
 class TestTheDimensionSwitches:
 
@@ -291,6 +298,8 @@ class TestTheEmptyStateCard:
 
         screen._refresh_empty_state()
 
+        assert screen._empty_state_card is None
+
     def test_the_card_comes_back_when_the_last_database_is_removed(
             self, screen, monkeypatch, qtbot):
         """A set can be emptied, and the screen returns to what the card says."""
@@ -342,6 +351,8 @@ class TestFoldingTheConsole:
 
         screen._console_folded(True)
 
+        assert screen._console_wrap is None
+
     def test_a_console_that_is_in_no_splitter_still_takes_its_minimum(
             self, screen, monkeypatch, qtbot):
         """Hiding the widget alone is the failure; the minimum is the other half."""
@@ -375,9 +386,26 @@ class TestFoldingTheConsole:
 def test_a_screen_with_no_maturity_notice_still_hides_its_alpha_sections(
         screen, monkeypatch):
     """The notice is the explanation; the hiding is the behaviour."""
+    from spacr.qt import preferences
+
+    visibilities = []
+    dimension_passes = []
+    alpha = types.SimpleNamespace(
+        maturity=lambda: "alpha", setVisible=visibilities.append)
+    monkeypatch.setattr(
+        screen, "rendered_settings_sections", lambda: (alpha,)
+    )
+    monkeypatch.setattr(screen, "_dimension_hidden_sections", lambda: set())
+    monkeypatch.setattr(screen, "_apply_dimension_visibility",
+                        lambda: dimension_passes.append(True))
+    monkeypatch.setattr(preferences, "maturity_is_visible",
+                        lambda stage: stage != "alpha")
     monkeypatch.setattr(screen, "_maturity_notice", None, raising=False)
 
     screen.refresh_maturity_visibility()
+
+    assert visibilities == [False]
+    assert dimension_passes == [True]
 
 
 class TestWhatTheAdvisorSaysBeforeItProposes:

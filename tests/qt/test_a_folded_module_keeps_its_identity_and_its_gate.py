@@ -124,8 +124,15 @@ def test_a_button_that_knows_its_own_stage_is_asked_rather_than_set(
         "the property alone leaves the checked fill lighting the wrong colour")
 
 
-def test_a_button_that_is_not_there_is_not_an_error(qapp):
-    mb.restate_fold_button(None, "motility")
+def test_a_button_that_is_not_there_is_not_an_error(qapp, monkeypatch):
+    looked_up = []
+    monkeypatch.setattr(
+        mb, "fold_description", lambda key: looked_up.append(key))
+
+    result = mb.restate_fold_button(None, "motility")
+
+    assert result is None
+    assert looked_up == [], "a missing button should cost no registry lookup"
 
 
 # --------------------------------------------------------------------------
