@@ -14,13 +14,16 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("matplotlib")
 
-import numpy as np                                              # noqa: E402
+import numpy as np  # noqa: E402
 
-from spacr.hyperparam import SearchResult, SearchSpace, Trial   # noqa: E402
-from spacr.qt.screens import hyperparam as hp                   # noqa: E402
-from spacr.qt.screens.hyperparam import (                       # noqa: E402
-    HyperparamPanel, SearchRequest, _SearchWorker,
-    _search_figure_dir, build_panel_figure,
+from spacr.hyperparam import SearchResult, SearchSpace, Trial  # noqa: E402
+from spacr.qt.screens import hyperparam as hp  # noqa: E402
+from spacr.qt.screens.hyperparam import (  # noqa: E402
+    HyperparamPanel,
+    SearchRequest,
+    _search_figure_dir,
+    _SearchWorker,
+    build_panel_figure,
 )
 
 pytestmark = pytest.mark.qt
@@ -555,3 +558,89 @@ def test_a_choice_the_installed_metrics_no_longer_offer_is_not_restored(
     assert [combo.itemText(i) for i in range(combo.count())] == [
         "euclidean", "cosine"]
     assert combo.currentText() == "euclidean"
+
+
+# ---------------------------------------------------------------------------
+# reading and writing a search-space control, whichever kind it is
+# ---------------------------------------------------------------------------
+
+def test_a_saved_value_the_combo_does_not_offer_is_not_invented(qtbot):
+    """"without inventing choices" is the docstring, and this is it.
+
+    A settings file can name a value this build's menu no longer has -- a
+    model retired between versions, a metric renamed. Adding it to the combo
+    would offer the user a choice the run cannot honour; leaving the combo
+    where it is means the form shows what will actually be used.
+    """
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    combo = QComboBox()
+    qtbot.addWidget(combo)
+    combo.addItems(["euclidean", "cosine"])
+    combo.setCurrentIndex(0)
+
+    HyperparamPanel._set_control_text(combo, "a_metric_that_was_retired")
+
+    assert combo.count() == 2, "a value the build does not offer was added"
+    assert combo.currentText() == "euclidean"
+
+
+def test_a_value_the_combo_does_offer_is_selected(qtbot):
+    """Otherwise the refusal above would pass on a no-op setter."""
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    combo = QComboBox()
+    qtbot.addWidget(combo)
+    combo.addItems(["euclidean", "cosine"])
+
+    HyperparamPanel._set_control_text(combo, "cosine")
+
+    assert combo.currentText() == "cosine"
+
+
+def test_a_free_text_field_takes_the_value_as_written(qtbot):
+    """A grid list is free text; there is nothing to match it against."""
+    from PySide6.QtWidgets import QLineEdit
+
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    edit = QLineEdit()
+    qtbot.addWidget(edit)
+
+    HyperparamPanel._set_control_text(edit, "5, 10, 20")
+
+    assert edit.text() == "5, 10, 20"
+
+
+def test_a_control_of_neither_kind_is_left_alone(qtbot):
+    """The form's widgets are built elsewhere and can be replaced.
+
+    Setting text on something that is neither would raise inside a settings
+    load, taking the screen down while it was restoring a saved run.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    label = QLabel("untouched")
+    qtbot.addWidget(label)
+
+    HyperparamPanel._set_control_text(label, "something")
+
+    assert label.text() == "untouched"
+
+
+def test_reading_a_control_of_neither_kind_is_an_empty_string(qtbot):
+    """The counterpart, and ``""`` is what the caller stores as "unset"."""
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    label = QLabel("not a control")
+    qtbot.addWidget(label)
+
+    assert HyperparamPanel._control_text(label) == ""
