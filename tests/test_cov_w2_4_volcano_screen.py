@@ -308,3 +308,38 @@ def test_the_gui_only_sentence_is_written_where_the_cli_reads_it():
 
     assert cli.INTERACTIVE_ONLY[volcano.APP_KEY] == volcano.APP_CLI_NOTE
     assert volcano.APP_KEY not in cli.MODULES
+
+
+def test_an_empty_subfolder_does_not_stop_the_search(tmp_path):
+    """A run folder holds more than the one directory the table is in.
+
+    ``figures/``, ``logs/``, ``settings/`` -- and they sort before the folder
+    that has the results in it. Returning after the first subfolder that
+    answered nothing would mean a user pointing at their run folder is told
+    there is no table, while the table sits one directory further down the
+    alphabet.
+    """
+    root = tmp_path / "run"
+    (root / "aaa_figures").mkdir(parents=True)
+    (root / "bbb_logs").mkdir()
+    leaf = root / "zzz_guide_permutation"
+    leaf.mkdir()
+    _results_frame().to_csv(leaf / "results_grna.csv", index=False)
+
+    found = volcano.find_results_table(root)
+
+    assert found == os.path.abspath(leaf / "results_grna.csv")
+
+
+def test_a_run_folder_with_no_table_anywhere_is_not_a_table(tmp_path):
+    """The search really does end, and it ends with None.
+
+    Without this the test above would pass on a function that returned the
+    first thing it found regardless of whether it was a results table.
+    """
+    root = tmp_path / "run"
+    (root / "figures").mkdir(parents=True)
+    (root / "logs").mkdir()
+    (root / "figures" / "volcano.pdf").write_bytes(b"%PDF-1.4\n")
+
+    assert volcano.find_results_table(root) is None
