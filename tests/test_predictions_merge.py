@@ -1445,3 +1445,71 @@ def test_the_legacy_timepoint_spelling_on_a_scores_file_still_joins(tmp_path):
                      merged["cv_predictions"]))
             == {"t1_1": 0, "t1_2": 0, "t2_1": 0, "t2_2": 1,
                 "t3_1": 1, "t3_2": 1})
+
+
+def test_an_explicit_timelapse_setting_is_obeyed_not_re_inferred(tmp_path):
+    """``timelapse=`` overrides the sniff, and the sniff is what it overrides.
+
+    The default None means "look at the table and decide", which reads the
+    presence of a time column. That is right for the common case and wrong
+    whenever the guess is wrong: a screen whose table happens to carry a
+    ``timeID`` column from an earlier run is not a timelapse, and treating it
+    as one changes what ``prcfo`` is built from -- so every key misses and the
+    merge silently writes nothing.
+
+    Passing the flag has to short-circuit the inference completely. Asserted
+    by making the inference raise: if it were still consulted, this would fail
+    loudly instead of merging.
+    """
+    from spacr import utils as U
+    from spacr.predictions import merge_prediction_results
+
+    src = str(tmp_path / "screen")
+    paths = write_png_list(src, "plate1", wells=("A1",), fields=(1,))
+    frame = vision_results(paths, [0.5] * 3)
+
+    def must_not_be_called(_columns):
+        raise AssertionError("the time column was sniffed despite an "
+                             "explicit timelapse= setting")
+
+    original = U._time_column
+    U._time_column = must_not_be_called
+    try:
+        report = merge_prediction_results(
+            frame, db_of(src), {"pred": ("pred", "REAL")},
+            key="prcfo", timelapse=False)
+    finally:
+        U._time_column = original
+
+    assert report.matched_rows == 3
+
+
+def test_the_default_still_asks_the_table(tmp_path):
+    """The other half, so the test above is about the flag and not the path.
+
+    With ``timelapse`` left at None the sniff must run -- otherwise the
+    override above would be indistinguishable from the inference never having
+    existed.
+    """
+    from spacr import utils as U
+    from spacr.predictions import merge_prediction_results
+
+    src = str(tmp_path / "screen")
+    paths = write_png_list(src, "plate1", wells=("A1",), fields=(1,))
+    frame = vision_results(paths, [0.5] * 3)
+
+    asked = []
+    original = U._time_column
+
+    def watched(columns):
+        asked.append(tuple(columns))
+        return original(columns)
+
+    U._time_column = watched
+    try:
+        merge_prediction_results(frame, db_of(src), {"pred": ("pred", "REAL")},
+                                 key="prcfo")
+    finally:
+        U._time_column = original
+
+    assert asked, "the default did not consult the table's columns"
