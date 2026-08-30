@@ -48,9 +48,13 @@ from PySide6.QtCore import QEvent, QObject
 from .. import chaining as _ch
 from .. import ports as _kinds
 from .dnd import (
-    DropHandler, IMAGE_EXTS, find_image_folders_nearby, has_images_in,
+    IMAGE_EXTS,
+    DropHandler,
     _report_drop_problem,
+    find_image_folders_nearby,
+    has_images_in,
 )
+
 # Two extension sets, deliberately: IMAGE_EXTS (above) is what the filename
 # preview will *sample*, containers included; RASTER_EXTS is what counts as
 # one image on disk.
@@ -109,12 +113,14 @@ def _set_src_on(screen, path) -> bool:
     """
     if hasattr(screen, "_open_source"):
         try:
-            screen._open_source(path); return True
+            screen._open_source(path)
+            return True
         except Exception:
             pass
     if hasattr(screen, "_open_folder"):
         try:
-            screen._open_folder(path); return True
+            screen._open_folder(path)
+            return True
         except Exception:
             pass
     if hasattr(screen, "_settings_model"):
@@ -670,7 +676,7 @@ def _render_folder_structure(path, screen, result: Dict[str, Any]) -> None:
     _log(screen,
          "\n[drop] folder-structure alternative — detected metadata from the "
          "directory layout:\n"
-         f"       path depth → {' / '.join(str(l) for l in labels)}\n"
+         f"       path depth → {' / '.join(str(label) for label in labels)}\n"
          "       If your images are organised by folder (e.g. plate/well/"
          "field) rather than by filename, this can be used instead of a "
          "filename regex.\n")
@@ -1009,7 +1015,8 @@ class MapBarcodesDropHandler(DropHandler):
             for key in ("fastq", "fastq_path", "fq"):
                 w = screen._settings_model._widgets.get(key)
                 if w is not None and hasattr(w, "setText"):
-                    w.setText(fq_path); break
+                    w.setText(fq_path)
+                    break
         _log(screen, f"[drop] map_barcodes src = {src_path}\n")
 
 

@@ -1616,6 +1616,8 @@ API_TRANSLATION_CONTEXT.update({
         "``-EDT`` separates the fused foreground before measuring equivalent "
         "diameters the same way."
     ),
+    "Regression screen receiving the resolved input.":
+        "Regression application view receiving the resolved input.",
 })
 
 

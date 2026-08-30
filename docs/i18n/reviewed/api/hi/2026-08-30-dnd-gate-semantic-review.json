@@ -1,0 +1,517 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#0",
+      "source": "Place ``path`` in Explain CV's database or prediction control.",
+      "context": "Place ``path`` in Explain CV's database or prediction control.",
+      "source_sha256": "5c36b1f20aed26c7a0aef9c9315029d8033ed731a74d7c2bd230b7f2de6b5058",
+      "translation": "``path`` को Explain CV के डेटाबेस या पूर्वानुमान इनपुट नियंत्रण में रखें।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#1",
+      "source": "accepted database, project directory, or prediction CSV.",
+      "context": "accepted database, project directory, or prediction CSV.",
+      "source_sha256": "77b4196729e72f6598f0ab191b50dd544b06e8ce09d1b8237bc116c2ebeaa3f2",
+      "translation": "स्वीकृत डेटाबेस, प्रोजेक्ट निर्देशिका अथवा पूर्वानुमान CSV।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#2",
+      "source": "host screen exposing the ``explain`` input panel.",
+      "context": "host screen exposing the ``explain`` input panel.",
+      "source_sha256": "91ae125c2bebc666cd62444872c7c61b369f5baf3730049f7962db3b5a60ab36",
+      "translation": "वह होस्ट एप्लिकेशन दृश्य जो ``explain`` इनपुट पैनल उपलब्ध कराता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept#0",
+      "source": "Return whether ``path`` is an Explain CV database or CSV input.",
+      "context": "Return whether ``path`` is an Explain CV database or CSV input.",
+      "source_sha256": "f02cabad12657851210112db7444a0087ab0ff6512a9d7c0e8d32737991f81f3",
+      "translation": "बताएँ कि ``path`` Explain CV का डेटाबेस या CSV इनपुट है या नहीं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept#1",
+      "source": "database, project directory, or prediction CSV to test.",
+      "context": "database, project directory, or prediction CSV to test.",
+      "source_sha256": "f81f45b76e3894bab2331f7330ab79baa36ffdfaf486e04fc365282cf9c00141",
+      "translation": "जाँचने के लिए डेटाबेस, प्रोजेक्ट निर्देशिका अथवा पूर्वानुमान CSV।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message#0",
+      "source": "Explain why ``path`` is not an Explain CV input.",
+      "context": "Explain why ``path`` is not an Explain CV input.",
+      "source_sha256": "ea9e16a1bd336ef83ddda8deaa003231777d126f4bcc4ed2979c6ea0031c6727",
+      "translation": "बताएँ कि ``path`` Explain CV का इनपुट क्यों नहीं है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message#1",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "translation": "अस्वीकृत फ़ाइल या निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#0",
+      "source": "Route ``path`` to the matching Investigate Hit control.",
+      "context": "Route ``path`` to the matching Investigate Hit control.",
+      "source_sha256": "1c9893c86e430b1710ce988d6b1ed796272282de9a280d14462aa7bb110c7e67",
+      "translation": "``path`` को Investigate Hit के संगत इनपुट नियंत्रण तक भेजें।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#1",
+      "source": "accepted database, results directory, prediction CSV, or guide-fraction CSV.",
+      "context": "accepted database, results directory, prediction CSV, or guide-fraction CSV.",
+      "source_sha256": "3fe65eb9ae7231fcd460451a4c04e155516fe14b08df4c4621effcc3c7803260",
+      "translation": "स्वीकृत डेटाबेस, परिणाम निर्देशिका, पूर्वानुमान CSV अथवा गाइड-फ्रैक्शन CSV।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#2",
+      "source": "host screen exposing the ``investigate`` input panel.",
+      "context": "host screen exposing the ``investigate`` input panel.",
+      "source_sha256": "3ec6ece4eb3b8e761754dcb58149dc13d9d5a08e1067effe5c070fee64369900",
+      "translation": "वह होस्ट एप्लिकेशन दृश्य जो ``investigate`` इनपुट पैनल उपलब्ध कराता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept#0",
+      "source": "Return whether ``path`` can supply an Investigate Hit input.",
+      "context": "Return whether ``path`` can supply an Investigate Hit input.",
+      "source_sha256": "e87ef31b0931bae9f4b2e83055ed080d2d1846524f385ac21713fb32adc4b809",
+      "translation": "बताएँ कि ``path`` Investigate Hit को इनपुट दे सकता है या नहीं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept#1",
+      "source": "database, directory, prediction CSV, or fractions CSV to test.",
+      "context": "database, directory, prediction CSV, or fractions CSV to test.",
+      "source_sha256": "b66ca984bf18098c9e3c677791791d9cec31260b153a69eca51144653e82e47c",
+      "translation": "जाँचने के लिए डेटाबेस, निर्देशिका, पूर्वानुमान CSV अथवा फ्रैक्शन CSV।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message#0",
+      "source": "Explain why ``path`` is not an Investigate Hit input.",
+      "context": "Explain why ``path`` is not an Investigate Hit input.",
+      "source_sha256": "68f4eb28dd372c8e8fcdf9ebc8a1df6aa9cbd3ab5858db0944a5061d79024593",
+      "translation": "बताएँ कि ``path`` Investigate Hit का इनपुट क्यों नहीं है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message#1",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "translation": "अस्वीकृत फ़ाइल या निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#0",
+      "source": "Attach ``path`` to a plate row or the embedded sweep card.",
+      "context": "Attach ``path`` to a laboratory microplate row or the embedded sweep card.",
+      "source_sha256": "2719579dfb308242ae61da8608877c4db93c488f2b9ed28a0a8a70bc7520088c",
+      "translation": "``path`` को किसी माइक्रोप्लेट पंक्ति या समाहित sweep कार्ड से जोड़ें।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#1",
+      "source": "accepted database, plate directory, sweep CSV, or sweep directory.",
+      "context": "accepted database, plate directory, sweep CSV, or sweep directory.",
+      "source_sha256": "da8e60988c4e456e509acc8f9550648832fa275a35723d765e30d2ed08d365bd",
+      "translation": "स्वीकृत डेटाबेस, माइक्रोप्लेट निर्देशिका, sweep CSV अथवा sweep निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#2",
+      "source": "Regression screen receiving the resolved input.",
+      "context": "Regression application view receiving the resolved input.",
+      "source_sha256": "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52",
+      "translation": "Regression एप्लिकेशन दृश्य, जिसे निर्धारित इनपुट प्राप्त होता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept#0",
+      "source": "Return whether Regression can route ``path`` to either input area.",
+      "context": "Return whether Regression can route ``path`` to either input area.",
+      "source_sha256": "a6eff78d79275b0a029ef15867f51edb44c1088eba7eaba52ac40fb4fba3cfb7",
+      "translation": "बताएँ कि Regression ``path`` को दोनों में से किसी एक इनपुट क्षेत्र में भेज सकता है या नहीं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept#1",
+      "source": "database, plate directory, sweep CSV, or sweep directory to classify.",
+      "context": "database, plate directory, sweep CSV, or sweep directory to classify.",
+      "source_sha256": "dc8e56191a436e24c5fc7a7e933cde56469fd2b7efb9da2483b379393c550338",
+      "translation": "वर्गीकृत करने के लिए डेटाबेस, माइक्रोप्लेट निर्देशिका, sweep CSV अथवा sweep निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.error_message#0",
+      "source": "Explain why ``path`` matches neither Regression input contract.",
+      "context": "Explain why ``path`` matches neither Regression input contract.",
+      "source_sha256": "b318de896f330dba1b0d9fa5054fc513bcf4d46d941a72cda554b918b6e6ed51",
+      "translation": "बताएँ कि ``path`` Regression के दोनों इनपुट अनुबंधों में से किसी से भी क्यों मेल नहीं खाता।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.error_message#1",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "translation": "अस्वीकृत फ़ाइल या निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#0",
+      "source": "Route score and count CSVs from ``path`` to the sweep panel.",
+      "context": "Route score and count CSVs from ``path`` to the sweep panel.",
+      "source_sha256": "18af6180efff43df374ba4f3b841931f930b5377af66a4148ded58ab4ccaab17",
+      "translation": "स्कोर और गणना वाली CSV फ़ाइलों को ``path`` से sweep पैनल में भेजें।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#1",
+      "source": "accepted CSV file or directory of CSV files.",
+      "context": "accepted CSV file or directory of CSV files.",
+      "source_sha256": "85d608b05dea0e43ceaac08be358951936ac7df220f24d80990bbccf230c213a",
+      "translation": "स्वीकृत CSV फ़ाइल या CSV फ़ाइलों वाली निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#2",
+      "source": "sweep panel or host screen carrying it on ``_sweep``.",
+      "context": "sweep panel or host screen carrying it on ``_sweep``.",
+      "source_sha256": "054b2a0fe67bb73eccad27516cf74d2b1d9f7e53e98283720169ef58990ac422",
+      "translation": "sweep पैनल या वह होस्ट एप्लिकेशन दृश्य जो उसे ``_sweep`` पर उपलब्ध कराता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept#0",
+      "source": "Return whether ``path`` contributes at least one sweep CSV.",
+      "context": "Return whether ``path`` contributes at least one sweep CSV.",
+      "source_sha256": "3813603aa7f9111c39669e53fac99d85da94fd6838d158a85fbdc37204c00ebd",
+      "translation": "बताएँ कि ``path`` कम से कम एक sweep CSV उपलब्ध कराता है या नहीं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept#1",
+      "source": "CSV file or directory whose immediate CSV children are considered.",
+      "context": "CSV file or directory whose immediate CSV children are considered.",
+      "source_sha256": "cb5d46af85bcf33b7c816b04d4bb2486167d193df512d6e8536d92f264195aca",
+      "translation": "CSV फ़ाइल या वह निर्देशिका जिसकी सीधे अंदर मौजूद CSV फ़ाइलों पर विचार किया जाता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message#0",
+      "source": "Explain why ``path`` cannot populate the sweep inputs.",
+      "context": "Explain why ``path`` cannot populate the sweep inputs.",
+      "source_sha256": "6ede5bc087b43668920928ed7be12e922a49c88b7973fc37ff05a2399ed9e7fd",
+      "translation": "बताएँ कि ``path`` sweep इनपुट क्यों नहीं भर सकता।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message#1",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "translation": "अस्वीकृत फ़ाइल या निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#0",
+      "source": "Select finite values that lie within the inclusive bounds.",
+      "context": "Select finite values that lie within the inclusive bounds.",
+      "source_sha256": "1e89a0f6f119364299e3e3a69c5e176f00946d1fed43119603554e90f8291428",
+      "translation": "समावेशी सीमाओं के भीतर स्थित परिमित मान चुनें।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#1",
+      "source": "measurement table containing this gate's column.",
+      "context": "measurement table containing this data-selection boundary's column.",
+      "source_sha256": "dfc78773eb37ff53509e23d3b259b70e98120f023b80e4c21c783d100b1b859c",
+      "translation": "वह मापन तालिका जिसमें इस डेटा-चयन सीमा का कॉलम है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#2",
+      "source": "boolean mask aligned row-for-row with ``frame``.",
+      "context": "boolean mask aligned row-for-row with ``frame``.",
+      "source_sha256": "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1",
+      "translation": "``frame`` की हर पंक्ति के साथ संरेखित बूलियन मास्क।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#0",
+      "source": "Return this gate with replacement bounds on its column.",
+      "context": "Return this data-selection boundary with replacement bounds on its column.",
+      "source_sha256": "51599d23aa1a7bfec819c303965c4e546a6f60760151349e338b2e5e6eb46f22",
+      "translation": "इस डेटा-चयन सीमा को उसके कॉलम पर नई सीमाओं के साथ लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#1",
+      "source": "measurement column whose bounds are being changed; a different column is rejected because this gate cannot represent it.",
+      "context": "measurement column whose bounds are being changed; a different column is rejected because this data-selection boundary cannot represent it.",
+      "source_sha256": "fcc7c7c3a666891f9313e139a74983642cf1b88e3995489dd9366c4e9f5e3075",
+      "translation": "वह मापन कॉलम जिसकी सीमाएँ बदली जा रही हैं; अलग कॉलम अस्वीकृत किया जाता है क्योंकि यह डेटा-चयन सीमा किसी दूसरे कॉलम को निरूपित नहीं कर सकती।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#2",
+      "source": "inclusive lower bound, or ``None`` for an open lower end.",
+      "context": "inclusive lower bound, or ``None`` for an open lower end.",
+      "source_sha256": "d74d4682f1e3f4707eb348a6ee15f02f697326a6627f4be3c5341e4b4d75458c",
+      "translation": "समावेशी निचली सीमा, या खुले निचले सिरे के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#3",
+      "source": "inclusive upper bound, or ``None`` for an open upper end.",
+      "context": "inclusive upper bound, or ``None`` for an open upper end.",
+      "source_sha256": "e22ed2416f6550ace2e002654c5baf9ff9cec02374a8cc0f737d2b5d52003669",
+      "translation": "समावेशी ऊपरी सीमा, या खुले ऊपरी सिरे के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.LayoutDropHandler.resolve#0",
+      "source": "Return the :class:`spacr.chaining.DropResolution` for ``path``.",
+      "context": "Return the :class:`spacr.chaining.DropResolution` for ``path``.",
+      "source_sha256": "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
+      "translation": ":class:`spacr.chaining.DropResolution` को ``path`` के लिए लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.LayoutDropHandler.resolve#1",
+      "source": "dropped path to resolve against this handler's app and artifact kinds.",
+      "context": "dropped path to resolve against this handler's app and artifact kinds.",
+      "source_sha256": "2b018ef4000395e2e9ef2abbc917e8d7b74dfc46f8a89c0b2b808d7e2b328ea9",
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त पथ, जिसे इस हैंडलर के एप्लिकेशन तथा आर्टिफ़ैक्ट प्रकारों के आधार पर हल करना है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#0",
+      "source": "The database ``path`` names: itself, or the one under it.",
+      "context": "The database ``path`` names: itself, or the one under it.",
+      "source_sha256": "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
+      "translation": "वह डेटाबेस जिसे ``path`` निर्दिष्ट करता है: स्वयं पथ की फ़ाइल या उसके भीतर की फ़ाइल।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#1",
+      "source": "Returns ``None`` when there is no database file to be found, so a caller can fall back rather than hand a folder to something that expects to open a database.",
+      "context": "Returns ``None`` when there is no database file to be found, so a caller can fall back rather than hand a folder to something that expects to open a database.",
+      "source_sha256": "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd",
+      "translation": "डेटाबेस फ़ाइल न मिलने पर ``None`` लौटाता है, ताकि कॉलर किसी ऐसे घटक को फ़ोल्डर सौंपने के बजाय, जो डेटाबेस खोलने की अपेक्षा करता है, कोई वैकल्पिक तरीका अपना सके।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#2",
+      "source": "database file, measurements directory, or plate directory to resolve.",
+      "context": "database file, measurements directory, or plate directory to resolve.",
+      "source_sha256": "6bfc4a60af343fb403743e0ae585c3c5e4a08318172cb70c1d2b07745dbda1bf",
+      "translation": "डेटाबेस फ़ाइल निर्धारित करने के लिए दी गई डेटाबेस फ़ाइल, मापन निर्देशिका या माइक्रोप्लेट निर्देशिका।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.active_scan_jobs#0",
+      "source": "How many folder-scan threads ``screen`` still owns.",
+      "context": "How many folder-scan threads ``screen`` still owns.",
+      "source_sha256": "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
+      "translation": "बताएँ कि ``screen`` के पास अभी कितने फ़ोल्डर-स्कैन थ्रेड हैं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.active_scan_jobs#1",
+      "source": "screen whose active drop-scan jobs are counted.",
+      "context": "application view whose active drop-scan jobs are counted.",
+      "source_sha256": "514945bd0625064a4b89fa8d191b5b2b28474ea1afbe69dd4edd0b9ecd3b1c3a",
+      "translation": "वह एप्लिकेशन दृश्य जिसके सक्रिय ड्रॉप-स्कैन कार्य गिने जाते हैं।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#0",
+      "source": "Return a fresh DropHandler for ``app_key``.",
+      "context": "Return a fresh DropHandler for ``app_key``.",
+      "source_sha256": "1f8eae40b9d84cbabc08863b511498a911f4fb23158f8d8cc24c96ca738b7c58",
+      "translation": "``app_key`` के लिए नया DropHandler लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#1",
+      "source": "Falls back to :class:`SourceDropHandler` so every conventional AppScreen can at least receive its source folder.",
+      "context": "Falls back to :class:`SourceDropHandler` so every conventional AppScreen can at least receive its source folder.",
+      "source_sha256": "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284",
+      "translation": "आवश्यक होने पर यह :class:`SourceDropHandler` का सहारा लेता है, ताकि हर पारंपरिक AppScreen कम से कम अपना स्रोत फ़ोल्डर स्वीकार कर सके।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#2",
+      "source": "registered built-in or plugin application key whose drop policy is requested.",
+      "context": "registered built-in or plugin application key whose drop policy is requested.",
+      "source_sha256": "533412d2efa300868215a0bb0661bc5e51ddea1fcf564b1a686df7da9715f1af",
+      "translation": "वह पंजीकृत अंतर्निहित या प्लगइन एप्लिकेशन कुंजी, जिसके लिए ड्रॉप नीति माँगी गई है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#0",
+      "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
+      "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
+      "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त फ़ोल्डर का केवल एक बार परिभ्रमण करें और फ़ोल्डर-मेटाडेटा रिपोर्ट लौटाएँ।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
+      "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
+      "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
+      "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
+      "translation": "वर्कर-सुरक्षित: भीतर साधारण डेटा आता है और साधारण डेटा बाहर जाता है; कोई Qt वस्तु नहीं। एकल परिभ्रमण ही मुख्य बात है। इसने उसी ट्री के तीन परिभ्रमणों की जगह ली — एक ``detect_folder_metadata`` ने किया, दूसरा ``plan_folder_extraction`` ने किया और तीसरे के लिए उसने ``detect_folder_metadata`` को फिर बुलाया — ये सभी मुख्य GUI निष्पादन पथ पर और ड्रॉप घटना के भीतर होते थे।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",
+      "source": "The probe is pulled off the *same* lazy generator the planner then drains, so a folder whose layout is not recognisable costs 30 files, not a traversal.",
+      "context": "The probe consumes 30 entries from *the generator later consumed by the planner*. An unrecognized folder therefore costs only 30 files rather than a complete traversal.",
+      "source_sha256": "421d1910302a626ceefd4424cce563462dadbc6a3d4b448bbf4d6bbc8a3864e1",
+      "translation": "जाँच के लिए 30 प्रविष्टियाँ *उसी* लेज़ी जनरेटर से ली जाती हैं जिसे योजनाकार बाद में पूरा खपाता है। इसलिए अपरिचित लेआउट वाले फ़ोल्डर की लागत पूरे परिभ्रमण के बजाय केवल 30 फ़ाइलें है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#3",
+      "source": "dropped directory to inspect for a recognised image layout.",
+      "context": "dropped directory to inspect for a recognised image layout.",
+      "source_sha256": "fb2ff69e03d247a16d8b8480c534e3f9a70d848fbcf63e5d5bef42db3204d9ec",
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त निर्देशिका, जिसकी किसी पहचाने जा सकने वाले छवि लेआउट के लिए जाँच करनी है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#4",
+      "source": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty ``labels`` means no folder layout was recognised and there is nothing to report.",
+      "context": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty ``labels`` means no folder layout was recognised and there is nothing to report.",
+      "source_sha256": "47f2cd5acbdbffeb8c1830b95fe4bc4ac149ca479e97ec41afdbb8b3ff3bf308",
+      "translation": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``। खाली ``labels`` का अर्थ है कि कोई फ़ोल्डर लेआउट नहीं पहचाना गया और रिपोर्ट करने को कुछ नहीं है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_is_busy#0",
+      "source": "True while a dropped folder is still being walked for ``screen``.",
+      "context": "True while a dropped folder is still being walked for ``screen``.",
+      "source_sha256": "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
+      "translation": "जब तक ``screen`` के लिए ड्रैग-एंड-ड्रॉप से प्राप्त फ़ोल्डर का परिभ्रमण जारी है, तब तक मान True रहता है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_is_busy#1",
+      "source": "screen that owns the drop scanner to query.",
+      "context": "application view that owns the drop scanner to query.",
+      "source_sha256": "82ce9dd96e783d0b4224d0b432af1d1c93081212de27ab8ef9c934b2fb517901",
+      "translation": "वह एप्लिकेशन दृश्य जिसके स्वामित्व वाले ड्रॉप स्कैनर की स्थिति पूछनी है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#0",
+      "source": "List the top level of a dropped folder once. Worker-safe.",
+      "context": "List the top level of a dropped folder once. Worker-safe.",
+      "source_sha256": "08a963da5589e147217fc65fea3981cb54125ea1c237a2e6038f8cdcedae56d2",
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त फ़ोल्डर के शीर्ष स्तर को एक बार सूचीबद्ध करें। वर्कर-सुरक्षित।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#1",
+      "source": "Returns the filenames the regex preview samples plus the total image count the report quotes. Both used to come from two separate listings of the same directory, taken on the GUI thread.",
+      "context": "Returns the filenames the regex preview samples plus the total image count the report quotes. Both used to come from two separate listings of the same directory, taken on the main GUI execution path.",
+      "source_sha256": "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd",
+      "translation": "यह वे फ़ाइल नाम लौटाता है जिन्हें regex पूर्वावलोकन नमूने के रूप में लेता है, साथ ही रिपोर्ट में दी गई कुल छवि संख्या भी। दोनों मान पहले उसी निर्देशिका की दो अलग-अलग सूचियों से, मुख्य GUI निष्पादन पथ पर, लिए जाते थे।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#2",
+      "source": "dropped directory whose top-level files are inspected.",
+      "context": "dropped directory whose top-level files are inspected.",
+      "source_sha256": "6f58a6be3c4d5180b9198398fec6d3ae6de4b350d62e02dfc9f1a1518cca5958",
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त निर्देशिका, जिसकी शीर्ष-स्तरीय फ़ाइलों की जाँच की जाती है।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#0",
+      "source": "Return the tables in a SQLite file, or ``[]`` for anything else.",
+      "context": "Return the tables in a SQLite file, or ``[]`` for anything else.",
+      "source_sha256": "27fff98bed3f12b33e0e522e737a3d047041ba47c5f9ad92b98c2dad7288e755",
+      "translation": "SQLite फ़ाइल की तालिकाएँ लौटाएँ; अन्य किसी चीज़ के लिए ``[]``।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#1",
+      "source": "One ``sqlite_master`` query; the table screens make the same one when they load. Kept here so the drop can *ask* which table rather than let ``load_path`` take the first one silently.",
+      "context": "One ``sqlite_master`` query; the table application views make the same one when they load. Kept here so the drop can *ask* which table rather than let ``load_path`` take the first one silently.",
+      "source_sha256": "bc903bbc38ad17e7f3fa76466efe634320fcca1d103661e435e06a1e5ed59298",
+      "translation": "एक ``sqlite_master`` क्वेरी; तालिका एप्लिकेशन दृश्य लोड होने पर वही क्वेरी चलाते हैं। इसे यहाँ रखा गया है ताकि ड्रॉप प्रक्रिया *पूछ सके* कि कौन-सी तालिका लेनी है, न कि ``load_path`` चुपचाप पहली तालिका चुन ले।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#2",
+      "source": "Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a ``#`` in its name would otherwise have everything after it read as query parameters, and the open would fail on a database that is perfectly fine.",
+      "context": "Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a ``#`` in its name would otherwise have everything after it read as query parameters, and the open would fail on a database that is perfectly fine.",
+      "source_sha256": "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd",
+      "translation": "फ़ाइल को केवल-पठन मोड में और *URL-एन्कोड किए गए* URI के माध्यम से खोला जाता है: नाम में ``?`` या ``#`` वाले फ़ोल्डर में उसके बाद के सारे वर्ण अन्यथा क्वेरी पैरामीटर माने जाएँगे, जिससे पूरी तरह सही डेटाबेस भी खुलने में विफल हो जाएगा।"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#3",
+      "source": "candidate SQLite database path to inspect read-only.",
+      "context": "candidate SQLite database path to inspect read-only.",
+      "source_sha256": "13b301d0b4fbdb6223f18f76496a7ab00b382733de1ee56c4331a6ff94d305ee",
+      "translation": "केवल-पठन मोड में जाँचने के लिए संभावित SQLite डेटाबेस पथ।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#0",
+      "source": "A cut on one column — the line dragged across a histogram.",
+      "context": "A cut on one column — the line dragged across a histogram.",
+      "source_sha256": "c05b39fc2334ae8978b0e57fc8fa2db2f34c6659c01d9140bbc58ccf989e487b",
+      "translation": "एक कॉलम पर कट — हिस्टोग्राम के आर-पार खींची गई रेखा।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#1",
+      "source": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a gate with neither is the whole population, and naming that is a way to lose track of it.",
+      "context": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a data-selection boundary with neither is the whole population, and naming that is a way to lose track of it.",
+      "source_sha256": "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd",
+      "translation": "किसी सीमा का मान ``None`` होने का अर्थ है कि वह पक्ष असीमित है; किनारे तक खींचे गए थ्रेशोल्ड का यही अर्थ होना चाहिए, \"exclude everything\" नहीं। कम से कम एक सीमा देना आवश्यक है: दोनों सीमाएँ न होने पर डेटा-चयन सीमा पूरी डेटा आबादी को चुनती है; उसे नाम देने पर यह बात आसानी से नज़रअंदाज़ हो जाती है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#2",
+      "source": "unique name by which the hierarchy and filter identify this gate.",
+      "context": "unique name by which the hierarchy and filter identify this data-selection boundary.",
+      "source_sha256": "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+      "translation": "वह विशिष्ट नाम जिससे पदानुक्रम और फ़िल्टर इस डेटा-चयन सीमा की पहचान करते हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#3",
+      "source": "name of the gate containing this one, or ``None`` for a root gate.",
+      "context": "name of the data-selection boundary containing this one, or ``None`` for a root data-selection boundary.",
+      "source_sha256": "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+      "translation": "इसे समाहित करने वाली डेटा-चयन सीमा का नाम, या मूल डेटा-चयन सीमा के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#4",
+      "source": "measurement column on which to apply the threshold.",
+      "context": "measurement column on which to apply the threshold.",
+      "source_sha256": "eba9ef56f5abf92892c76aee2ba22ac976efa41ed6580a54f590031df002514c",
+      "translation": "वह मापन कॉलम जिस पर थ्रेशोल्ड लागू करना है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#5",
+      "source": "inclusive lower bound, or ``None`` when the gate is unbounded below.",
+      "context": "inclusive lower bound, or ``None`` when the data-selection boundary is unbounded below.",
+      "source_sha256": "c8467e621a07a4cd343a1b14b35b732429720837b42b944edd909d1ac34d06cf",
+      "translation": "समावेशी निचली सीमा, या नीचे की ओर असीमित डेटा-चयन सीमा के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#6",
+      "source": "inclusive upper bound, or ``None`` when the gate is unbounded above.",
+      "context": "inclusive upper bound, or ``None`` when the data-selection boundary is unbounded above.",
+      "source_sha256": "f3dba538039ff05a02f59d2bdb486df5a7b83019d2fe91360518c9b827dae5ba",
+      "translation": "समावेशी ऊपरी सीमा, या ऊपर की ओर असीमित डेटा-चयन सीमा के लिए ``None``।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#0",
+      "source": "One anchor per bound, at the middle of the view's height.",
+      "context": "One anchor per bound, at the middle of the view's height.",
+      "source_sha256": "e9e4ac75806a2c176328dc44bd8df01a91a0ea476c391787f118e8897b5d2987",
+      "translation": "हर सीमा के लिए एक एंकर, दृश्य की ऊँचाई के मध्य में।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#1",
+      "source": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the gate does not have -- the user would drag it and discover they had just invented one.",
+      "context": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the data-selection boundary does not have -- the user would drag it and discover they had just invented one.",
+      "source_sha256": "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5",
+      "translation": "असीमित पक्ष के लिए कोई नियंत्रण बिंदु नहीं होता। ऊपरी सीमा के बिना थ्रेशोल्ड अनंत तक खुला रहता है; दृश्य के किनारे का एंकर ऐसी सीमा की तरह दिखाई देगा जो डेटा-चयन सीमा में है ही नहीं -- उपयोगकर्ता उसे खींचेगा और तब पता चलेगा कि उसने अभी-अभी नई सीमा बना दी है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#2",
+      "source": "visible ``(x_low, x_high, y_low, y_high)`` limits used to place each bound handle vertically.",
+      "context": "visible ``(x_low, x_high, y_low, y_high)`` limits used to place each bound handle vertically.",
+      "source_sha256": "cf09b0f7ecfda02131c44d46ac500e916d34e99836a74789d234036905e344bd",
+      "translation": "दृश्य की दिखाई देने वाली ``(x_low, x_high, y_low, y_high)`` सीमाएँ, जिनके आधार पर हर सीमा-नियंत्रण बिंदु को ऊर्ध्वाधर दिशा में रखा जाता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#3",
+      "source": "one handle for every finite bound.",
+      "context": "one handle for every finite bound.",
+      "source_sha256": "8ea3174d36a18f03e471bbe1b6cce1c6c766452c30cf3a252f5ce9481db9d6f6",
+      "translation": "हर परिमित सीमा के लिए एक नियंत्रण बिंदु।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#0",
+      "source": "``dy`` is ignored: a threshold is a cut on ONE column, so it has no second axis to move along.",
+      "context": "``dy`` is ignored: a threshold is a cut on ONE column, so it has no second axis to move along.",
+      "source_sha256": "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9",
+      "translation": "``dy`` की अनदेखी की जाती है: थ्रेशोल्ड केवल एक कॉलम पर कट है, इसलिए उसके पास खिसकने के लिए दूसरी धुरी नहीं है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#1",
+      "source": "displacement to add to each finite threshold bound.",
+      "context": "displacement to add to each finite threshold bound.",
+      "source_sha256": "193eef38d318e3ff78dff268d1f200a6d52df84f9e54f7565a7e1c5e0aa572f1",
+      "translation": "हर परिमित थ्रेशोल्ड सीमा में जोड़ने के लिए विस्थापन।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#2",
+      "source": "vertical displacement, ignored by this one-column gate.",
+      "context": "vertical displacement, ignored by this one-column data-selection boundary.",
+      "source_sha256": "61064fc2636e1a7aa59fa2a4091bac488d2b1543954dd3377b663e19d42241e8",
+      "translation": "लंबवत विस्थापन, जिसकी इस एक-कॉलम डेटा-चयन सीमा में अनदेखी की जाती है।"
+    }
+  ]
+}
