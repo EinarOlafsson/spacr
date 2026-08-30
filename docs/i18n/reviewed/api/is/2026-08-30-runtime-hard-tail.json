@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "A daemon thread takes one reading every ``interval`` seconds into a ring buffer of ``capacity`` samples, so a run that lasts a week cannot grow the log without limit and still leaves the most recent hour when it dies.",
+      "label": "spacr.resource_log.ResourceSampler#1",
+      "source": "A daemon thread takes one reading every ``interval`` seconds into a ring buffer of ``capacity`` samples, so a run that lasts a week cannot grow the log without limit and still leaves the most recent hour when it dies.",
+      "source_sha256": "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+      "translation": "Bakgrunnsþráður tekur eina mælingu á ``interval`` sekúndna fresti og geymir hana í hringbiðminni sem rúmar ``capacity`` sýni. Þannig getur vikulöng keyrsla ekki látið annálinn vaxa án takmarkana, en þegar hún stöðvast varðveitast samt gögn síðustu klukkustundarinnar."
+    }
+  ],
+  "schema": 1
+}

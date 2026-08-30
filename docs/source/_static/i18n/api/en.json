@@ -12536,6 +12536,14 @@
       "source_sha256": "c87a906243d0a1a753d81db54153fbd9d18148fc0491e7dd5da892d513011f62",
       "text": "Headless-safe public API for optional FlowView instrumentation."
     },
+    "spacr.flowview._classify_stages": {
+      "source_blocks_sha256": [
+        "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
+        "b1cfa5566819f384af5a9d5d3f3fde1a4c0fff4a7122d4c6f7cad9158d56a425"
+      ],
+      "source_sha256": "79058f84bc47e1ccb5ab45f6ed25d09e1165aa482e6a0b5869980b833ea3de08",
+      "text": "Failure-isolated lifecycle events for the approved Classify graph.\n\nCore pipeline modules reach this private module only through a lazy\n``sys.modules`` gate. Keeping the state machine here gives the CV and ML\nimplementations one clock and one ordering rule without importing FlowView on\ntheir disabled path. Its callables remain private; the module documentation\nexplains why this instrumentation exists without promoting those helpers into\nthe public API."
+    },
     "spacr.flowview.classify_blueprint": {
       "source_blocks_sha256": [
         "46654b7d8fa76e3ba1f112423ca4e517587b910baf2aed94d598bf59e4784fd0"
@@ -20957,12 +20965,12 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "c49f73eba18330bb69083ee18e993802bfdd236fa3dd185c0286ca7993450a95",
-      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, or if\n    ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
+      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
+      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
     },
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
@@ -24949,11 +24957,12 @@
     },
     "spacr.parameter_sweep.memory_is_low": {
       "source_blocks_sha256": [
-        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
-        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+        "f12110ec5e585154e7b9a5dcdc96df196f76344ef8c9f91a7ec29e69bdf74340",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186",
+        "677ddfc51ac9b326243a490ef46a89afcb2f566ca7eb282c61085d1b2df265b0"
       ],
-      "source_sha256": "d900a747931e847a8d292cf370f32365cbf19b638afaf91c26dcd821c5398766",
-      "text": "True when free memory has fallen far enough to stop starting trials.\n\nChecked between submissions, not only at the start: the other things on\nthe machine -- an editor, the spaCR GUI, another analysis -- grow while\nthe sweep runs, and the sweep must yield to them rather than race them."
+      "source_sha256": "35423f7293f9a29566aa9990ab6fd0b18b17ec500075741ed932e52abc2acb13",
+      "text": "True when the machine or spaCR's own process tree crossed its limit.\n\nChecked between submissions, not only at the start: the other things on\nthe machine -- an editor, the spaCR GUI, another analysis -- grow while\nthe sweep runs, and the sweep must yield to them rather than race them.\n\n``spacr_ceiling_gib`` is optional because the machine-wide free-memory\nfloor remains the default safety policy. When a caller supplies a run\nbudget, the active resource sampler's latest process-tree total makes the\nguard attributable: it can distinguish \"the machine is busy\" from\n\"spaCR is the reason\" instead of treating both as the same number."
     },
     "spacr.parameter_sweep.rank_trials": {
       "source_blocks_sha256": [
@@ -30329,10 +30338,11 @@
     },
     "spacr.qt.ask_for_the_path.columns_in": {
       "source_blocks_sha256": [
-        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+        "1059d56e7742ef1f4e7a0db0d7ce1d341eacd7e471a99691d44b490a54d6c135"
       ],
-      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
-      "text": "Every column of one table, in the order the table declares them."
+      "source_sha256": "dd496f3a065a88110c0fc116545491ad8f5bf001ac525140e4bf3562e497fe08",
+      "text": "Every column of one table, in the order the table declares them.\n\n``PRAGMA`` takes no bound parameters, so the table name is quoted here.\nSQLite escapes a quote inside a quoted identifier by doubling it, and a\ntable really can be named ``cell\"s`` -- unescaped, the identifier ends\nearly and the whole table reads as having no columns at all."
     },
     "spacr.qt.ask_for_the_path.forget": {
       "source_blocks_sha256": [
@@ -35561,6 +35571,7 @@
         "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
         "37ff0626251196deb912a3ee21c2d31c78f7976060254b6571345559ea96de24",
         "cae940b965712a05e920d4ecb17ef9772a746f4cab55d516de3a6f2731e7c2ca",
         "d1cacd4d7a11271169c89394378f6032b4779db04989fe4bf8ddef1ad010b1ad",
@@ -35576,8 +35587,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "2c318ee8b7c1efe62facec5196092bec282d6675ebf9dd9b6826cbac462c6196",
-      "text": "User-facing preferences — language, theme, font scale and accessibility.\n\nPersistent settings backed by :class:`PySide6.QtCore.QSettings`, so\nthey survive app restarts. New knobs can slot in alongside the existing\nones without changing consumers thanks to the small typed API\n(``get_theme()`` / ``set_theme(...)`` etc.).\n\nWire-up:\n\n* :func:`apply_preferences_to_app` — call once at startup and again\n  whenever a setting changes; reapplies the stylesheet with the\n  current theme + font scale.\n* :class:`PreferencesDialog` — the modal Settings dialog opened by\n  Ctrl+, (see :mod:`spacr.qt.shortcuts`).\n\nPublic API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValues:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` |\n  ``\"system\"`` (default ``\"system\"``). ``\"system\"`` follows the operating\n  system color scheme. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"``\n  uses neutral layered materials over a built-in light field. Legacy Space\n  accessors remain for old settings, but Space is not a selectable theme.\n* ``space_seed``: int; retained for deterministic legacy Space backgrounds.\n* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].\n* ``figure_save_mode``: ``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``\n  (default ``\"print\"``). Controls the page and figure-element colours used\n  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local\n  override; see :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"``\n  | ``\"tritanopia\"`` (default ``\"off\"``). Swaps matplotlib rainbow /\n  red-green palettes for perceptually-uniform + colour-blind-safe\n  alternatives (viridis for continuous, Okabe-Ito for categorical).\n* ``db_browser_editable``: bool, default ``False``. Permits the\n  Database Browser to open a read-write connection at all; see\n  :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"auto\"`` | ``\"locked\"`` | ``\"hidden\"`` (default\n  ``\"locked\"``). Whether the left app dock reveals on hover, is pinned\n  open as a permanent column, or is not there at all.\n* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces\n  are, or the relative material strength in Glass. Clamped up to\n  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the\n  preference is a request, legibility is not negotiable.\n* ``field_fade``: bool, default ``True``. Whether an input field's\n  container and outline ramp from solid on the left to fully transparent\n  on the right. Fields are **exempt from ``pane_opacity``** while this is\n  on — see :func:`get_field_fade_enabled` and\n  :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control\n  whether modules and settings at that maturity are shown. Stable features\n  are always visible.\n* ``ambient_enabled``: bool, default ``True``. Whether module screens\n  paint the animated background at all. Turning it off is a first-class\n  choice — see :func:`get_ambient_enabled`. The user-facing control is the\n  ``None`` entry in the Animation list rather than a second switch: one\n  row, one meaning. Choosing an animation turns it back on.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` |\n  ``\"balanced\"`` (default ``\"balanced\"``). How hard spaCR tries to stay out\n  of the machine's way — when it frees its own caches, and whether it\n  overrides the visual settings. Balanced does neither. See\n  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns\n  what a cleanup is allowed to touch (spaCR's own memory, and nothing\n  else — no other process, ever).\n* ``ambient_theme`` / ``ambient_palette``: which animation, and in which\n  colours. ``ambient_theme`` also holds\n  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with\n  :func:`get_ambient_animation`, which can answer ``\"none\"``, or with\n  :func:`get_ambient_theme`, whose answer is always something paintable.\n  Validated against\n  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and\n  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes\n  are *per theme*, so see :func:`get_ambient_palette` for how the two\n  keys stay consistent with each other.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /\n  ``ambient_density``: floats, all default ``1.0``, all *multipliers* on\n  what the chosen animation already does — how fast it moves, how large its\n  elements are, how much detail it is drawn with and how many elements\n  there are. 1.0 is the shipped animation in every theme, exactly, so a\n  user who never touches them sees no change. Clamped on read and on write\n  to the ranges the engines declare\n  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).\n* ``ambient_blur``: float, default ``0.0`` — how much the finished picture\n  is softened, in units of eight screen pixels. Image detail is controlled\n  separately by ``ambient_resolution``. Values stored under the legacy blur\n  scale are translated once on read by :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` | ``\"down\"`` | ``\"random\"``\n  (default ``\"up\"``). Which way the Starfield animation travels. A\n  preference rather than three entries in the animation menu; see\n  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.\n* ``spinner_delay``: float seconds, default ``2.0``. How long background\n  work has to run before the activity spinner appears at all — see\n  :func:`get_spinner_delay`.\n* ``setting_animations``: bool, default ``False``. Whether setting tooltips\n  play their animations automatically. When disabled, hover remains text-only\n  until the user activates **Animation** in that tooltip's footer; see\n  :func:`get_setting_animations_enabled`.\n* ``language``: one of the bundled language codes from\n  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a\n  persisted value is invalid."
+      "source_sha256": "9f74a374f3a027d9aeebc90aa0ae5b9bce5e7b53499516135825c0b549ef7bbb",
+      "text": "User-facing preferences — language, theme, font scale and accessibility.\n\nPersistent settings backed by :class:`PySide6.QtCore.QSettings`, so\nthey survive app restarts. New knobs can slot in alongside the existing\nones without changing consumers thanks to the small typed API\n(``get_theme()`` / ``set_theme(...)`` etc.).\n\nWire-up:\n\n* :func:`apply_preferences_to_app` — call once at startup and again\n  whenever a setting changes; reapplies the stylesheet with the\n  current theme + font scale.\n* :class:`PreferencesDialog` — the modal Settings dialog opened by\n  Ctrl+, (see :mod:`spacr.qt.shortcuts`).\n\nPublic API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValues:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` |\n  ``\"system\"`` (default ``\"system\"``). ``\"system\"`` follows the operating\n  system color scheme. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"``\n  uses neutral layered materials over a built-in light field. Legacy Space\n  accessors remain for old settings, but Space is not a selectable theme.\n* ``space_seed``: int; retained for deterministic legacy Space backgrounds.\n* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].\n* ``figure_save_mode``: ``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``\n  (default ``\"print\"``). Controls the page and figure-element colours used\n  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local\n  override; see :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"``\n  | ``\"tritanopia\"`` (default ``\"off\"``). Swaps matplotlib rainbow /\n  red-green palettes for perceptually-uniform + colour-blind-safe\n  alternatives (viridis for continuous, Okabe-Ito for categorical).\n* ``performance_logging``: ``\"off\"`` | ``\"summary\"`` | ``\"detailed\"``\n  (default ``\"summary\"``). Records process-tree resource use independently\n  of verbose call tracing; see :func:`get_performance_logging` and\n  :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, default ``False``. Permits the\n  Database Browser to open a read-write connection at all; see\n  :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"auto\"`` | ``\"locked\"`` | ``\"hidden\"`` (default\n  ``\"locked\"``). Whether the left app dock reveals on hover, is pinned\n  open as a permanent column, or is not there at all.\n* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces\n  are, or the relative material strength in Glass. Clamped up to\n  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the\n  preference is a request, legibility is not negotiable.\n* ``field_fade``: bool, default ``True``. Whether an input field's\n  container and outline ramp from solid on the left to fully transparent\n  on the right. Fields are **exempt from ``pane_opacity``** while this is\n  on — see :func:`get_field_fade_enabled` and\n  :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control\n  whether modules and settings at that maturity are shown. Stable features\n  are always visible.\n* ``ambient_enabled``: bool, default ``True``. Whether module screens\n  paint the animated background at all. Turning it off is a first-class\n  choice — see :func:`get_ambient_enabled`. The user-facing control is the\n  ``None`` entry in the Animation list rather than a second switch: one\n  row, one meaning. Choosing an animation turns it back on.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` |\n  ``\"balanced\"`` (default ``\"balanced\"``). How hard spaCR tries to stay out\n  of the machine's way — when it frees its own caches, and whether it\n  overrides the visual settings. Balanced does neither. See\n  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns\n  what a cleanup is allowed to touch (spaCR's own memory, and nothing\n  else — no other process, ever).\n* ``ambient_theme`` / ``ambient_palette``: which animation, and in which\n  colours. ``ambient_theme`` also holds\n  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with\n  :func:`get_ambient_animation`, which can answer ``\"none\"``, or with\n  :func:`get_ambient_theme`, whose answer is always something paintable.\n  Validated against\n  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and\n  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes\n  are *per theme*, so see :func:`get_ambient_palette` for how the two\n  keys stay consistent with each other.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /\n  ``ambient_density``: floats, all default ``1.0``, all *multipliers* on\n  what the chosen animation already does — how fast it moves, how large its\n  elements are, how much detail it is drawn with and how many elements\n  there are. 1.0 is the shipped animation in every theme, exactly, so a\n  user who never touches them sees no change. Clamped on read and on write\n  to the ranges the engines declare\n  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).\n* ``ambient_blur``: float, default ``0.0`` — how much the finished picture\n  is softened, in units of eight screen pixels. Image detail is controlled\n  separately by ``ambient_resolution``. Values stored under the legacy blur\n  scale are translated once on read by :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` | ``\"down\"`` | ``\"random\"``\n  (default ``\"up\"``). Which way the Starfield animation travels. A\n  preference rather than three entries in the animation menu; see\n  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.\n* ``spinner_delay``: float seconds, default ``2.0``. How long background\n  work has to run before the activity spinner appears at all — see\n  :func:`get_spinner_delay`.\n* ``setting_animations``: bool, default ``False``. Whether setting tooltips\n  play their animations automatically. When disabled, hover remains text-only\n  until the user activates **Animation** in that tooltip's footer; see\n  :func:`get_setting_animations_enabled`.\n* ``language``: one of the bundled language codes from\n  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a\n  persisted value is invalid."
     },
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
@@ -36141,6 +36152,15 @@
       ],
       "source_sha256": "9527086d0326d8ffd6590b1834c92159ab404926f4900daa7491b529c9713284",
       "text": "The single performance level, one of :data:`PERFORMANCE_LEVELS`.\n\n:returns: the stored level, migrating an older pair of settings on\n    first read.\n\nMIGRATION HAPPENS HERE rather than in a startup step, because every\nreader of the old settings comes through this function and a migration\nthat only ran at launch would be skipped by a headless run, a test, or\na second process. It is idempotent: once a level is stored the old\nvalues are never consulted again.\n\nAn explicit Laptop mode of ``on`` becomes ``Laptop`` -- that user asked\nfor the most constrained profile and still gets it. With Laptop off or\nautomatic the previous mode is kept as-is, so ``balanced`` stays\n``Balanced``, and nobody's choice is silently changed."
+    },
+    "spacr.qt.preferences.get_performance_logging": {
+      "source_blocks_sha256": [
+        "8f4216368f5a965cbc8f4e5d109ed4ce7c9e8ead390044cba7385be32627f758",
+        "1b18eb6abbb450894792733c9abe20767e2a2ba924ecdbdfb4fd6fbcc4c50e45",
+        "db31b8c46d50c3c1c5c439d8f1b2e59f6da20420ceda3ca5c2a57e2483884983"
+      ],
+      "source_sha256": "628b35c3b3aa4fa1a1aa9e1f03b52e7b1c238b0f6bb83859d76708a5016a593f",
+      "text": "Return the independent process-tree resource logging level.\n\n``summary`` is the default: it records whole-run totals and peaks at\nroughly one sample per second. ``detailed`` additionally retains the\nbounded process/thread series. This setting never enables verbose\nlogging or installs a profile hook.\n\n:returns: one of :data:`PERFORMANCE_LOGGING_LEVELS`."
     },
     "spacr.qt.preferences.get_popup_backdrop": {
       "source_blocks_sha256": [
@@ -36773,6 +36793,15 @@
       "source_sha256": "cbce3cd04d22def04c1eb84b3568775f46b41dab0bdeadf609e3d0d9eaf79c17",
       "text": "Persist the performance level.\n\n:param level: one of :data:`PERFORMANCE_LEVELS`.\n:raises ValueError: on an unknown level."
     },
+    "spacr.qt.preferences.set_performance_logging": {
+      "source_blocks_sha256": [
+        "22029a0ba40316ae8776f9fd6ce614e23d4d29216d3c9ad7a22e977f038808e6",
+        "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+        "fbfe7ce6510b800cd7144d49bc29eeb9e5bd063c99a86663f09ed321b7c8cf90"
+      ],
+      "source_sha256": "3b27d8af769fc122a42339f799aea8941abac64d5d822d32f3d7d102f48aaf59",
+      "text": "Persist the process-tree resource logging level.\n\n:param level: ``off``, ``summary`` or ``detailed``.\n:raises ValueError: when ``level`` names no supported mode."
+    },
     "spacr.qt.preferences.set_popup_backdrop": {
       "source_blocks_sha256": [
         "922254b9b0169199375f71b42d3ef71638bc638f992db0834c1dc4b12c9fbc31"
@@ -37298,6 +37327,14 @@
       ],
       "source_sha256": "01c5d491d58b254f17fe243ed39cb54f66894de7c7166f8e05779c8e25c785bd",
       "text": "The highlighted recipe, or ``None``."
+    },
+    "spacr.qt.recipes.RecipeDialog.set_confirmation_runner": {
+      "source_blocks_sha256": [
+        "506d131c4413621965deb060d47686a48179982f6bbe7e287953cfd5c8195b1f",
+        "390cbfd42e11a6cb480c995e7fc6558fc3e2e13e2a5c238e54707f2c62afa193"
+      ],
+      "source_sha256": "84b66b024ad720165e35bf263bf410b3ce9ca57f98c289eedb56ab7356dce1d1",
+      "text": "Replace how the version/compatibility confirmation is run.\n\nThe default enters the real modal Apply/Cancel loop. Tests inject a\nrunner that inspects the fully configured message box and returns an\nanswer without blocking; a host can use the same seam for a custom\npresentation."
     },
     "spacr.qt.recipes.apply_recipe": {
       "source_blocks_sha256": [
@@ -38005,11 +38042,11 @@
       "source_blocks_sha256": [
         "55e756f45663f74b6a85948c4c7f4cbcce37cd9fbad2e2ebdbb9bd23dad8b743",
         "ce889d487a5a00e98c411f5a1f0c730293f15c86b0c5e554c8071d83f097efef",
-        "77f574e11afccd935db1e5e7b59555e4b556792ba047bcd8991c035a6cb3839e",
+        "c96d7991d20f017cb15e7a5d38ce393d4496b092c83191c4b0559643b7df2930",
         "253aa95e1d21ad45e472bae34c6a5a3f4202cec590de84d516a64becf4f3757e"
       ],
-      "source_sha256": "562c4f57e8fb40e2bd1b52440c52588a6ea48dc7dfc774a871896d4612e1ba2d",
-      "text": "Screen widgets — one per spacr app.\n\nNOTHING IS IMPORTED HERE. This package used to import nine screens at the top,\nbecause a screen that owned its registry row had to be executed for the row to\nexist, and this package is on the path of every screen the window builds — so\nimporting one screen imported nine, and with them pandas and everything under\nit, before the window had drawn.\n\nA row does not need the screen any more. :mod:`spacr.qt.app_catalog` declares\nthe key, the name, the sentence, the section, the stage and the NAME of the\nscreen factory, and :func:`spacr.qt.app_catalog.register_declared` registers\nall of that without importing anything; the screen is imported the first time\nsomebody opens it. A screen that contributes a stylesheet block registers it\nat that import, and :func:`spacr.qt.theme.register_widget_qss` puts it into the\nlive application sheet synchronously, before its first widget is constructed.\n:data:`spacr.qt.theme.WIDGET_QSS_MODULES` remains the inventory used when an\nexhaustive/static stylesheet is explicitly requested.\n\nSo: to add a screen, declare its row in ``app_catalog`` and — if it registers\na QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain\ncomplete. Do not import it here merely for startup styling."
+      "source_sha256": "b8fb8f64d26b26d385ebcd6a63bb7148a50ec7f1b21fcafc62b4f527df51d71e",
+      "text": "Screen widgets — one per spacr app.\n\nNOTHING IS IMPORTED HERE. This package used to import nine screens at the top,\nbecause a screen that owned its registry row had to be executed for the row to\nexist, and this package is on the path of every screen the window builds — so\nimporting one screen imported nine, and with them pandas and everything under\nit, before the window had drawn.\n\nA row does not need the screen any more. :mod:`spacr.qt.app_catalog` declares\nthe key, the name, the sentence, the section, the stage and the NAME of the\nscreen factory, and :func:`spacr.qt.app_catalog.register_declared` registers\nall of that without importing anything; the screen is imported the first time\nsomebody opens it. A screen that contributes a stylesheet block registers it\nat that import, and ``MainWindow`` applies missing registered blocks to the\nnew screen's own QSS scope before inserting it into the visible stack.\n:data:`spacr.qt.theme.WIDGET_QSS_MODULES` remains the inventory used when an\nexhaustive/static stylesheet is explicitly requested.\n\nSo: to add a screen, declare its row in ``app_catalog`` and — if it registers\na QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain\ncomplete. Do not import it here merely for startup styling."
     },
     "spacr.qt.screens.activation": {
       "source_blocks_sha256": [
@@ -38588,10 +38625,11 @@
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
-        "ac1d95c581e3e8b31a4dfdf03aee6b2a8702ce18e7310dcf834d4b0ee0e09bef"
+        "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
+        "6db4884fbd7891feb47094fd117a479f3d193384984c3dba79722ccc631a6fd4"
       ],
-      "source_sha256": "43cd29cd978ae814ef4aa00d6990ade7446a30394caa2f408b5e72b0e240a044",
-      "text": "Push key/value pairs from `settings` into whichever settings\nwidgets this app exposes. Silently skips keys the current app\ndoes not have — the same dict can safely be applied across\nseveral apps. Returns the count of keys actually applied."
+      "source_sha256": "e15ba214585cffec9e0e23545d82016dabd542870628097ac62dbe51e78f0fd7",
+      "text": "Push key/value pairs from `settings` into whichever settings\nwidgets this app exposes.\n\nA bulk load is one transaction. If it changes the form's shape, the\ncomplete merged mapping builds one replacement screen before values\nare applied; no signal may replace the screen halfway through the\nloop. Silently skips keys the current app does not have — the same\ndict can safely be applied across several apps. Returns the count of\nkeys actually applied."
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
       "source_blocks_sha256": [
@@ -38769,6 +38807,14 @@
       ],
       "source_sha256": "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850",
       "text": "Enrol this screen and its panels with the workspace registry.\n\nRegistered as CALLABLES returning the attribute, never as the widget:\n`_results_panel` is rebuilt when the module changes, and a captured\nreference would hand a run journal a deleted C++ peer to ask."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
+      "source_blocks_sha256": [
+        "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+      ],
+      "source_sha256": "c259cf7d3f0dc92e7433feda51ca5f6eb4b77fa47a777e794cf8c66b277330d8",
+      "text": "The section widgets actually mounted in the settings panel.\n\n``_settings_sections`` deliberately also contains dormant forms for\nobject-gated settings. Visual consumers -- maturity and category\nhints in particular -- must use this subset instead."
     },
     "spacr.qt.screens.app_screen.AppScreen.restore_run_workspace": {
       "source_blocks_sha256": [
@@ -39260,12 +39306,55 @@
       "source_sha256": "092532a34a201faa50d8b7ae87d18a2d384f98c935a564d6cdee6dc6ce9b3519",
       "text": "Model-evaluation and interpretation views integrated with Classify.\n\nThe Classify masthead provides direct access to three related modules:\n\n* Classifier Evaluation reports held-out predictions, nested\n  cross-validation, calibration, leakage checks and per-plate metrics from\n  a saved evaluation bundle.\n* Explain CV Model reports feature gain, held-out permutation importance and\n  SHAP values for classifiers trained on measured features.\n* Activation maps image regions associated with predictions from an image\n  classifier.\n\nEach module opens as a complete page beside the Classify settings. The shared\npage and signal integration is implemented by\n:mod:`spacr.qt.screens.map_barcodes`."
     },
+    "spacr.qt.screens.classify.LazyFlowViewSection": {
+      "source_blocks_sha256": [
+        "ec30f6b922de90be1ab657e9f721ac77f5aebbf8e8e5676e3009dd859a5c5656",
+        "d2aef6c5078782ab9b7c6ca3b9b90035e9f726cef5cafd646bd744c276268c36"
+      ],
+      "source_sha256": "4123e578288b768d481d9e6b6e048346381cd5160bd3386029a357f672d9fdee",
+      "text": "A collapsed Classify footer that pays for FlowView only when opened.\n\nThe empty ``content`` passed to :class:`CollapsibleSection` is deliberate:\nimporting the graphics renderer constructs a sizeable Qt/scientific\ndependency tree.  Classify gets only this small header on first paint;\nthe panel, its scene and the approved preview graph arrive on the first\nexpansion."
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.hideEvent": {
+      "source_blocks_sha256": [
+        "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383"
+      ],
+      "source_sha256": "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383",
+      "text": "A cached Classify page must spend no cycles while hidden."
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.panel": {
+      "source_blocks_sha256": [
+        "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d"
+      ],
+      "source_sha256": "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d",
+      "text": "Return the constructed renderer, or ``None`` before first open."
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.showEvent": {
+      "source_blocks_sha256": [
+        "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf"
+      ],
+      "source_sha256": "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf",
+      "text": "Resume rendering only for an actually open, visible section."
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.shutdown": {
+      "source_blocks_sha256": [
+        "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed"
+      ],
+      "source_sha256": "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed",
+      "text": "Stop and release renderer-owned Qt objects during screen teardown."
+    },
+    "spacr.qt.screens.classify.install_flowview": {
+      "source_blocks_sha256": [
+        "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860"
+      ],
+      "source_sha256": "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860",
+      "text": "Mount Classify's lazy FlowView box directly below its settings."
+    },
     "spacr.qt.screens.classify.install_folds": {
       "source_blocks_sha256": [
-        "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c"
+        "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8"
       ],
-      "source_sha256": "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c",
-      "text": "Put Classify's fold strip on ``screen``'s masthead."
+      "source_sha256": "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8",
+      "text": "Put Classify's FlowView footer and fold strip on ``screen``."
     },
     "spacr.qt.screens.control_chart": {
       "source_blocks_sha256": [
@@ -45384,6 +45473,14 @@
       "source_sha256": "7c9165451f683bcb36f3cbd82ca8f9fa2e885ec56760ff14a52321fefe96bc40",
       "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits."
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
+      "source_blocks_sha256": [
+        "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
+        "c65f13ac8f641b3040aaf9fe64a84ae3bac8b52d3b2f1927522d15b102585e00"
+      ],
+      "source_sha256": "8e94463448b2b20b5b37d5c90448a627644ecc7530a7ea6ebd13bc0d886b2b1d",
+      "text": "Apply sparse imported presets without replacing explicit values.\n\nA settings file that supplies morphology/method/thresholds owns those\nvalues. A file that supplies only a type asks the picker to populate\nits missing recommendations just as a direct user choice does."
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.build_sections": {
       "source_blocks_sha256": [
         "86007bce10c1491e1c79c4de376cbaf117605aefa880f8a3f3d3bdfb713df1ea",
@@ -45501,11 +45598,13 @@
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
       "source_blocks_sha256": [
-        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
-        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+        "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d"
       ],
-      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
-      "text": "Update a deliberately hidden run setting.\n\nSome values have a dedicated control outside the form.  Image UMAP's\naction-strip GPU toggle is one: duplicating it as a form checkbox would\ncreate two sources of truth.  Hidden does not mean absent (invariant\n6), so the value lives in ``_defaults`` and still reaches collect()."
+      "source_sha256": "775742ee793c892fe792874807a705b3438be146e65d564d1c89e93a07fabb32",
+      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -45753,13 +45852,13 @@
     "spacr.qt.screens.settings_model.organelle_morphology_now": {
       "source_blocks_sha256": [
         "9d6b465c48c38fb2865afdd46ea2aca95c4cca9fca96995f880b8e1129a2ef2b",
-        "3c2ccc3358ee8381b4e6ebf55af7d7459b1b6bac62e14e1037aafc6d264931bc",
+        "6344bbaae8b7b0882e7a9762362fb30063f19341e8e1c7347d41f8d89e03144a",
         "559d3267320e0415c7e60bdd87983477fb7d93dca4350de877abe1d86da929dc",
         "0e1f19f0c36d6c0ff01134b3d71fb53ee28a2079b382578e06057f670b8c0ed3",
         "55f2438b2fd8e799b9ec985704352391c387def8ff71e8c8bb188631c77ce586"
       ],
-      "source_sha256": "56bee590246538aabf4d209e5ead869f7ae2ec900de80b70a141c84cf428359e",
-      "text": "Resolve the morphology currently applicable to an organelle slot.\n\nThe ``<role>_type`` value is resolved with\n:func:`spacr.organelle_types.resolve_type`. For a recognized preset,\n``<role>_diameter`` is converted to a numeric value and passed to\n:meth:`spacr.organelle_types.OrganelleType.morphology_for`. A missing or\nnon-numeric diameter is passed as ``None``; size-dependent presets then\nselect their smaller-object morphology. If the type is ``custom`` or\ninvalid, or if the preset does not produce a supported morphology, the\nexplicit ``<role>_morphology`` value is used instead.\n\n:param role: Prefix for the organelle-slot settings, such as ``organelle``\n    or ``organelleb``.\n:param settings: Current values keyed by setting name.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"``, or\n    ``None`` when neither resolution path supplies a supported morphology."
+      "source_sha256": "5e8616160bbc08ab09104622769e1b638fcf9e7beb63c385dc9e41a5f7227a45",
+      "text": "Resolve the morphology currently applicable to an organelle slot.\n\nThe collected ``<role>_morphology`` is authoritative. Selecting a type\nwrites its recommendation into that control, while a later explicit\nadvanced choice must win over the preset and over its display inference.\nOnly a sparse mapping with no morphology falls back to resolving\n``<role>_type`` and ``<role>_diameter`` directly.\n\n:param role: Prefix for the organelle-slot settings, such as ``organelle``\n    or ``organelleb``.\n:param settings: Current values keyed by setting name.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"``, or\n    ``None`` when neither resolution path supplies a supported morphology."
     },
     "spacr.qt.screens.settings_model.permutation_test_explainer": {
       "source_blocks_sha256": [
@@ -46766,11 +46865,11 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+        "ccabc909941e3afe2105347182a893385388e4b12ec06203e711e10f5c44c215",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
-      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+H        Go home\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+,        Open Preferences\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up."
+      "source_sha256": "dfb645dee7b68ac6ed60a36c7db81f71bbff7ec786df070d970f393b81db5e2c",
+      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+H        Go home\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+,        Open Preferences\n    Ctrl+/        Open the AI Console\n    Ctrl+Shift+A  Open the full app list\n    Ctrl+B        Blank the animated background\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up."
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
@@ -47548,6 +47647,15 @@
       "source_sha256": "71de8d0632aa1c191f724e8a987b27991a07c250c907a5f581656fdc00751d4b",
       "text": "Tag every layout container under ``root`` so it paints nothing.\n\nMost spaCR screens are plain ``QWidget`` trees. A ``QWidget`` with no QSS\nrule of its own inherits the blanket ``QWidget {{ background-color: bg }}``\nand paints the WINDOW colour — which is not a surface, so no value of the\npage-opacity preference can reach it. That is why a screen could sit as a\nblack slab over the animated background no matter what the slider said.\n\nThe rule, and it is a heuristic worth stating plainly:\n\n* an **anonymous** ``QWidget`` (no ``objectName``) is scaffolding — it\n  exists to hold a layout, so it should show whatever is behind it;\n* a **named** widget is something the designer styled on purpose — a\n  ``Card``, a ``Section``, a ``ConsoleBox`` — and keeps its fill, at the\n  page opacity.\n\nScroll areas, their viewports and splitters are always containers whatever\nthey are called, so they are tagged by type — **unless** the screen has\ndeclared one a surface with :func:`mark_surface`. That is the one opt-out,\nand it exists because the type test cannot tell a table that sits ON a\npane from a table that IS the page. See :func:`mark_surface`.\n\n:param root: the screen (or any subtree) to sweep.\n:returns: how many widgets were tagged, which is what a test asserts on."
     },
+    "spacr.qt.theme.clear_widget_qss_overlays": {
+      "source_blocks_sha256": [
+        "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+        "dcefae6883c40de5c67ea5e964fa076bb03fd37f1ccb9977880ffc0a69ab3b4a",
+        "2dbc0f1c436c7fe95d49069ebdfe5297caf4c538bd842070d08f31c98046f29d"
+      ],
+      "source_sha256": "85c0b84a711d3e313a195c5d79114fde2e9dceb541785dffa44700f92bb718be",
+      "text": "Remove screen-local late-QSS suffixes before a global theme rebuild.\n\nThe rebuilt application sheet contains every block registered so far,\nwith the new theme, opacity and font scale.  Leaving an older local copy\nin place would give it precedence and strand the screen on the previous\npreference values.\n\n:returns: number of screen roots whose owned suffix was removed."
+    },
     "spacr.qt.theme.close_mark_button": {
       "source_blocks_sha256": [
         "933f5c4abd4fae3c433cd4c422203e0a0f152ded10d9d3be637f32bbec5b2e93"
@@ -47655,15 +47763,16 @@
     },
     "spacr.qt.theme.ensure_widget_qss_applied": {
       "source_blocks_sha256": [
-        "04d6b35c442601ca66042efc70801f1a50423d0c963e63cf7a17b14cdf62f914",
-        "ca5b4888479f318807cdc2a8fecc3cccfa8a4aa4a969e52da89d38755a482af5",
-        "1dcc99de94a59e8bf77a61359ea64741e0d0290fc924fa0013b2cd572bc2938b",
-        "e728f094e7e23ffe76e51d408e7743dff5a577a6c99d12bae72bcca55d42225c",
-        "2ad63b243fcb0993da0ff969c3c0b9f96e025e1fb89e3654dd63beacba82060c",
-        "dbc0d41732843bfc35c13ac7327fbc52df0bafe7f10d6691f761aa157c9724fa"
+        "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
+        "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
+        "28c8a7af366dc8f22eb9da3ed30b4b13f3c3a6eb2c0cd0d221ed187c9adf9559",
+        "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
+        "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
+        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ],
-      "source_sha256": "2b0de7f19162e2d686bf4a31e0a4ac32ca7ef0790b63f9343201d9bee883e42c",
-      "text": "Re-apply the application stylesheet if ``names`` are missing from it.\n\nA block is registered at its module's **import**, while the application\nstylesheet is first generated before ``MainWindow`` exists.  Production\nstartup intentionally leaves unopened screen modules unimported, so\n:func:`register_widget_qss` calls this synchronously as each one arrives.\nRegistration is above the module's widget class: the rebuilt sheet is\ntherefore live before the first instance can be constructed or painted.\n\nThat is not hypothetical: Model Compare's panels were given a page\nsurface, the test that measures them passed (a test imports the module\nbefore it applies the stylesheet), and the panels were still bare in the\nrunning app, because ``spacr.qt.screens.model_compare`` is not in\n``sys.modules`` when the stylesheet is built. The screens listed in\n``spacr.qt.SELF_REGISTERING_MODULES`` are imported at launch and never\nhad the problem, which is why it went unnoticed for as long as it did.\n\nExisting constructor calls remain useful, idempotent defence for blocks\nregistered from inside functions.  It is a no-op with no\n``QApplication``, no stylesheet yet, a rebuild already in progress, or\nwhen every requested block is already present.\n\n:param names: registered block names the caller needs to be live.\n:returns: ``True`` if the stylesheet was regenerated."
+      "source_sha256": "46cb62d3861ca489cb4ea2db2b17553e562d7918babae1ede8b85f13b1d480b9",
+      "text": "Install late registered blocks on ``root`` without restyling the app.\n\nThe production application stylesheet is composed before unopened screen\nmodules are imported.\n\nReplacing that whole sheet for each import closes\nthe first-paint race, but it also makes Qt parse the sheet and re-polish\nevery widget accumulated in every cached screen.\n\nA screen root is a QSS\nscope: rules installed there reach that screen and its descendants, and\napplying them before the root is shown preserves the same first-paint\ncontract without touching Home or any previously opened module.\n\nThe suffix contains every registered block absent from the application\nsheet, in registry order, rather than only ``names``.  This keeps blocks\nimported by a screen's dependencies together and means a later call can\nreplace one complete suffix instead of stacking fragments with different\npreference values.  ``names`` remains the caller's documentation of the\nblocks it requires; omitting it is the MainWindow screen-host path.\n\nIt is a no-op with no ``root``, no ``QApplication``, or no application\nstylesheet.  A caller that never opted into spaCR styling is not opted in\nmerely by constructing one of its widgets.\n\n:returns: ``True`` only when ``root.setStyleSheet`` was called."
     },
     "spacr.qt.theme.field_chrome": {
       "source_blocks_sha256": [
@@ -47950,10 +48059,18 @@
       "source_sha256": "61cfe4e5e84622b1c643cbc0490584f33fc788533dc43a34575e1eca6aea5764",
       "text": "Thickest scrim for ``role`` that the picture still reads through.\n\nThe largest alpha whose :func:`picture_contrast` is still at least\n:data:`MIN_PICTURE_CONTRAST`. Above this number the wallpaper is a\nghost — which is the bug this whole solver exists to close."
     },
+    "spacr.qt.theme.preserve_widget_qss_overlay": {
+      "source_blocks_sha256": [
+        "6d809aa4bd114bbf7cacb14a06d0817c9019d114785d8e790992d5e3cede3f62",
+        "59872508f7f62b4dc36e73c019aea38f61ae3c93b2084016fbff5b08ffd5adef"
+      ],
+      "source_sha256": "f7e618c858e67eceb84f5bb52be16b7d4a087460a57476a7897bdb35dc12991a",
+      "text": "Return ``stylesheet`` with ``root``'s owned late-QSS suffix intact.\n\nA screen may legitimately replace its own base stylesheet after its late\nwidget blocks were installed.  Folding the suffix into that existing\nassignment avoids a second ``setStyleSheet`` call (and its palette-change\ncascade) while keeping the blocks available for the next paint."
+    },
     "spacr.qt.theme.register_widget_qss": {
       "source_blocks_sha256": [
         "6e8322b6d15f7a5672ce79902201747bcef0c56a0412c88803b79e4c6fee9910",
-        "2e2b2d574091b1dffd8a165bdcd93a35b6700daa33a413c4d2d970e9a76eeafd",
+        "92fb40dd32da260b602b8017f642a311b5dea80dc2d53798604419d6614c630a",
         "a9b640c7f6729691c3257fc3cded5357d6c9b24c08a61708163ac4ce90a2a4a0",
         "6ada1116970a8059e0993ccc92ee9a6d46a5c5f6104b9bf2d724abeae4ed81b4",
         "fc0c5b9ebaf7b399751694b683f73b6f8a67618f4414e84abaef62e0b8dbfcad",
@@ -47963,8 +48080,8 @@
         "82da4b6b050802e5354ffd2e09578386d4b6c247912ee6bd4ffb44e41d34724f",
         "96c8f9c7f17512e73036e0a4984df70222e73222130688245350994e773682f4"
       ],
-      "source_sha256": "c25d6551a74441bfd1166a3bc01984a070afbd539362a507e7227d4d73dbbf9d",
-      "text": "Register a QSS block appended to every generated stylesheet.\n\nIf a ``QApplication`` already carries a spaCR stylesheet and the block is\nnot in it, registration synchronously rebuilds that live sheet.  Screen\nmodules register before defining their widget class, which closes the\nfirst-paint race without importing unopened screens at startup.\n\n:param name: stable identifier, normally the widget's ``objectName``.\n    It is what the block is reported and unregistered by; it does not\n    appear in the QSS.\n:param fn: ``fn(palette, opacity) -> str``, called once per\n    :func:`stylesheet` call.\n\n    ``palette`` is the theme's palette with the three surface roles\n    (``surface``, ``surface_alt``, ``surface_hi``) already rendered\n    through the user's page opacity — the same values the built-in\n    rules interpolate, so a registered block matches the app without\n    doing the alpha maths. Two reserved non-colour keys ride along:\n    ``theme`` (the theme name, which :func:`pane_surface`,\n    :func:`pane_alpha` and :func:`palette_for` all want) and\n    ``font_scale``.\n\n    ``opacity`` is the user's page-opacity preference, or ``None``\n    for \"use the theme's designed scrim\". Pass it straight through\n    to :func:`block_surface` / :func:`pane_alpha` / :func:`panel_alpha`\n    rather than interpreting it: ``None`` is not 1.0, and the\n    legibility floor is theirs to apply.\n\n    :func:`block_surface` and **not** :func:`pane_surface`, which is\n    the near-identical accessor for inline and paint-time callers. Its\n    ``None`` means \"nobody told me\" and reads the live preference, so a\n    block using it turns ``stylesheet(theme)`` into a function of a\n    QSettings value rather than of its arguments.\n:param replace: allow re-registering ``name``. Off by default so two\n    widgets cannot quietly claim one name.\n:raises ValueError: on a duplicate name without ``replace``.\n:raises TypeError: if ``fn`` is not callable."
+      "source_sha256": "07ccbccf9b984e08f97f72a4b0adc3aac01c9d97f3ac1448c48bf1337c90f754",
+      "text": "Register a QSS block appended to every generated stylesheet.\n\nRegistration itself never re-applies the ``QApplication`` stylesheet.\nQt re-polishes every live widget on a global ``setStyleSheet`` call; doing\nthat once for every screen imported on demand made later module opens\nprogressively slower.  :func:`ensure_widget_qss_applied` installs the\nmissing blocks on the new screen's root before it can paint instead.\n\n:param name: stable identifier, normally the widget's ``objectName``.\n    It is what the block is reported and unregistered by; it does not\n    appear in the QSS.\n:param fn: ``fn(palette, opacity) -> str``, called once per\n    :func:`stylesheet` call.\n\n    ``palette`` is the theme's palette with the three surface roles\n    (``surface``, ``surface_alt``, ``surface_hi``) already rendered\n    through the user's page opacity — the same values the built-in\n    rules interpolate, so a registered block matches the app without\n    doing the alpha maths. Two reserved non-colour keys ride along:\n    ``theme`` (the theme name, which :func:`pane_surface`,\n    :func:`pane_alpha` and :func:`palette_for` all want) and\n    ``font_scale``.\n\n    ``opacity`` is the user's page-opacity preference, or ``None``\n    for \"use the theme's designed scrim\". Pass it straight through\n    to :func:`block_surface` / :func:`pane_alpha` / :func:`panel_alpha`\n    rather than interpreting it: ``None`` is not 1.0, and the\n    legibility floor is theirs to apply.\n\n    :func:`block_surface` and **not** :func:`pane_surface`, which is\n    the near-identical accessor for inline and paint-time callers. Its\n    ``None`` means \"nobody told me\" and reads the live preference, so a\n    block using it turns ``stylesheet(theme)`` into a function of a\n    QSettings value rather than of its arguments.\n:param replace: allow re-registering ``name``. Off by default so two\n    widgets cannot quietly claim one name.\n:raises ValueError: on a duplicate name without ``replace``.\n:raises TypeError: if ``fn`` is not callable."
     },
     "spacr.qt.theme.registered_widget_qss": {
       "source_blocks_sha256": [
@@ -47991,11 +48108,11 @@
     },
     "spacr.qt.theme.rim_colour": {
       "source_blocks_sha256": [
-        "42280360eb0631d50783c751d04020437db9ca80abd70bd8c456da989e7cb8c6",
-        "a83cec88d86dd6faafe4d05cccb9f34df5573c8a84b41c3568d584117551eff6"
+        "4a8a46fc86d1481187c0c564a1a644e37a94cb30e279e8b53545885b50d60e6c",
+        "e88f8fdc5f8f5329a41e26c256a216e3176d1c2655b19fe0eee2309233d30e88"
       ],
-      "source_sha256": "24c3cf6749369a31d9cd69ef4d93163b5602cf008757f2f4652c7f95ebb4e513",
-      "text": "The hairline that outlines every tile — the theme's own ink.\n\nWhite in the dark themes, near-black in the light one, because that\nis what ``fg`` already is. Asked for as \"a thin white rim, black in\nwhite mode\"; deriving it from ``fg`` rather than writing ``#ffffff``\nmeans Space and Cell get it for free and no theme can be added that\nsilently draws an invisible rim."
+      "source_sha256": "d990f31a81dbafcccdcd100fd3248623f6a8eba5d76a87f14bda07f639eca84a",
+      "text": "The meaningful hairline on outlined tiles — the theme's own ink.\n\nWhite in the dark themes, near-black in the light one, because that\nis what ``fg`` already is. Horizontal cards and interactive hover states\nstill use it; resting Home module tiles deliberately do not. Deriving it\nfrom ``fg`` rather than writing ``#ffffff`` means every palette gets the\nright ink without a raw colour drifting out of sync."
     },
     "spacr.qt.theme.scrim_alpha": {
       "source_blocks_sha256": [
@@ -48046,6 +48163,13 @@
       ],
       "source_sha256": "1cb4961ae050abca695023398d913a3e42e068d96e8ce64127fd8115d2b0f36d",
       "text": "Set the spaceout animation clock, clamped to zero or greater."
+    },
+    "spacr.qt.theme.set_widget_qss_context": {
+      "source_blocks_sha256": [
+        "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608"
+      ],
+      "source_sha256": "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608",
+      "text": "Record the exact live preference inputs for late screen blocks."
     },
     "spacr.qt.theme.size_close_mark": {
       "source_blocks_sha256": [
@@ -48132,10 +48256,10 @@
         "98a1e8ec1fa65c1d576b4288afe2c4f7fd50c1ca89451bda04bee763d3da5631",
         "ba845ce0deb5c416f138f775aab2edd7026eb5f943a329a03b6897eac8b38e1a",
         "1dc9288a2ce9e29f4950df06641e6a72350c4ce4bd02483d8e5faa7dd866b00d",
-        "eb37546ed05e7dd1943ad466f37cd95f4a525111a03e27be92224af97b1b46ee"
+        "4bd9369012c8b150e7795cecd08af07b29699d9d187c70b588bf5fbd75f4f140"
       ],
-      "source_sha256": "ba21acb72df08c2096257eb0ee618527cb79abd3d482e80c3892a2c048c97f36",
-      "text": "Return the QSS string that styles every custom widget in the app.\n\nBlocks registered with :func:`register_widget_qss` are appended after\neverything below, so a widget's own rules win a specificity tie\nagainst the general ones.\n\n:param theme: one of :data:`THEMES`; unknown values fall back to dark.\n:param font_scale: multiplier applied to every font size in\n    :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: path to a background image. Only the themes in\n    :data:`IMAGE_THEMES` use it; ``None`` (the default, and what a\n    first run mid-generation gets) falls back to a flat gradient.\n:param surface_opacity: optional user-requested alpha for all shared\n    module surfaces. ``None`` uses the theme's designed scrims.\n:param load_widget_registrars: import every module that contributes a\n    widget block before composing.  This remains the public default for\n    exhaustive callers and tests.  Application startup passes ``False``\n    so an unopened data screen cannot pull the scientific stack into the\n    first frame; a late :func:`register_widget_qss` applies itself before\n    that screen's first widget can be constructed."
+      "source_sha256": "6e7d68dd8ce096c857898c5c242d5671f16a8d5690269bb5321f7f94ae861f1a",
+      "text": "Return the QSS string that styles every custom widget in the app.\n\nBlocks registered with :func:`register_widget_qss` are appended after\neverything below, so a widget's own rules win a specificity tie\nagainst the general ones.\n\n:param theme: one of :data:`THEMES`; unknown values fall back to dark.\n:param font_scale: multiplier applied to every font size in\n    :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: path to a background image. Only the themes in\n    :data:`IMAGE_THEMES` use it; ``None`` (the default, and what a\n    first run mid-generation gets) falls back to a flat gradient.\n:param surface_opacity: optional user-requested alpha for all shared\n    module surfaces. ``None`` uses the theme's designed scrims.\n:param load_widget_registrars: import every module that contributes a\n    widget block before composing.  This remains the public default for\n    exhaustive callers and tests.  Application startup passes ``False``\n    so an unopened data screen cannot pull the scientific stack into the\n    first frame; ``MainWindow`` scopes late blocks to a new screen before\n    inserting that screen into the visible stack."
     },
     "spacr.qt.theme.take_the_scroll_arrows_off": {
       "source_blocks_sha256": [
@@ -70619,6 +70743,175 @@
       "source_sha256": "e55b31d7a962776c2190b47222e2f423439a3edb5754704605454a73c4684ea5",
       "text": "Write ``report`` as a PDF composed with matplotlib.\n\nspaCR depends on matplotlib and on nothing that converts HTML to PDF,\nand this module will not add such a dependency for one feature. The PDF\nis therefore a **monospace transcription** of the same content — the\nsame sections, the same tables, the same \"not run\" statements — plus one\npage per embedded figure. Compared with the HTML it loses colour\nemphasis, table borders, collapsible detail blocks and clickable\ncontents, and long cells are truncated to the page width. Send the HTML\nwhen the recipient can open one.\n\n:param report: a :class:`Report`.\n:param path: destination file. Parent directories are created.\n:returns: the path written."
     },
+    "spacr.resource_log": {
+      "source_blocks_sha256": [
+        "7e9a1ded9fb3fd5f0285e73876eed5df6784f1f72e08b464c620d65a5d8c18f2",
+        "e77768ba0adbf9c21d371776bc8ade6fbb54edabf3e9579da6c9d17ec7614435",
+        "605f8a5ed779479b023ad00ff25827817c63ddebf05c47f2ec0f03b50a377255",
+        "8cdbc8e5f322440f36473877687edf07828f9ec76c3a1c27864893319bf9c7c7",
+        "97259178f63e32eec88b19a36f799a638722113bfaf1e1d92c5d37443acb0796",
+        "80e58ba2be5cbf3a9b8be85bbccf0e42da8de8d282e46e67d83afae5e7083542",
+        "9df66fc9063bcee33904aa4cd9baf9b167800835a9581905e038b55a86463be0",
+        "a96563b14c1e0b23cb411731cbad0770b140b241e2bca36aab69979200a9f26c"
+      ],
+      "source_sha256": "ea819f9daac05d0df1d418c087cfe1330ef18ab4bac03e9a49597285643ed497",
+      "text": "What spaCR's process TREE costs while it runs, under its own setting.\n\nWHY THIS IS NOT THE READINGS spaCR ALREADY TAKES.\n\nEvery resource figure in\nthe package counts the CALLING process: `spacr.fit_resources.host_rss` reads\n``/proc/self/statm``, `spacr.qt.timing` reads its own resident size, and the\nparameter sweep's floor reads the MACHINE's free memory, which cannot tell\nspaCR's own children from another tenant on a shared box.\n\nspaCR's heaviest\nwork does not happen in the calling process -- `spacr.sequencing` starts a\nsaver process and `spacr.parameter_sweep` runs every trial in a child -- so\nthe parent looks healthy right up to the moment the out-of-memory reaper\ntakes the run, and afterwards there is nothing to read.\n\nThis module sums the\nprocess and every descendant, and names each one, so \"which trial was large\"\nis a question the record can answer.\n\nWHY IT IS NOT VERBOSE LOGGING. Verbose logging installs a profile hook that\nfires on every call and every return, measured at twenty times the startup.\nAn account taken through it would describe the traced program rather than the\nreal one, which is exactly the program nobody wants measured. So this samples\ninstead: one psutil read a second, on a daemon thread that is never the GUI\nthread, on an otherwise unperturbed run. Three states rather than a checkbox,\nbecause the useful default is not \"off\" -- the most valuable resource data\ncomes from runs nobody expected to fail.\n\nWHICH NUMBER IS RECORDED. USS where the platform gives it, then PSS, then\nRSS -- and every record NAMES the measure it used, because RSS double-counts\nthe pages a fork shares and would overstate a sweep badly. A number whose\ndefinition is unrecorded cannot be compared between two machines.\n\nNothing here is required to succeed. A child that exits between being\nenumerated and being read is an expected outcome and not an error: that child\nis skipped, the rest of the tree is kept, and the count of skipped readings\ngoes in the sample so the record says what it missed. A platform that cannot\nsupply a per-thread time records that it could not, never a zero, because a\nzero reads as \"this thread was free\". Per-thread GPU memory is absent on\npurpose: a CUDA context belongs to a process, so a per-thread figure would be\nfiction."
+    },
+    "spacr.resource_log.ResourceSampler": {
+      "source_blocks_sha256": [
+        "c8fd1d595c1bb34b4a36913c853834cce243c491261c1408cee43c9c41945803",
+        "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+        "a56e518c04cc78a83dfec7da833e411d5ed2d33100da5e203917a2c788858fb9",
+        "eee29c63eca776b5d694956a5d04c1e4d3d5d0cc822c618bdcc1761a2f859ae9",
+        "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556"
+      ],
+      "source_sha256": "c4c10294e67642d80fd54a9812593e8686df40d200b302d6b4eec9b642f935b4",
+      "text": "A bounded background record of what the process tree costs.\n\nA daemon thread takes one reading every ``interval`` seconds into a ring\nbuffer of ``capacity`` samples, so a run that lasts a week cannot grow\nthe log without limit and still leaves the most recent hour when it dies.\n\nThe thread is a daemon and is never the GUI thread: it cannot hold the\nprocess open at exit and it cannot delay a repaint.\n\nWhen a path is given, each sample is written as one JSON line and\nflushed, after a header line naming the level, the measure, the interval\nand the start. Registering that file against a run is the caller's job --\nthis class is imported by worker processes that have no artifacts\ndatabase and no GUI.\n\nAt level ``\"off\"`` no thread is started and no file is opened, which is\nwhat a thread census before and after a run is entitled to see."
+    },
+    "spacr.resource_log.ResourceSampler.__enter__": {
+      "source_blocks_sha256": [
+        "e04995414a22506de606c0bf5099a8c52cabc4d930191e90c35bfc353f03a1eb",
+        "6a0274893f576838a167b53ef603187cdbf7108d4a3279077a01e56526f33209"
+      ],
+      "source_sha256": "8f912fbb63f189138340ae8b1df9a7b2f78b5eb4fffefdbb7f913089fc5e4d3e",
+      "text": "Start sampling for the duration of a block.\n\n:returns: this sampler."
+    },
+    "spacr.resource_log.ResourceSampler.__exit__": {
+      "source_blocks_sha256": [
+        "d54fac58e9a27fb37618b36290faaa869daf981fe745b9458471f3a6f92351f0",
+        "23228801d97c7a9dda88e1c3261a52b5938b5b0200c8cd72614e44edc2dc9bba",
+        "f30c73fa140c61141ca405d8a5815f1efc8d9f6e5506e24ca4a06cdc325f1182"
+      ],
+      "source_sha256": "e2f839300bb6a057fcdf5eb00d666dd173e94320557256e56b45057449d1514f",
+      "text": "Stop sampling, whatever ended the block.\n\n:param exc_info: the exception the block raised, if any.\n:returns: ``False``, so an exception in the block still propagates."
+    },
+    "spacr.resource_log.ResourceSampler.describe": {
+      "source_blocks_sha256": [
+        "9cdd195b1d9fff361384d2892a84ddf1b0b2033d9a62ea8c2cf1f9216271fe6d",
+        "9e894a975ca59055f9b172e235c04c81d5f417a61c0b5242b8f9de236dcfc42e"
+      ],
+      "source_sha256": "580314eec4eb3da079c89492d345afba4b5fdb312038e986c3b003129dd48554",
+      "text": "The peaks as a person reads them.\n\n:returns: what :func:`describe` returns, ``\"\"`` when nothing was\n    recorded."
+    },
+    "spacr.resource_log.ResourceSampler.is_running": {
+      "source_blocks_sha256": [
+        "c600fa5446ebff24383bd9187d3360f2357978cab1b8cd84e0a6a2ab40d3975b",
+        "02a5d0970c35d823396739644f51efefaf23a13cb7fb6c6025be1288e1398577"
+      ],
+      "source_sha256": "42a61f38c8a612e1d51972c2622411be610a5e5e631620be05f5f08cff488b08",
+      "text": "Whether a sampler thread is alive.\n\n:returns: ``True`` while the thread is running."
+    },
+    "spacr.resource_log.ResourceSampler.sample_once": {
+      "source_blocks_sha256": [
+        "c35ccdfb043261f75c471be1dc7f06df5589a2789833a4541df005796ac6a83f",
+        "43befbb7de9c15535375ce417409dd89a6dd707abcc565b69b0bc91a93eaedfa",
+        "13ee8853d45284419f5ffbb37729ae20ba142a9fb36d119580c8e1e57cb2e237"
+      ],
+      "source_sha256": "d8c0c46c817c8c0b8a53539241450ae6fffe9c0985c0cdbf6be7a0adc1d7db4f",
+      "text": "Take one reading now, keep it and write it.\n\nPublic and separate from the loop so a caller -- a stage boundary, a\ntest -- can take a reading at a moment it chooses rather than waiting\nfor the interval to come round.\n\n:returns: the sample, or ``None`` at level ``\"off\"``."
+    },
+    "spacr.resource_log.ResourceSampler.samples": {
+      "source_blocks_sha256": [
+        "76bed299fb8c7044dab921eb80062bfb165a24434020e36c4d51dcd198685293",
+        "35cb1f9a86acc903b2c4f121ee80ceafd7f09dfaa88e884fa529545dc14aa35b"
+      ],
+      "source_sha256": "b96ce4361c5a3eeee5494c17c74b523d870f05bd5ff7ea32a2ebd625d027544d",
+      "text": "Every sample still in the ring buffer, oldest first.\n\n:returns: a copy, so the caller can read it while sampling continues."
+    },
+    "spacr.resource_log.ResourceSampler.start": {
+      "source_blocks_sha256": [
+        "bca400d403f6cce7e4d97f146b2f54b398982a26e3814c89aa6028d906314e09",
+        "d63f78a2d4a0ebe77411f48c1dfb8817b63ba849760bd946fcde9b16abd42d25"
+      ],
+      "source_sha256": "442f65585631849d57ca689fe9fbcaeffa35dc4f9de0ca717b134519da8f52ad",
+      "text": "Begin sampling on a daemon thread.\n\n:returns: whether a sampler thread is now running, which is ``False``\n    at level ``\"off\"``."
+    },
+    "spacr.resource_log.ResourceSampler.stop": {
+      "source_blocks_sha256": [
+        "6e2c42e7648326c3a8ab33b6f9bea12f93f10941cca15b7ad2330af4d559ef3a",
+        "50f8514e654bcde27c1ed710b43129f35e232383b7bb8e6adc010514e5ab24b8",
+        "fcfa390b457445f2d2f2660f8451ab9af0658de6a6280e0a478216b215c24cbc"
+      ],
+      "source_sha256": "942fbdab96b835b50bdadc53fb4f4729c9a63979eda090e81533d97ea854be50",
+      "text": "Stop sampling, join the thread and close the file.\n\n:param timeout: seconds to wait for the thread to end.\n:returns: whether no sampler thread remains."
+    },
+    "spacr.resource_log.ResourceSampler.summary": {
+      "source_blocks_sha256": [
+        "3c7f950e0e284dfb6177cfc1be8037579af4b05b996844fa51983146830fff92",
+        "ead0483d4f5e13a4c6727f0b76c82fa500a2733e0d85e81a8f5d41ef7aee6896"
+      ],
+      "source_sha256": "a7474d380ce8ca55ac697a9cd8c7ca2f4863fcdf4e59de0bdb16425a67fc6ea9",
+      "text": "Totals and peaks over what has been recorded.\n\n:returns: what :func:`summarise` returns, empty when nothing was\n    recorded."
+    },
+    "spacr.resource_log.describe": {
+      "source_blocks_sha256": [
+        "c36707623f8f26a549e0dca22d35b03a8905f01258a7e9c261d0e7c4bbe0a2ef",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "ee2d24b7ffbf523364166cd4f9f796c6b8f281a53cd85d3b439262e9c95ad8e9"
+      ],
+      "source_sha256": "4b7f58876f1fd4caee309957ecdd73d2e25a53a648e8adf7baaa8de4ea7f7ad0",
+      "text": "The peaks as a person reads them, for a log line or a support request.\n\n:param samples: records from :func:`tree_sample`.\n:returns: the lines, or ``\"\"`` when nothing was recorded."
+    },
+    "spacr.resource_log.level_source": {
+      "source_blocks_sha256": [
+        "9d38471e94ff10c6c9963ef522053318cf9fce880833c7212ccc1aea16908416",
+        "968d874a3513cc10ff22181d9a2b418e20a38bc617f8835cb99b8d3d891e9fe4",
+        "2b8770ca4ed3df82dab19d4a34e834b77a760de55731654cea4d852b0340e112",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "0c648faf0feab26c539166324ef48690920cfccddde72133a4c35e049c345dea",
+      "text": "What decided the level, for a test and for a support request.\n\n:param level: the same argument :func:`resolve_level` takes.\n:returns: one of :data:`SOURCES`.\n:raises ValueError: if an explicit level is not one of :data:`LEVELS`."
+    },
+    "spacr.resource_log.preferred_measure": {
+      "source_blocks_sha256": [
+        "bda94b5c1aaab0d9cbfc6e07ea55fb3d38dea3d93fab0738462b50c1268c5c69",
+        "e4917e439b9238bcf51fc9cd44cd1af40ac15adabaf5c8474b714fbd05de60ad",
+        "55e92870faa626794e6cc995c9092016b1723f2732460f9c6dd5b2bb113a391b"
+      ],
+      "source_sha256": "674a4cefec9c43af45e07940269d9f77ae865dc1ef080b5e468862504247479e",
+      "text": "Which memory definition this platform can supply.\n\n:param process: the process to probe, or ``None`` for this one.\n:returns: one of :data:`MEASURES`, or ``None`` when nothing can be read."
+    },
+    "spacr.resource_log.read_log": {
+      "source_blocks_sha256": [
+        "7066b86ba7fb2fc0234577c6c3561bb69671176461bd163bd286b03cf403f3f8",
+        "3c11392b2f7e605f187ac863c1d54e16f9f47ba383b408a16b6e25f164479a5d",
+        "93981ff00ee8b1da6431c7e25948efa95f3099dcb65a1d75281ddb8b16ec817e",
+        "39e945c66b732e48a5e5cdca8375b86b3a12cd198c9e845184efe7487d808652"
+      ],
+      "source_sha256": "01d8b08e00a9cad8651f56612578add54ba8118c85dfabc029fa888cbcfe868d",
+      "text": "Read a written log back, tolerating a run that was killed mid-line.\n\nOne JSON object per line is the format that survives a kill: everything\nwritten before the kill parses, and the partial last line is dropped\nrather than making the file unreadable.\n\n:param path: the file a :class:`ResourceSampler` wrote.\n:returns: ``header`` (empty when the file has none), ``samples``, and\n    ``unreadable``, the number of lines that could not be parsed."
+    },
+    "spacr.resource_log.resolve_level": {
+      "source_blocks_sha256": [
+        "eab557c5aca55668203331cfb17d1e2b0ab6537e9dd362353002094245bafef3",
+        "523322c57197cfc8e173dd038e0f44e804ec402a2d6d9fa6ec7c2c7c9ea1fe4d",
+        "c9b493249a896f28f799cc29fa922a7a6c4a490d7db416a35ecf6cbf5eb0d212",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "de2822f3a46e9ef918438a66015bbe11cc73aa05e1bb0c456a903bc177e07efc",
+      "text": "Which of :data:`LEVELS` is in force.\n\n:param level: an explicit level, or ``None`` to resolve one from the\n    environment, then the stored preference, then :data:`DEFAULT_LEVEL`.\n:returns: one of :data:`LEVELS`.\n:raises ValueError: if an explicit level is not one of :data:`LEVELS`."
+    },
+    "spacr.resource_log.summarise": {
+      "source_blocks_sha256": [
+        "6f9ef80ba0bcfd7a6f8150b704e0af2cc5a8098e2686cc0e31efd6a3eb59417c",
+        "63a1f4fe42446fcb83b8d0840358ea8d25bd4e6b42bd4cd23e51d35889ef32a4",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "656ff1fd536ca643de4298e082d71930a6b45da194a4038d78f161060451f51a"
+      ],
+      "source_sha256": "5d15020542e71d98b31fce081beb917ce3a72c1261a4c0d68e77eb5245976e46",
+      "text": "Totals and peaks over recorded samples, and which pid held the peak.\n\nEmpty when nothing was recorded -- NOT zero, for the reason\n`spacr.fit_resources.peak` gives: \"nothing was using memory\" and \"nobody\nmeasured\" are opposite findings, and a summary that spells the second as\nthe first invites a reader to conclude the run was cheap.\n\n:param samples: records from :func:`tree_sample`.\n:returns: ``samples``, ``measure``, ``missed`` and ``pids`` always;\n    ``peak_total`` and ``peak_total_time`` when any tree total was read;\n    ``peak_process`` naming the pid that held the largest single share;\n    ``cpu_seconds``, the largest CPU total seen in one sample, when any\n    CPU time was read."
+    },
+    "spacr.resource_log.tree_sample": {
+      "source_blocks_sha256": [
+        "d5821550715bbdd213164ce520610e1a98ac620ec3a24736fb4dd489c0a60dd2",
+        "59bc7f5f0c7355e35b192e8a88d12b18775838d4d341c0aebb2cfc14d0dee53e",
+        "da14207eaf7db83b2f38d068fc24fd26185f84414cf99211963adaa4e20af061",
+        "e5e1cb57c2c09868164be1efe1351f7e311e037486aa50962b67671364e82ccc",
+        "0b3e37cd37e5d1d88208ee00d51f953b5320b1a876c70a7716f225e3c8b5a6a6"
+      ],
+      "source_sha256": "4946d975c6c84a9163a0ee1698b924fdb61790de64698781fd774843f5fa74cd",
+      "text": "One reading of this process and every descendant.\n\n:param level: ``\"summary\"`` or ``\"detailed\"``, resolved from the\n    environment and the preference when ``None``. ``\"detailed\"`` adds\n    per-thread CPU times. ``\"off\"`` governs the background sampler rather\n    than a reading a caller asks for outright, and reads as ``\"summary\"``\n    here.\n:param process: the root of the tree, or ``None`` for this process.\n:param now: the timestamp to stamp, or ``None`` for the wall clock.\n:returns: a record keyed ``record``, ``time``, ``level``, ``measure``,\n    ``unit``, ``total``, ``processes`` and ``missed``. ``total`` and\n    ``measure`` are ``None`` when nothing could be read, which is not the\n    same as zero. ``missed`` counts processes that vanished or refused to\n    be read while the tree was walked."
+    },
     "spacr.resources.home.versions._generators.common": {
       "source_blocks_sha256": [
         "f0bed03b6a0187a8208af3c38b03561d5b8c95ac144e9a92afb83dab41b43161",
@@ -72927,10 +73220,10 @@
         "2003ca286b46ea1d036c51314ec5d1a972c6445e39d5324734dc871977c120db",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
-        "39744cd8ef2d79778a3b1a5b97bd4e247f9d282fffba856ab59c32f7d23ea93a"
+        "05ee5611eb9eb553c778fbd41ffa5ccb6964a453851f5faf8887605b3ad578d2"
       ],
-      "source_sha256": "8788cbecd0663d0d798d8c70270a7b63e6f72abde0ab8bc8d7433ad3bb4e3816",
-      "text": "The run context: one id, one seed, one error policy, for a whole run.\n\nThree things every spaCR pipeline needs and none of them had:\n\n**One run id, on every log line and every output.** A run used to be\nuntraceable. The log said a field failed; the registry said an artifact\nexisted; nothing connected them, so \"show me everything from the run that\nproduced this file\" had no answer. :func:`run_context` mints one id, stamps\nit onto every :class:`logging.LogRecord` created anywhere in the process,\nwrites a per-run JSONL log that :func:`read_run_log` reads back, and hands\nthe *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line\nand an output can therefore be joined on ``run_id``, which is the whole\npoint.\n\n**One seed that reaches everything.** ``random_seed`` used to be read by\n:mod:`spacr.deep_spacr` and :mod:`spacr.sim` and nowhere else, so a\n\"reproducible\" run still shuffled its fields differently, split its folds\ndifferently and initialised Cellpose differently every time.\n:func:`seed_everything` seeds Python, NumPy (legacy global *and* the\n:class:`~numpy.random.Generator` stream :func:`spacr_rng` hands out), Torch\non CPU and every CUDA device, and — through those two — Cellpose. sklearn\nhas no global seed at all; :func:`random_state` is what estimator\nconstruction sites pass. What cannot be made deterministic is listed in\n:attr:`SeedReport.caveats` and in :func:`seed_everything`'s docstring\nrather than papered over.\n\n**One error policy, honoured at every batch boundary.** ``on_error`` is a\ntri-state, default ``\"stop\"``:\n\n``stop``\n    the first failed unit aborts the run. The default, because a pipeline\n    that quietly drops a third of its plates produces a number that looks\n    exactly like a good one.\n``skip``\n    the unit is recorded — on the :class:`~spacr.errors.RunLedger` *and* as\n    a :class:`SkipRecord` naming the unit, the stage and why — and the run\n    carries on. Never a silent drop: :attr:`ErrorPolicy.skips` is what was\n    lost.\n``retry``\n    the unit is attempted :attr:`ErrorPolicy.attempts` times with an\n    exponential backoff, and if the budget runs out it behaves exactly like\n    ``stop``.\n\nUsage\n-----\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\nPublic API\n----------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id``\n    The run itself, and the ambient lookup a worker or a library call uses.\n``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``\n    The S7 machinery: minting, stamping and querying by run id.\n``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED``\n    The S5 machinery: one call that seeds them all, plus the per-library\n    handles for the places a global seed cannot reach.\n``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES``\n    The S9 machinery.\n``apply_defaults``, ``RUN_SETTING_KEYS``\n    The settings seam: the keys this module owns, applied to any settings\n    dict."
+      "source_sha256": "0e1a9f6acdbe55c3dae71fc72da75000c6de415bfe78bda38263172b5b0f3843",
+      "text": "The run context: one id, one seed, one error policy, for a whole run.\n\nThree things every spaCR pipeline needs and none of them had:\n\n**One run id, on every log line and every output.** A run used to be\nuntraceable. The log said a field failed; the registry said an artifact\nexisted; nothing connected them, so \"show me everything from the run that\nproduced this file\" had no answer. :func:`run_context` mints one id, stamps\nit onto every :class:`logging.LogRecord` created anywhere in the process,\nwrites a per-run JSONL log that :func:`read_run_log` reads back, and hands\nthe *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line\nand an output can therefore be joined on ``run_id``, which is the whole\npoint.\n\n**One seed that reaches everything.** ``random_seed`` used to be read by\n:mod:`spacr.deep_spacr` and :mod:`spacr.sim` and nowhere else, so a\n\"reproducible\" run still shuffled its fields differently, split its folds\ndifferently and initialised Cellpose differently every time.\n:func:`seed_everything` seeds Python, NumPy (legacy global *and* the\n:class:`~numpy.random.Generator` stream :func:`spacr_rng` hands out), Torch\non CPU and every CUDA device, and — through those two — Cellpose. sklearn\nhas no global seed at all; :func:`random_state` is what estimator\nconstruction sites pass. What cannot be made deterministic is listed in\n:attr:`SeedReport.caveats` and in :func:`seed_everything`'s docstring\nrather than papered over.\n\n**One error policy, honoured at every batch boundary.** ``on_error`` is a\ntri-state, default ``\"stop\"``:\n\n``stop``\n    the first failed unit aborts the run. The default, because a pipeline\n    that quietly drops a third of its plates produces a number that looks\n    exactly like a good one.\n``skip``\n    the unit is recorded — on the :class:`~spacr.errors.RunLedger` *and* as\n    a :class:`SkipRecord` naming the unit, the stage and why — and the run\n    carries on. Never a silent drop: :attr:`ErrorPolicy.skips` is what was\n    lost.\n``retry``\n    the unit is attempted :attr:`ErrorPolicy.attempts` times with an\n    exponential backoff, and if the budget runs out it behaves exactly like\n    ``stop``.\n\nUsage\n-----\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\nPublic API\n----------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id``\n    The run itself, and the ambient lookup a worker or a library call uses.\n``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``, ``run_resource_path``, ``read_run_resources``\n    The S7 machinery: minting, stamping and querying by run id.\n``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED``\n    The S5 machinery: one call that seeds them all, plus the per-library\n    handles for the places a global seed cannot reach.\n``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES``\n    The S9 machinery.\n``apply_defaults``, ``RUN_SETTING_KEYS``\n    The settings seam: the keys this module owns, applied to any settings\n    dict."
     },
     "spacr.runctx.ErrorPolicy": {
       "source_blocks_sha256": [
@@ -73086,6 +73379,20 @@
       ],
       "source_sha256": "a617bf9d42e17385c221c81652bea4a424eda1baecbbba7d2af78c98c0f8593d",
       "text": "Register this run's outputs, stamped with this run id.\n\nThin wrapper over :func:`spacr.artifacts.register_run_outputs` that\nsupplies ``run_id`` and defaults ``strict`` to False, so a registry\nthat cannot be written costs one printed line and never the run.\n\n:param module: override the module key.\n:param settings: override the settings hashed into the artifacts.\n:param kwargs: passed through, e.g. ``roots=[...]``, ``status=``.\n:returns: the registered artifacts."
+    },
+    "spacr.runctx.RunContext.register_worker": {
+      "source_blocks_sha256": [
+        "1a300d89a40f9c497a499b20afb9ac3a5bcd3451254d636c9491a0afad952ea7",
+        "147e3d676e391220abaeab070fa0a4debc8cf0b878f2276d82c37e8b40a705aa",
+        "d5a0dcb34c5df9721913eb1fcccaaa4d8c511870dce57aaec93825c39a6d82bb",
+        "b6c579477dfd17e43ea96af8098be98b57176ce6d1de84068ddcc1c5705dc712",
+        "a1f0b51ecbb8fa68f10f4ed87e6029207c5583f5afdd756ef3d56c7e8559936b",
+        "c9b2c38b57d36e4d71cdd3f7db6361d7182ee8e8607d7da823cd5e7a324edcd7",
+        "3a22b57b8876b1936fd0ce12556f8654385ca06b7bc4319e0ec08f82f8d59d26",
+        "815b3891cb2ec5319412bc813f033187b46c30e660579b3c078f6f2f408d3b1c"
+      ],
+      "source_sha256": "f7116ce3b689dd93b3ab807b883007f000d9a082a8617c114d92629f3f3d4bca",
+      "text": "Give one sampled child process its run-specific identity.\n\nThe sampler can always report a PID and process name. This method is\nthe seam a parameter sweep or sequencing parent uses to add the fact\nthat the PID is, for example, ``trial 17`` or ``FASTQ saver``.\n\n``worker_kind`` may also be the complete stamp returned by\n:func:`spacr.fit_resources._worker_stamp`; that is how a spawned\nworker reports its own creation time without a PID-reuse race.\n\n:param worker_kind: worker category, or a complete stamp mapping.\n:param worker_id: identity within that category.\n:param pid: process id; defaults to the calling process.\n:param create_time: psutil process creation time, resolved when\n    omitted.\n:returns: the sampler's stable process identity, or ``\"\"`` when\n    resource accounting is off or unavailable."
     },
     "spacr.runctx.RunContext.rng": {
       "source_blocks_sha256": [
@@ -73247,6 +73554,15 @@
       "source_sha256": "d9e8ef797e45e8546cd4d6ada3f0ce11f522b10eb1c193fae8cffc498fee26dc",
       "text": "Return every log line this run emitted — \"show me everything from run X\".\n\nThe query side of S7. Each record is a dict with ``run_id``, ``utc``,\n``level``, ``logger``, ``message``, ``file``, ``line``, ``process`` and\n``thread``; a record carrying an exception also has ``traceback``.\n\n:param run_id: the run to read.\n:param level: minimum level, as a number or a name (``\"WARNING\"``).\n:param logger: only records from this logger or its children.\n:param contains: only records whose message contains this substring.\n:returns: the matching records in the order they were written. An empty\n    list when the run wrote no log — never an exception, because\n    \"nothing was logged\" is an ordinary answer."
     },
+    "spacr.runctx.read_run_resources": {
+      "source_blocks_sha256": [
+        "a1de0ffc93ef7b3da7f84658bba6591ea7866157e08e680da191e356105e100e",
+        "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+        "40795bb0b9860f34179dc3a2c09f611104582688d725e8aeddcc7e9c20c2e830"
+      ],
+      "source_sha256": "4b608b389e5ca0f33e992096288fd8a2bb899ceea7ec0f2f0905b0388f043359",
+      "text": "Read one run's process-tree resource document.\n\n:param run_id: the run to read.\n:returns: the JSON object, or an empty dict when no readable checkpoint\n    exists. Missing accounting is never represented as a zero."
+    },
     "spacr.runctx.resolve_error_policy": {
       "source_blocks_sha256": [
         "76a6f857cc76186ca249a3cbece8de02a79944fa8ec1d101a1364687ee4d551e",
@@ -73298,6 +73614,16 @@
       ],
       "source_sha256": "0336b7d6a4a9f8a075fcc84fd9f149123948a47bbf644bda0ee9ce81420d496b",
       "text": "Return the JSONL log path for ``run_id``. It need not exist yet."
+    },
+    "spacr.runctx.run_resource_path": {
+      "source_blocks_sha256": [
+        "6170f35b5aacc7293d4c42b457a0fc2a52c8461b6d328d39d98915029c74fa11",
+        "df1612a99dd6d207a863a892f3b1be607ce788ad47a40d33a50bbe6cddef2d94",
+        "402140f1f65249d9d53c7041ac8b7af73e7127b8c1a593b72ba2fad78e7d2551",
+        "8129536afe233c0ae587b512b7bdbdec6c230af4237628211d7fd6f1b62c5967"
+      ],
+      "source_sha256": "72aa445fff557324193304db59f4ecd9a67f5bfb512bbc887ed8f1af04bf4faf",
+      "text": "Return the persisted process-tree resource path for ``run_id``.\n\nThe resource document lives beside the ordinary run log but has its own\nsuffix and schema. It is written atomically by\n:class:`spacr.fit_resources._ResourceSampler`, so a reader sees either a\ncomplete checkpoint or the preceding complete checkpoint.\n\n:param run_id: the run whose accounting record is wanted.\n:returns: an absolute JSON path. The file need not exist yet."
     },
     "spacr.runctx.runs_log_dir": {
       "source_blocks_sha256": [
@@ -75005,10 +75331,11 @@
         "fc823815486cd042f5d58108d47c9a8d2c12b330d5dd9cd2ab91474cec16fce5",
         "39d0c7d0eda7a7edf5bc0d4d673f03ef9199431241642609dc97f12d8bbd8a3f",
         "6eab2bde617590c6b7af9685d0a1c61301dc0d1c3b5caa86635eb436584d9c0f",
-        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f"
+        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f",
+        "e43507835ef236cef6fd88f95137167450e17db5bb453a40595f642ca6a58c44"
       ],
-      "source_sha256": "a0da6176956b62fb0d1f0dd641e1bdee2853093a1947cc3aef6f624c475f95cc",
-      "text": "Return a per-position consensus of two equal-length reads.\n\nAt each position the higher-quality base is kept; if one call is ``N``\nthe other is preferred regardless of quality.\n\n:param seq1: first DNA sequence.\n:param qual1: quality string for ``seq1``.\n:param seq2: second DNA sequence.\n:param qual2: quality string for ``seq2``.\n:returns: the consensus sequence as a string."
+      "source_sha256": "658c7809839b0e683a52cb65de36dde9e6fa71d92c75cd70f8f0d4ee7acbb3b5",
+      "text": "Return a per-position consensus of two equal-length reads.\n\nAt each position the higher-quality base is kept; if one call is ``N``\nthe other is preferred regardless of quality.\n\n:param seq1: first DNA sequence.\n:param qual1: quality string for ``seq1``.\n:param seq2: second DNA sequence.\n:param qual2: quality string for ``seq2``.\n:returns: the consensus sequence as a string.\n:raises ValueError: if either sequence and quality pair, or the two reads,\n    have different lengths. A partial consensus could assign a barcode to\n    the wrong well, so uneven reads are rejected rather than truncated."
     },
     "spacr.sequencing.extract_sequence_and_quality": {
       "source_blocks_sha256": [

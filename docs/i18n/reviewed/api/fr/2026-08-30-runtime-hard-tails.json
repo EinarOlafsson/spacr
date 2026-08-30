@@ -1,0 +1,27 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Remove screen-local late-QSS suffixes before a global theme rebuild.",
+      "label": "spacr.qt.theme.clear_widget_qss_overlays#0",
+      "source": "Remove screen-local late-QSS suffixes before a global theme rebuild.",
+      "source_sha256": "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+      "translation": "Supprimer les suffixes QSS tardifs propres à l’écran avant de reconstruire le thème global."
+    },
+    {
+      "context": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see.",
+      "label": "spacr.resource_log.ResourceSampler#4",
+      "source": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see.",
+      "source_sha256": "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556",
+      "translation": "Au niveau ``\"off\"``, aucun thread n’est démarré et aucun fichier n’est ouvert ; c’est ce qu’un recensement des threads avant et après une exécution est en droit de constater."
+    },
+    {
+      "context": "Hidden does not mean absent: imported values live in ``_defaults`` and still reach ``collect()``.",
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#2",
+      "source": "Hidden does not mean absent: imported values live in ``_defaults`` and still reach ``collect()``.",
+      "source_sha256": "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+      "translation": "Masqué ne signifie pas absent : les valeurs importées sont conservées dans ``_defaults`` et parviennent toujours à ``collect()``."
+    }
+  ],
+  "schema": 1
+}

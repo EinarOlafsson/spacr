@@ -23,12 +23,16 @@ from spacr.settings_advisor import Reading
 
 def test_every_advisor_question_and_caption_is_in_the_runtime_catalog_source():
     """Dynamic question records must not bypass supported UI languages."""
-    from tools import build_i18n_catalogs as builder
+    from spacr.qt.i18n import _ROWS
     from spacr.qt.widgets.settings_advisor_dialog import (
         _SETTINGS_ADVISOR_UI_SOURCES,
     )
+    from tools import build_i18n_catalogs as builder
 
-    sources = set(builder.canonical_sources()["ui"])
+    # A short choice may live in the reviewed compact table rather than being
+    # duplicated in the generated external layer. Both are runtime catalog
+    # sources and both carry all supported locales.
+    sources = set(builder.canonical_sources()["ui"]) | set(_ROWS)
     assert set(_SETTINGS_ADVISOR_UI_SOURCES) <= sources
 
 

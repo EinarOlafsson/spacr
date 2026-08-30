@@ -25,11 +25,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Post-sweep compact surface on 2026-08-27.  The count catches additions; the
+# Post-sweep compact surface on 2026-08-30.  The count catches additions; the
 # digest also catches a replacement that happens to keep the count unchanged.
-COMPACT_CAPTION_COUNT = 197
+COMPACT_CAPTION_COUNT = 205
 COMPACT_CAPTION_SHA256 = (
-    "276539ee51ad8abf3223c00d46108acb49449758122245594bc774d78b92337f"
+    "2882d4aeea044c9b2cfce01aacf6eb4a9db46045cb767afbed4924ab3761f8b3"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -41,11 +41,11 @@ EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1002,
     "SETTING_TOOLTIPS": 997,
     "CATEGORY_HELP": 192,
-    "UI": 2625,
+    "UI": 2705,
     "MODULE_SUMMARIES": 64,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd"
+    "bd9b5d04497cc9d9c2910d296e5cb85d978551678c1a5cb9c36ace81167f9bab"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

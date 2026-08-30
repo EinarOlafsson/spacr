@@ -582,6 +582,34 @@ def test_runtime_uses_external_static_and_context_keyed_setting_text():
     assert setting_tooltip(key, source + " changed", "de") is None
 
 
+def test_four_legacy_organelle_slots_stay_materialized_with_a_zero_default():
+    """Catalog breadth is independent of how many slots a fresh form shows."""
+    from spacr.organelle_types import (
+        CATALOGUED_ORGANELLE_SLOTS,
+        DEFAULT_NUMBER_OF_ORGANELLES,
+    )
+    from spacr.qt.i18n_catalogs import en, setting_label, setting_tooltip
+
+    assert DEFAULT_NUMBER_OF_ORGANELLES == 0
+    assert CATALOGUED_ORGANELLE_SLOTS == 4
+    keys = (
+        "organelle_channel",
+        "organelle_diameter",
+        "organelle_type",
+        "organelleb_diameter",
+    )
+    for key in keys:
+        assert key in en.SETTING_LABELS
+        assert key in en.SETTING_TOOLTIPS
+        for language in ("de", "fr"):
+            label_source = en.SETTING_LABELS[key]
+            tooltip_source = en.SETTING_TOOLTIPS[key]
+            label = setting_label(key, label_source, language)
+            tooltip = setting_tooltip(key, tooltip_source, language)
+            assert label and label != label_source
+            assert tooltip and tooltip != tooltip_source
+
+
 def test_higher_organelle_slots_reuse_one_source_bound_translation():
     """Generated slots stay translated without expanding every catalog."""
     from spacr.object_roles import setting_label as english_setting_label
