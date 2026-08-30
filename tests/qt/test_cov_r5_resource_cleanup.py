@@ -347,15 +347,19 @@ def test_the_pixmap_cache_reports_the_kilobytes_it_was_holding(monkeypatch,
                                                                qapp):
     """The size reading is optional, and when it is there it is reported.
 
-    ``QPixmapCache.totalUsed`` is not bound in this PySide6 build -- the real
-    call takes the "size unavailable" wording below -- so the *reading* is
-    stood in for and the rest of the function is the real one: it still has to
-    call ``clear()``, and it still has to decide between a line and silence.
+    ``QPixmapCache.totalUsed`` is not bound in this PySide6 build, so the
+    *reading* is stood in for and the rest of the function is the real one:
+    it still has to call ``clear()``, and it still has to decide between a
+    line and silence.
+
+    With no reading available the answer is silence, not a line saying so:
+    the module's own comment is that inventing a count would violate
+    Reclaim's measured contract. The cleanup still happens either way,
+    which is the half that matters.
     """
     from PySide6.QtGui import QPixmapCache
     assert not hasattr(QPixmapCache, "totalUsed")
-    assert rc._clear_pixmap_cache() == [
-        "Qt pixmap cache cleared (size unavailable)"]
+    assert rc._clear_pixmap_cache() == []
 
     cleared = []
 
