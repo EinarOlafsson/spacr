@@ -259,3 +259,53 @@ def test_the_factory_builds_the_screen_the_registry_asks_for(qtbot):
     qtbot.addWidget(widget)
 
     assert isinstance(widget, FeatureExplorerScreen)
+
+
+def test_a_csv_is_read_without_asking_it_for_table_names(screen, tmp_path):
+    """A CSV has no tables, and asking a database library for them is wrong.
+
+    ``table_names`` is skipped by suffix, so the picker stays empty and hidden
+    -- a CSV shown with an empty table dropdown above it reads as a file whose
+    tables failed to load. This branch had never been taken: every existing
+    test hands in a database.
+    """
+    import pandas as pd
+
+    csv = tmp_path / "features.csv"
+    pd.DataFrame({"condition": ["a", "b"] * 3,
+                  "cell_area": [10.0, 12.0, 11.0, 13.0, 10.5, 12.5]}
+                 ).to_csv(csv, index=False)
+
+    screen.load_path(str(csv))
+
+    assert screen._table_picker.count() == 0
+    assert not screen._table_picker.isVisible()
+    assert "features.csv" in screen._source.text()
+    assert "could not read" not in screen._source.text()
+
+
+@pytest.mark.parametrize("suffix", [".csv", ".tsv", ".txt", ".CSV"])
+def test_every_text_suffix_skips_the_table_listing(screen, tmp_path,
+                                                    monkeypatch, suffix):
+    """The suffix test is case-insensitive and covers all three spellings.
+
+    A user's export can be any of them, and a ``.CSV`` from Windows going down
+    the database path would be reported as an unreadable database rather than
+    read as the table it is.
+    """
+    from spacr.qt.screens import feature_explorer as fe
+
+    asked = []
+
+    def watched(path):
+        asked.append(path)
+        raise AssertionError("a text file was asked for its tables")
+
+    monkeypatch.setattr(fe, "table_names", watched)
+
+    target = tmp_path / f"features{suffix}"
+    target.write_text("condition,cell_area\na,10\nb,12\n")
+
+    screen.load_path(str(target))
+
+    assert asked == [], f"{suffix} was routed through table_names"
