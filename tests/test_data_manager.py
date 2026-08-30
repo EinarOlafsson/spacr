@@ -1007,12 +1007,14 @@ def test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt(project):
     root, registry = project
     usage = DM.scan_project(root, registry=registry)
     assert usage.total_bytes == du(root)
+    before_registry = registry_bytes(registry.path)
 
     plan = DM.plan_prune(root, registry=registry)
     freed = plan.total_bytes
     assert freed > 0
 
-    DM.prune(plan, confirm=plan.token, registry=registry)
+    result = DM.prune(plan, confirm=plan.token, registry=registry)
+    assert result.freed_bytes == freed
 
     # The originals are all still there.
     assert du(os.path.join(root, "orig")) > 0
@@ -1022,7 +1024,13 @@ def test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt(project):
     assert readiness.ok, readiness.reason
 
     after = DM.scan_project(root, registry=registry)
-    assert after.total_bytes == usage.total_bytes - freed
+    assert after.total_bytes == du(root)
+    # The prune also persists its audit facts.  SQLite is free to allocate a
+    # page (and transient WAL/SHM sidecars) for that write, so compare project
+    # payload separately from the registry instead of pretending bookkeeping
+    # consumes no disk space.
+    assert after.total_bytes - registry_bytes(registry.path) == (
+        usage.total_bytes - before_registry - freed)
 
 
 def test_the_registered_bytes_are_the_sum_of_the_kinds(project):
