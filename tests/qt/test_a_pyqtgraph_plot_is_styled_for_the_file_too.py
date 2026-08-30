@@ -126,15 +126,22 @@ def test_tiff_is_not_offered_because_the_plot_would_write_a_png(qtbot):
     assert offered == [value for value, _label in FAST_PLOT_FORMATS]
 
 
-def test_size_and_resolution_are_disabled_and_say_where_they_live(qtbot):
-    """Two controls for one quantity, with no way to tell which won."""
+def test_size_is_inherited_but_raster_resolution_stays_editable(qtbot):
+    """Page size has one owner; PNG resolution is an export property."""
     dialog = SaveFigureDialog(_plot(qtbot))
     qtbot.addWidget(dialog)
 
-    for box in (dialog.width, dialog.height, dialog.dpi):
+    for box in (dialog.width, dialog.height):
         assert box.isEnabled() is False
         assert box.toolTip()                     # instruction 106: says why
     assert "right-click" in dialog.width.toolTip()
+    assert dialog.format.currentData() == "png"
+    assert dialog.dpi.isEnabled() is True
+    assert "Dots per inch" in dialog.dpi.toolTip()
+
+    dialog.format.setCurrentIndex(dialog.format.findData("pdf"))
+    assert dialog.dpi.isEnabled() is False
+    assert "vector" in dialog.dpi.toolTip()
 
 
 def test_an_empty_plot_says_there_is_nothing_to_save_rather_than_saving_it(qtbot):

@@ -29,6 +29,11 @@ different run, not a different caption:
                                         regression -- a different analysis
     Mask etc.   summarize_organelles_by declares 'cell', canned None
 
+The organelle summary row is built only when ``number_of_organelles`` says
+the run has an organelle. Its named cases therefore build the panel for one
+slot; that keeps testing the override without requiring an irrelevant row on
+a run whose count is zero.
+
 Opening a module and pressing Run without touching anything must run the
 values the module asked for.
 """
@@ -53,9 +58,9 @@ def _normal(value):
     return str(value).replace(" ", "")
 
 
-def _built(app_key):
+def _built(app_key, *, current=None):
     """The panel's widgets plus the spec they were built from."""
-    model = SettingsWidgets(app_key)
+    model = SettingsWidgets(app_key, current=current)
     model.build_sections()
     return model, convert_settings_dict_for_gui(model._defaults)
 
@@ -131,7 +136,9 @@ def test_the_canned_table_really_does_override_something(qtbot):
 ])
 def test_the_known_overrides_are_each_named(qtbot, app_key, key):
     """Named individually, so a regression says WHICH module came back."""
-    model, spec = _built(app_key)
+    current = ({"number_of_organelles": 1}
+               if key == "summarize_organelles_by" else None)
+    model, spec = _built(app_key, current=current)
     assert key in model._widgets, f"{app_key} no longer offers {key}"
 
     declared = model._defaults[key]

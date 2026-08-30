@@ -63,8 +63,14 @@ def test_the_dialog_offers_the_settings_a_file_needs(plot, qtbot):
     dialog = SaveFigureDialog(plot)
     qtbot.addWidget(dialog)
 
-    for name in ("aspect", "line_width", "text_px", "x_title", "y_title"):
+    for name in ("background", "line_colour", "line_width", "ink",
+                 "graph_shape", "format", "dpi", "width", "height"):
         assert hasattr(dialog, name), f"no {name} control"
+    # Plot-owned styling lives on the plot's right-click menu, where one
+    # choice reaches the screen and every export. The file dialog must not
+    # reintroduce a second source of truth for it.
+    for name in ("aspect", "text_px", "x_title", "y_title"):
+        assert not hasattr(dialog, name), f"duplicate {name} control"
 
 
 def test_an_untouched_control_changes_nothing(plot, qtbot):
@@ -78,15 +84,11 @@ def test_an_untouched_control_changes_nothing(plot, qtbot):
 def test_the_values_reach_the_render(plot, qtbot):
     dialog = SaveFigureDialog(plot)
     qtbot.addWidget(dialog)
-    dialog.aspect.setValue(1.0)
+    dialog.graph_shape.setCurrentIndex(dialog.graph_shape.findData("square"))
     dialog.line_width.setValue(3.0)
-    dialog.text_px.setValue(16)
-    dialog.x_title.setText("gene")
-    dialog.y_title.setText("effect")
 
     assert dialog._extra_styling() == {
-        "aspect": 1.0, "line_width": 3.0, "font_size": 16,
-        "x_title": "gene", "y_title": "effect"}
+        "canvas_shape": "square", "line_width": 3.0}
 
 
 def test_the_screen_keeps_what_it_had(plot):

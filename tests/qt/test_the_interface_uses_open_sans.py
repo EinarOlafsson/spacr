@@ -83,9 +83,10 @@ def test_an_unknown_weight_is_refused(application):
         prefs.set_interface_font_weight("ultrablack")
 
 
-def test_an_unreadable_stored_weight_reads_as_regular(application):
+def test_an_unreadable_stored_weight_reads_as_the_shipped_default(application):
     prefs._settings().setValue(prefs._KEY_FONT_WEIGHT, "sideways")
-    assert prefs.get_interface_font_weight() == "regular"
+    assert prefs.get_interface_font_weight() == \
+        prefs.DEFAULT_INTERFACE_FONT_WEIGHT
 
 
 def test_setting_it_applies_it_to_the_running_application(application):
