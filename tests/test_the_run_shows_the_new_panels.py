@@ -154,11 +154,18 @@ def test_the_four_result_files_land_in_that_folder(tmp_path):
 
 def test_a_run_draws_every_house_style_panel():
     """"there are no additional plots that i asked for". Seven, from the same
-    table the old volcano came from."""
+    table the old volcano came from. The count-only helper owns their pyplot
+    registrations; it must preserve a figure its caller already owns."""
     from spacr.figures import SHEET_ORDER
 
-    assert _show_house_style_panels(_results(), plot=False) == len(SHEET_ORDER)
-    plt.close("all")
+    caller = plt.figure()
+    before = tuple(plt.get_fignums())
+    try:
+        assert _show_house_style_panels(
+            _results(), plot=False) == len(SHEET_ORDER)
+        assert tuple(plt.get_fignums()) == before
+    finally:
+        plt.close(caller)
 
 
 def test_the_panels_are_shown_not_merely_written(monkeypatch):
@@ -210,20 +217,23 @@ def test_each_panel_carries_its_own_name(monkeypatch):
     """The grid captions the tiles from the figure. `fig_00003` is a temp
     file's stem -- an implementation detail of how the picture reached the
     screen, not a caption."""
+    caller = plt.figure()
+    before = tuple(plt.get_fignums())
     named = []
-    monkeypatch.setattr(plt, "show", lambda *a, **k: None)
 
-    real_close = plt.close
+    def _capture_show(*_args, **_kwargs):
+        named.extend(
+            plt.figure(number).get_label()
+            for number in plt.get_fignums()
+            if number not in before
+        )
 
-    def _capture(figure=None):
-        if hasattr(figure, "get_label"):
-            named.append(figure.get_label())
-        return real_close(figure)
-
-    _show_house_style_panels(_results(), plot=True)
-    for number in plt.get_fignums():
-        named.append(plt.figure(number).get_label())
-    plt.close("all")
+    monkeypatch.setattr(plt, "show", _capture_show)
+    try:
+        _show_house_style_panels(_results(), plot=True)
+        assert tuple(plt.get_fignums()) == before
+    finally:
+        plt.close(caller)
 
     assert "volcano" in named, named
     assert not any(str(n).startswith("fig_") for n in named if n), named

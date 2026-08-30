@@ -28,6 +28,7 @@ screen folder, and a figure is small.
 from __future__ import annotations
 
 import os
+import warnings
 
 import matplotlib
 matplotlib.use("Agg")
@@ -307,9 +308,16 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
         "metadata_files": [], "toxo": False, "controls": None,
         "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
     })
-    perform_regression(settings)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always", RuntimeWarning)
+        perform_regression(settings)
+    figure_warnings = [
+        str(item.message) for item in caught
+        if "More than 20 figures" in str(item.message)
+    ]
     plt.close("all")
 
+    assert figure_warnings == []
     run_folder = os.path.join(str(folder), "results", "ols")
     figures = sorted(name for name in os.listdir(run_folder)
                      if name.lower().endswith((".pdf", ".png")))

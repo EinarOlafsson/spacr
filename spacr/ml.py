@@ -5248,8 +5248,16 @@ def _show_well_distributions(frame, response_name, dst, plot=True):
                             bbox_inches="tight")
             except Exception:
                 pass
-        if plot:
-            plt.show()
+        # ``plt.show`` is the synchronous hand-off seam intercepted by the
+        # Qt bridge.  This helper returns only a boolean, not the Figure, so
+        # once that hand-off returns there is no caller that can release the
+        # pyplot manager.  Close this exact figure; unrelated figures in the
+        # process belong to their own callers.
+        try:
+            if plot:
+                plt.show()
+        finally:
+            plt.close(figure)
         drawn += 1
     return drawn > 0
 
@@ -5284,7 +5292,13 @@ def _show_plates(frame, variable, dst):
                 bbox_inches="tight")
         except Exception:
             pass
-    plt.show()
+    # The bridge has rendered and queued the figure by the time ``show``
+    # returns.  This helper returns only True/False, so it owns the pyplot
+    # registration and must not leave it behind in a long-lived run process.
+    try:
+        plt.show()
+    finally:
+        plt.close(figure)
     return True
 
 
@@ -5323,8 +5337,14 @@ def _show_house_style_panels(coef_df, plot=True):
         # detail of how the picture reached the screen, not a caption.
         figure.set_label(panel.title)
         figure._spacr_title = panel.title
-        if plot:
-            plt.show()
+        # A shown panel has already been rendered by the bridge when ``show``
+        # returns.  The helper exposes only a count, never the Figure, so the
+        # pyplot registration is private to this loop and is closed here.
+        try:
+            if plot:
+                plt.show()
+        finally:
+            plt.close(figure)
         shown += 1
     if shown:
         print(f"Drew {shown} regression panels in the house style.")
