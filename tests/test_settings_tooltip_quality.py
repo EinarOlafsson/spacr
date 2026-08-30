@@ -17,8 +17,8 @@ that blanket waiver was retired.
 from __future__ import annotations
 
 import ast
-import hashlib
 import re
+from typing import NamedTuple
 
 import pytest
 
@@ -54,10 +54,391 @@ DEFAULT_LITERAL = re.compile(
 )
 
 
+class DefaultVariant(NamedTuple):
+    """One intentional module/default difference from a shared tooltip."""
+
+    claimed: str
+    actual_repr: str
+    classification: str
+    reason: str
+
+
+ACCURATE_SHARED = "accurate shared tooltip"
+REPAIRED_TOOLTIP = "repaired module-specific tooltip"
+CONFIG_DEFECT = "default/config defect"
+
+# These are the complete, explicit dispositions for every mismatch witnessed
+# by the mechanical default parser below.  Unlike the former digest, this says
+# which module owns each value, what value it resolves to, and why that
+# difference is accepted.  Adding, removing, or substituting one row fails an
+# ordinary mapping comparison with a useful diff.
+DEFAULT_VARIANT_EXPECTATIONS = {
+    ("analyze_plaques", "background"): DefaultVariant(
+        "100", "200", ACCURATE_SHARED,
+        "The tooltip explicitly names 200 for plaque analysis.",
+    ),
+    ("analyze_plaques", "fill_in"): DefaultVariant(
+        "False", "True", REPAIRED_TOOLTIP,
+        "Plaque analysis fills mask interiors on its initial run.",
+    ),
+    ("analyze_plaques", "resize"): DefaultVariant(
+        "False", "True", ACCURATE_SHARED,
+        "The tooltip explicitly names the plaque-analysis resize override.",
+    ),
+    ("analyze_plaques", "target_height"): DefaultVariant(
+        "None", "1120", ACCURATE_SHARED,
+        "The tooltip explicitly names the plaque-analysis height.",
+    ),
+    ("analyze_plaques", "target_width"): DefaultVariant(
+        "None", "1120", ACCURATE_SHARED,
+        "The tooltip explicitly names the plaque-analysis width.",
+    ),
+    ("classify_merged", "cmap"): DefaultVariant(
+        "'inferno'", "'viridis'", ACCURATE_SHARED,
+        "The classifier carries a plotting-specific viridis override.",
+    ),
+    ("classify_merged", "coordinate_columns"): DefaultVariant(
+        "None", "['cell_id']", REPAIRED_TOOLTIP,
+        "The classifier derives one object identifier from object_array.",
+    ),
+    ("classify_merged", "crop_source"): DefaultVariant(
+        "'png'", "'load_images'", ACCURATE_SHARED,
+        "The tooltip already distinguishes viewer and training spellings.",
+    ),
+    ("classify_merged", "custom_model"): DefaultVariant(
+        "None", "False", CONFIG_DEFECT,
+        "The audited factory/config mismatch remains outside tooltip scope.",
+    ),
+    ("classify_merged", "loss_type"): DefaultVariant(
+        "'focal_loss'", "'auto'", REPAIRED_TOOLTIP,
+        "The merged classifier resolves auto from the output-head shape.",
+    ),
+    ("classify_merged", "min_cell_count"): DefaultVariant(
+        "100", "25", ACCURATE_SHARED,
+        "The tooltip explicitly names 25 for the screen classifier.",
+    ),
+    ("classify_merged", "nuclei_limit"): DefaultVariant(
+        "None", "True", REPAIRED_TOOLTIP,
+        "The classifier initially retains single-nucleus cells only.",
+    ),
+    ("classify_merged", "plot"): DefaultVariant(
+        "False", "True", REPAIRED_TOOLTIP,
+        "The classifier produces diagnostics on its initial run.",
+    ),
+    ("external_masks", "channels"): DefaultVariant(
+        "[0,1,2,3]", "[]", REPAIRED_TOOLTIP,
+        "An empty importer list deliberately means all detected channels.",
+    ),
+    ("external_masks", "cytoplasm"): DefaultVariant(
+        "False", "True", ACCURATE_SHARED,
+        "The importer intentionally enables the derived cytoplasm table.",
+    ),
+    ("external_masks", "dst"): DefaultVariant(
+        "''", "None", ACCURATE_SHARED,
+        "Both falsey values select the module-computed destination.",
+    ),
+    ("external_masks", "normalize"): DefaultVariant(
+        "True", "False", REPAIRED_TOOLTIP,
+        "The importer inherits Measure's no-normalization initial value.",
+    ),
+    ("external_masks", "organelle_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Existing primary-organelle labels are not size-filtered initially.",
+    ),
+    ("external_masks", "organelleb_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Existing second-organelle labels are not size-filtered initially.",
+    ),
+    ("external_masks", "organellec_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Existing third-organelle labels are not size-filtered initially.",
+    ),
+    ("external_masks", "organelled_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Existing fourth-organelle labels are not size-filtered initially.",
+    ),
+    ("external_masks", "verbose"): DefaultVariant(
+        "True", "False", ACCURATE_SHARED,
+        "The tooltip already places Measure-family tools on the quiet path.",
+    ),
+    ("invasion", "cell_types"): DefaultVariant(
+        "['HeLa']", "['Hela']", CONFIG_DEFECT,
+        "The audited capitalization mismatch belongs to defaults/config.",
+    ),
+    ("invasion", "cmap"): DefaultVariant(
+        "'inferno'", "'viridis'", ACCURATE_SHARED,
+        "Invasion uses its plotting-specific viridis override.",
+    ),
+    ("invasion", "intensity_statistic"): DefaultVariant(
+        "'mean'", "'auto'", REPAIRED_TOOLTIP,
+        "Auto prefers stable rim statistics and warns before using mean.",
+    ),
+    ("invasion", "level"): DefaultVariant(
+        "'both'", "'object'", ACCURATE_SHARED,
+        "The shared tooltip already explains assay-specific levels.",
+    ),
+    ("invasion", "pathogen_types"): DefaultVariant(
+        "['pathogen_1', 'pathogen_2']", "['pc']", ACCURATE_SHARED,
+        "The assay's one-condition plate layout deliberately uses pc.",
+    ),
+    ("invasion", "treatments"): DefaultVariant(
+        "['cm','lovastatin']", "None", REPAIRED_TOOLTIP,
+        "The assay begins without an invented treatment annotation.",
+    ),
+    ("invasion", "verbose"): DefaultVariant(
+        "True", "False", REPAIRED_TOOLTIP,
+        "Invasion starts without detailed console output.",
+    ),
+    ("investigate_hit", "score_column"): DefaultVariant(
+        "'cv_predictions'", "''", REPAIRED_TOOLTIP,
+        "Hit investigation requires the user to select its score field.",
+    ),
+    ("mask", "nucleus_intensity_threshold_method"): DefaultVariant(
+        "75", "'mean'", ACCURATE_SHARED,
+        "The parser sees the adjacent percentile value; the prose says mean.",
+    ),
+    ("measure", "normalize"): DefaultVariant(
+        "True", "False", REPAIRED_TOOLTIP,
+        "Measure starts off and requires a percentile pair when enabled.",
+    ),
+    ("measure", "organelle_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Measurement does not size-filter existing primary-organelle labels.",
+    ),
+    ("measure", "organelleb_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Measurement does not size-filter existing second-organelle labels.",
+    ),
+    ("measure", "organellec_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Measurement does not size-filter existing third-organelle labels.",
+    ),
+    ("measure", "organelled_min_size"): DefaultVariant(
+        "10", "0", REPAIRED_TOOLTIP,
+        "Measurement does not size-filter existing fourth-organelle labels.",
+    ),
+    ("measure", "verbose"): DefaultVariant(
+        "True", "False", ACCURATE_SHARED,
+        "The tooltip already explicitly names Measure as quiet initially.",
+    ),
+    ("recruitment", "cell_intensity_range"): DefaultVariant(
+        "None", "[0, 100000]", CONFIG_DEFECT,
+        "The audited range mismatch belongs to the factory/config contract.",
+    ),
+    ("recruitment", "channel_of_interest"): DefaultVariant(
+        "3", "2", ACCURATE_SHARED,
+        "The tooltip already says non-ML modules may start at channel 2.",
+    ),
+    ("recruitment", "nuclei_limit"): DefaultVariant(
+        "None", "1", REPAIRED_TOOLTIP,
+        "Recruitment initially retains single-nucleus cells only.",
+    ),
+    ("recruitment", "plot"): DefaultVariant(
+        "False", "True", REPAIRED_TOOLTIP,
+        "Recruitment produces diagnostics on its initial run.",
+    ),
+    ("recruitment", "treatment_plate_metadata"): DefaultVariant(
+        "None", "[['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']]",
+        REPAIRED_TOOLTIP,
+        "Recruitment ships two treatment groups paired by position.",
+    ),
+    ("regression", "analysis_mode"): DefaultVariant(
+        "'regression'", "'guide_permutation'", REPAIRED_TOOLTIP,
+        "Nonparametric inference resolves the initial mode to permutation.",
+    ),
+    ("regression", "control_wells"): DefaultVariant(
+        "None", "['c1', 'c2', 'c3']", REPAIRED_TOOLTIP,
+        "Regression derives the controls from filter_value and control blocks.",
+    ),
+    ("regression", "fraction_threshold"): DefaultVariant(
+        "None", "0.02", REPAIRED_TOOLTIP,
+        "Regression uses a reproducible fixed fraction cutoff initially.",
+    ),
+    ("regression", "guide_nuisance_columns"): DefaultVariant(
+        "[]", "['rowID', 'columnID']", REPAIRED_TOOLTIP,
+        "Regression removes row and column position before permutation.",
+    ),
+    ("regression", "transform"): DefaultVariant(
+        "None", "'log'", REPAIRED_TOOLTIP,
+        "Regression applies log1p to the initial response.",
+    ),
+    ("regression", "verbose"): DefaultVariant(
+        "True", "False", ACCURATE_SHARED,
+        "The tooltip already explicitly names Regression as quiet initially.",
+    ),
+    ("replication", "cell_types"): DefaultVariant(
+        "['HeLa']", "['Hela']", CONFIG_DEFECT,
+        "The audited capitalization mismatch belongs to defaults/config.",
+    ),
+    ("replication", "cmap"): DefaultVariant(
+        "'inferno'", "'viridis'", ACCURATE_SHARED,
+        "Replication uses its plotting-specific viridis override.",
+    ),
+    ("replication", "level"): DefaultVariant(
+        "'both'", "'object'", ACCURATE_SHARED,
+        "The shared tooltip already explains assay-specific levels.",
+    ),
+    ("replication", "pathogen_types"): DefaultVariant(
+        "['pathogen_1', 'pathogen_2']", "['pc']", ACCURATE_SHARED,
+        "The assay's one-condition plate layout deliberately uses pc.",
+    ),
+    ("replication", "treatments"): DefaultVariant(
+        "['cm','lovastatin']", "None", REPAIRED_TOOLTIP,
+        "The assay begins without an invented treatment annotation.",
+    ),
+    ("replication", "verbose"): DefaultVariant(
+        "True", "False", REPAIRED_TOOLTIP,
+        "Replication starts without detailed console output.",
+    ),
+    ("umap", "crop_source"): DefaultVariant(
+        "'png'", "'auto'", REPAIRED_TOOLTIP,
+        "Image UMAP chooses PNGs first and otherwise streams merged arrays.",
+    ),
+    ("umap", "tables"): DefaultVariant(
+        "['cell', 'nucleus', 'pathogen', 'cytoplasm']",
+        "['cell', 'cytoplasm', 'nucleus', 'pathogen']", ACCURATE_SHARED,
+        "The same four tables differ only in order.",
+    ),
+}
+
+# Every repaired class-B variant has both a live-default assertion and prose
+# fragments that must remain in the shared tooltip.  Repeated app/key rows are
+# intentional: they prove each affected module contract, not just each source
+# string, including generated organelle-slot tooltips.
+REPAIRED_TOOLTIP_FACTS = {
+    ("analyze_plaques", "fill_in"): (
+        "Plaque Analysis starts with this enabled",
+    ),
+    ("classify_merged", "coordinate_columns"): (
+        "Merged Classifier derives one identifier from object_array",
+        "initially ['cell_id']",
+    ),
+    ("classify_merged", "loss_type"): (
+        "Merged Classifier starts at 'auto'",
+        "cross_entropy for a multi-class head",
+        "binary_cross_entropy_with_logits for a single-logit head",
+    ),
+    ("classify_merged", "nuclei_limit"): (
+        "Merged Classifier starts at True",
+    ),
+    ("classify_merged", "plot"): (
+        "Merged Classifier and Recruitment both start with plotting enabled",
+    ),
+    ("external_masks", "channels"): (
+        "External Masks starts with []",
+        "means every detected intensity channel",
+    ),
+    ("external_masks", "normalize"): (
+        "Measure and External Masks start at False",
+        "two-number [low, high] percentile pair",
+    ),
+    ("external_masks", "organelle_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("external_masks", "organelleb_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("external_masks", "organellec_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("external_masks", "organelled_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("invasion", "intensity_statistic"): (
+        "Invasion starts at 'auto'",
+        "chooses periphery_95 when present, otherwise percentile_95",
+    ),
+    ("invasion", "treatments"): (
+        "Invasion and Replication start at None",
+        "add no treatment condition",
+    ),
+    ("invasion", "verbose"): (
+        "Invasion and Replication also start with console detail disabled",
+    ),
+    ("investigate_hit", "score_column"): (
+        "Investigate Hit starts blank",
+        "select the prediction column",
+    ),
+    ("measure", "normalize"): (
+        "Measure and External Masks start at False",
+        "refuses bare True",
+    ),
+    ("measure", "organelle_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("measure", "organelleb_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("measure", "organellec_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("measure", "organelled_min_size"): (
+        "Measure and External Masks start every",
+        "at 0 because they consume existing labels",
+    ),
+    ("recruitment", "nuclei_limit"): (
+        "Recruitment starts at 1",
+    ),
+    ("recruitment", "plot"): (
+        "Merged Classifier and Recruitment both start with plotting enabled",
+    ),
+    ("recruitment", "treatment_plate_metadata"): (
+        "Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']]",
+        "paired with its two initial treatment names",
+    ),
+    ("regression", "analysis_mode"): (
+        "starts with inference='nonparametric'",
+        "resolved initial mode is 'guide_permutation'",
+    ),
+    ("regression", "control_wells"): (
+        "Regression initializes it from filter_value plus any declared control blocks",
+        "['c1', 'c2', 'c3']",
+    ),
+    ("regression", "fraction_threshold"): (
+        "Regression starts at the reproducible fixed cutoff 0.02",
+    ),
+    ("regression", "guide_nuisance_columns"): (
+        "Regression starts with ['rowID', 'columnID']",
+        "before the within-plate permutation",
+    ),
+    ("regression", "transform"): (
+        "Regression starts at 'log'",
+        "first fit applies log1p",
+    ),
+    ("replication", "treatments"): (
+        "Invasion and Replication start at None",
+        "add no treatment condition",
+    ),
+    ("replication", "verbose"): (
+        "Invasion and Replication also start with console detail disabled",
+    ),
+    ("umap", "crop_source"): (
+        "Image UMAP starts at 'auto'",
+        "otherwise streaming from merged arrays",
+    ),
+}
+
+
 def _body(text: str) -> str:
     """Return the prose after the ``(type) - `` prefix."""
     m = TYPE_PREFIX.match(text.strip())
     return m.group("body").strip() if m else text.strip()
+
+
+def _same_default(left, right):
+    """Compare defaults without treating bool as an integer."""
+    if isinstance(left, bool) or isinstance(right, bool):
+        return type(left) is type(right) and left == right
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        return left == right
+    return type(left) is type(right) and left == right
 
 
 def _all_tooltips():
@@ -230,22 +611,15 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
 def test_real_default_claims_have_no_unrecorded_drift():
     """Compare parseable tooltip claims with every registered app default.
 
-    Most comparisons are exact. The digest records the 56 existing
-    module-specific variants whose shared tooltip states more than one
-    module's contract; one variant cannot replace another unnoticed.
+    Most comparisons are exact.  The 56 variants are compared with an
+    explicit app/setting/value contract above, including a reasoned
+    classification, so a same-size substitution cannot hide behind a digest.
     """
     from spacr.qt.app import APPS
     from spacr.qt.screens.settings_model import resolve_default_settings
 
-    def same_default(left, right):
-        if isinstance(left, bool) or isinstance(right, bool):
-            return type(left) is type(right) and left == right
-        if isinstance(left, (int, float)) and isinstance(right, (int, float)):
-            return left == right
-        return type(left) is type(right) and left == right
-
     comparisons = 0
-    variants = []
+    variants = {}
     for entry in APPS:
         app_key = entry[0]
         defaults = resolve_default_settings(app_key)
@@ -266,16 +640,59 @@ def test_real_default_claims_have_no_unrecorded_drift():
                 continue
             comparisons += 1
             raw, claimed = parsed[-1]
-            if not same_default(actual, claimed):
-                variants.append(f"{app_key}:{key}:{raw}->{actual!r}")
+            if not _same_default(actual, claimed):
+                pair = (app_key, key)
+                assert pair not in variants
+                variants[pair] = (raw, repr(actual))
 
-    variants.sort()
-    digest = hashlib.sha256("\n".join(variants).encode()).hexdigest()
+    expected = {
+        pair: (variant.claimed, variant.actual_repr)
+        for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
+    }
     assert comparisons == 675
     assert len(variants) == 56
-    assert digest == (
-        "dd5e6a4c361fb0dd64a8ce1853437fbbe1940f2bbf41c859f4f159335a96a646"
+    assert variants == expected
+    assert {
+        classification: sum(
+            variant.classification == classification
+            for variant in DEFAULT_VARIANT_EXPECTATIONS.values()
+        )
+        for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
+    } == {
+        ACCURATE_SHARED: 21,
+        REPAIRED_TOOLTIP: 31,
+        CONFIG_DEFECT: 4,
+    }
+    assert all(
+        len(variant.reason.split()) >= 5
+        for variant in DEFAULT_VARIANT_EXPECTATIONS.values()
     )
+
+
+def test_repaired_tooltips_state_each_module_value_and_behavior():
+    """Every class-B repair names both its live value and its consequence."""
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    repaired = {
+        pair for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
+        if variant.classification == REPAIRED_TOOLTIP
+    }
+    assert len(REPAIRED_TOOLTIP_FACTS) == 31
+    assert set(REPAIRED_TOOLTIP_FACTS) == repaired
+
+    defaults_by_app = {}
+    for (app_key, key), facts in REPAIRED_TOOLTIP_FACTS.items():
+        if app_key not in defaults_by_app:
+            defaults_by_app[app_key] = resolve_default_settings(app_key)
+        defaults = defaults_by_app[app_key]
+        expected = ast.literal_eval(
+            DEFAULT_VARIANT_EXPECTATIONS[(app_key, key)].actual_repr
+        )
+        assert _same_default(defaults[key], expected), (app_key, key)
+
+        text = tooltips[key]
+        missing = [fact for fact in facts if fact not in text]
+        assert not missing, f"{app_key}:{key} lost repaired facts: {missing}"
 
 
 def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
