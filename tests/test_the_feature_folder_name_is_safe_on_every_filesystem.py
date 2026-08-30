@@ -11,8 +11,6 @@ from __future__ import annotations
 
 import re
 
-import pytest
-
 
 def test_no_selection_is_named_all_features():
     """The documented default."""
@@ -84,3 +82,23 @@ def test_two_different_mixtures_do_not_share_a_folder():
         feature_folder_name([2, "morphology"])
     assert feature_folder_name([1, "morphology"]) != \
         feature_folder_name([1, "intensity"])
+
+
+def test_every_channel_in_a_multi_channel_mixture_appears():
+    """A mixed selection's folder name must retain every component."""
+    from spacr.utils import feature_folder_name
+
+    assert feature_folder_name([0, 1, 2, "morphology"]) == (
+        "channel_0_channel_1_channel_2_morphology"
+    )
+
+
+def test_a_filter_that_slugifies_to_nothing_still_names_a_folder():
+    """Punctuation-only input keeps the component's documented fallback."""
+    from spacr.utils import feature_folder_name
+
+    name = feature_folder_name([1, "---"])
+
+    assert name and not name.endswith("_")
+    assert re.fullmatch(r"[0-9A-Za-z_]+", name), name
+    assert name != feature_folder_name([1])

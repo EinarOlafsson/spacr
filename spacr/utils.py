@@ -9811,8 +9811,6 @@ def feature_folder_name(channel_of_interest) -> str:
         return 'all_features'
 
     def _one(member):
-        if isinstance(member, int):
-            return str(member)
         return re.sub(r'[^0-9A-Za-z]+', '_', str(member)).strip('_') or 'x'
 
     if isinstance(selection, int):
