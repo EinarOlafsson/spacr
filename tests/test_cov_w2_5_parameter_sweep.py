@@ -673,11 +673,6 @@ def test_the_default_runner_is_the_regression(tmp_path, small_space,
     assert list(results["status"]) == ["ok", "ok"]
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="run_sweep's every-trial CSV write is not wrapped in "
-                          "the try/except OSError that guards the identical "
-                          "progress write, so an unwritable results directory "
-                          "raises out of the sweep and loses every finished row")
 def test_a_csv_that_cannot_be_written_does_not_stop_the_sweep(
         tmp_path, small_space, monkeypatch, coefficients):
     """The results write is best-effort; losing it must not lose the sweep.
