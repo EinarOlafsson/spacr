@@ -260,14 +260,8 @@ def test_a_widget_attribute_that_merely_shares_the_name_is_left_alone(qtbot):
     assert holder._thumbs == ["not", "a", "cache"]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "_clear_pixmap_cache calls QPixmapCache.totalUsed(), which PySide6 6.11 "
-    "does not expose (Qt 6 dropped it). The AttributeError is swallowed by "
-    "the function's own `except Exception`, so QPixmapCache.clear() is never "
-    "reached and the pixmaps the Clear RAM confirmation promises to drop are "
-    "still cached afterwards."))
 def test_the_qt_pixmap_cache_is_dropped_by_the_aggressive_cleanup(qapp):
-    """The pixmaps survive a cleanup that told the user it dropped them."""
+    """The pixmaps are dropped on Qt versions without ``totalUsed`` too."""
     QPixmapCache.clear()
     pixmap = QPixmap(64, 64)
     pixmap.fill()
@@ -790,14 +784,6 @@ def test_a_name_that_cannot_be_fetched_is_skipped_not_fatal(monkeypatch):
         "the module after the unfetchable name was never swept"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "_clear_lru_caches guards `getattr(module, attr)` against an attribute "
-    "that cannot be read, then reads `getattr(value, 'cache_clear')` on the "
-    "result outside that guard. A module-level object whose attribute access "
-    "raises anything other than AttributeError therefore throws out of "
-    "clear_ram itself, so the caches after it in the sweep are never dropped "
-    "-- the one thing the surrounding try/except exists to prevent. No module "
-    "spaCR ships holds such an object today; the gap is the missing guard."))
 def test_a_value_that_cannot_be_read_does_not_stop_the_lru_sweep(monkeypatch):
     """One unreadable module attribute must not cost the whole cleanup."""
     from spacr.qt import iconset

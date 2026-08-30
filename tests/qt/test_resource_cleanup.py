@@ -434,7 +434,7 @@ def test_preferences_offers_each_button(action, object_name, qtbot,
     assert button is not None, f"no button for {action}"
     bar = dlg.findChild(HintBar)
     assert bar is not None, "the dialog has nowhere to say what a button does"
-    assert bar.explains(button) == rc.confirmation_text(action)
+    assert bar.explains(button) == rc.summary_text(action)
     # And nothing is said twice: the popup that used to carry it is gone.
     assert button.toolTip() == ""
 
@@ -456,7 +456,7 @@ def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
     resting = bar.text()
 
     QApplication.sendEvent(button, QEvent(QEvent.Enter))
-    assert bar.text() == rc.confirmation_text(action)
+    assert bar.text() == rc.summary_text(action)
     QApplication.sendEvent(button, QEvent(QEvent.Leave))
     assert bar.text() == resting, "the bar must go back to resting"
 
