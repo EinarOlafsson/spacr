@@ -580,3 +580,41 @@ def test_registering_twice_is_refused_unless_replacement_is_asked_for():
     assert register_settings() is False
     assert register_settings(replace=True) is True
     assert register_settings() is False
+
+
+def test_a_run_can_write_its_files_without_touching_the_database(tmp_path):
+    """``hit_store_database=False`` is the portable-files-only choice.
+
+    The setting exists because storing the attribution creates a new
+    versioned run in the measurements database, and a user investigating a
+    hit on somebody else's screen -- or on a read-only copy -- wants the CSVs
+    and the manifest without adding a row to a database they do not own.
+
+    Every other output must still be written. Turning the store off is a
+    narrower run, not a failed one, and the manifest reports an empty
+    attribution id rather than omitting the key, so a reader can tell "not
+    stored" from "this manifest predates the field".
+    """
+    import os
+
+    settings = _write_screen(tmp_path)
+    settings["hit_store_database"] = False
+
+    payload = investigate_hit(settings)
+
+    assert payload["attribution_run_id"] == ""
+    for key in ("wells", "guides", "thresholds", "embedding", "gallery"):
+        assert os.path.isfile(payload["paths"][key]), f"{key} was not written"
+
+
+def test_storing_the_attribution_gives_the_manifest_a_run_to_point_at(
+        investigated):
+    """The default path, so the test above is about the switch.
+
+    Without this, "the id is empty when off" would pass on a build that never
+    filled it in at all.
+    """
+    payload, _root = investigated
+
+    assert payload["attribution_run_id"], (
+        "a stored attribution left the manifest with no run to point at")
