@@ -1095,3 +1095,37 @@ arc, which is why they are reliable while the aggregate is not.
     have. The test was written expecting it to pass; it failed, and the
     failure was the defect rather than the test. Removing the fix makes it
     fail again, which was checked.
+
+23. A FOURTH TEST THAT ASSERTED NOTHING, AND WHAT THE FOUR HAVE IN COMMON
+    ----------------------------------------------------------------------
+    `_check_app_specific(settings, app)` returns an empty list for an app it
+    has no rules for. A test written as
+
+        problems = V._check_app_specific({...}, "explain_cv_model")
+        assert "surrogate_model" not in _keys(problems)
+
+    passes whatever the validator does, because the app key is "explain_cv"
+    and the whole block was skipped. `not in []` is True.
+
+    THE SHAPE, NOW SEEN FOUR TIMES (sections 5, 7, 16, this):
+
+      * the runctx factory test        -- built the wrong object
+      * a `to_crop_settings` stub      -- made `dict()` fail, so {} came back
+      * the control_names retry        -- an input that could not reach the arc
+      * this                           -- an identifier the function ignores
+
+    Every one of them ASSERTS AN ABSENCE, and an absence is what a function
+    returns when it did nothing. Every one of them passed. The arc check
+    caught all four and nothing else would have.
+
+    TWO HABITS FOLLOW.
+
+    First: run the arc check on every test written for a named branch, before
+    committing. That is already the practice here and it is the only thing
+    that has ever caught this.
+
+    Second, and cheaper: when a test asserts that something is ABSENT, assert
+    in the same test that the machinery is live -- drive one input that
+    produces the thing, so "no complaint" is the code agreeing rather than the
+    code never having run. Both new tests here do that now, and it makes them
+    fail on a mistyped app key without needing coverage at all.
