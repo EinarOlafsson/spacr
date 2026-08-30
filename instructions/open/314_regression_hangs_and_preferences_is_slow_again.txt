@@ -125,3 +125,104 @@ DELIBERATELY NOT DONE
   * No optimisation is attempted before the tree confound is ruled out.
     Tuning code against a measurement taken on a half-stale checkout is how
     an afternoon gets spent making the wrong thing faster.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-29, SAME EVENING — WHAT THE NUMBERS SAY
+--------------------------------------------------------------------------------
+
+Everything below was measured on a CLEAN worktree at HEAD (4ba64525) in
+/mnt/firecuda2/codex/covclean, not on the mixed working tree, so the tree
+confound named above is ruled out FIRST. It is ruled out: the behaviour
+reproduces on clean HEAD.
+
+1. THE APPLICATION IS NOT WEDGED WHEN IT IS HEADLESS.
+
+Launched offscreen and sampled every three seconds, spaCR's own CPU is:
+
+    t(s)    cpu%   rss(MB)
+       3   160.7       280
+       6    58.3       286
+       9     0.0       286
+      12     0.0       286
+      15     0.0       286
+      18     0.0       286
+
+It settles to EXACTLY ZERO and stays there, at a steady 286 MB. There is no
+busy loop in the start path, and nothing that keeps running once Home is up.
+Note also that it takes until roughly the nine-second mark to reach that
+floor, against 284's 2.0 s Home target -- but the machine was loaded when this
+was taken, so that figure is an upper bound and not a budget miss on its own.
+
+2. ON A REAL DISPLAY IT IS PEGGED, AND THAT IS THE WHOLE DIFFERENCE.
+
+The maintainer's own session, measured while it was running:
+
+    /home/olafsson/anaconda3/envs/spacr/bin/spacr   96.6% CPU, sustained
+      main thread   54.3%          83 threads total
+      7x "Thread (pooled)"  ~5% each
+
+Zero offscreen against 96.6% on a display is not a small difference, and the
+thing offscreen does not do is PAINT. The animated backdrop is on by default;
+preferences.py:564 says so in its own words -- "The animated backdrop is on by
+default, and the backdrop and the GL path it can take are exactly what the
+crash log points at".
+
+The GPU confirms it. During that same session:
+
+    NVIDIA GeForce RTX 3090   55% utilisation
+    compute processes: NONE
+
+Fifty-five percent of a 3090 with no compute client is a GRAPHICS workload:
+the backdrop is running on GL, and still costs about one CPU core to feed.
+
+WHY THIS MAKES EVERYTHING ELSE FEEL BROKEN, including a module that "hangs":
+a main thread already at 54% is one that has to finish painting a frame before
+it can service a click. Every interaction queues behind the animation. That is
+the shape of the report -- not one broken screen, but Preferences AND
+regression AND "it took less time before", all at once.
+
+WHAT LIKELY CHANGED, and it is recent: instructions 298, 301 and 303 added the
+space theme, the Mandelbrot deep-zoom theme and its real controls, across
+about twenty commits since 2026-08-20. A deep-zoom dive is far more expensive
+per frame than the blob backdrop that preceded it.
+
+NOT YET PROVEN, and it must be before anything is changed: that the backdrop
+is the CAUSE rather than a large bystander. The measurement that settles it is
+one launch with the backdrop off and one with it on, on the same display, both
+sampled the way the table above was. Run it before touching a line.
+
+3. TWO REAL COSTS IN THE START PATH, from a 40-second py-spy profile of a cold
+   start on clean HEAD (824 samples, 50 Hz):
+
+   * ICON RE-INKING IS 22% OF STARTUP. ``iconset.themed_pixmap`` ->
+     ``themed_array`` -> ``themed_qimage`` is 22.1% cumulative, and under it
+     sits PIL: ``Image.resize`` 4.6%, ``ImageFile.load`` 4.6%,
+     ``_encode_tile`` 3.3%, ``reink`` 2.9%. ``app_icon`` alone is 19.2%.
+     There IS a disk cache (``icon_cache_dir``, ``ICON_CACHE_VERSION``) and an
+     ``lru_cache``, so this is a cache MISS, not an absent cache. The key is
+     ``_file_stamp(path)`` = (path, mtime, size) -- and in an editable install
+     whose files are rewritten all day, that stamp changes constantly, so a
+     developer pays a cold icon cache on every single launch. Worth checking
+     whether a released install keeps its cache; if it does, this cost is
+     ours and not the user's.
+
+   * ``apply_preferences_to_app`` IS 13.5% OF SELF TIME, at preferences.py:3910
+     -- which is ``app.setStyleSheet(stylesheet(...))``. A stylesheet set on
+     the QApplication re-polishes every widget in the process. This is the
+     direct measured answer to "triggering the preferences took a very long
+     time", and it is a cost paid on every preference change, not only at
+     startup.
+
+--------------------------------------------------------------------------------
+WHAT TO DO, REVISED BY THE MEASUREMENTS
+--------------------------------------------------------------------------------
+
+1. Settle the backdrop question with the on/off pair described in 2 above. If
+   it is the cause, the fix is a frame budget rather than an off switch: the
+   backdrop is a feature, and 268 already says spaCR must run well on a
+   laptop. An idle window should not paint at full rate.
+2. Make the icon cache survive an editable install, or warm it at build time.
+3. Narrow the stylesheet re-polish so a preference change restyles what it
+   changed rather than the whole application.
+4. Only then look for a hang. Nothing measured here hangs, and a fix aimed at
+   a hang nobody has reproduced is a guess.
