@@ -24,7 +24,7 @@ Re-audit result, 2026-08-30:
     and ``SPACE_PALETTE`` is deliberate settings-file compatibility;
   * empty GLCMs now emit an honest missing value. Entirely unobservable
     features are dropped, while partially observed features are median-imputed
-    before variance/correlation filtering and model use (``7524c916``);
+    before variance/correlation filtering and model use (``27bf3a46``);
   * the Korean ``min_cell_count`` tooltip has been re-translated against the
     exact current English contract and passes the semantic rejection gates;
     this file remains open only until that reviewed entry reaches the final
@@ -386,7 +386,7 @@ confident 1.0 -- a perfect correlation reported for an object that has no
 pixel pairs at that distance at all. Both land in the feature table and
 enrol automatically in every classifier and UMAP matrix.
 
-FIXED in ``7524c916``. ``_calculate_homogeneity`` checks the normalized matrix
+FIXED in ``27bf3a46``. ``_calculate_homogeneity`` checks the normalized matrix
 before calling ``graycoprops`` and writes NaN when it contains no pixel pair.
 The downstream policy is explicit and shared by Classify and the unfiltered
 UMAP/statistics path: drop a feature only when every object lacks it; otherwise

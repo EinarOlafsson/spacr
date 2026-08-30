@@ -232,7 +232,7 @@ Measured tests on Python 3.12.4 / PySide6 6.11.2:
   * the JSONL kill test proves a child killed between samples leaves all prior
     samples readable and no corrupt record.
 
-Implementation commits on the integration branch are ``95e9f110`` (preference
-and independence test), ``2fe427dc`` (run lifecycle, persistence and artifact),
-and ``5920d3a4`` (worker attribution and attributable memory guard), on top of
+Implementation commits on the integration branch are ``ae403cce`` (preference
+and independence test), ``543ba14c`` (run lifecycle, persistence and artifact),
+and ``8216b766`` (worker attribution and attributable memory guard), on top of
 the process-tree sampler/core commits already present in the branch.

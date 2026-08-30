@@ -147,4 +147,4 @@ They prove in all five palettes that adjacent resting tile-edge pixels are
 uniform, the row gap is still exactly ``SPACING["xs"] == 4``, keyboard focus
 paints an accent edge, and the selected-tab edge follows the selected tab.
 The focused visual suite is 69/69 green; the broader Home/theme regression
-cohort was 449/449 green. Implementation commit: ``3631e5b0``.
+cohort was 449/449 green. Implementation commit: ``933cfce1``.

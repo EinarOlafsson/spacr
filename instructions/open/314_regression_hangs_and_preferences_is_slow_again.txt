@@ -247,7 +247,7 @@ excluded in all three arms:
 
 The mtime-only rewrite created no new cache files and never entered the source
 decode path. The two new invalidation tests plus the complete adjacent icon
-and Space-theme suite are 64/64 green. Implementation commit: ``3e9a5af3``.
+and Space-theme suite are 64/64 green. Implementation commit: ``493aef85``.
 
 The item remains OPEN for the quiet-machine real-display backdrop on/off pair,
 the resulting frame-budget decision, and ten cold Regression starts through
@@ -300,14 +300,14 @@ finite render exceeds the five-second soft deadline, shutdown waits rather
 than entering Qt's process-fatal detached state.  The identical one-second
 real-display reproducer now exits zero with no critical log.  Direct and
 adjacent verification is 175 ambient tests, 94 fractal tests and 23 movement/
-budget tests, all passing.  Implementation commit: ``c419697a``.
+budget tests, all passing.  Implementation commit: ``b369d911``.
 
 Preferences' measured whole-dialog construction is 0.823 seconds against its
 3.0-second benchmark budget.  Unchanged preference applications now skip the
 global QApplication stylesheet re-polish which the profile attributed 13.5
-percent of self time to (``1aa373be``).  The startup ratchet now measures
+percent of self time to (``05f0d0ca``).  The startup ratchet now measures
 Preferences as a real post-paint state and has a wall-clock backstop which can
-fail a blocked GUI thread even when its QTimer cannot run (``3f0b3c98``).
+fail a blocked GUI thread even when its QTimer cannot run (``fb43b70d``).
 The two re-polish budget tests and 22 startup/readiness driver tests pass.
 
 The item remains OPEN only for ten consecutive cold Regression starts through
