@@ -247,8 +247,18 @@ class TestAnEvalWhoseSignatureCannotBeRead:
             eval = np.frombuffer
 
         class _Recording:
-            def eval(self, batch, channel_axis=MISSING_CHANNEL_AXIS,
-                     **kwargs):
+            def eval(self, batch, batch_size=8, resample=True, channels=None,
+                     channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                     normalize=True, invert=False, rescale=None, diameter=None,
+                     flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                     anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                     min_size=15, max_size_fraction=0.4, niter=None,
+                     augment=False, tile_overlap=0.1, bsize=256,
+                     compute_masks=True, progress=None):
+                # THE INSTALLED SIGNATURE, WRITTEN OUT, and no **kwargs. A
+                # double that accepts anything cannot fail when spaCR passes
+                # an argument cellpose has removed, which is what
+                # tests/cellpose_api_contract.py exists to catch.
                 # NAMED, and read. `_segment_one_field` filters its kwargs
                 # against `inspect.signature(model.eval).parameters`, so a
                 # double that swallowed the axis into **kwargs would never
@@ -256,8 +266,12 @@ class TestAnEvalWhoseSignatureCannotBeRead:
                 # channel_axis=cellpose_channel_axis(field), and the double
                 # has to be able to tell that from an omission.
                 check_cellpose_eval_call(batch, channel_axis)
-                seen["channel_axis"] = channel_axis
-                seen.update(kwargs)
+                # Record the named parameters instead of a **kwargs bag --
+                # the signature is written out now, so locals() is the bag.
+                recorded = dict(locals())
+                for drop in ("self", "batch", "recorded"):
+                    recorded.pop(drop, None)
+                seen.update(recorded)
                 labels = np.zeros((8, 8), dtype=np.uint16)
                 labels[2:4, 2:4] = 1
                 return ([labels], [[None, None, None]],

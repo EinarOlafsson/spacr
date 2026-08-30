@@ -81,7 +81,18 @@ class _StubCellposeModel:
     def __init__(self):
         self.calls = 0
 
-    def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+    def eval(self, image, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+             normalize=True, invert=False, rescale=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+             anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None,
+             augment=False, tile_overlap=0.1, bsize=256,
+             compute_masks=True, progress=None):
+        # THE INSTALLED SIGNATURE, WRITTEN OUT, and no **kwargs. A
+        # double that accepts anything cannot fail when spaCR passes
+        # an argument cellpose has removed, which is what
+        # tests/cellpose_api_contract.py exists to catch.
         # channel_axis IS NAMED AND IS READ. Absorbing it into **kwargs
         # leaves the double unable to tell a working call from the
         # `channel_axis=3` that raised on every real run, which is how that
