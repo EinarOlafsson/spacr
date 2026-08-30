@@ -234,7 +234,7 @@ def test_reusable_suite_auto_detects_resources_and_current_actions():
 
 
 def test_qt_measurement_suites_run_after_xdist_workers_exit():
-    """Cursor, event-loop, and RSS measurements need an idle process.
+    """Cursor, event-loop, frame-time, and RSS measurements need an idle process.
 
     The offscreen Qt platform exposes one synthetic cursor across workers,
     and event-loop/RSS budgets become measurements of sibling-worker load
@@ -249,6 +249,7 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
         "tests/qt/test_home_stage_and_dock.py",
         "tests/qt/test_figure_queue.py",
         "tests/qt/test_pca.py",
+        "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
     ):
         assert f"--ignore={path}" in workflow
         assert workflow.count(path) >= 2
