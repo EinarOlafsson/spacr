@@ -464,7 +464,7 @@ def test_preprocess_data_float_threshold_is_honoured():
 
 
 def test_preprocess_data_log_transform_and_nan_fill():
-    """log_data applies log(x + 1e-6); NaNs are mean-filled before scaling."""
+    """Missing inputs are median-filled before log transform and scaling."""
     from spacr.utils import preprocess_data
 
     rng = np.random.default_rng(5)
@@ -479,8 +479,33 @@ def test_preprocess_data_log_transform_and_nan_fill():
 
     assert out.shape == (30, 2)
     assert np.isfinite(out).all()
-    # the imputed cell equals the column mean -> exactly 0 after standardising
-    assert out[0, 0] == pytest.approx(0.0, abs=1e-10)
+    expected = df["a"].copy()
+    expected.iloc[0] = expected.median()
+    expected = np.log(expected + 1e-6)
+    expected = (expected - expected.mean()) / expected.std(ddof=0)
+    assert np.allclose(out[:, 0], expected.to_numpy())
+
+
+def test_preprocess_data_drops_a_wholly_missing_feature(capsys):
+    """An unobservable feature cannot survive as an all-NaN model column."""
+    from spacr.utils import preprocess_data
+
+    frame = pd.DataFrame({
+        "usable": np.linspace(1.0, 5.0, 12),
+        "unobserved": np.full(12, np.nan),
+    })
+
+    out = preprocess_data(
+        frame,
+        filter_by=None,
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+
+    assert out.shape == (12, 1)
+    assert np.isfinite(out).all()
+    assert "Dropped 1 columns with NaN values" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------
@@ -607,6 +632,28 @@ def test_filter_dataframe_features_drops_nan_columns(capsys):
     assert "cell_channel_1_std_intensity" not in features
     assert features == ["cell_channel_1_mean_intensity"]
     assert "Dropped 1 columns with NaN values" in capsys.readouterr().out
+
+
+def test_filter_dataframe_features_median_imputes_partial_nan_columns(capsys):
+    """A missing texture value is neutral, not reason to discard the feature."""
+    from spacr.utils import filter_dataframe_features
+
+    df = _self_pair_df(n=5)
+    name = "cell_channel_1_homogeneity_distance_32"
+    df[name] = [0.1, np.nan, 0.9, np.nan, 0.5]
+
+    filtered, features = filter_dataframe_features(
+        df,
+        channel_of_interest="channel_1",
+        remove_low_variance_features=False,
+        remove_highly_correlated_features=False,
+    )
+
+    assert name in features
+    assert filtered[name].tolist() == [0.1, 0.5, 0.9, 0.5, 0.5]
+    printed = capsys.readouterr().out
+    assert "Dropped 0 columns with NaN values" in printed
+    assert "Median-imputed 2 missing value(s) in 1 partially observed" in printed
 
 
 def test_filter_dataframe_features_morphology():

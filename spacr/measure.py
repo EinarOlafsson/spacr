@@ -2034,7 +2034,17 @@ def _calculate_homogeneity(label, channel, distances=None):
             homogeneity_per_distance = []
             for d in distances:
                 glcm = graycomatrix(rescaled_image, [d], [0], symmetric=True, normed=True)
-                homogeneity_per_distance.append(graycoprops(glcm, 'homogeneity')[0, 0])
+                # No pixels in this bounding box are ``d`` columns apart.
+                # ``graycoprops`` deliberately turns that empty matrix into
+                # 0.0, which looks like a confidently heterogeneous object
+                # rather than an unobserved statistic.  Preserve the missing
+                # measurement honestly; the model boundary drops an entirely
+                # absent feature and median-imputes a partially observed one.
+                if not np.any(glcm):
+                    homogeneity_per_distance.append(np.nan)
+                else:
+                    homogeneity_per_distance.append(
+                        graycoprops(glcm, 'homogeneity')[0, 0])
             homogeneity_values.append(homogeneity_per_distance)
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)

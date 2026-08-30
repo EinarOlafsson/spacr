@@ -177,6 +177,18 @@ def test_calculate_homogeneity():
     assert len(df) == 2
 
 
+def test_calculate_homogeneity_marks_an_empty_glcm_missing():
+    """An offset wider than a region has no pixel pairs, not zero texture."""
+    m = np.zeros((12, 12), dtype=np.int32)
+    m[2:8, 3:9] = 1
+    ch = np.arange(m.size, dtype=np.uint8).reshape(m.shape)
+
+    df = M._calculate_homogeneity(m, ch, distances=[2, 6])
+
+    assert np.isfinite(df.loc[0, "homogeneity_distance_2"])
+    assert np.isnan(df.loc[0, "homogeneity_distance_6"])
+
+
 def test_estimate_blur():
     img = np.random.default_rng(3).random((32, 32)).astype(np.float64)
     val = M._estimate_blur(img)          # already-float64 path

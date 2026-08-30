@@ -8693,6 +8693,12 @@ def preprocess_data(
         exclude=excluded_features,
         allow_unknown=allow_unknown,
     )
+
+    # The unfiltered UMAP/statistics path does not pass through
+    # ``filter_dataframe_features``.  Give it the same missing-measurement
+    # contract before transformations or estimators see an all-NaN feature.
+    if numeric_data.isna().to_numpy().any():
+        numeric_data = _resolve_missing_model_features(numeric_data)
     
     # Check if numeric_data is empty
     if numeric_data.empty:
@@ -8857,6 +8863,50 @@ def feature_columns(columns, selection):
     return keep
 
 
+def _resolve_missing_model_features(df):
+    """Make missing measurements fit-ready without inventing zero signal.
+
+    A measurement absent from every object has no evidence behind it and is
+    removed.  A measurement available for at least one object is retained,
+    with its missing rows filled by that feature's median.  Median imputation
+    gives an object with no measurement the typical observed value, so the
+    absence itself cannot masquerade as unusually strong or weak signal; it
+    is also robust to the long-tailed intensity distributions common here.
+
+    :param df: numeric model-feature frame.
+    :returns: a frame with no missing values.
+    """
+    missing = df.isna()
+    all_missing = missing.all(axis=0)
+    all_missing_columns = all_missing[all_missing].index.tolist()
+    if all_missing_columns:
+        df = df.drop(columns=all_missing_columns)
+
+    partially_missing = df.isna().any(axis=0)
+    partial_columns = partially_missing[partially_missing].index.tolist()
+    missing_values = (
+        int(df[partial_columns].isna().sum().sum())
+        if partial_columns else 0
+    )
+    if partial_columns:
+        medians = df[partial_columns].median(axis=0, skipna=True)
+        df = df.copy()
+        df[partial_columns] = df[partial_columns].fillna(medians)
+
+    # Keep the long-standing diagnostic text stable for callers and logs,
+    # while spelling out that only wholly absent columns are removed now.
+    print(
+        f"Dropped {len(all_missing_columns)} columns with NaN values "
+        "(all values were missing)"
+    )
+    if partial_columns:
+        print(
+            f"Median-imputed {missing_values} missing value(s) in "
+            f"{len(partial_columns)} partially observed feature column(s)"
+        )
+    return df
+
+
 def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
     """Restrict a features DataFrame to a channel of interest and clean up correlated/low-variance columns.
 
@@ -8930,18 +8980,19 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         if verbose:
             print(f"Removed columns: {columns_to_drop}")
 
+    # Resolve missingness before variance and correlation filtering.  An
+    # all-missing feature then disappears explicitly; a one-value feature
+    # becomes constant after imputation and the ordinary variance rule drops
+    # it.  Running those filters first lets pandas' pairwise NaN rules make a
+    # different accidental decision for each missingness pattern.
+    df = _resolve_missing_model_features(df)
+
     if remove_low_variance_features:
         df = remove_low_variance_columns(df, threshold=0.01, verbose=verbose)
     
     if remove_highly_correlated_features:
         df = remove_highly_correlated_columns(df, threshold=0.95, verbose=verbose)
         
-    # Remove columns with NaN values
-    before_drop_NaN = len(df.columns)
-    df = df.dropna(axis=1)
-    after_drop_NaN = len(df.columns)
-    print(f"Dropped {before_drop_NaN - after_drop_NaN} columns with NaN values")
-
     features = schema.model_feature_columns(df)
 
     if isinstance(exclude, list):
