@@ -2,7 +2,7 @@
 NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29.
+Status:    DONE, 2026-08-30.
 Owner:     spacr/qt — theme and Home.
 Requested: 2026-08-29 — "on the home screen and other screens there are
            outlines of modules that are otherwise transparent like e.g. there
@@ -123,3 +123,28 @@ them.
 Do not set every border to transparent as a shortcut. A transparent 1px
 border still occupies a pixel of layout, so a wholesale swap changes metrics
 everywhere and leaves the real rule in place for the next person to trip over.
+
+--------------------------------------------------------------------------------
+CLOSED 2026-08-30 -- WHAT LANDED AND WHAT PROVES IT
+--------------------------------------------------------------------------------
+
+The defect was the resting ``AppTile`` rim and the transparent Home tab-pane
+rim. Both are now absent in the base and final glass stylesheet layers. The
+four-pixel grid spacing remains the separator, so removing decorative ink did
+not collapse the vertical rhythm. Hover edges, the keyboard-focus accent ring
+and the selected-tab edge remain because each reports an interaction state.
+The shared ``border`` and ``border_soft`` tokens and edges on actual controls
+were deliberately left intact.
+
+The before audit captured Home in all five palettes plus Mask, Measure and
+Regression. It showed that the reported module-row defect belonged to Home;
+the latter screens' remaining category edges bound clickable controls rather
+than transparent containers. The after capture covers dark, light, space,
+cell and glass Home paths.
+
+The pixel tests render real widgets rather than inspect stylesheet strings.
+They prove in all five palettes that adjacent resting tile-edge pixels are
+uniform, the row gap is still exactly ``SPACING["xs"] == 4``, keyboard focus
+paints an accent edge, and the selected-tab edge follows the selected tab.
+The focused visual suite is 69/69 green; the broader Home/theme regression
+cohort was 449/449 green. Implementation commit: ``3631e5b0``.
