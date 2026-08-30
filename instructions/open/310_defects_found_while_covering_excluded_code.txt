@@ -1344,3 +1344,18 @@ same preference simultaneously true and false inside one process.
 proves that it cannot redirect repository identity or replace a live
 preferences module. The exact failing order is green under PySide6 6.11.2 and
 branch coverage: all 114 Home-variant and tooltip-layout contracts pass.
+
+--------------------------------------------------------------------------------
+32. A CANONICAL COLUMN FALLBACK COULD NEVER BE REACHED
+--------------------------------------------------------------------------------
+
+``generate_score_heatmap``'s nested ``group_cv_score`` read a table, handled
+``columnID``, and then carried an ``elif 'column'`` fallback. ``read_table``
+canonicalises ``column`` to ``columnID`` before returning, so the first arm is
+always selected for either accepted spelling and the fallback cannot execute.
+The branch had even been labelled unreachable in its own source comment.
+
+The dead fallback is deleted rather than hidden from coverage. Reachable
+tests pin both sides of the property that makes this safe: a CSV's ``column``
+arrives as ``columnID``, while an already canonical ``columnID`` round-trips
+unchanged.
