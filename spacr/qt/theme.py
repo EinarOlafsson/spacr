@@ -5044,8 +5044,14 @@ def size_close_mark(button, body_px: Optional[int] = None) -> None:
     hint = button.sizeHint()
     height = max(side, button.minimumHeight(), hint.height())
     width = max(side, button.minimumWidth(), min(hint.width(), height))
-    if button.size() != (width, height):
-        button.setFixedSize(width, height)
+    # Unconditional, and deliberately so. This once read
+    # `if button.size() != (width, height):`, which compares a QSize against a
+    # tuple and is therefore true for every size there is -- so the box has
+    # always been re-fixed on every FontChange and StyleChange the style
+    # delivered. Making that guard real would change WHEN setFixedSize
+    # re-applies its minimum and maximum, so the skip is left out rather than
+    # introduced here.
+    button.setFixedSize(width, height)
 
 
 class _CloseMarkResizer(QObject):

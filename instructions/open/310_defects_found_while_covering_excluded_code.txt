@@ -852,3 +852,39 @@ not add the misleading second claim that no classes were defined, and it is
 retained if a custom model file has an independent load problem. The former
 strict xfail is now an ordinary regression contract and pins the complete
 user-facing report.
+
+--------------------------------------------------------------------------------
+15. THE ANNOTATION BACKDROP WAS SQUARE BECAUSE setWidget() TURNS ON AUTO-FILL
+--------------------------------------------------------------------------------
+    spacr/qt/screens/annotate.py, the grid backdrop (GRID_OBJECT_NAME).
+
+    The registered QSS block declares `border-radius: 8px` and the block was
+    in the live application sheet, verified. The panel still painted a square
+    corner in the running application.
+
+    The cause is one line of Qt behaviour: QScrollArea.setWidget() turns
+    autoFillBackground ON for the widget it is given. The auto-fill runs
+    before the stylesheet's own painter and covers the entire rectangle with
+    the palette's window brush -- and QSS had already propagated the block's
+    `background` INTO that palette. So the panel came out the right colour,
+    which is why nobody caught it by looking, and the radius was painted
+    underneath an opaque square of the identical colour.
+
+    Measured rather than reasoned about. On a fresh screen, the corner profile
+    of the holder is:
+
+        no change                  -> [0, 0, 0, 0]   square
+        setAutoFillBackground(F)   -> [4, 2, 1, 1]   rounded
+        unpolish + polish          -> [4, 2, 1, 1]   rounded (clears auto-fill)
+        WA_StyledBackground(True)  -> [0, 0, 0, 0]   square, no effect
+
+    The fourth row is worth keeping. WA_StyledBackground is the usual answer
+    to "my QSS background is ignored", it is what theme.make_surface sets, and
+    it does nothing at all here -- the background was never being ignored. A
+    fix chosen by reasoning from the familiar symptom would have been wrong
+    and would have looked right.
+
+    Fixed: setAutoFillBackground(False) after setWidget, next to the identical
+    call the viewport already had. tests/qt/test_the_backdrop_behind_the_
+    crops_is_rounded.py measures the corner and now passes; it was one of the
+    14 test files that genuinely failed rather than failing on isolation.
