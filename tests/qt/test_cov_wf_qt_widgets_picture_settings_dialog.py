@@ -26,7 +26,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox  # noqa: E402
+from PySide6.QtWidgets import QComboBox, QLineEdit, QSpinBox  # noqa: E402
 
 import spacr.picture_settings as ps  # noqa: E402
 from spacr.qt.widgets import picture_settings_dialog as psd  # noqa: E402
@@ -50,47 +50,41 @@ def _dialog(qtbot, **kwargs):
 
 class TestTheCapWiringSurvivesAnUnexpectedControl:
 
-    def test_a_cap_stored_as_a_decimal_still_prices_itself_once(self, qtbot):
-        """A settings file that wrote ``cap: 2000.0`` must still open.
+    def test_a_decimal_cap_is_normalised_to_a_live_whole_count(self, qtbot):
+        """A settings file that wrote ``cap: 2000.0`` must stay a count.
 
         The cap arrives from whatever is on disk, and a CSV or a JSON blob
-        round-tripped through a float column hands this dialog a decimal. The
-        control built for a decimal is a QDoubleSpinBox, which is not the
-        QSpinBox the live re-pricing connects to -- so the guard on that
-        connection is what stands between the user and a window that will not
-        open. What they lose is the live update, and nothing else: the cap
-        still prices itself once, at build time, off the value they stored.
+        round-tripped through a float column hands this dialog a decimal. It is
+        still an object COUNT: normalising it at the boundary keeps the
+        QSpinBox contract, keeps live pricing connected, and prevents the
+        dialog from returning fractional state that the montage later
+        truncates without saying so.
         """
         decimal = _dialog(qtbot, values={"cap": 12.5})
         whole = _dialog(qtbot)
 
-        assert isinstance(decimal._editors["cap"], QDoubleSpinBox)
-        assert not isinstance(decimal._editors["cap"], QSpinBox)
-        # Priced at build time from the stored value, truncated to a count.
+        assert isinstance(decimal._editors["cap"], QSpinBox)
         assert _costs(decimal._labels["cap"]) == ["12"]
+        assert decimal.values()["cap"] == 12
+        assert isinstance(decimal.values()["cap"], int)
 
-        # The decimal control is NOT wired, so dragging it changes nothing...
-        settled = decimal._labels["cap"].toolTip()
-        decimal._editors["cap"].setValue(30.0)
-        assert decimal._labels["cap"].toolTip() == settled
-        assert decimal.values()["cap"] == pytest.approx(30.0)
+        decimal._editors["cap"].setValue(30)
+        assert _costs(decimal._labels["cap"]) == ["30"]
+        assert decimal.values()["cap"] == 30
+        assert isinstance(decimal.values()["cap"], int)
 
-        # ...while the ordinary whole-number control is, which is what makes
-        # the frozen tooltip above a property of the widget type and not of
-        # the dialog having no wiring at all.
+        # The ordinary whole-number state has the same control and behaviour.
         assert isinstance(whole._editors["cap"], QSpinBox)
         whole._editors["cap"].setValue(30)
         assert _costs(whole._labels["cap"]) == ["30"]
 
-    def test_a_cap_of_zero_is_priced_as_nothing_at_all(self, qtbot):
+    def test_a_cap_of_zero_restores_the_unpriced_help(self, qtbot):
         """Zero objects has no page count, no memory, and no cut time.
 
         ``montage_cap_cost`` answers "" for a cap that is not a positive
-        count, and the caller has to notice: formatting "" onto the end of
-        the help would leave the reader a tooltip ending in a dangling blank
-        paragraph. Nothing new is written for zero -- and the very next
-        number they try writes its price as usual, which is what says the
-        control is still live rather than merely quiet.
+        count. The caller must restore the setting's base help rather than
+        leave the previous positive cap's price beside a box that now reads
+        zero. The next positive count then prices itself as usual.
         """
         dialog = _dialog(qtbot)
         cap = dialog._editors["cap"]
@@ -98,9 +92,12 @@ class TestTheCapWiringSurvivesAnUnexpectedControl:
 
         assert ps.montage_cap_cost(0) == ""
 
-        priced_at_the_default = label.toolTip()
+        base = dialog._cap_help
+        assert base and label.toolTip() != base
         cap.setValue(0)
-        assert label.toolTip() == priced_at_the_default
+        assert label.toolTip() == base
+        assert _costs(label) == []
+        assert "MB of crops held" not in label.toolTip()
         assert dialog.values()["cap"] == 0
 
         cap.setValue(5000)

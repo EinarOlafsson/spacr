@@ -133,6 +133,61 @@ _NOISE_LINE_PREFIXES = (
 #: :func:`terminate_all_streams` steps over.
 _LIVE_STREAMS: List[subprocess.Popen] = []
 
+#: Every wait in process cleanup is bounded. A provider CLI is external code;
+#: shutdown must not hang forever because that code ignored a signal.
+_PROCESS_EXIT_TIMEOUT = 1
+
+
+def _process_has_exited(proc: subprocess.Popen) -> bool:
+    """Whether ``proc`` is known to have exited; uncertainty means still live."""
+    try:
+        return proc.poll() is not None
+    except Exception:                                      # noqa: BLE001
+        return False
+
+
+def _kill_and_reap(proc: subprocess.Popen) -> bool:
+    """Kill ``proc``, then bounded-wait to reap it; report confirmed exit."""
+    try:
+        proc.kill()
+    except Exception:                                      # noqa: BLE001
+        return _process_has_exited(proc)
+    try:
+        proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+        return True
+    except Exception:                                      # noqa: BLE001
+        return _process_has_exited(proc)
+
+
+def _terminate_and_reap(
+        proc: subprocess.Popen, *, known_running: bool = False,
+) -> tuple[bool, bool]:
+    """Request termination and return ``(requested, confirmed_exited)``.
+
+    A failed signal is not evidence that the child died. Callers use the
+    second result to keep an uncertain, possibly live child registered for a
+    later retry instead of losing the only handle that can unblock its reader.
+    """
+    if not known_running and _process_has_exited(proc):
+        return False, True
+    try:
+        proc.terminate()
+    except Exception:                                      # noqa: BLE001
+        return False, _process_has_exited(proc)
+    try:
+        proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+        return True, True
+    except Exception:                                      # noqa: BLE001
+        return True, _kill_and_reap(proc)
+
+
+def _discard_stream(proc: subprocess.Popen) -> None:
+    """Remove a confirmed-finished stream, tolerating a cleanup race."""
+    try:
+        _LIVE_STREAMS.remove(proc)
+    except ValueError:
+        pass
+
 
 def terminate_all_streams() -> int:
     """Terminate active provider subprocesses and release their readers.
@@ -141,21 +196,11 @@ def terminate_all_streams() -> int:
     """
     ended = 0
     for proc in list(_LIVE_STREAMS):
-        try:
-            if proc.poll() is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=1)
-                except Exception:                       # noqa: BLE001
-                    proc.kill()
-                ended += 1
-        except Exception:                               # noqa: BLE001
-            pass
-        finally:
-            try:
-                _LIVE_STREAMS.remove(proc)
-            except ValueError:
-                pass
+        requested, finished = _terminate_and_reap(proc)
+        if requested:
+            ended += 1
+        if finished:
+            _discard_stream(proc)
     return ended
 
 
@@ -215,23 +260,17 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             proc.stdout.close()
         except Exception:
             pass
+        finished = False
         try:
-            proc.wait(timeout=1)
-        except Exception:
-            try:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=1)
-                except Exception:
-                    proc.kill()
-            except Exception:
-                pass
-        if provider is not None:
+            proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+            finished = True
+        except Exception:                                  # noqa: BLE001
+            _requested, finished = _terminate_and_reap(
+                proc, known_running=True)
+        if provider is not None and finished:
             provider._current_proc = None
-        try:
-            _LIVE_STREAMS.remove(proc)
-        except ValueError:
-            pass
+        if finished:
+            _discard_stream(proc)
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:
