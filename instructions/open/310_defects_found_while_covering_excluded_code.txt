@@ -1165,3 +1165,30 @@ the object they inspect.
     No test was written for it. The two `if ax.patches else []` guards on the
     lines above are the same shape and are equally dead, which is three arcs
     in four lines.
+
+--------------------------------------------------------------------------------
+25. THE LINE-NUMBER TRAP AGAIN, THIS TIME SELF-INFLICTED (see also section 7)
+    -------------------------------------------------------------------------
+    Section 7 recorded that a coverage report's line numbers stop matching the
+    working tree when the tree has edits the measured copy did not. Here is the
+    same trap arriving by a route worth naming separately: MY OWN EDIT, EARLIER
+    IN THE SAME SESSION.
+
+    Removing the dead `if parent:` guard from counting.py deleted one line at
+    401. Every line after it shifted up by one, so the batched run's
+
+        spacr/counting.py arc 450->449
+
+    became arc 449->448 in the tree. Checking the old numbers reported MISSING
+    for an arc the new test had just covered, and the obvious next move -- write
+    another test -- would have been chasing a number, not a gap.
+
+    THE RULE THAT SURVIVES THIS. A coverage artifact is only valid against the
+    exact tree it was measured on. After any source edit, either re-measure or
+    re-derive the line from the code rather than from the report. The check
+    script takes line numbers, so it inherits the staleness of whatever it is
+    handed; reading the three lines around the arc costs seconds and settles it.
+
+    Eleven files were edited in the guard removal, so eleven files' arcs in the
+    2026-08-30 batched artifact are off by one or two after the edit point. The
+    artifact is still correct for the commit it names.
