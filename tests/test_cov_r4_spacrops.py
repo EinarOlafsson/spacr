@@ -439,18 +439,18 @@ def test_allowing_scale_recovers_a_scale_that_pinning_it_cannot(tmp_path,
     write_cyx(ref_path, [reference])
     write_cyx(mov_path, [moved])
 
-    def _scale_of(**kwargs):
+    def _scale_of(allow_scale):
         aligner = StitchedMultiAligner(
-            outdir=str(tmp_path / f"out_{len(kwargs)}_{sorted(kwargs)}"),
-            downsample=0.5, **kwargs)
+            outdir=str(tmp_path / f"out_scale_{allow_scale}"),
+            downsample=0.5, allow_scale=allow_scale)
         _tif, _png, manifest = aligner.align([ref_path, mov_path])
         rows = [r for r in csv.DictReader(open(manifest))
                 if r["ref"] in ("False", "false")]
         assert rows, "the moving image was aligned at all"
         return float(rows[0]["scale"])
 
-    assert _scale_of(allow_scale=False) == pytest.approx(1.0, abs=1e-6)
-    assert _scale_of(allow_scale=True) == pytest.approx(1 / 1.25, abs=0.05)
+    assert _scale_of(False) == pytest.approx(1.0, abs=1e-6)
+    assert _scale_of(True) == pytest.approx(1 / 1.25, abs=0.05)
 
 
 # ===========================================================================
