@@ -658,6 +658,8 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "python packaging/release.py bump" in workflow
     assert "--allow-current" in workflow
     assert "github.actor != 'github-actions[bot]'" in workflow
+    assert "github.event.forced != true" in workflow
+    assert "refusing to infer a release from rewritten history" in workflow
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
     assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
