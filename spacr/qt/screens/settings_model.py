@@ -10230,7 +10230,13 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         # previous setting's name -- or, in the preview panels, with the
         # "drop a folder here" placeholder that happens to sit first in the
         # row.
-        item = layout.itemAt(index - 1)
+        candidate_index = index - 1
+        # A stretching label is row status or a path placeholder, not the
+        # fixed caption of the editor after it.  Measure's preview path was
+        # otherwise paired with the adjacent maximum-set spin box.
+        if layout.stretch(candidate_index) > 0:
+            return None
+        item = layout.itemAt(candidate_index)
         return _named(item.widget()) if item is not None else None
     return None
 
@@ -10298,6 +10304,8 @@ def retarget_field_tooltips(root: QWidget) -> int:
 
     moved = 0
     for field in root.findChildren(QWidget):
+        if field.property("settingHelpLabel"):
+            continue
         if not _is_a_settings_field(field):
             continue
         tip = field.toolTip()
@@ -10315,12 +10323,35 @@ def retarget_field_tooltips(root: QWidget) -> int:
             # ended up with no help anywhere, which is a worse defect than
             # the one this pass exists to fix.
             continue
+        key = str(field.property("settingKey") or "")
+        app_key = str(field.property("settingsAppKey") or "")
+        if key and not app_key:
+            app_key = str(getattr(root, "app_key", "") or "")
+
+        display_tip = tip
+        if app_key and key:
+            source = str(
+                field.property("apiTooltipDescriptionSource")
+                or field.property("apiTooltipDescription")
+                or tip
+            )
+            html = str(field.property("apiTooltipHtml") or "")
+            display_tip = (html if "href=" in html
+                           else format_tooltip(source, app_key, key))
+            field.setProperty("settingsAppKey", app_key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
+            field.setProperty("apiTooltipHtml", display_tip)
+
         if not existing:
-            label.setToolTip(tip)
             label.setToolTipDuration(-1)
             label.setCursor(Qt.WhatsThisCursor)
-        label.setProperty("apiTooltipHtml", tip)
-        label.setProperty("apiTooltipDisplayRole", "tooltip")
+        label.setToolTip(display_tip)
+        label.setProperty("apiTooltipHtml", display_tip)
+        label.setProperty(
+            "apiTooltipDisplayRole",
+            "tooltip" if app_key and key else "hover-help",
+        )
         # This widget now OWNS setting help. ``install_api_tooltips`` later
         # discovers fields by ``settingKey``; without this mark it also
         # rediscovers these labels as though they were editors. On a compact
