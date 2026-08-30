@@ -43,18 +43,39 @@ from typing import Any, Dict, Optional, Sequence
 import numpy as np
 from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QPainter
-from PySide6.QtWidgets import (QAbstractItemView, QFileDialog, QFrame,
-                               QHBoxLayout, QLabel, QListWidget,
-                               QListWidgetItem, QSizePolicy, QSlider,
-                               QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QFileDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QSizePolicy,
+    QSlider,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
 
-from ..layers import (Blending, COLORMAPS, Canvas, FieldKey, ImageLayer,
-                      LabelsLayer, LayerError, LayerEvent, LayerStack,
-                      PointsLayer, ShapesLayer, Spacing)
+from ..layers import (
+    COLORMAPS,
+    Blending,
+    Canvas,
+    FieldKey,
+    ImageLayer,
+    LabelsLayer,
+    LayerError,
+    LayerEvent,
+    LayerStack,
+    PointsLayer,
+    ShapesLayer,
+    Spacing,
+)
+from .app_catalog import declared_app, register_declared
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from .theme import close_mark_button, font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
-from .app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
 
@@ -635,6 +656,7 @@ class LayerViewer(LinkedView, QWidget):
         super().__init__(parent)
         self.setObjectName("LayerViewer")
         self._stack = stack if stack is not None else LayerStack()
+        self._custom_colormap_name = ""
         self._build()
         self._stack.subscribe(self._on_layers_changed)
         self.link_selection(LINK_SOURCE)
@@ -766,9 +788,19 @@ class LayerViewer(LinkedView, QWidget):
             self.opacity_slider.setValue(int(round(layer.opacity * 100)))
             self.blending_combo.setCurrentText(layer.blending)
             if isinstance(layer, ImageLayer):
-                index = self.colormap_combo.findText(layer.colormap.name)
-                if index >= 0:
-                    self.colormap_combo.setCurrentIndex(index)
+                previous = self._custom_colormap_name
+                if previous:
+                    index = self.colormap_combo.findText(previous)
+                    if index >= 0:
+                        self.colormap_combo.removeItem(index)
+                    self._custom_colormap_name = ""
+                name = layer.colormap.name
+                index = self.colormap_combo.findText(name)
+                if index < 0:
+                    self.colormap_combo.addItem(name)
+                    self._custom_colormap_name = name
+                    index = self.colormap_combo.count() - 1
+                self.colormap_combo.setCurrentIndex(index)
         finally:
             for widget, was in zip((self.opacity_slider, self.blending_combo,
                                     self.colormap_combo), blocked):

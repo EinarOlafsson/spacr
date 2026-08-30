@@ -127,33 +127,30 @@ def test_clicking_a_row_whose_layer_is_gone_keeps_the_real_selection(
 # The property panel: a colour with no entry in the combo
 # ---------------------------------------------------------------------------
 
-def test_a_custom_colour_leaves_the_colormap_combo_alone(qtbot,
+def test_a_custom_colour_is_shown_without_recolouring_it(qtbot,
                                                          qt_theme_applied):
-    """Selecting a hex-coloured channel must not silently recolour it.
+    """Selecting a hex-coloured channel must show its truthful colour.
 
     ``ImageLayer`` accepts any colour spec, so a channel can legitimately be
     a ``#rrggbb`` ramp that the combo box — filled only from the built-in
-    ``COLORMAPS`` — cannot display. ``findText`` then returns -1, and the
-    combo must be left showing whatever it showed. Forcing it to index 0
-    would be worse than cosmetic: the combo's signal is what writes the
-    colormap back, so the user's custom channel colour would be overwritten
-    by "blue" merely because they clicked its row.
+    ``COLORMAPS`` — did not previously display. The selected layer must not
+    inherit the stale text from another layer, and synchronising the combo
+    must not emit the signal that rewrites the custom colour.
     """
     stack = LayerStack()
     stack.add_image(np.full((20, 20), 500, dtype=np.uint16),
                     name="image", colormaps="#ff00aa")
-    before = sorted(lv.COLORMAPS)[0]
-
     viewer = _sized(qtbot, lv.LayerViewer(stack))
     assert stack["image"].colormap.name == "#ff00aa"
-    assert viewer.colormap_combo.findText("#ff00aa") == -1
-    assert viewer.colormap_combo.currentText() == before
+    assert viewer.colormap_combo.findText("#ff00aa") >= 0
+    assert viewer.colormap_combo.currentText() == "#ff00aa"
     assert stack["image"].colormap.name == "#ff00aa"   # not rewritten
 
     stack["image"].colormap = "magenta"                # a colour it CAN show
     stack.select(None)
     stack.select(stack["image"])
     assert viewer.colormap_combo.currentText() == "magenta"
+    assert viewer.colormap_combo.findText("#ff00aa") == -1
 
 
 # ---------------------------------------------------------------------------
