@@ -66,7 +66,11 @@ class Measurement:
 
 @dataclass(frozen=True)
 class Recommendation:
-    """A worker count, and every number that produced it."""
+    """A worker count, and every number that produced it.
+
+    :ivar workers: recommended number of parallel workers.
+    :ivar reason: human-readable explanation of the binding limit.
+    """
 
     workers: int
     reason: str
@@ -250,7 +254,11 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
 
 def format_report(measurement: Measurement,
                   recommendation: Recommendation) -> str:
-    """The benchmark as a few lines a user can read and paste into an issue."""
+    """The benchmark as a few lines a user can read and paste into an issue.
+
+    :param measurement: observed serial benchmark costs and throughput.
+    :param recommendation: worker recommendation derived from those costs.
+    """
     lines = [
         "spaCR benchmark",
         f"  items measured      {measurement.items}",

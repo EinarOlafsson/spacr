@@ -154,6 +154,8 @@ class MergePolicy:
     def how_for(self, table: str) -> str:
         """Whether ``table`` keeps cells it contributed no rows for.
 
+        :param table: child object table whose join mode is requested.
+
         A cell has exactly one cytoplasm and may have multiple nuclei,
         pathogens, or organelles. The
         many-per-cell tables are rolled up to one row per cell first (see
@@ -211,6 +213,8 @@ def aggregation_plan(frame: pd.DataFrame, *,
                      skip: Sequence[str] = ()) -> Dict[str, str]:
     """The aggregation chosen for every column -- what the user gets shown.
 
+    :param frame: child-object table whose columns will be rolled up.
+
     Returned rather than applied silently so the settings panel can display
     it and the user can override any of it.
     """
@@ -241,7 +245,10 @@ def table_names(db_path: str) -> Tuple[str, ...]:
 
 
 def mergeable_tables(db_path: str) -> Tuple[str, ...]:
-    """The object tables in this database, in preference order."""
+    """The object tables in this database, in preference order.
+
+    :param db_path: path to the SQLite database to inspect.
+    """
     present = set(table_names(db_path))
     return tuple([t for t in OBJECT_TABLES if t in present]
                  + ([PNG_TABLE] if PNG_TABLE in present else []))
@@ -258,6 +265,8 @@ def _keys_in(frame: pd.DataFrame) -> List[str]:
 
 def object_keys(values: pd.Series) -> pd.Series:
     """Object identifiers as integers, whatever spelling they arrived in.
+
+    :param values: object-label series to coerce to nullable integers.
 
     The object key is an integer in every object table and TEXT in
     ``png_list`` -- ``'o5'`` -- so merging the two raised

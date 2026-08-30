@@ -1872,6 +1872,8 @@ def _write_connection(db_path: str) -> sqlite3.Connection:
 def ensure_round_tables(db_path: str) -> None:
     """Create :data:`ROUND_TABLE` and :data:`ROUND_LOG_TABLE` if absent.
 
+    :param db_path: existing ``measurements.db`` in which to create the tables.
+
     Two tables, not one. Per-label provenance and per-round metrics have
     different cardinalities and different lifetimes: a label keeps its round
     forever, a round's held-out accuracy is rewritten if the round is re-fit.
@@ -1983,7 +1985,10 @@ def record_labels(db_path: str, annotation_column: str,
 
 def label_rounds(db_path: str,
                  annotation_column: str = "annotate") -> pd.DataFrame:
-    """Per-label round provenance as a frame (empty when never recorded)."""
+    """Per-label round provenance as a frame (empty when never recorded).
+
+    :param db_path: path to the ``measurements.db`` to read.
+    """
     con = _connect(db_path)
     try:
         return _read_rounds(con, annotation_column)
@@ -1993,6 +1998,8 @@ def label_rounds(db_path: str,
 
 def next_round(db_path: str, annotation_column: str = "annotate") -> int:
     """The round number the next batch of labels belongs to.
+
+    :param db_path: path to the ``measurements.db`` whose round log is queried.
 
     Round 0 is "before any model was retrained from inside Annotate" — the
     labels that seeded the loop. The first retrain produces round 1.
@@ -2290,7 +2297,10 @@ def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
 
 def format_learning_curve(curve: pd.DataFrame,
                           verdict: Optional[StoppingVerdict] = None) -> str:
-    """Render the round-by-round curve and the stopping verdict as text."""
+    """Render the round-by-round curve and the stopping verdict as text.
+
+    :param curve: round-by-round metrics frame from :func:`learning_curve`.
+    """
     lines = ["Active-learning rounds"]
     if curve is None or not len(curve):
         lines.append("")

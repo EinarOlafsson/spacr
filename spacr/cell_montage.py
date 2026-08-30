@@ -315,6 +315,9 @@ def effects_grid_from_results(path) -> Optional["pd.DataFrame"]:
 def write_effects_grid(effects, folder) -> str:
     """Write a sweep's effects grid beside the run. Returns the path.
 
+    :param effects: gene-by-measurement effects table to persist.
+    :param folder: run directory in which to write the grid.
+
     Written by the sweep so the montage can read it later -- and in another
     session, which is the half a panel-to-panel handover cannot do.
     """
@@ -2344,11 +2347,16 @@ class RouteRequirements:
         return not self.missing and self.route != "none"
 
     def offers(self, shape: str) -> bool:
-        """True when ``shape`` is a crop this route can really produce."""
+        """True when ``shape`` is a crop this route can really produce.
+
+        :param shape: crop shape to check against this route's capabilities.
+        """
         return str(shape) in self.shapes
 
     def why_not(self, shape: str) -> str:
         """Why ``shape`` is unavailable, or ``''`` when it is available.
+
+        :param shape: requested crop shape whose availability is explained.
 
         The returned sentence is attached to a disabled control. An
         unavailable object-shaped crop is not substituted with a bounding

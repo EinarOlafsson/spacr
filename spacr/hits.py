@@ -693,7 +693,10 @@ class HitList:
         return self.hits[index]
 
     def gene(self, gene: str) -> Optional[Hit]:
-        """The row for one gene id, or ``None``."""
+        """The row for one gene id, or ``None``.
+
+        :param gene: exact gene identifier to look up.
+        """
         for hit in self.hits:
             if hit.gene == gene:
                 return hit
@@ -707,7 +710,10 @@ class HitList:
         return self.filter(max_q=cut)
 
     def top(self, n: int) -> "HitList":
-        """The first ``n`` rows, still ranked."""
+        """The first ``n`` rows, still ranked.
+
+        :param n: maximum number of ranked rows to retain.
+        """
         return self._with(self.hits[:max(0, int(n))],
                           dict(self.filters, top=int(n)))
 
@@ -829,6 +835,8 @@ class HitList:
 
     def write_csv(self, path: Union[str, os.PathLike]) -> str:
         """Write the table as CSV and return the path written.
+
+        :param path: destination CSV path.
 
         Through :func:`spacr.tabular.write_table`, so a hit list is written
         with the same column spellings every spaCR reader expects to find.
@@ -958,7 +966,10 @@ class HitList:
             + "".join(rows) + "</table>")
 
     def write_html(self, path: Union[str, os.PathLike]) -> str:
-        """Write :meth:`to_html` to a file and return the path."""
+        """Write :meth:`to_html` to a file and return the path.
+
+        :param path: destination HTML path.
+        """
         target = os.path.abspath(os.path.expanduser(os.fspath(path)))
         os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
         with open(target, "w", encoding="utf-8") as handle:
