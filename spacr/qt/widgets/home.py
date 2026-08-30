@@ -1612,16 +1612,12 @@ class HomePage(QWidget):
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
-        # documentMode(True) suppresses the pane frame, and without the
-        # frame the tab strip floats with nothing under it.
+        # Keep ordinary tab geometry; the QSS deliberately suppresses the
+        # pane's decorative frame, while the selected tab keeps its own
+        # meaningful indicator.
         self._tabs.setDocumentMode(False)
-        try:
-            from ..preferences import resolve_effective_theme
-            glass = resolve_effective_theme() == "glass"
-        except Exception:
-            glass = False
         self._tabs.setStyleSheet(
-            _tab_qss(self._P, self._pane_alpha(), glass=glass))
+            _tab_qss(self._P, self._pane_alpha()))
         # The QStackedWidget QTabWidget keeps its pages in is a plain
         # QWidget, and the blanket `QWidget { background-color: bg }`
         # rule makes it paint the window colour over the ::pane it sits
@@ -1671,9 +1667,9 @@ class HomePage(QWidget):
             holder = QWidget()
             grid = QGridLayout(holder)
             grid.setContentsMargins(0, 0, 0, SPACING["xs"])
-            # Tiles are packed tight — the rim is what separates them
-            # now, not the gap, so the gap only has to stop two rims
-            # touching and reading as one line.
+            # The gap is the quiet separation between rimless resting tiles.
+            # Keep this vertical rhythm even though there is no decorative
+            # edge to reinforce it.
             grid.setHorizontalSpacing(SPACING["xs"])
             grid.setVerticalSpacing(SPACING["xs"])
             tiles = [self._make_tile(k, n, d) for k, n, d in entries]
@@ -1757,9 +1753,8 @@ class HomePage(QWidget):
         holder = QWidget()
         grid = QGridLayout(holder)
         grid.setContentsMargins(0, SPACING["xs"], 0, 0)
-        # Packed tight, in both axes: each tile carries its own rim, so
-        # the gap no longer has to do the work of telling two of them
-        # apart — it only has to stop two rims reading as one line.
+        # Match Home's quiet separation: resting tiles have no decorative
+        # rim, and this small gap alone keeps adjacent launchers distinct.
         grid.setHorizontalSpacing(SPACING["xs"])
         grid.setVerticalSpacing(SPACING["xs"])
         width = scaled_px(self.TILE_MIN_W)
@@ -2050,24 +2045,19 @@ class HomePage(QWidget):
         super().closeEvent(event)
 
 
-def _tab_qss(P: dict, pane_alpha: float = 1.0,
-             glass: bool = False) -> str:
+def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
     """Return styling for the transparent Home tab container.
 
     ``pane_alpha`` controls only the selected tab's surface fill; the pane and
-    tab-bar backgrounds remain transparent. A one-pixel pane outline connects
-    the selected tab visually to its content.
+    tab-bar backgrounds remain transparent. The pane has no decorative rim;
+    the selected tab's own edge is the meaningful state indicator.
     """
     from ..theme import css_color
-    pane_border = (css_color("#ffffff", 0.27)
-                   if glass else P["border_soft"])
-    radius = 14 if glass else 8
     selected_fill = ("transparent" if pane_alpha <= 0.0
                      else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
-    border: 1px solid {pane_border};
-    border-radius: {radius}px;
+    border: none;
     background: transparent;
     top: -1px;
 }}
@@ -2093,10 +2083,8 @@ QTabWidget#HomeTabs > QTabBar::tab:hover {{
     color: {P['fg']};
     background: {P['surface_alt']};
 }}
-/* The selected tab takes the page opacity like everything else. It paints
-   `surface` so it joins onto the pane's edge — but with the pane transparent
-   that made it the last solid black rectangle on the page, which is exactly
-   what "the tabs still have black backgrounds" was pointing at. */
+/* The selected tab takes the page opacity like everything else. Its own edge
+   carries selection without drawing a decorative rim around the empty pane. */
 QTabWidget#HomeTabs > QTabBar::tab:selected {{
     color: {P['accent']};
     background: {selected_fill};
