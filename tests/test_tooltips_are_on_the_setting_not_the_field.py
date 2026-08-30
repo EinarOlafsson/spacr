@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib
 import inspect
 import pkgutil
+from html import escape
 
 import pytest
 from PySide6.QtWidgets import (
@@ -203,10 +204,17 @@ def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
         except Exception:
             continue
         checked += 1
-        surviving = {c.toolTip() for c in built.findChildren(QWidget)
-                     if c.toolTip()}
-        for tip in authored - surviving:
-            missing.append(f"{module_name}.{class_name}: {tip[:60]!r}")
+        surviving = [c.toolTip() for c in built.findChildren(QWidget)
+                     if c.toolTip()]
+        for tip in authored:
+            # Typed setting help wraps the authored body in linked HTML. The
+            # prose survives even though the rendered tooltip is no longer
+            # byte-for-byte equal to its plain source.
+            encoded = escape(tip)
+            if not any(tip == rendered or encoded in rendered
+                       for rendered in surviving):
+                missing.append(
+                    f"{module_name}.{class_name}: {tip[:60]!r}")
 
     assert checked > 10, "the sweep is not covering the app"
     assert not missing, (

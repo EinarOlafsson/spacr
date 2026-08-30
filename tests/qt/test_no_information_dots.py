@@ -60,7 +60,7 @@ def _help_labels(root) -> list:
 
 
 def _labels_with_help(root) -> list:
-    """Every label carrying setting help, however it was built.
+    """Every label carrying linked API setting help.
 
     A module screen writes the same properties itself when it lays its form
     out, so the dot's removal has to be checked against that path too --
@@ -166,6 +166,81 @@ def test_a_real_module_keeps_the_link_on_every_setting_label(
                if "href=" not in str(label.property("apiTooltipHtml") or "")]
     assert without == [], (
         f"{app_key}: {len(without)} setting labels lost their API link")
+
+
+def test_generic_hover_help_stays_sticky_without_claiming_an_api_role(
+        qtbot, qt_theme_applied):
+    """Authored panel help uses the shared popup but is not API metadata."""
+    from spacr.qt.widgets import hover_tooltip as ht
+
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    label = next(child for child in screen.findChildren(QLabel)
+                 if child.text() == "View:")
+
+    assert label.property("settingHelpLabel")
+    assert label.property("apiTooltipDisplayRole") == "hover-help"
+    assert not label.property("settingKey")
+    assert "href=" not in str(label.property("apiTooltipHtml") or "")
+
+    shown = []
+    original = ht.HoverTooltip.show_for
+    ht.HoverTooltip.show_for = (
+        lambda self, anchor, html: shown.append((anchor, html)))
+    try:
+        QApplication.sendEvent(label, QEvent(QEvent.Type.Enter))
+        QApplication.processEvents()
+    finally:
+        ht.HoverTooltip.show_for = original
+
+    assert shown and shown[-1][0] is label
+
+
+def test_measure_path_status_is_not_the_sample_limit_setting_label(
+        qtbot, qt_theme_applied):
+    """A stretching path placeholder cannot name the editor after it."""
+    from spacr.qt.widgets.preview_controls import MAX_SETS_TOOLTIP
+
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    panel = screen._measure_preview
+
+    assert panel._path_label.property("settingHelpLabel") is None
+    assert panel._path_label.toolTip() == ""
+    assert panel._path_label.property("apiTooltipHtml") is None
+    assert panel._max_sets_box.toolTip() == MAX_SETS_TOOLTIP
+
+
+def test_umap_objective_settings_gain_links_and_generic_help_does_not(
+        qtbot, qt_theme_applied):
+    """The three keyed controls and the surrounding authored help differ."""
+    expected = {
+        "umap_neighborhood_weight",
+        "umap_stability_weight",
+        "umap_cluster_structure_weight",
+    }
+    screen = AppScreen("umap")
+    qtbot.addWidget(screen)
+    labels = [child for child in screen.findChildren(QWidget)
+              if child.property("settingHelpLabel")]
+    objectives = {str(label.property("settingKey")): label
+                  for label in labels
+                  if str(label.property("settingKey") or "") in expected}
+
+    assert set(objectives) == expected
+    for label in objectives.values():
+        assert label.property("settingsAppKey") == "umap"
+        assert label.property("apiTooltipDisplayRole") == "tooltip"
+        assert "href=" in str(label.property("apiTooltipHtml") or "")
+
+    generic = [label for label in labels
+               if label.property("apiTooltipDisplayRole") == "hover-help"]
+    assert generic
+    assert all(not (label.property("settingsAppKey")
+                    and label.property("settingKey"))
+               for label in generic)
+    assert all("href=" not in str(label.property("apiTooltipHtml") or "")
+               for label in generic)
 
 
 def test_hovering_a_setting_label_still_delivers_its_help(
