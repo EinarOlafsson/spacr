@@ -51,9 +51,8 @@ Quality = Literal["auto", "balanced", "high"]
 BACKENDS: Final[tuple[str, ...]] = ("auto", "gpu", "cpu")
 QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 
-#: Reference defaults shared by both renderers. `auto` picks the GPU when
-#: vispy is importable and the CPU otherwise, which makes one set of numbers
-#: serve both.
+#: The published defaults, shared by both backends. ``auto`` picks the GPU
+#: when vispy is importable and the CPU otherwise.
 #: Which fractal. Two genuinely different families, not one with knobs:
 #: `orbit` is the orbit-fold of `fractal_travel.py` v2.1.0, whose CPU path
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
@@ -230,7 +229,6 @@ class Settings:
     quality: str = DEFAULT_QUALITY
     scale: float = DEFAULT_SCALE
     fps: int = 60
-    cpu_threads: Optional[int] = None
 
     def validated(self) -> "Settings":
         """A copy with every field inside the range the renderers accept.
@@ -245,8 +243,6 @@ class Settings:
             quality=self.quality if self.quality in QUALITIES else DEFAULT_QUALITY,
             scale=clamp(float(self.scale), 0.25, 2.0),
             fps=int(clamp(float(self.fps), 15, 240)),
-            cpu_threads=(None if self.cpu_threads is None
-                         else max(1, int(self.cpu_threads))),
         )
 
 
@@ -365,8 +361,6 @@ def resolved_cpu_threads(settings: Settings,
         except Exception:                                    # noqa: BLE001
             pass
     available = max(1, min(hardware.logical_cpus, numba_limit, 24))
-    if settings.cpu_threads is not None:
-        return max(1, min(available, settings.cpu_threads))
     if available <= 2:
         return 1
     if available <= 6:
