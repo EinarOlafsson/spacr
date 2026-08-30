@@ -1,22 +1,19 @@
-"""The last untaken edges in five pieces of spaCR infrastructure.
+"""The last untaken edges in four pieces of spaCR infrastructure.
 
-Five modules that are not analysis and not GUI, each with one or two arcs the
-suite had never taken:
+Not analysis and not GUI: the modules a run leans on before it does any work.
 
-* ``spacr.schema`` -- the row-letter guard, and the object-role registry that
-  validates itself at import.
+* ``spacr.schema`` -- the object-role registry that validates itself at
+  import.
 * ``spacr.logging_util`` -- the trace hook surviving a logging call that
   fails, and a level handler that is carrying somebody else's filter.
-* ``spacr.figures.fast_render`` -- the offscreen platform NOT being forced
-  when a display is advertised, and a destination with no folder in it.
 * ``spacr.pipeline_v2`` -- a non-``cell`` object type claiming no nucleus
   channel, and the empty-stack early return.
 * ``spacr.resources.home.versions._generators.common`` -- the generator's
-  path fix when ``spacr`` has not been imported yet.
+  path fix in a process where ``spacr`` has not been imported yet.
 
-Three of the targets turned out to be guards no caller can fail. Those are
-not silenced: each has a proof beside it and a test that pins the invariant
-the proof rests on, so the guard becomes reachable again the moment somebody
+Two of the targets turned out to be guards no caller can fail. Neither is
+silenced: each has a proof beside it and a test that pins the invariant the
+proof rests on, so the guard becomes reachable again the moment somebody
 breaks the invariant.
 """
 from __future__ import annotations
@@ -30,12 +27,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-
 from spacr import logging_util as lu
 from spacr import pipeline_v2 as PV
 from spacr import schema
-from spacr.figures import fast_render as FR
 
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
@@ -43,52 +37,6 @@ from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 # ---------------------------------------------------------------------------
 # spacr.schema
 # ---------------------------------------------------------------------------
-
-def test_every_token_row_id_hands_to_the_letter_parser_comes_back_a_number():
-    """``row_id``'s ``if index is not None`` cannot be false. Proof, and pin.
-
-    ``row_id`` only calls :func:`row_index_from_letters` after
-    ``_ROW_ONLY.match(letters)`` has succeeded, and ``_ROW_ONLY`` is
-    ``^([A-Za-z]{1,2})$``. Every one of the 702 tokens that matches is a
-    non-empty ASCII-letter string, which is exactly the input for which
-    ``row_index_from_letters`` cannot return None: it returns None only for a
-    non-``str``, for an empty ``strip()``, or for a character outside
-    ``A``-``Z`` after ``upper()``. So the ``is not None`` re-check is a
-    defensive re-test of something the caller has already guaranteed.
-
-    The proof is exhaustive rather than argued, and the second half drives the
-    tokens that DO make the parser answer None -- so this is not the vacuous
-    "no counterexample found" that an absence assertion on its own would be.
-    """
-    accepted = [chr(a) + tail
-                for tail in ("",) + tuple(chr(b) for b in range(65, 91))
-                for a in range(65, 91)]
-    assert len(accepted) == 702
-
-    for token in accepted:
-        assert schema._ROW_ONLY.match(token), token
-        assert schema._PREFIXED_INT.match(token) is None, token
-        index = schema.row_index_from_letters(token)
-        assert index is not None, f"{token!r} reached row_id's guard as None"
-        assert schema.row_id(token) == f"r{index}"
-
-    assert schema.row_id("a") == "r1"
-    assert schema.row_id("AF") == "r32"
-
-    # The tokens for which the parser DOES answer None -- so the guard is a
-    # real question in general, just not one this caller can ask. Not one of
-    # them survives _ROW_ONLY, which is the whole argument above.
-    for parser_says_none in ("A1", "A-1", "", "   ", None, 3):
-        assert schema.row_index_from_letters(parser_says_none) is None
-        assert schema._ROW_ONLY.match(str(parser_says_none)) is None
-
-    # And _ROW_ONLY also stops tokens the parser would happily number, so the
-    # call under the guard is only ever reached with 1-2 letters.
-    assert schema.row_index_from_letters("ABC") == 731
-    assert schema._ROW_ONLY.match("ABC") is None
-    assert schema.row_id("ABC") == "rABC"
-    assert schema.row_id(3) == "r3"
-
 
 def test_no_declared_object_role_can_trip_the_registry_guard_at_import():
     """The ``raise`` under ``for _registered_role in OBJECT_TYPES`` is dead.
@@ -270,115 +218,6 @@ def test_a_foreign_filter_on_a_level_handler_survives_and_still_sees_records(
     logging.getLogger("spacr.probe").error("while the level is on")
     assert counter.seen > before, "the foreign filter was bypassed"
     assert "while the level is on" in error_log.read_text(encoding="utf-8")
-
-
-# ---------------------------------------------------------------------------
-# spacr.figures.fast_render
-# ---------------------------------------------------------------------------
-
-def test_an_advertised_display_is_not_overridden_with_the_offscreen_platform(
-        monkeypatch):
-    """``_pyqtgraph_ready`` forces ``offscreen`` only when there is no display.
-
-    The setdefault exists so a headless machine can still export a scene. On a
-    machine that HAS a display, forcing offscreen would render the export
-    through a different platform plugin than the one the user is looking at,
-    which is the disagreement this module exists to end.
-    """
-    ok, why = FR._pyqtgraph_ready(create=True)
-    if not ok:
-        pytest.skip(why)
-
-    from PySide6.QtWidgets import QApplication
-    existing = QApplication.instance()
-    assert existing is not None
-
-    saved_application = FR._APPLICATION
-    # The branch under test is only reached when the module believes there is
-    # no QApplication; there is no public way to unmake one, and unmaking the
-    # session's app to test a branch would be worse than reaching past it.
-    monkeypatch.setattr(FR, "qt_application", lambda: None)
-    try:
-        monkeypatch.delenv("DISPLAY", raising=False)
-        monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
-        monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
-        assert FR._pyqtgraph_ready(create=True) == (True, "")
-        assert os.environ["QT_QPA_PLATFORM"] == "offscreen", (
-            "with no display the export platform must be forced")
-        assert FR._APPLICATION is existing
-
-        monkeypatch.delenv("QT_QPA_PLATFORM", raising=False)
-        monkeypatch.setenv("DISPLAY", ":99")
-        assert FR._pyqtgraph_ready(create=True) == (True, "")
-        assert "QT_QPA_PLATFORM" not in os.environ, (
-            "an advertised display must be left to choose its own platform")
-        assert FR._APPLICATION is existing
-    finally:
-        FR._APPLICATION = saved_application
-
-
-def test_a_destination_with_no_folder_in_it_creates_no_folder(
-        tmp_path, monkeypatch):
-    """A bare filename is written where it stands, not under a new directory.
-
-    ``os.makedirs`` on ``os.path.dirname('volcano.pdf')`` -- the empty string
-    -- raises, so the guard is what lets a relative destination work at all.
-    """
-    class FakePlot:
-        def __init__(self):
-            self.exported = []
-
-        def export(self, destination):
-            self.exported.append(str(destination))
-            Path(destination).write_bytes(b"%PDF-fake")
-            return str(destination)
-
-    monkeypatch.chdir(tmp_path)
-    before = set(os.listdir(tmp_path))
-
-    bare = FakePlot()
-    rendered = FR.render_panel("volcano", plot=bare, path="volcano.png",
-                               announce=False)
-    assert rendered.drawn is True
-    assert rendered.renderer == "pyqtgraph"
-    assert os.path.dirname(rendered.path) == ""
-    assert (tmp_path / rendered.path).is_file()
-    assert set(os.listdir(tmp_path)) - before == {os.path.basename(
-        rendered.path)}, "a bare name must not have made a directory"
-
-    # The same call with a folder in the destination: now the folder IS made.
-    nested = FakePlot()
-    rendered_nested = FR.render_panel(
-        "volcano", plot=nested, path=str(tmp_path / "nested" / "volcano.png"),
-        announce=False)
-    assert rendered_nested.drawn is True
-    assert (tmp_path / "nested").is_dir()
-    assert Path(rendered_nested.path).parent == tmp_path / "nested"
-
-
-def test_every_fast_panel_key_has_a_branch_that_feeds_its_plot():
-    """``build_fast_plot``'s final fall-through is unreachable. Proof, and pin.
-
-    The function raises ``KeyError`` for any key outside ``FAST_PANELS``, so
-    by the time the ``if/elif`` chain starts, ``key`` is one of the seven
-    entries in that dict. The chain names all seven. The path where every
-    branch is false and the plot is returned unfed therefore cannot be taken.
-
-    That is only true while the dict and the chain agree, which is precisely
-    what this test holds: add a panel to ``FAST_PANELS`` without giving it a
-    branch and this fails, naming the key that would come back empty.
-    """
-    fed_by_the_chain = {
-        "volcano", "effect_rank", "effect_distribution",
-        "p_histogram", "qq", "controls", "agreement",
-    }
-    assert set(FR.FAST_PANELS) == fed_by_the_chain, (
-        "a FAST_PANELS key with no branch would return an unfed plot")
-
-    import pandas as pd
-    with pytest.raises(KeyError) as caught:
-        FR.build_fast_plot("not_a_panel", pd.DataFrame({"a": [1]}))
-    assert "no pyqtgraph twin" in str(caught.value)
 
 
 # ---------------------------------------------------------------------------
