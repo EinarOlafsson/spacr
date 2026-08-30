@@ -374,7 +374,8 @@ def _qt_code_tokens() -> Dict[int, str]:
             continue
         try:
             out[int(code)] = token
-        except (TypeError, ValueError):   # pragma: no cover - defensive
+        except (TypeError, ValueError):
+            # A binding whose enum will not convert costs that key, not the map.
             continue
     return out
 
@@ -2261,6 +2262,15 @@ class AnnotateScreen(QWidget):
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                               SPACING["sm"], SPACING["sm"])
         self._grid_scroll.setWidget(self._grid_holder)
+        # setWidget() turns autoFillBackground ON, and that is what squared
+        # the corner off. The auto-fill runs BEFORE the stylesheet's own
+        # painter and covers the whole rectangle with the palette's window
+        # brush -- which QSS has already propagated the block's `background`
+        # into. So the panel came out the right colour, the `border-radius`
+        # in the block was painted underneath it, and the backdrop read as a
+        # square slab among the rounded cards beside it. Measured at the
+        # corner; the same call is made for the viewport just above.
+        self._grid_holder.setAutoFillBackground(False)
         # Shift + left click blows one crop up to fill this container. Built
         # here rather than on demand so it is already a child of the viewport
         # and already above the canvas the tiles are laid out on.

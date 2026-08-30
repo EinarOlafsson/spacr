@@ -313,3 +313,25 @@ The two re-polish budget tests and 22 startup/readiness driver tests pass.
 The item remains OPEN only for ten consecutive cold Regression starts through
 that wall-clock-guarded benchmark on a machine no longer occupied by the CI
 partition replays.  Timing them beside those jobs would not be valid evidence.
+--------------------------------------------------------------------------------
+2026-08-30 -- THE FIVE-PASS STYLESHEET FINDING RECONCILED WITH THE FINAL TREE
+--------------------------------------------------------------------------------
+
+An independent coverage lane, based before the integrated late-QSS change,
+measured five global stylesheet compositions during a cold launch: the initial
+preference application plus four import-time widget-QSS registrations.  Its
+first fix batched those registrations and reduced five passes to two.
+
+The canonical integration tree already contains the stronger resolution in
+``a3c18f77``: late widget QSS is installed on the newly created screen root,
+not by re-polishing the entire ``QApplication``.  Consequently cold launch
+applies preferences once when setup has no new answers, while still installing
+late blocks before their screen's first paint.  The final merge deliberately
+kept that one-pass scoped-overlay design rather than reintroducing a second
+global pass.  ``test_the_theme_is_resolved_once_when_nobody_was_asked_anything``
+and the late-screen QSS cohorts ratchet both halves of that contract.
+
+The lane's warm measurement put one ``apply_preferences_to_app`` call at a
+median 5 ms (min 5, max 6, n=7).  Removing redundant passes is real work, but
+it is not presented as the multi-second hang; the causal real-display backdrop
+and frame-budget evidence above remains the explanation for that report.
