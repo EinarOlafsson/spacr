@@ -37,14 +37,17 @@ from __future__ import annotations
 
 import hashlib
 import os
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional, Tuple
 
 from PySide6.QtGui import QIcon
 
 from .theme import (
-    contrast_ratio, effective_surface, palette_for, relative_luminance,
+    contrast_ratio,
+    effective_surface,
+    palette_for,
+    relative_luminance,
 )
 
 #: WCAG 1.4.11 (non-text contrast) minimum for a UI graphic.
@@ -67,9 +70,14 @@ CHROMA_MONO_MAX = 32.0
 #: the ink band paints visible banding into a flat glyph.
 MIN_TONAL_RANGE = 0.12
 
-#: Longest edge an icon is processed at. Icons are drawn into 16-52 px
-#: slots; anything past 512 px is pure cost.
-MAX_WORK_SIZE = 512
+#: Longest edge an icon is processed at. The largest bundled-icon consumer
+#: is the legacy 64 px tile; the supported 200 % accessibility scale and a
+#: 2x display make that 256 physical pixels. Processing the 1024 px masters
+#: any larger cannot add a pixel Qt can show on that supported path. The old
+#: 512 px ceiling accounted for 2.9 s (37 %) of a measured cold Home launch;
+#: this display-derived ceiling cuts the same pass to about 1.0 s without
+#: asking Qt to upscale at the maximum supported tile size.
+MAX_WORK_SIZE = 256
 
 #: Where the bundled PNGs live.
 RESOURCE_DIR = os.path.normpath(
@@ -201,8 +209,8 @@ def _load_rgba(path: str):
     Downscaled to :data:`MAX_WORK_SIZE` first. Some bundled assets are
     enormous for icon artwork — ``logo_spacr.png`` is 3334x3334, which
     is 356 MB as a float64 RGBA array and about half a second to
-    re-ink, for something drawn into a 52 px slot. 512 px is four times
-    the largest slot at 2x device pixel ratio.
+    re-ink, for something drawn into a 52 px slot. 256 px covers the largest
+    64 px tile at the supported 200 % UI scale on a 2x display.
     """
     try:
         import numpy as np
@@ -346,7 +354,7 @@ ENV_ICON_CACHE = "SPACR_ICON_CACHE"
 #: Bumped when the re-inking maths changes. A cached icon from an older
 #: formula is WRONG rather than merely stale, and a version in the name is
 #: cheaper than trying to detect that.
-ICON_CACHE_VERSION = 1
+ICON_CACHE_VERSION = 2
 
 
 def icon_cache_dir() -> Path:

@@ -4,7 +4,13 @@ Re-inking 50 icons cold was 2.8 s of a 4.8 s startup: the source art is
 large (logo_spacr.png is 3334x3334) and every launch paid full decode plus
 LANCZOS downscale plus re-ink. The lru_cache covers repeats within one run;
 this covers repeats across runs, which is the case a user actually meets.
+
+The cold path is capped at the largest physical size the supported UI can
+request. Keeping a 512 px working image for a 256 px maximum display path
+made icon processing 37 percent of a measured real Home launch.
 """
+
+import inspect
 
 import numpy as np
 import pytest
@@ -56,6 +62,32 @@ class TestTheRoundTrip:
 
         monkeypatch.setattr(iconset, "_load_rgba", _boom)
         assert iconset.themed_array(icon, "dark") is not None
+
+
+class TestTheColdWorkCeiling:
+
+    def test_it_covers_the_largest_supported_physical_tile(self):
+        """The speedup may not make an accessibility/HiDPI path upscale."""
+        from spacr.qt import preferences
+        from spacr.qt.widgets.tile import Tile
+
+        slot = inspect.signature(Tile.__init__).parameters["icon_size"].default
+        physical = slot * preferences.FONT_SCALE_MAX * 2
+
+        assert iconset.MAX_WORK_SIZE >= physical
+
+    def test_a_large_master_is_reduced_to_that_ceiling(self, tmp_path):
+        from PIL import Image
+
+        source = tmp_path / "master.png"
+        Image.fromarray(
+            np.full((1024, 1024, 4), 255, dtype=np.uint8), "RGBA"
+        ).save(source)
+
+        rgba = iconset._load_rgba(str(source))
+
+        assert rgba.shape == (
+            iconset.MAX_WORK_SIZE, iconset.MAX_WORK_SIZE, 4)
 
 
 class TestInvalidation:
