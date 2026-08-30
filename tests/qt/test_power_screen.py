@@ -26,6 +26,8 @@ suite for no extra coverage.
 """
 from __future__ import annotations
 
+import subprocess
+import sys
 import warnings
 
 import numpy as np
@@ -526,6 +528,50 @@ def test_a_protective_effect_is_refused_rather_than_reported_as_no_power(qapp):
 # ---------------------------------------------------------------------------
 # The registration seams
 # ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("screen_first", [False, True],
+                         ids=["declared-app-first", "screen-first"])
+def test_declared_defaults_resolve_in_either_import_order(screen_first):
+    """The lazy declared row and its defaults converge in a fresh process."""
+    first = (
+        "import spacr.qt.screens.power\n"
+        if screen_first else
+        "from spacr.qt import app\n"
+    )
+    code = first + """
+from spacr import settings
+from spacr.qt import app
+from spacr.qt.screens.settings_model import resolve_default_settings
+
+assert 'power' in {row[0] for row in app.APPS}
+defaults = resolve_default_settings('power')
+assert len(defaults) == 15
+assert settings.has_registered_defaults('power')
+assert set(defaults) <= set(settings.expected_types)
+assert set(defaults) <= set(settings.tooltips)
+"""
+    subprocess.run([sys.executable, "-c", code], check=True)
+
+
+def test_register_restores_settings_after_the_screen_was_imported(
+        registry_sandbox):
+    """One public registration call restores both halves of the app.
+
+    A self-registration caller imports this screen before it can call
+    :func:`register`, so the defaults cannot depend on importing the
+    already-loaded module again. Clearing both registries reproduces that
+    order deterministically.
+    """
+    from spacr import settings as settings_mod
+
+    app_mod = registry_sandbox
+    app_mod.unregister_app(APP_KEY)
+    settings_mod.unregister_defaults(APP_KEY)
+
+    assert register() is True
+    assert settings_mod.has_registered_defaults(APP_KEY)
+    assert settings_mod.defaults_for(APP_KEY) == power_default_settings()
+
 
 @pytest.fixture
 def registry_sandbox():
