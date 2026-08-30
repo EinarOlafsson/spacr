@@ -203,17 +203,13 @@ _KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
 _KEY_FRACTAL_SPEED_MIN = "spaceout/fractal_speed_min"
 _KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
 
-#: Spaceout speed is deliberately not capped. It multiplies the flight's own
-#: clock, so nothing physical sets a limit -- past a few hundred the picture
-#: is a blur, which is a valid visual choice rather than an invalid value.
-#: What a fractal number must satisfy to be USABLE, as
+#: What a fractal number must satisfy to be usable, as
 #: ``name -> (floor, ceiling, why)``. ``None`` for a bound means there is
 #: none.
 #:
-#: THESE ARE NOT CAPS ON THE FIELD. A spin box that silently clamps 8000 to 8
-#: is a control that lies about what it did; the field takes whatever is typed
-#: and `explain_a_fractal_number` says plainly when a value cannot be used,
-#: and why.
+#: These are validation bounds, not display-field caps. A field accepts the
+#: typed value and :func:`explain_a_fractal_number` says plainly when it
+#: cannot be used and why; it never silently changes 8000 to 8.
 #:
 #: A bound is here only where a value outside it CANNOT WORK -- a
 #: supersampling of 0 takes no samples, a scale of 0 renders nothing, a
@@ -361,8 +357,8 @@ FRACTAL_LIMITS = {
 #: Every setting that is really about SPEED, and what one Speed of 1.0
 #: means for each.
 #:
-#: ONE CONTROL, SIX NUMBERS. Separate fields would answer one question six
-#: times, and three of them could contradict the other three.
+#: One control drives the related timing values, preventing separate fields
+#: that answer the same question from contradicting one another.
 #:
 #: Speed multiplies the first four and DIVIDES seconds-per-decade, because
 #: that one is a duration: a bigger number there is a slower dive, and a
@@ -823,9 +819,9 @@ def set_figure_style_per_graph(overrides: dict) -> None:
 _KEY_FIG_STYLE_DEFAULTS = "figures/style_defaults"
 #: Which graph is drawn FIRST, per data shape. ``{shape: graph_type}``.
 #:
-#: Regression already lets the user right-click to change a drawn graph; this
-#: setting also controls what is drawn before the first right-click. Stored
-#: per SHAPE rather than as one value
+#: Regression lets the user right-click to change a drawn graph; this mapping
+#: also chooses what is drawn before the first right-click. Stored per shape
+#: rather than as one value
 #: because "Bar" is not an answer for two continuous axes -- a bar needs
 #: groups to summarise, and there are none -- so a single setting would be
 #: ignored by most graphs and look broken.
@@ -2342,14 +2338,14 @@ LAPTOP_MODE_LABELS = {
 #: in an ordinary launch, and these functions are the only readers, so a
 #: normal session neither shows them nor is affected by them.
 #:
-#: The reference defaults use `auto`, which picks the GPU when vispy is
-#: importable and the CPU otherwise, so one set of numbers serves both.
+#: The published defaults use ``auto`` so one set of numbers selects the GPU
+#: when vispy is importable and the CPU otherwise.
 FRACTAL_PATTERNS = ("orbit", "cascade", "space", "mandelbrot")
 FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
 #: The quality levels, least demanding first.
 #:
-#: A quality level GOVERNS the other numbers: one that only nudged an internal
-#: detail count while supersampling,
+#: A quality level governs the related render numbers. A level that only
+#: nudged an internal detail count while supersampling,
 #: render scale and the iteration budget sat at whatever they were is a
 #: label rather than a setting.
 #:
@@ -2673,11 +2669,11 @@ INTERFACE_FONT_WEIGHTS = ("regular", "light")
 
 #: When the heavy pipeline modules are imported.
 #:
-#: ``'on_demand'`` -- when the operation that needs them is called. This is
-#: the default so an ordinary launch does not pay for unused pipeline imports.
-#: ``'eager'`` -- at startup, on a worker thread. Only worth it on a machine
-#: that will certainly run a pipeline and would rather wait once at the
-#: beginning; profiling shows that wait can reach TWENTY SECONDS.
+#: ``'on_demand'`` -- when the operation that needs them is called; this is
+#: the default.
+#: ``'eager'`` -- at startup, on a worker thread. It is useful only on a
+#: machine that will certainly run a pipeline and prefers to pay a potentially
+#: tens-of-seconds import cost at the beginning.
 PRELOAD_POLICIES = ("on_demand", "eager")
 
 
@@ -2700,7 +2696,7 @@ def set_preload_policy(policy: str) -> None:
     _settings().sync()
 
 
-#: Body text is Light and titles are Regular. Only the APPLICATION font is
+#: Body text is Light while titles are Regular. Only the application font is
 #: set from this -- the headings,
 #: buttons and section titles carry their own `font-weight` in the
 #: stylesheet (400 and above), so making the default body weight lighter
@@ -5404,19 +5400,32 @@ class PreferencesDialog:
                 the user will get.
                 """
                 from .widgets.fractal_travel import (
-                    gpu_is_available, resolve_backend)
+                    gpu_is_available, platform_can_do_opengl, resolve_backend)
 
                 chosen = fractal_backend.currentData()
                 actual = resolve_backend(chosen)
-                if chosen == "auto":
-                    text = (f"Automatic: this machine will use the "
-                            f"{actual.upper()} renderer.")
-                elif chosen == "gpu" and not gpu_is_available():
-                    text = ("The GPU renderer needs vispy, which is not "
-                            "installed here, so the CPU renderer runs "
-                            "instead. Nothing else changes when it is.")
+                wants_gpu = chosen in ("auto", "gpu")
+                if wants_gpu and not platform_can_do_opengl():
+                    text = tr(
+                        "No usable display/OpenGL context is available in "
+                        "this session, so the CPU renderer runs instead. "
+                        "Installing VisPy cannot enable GPU rendering in a "
+                        "headless session."
+                    )
+                elif wants_gpu and not gpu_is_available():
+                    text = tr(
+                        "VisPy is not installed, so the CPU renderer runs "
+                        "instead. Install the GPU renderer with pip install "
+                        "\"spacr[fractal]\"."
+                    )
+                elif chosen == "auto":
+                    text = tr(
+                        "Automatic: this machine will use the {renderer} "
+                        "renderer."
+                    ).format(renderer=actual.upper())
                 else:
-                    text = f"The {actual.upper()} renderer."
+                    text = tr("The {renderer} renderer.").format(
+                        renderer=actual.upper())
                 fractal_note.setText(text)
 
             fractal_backend.currentIndexChanged.connect(_sync_fractal_note)
@@ -5512,37 +5521,10 @@ class PreferencesDialog:
             # row that appears and disappears as the pattern changes is the
             # form rearranging itself under the reader -- and these are all
             # numbers a user may want to set BEFORE choosing the pattern.
-            def _quality_fills_the_rest(*_args):
-                """Write the level's numbers into the fields below it.
-
-                LIVE, not at Save: a level that only took effect after the
-                dialog closed would leave the user looking at the old
-                numbers while a different set was about to be stored, with
-                nothing saying which would win.
-                """
-                preset = QUALITY_PRESETS.get(fractal_quality.currentData())
-                if not preset:
-                    return
-                for _name, _value in preset.items():
-                    _box = ({"supersampling": fractal_ss,
-                             "scale": fractal_scale}.get(_name)
-                            or fractal_mandel.get(_name))
-                    if _box is None:
-                        continue
-                    try:
-                        _box.setValue(_value)
-                    except Exception:                        # noqa: BLE001
-                        continue
-
             # SUB-CATEGORIES, asked for 2026-08-28. Twenty-one fields in
             # one column is a wall; three headings say which question each
             # group answers, and a reader looking for the zoom does not have
             # to read the steering to find it.
-            def _fractal_heading(text: str) -> None:
-                label = QLabel(f"<b>{tr(text)}</b>")
-                label.setObjectName("FractalGroupHeading")
-                fractal.addRow(label)
-
             # ONE CONTROL PER QUESTION, and the same questions whichever
             # pattern is chosen. Asked for 2026-08-28: "there need to be
             # fewer options for speed so one option for speed that is user
