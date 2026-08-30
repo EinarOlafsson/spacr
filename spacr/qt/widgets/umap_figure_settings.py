@@ -245,6 +245,8 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
     labels = payload.get("plot_labels")
     if labels is None:
         labels = payload.get("labels")
+    if labels is None:
+        return False
     labels = np.asarray(labels)
     if len(labels) != len(embedding):
         return False

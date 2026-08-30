@@ -158,6 +158,16 @@ def test_a_payload_with_no_embedding_is_not_redrawn(scatter):
                               {}) is False
 
 
+def test_a_payload_with_an_embedding_but_no_labels_is_not_redrawn(scatter):
+    """Coordinates without their cluster labels are not a drawable payload."""
+    axes = tuple(scatter.get_axes())
+
+    assert redraw_umap_figure(
+        scatter, {"embedding": np.zeros((12, 2))}, {}
+    ) is False
+    assert tuple(scatter.get_axes()) == axes
+
+
 def test_labels_that_do_not_describe_the_embedding_are_refused(scatter,
                                                                payload):
     """Drawing them would colour points by somebody else's clusters."""

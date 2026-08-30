@@ -428,7 +428,7 @@ def _toggle_ai(window: QMainWindow) -> None:
                 not current._ai_switch.isChecked()
             )
     except Exception:
-        pass
+        LOG.debug("could not toggle the AI switch", exc_info=True)
 
 
 def _consoles(window) -> list:

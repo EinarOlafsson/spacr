@@ -928,6 +928,26 @@ def test_a_distance_backend_without_a_gate_stops_at_plan_time():
                                  "t_track_backend": "centroid"})
 
 
+def test_a_micrometre_gate_without_voxel_size_stops_at_plan_time():
+    settings = {
+        "t_stack": True,
+        "t_axis_order": "TYX",
+        "t_track_backend": "centroid",
+        "t_max_displacement_um": 5.0,
+    }
+
+    with pytest.raises(Z.TStackError, match="voxel size is not known"):
+        Z.plan_4d_from_settings(settings)
+
+    planned = Z.plan_4d_from_settings({
+        **settings,
+        "voxel_size_z_um": 2.0,
+        "voxel_size_xy_um": 0.5,
+    })
+    assert planned.max_displacement_um == 5.0
+    assert planned.voxel_size_um == (2.0, 0.5, 0.5)
+
+
 def test_a_distance_backend_on_volumes_needs_the_anisotropy_at_plan_time():
     with pytest.raises(Z.UnknownAnisotropyError):
         Z.plan_4d_from_settings({
