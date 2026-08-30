@@ -124,13 +124,12 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           rm -rf docs/_build docs/source/api
-          # --keep-going: continue past docutils errors in individual
-          # docstrings (an unindented code block in one docstring should
-          # not sink the whole site). Capture the build log for the
-          # summary + check `index.html` was produced; if it was, we
-          # ship it regardless of docutils warnings.
+          # --keep-going finishes the complete diagnostic log instead of
+          # stopping at the first broken page. -W still makes every warning
+          # an error, and the captured Sphinx status remains authoritative:
+          # a partially written index.html can never turn that failure green.
           set +e
-          sphinx-build -E -b html --keep-going \
+          sphinx-build -W -E -b html --keep-going \
             docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
           rc=${PIPESTATUS[0]}
           set -e
@@ -139,6 +138,11 @@ jobs:
             echo "FATAL: no index.html produced"
             tail -80 /tmp/sphinx.log
             exit 1
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "FATAL: sphinx-build reported warnings or errors"
+            tail -80 /tmp/sphinx.log
+            exit "$rc"
           fi
           echo "produced $(find docs/_build/html -name '*.html' | wc -l) HTML pages"
           # Pages needs .nojekyll to preserve _static / _sources folders
@@ -172,7 +176,7 @@ jobs:
       # into every build. Narration and 4K masters are external, but uploading
       # the same build artifact for every nightly push still costs time and
       # storage for a preview nobody asked for. The build itself is the value
-      # here — it fails the run if sphinx cannot produce index.html. If a
+      # here — it fails the run if Sphinx reports any warning or error. If a
       # browsable nightly preview is ever wanted, deploy it to a target that
       # is not production Pages.
       - name: Report build-only outcome (non-main)

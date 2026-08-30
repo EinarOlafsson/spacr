@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "backgrounds",
+      "source_sha256": "53e350ac17e083242c4e10bf0ffbc235db931d206eaae981c4fd9efaf9ac6388",
+      "source": "Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
+      "translation": "सेटिंग स्नैपशॉट में रखा गया पुराना संगतता फ़ील्ड। वर्तमान मास्क प्रीप्रोसेसिंग इस सूची को अनदेखा करती है और इसके बजाय cell_background, nucleus_background, pathogen_background तथा प्रत्येक ऑर्गेनेल की पृष्ठभूमि सेटिंग पढ़ती है, इसलिए इसे बदलने से सेगमेंटेशन नहीं बदलता। डिफ़ॉल्ट [100, 100, 100, 100]।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_plots",
+      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
+      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
+      "translation": "सेटिंग स्नैपशॉट में रखा गया पुराना संगतता फ़ील्ड। वर्तमान प्लॉटिंग पथ इसे नहीं पढ़ते; इसके बजाय प्रत्येक प्लॉट के नॉर्मलाइज़ और परसेंटाइल नियंत्रणों का उपयोग करें। इस मान को बदलने से आकृतियों या मापों पर कोई प्रभाव नहीं पड़ता। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_chann_dim",
+      "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "पुरानी सेटिंग फ़ाइलों के लिए रखा गया विरासत मर्ज फ़ील्ड। वर्तमान Mask, मास्क प्लेन जोड़ना है या नहीं यह तय करने के लिए organelle_channel का उपयोग करता है, और Measure उस प्लेन को खोजने के लिए organelle_mask_dim का उपयोग करता है; इस फ़ील्ड को बदलने का कोई प्रभाव नहीं पड़ता। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "visualize",
+      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
+      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
+      "translation": "सहेजी गई सेटिंग में रखा गया पुराना Image UMAP क्रॉप चयनकर्ता। वर्तमान कार्यप्रवाह हमेशा माप तालिकाओं को जोड़ता और कोशिका छवियों को क्रॉप करता है ताकि थंबनेल लेबल माप पंक्तियों से मेल खाएँ; इस मान को बदलने से एम्बेडिंग या थंबनेल नहीं बदलते। डिफ़ॉल्ट 'cell'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "width_height",
+      "source_sha256": "52b4c1dbf57bcf42b71db99fac1cde403908e97010034b4e2f53e69235ab18c8",
+      "source": "Legacy Cellpose checkpoint metadata retained for older settings files. Current training resizes every image-mask pair with the scalar target_size and does not read this list, so changing it does not change training. Default [1000, 1000].",
+      "translation": "पुरानी सेटिंग फ़ाइलों के लिए रखा गया विरासत Cellpose चेकपॉइंट मेटाडेटा। वर्तमान प्रशिक्षण प्रत्येक छवि-मास्क जोड़ी का आकार स्केलर target_size से बदलता है और इस सूची को नहीं पढ़ता, इसलिए इसे बदलने से प्रशिक्षण नहीं बदलता। डिफ़ॉल्ट [1000, 1000]।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save",
+      "source_sha256": "cd6bf61665eb46cccb2885d06d909bc9f0e27666ffec83b1df41bad3eae0346e",
+      "source": "Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module.",
+      "translation": "यह नियंत्रित करता है कि वर्तमान मॉड्यूल अपने वैकल्पिक डिस्क आउटपुट, जैसे मास्क, आकृतियाँ या परिणाम तालिकाएँ, लिखता है या नहीं। Mask, [cell, nucleus, pathogen] को स्वतंत्र रूप से नियंत्रित करने वाली तीन-आइटम सूची स्वीकार करता है; अन्य मॉड्यूल एक बूलियन मान का उपयोग करते हैं। डिफ़ॉल्ट मॉड्यूल के अनुसार बदलता है।"
+    }
+  ]
+}

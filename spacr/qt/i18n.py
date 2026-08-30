@@ -326,6 +326,18 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Alternar a quarentena do campo", "फ़ील्ड क्वारंटीन टॉगल करें",
         "필드 격리 전환", "Víxla sóttkví reits",
         "Activer ou désactiver la quarantaine du champ"),
+    "Quarantine or restore this field": _row(
+        "Sätt detta fält i karantän eller återställ det",
+        "Dieses Feld unter Quarantäne stellen oder wiederherstellen",
+        "Poner en cuarentena o restaurar este campo", "隔离或恢复此视野",
+        "Colocar este campo em quarentena ou restaurá-lo",
+        "इस फ़ील्ड को क्वारंटीन करें या पुनर्स्थापित करें",
+        "이 필드를 격리하거나 복원", "Setja þennan reit í sóttkví eða endurheimta hann",
+        "Mettre ce champ en quarantaine ou le restaurer"),
+    "Field browser": _row(
+        "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
+        "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
+        "Reitavafri", "Explorateur de champs"),
     "Toggle full screen": _row(
         "Växla helskärmsläge", "Vollbildmodus ein-/ausschalten",
         "Activar o desactivar el modo de pantalla completa", "切换全屏模式",
@@ -353,6 +365,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "어노테이션 및 마스크 만들기 화면",
         "skjáirnir Merking og Búa til grímur",
         "les écrans Annotation et Créer des masques"),
+    "the Annotate and Make Masks screens and the QC field browser": _row(
+        "skärmarna Annotering och Skapa masker samt QC-fältbläddraren",
+        "die Bildschirme Annotieren und Masken erstellen sowie der QC-Feldbrowser",
+        "las pantallas Anotación y Crear máscaras y el Explorador de campos de QC",
+        "标注和创建掩膜屏幕以及 QC 视野浏览器",
+        "as telas Anotação e Criar máscaras e o Navegador de campos de QC",
+        "एनोटेशन और मास्क बनाएँ स्क्रीन तथा QC फ़ील्ड ब्राउज़र",
+        "어노테이션 및 마스크 만들기 화면과 QC 필드 브라우저",
+        "skjáirnir Merking og Búa til grímur og QC-reitavafrinn",
+        "les écrans Annotation et Créer des masques et l’Explorateur de champs QC"),
     "the Annotate screen": _row(
         "skärmen Annotering", "der Bildschirm Annotieren",
         "la pantalla Anotación", "标注屏幕", "a tela Anotação",
@@ -362,6 +384,12 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Fältbläddraren", "der Feldbrowser", "el Explorador de campos",
         "视野浏览器", "o Navegador de campos", "फ़ील्ड ब्राउज़र",
         "필드 브라우저", "Reitavafrinn", "l’Explorateur de champs"),
+    "the QC field browser": _row(
+        "QC-fältbläddraren", "der QC-Feldbrowser",
+        "el Explorador de campos de QC", "QC 视野浏览器",
+        "o Navegador de campos de QC", "QC फ़ील्ड ब्राउज़र",
+        "QC 필드 브라우저", "QC-reitavafrinn",
+        "l’Explorateur de champs QC"),
     "the Make Masks screen": _row(
         "skärmen Skapa masker", "der Bildschirm Masken erstellen",
         "la pantalla Crear máscaras", "创建掩膜屏幕",

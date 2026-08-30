@@ -621,13 +621,13 @@ def test_every_setting_the_new_modules_expose_has_a_tooltip(key):
 @pytest.mark.parametrize("key", NEW_APPS)
 def test_new_module_tooltips_meet_the_house_bar(key):
     """Same floors as tests/test_settings_tooltip_quality.py."""
-    from tests.test_settings_tooltip_quality import KNOWN_THIN, TYPE_PREFIX
     from spacr.qt.screens.settings_model import resolve_default_settings
+    from tests.test_settings_tooltip_quality import TYPE_PREFIX
 
     offenders = []
     for name in resolve_default_settings(key):
         text = S.tooltips.get(name)
-        if not text or name in KNOWN_THIN:
+        if not text:
             continue
         m = TYPE_PREFIX.match(text.strip())
         if m is None:

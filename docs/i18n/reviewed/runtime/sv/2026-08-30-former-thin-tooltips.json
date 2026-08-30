@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "backgrounds",
+      "source_sha256": "53e350ac17e083242c4e10bf0ffbc235db931d206eaae981c4fd9efaf9ac6388",
+      "source": "Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
+      "translation": "Äldre kompatibilitetsfält som behålls i ögonblicksbilder av inställningar. Den aktuella maskförbehandlingen ignorerar listan och läser i stället cell_background, nucleus_background, pathogen_background och bakgrundsinställningen för varje organell, så en ändring påverkar inte segmenteringen. Standard [100, 100, 100, 100]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_plots",
+      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
+      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
+      "translation": "Äldre kompatibilitetsfält som behålls i ögonblicksbilder av inställningar. De aktuella plottningsvägarna läser det inte; använd i stället varje diagrams kontroller för normalisering och percentiler. En ändring av värdet påverkar varken figurer eller mätningar. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_chann_dim",
+      "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "Äldre sammanslagningsfält som behålls för gamla inställningsfiler. Nuvarande Mask använder organelle_channel för att avgöra om maskplanet ska läggas till, och Measure använder organelle_mask_dim för att hitta planet; en ändring av fältet har ingen effekt. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "visualize",
+      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
+      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
+      "translation": "Äldre beskärningsväljare för Image UMAP som behålls i sparade inställningar. Det aktuella arbetsflödet sammanfogar alltid mättabeller och beskär cellbilder så att miniatyrernas etiketter motsvarar mätraderna; en ändring av värdet ändrar varken inbäddningen eller miniatyrerna. Standard 'cell'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "width_height",
+      "source_sha256": "52b4c1dbf57bcf42b71db99fac1cde403908e97010034b4e2f53e69235ab18c8",
+      "source": "Legacy Cellpose checkpoint metadata retained for older settings files. Current training resizes every image-mask pair with the scalar target_size and does not read this list, so changing it does not change training. Default [1000, 1000].",
+      "translation": "Äldre metadata för Cellpose-kontrollpunkter som behålls för gamla inställningsfiler. Den aktuella träningen storleksändrar varje bild-mask-par med skalären target_size och läser inte listan, så en ändring påverkar inte träningen. Standard [1000, 1000]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save",
+      "source_sha256": "cd6bf61665eb46cccb2885d06d909bc9f0e27666ffec83b1df41bad3eae0346e",
+      "source": "Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module.",
+      "translation": "Styr om den aktuella modulen skriver sina valfria diskfiler, exempelvis masker, figurer eller resultattabeller. Mask accepterar en lista med tre värden för [cell, nucleus, pathogen] oberoende av varandra; andra moduler använder ett booleskt värde. Standardvärdet varierar mellan moduler."
+    }
+  ]
+}

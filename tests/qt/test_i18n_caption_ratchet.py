@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # digest also catches a replacement that happens to keep the count unchanged.
 COMPACT_CAPTION_COUNT = 205
 COMPACT_CAPTION_SHA256 = (
-    "2882d4aeea044c9b2cfce01aacf6eb4a9db46045cb767afbed4924ab3761f8b3"
+    "644fee2d0b7d268bde9ab5c2a6341d4b2e0b5fe94fbf7b123774978d913d1c87"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are

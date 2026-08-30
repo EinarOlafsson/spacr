@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "backgrounds",
+      "source_sha256": "53e350ac17e083242c4e10bf0ffbc235db931d206eaae981c4fd9efaf9ac6388",
+      "source": "Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
+      "translation": "Campo de compatibilidade legado mantido nos instantâneos das configurações. O pré-processamento atual de máscaras ignora esta lista e lê, em vez dela, cell_background, nucleus_background, pathogen_background e a configuração de fundo de cada organela; portanto, alterá-la não modifica a segmentação. Padrão [100, 100, 100, 100]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_plots",
+      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
+      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
+      "translation": "Campo de compatibilidade legado mantido nos instantâneos das configurações. Os caminhos de plotagem atuais não o leem; use os controles de normalização e percentis de cada gráfico. Alterar este valor não afeta figuras nem medições. Padrão True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_chann_dim",
+      "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "Campo de mesclagem legado mantido para arquivos de configuração antigos. O módulo Mask atual usa organelle_channel para decidir se acrescenta o plano de máscara, e Measure usa organelle_mask_dim para localizar esse plano; alterar este campo não tem efeito. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "visualize",
+      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
+      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
+      "translation": "Seletor legado de recorte do Image UMAP mantido nas configurações salvas. O fluxo de trabalho atual sempre combina as tabelas de medição e recorta imagens de células para que os rótulos das miniaturas correspondam às linhas de medição; alterar este valor não modifica a projeção nem as miniaturas. Padrão 'cell'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "width_height",
+      "source_sha256": "52b4c1dbf57bcf42b71db99fac1cde403908e97010034b4e2f53e69235ab18c8",
+      "source": "Legacy Cellpose checkpoint metadata retained for older settings files. Current training resizes every image-mask pair with the scalar target_size and does not read this list, so changing it does not change training. Default [1000, 1000].",
+      "translation": "Metadados legados de pontos de verificação do Cellpose mantidos para arquivos de configuração antigos. O treinamento atual redimensiona cada par de imagem e máscara com o escalar target_size e não lê esta lista; portanto, alterá-la não modifica o treinamento. Padrão [1000, 1000]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save",
+      "source_sha256": "cd6bf61665eb46cccb2885d06d909bc9f0e27666ffec83b1df41bad3eae0346e",
+      "source": "Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module.",
+      "translation": "Controla se o módulo atual grava seus artefatos opcionais em disco, como máscaras, figuras ou tabelas de resultados. O módulo Mask aceita uma lista de três itens independentes para [cell, nucleus, pathogen]; os outros módulos usam um valor booleano. O padrão varia conforme o módulo."
+    }
+  ]
+}

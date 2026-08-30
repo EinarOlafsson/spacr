@@ -37,7 +37,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    assert len(reviewed) == 69
+    assert len(reviewed) == 78
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -62,7 +62,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    assert len(reviewed) == 47
+    assert len(reviewed) == 56
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

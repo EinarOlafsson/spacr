@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "backgrounds",
+      "source_sha256": "53e350ac17e083242c4e10bf0ffbc235db931d206eaae981c4fd9efaf9ac6388",
+      "source": "Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
+      "translation": "설정 스냅샷에 유지되는 이전 버전 호환성 필드입니다. 현재 마스크 전처리는 이 목록을 무시하고 대신 cell_background, nucleus_background, pathogen_background 및 각 소기관의 배경 설정을 읽으므로 이 값을 변경해도 분할 결과는 달라지지 않습니다. 기본값 [100, 100, 100, 100]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_plots",
+      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
+      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
+      "translation": "설정 스냅샷에 유지되는 이전 버전 호환성 필드입니다. 현재 플로팅 경로는 이 값을 읽지 않으므로 각 플롯의 정규화 및 백분위수 컨트롤을 대신 사용하세요. 이 값을 변경해도 그림이나 측정값에는 영향이 없습니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_chann_dim",
+      "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "이전 설정 파일을 위해 유지되는 레거시 병합 필드입니다. 현재 Mask는 마스크 평면을 추가할지 결정할 때 organelle_channel 값을 사용하고, Measure는 그 평면을 찾을 때 organelle_mask_dim 값을 사용하므로 이 필드를 변경해도 아무 영향이 없습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "visualize",
+      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
+      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
+      "translation": "저장된 설정에 유지되는 레거시 Image UMAP 자르기 선택기입니다. 현재 워크플로는 썸네일 레이블이 측정 행과 일치하도록 항상 측정 표를 조인하고 세포 이미지를 자르므로 이 값을 변경해도 임베딩이나 썸네일은 달라지지 않습니다. 기본값 'cell'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "width_height",
+      "source_sha256": "52b4c1dbf57bcf42b71db99fac1cde403908e97010034b4e2f53e69235ab18c8",
+      "source": "Legacy Cellpose checkpoint metadata retained for older settings files. Current training resizes every image-mask pair with the scalar target_size and does not read this list, so changing it does not change training. Default [1000, 1000].",
+      "translation": "이전 설정 파일을 위해 유지되는 레거시 Cellpose 체크포인트 메타데이터입니다. 현재 학습은 각 이미지-마스크 쌍의 크기를 스칼라 target_size 값으로 조정하고 이 목록을 읽지 않으므로 이 값을 변경해도 학습은 달라지지 않습니다. 기본값 [1000, 1000]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save",
+      "source_sha256": "cd6bf61665eb46cccb2885d06d909bc9f0e27666ffec83b1df41bad3eae0346e",
+      "source": "Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module.",
+      "translation": "현재 모듈이 마스크, 그림 또는 결과 표와 같은 선택적 디스크 산출물을 기록할지 제어합니다. Mask는 [cell, nucleus, pathogen]을 각각 제어하는 세 항목 목록을 허용하고, 다른 모듈은 불리언 값 하나를 사용합니다. 기본값은 모듈마다 다릅니다."
+    }
+  ]
+}
