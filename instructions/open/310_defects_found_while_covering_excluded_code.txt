@@ -888,3 +888,28 @@ user-facing report.
     call the viewport already had. tests/qt/test_the_backdrop_behind_the_
     crops_is_rounded.py measures the corner and now passes; it was one of the
     14 test files that genuinely failed rather than failing on isolation.
+
+--------------------------------------------------------------------------------
+16. control_names.py:304 IS FAMILY 1, PROVEN BY SEARCH RATHER THAN BY ARGUMENT
+--------------------------------------------------------------------------------
+
+``rows_for`` retries a control name without its unused leading token, then
+guards the result from ``resolve_control``:
+
+    if tail and unused:
+        shorter = resolve_control(tail, prefix=prefix)
+        if shorter is not None:
+            ...
+
+The false branch of the inner guard cannot run. ``resolve_control`` returns
+``None`` only for a value whose stripped form is empty, while ``tail`` comes
+from ``spec.typed``, which that same resolver already stripped. A truthy tail
+taken from a stripped string necessarily has a non-whitespace character, so
+the outer condition guarantees the inner result is not ``None``.
+
+The tempting input ``"sgCtrl_   "`` demonstrates why per-arc verification
+matters: stripping happens before partitioning, so its tail is empty and the
+outer condition rejects it. The retained tests still assert useful behaviour:
+that spreadsheet residue matches no rows without raising normally, yet raises
+``ControlNotFound`` under ``strict=True``. They do not claim to cover the
+unreachable inner arc.
