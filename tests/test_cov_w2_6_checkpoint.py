@@ -212,6 +212,23 @@ def test_a_write_that_cannot_reach_the_disk_stops_the_workflow(store,
         store.mark("trial_1", {"score": 0.9})
 
 
+def test_updating_meta_alone_leaves_the_status_where_it_was(store):
+    """``status=None`` means "I am not saying", not "clear it".
+
+    ``update`` is how a workflow records progress metadata mid-unit, and it
+    is called far more often with meta alone than with both. Were the None
+    written through, every metadata update would blank the status a resume
+    reads to decide whether the run finished.
+    """
+    store.update(status="running")
+
+    store.update(meta={"stage": "segmentation"})
+
+    document = json.loads(store.path.read_text())
+    assert document["status"] == "running"
+    assert document["meta"]["stage"] == "segmentation"
+
+
 def test_a_failed_write_leaves_no_half_written_temporary_behind(store,
                                                                monkeypatch):
     def _no_disk(_fd):
