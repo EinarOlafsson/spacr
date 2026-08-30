@@ -706,9 +706,10 @@ class TestImportSettings:
                             staticmethod(lambda *a, **k: ("", "")))
         scr = _make_screen(qtbot, "mask")
         before = scr._settings_model.collect()
+        console_before = _console_text(scr._console)
         scr._on_import_settings()
         assert scr._settings_model.collect() == before
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_import_of_a_non_settings_csv_warns_and_changes_nothing(
             self, qtbot, monkeypatch, tmp_path):
@@ -765,15 +766,17 @@ class TestImportSettings:
 
     def test_moved_settings_notice_is_mask_only(self, qtbot):
         scr = _make_screen(qtbot, "measure")
+        console_before = _console_text(scr._console)
         scr._warn_about_moved_settings({"timelapse": True,
                                         "motility_analysis": True})
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_moved_settings_stay_quiet_when_the_flags_are_off(self, qtbot):
         scr = _make_screen(qtbot, "mask")
+        console_before = _console_text(scr._console)
         scr._warn_about_moved_settings({"timelapse": "False"})
         scr._warn_about_moved_settings({})
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------
@@ -1106,8 +1109,9 @@ class TestRunStopStateMachine:
     def test_stop_without_a_running_thread_is_silent(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         assert scr._thread is None
+        console_before = _console_text(scr._console)
         scr._on_stop()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_stop_survives_a_thread_that_refuses_to_be_interrupted(
             self, qtbot, monkeypatch):
@@ -1368,8 +1372,9 @@ class TestErrorRouting:
         monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
                             lambda *a, **k: pytest.fail("must not file"))
         scr = _make_screen(qtbot, "mask")
+        console_before = _console_text(scr._console)
         scr._on_file_issue()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_file_issue_survives_an_unreadable_settings_model(self, qtbot,
                                                               monkeypatch):
@@ -1845,20 +1850,23 @@ class TestDemosMenu:
         win.menuBar().addAction("&Demos")       # bare action, no submenu
         scr = AppScreen("mask")
         win.setCentralWidget(scr)
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()                  # must not raise
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_open_demos_menu_without_a_window_is_silent(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         scr.window = lambda: None
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()          # must not raise
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_open_demos_menu_survives_a_parent_without_a_menu_bar(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         assert not hasattr(scr.window(), "menuBar")
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()          # top-level QWidget: no menuBar()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------

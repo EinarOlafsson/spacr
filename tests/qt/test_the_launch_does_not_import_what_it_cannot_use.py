@@ -61,20 +61,24 @@ def test_a_cold_launch_does_not_import_pandas():
 def test_a_cold_launch_stays_under_a_module_budget():
     """A number, so a regression is visible rather than merely slower.
 
-    Set with headroom over the 434 measured, because an unrelated feature may
-    legitimately add a few -- but not four hundred, which is what pulling the
-    analysis stack back in would cost.
+    Count the modules added by spaCR after Qt application startup.  Coverage's
+    subprocess tracer is installed before this body and legitimately changes
+    the interpreter's absolute baseline by hundreds of modules; subtracting
+    that baseline keeps the product budget identical in measured and ordinary
+    children.  The 450 limit has headroom over the 283 measured additions, but
+    not the roughly four hundred added by pulling the analysis stack back in.
     """
     out = _in_a_cold_process("""
         from PySide6.QtWidgets import QApplication
         app = QApplication([])
         import sys
+        before_spacr = set(sys.modules)
         import spacr.qt.app as A
         A.MainWindow()
-        print("modules:", len(sys.modules))
+        print("modules:", len(set(sys.modules) - before_spacr))
     """)
     count = int(out.split("modules:")[1].split()[0])
-    assert count < 600, f"{count} modules imported to open the window"
+    assert count < 450, f"{count} modules imported to open the window"
 
 
 def test_classify_classes_does_not_import_pandas():
