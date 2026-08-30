@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "guide_nuisance_columns",
+      "source_sha256": "6bc5f919f3cb74cf8c17e42c1340ce365a535018dc2c6e41cf9a6711617008f3",
+      "source": "Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default []. Regression starts with ['rowID', 'columnID'] to remove plate-position structure before the within-plate permutation.",
+      "translation": "Fleiri mældar fylgibreytur á brunnastigi sem á að fjarlægja með leifgreiningu úr bæði svipgerð og leiðarhlutfalli fyrir prófun. Ekki setja niðurstöður eftir meðferð hér. Sjálfgefið gildi er []. Regression byrjar með ['rowID', 'columnID'] til að fjarlægja staðsetningaráhrif plötunnar fyrir umstokkun innan plötu."
+    }
+  ]
+}
