@@ -357,10 +357,12 @@ def test_a_pending_terms_signal_forgives_a_deleted_switch(slides):
     The Python wrapper remains truthy after its C++ Toggle is gone, so the
     redraw must validate each child before touching it.
     """
-    from shiboken6 import delete
+    from shiboken6 import delete, isValid
 
     delete(slides._agree)
+    assert isValid(slides._agree) is False
     slides._draw_the_terms_gate(True)
+    assert isValid(slides._agree) is False
 
 
 # ------------------------------------------------------------ the backdrop
