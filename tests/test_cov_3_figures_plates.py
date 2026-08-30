@@ -92,3 +92,36 @@ def test_no_plates_needs_no_arrangement():
     (1, 0) would make the figure code divide by zero."""
     assert plates.small_multiple_layout(0, 1.5, 1.6) == (0, 0)
     assert plates.small_multiple_layout(-3, 1.5, 1.6) == (0, 0)
+
+
+def test_a_colormap_object_is_taken_as_given_and_a_name_is_looked_up():
+    """Callers pass either spelling, and both must end up masking NaN.
+
+    ``set_bad("none")`` is why this helper exists: an unmeasured well reaches
+    the grid as NaN, and a colormap that paints NaN with a real colour puts a
+    solid square where there was no measurement -- the invented zero this
+    module exists to undo, wearing a different hat.
+
+    The caller's colormap is given a VISIBLE bad colour first, so the
+    assertions can tell three things apart that a default-configured map
+    cannot: that the returned map masks NaN, that it is a copy, and that the
+    original still has the red it came in with. Matplotlib's viridis already
+    defaults to a transparent bad, so passing that would have asserted
+    nothing.
+    """
+    from matplotlib import colormaps
+
+    mine = colormaps["viridis"].copy()
+    mine.set_bad("red")
+
+    from_object = plates._named(mine)
+    from_name = plates._named("viridis")
+
+    for ramp in (from_object, from_name):
+        assert np.allclose(ramp.get_bad(), (0.0, 0.0, 0.0, 0.0)), (
+            "an unmeasured well would be painted a real colour")
+
+    assert from_object is not mine, "the helper handed back the caller's map"
+    assert np.allclose(mine.get_bad(), (1.0, 0.0, 0.0, 1.0)), (
+        "the caller's colormap was mutated, so every other figure it is used "
+        "for now hides its NaNs too")
