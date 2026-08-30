@@ -85,6 +85,26 @@ def test_a_control_carries_its_effect_rank_and_both_p_values(coefficients):
     assert out["negative_rank"] == 2
 
 
+def test_duplicate_alias_metrics_come_from_the_best_ranked_guide():
+    """Rank, effect and probabilities must describe one matching guide."""
+    coefficients = pd.DataFrame({
+        "grna": ["gra14_weak", "other_1", "gra14_strong"],
+        "coefficient": [0.02, 0.5, 0.95],
+        "p_value": [0.8, 0.03, 0.001],
+        "q_value": [0.99, 0.06, 0.005],
+    })
+
+    out = ps._named_control_rows(coefficients, {"positive": "gra14"})
+
+    assert out == {
+        "positive_present": True,
+        "positive_effect": pytest.approx(0.95),
+        "positive_rank": 1,
+        "positive_q": pytest.approx(0.005),
+        "positive_p": pytest.approx(0.001),
+    }
+
+
 def test_without_an_effect_column_there_is_no_rank(coefficients):
     """Rank is by effect size; with no effect there is nothing to rank by."""
     out = ps._named_control_rows(coefficients.drop(columns=["coefficient"]),
@@ -753,3 +773,33 @@ def test_a_traceback_that_cannot_be_written_still_leaves_the_failed_row(
     assert row["status"] == "failed"
     assert row["error_type"] == "MemoryError"
     assert not os.path.exists(os.path.join(row["folder"], "error.txt"))
+
+
+def test_an_unwritable_in_process_traceback_does_not_stop_later_trials(
+        tmp_path, small_space, monkeypatch):
+    """The sequential path treats its traceback as best-effort too."""
+    calls = []
+
+    def explode(settings):
+        calls.append(settings["regression_type"])
+        raise MemoryError("the design matrix did not fit")
+
+    real_open = builtins.open
+
+    def refuse(path, *args, **kwargs):
+        if str(path).endswith("error.txt"):
+            raise OSError("read-only file system")
+        return real_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "open", refuse)
+
+    results = ps.run_sweep(
+        {"src": str(tmp_path)}, tmp_path / "out", small_space,
+        contained=False, runner=explode, learn_from_failures=0,
+        progress_every=0,
+    )
+
+    assert calls == ["ols", "ridge"]
+    assert list(results["status"]) == ["failed", "failed"]
+    assert set(results["error_type"]) == {"MemoryError"}
+    assert not list((tmp_path / "out").glob("**/error.txt"))
