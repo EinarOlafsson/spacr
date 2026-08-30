@@ -148,7 +148,7 @@ def test_apply_with_nothing_selected_does_nothing(dialog, mask_screen):
 
 
 def test_a_version_gap_asks_first_and_cancel_means_cancel(
-        dialog, mask_screen, monkeypatch):
+        dialog, mask_screen):
     """The confirmation is the feature -- applying an old bundle has to be a
     decision. Cancelling must leave the screen untouched."""
     mask_screen._settings_model.set_value_for_key("n_jobs", 7)
@@ -159,8 +159,8 @@ def test_a_version_gap_asks_first_and_cancel_means_cancel(
     mask_screen._settings_model.set_value_for_key("n_jobs", 1)
 
     shown = []
-    monkeypatch.setattr(QMessageBox, "exec",
-                        lambda box: shown.append(box.text()) or QMessageBox.Cancel)
+    dialog.set_confirmation_runner(
+        lambda box: shown.append(box.text()) or QMessageBox.Cancel)
 
     dialog._on_apply()
 

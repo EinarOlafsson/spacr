@@ -39,13 +39,13 @@ file it could have read.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import datetime as _dt
 import json
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtGui import QAction
@@ -320,7 +320,12 @@ def compatibility_note(recipe: Recipe, model) -> str:
     :param recipe: the bundle.
     :param model: the screen's ``SettingsWidgets``.
     """
-    known = set(getattr(model, "_widgets", {}) or {})
+    # Conditional settings stay supported while their rows are absent from
+    # this particular form shape. ``collect()`` carries them in ``_defaults``,
+    # so judging only the currently rendered widgets calls a fresh recipe
+    # stale and asks the user to confirm every ordinary apply.
+    known = (set(getattr(model, "_widgets", {}) or {})
+             | set(getattr(model, "_defaults", {}) or {}))
     if not known:
         return ""
     unknown = sorted(set(recipe.settings) - known)
@@ -386,6 +391,8 @@ class RecipeDialog(QDialog):
         super().__init__(parent or screen)
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
+        self._confirmation_runner: Callable[[QMessageBox], Any] = (
+            lambda box: box.exec())
         self.setWindowTitle(f"Settings recipes — {self._app_key or 'module'}")
         self.setMinimumWidth(520)
         self.setObjectName("RecipeDialog")
@@ -466,6 +473,17 @@ class RecipeDialog(QDialog):
         """The line under the list. Public so tests read what users read."""
         return self._detail.text()
 
+    def set_confirmation_runner(
+            self, runner: Callable[[QMessageBox], Any]) -> None:
+        """Replace how the version/compatibility confirmation is run.
+
+        The default enters the real modal Apply/Cancel loop. Tests inject a
+        runner that inspects the fully configured message box and returns an
+        answer without blocking; a host can use the same seam for a custom
+        presentation.
+        """
+        self._confirmation_runner = runner
+
     # -- slots --------------------------------------------------------
     def _on_selection_changed(self, _row: int) -> None:
         recipe = self.selected()
@@ -516,7 +534,7 @@ class RecipeDialog(QDialog):
             box.setText(" ".join(part for part in (note, gap) if part))
             box.setInformativeText("Apply it anyway?")
             box.setStandardButtons(QMessageBox.Apply | QMessageBox.Cancel)
-            if box.exec() != QMessageBox.Apply:
+            if self._confirmation_runner(box) != QMessageBox.Apply:
                 return
         try:
             applied = apply_recipe(recipe, self._screen)
