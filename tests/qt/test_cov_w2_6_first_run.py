@@ -333,6 +333,41 @@ def test_a_highlighted_widget_gets_a_ring_and_keeps_its_own_colour(window,
     qapp.processEvents()
 
 
+def test_a_widget_whose_c_plus_plus_half_is_gone_is_not_ringed(window, qapp):
+    """A tour step can name a widget that has since been destroyed.
+
+    A dialog closed, a screen rebuilt -- and the highlight function still
+    hands back the wrapper. ``mapTo`` raises RuntimeError on it, the rect
+    comes back None, and the tour dims the window without a ring. The
+    alternative is an exception inside paintEvent, which is where Qt turns
+    one into a crash rather than a traceback.
+
+    Note it is the DELETED case that reaches this, not merely a widget in
+    another window: mapTo only warns for that one and still returns a point.
+    """
+    import shiboken6
+    from PySide6.QtWidgets import QWidget as _QWidget
+
+    doomed = _QWidget()
+    doomed.setGeometry(0, 0, 50, 50)
+    shiboken6.delete(doomed)
+
+    step = fr.TourStep("Gone", "body", highlight=lambda w: doomed)
+    overlay = fr._TourOverlay(window, [step])
+    overlay.setGeometry(window.rect())
+    overlay.show()
+    qapp.processEvents()
+    shot = _render(overlay)
+
+    for point in ((25, 25), (600, 300)):
+        pixel = QColor(shot.pixelColor(*point))
+        assert pixel.alpha() == 255 and pixel.value() < 150, (
+            f"a ring was cut at {point} for a widget that no longer exists")
+
+    overlay._finish()
+    qapp.processEvents()
+
+
 def test_a_step_whose_highlight_is_missing_still_dims_the_window(window,
                                                                  qapp):
     step = fr.TourStep("Nothing", "body", highlight=lambda w: None)
