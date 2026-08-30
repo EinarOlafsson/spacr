@@ -209,6 +209,43 @@ def test_a_plate_panel_that_cannot_be_saved_is_still_shown(monkeypatch,
     plt.close('all')
 
 
+def test_drawn_helpers_release_their_figures_and_preserve_the_callers(
+        monkeypatch):
+    """Boolean/count helpers own figures they never return.
+
+    ``plt.show`` is the bridge hand-off: the figure must still be registered
+    during that call, then its exact pyplot manager must be released without
+    disturbing a figure the caller already had open.
+    """
+    caller = plt.figure()
+    before = tuple(plt.get_fignums())
+    shown = []
+
+    def capture_show(*_args, **_kwargs):
+        shown.extend(
+            plt.figure(number) for number in plt.get_fignums()
+            if number not in before
+        )
+
+    monkeypatch.setattr(plt, 'show', capture_show)
+
+    try:
+        assert ml._show_well_distributions(
+            frame_with_fractions(), 'pathogen_rate', None,
+            plot=False) is True
+        assert tuple(plt.get_fignums()) == before
+
+        assert ml._show_plates(
+            frame_with_fractions(), 'fraction', None) is True
+        assert len(shown) == 1
+        assert len(shown[0].axes) == 2, (
+            'the display bridge did not retain the drawn plate figure')
+        shown[0].canvas.draw()
+        assert tuple(plt.get_fignums()) == before
+    finally:
+        plt.close(caller)
+
+
 def test_house_style_panels_that_cannot_be_imported_draw_none(monkeypatch,
                                                               capsys):
     """A blocked figures import returns a count of zero, not an exception.

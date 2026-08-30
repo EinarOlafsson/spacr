@@ -1588,3 +1588,27 @@ builds.  The regression test makes any call to ``solve`` for that singular
 input an immediate failure.  With the CI dependency ``pyfixest 0.60.0``, the
 backend file collected 20 tests: 18 passed and only its two unavailable-glum
 tests skipped.
+
+--------------------------------------------------------------------------------
+43. DISPLAY HELPERS HANDED OFF SEVENTEEN FIGURES AND KEPT THEIR MANAGERS
+--------------------------------------------------------------------------------
+
+A parametric guide-and-gene regression finished with twenty-two figures in
+pyplot's process-wide registry.  Five were public plotting results left for
+their callers.  The other seventeen came from three internal helpers that
+return only a boolean or count: one plate panel, two well-distribution panels,
+and seven house-style panels for each of the two fits.  Each called
+``plt.show()``, which synchronously hands the figure to spaCR's Qt bridge, but
+none released its private pyplot manager afterward.  The twenty-first figure
+therefore raised Matplotlib's more-than-twenty warning from ``sheet.py`` even
+though that panel itself was not the source of the retained figures.
+
+The three helpers now close each exact figure after ``show`` returns, and also
+close figures built with ``plot=False`` because no caller can receive those
+objects either.  The bridge sees the live figure during the call; its queue
+retains the handed-off object independently of pyplot's manager.  Tests keep a
+sentinel caller figure open, prove every displayed figure reaches the show
+seam before closure, and prove the registry returns to the sentinel alone.
+The real regression now returns with five caller-owned figures instead of
+twenty-two, and its focused warning contract and helper suites pass 28 tests
+without the more-than-twenty warning.
