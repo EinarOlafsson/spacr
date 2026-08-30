@@ -715,3 +715,97 @@ def test_a_run_folder_deleted_mid_scan_still_appears_in_the_history(
 
     assert [r["run_id"] for r in found] == ["run-gone"]
     assert not (runs_dir / "run-gone").exists()
+
+
+# ---------------------------------------------------------------------------
+# the warning list is distinct and bounded
+# ---------------------------------------------------------------------------
+
+def _bare_run():
+    """A ``Run`` with only the warning list touched.
+
+    ``record_warning`` reads and appends to ``run_warnings`` and nothing else,
+    so an instance built without ``__init__`` is the smallest thing that can
+    exercise it -- and it cannot accidentally open a journal directory.
+    """
+    run = RJ.Run.__new__(RJ.Run)
+    run.run_warnings = []
+    return run
+
+
+def test_the_same_warning_is_kept_once():
+    """A library repeating itself must not fill the dashboard.
+
+    The run-history view lists these, and a hundred identical lines push
+    everything else off the screen -- including the one warning that was
+    different.
+    """
+    run = _bare_run()
+
+    run.record_warning("class imbalance detected")
+    run.record_warning("class imbalance detected")
+
+    assert run.run_warnings == ["class imbalance detected"]
+
+
+@pytest.mark.parametrize("message", ["", "   ", None])
+def test_an_empty_warning_is_not_a_warning(message):
+    """Pipeline stdout is scraped for these, and blank lines arrive.
+
+    A blank entry in the dashboard is a row that says a warning happened and
+    does not say what.
+    """
+    run = _bare_run()
+
+    run.record_warning(message)
+
+    assert run.run_warnings == []
+
+
+def test_a_warning_is_stripped_before_it_is_compared():
+    """The same text with a trailing newline is the same warning.
+
+    Scraped output carries whitespace, and without the strip the dedup misses
+    and the list fills with visually identical rows.
+    """
+    run = _bare_run()
+
+    run.record_warning("two fields had no objects")
+    run.record_warning("  two fields had no objects\n")
+
+    assert run.run_warnings == ["two fields had no objects"]
+
+
+def test_the_list_stops_at_five_hundred_distinct_warnings():
+    """The cap bounds the manifest, not the run.
+
+    A library that repeats a warning with field-specific text -- a filename in
+    every line -- produces thousands of DISTINCT strings, so the dedup above
+    does not help. The manifest is written to disk and read back by the
+    dashboard, and an unbounded list makes both slow for a run that otherwise
+    succeeded.
+    """
+    run = _bare_run()
+
+    for index in range(600):
+        run.record_warning(f"field {index} had no objects")
+
+    assert len(run.run_warnings) == 500
+    assert run.run_warnings[0] == "field 0 had no objects"
+    assert run.run_warnings[-1] == "field 499 had no objects"
+
+
+def test_the_cap_keeps_the_first_warnings_not_the_last():
+    """The first ones are the ones that explain the run.
+
+    A cap that dropped the oldest would leave a dashboard showing the tail of
+    a repeating message and none of what came before it.
+    """
+    run = _bare_run()
+
+    run.record_warning("the thing that actually went wrong")
+    for index in range(600):
+        run.record_warning(f"field {index} had no objects")
+
+    assert run.run_warnings[0] == "the thing that actually went wrong"
+    assert len(run.run_warnings) == 500
