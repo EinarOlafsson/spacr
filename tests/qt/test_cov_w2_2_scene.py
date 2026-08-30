@@ -327,14 +327,6 @@ def test_a_polygon_with_no_colour_is_not_drawn(qt_ready, closed_figures):
     assert report.items == 0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "the artist dispatch in _translate_axes keys on type(artist).__name__, "
-    "and matplotlib 3.10+ returns a FillBetweenPolyCollection from "
-    "fill_between. It IS a PolyCollection, so _add_poly_collection would "
-    "carry it, but the name test does not match and the whole figure is "
-    "reported incomplete -- so every panel with a confidence band silently "
-    "loses the pyqtgraph renderer. _is_chrome_artist in the same module "
-    "records this exact lesson: check by TYPE, not by class NAME."))
 def test_a_confidence_band_does_not_cost_the_figure_its_renderer(
         qt_ready, closed_figures):
     """`fill_between` is the commonest band in the suite, and it is a polygon.
