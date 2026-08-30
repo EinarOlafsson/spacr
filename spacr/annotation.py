@@ -202,6 +202,12 @@ def columns() -> List[str]:
     return names
 
 
+#: The name the annotation key is merged under. Private, and deliberately not
+#: "gene_nr": the caller's table may carry that name itself, and a merge whose
+#: right key collides with a left column is suffixed rather than shared.
+_JOIN_KEY = "_spacr_annotation_gene_nr"
+
+
 def _key_column(frame) -> Optional[str]:
     """The column of ``frame`` that names a gene, or ``None``.
 
@@ -260,10 +266,19 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
                 print(f"Toxoplasma annotation: {label} is already on this "
                       f"table, so it was not joined again.")
             continue
-        out = out.merge(right[["gene_nr"] + new], how="left",
-                        left_on="_gene_nr", right_on="gene_nr",
+        # THE JOIN KEY IS RENAMED BEFORE THE MERGE, not dropped after it.
+        # Merging on a right column called "gene_nr" while the caller's own
+        # table already has one makes pandas suffix BOTH into gene_nr_x and
+        # gene_nr_y, so the drop below found no "gene_nr" and raised KeyError.
+        # That is not a rare table: "gene_nr" is the FIRST name _key_column
+        # looks for, so it is what spaCR's own annotated output is keyed on,
+        # and re-annotating a table this function had already written crashed.
+        keyed = right[["gene_nr"] + new].rename(
+            columns={"gene_nr": _JOIN_KEY})
+        out = out.merge(keyed, how="left",
+                        left_on="_gene_nr", right_on=_JOIN_KEY,
                         validate="many_to_one")
-        out = out.drop(columns=["gene_nr"])
+        out = out.drop(columns=[_JOIN_KEY])
         added.extend(new)
 
     matched = int(out["_gene_nr"].notna().sum())
