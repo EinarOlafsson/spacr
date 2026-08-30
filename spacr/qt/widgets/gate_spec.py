@@ -196,6 +196,9 @@ def points_in_polygon(x: np.ndarray, y: np.ndarray,
                       vertices: Sequence[Tuple[float, float]]) -> np.ndarray:
     """Even–odd ray casting, vectorised over every point at once.
 
+    :param x: x coordinates of the points to test.
+    :param y: y coordinates aligned with ``x``; a point with either
+        coordinate non-finite is outside.
     :param vertices: the polygon, closed implicitly — the last vertex joins the
         first, so a caller does not have to repeat it (and repeating it is
         harmless).
@@ -1758,6 +1761,10 @@ def wand_select(frame: pd.DataFrame, x_column: str, y_column: str,
     has the larger numbers and the other axis is effectively ignored.
 
     :param frame: the measurement table.
+    :param x_column: column supplying the horizontal measurement; non-numeric
+        entries are excluded from the candidate objects.
+    :param y_column: column supplying the vertical measurement, paired row by
+        row with ``x_column``.
     :param x: the clicked x, in DATA units.
     :param y: the clicked y, in data units.
     :returns: a boolean mask over ``frame``.
@@ -1972,6 +1979,11 @@ def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
     arithmetic sweep from 0.1 to 3.0 spends most of its steps in a region
     where every one gives the same single blob.
 
+    :param frame: the measurement table to cluster; rows lacking either
+        requested numeric measurement are omitted before fitting.
+    :param x_column: the first measurement column. It must differ from
+        ``y_column`` and vary among the usable rows.
+    :param y_column: the second, independently varying measurement column.
     :param eps: the centre of the sweep, normally the user's current value.
     :param steps: how many radii to try, at least 2.
     :param span: multiplicative half-width, so 3.0 tries a ninefold range.
@@ -2319,6 +2331,8 @@ class GateSet:
     def remove(self, name: str, *, cascade: bool = True) -> "GateSet":
         """Drop ``name``.
 
+        :param name: exact gate name to remove. An unknown name leaves the set
+            unchanged.
         :param cascade: also drop everything gated inside it. On by default:
             a child whose parent is gone is a gate on a population that no
             longer exists, and silently re-rooting it would change what it
@@ -2471,6 +2485,8 @@ class GateSet:
                    base: Optional[DataFilter] = None) -> DataFilter:
         """A :class:`~spacr.selection.DataFilter` carrying this gate.
 
+        :param name: gate whose complete ancestor chain becomes the added
+            filter clause.
         :param base: an existing filter to add the clause to. The gate is added
             rather than replacing what is there, so a gate and the Local Data
             Filter's own clauses compose — which is what "the gate becomes a

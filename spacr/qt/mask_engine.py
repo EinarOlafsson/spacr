@@ -211,6 +211,12 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
     Object ids are preserved -- see :func:`canonical_labels` for what that
     costs and why the alternative is worse.
 
+    :param folder: field directory under which the ``masks`` directory is
+        created.
+    :param filename: source image name; its extension is discarded and its
+        stem becomes the TIFF mask name.
+    :param mask: label image to canonicalise and write. Existing multi-label
+        object identifiers are retained where possible.
     :param log: the session's :class:`spacr.curation.CurationLog` for this
         field. Given one holding at least one edit, it is written to
         ``<mask>.curation.json`` beside the mask, so
@@ -362,6 +368,9 @@ def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
     one id. Anything already labelled inside the outline is overwritten,
     which is the point: the outline asserts "all of this is one object".
 
+    :param mask: existing label image to copy and edit; labels outside the
+        enclosed pixels are preserved and the dtype widens when the new id
+        requires it.
     :param points: the traced path as image-pixel ``(x, y)`` pairs. A path
         that encloses less than one pixel -- two points, or a straight line
         traced back over itself -- is returned unchanged with label 0. It is
@@ -633,6 +642,8 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
 def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
     """Label every separated foreground region as its own object.
 
+    :param binary: array whose truthy pixels are foreground. Regions touching
+        diagonally are connected under the editor's eight-neighbour rule.
     :param min_area: regions smaller than this are dropped rather than
         labelled, so a detection does not hand back a field of single-pixel
         speckles for the user to delete by hand.
@@ -652,6 +663,8 @@ def otsu_instances(image: np.ndarray, *, bright: bool = True,
                    min_area: int = 0) -> np.ndarray:
     """Threshold ``image`` at Otsu's level and label what is left.
 
+    :param image: numeric intensity image. It is converted to float32 before
+        the threshold is estimated and must contain at least one pixel.
     :param bright: objects are brighter than background (fluorescence).
         False takes the dark side instead, for a brightfield or a
         stained-plaque image where the objects absorb.
@@ -672,6 +685,10 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
                   mode: str = "replace") -> np.ndarray:
     """Fold a fresh detection into an existing mask.
 
+    :param old: existing label image used as the merge base; ignored when
+        ``mode`` is ``"replace"``.
+    :param new: newly detected label image. In merge mode its positive labels
+        are offset above ``old`` and copied only into background pixels.
     :param mode: ``"replace"`` -- the detection is the mask, and whatever
         was there is gone. ``"merge"`` -- keep every existing object and add
         the detected ones only where nothing is labelled yet, with fresh ids
