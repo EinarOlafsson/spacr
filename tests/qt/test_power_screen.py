@@ -862,6 +862,13 @@ def test_power_tooltips_state_the_simulator_and_fit_contracts():
             "resolved backend", "software stack"):
         assert dependency in seed
 
+    design_doc = DesignSpec.__doc__ or ""
+    for dependency in (
+            "complete design", "same sweep grid", "resolved backend",
+            "software stack"):
+        assert dependency in design_doc
+    assert "Every number on the screen is reproducible" not in design_doc
+
 
 def test_settings_round_trip_into_the_same_design(registry_sandbox):
     """A design saved as settings and typed into the form are one object."""
