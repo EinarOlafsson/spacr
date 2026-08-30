@@ -52,6 +52,8 @@ def test_the_families_do_not_claim_each_others_settings():
     cv = set(classify.FAMILY_SETTINGS["cv"])
     ml = set(classify.FAMILY_SETTINGS["ml"])
     assert cv.isdisjoint(ml), sorted(cv & ml)
+    assert "custom_model" not in cv
+    assert "custom_model_path" in cv
 
 
 @pytest.mark.parametrize("family", classify.CLASSIFIER_FAMILIES)
@@ -297,9 +299,7 @@ def test_the_merged_defaults_are_the_union_of_both():
 
 
 def test_the_retired_keys_are_gone_from_every_classify_module():
-    """annotated_classes and custom_measurement were collected by the form
-    and read by nothing. Carrying a dead key into a new module is how it
-    survives another five years."""
+    """Dead controls do not survive in either classifier settings family."""
     from spacr.settings import (
         deep_spacr_defaults, set_default_analyze_screen, set_default_classify,
     )
@@ -309,6 +309,22 @@ def test_the_retired_keys_are_gone_from_every_classify_module():
         keys = set(factory(settings={}))
         assert "annotated_classes" not in keys, factory.__name__
         assert "custom_measurement" not in keys, factory.__name__
+        assert "custom_model" not in keys, factory.__name__
+
+
+def test_the_retired_custom_model_boolean_is_removed_from_legacy_inputs():
+    from spacr.settings import (
+        deep_spacr_defaults,
+        get_train_test_model_settings,
+        set_default_classify,
+        set_default_train_test_model,
+    )
+
+    for factory in (deep_spacr_defaults, get_train_test_model_settings,
+                    set_default_classify, set_default_train_test_model):
+        resolved = factory({"custom_model": False})
+        assert "custom_model" not in resolved, factory.__name__
+        assert "custom_model_path" in resolved, factory.__name__
 
 
 # ---------------------------------------------------------------------------

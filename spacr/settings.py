@@ -1481,6 +1481,7 @@ def set_default_train_test_model(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    settings.pop('custom_model', None)
     cores = _default_worker_count(reserve=2)
 
     settings.setdefault('src','path')
@@ -1582,6 +1583,11 @@ def deep_spacr_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    # The retired Classify boolean shared a name with Cellpose's checkpoint
+    # path. It is not a compatibility input: classifier selection is entirely
+    # determined by custom_model_path and model_type.
+    settings.pop('custom_model', None)
+
     # BEFORE ANY DEFAULT LANDS (instruction 230 A). `extract_channels` is
     # removed and `train_channels` takes its place -- the channels that
     # matter are the ones the model sees. A settings file that set the old
@@ -1607,7 +1613,6 @@ def deep_spacr_defaults(settings):
     # what it worked out was frequently nothing.
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen',
                                    'cytoplasm'])
-    settings.setdefault('custom_model',False)
     settings.setdefault('custom_model_path','')
     settings.setdefault('train',True)
     settings.setdefault('test',False)
@@ -1709,10 +1714,10 @@ def get_train_test_model_settings(settings):
      :param settings: dict to fill in place.
      :returns: the settings dict with defaults applied.
      """
+     settings.pop('custom_model', None)
      settings.setdefault('src', 'path')
      settings.setdefault('train', True)
      settings.setdefault('test', False)
-     settings.setdefault('custom_model', False)
      settings.setdefault('classes', {})
      settings.setdefault('class_folder_names', ['nc','pc'])
      settings.setdefault('train_channels', ['r','g','b'])
@@ -1791,7 +1796,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('cell_size_range',[0,100000])
     settings.setdefault('pathogen_intensity_range',[0,100000])
     settings.setdefault('nucleus_intensity_range',[0,100000])
-    settings.setdefault('cell_intensity_range',[0,100000])
+    settings.setdefault('cell_intensity_range',None)
     settings.setdefault('target_intensity_min',1)
     return settings
 
@@ -3448,7 +3453,7 @@ expected_types = {
     "annotated_classes":list,
     "annotation_column":str,
     "apply_model_to_dataset":bool,
-    "custom_model":bool,
+    "custom_model": (str, type(None)),
     "png_type":str,
     "path_string":str,
     "crop_source":str,
@@ -5007,12 +5012,9 @@ categories = {
     # least Classify, where it shapes the training set.
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
-    # How Cellpose RUNS. Which model it runs (model_name / custom_model) moved
-    # to "Model Training": they are the same question the torch classifier's
-    # model_type answers, and 'custom_model' under a "Cellpose" heading was the
-    # only reason the Classify (CV) panel had an "Other" section at all - that
-    # module hides "Cellpose", so its one key fell out of every group.
-    "Cellpose": ["fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+    # How Cellpose runs, including the optional saved Cellpose checkpoint.
+    # Classify uses custom_model_path instead and never receives this key.
+    "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
 
@@ -5086,8 +5088,7 @@ categories = {
     # test/ folders before any model exists. The four metadata_item_* keys had
     # no category at all and printed under "Other".
 
-    # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
-    # here from "Cellpose" -- they answer the same question 'model_type' does.
+    # Which classifier model, and how it is fitted.
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways
@@ -5122,7 +5123,7 @@ categories = {
 
     # WHICH MODEL, and how its input is scaled. A custom model path that loads
     # supersedes model_type, so no boolean is needed to say which to believe.
-    "Computer Vision Model": ["model_type", "model_name", "custom_model", "init_weights", "normalization", "normalization_scope"],
+    "Computer Vision Model": ["model_type", "model_name", "init_weights", "normalization", "normalization_scope"],
 
     # HOW IT IS FITTED: the optimisation and the loss.
     "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
@@ -6629,7 +6630,7 @@ def set_analyze_invasion_defaults(settings):
     settings.setdefault('min_total_intensity',None)
     settings.setdefault('extracellular_class','attached')
     settings.setdefault('seed_wells_from_cells',True)
-    settings.setdefault('cell_types',['Hela'])
+    settings.setdefault('cell_types',['HeLa'])
     settings.setdefault('cell_plate_metadata',None)
     settings.setdefault('pathogen_types',['pc'])
     settings.setdefault('pathogen_plate_metadata',[['c1'], ['c2']])
@@ -6663,7 +6664,7 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('require_host_cell', True)
     settings.setdefault('seed_wells_from_cells', True)
     settings.setdefault('non_power_of_two_warn', 0.2)
-    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_types', ['HeLa'])
     settings.setdefault('cell_plate_metadata', None)
     settings.setdefault('pathogen_types', ['pc'])
     settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])

@@ -381,11 +381,9 @@ class TestCategoryGrouping:
         """It used to assert ``titles[-1] == "OTHER"``.
 
         The "Other" section is not a heading anyone chose -- it is the
-        trailing bucket ``build_sections`` emits for keys in no category at
-        all. Classify rendered one holding exactly ``custom_model``, because
-        that key was filed under "Cellpose" and Classify hides Cellpose. The
-        key now lives beside ``model_type``, which is the question it
-        answers, so there is nothing left to bucket.
+        trailing bucket ``build_sections`` emits for keys in no category.
+        Classify now exposes only its classifier checkpoint path; the
+        similarly named Cellpose checkpoint is not one of its defaults.
 
         The two section names are read off the module's own ordering rather
         than spelled here: the Classify overhaul renamed "Model
@@ -397,23 +395,29 @@ class TestCategoryGrouping:
         The escape hatch itself still works and is covered by
         ``test_uncategorised_keys_still_land_in_other`` below.
         """
-        scr = _make_screen(qtbot, "classify")
-        titles = _section_titles(scr)
-        assert "CELLPOSE" not in titles
-        assert "OTHER" not in titles
-        assert "custom_model" in scr._settings_model._widgets
-        # custom_model is rendered under some heading, and that heading is
-        # the model one -- asserted by where the key landed, not by its name.
-        model_section = next(
-            (name for name, rows in scr._settings_model.build_sections()
-             if any(label_or_key == "custom_model"
-                    or getattr(widget, "property", lambda _p: None)(
-                        "settingKey") == "custom_model"
-                    for label_or_key, widget in rows)),
-            None)
-        assert model_section is not None, (
-            "custom_model is not rendered in any section")
-        assert "MODEL" in model_section.upper()
+        for app_key in ("classify", "classify_merged"):
+            scr = _make_screen(qtbot, app_key)
+            titles = _section_titles(scr)
+            assert "CELLPOSE" not in titles
+            assert "OTHER" not in titles
+            assert "custom_model" not in scr._settings_model._defaults
+            assert "custom_model" not in scr._settings_model._widgets
+            assert "custom_model_path" in scr._settings_model._widgets
+        from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+        assert "custom_model" not in _APP_HIDDEN_KEYS["classify"]
+        assert "custom_model" not in _APP_HIDDEN_KEYS["classify_merged"]
+
+    def test_cellpose_custom_model_is_a_nullable_path_widget(self, qtbot):
+        """Cellpose keeps its checkpoint field; it is not a boolean toggle."""
+        scr = _make_screen(qtbot, "cellpose_masks")
+        widget = scr._settings_model._widgets["custom_model"]
+
+        assert isinstance(widget, _ScalarEdit)
+        assert not isinstance(widget, QCheckBox)
+        assert scr._settings_model.collect()["custom_model"] is None
+        widget.set_value("/models/cpsam.CP_model")
+        assert scr._settings_model.collect()["custom_model"] == \
+            "/models/cpsam.CP_model"
 
     def test_uncategorised_keys_still_land_in_other(self, qtbot, monkeypatch):
         """The bucket is a safety net, not a section anyone should see."""

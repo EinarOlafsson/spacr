@@ -47,7 +47,7 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
         "crop_shape", "extract_channels", "object_array", "coordinate_columns",
         "normalization", "normalization_scope",
-        "model_type", "custom_model", "custom_model_path", "image_size",
+        "model_type", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
         "gradient_accumulation", "gradient_accumulation_steps",

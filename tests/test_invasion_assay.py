@@ -1393,6 +1393,24 @@ def test_every_aggregation_level_runs(tmp_path, level):
 # Wiring
 # ---------------------------------------------------------------------------
 
+def test_default_host_label_is_emitted_with_canonical_capitalization(tmp_path):
+    from spacr.submodules import analyze_invasion
+
+    src = write_db(tmp_path / "p", [
+        {"row": "r1", "column": "c1", "outside": split(3, 3)}])
+    settings = settings_for(
+        src, outside_threshold=55.0, min_parasites_per_well=1)
+    settings.pop("cell_types")
+    settings.pop("cell_plate_metadata")
+
+    out = analyze_invasion(settings)
+
+    assert set(out["parasites"]["host_cells"]) == {"HeLa"}
+    assert set(out["parasites"]["condition"]) == {"HeLa_dmso"}
+    assert set(out["wells"]["condition"]) == {"HeLa_dmso"}
+    assert set(out["summary"]["condition"]) == {"HeLa_dmso"}
+
+
 def test_settings_module_defaults_win_over_the_local_fallback(tmp_path,
                                                               monkeypatch):
     """spacr.settings owns every pipeline's defaults; the copy in submodules is
@@ -1434,9 +1452,12 @@ def test_the_local_fallback_fills_every_key_the_assay_reads():
                 "min_parasites_per_well", "extracellular_class",
                 "group_column", "level", "save", "verbose"):
         assert key in settings, key
+    assert settings["cell_types"] == ["HeLa"]
     # Caller values are never overwritten.
     assert _set_analyze_invasion_defaults({"src": "x",
                                            "outside_channel": 3})["outside_channel"] == 3
+    assert _set_analyze_invasion_defaults(
+        {"src": "x", "cell_types": ["CHO"]})["cell_types"] == ["CHO"]
 
 
 def test_verbose_prints_the_threshold_of_every_field_and_the_flagged_wells(

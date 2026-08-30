@@ -2459,7 +2459,7 @@ def categories_for_app(
 
             "Model & Regularization": [
                 "classifier_family",
-                "model_type", "custom_model", "custom_model_path",
+                "model_type", "custom_model_path",
                 "resume_checkpoint", "init_weights",
                 "normalize", "normalization", "normalization_scope",
                 "dropout_rate", "weight_decay", "use_checkpoint"],
