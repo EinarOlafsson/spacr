@@ -1192,3 +1192,38 @@ the object they inspect.
     Eleven files were edited in the guard removal, so eleven files' arcs in the
     2026-08-30 batched artifact are off by one or two after the edit point. The
     artifact is still correct for the commit it names.
+
+--------------------------------------------------------------------------------
+26. TWO MORE FAMILY-1 GUARDS, FOUND WHILE CLOSING SINGLE-ARC MODULES
+    ------------------------------------------------------------------
+    portable_paths.py:55, `candidate_roots`:
+
+        here = os.path.abspath(...)
+        out = []
+        for _ in range(_MAX_CLIMB + 1):
+            if here and here not in out:      # 55 -- never False
+                out.append(here)
+            parent = os.path.dirname(here)
+            if parent == here:
+                break
+            here = parent
+
+    `here` is abspath'd, so it is never falsy. And each step replaces it with
+    its own parent, which is strictly shorter, until the fixed point at "/"
+    where the loop breaks -- so it can never repeat either. Both halves of the
+    guard are dead.
+
+    response_distribution.py:293 is recorded in section 24.
+
+    RUNNING TALLY OF UNREACHABLE ARCS FOUND AND ACCOUNTED FOR:
+      family 1 (defensive re-check after a guarded call)
+        control_names.py:304, portable_paths.py:55,
+        response_distribution.py:291, 292, 293,
+        and the sixteen `if parent:` sites in section 19 (thirteen removed)
+      family 4 (guard inside a finally)
+        errors.py:724, qt/synthetic.py:1426, qt/widgets/field_fade.py:258
+
+    None of them can be covered and none may carry a pragma, so each is either
+    deleted (section 18) or written down here. That is the only way instruction
+    288's per-module numbers mean anything: a module short of 100% is either a
+    gap or a line in this document, and never a shrug.
