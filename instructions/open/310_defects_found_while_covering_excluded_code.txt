@@ -416,3 +416,32 @@ test_a_second_annotation_pass_says_nothing_when_asked_to_be_quiet.
     count is now four byte-similar byte-formatters across the package. Left
     alone here because the coverage lane should not be the one to merge four
     modules' helpers, but it is worth someone's decision.
+
+--------------------------------------------------------------------------------
+7. THE COVERAGE REPORT'S LINE NUMBERS ARE NOT THE WORKING TREE'S
+--------------------------------------------------------------------------------
+
+A coverage report is taken on a FROZEN worktree and read on the SHARED one, and
+those two disagree wherever the shared tree has uncommitted edits. spacr/crops.py
+is the case that surfaced it: its working copy carries eight extra comment lines,
+so the report's "missing lines 3619, 3621, 3622" pointed at comment text when
+read in the shared tree, which is impossible and is what gave it away.
+
+Checked across every module targeted in this session's sweep: crops.py was the
+only one affected, so nothing else needs revisiting. But the trap is general and
+it fails QUIETLY in the other direction -- a report line that lands on a
+different STATEMENT rather than on a comment gives a test aimed at the wrong
+branch, which then passes.
+
+THE CHECK: compare the file, not the commit. ``git diff 4eccf7b8 HEAD -- <file>``
+was EMPTY for crops.py and still the two files differed, because the difference
+was never committed at all.
+
+    md5sum <frozen-worktree>/spacr/x.py <shared-tree>/spacr/x.py
+
+THE HABIT THAT AVOIDS IT: verify by ARC, not by line number. Every closure in
+this sweep was confirmed by re-running under coverage with the exclude list
+emptied and checking ``executed_branches`` for the specific arc -- so a
+misread line number shows up as a test that does not close what it claimed,
+rather than as a green test measuring the wrong thing. That check caught three
+tests in this session that exercised nothing.
