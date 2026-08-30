@@ -50,7 +50,13 @@ CONTROL_LABELS = ("nc", "negative", "non-targeting", "nontargeting",
 
 @dataclass
 class Baseline:
-    """Store a selected baseline and its reporting sentence."""
+    """Store a selected baseline and its reporting sentence.
+
+    :ivar kind: baseline strategy that was selected or resolved.
+    :ivar shift: constant subtracted from every reported effect.
+    :ivar n: number of coefficients used to estimate the shift.
+    :ivar sentence: non-empty caption sentence explaining the baseline.
+    """
 
     kind: str
     #: What to subtract from every effect. 0.0 for :data:`ZERO`.
@@ -191,6 +197,9 @@ def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
 
 def apply(frame, baseline: Baseline, *, column: str = "coefficient"):
     """``frame`` with every effect re-expressed against ``baseline``.
+
+    :param frame: coefficient table to copy and re-express.
+    :param baseline: resolved baseline whose shift is applied.
 
     The function returns a copy because the input may also supply coefficient
     tables, exports and other panels that must retain their original values.

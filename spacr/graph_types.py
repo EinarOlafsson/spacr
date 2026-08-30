@@ -164,6 +164,8 @@ def shape_of(frame, x: str = "", y: str = "") -> str:
 def types_for(shape: str) -> Tuple[str, ...]:
     """Return graph types compatible with a data shape.
 
+    :param shape: one of the keys in :data:`DATA_SHAPES`.
+
     Raises
     ------
     KeyError
@@ -204,12 +206,19 @@ def default_for(shape: str) -> str:
 
 
 def fits(shape: str, graph_type: str) -> bool:
-    """Return whether a graph type supports a data shape."""
+    """Return whether a graph type supports a data shape.
+
+    :param shape: inferred data-shape key.
+    :param graph_type: graph implementation key to test.
+    """
     return str(graph_type) in FITS.get(str(shape), ())
 
 
 def why_not(shape: str, graph_type: str) -> str:
     """Explain why a graph type is incompatible with a data shape.
+
+    :param shape: inferred data-shape key.
+    :param graph_type: graph implementation key whose mismatch is explained.
 
     An empty string is returned for compatible pairs.
     """
@@ -224,6 +233,8 @@ def why_not(shape: str, graph_type: str) -> str:
 
 def offer(frame, x: str = "", y: str = "") -> List[Tuple[str, str, str]]:
     """List graph choices for a frame, with compatible choices first.
+
+    :param frame: data frame whose selected columns determine the shape.
 
     Returns
     -------

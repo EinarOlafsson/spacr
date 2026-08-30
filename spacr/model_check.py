@@ -30,7 +30,11 @@ LOG = logging.getLogger("spacr.model_check")
 
 @dataclass(frozen=True)
 class ModelReport:
-    """What was found. ``ok`` first, because it is the answer."""
+    """What was found. ``ok`` first, because it is the answer.
+
+    :ivar ok: whether the chosen model is compatible with the requested run.
+    :ivar source: resolved built-in model name or custom model path.
+    """
 
     ok: bool
     source: str
@@ -51,6 +55,8 @@ class ModelReport:
 def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
     """``(kind, name)`` for the model that will actually be used.
 
+    :param settings: classification settings containing model choices.
+
     ``kind`` is ``'custom'`` or ``'builtin'``. A custom path that EXISTS wins:
     the old ``custom_model`` boolean could disagree with the path beside it,
     and then which one won depended on which reader you asked.
@@ -66,7 +72,10 @@ def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
 
 
 def expected_channels(settings: Mapping[str, Any]) -> Optional[int]:
-    """How many image channels this dataset will hand the model."""
+    """How many image channels this dataset will hand the model.
+
+    :param settings: classification settings containing channel declarations.
+    """
     for key in ("train_channels", "extract_channels", "channels"):
         value = settings.get(key)
         if value is None:
@@ -81,7 +90,10 @@ def expected_channels(settings: Mapping[str, Any]) -> Optional[int]:
 
 
 def expected_classes(settings: Mapping[str, Any]) -> Optional[int]:
-    """How many classes the training set will have."""
+    """How many classes the training set will have.
+
+    :param settings: classification settings containing class definitions.
+    """
     from .classify_classes import class_names
 
     names = class_names(settings)
@@ -160,6 +172,8 @@ def _known_builtin_models() -> set[str]:
 
 def check_model(settings: Mapping[str, Any]) -> ModelReport:
     """Whether the chosen model can train on the chosen data and classes.
+
+    :param settings: classification settings to validate against the model.
 
     Never raises: this runs from a click, and a dialog that crashes the screen
     is a worse answer than one that says what is wrong.

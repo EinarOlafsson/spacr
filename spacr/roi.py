@@ -203,7 +203,10 @@ class RegionOfInterest:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> 'RegionOfInterest':
-        """Rebuild one from :meth:`as_dict`."""
+        """Rebuild one from :meth:`as_dict`.
+
+        :param payload: serialized ROI mapping.
+        """
         try:
             return cls(kind=payload['kind'], vertices=payload['vertices'],
                        name=payload.get('name', ''))
@@ -323,12 +326,17 @@ class RoiSet:
         return sum(len(v) for v in self.fields.values())
 
     def covers(self, file_name: str) -> bool:
-        """Whether this set has anything to say about ``file_name``."""
+        """Whether this set has anything to say about ``file_name``.
+
+        :param file_name: merged-field filename or stem to test.
+        """
         return self.rois_for(file_name) is not None
 
     def rois_for(self, file_name: str
                  ) -> Optional[Tuple[RegionOfInterest, ...]]:
         """The ROIs that apply to a field, or ``None`` when none do.
+
+        :param file_name: merged-field filename or stem to resolve.
 
         The field's own entry wins over :data:`ANY_FIELD`; a field entry that
         is present but empty means "this field has an ROI and it encloses
@@ -417,7 +425,10 @@ class RoiSet:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> 'RoiSet':
-        """Rebuild a set from :meth:`as_dict`."""
+        """Rebuild a set from :meth:`as_dict`.
+
+        :param payload: serialized ROI-set mapping.
+        """
         data = dict(payload)
         try:
             fields = {str(name): tuple(RegionOfInterest.from_dict(entry)
@@ -438,6 +449,8 @@ class RoiSet:
 
     def save(self, path: str) -> str:
         """Write this set to ``path`` as JSON; returns the absolute path.
+
+        :param path: destination JSON file.
 
         JSON rather than ``.npz`` on purpose: an ROI is a few dozen numbers and
         a human being should be able to read the file that decided which cells
@@ -461,6 +474,8 @@ class RoiSet:
     @classmethod
     def load(cls, path: str) -> 'RoiSet':
         """Read a set back from :meth:`save`.
+
+        :param path: ROI-set JSON file to read.
 
         :raises RoiError: if the file is missing or is not an ROI file. Loudly,
             because a worker that cannot load the ROI must not go on to measure
