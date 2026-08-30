@@ -456,6 +456,7 @@ def top_bar(ctx: Ctx, *, title: str = "spaCR",
             actions: Sequence[Tuple[str, bool]] = ()) -> QWidget:
     """A slim brand bar: logo mark + title (+ subtitle) + right actions.
 
+    :param ctx: render context supplying the active palette, logo, and theme.
     :param actions: ``(label, primary)`` pairs rendered right-aligned.
     """
     w, row = transparent(horizontal=True, spacing=12)
@@ -569,6 +570,10 @@ def htile(ctx: Ctx, key: str, *, width: int, height: int = 0,
           icon_px: int = 44, name_px: int = 0) -> QWidget:
     """One of the app's real ``HTile`` cards, at a fixed width.
 
+    :param ctx: render context supplying the icon and palette for the tile.
+    :param key: registered application key used to resolve the displayed name,
+        icon, blurb, and tooltip.
+    :param width: fixed tile width in pixels.
     :param name_px: override the tile name's font size. The shipped
         tile draws it at the 17 px "subtitle" size, which is what forces
         a 255 px minimum width and therefore at most five columns on a

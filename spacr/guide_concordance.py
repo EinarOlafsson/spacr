@@ -185,6 +185,8 @@ def concordance_report(results: pd.DataFrame, alpha: float = 0.05,
                        top: int = 15, controls: dict | None = None) -> str:
     """A few lines a human can read, for the console after a run.
 
+    :param results: guide-level coefficient table accepted by
+        :func:`guide_support`, including feature names, effects, and P values.
     :param controls: ``{gene_id: role}``, e.g.
         ``{"239740": "positive", "233460": "negative"}``. A negative control
         appearing in the hit list is the most useful line in the report and
