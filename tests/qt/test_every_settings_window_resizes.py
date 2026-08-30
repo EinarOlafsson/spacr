@@ -370,6 +370,7 @@ class TestTheWindowStillMoves:
     def test_a_press_on_a_control_is_not_a_drag(self, resizer, qtbot):
         from PySide6.QtCore import QPoint, Qt
         from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QApplication
 
         dialog = _open(qtbot, _picture_settings())
         dialog.move(140, 110)
@@ -381,10 +382,18 @@ class TestTheWindowStillMoves:
 
         QTest.mousePress(holder, Qt.MouseButton.LeftButton,
                          Qt.KeyboardModifier.NoModifier, where)
-        QTest.mouseMove(holder, where + QPoint(40, 25))
-        qtbot.wait(10)
+        try:
+            QTest.mouseMove(holder, where + QPoint(40, 25))
+            qtbot.wait(10)
 
-        assert dialog.pos() == start
+            assert dialog.pos() == start
+        finally:
+            QTest.mouseRelease(holder, Qt.MouseButton.LeftButton,
+                               Qt.KeyboardModifier.NoModifier,
+                               where + QPoint(40, 25))
+            QApplication.processEvents()
+
+        assert QApplication.mouseButtons() == Qt.MouseButton.NoButton
 
 
 class TestShownAgain:
