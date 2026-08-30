@@ -739,6 +739,7 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
 
     assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]' in workflow
     assert "continue-on-error: ${{ matrix.python-version == '3.15' }}" in workflow
+    assert "allow-prereleases: ${{ matrix.python-version == '3.15' }}" in workflow
     assert "Install the core graph and import spaCR" in workflow
     assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
     assert "import spacr" in workflow
