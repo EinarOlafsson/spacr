@@ -1040,11 +1040,23 @@ class AppScreen(QWidget):
     # AttributeError.
     _ambient = None
     _ambient_applied = None
+    _ambient_install_ready = False
     _backdrop_applied = None
     _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
+        # A stylesheet/palette event can be delivered from the explicit
+        # ``processEvents`` calls used while the settings form is built.  The
+        # refresh handler must be able to answer during that half-constructed
+        # interval, but it must not install a backdrop yet: doing so sweeps an
+        # incomplete tree, then the normal constructor path installs a second
+        # widget and leaves the first one alive and untracked.
+        self._ambient = None
+        self._ambient_applied = None
+        self._ambient_install_ready = False
+        self._backdrop_applied = None
+        self._dna_rain = None
         self.app_key = app_key
         self._last_error_text: str = ""
         # widget → plain-text hint. Walking it hands over every caption,
@@ -1222,11 +1234,10 @@ class AppScreen(QWidget):
         # whenever this screen is not visible — these screens stay open
         # while the pipeline runs on another tab, so an animation that
         # kept ticking off-screen would cost a core for nobody.
-        self._ambient = None
         #: (theme, palette) last pushed at — or attempted on — the
         #: widget, so a tab switch that changed nothing neither restarts
         #: the animation nor retries an install that already failed.
-        self._ambient_applied = None
+        self._ambient_install_ready = True
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
@@ -1332,6 +1343,8 @@ class AppScreen(QWidget):
         palette event, which a stylesheet re-apply raises. A preference
         change moves the pair and the attempt happens again.
         """
+        if not getattr(self, "_ambient_install_ready", False):
+            return
         if self._ambient is not None:
             return
         widget = None
@@ -1424,6 +1437,8 @@ class AppScreen(QWidget):
 
         Never raises, for the same reason the install does not.
         """
+        if not getattr(self, "_ambient_install_ready", False):
+            return
         if not uses_ambient_background(self.app_key):
             # Belt and braces: sequencing must not acquire one through
             # this path either.

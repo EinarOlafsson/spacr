@@ -322,6 +322,49 @@ def test_every_non_sequencing_screen_gets_the_ambient_backdrop(
     assert screen._dna_rain is None, f"{app_key}: got the sequencing rain"
 
 
+def test_a_palette_event_mid_build_cannot_install_a_second_backdrop(
+        qtbot, qt_theme_applied, fake_ambient, ambient_prefs, monkeypatch):
+    """The form builder drains events before the screen is complete.
+
+    On the first module opened after a stylesheet change, that drain can
+    deliver ``PaletteChange`` to the half-built screen.  The refresh handler
+    used to install an ambient widget there; the constructor later reset its
+    reference and installed another, leaving the first animation alive and
+    impossible to stop through ``screen._ambient``.
+    """
+    from spacr.qt.screens import app_screen, settings_model
+
+    holder = {}
+    real_layout = app_screen.AppScreen._lay_out_the_settings_panel
+
+    def layout_with_owner(screen):
+        holder["screen"] = screen
+        return real_layout(screen)
+
+    monkeypatch.setattr(app_screen.AppScreen, "_lay_out_the_settings_panel",
+                        layout_with_owner)
+
+    real_build_sections = settings_model.SettingsWidgets.build_sections
+    fired = []
+
+    def build_with_one_palette_event(model):
+        if not fired:
+            fired.append(True)
+            holder["screen"].changeEvent(QEvent(QEvent.PaletteChange))
+        return real_build_sections(model)
+
+    monkeypatch.setattr(settings_model.SettingsWidgets, "build_sections",
+                        build_with_one_palette_event)
+
+    screen = _screen(qtbot, "illumination")
+
+    assert fired, "the construction-time palette event was not delivered"
+    assert len(fake_ambient.calls) == 1, (
+        f"one screen installed {len(fake_ambient.calls)} ambient backdrops")
+    assert [child for child in screen.children()
+            if isinstance(child, StubAmbient)] == [screen._ambient]
+
+
 def test_sequencing_keeps_its_own_animation_and_gains_nothing(
         qtbot, qt_theme_applied, fake_ambient):
     """map_barcodes still gets the DNA rain, and never a second one.
