@@ -306,6 +306,15 @@ def test_no_count_data_is_refused_with_a_reason():
         refit.refit_settings(base, regression_type="rlm")
 
 
+def test_no_usable_count_data_path_is_refused_with_a_reason():
+    """A truthy container of placeholders is still no regression input."""
+    with pytest.raises(ValueError, match="no usable count data path"):
+        refit.refit_settings(
+            _base(count_data=["", None, "list of paths"]),
+            regression_type="rlm",
+        )
+
+
 # --------------------------------------------------------------------------- #
 #  Reading the settings back off disk
 # --------------------------------------------------------------------------- #

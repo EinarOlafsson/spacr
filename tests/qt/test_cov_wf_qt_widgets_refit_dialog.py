@@ -105,43 +105,44 @@ def test_switching_to_a_penalised_model_names_the_penalty_it_will_use(qtbot):
 
 # ------------------------------------------------- a run with no destination
 
-def test_counts_recorded_as_an_empty_first_entry_name_no_output_folder(qtbot):
-    """A settings CSV can record ``count_data`` as a list, and a run that was
-    started from a picker the user cleared leaves an empty first entry. The
-    list is still truthy, so the dialog does not refuse the re-fit -- but
-    there is no path to derive a results folder from, and the notice must then
-    say what it does know instead of naming a folder built from an empty
-    string. "Writes to /results/ols" for a run that will write nowhere near
-    there is worse than saying nothing about the destination.
+def test_no_usable_count_path_explains_and_disables_the_refit(qtbot):
+    """A truthy list containing only a blank path cannot start a re-fit.
 
-    A dialog on the same settings with a real counts path does name its
-    folder, which is what makes the silence above informative.
+    Calling it "nothing to change" and leaving Re-fit enabled turns a missing
+    input into a promised run that will fail after launch. The same form with
+    a real counts path remains runnable and keeps its destination notice.
     """
     blank = _dialog(qtbot, dict(_RUNNABLE, count_data=[""]))
     real = _dialog(qtbot, _RUNNABLE)
+    blank_button = blank.findChild(QDialogButtonBox).button(
+        QDialogButtonBox.Ok)
+    real_button = real.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
 
-    assert blank._notice.text() == (
-        "Nothing to change: re-fitting these settings would repeat the run "
-        "you are looking at.")
-    assert "Writes to" not in blank._notice.text()
+    assert "no usable count data path" in blank._notice.text()
+    assert blank_button.isEnabled() is False
     assert real._notice.text() == "Writes to /data/screen/results/ols."
+    assert real_button.isEnabled() is True
 
 
-def test_a_reset_setting_is_still_reported_when_no_folder_can_be_named(qtbot):
-    """Losing the destination line must not lose the notes beside it. The
-    reset sentence is the one this dialog exists to print -- an OLS re-fit
-    silently drops the previous run's ``alpha`` -- and a user whose settings
-    name no derivable folder is entitled to that warning just as much as one
-    whose settings do.
+def test_a_later_usable_count_path_preserves_notes_and_destination(qtbot):
+    """Blank list entries do not hide a later usable count table.
+
+    The reset sentence is the one this dialog exists to print -- an OLS
+    re-fit silently drops the previous run's ``alpha`` -- and the first real
+    count path is where the run will derive its destination.
     """
-    dialog = _dialog(qtbot, dict(_RUNNABLE, count_data=["", "counts.csv"],
-                                 alpha=0.3))
+    dialog = _dialog(
+        qtbot,
+        dict(_RUNNABLE, count_data=["", "/data/second/counts.csv"], alpha=0.3),
+    )
 
     text = dialog._notice.text()
 
     assert "does not read alpha=0.3" in text
     assert "reset to default" in text
-    assert "Writes to" not in text
+    assert "Writes to /data/second/results/ols." in text
+    assert dialog.findChild(QDialogButtonBox).button(
+        QDialogButtonBox.Ok).isEnabled() is True
 
     named = _dialog(qtbot, dict(_RUNNABLE, alpha=0.3))
     assert "does not read alpha=0.3" in named._notice.text()

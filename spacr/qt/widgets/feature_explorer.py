@@ -249,17 +249,14 @@ class FeatureExplorerPanel(QWidget):
             f"{STATISTIC_LABELS[statistic]} — cannot see: "
             f"{STATISTIC_FAILURE_MODES[statistic]}")
         if self._frame is None:
+            self._clear_result()
             self._summary.setText("no table loaded")
             return None
         self._spec = self.current_spec()
         try:
             result = rank_features(self._frame, self._spec)
         except ExplorerError as exc:
-            self._result = None
-            self.table.setRowCount(0)
-            self._figure.clear()
-            self._figure.patch.set_alpha(0.0)
-            self._canvas.draw_idle()
+            self._clear_result()
             self._summary.setText(str(exc))
             return None
         self._result = result
@@ -269,30 +266,49 @@ class FeatureExplorerPanel(QWidget):
         self.ranked.emit(result)
         return result
 
+    def _clear_result(self) -> None:
+        """Forget every visual and selected part of the previous ranking."""
+        self._result = None
+        self.table.clearSelection()
+        self.table.setRowCount(0)
+        self._figure.clear()
+        self._figure.patch.set_alpha(0.0)
+        self._canvas.draw_idle()
+
     def _fill_table(self, result: ExplorerResult) -> None:
+        previous_feature = self.selected_feature()
         palette = active_palette()
-        self.table.setRowCount(len(result.scores))
-        for row, score in enumerate(result.scores):
-            cells = [
-                score.feature,
-                f"{score.score:.3f}",
-                f"{score.auc:.3f}" if np.isfinite(score.auc) else "",
-                f"{score.ks:.3f}" if np.isfinite(score.ks) else "",
-                score.higher_in,
-                f"{score.smallest_class:,}",
-            ]
-            for column, text in enumerate(cells):
-                item = table_item(text)
-                item.setData(Qt.UserRole, score.feature)
-                item.setToolTip(score.describe())
-                if score.is_shape_not_shift:
-                    item.setForeground(_brush(palette["warning"]))
-                elif (result.null_threshold is not None
-                      and score.score <= result.null_threshold):
-                    item.setForeground(_brush(palette["fg_muted"]))
-                self.table.setItem(row, column, item)
-        if len(result.scores):
-            self.table.selectRow(0)
+        signals_were_blocked = self.table.blockSignals(True)
+        try:
+            self.table.setRowCount(len(result.scores))
+            for row, score in enumerate(result.scores):
+                cells = [
+                    score.feature,
+                    f"{score.score:.3f}",
+                    f"{score.auc:.3f}" if np.isfinite(score.auc) else "",
+                    f"{score.ks:.3f}" if np.isfinite(score.ks) else "",
+                    score.higher_in,
+                    f"{score.smallest_class:,}",
+                ]
+                for column, text in enumerate(cells):
+                    item = table_item(text)
+                    item.setData(Qt.UserRole, score.feature)
+                    item.setToolTip(score.describe())
+                    if score.is_shape_not_shift:
+                        item.setForeground(_brush(palette["warning"]))
+                    elif (result.null_threshold is not None
+                          and score.score <= result.null_threshold):
+                        item.setForeground(_brush(palette["fg_muted"]))
+                    self.table.setItem(row, column, item)
+            if len(result.scores):
+                self.table.selectRow(0)
+        finally:
+            self.table.blockSignals(signals_were_blocked)
+
+        selected_feature = self.selected_feature()
+        if (not signals_were_blocked and selected_feature
+                and selected_feature != previous_feature):
+            self.feature_selected.emit(selected_feature)
 
     def _draw(self, result: ExplorerResult) -> None:
         """A strip per feature, the classes overlaid on shared bin edges."""
