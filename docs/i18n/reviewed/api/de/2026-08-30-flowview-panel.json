@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "context": "Unavailable live-panel placeholder. A boxed live run graph suitable for insertion below Classify settings.",
+      "label": "spacr.flowview.panel.FlowViewPanel#0",
+      "source": "Unavailable live-panel placeholder. A boxed live run graph suitable for insertion below Classify settings.",
+      "source_sha256": "079f0b47cfec3ac8251d07f27e4726195ce3a4f73dbc9a72882e710cd860c364",
+      "translation": "Platzhalter für ein nicht verfügbares Live-Panel. Ein eingerahmter Graph eines laufenden Verarbeitungslaufs, der sich zum Einfügen unterhalb der Classify-Einstellungen eignet."
+    }
+  ]
+}
