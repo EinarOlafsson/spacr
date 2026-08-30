@@ -3863,7 +3863,13 @@ def apply_preferences_to_app(app=None) -> None:
         ``QApplication.instance()``.
     """
     from PySide6.QtWidgets import QApplication
-    from .theme import apply_qpalette, stylesheet
+
+    from .theme import (
+        apply_qpalette,
+        clear_widget_qss_overlays,
+        set_widget_qss_context,
+        stylesheet,
+    )
 
     app = app or QApplication.instance()
     if app is None:
@@ -3882,6 +3888,7 @@ def apply_preferences_to_app(app=None) -> None:
 
     theme = resolve_effective_theme()
     scale = get_font_scale()
+    pane_opacity = get_pane_opacity()
 
     # Only the image themes want a picture, and only they pay for
     # producing one. Everything here degrades to None on any failure,
@@ -3892,6 +3899,10 @@ def apply_preferences_to_app(app=None) -> None:
     # from a paint. See :func:`spacr.qt.imagery.decode_count`.
     background = theme_background_path(theme)
 
+    # Record the exact inputs any screen-local late block must share with the
+    # application sheet. The local copies are absorbed into the complete
+    # global rebuild below once that sheet has been composed successfully.
+    set_widget_qss_context(app, theme, scale, pane_opacity)
     apply_qpalette(app, theme=theme)
 
     # Fields before the stylesheet, not after: importing the module is what
@@ -3907,9 +3918,14 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:
         LOG.exception("Could not install the field fade")
 
-    app.setStyleSheet(stylesheet(
+    sheet = stylesheet(
         theme=theme, font_scale=scale, background=background,
-        surface_opacity=get_pane_opacity(), load_widget_registrars=False))
+        surface_opacity=pane_opacity, load_widget_registrars=False)
+    # A local sheet outranks the application sheet. Remove old-theme copies
+    # only after the replacement exists, then install the complete sheet that
+    # now contains every block registered so far.
+    clear_widget_qss_overlays(app)
+    app.setStyleSheet(sheet)
 
     # A field whose QSS did not change still has to redraw: turning the
     # effect off while its block was already empty changes only what the

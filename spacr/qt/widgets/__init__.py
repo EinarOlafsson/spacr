@@ -28,9 +28,9 @@ from .console_panel import ConsolePanel
 from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
-# Kept eager because it is a cheap, public widget.  If it contributes QSS,
-# `theme.register_widget_qss` also makes a late block live synchronously; QSS
-# registration is no longer a reason to import a heavy widget at launch.
+# Kept eager because it is a cheap, public widget. QSS registration is no
+# longer a reason to import a heavy widget at launch: the screen host scopes
+# any late registered block to the screen before its first paint.
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
 from .section import Section

@@ -116,9 +116,9 @@ report(seconds=time.perf_counter() - start,
 #: The real initial styling path, not merely an import approximation.  It
 #: creates QApplication, runs the same self-registration pass as ``run()``,
 #: and calls the production preference function that sets the live QSS.
-#: Model Compare is then imported as a representative on-demand screen; its
-#: module-level registrar must update that QSS before any screen instance is
-#: constructed.
+#: Model Compare is then imported as a representative on-demand screen. Its
+#: module-level block is applied to a fresh screen scope while the application
+#: sheet remains byte-identical.
 QT_APPLICATION_PREFERENCES = _PREAMBLE + f"""
 import importlib, os, tempfile
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -130,7 +130,7 @@ spacr.qt._quiet_gtk_accessibility()
 spacr.qt._install_quiet_qt_logging()
 from spacr.qt.app import launch
 registered = spacr.qt.register_self_registering_modules()
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 app = QApplication([])
 from spacr.qt.preferences import apply_preferences_to_app
 apply_start = time.perf_counter()
@@ -145,6 +145,10 @@ model_compare = importlib.import_module(late_module)
 marker = "/* --- registered widget QSS: %s --- */" % (
     model_compare.MODEL_PANEL_NAME,
 )
+from spacr.qt.theme import ensure_widget_qss_applied
+scope = QWidget()
+local_applied = ensure_widget_qss_applied(
+    model_compare.MODEL_PANEL_NAME, root=scope)
 report(seconds=time.perf_counter() - start,
        apply_seconds=apply_seconds,
        qss_chars=len(before),
@@ -152,7 +156,10 @@ report(seconds=time.perf_counter() - start,
        expected=list(spacr.qt.SELF_REGISTERING_MODULES),
        initial_scientific=initial_scientific,
        late_module_absent=late_module_absent,
-       late_marker_live=marker in app.styleSheet())
+       app_sheet_unchanged=app.styleSheet() == before,
+       late_marker_global=marker in app.styleSheet(),
+       late_marker_local=marker in scope.styleSheet(),
+       local_applied=local_applied)
 """
 
 #: Every module in the Qt package, imported one by one. ``walk_packages``
@@ -375,15 +382,16 @@ def test_the_spacr_qt_launch_path_never_imports_spacr_utils():
 
 @_NEEDS_QT
 @pytest.mark.qt
-def test_initial_preferences_are_light_and_late_widget_qss_is_synchronous():
+def test_initial_preferences_are_light_and_late_widget_qss_is_local():
     """Apply the real first QSS without importing unopened data screens.
 
     ``stylesheet()`` remains exhaustive by default for callers that ask for
     a complete static sheet.  The application path is intentionally lazy:
     pandas, SciPy, scikit-learn and Torch belong to work a user starts, not
     to setting a palette.  A screen imported later registers above its widget
-    class, and that registration must be present in the live application QSS
-    before the first instance of the class can be constructed.
+    class. The screen host applies it synchronously to the new root before
+    first paint; importing it must not restyle every existing application
+    widget.
     """
     result = best_of(QT_APPLICATION_PREFERENCES, runs=2)
     assert result["registered"] == result["expected"], (
@@ -401,9 +409,14 @@ def test_initial_preferences_are_light_and_late_widget_qss_is_synchronous():
         f"the launch prelude plus live preferences took {result['seconds']:.2f} s")
     assert result["late_module_absent"] is True, (
         "the representative on-demand screen was already imported at startup")
-    assert result["late_marker_live"] is True, (
-        "the late screen's registered block was not in the live stylesheet "
-        "before its first widget could be constructed")
+    assert result["app_sheet_unchanged"] is True, (
+        "importing one late screen replaced the whole application stylesheet")
+    assert result["late_marker_global"] is False, (
+        "the late screen block leaked into the QApplication stylesheet")
+    assert result["local_applied"] is True
+    assert result["late_marker_local"] is True, (
+        "the late screen's registered block was not in its local scope "
+        "before first paint")
 
 
 @_NEEDS_QT

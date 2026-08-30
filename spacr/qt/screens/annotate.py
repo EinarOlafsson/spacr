@@ -1872,7 +1872,8 @@ class AnnotateScreen(QWidget):
         # the only stylesheet that would have carried its blocks was built.
         # A no-op when they are already in it.
         from ..theme import ensure_widget_qss_applied
-        ensure_widget_qss_applied(GRID_OBJECT_NAME, CONSOLE_SWITCH_NAME)
+        ensure_widget_qss_applied(
+            GRID_OBJECT_NAME, CONSOLE_SWITCH_NAME, root=self)
         self._settings = AnnotateSettings()
         self._offset = 0
         self._total = 0

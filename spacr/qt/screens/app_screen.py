@@ -45,7 +45,12 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
+from ..theme import (
+    SPACING,
+    ensure_widget_qss_applied,
+    preserve_widget_qss_overlay,
+    register_widget_qss,
+)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
 from .settings_model import (
     CATEGORY_TOOLTIPS,
@@ -1072,12 +1077,6 @@ class AppScreen(QWidget):
         #: ``dimension -> the toggle in the action row``, once there is one.
         self._dimension_switches = {}
 
-        # This module is imported lazily by `app.py`, long after the launch
-        # stylesheet was generated, so the block registered above is not in
-        # it. Without this the settings column opens unpanelled — see
-        # `ensure_widget_qss_applied`.
-        ensure_widget_qss_applied(SETTINGS_PANEL_NAME)
-
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
@@ -1292,6 +1291,12 @@ class AppScreen(QWidget):
         except Exception:                                       # noqa: BLE001
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)
+
+        # This module is imported lazily by `app.py`, long after the launch
+        # stylesheet was generated. Apply its block to this screen only,
+        # after the page-colour code has finished setting the root's own
+        # stylesheet and before MainWindow can put the screen on display.
+        ensure_widget_qss_applied(SETTINGS_PANEL_NAME, root=self)
 
     # ------------------------------------------------------------------
     # Ambient backdrop
@@ -1674,7 +1679,7 @@ class AppScreen(QWidget):
                 # Back to whatever the stylesheet and the app palette say.
                 self.setAutoFillBackground(False)
                 self.setPalette(QPalette())
-                self.setStyleSheet("")
+                self.setStyleSheet(preserve_widget_qss_overlay(self, ""))
             else:
                 palette = QPalette(self.palette())
                 palette.setColor(QPalette.Window, colour)
@@ -1695,8 +1700,10 @@ class AppScreen(QWidget):
                 # panels carry their own surface colour at the page opacity,
                 # and painting the page colour onto them would flatten the
                 # layering the scheme is built on.
-                self.setStyleSheet(
-                    f"AppScreen {{ background-color: {colour.name()}; }}")
+                self.setStyleSheet(preserve_widget_qss_overlay(
+                    self,
+                    f"AppScreen {{ background-color: {colour.name()}; }}",
+                ))
             self._page_applied = wanted
         finally:
             self._syncing_page = False

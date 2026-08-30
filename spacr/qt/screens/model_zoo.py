@@ -299,7 +299,7 @@ class ModelZooScreen(QWidget):
         # screen, long after the launch stylesheet was generated, so the
         # block registered above is not in the sheet that is live and every
         # container opens bare. See `ensure_widget_qss_applied`.
-        ensure_widget_qss_applied(ZOO_QSS_NAME)
+        ensure_widget_qss_applied(ZOO_QSS_NAME, root=self)
 
         self._build_ui()
         from ..dnd import install_dropzone

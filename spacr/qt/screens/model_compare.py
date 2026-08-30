@@ -374,7 +374,7 @@ class ModelCompareScreen(QWidget):
         # so the block registered above is not in the sheet that is live and
         # the panels open bare. That is why the fix measured correct in a
         # test and was still black in the running app.
-        ensure_widget_qss_applied(MODEL_PANEL_NAME)
+        ensure_widget_qss_applied(MODEL_PANEL_NAME, root=self)
 
         self._build_ui()
         from ..dnd import install_dropzone

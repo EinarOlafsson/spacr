@@ -287,6 +287,11 @@ def show_as_window(screen: QWidget, owner: Optional[QWidget],
     screen.setParent(parent, Qt.Window)
     screen.setWindowTitle(title)
     screen.resize(*FOLD_WINDOW_SIZE)
+    # A fallback window bypasses MainWindow._theme_screen. Its builder may
+    # have imported another late registrar, so give the window its own scope
+    # before the first show just as the ordinary screen-host path does.
+    from ..theme import ensure_widget_qss_applied
+    ensure_widget_qss_applied(root=screen)
     screen.show()
     screen.raise_()
     screen.activateWindow()
@@ -331,7 +336,7 @@ def _pages_qss(palette: dict, opacity) -> str:
     return page_tabs_qss(PAGES_NAME, palette, opacity)
 
 
-def _ensure_pages_qss() -> None:
+def _ensure_pages_qss(screen: QWidget) -> None:
     """Register the page strip's block and make sure it is live.
 
     Registered at the first page rather than at this module's import, and
@@ -339,8 +344,8 @@ def _ensure_pages_qss() -> None:
     written: a block registered after the application stylesheet was
     composed is simply not in it, and the widget falls through to the
     blanket window fill -- a solid black rectangle on the dark theme. A
-    fold page is opened long after launch by definition, so the sheet is
-    rebuilt once, here, the first time one exists.
+    fold page is opened long after launch by definition, so its block is
+    installed on the host screen here before the first strip exists.
 
     ``replace=True``: this module owns the name, so being called again
     re-registers rather than raising and leaving the strip unstyled.
@@ -349,7 +354,7 @@ def _ensure_pages_qss() -> None:
         from ..theme import ensure_widget_qss_applied, register_widget_qss
 
         register_widget_qss(PAGES_NAME, _pages_qss, replace=True)
-        ensure_widget_qss_applied(PAGES_NAME)
+        ensure_widget_qss_applied(PAGES_NAME, root=screen)
     except Exception:
         LOG.debug("Could not register the fold page QSS", exc_info=True)
 
@@ -402,6 +407,10 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     """
     existing = getattr(screen, "_fold_pages", None)
     if isinstance(existing, QTabWidget):
+        # Building the next folded module may have registered more QSS since
+        # this strip was created. Refresh the host's one owned suffix before
+        # the new child is mounted; otherwise only the first fold is styled.
+        _ensure_pages_qss(screen)
         return existing
     body = _page_body(screen)
     layout = screen.layout() if screen is not None else None
@@ -413,7 +422,7 @@ def host_pages(screen: QWidget, title: str = "") -> Optional[QTabWidget]:
     stretch = layout.stretch(index)
     name = (title or str(getattr(screen, "_fold_page_title", "") or "")
             or folded_module_title(getattr(screen, "app_key", "") or ""))
-    _ensure_pages_qss()
+    _ensure_pages_qss(screen)
     pages = QTabWidget(screen)
     pages.setObjectName(PAGES_NAME)
     pages.setDocumentMode(True)

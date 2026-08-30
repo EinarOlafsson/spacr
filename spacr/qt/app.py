@@ -3921,13 +3921,20 @@ class MainWindow(QMainWindow):
         })
 
     def _theme_screen(self, screen: QWidget, key: str) -> None:
-        """Clear a screen's containers and give it the ambient backdrop.
+        """Apply late QSS, clear containers and add the ambient backdrop.
 
         Skipped for anything that already handles its own: ``AppScreen`` does
-        both in its constructor, and the sequencing screen has the DNA rain.
+        the latter two in its constructor, and the sequencing screen has the
+        DNA rain.  Late QSS is applied before that branch because every screen
+        passes here before it is inserted into the visible stack.
         """
         from .screens.app_screen import AppScreen, uses_ambient_background
-        from .theme import clear_container_surfaces
+        from .theme import clear_container_surfaces, ensure_widget_qss_applied
+
+        # A local stylesheet reaches this root and its descendants without
+        # making QApplication re-polish Home and every cached module.  The
+        # root is not in the stack yet, so these rules win the first paint.
+        ensure_widget_qss_applied(root=screen)
 
         if isinstance(screen, AppScreen):
             return
