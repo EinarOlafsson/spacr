@@ -97,6 +97,7 @@ def _probe(expected_version: str, expected_artifact: str,
 
     qt_started = time.perf_counter()
     from PySide6.QtWidgets import QApplication
+
     from spacr.qt.screens.app_screen import AppScreen
 
     app = QApplication.instance() or QApplication([])
