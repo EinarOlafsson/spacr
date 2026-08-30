@@ -474,16 +474,30 @@ def test_the_searched_svm_is_the_svm_the_real_run_fits():
     1.11. A search that still builds the deprecated form ranks a different
     estimator from the one the run uses, and stops working at 1.11.
     """
+    import multiprocessing
+    import threading
     import warnings
 
     features, labels = _separable()
     model = hp.build_sklearn_model("svm", {})
+    children_before = {child.pid for child in multiprocessing.active_children()}
+    threads_before = {id(thread) for thread in threading.enumerate()}
 
     with warnings.catch_warnings():
         warnings.simplefilter("error", FutureWarning)
         model.fit(features, labels)
 
     assert hasattr(model, "predict_proba")
+    assert model.n_jobs == 1, "three folds do not own a process-wide pool"
+    assert not [
+        child for child in multiprocessing.active_children()
+        if child.pid not in children_before
+    ], "a finished SVM fit left a Loky child alive"
+    assert not [
+        thread for thread in threading.enumerate()
+        if id(thread) not in threads_before
+        and thread.name == "ExecutorManagerThread"
+    ], "a finished SVM fit left joblib's executor manager alive"
 
 
 @pytest.mark.parametrize("model_type, package", [

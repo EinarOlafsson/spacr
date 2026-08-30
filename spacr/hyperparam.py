@@ -3469,6 +3469,24 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
     return data
 
 
+def _calibrated_svm(seed: int):
+    """Build the probabilistic SVM without an unowned joblib process pool.
+
+    ``CalibratedClassifierCV(n_jobs=-1)`` creates one reusable Loky worker per
+    CPU and deliberately keeps that global executor alive after ``fit``.  The
+    calibration has only three folds, and sweeps already parallelise complete
+    trials, so nested process fan-out adds memory and shutdown cost without
+    owning a useful lifecycle.  Serial calibration keeps the estimator
+    pickleable while making the caller the sole owner of parallelism.
+    """
+    from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.svm import SVC
+
+    return CalibratedClassifierCV(
+        estimator=SVC(random_state=seed), method="sigmoid", cv=3,
+        n_jobs=1, ensemble=False)
+
+
 def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                         seed: int = 42, n_jobs: int = -1):
     """Construct the classical-ML classifier ``model_type`` names.
@@ -3548,11 +3566,7 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                                   l2_leaf_reg=reg_lambda, random_state=seed,
                                   verbose=False)
     if mt == "svm":
-        from sklearn.calibration import CalibratedClassifierCV
-        from sklearn.svm import SVC
-        return CalibratedClassifierCV(
-            estimator=SVC(random_state=seed), method="sigmoid", cv=3,
-            n_jobs=n_jobs, ensemble=False)
+        return _calibrated_svm(seed)
     if mt == "mlp":
         from sklearn.neural_network import MLPClassifier
         return MLPClassifier(max_iter=max(200, n_estimators),

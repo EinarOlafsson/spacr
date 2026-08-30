@@ -10613,18 +10613,13 @@ def ml_analysis(
             raise ImportError("model_type='catboost' requires the 'catboost' package. Install it with: pip install catboost")
         model = CatBoostClassifier(iterations=n_estimators, learning_rate=learning_rate, l2_leaf_reg=reg_lambda, random_state=random_state, thread_count=n_jobs, verbose=False)
     elif model_type == 'svm':
-        from sklearn.calibration import CalibratedClassifierCV
-        from sklearn.svm import SVC
+        from .hyperparam import _calibrated_svm
         # scikit-learn 1.9 deprecated SVC(probability=True). A calibrated
         # decision-function SVC provides the same predict_proba contract
-        # without relying on the mode removed in 1.11.
-        model = CalibratedClassifierCV(
-            estimator=SVC(random_state=random_state),
-            method='sigmoid',
-            cv=3,
-            n_jobs=n_jobs,
-            ensemble=False,
-        )
+        # without relying on the mode removed in 1.11. The shared constructor
+        # also keeps its three calibration folds from leaving joblib's global
+        # reusable process pool alive after this fit has finished.
+        model = _calibrated_svm(random_state)
     elif model_type == 'mlp':
         from sklearn.neural_network import MLPClassifier
         model = MLPClassifier(max_iter=max(200, n_estimators), random_state=random_state)
