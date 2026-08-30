@@ -61,7 +61,16 @@ _OBJECT_PATTERNS = (
 
 @dataclass
 class InputGroup:
-    """A set of files sharing one proposed role and object type."""
+    """A set of files sharing one proposed role and object type.
+
+    :ivar key: stable identifier for this detected input group.
+    :ivar root: absolute directory against which the paths were detected.
+    :ivar paths: absolute paths assigned to the group.
+    :ivar role: proposed ``image``, ``mask``, or ``ignore`` role.
+    :ivar object_type: proposed spaCR object role for a mask group.
+    :ivar confidence: confidence in the automatic role proposal.
+    :ivar reason: pixel or filename evidence supporting the proposal.
+    """
 
     key: str
     root: str
@@ -76,6 +85,11 @@ class InputGroup:
 
     @classmethod
     def from_value(cls, value: Any) -> "InputGroup":
+        """Normalize a group instance or serialized mapping.
+
+        :param value: existing :class:`InputGroup` or mapping carrying its
+            serialized fields.
+        """
         if isinstance(value, cls):
             return value
         if not isinstance(value, Mapping):
@@ -115,7 +129,17 @@ class MaskMatch:
 
 @dataclass
 class ExternalMaskPlan:
-    """Read-only preview of an external-mask import."""
+    """Read-only preview of an external-mask import.
+
+    :ivar groups: normalized image, mask, and ignored input groups.
+    :ivar images: proposed intensity-image conversion plan.
+    :ivar masks: object roles mapped to field stems and matched mask files.
+    :ivar destination: root of the spaCR project that would be written.
+    :ivar n_channels: number of intensity channels in each merged field.
+    :ivar mask_dims: merged-array plane assigned to each supplied mask role.
+    :ivar errors: blocking problems that make the preview unrunnable.
+    :ivar warnings: non-blocking ambiguities shown before import.
+    """
 
     groups: List[InputGroup]
     images: cv.ConversionPlan
@@ -248,6 +272,8 @@ def _label_likelihood(path: Path) -> Tuple[bool, float, str]:
 def detect_inputs(paths: Sequence[Any], *, recursive: bool = True
                   ) -> List[InputGroup]:
     """Detect image and mask groups without writing anything.
+
+    :param paths: input files or directories to inspect and group.
 
     Filename evidence wins when a path explicitly says ``mask``/``labels``.
     Otherwise a bounded pixel sample distinguishes compact integer label
