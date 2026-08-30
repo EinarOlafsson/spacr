@@ -12,9 +12,6 @@ of ``tests/qt/test_column_picker.py`` only exercises from its loud side:
   it must reuse the entry instead of adding a second identical one;
 * :func:`attach_column_picker` on a field that lives in spaCR's own
   wrapping ``FlowLayout``, whose ``replaceWidget`` cannot swap a widget.
-
-The last one documents a defect rather than a guarantee; the assertions say
-what actually happens today so the day it is fixed the test says so.
 """
 from __future__ import annotations
 
@@ -182,25 +179,26 @@ def test_a_closed_combo_reuses_the_entry_it_already_offers(qtbot):
     assert combo.itemText(2) == "annotate_v2"
 
 
-def test_a_field_in_a_wrapping_row_loses_its_slot_to_the_picker(qtbot):
-    """A field inside a ``FlowLayout`` is taken out of the row and not put back.
+def test_a_field_in_a_wrapping_row_keeps_its_slot_with_the_picker(qtbot):
+    """A picker wrapper replaces the field in place inside ``FlowLayout``.
 
     ``attach_column_picker`` re-uses the field's own slot by calling
     ``QLayout.replaceWidget``. That works for the box and form layouts every
     settings Section builds, but spaCR's :class:`FlowLayout` is a Python
     ``QLayout`` subclass with no ``replaceAt``, so ``replaceWidget`` returns
-    ``None`` and swaps nothing -- while re-parenting the field into the
-    wrapper still removes it from the flow. The row is left empty and the
-    field is an unmanaged child, which on screen means a control the user can
-    no longer see. Pinned here so the day the layout learns to replace, this
-    test is what says so.
+    ``None``. The fallback must retain the exact slot: appending the wrapper
+    would reorder a settings row even though the field became visible again.
     """
     host = QWidget()
     qtbot.addWidget(host)
     flow = FlowLayout(host)
+    before = QLineEdit("before")
     field = QLineEdit()
+    after = QLineEdit("after")
+    flow.addWidget(before)
     flow.addWidget(field)
-    assert flow.indexOf(field) == 0
+    flow.addWidget(after)
+    assert flow.indexOf(field) == 1
 
     button = attach_column_picker(field, lambda: "", "png_list")
 
@@ -209,14 +207,22 @@ def test_a_field_in_a_wrapping_row_loses_its_slot_to_the_picker(qtbot):
     assert wrapper.objectName() == "ColumnPickerRow"
     assert button.parentWidget() is wrapper
     assert wrapper.parentWidget() is host
-    # The defect: the flow kept neither the field nor the wrapper.
-    assert flow.count() == 0
+    assert flow.count() == 3
     assert flow.indexOf(field) == -1
-    assert flow.indexOf(wrapper) == -1
+    assert flow.indexOf(wrapper) == 1
+    assert [flow.itemAt(index).widget() for index in range(flow.count())] == [
+        before,
+        wrapper,
+        after,
+    ]
+    host.resize(800, 100)
+    host.show()
+    qtbot.waitExposed(host)
+    assert field.isVisible() and button.isVisible()
+    assert before.geometry().x() < wrapper.geometry().x() < after.geometry().x()
 
     # A box layout -- what every Section actually uses -- does the swap, so
-    # the emptied flow above is this layout's limitation and not the
-    # attachment always behaving that way.
+    # the fallback above must not disturb the ordinary replacement path.
     box_host = QWidget()
     qtbot.addWidget(box_host)
     box = QVBoxLayout(box_host)
