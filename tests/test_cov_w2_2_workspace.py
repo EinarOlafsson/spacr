@@ -819,3 +819,68 @@ def test_reference_mode_records_a_file_without_carrying_its_bytes(tmp_path):
     assert record["sha256"] == hash_file(table)
     assert "copied" not in record
     assert not (run / FILES_DIR).exists()
+
+
+def test_a_file_already_in_the_store_is_recorded_without_copying_it_again(
+        tmp_path):
+    """Saving twice must not rewrite bytes that are already there.
+
+    The copy target is named by content digest, so a file already in the store
+    IS the file being asked for. Copying it again is pure I/O -- and on a run
+    carrying a multi-gigabyte stack that is the difference between a save that
+    returns and one the user gives up on.
+
+    The record still has to say ``copied``, because the document is what a
+    later reader resolves paths through: skipping the copy and skipping the
+    record would make the second save produce a document that had lost the
+    file the first one carried.
+    """
+    source = tmp_path / "stack.tif"
+    source.write_bytes(b"the same bytes both times")
+    run = tmp_path / "run"
+
+    doc = collect({"images": {"stack": str(source)}}, saved="t")
+    save(run, doc, mode="copy")
+
+    stored = sorted((run / FILES_DIR).iterdir())
+    assert len(stored) == 1
+    first_mtime = stored[0].stat().st_mtime_ns
+
+    # Second save, same content, same destination name.
+    doc_again = collect({"images": {"stack": str(source)}}, saved="t")
+    save(run, doc_again, mode="copy")
+
+    stored_again = sorted((run / FILES_DIR).iterdir())
+    assert [p.name for p in stored_again] == [stored[0].name]
+    assert stored_again[0].stat().st_mtime_ns == first_mtime, (
+        "the file was copied over itself despite already being there")
+
+    written = json.loads((run / DOC_NAME).read_text())
+    assert written["files"][0]["copied"].endswith(stored[0].name)
+
+
+def test_a_store_that_cannot_be_written_leaves_the_reason_in_the_document(
+        tmp_path, monkeypatch):
+    """A failed copy is recorded, not raised.
+
+    A workspace is a convenience attached to a finished run. Taking the run's
+    own save down because one referenced file could not be copied would lose
+    the results to protect a copy of the inputs.
+    """
+    import shutil
+
+    source = tmp_path / "stack.tif"
+    source.write_bytes(b"data")
+    run = tmp_path / "run"
+
+    def refuse(*args, **kwargs):
+        raise PermissionError("read-only file system")
+
+    monkeypatch.setattr(shutil, "copy2", refuse)
+
+    doc = collect({"images": {"stack": str(source)}}, saved="t")
+    save(run, doc, mode="copy")
+
+    record = json.loads((run / DOC_NAME).read_text())["files"][0]
+    assert record["copied"] is None
+    assert "PermissionError" in record["skipped"]
