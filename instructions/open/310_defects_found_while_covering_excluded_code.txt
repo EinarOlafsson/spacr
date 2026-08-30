@@ -400,3 +400,19 @@ on ``gene_nr`` now survives two passes.
 
 The branch that started this is tests/test_the_last_branch_in_five_readers.py::
 test_a_second_annotation_pass_says_nothing_when_asked_to_be_quiet.
+
+  * spacr/model_zoo.py:481 -- ``return f"{n:.1f} GB"`` after the loop in
+    ``_human_bytes``. A THIRD instance of the pattern already recorded for
+    spacr/data_manager.py:333: ``for unit in ("B", ..., "GB"): if n < 1024 or
+    unit == "GB": return ...``. On the final iteration the ``unit == "GB"``
+    disjunct is unconditionally true, so the loop cannot complete. Verified by
+    brute force over 0.5, 1, 1023, 1024, 1024**2, 1024**3, 1024**4, 1024**8,
+    1e300 and inf -- every one returns from inside the loop, including inf,
+    which yields "inf GB".
+
+    Three copies of one helper, all with the same unreachable tail. This is
+    the deduplication candidate that spacr/fit_resources.py ``readable`` and
+    spacr/mixed_gpu.py ``_readable`` were already noted for in section 4; the
+    count is now four byte-similar byte-formatters across the package. Left
+    alone here because the coverage lane should not be the one to merge four
+    modules' helpers, but it is worth someone's decision.
