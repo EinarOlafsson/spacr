@@ -99,6 +99,23 @@ def test_a_point_outside_the_field_is_infinitely_far_not_clipped():
     assert np.isinf(out[1]) and np.isinf(out[2])
 
 
+def test_every_point_outside_the_field_skips_the_lookup_entirely():
+    """The guard around the fancy-index, not just the inf it produces.
+
+    ``out`` starts as all-inf, so the answer for a wholly-outside set is
+    already correct before the lookup -- and running the lookup anyway would
+    index ``field`` with an empty selection per axis, which is legal for
+    numpy and pointless. What matters is that a caller measuring an object
+    that fell entirely off the field gets infs rather than an IndexError.
+    """
+    field = np.ones((5, 5), dtype=float)
+
+    out = od._sample(field, np.array([[99.0, 99.0], [-4.0, -7.0]]))
+
+    assert out.shape == (2,)
+    assert np.isinf(out).all()
+
+
 def test_a_field_with_no_objects_has_no_boundary_pixels():
     assert od._boundary_pixels(np.zeros((10, 10), dtype=np.int32)) == {}
 
