@@ -1057,3 +1057,49 @@ def test_a_close_that_fails_does_not_mask_the_failure_it_is_cleaning_up(
     with pytest.raises(mz.ChecksumMismatch):
         mz.fetch(entry, tmp_path / "dest",
                  opener=lambda uri: iter([ZIP_HEADER + b"x"]))
+
+
+# ---------------------------------------------------------------------------
+# sizes a person reads
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("size,expected", [
+    (1, "1 B"), (999, "999 B"),
+    (1024, "1.0 KB"), (5 * 1024 ** 2, "5.0 MB"),
+    (3 * 1024 ** 3, "3.0 GB"),
+])
+def test_a_size_is_shown_in_the_largest_unit_that_fits(size, expected):
+    """Bytes have no decimals and everything above them has one.
+
+    A weights file is the number a user compares against their disk, so "3.0
+    GB" and "3221225472" are not equally useful -- and "3.2e+09 B" would be
+    worse than either.
+    """
+    from spacr.model_zoo import _human_bytes
+
+    assert _human_bytes(size) == expected
+
+
+def test_a_size_beyond_gigabytes_stays_in_gigabytes():
+    """The ladder stops at GB deliberately.
+
+    Nothing spaCR downloads is measured in terabytes, and inventing a TB rung
+    for a number that can only arrive from a corrupt manifest would make a
+    wrong figure look plausible. Ten thousand gigabytes reads as obviously
+    wrong, which is the useful failure.
+    """
+    from spacr.model_zoo import _human_bytes
+
+    assert _human_bytes(9999 * 1024 ** 3) == "9999.0 GB"
+
+
+@pytest.mark.parametrize("size", [0, -1, None, "not a number", object()])
+def test_a_size_that_is_not_one_reads_as_unknown(size):
+    """A manifest may carry no size, or a string, or a zero.
+
+    ``unknown`` is the honest label; "0 B" would tell the user the download is
+    free, and a raise would take down a catalogue listing over one bad row.
+    """
+    from spacr.model_zoo import UNKNOWN, _human_bytes
+
+    assert _human_bytes(size) == UNKNOWN
