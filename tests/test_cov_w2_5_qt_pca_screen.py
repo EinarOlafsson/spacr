@@ -121,6 +121,28 @@ def test_recomputing_keeps_the_feature_ticks(screen, link, features):
     assert len(screen.pca.result) == 30
 
 
+def test_recomputing_with_no_ticks_lets_the_defaults_stand(screen, link,
+                                                          features):
+    """Nothing ticked is not a selection to preserve.
+
+    ``set_frame`` chooses a default feature set for the new population.
+    Restoring an EMPTY selection over it would leave the PCA with no features
+    at all -- a screen that quietly stops computing after the user clears the
+    ticks and then narrows the filter, which is an ordinary thing to do in
+    that order.
+    """
+    screen.set_frame(features)
+    screen.pca.features.set_selected([])
+    assert not screen.pca.features.selected()
+    link.set_filter(DataFilter([CategoryFilter("gene", ("control",))]))
+
+    screen._recompute_filtered()
+
+    assert screen.pca.features.selected(), (
+        "an empty selection was restored over the defaults")
+    assert screen.pca.result is not None
+
+
 # ---------------------------------------------------------------------------
 # loading a table
 # ---------------------------------------------------------------------------
