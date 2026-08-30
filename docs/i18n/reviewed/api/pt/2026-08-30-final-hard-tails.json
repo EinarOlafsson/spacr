@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "context": "explicit filename to try first. The per-application view structured-data name → filename table lives in :mod:`spacr.qt.app` next to the app registry it describes; this module only knows how to *render* what it's pointed at, plus the handful of structured-data names in :data:`SHARED_ICON_ASSETS` that share one picture everywhere.",
+      "label": "spacr.qt.iconset.bundled_icon_path#3",
+      "source": "explicit filename to try first. The per-screen key → filename table lives in :mod:`spacr.qt.app` next to the app registry it describes; this module only knows how to *render* what it's pointed at, plus the handful of keys in :data:`SHARED_ICON_ASSETS` that share one picture everywhere.",
+      "source_sha256": "2d47fb997933e40ef6a0b47ad1ef73ba9ab4d38bc39abbba7b04f27a27c805e1",
+      "translation": "nome de ficheiro explícito a tentar primeiro. A tabela por tela que associa a chave → nome de ficheiro fica em :mod:`spacr.qt.app`, junto do registo de aplicações que descreve; este módulo apenas sabe como *renderizar* o recurso indicado, além do pequeno conjunto de chaves em :data:`SHARED_ICON_ASSETS` que partilham a mesma imagem em toda a aplicação."
+    }
+  ]
+}
