@@ -102,12 +102,21 @@ def test_taking_the_table_away_empties_the_class_picker_and_says_so(
     assert panel._label.currentText() == "cls"
     assert "2 features over 8 objects" in panel.summary()
     assert [s.feature for s in panel.result.scores] == ["perfect", "partial"]
+    assert panel.table.rowCount() == 2
+    assert panel.table.currentRow() == 0
+    assert panel.selected_feature() == "perfect"
+    assert panel._figure.get_axes()
 
     panel.set_frame(None)
 
     assert panel._label.count() == 0
     assert panel._label.currentText() == ""
     assert panel.summary() == "no table loaded"
+    assert panel.result is None
+    assert panel.table.rowCount() == 0
+    assert panel.table.currentRow() == -1
+    assert panel.selected_feature() == ""
+    assert panel._figure.get_axes() == []
     assert panel.rank_now() is None
     # The statistic's blind spot is still on screen: the panel having no
     # table does not mean it stops saying what the ranking cannot see.
@@ -177,6 +186,29 @@ def test_a_ranking_that_kept_nothing_clears_the_rows_and_selects_none(panel):
     assert panel.table.currentRow() == -1
     assert panel.selected_feature() == ""
     assert len(announced) == filled_announcements
+
+
+def test_a_new_top_feature_at_the_same_row_is_announced_once(
+        panel, planted, monkeypatch):
+    """Linked views follow the feature in row zero, not just its row index."""
+    from spacr.qt.widgets import feature_explorer as explorer
+
+    panel.set_frame(planted)
+    assert panel.table.currentRow() == 0
+    assert panel.selected_feature() == "perfect"
+
+    announced: list = []
+    panel.feature_selected.connect(announced.append)
+    reranked = _result([
+        _score("partial", score=0.95),
+        _score("perfect", score=0.9),
+    ])
+    monkeypatch.setattr(explorer, "rank_features", lambda *_args: reranked)
+
+    assert panel.rank_now() is reranked
+    assert panel.table.currentRow() == 0
+    assert panel.selected_feature() == "partial"
+    assert announced == ["partial"]
 
 
 def test_the_null_greys_the_rows_it_did_not_clear(panel, planted):

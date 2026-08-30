@@ -63,6 +63,25 @@ DEFAULT_FDR_ALPHA = 0.05
 RESOLVED_OUTPUT_KEYS = ("results_path", "res_folder", "volcano_path")
 
 
+def _first_usable_count_path(settings: dict) -> Optional[str]:
+    """Return the first real path in ``count_data``, or ``None``."""
+    from .chaining import is_empty_path
+
+    value = settings.get("count_data")
+    values = value if isinstance(value, (list, tuple)) else (value,)
+    for candidate in values:
+        if is_empty_path(candidate):
+            continue
+        try:
+            path = os.fspath(candidate)
+        except TypeError:
+            continue
+        path = os.fsdecode(path).strip()
+        if not is_empty_path(path):
+            return path
+    return None
+
+
 def policed_settings() -> Dict[str, object]:
     """``{setting: the value that means "not asked for"}``.
 
@@ -130,7 +149,7 @@ def refit_settings(base: dict, *, regression_type=None,
     :param alpha: the new penalty weight, where the new backend reads one --
         a different number from ``fdr_alpha`` despite the name.
     :returns: ``(settings, [notes for the user])``.
-    :raises ValueError: if ``base`` names no count data.
+    :raises ValueError: if ``base`` names no usable count-data path.
 
     Returned notes identify every automatic settings change before execution.
     """
@@ -140,11 +159,11 @@ def refit_settings(base: dict, *, regression_type=None,
             "table it is showing but not which settings produced it, which "
             "happens when results were opened from disk and the run's "
             "settings CSV is not beside them.")
-    if not base.get("count_data"):
+    if _first_usable_count_path(base) is None:
         raise ValueError(
-            "These settings name no count data, so there is nothing to "
-            "re-fit: a regression needs the counts, not just the "
-            "coefficients it produced.")
+            "These settings contain no usable count data path, so there is "
+            "nothing to re-fit: a regression needs a count CSV, not just "
+            "the coefficients it produced.")
 
     settings = dict(base)
     notes: List[str] = []
@@ -247,10 +266,8 @@ def destination(settings: dict) -> Optional[str]:
     """
     from .ml import _next_results_folder
 
-    count = settings.get("count_data")
-    if isinstance(count, (list, tuple)):
-        count = count[0] if count else None
-    if not count:
+    count = _first_usable_count_path(settings)
+    if count is None:
         return None
     src = settings.get("src") or os.path.dirname(str(count))
     kind = ("guide_permutation"
