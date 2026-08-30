@@ -122,13 +122,6 @@
       "translation": "``'written'`` (ritad, inget saknas), ``'partial'`` (ritad, men med en angiven begränsning — till exempel ett koefficientdiagram utan konfidensintervall), ``'skipped'`` (kan inte beräknas, se ``reason``) eller ``'failed'`` (ett oväntat undantag utlöstes, se ``reason``)."
     },
     {
-      "label": "spacr.resources.home.versions._generators.parts.kbd#0",
-      "source_sha256": "7675bf62653de4141980bcc74f6983bb8fa65f04ce882a27a2e827d38a0b9400",
-      "source": "A keycap chip, e.g. ``Ctrl+1``.",
-      "context": "A keycap chip, e.g. ``Ctrl+1``.",
-      "translation": "Ett tangentbordschip, till exempel ``Ctrl+1``."
-    },
-    {
       "label": "spacr.resume.completed_fields_in_db#5",
       "source_sha256": "05fdedd96f5492622067a0107bec8c8ab52247f7cccafc83b3c8d6458a6b09d7",
       "source": "candidate field stems (e.g. from ``merged/``). When given, the return value is the subset of these that are complete — which is what a caller filtering a file list wants. When None, ``prcf`` strings assembled from the rows themselves are returned.",

@@ -44,13 +44,6 @@
       "translation": "Qt lagið hafði ellefu eintök af þessu hlut -- ``DbBrowserScreen._run_job``, ``PlateViewScreen._run_job``, ``ReportScreen._start_job`` og svo framvegis -- og eintökin voru ekki sammála. Tvö þeirra tengdu ``thread.finished`` við *lokan*, sem hættir hljóðlaust aldrei við vinnuna (sjá :meth:`_retire_finished_jobs` fyrir ástæðu), og þessi villu komst í framleiðslu tvisvar. Þessi eining er útlit sem þessar forritsskoðanir sameinuðust um, skrifað niður einu sinni, svo forritsskoðun sem þarf að stöðva blokkun aðal GUI framkvæmdarstígsins þarf ekki að endurvinna reglurnar."
     },
     {
-      "context": "The cached audit, or an empty key-value mapping when there is none.",
-      "label": "spacr.resources.home.versions._generators.render.load_audit#0",
-      "source": "The cached audit, or an empty dict when there is none.",
-      "source_sha256": "db2288397d20ca4d76c29f6769ebad2c8eab8114727d3cca92898b7417338fc5",
-      "translation": "Skráð endurskoðun, eða tómt lykil-gildi kort þegar ekkert er til."
-    },
-    {
       "context": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
       "label": "spacr.qt.widgets.outlier_model#9",
       "source": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",

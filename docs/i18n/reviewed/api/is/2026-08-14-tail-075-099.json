@@ -115,13 +115,6 @@
       "translation": "Saumurinn sem aðrir hlutir nota til að setja stillingarstýrt stjórntæki þar sem stillingarnar eru, í stað þess að finna upp annað borð. Endurforeldrar ``widget`` á stöngina."
     },
     {
-      "label": "spacr.qt.tutorial.engine.Recorder.snap#1",
-      "source_sha256": "100a963c87dd3b558422bfab7d2cffd1a9cbc36b1b696ae118c0ec05e6ac270e",
-      "source": "A clean screenshot is captured lazily on the first call and after each scripted UI action. Pointer-only frames therefore avoid repainting and re-grabbing an otherwise unchanged interface.",
-      "context": "A clean screenshot is captured lazily on the first call and after each scripted UI action. Pointer-only frames therefore avoid repainting and re-grabbing an otherwise unchanged interface.",
-      "translation": "Hreinn skjáskot er tekið leti við fyrstu köllun og eftir hverja skipulagða UI aðgerð. Rammar með aðeins bendinum forðast því að teikna aftur og taka aftur skjáskot af annars óbreyttri viðmóti."
-    },
-    {
       "label": "spacr.crashreport.CrashReport#1",
       "source_sha256": "5551623872eb217722925c5b36c0b348ecce641155630f0714cae8d3ffdf5896",
       "source": "Kept as data rather than written straight to a zip so that a caller — a test, the Qt layer, a support script — can inspect or re-render it without a temporary file, and so that :func:`write_crash_report` has nothing in it but serialisation.",

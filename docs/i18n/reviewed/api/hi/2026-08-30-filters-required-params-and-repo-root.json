@@ -50,20 +50,6 @@
       "context": "the table to read. Its name is quoted as one SQLite identifier; a missing table throws :class:`sqlite3.OperationalError`.",
       "source_sha256": "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
       "translation": "पढ़ी जाने वाली तालिका। इसका नाम एक SQLite पहचानकर्ता के रूप में उद्धृत किया जाता है; अनुपस्थित तालिका :class:`sqlite3.OperationalError` त्रुटि उठाती है।"
-    },
-    {
-      "label": "spacr.resources.home.versions._generators.common.repo_root#0",
-      "source": "Return the absolute spaCR checkout root.",
-      "context": "Return the absolute spaCR checkout root.",
-      "source_sha256": "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
-      "translation": "spaCR चेकआउट का निरपेक्ष रूट लौटाएँ।"
-    },
-    {
-      "label": "spacr.resources.home.versions._generators.common.repo_root#1",
-      "source": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
-      "context": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
-      "source_sha256": "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c",
-      "translation": "यह पथ इस मॉड्यूल के इंस्टॉल स्थान से निकाला जाता है और कॉन्फ़िगर करने योग्य Home रेंडर-आउटपुट निर्देशिका से स्वतंत्र है।"
     }
   ]
 }
