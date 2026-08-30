@@ -315,6 +315,18 @@ def test_a_plate_with_no_wells_in_its_names_is_located_by_its_fields():
     assert "field_0000" in where
 
 
+def test_a_blank_field_name_does_not_print_an_empty_location():
+    """A location phrase is useful only when there is a location to print."""
+    finding = seg_qc._flag_findings([
+        _qc("", flags=[FLAG_EMPTY], n_objects=0, severity="fail"),
+    ], max_named=3)[0]
+
+    assert finding.fields == ("",)
+    assert finding.headline == (
+        "1 cell field(s) on this project: no object at all in the field")
+    assert "fields :" not in finding.headline
+
+
 def test_a_flag_demoted_on_a_sparse_plate_is_not_reported_as_a_failure():
     """The finding must not contradict the verdict the card already printed.
 
