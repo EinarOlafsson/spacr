@@ -693,3 +693,78 @@ def test_a_resource_card_that_raises_does_not_deny_the_rest_of_the_preflight(
     text = "\n".join(lines)
     assert "Resources — could not be projected: the disk went away" in text
     assert "Plan — what this run would do" in text
+
+
+def test_a_complete_investigate_hit_setup_raises_no_objection(tmp_path):
+    """Every one of those checks has a passing side, and none had run.
+
+    A validator only ever exercised on bad input is a validator nobody has
+    shown will let good input through -- and one that rejects a correct setup
+    is worse than one that misses a bad one, because the user has no way to
+    satisfy it and no message that helps.
+    """
+    for name in ("measurements.db", "predictions.csv", "fractions.csv"):
+        (tmp_path / name).write_text("x")
+    results = tmp_path / "regression"
+    results.mkdir()
+
+    problems = V._check_app_specific(
+        {"db_path": str(tmp_path / "measurements.db"),
+         "predictions_file": str(tmp_path / "predictions.csv"),
+         "guide_fractions_file": str(tmp_path / "fractions.csv"),
+         "results_folder": str(results),
+         "target_gene": "TGGT1_233460",
+         "target_guides": ["TGGT1_233460_1", "TGGT1_233460_2"],
+         "hit_direction": "negative"},
+        "investigate_hit")
+
+    assert problems == [], f"a complete setup was refused: {_messages(problems)}"
+
+
+@pytest.mark.parametrize("direction", ["positive", "negative"])
+def test_both_hit_directions_are_accepted(direction):
+    """The sign of the regression effect, and both signs are real hits.
+
+    Accepting only "positive" would make every protective hit unreachable
+    from the screen that found it.
+    """
+    problems = V._check_app_specific(
+        {"db_path": "", "predictions_file": "", "guide_fractions_file": "",
+         "results_folder": "", "target_gene": "g", "target_guides": ["g_1"],
+         "hit_direction": direction},
+        "investigate_hit")
+
+    assert "hit_direction" not in _keys(problems)
+
+
+@pytest.mark.parametrize("family", ["random_forest", "hist_gradient_boosting",
+                                    "xgboost"])
+def test_every_offered_surrogate_family_is_accepted(family, tmp_path):
+    """The menu and the validator are two lists that can drift apart.
+
+    A family offered in the interface and rejected here is a control the user
+    can select and then cannot run.
+    """
+    problems = V._check_app_specific(
+        {"surrogate_model": family, "surrogate_split_by": "well"},
+        "explain_cv")
+
+    assert "surrogate_model" not in _keys(problems)
+    # NOT VACUOUS: the same app with a family it does not offer is refused,
+    # so "no complaint" above is the validator agreeing rather than the app
+    # name being wrong and the whole block skipped. My first version passed
+    # "explain_cv_model", which is not the key, and asserted nothing at all.
+    assert "surrogate_model" in _keys(V._check_app_specific(
+        {"surrogate_model": "magicforest"}, "explain_cv"))
+
+
+@pytest.mark.parametrize("split", ["well", "plate"])
+def test_both_offered_split_units_are_accepted(split):
+    """Cells are not independent, which is why only these two are offered."""
+    problems = V._check_app_specific(
+        {"surrogate_model": "xgboost", "surrogate_split_by": split},
+        "explain_cv")
+
+    assert "surrogate_split_by" not in _keys(problems)
+    assert "surrogate_split_by" in _keys(V._check_app_specific(
+        {"surrogate_split_by": "cell"}, "explain_cv"))
