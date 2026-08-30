@@ -1212,3 +1212,16 @@ arc, which is why they are reliable while the aggregate is not.
     digits, that no channel is dropped from a multi-channel name, and that a
     filter slugifying to nothing still names a folder -- all real properties
     of the folder a run writes its features into.
+
+    A THIRD ROUTE TO THE SAME TRAP (see sections 7 and 20). Both earlier
+    notes are about the tree having changed -- once because the shared tree
+    carried edits the measured copy did not, once because I had edited it
+    myself earlier in the session. The third is ANOTHER LANE's uncommitted
+    work: settings_model.py had changes in the working tree that were not in
+    the measured revision, so the artifact's "missing lines 9686-9688" pointed
+    at an `except Exception` handler while the same numbers in the tree were a
+    `return` and two comment lines.
+
+    The give-away is the one worth remembering: coverage.py never reports a
+    COMMENT as missing. A missing-line run that lands on comments is not a
+    gap, it is proof the artifact and the tree disagree.
