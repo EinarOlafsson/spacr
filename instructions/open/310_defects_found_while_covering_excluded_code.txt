@@ -329,3 +329,24 @@ announce itself, and neither does a checkout carrying a day of unsaved work.
 
 Coverage is now measured on a frozen worktree at /mnt/firecuda2/codex/covclean
 created with ``git worktree add --detach``, never on the shared tree.
+
+--------------------------------------------------------------------------------
+3c. A GUARD MADE DEAD BY AN abspath TWO LINES ABOVE IT
+--------------------------------------------------------------------------------
+
+spacr/roi.py:451 -- ``RoiSet.save``'s ``if parent:`` around
+``os.makedirs(parent, exist_ok=True)``. The guard is correct in principle:
+``os.makedirs('')`` raises FileNotFoundError, so a bare filename would need
+it. But line 448 is ``target = os.path.abspath(str(path))``, and
+``dirname(abspath(x))`` is never empty on POSIX. Checked rather than reasoned:
+``''``, ``'.'``, ``'/'``, ``'//'``, ``'~'``, ``'region.json'`` and
+``'a/b.json'`` all yield a non-empty directory, including ``'/'`` whose
+dirname is ``'/'``.
+
+LEFT IN PLACE, deliberately. Deleting it would make the function correct only
+for as long as line 448 survives, and an abspath is exactly the kind of line a
+later refactor moves or drops. It is recorded here so the arc is a known,
+argued exclusion rather than an unexplained gap in the per-module report.
+
+Found while closing the one-arc modules for item 288. Five of the six in that
+batch were genuinely reachable and now have tests; this was the sixth.
