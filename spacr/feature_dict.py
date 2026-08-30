@@ -1809,7 +1809,7 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "meta",
         "Manual annotation class recorded by the spaCR annotation app.",
         None,
-        "spacr.gui_utils (ALTER TABLE png_list ADD COLUMN <annotation_column>)",
+        "spacr.utils.add_column_to_database (ALTER TABLE ... ADD COLUMN)",
         "'test' is only the default annotation column name; a run may use any "
         "name, in which case the column will be reported as unknown here.",
     ),
@@ -1817,7 +1817,7 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "meta",
         "Manual annotation class recorded by the spaCR annotation app.",
         None,
-        "spacr.gui_utils (ALTER TABLE png_list ADD COLUMN <annotation_column>)",
+        "spacr.utils.add_column_to_database (ALTER TABLE ... ADD COLUMN)",
         "Annotation column names are user-chosen; see 'test'.",
     ),
     # ---------------- measurement provenance stamp
@@ -2193,7 +2193,6 @@ _MODULE_HINTS: tuple[tuple[str, str], ...] = (
     ("spacr.utils", "spacr.utils"),
     ("spacr.io", "spacr.io"),
     ("spacr.object", "spacr.object"),
-    ("spacr.gui_utils", "spacr.gui_utils"),
     ("spacr.annotate", "spacr.annotate"),
 )
 

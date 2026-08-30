@@ -153,9 +153,11 @@ _MODEL_COLUMNS = frozenset({
     "ml_pred", "predictions",
     # spacr.active_learning.PRED_COLUMN_CANDIDATES, the two not already above
     "prediction", "score",
-    # spacr.gui_elements: the Annotate app's built-in XGBoost pass. The name
-    # says "annotation" and it is not one -- it is a model's call, derived
-    # from a score in the very next column.
+    # The removed Tk Annotate app's built-in XGBoost pass wrote these. The
+    # columns are still in databases it produced, so the names stay listed
+    # even though nothing writes them any more. The name says "annotation"
+    # and it is not one -- it is a model's call, derived from a score in
+    # the very next column.
     "XGboost_annotation", "XGboost_score",
 })
 
