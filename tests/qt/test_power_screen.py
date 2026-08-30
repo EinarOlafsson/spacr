@@ -550,7 +550,16 @@ assert settings.has_registered_defaults('power')
 assert set(defaults) <= set(settings.expected_types)
 assert set(defaults) <= set(settings.tooltips)
 """
-    subprocess.run([sys.executable, "-c", code], check=True)
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"fresh registration probe failed\nstdout:\n{completed.stdout}"
+        f"\nstderr:\n{completed.stderr}"
+    )
 
 
 def test_register_restores_settings_after_the_screen_was_imported(
