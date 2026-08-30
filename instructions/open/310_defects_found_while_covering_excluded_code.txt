@@ -1439,3 +1439,25 @@ contracts pass under PySide6/Qt 6.11.2.
     A tool that silently could not answer a whole CLASS of question is the
     same failure as a coverage run that silently loses a worker: the number
     it gives is right, and it is not the number you asked for.
+
+--------------------------------------------------------------------------------
+36. SAVING A GENE-MEASUREMENT COMPARISON LEAKED ITS PRIVATE FIGURE
+--------------------------------------------------------------------------------
+    ``gene_measurement_compare.save`` builds a pyplot figure, writes its PDF
+    and PNG paths, and returns only those paths.  It never closed the figure.
+    No caller could take ownership of an object it was never given, so every
+    save left one more figure registered in a long-lived GUI or batch process.
+
+    The minimum-dependency coverage order exposed the leak through a later
+    panel test.  That test had its own defect: it required the process-wide
+    Matplotlib registry to be empty, even though the caller may legitimately
+    own unrelated open figures.  Earlier comparison tests also created
+    caller-owned figures without closing them, making the order dependence
+    deterministic.
+
+    ``save`` now closes only the private figure in a ``finally`` block.  The
+    tests close the figures they own, and the panel contracts keep a sentinel
+    caller figure while checking that ``available`` neither leaks a new one
+    nor closes somebody else's.  The exact two-file order is green (30 tests),
+    as is the original 32-file minimum-dependency batch (248 tests), without
+    the more-than-20-figures warning.
