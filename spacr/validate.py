@@ -844,6 +844,15 @@ _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
     # core.preprocess_generate_masks expands a bool into [save]*3 itself, so
     # either form arrives legitimately.
     "save": (bool, list),
+    # Declared bool, but it is a PATH: settings.py's own description calls it
+    # "(str) - Path to a saved Cellpose model", spacr_cellpose.py runs
+    # os.path.exists() on it, and this module validates it as a path eight
+    # lines from here. Declared bool, `--set custom_model=/models/x.pth` came
+    # back as "cannot be read as bool", so a custom model could not be chosen
+    # from the command line at all. None stays legal: it is the "no custom
+    # model" value every reader tests for, and bool stays legal because
+    # settings.py still seeds this key with False in two places.
+    "custom_model": (str, bool, type(None)),
 }
 
 

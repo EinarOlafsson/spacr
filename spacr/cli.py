@@ -1018,6 +1018,8 @@ _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
+    # A path, not a switch -- see the note in spacr.validate.
+    "custom_model": (str, bool, type(None)),
 }
 
 # Per-module narrowings, for keys whose name two pipelines share. Mirrors
@@ -1789,7 +1791,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return exc.code if isinstance(exc.code, int) else EXIT_USAGE
 
     if args.version:
-        from ._version import __version__
+        from .version import __version__
         print(__version__)
         return EXIT_OK
 
