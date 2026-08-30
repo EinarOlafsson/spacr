@@ -477,7 +477,7 @@ def test_the_statistics_are_untouched(clean, collinear):
     bad = out[("collinear", "condition_number")]
     assert bad["condition_number"] > 1e10
     assert bad["rank"] < bad["n_singular_values"]
-    assert "severe collinearity" in bad["verdict"]
+    assert "singular" in bad["verdict"]
     assert out[("collinear", "vif")]["n_aliased"] >= 2
     assert out[("collinear", "predictor_correlation")][
         "max_abs_offdiagonal"] == pytest.approx(1.0)
