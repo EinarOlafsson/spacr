@@ -3997,6 +3997,8 @@ class TorchModel(nn.Module):
         :param use_checkpoint: enable gradient checkpointing through the backbone.
         :param num_classes: output class count; ``1`` yields a BCE-style binary head.
         :param multilabel: informational flag consumed by external loss/metrics code.
+        :param image_size: square input resolution used for the dummy forward
+            pass that infers the backbone's feature width.
         :raises ValueError: if ``model_name`` is not a TorchVision model.
         """
         super().__init__()
@@ -4175,6 +4177,7 @@ class TorchModel_v2(nn.Module):
     :param use_checkpoint: enable gradient checkpointing through the backbone.
     :param num_classes: output class count.
     :param multilabel: informational flag consumed by external loss/metrics code.
+    :raises ValueError: if ``model_name`` is not a TorchVision model.
     """
     def __init__(
         self,
@@ -4349,6 +4352,8 @@ class ResNet(nn.Module):
     :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.
     :param use_checkpoint: enable gradient checkpointing through the ResNet backbone.
     :param init_weights: ``'imagenet'`` for pretrained weights or ``'none'`` for random init.
+    :raises ValueError: if ``resnet_type`` is unsupported, or if
+        ``init_weights`` is neither ``'imagenet'`` nor ``'none'``.
     """
     def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
         """Select the backbone and delegate head construction to :meth:`initialize_base`."""
@@ -7342,7 +7347,8 @@ class GradCAM:
 
     :param model: trained model to inspect.
     :param target_layers: list of dotted layer names to hook.
-    :param use_cuda: run the model on CUDA when available.
+    :param use_cuda: if true, move the model and inputs to CUDA
+        unconditionally; the caller must ensure CUDA is available.
     """
     def __init__(self, model, target_layers=None, use_cuda=True):
         """Store the model and move it to CUDA if requested."""

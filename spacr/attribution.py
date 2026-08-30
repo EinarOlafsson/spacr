@@ -186,6 +186,8 @@ class ClassScoreModel(nn.Module):
     A head emitting ``C > 1`` logits is passed through untouched.
 
     :param model: the classifier to wrap.
+    :param n_out: optional raw output width. If omitted, the first forward
+        pass infers it from the wrapped model's output.
     :ivar n_out: the wrapped model's raw output width (1 or C).
     :ivar n_classes: the number of classes the wrapper exposes (2 or C).
     :ivar single_logit: True when the wrapped head emits one logit.
@@ -2008,6 +2010,8 @@ class AttributionMapGenerator:
     :param smoothgrad_samples: when above 1, each map is SmoothGrad-averaged.
     :param smoothgrad_sigma: SmoothGrad noise as a fraction of the input range.
     :param kw: forwarded to the method.
+    :raises UnknownMethodError: if ``method`` is not registered in
+        :data:`ATTRIBUTION_METHODS`.
     """
 
     def __init__(self, model, method: str = "gradcam",

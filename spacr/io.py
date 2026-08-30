@@ -588,10 +588,12 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     return normalized_images, labels, image_names, label_names, orig_dims
 
 class CombineLoaders:
-    """Round-robin iterator over multiple DataLoaders.
+    """Randomized interleaving of multiple live DataLoaders.
 
-    Yields ``(loader_index, batch)`` pairs, drawing from a random loader
-    each step and dropping loaders once exhausted.
+    Each step shuffles the loaders that have not been exhausted, probes them
+    in that random order, and yields the first available ``(loader_index,
+    batch)`` pair. Exhausted loaders are removed, so every batch from every
+    input loader is yielded once even when the loaders have different lengths.
 
     :param train_loaders: DataLoaders to combine.
     :raises StopIteration: when every wrapped loader is exhausted.
@@ -745,6 +747,8 @@ class spacrDataset(Dataset):
         supplied together with ``specific_labels``, directory scanning
         is skipped.
     :param specific_labels: Labels paired with ``specific_files``.
+    :raises ValueError: If no non-hidden image files are found for any
+        requested class.
     """
 
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):

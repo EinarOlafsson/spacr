@@ -705,8 +705,11 @@ class _FixedChoiceCombo(QComboBox):
 class HyperparamPanel(QWidget):
     """Search-space controls, a live results table and a small-multiples panel.
 
-    :param app_key: ``'umap'``, ``'classify'`` or ``'ml_analyze'``.
+    :param app_key: searchable application: ``'umap'``, ``'classify'``,
+        ``'classify_merged'``, ``'ml_analyze'`` or ``'activation'``.
     :param parent: optional Qt parent.
+    :raises ValueError: if ``app_key`` has no hyperparameter-search
+        definition.
     :ivar search_finished: emitted with the :class:`SearchResult` when a sweep
         ends (including a stopped, partial one).
     """

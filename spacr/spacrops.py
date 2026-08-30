@@ -3361,12 +3361,7 @@ class FOVAlignAndCropper:
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
                  folder_image_scale: float = 1.0):
-        """Initialize the FOV aligner. See class docstring for arguments.
-
-        :param folder_image_scale: default FOV-to-mosaic pixel-scale factor
-            used by :meth:`run` when the caller does not override it
-            (e.g. mosaic 10x + FOV 20x -> ``0.5``; mosaic 20x + FOV 10x -> ``2.0``).
-        """
+        """Initialize the FOV aligner. See class docstring for arguments."""
         self._aligner = StitchedMultiAligner(detector=detector, nfeatures=nfeatures,
                                              max_keypoints=max_keypoints, downsample=downsample,
                                              ransac_thresh_px=ransac_thresh_px,

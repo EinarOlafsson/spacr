@@ -596,9 +596,11 @@ def read_log(path: Any) -> Dict[str, Any]:
 class ResourceSampler:
     """A bounded background record of what the process tree costs.
 
-    A daemon thread takes one reading every ``interval`` seconds into a ring
-    buffer of ``capacity`` samples, so a run that lasts a week cannot grow
-    the log without limit and still leaves the most recent hour when it dies.
+    A daemon thread takes one reading every effective ``interval`` seconds
+    into a ring buffer of ``capacity`` samples. The default settings retain
+    the most recent hour in memory; custom settings retain approximately
+    ``capacity * interval`` seconds. A run that lasts a week therefore cannot
+    grow the in-memory series without limit.
 
     The thread is a daemon and is never the GUI thread: it cannot hold the
     process open at exit and it cannot delay a repaint.
@@ -623,8 +625,10 @@ class ResourceSampler:
             in memory.
         :param level: one of :data:`LEVELS`, or ``None`` to resolve one.
         :param interval: seconds between readings, floored at
-            :data:`MIN_INTERVAL_SECONDS`.
-        :param capacity: how many samples the ring buffer holds.
+            :data:`MIN_INTERVAL_SECONDS`; together with ``capacity``, this
+            determines the retained time span.
+        :param capacity: maximum number of in-memory samples to retain,
+            clamped to at least one; older samples are discarded.
         :param label: what this record is OF -- a run id, a sweep trial -- so
             a file found later can be matched to the work that made it.
         :param clock: the time source, passed in so a test can drive it.
