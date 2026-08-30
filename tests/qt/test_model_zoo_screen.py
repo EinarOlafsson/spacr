@@ -739,3 +739,48 @@ def test_an_empty_folder_box_reads_the_catalogue_alone(screen):
 
     assert [row[0] for row in screen.rows()] == ["cpsam"]
     assert "No such folder" not in screen.status_text()
+
+
+def test_selecting_a_row_that_is_not_there_selects_nothing_and_does_not_raise(
+        screen, local_models):
+    """``select`` is the programmatic door and takes whatever it is given.
+
+    A stale row number arrives from a caller that listed the table before a
+    rescan shortened it. Skipping it keeps the OTHER rows in the same call
+    selected, which is the point of going through the selection model at all
+    -- "two selected models" is the whole input to the compare hand-off, and
+    losing one of them to a bad third would silently halve it.
+    """
+    root, _a, _b = local_models
+    screen.scan(str(root), include_catalogue=False)
+
+    screen.select(0, 99)
+
+    assert len(screen.selected_entries()) == 1
+
+
+def test_selecting_two_rows_really_leaves_two_selected(screen, local_models):
+    """The reason `select` does not use `selectRow`, stated as a test.
+
+    `selectRow` clears the selection first in ExtendedSelection mode, so
+    `select(0, 1)` would leave exactly one row selected and the compare
+    hand-off would silently get one model.
+    """
+    root, _a, _b = local_models
+    screen.scan(str(root), include_catalogue=False)
+
+    screen.select(0, 1)
+
+    assert len(screen.selected_entries()) == 2
+
+
+def test_selecting_nothing_clears_what_was_selected(screen, local_models):
+    """`select()` with no rows is how a caller deselects."""
+    root, _a, _b = local_models
+    screen.scan(str(root), include_catalogue=False)
+    screen.select(0)
+    assert screen.selected_entries()
+
+    screen.select()
+
+    assert screen.selected_entries() == []
