@@ -3274,13 +3274,11 @@ ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 
 
-#: Whether the AI assistant is on when spaCR opens (221).
+#: Whether the AI assistant is on when spaCR opens (248).
 #:
-#: OFF BY DEFAULT, and that is the default rather than the preference. An
-#: assistant that is on before anybody asked for it sends what it is looking
-#: at somewhere, and the first run is exactly when the user has not yet
-#: decided whether that is acceptable. The setup screen asks; until it is
-#: answered the answer is no.
+#: The setup card's three launch toggles ship ON together. The card still
+#: records an explicit opt-out, so a user who turns the assistant off stays
+#: opted out when the shipped default changes.
 #:
 #: A stored value that is not recognised reads as OFF for the same reason a
 #: bad `issue_prompt` reads as 'ask': the failure has to fall on the quiet
@@ -3288,10 +3286,8 @@ _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 _KEY_AI_DEFAULT_ON = "ai/on_by_default"
 
 
-#: Off until the setup screen records the user's choice. Enabling an external
-#: assistant before consent would send context before the user has decided
-#: whether that is acceptable.
-DEFAULT_AI_ON_AT_LAUNCH = False
+#: The untouched-profile value required by the three-toggle setup contract.
+DEFAULT_AI_ON_AT_LAUNCH = True
 
 
 def get_ai_on_by_default() -> bool:

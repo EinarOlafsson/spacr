@@ -112,7 +112,7 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
     # Image UMAP's two other projections of the same measurement table.
     "image_scatter": (
         "Image Scatter",
-        "Preview the object associated with each point and open its image crop.",
+        "Hover a point to see the cell; click it to open the crop",
         "alpha"),
     "pca": (
         "PCA",

@@ -140,14 +140,16 @@ def test_nothing_merely_robust_is_called_nonparametric(qtbot):
 
     They are parametric in the coefficients and robust in the loss. Only
     ``rra`` reads nothing but the order of the wells, so it is the only entry
-    the word may appear against.
+    described as nonparametric. A semiparametric method may explicitly say
+    that it is *not fully* nonparametric without being misclassified.
     """
     combo = _menu(qtbot)
 
     for index in range(1, combo.count()):
         value = combo.itemData(index)
         label = combo.itemText(index).lower()
-        if "nonparametric" in label:
+        if ("nonparametric" in label and
+                "not fully nonparametric" not in label):
             assert value == "rra", label
 
 

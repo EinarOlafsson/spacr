@@ -214,7 +214,7 @@ def test_the_agreement_button_keeps_the_name_and_sentence_its_tile_had():
     name, description, stage = fold_description("agreement")
 
     assert name == "Annotator Agreement"
-    assert "κ" in description and "disagreement" in description
+    assert "κ" in description and "discordant" in description
     assert stage in ("alpha", "beta", "stable")
 
 

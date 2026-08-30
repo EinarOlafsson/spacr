@@ -41,7 +41,7 @@ def test_umap_has_interactive_toggle_immediately_beside_ai(
     # spacr.qt.widgets.preview_contract for the decision.
     assert toggle.text() == "Interactive"
     assert toggle.isChecked() is False
-    assert "click a point" in toggle.toolTip().lower()
+    assert "select a point" in toggle.toolTip().lower()
 
     row = screen._ai_switch.parentWidget().layout()
     assert row.indexOf(toggle) + 1 == row.indexOf(screen._ai_switch)

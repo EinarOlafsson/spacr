@@ -57,8 +57,8 @@ WORKBENCH_TITLE = "Cellpose Workbench"
 
 #: The one line under the name in the registry and beside it on the page.
 WORKBENCH_INTRO = (
-    "Fine-tune a Cellpose model on labelled fields, then apply the trained "
-    "model or a stock model to an image folder."
+    "Fine-tune a Cellpose model on your own labelled fields, then segment "
+    "a folder of images with it or with a stock model"
 )
 
 #: tab index -> (module key, the sentence that says what ``src`` means there).

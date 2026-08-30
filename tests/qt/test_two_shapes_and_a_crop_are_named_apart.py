@@ -24,7 +24,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel
+from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QWidget
 
 
 # --------------------------------------------------------------------------- #
@@ -80,7 +80,7 @@ def _axis_lock_entry_in_the_graph_menu() -> str:
 
 
 # --------------------------------------------------------------------------- #
-#  the save dialog: both quantities, one name each
+#  the save dialog: file shape here, data lock on the plot
 # --------------------------------------------------------------------------- #
 
 @pytest.fixture()
@@ -93,31 +93,22 @@ def save_dialog(qtbot):
     return dialog
 
 
-def test_the_save_dialogs_data_lock_is_called_lock_axis_scales(save_dialog):
-    """Its own tooltip says it ties one y unit to n x units, so it is the
-    DATA lock and has to be called what the graph menu calls that."""
-    assert _row_label(save_dialog, save_dialog.aspect) == "lock axis scales"
+def test_the_save_dialog_does_not_duplicate_the_plots_data_lock(save_dialog):
+    """The data lock belongs to the plot and therefore every export."""
+    assert not hasattr(save_dialog, "aspect")
+    assert all("lock axis scales" not in text.lower()
+               for text in _every_word_shown(save_dialog))
 
 
-def test_the_dialog_and_the_graph_menu_use_ONE_name_for_the_data_lock():
-    """Read out of both, not written twice: a rename in either place that
-    leaves the other behind fails here rather than reaching a reader."""
-    from spacr.qt.widgets.save_figure_dialog import SaveFigureDialog
-
-    dialog = SaveFigureDialog(None)
-    try:
-        row = _row_label(dialog, dialog.aspect)
-    finally:
-        dialog.deleteLater()
-
-    assert row.lower() in _axis_lock_entry_in_the_graph_menu().lower()
+def test_the_graph_menu_uses_one_unambiguous_name_for_the_data_lock():
+    assert "lock axis scales" in _axis_lock_entry_in_the_graph_menu().lower()
 
 
-def test_the_data_lock_still_says_what_it_locks(save_dialog):
-    """The row names the quantity; the tooltip is where n comes in."""
-    tip = save_dialog.aspect.toolTip().lower()
+def test_the_save_shape_points_to_the_separate_axis_lock(save_dialog):
+    """The file control says where the data-owned quantity lives."""
+    tip = save_dialog.graph_shape.toolTip().lower()
 
-    assert "y unit" in tip and "x units" in tip, tip
+    assert "page" in tip and "axis lock" in tip and "data" in tip, tip
 
 
 def test_the_saved_figures_shape_is_offered_in_the_menus_words(save_dialog):
@@ -136,8 +127,7 @@ def test_no_row_of_the_save_dialog_says_aspect_ratio(save_dialog):
     trying to tell the two apart."""
     said = [text for text in _every_word_shown(save_dialog)
             if "aspect ratio" in text.lower()]
-    tips = [widget.toolTip() for widget in
-            (save_dialog.aspect, save_dialog.graph_shape)
+    tips = [widget.toolTip() for widget in save_dialog.findChildren(QWidget)
             if "aspect ratio" in (widget.toolTip() or "").lower()]
 
     assert not said, said

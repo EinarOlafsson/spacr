@@ -1,12 +1,8 @@
-"""The assistant is off until somebody says otherwise.
+"""The assistant ships on, while explicit and malformed values stay safe.
 
-Instruction 221: "AI should be on by default is a new setting you need to
-add and implement."
-
-THE SETTING EXISTS SO THE ANSWER CAN BE YES. The DEFAULT is no, and that is
-a decision rather than an oversight: an assistant that is on before anybody
-asked for it sends what it is looking at somewhere, and the first run is
-exactly when the user has not yet decided whether that is acceptable.
+Instruction 248 supersedes the earlier untouched-profile expectation: all
+three setup-card toggles ship on. A stored opt-out still wins, and a value
+this build cannot recognise still falls to the quiet side.
 """
 from __future__ import annotations
 
@@ -26,11 +22,11 @@ def prefs():
     preferences.set_ai_on_by_default(before)
 
 
-class TestTheDefaultIsOff:
+class TestTheShippedDefaultIsOn:
 
-    def test_a_profile_that_never_answered_is_off(self, prefs):
+    def test_a_profile_that_never_answered_is_on(self, prefs):
         prefs._settings().remove("ai/on_by_default")
-        assert prefs.get_ai_on_by_default() is False
+        assert prefs.get_ai_on_by_default() is True
 
     def test_an_unrecognised_value_reads_as_off(self, prefs):
         """The failure falls on the quiet side, the rule `issue_prompt`
