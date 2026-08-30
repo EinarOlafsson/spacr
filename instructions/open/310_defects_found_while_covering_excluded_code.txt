@@ -516,3 +516,41 @@ argument seg_qc._resolve's unknown-threshold raise already makes.
 
 Regression: 46 tests across the filename/organise/yokogawa suites pass.
 Found by trying to cover arc 6592->6595, which was the fall-through itself.
+
+--------------------------------------------------------------------------------
+3d. FURTHER UNREACHABLE ARCS, PROVED AND LEFT
+--------------------------------------------------------------------------------
+
+  * spacr/response_distribution.py:293 -- ``if handles:`` in ``panel``, arc
+    293->306. Both ``ax.hist`` and ``twin.hist`` have already run four lines
+    above with ``bins=40``, and matplotlib creates all forty patches even for
+    an EMPTY array -- measured, not assumed. So ``ax.patches`` and
+    ``twin.patches`` are always non-empty, ``handles`` always has two entries,
+    and the false side cannot be taken. The guard is correct defensive code
+    against a future change to how the histograms are drawn; it simply cannot
+    fire against the current ones.
+
+  * spacr/sudoku.py:507 -- ``if mine is not None:`` in ``sudoku_all``, arc
+    507->511. ``mine`` is ``here.names.index(guide) if guide in here.names else
+    None``, and ``here`` is the result of ``sudoku(..., names, ...)`` called
+    with the SAME ``names`` tuple the enclosing loop iterates. ``sudoku``
+    builds ``names = tuple(str(g) for g in guides)`` and never filters it, so
+    every ``guide`` is in ``here.names`` by construction and ``mine`` is never
+    None.
+
+  * spacr/utils.py -- the arc reported as 9754->9755 in feature_folder_name is
+    a generator-expression artifact rather than a branch: line 9755 is the
+    mixed-list return and IS now covered, checked in executed_lines.
+
+Counting these, the sweep's argued-unreachable list is now: roi.py:451,
+figures/headless.py:111, plate_qc.py:1014 (the dirname(abspath) family),
+errors.py:724, model_zoo.py:481 and data_manager.py:333 (the byte-formatter
+family), layers.py:1223, database_concurrency.py:281,
+gene_measurement_sweep.py:1149, sequencing.py:436/461/521 (the consensus
+padding family), response_distribution.py:293 and sudoku.py:507.
+
+THREE FAMILIES, not thirteen accidents. A guard after a normalising call that
+cannot return the guarded value; a loop whose last iteration always returns; and
+a guard whose precondition the caller four lines above has just established.
+Each is worth a shared helper or a comment rather than a pragma, and none is
+worth deleting.
