@@ -1486,3 +1486,25 @@ contracts pass under PySide6/Qt 6.11.2.
     stray comma is read as a literal to match on, which finds nothing and
     says so by showing nothing, rather than raising a syntax message about a
     character the user did not mean to type.
+
+--------------------------------------------------------------------------------
+38. feature_folder_name's INNER INTEGER BRANCH COULD NEVER RECEIVE AN INTEGER
+--------------------------------------------------------------------------------
+
+``spacr.utils.feature_folder_name`` used an inner ``_one`` helper with an
+integer special case. Every route to that helper had already excluded an
+integer, however:
+
+  * a scalar integer returns as ``channel_<n>`` before ``_one``;
+  * an all-integer list returns through the ``channels_`` branch; and
+  * the final mixed-list expression formats integer members itself and calls
+    ``_one`` only for its non-integer members.
+
+The tempting tests ``[1, 2]`` and ``[1, "morphology"]`` assert important
+folder names but cannot exercise the helper's integer branch; the first takes
+the all-integer return and the second handles ``1`` outside the helper. The
+dead check is removed, leaving every observable name unchanged. Genuinely
+missing companion contracts now pin the live behavior: every member of a mixed
+multi-channel selection remains in its folder name, and punctuation-only text
+such as ``"---"`` becomes ``x`` instead of collapsing a path component to an
+empty string.
