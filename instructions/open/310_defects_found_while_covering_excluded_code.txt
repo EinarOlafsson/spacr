@@ -1066,3 +1066,32 @@ arc, which is why they are reliable while the aggregate is not.
     deleted (section 18) or written down here. That is the only way instruction
     288's per-module numbers mean anything: a module short of 100% is either a
     gap or a line in this document, and never a shrug.
+
+22. THE COLOUR CHOOSER ADDED A DUPLICATE ROW EVERY TIME IT WAS USED
+    ------------------------------------------------------------------
+    spacr/qt/widgets/save_figure_dialog.py, `_resolve_choice`.
+
+    The background colour box ships with:
+
+        transparent ''    white '#FFFFFF'    black '#000000'    choose a colour…
+
+    Picking a colour ran `box.findData(chosen.name())` to see whether the list
+    already had it. `QColor.name()` answers in LOWER case; the shipped entries
+    are written UPPER. So choosing white found nothing and inserted a second
+    row -- displayed as "#ffffff", sitting under one displayed as "white",
+    holding the same colour. Once per pick, without limit.
+
+    Measured rather than reasoned about:
+
+        before: transparent, white(#FFFFFF), black(#000000), choose…
+        after : transparent, white(#FFFFFF), black(#000000), #ffffff, choose…
+
+    Fixed by falling back to a case-insensitive scan before inserting. The
+    exact `findData` stays first, because it is right whenever the case does
+    match and it is the cheaper answer.
+
+    Found by writing a test for the "already on the list" branch, which had
+    never run -- the existing tests only ever picked a colour the list did not
+    have. The test was written expecting it to pass; it failed, and the
+    failure was the defect rather than the test. Removing the fix makes it
+    fail again, which was checked.
