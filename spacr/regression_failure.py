@@ -101,7 +101,10 @@ def describe_failure(error: BaseException, *, stage: str = "",
                      settings: Optional[Mapping[str, Any]] = None,
                      frame: Any = None,
                      include_traceback: bool = True) -> str:
-    """The report, as text. Never raises."""
+    """The report, as text. Never raises.
+
+    :param error: regression exception to explain and, optionally, trace.
+    """
     try:
         parts = ["THE REGRESSION FAILED."]
         if stage:
@@ -144,6 +147,9 @@ def write_failure_report(res_folder, error: BaseException, *,
                          settings: Optional[Mapping[str, Any]] = None,
                          frame: Any = None) -> Optional[str]:
     """Write the report beside the run and return its path, or ``None``.
+
+    :param res_folder: run-results directory in which to write the report.
+    :param error: regression exception to report.
 
     ``None`` when there is nowhere to write it -- a failure early enough to
     have no destination folder is still reported to the console by the caller.

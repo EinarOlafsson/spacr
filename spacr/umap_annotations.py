@@ -22,6 +22,10 @@ def write_umap_annotations(
 ) -> Tuple[int, int]:
     """Write one integer value per UMAP record into ``png_list``.
 
+    :param records: rows carrying ``db_path`` and original ``db_png_path``.
+    :param values: integer annotations aligned one-to-one with ``records``.
+    :param column: annotation column to add or update in ``png_list``.
+
     Records are grouped by database so a multi-plate embedding commits once
     per file.  The original ``png_path`` value from the database is the update
     key; corrected/display paths are deliberately not used.

@@ -964,7 +964,11 @@ def correction_kwargs(
 
 
 def write_report(report: BatchCorrectionReport, path: Any) -> Path:
-    """Write a correction report as stable JSON and return its path."""
+    """Write a correction report as stable JSON and return its path.
+
+    :param report: completed batch-correction report to serialize.
+    :param path: destination JSON path to replace atomically.
+    """
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_name(f".{destination.name}.tmp")

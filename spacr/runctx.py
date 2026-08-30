@@ -253,7 +253,10 @@ class RunIdFilter(logging.Filter):
         self.run_id = run_id
 
     def filter(self, record: logging.LogRecord) -> bool:
-        """Set ``record.run_id`` when it is missing. Never drops a record."""
+        """Set ``record.run_id`` when it is missing. Never drops a record.
+
+        :param record: log record to stamp with a run id.
+        """
         if not getattr(record, "run_id", ""):
             record.run_id = self.run_id or current_run_id() or "-"
         return True
@@ -331,7 +334,10 @@ def runs_log_dir() -> str:
 
 
 def run_log_path(run_id: str) -> str:
-    """Return the JSONL log path for ``run_id``. It need not exist yet."""
+    """Return the JSONL log path for ``run_id``. It need not exist yet.
+
+    :param run_id: run identifier used as the log filename.
+    """
     return os.path.join(runs_log_dir(), f"{str(run_id).strip()}.jsonl")
 
 
@@ -1293,6 +1299,8 @@ class RunContext:
 
     def adopt(self, ledger: RunLedger) -> RunLedger:
         """Re-stamp an existing ledger with this run's id, and return it.
+
+        :param ledger: existing run ledger to associate with this context.
 
         For a call site that already builds its own ledger and should not
         have to change how.

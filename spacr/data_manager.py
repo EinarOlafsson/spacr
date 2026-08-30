@@ -501,7 +501,10 @@ class ProjectUsage:
     scanned_utc: str = ""
 
     def kind(self, kind: str) -> KindUsage:
-        """Return the row for one kind, zeroed when it is absent."""
+        """Return the row for one kind, zeroed when it is absent.
+
+        :param kind: artifact-kind key to look up.
+        """
         for row in self.kinds:
             if row.kind == kind:
                 return row
@@ -513,7 +516,10 @@ class ProjectUsage:
         return sum(row.registered_bytes for row in self.kinds)
 
     def artifact_at(self, path: str) -> Optional[ArtifactUsage]:
-        """Return the entry for one registered path, or None."""
+        """Return the entry for one registered path, or None.
+
+        :param path: registered artifact path to resolve absolutely and look up.
+        """
         target = _absolute(path)
         for entry in self.artifacts:
             if entry.path == target:

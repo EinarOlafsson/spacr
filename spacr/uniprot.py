@@ -238,7 +238,10 @@ class Resolution:
 
 
 def canonical(text) -> str:
-    """The lookup form of an organism name: lower case, single spaces."""
+    """The lookup form of an organism name: lower case, single spaces.
+
+    :param text: organism-name text to normalize for lookup.
+    """
     return re.sub(r"\s+", " ", str(text or "").strip().lower())
 
 
@@ -270,7 +273,10 @@ def resolve(text) -> Resolution:
 
 
 def near_misses(name, limit: int = 5) -> Tuple[str, ...]:
-    """Organism names close to ``name``, for a message that helps."""
+    """Organism names close to ``name``, for a message that helps.
+
+    :param name: normalized or free-form organism name to approximate.
+    """
     import difflib
 
     name = canonical(name)
@@ -501,6 +507,8 @@ def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
 
 def annotation_for(text, *, cache_dir=None, genes=None):
     """``(frame, note)`` for whatever is in the annotation field.
+
+    :param text: bundled name, accession, taxon, or organism to resolve.
 
     The one call a pipeline needs. It never raises: an unreachable UniProt,
     an unknown organism and an empty proteome all come back as ``(None,
