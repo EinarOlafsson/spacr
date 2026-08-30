@@ -328,7 +328,10 @@ class SummarySection:
     fields: List[SummaryField] = field(default_factory=list)
 
     def get(self, name: str) -> Optional[SummaryField]:
-        """The field called ``name``, or ``None``."""
+        """The field called ``name``, or ``None``.
+
+        :param name: stable field name to look up in this section.
+        """
         for one in self.fields:
             if one.name == name:
                 return one
@@ -360,14 +363,20 @@ class RunSummary:
     recommendations: List[Any] = field(default_factory=list)
 
     def section(self, name: str) -> Optional[SummarySection]:
-        """The section called ``name``, or ``None``."""
+        """The section called ``name``, or ``None``.
+
+        :param name: contract section name to look up.
+        """
         for one in self.sections:
             if one.name == name:
                 return one
         return None
 
     def field(self, name: str) -> Optional[SummaryField]:
-        """The first field called ``name`` in any section, or ``None``."""
+        """The first field called ``name`` in any section, or ``None``.
+
+        :param name: stable field name to search for across sections.
+        """
         for one in self.sections:
             found = one.get(name)
             if found is not None:

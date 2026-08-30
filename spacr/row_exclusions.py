@@ -11,6 +11,8 @@ from typing import Any
 def normalize_row_exclusions(value: Any) -> dict[str, list[Any]]:
     """Return ``{column: [values...]}`` from settings or CSV text.
 
+    :param value: mapping or serialized mapping of columns to excluded values.
+
     ``None`` and an empty value mean no exclusions. A scalar value is accepted
     as a one-item list so hand-written settings remain convenient.
     """
@@ -59,6 +61,9 @@ def normalize_row_exclusions(value: Any) -> dict[str, list[Any]]:
 
 def exclude_matching_rows(frame, rules: Any) -> tuple[Any, list[str]]:
     """Drop rows matching any configured column/value rule.
+
+    :param frame: table whose rows should be filtered.
+    :param rules: mapping or serialized row-exclusion rules.
 
     Values are compared both in their native dtype and as stripped strings.
     This lets a value selected from SQLite text match the equivalent pandas

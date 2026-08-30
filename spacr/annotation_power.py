@@ -57,6 +57,9 @@ def required_fraction(sensitivity: float, specificity: float, *,
                       decision: float = 0.55) -> float:
     """Return the minimum guide fraction for a requested posterior.
 
+    :param sensitivity: probability of a positive call for a guide-carrying cell.
+    :param specificity: probability of a negative call without the guide.
+
     ``decision`` is the minimum probability that a phenotype-positive cell
     carries the guide. The calculation accounts for false positives among
     cells that do not carry the guide.

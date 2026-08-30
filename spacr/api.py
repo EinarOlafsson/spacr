@@ -193,6 +193,8 @@ class MeasureConfig:
 def run_mask(config: Union[MaskConfig, Mapping[str, Any]]) -> Any:
     """Run Mask from a typed configuration or an existing settings mapping.
 
+    :param config: typed mask configuration or compatible settings mapping.
+
     A configuration with ``dry_run=True`` returns preflight problems and
     writes nothing. A normal run returns ``None`` after writing its outputs.
     """
@@ -203,6 +205,8 @@ def run_mask(config: Union[MaskConfig, Mapping[str, Any]]) -> Any:
 
 def run_measure(config: Union[MeasureConfig, Mapping[str, Any]]) -> Any:
     """Run Measure from a typed configuration or existing settings mapping.
+
+    :param config: typed measurement configuration or settings mapping.
 
     A configuration with ``dry_run=True`` returns preflight problems and
     writes nothing. A normal run returns ``None`` after writing its outputs.
