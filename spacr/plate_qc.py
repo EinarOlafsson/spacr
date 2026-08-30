@@ -1011,8 +1011,7 @@ def write_layout_csv(layout: pd.DataFrame, path: str) -> str:
         raise ValueError("No output path given for the CSV export.")
     out = os.path.abspath(os.path.expanduser(str(path).strip()))
     parent = os.path.dirname(out)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     frame = layout[list(LAYOUT_COLUMNS)] if len(layout) else _empty_layout()
     frame.to_csv(out, index=False, quoting=csv.QUOTE_MINIMAL)
     return out

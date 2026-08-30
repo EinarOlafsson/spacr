@@ -444,8 +444,7 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     if save_path is not None:
         path = os.fspath(save_path)
         parent = os.path.dirname(os.path.abspath(path))
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         # 108 point 6, through the one writer -- and the style still wins
         # where it has an opinion. THE EXTENSION IS THE CALLER'S: this is the
         # headless renderer and its `save_path` is a filename someone chose,

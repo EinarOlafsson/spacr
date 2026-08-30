@@ -448,8 +448,7 @@ class RoiSet:
         target = os.path.abspath(str(path))
         try:
             parent = os.path.dirname(target)
-            if parent:
-                os.makedirs(parent, exist_ok=True)
+            os.makedirs(parent, exist_ok=True)
             with open(target, 'w', encoding='utf-8') as handle:
                 json.dump(self.as_dict(), handle, indent=2)
         except OSError as exc:
