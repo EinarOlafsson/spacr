@@ -245,6 +245,27 @@ def test_making_nothing_transparent_is_not_an_error(qapp):
     assert tuple(qapp.topLevelWidgets()) == before
 
 
+def test_a_none_is_skipped_without_stopping_the_widgets_after_it(qtbot):
+    """Callers pass a widget that may not have been built yet.
+
+    ``make_transparent`` is variadic and screens call it with a whole layout at
+    once -- header, splitter, scroll area. One of those can legitimately be
+    None on a screen that builds its header lazily, and the guard is a
+    ``continue`` precisely so the containers listed after it are still tagged.
+    Were it a ``break`` or an early return the backdrop would be buried by
+    whichever container happened to follow the None in the argument list.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    after = QWidget()
+    qtbot.addWidget(after)
+    assert not after.property(theme.TRANSPARENT_PROPERTY)
+
+    theme.make_transparent(None, after)
+
+    assert after.property(theme.TRANSPARENT_PROPERTY) is True
+
+
 def test_a_scroll_area_with_no_viewport_still_gets_tagged(qtbot):
     """The area itself is tagged even when the half that paints is gone."""
     area = _ViewportlessScrollArea()

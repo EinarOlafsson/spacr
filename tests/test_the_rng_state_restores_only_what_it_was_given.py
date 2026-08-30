@@ -71,11 +71,14 @@ def test_a_capture_carrying_one_generator_restores_only_that_one(keep):
     )
 
 
-def test_a_capture_with_none_for_a_generator_skips_it():
+def test_a_capture_with_none_for_a_generator_leaves_it_running():
     """The guards test ``is not None``, not mere presence.
 
     A payload round-tripped through JSON or a partially written checkpoint can
-    carry the key with a null value, and ``random.setstate(None)`` raises.
+    carry the key with a null value, and ``random.setstate(None)`` raises. But
+    not raising is only half the contract: skipping has to leave the live
+    generator exactly where it was, because a run resuming from such a
+    checkpoint keeps drawing from it.
     """
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
@@ -86,13 +89,13 @@ def test_a_capture_with_none_for_a_generator_skips_it():
     assert all(_same_state(name, before[name], after[name])
                for name in ("python", "numpy", "torch"))
 
-
 @pytest.mark.parametrize("state", [None, {}])
-def test_no_capture_at_all_is_a_no_op(state):
+def test_no_capture_at_all_leaves_every_generator_untouched(state):
     """The early return: include_rng=False writes no rng_state.
 
     Resuming such a checkpoint is legitimate -- the user asked not to carry
-    generator state -- so this must be silence rather than a complaint.
+    generator state -- so this must be silence rather than a complaint, and
+    the generators must keep the state the process already had.
     """
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
@@ -102,7 +105,6 @@ def test_no_capture_at_all_is_a_no_op(state):
 
     assert all(_same_state(name, before[name], after[name])
                for name in ("python", "numpy", "torch"))
-
 
 # ---------------------------------------------------------------------------
 # restore_training_state — the pieces a payload may not carry
