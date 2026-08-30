@@ -664,7 +664,7 @@ class FigureQueue(QWidget):
             from ..theme import make_transparent
 
             make_transparent(self._view, self._view.viewport())
-        except Exception:               # pragma: no cover - theme absent
+        except Exception:
             pass
         # Right-click anywhere on the figure, or on a thumbnail, to restyle
         # it. Without this the panel had one button and three controls, and
@@ -725,7 +725,7 @@ class FigureQueue(QWidget):
 
             make_transparent(self, self._stack, self._canvas_host, self._list,
                              self._list.viewport())
-        except Exception:               # pragma: no cover - theme absent
+        except Exception:
             pass
         self._canvas = None
         self._canvas_toolbar = None
@@ -1642,7 +1642,7 @@ class FigureQueue(QWidget):
             # must happen before ``deleteLater`` below.
             try:
                 canvas._draw_pending = False
-            except Exception:  # pragma: no cover - backend changed/already gone
+            except Exception:
                 pass
             # The toolbar's own connection ids, then anything else left on
             # the registry: a stale callback of any kind is a crash here.
@@ -1652,7 +1652,7 @@ class FigureQueue(QWidget):
                 if cid is not None:
                     try:
                         canvas.mpl_disconnect(cid)
-                    except Exception:  # pragma: no cover - already gone
+                    except Exception:
                         pass
             # Anything else still bound to the two dying widgets. Disconnected
             # through mpl_disconnect rather than by clearing the registry:
@@ -1667,7 +1667,7 @@ class FigureQueue(QWidget):
                                         "__self__", None)
                         if owner is not None and id(owner) in doomed:
                             canvas.mpl_disconnect(cid)
-            except Exception:  # pragma: no cover - registry shape changed
+            except Exception:
                 pass
         for widget in (toolbar, canvas):
             if widget is not None:
@@ -1675,7 +1675,7 @@ class FigureQueue(QWidget):
                     self._canvas_layout.removeWidget(widget)
                     widget.setParent(None)
                     widget.deleteLater()
-                except Exception:  # pragma: no cover - already destroyed
+                except Exception:
                     pass
         self._canvas = None
         self._canvas_toolbar = None

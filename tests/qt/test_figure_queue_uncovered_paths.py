@@ -288,3 +288,108 @@ def test_eviction_reports_success_even_when_pyplot_will_not_close(queue, monkeyp
     finally:
         monkeypatch.undo()
         plt.close(fig)
+
+
+# ---------------------------------------------------------------------------
+# Building the panel when the theme helper is unavailable.
+# ---------------------------------------------------------------------------
+
+def test_a_panel_still_builds_when_the_theme_helper_refuses(qtbot, monkeypatch):
+    """The pragmas at figure_queue.py:667 and :728.
+
+    ``make_transparent`` is called twice while the panel is being laid out --
+    once for the view and once for the four containers that would otherwise
+    bury the backdrop. A screen that threw halfway through its own
+    ``_build_ui`` would take its host down with it, and the user would see no
+    figure panel at all rather than an opaque one. An opaque panel is the
+    correct degradation: it shows every figure, it just does not let the
+    wallpaper through.
+    """
+    import spacr.qt.theme as theme
+
+    def refuse(*_args, **_kwargs):
+        raise RuntimeError("the theme module is not importable here")
+
+    monkeypatch.setattr(theme, "make_transparent", refuse)
+    widget = FigureQueue()
+    qtbot.addWidget(widget)
+    # Built, and usable: the parts the theme call sits between are all here.
+    assert widget._view is not None
+    assert widget._stack is not None
+    assert widget._list is not None
+
+
+# ---------------------------------------------------------------------------
+# Tearing the live canvas down, which must not raise whatever state it is in.
+# ---------------------------------------------------------------------------
+
+class _DeadCanvas:
+    """A canvas whose every teardown step fails the way a dead one does.
+
+    Each refusal mirrors a real post-mortem state: ``_draw_pending`` cannot be
+    set on a backend that has changed shape, ``mpl_disconnect`` raises once the
+    C++ side is gone, and the callback registry is matplotlib's own structure
+    which a version bump may rearrange.
+    """
+
+    figure = None
+
+    class _Registry:
+        @property
+        def callbacks(self):
+            raise RuntimeError("the callback registry is not a dict any more")
+
+    def __init__(self):
+        self.callbacks = self._Registry()
+
+    def __setattr__(self, name, value):
+        if name == "_draw_pending":
+            raise AttributeError("this backend has no _draw_pending")
+        object.__setattr__(self, name, value)
+
+    def mpl_disconnect(self, _cid):
+        raise RuntimeError("the C++ object behind this canvas is already gone")
+
+
+class _DeadToolbar:
+    """A toolbar still advertising connection ids that cannot be undone."""
+
+    _id_press = 1
+    _id_release = 2
+    _id_drag = 3
+
+
+def test_tearing_down_a_dead_canvas_never_raises(queue):
+    """The pragmas at figure_queue.py:1645, :1655, :1670 and :1678.
+
+    ``_teardown_canvas`` runs on the way to showing the NEXT figure, and from
+    ``_show_raster``. If it raised, one canvas that had already lost its C++
+    side would stop every later figure from being displayed -- the panel would
+    go quiet for the rest of the run. So each of its four steps swallows, and
+    the postcondition that matters is that the queue ends up with no canvas at
+    all, ready to build a fresh one.
+    """
+    queue._canvas = _DeadCanvas()
+    queue._canvas_toolbar = _DeadToolbar()
+
+    queue._teardown_canvas()            # must not raise
+
+    assert queue._canvas is None
+    assert queue._canvas_toolbar is None
+
+
+def test_tearing_down_with_no_canvas_is_a_no_op(queue):
+    """The guard above all four handlers, so the test before it means something."""
+    queue._canvas = None
+    queue._canvas_toolbar = None
+    queue._teardown_canvas()
+    assert queue._canvas is None
+
+
+def test_showing_the_raster_tears_the_canvas_down(queue):
+    """The caller that makes the refusal paths reachable in ordinary use."""
+    queue._canvas = _DeadCanvas()
+    queue._canvas_toolbar = _DeadToolbar()
+    queue._show_raster()
+    assert queue._canvas is None
+    assert queue._stack.currentIndex() == 0
