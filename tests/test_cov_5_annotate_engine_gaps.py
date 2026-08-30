@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 import time
 import types
 
@@ -19,9 +20,9 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PIL import Image  # noqa: E402
+from PIL import Image                                          # noqa: E402
 
-from spacr.qt import annotate_engine as AE  # noqa: E402
+from spacr.qt import annotate_engine as AE                     # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -269,7 +270,8 @@ def test_a_filter_for_a_channel_that_does_not_exist_is_ignored():
     rather than added -- an unknown key in the bounds map is read later as a
     filter nothing can satisfy.
     """
-    from spacr.qt.annotate_engine import empty_object_filters, normalize_object_filters
+    from spacr.qt.annotate_engine import (empty_object_filters,
+                                          normalize_object_filters)
 
     bounds = normalize_object_filters(
         {"a_channel_that_was_never_defined": (1, 2)})
@@ -284,7 +286,8 @@ def test_a_filter_whose_value_is_not_a_pair_is_ignored():
     unset -- taking the run down because one saved bound was written by an
     older spaCR would make the settings file a liability.
     """
-    from spacr.qt.annotate_engine import FILTER_CHANNELS, filter_key, normalize_object_filters
+    from spacr.qt.annotate_engine import (FILTER_CHANNELS, filter_key,
+                                          normalize_object_filters)
 
     key = filter_key(FILTER_CHANNELS[0], "area")
 

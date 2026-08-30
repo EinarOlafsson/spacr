@@ -1153,3 +1153,28 @@ arc, which is why they are reliable while the aggregate is not.
     A tool that silently could not answer a whole CLASS of question is the
     same failure as a coverage run that silently loses a worker: the number
     it gives is right, and it is not the number you asked for.
+
+25. annotate_engine.py:870 -- `if not tokens` AFTER AN EMPTY-TEXT CHECK
+    ---------------------------------------------------------------------
+    `parse_image_type`:
+
+        text = (expression or "").strip()
+        if not text:
+            return "", []
+        tokens = _tokenise_image_type(text)
+        if not tokens:            # 870 -- never True
+            return "", []
+
+    `_tokenise_image_type` returns [] for whitespace only, and whitespace has
+    already been stripped away by the check above it. Enumerated: ",,,"
+    tokenises to [',,,'], "()" to ['(', ')'], "\x00" to ['\x00'], "*" to
+    ['*'] -- every non-whitespace input produces at least one token, and
+    every whitespace input is gone before line 869.
+
+    Family 1 again. Not removed: unlike section 18's sixteen copies this is a
+    single site, and the tokeniser is the kind of function that grows a rule
+    -- the day it learns to drop a token class is the day this guard starts
+    mattering. Recorded instead, with a test that pins WHY it cannot fire: a
+    stray comma is read as a literal to match on, which finds nothing and
+    says so by showing nothing, rather than raising a syntax message about a
+    character the user did not mean to type.
