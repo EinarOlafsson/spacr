@@ -1141,7 +1141,6 @@ def test_canonical_literal_introducers_never_reach_model_blocks():
     for key in (
         "spacr.align", "spacr.convert", "spacr.custom_features",
         "spacr.qt.synthetic", "spacr.runctx.random_state",
-        "spacr.resources.home.versions._generators.render",
     ):
         blocks, _layout = translatable_blocks(docs[key])
         assert not any(block.rstrip().endswith("::") for block in blocks), key
@@ -1182,7 +1181,6 @@ def test_canonical_indented_literal_shapes_are_never_translation_blocks():
     forbidden = {
         "spacr.classify_classes": '{"infected":',
         "spacr.mask_io": 'np.save("foo_mask.npy"',
-        "spacr._v1_v2_bridge.report_disk_savings": "v1 ≈ 4 × merged",
         "spacr.pipeline_v2": "→ renamed + split into channel folders",
         "spacr.qt": "python -m spacr.qt",
         "spacr.qt.verbose_logger.log_call": "[class.func] args=",

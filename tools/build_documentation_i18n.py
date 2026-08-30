@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import fnmatch
 import hashlib
 import inspect
 import json
@@ -100,9 +101,30 @@ API_EXACT_TEXT_ALLOWLIST = frozenset({
     "spacr.hits.HitList.flag_counts",
     "spacr.macro.MacroStep.entry",
     "spacr.qt.widgets.plate_layout.PlateDesign.shape",
-    "spacr.resources.home.versions._generators.common.app_map",
     "spacr.run_compare.HitList.by_key",
     "spacr.schema.field_index",
+})
+
+# Keep this byte-for-byte aligned with ``docs/source/conf.py:autoapi_ignore``.
+# These trees never produce rendered AutoAPI pages, so admitting their prose
+# into the translation inventory creates source hashes no reader can reach.
+AUTOAPI_IGNORE = (
+    "*/tests/*",
+    "*/qt/tutorial/*",
+    "*/resources/*/_generators/*",
+    "*/qt/i18n_catalogs/*",
+)
+
+# AutoAPI also omits the Qt launcher and leading-underscore compatibility
+# module. ``run_without_setup`` is a console target intentionally absent from
+# the package's rendered members even though it lives in an otherwise-rendered
+# module. Together these account for six formerly extracted entries.
+AUTOAPI_NON_RENDERED_MODULES = frozenset({
+    "spacr.qt.__main__",
+    "spacr._v1_v2_bridge",
+})
+AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
+    "spacr.qt.run_without_setup",
 })
 
 # AutoAPI renders the value of these documented public string constants behind
@@ -4084,29 +4106,41 @@ def _additional_assignment_docs(
     return docs
 
 
+def _is_rendered_autoapi_entry(
+    path: Path,
+    module: str,
+    key: str | None = None,
+) -> bool:
+    """Whether ``path``/``key`` can appear in the rendered AutoAPI pages."""
+    source_path = path.as_posix()
+    if any(fnmatch.fnmatch(source_path, pattern) for pattern in AUTOAPI_IGNORE):
+        return False
+    if module in AUTOAPI_NON_RENDERED_MODULES:
+        return False
+    return key not in AUTOAPI_NON_RENDERED_SYMBOLS
+
+
 def public_docstrings() -> dict[str, str]:
     """Extract every canonical or exact-alias body visible in AutoAPI."""
     docs: dict[str, str] = {}
     for path in sorted((ROOT / "spacr").rglob("*.py")):
-        if any(
-            part in {"tests", "__pycache__", "backup_icons"}
-            for part in path.parts
-        ):
-            continue
-        # These are generated translation payloads, not Python API.  Including
-        # their module headers makes every locale regeneration stale every API
-        # locale and needlessly exposes generator metadata in the API picker.
-        if "i18n_catalogs" in path.parts:
+        module = _module_name(path)
+        if not _is_rendered_autoapi_entry(path, module):
             continue
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (SyntaxError, UnicodeDecodeError):
             continue
-        module = _module_name(path)
         module_doc = _clean_doc(tree)
         if module_doc:
             docs[module] = module_doc
-        docs.update(_additional_assignment_docs(tree.body, module))
+        docs.update({
+            key: text
+            for key, text in _additional_assignment_docs(
+                tree.body, module,
+            ).items()
+            if _is_rendered_autoapi_entry(path, module, key)
+        })
         for node in _module_scope_nodes(tree.body):
             if not isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
@@ -4119,12 +4153,22 @@ def public_docstrings() -> dict[str, str]:
             if not visible:
                 continue
             key = f"{module}.{node.name}"
+            if not _is_rendered_autoapi_entry(path, module, key):
+                continue
             doc = _autoapi_class_doc(node) if isinstance(
                 node, ast.ClassDef,
             ) else _clean_doc(node)
             _merge_source_doc(docs, key, doc)
             if isinstance(node, ast.ClassDef):
-                docs.update(_additional_assignment_docs(node.body, key))
+                docs.update({
+                    child_key: text
+                    for child_key, text in _additional_assignment_docs(
+                        node.body, key,
+                    ).items()
+                    if _is_rendered_autoapi_entry(
+                        path, module, child_key,
+                    )
+                })
                 for child in _module_scope_nodes(node.body):
                     if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         continue
@@ -4133,7 +4177,11 @@ def public_docstrings() -> dict[str, str]:
                     ):
                         continue
                     child_doc = _clean_doc(child)
-                    _merge_source_doc(docs, f"{key}.{child.name}", child_doc)
+                    child_key = f"{key}.{child.name}"
+                    if _is_rendered_autoapi_entry(
+                        path, module, child_key,
+                    ):
+                        _merge_source_doc(docs, child_key, child_doc)
     for alias, canonical in API_DOC_ALIASES.items():
         if alias in docs:
             raise ValueError(

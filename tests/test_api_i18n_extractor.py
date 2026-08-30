@@ -37,17 +37,31 @@ def _sha256_lines(lines) -> str:
 def _source_nodes():
     """Yield public source nodes using the same package-name convention."""
     for path in sorted((ROOT / "spacr").rglob("*.py")):
-        if any(
-            part in {"tests", "__pycache__", "backup_icons", "i18n_catalogs"}
-            for part in path.parts
-        ):
+        module = builder._module_name(path)
+        if not builder._is_rendered_autoapi_entry(path, module):
             continue
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (SyntaxError, UnicodeDecodeError):
             continue
-        module = builder._module_name(path)
         yield path, module, tree
+
+
+def _conf_assignment(name: str):
+    """Return one literal assignment from the Sphinx configuration."""
+    tree = ast.parse((ROOT / "docs" / "source" / "conf.py").read_text(
+        encoding="utf-8",
+    ))
+    for node in tree.body:
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        if any(
+            isinstance(target, ast.Name) and target.id == name
+            for target in targets
+        ):
+            return ast.literal_eval(node.value)
+    raise AssertionError(f"docs/source/conf.py has no {name}")
 
 
 def _visible_special_members() -> set[str]:
@@ -756,7 +770,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ``source_running``, ``node_id``, ``zoom`` and ``graph``. The callable
     # scanner/extractor cross-check independently proves its formerly missing
     # FlowView/fractal 21 are now present with byte-equal source content.
-    expected = 8805
+    # -107 non-rendered entries: 16 from the ignored Qt tutorial, 85 from
+    # ignored resource generators, one Qt launcher module, four compatibility
+    # bridge entries, and the CLI-only ``qt.run_without_setup`` function.
+    expected = 8698
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -771,7 +788,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8924
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8817
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -779,6 +796,32 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert "spacr.logging_util.LevelSetFilter.filter" not in docs
     assert "spacr.qt.widgets.gate_spec.Gate.columns" not in docs
     assert "spacr.qt.widgets.gate_spec.Gate.kind" not in docs
+
+
+def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
+    docs = builder.public_docstrings()
+
+    assert builder.AUTOAPI_IGNORE == tuple(_conf_assignment("autoapi_ignore"))
+    assert builder.AUTOAPI_NON_RENDERED_MODULES == {
+        "spacr.qt.__main__",
+        "spacr._v1_v2_bridge",
+    }
+    assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
+        "spacr.qt.run_without_setup",
+    }
+
+    assert not any(key.startswith("spacr.qt.tutorial") for key in docs)
+    assert not any(
+        key.startswith("spacr.resources.home.versions._generators")
+        for key in docs
+    )
+    assert "spacr.qt.__main__" not in docs
+    assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
+    assert "spacr.qt.run_without_setup" not in docs
+
+    # The audited pre-filter inventory was 8,924: 101 configured-ignore keys
+    # plus the six explicit exposure exceptions above are now absent.
+    assert 8_924 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

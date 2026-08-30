@@ -1944,7 +1944,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    assert len(docs) == 8_924
+    # 8,924 minus the audited 107 entries that AutoAPI never renders:
+    # 101 from configured ignore paths and six CLI/compatibility entries.
+    assert len(docs) == 8_817
     assert len(rendered_documented_callables) == 7_303
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
