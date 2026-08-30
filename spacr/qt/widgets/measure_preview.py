@@ -1248,17 +1248,18 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return _rounded_pixmap(pixmap, radius=8)
 
     def _on_thumb_clicked(self, index: int) -> None:
+        if not 0 <= index < len(self._crops):
+            return
         if index in self._selected:
             self._selected.discard(index)
         else:
             self._selected.add(index)
-        if 0 <= index < len(self._crops):
-            entry = self._crops[index]
-            selected = (
-                f" · {len(self._selected)} selected" if self._selected else "")
-            self._status.setText(
-                f"label {entry['label']} · {entry['area']} px² · "
-                f"{entry.get('category', '')}{selected}")
+        entry = self._crops[index]
+        selected = (
+            f" · {len(self._selected)} selected" if self._selected else "")
+        self._status.setText(
+            f"label {entry['label']} · {entry['area']} px² · "
+            f"{entry.get('category', '')}{selected}")
 
     def current_params(self) -> dict:
         values = self.settings_for_propagation()
