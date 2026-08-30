@@ -596,6 +596,7 @@ worth deleting.
 
 --------------------------------------------------------------------------------
 10. A MODEL-NAME CHECK THAT CAN NEVER FIRE  (lane: spacr/model_check.py)
+    [FIXED 2026-08-30]
 --------------------------------------------------------------------------------
 
 spacr/model_check.py:173-181 reads
@@ -635,6 +636,14 @@ tests/test_the_model_check_cannot_currently_name_an_unknown_model.py, including
 an assertion that the import itself fails. Those tests must be UPDATED when the
 check is given a real source, not deleted -- they are the record that makes the
 change a fix rather than a regression.
+
+FIXED in ``ec4bee23``. The click-time checker now asks TorchVision's own
+``list_models`` registry and falls back to the lightweight curated settings
+inventory when TorchVision is absent or its registry raises. A misspelling such
+as ``maxvit_tt`` is refused before training, while ``maxvit_t`` and
+``resnet50`` remain accepted. The tests were updated in place, not deleted,
+and also pin both fallback paths; 34 model-check tests pass, with the separate
+malformed-classes contract still recorded independently below.
 
 --------------------------------------------------------------------------------
 11. AN UNKNOWN ORGANELLE PROPERTY LOSES WHICH ORGANELLE IT WAS
