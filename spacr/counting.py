@@ -195,7 +195,10 @@ class CountingSession:
         return self._layers[key]
 
     def class_for_shortcut(self, key: str) -> Optional[str]:
-        """The class a keystroke selects, or ``None``."""
+        """The class a keystroke selects, or ``None``.
+
+        :param key: keyboard shortcut to look up.
+        """
         for entry in self._classes:
             if entry.shortcut and entry.shortcut == str(key):
                 return entry.name
@@ -221,7 +224,10 @@ class CountingSession:
     # -- counting --------------------------------------------------------
     def add(self, world: Mapping[str, float],
             name: Optional[str] = None) -> int:
-        """Place a marker at a world point; returns its index in its layer."""
+        """Place a marker at a world point; returns its index in its layer.
+
+        :param world: world-axis coordinates at which to place the marker.
+        """
         key = self._check_class(name)
         index = self._layers[key].add_world(world)
         self._history.append(('add', key, self._layers[key].data[index].copy()))
@@ -230,6 +236,8 @@ class CountingSession:
     def find(self, world: Mapping[str, float]
              ) -> Optional[Tuple[str, int]]:
         """The ``(class, index)`` of the marker under a world point, if any.
+
+        :param world: world-axis coordinates to search around.
 
         Searched over every class, not just the active one, and the topmost
         class wins a tie. Clicking a marker means "that one", whatever it was
@@ -243,7 +251,10 @@ class CountingSession:
         return None
 
     def remove_at(self, world: Mapping[str, float]) -> Optional[Tuple[str, int]]:
-        """Take away the marker under a world point; returns what went."""
+        """Take away the marker under a world point; returns what went.
+
+        :param world: world-axis coordinates whose marker should be removed.
+        """
         found = self.find(world)
         if found is None:
             return None
@@ -257,6 +268,8 @@ class CountingSession:
     def toggle(self, world: Mapping[str, float],
                name: Optional[str] = None) -> Tuple[str, str, int]:
         """One click: remove the marker there, or place one if there is none.
+
+        :param world: world-axis coordinates to remove from or add at.
 
         :returns: ``(action, class, index)`` where ``action`` is ``'added'`` or
             ``'removed'``.
@@ -320,6 +333,8 @@ class CountingSession:
 
     def fraction(self, name: str) -> float:
         """A class's share of the total, or 0.0 when nothing is counted.
+
+        :param name: counted class whose share is requested.
 
         The number a manual count is usually for — "42% infected" — computed
         rather than divided by hand, and 0.0 rather than a ZeroDivisionError on
@@ -407,6 +422,8 @@ class CountingSession:
 
     def load_frame(self, frame) -> int:
         """Put a previously exported count back on the canvas; returns how many.
+
+        :param frame: marker table containing class and world-axis columns.
 
         Classes the session does not have are added as it goes, so reopening
         somebody else's count does not require declaring their classes first.

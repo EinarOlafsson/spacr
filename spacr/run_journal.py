@@ -530,6 +530,9 @@ class Run:
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
 
+        :param name: human-readable key under which to record the model.
+        :param checkpoint_path: model checkpoint file to fingerprint.
+
         Records ``"<filename>:<digest>"`` in ``model_hashes``. An unreadable
         checkpoint is only logged and leaves no entry at all; any other
         failure is also appended to ``provenance_warnings``, so it reaches
@@ -605,7 +608,10 @@ class Run:
             return None
 
     def set_status(self, status: str) -> None:
-        """Explicitly stamp ``status`` (``success`` / ``failed`` / …)."""
+        """Explicitly stamp ``status`` (``success`` / ``failed`` / …).
+
+        :param status: lifecycle state to store on the run.
+        """
         self.status = status
 
     def record_warning(self, message: Any) -> None:
@@ -1481,7 +1487,10 @@ def journal_totals() -> Dict[str, int]:
 
 
 def load_run_settings(run_dir: Path) -> Dict[str, Any]:
-    """Read a run's ``settings.json`` (falling back to settings.csv)."""
+    """Read a run's ``settings.json`` (falling back to settings.csv).
+
+    :param run_dir: journal run directory containing the settings files.
+    """
     run_dir = Path(run_dir)
     j = run_dir / "settings.json"
     if j.exists():
@@ -1615,6 +1624,9 @@ def _normalize_str(s: str, depth: int = 0) -> Any:
 def values_equal(a: Any, b: Any) -> bool:
     """True when ``a`` and ``b`` mean the same thing.
 
+    :param a: first settings value to compare after normalisation.
+    :param b: second settings value to compare after normalisation.
+
     Compares :func:`_normalize_value` output structurally, falling back
     to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
     to produce a bool (numpy-style elementwise comparison, etc.) — and
@@ -1633,6 +1645,8 @@ def values_equal(a: Any, b: Any) -> bool:
 
 def resolve_run_dir(ref: Any) -> Path:
     """Turn a run reference into a run-folder :class:`~pathlib.Path`.
+
+    :param ref: run object, directory path, run id, or unambiguous id prefix.
 
     Accepts, in order of preference:
 

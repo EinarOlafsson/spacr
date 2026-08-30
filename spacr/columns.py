@@ -44,6 +44,8 @@ CUTOFF = 0.6
 class ColumnNotFound(KeyError):
     """A named column is absent, and the message says what is present.
 
+    :param message: human-readable explanation returned for the exception.
+
     A KeyError subclass so existing `except KeyError` paths still catch it,
     and so `settings['x']` failures and this one read the same way to a
     caller that does not care which it was.
@@ -99,13 +101,18 @@ def headers(paths) -> Dict[str, List[str]]:
 
 
 def missing(paths) -> List[str]:
-    """The paths that could not be read. The other half of :func:`headers`."""
+    """The paths that could not be read. The other half of :func:`headers`.
+
+    :param paths: one CSV path, a sequence of paths, or None.
+    """
     readable = headers(paths)
     return [path for path in _as_paths(paths) if path not in readable]
 
 
 def available(paths) -> List[str]:
     """Every column across ``paths``, in order, without duplicates.
+
+    :param paths: one CSV path, a sequence of paths, or None.
 
     Across, not per file: `score_data` is routinely a list of one CSV per
     plate with identical headers, and a user choosing a column does not care
@@ -122,6 +129,9 @@ def available(paths) -> List[str]:
 def suggest(name, columns: Iterable[str]) -> List[str]:
     """Column names close to ``name``, best first.
 
+    :param name: missing column name for which to find near-matches.
+    :param columns: available column names to search.
+
     Case-insensitive, because `Prediction` for `prediction` is a typo nobody
     should have to see spelled out.
     """
@@ -137,6 +147,9 @@ def suggest(name, columns: Iterable[str]) -> List[str]:
 def describe(name, paths, *, what: str = "column",
              setting: str = "") -> str:
     """The sentence to print or raise when ``name`` is not there.
+
+    :param name: missing column name to explain.
+    :param paths: CSV paths whose headers should be reported.
 
     Names the setting, the files that were read, the near-misses and then
     every column. Long on purpose: this is the message that decides whether

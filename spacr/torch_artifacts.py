@@ -24,7 +24,10 @@ ARTIFACT_VERSION = 1
 
 
 def model_configuration(model: nn.Module) -> dict[str, Any]:
-    """Return the constructor information required to rebuild ``model``."""
+    """Return the constructor information required to rebuild ``model``.
+
+    :param model: module whose reconstruction settings should be captured.
+    """
     return {
         "model_name": getattr(model, "model_name", model.__class__.__name__),
         "num_classes": int(getattr(model, "num_classes", 1)),
@@ -63,7 +66,10 @@ def capture_rng_state() -> dict[str, Any]:
 
 
 def restore_rng_state(state: Mapping[str, Any] | None) -> None:
-    """Restore a state returned by :func:`capture_rng_state`."""
+    """Restore a state returned by :func:`capture_rng_state`.
+
+    :param state: captured generator states, or ``None`` for a no-op.
+    """
     if not state:
         return
     if state.get("python") is not None:
@@ -77,7 +83,11 @@ def restore_rng_state(state: Mapping[str, Any] | None) -> None:
 
 
 def atomic_torch_save(payload: Any, path: str) -> str:
-    """Write ``payload`` beside ``path`` and atomically replace the target."""
+    """Write ``payload`` beside ``path`` and atomically replace the target.
+
+    :param payload: object to serialize with :func:`torch.save`.
+    :param path: destination artifact path to replace atomically.
+    """
     path = os.path.abspath(os.fspath(path))
     parent = os.path.dirname(path)
     os.makedirs(parent, exist_ok=True)
@@ -181,7 +191,11 @@ def make_model_artifact(
 
 
 def save_model_artifact(model: nn.Module, path: str, **kwargs) -> str:
-    """Build and atomically save a canonical spaCR model artifact."""
+    """Build and atomically save a canonical spaCR model artifact.
+
+    :param model: module whose configuration and state should be saved.
+    :param path: destination artifact path.
+    """
     return atomic_torch_save(make_model_artifact(model, **kwargs), path)
 
 
@@ -198,7 +212,10 @@ def _legacy_configuration(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
-    """Reconstruct a :class:`TorchModel` without downloading pretrained weights."""
+    """Reconstruct a :class:`TorchModel` without pretrained weights.
+
+    :param config: recorded model-constructor settings.
+    """
     from .utils import TorchModel
 
     return TorchModel(

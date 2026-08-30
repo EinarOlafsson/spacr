@@ -195,6 +195,12 @@ class PreprocessingContext:
     def __init__(self, *, file_name: str, channels: Sequence[int],
                  settings: Mapping[str, Any], volumetric: bool = False,
                  spacing: Optional[Sequence[float]] = None) -> None:
+        """Build the context passed to one preprocessing hook.
+
+        :param file_name: field stem identifying the source array.
+        :param channels: source channel indices in array-axis order.
+        :param settings: run settings to expose through a read-only view.
+        """
         self.file_name = file_name
         self.channels = tuple(int(c) for c in channels)
         self.settings = _read_only(settings)
@@ -240,6 +246,13 @@ class RegionContext:
     def __init__(self, *, object_type: str, file_name: str, mask: np.ndarray,
                  settings: Mapping[str, Any],
                  spacing: Optional[Sequence[float]] = None) -> None:
+        """Build the context passed to one region-filter hook.
+
+        :param object_type: object class represented by the mask.
+        :param file_name: field stem identifying the source array.
+        :param mask: label mask to expose through a read-only array view.
+        :param settings: run settings to expose through a read-only view.
+        """
         self.object_type = object_type
         self.file_name = file_name
         mask = np.asarray(mask)
