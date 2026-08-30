@@ -62,29 +62,24 @@ def test_the_longest_role_prefix_wins():
     assert entry.object_type == "organelleb"
 
 
-def test_an_unknown_property_under_a_known_role_loses_which_organelle_it_was():
-    """The ``break`` after a role matched but the property did not.
+@pytest.mark.parametrize(
+    "role", ("organelle", "organelleb", "organellec", "organelled"))
+def test_an_unknown_property_keeps_which_organelle_it_belongs_to(role):
+    """The matched role survives when the property itself is unrecognised.
 
     Breaking rather than continuing is right -- the role IS matched, so trying
-    shorter prefixes could only mis-attribute it. But the fall-through then
-    hard-codes ``object_type="organelle"``, so an unrecognised property under
-    ``organelleb`` comes back attributed to ``organelle``.
-
-    Pinned as CURRENT BEHAVIOUR, not endorsed. The column name is preserved in
-    full, so nothing is lost that cannot be recovered -- but a report grouping
-    unknown features by object_type will file this one under the wrong
-    organelle. It matters only for properties spaCR does not know, which is why
-    it has gone unnoticed, and it is recorded in instruction 310.
+    shorter prefixes could only mis-attribute it. The fallback must carry that
+    role into the unknown entry so a report groups a custom property under the
+    object that actually produced it.
     """
     from spacr.feature_dict import _parse_organelle_summary
 
-    entry = _parse_organelle_summary(
-        "organelle_summary_organelleb_a_property_that_does_not_exist")
+    column = f"organelle_summary_{role}_a_property_that_does_not_exist"
+    entry = _parse_organelle_summary(column)
 
     assert entry is not None
-    assert entry.column == (
-        "organelle_summary_organelleb_a_property_that_does_not_exist")
-    assert entry.object_type == "organelle"      # NOT organelleb -- see above
+    assert entry.column == column
+    assert entry.object_type == role
 
 
 def test_a_summary_name_with_an_unrecognised_role_runs_the_loop_out():
