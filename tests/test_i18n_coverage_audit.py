@@ -18,8 +18,8 @@ REVIEWED_RUNTIME_COUNTS = {
     "hi": 67, "ko": 183, "is": 73, "fr": 56,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 182, "de": 124, "es": 27, "zh_CN": 151, "pt": 131,
-    "hi": 85, "ko": 117, "is": 599, "fr": 117,
+    "sv": 182, "de": 125, "es": 27, "zh_CN": 151, "pt": 131,
+    "hi": 85, "ko": 117, "is": 602, "fr": 118,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -141,7 +141,7 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-08-30.md").read_text(
         encoding="utf-8",
     )
-    assert len(docs) == 8_899
+    assert len(docs) == 8_817
     for language, runtime_expected in REVIEWED_RUNTIME_COUNTS.items():
         api_expected = REVIEWED_API_BLOCK_COUNTS[language]
         reviewed_api = api_builder.reviewed_api_block_translations(
