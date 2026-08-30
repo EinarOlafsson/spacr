@@ -46,6 +46,10 @@ from __future__ import annotations
 import logging
 import os
 import re
+import sys
+import threading
+import time
+import weakref
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -106,6 +110,26 @@ TRACK_COLOURS: Tuple[Tuple[int, int, int], ...] = (
 )
 
 
+# These weak sets let the process-wide memory policy discover already-loaded
+# preview caches without importing this comparatively heavy module and without
+# keeping a closed preview alive.
+_LIVE_FRAME_SEQUENCES: "weakref.WeakSet[FrameSequence]" = weakref.WeakSet()
+_LIVE_PREVIEW_PANELS: "weakref.WeakSet[TimelapsePreviewPanel]" = \
+    weakref.WeakSet()
+
+
+def _live_cache_owners():
+    """Decoded-frame and derived-mask caches that still have real owners."""
+    return tuple(_LIVE_FRAME_SEQUENCES) + tuple(_LIVE_PREVIEW_PANELS)
+
+
+def _ensure_cache_budget_sweep() -> None:
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
+
+
 class TrackerUnavailable(RuntimeError):
     """A linking backend cannot run here, with an actionable reason.
 
@@ -155,6 +179,8 @@ class FrameSequence:
         self.label = label or str(source)
         self._cache: "dict[int, np.ndarray]" = {}
         self._cache_order: List[int] = []
+        self._cache_last_used: Dict[int, float] = {}
+        self._cache_lock = threading.RLock()
         self._cache_size = max(1, int(cache_size))
         self._memmap = None
         self.read_count = 0
@@ -249,16 +275,60 @@ class FrameSequence:
         if not (0 <= i < len(self.indices)):
             raise IndexError(i)
         real = self.indices[i]
-        hit = self._cache.get(real)
-        if hit is not None:
-            return hit
+        with self._cache_lock:
+            hit = self._cache.get(real)
+            if hit is not None:
+                self._cache_last_used[real] = time.time()
+                return hit
         arr = self._read(real)
         self.read_count += 1
-        self._cache[real] = arr
-        self._cache_order.append(real)
-        while len(self._cache_order) > self._cache_size:
-            self._cache.pop(self._cache_order.pop(0), None)
+        with self._cache_lock:
+            self._cache[real] = arr
+            if real in self._cache_order:
+                self._cache_order.remove(real)
+            self._cache_order.append(real)
+            self._cache_last_used[real] = time.time()
+            while len(self._cache_order) > self._cache_size:
+                old = self._cache_order.pop(0)
+                self._cache.pop(old, None)
+                self._cache_last_used.pop(old, None)
         return arr
+
+    def _cache_budget_entries(self):
+        """Measured decoded-frame entries for the process-wide policy."""
+        if not self._cache_lock.acquire(blocking=False):
+            return []
+        now = time.time()
+        try:
+            return [
+                (real, max(0, int(frame.nbytes)),
+                 float(self._cache_last_used.get(real, now)), False)
+                for real, frame in list(self._cache.items())
+            ]
+        finally:
+            self._cache_lock.release()
+
+    def _register_cache_budget(self) -> None:
+        """Publish this sequence after its worker hands it to the GUI thread."""
+        _LIVE_FRAME_SEQUENCES.add(self)
+        _ensure_cache_budget_sweep()
+
+    def _drop_cache_budget_entry(self, real) -> bool:
+        """Forget one decoded frame; the source can reproduce it exactly."""
+        if not self._cache_lock.acquire(blocking=False):
+            return False
+        real = int(real)
+        try:
+            existed = real in self._cache
+            self._cache.pop(real, None)
+            self._cache_last_used.pop(real, None)
+            try:
+                self._cache_order.remove(real)
+            except ValueError:
+                pass
+            return existed
+        finally:
+            self._cache_lock.release()
 
     def _read(self, real: int) -> np.ndarray:
         if self.kind == "files":
@@ -1051,6 +1121,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._raw_tracks = None
         self._stats: Optional[TrackStats] = None
         self._mask_cache: Dict[tuple, np.ndarray] = {}
+        self._mask_cache_last_used: Dict[tuple, float] = {}
         self._movie_fields: Dict[str, Dict[str, Any]] = {}
         self._movie_sources: List[str] = []
         self._movie_pending_path: Optional[str] = None
@@ -1078,6 +1149,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         # Bounded, reproducible sample of the folder's sequences — the
         # dropdown never lists a whole plate. See ImageSetSampler.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        _LIVE_PREVIEW_PANELS.add(self)
+        _ensure_cache_budget_sweep()
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
@@ -1445,12 +1518,14 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     def _install_sequence(self, path, seq) -> bool:
         """Adopt an already-opened sequence and redraw."""
         self._reset_movie_fields(clear_panel=True)
+        seq._register_cache_budget()
         self._sequence = seq
         self._masks = None
         self._movie_images = None
         self._tracked = None
         self._tracks = None
         self._mask_cache.clear()
+        self._mask_cache_last_used.clear()
         self._path_label.setText(seq.describe())
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
@@ -1581,8 +1656,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self._status.setText(f"Mask load failed: {e}")
             return False
         self._mask_sequence = seq
+        seq._register_cache_budget()
         self._masks = None
         self._mask_cache.clear()
+        self._mask_cache_last_used.clear()
         if self._sequence is None:
             self._frame_slider.setMaximum(max(0, len(seq) - 1))
             self._frame_slider.setValue(0)
@@ -1668,6 +1745,34 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         }
 
     # -- cache key ---------------------------------------------------------
+
+    def _cache_budget_entries(self):
+        """Derived mask stacks retained for re-linking under new settings.
+
+        The stack currently drawn, and one a worker is currently re-linking,
+        are pinned. Older segmentation signatures are reproducible caches and
+        can be evicted independently.
+        """
+        now = time.time()
+        worker_key = (self._pending_signature
+                      if self._worker is not None else None)
+        return [
+            (key, max(0, int(value.nbytes)),
+             float(self._mask_cache_last_used.get(key, now)),
+             value is self._masks or key == worker_key)
+            for key, value in list(self._mask_cache.items())
+        ]
+
+    def _drop_cache_budget_entry(self, key) -> bool:
+        """Drop one inactive segmentation result chosen by the policy."""
+        value = self._mask_cache.get(key)
+        if value is None or value is self._masks:
+            return False
+        if self._worker is not None and key == self._pending_signature:
+            return False
+        self._mask_cache.pop(key, None)
+        self._mask_cache_last_used.pop(key, None)
+        return True
 
     def _segmentation_signature(self) -> tuple:
         """Everything that can change a *label image*, and nothing else.
@@ -1761,6 +1866,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         sig = self._segmentation_signature()
         cached = self._mask_cache.get(sig)
+        if cached is not None:
+            self._mask_cache_last_used[sig] = time.time()
         if cached is None and not allow_segmentation:
             self.set_preview_busy(False)
             self._status.setText(
@@ -1872,6 +1979,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         sig = getattr(self, "_pending_signature", None)
         if sig is not None:
             self._mask_cache[sig] = masks
+            self._mask_cache_last_used[sig] = time.time()
         note = ("Masks built + linked" if result.get("masks_built")
                 else "Re-linked (cached masks)")
         self._apply_tracks(result["tracks"], note=note)

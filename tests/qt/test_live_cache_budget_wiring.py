@@ -262,3 +262,216 @@ def test_a_cache_retries_registration_after_qapplication_construction():
         text=True, timeout=20,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_decoded_timelapse_frames_are_measured_idle_and_reproducible(
+        qapp, tmp_path):
+    from spacr.qt import resource_cleanup
+    from spacr.qt.widgets.timelapse_preview import FrameSequence
+
+    path = tmp_path / "frame.npy"
+    expected = np.arange(48, dtype=np.uint16).reshape(6, 8)
+    np.save(path, expected)
+    sequence = FrameSequence("files", [path], 1, [0])
+    sequence._register_cache_budget()
+    assert np.array_equal(sequence.frame(0), expected)
+    now = time.time()
+    sequence._cache_last_used[0] = now - 61
+
+    assert sequence in resource_cleanup._loaded_cache_owners()
+    result = resource_cleanup.sweep_memory_budget(
+        now=now,
+        idle_minutes=1,
+        ceiling_mb=10_000,
+        headroom_short=False,
+        owners=(sequence,),
+    )
+
+    assert 0 not in sequence._cache
+    assert result.before_mb == pytest.approx(expected.nbytes / 1024 ** 2)
+    assert np.array_equal(sequence.frame(0), expected)
+    assert sequence.read_count == 2
+
+
+def test_derived_mask_cache_pins_the_displayed_result(qtbot):
+    from spacr.qt import resource_cleanup
+    from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+
+    panel = TimelapsePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    old_key, current_key = ("old",), ("current",)
+    old = np.zeros((2, 8, 8), dtype=np.int32)
+    current = np.ones((2, 8, 8), dtype=np.int32)
+    panel._mask_cache.update({old_key: old, current_key: current})
+    panel._masks = current
+    now = time.time()
+    panel._mask_cache_last_used.update({
+        old_key: now - 61,
+        current_key: now - 61,
+    })
+
+    result = resource_cleanup.sweep_memory_budget(
+        now=now,
+        idle_minutes=1,
+        ceiling_mb=10_000,
+        headroom_short=False,
+        owners=(panel,),
+    )
+
+    assert old_key not in panel._mask_cache
+    assert panel._mask_cache[current_key] is current
+    assert len(result.retained_in_use) == 1
+    panel.shutdown()
+
+
+def test_composited_movie_frames_rebuild_byte_identically(qtbot):
+    from spacr.qt import resource_cleanup
+    from spacr.qt.widgets.timelapse_movie import FovMovie
+
+    movie = FovMovie()
+    qtbot.addWidget(movie)
+    images = np.stack((
+        np.arange(64, dtype=np.uint8).reshape(8, 8),
+        np.arange(64, dtype=np.uint8).reshape(8, 8)[::-1],
+    ))
+    movie.set_sequence(images)
+    key = (0, True, True)
+    expected = movie._cache[key].copy()
+    now = time.time()
+    for cached_key in movie._cache:
+        movie._cache_last_used[cached_key] = now - 61
+
+    assert movie in resource_cleanup._loaded_cache_owners()
+    resource_cleanup.sweep_memory_budget(
+        now=now,
+        idle_minutes=1,
+        ceiling_mb=10_000,
+        headroom_short=False,
+        owners=(movie,),
+    )
+
+    assert key not in movie._cache
+    assert np.array_equal(movie._rendered(0), expected)
+
+
+def test_the_real_warm_outline_model_obeys_the_budget(monkeypatch):
+    from spacr.qt import annotate_engine, resource_cleanup
+
+    class Parameter:
+        def numel(self):
+            return 256
+
+        def element_size(self):
+            return 4
+
+    class Network:
+        def parameters(self):
+            return [Parameter(), Parameter()]
+
+        def buffers(self):
+            return [Parameter()]
+
+    class Model:
+        net = Network()
+
+    model = Model()
+    now = time.time()
+    monkeypatch.setattr(annotate_engine, "_cellpose_outline_model", model)
+    monkeypatch.setattr(
+        annotate_engine, "_cellpose_outline_last_used", now - 61)
+    monkeypatch.setattr(annotate_engine, "_cellpose_outline_in_use", 1)
+
+    rows = annotate_engine.cache_budget_entries()
+    model_row = next(row for row in rows if row[0][0] == "model")
+    assert model_row[1] == 3 * 256 * 4
+    pinned = resource_cleanup.sweep_memory_budget(
+        now=now,
+        idle_minutes=1,
+        ceiling_mb=10_000,
+        headroom_short=False,
+        owners=(annotate_engine,),
+    )
+    assert annotate_engine._cellpose_outline_model is model
+    assert pinned.retained_in_use
+
+    annotate_engine._cellpose_outline_in_use = 0
+    released = resource_cleanup.sweep_memory_budget(
+        now=now,
+        idle_minutes=1,
+        ceiling_mb=10_000,
+        headroom_short=False,
+        owners=(annotate_engine,),
+    )
+    assert annotate_engine._cellpose_outline_model is None
+    assert released.dropped
+
+
+def test_cuda_allocator_cache_obeys_idle_age_and_ceiling(monkeypatch):
+    from spacr.qt import resource_cleanup
+
+    mib = 1024 * 1024
+
+    class Cuda:
+        def __init__(self):
+            self.reserved = [48 * mib, 48 * mib]
+            self.allocated = [8 * mib, 8 * mib]
+            self.clears = 0
+
+        def is_available(self):
+            return True
+
+        def is_initialized(self):
+            return True
+
+        def device_count(self):
+            return 2
+
+        def memory_reserved(self, device):
+            return self.reserved[device]
+
+        def memory_allocated(self, device):
+            return self.allocated[device]
+
+        def empty_cache(self):
+            self.clears += 1
+            self.reserved = list(self.allocated)
+
+    cuda = Cuda()
+    fake_torch = type("Torch", (), {"cuda": cuda})()
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setattr(resource_cleanup, "_a_run_is_active", lambda: False)
+    monkeypatch.setattr(resource_cleanup, "_CUDA_CACHE_BYTES", None)
+    monkeypatch.setattr(resource_cleanup, "_CUDA_CACHE_LAST_USED", 0.0)
+
+    first = resource_cleanup.sweep_memory_budget(
+        now=100.0,
+        idle_minutes=1,
+        ceiling_mb=1_000,
+        headroom_short=False,
+        owners=(),
+    )
+    assert first.vram_freed == 0
+    assert cuda.clears == 0
+
+    idle = resource_cleanup.sweep_memory_budget(
+        now=161.0,
+        idle_minutes=1,
+        ceiling_mb=1_000,
+        headroom_short=False,
+        owners=(),
+    )
+    assert idle.vram_freed == 80 * mib
+    assert cuda.clears == 1
+
+    cuda.reserved = [48 * mib, 48 * mib]
+    resource_cleanup._CUDA_CACHE_BYTES = None
+    resource_cleanup._CUDA_CACHE_LAST_USED = 0.0
+    capped = resource_cleanup.sweep_memory_budget(
+        now=200.0,
+        idle_minutes=600,
+        ceiling_mb=64,
+        headroom_short=False,
+        owners=(),
+    )
+    assert capped.vram_freed == 80 * mib
+    assert cuda.clears == 2

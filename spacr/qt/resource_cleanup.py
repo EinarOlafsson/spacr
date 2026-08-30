@@ -102,13 +102,10 @@ __all__ = [
 ACTIONS: Tuple[str, ...] = ("ram", "vram", "cpu", "disk")
 
 #: Callables that release a model reference spaCR itself is holding, each
-#: returning how many it released. Empty, and the emptiness is a finding:
-#: spaCR builds its Cellpose and torch models *inside* the run function and
-#: drops them when the run ends, so between runs there is no long-lived
-#: model to release and ``empty_cache()`` is the whole of the reclaim. The
-#: hook exists so that a screen which starts caching a warm model has one
-#: obvious place to say so, rather than this module growing a list of
-#: attribute names to go rummaging for.
+#: returning how many it released.  Most pipeline models are run-scoped.  A
+#: screen that deliberately keeps another warm model registers it here; the
+#: built-in Annotate outline model is also discovered from its already-loaded
+#: module so cleanup never imports Cellpose merely to ask whether it is warm.
 MODEL_RELEASERS: List[Callable[[], int]] = []
 
 #: Modules whose ``functools.lru_cache``-decorated functions are spaCR's own
@@ -321,6 +318,24 @@ def _torch_if_loaded():
     return sys.modules.get("torch")
 
 
+def _cuda_stat(torch, name: str) -> int:
+    """Sum one allocator statistic across already-available CUDA devices."""
+    getter = getattr(torch.cuda, name)
+    try:
+        count = max(1, int(torch.cuda.device_count()))
+    except Exception:                                       # noqa: BLE001
+        count = 1
+    if count == 1:
+        return int(getter())
+    try:
+        return sum(int(getter(device)) for device in range(count))
+    except TypeError:
+        # Small test doubles and old compatible torch builds may expose only
+        # the no-argument form.  It still measures the current device rather
+        # than turning a cleanup into an import or context initialisation.
+        return int(getter())
+
+
 def cuda_reserved() -> Optional[int]:
     """Bytes the CUDA caching allocator holds for this process, or ``None``.
 
@@ -335,9 +350,32 @@ def cuda_reserved() -> Optional[int]:
     try:
         if not torch.cuda.is_available() or not torch.cuda.is_initialized():
             return None
-        return int(torch.cuda.memory_reserved())
+        return _cuda_stat(torch, "memory_reserved")
     except Exception:
         LOG.debug("could not read CUDA reserved memory", exc_info=True)
+        return None
+
+
+def _cuda_cached() -> Optional[int]:
+    """Bytes in torch's loaded CUDA allocator that no tensor is using.
+
+    This is the part :func:`torch.cuda.empty_cache` can honestly return.
+    ``memory_reserved - memory_allocated`` deliberately excludes live tensor
+    storage, so the budget never calls an allocation "cache" merely because
+    torch owns it.  Like :func:`cuda_reserved`, this imports nothing and does
+    not initialise a CUDA context.
+    """
+    torch = _torch_if_loaded()
+    if torch is None:
+        return None
+    try:
+        if not torch.cuda.is_available() or not torch.cuda.is_initialized():
+            return None
+        reserved = _cuda_stat(torch, "memory_reserved")
+        allocated = _cuda_stat(torch, "memory_allocated")
+        return max(0, reserved - allocated)
+    except Exception:
+        LOG.debug("could not read CUDA cached memory", exc_info=True)
         return None
 
 
@@ -374,7 +412,9 @@ def _loaded_cache_owners():
             owners.append(module)
     for module_name, accessor_name in (
             ("spacr.qt.crop_thumbs", "live_thumbnail_caches"),
-            ("spacr.qt.widgets.figure_queue", "live_figure_queues")):
+            ("spacr.qt.widgets.figure_queue", "live_figure_queues"),
+            ("spacr.qt.widgets.timelapse_preview", "_live_cache_owners"),
+            ("spacr.qt.widgets.timelapse_movie", "_live_cache_owners")):
         module = sys.modules.get(module_name)
         accessor = getattr(module, accessor_name, None)
         if not callable(accessor):
@@ -397,8 +437,15 @@ def _collect_budget_entries(owners=None):
     errors: List[str] = []
     for owner in tuple(_loaded_cache_owners() if owners is None else owners):
         label = _owner_label(owner)
+        inventory = (getattr(owner, "cache_budget_entries", None)
+                     or getattr(owner, "_cache_budget_entries", None))
+        dropper = (getattr(owner, "drop_cache_budget_entry", None)
+                   or getattr(owner, "_drop_cache_budget_entry", None))
+        if not callable(inventory) or not callable(dropper):
+            errors.append(f"{label}: cache-budget protocol is incomplete")
+            continue
         try:
-            rows = owner.cache_budget_entries()
+            rows = inventory()
         except Exception as exc:                               # noqa: BLE001
             errors.append(f"{label}: inventory failed ({exc})")
             LOG.debug("could not inventory %s", label, exc_info=True)
@@ -411,8 +458,8 @@ def _collect_budget_entries(owners=None):
                 if len(key_label) > 160:
                     key_label = key_label[:157] + "..."
 
-                def _drop(owner=owner, key=key):
-                    return bool(owner.drop_cache_budget_entry(key))
+                def _drop(dropper=dropper, key=key):
+                    return bool(dropper(key))
 
                 records.append(_BudgetEntry(
                     token=token,
@@ -462,17 +509,61 @@ def _a_run_is_active() -> bool:
         return True
 
 
+# The allocator exposes no "last kernel finished" timestamp.  Observing its
+# reclaimable byte count on the existing five-second sweep is the honest
+# substitute: a change, or any registered run in flight, is activity; an
+# unchanged cache after the run is idle.  These two scalars retain no tensor
+# and therefore cannot become another cache themselves.
+_CUDA_CACHE_BYTES: Optional[int] = None
+_CUDA_CACHE_LAST_USED = 0.0
+
+
+def _observe_cuda_cache(now: float, *, run_active: bool
+                        ) -> Tuple[Optional[int], float]:
+    """Return ``(reclaimable bytes, last activity)`` without importing torch."""
+    global _CUDA_CACHE_BYTES, _CUDA_CACHE_LAST_USED
+    cached = _cuda_cached()
+    if cached is None or cached <= 0:
+        _CUDA_CACHE_BYTES = cached
+        _CUDA_CACHE_LAST_USED = 0.0
+        return cached, 0.0
+    if (run_active or _CUDA_CACHE_BYTES != cached
+            or _CUDA_CACHE_LAST_USED <= 0.0):
+        _CUDA_CACHE_LAST_USED = float(now)
+    _CUDA_CACHE_BYTES = int(cached)
+    return int(cached), float(_CUDA_CACHE_LAST_USED)
+
+
+def _record_cuda_cleanup(now: float) -> None:
+    """Refresh allocator accounting after an attempted policy cleanup."""
+    global _CUDA_CACHE_BYTES, _CUDA_CACHE_LAST_USED
+    cached = _cuda_cached()
+    _CUDA_CACHE_BYTES = cached
+    _CUDA_CACHE_LAST_USED = float(now) if cached else 0.0
+
+
 def _release_models_under_pressure() -> int:
     """Drop registered warm models only when no run can be using them."""
     if _a_run_is_active():
         return 0
     released = 0
-    for releaser in list(MODEL_RELEASERS):
+    for releaser in _loaded_model_releasers():
         try:
             released += max(0, int(releaser() or 0))
         except Exception:                                    # noqa: BLE001
             LOG.debug("a model releaser failed", exc_info=True)
     return released
+
+
+def _loaded_model_releasers():
+    """Known releasers from loaded modules, with no imports or duplicates."""
+    releasers = list(MODEL_RELEASERS)
+    for module_name in ("spacr.qt.annotate_engine",):
+        module = sys.modules.get(module_name)
+        candidate = getattr(module, "_release_cached_models", None)
+        if callable(candidate) and candidate not in releasers:
+            releasers.append(candidate)
+    return tuple(releasers)
 
 
 def sweep_memory_budget(*, now: Optional[float] = None,
@@ -506,6 +597,15 @@ def sweep_memory_budget(*, now: Optional[float] = None,
 
     instant = time.time() if now is None else float(now)
     idle, ceiling = _budget_values(idle_minutes, ceiling_mb)
+    run_active = _a_run_is_active()
+    cuda_bytes, cuda_last_used = _observe_cuda_cache(
+        instant, run_active=run_active)
+    cuda_due = bool(
+        not run_active
+        and cuda_bytes
+        and ((float(cuda_bytes) / (1024.0 * 1024.0)) > ceiling
+             or instant - cuda_last_used >= idle * 60.0)
+    )
     entries, errors = _collect_budget_entries(owners)
     before = sum(row.megabytes for row in entries)
     pinned = [row for row in entries if row.in_use]
@@ -562,16 +662,29 @@ def sweep_memory_budget(*, now: Optional[float] = None,
 
     models_released = 0
     vram_freed = 0
-    if pressure_remaining and len(attempted) < limit and not _a_run_is_active():
+    allocator_attempted = False
+    if (pressure_remaining or cuda_due) and len(attempted) < limit \
+            and not run_active:
+        allocator_attempted = True
+    if pressure_remaining and len(attempted) < limit and not run_active:
         models_released = _release_models_under_pressure()
         # CUDA allocator blocks are reclaimable state too.  This never imports
         # torch or initialises a CUDA context; clear_vram has both guards.
         result = clear_vram(release_models=False)
         vram_freed = result.freed
+        _record_cuda_cleanup(instant)
+    elif cuda_due and len(attempted) < limit and not run_active:
+        # A stable allocator cache obeys the same idle timeout and byte
+        # ceiling as the RAM caches.  Live allocations are excluded by
+        # ``_cuda_cached`` and a registered run pins the allocator wholesale.
+        result = clear_vram(release_models=False)
+        vram_freed = result.freed
+        _record_cuda_cleanup(instant)
 
     pending_normal = any(row.token not in attempted for row in normal)
     pending_pressure = bool(pressure_remaining and remaining)
-    complete = not pending_normal and not pending_pressure
+    pending_cuda = bool(cuda_due and not allocator_attempted)
+    complete = not pending_normal and not pending_pressure and not pending_cuda
     after = max(0.0, before - freed)
     return BudgetSweep(
         before_mb=before,
@@ -798,7 +911,7 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
     details: List[str] = []
     if release_models:
         released = 0
-        for releaser in list(MODEL_RELEASERS):
+        for releaser in _loaded_model_releasers():
             try:
                 released += int(releaser() or 0)
             except Exception:
