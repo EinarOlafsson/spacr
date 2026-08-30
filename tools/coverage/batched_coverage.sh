@@ -69,6 +69,7 @@ for b in "$OUT"/batch_*; do
   nice -n 10 timeout 3600 python -m pytest $(tr '\n' ' ' < "$b") \
       -q -p no:randomly --no-header --timeout=600 --timeout-method=thread \
       -n 4 --cov=spacr --cov-branch --cov-report= --cov-append \
+      -rf \
       >> "$OUT/batch_${n}.log" 2>&1
   echo "  exit=$? :: $(tail -1 "$OUT/batch_${n}.log" | tr -d '\r')"
 done
