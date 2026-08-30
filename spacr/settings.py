@@ -238,8 +238,7 @@ def bundled_barcode_path(kind):
 #
 # The existing `set_default_*` / `get_*_settings` functions are NOT
 # touched and NOT auto-registered: they are reached through the dispatch
-# in `gui_core.setup_settings_panel` and
-# `qt.screens.settings_model.resolve_default_settings`, and mirroring
+# in `qt.screens.settings_model.resolve_default_settings`, and mirroring
 # them here would create a second answer to "what are Mask's defaults?".
 # This registry holds only what registers itself.
 
@@ -1112,9 +1111,9 @@ def set_default_umap_image_settings(settings=None):
     # a user who steps away is left looking at -- was a sheet of cluster
     # panels rather than the graph: "i don't want to see a grid with plots,
     # i want the normal figure view i have in other modules ... no grid at
-    # the end, just normal behaviour". The Tk GUI has always passed False
-    # here (gui_elements._collect_common_settings), so this only makes the
-    # default agree with the one surface that already had it right. The
+    # the end, just normal behaviour". The since-removed Tk GUI always
+    # passed False here, so this made the default agree with the one
+    # surface that already had it right. The
     # figure is one checkbox away for anyone who wants it.
     settings.setdefault('plot_cluster_grids', False)
     settings.setdefault('remove_cluster_noise', True)
@@ -2153,11 +2152,11 @@ def get_perform_regression_default_settings(settings):
     selected, so ``alpha`` is treated as the quantile.
 
     Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]``
-    is filled here. Six were not, and because all three dispatchers (the Tk
-    panel via ``gui_core.setup_settings_panel``, the Qt panel via
-    ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run
-    regression`` via ``cli.module_defaults``) build the dict from this one
-    function, regression could not be started from any entry point: it died on
+    is filled here. Six were not, and because both dispatchers (the Qt
+    panel via ``qt.screens.settings_model.resolve_default_settings`` and
+    ``spacr-run regression`` via ``cli.module_defaults``) build the dict
+    from this one function, regression could not be started from any entry
+    point: it died on
     ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read
     and ``settings/regression.csv`` had been written, so the failure looked
     like a run that had started cleanly.
@@ -4918,8 +4917,7 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
-# How the settings panel is grouped in BOTH GUIs: the Tk category dropdown
-# (gui_core.toggle_settings) and the Qt section boxes
+# How the settings panel is grouped: the Qt section boxes
 # (qt/screens/settings_model.SettingsWidgets.build_sections) read this map and
 # nothing else. One entry = one heading, rendered in the order written here.
 #
