@@ -310,3 +310,23 @@ not an exhaustive prose review, and no exhaustive fluent-speaker review of all
 nine locale catalogs is recorded.  Item 306 therefore remains OPEN and
 release-blocking; the exact reviewed proportions and remainders are in
 ``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
+--------------------------------------------------------------------------------
+PROGRESS 2026-08-30 -- REQUIRED-PARAMETER DEBT REDUCED BY 983
+--------------------------------------------------------------------------------
+
+A source-only docstring sweep added accurate structured descriptions for 983
+previously undocumented required parameters.  Every completed batch was checked
+for zero scoped ghosts, an unchanged docstring-stripped AST, clean compilation
+and focused behavior tests before being committed and pushed.  The exact
+deduplicated ratchet is now 2,730 omissions across 1,976 public callables, with
+digest ``58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef``.
+The 151-method rendered-alias deduction is unchanged and remains independently
+proved by the boundary test.
+
+The remaining debt is concentrated in Qt files currently under the independent
+coverage session and a smaller set of non-Qt files that session has modified.
+Those files were deliberately not edited concurrently.  API catalogs must be
+regenerated from the new source once the current source batches are integrated;
+until that strict source-to-catalog rebuild is green, item 306 remains OPEN and
+release-blocking.

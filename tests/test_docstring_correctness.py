@@ -1808,10 +1808,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     }
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 47
+    ) == 49
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 47
+    ) == 49
     assert sum(len(item.parameters) for item in callables) == 15_873
     assert sum(len(item.required_parameters) for item in callables) == 7_964
     assert _sha256_lines(
@@ -1823,14 +1823,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "3e8f9b3b993c170f23cc5c3543cf092dd66ecc06725600330df9d5b2d4fe765c"
+    ) == "e99c95e3907cadc7a1c2581e43a142ee9385af2602fe06bc0d6c5c27c91e0f0e"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
     # only the headline count while losing the defect classes that motivated
     # the boundary.
-    assert by_symbol["spacr.api.run_mask"].required_parameters == {"config"}
-    assert not PARAM_FIELD.findall(by_symbol["spacr.api.run_mask"].docstring)
+    assert by_symbol["spacr.align.format_plan"].required_parameters == {"plan"}
+    assert not PARAM_FIELD.findall(
+        by_symbol["spacr.align.format_plan"].docstring)
     assert not by_symbol["spacr.layers.LayerStack.add_image"].docstring
     assert by_symbol[
         "spacr.layers.LayerStack.add_image"
@@ -1933,12 +1934,12 @@ def test_no_new_public_callable_lacks_a_docstring():
         for item in _public_callables()
         if item.docless_variant_count
     )
-    assert len(docless) == 678
+    assert len(docless) == 671
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 678
+    ) == 671
     assert _sha256_lines(docless) == (
-        "635e21ba204457a80b0344526d713f4dc164a234f2109f524bc9b4cb0af74c6b"
+        "6bc7dfa7f407095ce5885ab68fb0c1d2ac4eb1a65d1269abf491a8ca5ac01436"
     )
 
 
@@ -2095,10 +2096,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    # 8,924 minus the audited 107 entries that AutoAPI never renders:
+    # 8,931 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_817
-    assert len(rendered_documented_callables) == 7_303
+    assert len(docs) == 8_824
+    assert len(rendered_documented_callables) == 7_310
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2113,7 +2114,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
 
 def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
-    """Freeze the 301 visible fields and the four ordinary counterexamples."""
+    """Freeze the 582 visible fields and four ordinary counterexamples."""
     items = list(_public_callables())
     rendered_docs = _documentation_public_docstrings()
     required_ivars = {
@@ -2135,12 +2136,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 81
-    assert sum(map(len, required_ivars.values())) == 312
-    assert len(generated) == 77
-    assert sum(map(len, generated.values())) == 301
+    assert len(required_ivars) == 139
+    assert sum(map(len, required_ivars.values())) == 593
+    assert len(generated) == 135
+    assert sum(map(len, generated.values())) == 582
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 75,
+        "dataclass_constructor": 133,
         "namedtuple_constructor": 2,
     }
     assert Counter(
@@ -2148,7 +2149,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 291,
+        "dataclass_constructor": 572,
         "namedtuple_constructor": 10,
     }
     assert len(ordinary) == 4
@@ -2161,15 +2162,19 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 66
-    assert sum(bool(names) for names in remaining.values()) == 11
-    assert sum(map(len, remaining.values())) == 46
+    assert sum(not names for names in remaining.values()) == 134
+    assert sum(bool(names) for names in remaining.values()) == 1
+    assert sum(map(len, remaining.values())) == 8
     assert all(
         rendered_docs[symbol] == by_symbol[symbol].docstring
         for symbol in generated
     )
+    # An ordinary constructor's ``:ivar:`` never supplies parameter credit.
+    # It may coexist with a real ``:param:`` field, as FilenameMapper now
+    # deliberately documents both construction and retained state.
     assert all(
-        names <= _missing_required_parameters(by_symbol[symbol])
+        names - _documented_parameter_names(by_symbol[symbol].docstring)
+        <= _missing_required_parameters(by_symbol[symbol])
         for symbol, names in ordinary.items()
     )
 
@@ -2279,8 +2284,8 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 3,713
-    omissions across 2,541 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,730
+    omissions across 1,976 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
     """
@@ -2294,24 +2299,24 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    assert len(omissions) == 3_713
-    assert sum(omitted_callables.values()) == 2_541
+    assert len(omissions) == 2_730
+    assert sum(omitted_callables.values()) == 1_976
     assert omitted_callables == {
-        "function": 1_079,
-        "method": 1_272,
-        "constructor": 51,
-        "dataclass_constructor": 137,
+        "function": 704,
+        "method": 1_155,
+        "constructor": 46,
+        "dataclass_constructor": 69,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_572,
-        "method": 1_533,
-        "constructor": 81,
-        "dataclass_constructor": 515,
+        "function": 1_010,
+        "method": 1_406,
+        "constructor": 68,
+        "dataclass_constructor": 234,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "e174378a235f2da37e42567dc1d9c023cfc266201a15db9fd86b15b32a2a3137"
+        "58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef"
     )
 
 

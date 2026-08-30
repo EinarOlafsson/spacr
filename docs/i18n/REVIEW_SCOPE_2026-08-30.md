@@ -191,16 +191,18 @@ defaults.  Required generated dataclass and NamedTuple fields count an exact
 rendered `:ivar:` description; ordinary callables cannot use that rule.
 Curated AutoAPI aliases count at their canonical target only after signatures
 and rendered prose match exactly, while canonical debt remains counted once.
-After those narrow boundary rules, the reverse-direction ratchet records 3,713
-required parameters without a structured description across 2,541 public
+After those narrow boundary rules, the reverse-direction ratchet records 2,730
+required parameters without a structured description across 1,976 public
 callables.  Its count and digest fail on additions or substitutions; the debt
-is still nonzero.
+is still nonzero.  The 2026-08-30 source-docstring sweep removed 983 exact
+omissions from the preceding 3,713/2,541 baseline while preserving executable
+ASTs and zero scoped ghost fields.
 
 ## Disposition
 
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 3,713 required-parameter omissions are resolved, the
+move to done only after the 2,730 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.
