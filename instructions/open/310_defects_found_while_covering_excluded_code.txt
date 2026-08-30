@@ -1644,3 +1644,392 @@ This pair is classified as a nonreproducible high-pressure rendering symptom,
 not evidence of a loading-screen product defect.  No product or test change
 was made for it; a future recurrence needs fresh process-state evidence rather
 than a speculative pixel or timing allowance.
+
+==============================================================================
+APPENDIX A -- 58 DEFECTS REPORTED BY THE COVERAGE SWEEP (2026-08-30)
+==============================================================================
+
+Found by 79 agents writing tests one module at a time. REPORTED, NOT
+VERIFIED: the sweep's adversarial stage checked that each agent's ARCS moved
+and that its tests were not vacuous. It did not re-derive these defect
+claims. Several carry their own measurements and read as solid; others may
+be misreadings. Treat each as a lead with an address, not as a finding.
+
+They are recorded because an agent that reads a module closely enough to
+cover its branches is the best-placed reader it will get, and throwing that
+away to keep the coverage number clean would be the wrong trade.
+
+A1. spacr/qt/crash_recovery.py:79 (note_that_a_launch_began) together with :100 (note_a_clean_shutdown)
+    WHAT: The unclean-exit test is `os.path.exists(marker)`, which is True for a *directory* at `<logdir>/running.marker`, while `os.remove` at line 100 can never delete one (it raises IsADirectoryError and is swallowed at 103-104). A stale directory at that path — a botched restore, an rsync of a tree, a sync tool that materialises a name as a folder — is therefore permanently interpreted as "the last run died" on every single launch, and no clean shutdown can ever clear it.
+    COST: On such a machine the very first launch already reports 1 unclean exit instead of 0, so the backdrop is dropped one real crash earlier than the documented "two in a row", and the misdiagnosis is self-perpetuating because the marker cannot be removed. The user loses the animated backdrop with no crash having occurred and no setting they can point at. `os.path.isfile(marker)` (and, on the removal side, noticing that the path is not a file) would confine the mechanism to markers it actually wrote. Reported only, not fixed.
+
+A2. spacr/resources/home/versions/_generators/common.py:436-441 (_with_late_registrations)
+    WHAT: The fallback band is matched by exact title string. When no band in `cats` carries that title the loop runs to exhaustion, `missing` is silently discarded and the function returns the table unrepaired -- there is no diagnostic, unlike the loud AssertionError raised a few lines above for retired keys.
+    COST: A typo or a renamed band title turns the documented safety net off without a word. The newly registered app is then absent from the categorisation and `check_coverage` raises `keys not categorised: [...]` at module import of the variant generators, taking all thirty Home renders down -- exactly the failure the function exists to prevent, but now blamed on the wrong place. All four shipped tables currently name a title that exists, so no live breakage today; the risk is the next rename.
+
+A3. spacr/resources/home/versions/_generators/common.py:63-68 (_prefer_checkout_package)
+    WHAT: `package_root` is built from `os.path.normcase(os.path.realpath(root))` but each origin is compared with `os.path.realpath(origin)` only, without `normcase`. The two sides are normalised differently.
+    COST: On a case-insensitive platform (Windows) an already-imported checkout `spacr` whose recorded origin differs in case is judged foreign, so every `spacr*` entry is purged from `sys.modules` and re-imported. Harmless on Linux (normcase is the identity) and self-correcting since the checkout is `sys.path[0]`, but it makes the guard's own test of localness unreliable off-Linux.
+
+A4. spacr/qt/screens/batch.py:841-855 (BatchScreen._load_log), constant at line 90
+    WHAT: The log pane reads the HEAD of the log file, not the tail: `text = handle.read(_LOG_TAIL_BYTES)` opens the file and reads from byte 0 with no `seek(-_LOG_TAIL_BYTES, os.SEEK_END)`. The constant is named `_LOG_TAIL_BYTES` and the code immediately scrolls the pane to the bottom (`bar.setValue(bar.maximum())`), so both the name and the surrounding code state the intent is the tail.
+    COST: For any job whose log exceeds 200 KB - routine for a cellpose mask run - the user is shown the first 200 KB and the pane scrolls to the bottom of that HEAD. The traceback or exit message that explains why the job failed is at the end of the file and is never displayed, and the pane also stops updating (the first 200 KB never change again) so a live job appears frozen. This is exactly the diagnosis path the Batch Runner exists to serve at 3 a.m.
+
+A5. spacr/qt/screens/batch.py:352-369 (BatchScreen.add_job), docstring line 357 vs code line 365
+    WHAT: The docstring says `:param settings: settings file path; the settings box when empty`, but the body passes `settings=settings` straight through with no fallback to `self._settings_edit.text()`. Only `module` has the documented fallback (`module or self._module_combo.currentData()`).
+    COST: A caller that relies on the documented contract - `screen.add_job(module='mask')` after the user has typed a path into the settings box, e.g. from a future keyboard shortcut or a drag-and-drop handler - builds a Job with an empty settings path. `Queue.add` then refuses it with a validation error about a missing settings file rather than queueing the file the user typed, and the user is told their visible input does not exist. Today only `_on_add_clicked` calls it, and that one passes the box text explicitly, so the mismatch is latent.
+
+A6. spacr/qt/widgets/annotation_umap_tab.py:142-184 (AnnotationUmapTab.__init__) vs. 363-383 (guide_table) and 274/329/382 (_score)
+    WHAT: __init__ sets self._frame and self._embedding but never self._controls or self._effects; those two attributes are created only by set_frame(). guide_table() is a public, documented method that reads self._effects, so calling it on a freshly constructed tab raises AttributeError: 'AnnotationUmapTab' object has no attribute '_effects' (verified live). _score() has the same hole on self._controls, reachable for any caller that assigns _frame directly rather than through set_frame().
+    COST: A caller that rebuilds the per-guide table from a stored result -- e.g. restoring a previous run into a newly opened tab, or any code path that populates the frame without going through set_frame -- crashes the panel with an AttributeError instead of showing a table. The two guarded paths in run() (no frame / no cells) hide it today, so it will surface only when someone adds a second entry point.
+
+A7. spacr/qt/theme.py:1732 `_scrim_bounds(palette, role, colour_role, under)`
+    WHAT: The `role` parameter is never read in the body: `base = _channels(palette[colour_role])` and `inks = ... _scrim_rules(colour_role)` use `colour_role` only. The two published solvers this function is documented to reproduce exactly (`legible_scrim_floor`, `present_scrim_ceiling`) use `palette[colour_role or role]` and `_scrim_rules(colour_role or role)`, i.e. they fall back to `role` when `colour_role` is None.
+    COST: No live miscomputation today: the only caller (line 1807) draws `colour_role` from `SCRIM_ROLES`, whose values are all non-None strings. But the equivalence the docstring insists on ('it has to stay exactly them') is not actually replicated: a future caller passing `colour_role=None` -- the documented, supported argument for the public solvers -- would get `KeyError: None` out of the drift solver at import instead of the role's own bounds, and the dead parameter hides that from a reader comparing the three implementations.
+
+A8. spacr/cell_montage.py:1543-1557 (the attribution pre-flight inside select_montage)
+    WHAT: `fractions_by_well` is guide-keyed (built by `_well_guide_fractions`), but `preflight` is called with `name`, which for a gene-level montage is a GENE. `guide_attribution.preflight` therefore never finds it and returns the verdict `"<GENE>: no well carries it."`, which is appended to `notes` and reaches the caption. Reproduced: a gene-level montage with picking='multivariate' over wells r1_c1 (GENE_1=0.4) and r1_c2 (GENE_2=0.5) draws 5 cells from those two wells while plan.notes == ('GENE: no well carries it.',). A guide-level montage on the same data gets a correct verdict, so only gene-level coefficients are affected.
+    COST: Every gene-level montage that uses an attribution picker prints a caption line stating the coefficient is present in no well, directly above the cells it just selected from wells that do carry it. The pre-flight exists to explain an empty montage; here it makes a false statement about a non-empty one, and a reader who believes it will conclude the count data is broken.
+
+A9. spacr/cell_montage.py:1716-1719 vs 1690-1693 and 1713-1715
+    WHAT: When `picking='attributed'` (or 'assigned') meets a well holding exactly one guide, `len(here_fractions) > 1` is False and control falls straight through to 1743 with `picked_by` still 'rank' and no note recorded. The two sibling pickers both disclose their fallback: multivariate sets picked_by to "attributed (this well has one guide, or none of the swept measurements are on the objects)" and sudoku to "sudoku could not run on this screen; fell back to rank".
+    COST: A user who chose attribution gets a well captioned with pure rank arithmetic ("round(1 x 6) = 6, where 1 is this guide's 1 normalised by 1") and nothing anywhere says the picker they selected did not run on that well. In a montage mixing single-guide and multi-guide wells, two wells are chosen by different rules and only one of them says so.
+
+A10. spacr/cell_montage.py:2572-2574 against spacr/crops.py:3564-3573
+    WHAT: `resolve_montage_crop_source` unwraps a bare list/tuple `src` to its first element, but `resolve_crop_source` unwraps only inside its Mapping branch. A bare list therefore reaches `_looks_like_experiment_root(str(src))` as the Python repr of the list. Verified: `resolve_montage_crop_source([root])` for a root holding merged/*.npy returns available=False with reason "no crop source available for /mnt/firecuda2/codex/repo/spacr/['/tmp/.../plate1']", while the same root as a plain string or as {'src': [root]} resolves to the merged source.
+    COST: A caller that passes src as a list -- the shape the wrapper's own code at 2573 is written for -- gets "no crop source available" for a run whose crops are present, and the message quotes a path built from a list repr joined onto the current working directory, which points a user at a folder that does not exist and cannot exist.
+
+A11. spacr/core.py:250-253 (preprocess_generate_masks, the `consolidate` block) via spacr/utils.py:10710 (generate_image_path_map)
+    WHAT: The consolidate block assumes `settings['src']` is a single string, but it runs BEFORE the str->list normalisation at 255-256 and after line 180, which preserves a list. With the documented plural form (`src` = list of plate folders) plus `consolidate=True`, `generate_image_path_map(settings['src'])` calls `os.walk(<list>)` and the run dies with `TypeError: expected str, bytes or os.PathLike object, not list`. Reproduced directly: src=[p1, p2], consolidate=True, masks=False. `os.path.join(settings['src'], 'consolidated')` at 253 would fail the same way for the same reason.
+    COST: Two documented settings that are each individually supported (the docstring says src is 'str or list of str' and consolidate 'copy nested images into src/consolidated') cannot be combined. The user gets an os.walk TypeError that names neither `src` nor `consolidate`, before any plate is processed, with no indication that dropping to one folder at a time is the workaround.
+
+A12. spacr/parameter_sweep.py:369-375 (_named_control_rows)
+    WHAT: The control's effect/q/p are read from `frame.loc[hit].iloc[0]` -- the FIRST row in table order that matches the alias -- while `{alias}_rank` is computed from `position.idxmax()` on the effect-sorted table, i.e. the BEST-ranked match. When an alias matches more than one guide (the normal case: controls={'positive': 'gra14'} matches gra14_1, gra14_2, ...), the two halves of the same row describe different guides. Verified: DataFrame(grna=['gra14_1','other_1','gra14_2'], coefficient=[0.02,0.5,0.95], q_value=[0.99,0.02,0.005]) returns {'positive_rank': 1, 'positive_effect': 0.02, 'positive_q': 0.99}.
+    COST: A sweep row reports the positive control at rank 1 with q=0.99 and effect 0.02. rank_trials/summarise_sweep then rank that setting top on a rank belonging to a guide whose effect and q the row does not show, so a user picks a configuration on evidence that is not in the row they are reading.
+
+A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
+    WHAT: The `error.txt` write in run_sweep's `except Exception` handler is unguarded, while the identical write on the parallel path (_execute_trial, lines 964-969) is wrapped in `try/except OSError: pass`. An OSError from that open (read-only or full destination) is raised from inside the handler, aborting the whole sweep.
+    COST: One trial failing on a destination that cannot be written turns a recorded failed row into a crash that ends the sweep and loses every row after it. Same family as the already-xfailed defect for run_sweep's every-trial CSV write (tests/test_cov_w2_5_parameter_sweep.py::test_a_csv_that_cannot_be_written_does_not_stop_the_sweep), but a separate unguarded write.
+
+A14. spacr/volcano_style.py:683-692, _annotate
+    WHAT: When a labelled point's y value falls inside the break of a split axis (outside every panel's ylim), the `for panel in panels` loop falls through and the label is annotated onto `panels[0]` at data coordinates outside that panel's y range. Annotations are created with clip_on=True, so the text is clipped away entirely. Verified by drawing: with split_y_lims=((0,2),(5,10)) and a point at y=3.5, the annotation's window extent comes back at y 0-1 while the panel occupies y 596-845 -- the text is present in `panels[0].texts` but paints nothing.
+    COST: A user who explicitly types a guide into the annotation list on a broken-axis volcano gets no label and no message; the label is silently swallowed rather than clamped to the nearest panel edge or reported as unplottable. Low severity (the point itself is also hidden by the break), but the `target = axis` fall-through is effectively a no-op that reads like a deliberate fallback.
+
+A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
+    WHAT: The guard `if frame[DERIVED_GROUP].nunique() < 1: return None` cannot fire for any real figure. The group column is built only from `_named()`, which returns either a non-empty stripped tick label or `f"{float(x):g}"` -- always a str, never NaN -- and line 1531 has already guaranteed at least 2 rows, so nunique() is >= 1 by construction. It is a dead guard of the kind tests/test_a_guard_no_input_could_reach_is_gone.py exists to catch.
+    COST: No user-visible misbehaviour, but the branch is unreachable from any figure: I could only close it by monkeypatching `_pairs_from_axes` to return NaN group names. A reader maintaining this function is told nameless groups are a real case that must be handled, and any future change to `_named` that CAN return NaN would be silently relying on a guard nobody has ever exercised with real data.
+
+A16. spacr/regression_qc.py:2683-2735 `_panel_p_value_histogram` together with `diagnose_p_value_histogram` (line 833: `np.histogram(p, bins=n_bins, range=(0.0, 1.0))`)
+    WHAT: Finite p-values outside [0, 1] are silently discarded by the fixed histogram range, and only the non-finite ones are guarded against (`if finite.size == 0: raise PanelUnavailable`). Feeding `coef_df` a `p_value` column of `[3.0, 7.0, 12.0]` gives `n == 0`, `verdict == 'too-few'`, message 'only 0 p-value(s)', `frac_below_0.05 == nan`, an empty histogram and no uniform reference line -- with no complaint anywhere that three values were supplied and all three were thrown away.
+    COST: A caller who wires the wrong column into `coef_df` (a test statistic, a -log10 p, a chi2) gets the panel's 'too few coefficients to read a shape' limitation stamped on the report for a screen with thousands of coefficients. The report then states a coefficient count that contradicts the table it was built from, and the reader concludes the model is small rather than that the input is not p-values. The panel's own reason for existing -- catching a mis-specified null -- is silently unavailable.
+
+A17. spacr/qt/mask_engine.py:733-753, magic_wand()
+    WHAT: The max_pixels budget counts only pixels that CHANGE state (added is incremented at 743-746 only when a zero pixel is added or a nonzero pixel is erased), so a flood that changes nothing is completely unbounded. Erasing where the mask is already empty, or adding over ground the mask already owns, walks every in-tolerance pixel in the frame no matter how small max_pixels is.
+    COST: A mis-click with the erase wand on background -- the most ordinary wrong click there is -- freezes the Make Masks screen for the whole BFS. Measured here: an 800x800 uniform field with max_pixels=100 took 4.8 s of pure-Python BFS over all 640,000 pixels (the same call on a mask where pixels do change returns in 0.001 s). Cost scales with frame area, so a 2048x2048 field is roughly half a minute of an unresponsive GUI with no way to cancel.
+
+A18. spacr/qt/widgets/measure_preview.py:823-830 (_on_max_sets_changed) together with ImageSetSampler.describe in spacr/qt/widgets/preview_controls.py:855-869
+    WHAT: The guard `if self.sample_note():` is meant to stop an empty sample sentence from blanking the status line, but `describe()` never returns an empty string -- with nothing enumerated it returns "showing all 0 image sets". Verified live: a fresh panel with no array loaded, status line set to "2 object(s) . 1 category", then `_on_max_sets_changed(7)` leaves status == "Showing all 0 image sets".
+    COST: Nudging the FOV-cap spinbox before an array is loaded (or after a load failed) wipes whatever the status line was saying -- the crop count, or the sentence explaining why the last pass could not run -- and replaces it with a sentence about a folder that was never listed. The False side of the guard is dead code in production; my test had to substitute `apply_sample_to_combo` to exercise it.
+
+A19. spacr/qt/widgets/measure_preview.py:1248-1259 (_on_thumb_clicked)
+    WHAT: The selection set is toggled BEFORE the `0 <= index < len(self._crops)` range check, so an out-of-range index is still added to `self._selected`. Verified: with 2 crops loaded, `_on_thumb_clicked(99)` leaves `99 in panel._selected`.
+    COST: A click delivered by a thumbnail that a newer, shorter crop pass has outlived inflates the "N selected" count on the status line and puts a phantom index into `current_params()["selected"]`, which then disagrees with `n_crops`. Low severity today (`_on_crops_ready` clears the set on every pass and nothing in spacr/ consumes `current_params()`), but the range check clearly intended to reject the click entirely.
+
+A20. spacr/figures/scene.py:1186-1205, _add_legend
+    WHAT: The entry texts are FILTERED (`if body:` skips a legend text whose string is empty) but they are then paired with the unfiltered handle list: `for entry, handle in zip(entries, legend.legend_handles)`. Every surviving label after a blank one is therefore zipped against the handle of the previous entry, so the swatch beside it is the wrong series' colour. Measured: `axes.legend(handles=[red_line, blue_line], labels=["", "kept"])` translates to a single row labelled 'kept' drawn with pen #ff0000 -- the RED line's colour -- although 'kept' is the blue series. The same shift applies to every entry after the blank one when there are more.
+    COST: A pyqtgraph-rendered panel prints a key that names a series in another series' colour, which is the one failure a legend exists to prevent, and it is silent: the translation reports itself complete and the matplotlib page (which is correct) is not written. Reachable whenever a panel passes explicit `handles=`/`labels=` with a blank spacer label, which is how three of the QC panels build their legends.
+
+A21. spacr/qt/widgets/picture_settings_dialog.py:337-339 (_say_what_the_cap_costs, early return on an empty cost)
+    WHAT: When montage_cap_cost() answers "" -- which it does for any cap that is not a positive count, and the cap QSpinBox's range starts at 0 -- the method returns without touching the label, so the PREVIOUS cap's cost sentence stays on the tooltip. Verified: a dialog opened at cap=2000 and then set to 0 still shows 'about 287 MB of crops held while the tab is open' beside a box reading 0.
+    COST: The help beside the cap prices a limit the control no longer holds. A user who clears the box (or passes through 0 while retyping) reads a page count, a memory figure and a cut time that belong to a number they have just replaced, and nothing on screen says the figures are stale.
+
+A22. spacr/qt/widgets/picture_settings_dialog.py:238-241 (the cap live-pricing connection) with a non-int stored cap
+    WHAT: A settings blob that stores cap as a decimal (e.g. 2000.0 round-tripped through a float column) builds a QDoubleSpinBox, which is not a QSpinBox, so valueChanged is never connected. Verified: with values={'cap': 12.5} the label prices '12 objects' at build time and keeps saying 12 after the control is dragged to 30.0; values()['cap'] then returns 30.0, a float, where every other reader of this setting expects a count.
+    COST: For that user the cost line silently freezes at whatever the file held -- it never again describes the cap they are choosing -- and the dialog hands the montage a float cap. The guard correctly keeps the window openable; the missing part is any signal that the live pricing is off.
+
+A23. spacr/qt/ai/providers.py:147-151 (terminate_all_streams) and 222-226 (_stream_process finally)
+    WHAT: After the escalation calls proc.kill() there is no follow-up proc.wait(), unlike ChatProvider.cancel_stream() (lines 93-97) which does wait after kill.
+    COST: A vendor CLI child that ignored SIGTERM is SIGKILLed but never reaped, so it stays a zombie for the life of the GUI process and Popen.__del__ emits a ResourceWarning about a still-running child. On a long session with several stuck streams the zombies accumulate.
+
+A24. spacr/qt/ai/providers.py:152-158 (terminate_all_streams)
+    WHAT: When proc.terminate() raises (e.g. OSError for a pid the OS refuses), the exception is swallowed by the outer `except Exception: pass` but the finally still removes the entry from _LIVE_STREAMS.
+    COST: A child that is still running but momentarily unsignallable is dropped from the registry, so a later terminate_all_streams() (or the autouse shutdown at app exit) can never reach it again -- exactly the blocked-reader-thread-outlives-its-owner situation this registry exists to prevent. Confirmed by test_a_child_that_cannot_be_signalled_does_not_strand_the_others: the unreachable child is left running yet the registry ends up empty.
+
+A25. spacr/report.py:812-816, _collect_run_status (the `if isinstance(failure, dict)` guard)
+    WHAT: A run-status stamp whose `failures` list holds bare strings instead of {item, stage, error} records (a hand-written sidecar, or one from an older writer) has those entries silently dropped: the count line says "2 of 3 item(s) failed" but only the dict-shaped failure gets a bullet, and the string's text appears nowhere in the HTML or the text/PDF rendering.
+    COST: A reader of the shared report sees a failure count with fewer -- possibly zero -- explanations than there were failures, and has no way to tell that the reasons were withheld. The module's stated rule is that failure goes at the top; here part of the failure evidence is read off disk and then thrown away without a note.
+
+A26. spacr/report.py:1657-1699, _collect_appendix (the `elif families:` fall-through at 1663)
+    WHAT: When a measurements database exists but describes nothing -- e.g. a run killed before Measure wrote a table, so describe_database returns an empty frame -- _feature_dictionary returns no families and no error, and the appendix emits nothing at all about that database: no "Measured features" heading, no note, no mention of the file by name (verified: section.notes == [] and 'Measured features' not in body).
+    COST: The appendix looks identical to one built for a folder that has no database, contradicting the module's own rule that "a missing section is stated, never omitted". A reader cannot distinguish "the database holds no measurements" from "there is no database", which is exactly the partial-run-forwarded-as-complete failure the report exists to prevent.
+
+A27. spacr/qt/widgets/fast_plots.py:2344-2370, FastPlot._gap_for_split
+    WHAT: The height of the axis break is summed over EVERY drawn item instead of being measured once over the range that is kept: `span += ...` accumulates each entry's below-band and above-band spread, so the gap grows with the number of items on the plot rather than with the data. Measured: one scatter spanning y=1..3 with a split at (10, 100) gives _split_gap == 0.12; three identical scatters over the same y=1..3 give 0.36.
+    COST: A volcano draws several scatter layers (hits, non-hits, controls) over the same y range, so the break is painted three or more times taller than the documented 6% of what is kept -- it eats the vertical space the split exists to give back, and the same data redrawn as one layer instead of three produces a visibly different figure.
+
+A28. spacr/sequencing.py:1054-1064, generate_barecode_mapping sample loop
+    WHAT: With mode='single', only the exact strings 'R1' and 'R2' bind R1/R2 (lines 1057-1062). Any other spelling -- e.g. the lower-case 'r2' a user types into the settings -- falls straight through to the call at 1064 with R1 and R2 unbound, raising `NameError: name 'R1' is not defined`. There is no validation of single_direction anywhere: set_default_generate_barecode_mapping only does settings.setdefault('single_direction', 'R1').
+    COST: A one-character settings typo kills the sample with an exception that names neither the setting nor the sample, after os.makedirs at line 1045 has already created <src>/<sample>_single_<direction>/ -- so the user is left with an empty sample folder and a NameError about a local variable. Under an on_error policy that continues past a failed sample, every sample fails identically and the run finishes with an empty output folder and nothing pointing at single_direction.
+
+A29. spacr/surrogate.py:784-788 (_shap_importance)
+    WHAT: Dead guard. `if importance.shape[0] != x_test.shape[1]` can never be true: every branch that reaches it derived `importance` by averaging over an array whose shape was already matched against `sample.shape`, and `sample` only ever differs from `x_test` in ROWS (x_test.sample(max_samples)). The warning it appends ('SHAP returned N values for M features; column omitted') can never be emitted.
+    COST: No user-visible misbehaviour, but it reads as a live safeguard against a SHAP/feature-count mismatch that is in fact structurally impossible, and this repo's own convention (tests/test_a_guard_no_input_could_reach_is_gone.py) treats such a guard as something to delete rather than to keep. Reported, not fixed -- spacr/ was not edited.
+
+A30. spacr/spacrops.py:3005-3012, stitch_cycle_wells, the "organize into per-well folders" loop
+    WHAT: When the plate is re-organized in place (dst_root == src, tiles already at <dst_root>/<well>/<name>) with collision="overwrite", `_resolve_collision` returns the destination unchanged, so sp == dp == rp. The code then runs `os.remove(dp)` - which deletes the SOURCE file, because it is the same file - and afterwards skips `shutil.move` since `if sp != rp` is False, while still doing `moved += 1` and appending the (now missing) path to the well's tile list.
+    COST: A second run of the organizer over an already organized plate with collision="overwrite" permanently deletes the raw microscope frames. The returned summary reports them as moved and lists paths that no longer exist, so the loss is silent until a downstream step opens one. Pinned (as the current behaviour, with a DEFECT comment) by tests/test_cov_wf_spacrops.py::test_reorganising_a_plate_onto_itself_with_overwrite_destroys_the_tiles; the collision="rename" half of that test shows the same layout is handled without data loss.
+
+A31. spacr/seg_qc.py:1706-1707 (_flag_findings)
+    WHAT: The `elif fields:` guard is dead code that does not do what it was written for. `fields` is a tuple with one entry per member field, so it is truthy even when every member's name is the empty string; `_name_list` then drops those empty names and returns "". The headline is built as `where += f", fields {_name_list(...)}"` regardless.
+    COST: A card whose field column is blank produces a finding headlined `1 cell field(s) on this project, fields : no object at all in the field` -- a dangling "fields :" with nothing after it, which is exactly the case the guard was meant to suppress. Reproduced with _flag_findings([FieldQC(field="", object_type="cell", n_objects=0, flags=[FLAG_EMPTY], severity="fail")], 3). Low severity in practice: field names come from .npy stems and are never empty on the normal path, which is also why the false arc is uncoverable.
+
+A32. pytest.ini:24 -- `error::pandas.errors.SettingWithCopyWarning` in filterwarnings
+    WHAT: The pandas installed in this environment changed to 3.0.5 partway through this session (numpy to 2.5.2 with it), and pandas 3 removed `pandas.errors.SettingWithCopyWarning`. pytest resolves ini warning categories during startup, so it now raises `AttributeError: module 'pandas.errors' has no attribute 'SettingWithCopyWarning'` before a single test is collected.
+    COST: No test in the repository can be collected or run at all until that filter is dropped or conditioned. I worked around it per-run with `-o filterwarnings=` (no file was edited). Whoever is running the coverage campaign on this machine will see every agent's suite die at startup otherwise.
+
+A33. spacr/qt/widgets/setup_slides.py:1686 (_fade_the_greeting_away) vs 1721 (_place_the_greeting)
+    WHAT: `_place_the_greeting` guards its use of the greeting label with `if self._greeting:` while `_fade_the_greeting_away`, which `_show_slide` calls for every slide after the first, dereferences `self._greeting.isVisibleTo(...)` with no guard.
+    COST: None today -- `_greeting` is set in `__init__` and never cleared, so the guarded and unguarded paths agree in production. Reported only because the two methods disagree about whether the label may be absent; if the guard at 1721 is ever load-bearing, `_show_slide` will raise from a slide change. I did not change either.
+
+A34. spacr/macro.py:558-561, Macro.write
+    WHAT: The temporary file is opened before the script is rendered: `with open(temporary, "w") as handle: handle.write(self.source())`. If `self.source()` raises (any settings value whose `__str__`/`__repr__` raises, or any rendering failure), the exception propagates out of `write` after the temp file has already been created, and nothing removes it. Reproduced: a one-step Macro whose settings hold an object with a raising `__str__` left `macro.py.2058192.tmp` in the target folder. There is no try/finally and no cleanup anywhere else — `_write_everywhere` only logs the exception.
+    COST: The stable macro folder (~/.spacr/macros, or SPACR_MACRO_DIR) silently accumulates one orphaned `<macro_id>.py.<pid>.tmp` per failed write, forever; nothing ever reaps them, and a user inspecting the folder for the script that reproduces a run sees half-written debris next to the real scripts. The same debris lands inside a run journal folder, next to manifest.json, where `spacr-repro` and the notebook exporter look.
+
+A35. spacr/sequencing_qc.py:702-706 (collision_summary), reached in production from barcode_qc at line 1652 which writes collision_summary.csv
+    WHAT: reads_at_risk is computed for EVERY reference by matching that reference's barcode names against the count table's `grna` column. The docstring says only the gRNA reference reports it ("the gRNA reference also reports reads_at_risk"), and for the row and column references the names never appear in the grna column, so the division produces a hard 0.0 rather than being left unmeasured. Verified: references {'grna': {'sg0','sg1'}, 'rowID': {'r1','r2'}} with a count table where every read carries row barcode r1 yields rows grna reads_at_risk=0.667 and rowID reads_at_risk=0.0, even though r1/r2 are one substitution apart and 100% of the reads carry r1.
+    COST: collision_summary.csv, which barcode_qc writes for every run, tells the user that 0% of their reads are at risk from row- and column-barcode collisions. That is the reassuring reading of a number that was never computed for those fields, so a genuinely ambiguous row or column barcode set is dismissed on the strength of a 0 the code invented. The gRNA row's number, the only one the docstring claims, is correct.
+
+A36. spacr/plate_measurements.py:147 (TableMerge.merged_column, via _UNPREFIXED at line 87) surfacing in PlateMerge.dropped_columns (line 209) and describe() (line 266)
+    WHAT: _UNPREFIXED contains OBJECT_COLUMN ('object_label') unconditionally, so merged_column() returns the bare name for a CHILD table's object_label. But roll_up only leaves the JOIN KEYS unprefixed, and object_label is not a key for a child table (keys are IDENTITY + screenID + source_database + cell_id) -- the frame really carries it as 'pathogen_object_label'. Verified: with object_label present in the pathogen table the merged frame has 'pathogen_object_label' while entry.merged_column('object_label') returns 'object_label'.
+    COST: When a child table's object_label is dropped by columns='common' (present in one database, absent from another), the Measurements tab reports '1 measurement(s) present in only some databases were dropped: object_label' -- naming a column that IS in the merged frame (the anchor's own object_label) and never saying which table lost it. If two child tables both lose it, the two distinct losses collapse into a single reported name, so the user cannot tell that both the pathogen and the nucleus measurements are gone.
+
+A37. spacr/qt/screens/train_compare.py:451-471 (_apply_runs)
+    WHAT: _apply_runs replaces self._runs (452) and nulls self._comparison (453) BEFORE it clears the canvas (_clear_plot, 457). Any failure in between -- _fill_runs_list, _fill_problems, _clear_diff, or _clear_plot itself, which calls self._canvas.draw_idle() and can raise RuntimeError when Qt has already deleted the canvas's C++ half -- leaves the screen holding the new run list, the new metric list and the OLD curves plus the OLD figure.spacr_series_by_label mapping. Nothing marks the plot as stale; the caller only sees the error text in the status label.
+    COST: After a half-applied scan the user reads a plot belonging to a tree that is no longer listed. The guards at 811 (`if run is not None`) and 806/808 (`last`/`best` is None) stop it from crashing or naming the wrong folder, so a click degrades to 'label - epochs 1-25' with no metric reading and no path, but the curves themselves stay on screen under a run list that contradicts them. Clearing the plot (or snapshotting and restoring the run list) before mutating self._runs would close the window. Not fixed -- reported only.
+
+A38. spacr/qt/screens/gate_editor.py:1343 (save_graph, `except Exception as exc:  # pragma: no cover`)
+    WHAT: The only handler that reports a renderer that RAISED (as opposed to returning False) is hidden behind a `# pragma: no cover`, which instruction 288 forbids. Nothing in tests/ asserted its message either -- `grep -rn 'Could not save the graph:' tests/` returned nothing -- so the pragma was hiding a genuinely untested handler rather than an unreachable one. Under the workflow's nopragma rc, lines 1344-1346 were measured and MISSING. Not edited (no changes under spacr/); the new test now exercises the handler.
+    COST: A regression in that handler -- a raise escaping into the Qt slot behind the Save graph menu item and the toolbar button -- would have been invisible to both coverage and the suite, and would reach the user as a silent no-file save or a traceback out of the event loop.
+
+A39. spacr/qt/layer_viewer.py:768-771 (LayerViewer._sync_controls)
+    WHAT: When the selected ImageLayer's colormap is not one of the built-in COLORMAPS (any hex/named-colour ramp, which ImageLayer accepts via `colormaps='#ff00aa'`), `self.colormap_combo.findText(...)` returns -1 and the combo is left showing whatever the PREVIOUS selection put there. Confirmed live: a stack with layer 'green' (colormap 'green') and layer 'hex' (colormap '#ff00aa') leaves the combo reading 'green' after selecting 'hex'.
+    COST: The property panel silently mislabels the selected layer's colour: the user reads 'green' for a channel that is actually magenta-pink. The combo is also the control that writes the colormap back, so the next unrelated touch of that widget would push the wrong, stale colour onto the layer. Leaving the combo unchanged is the deliberate safe half of this; what is missing is any indication that the shown name does not belong to the selected layer (e.g. clearing/disabling the combo, or inserting the custom name as a transient entry).
+
+A40. spacr/qt/widgets/figure_grid_view.py:688-703 (FigureGridView.apply_workspace_state)
+    WHAT: The restored `collapsed` set is assigned (line 690) and `applied` is set True, but nothing relayouts. The only relayout in the method is a side effect of the `cell_width` branch calling `set_target_cell_width` (line 699), which is skipped whenever the saved width is missing or falsy.
+    COST: A workspace document that carries folds but no `cell_width` (an older document, a hand-edited one, or one written with 0) restores fold state that never reaches the screen: `apply_workspace_state` returns True and `is_section_collapsed(label, start)` answers True while every figure of that run is still visible under a heading the next relayout will draw as folded. Verified live: on a grid holding two figures of `("run one", 0, 2)`, `apply_workspace_state({"collapsed": [["run one", 0]]})` left `[cell.isHidden() for cell in grid._cells] == [False, False]`; adding `"cell_width": 260` to the same document made it `[True, True]`. The user reopens a saved run and the sections they folded away are back until something unrelated (a window resize, the next figure landing) triggers a layout pass.
+
+A41. spacr/qt/comparison_grid.py:429-438 (_refresh_status), reached from add_panel line 276-280
+    WHAT: A panel whose stack is empty never enters self._canvas_link (add_panel's `if canvas is not None:` guard at line 276 skips the link insert). _refresh_status computes `free` as `[key for key in self._panels if key in self._canvas_link and not is_locked(key)]`, so a key that is not in the link at all is filtered out of `free` and the status line reports it as linked: a grid of one loaded and one unloaded panel says "2 panel(s) - all linked".
+    COST: The status line, which is the only feedback the grid gives about which panels share the world window, positively asserts that a panel is on the shared window when it is not in the link at all. A user whose fourth channel failed to load is told all four panels are linked, then finds that panning and Fit never move that cell, with nothing in the UI explaining why. The honest wording would distinguish "not linked" from "free".
+
+A42. coverage harness — /mnt/firecuda2/codex/repo/spacr/.coverage (shared by every parallel wf subagent)
+    WHAT: pytest-cov defaults its data file to <rootdir>/.coverage. Several of these coverage subagents run pytest in the same repo directory at the same time, so they clobber one another's SQLite data file mid-run. My first run produced a JSON claiming spacr/train_compare.py was 14% covered with `from __future__ import annotations` (line 105) unexecuted, and check_arcs.py printed MISSING for all six targets; the report step also emitted dozens of `Couldn't use data file '.../.coverage': no such table: arc` warnings. Re-running the identical command with COVERAGE_FILE pointed at a private scratch path gave 64% and REACHED for all six.
+    COST: Any subagent that trusts its first arc check will report arcs as MISSING that are in fact REACHED, then write redundant tests to 'close' them — or, in the opposite direction, a clobbered file could mark an arc REACHED that is not. Every wf coverage run in this batch should set COVERAGE_FILE to a per-agent path.
+
+A43. /mnt/firecuda2/codex/repo/spacr/spacr/zstack.py:3046-3059 (plan_4d_from_settings, the block commented "Fail here rather than after the model has been loaded and the first timepoint read")
+    WHAT: The plan-time validation never checks that a micrometre gate has a voxel size. `plan_4d_from_settings({'t_stack': True, 't_axis_order': 'TYX', 't_track_backend': 'centroid', 't_max_displacement_um': 5})` returns a spec with max_displacement_um=5 and voxel_size_um=None without complaint; the refusal only fires later inside _displacement_scale (line 2380) when track_4d runs. The neighbouring checks in the same block (missing gate -> UnknownDisplacementError, volumetric mode without anisotropy -> UnknownAnisotropyError) are exactly the checks this one is missing.
+    COST: A run configured in micrometres but missing voxel_size_z_um / voxel_size_xy_um passes settings validation, loads the model and segments every timepoint, then dies with TStackError at the linking step -- the precise late failure the plan-time block exists to prevent. On a long movie that is hours of GPU time thrown away for a settings error that was knowable before the first file was read. Reported, not fixed (spacr/ is off-limits for this task); no test was added for it because pinning either the current acceptance or a future refusal would enshrine one side of the defect.
+
+A44. spacr/qt/shortcuts.py:429-430, _toggle_ai
+    WHAT: The handler ends in a bare `except Exception: pass` with no logging, unlike every neighbouring optional-path handler in the same module (_open_palette, _open_preferences, _consoles all do LOG.debug(...) / exc_info=True).
+    COST: If `from .screens.app_screen import AppScreen` fails, or the screen's `_ai_switch.setChecked` raises, Ctrl+/ silently does nothing and leaves no trace at any log level, so a broken AI toggle is undiagnosable from a user's log even with debug logging on.
+
+A45. spacr/qt/widgets/umap_figure_settings.py:245-250 (redraw_umap_figure)
+    WHAT: The label guard is incomplete. `labels = payload.get("plot_labels")`, falling back to `payload.get("labels")`, is passed straight to `np.asarray(labels)`; when neither key is present that yields a 0-d object array and the very next line, `if len(labels) != len(embedding)`, raises `TypeError: len() of unsized object`. Every other malformed-payload case in the same function (fig is None, payload not a dict, embedding not 2-d or empty, label count mismatch) returns False instead. Confirmed by direct call: `redraw_umap_figure(Figure(), {"embedding": emb}, {})` raises TypeError.
+    COST: A redraw-tier edit (image count, figure size, draw-images, ...) on a figure whose stashed `_spacr_umap_payload` carries an embedding but no labels crashes instead of quietly declining. Both callers -- `figure_settings.FigureSettings._on_umap_changed` (spacr/qt/widgets/figure_settings.py:268-273) and `figure_queue._on_umap_changed` (spacr/qt/widgets/figure_queue.py:2502-2505) -- call `apply_to_figure` with no try/except, and `apply_to_figure` line 320 does not guard either, so the TypeError escapes a Qt slot: the user moving a spin box in the Image UMAP settings window gets an unhandled exception rather than a figure that simply does not redraw. Not fixed, per instructions.
+
+A46. spacr/qt/widgets/column_picker.py:412 find_existing (with validate_column_name at :377 and the allow_new=False branch at :930-937)
+    WHAT: find_existing strips/lowercases the TYPED name but compares it against the stored column names unstripped (`str(col).lower() == target`). A column whose stored name carries a leading or trailing space -- exactly what pandas.to_sql writes from a CSV header that read ' area' -- is listed in the column tree but never matches. With allow_new=False the dialog then prints "'area' is not a column of imported" directly under a tree that lists ' area'; with allow_new=True validate_column_name refuses it for the leading space instead.
+    COST: A column the picker itself is displaying can never be picked, in either mode, and the sentence the dialog shows contradicts the list right above it. The user's only route is to type the name with the space by hand, which the verdict also refuses.
+
+A47. spacr/qt/widgets/column_picker.py:1495-1498 attach_column_picker (host layout = spacr.qt.widgets.flow.FlowLayout)
+    WHAT: attach_column_picker swaps the field for a wrapper with `host.replaceWidget(field, wrapper)`. FlowLayout is a Python QLayout subclass with no replaceAt, so QLayout::replaceWidget finds the widget, fails at QLayoutPrivate::replaceAt and returns None having replaced nothing -- while the following `row.addWidget(field, 1)` still re-parents the field into the wrapper, and QLayout::addChildWidget removes it from the flow. Measured: flow.count() goes 1 -> 0, flow.indexOf(field) and flow.indexOf(wrapper) are both -1.
+    COST: Attaching an SQL picker to a column field that sits in one of spaCR's wrapping rows empties that row: the field and its new button become unmanaged children of the host with no geometry from any layout, so the control the user was typing into is mispositioned or invisible. No exception is raised, so nothing reports it. (Today's call sites all pass box/form layouts, so this is latent rather than live.)
+
+A48. spacr/qt/widgets/external_mask_inputs.py:186-187 (_rebuild) together with spacr/external_masks.py InputGroup.from_value
+    WHAT: A saved answer restored through set_value() may carry an object_type that is not in OBJECT_TYPES (InputGroup.from_value accepts any truthy string). _rebuild then does object_box.findData(group.object_type) -> -1 and setCurrentIndex(max(-1, 0)) -> 0, so the editable box displays 'Choose...' with data None, while the read-only 'Detected as' cell displays 'mask - mitochondrion' and get_value() still returns object_type='mitochondrion'. The widget's own guard set_group_object_type() refuses exactly that value, so the table accepts through restore what it refuses through the UI.
+    COST: A user reopening a saved External Masks project sees an object-type dropdown that reads 'Choose...' (i.e. nothing assigned) and a row that claims a plane it cannot show. Changing nothing and pressing run hands the invalid object_type downstream, where it either raises later or writes masks/<bogus>_mask_stack that Measure will not read. Verified live: set_value([{...,'object_type':'mitochondrion'}]) gives currentText()='Choose...', currentData()=None, item(0,1).text()='mask - mitochondrion', get_value()[0]['object_type']='mitochondrion'.
+
+A49. spacr/qt/verbose_logger.py:73-75 (_ATTACHED_LOGGERS) used by _ensure_file_handler (212-215) and _ensure_handler (330-333)
+    WHAT: The same handler object is attached to a logger AND to its descendants ('spacr', 'spacr.qt', 'spacr.qt.hf_download', 'spacr.qt.plate_queue', ...). logging.callHandlers walks the whole ancestor chain and does not de-duplicate handlers, so one record is emitted through the same handler once per attached ancestor. Measured on this checkout: a single logging.getLogger('spacr.qt.hf_download').warning('DOWNLOAD FAILED') produced 3 identical lines in ~/.spacr/logs/spacr-YYYYMMDD.log and 3 identical deliveries to the registered ConsolePanel; a record on 'spacr.qt' produced 2 of each. Only records logged on 'spacr' itself appear once.
+    COST: Every diagnostic from the Qt layer, the plate queue, the HF downloader and the function trace is duplicated 2-3x in both the in-app console and the rotating log file users attach to bug reports. The console scrolls 2-3x faster than it should when verbose logging is on, the log file rotates at 5 MB 2-3x sooner (discarding older history), and any count read off the log ('this failed twice') is wrong. Not fixed here per instructions; the fix is to attach the handler only to the root 'spacr' logger (descendants already propagate to it) or to skip a name whose ancestor is already in the list.
+
+A50. spacr/layers.py, LabelsLayer.data setter (~lines 1970-1983), consumed by spacr/qt/ortho_view.py:507-518
+    WHAT: The constructor refuses a non-integer array ("a labels layer needs integer labels"), but the data setter validates only shape, so `mask.data = float_array` is accepted. `LabelsLayer.labels()` then returns the raw float values (e.g. 17.5) while every consumer compares with `int(label)`: `OrthoView.on_linked_selection_changed` matches `field.object_key(int(17.5)) == 'plate1_A_1_1_17'`, sets `selected_label = 17`, and then `np.argwhere(data == 17)` finds nothing. `LabelsLayer.label_at_world` truncates the same way.
+    COST: A labels layer that passes through the setter is silently self-inconsistent: it reports labels that its own array does not contain. Here the `if len(where):` guard absorbs it (the crosshair just does not move, so a linked selection from the UMAP silently does nothing); without that guard `where.mean(axis=0)` would be nan and `_snap`'s `int(round(nan))` would raise ValueError out of the selection-bus signal handler. The setter should apply the constructor's dtype check.
+
+A51. spacr/guide_attribution.py:283-284, in attributable()
+    WHAT: `rest = [(float(e), float(w)) for e, w in (others or ()) if float(w) > 0.0]` converts each weight TWICE -- once in the `if` and again in the stored tuple. A weight object whose conversion is not pure (a lazily fetched count, a mutable proxy, a value re-read from a stream) can therefore pass the positivity filter and be stored as a non-positive number. This is the ONLY way the guard on line 286 (`if total <= 0: return False, 0.0`) can fire, which is why that arc was uncovered.
+    COST: Minor but real: the weight the filter approved is not the weight used, so a well can be reported as 'this guide can never be called' (False, 0.0) on data whose weights all looked positive when checked. Reading each weight once into a local would make the guard genuinely dead code instead. Not fixed -- reported only.
+
+A52. spacr/guide_attribution.py:283-284, in attributable()
+    WHAT: A competitor whose weight is NaN is silently dropped by `float(w) > 0.0`; if every competitor is dropped the code falls back to the single flat rival `(0.0, 1 - p)`. Verified: attributable(1.0, 1.0, 0.5, others=[(0.0, nan)]) returns (True, 0.989), identical to passing no competition at all.
+    COST: A well whose sequencing produced a NaN read fraction for a competing guide makes the candidate guide look MORE callable than it is, with no diagnostic. Behavioural, arguably intended (the docstring says an omitted `others` is 'the most permissive comparison'), so reported rather than treated as a bug.
+
+A53. spacr/qt/widgets/refit_dialog.py:192-198 (_refresh), with spacr/refit.py:243-262 (destination)
+    WHAT: When destination() cannot derive an output folder it returns None, and _refresh then drops the "Writes to ..." line silently. If there are also no notes, the notice falls through to "Nothing to change: re-fitting these settings would repeat the run you are looking at." while the Re-fit button stays ENABLED. Reachable with settings whose count_data is a list with a falsy first entry (e.g. [""]), which refit_settings accepts because the list itself is truthy (refit.py:143) but destination rejects at refit.py:251-254.
+    COST: The dialog makes a false statement about the run it is about to start: it says the re-fit would merely repeat the run on screen, when in fact it will start a real fit whose destination the dialog could not work out. The user gets no warning that the output location is underivable, and nothing tells them where to look for the results afterwards.
+
+A54. spacr/qt/widgets/feature_explorer.py:251-253 (rank_now, the `if self._frame is None:` early return)
+    WHAT: Unloading the table leaves every other part of the panel stale. set_frame(None) empties the Split-by picker and rank_now() sets the summary to "no table loaded" and returns None, but it never clears self._result, the table rows or the figure. Verified live: after set_frame(frame) then set_frame(None), panel.summary() == 'no table loaded' while panel.table.rowCount() is still 2, panel._figure.get_axes() still holds 2 strips, and panel.result still returns the previous ExplorerResult (so selected_feature() still names a column of the table that was unloaded).
+    COST: A user who closes or swaps out the source table sees a ranking table and histograms describing data that is no longer loaded, under a summary saying nothing is loaded. Any caller reading panel.result (the screen's export_ranking, for example) writes out the previous table's ranking as if it were current.
+
+A55. spacr/qt/widgets/feature_explorer.py:294-295 (_fill_table, `if len(result.scores): self.table.selectRow(0)`)
+    WHAT: selectRow(0) only emits feature_selected when the current cell actually changes, so a re-rank that keeps the selection on row 0 announces nothing even when a different feature is now on that row. Verified live with columns weak_shift (a=1..4, b=2..5) and shape (KS 0.5): ranking by AUC puts weak_shift at row 0; switching the picker to KS re-ranks so shape is at row 0 and selected_feature() returns 'shape', but feature_selected was emitted zero times during the re-rank.
+    COST: Everything wired to feature_selected -- the linked views on FeatureExplorerScreen and anything downstream of the panel signal -- keeps showing the feature from the previous statistic while the table highlights a different one, so the highlighted row and the linked detail disagree until the user clicks another row.
+
+A56. spacr/qt/widgets/trellis_view.py:463-481, TrellisPanelWidget._sync (the two `>= 0` guards at lines 471 and 477)
+    WHAT: When the incoming spec names a plot kind or a scale mode the picker has no item for, _sync leaves the combo box showing its PREVIOUS value rather than clearing it or falling back to "Automatic". The combo's data then disagrees with the spec, and _on_controls_changed reads the combo, not the spec.
+    COST: The controls lie about the spec and then rewrite it. Verified by hand: with the Plot picker on Histogram, pushing TrellisSpec(graph=GraphSpec(x="area", kind=EMPTY, bins=7)) leaves the picker reading "Histogram" while panel.spec.graph.kind == "empty"; touching the Bins spin box next makes panel.spec.graph.kind == "histogram". So a spec restored from a saved layout has its plot kind silently replaced by whatever the shelf happened to be showing, without the user going near the Plot row. The scale pickers have the same shape (a mode the box cannot show is overwritten by the box's stale mode on the next control change). Docstring of _sync says "Make the controls show what the spec actually says", which is exactly what does not happen here.
+
+A57. spacr/qt/widgets/feature_rank.py:658-670 (_null_threshold)
+    WHAT: A permutation in which no feature's separation could be computed is recorded in `best` as 0.0 rather than being dropped. `top` is initialised to 0.0 before the feature loop and only ever raised by a finite score, so a shuffle where every `_separation` returned NaN (each candidate class empty after the finite mask) contributes a literal "chance reached zero" to the null distribution instead of "this shuffle produced no measurement".
+    COST: On a table whose columns are sparsely measured, a sizeable fraction of the null distribution can be spurious zeros, which deflates the 95th percentile and makes `ExplorerResult.above_null()` list features that did not actually beat chance. Reported, not fixed, per the task constraints. Severity is low in practice: with several features, at least one is usually computable in every shuffle, so `top` is a real value.
+
+A58. spacr/settings_advisor.py:844-848 (_thresholds), reached from read_the_counts lines 244-256
+    WHAT: When every well total is zero (a plate that sequenced to nothing), fractions_from_counts returns a 'fraction' column that is present and numeric but entirely NaN. read_the_counts filters it to empty at line 246, so fraction_median stays None, and _thresholds then explains the missing recommendation with 'the count tables did not yield a fraction column'. The column WAS yielded; every value in it is NaN because the denominator was zero. read_the_counts also adds nothing to 'trouble' for this case, so the reading reports plates/wells/guides with no note at all.
+    COST: A user whose sequencing failed (or whose count column was read as zeros) is told to go looking for a missing 'fraction' column that is sitting right there in their table, and the reading beside the advice looks healthy -- it names the plates, wells and guides it counted and flags no trouble. The one number that would have told them the run is worthless (no reads anywhere) is the one that is silently absent.
+
+
+==============================================================================
+APPENDIX B -- 45 ARCS PROVED UNREACHABLE, WITH THEIR PROOFS
+==============================================================================
+
+Each was argued by the agent that tried to cover it. They map onto the four
+families already in this document; a few are new instances worth reading.
+
+  spacr/qt/theme.py  1616->1610
+      In `_hue_ink` the first ramp is `candidate = (round(base[0]*level), round(base[1]*level), round(base[2]*level))` with `base = _hue_rgb(hue)` at the default saturation 1.0, which always returns the pure hue tuple containing exactly one 1.0 channel and one 0.0 channel; so `spread = max - min = level` exactly (verified empirically: 0 mismatches over 360 hues x 256 levels), levels are visited in increasing order, and `chroma` holds the last accepted level (or -1), so `spread > chroma` at line 1616 is true every time it is evaluated and the False arc back to the loop header can never be recorded.
+
+  spacr/qt/widgets/regression_results.py  1108->1109 (and line 1109)
+      `_keyed_plots()` (line 1737) returns the fixed tuple (volcano, effect_rank, qq, controls, agreement); it can never yield self.p_values or self.effect_distribution, so the `if plot in (self.p_values, self.effect_distribution): continue` guard inside `for plot in self._keyed_plots():` never fires -- family 4, a type/membership check whose only caller has already excluded the case.
+
+  spacr/cell_montage.py  1305->1306 (and lines 1306, 1307)
+      In _sudoku_calls, `fractions`'s keys are built at 1248 from `sorted(set(wells))`, `mine` (1284) is a non-empty subset of those keys (guarded by the `if not mine: return None` at 1286), and `keep = set(mine) | anchoring` at 1297, so at least one label in `keep` is in `wells` and `rows = [i for i, w in enumerate(wells) if w in keep]` (1304) can never be empty -- family 1, a defensive re-check after code that already guarantees the condition.
+
+  spacr/cell_montage.py  2575->2587
+      `resolve_crop_source` (spacr/crops.py:3564-3573) performs the identical Mapping/list unwrap and raises CropError on a falsy src, and that CropError returns from resolve_montage_crop_source at 2561-2565, so `root` at 2575 is always truthy by the time the line runs -- family 1. The only structural hole (crops does NOT unwrap a bare list, cell_montage does) is unusable because a bare list is stringified to its repr and `os.path` can only find such a root if a directory literally named `['']` exists in the cwd; that is defect 3 below, not a reachable user input.
+
+  spacr/qt/screens/annotate.py  878->879
+      paintEvent already returned at 868 when _pixmap is null, and picture_rect() then always yields w,h > 0 (box_w/box_h are max(1.0, ...) and scale=min(box_w/pm.width(), box_h/pm.height()) > 0), so box.isEmpty() is never True -- family 1, a re-check after a call that guarantees the condition.
+
+  spacr/qt/screens/annotate.py  879
+      Body of the 878->879 guard above; unreachable for the same reason (picture_rect cannot return an empty QRectF once the pixmap is known non-null).
+
+  spacr/qt/screens/annotate.py  3282->3274
+      _apply_to_slots skips every slot failing _slot_is_valid (0 <= slot < min(len(_page_paths), len(_thumbs))), and _set_annotation returns False only for slot outside 0..len(_page_paths); the surviving slots always satisfy it, so the False arc never occurs -- family 1.
+
+  spacr/qt/screens/annotate.py  3695->-3689
+      _toggle_annotation returns at 3692 unless _slot_is_valid(slot), which already guarantees the only condition under which _set_annotation returns False, so `if self._set_annotation(...)` is never False -- family 1.
+
+  spacr/qt/screens/annotate.py  3910->3913
+      _kbd_move is called from exactly one place (line 3823) under `if token in ('left','right','up','down')`; left/right/up each leave the elif chain before 3910, so the `elif token == 'down'` test is only ever reached with token=='down' -- family 4.
+
+  spacr/qt/screens/annotate.py  4063->4065
+      A MouseButtonRelease only enters that block when _band_origin is not None, which is set only by the press branch at 4044-4052 that also creates self._band (and nothing ever sets _band back to None after __init__), so `if self._band is not None` is never False -- family 1.
+
+  spacr/core.py  258->625
+      Family 1 (defensive re-check). `if isinstance(settings['src'], list):` at 258 can never be False: lines 174-178 raise unless src is str or list, line 180 runs it through utils.normalize_src_path (utils.py:10669-10694), which returns only a list or a str and raises ValueError otherwise, and lines 255-256 wrap any remaining str in a list. Only a monkeypatched normalize_src_path returning e.g. a tuple could take the False arc, which tests the mock rather than the module.
+
+  spacr/parameter_sweep.py  374->376
+      Family 1 (defensive re-check). Control flow only reaches line 374 after `hit.any()` was True on `labels`; `ranked_labels` is the SAME column of the SAME rows (frame.assign(_abs=...).sort_values(...).reset_index(drop=True) reorders but never drops a row), so `position = ranked_labels.str.contains(needle, regex=False)` has the identical truth values as `hit` up to permutation and `position.any()` is therefore always True.
+
+  spacr/parameter_sweep.py  1115->1114
+      Family 2 (loop that always breaks). The body of `for future in as_completed(list(futures))` ends with an unconditional `break` at line 1136 and contains no continue, and the enclosing `while futures:` guarantees `list(futures)` is non-empty so as_completed always yields at least one item; the for-loop therefore never exhausts and never falls back to the while header.
+
+  spacr/regression_qc.py  2958->2960
+      Family 1 (defensive re-check after a call that already guarantees the condition). In `_positional_effect_panel`, `groups` comes from `pd.unique(keys)` and `values = [ctx.resid[keys == g] for g in groups]` in `_grouped_residuals`, so every group is non-empty by construction (and `_align_metadata` guarantees len(keys) == len(ctx.resid) == n). Under the enclosing `len(groups) >= 4`, `edge = concat(values[0], values[-1])` has >= 2 entries and `interior = concat(values[1:-1])` has >= 2, so `if edge.size and interior.size:` is never False.
+
+  spacr/regression_qc.py  2988->2987
+      Same invariant, same family. The loop `for i, v in enumerate(values): if v.size:` iterates the same per-group residual arrays, each of which contains at least the one observation whose key created the group, so `v.size` is never 0 and the loop never falls through to the next iteration without drawing.
+
+  spacr/qt/mask_engine.py  735->736 (and line 736)
+      Family 1 -- defensive re-check after the caller already guaranteed the condition. magic_wand seeds the BFS queue only after line 725 verifies 0<=seed_y<h and 0<=seed_x<w, and the sole other q.append (line 753) is guarded at line 752 by 0<=nx<image.shape[1] and 0<=ny<image.shape[0]; so every (cx, cy) popped at line 734 is in bounds and the `not (...)` test at 735 is always False, making the `continue` at 736 dead.
+
+  spacr/qt/widgets/fast_plots.py  1156->1157 (line 1157)
+      Family 1, a defensive re-check the preceding guard already guarantees: line 1150 returns unless min(v) and max(v) are both finite with max > min, and np.min/np.max propagate NaN, so v holds only finite values inside [low, high]; np.histogram(v, bins, range=(low, high)) therefore counts every element and counts.max() >= 1 > 0, so `if peak <= 0` can never be true.
+
+  spacr/qt/app.py  3306->-3236
+      Family 1 (defensive re-check after a call that already guarantees the condition): line 3301 calls super().closeEvent(event); MainWindow inherits QMainWindow's, which is QWidget::closeEvent, whose entire body is event->accept(). Every path that reaches 3306 has therefore just accepted the event, so `if event.isAccepted():` is always True and the skip arc is never recorded. The two early-out paths that DO ignore the event (3254 and 3275/3280) return before 3301.
+
+  spacr/sequencing.py  436->407
+      Family 1: r1_seq/r2_seq are padded to exactly expected_end at lines 427-433 (the slice can never be longer), and create_consensus returns one base per position of seq1, so len(consensus_seq) >= expected_end at 436 is always True.
+
+  spacr/sequencing.py  461->467
+      Family 1: the consensus_seq kept for the orientation hint came from that same padded path, so its length is always exactly expected_end and the re-check at 461 cannot be False (the 460->467 arc for consensus_seq=None is already covered).
+
+  spacr/sequencing.py  521->497
+      Family 1: in the single-end reader consensus_seq IS r1_seq, which lines 513-515 pad to exactly expected_end two statements earlier, so the length guard at 521 is never False.
+
+  spacr/sequencing.py  580->582
+      Family 4: df is built at 563-571 from a literal dict that always contains 'columnID', and df2 = df.copy(), so `'columnID' in df2.columns` cannot be False.
+
+  spacr/sequencing.py  582->584
+      Family 4: same literal dict always supplies 'rowID', so `'rowID' in df2.columns` cannot be False.
+
+  spacr/sequencing.py  584->587
+      Family 4: same literal dict always supplies 'grna_name', so `'grna_name' in df2.columns` cannot be False.
+
+  spacr/sequencing.py  1054->1064
+      Family 1: the guard at 1037 only lets the body run when settings['mode'] is 'paired' or 'single', so when 1049 ('paired') is False the elif at 1054 ('single') is necessarily True.
+
+  spacr/sequencing.py  1290->1301
+      Family 1/4: find_and_visualize_fraction_threshold is a closure with a single call site (line 1352) that always passes dst=os.path.dirname(settings['count_data'][0]) -- a str (possibly ''), never None -- as its own docstring at 1219-1221 states.
+
+  spacr/surrogate.py  784->785
+      In _shap_importance every surviving normalisation path fixes importance.shape[0] to sample.shape[1], and sample is x_test (or x_test.sample(rows), which changes rows only) -- 2-D requires array.shape == sample.shape then means over axis 0; both 3-D forms require a match against sample.shape then mean over axes (0,2). So importance.shape[0] != x_test.shape[1] can never hold: a defensive re-check after code that already guarantees the condition (family 1).
+
+  spacr/surrogate.py  785
+      Body of the 784 guard; only reachable through arc 784->785, which no input can take (see above).
+
+  spacr/surrogate.py  788
+      The `return None` of the same guard; only reachable through arc 784->785.
+
+  spacr/spacrops.py  924->928
+      spacrStitcher.stitch_pair sets `s = self.downsample if self.downsample > 0 else 1.0` (line 881), so s is either a positive float or 1.0; `if s != 0` at 924 can never be False (defensive re-check after a computation that already guarantees the condition).
+
+  spacr/spacrops.py  1968->1969
+      _compute_mosaic_transforms already returned at line 1799 (`if not nodes: return {}, []`) and never reassigns `nodes`, so `root = max(nodes, ...) if nodes else None` at 1967 is never None; the `if root is None` re-check at 1968 cannot be True.
+
+  spacr/spacrops.py  line 1969
+      Body of that same unreachable `if root is None:` guard (`return {}, used_edges`) - unreachable for the same reason.
+
+  spacr/spacrops.py  2814->2818
+      StitchedMultiAligner.align computes `s = float(self.downsample)` (2747) and downsamples the reference to `max(1, round(H*s))` px. s == 0 collapses the reference to 1x1, ORB finds no keypoints, so `ptsA.shape[0] >= 4` fails, M_ds is None and the loop `continue`s at 2796 - line 2814 is never reached with s == 0.
+
+  spacr/spacrops.py  3185->3197
+      In stitch_cycle_wells' post-stitch loop, every `sp` in well_files is `<dst_root>/<well>/<name>` (organize) or `<dst_root>/_links/<well>/<name>` (symlink), while `rp` is always inside `orig_outdir = <dst_root>/<well>/<well>`; a file directly under <dst_root>/<well> can never have the same abspath as one under <dst_root>/<well>/<well>, so `os.path.abspath(sp) != os.path.abspath(rp)` is always True.
+
+  spacr/spacrops.py  3539->3544
+      FOVAlignAndCropper.run takes `s = float(self._aligner.downsample)` (3466) and resizes both mosaic and FOV to `max(1, round(n*s))` px. s == 0 makes both 1x1, so `_match` returns <4 points and the per-FOV loop `continue`s at 3512 long before line 3539.
+
+  spacr/seg_qc.py  1706-1715
+      `elif fields:` in _flag_findings can never be False: `members` comes from `grouped.setdefault(key, []).append(qc)`, so it always holds >=1 FieldQC, and `fields = tuple(sorted(q.field for q in members))` therefore always has >=1 element (a tuple of empty strings is still truthy). Verified empirically: _flag_findings([FieldQC(field="", ...)], 3) yields fields == ('',) and takes the True arc.
+
+  spacr/qt/widgets/setup_slides.py  1152->1153
+      `read = self.terms_were_read()` and terms_were_read (line 1079-1096) has no branch at all: its body is `self._terms_read = True; return True`. `if not read:` is therefore never true, so the false arc into 1153 cannot be recorded by any caller. (Family 4: a check whose only source has already decided it.)
+
+  spacr/qt/widgets/setup_slides.py  1153
+      The one statement guarded by 1152->1153; dead for the same reason -- terms_were_read is a literal True, so the SCROLL_HINT prefix can never be prepended to WHY_NOT_YET.
+
+  spacr/qt/widgets/setup_slides.py  1024->1027
+      `bar = scroll.verticalScrollBar()` on a QScrollArea; Qt creates the scroll bar on demand and the accessor never returns null, so the false arc of `if bar is not None:` is unreachable. (Family 1: a defensive re-check after a call that already guarantees the condition.)
+
+  spacr/qt/screens/model_compare.py  1002->1001
+      The False (continue) side of `if candidate.strip():` inside `_on_worker_error_text` needs the scan-back loop over `reversed(str(tb).strip().splitlines())` to reject its first candidate. It cannot: every character `str.splitlines()` treats as a line boundary (LF, CR, VT, FF, \x1c-\x1e, NEL, U+2028, U+2029) is also `str.isspace()`, so `.strip()` always removes it from the end. A stripped string is therefore either empty (list empty, body never runs -- that is arc 1001->1005, which IS closed) or ends in a non-blank character, which makes the LAST splitlines element non-blank and hence the FIRST item under `reversed`, so the loop breaks on iteration one. Verified by walking all 0x110000 code points (no boundary char survives a trailing strip) and by 400k random strings over the boundary alphabet (zero multi-iteration cases). Family 2: a loop whose first iteration always breaks.
+
+  spacr/gene_measurement_compare.py  1232->1240
+      In render_comparison, line 1200 `if not any(len(s) for s in series): return None, None` already returns unless some series has a non-zero length; line 1231 builds `alive = [(i, s) for i, s in enumerate(series) if len(s)]` from the same unmodified `series` with the identical predicate, so `alive` is never empty at line 1232 and the False arc to 1240 cannot be taken (family 1: defensive re-check after a guard that already guarantees the condition).
+
+  spacr/convert.py  2049->2053
+      `if 'target' in frame.columns:` in populate_db_from_map is a defensive re-check after read_map, which raises ConfigurationError when 'target' is absent ('target' is the first entry of _REQUIRED_MAP_COLUMNS); verified empirically: read_map on a CSV lacking 'target' raises "is not a spaCR conversion map - missing column(s): target", so the frame reaching line 2049 always has the column. Family 1 (defensive re-check after a call that already guarantees the condition).
+
+  spacr/guide_attribution.py  674->675
+      `dead = density.sum(axis=1) <= 0` can never be True: every entry of log_density is finite by construction (each increment is np.log(np.maximum(density, 1e-300)) on a nan_to_num'd, finite, non-negative density, and `factor` is finite in (0,1] -- n_eff<=0/nan leaves factor=1.0, min(...,1.0) caps it), so line 669's `log_density -= log_density.max(axis=1, keepdims=True)` leaves exactly one entry per row equal to 0.0, np.exp gives 1.0 there, and the row sum is >= 1; a NaN row would compare False too. Family (1): a defensive re-check after a normalisation that already guarantees the condition. Empirically probed with 1e300 values, an all-NaN column, beta likelihood at the [0,1] boundary with 1e-4 scales, and 400 columns at 50-sigma effects -- every row summed to 1.
+
+  spacr/qt/widgets/motility_preview.py  1025->-1020
+      `_on_max_sets_changed` calls `self._populate_group_box()` on line 1024, and line 999 of that method unconditionally assigns `self._sample_note = self._sampler.describe(len(shown))`. `ImageSetSampler.describe` (preview_controls.py:855-869) has exactly two returns, `f"showing all {self.total} image sets"` and the `f"showing a random sample of ..."` string, neither of which can be empty. So `self.sample_note()` on line 1025 is always truthy by the time it is evaluated -- family 1, a defensive re-check after a call that already guarantees the condition. Line 999 is the only assignment to `_sample_note` in this module (grep confirms; the other previews have their own).
+
+  spacr/qt/widgets/feature_explorer.py  215->219
+      False arc of `if position >= 0:` in set_spec, where position = self._statistic.findData(spec.statistic): ExplorerSpec.__post_init__ raises ExplorerError unless statistic is in feature_rank.STATISTICS, and __init__ populates the picker with an item for every entry of that same STATISTICS tuple, so findData never returns -1 for any spec that can be constructed (family 1: a defensive re-check after a value the constructor already guarantees). My test test_the_statistic_picker_offers_exactly_the_known_statistics pins both halves of that invariant.
