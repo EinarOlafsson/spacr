@@ -114,9 +114,11 @@ SHORTCUTS: List[ShortcutSpec] = [
 #: `scope` field states to the reader.
 SCREEN_SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Left",         "Previous image",         "Annotate",
-                 "the Annotate and Make Masks screens"),
+                 "the Annotate and Make Masks screens and the QC field "
+                 "browser"),
     ShortcutSpec("Right",        "Next image",             "Annotate",
-                 "the Annotate and Make Masks screens"),
+                 "the Annotate and Make Masks screens and the QC field "
+                 "browser"),
     ShortcutSpec("PageUp",       "Previous image",         "Annotate",
                  "the Annotate screen"),
     ShortcutSpec("PageDown",     "Next image",             "Annotate",
@@ -150,8 +152,9 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Make Masks",
                  "the Make Masks screen"),
-    ShortcutSpec("Q",            "Toggle field quarantine", "Field Browser",
-                 "the Field Browser"),
+    ShortcutSpec("Q",            "Quarantine or restore this field",
+                 "Field browser",
+                 "the QC field browser"),
 ]
 
 
