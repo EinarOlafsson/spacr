@@ -23,7 +23,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
 _NEW_VISIBLE_DIGEST = (
-    "0aa19275ff594eb3441be42e42ad6a1277c09c16c3a9514dc392d635b47bfb6f"
+    "22524dd9f041af43ece50e6b9e476536dbdf7f4229ed30de4a919e8aafbd18db"
 )
 _ALIASES_DIGEST = (
     "5167459a662cc68d3de274d216297020ba159155bad4e9e8af8e751e69cdba66"
@@ -135,11 +135,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
 
     # The 80 omissions in the audited pages are precisely the documented
     # special members and PEP-258/value attributes discovered from source.
-    # 65 since 2026-08-18: `GenePanel.__del__` is documented because it is
+    # 69 since 2026-08-30: `GenePanel.__del__` is documented because it is
     # the guard that stops Qt aborting the process when a panel is collected
     # with its warm-up thread still running -- a reader who deletes it needs
-    # to know that, so it carries a docstring and therefore surface.
-    assert len(dunders) == 65
+    # to know that, so it carries a docstring and therefore surface. The four
+    # additions are FlowView Node/RunGraph post-init validation and the
+    # ResourceSampler context-manager pair.
+    assert len(dunders) == 69
     assert len(assignments) == 18
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -731,7 +733,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # seven names in `qt.timing`; the getter and setter in `qt.preferences`;
     # and `Pointer` plus `Pointer.sample` in `qt.widgets.fractal_travel`.
     # Every contract enters every regenerated language catalog in this change.
-    expected = 8521
+    # AND 223 THAT WERE ALREADY OWED. The checked-in English catalog carried
+    # 8,744 non-alias symbols while this ratchet still read 8,521. Move to the
+    # measured inventory rather than preserving a number the catalog itself
+    # had already disproved.
+    # +25/-0 on the CI replay: 18 names in `resource_log`, six across Qt
+    # (`theme`, two screens and `recipes`), and the private FlowView Classify
+    # stage module's explanation. The callables in that FlowView module stay
+    # private; only the module contract enters the catalog.
+    expected = 8769
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -746,7 +756,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8640
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8888
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
