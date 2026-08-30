@@ -348,9 +348,11 @@ import spacr.qt
 import spacr.qt.app as app_module
 import spacr.qt.preferences as preferences
 
-# HOW MANY TIMES THE THEME IS RESOLVED AND SET ON THE APPLICATION. Once,
-# unless the setup screen actually asked something -- and `pretend the setup
-# screen opened` is the argument that makes it do so.
+# HOW MANY TIMES THE THEME IS RESOLVED AND SET ON THE APPLICATION. Twice:
+# once before the window is built, once to fold in the QSS blocks the
+# window's own modules registered on their way in. A third if the setup
+# screen actually asked something -- `pretend the setup screen opened` is
+# the argument that makes it do so.
 _real_apply = preferences.apply_preferences_to_app
 seen["preferences applied"] = 0
 
@@ -362,6 +364,24 @@ def _counted(app):
 
 preferences.apply_preferences_to_app = _counted
 
+# AND HOW MANY BLOCKS ASKED FOR ONE. Counting both is what tells the two
+# apart: a restyle per registering module and a restyle for all of them
+# together look identical if you only count the restyles.
+import spacr.qt.theme as _theme
+
+_real_register = _theme.register_widget_qss
+seen["blocks registered as the window is built"] = 0
+_registering = {"window": False}
+
+
+def _counted_register(name, fn, replace=False):
+    if _registering["window"]:
+        seen["blocks registered as the window is built"] += 1
+    return _real_register(name, fn, replace=replace)
+
+
+_theme.register_widget_qss = _counted_register
+
 if "pretend the setup screen opened" in sys.argv:
     import spacr.qt.widgets.setup_slides as slides
 
@@ -372,7 +392,11 @@ _real_init = app_module.MainWindow.__init__
 
 def _init(self, *args, **kwargs):
     _look("as the window is built")
-    return _real_init(self, *args, **kwargs)
+    _registering["window"] = True
+    try:
+        return _real_init(self, *args, **kwargs)
+    finally:
+        _registering["window"] = False
 
 
 app_module.MainWindow.__init__ = _init
@@ -442,13 +466,36 @@ def test_the_launch_still_reaches_the_event_loop(cold_launch):
 
 
 @pytest.mark.qt
-def test_the_theme_is_resolved_once_when_nobody_was_asked_anything(
+def test_the_theme_is_resolved_twice_and_not_once_per_screen_module(
         cold_launch):
-    """The second `apply_preferences_to_app` exists to take the answers the
-    setup screen collected. On every launch after the first there are none,
-    and the whole theme was being resolved and set on the application
-    twice."""
-    assert cold_launch["preferences applied"] == 1
+    """The restyle count must not grow with the number of screens imported.
+
+    Two are owed. One before the window is built, so its widgets are
+    constructed against the right palette and font metrics. One after, to
+    fold in the QSS blocks the window's own modules registered on their way
+    in -- those blocks did not exist when the first sheet was composed.
+
+    A third `apply_preferences_to_app` exists to take the answers the setup
+    screen collected, and on every launch after the first there are none.
+
+    What this pins is the SHAPE, not the number. `register_widget_qss` used
+    to re-apply the whole application stylesheet the moment a block was
+    registered, which is right for one screen arriving alone and quadratic
+    for a run of them: building the window imports four such modules, so a
+    cold launch composed the sheet five times and threw four away. Counting
+    the blocks alongside the restyles is what tells the two arrangements
+    apart -- they are indistinguishable if you only count restyles.
+    """
+    registered = cold_launch["blocks registered as the window is built"]
+
+    assert registered >= 2, (
+        "no module registered a block while the window was built, so this "
+        "measurement cannot say anything about batching them")
+    assert cold_launch["preferences applied"] == 2, (
+        f"{registered} blocks were registered while the window was built "
+        f"and the stylesheet was composed "
+        f"{cold_launch['preferences applied']} times; a restyle per "
+        f"registering module is the fault this guards")
 
 
 @pytest.mark.qt
@@ -457,5 +504,5 @@ def test_the_answers_are_still_applied_when_the_screen_did_open():
     was told -- otherwise the saving above would be a bug."""
     asked = _cold_launch("pretend the setup screen opened")
 
-    assert asked["preferences applied"] == 2
+    assert asked["preferences applied"] == 3
     assert asked["exit"] == 0

@@ -2306,10 +2306,8 @@ class MainWindow(QMainWindow):
         # a panel a keyboard user does not have -- and deleting the action
         # would take the shortcut with it.
         act_all = QAction("All apps", self)
-        # MOVED OFF Ctrl+B, which was asked for as the blank-background key
-        # -- twice, and it was quietly given to Ctrl+Shift+B because this
-        # already held it. A shortcut somebody asks for by name and gets
-        # something else from is worse than an unfamiliar one.
+        # Ctrl+B belongs to the flat-background action. The drawer moved
+        # here so both actions remain reachable without a shortcut collision.
         act_all.setShortcut(QKeySequence("Ctrl+Shift+A"))
         act_all.setStatusTip(
             "Show the full app list. Also revealed by moving the pointer "
@@ -2366,8 +2364,8 @@ class MainWindow(QMainWindow):
         # paints the ground flat, which is what "I am looking at images and
         # want nothing behind them" actually asks for.
         #
-        # Ctrl+B was explicitly requested for this action. The drawer moved
-        # to Ctrl+Shift+A, which keeps both window actions keyboard-reachable.
+        # Ctrl+B was requested for this action. The app drawer remains
+        # keyboard-accessible through Ctrl+Shift+A (see `act_all` above).
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
@@ -3257,9 +3255,9 @@ class MainWindow(QMainWindow):
             self._closing = False
             return
         # Closing a parent widget does not deliver a close event to its child
-        # widgets. AppScreen.closeEvent owns cleanup that cannot be left to
+        # widgets.  AppScreen.closeEvent owns cleanup that cannot be left to
         # Qt's child-destruction cascade, notably its parentless pyqtgraph
-        # menus and background job runners. Ask each owned screen to close
+        # menus and background job runners.  Ask each owned screen to close
         # while it is still intact, and honour a screen that defers shutdown
         # because one of its workers has not reached a safe boundary.
         from .screens.app_screen import AppScreen
@@ -3771,11 +3769,11 @@ class MainWindow(QMainWindow):
             try:
                 # ``deleteLater`` alone bypasses ``AppScreen.closeEvent``.
                 # Closing first retires workers, workspace providers, figure
-                # resources and parentless pyqtgraph menus. The replacement
+                # resources and parentless pyqtgraph menus.  The replacement
                 # was built first so the stack never flashes Home while the
                 # comparatively expensive form is constructed.
                 if old.close() is False:
-                    # A running worker may deliberately defer close. Keep
+                    # A running worker may deliberately defer close.  Keep
                     # that live screen instead of destroying work in flight,
                     # and retire the unused replacement cleanly.
                     self._stack.removeWidget(fresh)
@@ -3787,7 +3785,7 @@ class MainWindow(QMainWindow):
                     old.register_workspace()
                     return
                 # The old screen and the replacement own the same stable
-                # workspace keys. Old's close withdrew them, so publish the
+                # workspace keys.  Old's close withdrew them, so publish the
                 # replacement again after teardown.
                 fresh.register_workspace()
                 self._stack.removeWidget(old)
@@ -3934,20 +3932,13 @@ class MainWindow(QMainWindow):
         })
 
     def _theme_screen(self, screen: QWidget, key: str) -> None:
-        """Apply late QSS, clear containers and add the ambient backdrop.
+        """Clear a screen's containers and give it the ambient backdrop.
 
         Skipped for anything that already handles its own: ``AppScreen`` does
-        the latter two in its constructor, and the sequencing screen has the
-        DNA rain.  Late QSS is applied before that branch because every screen
-        passes here before it is inserted into the visible stack.
+        both in its constructor, and the sequencing screen has the DNA rain.
         """
         from .screens.app_screen import AppScreen, uses_ambient_background
-        from .theme import clear_container_surfaces, ensure_widget_qss_applied
-
-        # A local stylesheet reaches this root and its descendants without
-        # making QApplication re-polish Home and every cached module.  The
-        # root is not in the stack yet, so these rules win the first paint.
-        ensure_widget_qss_applied(root=screen)
+        from .theme import clear_container_surfaces
 
         if isinstance(screen, AppScreen):
             return
@@ -4697,7 +4688,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
             LOG.debug("could not open the setup screen", exc_info=True)
 
     _timing.mark("MainWindow")
-    win = MainWindow(initial_app=initial_app)
+    # Building the window imports four modules that each register a widget
+    # QSS block, and each registration used to re-apply the whole
+    # application stylesheet on the way past -- five full compositions on a
+    # cold launch where one is owed. The window has not been shown yet, so
+    # the single restyle this batch flushes still lands before first paint.
+    from .theme import batched_widget_qss
+    with batched_widget_qss():
+        win = MainWindow(initial_app=initial_app)
     benchmark_controller = None
     if os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
         from .startup_benchmark import maybe_start as _maybe_start_benchmark
