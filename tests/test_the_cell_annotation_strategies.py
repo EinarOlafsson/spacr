@@ -697,3 +697,100 @@ def test_every_reported_group_is_the_readable_spelling(plate, prepared):
             assert "\x1f" not in group
             assert "/" in group
     assert "\x1f" not in result.summary()
+
+
+# ---------------------------------------------------------------------------
+# the refusals and fallbacks nobody reaches on a healthy screen
+# ---------------------------------------------------------------------------
+
+def test_an_empty_feature_list_is_refused_rather_than_fitted_on_nothing(plate):
+    """A list that names no columns is a mistake, not a request for defaults.
+
+    Falling through would fit on a zero-column design, and sklearn's message
+    for that is about array shapes -- which sends the reader looking at the
+    plate rather than at the setting they left empty. The distinction matters
+    because an empty list and an ABSENT one mean opposite things here: absent
+    means "choose for me", and the two must not converge.
+    """
+    with pytest.raises(ra.AnnotationStrategyError) as caught:
+        ra.prepare(_request(plate, feature_columns=[]))
+
+    assert "empty feature list" in str(caught.value)
+
+
+def test_feature_views_survive_a_classifier_that_cannot_group_the_columns(
+        plate, monkeypatch):
+    """The views are an aid; failing to build them must not fail the fit.
+
+    ``column_groups.classify`` reads naming conventions and can raise on a
+    table whose columns do not follow any -- an external mask set, a hand-made
+    export. The views are what offer "intensity only" and "shape only" in the
+    menu, so the honest degradation is to offer neither, not to refuse the
+    screen.
+    """
+    from spacr import column_groups
+
+    def refuse(_names):
+        raise RuntimeError("these column names follow no convention")
+
+    monkeypatch.setattr(column_groups, "classify", refuse)
+
+    views = ra.feature_views([c for c in plate.columns if c != "pred"])
+
+    assert isinstance(views, dict)
+    for name, columns in views.items():
+        assert not columns or all(isinstance(c, str) for c in columns)
+
+
+def test_an_unanswerable_xgboost_probe_reads_as_absent(monkeypatch):
+    """``find_spec`` raises, it does not only return None.
+
+    A namespace package shadowing the name raises ValueError, and a broken
+    parent package raises ImportError. Either way the honest answer is "no
+    xgboost", because the next thing the caller does is import it -- and an
+    exception escaping a capability PROBE would take down the strategy menu
+    while it was drawing itself.
+    """
+    import importlib.util
+
+    def refuse(_name):
+        raise ValueError("__spec__ is not set")
+
+    monkeypatch.setattr(importlib.util, "find_spec", refuse)
+
+    assert ra.xgboost_available() is False
+
+
+def test_a_holdout_with_one_class_reports_no_auc_rather_than_raising(plate):
+    """AUC is undefined on a single class, and the rest of the report is not.
+
+    ``roc_auc_score`` raises ValueError when the held-out wells happen to be
+    all-positive or all-negative, which a small screen produces regularly.
+    Accuracy and the counts are still meaningful, so the report carries them
+    with ``auc=None`` -- and None is what the caller must show as "not
+    measurable", never as zero.
+    """
+    import dataclasses
+
+    prepared = ra.prepare(_request(plate))
+    labels = np.array(prepared.labels, copy=True)
+    labels[prepared.holdout] = 1
+    single = dataclasses.replace(prepared, labels=labels)
+
+    held = len(np.asarray(prepared.holdout))
+    assert held > 0, "the fixture reserved no hold-out rows to score"
+
+    report = ra._score_holdout(
+        single, probabilities=np.full(held, 0.9), n_train=10,
+        columns=prepared.features, model="logistic")
+
+    assert report.roc_auc is None, "AUC is undefined on a single class"
+    assert report.accuracy == pytest.approx(1.0)
+    assert report.n_test == held
+
+    # The two things None buys, and NaN does not.
+    assert report.lift == pytest.approx(
+        report.balanced_accuracy - 0.5), (
+        "lift must fall back to balanced accuracy; NaN propagates instead, "
+        "and this lift is the number the named-method leak check compares")
+    assert "ROC AUC n/a" in report.summary()

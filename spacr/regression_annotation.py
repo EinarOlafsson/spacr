@@ -1256,6 +1256,18 @@ def _score_holdout(prepared: Prepared, probabilities: Any, n_train: int,
         auc = float(roc_auc_score(y_test, values))
     except ValueError:
         auc = None
+    if auc is not None and not np.isfinite(auc):
+        # NOT ONLY AN EXCEPTION. A hold-out that came out all-positive or
+        # all-negative -- routine on a small screen -- made scikit-learn raise
+        # ValueError up to 1.6 and makes it return NaN with an
+        # UndefinedMetricWarning from 1.7. Both mean "undefined", and only the
+        # first was being turned into None.
+        #
+        # NaN here is worse than it looks. `lift_over_chance` falls back to
+        # balanced accuracy on None and cannot on NaN, so it returns NaN --
+        # and that lift is the number the named-method leak check compares.
+        # `summary` prints "ROC AUC nan" where it means "n/a".
+        auc = None
     return FitReport(
         model=str(model), features=tuple(str(c) for c in columns),
         n_train=int(n_train), n_test=int(len(y_test)),
