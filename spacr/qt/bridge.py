@@ -887,6 +887,10 @@ def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
     return False
 
 
+class _SkipFigureCapture(Exception):
+    """Select the no-Matplotlib path for read-only background jobs."""
+
+
 class PipelineWorker(QObject):
     """Runs one pipeline function in its own thread.
 
@@ -921,6 +925,7 @@ class PipelineWorker(QObject):
         worker_count: int = 1,
         app_key: str = "",
         journal: bool = True,
+        capture_figures: bool = True,
     ):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
@@ -930,12 +935,16 @@ class PipelineWorker(QObject):
         :param app_key: optional explicit module name for run-history records.
         :param journal: create a reproducibility manifest. Set false only for
             read-only background UI maintenance such as refreshing history.
+        :param capture_figures: intercept Matplotlib output for an analysis
+            run. Read-only UI jobs disable this so polling cannot load the
+            plotting stack merely by opening a screen.
         """
         super().__init__()
         self._fn = fn
         self._settings = settings
         self._app_key_override = str(app_key or "")
         self._journal_enabled = bool(journal)
+        self._capture_figures = bool(capture_figures)
         self.worker_count = max(1, int(worker_count))
         self.cancel_token = CancellationToken()
         self.was_cancelled = False
@@ -1027,6 +1036,8 @@ class PipelineWorker(QObject):
         # of a blocking Tk window. `plt.show` gets restored in `finally`.
         capture_show = None
         try:
+            if not self._capture_figures:
+                raise _SkipFigureCapture
             import matplotlib
             # force=True, and the difference is the whole bug: force=False is
             # a NO-OP once a backend is active, and by the time a run starts
@@ -1172,6 +1183,8 @@ class PipelineWorker(QObject):
                 set_sink(_publish_figure)
             except Exception:
                 LOG.debug("could not install the figure sink", exc_info=True)
+        except _SkipFigureCapture:
+            plt = None
         except Exception:
             plt = None
 
@@ -1579,6 +1592,7 @@ def make_thread(
     *,
     journal: bool = True,
     user_visible: bool = True,
+    capture_figures: bool = True,
 ) -> tuple["QThread", PipelineWorker]:
     """Return ``(thread, worker)`` — the caller connects the worker's signals
     and calls ``thread.start()``.
@@ -1604,6 +1618,9 @@ def make_thread(
         want to show up on Home under a name of their own.
     :param journal: create a reproducibility record. Disable only for
         read-only UI housekeeping that is not an analysis run.
+    :param capture_figures: prepare Matplotlib figure interception. Keep true
+        for analysis runs; read-only UI jobs which cannot emit figures set it
+        false to preserve the operation import boundary.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     # THE FIRST pyplot IMPORT HAPPENS ON THIS THREAD, NOT ON THE WORKER.
@@ -1624,7 +1641,7 @@ def make_thread(
     # reproduce that native crash reliably. Every job after the first is a
     # dict lookup, and the worker's own `matplotlib.use("Agg", force=True)`
     # still wins -- importing pyplot does not choose a backend.
-    if "matplotlib.pyplot" not in sys.modules:
+    if capture_figures and "matplotlib.pyplot" not in sys.modules:
         gc_was_enabled = gc.isenabled()
         try:
             if gc_was_enabled:
@@ -1643,7 +1660,7 @@ def make_thread(
     allocation = apply_worker_budget(settings)
     worker = PipelineWorker(
         fn, settings, worker_count=allocation, app_key=app_key,
-        journal=journal,
+        journal=journal, capture_figures=capture_figures,
     )
     # Set on the worker rather than passed to its constructor, so a
     # PipelineWorker built anywhere else keeps the visible default.
