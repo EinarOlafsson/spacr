@@ -336,6 +336,24 @@ def _group_dict(key, role, object_type=None, count=1):
     }
 
 
+def test_an_unknown_saved_object_type_restores_as_unassigned(widget):
+    """The saved model and its combo must agree on an unsupported mask type.
+
+    Older or hand-edited settings can name a role spaCR does not write. The
+    chooser has no such entry, so restoration normalizes it to unassigned
+    instead of displaying ``Choose…`` while secretly retaining the bad value.
+    """
+    widget.set_value([_group_dict("mitochondria", "mask", "mitochondrion")])
+
+    group = widget.groups()[0]
+    object_box = widget._table.cellWidget(0, 3)
+    assert group.object_type is None
+    assert object_box.currentData() is None
+    assert object_box.currentText() == "Choose…"
+    assert widget._table.item(0, 1).text() == "mask · unassigned"
+    assert widget.get_value()[0]["object_type"] is None
+
+
 def test_a_synthetic_row_with_no_source_cell_maps_to_no_group(widget):
     """Rows outnumbering groups is a state the table really passes through.
 
