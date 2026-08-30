@@ -616,3 +616,29 @@ tests/test_the_model_check_cannot_currently_name_an_unknown_model.py, including
 an assertion that the import itself fails. Those tests must be UPDATED when the
 check is given a real source, not deleted -- they are the record that makes the
 change a fix rather than a regression.
+
+--------------------------------------------------------------------------------
+11. AN UNKNOWN ORGANELLE PROPERTY LOSES WHICH ORGANELLE IT WAS
+     (lane: spacr/feature_dict.py)
+--------------------------------------------------------------------------------
+
+``_parse_organelle_summary`` canonicalises a role prefix before looking a
+property up, so ``organelle_summary_organelleb_count`` and its ``organelle``
+sibling share one description -- correct, and the point of the function: they
+are one measurement of different objects.
+
+When the role matches but the PROPERTY is not in KNOWN_PROPERTIES, the loop
+breaks and falls through to a plain lookup that hard-codes
+``object_type="organelle"``. So an unrecognised property under ``organelleb``,
+``organellec`` or ``organelled`` comes back attributed to ``organelle``.
+
+SMALL AND REAL. The column name is preserved in full, so nothing is
+unrecoverable, but a report grouping unknown features by object_type files them
+under the wrong organelle. It bites only for properties spaCR does not know,
+which is why it has gone unnoticed -- and a custom measurement is exactly the
+sort of column that would be unknown.
+
+Current behaviour pinned by
+tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py, which says
+in its docstring that it is pinned and not endorsed. A fix would carry ``role``
+into the fall-through; that belongs to whoever owns the feature dictionary.
