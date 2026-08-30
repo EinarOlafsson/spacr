@@ -351,3 +351,57 @@ def test_detaching_leaves_the_tally_readable():
     counting.detach()
     assert counting.layer().stack is None
     assert counting.counts() == {'infected': 1, 'uninfected': 0}
+
+
+def test_detaching_twice_is_a_no_op_rather_than_an_error():
+    """A screen may close after something else already took the layers out.
+
+    ``detach`` walks every layer the session owns and removes the ones still
+    in ITS stack. A layer whose ``stack`` is already None -- or belongs to a
+    stack somebody else moved it into -- is skipped, because removing it would
+    either raise or reach into a stack this session does not own.
+
+    The second call is the realistic route: a screen's teardown runs, and then
+    the window's own cleanup runs behind it.
+    """
+    counting = session()
+    counting.add({'y': 1.0, 'x': 1.0})
+
+    counting.detach()
+    counting.detach()
+
+    assert counting.layer().stack is None
+    assert counting.counts() == {'infected': 1, 'uninfected': 0}
+
+
+def test_a_layer_moved_into_another_stack_is_left_where_it_is():
+    """The guard names ``self._stack`` on purpose.
+
+    Removing a layer from a stack the session does not own would take it out
+    of a viewer that is still showing it -- a screen losing its markers
+    because an unrelated session was closed.
+    """
+    counting = session()
+    counting.add({'y': 1.0, 'x': 1.0})
+    layer = counting.layer()
+    mine = counting._stack
+
+    class _SomebodyElsesStack:
+        def __init__(self):
+            self.removed = []
+
+        def remove(self, item):
+            self.removed.append(item)
+
+    theirs = _SomebodyElsesStack()
+    # `stack` is read-only on the layer; ownership is recorded in `_stack` and
+    # set by whichever stack adopted it. Writing it directly is what "somebody
+    # else took this layer" looks like from this session's point of view.
+    layer._stack = theirs
+
+    counting.detach()
+
+    assert theirs.removed == [], "a layer was pulled out of another stack"
+    assert layer.stack is theirs
+    assert layer in list(mine), (
+        "the session's own stack quietly lost the layer as well")
