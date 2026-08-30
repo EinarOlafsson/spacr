@@ -16,22 +16,60 @@ from spacr.qt import preferences as P
 
 
 def test_a_session_that_opens_no_deep_learning_module_never_imports_torch(
-        qapp):
-    """"asserted by sys.modules and not by a timing"."""
-    import spacr.qt.app as app_module
+        tmp_path):
+    """Assert the import boundary in a genuinely clean Python session.
 
-    win = app_module.MainWindow()
-    win.show()
-    qapp.processEvents()
-    try:
-        assert "torch" not in sys.modules
-        for key in ("mask", "measure", "regression"):
+    ``sys.modules`` belongs to the pytest worker, so checking it in-process
+    makes the result depend on which tests ran in that worker first.  The
+    subprocess still drives the real window and navigation path; it merely
+    gives the session-under-test its own import state.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    settings_root = tmp_path / "qsettings"
+    script = textwrap.dedent(
+        f"""
+        import os, sys
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        from pathlib import Path
+        from PySide6.QtCore import QSettings
+        from PySide6.QtWidgets import QApplication
+        settings_root = str(Path({str(settings_root)!r}))
+        for settings_format in (QSettings.NativeFormat, QSettings.IniFormat):
+            for settings_scope in (QSettings.UserScope, QSettings.SystemScope):
+                QSettings.setPath(
+                    settings_format, settings_scope, settings_root)
+        import spacr
+        assert Path(spacr.__file__).resolve().is_relative_to(
+            Path({str(repo)!r}).resolve())
+        from spacr.qt.app import MainWindow
+        app = QApplication.instance() or QApplication([])
+        win = MainWindow()
+        win.show()
+        app.processEvents()
+        imported_at_start = 'torch' in sys.modules
+        for key in ('mask', 'measure', 'regression'):
             win._on_nav_selected(key)
-            qapp.processEvents()
-        assert "torch" not in sys.modules, (
-            "opening ordinary modules pulled in 477 MB of torch")
-    finally:
+            app.processEvents()
+        imported_after_navigation = 'torch' in sys.modules
         win.close()
+        app.processEvents()
+        from spacr.qt.job_runner import shutdown_all
+        shutdown_all()
+        if imported_at_start:
+            raise AssertionError('opening the application imported torch')
+        if imported_after_navigation:
+            raise AssertionError(
+                'opening ordinary modules pulled in 477 MB of torch')
+        """
+    )
+    env = os.environ.copy()
+    env["QT_QPA_PLATFORM"] = "offscreen"
+    env["XDG_CONFIG_HOME"] = str(settings_root)
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=str(repo), env=env,
+        capture_output=True, text=True, timeout=45,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_opening_classify_does_not_import_its_operation_stack():
