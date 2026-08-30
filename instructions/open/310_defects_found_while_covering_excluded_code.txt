@@ -492,3 +492,27 @@ The invariant is now pinned by tests/test_the_consensus_depends_on_its_callers_p
 so a change that stops padding fails a test instead of a run. A fix would give
 create_consensus its own length check; that is a decision for the sequencing
 lane, not the coverage sweep.
+
+--------------------------------------------------------------------------------
+9. AN UNRECOGNISED metadata_type RAISED UnboundLocalError  (lane: spacr/utils.py)
+--------------------------------------------------------------------------------
+
+FIXED 2026-08-30. ``spacr.utils._get_regex`` mapped ``metadata_type`` onto a
+filename regex through an if/elif chain over 'cellvoyager', 'cq1', 'auto' and
+'custom' -- with no else. Any other value fell through to
+``print(f'...regex:{regex}')`` with ``regex`` never assigned, so the user got
+
+    UnboundLocalError: cannot access local variable 'regex' where it is not
+    associated with a value
+
+``metadata_type`` is read straight from a settings file, so this is a TYPO A
+USER MAKES, not an internal fault -- and 'CellVoyager', the spelling in the
+vendor's own documentation, is one of the values that produced it. The error
+named an implementation detail instead of the setting that was wrong.
+
+Fixed with an else that raises ValueError listing the four accepted values.
+The list is the documentation at the moment it is needed, which is the same
+argument seg_qc._resolve's unknown-threshold raise already makes.
+
+Regression: 46 tests across the filename/organise/yokogawa suites pass.
+Found by trying to cover arc 6592->6595, which was the fall-through itself.
