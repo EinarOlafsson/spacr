@@ -1040,6 +1040,43 @@ def test_generate_ml_scores_allows_a_second_crop_of_the_same_object(
     assert captured["n"] == len(png_list)
 
 
+def test_generate_ml_scores_names_an_annotation_join_with_zero_objects(
+        tmp_path, monkeypatch):
+    """A valid label column from a different object set is not training data.
+
+    The inner join used to hand an empty frame to ``ml_analysis``. Released
+    versions then reached sklearn's ``train_test_split`` with ``n_samples=0``;
+    the user saw neither the failed identity join nor which inputs to check.
+    """
+    from spacr.ml import generate_ml_scores
+
+    measured = [f"plate1_r1_c1_f1_o{i}" for i in range(1, 5)]
+    annotations = [f"other_r1_c1_f1_o{i}" for i in range(1, 5)]
+    frame = _ml_score_frame(measured)
+    png_list = pd.DataFrame({
+        "prcfo": annotations,
+        "test": [1, 2, 1, 2],
+    })
+    _install_ml_score_fakes(monkeypatch, frame, png_list)
+
+    src = tmp_path / "zero-overlap"
+    (src / "measurements").mkdir(parents=True)
+
+    with pytest.raises(ValueError) as excinfo:
+        generate_ml_scores({
+            "src": str(src),
+            "annotation_column": "test",
+            "channel_of_interest": None,
+            "verbose": False,
+        })
+
+    message = str(excinfo.value)
+    assert "joined to 0 measured objects by 'prcfo'" in message
+    assert "4 annotation rows; 4 measurement rows" in message
+    assert "same source" in message and "same object identities" in message
+    assert "n_samples=0" not in message
+
+
 def test_generate_ml_scores_annotation_merge_states_its_cardinality():
     """The contract is on the merge itself, not only on the cases above."""
     import inspect
