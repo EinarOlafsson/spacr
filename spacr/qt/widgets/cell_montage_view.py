@@ -1620,6 +1620,7 @@ class CellMontageView(QWidget):
                  parent=None, *, threaded: bool = True):
         super().__init__(parent)
         from ..job_runner import JobRunner
+        from .flow import FlowHost, FlowLayout
 
         self._frame_provider = frame_provider
         self._results_provider = results_provider
@@ -1669,12 +1670,20 @@ class CellMontageView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
 
-        controls = QHBoxLayout()
+        # THIS ROW WRAPS BEFORE IT CLIPS. Its four buttons alone measure
+        # 553--569 px across the two shipped Open Sans weights/rasterizers;
+        # the guide selector used to be `Ignored`, so a 560 px panel met its
+        # nominal minimum only by squeezing that required control down to a
+        # few pixels. A flow keeps every control at its full size and spends
+        # height, rather than forcing the regression splitter wider, whenever
+        # the panel or the user's Zoom leaves too little room for one line.
+        self._controls_row = FlowHost(self)
+        controls = FlowLayout(self._controls_row, spacing=4)
         self._show = QPushButton("Show the cells")
         self._show.clicked.connect(self.build)
         controls.addWidget(self._show)
 
-        self._object = QComboBox()
+        self._object = QComboBox(self)
         for name in OBJECT_CHOICES:
             self._object.addItem(name, name)
         self._object.setToolTip(
@@ -1692,10 +1701,11 @@ class CellMontageView(QWidget):
         # for one setting -- and two controls for one setting is two places
         # for it to be wrong.
         #
-        # The widget stays, unparented and hidden, because `channels()` and
-        # the run's saved state both read it and a removal would have been a
-        # rename disguised as a deletion. It mirrors the settings window.
-        self._channels = QLineEdit()
+        # The widget stays as a hidden CHILD because `channels()` and the
+        # run's saved state both read it and a removal would have been a
+        # rename disguised as a deletion. Parenting it keeps the source of
+        # truth owned by this tab when the screen closes.
+        self._channels = QLineEdit(self)
         self._channels.setPlaceholderText("as the run saved them")
         self._channels.setVisible(False)
         self._channels.setToolTip(
@@ -1708,7 +1718,7 @@ class CellMontageView(QWidget):
             "measurements.db, so the crops match the PNGs that run wrote.")
         self._channels.textChanged.connect(self._on_settings_changed)
 
-        self._shape = QComboBox()
+        self._shape = QComboBox(self)
         for value, label in SHAPE_CHOICES:
             self._shape.addItem(label, value)
         self._shape.setToolTip(
@@ -1719,7 +1729,7 @@ class CellMontageView(QWidget):
         self._shape.currentIndexChanged.connect(self._on_settings_changed)
         self._shape.setVisible(False)
 
-        self._source = QComboBox()
+        self._source = QComboBox(self)
         for value, label in SOURCE_CHOICES:
             self._source.addItem(label, value)
         self._source.currentIndexChanged.connect(self._on_settings_changed)
@@ -1759,12 +1769,12 @@ class CellMontageView(QWidget):
         self._compare_button.clicked.connect(self.compare_a_measurement)
         controls.addWidget(self._compare_button)
 
-        # HOW THE CELLS GET ANNOTATED is a tab rather than a fourth button on
-        # this row. The three buttons already here put this widget's minimum
-        # width at 553 px against a splitter that floors at 520, and a fourth
-        # took it to 713 -- a minimum wider than the panel it sits in forces
-        # the whole regression screen wider, which is the failure the
-        # stringency row was taken off this toolbar to fix.
+        # HOW THE CELLS GET ANNOTATED is a tab rather than another persistent
+        # button in this strip. A button used to take the one-line row from
+        # 553 px to 713 px; the strip now wraps, but the tab remains the right
+        # home for forty controls that are deliberately built only when they
+        # are asked for. The same width failure is why the stringency row is
+        # not duplicated here either.
         self._annotation_panel = None
         self._annotation_page = None
         self._annotation_placeholder = None
@@ -1781,13 +1791,12 @@ class CellMontageView(QWidget):
         self._per_guide.currentIndexChanged.connect(self._on_settings_changed)
         controls.addWidget(self._per_guide)
 
-        controls.addStretch(1)
         self._save = QPushButton("Save figure…")
         # No argument: `clicked` carries a bool that `save` would read as its
         # path. The guard in `save` covers it too; this says the intent.
         self._save.clicked.connect(lambda: self.save())
         controls.addWidget(self._save)
-        layout.addLayout(controls)
+        layout.addWidget(self._controls_row)
 
         # THE STRINGENCY ROW. Every control here changes WHICH CELLS a reader
         # is looking at, so every one is written into the caption and a
@@ -1798,7 +1807,7 @@ class CellMontageView(QWidget):
         # pictures look right and nothing in the output would show that it
         # had been.
         stringency = QHBoxLayout()
-        self._half_widths = QDoubleSpinBox()
+        self._half_widths = QDoubleSpinBox(self)
         self._half_widths.setDecimals(2)
         self._half_widths.setRange(0.05, 20.0)
         self._half_widths.setSingleStep(0.25)
@@ -1812,7 +1821,7 @@ class CellMontageView(QWidget):
         self._half_widths.valueChanged.connect(self._on_settings_changed)
         self._half_widths.setVisible(False)
 
-        self._baseline = QComboBox()
+        self._baseline = QComboBox(self)
         for value, label in BASELINE_CHOICES:
             self._baseline.addItem(label, value)
         self._baseline.setToolTip(
@@ -1825,7 +1834,7 @@ class CellMontageView(QWidget):
 
         self._baseline.setVisible(False)
 
-        self._score = QLineEdit()
+        self._score = QLineEdit(self)
         self._score.setPlaceholderText(DEFAULT_SCORE_COLUMN)
         self._score.setMaximumWidth(110)
         self._score.setToolTip(
@@ -1835,7 +1844,7 @@ class CellMontageView(QWidget):
         self._score.textChanged.connect(self._on_settings_changed)
         self._score.setVisible(False)
 
-        self._cap = QSpinBox()
+        self._cap = QSpinBox(self)
         # AS HIGH AS THE SETTINGS WINDOW CAN GO. This box is the value
         # `request()` reads, and the window writes its choice back into it
         # through `setValue`, which clamps silently -- so a lower ceiling
@@ -1873,7 +1882,12 @@ class CellMontageView(QWidget):
             box.setSizeAdjustPolicy(
                 QComboBox.AdjustToMinimumContentsLengthWithIcon)
             box.setMinimumContentsLength(10)
-            box.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+            # Hidden settings do not participate in the layout. The visible
+            # guide selector does: making it `Ignored` gave FlowLayout a
+            # zero-width item and clipped the selected mode completely.
+            horizontal = (QSizePolicy.Minimum
+                          if box is self._per_guide else QSizePolicy.Ignored)
+            box.setSizePolicy(horizontal, QSizePolicy.Fixed)
 
         self._channels.setMinimumWidth(60)
         self._score.setMinimumWidth(60)
