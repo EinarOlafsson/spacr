@@ -209,3 +209,35 @@ This closes only the non-Qt facade/CLI metadata hotspot. The item stays OPEN
 for real post-paint Home readiness, all-module click-to-ready traces, event-loop
 stall and RSS measurements, heavy-stack operation boundaries, cache-budget
 wiring, and the complete supported CI matrix.
+
+--------------------------------------------------------------------------------
+2026-08-30 — EVERY APPLICABLE LIVE CACHE NOW OBEYS ONE BUDGET
+--------------------------------------------------------------------------------
+
+The production audit found five caches which were still outside item 282's
+shared idle-time, byte-ceiling and free-headroom policy: timelapse decoded
+frames, inactive derived-mask signatures, reproducible composited movie
+frames, Annotate's warm Cellpose model, and CUDA allocator slack.  They now
+register measured entries with the process-wide manager.  Active/in-use data
+remain pinned; bounded cleanup never imports torch or Cellpose, creates a CUDA
+context, or blocks waiting for an active model.  For an already initialised
+CUDA runtime, the evictable size is the honest reserved-minus-allocated amount
+summed across every device, and cleanup releases only that allocator cache.
+
+The final audit also recorded the deliberate exclusions.  Fixed-size icon and
+animation LRUs already have their own hard bounds; Qt's opaque pixmap cache is
+separately cleared by aggressive cleanup; displayed scientific arrays,
+DataFrames and run-local models are active working state rather than caches;
+and imported CPython extensions are not claimed unloadable.
+
+Verification on the integrated tree: 15 focused live-cache tests, 140 cleanup
+and accounting tests, 290 broader Annotate/timelapse/resource tests, and 12
+fresh-process lazy-import tests passed in the isolated implementation lane.
+The four most overlap-sensitive suites were then repeated after integration:
+87/87 passed.  The deterministic CUDA test presents two exact allocator-device
+seams; it verifies the policy without requiring the offscreen test process to
+allocate physical GPU memory.  Implementation commit: ``9afbe136``.
+
+Item 4 is closed.  This instruction remains OPEN for the installed-artifact
+matrix, final post-paint all-module traces and the operation-boundary/profile
+evidence in items 1–3 and 5–6.
