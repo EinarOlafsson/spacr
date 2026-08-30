@@ -44,7 +44,7 @@ and the two packages that do are unmaintained.
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import List, Tuple
 
 import numpy as np
 
@@ -220,6 +220,11 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
     additional ranges. If no eligible candidate is found, the smallest
     penalty evaluated is returned.
 
+    :param X: two-dimensional design matrix with one row per well and one
+        column per guide.
+    :param y: response values aligned to the rows of ``X``.
+    :param labels: group label for every column of ``X``; guides sharing a
+        label are selected or dropped as one block.
     :param folds: how many held-out splits. Wells, not guides.
     :param required: optional boolean mask over COLUMNS. A penalty counts as
         selecting only when one of these columns is non-zero. Defaults to
@@ -322,6 +327,10 @@ def stability_selection(X, y, labels, *, lam: float = 0.05,
                         seed: int = 0, **kwargs):
     """How often each gene survives a re-fit on half the wells.
 
+    :param X: two-dimensional design matrix with wells in rows and guides in
+        columns.
+    :param y: response values aligned to the rows of ``X``.
+    :param labels: gene or other group label for every guide column.
     :param n_boot: subsamples.
     :param fraction: the share of ROWS in each subsample. Half is
         Meinshausen & Buhlmann's choice and the one their error bound is

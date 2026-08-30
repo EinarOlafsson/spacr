@@ -35,12 +35,17 @@ import logging
 import re
 import sqlite3
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from .object_roles import (ANCHOR_COLUMN, ORGANELLE_ROLES, anchor_column,
-                           is_one_row_per_cell)
+
+from .object_roles import (
+    ANCHOR_COLUMN,
+    ORGANELLE_ROLES,
+    anchor_column,
+    is_one_row_per_cell,
+)
 
 LOG = logging.getLogger("spacr.merge_tables")
 
@@ -179,6 +184,8 @@ def aggregation_for(column: str, *, numeric: bool = True,
                     overrides: Optional[Mapping[str, str]] = None) -> str:
     """How ``column`` combines when several children roll up into one parent.
 
+    :param column: measurement column name matched against the ordered
+        :data:`AGGREGATION_RULES`.
     :param numeric: text columns take the first value whatever their name.
     :param overrides: explicit choices, which always win.
     :returns: one of :data:`AGGREGATIONS`.
@@ -299,9 +306,11 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
             name: str, policy: MergePolicy) -> pd.DataFrame:
     """Aggregate ``child`` onto its parent, one rule per column.
 
+    :param child: child-object rows to group and aggregate.
     :param keys: the parent's identity in the child -- the identity columns
         plus the parent link.
     :param name: the child table's name, used to prefix its columns.
+    :param policy: merge policy supplying per-column aggregation overrides.
     :returns: one row per parent, columns prefixed with ``name``.
     :raises MergeError: the child has none of the keys.
     """
@@ -534,6 +543,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
     pathogen on a third" possible: each table's columns arrive prefixed with
     the object they measure, so they can be told apart and picked separately.
 
+    :param db_path: path to the SQLite measurements database.
     :param tables: which object tables to include. The primary must be one of
         them, and is added if it is not.
     :param policy: how to aggregate and what to do with childless parents.
@@ -741,6 +751,8 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     gate on PC1 vs PC2 is the same kind of object as a gate on area vs
     intensity, and saves, re-applies and exports identically.
 
+    :param frame: object-by-measurement table to project. The returned frame is
+        reindexed to this table's complete index.
     :param columns: the measurements to reduce. At least two.
     :param method: ``pca`` always available; umap and t-SNE if installed.
     :param scale: standardise first. Without it a measurement whose numbers
@@ -833,7 +845,7 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
             # and spaCR's standing rule is that nothing drags TF in. The
             # loader imports umap.umap_ with the TF-backed roots blocked.
             from .utils import umap
-            umap.UMAP
+            _ = umap.UMAP
         except Exception as exc:
             raise ReductionError(
                 "UMAP is not installed in this environment; PCA is always "
@@ -944,6 +956,8 @@ def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
     is exactly the kind of split a user would otherwise write up.
 
     :param components: the reducer's output, indexed like ``frame``.
+    :param frame: original measurement table used to determine which component
+        rows had or lacked each input measurement.
     :param columns: the columns that went into the projection.
     :param min_objects: skip a column unless both sides have at least this
         many objects. A gap computed from four objects is noise, and

@@ -306,6 +306,8 @@ def confusion_counts(predictions: pd.DataFrame,
     a filtered prediction table silently produced a matrix nobody could
     reproduce.
 
+    :param predictions: one row per evaluated object, including
+        :data:`TRUE_COLUMN` and :data:`PREDICTED_COLUMN`.
     :param classes: the class order. Defaults to every class appearing as a
         true label or a prediction, sorted, so a class the model never chose
         still gets its column rather than vanishing from the matrix.
@@ -410,6 +412,8 @@ def describe_confusions(counts: pd.DataFrame, *, limit: int = 3) -> str:
     the only part of it anybody acts on. This says it: *"Your worst confusion
     is uninfected → infected: 43 object(s), 45% of all errors…"*
 
+    :param counts: square true-by-predicted count table accepted by
+        :func:`rank_confusions`.
     :param limit: how many confusions to name before summarising the rest.
     :returns: one or more lines, no trailing newline. Never empty — a perfect
         classifier gets a sentence saying so, because a blank panel reads as
@@ -535,6 +539,10 @@ class ConfusionCell:
               n_classes: Optional[int] = None) -> "ConfusionCell":
         """Resolve a cell and split it.
 
+        :param predictions: evaluated-object table containing the true,
+            predicted, confidence, and identity columns.
+        :param true_class: annotated class naming the matrix row to resolve.
+        :param predicted_class: model class naming the matrix column to resolve.
         :param threshold: where "sure" starts. Defaults to
             :func:`confidence_threshold` of ``n_classes``, or of the number of
             distinct classes in ``predictions`` when that is not given.
