@@ -78,3 +78,100 @@ def test_a_menu_lookup_that_cannot_run_finds_nothing(window, monkeypatch):
     bar, point = S._menu_target(window, "File")
     assert bar is window.menuBar()
     assert point is None
+
+
+# ---------------------------------------------------------------------------
+# a tutorial step that points at a fold switch
+# ---------------------------------------------------------------------------
+
+def test_a_step_pointing_at_a_screen_that_is_not_there_highlights_nothing():
+    """The tutorial runs against whatever screen is open.
+
+    A step written for a screen the user has since closed must resolve to
+    None rather than raise -- the tutorial would otherwise stop dead at a
+    step that is merely no longer applicable.
+    """
+    from spacr.qt.tutorial.scripts import _fold_button
+
+    assert _fold_button(None, "timelapse") is None
+
+
+def test_a_screen_with_no_fold_strip_says_so_in_the_log(caplog):
+    """A step that highlights nothing is a step the user cannot follow.
+
+    Returning None silently would leave the tutorial pointing at empty space
+    with no record of why, so the warning names the key it could not find.
+    """
+    import logging
+
+    from spacr.qt.tutorial.scripts import _fold_button
+
+    class _NoStrip:
+        _fold_strip = None
+
+    with caplog.at_level(logging.WARNING):
+        assert _fold_button(_NoStrip(), "timelapse") is None
+
+    assert "carries no fold strip" in caplog.text
+    assert "timelapse" in caplog.text
+
+
+def test_a_strip_that_is_not_a_strip_is_refused_by_shape(caplog):
+    """``button_for`` is the whole interface, checked rather than assumed.
+
+    A screen can carry an attribute of that name that is not a fold strip --
+    a layout, a placeholder set during a rebuild -- and calling it would
+    raise inside the tutorial rather than skipping a step.
+    """
+    import logging
+
+    from spacr.qt.tutorial.scripts import _fold_button
+
+    class _NotAStrip:
+        _fold_strip = object()
+
+    with caplog.at_level(logging.WARNING):
+        assert _fold_button(_NotAStrip(), "motility") is None
+
+    assert "carries no fold strip" in caplog.text
+
+
+def test_a_strip_with_no_switch_for_that_key_names_the_key(caplog):
+    """The strip exists and simply has no such switch on this screen.
+
+    A different warning from the one above, because the fix is different: one
+    is a screen without the strip, the other is a step naming a fold this
+    screen does not offer.
+    """
+    import logging
+
+    from spacr.qt.tutorial.scripts import _fold_button
+
+    class _Strip:
+        def button_for(self, key):
+            return None
+
+    class _Screen:
+        _fold_strip = _Strip()
+
+    with caplog.at_level(logging.WARNING):
+        assert _fold_button(_Screen(), "a_fold_that_does_not_exist") is None
+
+    assert "no fold switch for" in caplog.text
+    assert "a_fold_that_does_not_exist" in caplog.text
+
+
+def test_a_strip_that_has_the_switch_hands_it_back():
+    """Otherwise the four refusals above would pass on a constant None."""
+    from spacr.qt.tutorial.scripts import _fold_button
+
+    sentinel = object()
+
+    class _Strip:
+        def button_for(self, key):
+            return sentinel if key == "timelapse" else None
+
+    class _Screen:
+        _fold_strip = _Strip()
+
+    assert _fold_button(_Screen(), "timelapse") is sentinel
