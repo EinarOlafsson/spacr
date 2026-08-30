@@ -214,6 +214,9 @@ def test_cv_pipeline_events_follow_real_orchestrator_calls(
     }
 
     class FakeLoader:
+        def __init__(self, objects=0):
+            self.objects = objects
+
         def __len__(self):
             return 0
 
@@ -253,6 +256,9 @@ def test_cv_pipeline_events_follow_real_orchestrator_calls(
     monkeypatch.setattr(utils, "save_settings", lambda *a, **k: None)
     monkeypatch.setattr(deep, "_class_folder_names", lambda _settings: ["n", "p"])
     monkeypatch.setattr(deep, "_empty_device_cache", lambda: None)
+    monkeypatch.setattr(
+        deep, "_loader_object_count", lambda loader: loader.objects
+    )
     monkeypatch.setattr(deep, "seed_everything", lambda *a, **k: None)
     monkeypatch.setattr(deep, "resolve_seed", lambda _settings: 7)
     monkeypatch.setattr(
@@ -289,7 +295,14 @@ def test_cv_pipeline_events_follow_real_orchestrator_calls(
     monkeypatch.setattr(
         io,
         "generate_loaders",
-        lambda *a, **k: (operations.append("split") or (FakeLoader(), FakeLoader(), None)),
+        lambda *a, **k: (
+            operations.append("split")
+            or (
+                FakeLoader(3 if k.get("mode") == "test" else 4),
+                FakeLoader(0 if k.get("mode") == "test" else 2),
+                None,
+            )
+        ),
     )
     monkeypatch.setattr(
         io,
@@ -334,6 +347,22 @@ def test_cv_pipeline_events_follow_real_orchestrator_calls(
     assert operations.index("training") < operations.index("evaluation")
     assert operations.index("evaluation") < operations.index("scores")
     _assert_linear_timings(collector, list(range(10, 19)))
+    graph = collector.snapshot()
+    assert graph.nodes["split"].metrics == {
+        "train_objects": 4,
+        "validation_objects": 2,
+    }
+    assert graph.nodes["model"].metrics == {
+        "classes": 2,
+        "train_objects": 4,
+    }
+    assert graph.nodes["training"].metrics == {"objects": 4}
+    assert graph.nodes["evaluation"].metrics == {"objects": 1}
+    assert graph.nodes["scores"].metrics == {
+        "objects": 1,
+        "matched_objects": 0,
+        "databases": 1,
+    }
 
 
 def _ml_frame() -> pd.DataFrame:
@@ -527,6 +556,8 @@ import spacr.ml as ml
 assert not any(name.startswith("spacr.flowview") for name in sys.modules)
 assert deep._flowview_event("advance", "source") is False
 assert ml._flowview_event("advance", "source") is False
+assert deep._flowview_metric("objects", 1) is None
+assert ml._flowview_metric("objects", 1) is None
 assert not any(name.startswith("spacr.flowview") for name in sys.modules)
 """
     result = subprocess.run(
