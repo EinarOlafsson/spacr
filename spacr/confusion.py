@@ -539,8 +539,10 @@ class ConfusionCell:
               n_classes: Optional[int] = None) -> "ConfusionCell":
         """Resolve a cell and split it.
 
-        :param predictions: evaluated-object table containing the true,
-            predicted, confidence, and identity columns.
+        :param predictions: evaluated-object table containing the true and
+            predicted class columns. A non-empty resolved cell must also carry
+            confidence; identity columns are retained when present but are not
+            required.
         :param true_class: annotated class naming the matrix row to resolve.
         :param predicted_class: model class naming the matrix column to resolve.
         :param threshold: where "sure" starts. Defaults to

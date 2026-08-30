@@ -148,9 +148,11 @@ class Pointer:
         """Read the pointer relative to ``widget``. Never raises.
 
         :param widget: visible Qt widget whose global rectangle defines the
-            returned centred -1..1 coordinates and inside/outside state.
-        :param size: how far the effect reaches, in the same -1..1 space as
-            the coordinates -- 1.0 reaches the widget's short edge.
+            returned centred coordinates and inside/outside state. Coordinates
+            use the short edge as their scale, so that axis maps to -1..1 and
+            the long axis may extend beyond it.
+        :param size: how far the effect reaches in short-edge-normalised
+            coordinate units; 1.0 reaches the widget's short edge.
         :param strength: how hard it pulls, 0 to 2.
         """
         try:

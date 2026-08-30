@@ -124,6 +124,7 @@ def resolve(columns: Iterable[str],
         reduction's input order does not depend on which checkbox was clicked
         first -- a UMAP whose axes depend on click order is not reproducible.
     """
+    columns = tuple(str(column) for column in columns)
     wanted = set()
     grouped = classify(columns)
     for kind, names in dict(selection or {}).items():
@@ -133,7 +134,7 @@ def resolve(columns: Iterable[str],
         for name in names:
             wanted.update(grouped[kind].get(str(name), []))
     wanted.update(str(c) for c in explicit)
-    ordered = [str(c) for c in columns if str(c) in wanted]
+    ordered = [column for column in columns if column in wanted]
     return ordered
 
 
@@ -145,8 +146,9 @@ def summarise(columns: Iterable[str],
     A reduction over 400 columns and one over 4 look identical in a dialog
     until something says which it is.
     """
+    columns = tuple(str(column) for column in columns)
     chosen = resolve(columns, selection, explicit=explicit)
-    total = len([c for c in columns])
+    total = len(columns)
     if not chosen:
         return "no columns selected"
     return f"{len(chosen)} of {total} columns selected"
