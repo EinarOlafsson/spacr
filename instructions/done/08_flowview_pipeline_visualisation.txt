@@ -605,7 +605,7 @@ collector when a new run replaces the preview, stops while folded or hidden,
 and tears down its timer and scene with the screen. The existing Pipeline
 Graph remains the cross-run artifact/provenance view; FlowView is the
 within-one-run stage view. The user-visible placement is reachable in
-``851fbc18`` (``Integrate FlowView into Classify settings``).
+``07b8c125`` (``Integrate FlowView into Classify settings``).
 
 The approved eight nodes are the exact Classify path: source, PNG list or
 measurement tables, dataset, split, active CV/ML model, training, evaluation,

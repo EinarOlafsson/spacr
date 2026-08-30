@@ -43,7 +43,7 @@ present-tense description, is authoritative.
 
 The original TSG101 input contained 1,385 data rows. Three sequences were
 shared by more than one guide name, across EIGHT rows in all (3 + 3 + 2).
-Reachable nightly commit ``6e386141`` removed all eight ambiguous rows from
+Reachable nightly commit ``edb6d2fb`` removed all eight ambiguous rows from
 the bundled ``spacr/resources/data/barcodes_grna.csv``. The shipped file now
 contains exactly 1,377 data rows and zero duplicated sequences. The usable
 count is therefore 1,385 - 8 = 1,377, not 1,382; three was the number of
@@ -77,7 +77,7 @@ The same class of fault as the Classify (ML) `ModelFeatureSchemaError`
 that WAS fixed: a column arrives as object dtype and the selector expects
 numeric.
 
-Reachable nightly commit ``e67a6fa6`` applies the Classify schema boundary to
+Reachable nightly commit ``0bc98d11`` applies the Classify schema boundary to
 the real PCA and XGBoost timelapse QC paths. It identifies only features the
 selected model can consume, coerces numeric text in a candidate-only frame,
 and raises ``ModelFeatureSchemaError`` with the bad column/value when an
@@ -110,7 +110,7 @@ is in the coverage runner notes, not here.
    [RE-AUDITED 2026-08-30; LIVE WALLPAPER CODE RETAINED]
 --------------------------------------------------------------------------------
 
-Reachable nightly commit ``44006a10`` retired Space as a selectable theme.
+Reachable nightly commit ``e541ecf5`` retired Space as a selectable theme.
 Still present:
 
     spacr/resources/themes/deep_field.jpg     1.4 MB, still ships
@@ -302,8 +302,8 @@ STATUS 2026-08-10: the three image-attribution defects above are FIXED (both
 `tests/test_cov_utils_saliency_gradcam.py` and
 `tests/test_cov_utils_mask_metrics.py`. The sentence that formerly called the
 other four "still open" is obsolete: the dead seed, clamped validation
-fraction and object-count label were fixed in ``39efa5e0``;
-``MergedCropSource.get_many`` was reconciled in ``2b36b712`` as an intentional
+fraction and object-count label were fixed in ``62e5545f``;
+``MergedCropSource.get_many`` was reconciled in ``0bb1073a`` as an intentional
 fail-loud contract, with non-optional return annotations and a regression.
 No defect in this N+1 list remains open.
 
@@ -312,7 +312,7 @@ No defect in this N+1 list remains open.
 --------------------------------------------------------------------------------
 
 Requested 2026-08-10 — "fix all bugs and logic that leads to erroneous and
-missleading results". Reachable nightly commit ``39efa5e0``.
+missleading results". Reachable nightly commit ``62e5545f``.
 
 Fixed, with the reproduction re-run before and after each:
 
@@ -480,12 +480,12 @@ two-tailed selection that KEEPS the extremes, and passing upper < lower makes
 the conditions cover the line so nothing is filtered at all.
 
 STATUS 2026-08-29: none of the defects in this sweep remains open. Reachable
-nightly commit ``4ca7cf45`` refuses labels outside calibration columns and
-returns a correctly columned empty calibration table. ``48480a8b`` draws the
+nightly commit ``a7b2da80`` refuses labels outside calibration columns and
+returns a correctly columned empty calibration table. ``a5a089d9`` draws the
 activation map when ``overlay=False``, gives Saliency and Grad-CAM the same
 ``(H,W)``/``(1,H,W)``/``(3,H,W)`` map contract, hides unused panels, keeps a
 singleton under both outlier methods, and rejects a negative threshold.
-``2b36b712`` visits every non-noise cluster and resolves one color consistently
+``0bb1073a`` visits every non-noise cluster and resolves one color consistently
 for its panel and legend. The regressions exercise the formerly wrong output;
 the original reproductions above are retained as history, not current state.
 
