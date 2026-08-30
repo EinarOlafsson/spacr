@@ -355,32 +355,30 @@ def test_unreadable_journal_totals_are_reported_as_zeroes(qtbot, monkeypatch):
                             "measure_runs": 0, "models_recorded": 0}
 
 
-def test_a_machine_with_neither_nvml_nor_torch_reports_no_gpu(monkeypatch):
-    """Two probes, and when both are unavailable the answer is "n/a".
+def test_a_machine_without_nvml_reports_no_gpu(monkeypatch):
+    """One lightweight probe, and when it is unavailable the answer is n/a.
 
     Reporting "0%" or "0.0 GB" would state a measurement of a device that was
     never found.
+    """
+    monkeypatch.setattr(home_mod, "_nvml", lambda: None)
+
+    assert SystemPanel.gpu_util() == "n/a"
+    assert SystemPanel.gpu_vram() == "n/a"
+
+
+def test_reading_the_home_gpu_card_does_not_import_torch(monkeypatch):
+    """The dashboard must not allocate a model runtime to decorate itself.
+
+    A CPU-only runner and a laptop without NVML both take this path. Importing
+    Torch there cost hundreds of megabytes before the user chose an operation
+    that needs it.
     """
     monkeypatch.setattr(home_mod, "_nvml", lambda: None)
     _block("torch", monkeypatch)
 
     assert SystemPanel.gpu_util() == "n/a"
     assert SystemPanel.gpu_vram() == "n/a"
-
-
-def test_vram_falls_back_to_what_torch_has_allocated(monkeypatch):
-    """Without NVML, torch still knows what this process is holding.
-
-    It is not the card's total, and the panel says so by printing one number
-    instead of the "used / total" pair NVML gives.
-    """
-    import torch
-
-    monkeypatch.setattr(home_mod, "_nvml", lambda: None)
-    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
-    monkeypatch.setattr(torch.cuda, "memory_allocated", lambda: 2_500_000_000)
-
-    assert SystemPanel.gpu_vram() == "2.5 GB"
 
 
 def test_a_disk_that_cannot_be_measured_reports_no_percentage(monkeypatch):

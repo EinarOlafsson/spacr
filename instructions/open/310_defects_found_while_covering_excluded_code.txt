@@ -1060,3 +1060,82 @@ THE GENERAL RULE. A boolean that says "unsafe external action allowed" is not
 a mock. Test permission must be coupled to the substituted capability itself,
 and a test-session prohibition must outlive every individual test phase and
 follow child processes.
+
+--------------------------------------------------------------------------------
+21. A FIGURE-LEAK ASSERTION CLAIMED EVERY FIGURE IN THE PROCESS
+--------------------------------------------------------------------------------
+
+Coverage shard 3 passed 642 tests and then failed
+``test_saving_writes_the_same_two_filenames_the_pipeline_always_wrote`` because
+the test asserted ``not plt.get_fignums()``. That asks whether no earlier test,
+plugin or caller owns a figure; it does not ask whether ``save_distributions``
+leaked either of the two figures it created. The same test passed alone, which
+hid the order dependency until the deterministic coverage batch put it after a
+figure-owning test.
+
+Fixed by opening a caller-owned sentinel, recording the complete figure-number
+set, and requiring the set to be exactly unchanged after the save. The stronger
+contract proves both ownership directions: the saver closes every figure it
+creates and does not close a figure it did not create. The sentinel is closed
+in ``finally`` so the corrected test is itself isolated.
+
+THE GENERAL RULE. A resource-leak test compares ownership before and after the
+operation under test. An absolute empty-process assertion measures unrelated
+test order and can fail even when the resource owner behaved correctly.
+
+--------------------------------------------------------------------------------
+22. HOME IMPORTED TORCH TO PRINT TWO DASHBOARD STRINGS
+--------------------------------------------------------------------------------
+
+The coverage runner installs Torch but has no NVIDIA driver, so Home's NVML
+probe returns no device. ``SystemPanel.gpu_util`` and ``gpu_vram`` then each
+fell back to importing Torch just to print ``no CUDA`` or process-allocated
+VRAM. Merely opening spaCR therefore loaded the model runtime on precisely the
+CPU-only and laptop installations where the fallback was most likely. Two
+fresh-process memory contracts caught it in CI: startup and ordinary module
+navigation both found ``torch`` already in ``sys.modules``.
+
+Fixed by keeping Home on the lightweight NVML boundary. When that probe cannot
+measure a device, both cells honestly report ``n/a``; choosing an operation
+that needs Torch remains the boundary that may import it. The former fallback
+test now blocks every Torch import and drives both dashboard readings, while
+the existing real-NVML tests retain exact utilisation and used/total VRAM
+coverage.
+
+THE GENERAL RULE. A status card may report what an already-lightweight probe
+knows. It must not initialise the resource-heavy subsystem it is supposed to
+describe, because observation would then change both startup memory and GPU
+state.
+
+--------------------------------------------------------------------------------
+23. COVERAGE SHARDS EXPOSED SIX TESTS OF ACCIDENTAL ENVIRONMENT STATE
+--------------------------------------------------------------------------------
+
+The full CI matrix exercised paths that isolated developer runs did not. Six
+contracts were measuring the runner instead of the behaviour they named:
+
+* a regression-only announcement test required an otherwise unrelated console
+  to be empty, although startup diagnostics may already own its current block;
+* a tooltip transparency test sampled two fixed pixels, one of which can fall
+  on a glyph when CI substitutes a font with different bearings;
+* two organelle tests still encoded the pre-instruction-300 rule that a missing
+  cell channel hides the reference-cell controls;
+* a cold-process model test used one developer machine's absolute checkout;
+* a harmless-unsubscribe test made no observation at all; and
+* parameter-sweep tests accidentally admitted or refused work according to the
+  current host's free memory, while two UI tests inspected a deliberately lazy
+  panel before asking it to build.
+
+Fixed each contract at its ownership boundary. The announcement test compares
+the console before and after the helper; tooltip transparency uses the modal
+colour of each complete container; cell controls follow the current reference-
+object rule; the child process derives its repository from the test file; the
+unsubscribe test proves the callback registry is unchanged; sweep unit tests
+state their synthetic memory capacity; and UI tests explicitly take the same
+switch transition a user takes before inspecting the realised panel.
+
+THE GENERAL RULE. A deterministic test supplies every environmental input that
+can change its decision and observes only the state owned by the operation.
+Cold-process tests derive their checkout, rendering tests tolerate legitimate
+font metrics, and lazy UI tests exercise the public transition that constructs
+the object they inspect.

@@ -10,6 +10,7 @@ import os
 import sqlite3
 import subprocess
 import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -192,9 +193,9 @@ def test_a_cold_process_offers_only_the_shipped_model():
         "assert 'cellpose.models' not in sys.modules, 'cellpose was imported';"
         "print(names)"
     )
+    repo = Path(__file__).resolve().parents[1]
     out = subprocess.run([sys.executable, "-c", code],
-                         capture_output=True, text=True,
-                         cwd="/mnt/firecuda2/codex/repo/spacr")
+                         capture_output=True, text=True, cwd=repo)
 
     assert out.returncode == 0, out.stderr
     assert out.stdout.strip() == "['cpsam']"

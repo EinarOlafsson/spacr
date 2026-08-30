@@ -728,14 +728,21 @@ def test_every_layout_container_inside_the_popup_paints_nothing(
     for name, widget in (("text column", tooltip.text_column()),
                          ("links row", tooltip._links)):
         origin = widget.mapTo(tooltip, QPoint(0, 0))
-        for dx, dy, corner in ((2, 2, "top-left"),
-                               (widget.width() - 3, widget.height() - 3,
-                                "bottom-right")):
-            pixel = image.pixelColor(origin.x() + dx, origin.y() + dy)
-            found = np.array([pixel.red(), pixel.green(), pixel.blue()], float)
-            assert np.abs(found - container).max() <= 2, (
-                f"the {name}'s {corner} is {found.tolist()}, not the "
-                f"container's {container.tolist()}")
+        # A fixed corner can land on a glyph when the runner substitutes a
+        # font with different bearings.  A painted container changes the
+        # commonest colour of its complete rectangle; transparent labels and
+        # links leave the parent's surface as the commonest colour.
+        pixels = []
+        for y in range(widget.height()):
+            for x in range(widget.width()):
+                pixel = image.pixelColor(origin.x() + x, origin.y() + y)
+                pixels.append((pixel.red(), pixel.green(), pixel.blue()))
+        colours, counts = np.unique(np.asarray(pixels), axis=0,
+                                    return_counts=True)
+        found = colours[int(np.argmax(counts))].astype(float)
+        assert np.abs(found - container).max() <= 2, (
+            f"the {name}'s commonest colour is {found.tolist()}, not the "
+            f"container's {container.tolist()}")
 
 
 def test_the_probe_can_see_a_box_that_really_is_there(tooltip, qtbot,

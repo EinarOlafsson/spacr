@@ -239,11 +239,15 @@ def test_a_module_that_is_not_the_regression_says_nothing(
         qtbot, qt_theme_applied):
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
-    # Nothing has been written to this console yet, so it holds no stdout
-    # block at all -- which is the state the assertion is about.
-    assert screen._console._current_stdout is None
+    # Startup/preload diagnostics are allowed to have written before this
+    # point.  The contract is that this regression-only helper adds nothing.
+    before_block = screen._console._current_stdout
+    before_text = (before_block.toPlainText()
+                   if before_block is not None else None)
     screen._announce_the_fit({"regression_type": "mixed"})
-    assert screen._console._current_stdout is None
+    assert screen._console._current_stdout is before_block
+    assert (before_block.toPlainText()
+            if before_block is not None else None) == before_text
     assert screen._heartbeat is None
 
 

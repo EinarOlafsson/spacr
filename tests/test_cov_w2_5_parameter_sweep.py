@@ -292,7 +292,8 @@ def test_a_contained_sweep_takes_the_childs_row_whole(tmp_path, small_space,
     monkeypatch.setattr(ps, "run_trial_contained", fake_child)
 
     results = ps.run_sweep({"src": str(tmp_path)}, tmp_path / "out",
-                           small_space, contained=True, progress_every=1)
+                           small_space, contained=True, memory_floor_gb=0.0,
+                           progress_every=1)
 
     assert len(seen) == 2
     assert list(results["status"]) == ["ok", "ok"]
@@ -319,7 +320,7 @@ def test_a_contained_sweep_stops_repeating_a_failing_signature(
 
     results = ps.run_sweep({"src": str(tmp_path)}, tmp_path / "out", space,
                            contained=True, learn_from_failures=2,
-                           progress_every=0)
+                           memory_floor_gb=0.0, progress_every=0)
 
     assert len(calls) == 2, "the third trial of the same signature is skipped"
     assert list(results["status"])[-1] == "skipped"
@@ -436,6 +437,8 @@ def test_the_pool_holds_back_when_memory_is_low(tmp_path, inline_pool,
     answers = iter([False, True, False, False, False, False])
     monkeypatch.setattr(ps, "memory_is_low",
                         lambda *a, **k: next(answers, False))
+    monkeypatch.setattr(ps, "recommended_workers",
+                        lambda *a, **k: (2, "test capacity"))
     monkeypatch.setattr(ps, "_execute_trial",
                         lambda payload: {"trial_id": payload[1]["trial_id"],
                                          "status": "ok", "seconds": 0.1})
@@ -707,7 +710,8 @@ def test_a_contained_csv_that_cannot_be_written_does_not_stop_the_sweep(
     monkeypatch.setattr(pd.DataFrame, "to_csv", refuse)
 
     results = ps.run_sweep({"src": str(tmp_path)}, tmp_path / "out",
-                           small_space, contained=True, progress_every=1)
+                           small_space, contained=True, memory_floor_gb=0.0,
+                           progress_every=1)
 
     assert list(results["status"]) == ["ok", "ok"]
 

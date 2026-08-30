@@ -208,13 +208,15 @@ def _panel_keys():
     return keys
 
 
-def test_a_channel_naming_no_plane_hides_its_settings_and_keeps_the_switch():
+def test_a_channel_naming_no_plane_hides_optional_objects_but_not_the_cell():
     settings = {NUMBER_OF_ORGANELLES: 2, "cell_channel": None,
                 "organelle_channel": 0, "organelleb_channel": None}
     hidden = keys_hidden_by_their_object(_panel_keys(), settings)
 
-    assert "cell_diameter" in hidden
-    # The switch itself stays, or the user cannot turn the object back on.
+    # Cell is the reference object and instruction 300 deliberately keeps its
+    # fresh-run controls reachable even before a channel is chosen.
+    assert "cell_diameter" not in hidden
+    # Optional-object switches stay, or the user cannot turn the object back on.
     assert "cell_channel" not in hidden
     assert "organelleb_channel" not in hidden
     assert "organelleb_diameter" in hidden
@@ -231,7 +233,8 @@ def test_hiding_a_setting_does_not_change_a_single_value():
 
     hidden = keys_hidden_by_their_object(_panel_keys(), settings)
 
-    assert "cell_diameter" in hidden and "organelleb_diameter" in hidden
+    assert "cell_diameter" not in hidden
+    assert "organelleb_diameter" in hidden
     assert settings == before
     assert settings["cell_diameter"] == 40
     assert settings["organelleb_diameter"] == 17

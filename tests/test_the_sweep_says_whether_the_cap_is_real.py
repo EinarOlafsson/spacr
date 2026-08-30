@@ -86,8 +86,12 @@ def test_the_sweep_panel_puts_it_on_screen(qtbot, monkeypatch):
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
-    panel = getattr(screen, "_sweep", None)
-    assert panel is not None, "the screen built no parameter-sweep card"
+    holder = getattr(screen, "_sweep", None)
+    assert holder is not None, "the screen built no parameter-sweep card"
+    assert holder.built() is False
+    screen._on_sweep_switch(True)
+    panel = holder.panel()
+    assert holder.built() is True
     assert hasattr(panel, "containment"), (
         "the sweep card says nothing about whether the cap is real")
 
@@ -108,8 +112,12 @@ def test_an_uncontained_machine_is_marked_as_a_warning(qtbot, monkeypatch):
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
-    panel = getattr(screen, "_sweep", None)
-    assert panel is not None, "the screen built no parameter-sweep card"
+    holder = getattr(screen, "_sweep", None)
+    assert holder is not None, "the screen built no parameter-sweep card"
+    assert holder.built() is False
+    screen._on_sweep_switch(True)
+    panel = holder.panel()
+    assert holder.built() is True
     assert hasattr(panel, "containment"), (
         "the sweep card says nothing about whether the cap is real")
 
