@@ -472,7 +472,7 @@ setTimeout(() => {
 
 @pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Load and render all nine real 8,899-symbol payloads in one browser."""
+    """Load and render all nine real 8,817-symbol payloads in one browser."""
     harness = """
 const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
 const seen = [];

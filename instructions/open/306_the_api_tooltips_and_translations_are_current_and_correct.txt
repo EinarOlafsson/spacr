@@ -267,3 +267,15 @@ all API pages, and no exhaustive fluent-speaker review of all nine locales is
 recorded. The exact reviewed proportions and arithmetic remainders are in
 ``docs/i18n/REVIEW_SCOPE_2026-08-30.md``. Item 306 stays open until those
 semantic remainders are disposed honestly.
+
+--------------------------------------------------------------------------------
+CURRENT COUNT STATUS 2026-08-30 -- NON-RENDERED API BOUNDARY RECONCILED
+--------------------------------------------------------------------------------
+
+The dated re-audits above are retained as evidence of their own revisions.
+At the current source boundary, the runtime inventory is 4,978 entries: 1,018
+setting labels, 1,013 setting tooltips, 192 category explanations, 2,691 UI
+strings and 64 module summaries.  The rendered API inventory is 8,817 symbol
+documents: 8,698 canonical documents plus 119 rendered aliases.  Exact
+locale-by-locale reviewed counts and arithmetic remainders are recorded in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.

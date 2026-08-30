@@ -14,12 +14,12 @@ if str(TOOLS) not in sys.path:
 import audit_i18n_coverage as coverage  # noqa: E402
 
 REVIEWED_RUNTIME_COUNTS = {
-    "sv": 78, "de": 48, "es": 55, "zh_CN": 202, "pt": 59,
-    "hi": 67, "ko": 183, "is": 73, "fr": 56,
+    "sv": 110, "de": 80, "es": 87, "zh_CN": 234, "pt": 91,
+    "hi": 99, "ko": 215, "is": 105, "fr": 88,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 182, "de": 125, "es": 27, "zh_CN": 151, "pt": 131,
-    "hi": 85, "ko": 117, "is": 602, "fr": 118,
+    "sv": 180, "de": 125, "es": 25, "zh_CN": 148, "pt": 130,
+    "hi": 83, "ko": 114, "is": 592, "fr": 115,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -168,9 +168,9 @@ def test_written_review_scope_matches_current_source_bound_evidence():
             ]
         row = (
             f"| {DISPLAY_NAMES[language]} | {runtime_expected:,} | "
-            f"{runtime_expected / 4_960:.2%} | {4_960 - runtime_expected:,} | "
-            f"{api_expected:,} | {api_expected / 8_899:.2%} | "
-            f"{8_899 - api_expected:,} |"
+            f"{runtime_expected / 4_978:.2%} | {4_978 - runtime_expected:,} | "
+            f"{api_expected:,} | {api_expected / 8_817:.2%} | "
+            f"{8_817 - api_expected:,} |"
         )
         assert row in report
 

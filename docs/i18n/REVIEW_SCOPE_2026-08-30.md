@@ -8,41 +8,42 @@ basis of these numbers alone.
 
 ## Inventory and evidence scope
 
-The live runtime inventory contains 4,960 entries: 1,002 setting labels, 997
-setting tooltips, 192 category explanations, 2,705 UI strings, and 64 module
-summaries.  The live API inventory contains 8,899 symbol documents, including
-119 rendered aliases.  The nine supported non-English locales are Swedish
+The live runtime inventory contains 4,978 entries: 1,018 setting labels, 1,013
+setting tooltips, 192 category explanations, 2,691 UI strings, and 64 module
+summaries.  The live API inventory contains 8,817 symbol documents: 8,698
+canonical documents plus 119 rendered aliases.  The nine supported non-English
+locales are Swedish
 (`sv`), German (`de`), Spanish (`es`), Simplified Chinese (`zh_CN`), Portuguese
 (`pt`), Hindi (`hi`), Korean (`ko`), Icelandic (`is`), and French (`fr`).
 
 The table counts unique, current source strings admitted through
 `docs/i18n/reviewed/runtime/<locale>/` and unique, current translatable blocks
 admitted through `docs/i18n/reviewed/api/<locale>/`.  Percentages and remainders
-use the requested release denominators (4,960 runtime entries and 8,899 API
+use the requested release denominators (4,978 runtime entries and 8,817 API
 symbol documents).  API evidence is block-keyed, not document-keyed, so its
 percentage is an intentionally conservative normalization, not the proportion
 of whole API documents read.  Repeated source strings likewise mean that the
 runtime percentage is not a unique-string percentage.
 
-| Language | Reviewed runtime sources | Of 4,960 | Arithmetic remainder | Reviewed API blocks | Of 8,899 | Arithmetic remainder |
+| Language | Reviewed runtime sources | Of 4,978 | Arithmetic remainder | Reviewed API blocks | Of 8,817 | Arithmetic remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 78 | 1.57% | 4,882 | 182 | 2.05% | 8,717 |
-| German | 48 | 0.97% | 4,912 | 124 | 1.39% | 8,775 |
-| Spanish | 55 | 1.11% | 4,905 | 27 | 0.30% | 8,872 |
-| Simplified Chinese | 202 | 4.07% | 4,758 | 151 | 1.70% | 8,748 |
-| Portuguese | 59 | 1.19% | 4,901 | 131 | 1.47% | 8,768 |
-| Hindi | 67 | 1.35% | 4,893 | 85 | 0.96% | 8,814 |
-| Korean | 183 | 3.69% | 4,777 | 117 | 1.31% | 8,782 |
-| Icelandic | 73 | 1.47% | 4,887 | 599 | 6.73% | 8,300 |
-| French | 56 | 1.13% | 4,904 | 117 | 1.31% | 8,782 |
+| Swedish | 110 | 2.21% | 4,868 | 180 | 2.04% | 8,637 |
+| German | 80 | 1.61% | 4,898 | 125 | 1.42% | 8,692 |
+| Spanish | 87 | 1.75% | 4,891 | 25 | 0.28% | 8,792 |
+| Simplified Chinese | 234 | 4.70% | 4,744 | 148 | 1.68% | 8,669 |
+| Portuguese | 91 | 1.83% | 4,887 | 130 | 1.47% | 8,687 |
+| Hindi | 99 | 1.99% | 4,879 | 83 | 0.94% | 8,734 |
+| Korean | 215 | 4.32% | 4,763 | 114 | 1.29% | 8,703 |
+| Icelandic | 105 | 2.11% | 4,873 | 592 | 6.71% | 8,225 |
+| French | 88 | 1.77% | 4,890 | 115 | 1.30% | 8,702 |
 
 In addition, `tools/i18n_reviewed_ui.py` pins 84 context-sensitive UI sources
 in every locale: 84 x 9 = 756 reviewed source/target pairs.  Those rows overlap
 the runtime inventory and are therefore not added to the table.  The review
 evidence schemas do not consistently name a fluent-speaker reviewer; some
 records and the Portuguese API evidence explicitly describe Codex-assisted
-review.  No fluent-speaker census of all 44,640 runtime target entries or all
-80,091 API target documents is recorded.
+review.  No fluent-speaker census of all 44,802 runtime target entries or all
+79,353 API target documents is recorded.
 
 ## Sampling method and exact unsampled remainder
 
@@ -66,10 +67,9 @@ probe contract changed.  Those 18 source-bound records also used no model
 decoding.
 
 The filters parameter sweep reviewed seven newly documented required-parameter
-blocks plus both corrected `repo_root` blocks in Spanish, Simplified Chinese,
-Hindi, Korean, Icelandic, and French.  Those 54 source-bound records replace
-model output that retained English, reversed missing-file behaviour, or read
-"checkout" as a purchase/cashier term.  Portuguese additionally records the
+blocks in Spanish, Simplified Chinese, Hindi, Korean, Icelandic, and French.
+Those 42 source-bound records replace model output that retained English or
+reversed missing-file behaviour.  Portuguese additionally records the
 source-bound repair of an existing `object_type` block that incremental layout
 had left in English.  Swedish, German, and the other Portuguese changes were
 regenerated and mechanically audited but are not added to the reviewed count.
@@ -104,7 +104,7 @@ Reviewed locale-specific spellings that are also byte-identical to English are:
 - Icelandic: `Toxoplasma`, `Regex`.
 - French: `Toxoplasma`, `Regex`, `Axes…`, `Budget`, `Gate`, `Figure`, `Type`.
 
-The API catalogs preserve exact English only for these 19 reviewed symbol
+The API catalogs preserve exact English only for these 18 reviewed symbol
 documents, whose visible contents are code, identifiers, literals, or data
 shapes rather than translatable prose:
 
@@ -120,7 +120,6 @@ shapes rather than translatable prose:
 - `spacr.qt.widgets.formula.Unary`
 - `spacr.qt.widgets.plate_layout.PlateDesign.shape`
 - `spacr.qt.widgets.setup_card.SetupCard.mode`
-- `spacr.resources.home.versions._generators.common.app_map`
 - `spacr.run_compare.HitList.by_key`
 - `spacr.runctx.RunContext.__str__`
 - `spacr.runctx.SkipRecord.__str__`
@@ -145,7 +144,7 @@ every emitted tooltip API link against the fresh output.
 Runtime tests drive real catalogs through Qt language switching.  Browser tests
 exercise rendering, selector persistence, malformed/stale payload fallback, and
 request races with two-symbol synthetic catalogs.  A separate browser ratchet
-now loads, validates, selects, and renders all nine complete real 8,899-document
+now loads, validates, selects, and renders all nine complete real 8,817-document
 payloads on one representative real module/class page.  It does not render
 every API page.  Dedicated mutations delete a Swedish tooltip translation and
 inject a broken tooltip API URL; the runtime audit and link resolver respectively
