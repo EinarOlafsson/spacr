@@ -184,3 +184,59 @@ what that change has to move.
 NOT counted as failures: the two `test_i18n_caption_ratchet` cases still red
 are the generated field-browser strings ('Active merged copy', 'Segmentation
 QC field browser', ...) from the same uncommitted work.
+
+THE BIGGEST SINGLE UNLOCK IS NOT MORE TESTS (2026-08-30)
+---------------------------------------------------------
+24% of the remaining coverage gap is in modules that import a dependency
+setup.py DECLARES AS REQUIRED and this environment does not have.
+
+`dependencies = [...]` at setup.py:167 is what `install_requires` is set from,
+so these are not extras. Nine of its 60 entries are not importable here; one
+(win10toast) is correctly absent because it is Windows-only. The other eight:
+
+    pyfixest>=0.40.1,<1 ; python_version >= "3.10"
+    glum>=3.1.2,<4      ; python_version >= "3.10"
+    gpytorch>=1.11,<2   ; python_version >= "3.10"
+    vispy>=0.14,<1.0
+    umap-learn>=0.5.11,<1.0
+    biopython>=1.80,<2.0
+    gputil>=1.4.0,<2.0
+    nvidia-ml-py>=11.450.51,<14
+
+What their absence costs, measured against the batched run:
+
+    total missing arcs in spacr/            5566
+      in modules importing an absent dep    1328   (24%)
+
+        598  vispy      spacr/qt/widgets/fractal_travel.py (595) is the single
+                        largest gap in the package and it is a vispy widget
+        273  pyfixest   spacr/ml.py -- the absorbing regression backend
+        217  GPUtil     spacr/qt/screens/app_screen.py
+        216  umap       settings_model (111), utils (48), timelapse (42),
+                        hyperparam (15)
+         14  pynvml     spacr/qt/widgets/home.py
+         10  Bio        spacr/sequencing.py
+
+These are not untested because nobody wrote tests. Several DO have tests, sitting
+behind `@pytest.mark.skipif(not _HAS_GLUM, ...)` and its siblings, which skip
+silently and count as passes. A reader of the suite output cannot tell them
+from tests that ran.
+
+NOT DONE, AND DELIBERATELY. `pip install` of these eight would touch the user's
+conda base environment: umap-learn pulls numba, gpytorch pulls linear_operator,
+and both pin against numpy/scipy versions the rest of a working scientific
+stack depends on. Restoring a declared dependency set is defensible; doing it
+unattended to a machine somebody works on is not, and a broken numpy would cost
+far more than 1328 arcs are worth. The command, for whoever decides:
+
+    pip install 'pyfixest>=0.40.1,<1' 'glum>=3.1.2,<4' 'gpytorch>=1.11,<2' \
+                'vispy>=0.14,<1.0' 'umap-learn>=0.5.11,<1.0' \
+                'biopython>=1.80,<2.0' 'gputil>=1.4.0,<2.0' \
+                'nvidia-ml-py>=11.450.51,<14'
+
+Two things follow either way. Instruction 308 is about setup.py declaring every
+dependency on every OS and Python; this is the other direction -- the
+environment the suite runs in does not match what setup.py declares, and
+nothing in CI notices. And any per-module coverage target has to say which
+environment it is measured in, because on this one eight modules cannot reach
+100% however many tests are written.
