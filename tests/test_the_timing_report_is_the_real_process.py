@@ -276,8 +276,10 @@ def test_the_report_ranks_the_stalls_it_found_worst_first(timing):
 
 def test_the_report_carries_every_kind_of_entry_it_collected(timing):
     """Spans, imports, marks and readiness all reach the page."""
-    timing._SPANS.clear(); timing._IMPORTS.clear()
-    timing._MARKS.clear(); timing._READINESS.clear()
+    timing._SPANS.clear()
+    timing._IMPORTS.clear()
+    timing._MARKS.clear()
+    timing._READINESS.clear()
     timing._SPANS.append({"at": 0.5, "took": 0.25, "name": "build",
                           "detail": "masks", "depth": 0, "failed": "",
                           "thread": "MainThread"})

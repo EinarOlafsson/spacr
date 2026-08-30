@@ -37,10 +37,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.errors import (DataIntegrityError, RunLedger, RunStatusUnreadable,
-                          assert_run_complete, read_run_status,
-                          run_is_complete)
-
+from spacr.errors import (
+    DataIntegrityError,
+    RunLedger,
+    RunStatusUnreadable,
+    assert_run_complete,
+    read_run_status,
+    run_is_complete,
+)
 
 LOCK_TIMEOUT = 0.05
 
