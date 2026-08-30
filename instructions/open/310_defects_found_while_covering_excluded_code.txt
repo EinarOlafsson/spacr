@@ -642,3 +642,47 @@ Current behaviour pinned by
 tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py, which says
 in its docstring that it is pinned and not endorsed. A fix would carry ``role``
 into the fall-through; that belongs to whoever owns the feature dictionary.
+
+--------------------------------------------------------------------------------
+12. A SECOND COPY OF THE OBJECT-ID VOCABULARY, DRIFTED
+     (lane: spacr/predictions.py)  -- FIXED 2026-08-30
+--------------------------------------------------------------------------------
+
+``spacr/predictions.py::_OBJECT_ID_COLUMNS`` was a hand-written copy of
+``spacr.utils.PNG_OBJECT_ID_COLUMNS``, and it had drifted:
+
+    written by filepaths_to_database : cell_id, nucleus_id, pathogen_id,
+                                       cytoplasm_id, organelle_id,
+                                       organelleb_id, organellec_id,
+                                       organelled_id
+    read by _prcfo_from_metadata     : cell_id, nucleus_id, pathogen_id,
+                                       cytoplasm_id, object
+
+The four ORGANELLE roles were written and never read. Also absent was
+``schema.OBJECT_KEY`` (``objectID``), the canonical spelling.
+
+CONSEQUENCE: an organelle-mode classifier score table carries the metadata but
+no ``prcfo``, ``_prcfo_from_metadata`` returned None, and the join matched zero
+rows -- reported as "no per-object score". That is the EXACT failure the
+comment above the fallback in ``_result_keys`` says was fixed for the plainer
+spellings. It was fixed incompletely, and instruction 300's organelle roles
+then walked into the half that was left.
+
+PNG_OBJECT_ID_COLUMNS carries its own comment about 'organelle' having been
+missing from IT once, and causing "Columns must be same length as key" after
+the organelle PNGs were on disk. The same omission, in the reading copy, a
+second time.
+
+FIXED by deriving the tuple from ``schema.ORGANELLE_ROLES`` -- where
+PNG_OBJECT_ID_COLUMNS gets them too -- and appending ``schema.OBJECT_KEY``.
+``spacr.utils`` cannot be imported at module scope here (it is imported lazily
+inside functions to avoid a cycle), which is how the copy came to exist.
+Both additions go LAST so precedence is unchanged and no table that resolved
+before resolves differently.
+
+A test now walks the whole vocabulary and asserts
+``set(PNG_OBJECT_ID_COLUMNS.values()) <= set(_OBJECT_ID_COLUMNS)``, so the two
+cannot drift apart again. Regression: 210 prediction and classifier tests pass.
+
+This is instruction 145's theme -- one reader, one writer, one vocabulary --
+found in a third place.
