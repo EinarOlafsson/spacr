@@ -1431,15 +1431,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             rows.append(row)
 
         if progress_every and index % progress_every == 0:
-            # Write what exists so far. A sweep left running unattended is
-            # exactly the one whose partial results matter: the user comes
-            # back to whatever it reached, and an all-or-nothing write at the
-            # end means an interruption costs every hour of it.
-            try:
-                pd.DataFrame(rows).to_csv(
-                    os.path.join(destination, "sweep_results.csv"), index=False)
-            except OSError:
-                pass
             done = time.time() - started
             rate = done / index
             print(f"[sweep] {index}/{len(trials)} trials "
@@ -1447,9 +1438,14 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                   f"~{rate * (len(trials) - index) / 60:.1f} min left",
                   flush=True)
         # Written every trial, so a sweep killed halfway still leaves a usable
-        # table rather than nothing.
-        pd.DataFrame(rows).to_csv(
-            os.path.join(destination, "sweep_results.csv"), index=False)
+        # table rather than nothing. The file is a best-effort checkpoint: a
+        # full or disconnected results disk must not discard the in-memory
+        # rows the sweep can still return to its caller.
+        try:
+            pd.DataFrame(rows).to_csv(
+                os.path.join(destination, "sweep_results.csv"), index=False)
+        except OSError:
+            pass
 
     return pd.DataFrame(rows)
 
