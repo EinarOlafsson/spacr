@@ -2,7 +2,9 @@
 THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
 ================================================================================
 
-Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING.
+Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalog
+           refresh is not yet a fixed point; exact residuals are recorded
+           below.
 Owner:     public API prose, settings tooltips, documentation and i18n catalogs.
 Precedes:  253's final sweep and every 1.5.0.5 publication action.
 Requested: 2026-08-28 — "sweep the tool tips and API and make sure the API
@@ -189,3 +191,50 @@ Do not translate database column names, setting keys, code literals, object
 roles or scientific identifiers whose spelling is part of the data contract.
 Do not count an English fallback as a completed translation, and do not insert
 translated API prose into the Python source beside the canonical English.
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-30 -- INVENTORY REFRESH LANDED, THREE GATES REMAIN RED
+--------------------------------------------------------------------------------
+
+Commit ``71a328ba`` regenerated the runtime and API catalogs and added the
+reviewed Korean ``min_cell_count`` record. The runtime inventory is now
+source-current in all nine locales: 4,960/4,960 entries and zero orphans per
+locale (1,002 setting labels, 997 setting tooltips, 192 category explanations,
+2,705 UI strings and 64 module summaries). The reviewed Korean tooltip's
+source, hash and generated translation agree exactly. The completed test
+evidence is also substantial: 135 documentation tests, 442 focused runtime
+nodes, 89 shortcut/UI tests and seven critical semantic nodes all pass.
+
+That progress does not satisfy this instruction's own completion rules:
+
+  1. ``python tools/audit_i18n_coverage.py`` reports 8,898/8,899 fresh API
+     docstrings in every locale, not 8,899/8,899. The exact stale symbol is
+     ``spacr.qt.bridge.make_thread``. Its generated catalogs store source hash
+     ``235016f26e01a14ea5d3b97878d130a1b740d0cfd472c03c2850219e7183c140``;
+     live source hashes to
+     ``845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0``.
+     The live signature/prose includes the newer ``user_visible`` and
+     ``capture_figures`` contract, which the catalog text does not.
+  2. ``.github/workflows/docs.yml`` still runs ``sphinx-build`` without
+     ``-W``, captures its exit code, and deliberately succeeds whenever a
+     partial ``index.html`` exists. This is the exact workflow defect named
+     in WHAT THE STATE IS and directly violates the required warning-as-error
+     CI gate.
+  3. ``tests/test_settings_tooltip_quality.py`` still exempts twelve entries
+     through ``KNOWN_THIN`` under the blanket reason that their behaviour
+     could not be confirmed. The acceptance criterion requires every former
+     exception to be verified, fixed or replaced by a narrowly reasoned
+     invariant. Semantic catalog review is also not at a fixed point: for
+     example Korean translates the UI key ``Nothing to sweep`` as
+     ``아무것도 땀을 흘리지 않는다`` (a literal sweat sense), and
+     ``Nothing to plot — build a table with at least one non-empty cell first.``
+     begins ``아무것도 틀리지 않는다`` (``nothing is wrong``). Those are
+     complete, source-current entries but not translations of the rendered
+     instruction, exactly the failure mode this item says inventory tests
+     cannot certify.
+
+Instruction 306 therefore remains open and release-blocking. Closing it needs
+the one API catalog refresh, a real ``sphinx-build -W`` required-CI exit gate,
+disposition of all twelve tooltip waivers, and semantic repair/review of the
+remaining source-current-but-wrong translations. Release 1.5.0.5 remains on
+hold.

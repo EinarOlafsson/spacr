@@ -2,8 +2,8 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
-Status: OPEN — the final Korean catalog fixed point is still running. The
-        other deliberately left defects are fixed or explicitly accepted.
+Status: DONE — every reachable defect is fixed or explicitly accepted, and
+        the reviewed Korean ``min_cell_count`` entry is in the final catalog.
 
 Each of these was measured rather than suspected. Each has a reason for
 not being fixed, and the reason is the useful part -- otherwise the next
@@ -26,9 +26,8 @@ Re-audit result, 2026-08-30:
     features are dropped, while partially observed features are median-imputed
     before variance/correlation filtering and model use (``27bf3a46``);
   * the Korean ``min_cell_count`` tooltip has been re-translated against the
-    exact current English contract and passes the semantic rejection gates;
-    this file remains open only until that reviewed entry reaches the final
-    generated nine-locale catalog and fixed-point audit.
+    exact current English contract, passes the semantic rejection gates, and
+    is now the exact reviewed entry in the generated final catalog.
 
 The old coverage count is historical and the final 100% statement-and-branch
 target is tracked by instruction 288. The timelapse, calibration,
@@ -663,3 +662,23 @@ record that evidence; never restore the superseded ``Default None`` entry.
 
 This is no longer the same debt as the fixed 44-string inventory gap above.
 Inventory presence is mechanical; this remaining item is semantic review.
+
+--------------------------------------------------------------------------------
+2026-08-30 - FINAL KOREAN FIXED POINT; THIS INSTRUCTION IS COMPLETE
+--------------------------------------------------------------------------------
+
+The external review record is
+``docs/i18n/reviewed/runtime/ko/2026-08-30-min-cell-count.json``. It carries
+the exact current English sentence, source SHA-256
+``a560bc25bdab1b2568d1d26ad95fdeb36ae7af320a907b3c829290967ae7dd80``,
+and Korean prose that says both live defaults: 100 for regression and 25 for
+the machine-learning screen. The reviewed source, its recomputed SHA-256,
+``spacr.qt.i18n_catalogs.ko.SOURCE_HASHES`` and the generated
+``SETTING_TOOLTIPS['min_cell_count']`` translation were compared directly on
+integration head ``93bf9e95``; all four agree exactly.
+
+The broader live-source audit reports all 4,960 runtime entries current and
+zero runtime orphans in Korean and every other supported locale. Broader API
+and translation quality work remains correctly owned by instruction 306; it
+does not reopen this narrowly recorded tooltip review. No defect deliberately
+left in this file remains a product blocker.

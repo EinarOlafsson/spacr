@@ -2,8 +2,7 @@
 FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
 ================================================================================
 
-Status:   OPEN — specified, not started. REQUESTED AGAIN 2026-08-06 with
-          a placement decision -- see the note directly below.
+Status:   DONE — implemented for Classify, audited on 2026-08-30.
 Source:   written by the maintainer; reproduced here in full and unedited
           below the line, because it is an implementation specification and
           summarising it would lose the parts that are load-bearing.
@@ -593,3 +592,58 @@ STILL BLOCKED, AND ON WHAT
 The `theme.register_widget_qss` / `WIDGET_QSS_MODULES` warning in "BEFORE
 WRITING ANY CODE" is still live and still correct; it is the first thing to
 do when the panel is built, not the last.
+
+================================================================================
+FINAL IMPLEMENTATION AND ACCEPTANCE AUDIT -- 2026-08-30
+================================================================================
+
+The later, more specific maintainer request at the top of this file resolves
+the historical generic-dock wording: FlowView is Classify-only and is a boxed,
+collapsed footer directly below its settings. It is lazy until opened, uses
+the active theme through the exhaustive widget-QSS registry, follows the live
+collector when a new run replaces the preview, stops while folded or hidden,
+and tears down its timer and scene with the screen. The existing Pipeline
+Graph remains the cross-run artifact/provenance view; FlowView is the
+within-one-run stage view. The user-visible placement is reachable in
+``851fbc18`` (``Integrate FlowView into Classify settings``).
+
+The approved eight nodes are the exact Classify path: source, PNG list or
+measurement tables, dataset, split, active CV/ML model, training, evaluation,
+and database scores. The CV and ML pipeline boundaries emit one monotonic
+event stream, and the same timestamps and scalar metrics are copied into the
+run journal rather than measured by a competing clock. A real ML adapter test
+reconciles graph node order, state, timestamps, duration, counts, manifest,
+log lines and the rows actually written to ``png_list``.
+
+The seven acceptance criteria were re-audited as follows:
+
+  1. Core and headless imports remain FlowView-free while disabled. A fresh
+     ``import spacr.flowview`` imports none of PySide6, Matplotlib, Torch,
+     pandas, scikit-learn, NumPy or Pillow; the live Qt modules are lazy and
+     give the exact ``pip install spacr[flowview]`` remediation.
+  2. Disabled instrumentation adds 0.022% in the measured paired run, well
+     inside the two-percent ceiling, and imports no FlowView modules on the
+     ordinary Classify, CV or ML path.
+  3. The real Classify ML reconciliation described above proves graph order,
+     object counts and timings match the journal/log/database evidence.
+  4. The Classify footer opens lazily, polls at 20 Hz, skips snapshots/layout/
+     paint while the collector revision is unchanged, confines updates to
+     dirty items, pans, zooms, inspects and exports. A 5,000-event stream over
+     5.001 seconds used 0.106 CPU-second, or 2.13% of one core.
+  5. The audited SVG contains eight nodes and sixteen editable ``text``
+     elements, opens cleanly in Inkscape, and its Inkscape-produced PDF is
+     24,200 bytes. Live and static renderers share layout and visual tokens.
+  6. Deliberate failure preserves the identical scientific exception, records
+     its traceback on the failed node and marks every downstream node skipped;
+     event, collector and panel faults cannot replace the pipeline result.
+  7. Repeated SVG, HTML and JSON exports of an unchanged graph are
+     byte-identical.
+
+The complete ``tests/flowview`` cohort is 98 passing tests. The 18 adjacent
+Classify/run-journal/import contracts and five performance checks also pass
+(121 total). A final independent replay on integration head ``93bf9e95`` ran
+all 98 FlowView tests plus the run-journal stage contract and real-ML
+reconciliation: 100 passed in 15.86 seconds. The audited 5,000-event CPU
+measurement, deterministic exporters and Inkscape round trip close the parts
+that unit assertions alone cannot establish. FlowView is complete; no
+release/version action was taken.
