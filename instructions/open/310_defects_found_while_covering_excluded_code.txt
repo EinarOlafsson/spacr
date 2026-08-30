@@ -489,22 +489,31 @@ misread line number shows up as a test that does not close what it claimed,
 rather than as a green test measuring the wrong thing. That check caught three
 tests in this session that exercised nothing.
 
-  * The dead ``dirname(abspath(...))`` guard has TEN independent copies:
+  * The dead ``dirname(abspath(...))`` guard has TWELVE independent copies:
     roi.py:451, figures/headless.py:111, plate_qc.py:1014 (write_layout_csv),
     style_base.py:182 (write), counting.py:401 (to_csv), tabular.py:231
     (write_table), tabular.py:420 (write_database), illumination.py:386
-    (IlluminationModel.save), convert.py:2041 (populate_db_from_map) and
+    (IlluminationModel.save), convert.py:2041 (populate_db_from_map),
+    curation.py:315 (CurationLog.write), curation.py:967 (save) and
     report.py's own walk helper. Same proof each time: '', '.', '/', 'out.csv' and 'a/b.csv'
     all yield a non-empty directory, so ``if parent:`` is unconditionally true
     and its false side can never be taken.
 
-    TEN copies is not ten slips, it is one idiom nobody has written down. The
+    TWELVE copies is not twelve slips, it is one idiom nobody has written down. The
     fix is a shared helper -- ``_ensure_parent(path)`` doing the abspath and
-    the makedirs together and returning the absolute path -- which removes ten
-    uncoverable arcs and the ten chances for a later edit to drop the abspath
-    and make the guard load-bearing again. Filed as a decision for whoever owns
-    the io layer; the coverage sweep should not be the one to add a helper six
-    modules import.
+    the makedirs together and returning the absolute path -- which removes twelve
+    uncoverable arcs and the twelve chances for a later edit to drop the abspath
+    and make the guard load-bearing again. NOT REMOVED HERE, deliberately, and item 288's own wording is why: "Truly
+    dead code may be removed only after proving it is unreachable AND
+    unneeded." Unreachable is proved. Unneeded is not -- each guard becomes
+    load-bearing the moment its abspath moves, which is exactly the edit a
+    later refactor makes. So they are recorded as named, argued exclusions,
+    which 288 explicitly permits, rather than deleted across twelve modules in
+    eleven lanes.
+
+    The shared ``_ensure_parent(path)`` remains the right fix and belongs to
+    whoever owns the io layer; it would close twelve uncoverable arcs at once
+    and leave no guard that can silently stop mattering.
 
 --------------------------------------------------------------------------------
 8. A CONSENSUS THAT IS SAFE ONLY BECAUSE ITS CALLERS PAD  (lane: spacr/sequencing.py)
