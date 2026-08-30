@@ -1,5 +1,6 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
+import readlif.reader  # `import readlif` alone does not bind the submodule
 import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
@@ -7865,19 +7866,29 @@ def convert_to_yokogawa(folder):
         elif ext == 'lif':
             with ledger.item(file, stage='lif',
                              echo=f"Error processing LIF file {file}"):
-                lif_file = readlif.Reader(path)
+                # readlif's ACTUAL surface, checked against the installed
+                # 0.6.5. This block used to call `readlif.Reader`,
+                # `getIterImage` and `getFrame` -- an older camelCase API
+                # that no longer exists, so every LIF import died with
+                # AttributeError on the first line and the whole format
+                # was unusable.
+                lif_file = readlif.reader.LifFile(path)
 
-                for image_idx, image in enumerate(lif_file.getIterImage()):
+                for image_idx, image in enumerate(lif_file.get_iter_image()):
                     timepoints = range(getattr(image.dims, 't', 1))
                     z_levels = range(getattr(image.dims, 'z', 1))
-                    channels = range(getattr(image.dims, 'c', 1))
+                    # CHANNELS ARE NOT IN `dims`. Dims is
+                    # namedtuple("Dims", "x y z t m"), so `dims.c` never
+                    # existed and the old getattr default silently pinned
+                    # every LIF to a single channel.
+                    channels = range(getattr(image, 'channels', 1) or 1)
 
                     for t_idx in timepoints:
                         for c_idx in channels:
                             z_stack = []
                             for z_idx in z_levels:
                                 try:
-                                    frame = image.getFrame(z=z_idx, t=t_idx, c=c_idx)
+                                    frame = image.get_frame(z=z_idx, t=t_idx, c=c_idx)
                                     z_stack.append(frame)
                                 except IndexError as frame_err:
                                     ledger.record_failure(
