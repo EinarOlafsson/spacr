@@ -271,7 +271,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
 
     variants.sort()
     digest = hashlib.sha256("\n".join(variants).encode()).hexdigest()
-    assert comparisons == 660
+    assert comparisons == 675
     assert len(variants) == 56
     assert digest == (
         "dd5e6a4c361fb0dd64a8ce1853437fbbe1940f2bbf41c859f4f159335a96a646"

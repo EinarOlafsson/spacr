@@ -1429,13 +1429,11 @@ def spec_from_settings(settings: Dict[str, Any]) -> DesignSpec:
 def register_settings(replace: bool = False) -> bool:
     """Register this app's defaults through :func:`spacr.settings.register_defaults`.
 
-    Separate from :func:`register`, and like it **not called at import**:
-    ``register_defaults`` merges into the process-wide ``expected_types``,
-    ``tooltips`` and ``categories`` tables, and a module that mutates those
-    the moment it is imported changes what every settings test in the suite
-    sees depending on import order. ``register_app(defaults_module=...)``
-    exists precisely so the import is deferred to the moment the settings
-    panel asks for the key; this function is what that import would run.
+    Separate from :func:`register`, and called at the bottom of this module:
+    ``register_app(defaults_module=...)`` defers importing the screen until
+    its settings are requested, and that import must populate the same
+    process-wide ``expected_types``, ``tooltips`` and ``categories`` tables
+    regardless of which screen or test happened to import it first.
 
     :param replace: overwrite an existing registration for this key.
     :returns: ``True`` if this call registered it, ``False`` if it was
@@ -1482,4 +1480,17 @@ def register() -> bool:
     a worse interface to :func:`spacr.power_model.scan_parameters` than
     calling it, which is exactly what the note tells the user to do.
     """
+    # The declared row names this module as its defaults owner, but a caller
+    # has already imported the module in order to call this function.  The
+    # generic resolver therefore cannot rely on a later import side effect to
+    # install the defaults.  Keep the app row and its settings atomic, as the
+    # pre-declaration registration path did.
+    register_settings()
     return register_declared(__name__) is not None
+
+
+# ``defaults_module`` means importing this lazily loaded owner establishes
+# its defaults.  Without this call, asking for Power settings after another
+# test imported the screen returned a different inventory from asking in a
+# fresh process.
+register_settings()
