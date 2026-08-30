@@ -713,3 +713,17 @@ cannot drift apart again. Regression: 210 prediction and classifier tests pass.
 
 This is instruction 145's theme -- one reader, one writer, one vocabulary --
 found in a third place.
+
+  * spacr/schema.py:287 -- the ``raise RuntimeError`` in the module-level
+    OBJECT_TYPES validation. It fires only for a role that is SHIPPED, and
+    OBJECT_TYPES is a literal in the same module, so reaching it means editing
+    the source rather than arranging an input. An import-time assertion whose
+    false side cannot be exercised from a test without rewriting the file
+    underneath it.
+
+    Covered instead by tests/test_an_object_role_cannot_break_a_typed_id.py,
+    which asserts the RULE against the roles that actually ship, demonstrates
+    the round trip the rule protects, and shows the collision it prevents
+    ('cell1' + '7' == 'cell' + '17'). That is the test that catches the real
+    risk: the organelle roles are the ones a maintainer would extend, and the
+    fifth is naturally called 'organelle2'.
