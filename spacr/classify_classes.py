@@ -66,6 +66,8 @@ class ClassDefinitionError(ValueError):
 class ClassRule:
     """One class: its name, and what makes an object a member.
 
+    :ivar name: class label assigned to objects selected by this rule.
+
     Either a ``column``/``value`` pair, or ``random_complement`` -- never
     both. A rule that says both would have two answers for the same object and
     no way to choose between them.
@@ -157,6 +159,8 @@ def values_in(frame: pd.DataFrame, column: str,
 def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
     """The classes a settings dict defines, in the order they were given.
 
+    :param settings: classification settings containing the class definitions.
+
     Order matters: it is the label order the model is trained with, so it has
     to be stable rather than whatever a set iterates in.
 
@@ -215,6 +219,8 @@ def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
 
 def class_names(settings: Mapping[str, Any]) -> List[str]:
     """The class names, in order -- what ``settings['classes']`` used to be.
+
+    :param settings: classification settings whose class names are requested.
 
     Downstream (``deep_spacr``, ``model_zoo``, the evaluation code) reads a
     list of names and should keep doing so. This is what
@@ -374,6 +380,8 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
 
 def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """Return ``settings`` with :data:`CLASSES` as a dict. Never mutates.
+
+    :param settings: current or legacy classification settings to normalize.
 
     The translation happens ONCE, here, so no downstream reader has to know
     both shapes. A settings CSV written before this produces the same classes

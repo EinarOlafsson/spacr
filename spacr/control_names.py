@@ -24,7 +24,12 @@ GUIDE = "grna"
 
 @dataclass(frozen=True)
 class ControlSpec:
-    """Resolved interpretation of a user-entered control."""
+    """Resolved interpretation of a user-entered control.
+
+    :ivar typed: original nonblank identifier entered by the user.
+    :ivar level: resolved level, :data:`GENE` or :data:`GUIDE`.
+    :ivar value: normalized gene or guide identifier to match.
+    """
 
     typed: str
     level: str
@@ -134,6 +139,8 @@ def resolve_controls(typed: Optional[Sequence],
                      prefix: Optional[str] = None
                      ) -> Tuple[ControlSpec, ...]:
     """Resolve a sequence containing any mixture of genes and guides.
+
+    :param typed: user-entered control identifiers; ``None`` means no controls.
 
     The common prefix is measured once and applied independently to each
     nonblank entry.

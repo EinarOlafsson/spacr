@@ -23,6 +23,8 @@ __all__ = [
 def autocorrelation(residuals: Sequence[float]) -> float:
     """Durbin-Watson on ``residuals`` in the order given.
 
+    :param residuals: ordered residual values to test for serial dependence.
+
     2 is no autocorrelation, 0 is perfect positive, 4 perfect negative.
     Written out rather than imported so this module does not pull
     statsmodels for one line -- and so the ORDER is explicit: it is the
@@ -42,6 +44,9 @@ def autocorrelation(residuals: Sequence[float]) -> float:
 def position_effect(residuals: Sequence[float],
                     positions: Sequence[Any]) -> Dict[str, float]:
     """How much of the residual one position column explains.
+
+    :param residuals: residual values whose positional structure is measured.
+    :param positions: position level aligned to each residual.
 
     :returns: ``eta_squared`` -- the share of residual variance between
         position levels -- with the level count and the worst level's mean.
@@ -156,6 +161,8 @@ POSITION_ALPHA = 0.01
 
 def exchangeability_verdict(report: Mapping[str, Any]) -> Dict[str, Any]:
     """Is the within-block shuffle defensible, and if not, what to change?
+
+    :param report: diagnostics returned by :func:`block_residual_report`.
 
     :returns: ``{'ok': bool, 'findings': [...], 'remedy': str}``.
 
