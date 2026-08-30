@@ -1,14 +1,13 @@
 """The narrow refusals of the cell-annotation menu, and the shapes behind them.
 
 :mod:`spacr.regression_annotation` runs on whatever object table a screen
-produced, and that table's failure modes are quiet ones: a score column that
-is entirely missing, a score that never varies, a named well the hold-out
-swallowed, a hold-out that came out one-class, a cluster nobody landed in.
-Each has one honest answer -- say what is wrong, in the words of the setting
-the user can change -- and one dishonest one, which is to carry on and
-report a number. Each test drives one such shape. Some reach for the
-module's own helpers, because a guard only the strategies can trip is a
-guard nobody can test.
+produced, and that table's failure modes are quiet ones: an empty score
+column, a score that never varies, a named well the hold-out swallowed, a
+hold-out that came out one-class, a cluster nobody landed in. Each has one
+honest answer -- say what is wrong, in the words of the setting the user can
+change -- and one dishonest one, which is to carry on and report a number.
+Each test drives one such shape; some reach for the module's own helpers,
+because a guard only the strategies can trip is a guard nobody can test.
 """
 from __future__ import annotations
 
@@ -123,9 +122,9 @@ def test_which_columns_count_as_measurements_a_model_may_fit_on():
     """Booleans reach the object table from every mask-derived flag spaCR
     writes, so dropping them throws away real signal while keeping an
     invariant one hands the estimator no information. A NAMED list is the
-    caller's decision instead: it keeps the constant column, because a
-    caller naming the classifier's own inputs needs the matrix the
-    classifier saw, and a name absent from the table is a typo, not a filter.
+    caller's decision instead: it keeps the constant column, because naming
+    the classifier's own inputs means wanting the matrix it saw, and an
+    absent name is a typo rather than a filter.
     """
     frame = _plate(wells=4, per_well=5)
     frame["cell_is_border"] = np.arange(len(frame)) % 2 == 0
@@ -200,7 +199,7 @@ def test_a_score_that_cannot_define_a_positive_set_is_refused(plate):
     quantile computed over an empty pool and every cell labelled against a
     NaN threshold. A constant one puts every cell on one side of any cut,
     training a classifier that predicts one class and scoring it as perfect
-    on an equally single-class hold-out. Both are refused in words.
+    on a hold-out that also holds one. Both are refused in words.
     """
     frame = plate.copy()
     frame["pred"] = np.nan
@@ -317,9 +316,9 @@ def test_a_fit_refuses_what_it_cannot_separate_and_predicts_what_it_did_not_see(
     """One cell, or many cells of one class, is not a training set: both
     reach scikit-learn as an error naming an array, and are raised here as
     :class:`NotEnoughLabels` naming the selection instead. What the fit is
-    then APPLIED to is the rest of the screen, which can be nothing at all
-    -- and ``None`` is what the result type means by "nothing was
-    predicted", where a zero-row frame would be written as an empty CSV.
+    then APPLIED to is the rest of the screen, which can be nothing at all:
+    ``None`` is how the result type says "nothing was predicted", where a
+    zero-row frame would be written out as an empty CSV.
     """
     request = _request(plate)
     zeros, ones = _both_classes(prepared)

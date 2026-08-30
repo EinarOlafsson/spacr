@@ -1,18 +1,14 @@
 """Narrow coverage for failure-side branches of :mod:`spacr.io`.
 
-Every test here drives a path a user only meets when something has already
-gone wrong: a notebook import that is mid-initialisation, a plate folder that
-holds no images, a preloader thread that will not die, a merge whose declared
-cardinality is violated for a reason that is not a duplicate key, a resume
-whose plane-layout sidecar is unreadable. Those are exactly the paths that rot
-silently, because a green pipeline never walks them.
-
-Everything is CPU-only, offline and driven from ``tmp_path``.
+Every test drives a path a user only meets when something has already gone
+wrong: a notebook import that is mid-initialisation, a plate folder holding no
+images, a preloader thread that will not die, a merge failure that is not a
+duplicate key, an unreadable resume sidecar. Those paths rot silently, because
+a green pipeline never walks them. All CPU-only and offline.
 """
 from __future__ import annotations
 
 import importlib.util
-import json
 import logging
 import os
 import queue
@@ -28,29 +24,16 @@ import pytest
 import spacr.io as IO
 
 
-@pytest.fixture(autouse=True)
-def _no_stray_figures():
-    yield
-    try:
-        import matplotlib.pyplot as plt
-        plt.close("all")
-    except Exception:
-        pass
-
-
-# ---------------------------------------------------------------------------
 # module import: the IPython.display fallback
-# ---------------------------------------------------------------------------
 
 def test_importing_io_survives_a_half_initialised_ipython(monkeypatch):
     """spacr.io must import even when ``IPython.display`` cannot be imported.
 
     ``import IPython.display`` can fail while IPython is being initialised by
-    another thread; the GUI imports spacr.io from a worker thread, so a hard
-    failure there takes the whole application down before any window appears.
-    The module answers that with a no-op ``display``. This loads the very same
-    file a second time with the import poisoned and checks the fallback is
-    installed and callable rather than the import propagating.
+    another thread; the GUI imports spacr.io from a worker thread, so failing
+    there takes the application down before any window appears. The module
+    answers with a no-op ``display``. This loads the same file again with the
+    import poisoned and checks the fallback is installed and callable.
     """
     monkeypatch.setitem(sys.modules, "IPython.display", None)
 
@@ -68,18 +51,16 @@ def test_importing_io_survives_a_half_initialised_ipython(monkeypatch):
     assert callable(probe.preprocess_img_data)
 
 
-# ---------------------------------------------------------------------------
 # migrate_unescaped_plate_names
-# ---------------------------------------------------------------------------
 
 def test_migration_skips_a_dotted_name_that_is_not_a_field_stem(tmp_path):
     """A file whose name is not a parseable field stem is left alone.
 
-    A plate folder collects hand-dropped arrays and sidecars next to the real
+    A plate folder collects hand-dropped arrays and sidecars beside the real
     field stacks. Renaming one on a guess loses it, so a name the key grammar
-    rejects must be skipped while the genuine underscored plate beside it is
-    still planned for migration. Both files live in the same folder here so
-    the skip cannot be confused with the migration finding nothing.
+    rejects is skipped while the genuine underscored plate next to it is still
+    planned — both live in the same folder so the skip cannot be confused with
+    the migration simply finding nothing.
     """
     from spacr.io import migrate_unescaped_plate_names
 
@@ -100,17 +81,15 @@ def test_migration_skips_a_dotted_name_that_is_not_a_field_stem(tmp_path):
     assert (stack / "exp_1_A01_1_1.npy").exists()
 
 
-# ---------------------------------------------------------------------------
 # spacrDataLoader.cleanup
-# ---------------------------------------------------------------------------
 
 def test_cleanup_reports_a_preloader_that_refuses_to_stop(monkeypatch, caplog):
     """A preloader thread still alive after the grace period is reported.
 
     ``cleanup`` abandons the daemon thread rather than blocking teardown for
-    ever, which is right — but abandoning it in silence means a user whose run
-    ends with a wedged decoder sees no reason for the leaked worker. The log
-    line is the only evidence, so it has to be emitted.
+    ever, which is right — but doing it in silence leaves a user whose run
+    ends with a wedged decoder no reason for the leaked worker. The log line
+    is the only evidence, so it has to be emitted.
     """
     from spacr.io import spacrDataLoader
 
@@ -140,9 +119,7 @@ def test_cleanup_reports_a_preloader_that_refuses_to_stop(monkeypatch, caplog):
     assert q.empty()
 
 
-# ---------------------------------------------------------------------------
 # _merge_channels: the modern layout has no per-channel folders
-# ---------------------------------------------------------------------------
 
 def test_merge_channels_returns_zero_when_there_are_no_channel_folders(
         tmp_path, capsys):
@@ -150,8 +127,8 @@ def test_merge_channels_returns_zero_when_there_are_no_channel_folders(
 
     The modern ingest builds ``stack/`` straight from an in-memory channel
     dict, so this older two-step helper legitimately finds nothing to do.
-    Indexing the empty list instead raised IndexError from inside a stage
-    whose message named the plate, making an ordinary folder look corrupt.
+    Indexing the empty list instead raised IndexError from a stage whose
+    message named the plate, making an ordinary folder look corrupt.
     """
     from spacr.io import _merge_channels
 
@@ -163,63 +140,60 @@ def test_merge_channels_returns_zero_when_there_are_no_channel_folders(
     result = _merge_channels(str(src), plot=False)
 
     assert result == 0
-    # No stack/ was created, so preprocess_img_data can fall through.
-    assert not (src / "stack").exists()
+    # The folder is left exactly as it was, so preprocess_img_data can fall
+    # through to the branch that builds stack/ itself.
+    assert sorted(os.listdir(str(src))) == ["img_A01_f1.tif", "notes"]
     assert "stack/ will be built" in capsys.readouterr().out
 
 
-# ---------------------------------------------------------------------------
 # _concatenate_channel: the timelapse branch reports its own failures
-# ---------------------------------------------------------------------------
 
 def test_timelapse_concatenation_reports_bad_metadata_instead_of_crashing(
         tmp_path, capsys):
     """A malformed timelapse array is reported, not raised, mid-batch.
 
-    ``_concatenate_channel`` runs inside preprocessing; a single unusable
-    field must not abort the whole plate with a bare traceback. The message
-    names the filename grammar the caller has to fix, which is the only clue
-    a user gets, so it has to be printed.
+    ``_concatenate_channel`` runs inside preprocessing; one unusable field
+    must not abort the plate with a bare traceback. The message names the
+    filename grammar the caller has to fix, which is the only clue a user
+    gets, so it has to be printed.
     """
     from spacr.io import _concatenate_channel
 
-    src = tmp_path / "plate1" / "stack"
-    src.mkdir(parents=True)
+    bad = tmp_path / "bad" / "stack"
+    bad.mkdir(parents=True)
     # 2-D arrays: there is no axis 2 to take channels from.
     for t in (1, 2):
-        np.save(src / f"plate1_A01_f1_{t}.npy", np.zeros((4, 4), np.float32))
+        np.save(bad / f"plate1_A01_f1_{t}.npy", np.zeros((4, 4), np.float32))
 
-    out = _concatenate_channel(str(src), channels=[0, 1], randomize=False,
-                               timelapse=True, batch_size=2)
+    _concatenate_channel(str(bad), channels=[0, 1], randomize=False,
+                         timelapse=True, batch_size=2)
 
     captured = capsys.readouterr().out
     assert "make sure filenames metadata is structured" in captured
-    assert "Error:" in captured
-    # Nothing was written, and the caller still gets the destination folder.
-    assert out is None or os.path.isdir(str(out))
-    assert not list((tmp_path / "plate1" / "channel_stack").glob("*.npz"))
+    assert "axis" in captured.lower()
+    assert not list((tmp_path / "bad" / "channel_stack").glob("*.npz"))
+
+    # The very same call over well-formed arrays does write its group, so the
+    # emptiness above is the reported failure and not an inert code path.
+    good = tmp_path / "good" / "stack"
+    good.mkdir(parents=True)
+    for t in (1, 2):
+        np.save(good / f"plate1_A01_f1_{t}.npy",
+                np.zeros((4, 4, 2), np.float32))
+    _concatenate_channel(str(good), channels=[0, 1], randomize=False,
+                         timelapse=True, batch_size=2)
+    written = sorted((tmp_path / "good" / "channel_stack").glob("*.npz"))
+    assert [f.name for f in written] == ["plate1_A01_f1.npz"]
 
 
-# ---------------------------------------------------------------------------
 # preprocess_img_data: the "nothing was produced" diagnosis
-# ---------------------------------------------------------------------------
 
 def _settings(src, **over):
-    s = {
-        "src": str(src),
-        "metadata_type": "cellvoyager",
-        "custom_regex": None,
-        "channels": [0, 1],
-        "nucleus_channel": 0,
-        "cell_channel": 1,
-        "pathogen_channel": None,
-        "organelle_channel": None,
-        "plot": False,
-        "batch_size": 1,
-        "test_mode": False,
-        "timelapse": False,
-        "normalize": True,
-    }
+    s = {"src": str(src), "metadata_type": "cellvoyager", "custom_regex": None,
+         "channels": [0, 1], "nucleus_channel": 0, "cell_channel": 1,
+         "pathogen_channel": None, "organelle_channel": None, "plot": False,
+         "batch_size": 1, "test_mode": False, "timelapse": False,
+         "normalize": True}
     s.update(over)
     return s
 
@@ -228,10 +202,10 @@ def test_a_folder_of_plates_is_named_as_the_likely_mistake(tmp_path, capsys,
                                                            monkeypatch):
     """Pointing src at a folder of plates must say so, not fail downstream.
 
-    With no images directly in src, nothing is organised and ``stack/`` stays
-    empty. Letting the run continue wrote an empty measurement set that looked
-    like a result. The error has to name the sub-folders it found so the user
-    can see they pointed one level too high.
+    With no images directly in src nothing is organised and ``stack/`` stays
+    empty; letting the run continue wrote an empty measurement set that looked
+    like a result. The error names the sub-folders it found so the user can
+    see they pointed one level too high.
     """
     from spacr.io import preprocess_img_data
 
@@ -263,10 +237,9 @@ def test_a_source_folder_that_vanished_still_gets_a_named_error(tmp_path,
                                                                monkeypatch):
     """If src disappears mid-run the diagnosis still names src, not os.listdir.
 
-    Scratch plates on shared storage do get swept while a run is in flight.
-    Re-listing src to build the hint must not replace the useful
-    "nothing was produced from <src>" error with a raw OSError from a path the
-    user never typed.
+    Scratch plates on shared storage do get swept mid-run. Re-listing src to
+    build the hint must not replace the useful "nothing was produced from
+    <src>" error with a raw OSError naming a path the user never typed.
     """
     from spacr.io import preprocess_img_data
 
@@ -287,22 +260,20 @@ def test_a_source_folder_that_vanished_still_gets_a_named_error(tmp_path,
     message = str(excinfo.value)
     assert "No image stacks were produced" in message
     assert str(src) in message
-    # No sub-folder hint can be offered when the folder is gone.
-    assert "sub-folders" not in message
+    assert "0 image file(s)" in message
+    # The sweep really did happen inside the call.
     assert not src.exists()
 
 
-# ---------------------------------------------------------------------------
 # _merge_with_cardinality
-# ---------------------------------------------------------------------------
 
-def test_a_non_cardinality_merge_error_is_not_relabelled(tmp_path):
+def test_a_non_cardinality_merge_error_is_not_relabelled():
     """Merge failures that are not cardinality violations keep pandas' message.
 
-    The wrapper exists to turn "MergeError" into a sentence naming the two
-    tables and the duplicated keys. Dressing up every MergeError that way
-    would misdiagnose a mis-specified join as duplicated data and send the
-    user off de-duplicating a table that is perfectly fine.
+    The wrapper turns "MergeError" into a sentence naming the two tables and
+    the duplicated keys. Dressing up every MergeError that way would
+    misdiagnose a mis-specified join as duplicated data and send the user off
+    de-duplicating a table that is perfectly fine.
     """
     from spacr.io import _merge_with_cardinality, MergeCardinalityError
 
@@ -329,16 +300,13 @@ def test_a_non_cardinality_merge_error_is_not_relabelled(tmp_path):
     assert "cell table has duplicated" in str(dup_info.value)
 
 
-# ---------------------------------------------------------------------------
 # _load_and_concatenate_arrays
-# ---------------------------------------------------------------------------
 
 def _merge_src(root, n_channels=2, name="fov.npy"):
     stack_dir = os.path.join(root, "stack")
     os.makedirs(stack_dir, exist_ok=True)
-    img = np.zeros((6, 6, n_channels), np.float32)
-    for c in range(n_channels):
-        img[..., c] = float(c + 1)
+    img = np.stack([np.full((6, 6), float(c + 1), np.float32)
+                    for c in range(n_channels)], axis=-1)
     np.save(os.path.join(stack_dir, name), img)
     return img
 
@@ -347,9 +315,9 @@ def test_resume_refuses_an_unreadable_plane_layout_sidecar(tmp_path):
     """A corrupt merged-layout sidecar stops the resume instead of guessing.
 
     The sidecar records which plane holds which biological role. Resuming
-    without being able to read it would reuse existing merged arrays under an
-    assumed layout: every plane still exists, so measurement succeeds and
-    returns plausible numbers for the wrong objects.
+    without reading it would reuse merged arrays under an assumed layout:
+    every plane still exists, so measurement succeeds and returns plausible
+    numbers for the wrong objects.
     """
     from spacr.io import _load_and_concatenate_arrays
     from spacr.crops import MERGED_LAYOUT_SIDECAR
@@ -371,19 +339,20 @@ def test_resume_refuses_an_unreadable_plane_layout_sidecar(tmp_path):
     message = str(excinfo.value)
     assert "Cannot resume" in message
     assert MERGED_LAYOUT_SIDECAR in message
-    # Nothing was merged behind the refusal.
-    assert not list(merged.glob("fov.npy"))
+    # The refusal came before any work: merged/ still holds only the sidecar,
+    # still exactly as written.
+    assert os.listdir(str(merged)) == [MERGED_LAYOUT_SIDECAR]
+    assert (merged / MERGED_LAYOUT_SIDECAR).read_text() == "{not json at all"
 
 
 def test_a_failed_sidecar_write_leaves_no_half_written_temporary(tmp_path,
                                                                 monkeypatch):
     """A crash while writing the layout sidecar must not leave a temp file.
 
-    The sidecar is written to a hidden temporary in the destination and
-    renamed into place. If the write fails the temporary has to go, otherwise
-    the merged folder accumulates ``.spacr_plane_layout_*`` droppings that the
-    next resume scan has to step over. Even when the cleanup itself fails the
-    original error must still surface.
+    The sidecar is written to a hidden temporary and renamed into place. If
+    the write fails the temporary has to go, or the merged folder accumulates
+    ``.spacr_plane_layout_*`` droppings the next resume scan steps over — and
+    even when that cleanup itself fails the original error must still surface.
     """
     from spacr.io import _load_and_concatenate_arrays
 
@@ -415,25 +384,19 @@ def test_a_failed_sidecar_write_leaves_no_half_written_temporary(tmp_path,
     assert os.path.dirname(removed[0]) == os.path.join(root, "merged")
 
 
-# ---------------------------------------------------------------------------
 # _read_and_merge_data
-# ---------------------------------------------------------------------------
 
 def _meta(obj_key):
-    r = f"r{(obj_key % 2) + 1}"
-    c = f"c{(obj_key % 2) + 1}"
+    r, c = f"r{(obj_key % 2) + 1}", f"c{(obj_key % 2) + 1}"
     return {"plateID": "plate1", "rowID": r, "columnID": c, "fieldID": "f1",
             "prcf": f"plate1_{r}_{c}_f1"}
 
 
 def _cell_frame(n=6):
-    rows = []
-    for obj in range(1, n + 1):
-        row = dict(_meta(obj))
-        row.update({"object_label": obj, "cell_area": 100.0 + obj,
-                    "cell_channel_0_mean_intensity": 500.0 + obj})
-        rows.append(row)
-    return pd.DataFrame(rows)
+    return pd.DataFrame([
+        dict(_meta(obj), object_label=obj, cell_area=100.0 + obj,
+             cell_channel_0_mean_intensity=500.0 + obj)
+        for obj in range(1, n + 1)])
 
 
 def _write_db(path, tables):
@@ -446,11 +409,10 @@ def _write_db(path, tables):
 def test_png_crops_from_another_field_are_reported_not_merged(tmp_path, capsys):
     """Crops that key onto no measured object must say how many objects went.
 
-    ``png_list`` joins inner: crops whose object ids match nothing delete every
-    row of the merged table. Silently, that is a 100-cell plate becoming an
-    empty one with no explanation. The shortfall has to be reported, named by
-    table, and the second (non-numeric) png block must still merge cleanly on
-    top of the now-empty frame rather than raising.
+    ``png_list`` joins inner: crops whose object ids match nothing delete
+    every row of the merged table — a 100-cell plate becoming an empty one
+    with no explanation. The shortfall must be reported by table, and the
+    second (non-numeric) png block must still merge onto the now-empty frame.
     """
     png_rows = []
     for obj in range(1, 7):
@@ -493,10 +455,10 @@ def test_an_organelle_only_database_anchors_the_merge_on_its_parent_cell(
         tmp_path, capsys):
     """An organelle table with no cell table still groups on the parent cell.
 
-    Organelle slots were added after cell/nucleus/pathogen, and a database
+    Organelle slots were added after cell/nucleus/pathogen, so a database
     measured with only an organelle channel has no earlier role to merge onto.
     That table has to become the anchor, keyed on ``cell_id``, or the merge
-    reads an unbound frame and the whole measurement set is lost.
+    reads an unbound frame and the measurement set is lost.
     """
     rows = []
     for obj, cid in zip([1, 2, 3, 4], [1, 1, 2, 3]):
