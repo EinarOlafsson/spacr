@@ -299,10 +299,9 @@ def test_the_relay_swallows_an_exploding_console(qtbot):
     log.warning("first-boom")
     assert any("first-boom" in text for text in seen), (
         "the exploding console was never reached — nothing was swallowed")
-    # NB: one record arrives more than once — the same handler is attached to
-    # every logger in the `spacr` -> `spacr.qt` -> `spacr.qt.hf_download`
-    # chain, so `callHandlers` runs it once per ancestor. Count messages,
-    # not deliveries.
+    # The leaf record propagates to the one sink on the ``spacr`` logger.
+    # Count messages rather than deliveries so this assertion remains about
+    # recovery from the broken target, not logging's propagation mechanics.
     log.warning("second-boom")
     assert any("second-boom" in text for text in seen), (
         f"the first failure latched the console off: {seen}")
@@ -325,7 +324,9 @@ def test_the_relay_swallows_an_exploding_console(qtbot):
     vl.register_console_target(good)
     log.warning("after the boom")
     assert vl._ensure_relay() is relay_before, "the relay was rebuilt"
-    assert vl._handler in log.handlers, "the handler fell off the logger"
+    sink = logging.getLogger(vl._SINK_LOGGER)
+    assert vl._handler in sink.handlers, "the handler fell off the package sink"
+    assert vl._handler not in log.handlers, "the leaf gained a duplicate sink"
     assert any("after the boom" in text for text in healthy), (
         "the broken console took the whole sink down with it")
 
