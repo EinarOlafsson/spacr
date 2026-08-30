@@ -26,7 +26,7 @@ ENGLISH_CATALOG = (
 )
 REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
 REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
-REAL_SYMBOL_COUNT = 8_817
+REAL_SYMBOL_COUNT = 8_838
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -186,7 +186,7 @@ def _real_browser_files(page: bytes):
     return files
 
 
-def _dump_dom(url: str, *, budget=1800) -> str:
+def _dump_dom(url: str, *, budget=1800, wall_timeout=60) -> str:
     if not CHROME:
         pytest.skip("Chrome/Chromium is required for the focused browser test")
     with tempfile.TemporaryDirectory(prefix="spacr-api-i18n-chrome-") as profile:
@@ -217,7 +217,7 @@ def _dump_dom(url: str, *, budget=1800) -> str:
             # that contention even though the page's virtual-time budget is
             # only 1.8 seconds.  Keep every DOM assertion and allow the
             # external process enough wall time to start deterministically.
-            timeout=60,
+            timeout=wall_timeout,
         )
     assert completed.returncode == 0, completed.stderr[-2000:]
     return completed.stdout
@@ -494,7 +494,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 8,817-symbol union for every real locale."""
+    """Render the complete 8,838-symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"
@@ -574,7 +574,11 @@ window.addEventListener('unhandledrejection', (event) => {
     page = _complete_catalog_page(symbols, harness, before_script=before)
     files = _real_browser_files(page)
     with _server(files) as (base, requests):
-        dom = _dump_dom(f"{base}/api/page.html", budget=30_000)
+        dom = _dump_dom(
+            f"{base}/api/page.html",
+            budget=30_000,
+            wall_timeout=180,
+        )
 
     assert 'data-result="pass"' in dom
     rendered = ",".join(

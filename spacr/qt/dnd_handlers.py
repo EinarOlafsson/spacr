@@ -329,14 +329,20 @@ def _scan_then(screen, fn: Callable[[], Any],
 
 
 def scan_is_busy(screen) -> bool:
-    """True while a dropped folder is still being walked for ``screen``."""
+    """True while a dropped folder is still being walked for ``screen``.
+
+    :param screen: screen that owns the drop scanner to query.
+    """
     scanner = getattr(screen, "_dnd_scanner", None)
     return bool(scanner is not None and _is_alive(scanner)
                 and scanner.is_busy())
 
 
 def active_scan_jobs(screen) -> int:
-    """How many folder-scan threads ``screen`` still owns."""
+    """How many folder-scan threads ``screen`` still owns.
+
+    :param screen: screen whose active drop-scan jobs are counted.
+    """
     scanner = getattr(screen, "_dnd_scanner", None)
     if scanner is None or not _is_alive(scanner):
         return 0
@@ -351,6 +357,8 @@ def scan_mask_folder(path, sample: int = 20) -> Dict[str, Any]:
     Returns the filenames the regex preview samples plus the total image
     count the report quotes. Both used to come from two separate listings of
     the same directory, taken on the GUI thread.
+
+    :param path: dropped directory whose top-level files are inspected.
     """
     root = Path(path)
     if not root.is_dir():
@@ -381,6 +389,7 @@ def scan_folder_structure(path) -> Dict[str, Any]:
     so a folder whose layout is not recognisable costs 30 files, not a
     traversal.
 
+    :param path: dropped directory to inspect for a recognised image layout.
     :returns: ``{"labels": (...), "rows": [...], "error": ""}``. Empty
         ``labels`` means no folder layout was recognised and there is nothing
         to report.
@@ -1046,6 +1055,9 @@ class MeasurementsDropHandler(DropHandler):
         Returns ``None`` when there is no database file to be found, so a
         caller can fall back rather than hand a folder to something that
         expects to open a database.
+
+        :param path: database file, measurements directory, or plate directory
+            to resolve.
         """
         if path.is_file():
             return path if _is_database_path(path) else None
@@ -1245,13 +1257,27 @@ class SweepInputsDropHandler(DropHandler):
         return []
 
     def can_accept(self, path: Path) -> bool:
+        """Return whether ``path`` contributes at least one sweep CSV.
+
+        :param path: CSV file or directory whose immediate CSV children are
+            considered.
+        """
         return bool(self._tables(path))
 
     def error_message(self, path: Path) -> str:
+        """Explain why ``path`` cannot populate the sweep inputs.
+
+        :param path: rejected file or directory.
+        """
         return ("Parameter Sweep accepts per-object score CSVs, gRNA count "
                 "CSVs, or a folder holding them.")
 
     def apply(self, path: Path, screen) -> None:
+        """Route score and count CSVs from ``path`` to the sweep panel.
+
+        :param path: accepted CSV file or directory of CSV files.
+        :param screen: sweep panel or host screen carrying it on ``_sweep``.
+        """
         from .widgets.file_list import side_for_header
 
         panel = _sweep_panel(screen)
@@ -1293,15 +1319,30 @@ class RegressionDropHandler(MeasurementsDropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
+        """Return whether Regression can route ``path`` to either input area.
+
+        :param path: database, plate directory, sweep CSV, or sweep directory
+            to classify.
+        """
         return (super().can_accept(path)
                 or bool(SweepInputsDropHandler._tables(path)))
 
     def error_message(self, path: Path) -> str:
+        """Explain why ``path`` matches neither Regression input contract.
+
+        :param path: rejected file or directory.
+        """
         return ("Regression needs a plate folder with "
                 "measurements/measurements.db, or the parameter sweep's "
                 "per-object score / gRNA count CSVs.")
 
     def apply(self, path: Path, screen) -> None:
+        """Attach ``path`` to a plate row or the embedded sweep card.
+
+        :param path: accepted database, plate directory, sweep CSV, or sweep
+            directory.
+        :param screen: Regression screen receiving the resolved input.
+        """
         if super().can_accept(path):
             super().apply(path, screen)
             return
@@ -1319,18 +1360,31 @@ class ExplainCvInputsDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
+        """Return whether ``path`` is an Explain CV database or CSV input.
+
+        :param path: database, project directory, or prediction CSV to test.
+        """
         return bool(
             _measurement_database(path)
             or (path.is_file() and path.suffix.lower() == ".csv")
         )
 
     def error_message(self, path: Path) -> str:
+        """Explain why ``path`` is not an Explain CV input.
+
+        :param path: rejected file or directory.
+        """
         return (
             "Explain CV Model accepts measurements.db, its project folder, "
             "or an existing per-object prediction CSV."
         )
 
     def apply(self, path: Path, screen) -> None:
+        """Place ``path`` in Explain CV's database or prediction control.
+
+        :param path: accepted database, project directory, or prediction CSV.
+        :param screen: host screen exposing the ``explain`` input panel.
+        """
         panel = getattr(screen, "explain", None)
         if panel is None:
             raise TypeError("Explain CV Model has no input panel.")
@@ -1351,6 +1405,11 @@ class InvestigateHitInputsDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
+        """Return whether ``path`` can supply an Investigate Hit input.
+
+        :param path: database, directory, prediction CSV, or fractions CSV to
+            test.
+        """
         return bool(
             _measurement_database(path)
             or path.is_dir()
@@ -1358,6 +1417,10 @@ class InvestigateHitInputsDropHandler(DropHandler):
         )
 
     def error_message(self, path: Path) -> str:
+        """Explain why ``path`` is not an Investigate Hit input.
+
+        :param path: rejected file or directory.
+        """
         return (
             "Investigate Hit accepts measurements.db, a prediction or "
             "well/guide-fraction CSV, or the exact regression-results folder."
@@ -1377,6 +1440,12 @@ class InvestigateHitInputsDropHandler(DropHandler):
         return has_guide and has_fraction
 
     def apply(self, path: Path, screen) -> None:
+        """Route ``path`` to the matching Investigate Hit control.
+
+        :param path: accepted database, results directory, prediction CSV, or
+            guide-fraction CSV.
+        :param screen: host screen exposing the ``investigate`` input panel.
+        """
         panel = getattr(screen, "investigate", None)
         if panel is None:
             raise TypeError("Investigate Hit has no input panel.")
@@ -1878,6 +1947,8 @@ def table_names(path: Path) -> List[str]:
     Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a
     ``#`` in its name would otherwise have everything after it read as query
     parameters, and the open would fail on a database that is perfectly fine.
+
+    :param path: candidate SQLite database path to inspect read-only.
     """
     import sqlite3
     from urllib.parse import quote
@@ -1951,7 +2022,11 @@ class LayoutDropHandler(DropHandler):
                     and path.name.lower().endswith(self.suffixes))
 
     def resolve(self, path: Path):
-        """Return the :class:`spacr.chaining.DropResolution` for ``path``."""
+        """Return the :class:`spacr.chaining.DropResolution` for ``path``.
+
+        :param path: dropped path to resolve against this handler's app and
+            artifact kinds.
+        """
         return _resolve_for(self, self.app_key, path)
 
     def can_accept(self, path: Path) -> bool:
@@ -2447,6 +2522,9 @@ def get_handler(app_key: str) -> DropHandler:
 
     Falls back to :class:`SourceDropHandler` so every conventional AppScreen
     can at least receive its source folder.
+
+    :param app_key: registered built-in or plugin application key whose drop
+        policy is requested.
     """
     cls = _HANDLERS.get(app_key)
     if cls is not None and issubclass(cls, LayoutDropHandler):

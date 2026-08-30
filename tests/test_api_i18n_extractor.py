@@ -776,10 +776,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # SearchTable.add; and volcano_style.VolcanoStyle.save and load. These
     # methods already existed, but adding their first docstrings admits them
     # to both the rendered and pre-filter API inventories. Nothing retired.
+    # +14/-0 for the dnd_handlers and ThresholdGate structured-doc batch:
+    # twelve formerly docless drop-handler methods plus ThresholdGate.mask
+    # and ThresholdGate.with_threshold. Their exact aliases stay aliases and
+    # do not enter the canonical inventory independently. Nothing retired.
     # -107 non-rendered entries: 16 from the ignored Qt tutorial, 85 from
     # ignored resource generators, one Qt launcher module, four compatibility
     # bridge entries, and the CLI-only ``qt.run_without_setup`` function.
-    expected = 8705
+    expected = 8719
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -794,7 +798,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8824
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8838
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -825,10 +829,10 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,931: the same seven newly
+    # The audited pre-filter inventory is now 8,945: the same 21 newly
     # documented methods entered both inventories, while 101 configured-ignore
     # keys plus the six explicit exposure exceptions above remain absent.
-    assert 8_931 - len(docs) == 107
+    assert 8_945 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
