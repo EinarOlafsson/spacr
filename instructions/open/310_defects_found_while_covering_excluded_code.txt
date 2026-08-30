@@ -455,3 +455,40 @@ tests in this session that exercised nothing.
     slips, and it is worth one shared helper -- ``_ensure_parent(path)`` that
     does the abspath and the makedirs together -- rather than three guards that
     each read correct and can never fire. Filed as a decision, not taken here.
+
+--------------------------------------------------------------------------------
+8. A CONSENSUS THAT IS SAFE ONLY BECAUSE ITS CALLERS PAD  (lane: spacr/sequencing.py)
+--------------------------------------------------------------------------------
+
+``create_consensus`` (spacr/sequencing.py:283-287) loops over ``len(seq1)`` and
+indexes ``seq2`` and ``qual2`` at the same offset. A shorter second sequence
+raises IndexError; nothing in the function checks, and the docstring does not
+say the two must be equal.
+
+It is safe today because all three callers --
+``paired_find_sequence_in_chunk_reads``, its reverse-complement retry, and
+``single_find_sequence_in_chunk_reads`` -- pad both reads to ``expected_end``
+before calling. The padding is four lines above each call and reads as
+cosmetic.
+
+WHY THAT MATTERS BEYOND TIDINESS: this runs inside a chunk worker over a whole
+FASTQ, so the failure mode of removing or reordering that padding is an
+IndexError in a subprocess partway through a sequencing run.
+
+THE ASYMMETRY IS WORSE THAN THE RAISE. A shorter seq2 raises. A LONGER seq2 is
+silently ignored past ``len(seq1)``, so the second read simply stops
+contributing -- no error, a consensus built from one read, and a count that
+lands in the wrong well rather than being discarded.
+
+CONSEQUENCE FOR ITEM 288, and this is why it is filed rather than fixed: the
+padding makes ``len(consensus_seq)`` exactly ``expected_end``, so the three
+``if len(consensus_seq) >= expected_end:`` guards at :436, :461 and :521 are
+unconditionally true. Their false arcs -- 436->407, 461->467 and 521->497 --
+are UNREACHABLE and cannot be covered without deleting the padding. Verified by
+fuzzing create_consensus over 3,000 equal-length pairs: the consensus is
+exactly ``len(seq1)`` every time.
+
+The invariant is now pinned by tests/test_the_consensus_depends_on_its_callers_padding.py,
+so a change that stops padding fails a test instead of a run. A fix would give
+create_consensus its own length check; that is a decision for the sequencing
+lane, not the coverage sweep.
