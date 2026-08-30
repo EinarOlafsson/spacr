@@ -531,3 +531,89 @@ def _clean_arguments():
     image, _ = clean_scene()
     return (image, np.zeros((IMG_N, IMG_N), dtype=np.uint16),
             SEED_X, SEED_Y, TOLERANCE)
+
+
+# ---------------------------------------------------------------------------
+# a seam can run any of four ways
+# ---------------------------------------------------------------------------
+
+def _band_leaking(direction: str) -> np.ndarray:
+    """A narrow band from the seed that suddenly widens in ``direction``.
+
+    Built symmetrically so the same shape can be rotated into each of the four
+    directions: the detector's arithmetic is per-direction and a bug in one of
+    them cannot be seen by testing another.
+    """
+    region = np.zeros((80, 80), dtype=bool)
+    region[30:51, 30:51] = True                  # the object at the seed
+    if direction == "down":
+        region[51:76, 5:76] = True
+    elif direction == "up":
+        region[5:30, 5:76] = True
+    elif direction == "right":
+        region[5:76, 51:76] = True
+    else:
+        region[5:76, 5:30] = True
+    return region
+
+
+@pytest.mark.parametrize("direction", ["up", "down", "left", "right"])
+def test_a_seam_is_cut_whichever_way_it_runs(direction):
+    """Each direction is separate arithmetic on a separately built profile.
+
+    "up" and "left" reverse their profile so index 0 is at the click, and
+    their cut is ``seed - offset`` where the others are ``seed + offset``.
+    Two sign errors and two slice directions live here, and a test that only
+    leaks rightward -- which is what the suite had -- cannot see any of them.
+    """
+    region = _band_leaking(direction)
+    seed = (40, 40)
+
+    trimmed, cuts = wr.trim_directional_runaway(
+        region, seed, warmup=2, min_baseline=4, confirm=2)
+
+    assert direction in cuts, f"the {direction} seam was not detected"
+    assert trimmed.sum() < region.sum(), "nothing was actually removed"
+    # The object around the click survives the cut.
+    assert trimmed[40, 40], "the cut removed the pixel that was clicked"
+
+
+@pytest.mark.parametrize("direction", ["up", "down", "left", "right"])
+def test_the_cut_is_reported_in_image_coordinates(direction):
+    """``cuts`` is what the caller draws, so it must be an image coordinate.
+
+    An offset from the seed would be silently wrong for "up" and "left",
+    where the profile is reversed -- and drawing the cut in the wrong place
+    is worse than not drawing it, because it says the rescue did something
+    it did not.
+    """
+    region = _band_leaking(direction)
+    seed_y, seed_x = 40, 40
+
+    _trimmed, cuts = wr.trim_directional_runaway(
+        region, (seed_y, seed_x), warmup=2, min_baseline=4, confirm=2)
+
+    cut = cuts[direction]
+    if direction in ("up", "down"):
+        assert 0 <= cut < region.shape[0]
+        assert (cut < seed_y) if direction == "up" else (cut > seed_y)
+    else:
+        assert 0 <= cut < region.shape[1]
+        assert (cut < seed_x) if direction == "left" else (cut > seed_x)
+
+
+@pytest.mark.parametrize("seed", [(-1, 10), (10, -1), (999, 10), (10, 999)])
+def test_a_seed_outside_the_region_is_returned_untouched(seed):
+    """A click can arrive after the view scrolled, or on a resized image.
+
+    Returning the region unchanged is the only safe answer: the profiles are
+    built by slicing at the seed, and an out-of-range index would either
+    raise or silently profile the wrong half of the object.
+    """
+    region = _band_leaking("down")
+
+    trimmed, cuts = wr.trim_directional_runaway(region, seed)
+
+    assert cuts == {}
+    assert np.array_equal(trimmed, region)
+    assert trimmed is not region, "the caller's array was handed back"
