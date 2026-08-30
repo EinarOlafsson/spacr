@@ -10,7 +10,7 @@
     },
     {
       "context": "optional callable asked before each image data channel's Cellpose model construction and forward pass. When it answers True the work is abandoned by raising :class:`OutlineCancelled` rather than finishing a page nobody is waiting for; ``'otsu'`` outlines are fast enough that they are never interrupted mid-image data channel.",
-      "label": "spacr.qt.annotate_engine.outline_image#3",
+      "label": "spacr.qt.annotate_engine.outline_image#5",
       "source": "optional callable asked before each channel's Cellpose model construction and forward pass. When it answers True the work is abandoned by raising :class:`OutlineCancelled` rather than finishing a page nobody is waiting for; ``'otsu'`` outlines are fast enough that they are never interrupted mid-channel.",
       "source_sha256": "1f0ea3f87aa9fcaf2449da22f4037c72b58f687c3eaddeeaa0362dc697795fa8",
       "translation": "在为每个图像数据通道构建 Cellpose 模型并执行前向传播之前调用的可选函数。如果该函数返回 True，则通过引发 :class:`OutlineCancelled` 放弃该任务，而不是完成无人等待的页面；``'otsu'`` 轮廓计算足够快，因此不会在单个图像数据通道处理途中被中断。"
