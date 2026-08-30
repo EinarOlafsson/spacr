@@ -619,7 +619,7 @@ change a fix rather than a regression.
 
 --------------------------------------------------------------------------------
 11. AN UNKNOWN ORGANELLE PROPERTY LOSES WHICH ORGANELLE IT WAS
-     (lane: spacr/feature_dict.py)
+     (lane: spacr/feature_dict.py)  -- FIXED 2026-08-30
 --------------------------------------------------------------------------------
 
 ``_parse_organelle_summary`` canonicalises a role prefix before looking a
@@ -642,6 +642,15 @@ Current behaviour pinned by
 tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py, which says
 in its docstring that it is pinned and not endorsed. A fix would carry ``role``
 into the fall-through; that belongs to whoever owns the feature dictionary.
+
+FIXED in ``9908e848``. The longest-prefix loop now retains the role it matched
+and gives that role to the unknown-feature fallback. The regression walks all
+four organelle roles, so a future fifth role added to the tuple must retain its
+identity too. The non-Qt feature dictionary cohort passed 331/331; the two Qt
+dictionary cohorts passed 32/32 and 38/38 in fresh processes. Their combined
+process is intentionally order-sensitive because the first file registers the
+optional app globally, so isolation is part of the test contract rather than a
+feature-parser failure.
 
 --------------------------------------------------------------------------------
 12. A SECOND COPY OF THE OBJECT-ID VOCABULARY, DRIFTED
