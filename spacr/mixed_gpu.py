@@ -112,6 +112,10 @@ MEMORY_HEADROOM = 0.5
 def design_bytes(n: int, q: int, *, itemsize: int = 8) -> int:
     """Return the byte size of a dense ``n x q`` random-effects design.
 
+    :param n: number of observation rows in the design.
+    :param q: number of random-effect columns in the design.
+    :param itemsize: bytes used by each matrix element.
+
     Exact rather than estimated: the shape is known before the matrix exists.
     """
     return int(n) * int(q) * int(itemsize)
@@ -306,6 +310,30 @@ class TorchMixedResults:
     ``theta`` are relative to residual variance; ``cov_re`` and ``vcomp`` are
     absolute variances on the response scale. ``device``, ``fit_seconds``,
     ``n_deviance_evals``, and ``gradient_norm`` record backend diagnostics.
+
+    :ivar fe_params: estimated fixed-effect coefficients, indexed by design
+        column.
+    :ivar bse_fe: standard errors of the fixed-effect estimates.
+    :ivar params: statsmodels-compatible combined parameter vector.
+    :ivar bse: standard errors aligned with ``params``.
+    :ivar tvalues: fixed-effect test statistics aligned with ``params``.
+    :ivar pvalues: two-sided p-values aligned with ``params``.
+    :ivar scale: estimated residual variance.
+    :ivar cov_re: covariance matrix of the outer-group random intercept.
+    :ivar vcomp: absolute variance estimates for nested variance components.
+    :ivar random_effects: conditional random-effect estimates keyed by group.
+    :ivar resid: conditional residual for each input observation.
+    :ivar fittedvalues: conditional fitted value for each input observation.
+    :ivar converged: whether the optimizer met its convergence contract.
+    :ivar llf: maximized restricted log-likelihood.
+    :ivar n_obs: number of observations included in the fit.
+    :ivar k_fe: number of fixed-effect coefficients.
+    :ivar backend: backend identifier recorded in logs and run metadata.
+    :ivar device: PyTorch device used for the fit.
+    :ivar fit_seconds: elapsed optimizer time in seconds.
+    :ivar n_deviance_evals: number of profiled-deviance evaluations.
+    :ivar theta: variance ratios relative to residual variance.
+    :ivar gradient_norm: optimizer gradient norm at the reported solution.
     """
 
     fe_params: pd.Series

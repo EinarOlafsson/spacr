@@ -63,7 +63,15 @@ class Screen:
 
 @dataclass(frozen=True)
 class Verdict:
-    """How an annotation did against a known truth."""
+    """How an annotation did against a known truth.
+
+    :ivar coverage: share of cells that received a non-abstaining call.
+    :ivar precision: share of called cells assigned to the correct guide.
+    :ivar recall: share of all cells assigned to the correct guide.
+    :ivar per_guide: guide names mapped to ``(precision, recall)``.
+    :ivar confusion: counts keyed by ``(true guide, called guide)``.
+    :ivar n: total number of truth labels evaluated.
+    """
 
     coverage: float          # share of cells annotated at all
     precision: float         # share of ANNOTATED cells that are right
@@ -188,6 +196,9 @@ def score_annotation(truth: Sequence[str],
                      guides: Optional[Sequence[str]] = None) -> Verdict:
     """Compare guide calls with known cell-level assignments.
 
+    :param truth: reference guide name for every evaluated cell.
+    :param called: guide call or abstention label for every evaluated cell.
+
     Coverage is the fraction of cells that receive a non-abstaining call.
     Precision is calculated only among called cells, while recall is the
     fraction of all cells called correctly. The result also contains
@@ -231,6 +242,10 @@ def calibration(truth: Sequence[str],
                 abstain: str = "Non_annotated") -> List[Tuple[float, float, int]]:
     """Summarize confidence calibration among non-abstaining calls.
 
+    :param truth: reference guide name for every evaluated cell.
+    :param called: guide call or abstention label for every evaluated cell.
+    :param confidence: reported confidence corresponding to each call.
+
     Returns one ``(mean confidence, observed accuracy, count)`` tuple per
     populated confidence bin. This distinguishes accurate probability
     estimates from labels that happen to have high aggregate precision.
@@ -262,6 +277,9 @@ def calibration(truth: Sequence[str],
 
 def permuted(screen: Screen, *, seed: int = 0) -> Screen:
     """Return a screen with guide-to-well assignments permuted.
+
+    :param screen: internally consistent screen whose well-level guide
+        assignments will be shuffled.
 
     The permutation preserves cells, features, classifier scores, well sizes,
     and the distribution of guide fractions while breaking the sequencing-to-
@@ -372,6 +390,9 @@ def benchmark(strategies: Mapping[str, Callable[[Screen], Sequence[str]]],
 def baseline_majority(screen: Screen) -> List[str]:
     """Assign every cell to the largest-fraction guide in its well.
 
+    :param screen: screen providing each cell's well and the well-level guide
+        fractions.
+
     This sequencing-only baseline measures how much apparent performance is
     available from the guide fractions without cell-level features.
     """
@@ -389,6 +410,9 @@ def baseline_majority(screen: Screen) -> List[str]:
 
 def baseline_chance(screen: Screen, *, seed: int = 0) -> List[str]:
     """Sample each cell's guide from its well's sequencing fractions.
+
+    :param screen: screen providing each cell's well and the well-level guide
+        fractions.
 
     Together with :func:`baseline_majority`, this baseline brackets the
     performance available from sequencing counts without cell measurements.

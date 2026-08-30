@@ -73,6 +73,9 @@ LIKELIHOODS: Tuple[str, ...] = ("lognormal", "beta")
 def normalise_fractions(fractions: Mapping[str, float]) -> Dict[str, float]:
     """The guides' fractions, scaled to sum to 1.
 
+    :param fractions: guide names mapped to their measured fraction in one
+        well. Missing, non-finite, and non-positive values are discarded.
+
     "first calculate what all the fractions in that well add up to if not 1
     then normalize to 1". A well whose fractions sum to nothing usable comes
     back empty rather than uniform: inventing a prior where there is no
@@ -143,6 +146,12 @@ def posterior(scores: Sequence[float], priors: Mapping[str, float],
               tolerance: float = 1e-9) -> Tuple[np.ndarray, Tuple[str, ...]]:
     """``(r, guides)`` -- each cell's probability of carrying each guide.
 
+    :param scores: one finite classification or measurement score per cell.
+    :param priors: normalized guide fractions; insertion order defines the
+        returned matrix columns.
+    :param effects: fitted score shifts keyed by guide. A missing guide uses a
+        zero shift.
+
     :returns: ``r`` with one row per cell and one column per guide, rows
         summing to 1, and COLUMNS summing to ``n_cells * prior`` -- the
         constraint that stops two same-direction guides both claiming the
@@ -191,7 +200,16 @@ def posterior(scores: Sequence[float], priors: Mapping[str, float],
 
 @dataclass(frozen=True)
 class Attribution:
-    """What one cell was attributed, and how sure that is."""
+    """What one cell was attributed, and how sure that is.
+
+    :ivar guide: assigned guide name, or :data:`AMBIGUOUS` when the posterior
+        did not reach the call threshold.
+    :ivar probability: largest posterior probability reached for the cell.
+    :ivar ambiguous: whether ``probability`` was below the call threshold.
+    :ivar entropy: Shannon entropy of the cell's guide posterior, in bits.
+    :ivar runner_up: second-highest guide name, or an empty string when no
+        second guide exists.
+    """
 
     guide: str
     probability: float
@@ -321,7 +339,14 @@ def attributable(effect: float, scale: float, prior: float, *,
 
 @dataclass(frozen=True)
 class Preflight:
-    """Whether a guide can produce a real assignment, BEFORE any is made."""
+    """Whether a guide can produce a real assignment, BEFORE any is made.
+
+    :ivar guide: guide whose achievable posterior was evaluated.
+    :ivar wells: number of wells containing a positive fraction of the guide.
+    :ivar callable_wells: wells in which the guide can reach ``threshold``.
+    :ivar best: highest posterior ceiling reached across the guide's wells.
+    :ivar threshold: posterior probability required for a guide call.
+    """
 
     guide: str
     wells: int
@@ -431,7 +456,15 @@ def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
 
 @dataclass(frozen=True)
 class Assignment:
-    """Guide assignment for each cell with its observed sequencing counts."""
+    """Guide assignment for each cell with its observed sequencing counts.
+
+    :ivar guides: assigned guide name for each input cell, in input order.
+    :ivar cost: total negative log likelihood of the assignment; lower is
+        better.
+    :ivar degeneracy: mean cost of changing a cell to its best alternative
+        guide, in nats; values near zero indicate interchangeable solutions.
+    :ivar counts: number of cells assigned to each guide.
+    """
 
     guides: Tuple[str, ...]
     #: -log likelihood of this assignment; lower is better.
@@ -454,6 +487,13 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
                 likelihood: str = "lognormal",
                 seed: int = 0) -> Assignment:
     """Give every cell exactly one guide, with the counts sequencing implies.
+
+    :param scores: one classification or measurement score per cell, in the
+        desired output order.
+    :param fractions: measured guide fractions for the well; usable positive
+        values are normalized before integer cell counts are apportioned.
+    :param effects: fitted score effect keyed by guide; absent guides use a
+        zero effect.
 
     :returns: an :class:`Assignment`. ``guides`` is one name per cell, in the
         order the scores came.
