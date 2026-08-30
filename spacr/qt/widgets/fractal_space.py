@@ -284,6 +284,10 @@ if njit is not None:
 
         Kept a free function so a test can compare it with the shader and so
         the frame kernel below stays a loop and nothing else.
+
+        When Numba is unavailable, the public ``sample_space`` name instead
+        accepts arbitrary positional and keyword arguments and raises
+        ``RuntimeError``.
         """
         depth = t * speed / 14.0
         roll = 0.025 * math.sin(0.009 * t)
@@ -350,6 +354,10 @@ if njit is not None:
 
         ``nogil`` because this runs on the shading thread and the GUI thread
         has to keep answering while it does.
+
+        When Numba is unavailable, the public ``render_space_frame`` name
+        instead accepts arbitrary positional and keyword arguments and raises
+        ``RuntimeError``.
         """
         out = np.empty((height, width, 3), dtype=np.uint8)
         denominator = float(min(width, height))

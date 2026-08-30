@@ -334,6 +334,10 @@ if njit is not None:
 
         Every sample is of the SAME instant, so the result is a true
         supersample rather than a blend across animation times.
+
+        When Numba is unavailable, the public ``render_into`` name instead
+        accepts arbitrary positional and keyword arguments and raises
+        ``RuntimeError``.
         """
         camera_rotation = (
             0.26 * _fast_sin(_FAST_TWO_PI * t / 59.0)
