@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "label": "spacr.flowview.items.NodeItem#2",
+      "source": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "source_sha256": "c47fda8b0be8f2ec0efbdb18118e621fa6b15ec5ada24f7b992bbaafec3b0595",
+      "translation": "运行图中的节点；卡片会显示其标签、状态、指标、进度以及可选缩略图。"
+    },
+    {
+      "context": "Let ``n`` be the number of microplate sample positions and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` is REFUSED rather than pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#2",
+      "source": "Let ``n`` be the number of wells and ``G`` the number of guides. For well ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for the block (normally ``plateID``) and for each column in ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A rank-deficient ``Z`` is REFUSED rather than pseudo-inverted, because a nuisance basis that cannot be inverted is a design question, not a numerical one.",
+      "source_sha256": "16b9c7e3f1bd95056df7e14a2be1f3651c0a1076d7a249e734a66c77d935149e",
+      "translation": "令 ``n`` 为微孔板样本位置的数量，``G`` 为引导序列的数量。对于孔位 ``i``，``y_i`` 是表型，``x_ig`` 是引导序列 ``g`` 的读段比例。``Z`` 是 ``n x q`` 的干扰变量设计矩阵：包括区组（通常为 ``plateID``）的指示列，以及 ``nuisance_columns`` 中每一列（通常为 ``rowID`` 和 ``columnID``）的指示列。秩亏的 ``Z`` 会被拒绝，而不是使用伪逆，因为无法求逆的干扰变量基属于实验设计问题，而不是数值计算问题。"
+    },
+    {
+      "context": "**2. The statistic.** For each guide",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#5",
+      "source": "**2. The statistic.** For each guide",
+      "source_sha256": "23afe67574f51505ddeadca1e2afb0f3bf45f80056d060496cbc410582f59781",
+      "translation": "**2. 统计量。** 对于每个引导序列"
+    },
+    {
+      "context": "Three things this does that a naive shuffle does not. The nuisance fit is added back before re-projecting, so the reference distribution is \"no guide effect GIVEN Z\" rather than \"no structure at all\". The denominator is recomputed per permutation, because ``M P_b y~`` does not preserve norm and a fixed one would let the null drift with the shuffle. And the shuffle is confined to a block, because permuting across plates would let a plate effect leak into the null and inflate significance.",
+      "label": "spacr.guide_permutation.guide_freedman_lane_test#9",
+      "source": "Three things this does that a naive shuffle does not. The nuisance fit is added back before re-projecting, so the reference distribution is \"no guide effect GIVEN Z\" rather than \"no structure at all\". The denominator is recomputed per permutation, because ``M P_b y~`` does not preserve norm and a fixed one would let the null drift with the shuffle. And the shuffle is confined to a block, because permuting across plates would let a plate effect leak into the null and inflate significance.",
+      "source_sha256": "6903e7c7913f168a181dabd3c6ad0593154906c69ee95327277ac7c1174172c3",
+      "translation": "这种方法完成了朴素置换未完成的三件事。重新投影前会加回干扰变量拟合值，因此参考分布表示“给定 Z 时无引导序列效应”，而不是 \"no structure at all\"。每次置换都会重新计算分母，因为 ``M P_b y~`` 不保持范数；若使用固定分母，零分布会随置换漂移。置换还被限制在区组内，因为跨板置换会让板效应泄漏到零分布中并夸大显著性。"
+    }
+  ]
+}
