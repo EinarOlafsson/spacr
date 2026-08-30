@@ -1,0 +1,526 @@
+PER-MODULE COVERAGE — statements AND branches
+==============================================================================
+Source   : xdist workers of the full-suite run on frozen worktree covwt3
+           (commit 4eccf7b8), combined from 4 of 6 worker databases.
+PARTIAL  : two workers died ('node down') and the run wedged at 95% in
+           execnet.serve. Every figure below is therefore a FLOOR. A
+           module listed short may simply have been on a lost worker.
+           This is published because no complete run has ever finished,
+           and a measured floor beats the absence of a number.
+==============================================================================
+
+WHOLE LIBRARY  85.94%   (224,214/260,890 statements+branches)
+  modules 493   at 100% 113   below 380   at 0% 1
+  units still to cover: 36,676
+  lines excluded by pragma in this snapshot: 356
+
+WHERE THE REMAINING WORK IS
+------------------------------------------------------------------------------
+       1-10 missing |  146 modules |     546 units |   1.5%
+      11-50 missing |   92 modules |   2,380 units |   6.5%
+     51-150 missing |   74 modules |   6,910 units |  18.8%
+    151-500 missing |   50 modules |  14,005 units |  38.2%
+   501-1500 missing |   18 modules |  12,835 units |  35.0%
+
+  spacr/qt/**      28,391 units (77.4%) across 226 modules
+  everything else   8,285 units (22.6%) across 154 modules
+
+EVERY MODULE BELOW 100%, WORST FIRST
+------------------------------------------------------------------------------
+  cover missing   stmts  branch  module
+ 43.14%   1,281   1,887     366  spacr/qt/screens/make_masks.py
+ 33.35%   1,037   1,172     384  spacr/qt/dnd_handlers.py
+ 11.07%   1,036     961     204  spacr/qt/widgets/fractal_travel.py
+ 81.79%     991   4,031   1,410  spacr/qt/widgets/fast_plots.py
+  9.66%     786     616     254  spacr/sequencing_qc.py
+ 53.68%     750   1,275     344  spacr/qt/widgets/timelapse_preview.py
+ 31.94%     669     791     192  spacr/qt/widgets/motility_preview.py
+ 67.49%     656   1,550     468  spacr/qt/widgets/live_preview.py
+ 86.24%     646   3,624   1,070  spacr/qt/screens/app_screen.py
+ 22.67%     597     616     156  spacr/qt/widgets/qc_field_browser.py
+ 33.45%     593     697     194  spacr/qt/widgets/column_picker.py
+ 80.26%     572   2,444     454  spacr/qt/preferences.py
+ 44.72%     555     714     290  spacr/train_compare.py
+ 52.29%     552     931     226  spacr/qt/screens/gate_editor.py
+ 77.85%     546   1,997     468  spacr/qt/app.py
+ 77.43%     542   1,855     546  spacr/qt/widgets/gate_editor.py
+ 54.72%     518     958     186  spacr/qt/widgets/setup_slides.py
+ 80.87%     508   2,146     510  spacr/qt/screens/annotate.py
+ 42.78%     499     616     256  spacr/core.py
+ 80.26%     483   1,755     692  spacr/deep_spacr.py
+ 37.83%     470     652     104  spacr/qt/screens/plate_view.py
+ 38.75%     441     526     194  spacr/qt/mask_engine.py
+ 91.35%     435   3,617   1,414  spacr/io.py
+ 51.24%     432     650     236  spacr/plate_qc.py
+ 39.10%     408     556     114  spacr/qt/screens/foreign.py
+ 80.99%     406   1,834     302  spacr/qt/widgets/ambient.py
+ 46.93%     380     606     110  spacr/qt/screens/model_zoo.py
+ 53.99%     375     601     214  spacr/cli.py
+ 77.22%     366   1,269     338  spacr/qt/widgets/figure_queue.py
+ 71.74%     362     995     286  spacr/qt/theme.py
+ 44.68%     359     555      94  spacr/qt/screens/model_compare.py
+ 51.22%     359     624     112  spacr/qt/screens/power.py
+ 44.41%     353     543      92  spacr/qt/screens/train_compare.py
+ 81.90%     350   1,516     418  spacr/qt/widgets/cell_montage_view.py
+ 70.72%     349     856     336  spacr/convert.py
+ 11.50%     331     308      66  spacr/qt/widgets/fractal_mandelbrot.py
+ 81.08%     325   1,344     374  spacr/qt/widgets/figure_settings.py
+ 56.55%     305     556     146  spacr/qt/layer_viewer.py
+ 17.44%     303     311      56  spacr/qt/tutorial/engine.py
+ 65.23%     298     619     238  spacr/qt/widgets/control_chart.py
+ 32.95%     289     303     128  spacr/plate_measurements.py
+ 93.40%     283   3,044   1,242  spacr/qt/screens/settings_model.py
+ 55.34%     272     485     124  spacr/qt/timing.py
+ 95.05%     253   3,765   1,350  spacr/ml.py
+  4.18%     252     187      76  spacr/qt/wand_rescue.py
+ 88.67%     244   1,618     536  spacr/regression_qc.py
+ 28.53%     243     286      54  spacr/qt/imagery.py
+ 47.32%     236     382      66  spacr/qt/screens/convert.py
+ 66.67%     228     508     176  spacr/qt/widgets/formula.py
+ 23.89%     223     233      60  spacr/qt/dialogs.py
+ 64.98%     214     457     154  spacr/qt/widgets/feature_dictionary.py
+ 69.52%     192     516     114  spacr/qt/space.py
+ 78.51%     187     748     122  spacr/qt/widgets/dna_rain.py
+ 87.09%     186   1,107     334  spacr/qt/widgets/gate_spec.py
+ 47.16%     186     298      54  spacr/qt/widgets/timelapse_movie.py
+ 17.62%     173     180      30  spacr/qt/hf_download.py
+ 33.85%     172     190      70  spacr/qt/tutorial/scripts.py
+ 45.34%     170     231      80  spacr/qt/screens/regression.py
+ 91.37%     169   1,498     460  spacr/qt/widgets/regression_results.py
+ 43.58%     167     248      48  spacr/qt/screens/project_browser.py
+ 81.35%     166     648     242  spacr/chaining.py
+ 52.72%     165     289      60  spacr/qt/screens/hit_list.py
+ 21.36%     162     176      30  spacr/qt/counting_tool.py
+ 85.39%     162     951     158  spacr/qt/widgets/home.py
+ 25.35%     159     177      36  spacr/qt/widgets/settings_advisor_dialog.py
+ 55.27%     157     319      32  spacr/qt/screens/outliers.py
+ 50.32%     153     258      50  spacr/qt/iconset.py
+ 15.00%     153     160      20  spacr/qt/widgets/fractal_cascade.py
+ 88.19%     150     922     348  spacr/cell_montage.py
+ 13.79%     150     154      20  spacr/qt/widgets/fractal_space.py
+ 80.13%     148     551     194  spacr/sequencing.py
+ 59.73%     147     281      84  spacr/pipeline_graph.py
+ 27.64%     144     159      40  spacr/classifier_quality.py
+ 92.83%     141   1,553     414  spacr/qt/screens/hyperparam.py
+ 83.59%     141     671     188  spacr/qt/widgets/dose_response.py
+ 73.04%     134     373     124  spacr/qt/widgets/feature_rank.py
+ 92.76%     132   1,440     382  spacr/qt/screens/db_browser.py
+ 71.68%     130     323     136  spacr/qt/widgets/sortable_table.py
+ 61.33%     128     277      54  spacr/qt/screens/lineage.py
+ 91.14%     127   1,034     400  spacr/active_learning.py
+ 89.15%     127     894     276  spacr/regression_annotation.py
+ 95.74%     126   2,104     856  spacr/spacrops.py
+ 74.17%     124     372     108  spacr/qt/widgets/pca_model.py
+  8.96%     122     100      34  spacr/qt/ask_for_the_path.py
+ 91.91%     121   1,077     418  spacr/regression_summary.py
+ 98.20%     121   4,807   1,912  spacr/utils.py
+ 38.46%     120     147      48  spacr/qt/multi_format.py
+ 22.22%     119     113      40  spacr/qt/ai/manuscript.py
+ 68.52%     119     310      68  spacr/qt/ortho_view.py
+ 34.29%     115     147      28  spacr/qt/widgets/metadata_table.py
+ 75.28%     112     377      76  spacr/qt/screens/experiment_design.py
+ 85.55%     110     573     188  spacr/parameter_sweep.py
+ 37.65%     101     130      32  spacr/qt/shutdown.py
+ 86.41%     100     554     182  spacr/qt/widgets/outlier_model.py
+ 53.74%      99     172      42  spacr/qt/screens/mask.py
+ 81.07%      99     401     122  spacr/qt/widgets/graph_spec.py
+ 90.15%      98     773     222  spacr/qt/bridge.py
+ 59.75%      97     221      20  spacr/qt/screens/methods_export.py
+ 96.59%      97   2,147     700  spacr/submodules.py
+ 89.42%      96     745     162  spacr/qt/prerun.py
+ 66.19%      95     201      80  spacr/qt/widgets/plate_layout.py
+ 91.97%      94     934     236  spacr/qt/widgets/graph_builder.py
+ 81.02%      93     386     104  spacr/qt/widgets/availability_panel.py
+ 90.59%      91     713     254  spacr/qt/annotate_engine.py
+ 78.64%      91     306     120  spacr/qt/dnd.py
+ 67.27%      90     217      58  spacr/qt/command_palette.py
+ 70.68%      90     247      60  spacr/qt/comparison_grid.py
+ 86.16%      88     432     204  spacr/volcano_style.py
+ 80.36%      87     375      68  spacr/qt/widgets/annotation_strategy_panel.py
+ 85.45%      86     477     114  spacr/qt/chaining.py
+ 89.93%      86     666     188  spacr/qt/resource_cleanup.py
+ 84.74%      85     471      86  spacr/qt/widgets/pca_view.py
+ 80.29%      81     339      72  spacr/qt/screens/pipeline_graph.py
+ 83.15%      78     395      68  spacr/qt/screens/profiler.py
+ 88.21%      75     522     114  spacr/qt/screens/batch.py
+ 78.75%      75     279      74  spacr/qt/widgets/trellis_spec.py
+ 90.07%      74     573     172  spacr/power_model.py
+ 54.32%      74     138      24  spacr/qt/widgets/loading_screen.py
+ 96.53%      72   1,478     598  spacr/crops.py
+ 50.68%      72     116      30  spacr/qt/__init__.py
+ 92.88%      71     753     244  spacr/attribution.py
+ 92.58%      70     722     222  spacr/gene_measurement_sweep.py
+ 72.44%      70     198      56  spacr/resources/home/versions/_generators/common.py
+ 94.37%      69     992     234  spacr/qt/widgets/console_panel.py
+ 92.20%      67     657     202  spacr/qt/widgets/volcano_explorer.py
+ 14.29%      66      55      22  spacr/attribution_columns.py
+ 92.44%      66     625     248  spacr/data_manager.py
+ 88.76%      66     443     144  spacr/qt/screens/map_barcodes.py
+ 48.33%      62     106      14  spacr/qt/widgets/dna_rain_settings.py
+ 93.40%      62     752     188  spacr/qt/widgets/measure_preview.py
+ 88.43%      61     463      64  spacr/qt/screens/data_manager.py
+ 88.27%      61     406     114  spacr/qt/widgets/save_figure_dialog.py
+ 91.84%      59     553     170  spacr/illumination.py
+ 73.87%      58     178      44  spacr/qt/plate_queue.py
+ 20.83%      57      64       8  spacr/qt/screensaver.py
+ 26.32%      56      58      18  spacr/qt/screens/image_umap.py
+ 98.71%      55   3,070   1,182  spacr/plot.py
+ 43.75%      54      76      20  spacr/qt/menus.py
+ 89.36%      53     378     120  spacr/qt/widgets/glass.py
+ 66.45%      52     111      44  spacr/qt/hidpi.py
+ 78.51%      52     208      34  spacr/qt/screens/qc_dashboard.py
+ 94.95%      51     757     252  spacr/figures/scene.py
+ 83.82%      50     205     104  spacr/classify_classes.py
+ 88.34%      50     369      60  spacr/qt/widgets/hover_tooltip.py
+ 40.96%      49      69      14  spacr/qt/widgets/training_monitor.py
+ 82.66%      47     217      54  spacr/qt/startup_benchmark.py
+ 88.70%      47     306     110  spacr/qt/widgets/pivot_spec.py
+ 68.06%      46     112      32  spacr/qt/widgets/gate_canvas.py
+ 91.49%      45     385     144  spacr/projects.py
+ 91.12%      45     439      68  spacr/qt/screens/control_chart.py
+ 83.76%      44     193      78  spacr/confusion.py
+ 85.62%      44     256      50  spacr/qt/widgets/data_filter_panel.py
+ 89.43%      43     281     126  spacr/picture_settings.py
+ 76.11%      43     142      38  spacr/qt/widgets/grouped_plot.py
+ 99.05%      43   3,343   1,166  spacr/timelapse.py
+ 37.88%      41      48      18  spacr/classify.py
+ 94.60%      38     576     128  spacr/qt/widgets/umap_explorer.py
+ 96.26%      37     720     268  spacr/classifier_evaluation.py
+ 98.16%      37   1,447     562  spacr/foreign.py
+ 90.11%      37     324      50  spacr/qt/screens/report.py
+ 97.15%      37     915     382  spacr/schema.py
+ 78.57%      36     126      42  spacr/qt/i18n_catalogs/__init__.py
+ 58.62%      36      73      14  spacr/qt/install_consent.py
+ 95.14%      33     465     214  spacr/gene_measurement_compare.py
+ 86.25%      33     198      42  spacr/qt/screens/train_cellpose.py
+ 98.17%      33   1,448     356  spacr/qt/widgets/measurement_scan_panel.py
+ 88.01%      32     191      76  spacr/annotation.py
+ 91.04%      32     283      74  spacr/errors.py
+ 68.00%      32      70      30  spacr/outlier_filter.py
+ 84.83%      32     177      34  spacr/qt/widgets/drawer.py
+ 95.01%      32     523     118  spacr/qt/widgets/measurement_compare_dialog.py
+ 95.26%      32     491     184  spacr/settings_advisor.py
+ 58.11%      31      58      16  spacr/qt/memory_budget.py
+ 88.12%      31     191      70  spacr/qt/widgets/picture_settings_dialog.py
+ 84.38%      30     128      64  spacr/qt/button_roles.py
+ 61.33%      29      61      14  spacr/qt/widgets/channel_picker.py
+ 77.34%      29     104      24  spacr/qt/widgets/preview_contract.py
+ 26.32%      28      38       0  spacr/qt/ai/issue_preview.py
+ 85.42%      28     142      50  spacr/qt/widgets/field_fade.py
+ 98.24%      28   1,016     578  spacr/validate.py
+ 87.73%      27     164      56  spacr/metadata_resolution.py
+ 93.60%      27     350      72  spacr/qt/screens/dose_response.py
+ 87.44%      27     157      58  spacr/qt/widgets/fold_strip.py
+ 90.49%      27     240      44  spacr/qt/widgets/gene_panel.py
+ 98.86%      27   1,987     386  spacr/settings.py
+ 41.46%      24      35       6  spacr/__init__.py
+ 90.04%      24     183      58  spacr/nonparametric_fits.py
+ 96.50%      24     589      96  spacr/qt/screens/distributed_jobs.py
+ 29.41%      24      28       6  spacr/qt/tutorial/__main__.py
+ 88.84%      24     161      54  spacr/qt/widgets/power_design.py
+ 93.65%      24     258     120  spacr/regex_infer.py
+ 92.52%      22     218      76  spacr/counting.py
+ 97.72%      22     694     270  spacr/qt/widgets/sweep_runs.py
+ 94.40%      22     289     104  spacr/selection.py
+ 60.78%      20      41      10  spacr/figure_font.py
+ 98.13%      20     773     296  spacr/model_zoo.py
+ 89.64%      20     149      44  spacr/multiple_testing.py
+ 96.87%      20     544      94  spacr/qt/screens/classifier_evaluation.py
+ 90.87%      20     181      38  spacr/qt/widgets/section.py
+ 94.59%      20     294      76  spacr/qt/widgets/trellis_view.py
+ 91.36%      19     178      42  spacr/qt/ai/providers.py
+ 96.42%      19     434      96  spacr/qt/synthetic.py
+ 95.98%      19     379      94  spacr/qt/widgets/preview_controls.py
+ 97.23%      19     594      92  spacr/resources/home/versions/_generators/parts.py
+ 98.34%      19     844     300  spacr/run_journal.py
+ 70.00%      18      56       4  spacr/qt/crash_recovery.py
+ 82.00%      18      72      28  spacr/qt/widget_cleanup.py
+ 91.67%      18     176      40  spacr/qt/widgets/animation_zoom.py
+ 99.34%      17   1,801     756  spacr/measure.py
+ 75.38%      16      43      22  spacr/figures/spread.py
+ 95.78%      16     267     112  spacr/profiler.py
+ 93.85%      15     192      52  spacr/qt/ai/issue_report.py
+ 78.26%      15      51      18  spacr/qt/prefs.py
+ 94.38%      15     225      42  spacr/qt/widgets/feature_explorer.py
+ 96.44%      15     305     116  spacr/qt/widgets/qc_summary.py
+ 99.07%      15   1,186     428  spacr/report.py
+ 95.38%      14     233      70  spacr/qt/widgets/folding_summary.py
+ 88.98%      14     109      18  spacr/qt/widgets/refit_dialog.py
+ 96.70%      14     354      70  spacr/qt/widgets/setup_card.py
+ 98.28%      13     579     178  spacr/hit_attribution.py
+ 99.38%      13   1,490     616  spacr/hyperparam.py
+ 91.61%      13     137      18  spacr/qt/linked_selection.py
+ 97.12%      13     420      32  spacr/qt/widgets/gate_settings.py
+ 89.92%      13     107      22  spacr/qt/widgets/toggle.py
+ 97.97%      13     481     160  spacr/surrogate.py
+ 88.12%      12      69      32  spacr/png_list.py
+ 95.10%      12     211      34  spacr/qt/screens/queue.py
+ 79.31%      12      56       2  spacr/qt/terms.py
+ 94.47%      11     157      42  spacr/database_schema.py
+ 98.66%      11     568     252  spacr/gene_tile.py
+ 91.91%      11     116      20  spacr/qt/regex_editor.py
+ 95.85%      11     215      50  spacr/qt/widgets/figure_grid.py
+ 93.33%      11     139      26  spacr/qt/widgets/gate_console.py
+ 99.09%      11     869     346  spacr/seg_qc.py
+ 94.01%      10     123      44  spacr/gpu_reduce.py
+ 94.32%      10     150      26  spacr/qt/crop_thumbs.py
+ 98.35%      10     520      86  spacr/qt/screens/agreement.py
+ 98.11%      10     414     114  spacr/qt/widgets/figure_grid_view.py
+ 91.23%      10      94      20  spacr/qt/widgets/foldable.py
+ 96.47%      10     253      30  spacr/qt/widgets/formula_editor.py
+ 97.92%      10     398      82  spacr/qt/widgets/pivot_builder.py
+ 94.12%      10     124      46  spacr/sp_stats.py
+ 91.74%      10      91      30  spacr/style_base.py
+ 93.24%      10     112      36  spacr/torch_artifacts.py
+ 93.15%      10     106      40  spacr/well_spec.py
+ 99.25%      10     928     408  spacr/zstack.py
+ 92.24%       9      80      36  spacr/figures/summary.py
+ 35.71%       9      12       2  spacr/qt/spaceout.py
+ 87.67%       9      63      10  spacr/qt/widgets/api_help_label.py
+ 98.35%       9     445     100  spacr/regression_diagnostics.py
+ 98.46%       8     376     144  spacr/filters.py
+ 97.98%       8     295     102  spacr/pipeline_v2.py
+ 98.77%       8     459     192  spacr/qt/i18n.py
+ 98.00%       8     336      64  spacr/qt/screens/run_history.py
+ 95.21%       8     147      20  spacr/qt/widgets/annotation_umap_tab.py
+ 96.65%       8     187      52  spacr/qt/widgets/database_set.py
+ 99.44%       7     912     330  spacr/batch.py
+ 92.78%       7      77      20  spacr/cli_repro.py
+ 97.24%       7     176      78  spacr/qt/regex_detect.py
+ 99.32%       6     640     236  spacr/feature_dict.py
+ 86.05%       6      37       6  spacr/qt/i18n_module_summaries.py
+ 98.67%       6     372      78  spacr/qt/screens/parameter_sweep.py
+ 85.37%       6      35       6  spacr/qt/widgets/dot_link.py
+ 99.25%       6     597     208  spacr/qt/widgets/file_list.py
+ 92.50%       6      74       6  spacr/qt/widgets/percentile_pair.py
+ 98.35%       6     274      90  spacr/qt/widgets/umap_figure_settings.py
+ 90.00%       6      42      18  spacr/training_basis.py
+ 99.19%       5     446     168  spacr/agreement.py
+ 94.25%       5      59      28  spacr/column_groups.py
+ 98.59%       5     296      58  spacr/curation.py
+ 98.54%       5     272      70  spacr/logging_util.py
+ 97.21%       5     163      16  spacr/qt/screens/graph_builder.py
+ 98.93%       5     409      58  spacr/qt/screens/model_explanation.py
+ 98.80%       5     352      64  spacr/qt/shortcuts.py
+ 97.49%       5     157      42  spacr/qt/widgets/external_mask_inputs.py
+ 77.27%       5      22       0  spacr/qt/widgets/flash.py
+ 98.38%       5     209     100  spacr/regression_backends.py
+ 99.15%       5     411     176  spacr/workspace.py
+ 99.49%       4     573     210  spacr/anndata_export/__init__.py
+ 99.23%       4     381     140  spacr/external_masks.py
+ 98.63%       4     199      94  spacr/figures/fast_render.py
+ 98.50%       4     200      66  spacr/figures/plates.py
+ 98.82%       4     273      66  spacr/guide_attribution.py
+ 99.49%       4     612     178  spacr/macro.py
+ 98.90%       4     271      94  spacr/plugins.py
+ 95.60%       4      75      16  spacr/qt/app_catalog.py
+ 95.60%       4      69      22  spacr/qt/laptop_mode.py
+ 98.14%       4     169      46  spacr/qt/preview_registry.py
+ 98.86%       4     292      60  spacr/qt/roi_tool.py
+ 98.50%       4     198      68  spacr/qt/verbose_logger.py
+ 98.87%       4     291      64  spacr/qt/widgets/class_editor.py
+ 95.24%       4      82       2  spacr/qt/widgets/gate_search_panel.py
+ 98.89%       4     285      74  spacr/qt/widgets/sweep_panel.py
+ 98.74%       4     242      76  spacr/setting_animations.py
+ 98.25%       4     148      80  spacr/tabular.py
+ 93.33%       4      46      14  spacr/umap_annotations.py
+ 97.67%       3      93      36  spacr/_v1_v2_bridge.py
+ 99.46%       3     387     170  spacr/batch_correction.py
+ 99.27%       3     302     110  spacr/guide_permutation.py
+ 99.54%       3     482     174  spacr/hits.py
+ 97.86%       3     102      38  spacr/model_check.py
+ 98.58%       3     152      60  spacr/organelle_types.py
+ 99.46%       3     388     170  spacr/predictions.py
+ 99.30%       3     372      56  spacr/qt/curation_tool.py
+ 97.79%       3     100      36  spacr/qt/folder_metadata.py
+ 85.00%       3      16       4  spacr/qt/safespacr.py
+ 90.62%       3      30       2  spacr/qt/screens/measure.py
+ 98.04%       3     143      10  spacr/qt/screens/trellis.py
+ 98.84%       3     206      52  spacr/qt/settings_diff.py
+ 97.22%       3      74      34  spacr/settings_spec.py
+ 99.29%       3     321     100  spacr/toxo.py
+  0.00%       2       2       0  spacr/_version.py
+ 98.60%       2     113      30  spacr/annotation_power.py
+ 97.47%       2      55      24  spacr/cli_database.py
+ 95.56%       2      33      12  spacr/cli_workspace.py
+ 98.68%       2     104      48  spacr/control_names.py
+ 99.51%       2     328      78  spacr/crashreport.py
+ 98.15%       2      80      28  spacr/figures/bundle.py
+ 99.28%       2     214      64  spacr/hit_investigation.py
+ 96.00%       2      34      16  spacr/image_colors.py
+ 99.57%       2     335     134  spacr/merge_tables.py
+ 99.68%       2     494     134  spacr/model_compare.py
+ 99.87%       2   1,089     462  spacr/object.py
+ 98.95%       2     130      60  spacr/portable_paths.py
+ 97.33%       2      63      12  spacr/qt/ai/settings.py
+ 98.68%       2     128      24  spacr/qt/job_runner.py
+ 99.59%       2     388      94  spacr/qt/recipes.py
+ 98.95%       2     172      18  spacr/qt/screens/feature_explorer.py
+ 99.63%       2     458      88  spacr/qt/screens/image_scatter.py
+ 98.95%       2     172      18  spacr/qt/screens/tabulate.py
+ 98.26%       2      93      22  spacr/qt/widgets/ai_toggle_label.py
+ 98.73%       2     141      16  spacr/qt/widgets/barcode_regex.py
+ 97.65%       2      71      14  spacr/qt/widgets/channel_mapping.py
+ 96.36%       2      51       4  spacr/qt/widgets/collapsible_section.py
+ 89.47%       2      13       6  spacr/qt/widgets/colour_picker.py
+ 97.30%       2      58      16  spacr/qt/widgets/hint_bar.py
+ 87.50%       2      16       0  spacr/qt/widgets/info_link.py
+ 99.22%       2     204      54  spacr/qt/widgets/plate_map_picker.py
+ 99.44%       2     284      74  spacr/qt/widgets/row_exclusion.py
+ 99.72%       2     558     148  spacr/remote_execution.py
+ 99.72%       2     563     140  spacr/runctx.py
+ 97.22%       2      60      12  spacr/sweep_child.py
+ 99.01%       2     156      46  spacr/umap_search.py
+ 96.43%       1      22       6  spacr/__main__.py
+ 98.96%       1      68      28  spacr/baseline.py
+ 99.39%       1     131      32  spacr/checkpoint.py
+ 99.24%       1      99      32  spacr/dependent_join.py
+ 99.60%       1     191      56  spacr/figures/distributions.py
+ 98.65%       1      58      16  spacr/figures/headless.py
+ 99.74%       1     296      96  spacr/figures/panels.py
+ 99.08%       1      87      22  spacr/figures/sheet.py
+ 99.44%       1     127      50  spacr/fraction_calibration.py
+ 99.64%       1     197      82  spacr/gene_facts.py
+ 99.95%       1   1,590     492  spacr/layers.py
+ 99.60%       1     195      56  spacr/napari_bridge.py
+ 99.66%       1     222      76  spacr/object_distances.py
+ 99.92%       1     927     380  spacr/ome_zarr.py
+ 99.76%       1     320     102  spacr/ports.py
+ 99.55%       1     191      32  spacr/qt/first_run.py
+ 94.44%       1      18       0  spacr/qt/fractal_defaults.py
+ 99.41%       1     150      20  spacr/qt/screens/curate.py
+ 99.57%       1     208      24  spacr/qt/screens/pca.py
+ 99.06%       1      78      28  spacr/qt/screens/volcano.py
+ 99.74%       1     309      78  spacr/qt/settings_search.py
+ 99.67%       1     235      70  spacr/qt/walkthrough.py
+ 99.59%       1     193      50  spacr/qt/widgets/activity_spinner.py
+ 98.59%       1      61      10  spacr/qt/widgets/empty_state.py
+ 99.17%       1     104      16  spacr/qt/widgets/metadata_mapper.py
+ 99.79%       1     405      66  spacr/qt/widgets/umap_search_viewer.py
+ 97.62%       1      30      12  spacr/regression_families.py
+ 99.86%       1     634      66  spacr/resources/home/versions/_generators/variants.py
+ 99.33%       1     122      28  spacr/response_distribution.py
+ 99.90%       1     716     298  spacr/resume.py
+ 99.76%       1     320     102  spacr/roi.py
+ 98.97%       1      69      28  spacr/run_recommendations.py
+ 99.62%       1     189      76  spacr/spacr_cellpose.py
+ 99.66%       1     223      74  spacr/sudoku.py
+ 99.74%       1     286     100  spacr/trial_metrics.py
+ 99.59%       1     185      60  spacr/uniprot.py
+ 98.92%       1      69      24  spacr/well_scope.py
+
+MODULES AT 100% (113)
+------------------------------------------------------------------------------
+  spacr/align.py
+  spacr/annotation_umap_qc.py
+  spacr/annotation_validation.py
+  spacr/api.py
+  spacr/artifacts.py
+  spacr/benchmark.py
+  spacr/cancellation.py
+  spacr/cli_leakage.py
+  spacr/cli_plugins.py
+  spacr/cli_remote.py
+  spacr/columns.py
+  spacr/crop_source.py
+  spacr/custom_features.py
+  spacr/database_concurrency.py
+  spacr/diameter.py
+  spacr/doctor.py
+  spacr/example_data.py
+  spacr/example_data_manifest.py
+  spacr/figure_sink.py
+  spacr/figure_style.py
+  spacr/figures/__init__.py
+  spacr/figures/stats.py
+  spacr/figures/style.py
+  spacr/fit_resources.py
+  spacr/frame_handoff.py
+  spacr/gate_library.py
+  spacr/graph_types.py
+  spacr/group_lasso.py
+  spacr/guide_concordance.py
+  spacr/import_plan.py
+  spacr/install_profile.py
+  spacr/intensity_rescale.py
+  spacr/lineage.py
+  spacr/localisation.py
+  spacr/logger.py
+  spacr/mask_io.py
+  spacr/measure_hooks.py
+  spacr/measurement_scan.py
+  spacr/measurement_schema.py
+  spacr/methods_export.py
+  spacr/mixed_gpu.py
+  spacr/multi_database.py
+  spacr/normalization.py
+  spacr/notebook_export.py
+  spacr/object_roles.py
+  spacr/omero.py
+  spacr/openmp_guard.py
+  spacr/permutation_qc.py
+  spacr/power_simulate.py
+  spacr/qc_quarantine.py
+  spacr/qt/__main__.py
+  spacr/qt/ai/__init__.py
+  spacr/qt/ai/github_auth.py
+  spacr/qt/ai/keys.py
+  spacr/qt/ai/prompts.py
+  spacr/qt/ai/worker.py
+  spacr/qt/gil_priority.py
+  spacr/qt/i18n_catalogs/de.py
+  spacr/qt/i18n_catalogs/en.py
+  spacr/qt/i18n_catalogs/es.py
+  spacr/qt/i18n_catalogs/fr.py
+  spacr/qt/i18n_catalogs/hi.py
+  spacr/qt/i18n_catalogs/is.py
+  spacr/qt/i18n_catalogs/ko.py
+  spacr/qt/i18n_catalogs/pt.py
+  spacr/qt/i18n_catalogs/sv.py
+  spacr/qt/i18n_catalogs/zh_CN.py
+  spacr/qt/i18n_module_summaries_asia.py
+  spacr/qt/i18n_module_summaries_other.py
+  spacr/qt/i18n_module_summaries_west.py
+  spacr/qt/ingest_preview.py
+  spacr/qt/logging_util.py
+  spacr/qt/maturity.py
+  spacr/qt/notify.py
+  spacr/qt/screens/__init__.py
+  spacr/qt/screens/activation.py
+  spacr/qt/screens/align.py
+  spacr/qt/screens/classify.py
+  spacr/qt/screens/investigate_hit.py
+  spacr/qt/screens/run_compare.py
+  spacr/qt/setup_screen.py
+  spacr/qt/thread_guard.py
+  spacr/qt/tutorial/__init__.py
+  spacr/qt/widgets/__init__.py
+  spacr/qt/widgets/aggregation_rules.py
+  spacr/qt/widgets/ai_chat_panel.py
+  spacr/qt/widgets/card.py
+  spacr/qt/widgets/divider.py
+  spacr/qt/widgets/eliding.py
+  spacr/qt/widgets/flow.py
+  spacr/qt/widgets/gene_tile.py
+  spacr/qt/widgets/import_workbench.py
+  spacr/qt/widgets/provider_marks.py
+  spacr/qt/widgets/setup_dialog.py
+  spacr/qt/widgets/table_chip.py
+  spacr/qt/widgets/tile.py
+  spacr/qt/widgets/tile_chrome.py
+  spacr/qt/widgets/usage_bar.py
+  spacr/read_background.py
+  spacr/refit.py
+  spacr/regression_failure.py
+  spacr/regression_search.py
+  spacr/regression_spec.py
+  spacr/restart_state.py
+  spacr/row_exclusions.py
+  spacr/rra.py
+  spacr/run_compare.py
+  spacr/sim.py
+  spacr/stream_dataset.py
+  spacr/thresholds.py
+  spacr/tiff_io.py
+  spacr/updater.py
+  spacr/version.py
