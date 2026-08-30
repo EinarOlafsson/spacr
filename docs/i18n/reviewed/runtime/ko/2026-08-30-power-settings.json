@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "power",
+      "source_sha256": "ef33e991f4e77307fccb419e731005a2ce64be45f552a63482b7043a89b98669",
+      "source": "Statistical power",
+      "translation": "검정력"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_backend",
+      "source_sha256": "956fe017ecf6f765335cb7eecc4b69d231b2afb3996619a849d178b5c35b6c20",
+      "source": "Statistical power — inference backend",
+      "translation": "검정력 — 추론 백엔드"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_background_positive_rate",
+      "source_sha256": "6b9af66a77032c9d9ceb5cb739dafad74ca92376433570485bd6cf0e11822be9",
+      "source": "Statistical power — background positive-call rate",
+      "translation": "검정력 — 배경 양성 판정률"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_cells_per_well",
+      "source_sha256": "cd3a8fb5932689617a8003ef54ca46d5288e17779c4d067f7779c6d2183d440a",
+      "source": "Statistical power — cells per well",
+      "translation": "검정력 — 웰당 세포 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_constructs_per_well",
+      "source_sha256": "810302ea02c8747975f52490a892836fff5f73e92df75ef2ccd9207f80ea41de",
+      "source": "Statistical power — library units per well",
+      "translation": "검정력 — 웰당 라이브러리 단위 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_detection_auroc",
+      "source_sha256": "752f7da1abf948204f98c587431ca38a244ed20ec1946993b4a6c31779a5ed94",
+      "source": "Statistical power — detection AUROC threshold",
+      "translation": "검정력 — 검출 AUROC 임계값"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_effect_fold",
+      "source_sha256": "c768002379e024486b62119b99d00b8a08855d6f7e39ab35ea0fd9b2adbe0584",
+      "source": "Statistical power — effect multiplier",
+      "translation": "검정력 — 효과 배수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_hit_rate",
+      "source_sha256": "60ad85bced0c29d038d744b82f5d7189aba6b04215c9166c8bb40b99f83e58fc",
+      "source": "Statistical power — hit probability",
+      "translation": "검정력 — 히트 확률"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_genes",
+      "source_sha256": "9751ff9b35135df55ac3b0054eab46ae0ce6c0964fcfbb7f130c25721c65f993",
+      "source": "Statistical power — genes",
+      "translation": "검정력 — 유전자 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "e63938d08e73c1206419220a7cc63253512078e701a204f291ad1c5400de59f0",
+      "source": "Statistical power — gRNAs per gene",
+      "translation": "검정력 — 유전자당 gRNAs 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_plates",
+      "source_sha256": "531737da998d745c3957c8c4c3562285db8ed13d5aa76d5eb8d50bf5e1d9469e",
+      "source": "Statistical power — plates",
+      "translation": "검정력 — 플레이트 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_replicates",
+      "source_sha256": "f746c9c15dffa6eecc8e346f65252d2a303812b61f3c7b236a02d6ce81851ba6",
+      "source": "Statistical power — replicates",
+      "translation": "검정력 — 반복 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_reads_per_well",
+      "source_sha256": "d8af7ccfa4459dcdd569e05606ab22892caee092db83fe55518d7363823d9372",
+      "source": "Statistical power — reads per well",
+      "translation": "검정력 — 웰당 리드 수"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_score_per",
+      "source_sha256": "9fd836e238d3404d89314cff57d51bb7f3868402a72b6312e014e1c46a427706",
+      "source": "Statistical power — scoring level",
+      "translation": "검정력 — 스코어링 수준"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_seed",
+      "source_sha256": "24fd5934685034aa0d62a8b76cd340ef1cfa705d5b00b777c572a8819ba76412",
+      "source": "Statistical power — random seed",
+      "translation": "검정력 — 난수 시드"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_wells_per_plate",
+      "source_sha256": "83664967a29c97f69b623c1c0e9dc5f74697ea35dd10458191f162ab2c4bec24",
+      "source": "Statistical power — wells per plate",
+      "translation": "검정력 — 플레이트당 웰 수"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power",
+      "source_sha256": "ef98157ed391ecf7d300b4abcfb288652779633592cd091085b3c05575684827",
+      "source": "Simulates experiments under the specified library, plate, classifier, and effect-size assumptions, then fits the selected analysis model. The parameter scan varies cells per well and the number of wells and reports the fraction of simulations in which the planted effects are recovered.",
+      "translation": "지정한 라이브러리, 플레이트, 분류기 및 효과 크기 가정에 따라 실험을 시뮬레이션한 다음 선택한 분석 모델을 적합합니다. 매개변수 스캔은 웰당 세포 수와 웰 수를 변화시키며, 미리 심어 둔 실제 효과가 복원된 시뮬레이션의 비율을 보고합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_backend",
+      "source_sha256": "47c91b7bafb730b559afc6d050dade096a8134573972a8f886394dae15993037",
+      "source": "Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'.",
+      "translation": "추론 백엔드: 'torch'는 평균장 ADVI를 사용하고, 'numpyro'와 'pymc'는 선택적 NUTS를 사용합니다. 'auto'는 numpyro, pymc, torch 순으로 우선합니다. 명시적으로 지정한 백엔드를 사용할 수 없으면 오류가 발생합니다. AUROC는 계수의 순위를 사용하지만 ADVI는 국소 최적점에 도달할 수 있으며 그 구간은 보정되어 있지 않습니다. 기본값: 'torch'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_background_positive_rate",
+      "source_sha256": "79977ab83e0308811779abe58cb25db6ec351b12f0533ed68c175b7569cda0a5",
+      "source": "Mean probability that a non-hit cell is called positive. Rates vary across library-unit/well observations according to the held class_neg_var. Default 0.12.",
+      "translation": "비히트 세포가 양성으로 판정될 평균 확률입니다. 고정된 class_neg_var 값에 따라 라이브러리 단위/웰 관측값마다 비율이 달라집니다. 기본값: 0.12."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_cells_per_well",
+      "source_sha256": "57c03adc76fc9c35e87b1d9456e8f7cc194ff766d67adb5568d789a23b4852de",
+      "source": "Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.",
+      "translation": "웰당 촬영된 세포의 평균 수입니다. 실제 스크리닝의 평균은 123이었습니다. 현미경 시간을 투입해 확보하는 매개변수이며 첫 번째 곡선이 이 값을 스캔합니다. 기본값: 123.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_constructs_per_well",
+      "source_sha256": "828a03d422b0ce477db384b640e9851c6e5c227ef11534f5cf683cb1bb985242",
+      "source": "Target mean distinct library units present per well (genes in gene mode, guides in guide mode), passed as well_abundance_factor_mu. Probability clipping can make the realised mean lower. Default 4.6.",
+      "translation": "웰마다 존재하는 서로 다른 라이브러리 단위 수의 목표 평균입니다('gene' 모드에서는 유전자, 'guide' 모드에서는 가이드). well_abundance_factor_mu 값으로 전달됩니다. 확률 클리핑으로 인해 실현 평균이 더 낮아질 수 있습니다. 기본값: 4.6."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_detection_auroc",
+      "source_sha256": "7dd39575717ba97d9fc6a1eda812b4872d121995966b4f1ee9ba0feeda1a9b36",
+      "source": "The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.",
+      "translation": "시뮬레이션된 스크리닝이 검출로 간주되기 위해 도달해야 하는 AUROC입니다. 여기에는 p-값이 없습니다. 모델은 유전자의 순위를 매기므로 임계값은 순위 품질을 나타내며 사용자가 선택합니다. 기본값: 0.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_effect_fold",
+      "source_sha256": "ef86a530434ab3ff6e59b3814ad366e14109f5c6c51f4c2a8a9ff9127e4f61d5",
+      "source": "Requested fold multiplier on the mean background positive-call rate. The simulator uses min(0.999, background rate × fold); the screen rejects folds below 1 and classifier mean/variance combinations that cannot define a beta distribution. Default 6.667, yielding 0.80004 at the default background.",
+      "translation": "평균 배경 양성 판정률에 적용할 요청 효과 배수입니다. 시뮬레이터는 min(0.999, 배경률 × 배수)를 사용합니다. 이 도구는 1 미만의 배수와 베타 분포를 정의할 수 없는 분류기 평균/분산 조합을 거부합니다. 기본값: 6.667이며 기본 배경에서 0.80004가 됩니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_hit_rate",
+      "source_sha256": "e84df178cb1f7faccb733fdaee2cdc9ceb875e606e4988028d78847300edf9ed",
+      "source": "Independent probability that each simulated library unit is a true hit; the realised hit fraction varies between replicates. In guide mode, guide units are assigned independently because no gene-grouping layer is modelled. Default 0.025.",
+      "translation": "각 시뮬레이션 라이브러리 단위가 실제 히트일 독립 확률이며, 실현된 히트 비율은 반복마다 달라집니다. 'guide' 모드에서는 유전자별 그룹화 계층을 모델링하지 않으므로 각 가이드 단위가 독립적으로 할당됩니다. 기본값: 0.025."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_genes",
+      "source_sha256": "b7e50b343f7bc78213bc1c9595de83e4e21a7da0bb7cc945295b321adfd2d2ab",
+      "source": "Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.",
+      "translation": "설계의 유전자 수입니다. 'gene' 모드에서는 시뮬레이션되는 라이브러리 단위 수이고, 'guide' 모드에서는 시뮬레이터가 유전자 수 × 유전자당 가이드 수만큼의 독립 단위를 사용합니다. 라이브러리가 클수록 일반적으로 효과 복원이 어려워지지만, 시뮬레이터는 고정된 스케일링 법칙을 가정하지 않고 결과 설계를 직접 평가합니다. 기본값: 452."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "6137f904a97c573142111a9561e5861937527f06a04fe517e04ead63c1205dd1",
+      "source": "Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4.",
+      "translation": "유전자당 가이드 수입니다. power_score_per 값이 'guide'일 때만 시뮬레이션에 반영됩니다. 이 포팅에는 가이드 효율 계층이 없으므로 유전자별로 스코어링하면 어떤 값도 바뀌지 않습니다. 기본값: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_plates",
+      "source_sha256": "4967793a1d8ee0afd61770a8ee317fe3d846be0b7ece7365db82da7f0b253567",
+      "source": "Number of plates used to calculate total simulated wells: wells-per-plate × plates. The simulator and fitted model receive only that total and do not model plate identity or plate-to-plate variance. Default 4.",
+      "translation": "시뮬레이션할 총 웰 수를 계산하는 데 사용하는 플레이트 수입니다: 플레이트당 웰 수 × 플레이트 수. 시뮬레이터와 적합된 모델에는 이 총수만 전달되며 플레이트 식별자나 플레이트 간 분산은 모델링하지 않습니다. 기본값: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_replicates",
+      "source_sha256": "85b74b9e738944b3a2a66178dd595cae1918e2584b6475f954eae9ac0cc73cdb",
+      "source": "Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.",
+      "translation": "그리드 지점당 시뮬레이션된 스크리닝 수입니다. 한 설정에서 한 번의 스크리닝은 잡음이 있는 과정에서 얻은 단일 추출입니다. 기본값: 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_reads_per_well",
+      "source_sha256": "aaea2c308cd9acaa7450668b2fcd7dc0a2bff64092bafcfc6adcb3761daeee51",
+      "source": "Target mean sequencing depth per well. Per-well targets vary according to the held read_depth_cv, and realised reads cannot exceed the amplified barcode pool. Default 30000.",
+      "translation": "웰당 평균 시퀀싱 깊이의 목표값입니다. 고정된 read_depth_cv 값에 따라 웰별 목표값이 달라지고, 실현된 리드 수는 증폭된 바코드 풀을 초과할 수 없습니다. 기본값: 30000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_score_per",
+      "source_sha256": "8b009ebb894f07cb6d9f52622e3cd4291e8ba1747340d2b4152aacb86c51a057",
+      "source": "'gene' simulates one aggregate library unit and coefficient per gene; 'guide' simulates genes × guides-per-gene independent guide-level units, each with its own coefficient and reads. The simulator has no guide-efficiency or within-gene grouping layer. Choices: 'gene' or 'guide'. Default 'gene'.",
+      "translation": "'gene'은 유전자마다 하나의 집계 라이브러리 단위와 계수를 시뮬레이션합니다. 'guide'는 유전자 수 × 유전자당 가이드 수만큼의 독립적인 가이드 수준 단위를 시뮬레이션하며 각 단위에는 자체 계수와 리드가 있습니다. 시뮬레이터에는 가이드 효율 계층이나 유전자 내 그룹화 계층이 없습니다. 선택: 'gene' 또는 'guide'. 기본값: 'gene'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_seed",
+      "source_sha256": "b98669ad22dcff882967a48fb9edc04069ada5c0264d8a06ec0932005939db6d",
+      "source": "Master seed used to derive each grid-point replicate seed. Reproduction requires the complete DesignSpec, the same sweep grid and order, resolved backend, and software stack. Default 0.",
+      "translation": "각 그리드 지점의 반복 시드를 파생하는 데 사용하는 마스터 시드입니다. 재현하려면 완전한 DesignSpec, 동일한 스캔 그리드와 순서, 해석 후 동일한 백엔드 및 동일한 소프트웨어 스택이 필요합니다. 기본값: 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_wells_per_plate",
+      "source_sha256": "54fd0866270dab68d2a043eafa374e41eaa0bab008efe7f738016fae245152ac",
+      "source": "Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not restricted to those formats. This is multiplied by power_n_plates and only the resulting total well count reaches the simulator; no plate identity is modelled. Default 384.",
+      "translation": "플레이트당 웰 수입니다. GUI 화면에서는 96, 384, 1536을 제공합니다. 프로그래밍 방식의 설계는 이 형식으로 제한되지 않습니다. 이 값에 power_n_plates 값을 곱한 결과인 총 웰 수만 시뮬레이터로 전달되며 플레이트 식별자는 모델링하지 않습니다. 기본값: 384."
+    }
+  ]
+}
