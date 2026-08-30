@@ -842,6 +842,145 @@ def test_distribution_smoke_is_isolated_cross_platform_and_functional():
     assert '"sha256": _sha256(artifact)' in source
 
 
+def test_distribution_smoke_runs_the_installed_public_home_to_readiness():
+    """A constructed screen is not proof that the installed app launches."""
+    helper = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    source = helper.read_text(encoding="utf-8")
+    exercise = source.split("def _exercise_artifacts", 1)[1].split(
+        "def _parser", 1
+    )[0]
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    # Home has its own fresh isolated child and is observed after the event
+    # loop and a real paint, before the older core/AppScreen proxy runs.
+    assert exercise.index('"--home-probe"') < exercise.index('"--probe"')
+    assert 'item["home"] = _parse_json_line(home_process.stdout)' in exercise
+    assert 'spacr_qt.run(["--no-setup"])' in source
+    assert "timing.subscribe_readiness(observe)" in source
+    assert 'entry.get("detail") != "__home__"' in source
+    assert 'readiness.get("screen_tree_painted") is True' in source
+    assert 'readiness.get("thread") == "MainThread"' in source
+    assert '"painted_usable_controls"' in source
+    assert '"SPACR_TIMING": "1"' in source
+    assert '"SPACR_TIMING_IMPORTS": "0"' in source
+
+    # The launch observation is made before shutdown can import cleanup code,
+    # so an operation-only stack crossing the Home boundary fails the cell.
+    assert "HEAVY_HOME_MODULES" in source
+    for module in ("pandas", "scipy", "sklearn", "torch", "cellpose"):
+        assert f'"{module}"' in source
+    assert 'assert not heavy_at_ready' in source
+
+    # Uploaded evidence is self-describing instead of relying on the job name
+    # to recover which interpreter/platform produced its timing rows.
+    assert "REPORT_SCHEMA_VERSION = 1" in source
+    assert '"schema_version": REPORT_SCHEMA_VERSION' in source
+    assert source.count('"environment": _runtime_environment()') >= 2
+    assert "run the public Qt" in workflow
+    assert "installed Home has painted a usable control" in workflow
+
+
+@pytest.mark.parametrize("heavy_loaded", [False, True])
+def test_installed_home_probe_requires_painted_lightweight_readiness(
+        tmp_path, monkeypatch, capsys, heavy_loaded):
+    """The child probe exits from readiness and rejects an eager stack."""
+    import importlib.util
+    import types
+
+    helper_path = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    spec = importlib.util.spec_from_file_location(
+        "_spacr_distribution_smoke_test", helper_path
+    )
+    assert spec is not None and spec.loader is not None
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+
+    callbacks = []
+    timing = types.ModuleType("spacr.qt.timing")
+    timing.subscribe_readiness = callbacks.append
+    timing.unsubscribe_readiness = callbacks.remove
+
+    class FakeApplication:
+        quit_called = False
+
+        @classmethod
+        def instance(cls):
+            return cls
+
+        @classmethod
+        def quit(cls):
+            cls.quit_called = True
+
+        @staticmethod
+        def platformName():
+            return "offscreen-test"
+
+    qt = types.ModuleType("spacr.qt")
+
+    def run(argv):
+        assert argv == ["--no-setup"]
+        assert len(callbacks) == 1
+        callbacks[0]({
+            "at": 1.25,
+            "started_at": 0.25,
+            "event_loop_started_at": 0.75,
+            "duration_s": 1.0,
+            "detail": "__home__",
+            "name": "interactive Home",
+            "screen_tree_painted": True,
+            "painted_usable_controls": 2,
+            "usable_controls": 3,
+            "controls": ["StartButton", "SettingsButton"],
+            "thread": "MainThread",
+        })
+        return 0
+
+    qt.run = run
+    qt.timing = timing
+    spacr = types.ModuleType("spacr")
+    spacr.__path__ = []
+    spacr.__version__ = "1.5.test"
+    spacr.qt = qt
+    pyside = types.ModuleType("PySide6")
+    pyside.__path__ = []
+    pyside.__version__ = "6.test"
+    widgets = types.ModuleType("PySide6.QtWidgets")
+    widgets.QApplication = FakeApplication
+
+    monkeypatch.setitem(sys.modules, "spacr", spacr)
+    monkeypatch.setitem(sys.modules, "spacr.qt", qt)
+    monkeypatch.setitem(sys.modules, "spacr.qt.timing", timing)
+    monkeypatch.setitem(sys.modules, "PySide6", pyside)
+    monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", widgets)
+    helper.HEAVY_HOME_MODULES = ("test_only_heavy_stack",)
+    monkeypatch.setattr(
+        helper,
+        "_verified_install",
+        lambda *_args: (spacr, tmp_path / "site-packages/spacr/__init__.py"),
+    )
+    if heavy_loaded:
+        monkeypatch.setitem(
+            sys.modules, "test_only_heavy_stack", types.ModuleType("heavy")
+        )
+
+    if heavy_loaded:
+        with pytest.raises(
+                AssertionError, match="operation-only import boundary"):
+            helper._home_probe("1.5.test", "spacr-test.whl", tmp_path)
+        return
+
+    assert helper._home_probe(
+        "1.5.test", "spacr-test.whl", tmp_path
+    ) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["entry_point"] == "spacr.qt.run"
+    assert result["home_readiness"]["painted_usable_controls"] == 2
+    assert result["heavy_modules_at_ready"] == []
+    assert result["environment"]["qt"] == "6.test"
+    assert result["environment"]["qt_platform"] == "offscreen-test"
+    assert FakeApplication.quit_called is True
+
+
 def test_built_artifacts_are_audited_for_required_and_forbidden_files():
     """Runtime omissions and accidentally bundled review assets fail CI."""
     workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
