@@ -101,11 +101,25 @@
       "translation": "Hver myndlag er borið saman við myndlagið fyrir neðan það, og pörunin er gráðug og **einn-á-einn**: pör eru skoðuð í lækkandi röð eftir IoU og merki má taka þátt í hámarki í einum tengli. Það er það sem kemur í veg fyrir að tveir raunverulega mismunandi hlutir sem tilviljunarkennt skerast yfir sama hlutinn í xy verði sameinaðir -- aðeins betra samsvörunin erfir merkið, hinn byrjar nýtt. Ekkert par undir ``iou_threshold`` er tengt yfir höfuð."
     },
     {
+      "label": "spacr.qt.theme.register_widget_qss#6",
+      "source_sha256": "aa8f6acacbb239612ff224ccd16940b60319c6695946b7694b8cd72740cbaf02",
+      "source": ":func:`block_surface` and **not** :func:`pane_surface`, which is the near-identical accessor for inline and paint-time callers. Its ``None`` means \"nobody told me\" and reads the live preference, so a block using it turns ``stylesheet(theme)`` into a function of a QSettings value rather than of its arguments.",
+      "context": ":func:`block_surface` and **not** :func:`pane_surface`, which is the near-identical accessor for inline and paint-time callers. Its ``None`` means \"nobody told me\" and reads the live preference, so a block using it turns ``stylesheet(theme)`` into a function of a QSettings value rather than of its arguments.",
+      "translation": ":func:`block_surface` og **ekki** :func:`pane_surface`, sem er nánast eins aðgengismáti fyrir innlína- og málningartíma köllara. ``None`` þess þýðir \"nobody told me\" og les lifandi valkostinn, svo blokk sem notar það breytir ``stylesheet(theme)`` í fall af QSettings gildi frekar en af rökum þess."
+    },
+    {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen.configure#1",
       "source_sha256": "b85971d71e315c6a7ca7553ff9a787d1cc98c0a6f632afc29426d2f349953bbe",
       "source": "The public route for another screen to hand this one a comparison — the Model Zoo's \"compare the two selected\" uses it. A caller reaching into ``_panel_a.model_edit`` would break the moment either panel is restructured.",
       "context": "The public route for another screen to hand this one a comparison — the Model Zoo's \"compare the two selected\" uses it. A caller reaching into ``_panel_a.model_edit`` would break the moment either panel is restructured.",
       "translation": "Almenn leið fyrir annan skjá til að senda þessum samanburð — Model Zoo \"compare the two selected\" notar það. Köllari sem nær inn í ``_panel_a.model_edit`` myndi brotna í augnablikinu sem annað hvort spjaldið er endurgerð."
+    },
+    {
+      "label": "spacr.utils.plot_grid#2",
+      "source_sha256": "2267b9c98e580cad1dcb28645c94fd9636446750a71003debb60ddf4582173be",
+      "source": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer keys, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String keys use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
+      "context": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer structured-data names, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String structured-data names use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
+      "translation": "neyslt á tvo mismunandi vegu í sama myndinni. Ramminn í spjaldi notar ``colors[label]`` fyrir heilar tölugögn nafn, svo pallettan verður að ná stærstu merkinu, á meðan litakort goðsögunnar við hlið töflunnar eru tekin staðsetningalega -- með ekki-samliggjandi merkimiða eru tveir ósammála, og klasi ``3`` fær landamærin ``colors[3]`` við hönnun ``colors[1]``. Strengi með uppbyggðum gögnum nota staðsetningarvísinn báðum megin. Litasamsetning sem er styttri en kortlagningin vekur ``IndexError``, og færslur þurfa að innihalda að minnsta kosti þrjá hluta."
     },
     {
       "label": "spacr.hyperparam.umap_objective_scores#6",
@@ -148,20 +162,6 @@
       "source": "``context`` is a :class:`RegionContext` carrying the object type, the label mask, the ascending array of its non-zero label ids and (computed only if the hook asks for them) their centroids. The hook returns a boolean array of ``len(context.labels)``: ``True`` keeps the object, ``False`` drops it. Dropped labels are zeroed out of the mask *before* morphology or intensity is computed, so excluding 495 of 500 objects costs 5 objects' worth of work, not 500.",
       "context": "``context`` is a :class:`RegionContext` carrying the object type, the label mask, the ascending array of its non-zero label ids and (computed only if the hook asks for them) their centroids. The hook returns a boolean array of ``len(context.labels)``: ``True`` keeps the object, ``False`` drops it. Dropped labels are zeroed out of the mask *before* morphology or intensity is computed, so excluding 495 of 500 objects costs 5 objects' worth of work, not 500.",
       "translation": "``context`` er :class:`RegionContext` sem ber tegund hlutarins, merkimiðamaska, stígvaxandi fylki af ó-núll merkimiða auðkennum þess og (reiknað aðeins ef kraninn biður um þau) miðpunkta þeirra. Kraninn skilar bóleisku fylki af ``len(context.labels)``: ``True`` heldur hlutnum, ``False`` hendir honum. Hentu merkimiðar eru núllaðir úr maska *fyrir* að morphology eða styrkur er reiknaður, þannig að að útiloka 495 af 500 hlutum kostar vinnu svarandi til 5 hluta, ekki 500."
-    },
-    {
-      "label": "spacr._version#1",
-      "source_sha256": "c7624d80aa121ab929effeabb4426fadcdf4a1faeb66bd14b3ccc96e0fcb86d2",
-      "source": "This literal is kept in lockstep with ``setup.py::VERSION`` by ``packaging/release.py bump``.  Keeping the installed artifact's own version beside the package lets ``import spacr`` report ``spacr.__version__`` without importing :mod:`importlib.metadata` and its email, pathlib, inspect and typing stack.  The public :mod:`spacr.version` module still performs a metadata lookup when a caller explicitly asks it to inspect the installed distribution.",
-      "context": "This literal is kept in lockstep with ``setup.py::VERSION`` by ``packaging/release.py bump``.  Keeping the installed artifact's own version beside the package lets ``import spacr`` report ``spacr.__version__`` without importing :mod:`importlib.metadata` and its email, pathlib, inspect and typing stack.  The public :mod:`spacr.version` module still performs a metadata lookup when a caller explicitly asks it to inspect the installed distribution.",
-      "translation": "Þessu fastagildi er haldið samstilltu við ``setup.py::VERSION`` með ``packaging/release.py bump``. Með því að geyma útgáfu uppsetta pakkans í pakkanum sjálfum getur ``import spacr`` birt ``spacr.__version__`` án þess að flytja inn :mod:`importlib.metadata` og staflann sem fylgir email, pathlib, inspect og typing. Opinbera einingin :mod:`spacr.version` leitar þó enn í lýsigögnum þegar kallandi biður hana sérstaklega að skoða uppsettu dreifinguna."
-    },
-    {
-      "label": "spacr.layers.Canvas.for_grid#5",
-      "source_sha256": "88ed971f4820a08005098d8e419958edd867aaaaa08e1d26a83d1750e5a6dc89",
-      "source": "world coordinate for the axes outside the plane. When omitted, each out-of-plane axis is pinned at the spacing's own origin, so a translated volume starts on its first plane. Passing a mapping selects those world coordinates explicitly; entries naming an in-plane axis are kept but never consulted.",
-      "context": "world coordinate for the axes outside the plane. When omitted, each out-of-plane axis is pinned at the spacing's own origin, so a translated volume starts on its first plane. Passing a mapping selects those world coordinates explicitly; entries naming an in-plane axis are kept but never consulted.",
-      "translation": "heimshnit fyrir ásana utan plansins. Þegar gildinu er sleppt er hver ás utan plansins festur við upphafspunkt hnitabilsins sjálfs, svo hliðrað rúmmál byrjar á fyrsta plani sínu. Með því að senda vörpun eru þessi heimshnit valin sérstaklega; færslur sem nefna ás innan plansins eru geymdar en aldrei lesnar."
     }
   ]
 }
