@@ -365,3 +365,20 @@ static installed-Home and lazy-boundary CI gap.  Item 305 remains OPEN until
 the supported artifact matrix is green on the frozen release SHA, the accepted
 real-display all-module traces and GPU/resource evidence exist, and every
 >=10-percent profile hotspot has a measured disposition.
+
+--------------------------------------------------------------------------------
+2026-08-30 — THE INSTALLED ICON INTEGRITY RECORD IS EXECUTABLE EVIDENCE
+--------------------------------------------------------------------------------
+
+The artifact inventory proved that every flat icon PNG and
+``chosen_icons.json`` was present, but it never compared the shipped bytes to
+the digests in that record.  The gap was real: the deliberate application-logo
+redesign changed ``app_icon.png`` while its recorded SHA-256 still described
+the previous artwork.  A dependency-free packaging metadata test now requires
+the manifest keys to equal the complete flat PNG set and verifies every
+recorded digest before CI uploads either distribution.  The one stale digest
+is corrected; all 75 packaged PNG records now agree with their bytes.
+
+This closes one static-resource evidence gap only.  Item 305 remains OPEN for
+the supported frozen-artifact matrix and the timing, profiling and hardware
+evidence named above; no 1.5.0.5 release action was taken.

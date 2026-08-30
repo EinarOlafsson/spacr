@@ -34,6 +34,7 @@ failure.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import re
 import subprocess
@@ -993,6 +994,41 @@ def test_built_artifacts_are_audited_for_required_and_forbidden_files():
     assert '"spacr/resources/icons/loading_spinner_logo (1).gif"' in workflow
     assert "exclude spacr/resources/icons/loading_spinner_logo*" in manifest
     assert "exclude spacr/resources/icons/loading_spinner_logo (1).gif" not in manifest
+
+
+def test_packaged_icon_integrity_manifest_covers_every_flat_png():
+    """The shipped icon inventory must describe the bytes users receive.
+
+    The artifact inventory above proves both the PNGs and
+    ``chosen_icons.json`` are present, but presence alone cannot catch a
+    stale digest after artwork changes.  Keep this dependency-free so the
+    packaging metadata job validates the complete installed icon set before
+    uploading either distribution.
+    """
+    icon_root = REPO_ROOT / "spacr" / "resources" / "icons"
+    recorded = json.loads(
+        (icon_root / "chosen_icons.json").read_text(encoding="utf-8")
+    )
+    installed = {path.stem: path for path in icon_root.glob("*.png")}
+
+    assert set(recorded) == set(installed), (
+        "chosen_icons.json and the packaged flat PNG set disagree: "
+        f"unrecorded={sorted(set(installed) - set(recorded))}, "
+        f"stale={sorted(set(recorded) - set(installed))}"
+    )
+    digests = {
+        name: hashlib.sha256(path.read_bytes()).hexdigest()
+        for name, path in installed.items()
+    }
+    mismatched = {
+        name: {
+            "actual": digests[name],
+            "recorded": row.get("sha256"),
+        }
+        for name, row in recorded.items()
+        if digests[name] != row.get("sha256")
+    }
+    assert not mismatched, f"packaged icon digests are stale: {mismatched}"
 
 
 @pytest.mark.parametrize(
