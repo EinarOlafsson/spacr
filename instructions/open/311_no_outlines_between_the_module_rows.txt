@@ -1,0 +1,125 @@
+================================================================================
+NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
+================================================================================
+
+Status:    OPEN, filed 2026-08-29.
+Owner:     spacr/qt — theme and Home.
+Requested: 2026-08-29 — "on the home screen and other screens there are
+           outlines of modules that are otherwise transparent like e.g. there
+           are lines between the rows of modules. please remove all of these
+           line, or make them invisable to the user."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The user sees hairlines between the rows of modules on Home, and the same
+effect on other screens: a container is transparent, yet its edge is drawn, so
+the eye reads a grid of boxes that the design does not intend.
+
+This codebase has made exactly this mistake before, and the fix is recorded in
+its own source. spacr/qt/widgets/home.py:322-326 says:
+
+    "The border lives on a ``QFrame`` with its own object name and the rule is
+    scoped to it. An unscoped border rule cascades into every child row and
+    outlines each one — a mistake this codebase has already made once on the
+    Home dashboard."
+
+The reported symptom — a line between every row — is precisely what an
+unscoped border rule produces. So the first hypothesis is not "a new border
+was added" but "a border rule lost its scope, or a new one was written without
+one", and the regression is a repeat.
+
+The border rules that can reach a module row, all of which must be checked
+against what is actually painted rather than reasoned about:
+
+  * spacr/qt/widgets/home.py:365 — ``QFrame#HomePanelBox`` draws
+    ``border: 1px solid border_soft``. Scoped by object name today.
+  * spacr/qt/widgets/home.py:441 — the same box in its accented state,
+    ``border: 1px solid accent_lo``.
+  * spacr/qt/widgets/home.py:1008 — ``border: 1px solid border`` with a 3px
+    radius.
+  * spacr/qt/widgets/home.py:2069, 2085, 2103 — the pane and the tab strip,
+    including ``border: 1px solid transparent`` (a reserved edge, not a
+    visible one) and a selected-tab rule.
+  * spacr/qt/theme.py:2996 — ``QFrame#Card, QFrame#ConsoleBox`` draw
+    ``border: 1px solid rim``.
+  * spacr/qt/theme.py:3006 — ``QFrame#SectionCard`` draws
+    ``border: 1px solid rim_soft``.
+  * spacr/qt/theme.py:3011 — ``QFrame#ConsoleTopicBar`` draws a top and a
+    bottom hairline.
+
+The palette names the two weights deliberately: ``border`` is described in
+spacr/qt/theme.py:60 as "visible dividers" and ``border_soft`` at :61 as
+"hairline card borders". Both exist in all five palettes (dark, light and
+three variants), so a change made against one palette must be checked in all
+of them — a hairline that disappears on dark can still be obvious on light.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Home is the first screen a user sees. An outline around a transparent
+container tells the eye there is a box there when there is not, which makes
+the layout read as a table of cells rather than a set of modules, and it
+fights the glass/space backdrop the theme is built around. It is also the
+kind of defect that looks deliberate, so nobody reports it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. REPRODUCE AND PHOTOGRAPH FIRST. Launch spaCR, screenshot Home, and mark
+   which lines the user means. Do the same on at least Mask, Measure and
+   Regression. A line between rows and a rim around a card are different
+   defects with different fixes; do not merge them.
+
+2. FIND WHAT PAINTS EACH ONE, rather than deleting border rules by grep.
+   Qt draws an edge from a stylesheet rule, from ``setFrameShape``, or from a
+   ``paintEvent``. Check all three for the widget that actually shows the
+   line. ``QWidget.grab()`` on the container and an inspection of the pixel
+   rows either side of the boundary will say whether an edge is painted, and
+   which colour it is — that identifies the token.
+
+3. REMOVE THE OUTLINE, KEEPING THE SPACING. The rows are separated by layout
+   spacing as well as by the line; deleting the border must not collapse the
+   gap. If the border is currently doing the visual separation, replace it
+   with spacing rather than leaving the rows touching.
+
+4. KEEP THE EDGES THAT CARRY MEANING. Focus rings, the selected-tab
+   underline, and a control's own outline are not decoration — they say which
+   thing is active and where a click lands. Removing those would fail
+   accessibility, not improve the look. This item is about edges around
+   containers that are otherwise transparent.
+
+5. CHECK ALL FIVE PALETTES and both the glass and non-glass paths. A rule
+   removed for dark can leave the light theme unchanged.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A screenshot of Home in every palette shows no line between module rows
+    and no rim around a transparent container.
+  * A test grabs the Home grid and asserts that the pixel rows spanning a
+    boundary between two module rows are uniform — no one-pixel line of a
+    different colour. Assert on the pixels, not on the stylesheet string: a
+    stylesheet assertion passes while the widget still paints an edge from
+    ``setFrameShape`` or a ``paintEvent``.
+  * Focus rings and the selected-tab indicator still draw, proven by a test
+    that focuses a control and asserts the ring is present.
+  * The vertical rhythm is unchanged: the gap between two module rows is the
+    same number of pixels before and after.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not delete the ``border`` and ``border_soft`` palette tokens. They are used
+by controls that legitimately need an edge, and removing the tokens would
+strip those too. This item narrows where they are applied; it does not retire
+them.
+
+Do not set every border to transparent as a shortcut. A transparent 1px
+border still occupies a pixel of layout, so a wholesale swap changes metrics
+everywhere and leaves the real rule in place for the next person to trip over.
