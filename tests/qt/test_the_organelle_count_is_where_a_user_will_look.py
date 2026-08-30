@@ -43,7 +43,7 @@ SWITCH = {"mask": "channel", "measure": "mask_dim", "timelapse": "channel"}
 MODULES = tuple(SWITCH)
 
 
-def _screen_with_the_strip(qtbot, app_key: str):
+def _screen_with_the_strip(qtbot, app_key: str, current=None):
     """A module screen carrying the search strip the window gives it."""
     from spacr.qt import settings_search
     from spacr.qt.screens.app_screen import AppScreen
@@ -52,7 +52,14 @@ def _screen_with_the_strip(qtbot, app_key: str):
     # the last level per module, and a test that ran after one which chose
     # All settings would be checking the wrong panel.
     settings_search.forget_disclosure(app_key)
-    screen = AppScreen(app_key)
+    # The window uses this scoped hand-off when a form-shaping value commits.
+    # Mirror it without leaving process-global state for the next test.
+    before = AppScreen.values_the_next_screen_is_built_for
+    AppScreen.values_the_next_screen_is_built_for = current
+    try:
+        screen = AppScreen(app_key)
+    finally:
+        AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
     qtbot.wait(1)
     bar = settings_search.install(screen)
@@ -89,8 +96,7 @@ def test_the_count_stands_immediately_before_the_slots_it_governs(app_key):
     Asked of the layout rather than of the rendered form, because this is a
     claim about where the setting BELONGS: the row order follows.
     """
-    from spacr.qt.screens.settings_model import (categories_for_app,
-                                                 get_categories)
+    from spacr.qt.screens.settings_model import categories_for_app, get_categories
 
     cats = categories_for_app(app_key, get_categories())
     holders = [keys for keys in cats.values()
@@ -115,20 +121,20 @@ def test_the_count_is_one_of_the_settings_the_module_meets_you_with(app_key):
 
 @pytest.mark.parametrize("app_key", MODULES)
 def test_the_count_adds_and_hides_slots_through_the_strip(qtbot, app_key):
-    """Driven on the panel the user has, not on an unfiltered one."""
+    """Each rebuilt shape shows exactly the slots its count names.
+
+    The optimized panel no longer constructs twenty-six slots and toggles
+    them in place. A committed count rebuilds the form with that count, so
+    exercise the same scoped value hand-off for zero, two and seven.
+    """
     from spacr.organelle_types import organelle_roles
 
-    screen, model, _bar = _screen_with_the_strip(qtbot, app_key)
-    combo = model._widgets["number_of_organelles"]
-
-    assert _slots_on_screen(screen, app_key) == list(organelle_roles(4))
-    for count in (7, 2, 7):
-        index = combo.findData(count)
-        assert index >= 0, f"the count dropdown does not offer {count}"
-        combo.setCurrentIndex(index)
-        # THE PANEL ANSWERS ON THE NEXT TURN OF THE LOOP.
-        qtbot.wait(1)
+    for count in (0, 2, 7):
+        screen, model, _bar = _screen_with_the_strip(
+            qtbot, app_key, {"number_of_organelles": count})
+        combo = model._widgets["number_of_organelles"]
+        assert combo.currentData() == count
         assert _slots_on_screen(screen, app_key) == list(
             organelle_roles(count))
-    # The count is never one of the rows a slot takes with it.
-    assert screen.setting_row_is_visible("number_of_organelles") is True
+        # The count is never one of the rows a slot takes with it.
+        assert screen.setting_row_is_visible("number_of_organelles") is True

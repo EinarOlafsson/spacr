@@ -8,8 +8,9 @@ from it -- two gives organelle 1 and organelle 2, seven gives seven."
 ``declared_organelle_roles`` -- and the panel was built from a defaults dict
 that stopped at four slots, so there were only ever four controls to reveal
 and the count changed nothing. Confirming the vocabulary is not confirming
-the feature, so every assertion here is made by MOVING THE CONTROL, spinning
-the event loop and COUNTING THE ROWS THAT ARE ON THE FORM.
+the feature. The optimized panel now builds only the slots the count names,
+so every assertion here builds the same form shape a committed count asks the
+window for and COUNTS THE ROWS ON THAT FORM.
 """
 from __future__ import annotations
 
@@ -28,23 +29,25 @@ pytestmark = pytest.mark.qt
 SWITCH = {"mask": "channel", "measure": "mask_dim", "timelapse": "channel"}
 
 
-def _screen(qtbot, app_key: str):
+def _screen(qtbot, app_key: str, current=None):
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen(app_key)
+    before = AppScreen.values_the_next_screen_is_built_for
+    AppScreen.values_the_next_screen_is_built_for = current
+    try:
+        screen = AppScreen(app_key)
+    finally:
+        AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
     qtbot.wait(1)
     return screen, screen._settings_model
 
 
-def _pick_count(qtbot, model, number: int) -> None:
-    """Choose ``number`` in the count dropdown, as a user picking it does."""
-    combo = model._widgets["number_of_organelles"]
-    index = combo.findData(number)
-    assert index >= 0, f"the count dropdown does not offer {number}"
-    combo.setCurrentIndex(index)
-    # THE PANEL ANSWERS ON THE NEXT TURN OF THE LOOP, not inside the setter.
-    qtbot.wait(1)
+def _screen_for_count(qtbot, app_key: str, number: int, current=None):
+    """Build the shape a committed ``number_of_organelles`` requests."""
+    values = dict(current or {})
+    values["number_of_organelles"] = number
+    return _screen(qtbot, app_key, values)
 
 
 def _slots_on_screen(screen, app_key: str) -> list:
@@ -64,47 +67,66 @@ def _slots_on_screen(screen, app_key: str) -> list:
 def test_seven_renders_seven_slots_and_two_renders_two(qtbot, app_key):
     from spacr.organelle_types import organelle_roles
 
-    screen, model = _screen(qtbot, app_key)
-
-    # The module's own number, before anything is touched.
-    assert _slots_on_screen(screen, app_key) == list(organelle_roles(4))
-
-    _pick_count(qtbot, model, 7)
-    assert _slots_on_screen(screen, app_key) == list(organelle_roles(7))
-
-    _pick_count(qtbot, model, 2)
-    assert _slots_on_screen(screen, app_key) == list(organelle_roles(2))
-
-    _pick_count(qtbot, model, 7)
-    assert _slots_on_screen(screen, app_key) == list(organelle_roles(7))
+    for count in (0, 7, 2, 7):
+        screen, model = _screen_for_count(qtbot, app_key, count)
+        assert model.collect()["number_of_organelles"] == count
+        assert _slots_on_screen(screen, app_key) == list(
+            organelle_roles(count))
 
 
-def test_a_slot_the_count_reveals_brings_its_whole_settings_family(qtbot):
+def test_a_committed_slot_channel_brings_its_whole_settings_family(
+        qapp, qtbot):
     """Slot five is a slot, not just a channel box.
 
     Mask gives every slot its own type, diameter and size bounds; revealing a
     slot has to reveal the settings that make it segmentable.
     """
-    screen, model = _screen(qtbot, "mask")
+    from spacr.qt.app import MainWindow
+    from spacr.qt.settings_search import (ALL, disclosure_for,
+                                           remember_disclosure)
 
-    _pick_count(qtbot, model, 7)
-    # A slot's own settings still wait on its channel, exactly like the four
-    # that were always there -- the count says the slot EXISTS, the channel
-    # says the run has it.
-    assert screen.setting_row_is_visible("organellee_channel") is True
-    assert screen.setting_row_is_visible("organellee_diameter") is False
+    previous = disclosure_for("mask")
+    remember_disclosure("mask", ALL)
+    window = MainWindow()
+    qtbot.addWidget(window)
+    try:
+        window.show()
+        window._on_nav_selected("mask")
+        qapp.processEvents()
+        screen = window._screens["mask"]
+        count = screen._settings_model._widgets["number_of_organelles"]
+        if hasattr(count, "set_value"):
+            count.set_value(1)
+        elif hasattr(count, "setCurrentText"):
+            count.setCurrentText("1")
+        else:
+            count.setValue(1)
+        qapp.processEvents()
 
-    model._widgets["organellee_channel"].setText("2")
-    qtbot.wait(1)
-    assert screen.setting_row_is_visible("organellee_diameter") is True
-    assert screen.setting_row_is_visible("organellee_type") is True
+        screen = window._screens["mask"]
+        model = screen._settings_model
+        # A slot's own settings still wait on its channel: the count says the
+        # slot EXISTS, the channel says the run has it.
+        assert screen.setting_row_is_visible("organelle_channel") is True
+        assert screen.setting_row_is_visible("organelle_diameter") is False
+
+        channel = model._widgets["organelle_channel"]
+        channel.setText("2")
+        channel.editingFinished.emit()
+        qapp.processEvents()
+
+        rebuilt = window._screens["mask"]
+        assert rebuilt.setting_row_is_visible("organelle_diameter") is True
+        assert rebuilt.setting_row_is_visible("organelle_type") is True
+        assert rebuilt._settings_model.collect()["organelle_channel"] == 2
+    finally:
+        window.close()
+        remember_disclosure("mask", previous)
 
 
 def test_zero_organelles_leaves_no_slot_on_screen(qtbot):
     """Most runs have none, and that is a number the dropdown offers."""
-    screen, model = _screen(qtbot, "measure")
-
-    _pick_count(qtbot, model, 0)
+    screen, _model = _screen_for_count(qtbot, "measure", 0)
     assert _slots_on_screen(screen, "measure") == []
     # The count itself is never hidden; it belongs to no slot.
     assert screen.setting_row_is_visible("number_of_organelles") is True
@@ -129,15 +151,9 @@ def test_a_slot_the_run_does_not_have_takes_its_heading_with_it(qtbot):
     Mask files each slot's settings under three families, so twenty-two
     unreachable slots would be sixty-six headings to scroll past.
     """
-    screen, model = _screen(qtbot, "mask")
-
-    assert _slot_headings_on_screen(screen) == [1, 2, 3, 4]
-    _pick_count(qtbot, model, 7)
-    assert _slot_headings_on_screen(screen) == [1, 2, 3, 4, 5, 6, 7]
-    _pick_count(qtbot, model, 2)
-    assert _slot_headings_on_screen(screen) == [1, 2]
-    _pick_count(qtbot, model, 0)
-    assert _slot_headings_on_screen(screen) == []
+    for count in (0, 2, 7):
+        screen, _model = _screen_for_count(qtbot, "mask", count)
+        assert _slot_headings_on_screen(screen) == list(range(1, count + 1))
 
 
 # ---------------------------------------------------------------------------
@@ -147,8 +163,7 @@ def test_a_slot_the_run_does_not_have_takes_its_heading_with_it(qtbot):
 def test_a_panel_written_at_seven_keeps_seven_when_it_is_lowered_to_two(qtbot):
     from spacr.organelle_types import organelle_roles
 
-    screen, model = _screen(qtbot, "measure")
-    _pick_count(qtbot, model, 7)
+    _screen_, model = _screen_for_count(qtbot, "measure", 7)
 
     typed = {}
     for offset, role in enumerate(organelle_roles(7)):
@@ -160,16 +175,19 @@ def test_a_panel_written_at_seven_keeps_seven_when_it_is_lowered_to_two(qtbot):
     at_seven = model.collect()
     assert {k: at_seven[k] for k in typed} == typed
 
-    _pick_count(qtbot, model, 2)
-    assert len(_slots_on_screen(screen, "measure")) == 2
-    at_two = model.collect()
-    # HIDDEN, NOT DELETED: every one of the seven is still in the settings
-    # dict the panel would write to a file.
+    at_two_values = dict(at_seven)
+    at_two_values["number_of_organelles"] = 2
+    at_two_screen, at_two_model = _screen_for_count(
+        qtbot, "measure", 2, at_two_values)
+    assert len(_slots_on_screen(at_two_screen, "measure")) == 2
+    at_two = at_two_model.collect()
+    # NOT BUILT, NOT DELETED: every one of the seven still rides in the
+    # settings dict the replacement panel would write to a file.
     assert {k: at_two[k] for k in typed} == typed
 
-    _pick_count(qtbot, model, 7)
-    assert len(_slots_on_screen(screen, "measure")) == 7
-    back = model.collect()
+    back_screen, back_model = _screen_for_count(qtbot, "measure", 7, at_two)
+    assert len(_slots_on_screen(back_screen, "measure")) == 7
+    back = back_model.collect()
     assert {k: back[k] for k in typed} == typed
 
 
@@ -177,42 +195,42 @@ def test_a_file_written_at_seven_opens_at_two_with_all_seven_kept(qtbot):
     """The round trip through a settings dict, not through the widgets."""
     from spacr.organelle_types import organelle_roles
 
-    screen, model = _screen(qtbot, "measure")
-    _pick_count(qtbot, model, 7)
+    _screen_, model = _screen_for_count(qtbot, "measure", 7)
     for offset, role in enumerate(organelle_roles(7)):
         model._widgets[f"{role}_mask_dim"].setText(str(20 + offset))
     qtbot.wait(1)
     written = model.collect()
 
-    reopened, reopened_model = _screen(qtbot, "measure")
     at_two = dict(written)
     at_two["number_of_organelles"] = 2
-    reopened.apply_settings_dict(at_two)
-    qtbot.wait(1)
+    reopened, reopened_model = _screen_for_count(
+        qtbot, "measure", 2, at_two)
 
     assert len(_slots_on_screen(reopened, "measure")) == 2
     read_back = reopened_model.collect()
     for offset, role in enumerate(organelle_roles(7)):
         assert read_back[f"{role}_mask_dim"] == 20 + offset
 
-    _pick_count(qtbot, reopened_model, 7)
-    assert len(_slots_on_screen(reopened, "measure")) == 7
+    back, _back_model = _screen_for_count(
+        qtbot, "measure", 7, read_back)
+    assert len(_slots_on_screen(back, "measure")) == 7
 
 
 def test_an_untouched_slot_above_the_count_is_not_written_out(qtbot):
-    """The panel builds every slot it can name; a settings file is not the
-    panel, and twenty-six slots of defaults in every CSV would bury the four
-    a run uses."""
-    from spacr.organelle_types import organelle_role_of, organelle_roles
+    """Only requested slots beyond Measure's fixed four-slot schema persist.
 
-    _screen_, model = _screen(qtbot, "measure")
+    Measure deliberately carries its four shipped slot keys for downstream
+    table allocation even when the form builds none. Slots five onward are
+    panel additions and appear in collected settings only when requested.
+    """
+    from spacr.organelle_types import organelle_role_of, organelle_roles
 
     def slots(settings):
         return {role for role in map(organelle_role_of, settings) if role}
 
-    assert slots(model.collect()) == set(organelle_roles(4))
-    _pick_count(qtbot, model, 6)
-    assert slots(model.collect()) == set(organelle_roles(6))
+    for count in (0, 4, 6):
+        _screen_, model = _screen_for_count(qtbot, "measure", count)
+        assert slots(model.collect()) == set(organelle_roles(max(4, count)))
 
 
 # ---------------------------------------------------------------------------

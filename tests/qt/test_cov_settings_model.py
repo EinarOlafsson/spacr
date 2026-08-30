@@ -724,11 +724,13 @@ def test_a_plain_line_edit_takes_none_as_empty_text():
     assert edit.text() == ""
 
 
-def test_a_hidden_value_is_refused_for_a_key_that_is_not_hidden():
-    """Hidden does not mean absent, and absent does not mean hidden."""
+def test_a_known_off_form_value_is_preserved_and_an_unknown_one_is_refused():
+    """An omitted row is still a setting, but a foreign key is not."""
     widgets = SM.SettingsWidgets("measure")
 
-    assert widgets.set_hidden_value("src", "/tmp") is False
+    assert widgets.set_hidden_value("src", "/tmp") is True
+    assert widgets._defaults["src"] == "/tmp"
+    assert widgets.set_hidden_value("_not_a_declared_setting", "x") is False
 
 
 def test_a_string_that_is_not_the_declared_type_survives_coercion():
@@ -1231,7 +1233,8 @@ def test_a_translated_tooltip_body_comes_from_the_catalog_when_there_is_one(
     from spacr.qt import i18n_catalogs
 
     monkeypatch.setattr(i18n_catalogs, "setting_tooltip",
-                        lambda key, source, code: "Der Quellordner.")
+                        lambda key, source, code, app_key="":
+                        "Der Quellordner.")
 
     assert SM._translated_body("The source folder.", "de", setting_key="src") \
         == "Der Quellordner."

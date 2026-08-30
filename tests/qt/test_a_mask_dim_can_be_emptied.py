@@ -25,16 +25,21 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
-#: The three that could not be emptied, and the organelle slot that always
-#: could -- kept in one list so a rule that fixed three of four fails here.
-PLANE_KEYS = ("cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim",
-              "organelle_mask_dim")
+#: The three non-slot objects a fresh Measure run declares. Organelle planes
+#: are checked separately on a form whose count says that slot exists: a
+#: fresh run now correctly declares zero organelles and builds no slot rows.
+PLANE_KEYS = ("cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim")
 
 
-def _screen(qtbot, app_key: str):
+def _screen(qtbot, app_key: str, current=None):
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen(app_key)
+    before = AppScreen.values_the_next_screen_is_built_for
+    AppScreen.values_the_next_screen_is_built_for = current
+    try:
+        screen = AppScreen(app_key)
+    finally:
+        AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
     # The first visibility pass is scheduled, not immediate: the rows do not
     # exist until the screen has laid them out. See `build_sections`.
@@ -56,6 +61,12 @@ def test_every_mask_dim_offers_a_control_that_can_be_emptied(qtbot):
         widget = model._widgets[key]
         assert isinstance(widget, QLineEdit), (
             f"{key} is a {type(widget).__name__}, which has no empty state")
+
+    _organelle_screen, organelle_model = _screen(
+        qtbot, "measure", {"number_of_organelles": 1})
+    widget = organelle_model._widgets["organelle_mask_dim"]
+    assert isinstance(widget, QLineEdit), (
+        "organelle_mask_dim has no empty state when its slot exists")
 
 
 def test_clearing_a_mask_dim_stores_none(qtbot):
@@ -81,21 +92,121 @@ def test_a_plane_of_zero_is_a_real_plane(qtbot):
     assert model.collect()["cell_mask_dim"] == 0
 
 
-def test_an_emptied_mask_dim_takes_that_object_off_the_form(qtbot):
-    """The two answers agree: no plane, no rows; the plane back, rows back."""
+def test_an_emptied_cell_mask_dim_keeps_the_cell_family_available(qtbot):
+    """Cell is the explicit exception to optional-object form gating."""
     screen, model = _screen(qtbot, "measure")
 
     assert screen.setting_row_is_visible("cell_min_size") is True
     model._widgets["cell_mask_dim"].clear()
+    model._widgets["cell_mask_dim"].editingFinished.emit()
     qtbot.wait(1)
-    assert screen.setting_row_is_visible("cell_min_size") is False
-    # The switch itself is never hidden -- there would be nothing left to
-    # turn the object back on with.
+    assert model.collect()["cell_mask_dim"] is None
+    assert screen.setting_row_is_visible("cell_min_size") is True
     assert screen.setting_row_is_visible("cell_mask_dim") is True
 
     model._widgets["cell_mask_dim"].setText("4")
+    model._widgets["cell_mask_dim"].editingFinished.emit()
     qtbot.wait(1)
     assert screen.setting_row_is_visible("cell_min_size") is True
+
+
+@pytest.mark.parametrize("role", ["nucleus", "pathogen"])
+def test_a_committed_optional_mask_dim_rebuilds_the_live_form(
+        qapp, qtbot, role, monkeypatch):
+    """Measure watches its mask planes, not Mask's similarly named channels."""
+    from spacr.qt.app import MainWindow
+    from spacr.qt.settings_search import (ALL, disclosure_for,
+                                           remember_disclosure)
+
+    previous = disclosure_for("measure")
+    remember_disclosure("measure", ALL)
+    window = MainWindow()
+    qtbot.addWidget(window)
+    try:
+        window.show()
+        window._on_nav_selected("measure")
+        qapp.processEvents()
+        screen = window._screens["measure"]
+        switch = screen._settings_model._widgets[f"{role}_mask_dim"]
+        follower = f"{role}_min_size"
+        assert follower in screen._settings_model._widgets
+        assert screen.setting_row_is_visible(follower) is True
+
+        # Leaving an unchanged shaping field is a no-op, including on the
+        # first screen opened through normal navigation.
+        switch.editingFinished.emit()
+        qapp.processEvents()
+        assert window._screens["measure"] is screen
+
+        retired = []
+        monkeypatch.setattr(
+            screen, "_shutdown_settings_widgets",
+            lambda: retired.append(screen))
+        switch.clear()
+        switch.editingFinished.emit()
+        qapp.processEvents()
+        screen = window._screens["measure"]
+        assert len(retired) == 1
+        assert follower not in screen._settings_model._widgets
+        assert screen.setting_row_is_visible(follower) is False
+        assert f"{role}_mask_dim" in screen._settings_model._widgets
+
+        switch = screen._settings_model._widgets[f"{role}_mask_dim"]
+        switch.setText("4")
+        switch.editingFinished.emit()
+        qapp.processEvents()
+        screen = window._screens["measure"]
+        assert follower in screen._settings_model._widgets
+        assert screen.setting_row_is_visible(follower) is True
+    finally:
+        window.close()
+        remember_disclosure("measure", previous)
+
+
+def test_a_shape_edit_waits_for_the_running_thread_before_rebuilding(
+        qapp, qtbot):
+    """A form edit during a run must not cancel it through closeEvent."""
+    from spacr.qt.app import MainWindow
+
+    class RunningThread:
+        running = True
+
+        def isRunning(self):
+            return self.running
+
+    class Worker:
+        def __init__(self):
+            self.cancelled = []
+
+        def request_cancel(self, reason):
+            self.cancelled.append(reason)
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_nav_selected("measure")
+    qapp.processEvents()
+    original = window._screens["measure"]
+    thread = RunningThread()
+    worker = Worker()
+    original._thread = thread
+    original._worker = worker
+
+    switch = original._settings_model._widgets["nucleus_mask_dim"]
+    switch.clear()
+    switch.editingFinished.emit()
+    qapp.processEvents()
+
+    assert window._screens["measure"] is original
+    assert worker.cancelled == []
+    assert original._form_rebuild_deferred is True
+
+    thread.running = False
+    original._clear_thread_refs()
+    qtbot.waitUntil(lambda: window._screens["measure"] is not original)
+    rebuilt = window._screens["measure"]
+    assert "nucleus_min_size" not in rebuilt._settings_model._widgets
+    assert rebuilt._settings_model.collect()["nucleus_mask_dim"] is None
 
 
 def test_the_measure_panel_can_say_the_run_has_no_masks_at_all(qtbot):
@@ -206,5 +317,6 @@ def test_measure_crops_own_gate_accepts_an_absent_plane():
     from spacr import measure
 
     source = inspect.getsource(measure.measure_crop)
-    assert ("isinstance(settings[key], int) or settings[key] is None"
-            in source), "measure_crop rejects an unset mask plane"
+    assert "isinstance(settings.get(key), int)" in source
+    assert "settings.get(key) is None" in source, (
+        "measure_crop rejects an unset mask plane")
