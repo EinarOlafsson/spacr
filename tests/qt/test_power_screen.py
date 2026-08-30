@@ -36,6 +36,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr import power_model as pm
+from spacr.qt.screens import power as power_mod
 from spacr.qt.screens.power import (
     APP_KEY,
     APP_NAME,
@@ -723,6 +724,92 @@ def test_the_settings_seam_registers_typed_and_documented_keys(
         assert key in settings_mod.expected_types
         assert settings_mod.tooltips[key].startswith("(")
     assert set(defaults) <= set(settings_mod.categories["Power analysis"])
+
+
+def test_power_settings_declare_the_exact_defaults_and_types():
+    """The generic settings seam must stay aligned with ``DesignSpec``.
+
+    These values are user-visible, persisted in settings files and coerced by
+    ``check_settings``. A prose repair must not accidentally move a default or
+    turn (for example) a whole-number read count into a floating-point field.
+    """
+    expected = {
+        "power_n_genes": (452, int),
+        "power_n_grnas_per_gene": (4, int),
+        "power_score_per": ("gene", str),
+        "power_cells_per_well": (123.0, float),
+        "power_wells_per_plate": (384, int),
+        "power_n_plates": (4, int),
+        "power_constructs_per_well": (4.6, float),
+        "power_background_positive_rate": (0.12, float),
+        "power_effect_fold": (6.667, float),
+        "power_hit_rate": (0.025, float),
+        "power_reads_per_well": (30000, int),
+        "power_n_replicates": (3, int),
+        "power_detection_auroc": (0.80, float),
+        "power_seed": (0, int),
+        "power_backend": ("torch", str),
+    }
+    declared = {
+        key: (default, expected_type)
+        for key, (default, expected_type, _tooltip) in power_mod._SETTINGS.items()
+    }
+    assert declared == expected
+    assert power_default_settings() == {
+        key: default for key, (default, _expected_type) in expected.items()
+    }
+
+
+def test_power_tooltips_state_the_simulator_and_fit_contracts():
+    """Help text must distinguish model inputs from convenient metaphors.
+
+    The simulator has no plate hierarchy or gene-grouped guide layer. Several
+    form values are distribution targets, not promises about one realised
+    screen, and ADVI offers neither guaranteed ordering nor calibrated
+    intervals. Those are scientific conclusions, so pin them directly.
+    """
+    tips = {key: row[2] for key, row in power_mod._SETTINGS.items()}
+
+    wells = tips["power_wells_per_plate"]
+    plates = tips["power_n_plates"]
+    assert "only the resulting total well count reaches the simulator" in wells
+    assert "no plate identity is modelled" in wells
+    assert "do not model plate identity or plate-to-plate variance" in plates
+    assert "random effect" not in plates
+
+    score_per = tips["power_score_per"]
+    assert "independent guide-level units" in score_per
+    assert "each with its own coefficient and reads" in score_per
+    assert "no guide-efficiency or within-gene grouping layer" in score_per
+    assert "pools a gene's guides" not in score_per
+
+    assert "Target mean distinct library units" in tips[
+        "power_constructs_per_well"]
+    assert "Probability clipping can make the realised mean lower" in tips[
+        "power_constructs_per_well"]
+    assert "Mean probability" in tips["power_background_positive_rate"]
+    assert "Rates vary" in tips["power_background_positive_rate"]
+    assert "Requested fold multiplier" in tips["power_effect_fold"]
+    assert "min(0.999, background rate × fold)" in tips["power_effect_fold"]
+    assert "Independent probability" in tips["power_hit_rate"]
+    assert "realised hit fraction varies" in tips["power_hit_rate"]
+    assert "Target mean sequencing depth" in tips["power_reads_per_well"]
+    assert "realised reads cannot exceed" in tips["power_reads_per_well"]
+
+    backend = tips["power_backend"]
+    assert "'numpyro' and 'pymc' use optional NUTS" in backend
+    assert "An unavailable named backend raises" in backend
+    assert "ADVI can reach a local optimum" in backend
+    assert "intervals are not calibrated" in backend
+    assert "exact NUTS" not in backend
+    assert "always available" not in backend
+    assert "gets the coefficient ORDER right" not in backend
+
+    seed = tips["power_seed"]
+    for dependency in (
+            "complete DesignSpec", "same sweep grid and order",
+            "resolved backend", "software stack"):
+        assert dependency in seed
 
 
 def test_settings_round_trip_into_the_same_design(registry_sandbox):
