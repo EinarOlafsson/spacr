@@ -336,6 +336,8 @@ def untyped_object_keys(df: pd.DataFrame,
                         *, timelapse: bool = False) -> pd.Index:
     """The keys ``df`` would have had before object types existed.
 
+    :param df: object rows whose legacy untyped keys are requested.
+
     Not a legacy shim: it is the *less specific* name for the same rows, and
     it is what makes an old key go on meaning what it always meant. A key
     naming no type says "the object labelled 7 in that field" and has to match
@@ -380,6 +382,8 @@ def _split_key(key: Any) -> Optional[Tuple[str, Optional[str], str]]:
 def key_object_type(key: Any) -> Optional[str]:
     """The object type ``key`` states, or ``None`` when it states none.
 
+    :param key: object key to inspect.
+
     ``None`` means *not stated*. It does not mean "cell", and nothing here
     will ever guess: every key spaCR wrote before today is untyped, so a
     default would put a type on the whole world's existing data.
@@ -390,6 +394,8 @@ def key_object_type(key: Any) -> Optional[str]:
 
 def untyped_object_key(key: Any) -> str:
     """``key`` with the object type taken back off, for a looser comparison.
+
+    :param key: object key to reduce to its untyped form.
 
     ``'p_r1_c1_f1_nucleus7'`` → ``'p_r1_c1_f1_7'``, and a key that already
     states no type is returned unchanged. A ``prcfo`` reduces the same way
@@ -411,6 +417,8 @@ def untyped_object_key(key: Any) -> str:
 class RangeFilter:
     """Keep rows whose ``column`` lies within ``[low, high]``.
 
+    :ivar column: numeric column evaluated by the range filter.
+
     ``None`` on either bound means unbounded on that side, which is what a
     slider dragged to its end should mean — not "exclude everything".
 
@@ -424,6 +432,10 @@ class RangeFilter:
     high: Optional[float] = None
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
+        """Return which rows of ``df`` pass this range.
+
+        :param df: data frame whose configured column is evaluated.
+        """
         if self.column not in df.columns:
             raise FilterError(
                 f"range filter names column {self.column!r}, which this frame "
@@ -450,6 +462,9 @@ class RangeFilter:
 class CategoryFilter:
     """Keep rows whose ``column`` is one of ``values``.
 
+    :ivar column: categorical column evaluated by the filter.
+    :ivar values: accepted values; an empty tuple accepts no rows.
+
     An EMPTY ``values`` keeps nothing, and that is deliberate: unticking every
     box in a category list means "show me none of these", and quietly
     reinterpreting it as "show me all of them" would silently widen the
@@ -461,6 +476,10 @@ class CategoryFilter:
     values: Tuple[Any, ...]
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
+        """Return which rows of ``df`` have an accepted category.
+
+        :param df: data frame whose configured column is evaluated.
+        """
         if self.column not in df.columns:
             raise FilterError(
                 f"category filter names column {self.column!r}, which this "
@@ -489,6 +508,8 @@ class DataFilter:
     def add(self, clause) -> "DataFilter":
         """Add a clause, replacing any existing one on the same column.
 
+        :param clause: range or category clause to add.
+
         Replacing rather than appending is what makes a slider a slider: a
         widget that emits on every drag would otherwise stack a hundred
         near-identical range clauses and turn an O(1) filter into an O(n) one.
@@ -498,7 +519,10 @@ class DataFilter:
         return self
 
     def remove(self, column: str) -> "DataFilter":
-        """Drop the clause on ``column``, if any. Unknown columns are fine."""
+        """Drop the clause on ``column``, if any. Unknown columns are fine.
+
+        :param column: configured column whose clause should be removed.
+        """
         self.clauses = [c for c in self.clauses if c.column != column]
         return self
 
@@ -513,6 +537,8 @@ class DataFilter:
     def mask(self, df: pd.DataFrame) -> np.ndarray:
         """Return a boolean mask over ``df``'s rows.
 
+        :param df: data frame to test against every clause.
+
         An empty filter keeps everything, which is the identity a "no filter"
         state should have.
         """
@@ -522,7 +548,10 @@ class DataFilter:
         return keep
 
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
-        """``df`` narrowed to the rows this filter keeps."""
+        """``df`` narrowed to the rows this filter keeps.
+
+        :param df: data frame to filter.
+        """
         return df.loc[self.mask(df)]
 
     def describe(self) -> str:

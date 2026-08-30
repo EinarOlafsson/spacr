@@ -407,6 +407,8 @@ def _unit_family(unit: str) -> Tuple[Optional[str], int]:
 def is_spacr_name(name: str) -> bool:
     """True when ``name`` is a column spaCR itself writes.
 
+    :param name: candidate column name to classify.
+
     Delegated to :func:`spacr.feature_dict.parse_column` rather than a
     second parser: that module already implements the whole grammar
     (``<object>_channel_<i>_<stat>``, the radial-distribution and
@@ -637,7 +639,10 @@ class ColumnMap:
 
     @classmethod
     def from_row(cls, row: TMapping[str, Any]) -> 'ColumnMap':
-        """Build a mapping from one row of the column-map file."""
+        """Build a mapping from one row of the column-map file.
+
+        :param row: column-map record keyed by the serialised field names.
+        """
         def _get(key: str) -> str:
             value = row.get(key, '')
             if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -694,6 +699,8 @@ class ResolvedColumn:
     def apply(self, values: 'pd.Series') -> 'pd.Series':
         """Return ``values`` with this resolution's factor applied.
 
+        :param values: foreign-column values to copy or scale.
+
         A non-numeric column is passed through untouched however the
         factor reads: multiplying a string column of treatment names by
         0.65 is not a unit conversion, it is a crash.
@@ -706,7 +713,10 @@ class ResolvedColumn:
         return numeric * float(self.factor)
 
     def to_record(self, table: str) -> Dict[str, Any]:
-        """One row of the ``foreign_columns`` provenance table."""
+        """One row of the ``foreign_columns`` provenance table.
+
+        :param table: destination table that owns the resolved column.
+        """
         return {
             'table': table,
             'column': self.target,
@@ -733,6 +743,9 @@ class Conflict:
         target) or ``'shadows_spacr'`` (an unmapped column whose own name
         is a spaCR name — carried under the foreign prefix, so not
         blocking, but the user needs to know).
+    :ivar source: foreign source column involved in the collision.
+    :ivar target: requested destination column that conflicts.
+    :ivar detail: human-readable explanation of the collision.
     :ivar blocking: True when the import refuses until it is resolved.
     """
 
@@ -1044,6 +1057,10 @@ class MaskMapping:
     :ivar object_type: ``'cell'`` / ``'nucleus'`` / ``'pathogen'`` /
         ``'organelle'``.
     :ivar stem: the ``plate1_A01_3`` stem it will be written under.
+    :ivar plate: plate identifier parsed from the matched field stem.
+    :ivar well: well identifier parsed from the matched field stem.
+    :ivar field: integer field number in the matched field stem.
+    :ivar source_field: field key parsed from the original mask filename.
     :ivar match: ``'exact'`` when the mask's field key equalled the
         image's, ``'normalised'`` when it matched only after stripping a
         mask suffix. Recorded because a normalised match is a guess, and
@@ -1496,7 +1513,10 @@ class ImportPlan:
         return [r.target for r in self.resolved]
 
     def target_for(self, source: str) -> str:
-        """The column name ``source`` will actually be written under."""
+        """The column name ``source`` will actually be written under.
+
+        :param source: foreign source column to look up.
+        """
         for resolution in self.resolved:
             if resolution.source == str(source):
                 return resolution.target
@@ -2033,6 +2053,8 @@ def plan_import(images: str,
 def format_plan(plan: ImportPlan) -> str:
     """Render an :class:`ImportPlan` as the block a user reads before agreeing.
 
+    :param plan: proposed import plan to render.
+
     Ordered by what can hurt them: blocking problems, then conflicts, then
     the columns that could not be mapped, then the join, then the plain
     counts.
@@ -2122,6 +2144,8 @@ def format_plan(plan: ImportPlan) -> str:
 class ImportResult:
     """What :func:`run_import` actually did.
 
+    :ivar plan: import plan represented by this result.
+    :ivar dst: destination project directory.
     :ivar conversion: the :class:`spacr.convert.ConversionResult` for
         their images — the provenance back to the original filenames.
     :ivar db_path: the ``measurements.db`` that was written.
