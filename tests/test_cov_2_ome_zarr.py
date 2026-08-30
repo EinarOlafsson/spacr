@@ -104,16 +104,46 @@ def test_require_zarr_hands_back_the_module_when_it_is_installed(monkeypatch):
     assert oz._zarr_is_installed() is True
 
 
-def test_zarr_absence_is_reported_as_false_not_as_an_exception():
+
+def _hide(monkeypatch, *modules):
+    """Make ``import <module>`` raise, whatever this machine has installed.
+
+    The absence of an optional extra is a fact about a user's install, not
+    about spaCR, so a test that merely asserts the extra is missing here is
+    asserting something about the test runner -- and goes green or red as the
+    environment drifts. Intercepting the import states the condition instead.
+    """
+    import builtins
+
+    hidden = set(modules)
+    real = builtins.__import__
+
+    def guarded(name, *args, **kwargs):
+        if name.split(".", 1)[0] in hidden:
+            raise ImportError(f"No module named {name!r}", name=name)
+        return real(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded)
+
+
+def test_zarr_absence_is_reported_as_false_not_as_an_exception(monkeypatch):
     """``_zarr_is_installed`` is the guard, so it must never raise itself.
 
     It is called in the middle of a read to decide which reader to use; an
     ImportError escaping from it would turn "no optional extra" into a failed
     read of a file the fallback can handle perfectly well.
+
+    ``require_zarr`` is the other half: where the guard returns False quietly,
+    the loader raises something that says which extra to install, because by
+    then the caller has asked for a path only zarr can serve.
     """
+    _hide(monkeypatch, "zarr")
+
     assert oz._zarr_is_installed() is False
-    with pytest.raises(ZarrExtraMissing):
+
+    with pytest.raises(ZarrExtraMissing) as excinfo:
         oz.require_zarr()
+    assert 'pip install "spacr[zarr]"' in str(excinfo.value)
 
 
 # ---------------------------------------------------------------------------
@@ -218,14 +248,25 @@ def test_a_codec_numcodecs_cannot_build_says_so_with_the_spec(monkeypatch):
 # the writer's encoder
 # ---------------------------------------------------------------------------
 
-def test_zstd_falls_through_to_numcodecs_when_the_stdlib_has_none():
+def test_zstd_falls_through_to_numcodecs_when_the_stdlib_has_none(monkeypatch):
     """Before Python 3.14 ``compression.zstd`` does not exist, and that is fine.
 
     The writer must not crash on an ImportError raised inside its own
     availability probe; it must carry on to numcodecs and, if that is absent
     too, say which extra to install.
+
+    Both absences are stated rather than inherited from the interpreter and the
+    environment: the probe is made to raise, and numcodecs is hidden. Keying
+    this off ``sys.version_info`` would silently stop testing the fall-through
+    on 3.14, which is exactly the version that changes the branch.
     """
-    assert sys.version_info < (3, 14), "this asserts the pre-3.14 branch"
+    def no_stdlib_zstd():
+        raise ImportError("No module named 'compression.zstd'",
+                          name="compression.zstd")
+
+    monkeypatch.setattr(oz, "_stdlib_zstd", no_stdlib_zstd)
+    _hide(monkeypatch, "numcodecs")
+
     with pytest.raises(ImportError):
         oz._stdlib_zstd_compress(b"", 3)
 
