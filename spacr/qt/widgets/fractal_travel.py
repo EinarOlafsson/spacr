@@ -665,6 +665,26 @@ class OrbitEngine:
 # The CPU widget -- a render thread, and a paint that never computes
 # ===========================================================================
 
+def _quit_and_join_thread(thread) -> None:
+    """Stop ``thread`` and do not return while its worker can still run.
+
+    Five seconds is the normal shutdown budget.  The CPU renderer's first
+    frame can spend longer compiling a Numba kernel, though, and destroying a
+    live ``QThread`` is a process-fatal Qt error.  Once the soft deadline is
+    missed there is no safe detached state: wait for that finite render to
+    finish before allowing the native wrapper to be freed.
+    """
+    try:
+        thread.quit()
+        if not thread.wait(5000):
+            LOG.warning("fractal renderer exceeded the shutdown deadline")
+            thread.wait()
+    except Exception:                                        # noqa: BLE001
+        # Shutdown is also reached while Qt is tearing its own wrappers down.
+        # A wrapper that is already gone has no live thread left to join.
+        pass
+
+
 def _join_on_destroy(widget, thread) -> None:
     """Quit and wait for ``thread`` when Qt frees ``widget``.
 
@@ -675,8 +695,7 @@ def _join_on_destroy(widget, thread) -> None:
     """
     def _join(*_args):
         try:
-            thread.quit()
-            thread.wait(5000)
+            _quit_and_join_thread(thread)
         except Exception:                                    # noqa: BLE001
             pass
 
@@ -693,7 +712,7 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
 
     from PySide6.QtCore import QObject, QThread, QTimer, Qt, Signal, Slot
     from PySide6.QtGui import QColor, QImage, QPainter
-    from PySide6.QtWidgets import QWidget
+    from PySide6.QtWidgets import QApplication, QWidget
 
     quality = resolved_quality(settings.quality, "cpu", hardware)
     thread_count = resolved_cpu_threads(settings, hardware)
@@ -820,6 +839,17 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             # destruction, so the handler must hold the THREAD and never
             # `self` -- reaching for a half-destroyed widget is its own crash.
             _join_on_destroy(self, self._thread)
+            # QApplication can tear down its native widgets before Python
+            # releases their wrappers.  In that order ``destroyed`` is too
+            # late to protect an unparented QThread, so join at the earlier,
+            # explicit application-shutdown boundary as well.  The closure
+            # captures only the thread; keeping it on ``self`` merely lets an
+            # explicit shutdown disconnect the now-unneeded application hook.
+            self._app_quit_join = (
+                lambda thread=self._thread: _quit_and_join_thread(thread))
+            application = QApplication.instance()
+            if application is not None:
+                application.aboutToQuit.connect(self._app_quit_join)
 
             self._timer = QTimer(self)
             self._timer.setSingleShot(True)
@@ -1044,8 +1074,13 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
                 return
             self._stopped = True
             self._timer.stop()
-            self._thread.quit()
-            self._thread.wait(5000)
+            application = QApplication.instance()
+            if application is not None:
+                try:
+                    application.aboutToQuit.disconnect(self._app_quit_join)
+                except (RuntimeError, TypeError):
+                    pass
+            _quit_and_join_thread(self._thread)
 
         def closeEvent(self, event) -> None:
             self.shutdown()

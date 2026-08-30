@@ -986,8 +986,9 @@ def test_the_render_thread_is_not_parented_to_the_widget():
 def test_the_thread_is_joined_when_qt_frees_the_widget():
     import inspect
 
-    assert "_join_on_destroy(self, self._thread)" in inspect.getsource(
-        F._make_cpu_widget)
+    body = inspect.getsource(F._make_cpu_widget)
+    assert "_join_on_destroy(self, self._thread)" in body
+    assert "application.aboutToQuit.connect(self._app_quit_join)" in body
 
 
 def test_the_joiner_never_touches_the_widget():
@@ -998,6 +999,29 @@ def test_the_joiner_never_touches_the_widget():
     body = inspect.getsource(F._join_on_destroy)
     inner = body.split("def _join(")[1].split("try:")[0]
     assert "widget" not in inner
+
+
+def test_a_slow_render_is_joined_past_the_soft_shutdown_deadline():
+    """A compiling first frame may exceed five seconds, but it cannot be
+    left running: Qt aborts the process if its QThread wrapper is destroyed.
+    """
+    class SlowThread:
+        def __init__(self):
+            self.quit_calls = 0
+            self.waits = []
+
+        def quit(self):
+            self.quit_calls += 1
+
+        def wait(self, timeout=None):
+            self.waits.append(timeout)
+            return len(self.waits) > 1
+
+    thread = SlowThread()
+    F._quit_and_join_thread(thread)
+
+    assert thread.quit_calls == 1
+    assert thread.waits == [5000, None]
 
 
 def test_a_deleted_backdrop_does_not_take_the_process_down(qtbot, sandbox):
