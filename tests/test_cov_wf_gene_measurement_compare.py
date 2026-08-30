@@ -227,3 +227,29 @@ def test_the_styled_renderer_refuses_a_frame_with_no_finite_value():
         "g\n(n=1)", f"{REST}\n(n=1)"]
     assert drawn is axes.figure
     assert refused == (None, None)
+
+
+def test_a_group_filter_that_matches_nothing_stops_before_any_drawing_branch():
+    """A "draw only this group" filter naming an absent group must refuse, not draw.
+
+    ``style.only`` is a live-canvas control: a user types or picks a group name
+    and the renderer redraws. That filter is applied AFTER the comparison is
+    accepted, so it is the one way the data can shrink to nothing on its way to
+    the plot kinds below. If it fell through, ``violinplot`` would be handed an
+    empty list of positions and the panel would raise instead of redrawing.
+    Returning ``(None, None)`` is what lets the panel say "that group is not in
+    this comparison" and keep the previous figure on screen.
+    """
+    comparison = _comparison({"g": [3.0, 4.0, 9.0], REST: [5.0, 6.0, 11.0]})
+
+    absent = gmc.render_comparison(
+        comparison, gmc.ComparisonStyle(kind="violin", only="not_a_group"))
+    figure, axes = gmc.render_comparison(
+        comparison, gmc.ComparisonStyle(kind="violin", only="g"))
+
+    # Naming a group that IS present draws it, so the refusal above is the
+    # unmatched name's doing and not a renderer that never draws violins.
+    assert [t.get_text() for t in axes.get_xticklabels()] == ["g\n(n=3)"]
+    assert len(axes.collections) == 1
+    assert figure is axes.figure
+    assert absent == (None, None)

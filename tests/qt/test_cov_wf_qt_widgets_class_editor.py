@@ -174,3 +174,92 @@ def test_adding_a_column_twice_adds_its_values_once(editor):
     editor.populate_from_column()
     assert list(editor.value()) == ["condition=nc", "condition=pc"]
     assert editor._hint.text() == "condition adds nothing new"
+
+
+def test_a_hand_typed_class_list_without_brackets_empties_the_table(editor):
+    """``classes`` is stored as ``repr(value)``, so anyone editing the settings
+    file by hand types what looks right -- ``nc,pc`` -- rather than a Python
+    literal. Text with no opening bracket is not a literal and must never be
+    handed to the parser, which would raise out of ``set_value`` and take the
+    whole settings panel down while it is being populated. It must instead
+    land as "nothing was claimed", clearing the classes that were there so the
+    table cannot keep showing a list the setting no longer holds, and the
+    editor must still accept a well-formed value straight afterwards."""
+    _two_classes(editor)
+    assert list(editor.value()) == ["nc", "pc"]
+
+    editor.set_value("  nc,pc  ")
+    assert editor.value() == {}
+    assert editor.table.topLevelItemCount() == 0
+    assert _chips(editor) == []
+
+    editor.set_value({"nc": {"column": "condition", "value": "nc"}})
+    assert [c.name_pill.text() for c in _chips(editor)] == ["nc"]
+
+
+def test_a_close_press_left_over_from_a_longer_list_removes_nothing(editor):
+    """Chips carry the index they had when the strip was drawn, and the strip
+    is redrawn whenever the setting is reloaded -- switching to another
+    settings file, or a measurement run writing its own classes back. A press
+    that was already in flight then names a position past the end of the
+    shorter list. ``del`` on it raises IndexError out of a signal handler,
+    which is a traceback with no dialog behind it; and the index that the
+    guard is really there for is the last one, which would otherwise silently
+    delete a class the user never pointed at."""
+    _two_classes(editor)
+    editor.set_value({"nc": {"column": "condition", "value": "nc"}})
+    assert [r.name for r in editor.rules()] == ["nc"]
+
+    editor.remove_at(1)            # the position "pc" used to sit at
+    assert [r.name for r in editor.rules()] == ["nc"]
+    assert [c.name_pill.text() for c in _chips(editor)] == ["nc"]
+
+    # The close mark on a chip that is actually drawn still removes its class.
+    _chips(editor)[0]._close.click()
+    assert editor.rules() == []
+    assert _chips(editor) == []
+
+
+def test_remove_ignores_a_selection_that_is_not_a_class_row(editor):
+    """Remove reads the selected row's position among the top-level rows, and
+    ``indexOfTopLevelItem`` answers -1 for anything that is not one -- a child
+    row, or a row belonging to another tree. A negative index is a perfectly
+    good Python index, so without the lower bound the Remove button would
+    delete the LAST class whenever the selection was not a class row at all.
+    That is a class gone from the training set with nothing on screen saying
+    so, which is the failure this editor exists to prevent."""
+    from PySide6.QtWidgets import QTreeWidgetItem
+
+    _two_classes(editor)
+    parent_row = editor.table.topLevelItem(0)
+    parent_row.addChild(QTreeWidgetItem(["not a class"]))
+    editor.table.setCurrentItem(parent_row.child(0))
+
+    editor.remove_selected()
+    assert [r.name for r in editor.rules()] == ["nc", "pc"]
+    assert [c.name_pill.text() for c in _chips(editor)] == ["nc", "pc"]
+
+    # A real class row under the same button does come out, last one first.
+    editor.table.setCurrentItem(editor.table.topLevelItem(1))
+    editor.remove_selected()
+    assert [r.name for r in editor.rules()] == ["nc"]
+
+
+def test_spacing_at_either_end_of_the_chip_strip_is_cleared_too(editor):
+    """The strip is emptied item by item before it is redrawn, and layouts
+    hold spacing and stretch alongside their widgets -- an item with nothing
+    behind ``item.widget()``. The very first item taken can be one, so the
+    guard has to hold on the opening pass and not only somewhere in the
+    middle. Treating spacing as a widget would abort the teardown, and the
+    chips of the previous edit would stay on screen next to the new ones,
+    showing classes the setting no longer contains."""
+    _two_classes(editor)
+    editor._chips_layout.insertSpacing(0, 8)
+    editor._chips_layout.addStretch(1)
+    assert editor._chips_layout.count() == 4
+
+    editor.add_random_complement()
+
+    assert [c.name_pill.text() for c in _chips(editor)] == ["nc", "pc", "rest"]
+    assert editor._chips_layout.count() == 3   # the spacing and stretch went
+    assert list(editor.value()) == ["nc", "pc", "rest"]

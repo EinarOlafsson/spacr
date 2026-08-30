@@ -231,3 +231,99 @@ def test_a_feature_measured_on_two_objects_makes_the_null_unbeatable(
     assert result.above_null() == ()
     assert "shuffling the labels reaches 1.000" in result.summary()
     assert "0 feature(s) beat it" in result.summary()
+
+
+# ---------------------------------------------------------------------------
+# The same three corners, reached by the other route into each of them
+# ---------------------------------------------------------------------------
+
+def test_an_unrecognised_preset_restores_the_default_ranking_not_a_crash():
+    """The payload handed to ``from_dict`` comes off disk, so it can be a file
+    that holds nothing this version understands -- an empty dict written by a
+    truncated save, or a preset from a fork whose keys are all foreign. Both
+    have to restore as the default ranking, which is what the screen opens
+    with anyway, because the alternative is the settings load raising and the
+    user losing every *other* preset in the same file. Note this is the branch
+    where ``features`` is absent rather than empty: nothing may reach into
+    ``known`` for a key that was never put there.
+    """
+    blank = ExplorerSpec.from_dict({})
+
+    assert blank == ExplorerSpec()
+    assert blank.features == ()
+    assert blank.label == ""
+    assert blank.statistic == AUC
+    assert blank.top == DEFAULT_TOP
+    assert blank.describe().startswith(
+        "every continuous column split by (no class column), ranked by ")
+
+    foreign = ExplorerSpec.from_dict({"colour": "red", "schema_version": 4,
+                                      "order_by": "p_value"})
+    assert foreign == blank
+    assert ExplorerSpec.from_json(blank.to_json()) == blank
+
+
+def test_a_row_with_only_an_effect_size_names_the_effect_size(two_conditions):
+    """The remaining combination of the three caption guards, and the one a
+    Cohen's-d ranking actually produces: a feature whose ranks are unusable --
+    every object tied, so the AUC and the KS gap are both undefined -- while
+    the means still differ. The caption has to carry the ``d`` and drop the
+    other two silently, because ``d -1.25`` is the finding and ``AUC nan``
+    beside it would read as a failed computation and get the row ignored. The
+    small-class warning still has to be appended after it, since a d computed
+    on four objects is exactly the number a reader must not take at face
+    value.
+    """
+    thin = FR.FeatureScore(
+        feature="mito_intensity", statistic=FR.COHEN_D, score=1.25,
+        auc=float("nan"), cohen_d=-1.25, ks=float("nan"),
+        mutual_info=float("nan"), higher_in="ctrl", against="trt",
+        n_by_class={"ctrl": 4, "trt": 9})
+
+    said = thin.describe()
+
+    assert said == "mito_intensity: 1.250 · d -1.25 · n=4 in the smaller class"
+    assert "AUC" not in said
+    assert "KS" not in said
+
+    complete = replace(thin, auc=0.18, ks=0.64)
+    full = complete.describe()
+    assert "AUC 0.180, higher in ctrl" in full
+    assert "KS 0.640" in full
+    assert "d -1.25" in full
+
+
+def test_a_column_measured_only_on_unlabelled_rows_does_not_poison_the_null():
+    """Rows with no condition are dropped before the labels are shuffled, so a
+    column recorded *only* on those rows -- a stain added for the untreated
+    wells that were never assigned a condition -- arrives at the null with
+    nothing finite left in it at all. Every shuffle then compares two empty
+    groups and the separation is NaN. Those NaNs must be skipped rather than
+    accumulated, because ``np.quantile`` propagates a single NaN into the
+    whole threshold, and a NaN threshold makes ``score > threshold`` False for
+    every feature in the table: the panel would report that nothing beat
+    chance while showing a column that separates perfectly. A real column
+    measured beside it must still lift the same null off zero.
+    """
+    nan = float("nan")
+    frame = pd.DataFrame({
+        "condition": ["ctrl", "ctrl", "ctrl", "trt", "trt", "trt", None, None],
+        "orphan_stain": [nan] * 6 + [3.0, 9.0],
+        "cell_area": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, nan, nan],
+    })
+    keys, levels = FR._class_levels(frame, "condition")
+    spec = ExplorerSpec(label="condition", statistic=KS, n_permutations=6,
+                        seed=11)
+
+    orphan = {"orphan_stain": frame["orphan_stain"].to_numpy(float)}
+    assert FR._null_threshold(orphan, keys, levels, spec, []) == 0.0
+
+    both = {name: frame[name].to_numpy(float)
+            for name in ("orphan_stain", "cell_area")}
+    together = FR._null_threshold(both, keys, levels, spec, [])
+
+    assert np.isfinite(together)
+    assert together > 0.0
+    assert together == FR._null_threshold(
+        {"cell_area": frame["cell_area"].to_numpy(float)}, keys, levels,
+        spec, [])

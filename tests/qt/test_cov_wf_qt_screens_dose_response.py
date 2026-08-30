@@ -310,3 +310,89 @@ def test_a_canvas_with_no_cancel_hook_does_not_break_the_close(
     assert widget.active_jobs() == 0
     assert widget.is_busy() is False
     assert not hasattr(widget.canvas, "cancel_pending_draw")
+
+
+# ---------------------------------------------------------------------------
+# The other operand of each two-part guard
+# ---------------------------------------------------------------------------
+
+def test_the_name_guess_reads_every_option_before_it_settles(qtbot):
+    """The dose guess is a scan, not a look at the head of the list.
+
+    ``_refill`` is the one place a picker's contents are replaced, and its
+    ``prefer`` hints are matched against *every* name in turn. A version that
+    only inspected the first entry would leave the guess working on tables
+    whose dose column happens to sort first and silently failing on every
+    other table — the same screen guessing right or wrong depending on
+    alphabetical luck. Both outcomes are driven here: a list where the hint
+    is only found at the end, and a list where it is nowhere at all.
+    """
+    from PySide6.QtWidgets import QComboBox
+
+    picker = QComboBox()
+    qtbot.addWidget(picker)
+
+    DoseResponseScreen._refill(
+        picker, ["assay_level", "plate_row", "readout", "conc_uM"],
+        prefer=("conc",))
+    assert picker.currentText() == "conc_uM", (
+        "the hint sits last, so the scan has to walk the three before it")
+
+    DoseResponseScreen._refill(picker, ["alpha", "beta", "gamma"],
+                               prefer=("conc",))
+    assert picker.currentText() == "alpha", (
+        "no name earns the hint, so the box keeps its own first entry")
+    assert picker.count() == 3
+
+
+def test_a_selection_the_last_fit_no_longer_has_draws_no_marker(fitted):
+    """A stale row index must not put an EC50 line on the wrong curve.
+
+    The table and the fit set are refilled independently, so an index left
+    over from a larger plate can arrive at the figure after a smaller one has
+    been fitted. Indexing the fits with it would raise, and clamping it would
+    annotate a curve the user never selected — either way the picture would
+    stop meaning what the grid says. An out-of-range selection draws the
+    plate and no marker; the same figure with a real index is drawn first, so
+    the missing line is a decision and not an empty axis.
+    """
+    fitted._draw(0)
+    axes = _axes(fitted)
+    assert len(_dashed(axes)) == 1, "an in-range row should mark its EC50"
+    curves = len(axes.lines) - 1
+
+    fitted._draw(len(fitted.result_set().fits) + 3)
+    axes = _axes(fitted)
+
+    assert _dashed(axes) == []
+    assert [text.get_text() for text in axes.texts] == []
+    assert len(axes.lines) == curves, "every curve is still drawn"
+    # No index matched, so every curve is drawn in the unfocused weight --
+    # the plate is still readable, it just has nothing singled out.
+    assert {line.get_alpha() for line in axes.lines} == {0.25, 0.3}
+
+
+def test_an_interval_open_at_the_top_also_loses_its_band(fitted):
+    """Either end of the interval going missing has to drop the band.
+
+    The profile walk can decline to close the upper side just as readily as
+    the lower one — a compound whose top plateau is barely reached has an
+    EC50 and an ``ec50_high`` of ``None``. Shading from the lower end to
+    nowhere would draw a band whose right edge is invented, which is the one
+    thing the screen must never do with a number the fit refused to give.
+    The band is put on screen first with both ends present, so its absence
+    afterwards is this result and not an empty figure.
+    """
+    fitted._draw(0)
+    assert len(_axes(fitted).patches) == 1, "both ends present shades a band"
+
+    _with_first_result(fitted, ec50_high=None)
+    fitted._draw(0)
+    axes = _axes(fitted)
+
+    assert len(axes.patches) == 0
+    assert len(_dashed(axes)) == 1, "the midpoint itself is still quotable"
+    labels = [text.get_text() for text in axes.texts]
+    assert len(labels) == 1 and labels[0].startswith("EC50 ")
+    assert fitted.result_set().fits[0].result.ec50_low is not None, (
+        "only the upper end was removed")

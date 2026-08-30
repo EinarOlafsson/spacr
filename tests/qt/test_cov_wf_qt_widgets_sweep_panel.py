@@ -300,3 +300,42 @@ def test_the_profile_picture_is_drawn_for_the_fallback_gene(swept):
     assert best in " ".join(text.get_text()
                             for axes in figure.axes
                             for text in [axes.title])
+
+
+def test_a_blank_selection_before_any_sweep_answers_none_and_does_not_raise(
+        qtbot):
+    """The gene lookup must survive a selection made before a sweep exists.
+
+    A user can click a row of the table -- a leftover selection, or a row
+    added by anything that fills the table -- while no sweep has been run, so
+    there is no result to fall back to. :meth:`selected_gene` then has to walk
+    past an empty gene cell and off the end of an empty result, and it must
+    come back with "no gene" rather than raising: the Show picture button
+    calls straight into it, and an exception there is a traceback in the log
+    and a dead button instead of the "nothing to draw" the panel is designed
+    to say.
+    """
+    from spacr.qt.widgets.sortable_table import table_item
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    panel = SweepPanel(threaded=False)
+    qtbot.addWidget(panel)
+    assert panel._result is None
+
+    panel.table.setSortingEnabled(False)
+    panel.table.insertRow(0)
+    panel.table.setItem(0, 0, table_item("gene"))
+    # A named cell first, so the None below is about the blank cell and not
+    # about the panel being unable to read its own table at all.
+    panel.table.setItem(0, 1, table_item("223550"))
+    panel.table.setSortingEnabled(True)
+    panel.table.selectRow(0)
+    assert panel.selected_gene() == "223550"
+
+    # The same selected row with nothing but whitespace in the gene cell.
+    panel.table.setSortingEnabled(False)
+    panel.table.setItem(0, 1, table_item("  "))
+    panel.table.setSortingEnabled(True)
+    panel.table.selectRow(0)
+    assert panel.table.selectedIndexes(), "the row is still selected"
+    assert panel.selected_gene() is None

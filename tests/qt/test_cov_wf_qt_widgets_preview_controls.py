@@ -365,3 +365,202 @@ def test_a_loaded_field_the_draw_missed_is_kept_and_called_out(tmp_path):
     assert note.startswith("showing a random sample of 1 of 6 image sets, "
                            "plus the field you loaded")
     assert combo.currentData() == str(missed.path())
+
+
+# ---------------------------------------------------------------------------
+# The same five degradations, driven through their other doors
+# ---------------------------------------------------------------------------
+
+def test_a_bare_number_in_the_channel_combo_is_not_a_channel_index(qtbot):
+    """Only ``Ch <n>`` names a plane; a number on its own must not.
+
+    Panels that render a composite put entries like ``Merged`` or a bare
+    ``2`` (a plane *count*, or a user-typed label) into the channel dropdown.
+    :func:`~spacr.qt.widgets.preview_controls.selected_channel` reads the text
+    rather than the row, so if it accepted anything numeric the composite view
+    would silently collapse to plane 2 of the stack -- a different picture than
+    the entry names, with nothing on screen admitting the substitution. The
+    prefix test is the whole guard, and it has to reject text that never had
+    the prefix at all, not merely text whose digits are bad.
+    """
+    combo = QComboBox()
+    qtbot.addWidget(combo)
+    combo.addItems(["Merged", "2", "Ch 0"])
+
+    assert pc.selected_channel(combo) is None          # "Merged"
+    combo.setCurrentIndex(1)
+    assert pc.selected_channel(combo) is None          # a bare "2"
+    # Channel zero is a real channel, so the None above is the missing "Ch "
+    # prefix talking and not a helper that only ever returns None.
+    combo.setCurrentIndex(2)
+    assert pc.selected_channel(combo) == 0
+
+
+def test_an_empty_source_list_leaves_the_fov_dropdown_selectable(qtbot,
+                                                                 tmp_path):
+    """A folder that matched nothing must leave an empty, sane dropdown.
+
+    Pointing a preview at a folder whose suffixes match no file hands
+    :func:`~spacr.qt.widgets.preview_controls.populate_fov_combo` an empty
+    sequence together with the path that is still loaded. Looking that path up
+    must fail without the combo being driven to some other row: the dropdown
+    ends up empty and on index -1, and the panel simply has nothing to offer
+    until the user picks a different folder. Setting a found index here is
+    what would raise out of the rebuild on the very folder the user is trying
+    to diagnose.
+    """
+    still_loaded = tmp_path / "plate" / "A01 f001.tif"
+    combo = QComboBox()
+    qtbot.addWidget(combo)
+
+    pc.populate_fov_combo(combo, [], current=still_loaded)
+
+    assert _entries(combo) == []
+    assert combo.currentIndex() == -1
+    assert combo.currentData() is None
+
+    # The same loaded path against a folder that does hold it selects it, so
+    # the empty result above is the empty listing's doing.
+    pc.populate_fov_combo(combo, [still_loaded], current=still_loaded)
+    assert _entries(combo) == ["A01 f001.tif"]
+    assert combo.currentData() == str(still_loaded)
+
+
+def test_a_get_regex_that_is_not_a_plain_module_level_def_is_not_lifted(
+        tmp_path, monkeypatch):
+    """The lift must take the real ``_get_regex`` or nothing at all.
+
+    The trick that keeps ``spacr.utils`` (3.2 s, ~900 MB) out of a dropdown
+    build compiles one top-level ``def`` out of the parsed source. Moving that
+    helper into a class, or making it ``async``, leaves a node in the tree that
+    still answers to the name but is not the standalone function the exec
+    relies on -- a class body would compile to a class, an ``async def`` to a
+    coroutine factory, and the previews would then call something that never
+    returns a pattern string. Walking off the end of the loop instead is the
+    honest answer: no pattern, one set per file, and the panel still opens.
+    """
+    stub = tmp_path / "utils_with_the_helper_moved.py"
+    stub.write_text(
+        "async def _get_regex(metadata_type, img_format, custom_regex=None):\n"
+        "    return 'never awaited'\n"
+        "\n"
+        "class Naming:\n"
+        "    def _get_regex(self, metadata_type, img_format,\n"
+        "                   custom_regex=None):\n"
+        "        return 'not module level'\n",
+        encoding="utf8")
+    root = tmp_path / "plate"
+    names = _plate(root)
+
+    monkeypatch.delitem(sys.modules, "spacr.utils", raising=False)
+    monkeypatch.setattr(pc, "importlib", SimpleNamespace(
+        util=SimpleNamespace(find_spec=lambda name: SimpleNamespace(
+            origin=str(stub)))))
+    pc._get_regex_callable.cache_clear()
+    pc._acquisition_regex.cache_clear()
+
+    assert pc._get_regex_callable() is None
+    assert pc._acquisition_regex("cellvoyager", "tif") is None
+    flat, no_channels = pc.enumerate_image_sets(root, [".tif"], "cellvoyager")
+    assert [s.key for s in flat] == [("", "", n) for n in names]
+    assert no_channels == []
+
+    # A source file whose _get_regex *is* a top-level def is lifted and used,
+    # so the flat listing above is the misplaced definition's doing.
+    good = tmp_path / "utils_with_a_top_level_def.py"
+    good.write_text(
+        "def _get_regex(metadata_type, img_format, custom_regex=None):\n"
+        "    return (r'.*_(?P<wellID>[A-Z]\\d+)_T\\d+F(?P<fieldID>\\d+)'\n"
+        "            r'L\\d+A\\d+Z\\d+C(?P<chanID>\\d+)')\n",
+        encoding="utf8")
+    monkeypatch.setattr(pc, "importlib", SimpleNamespace(
+        util=SimpleNamespace(find_spec=lambda name: SimpleNamespace(
+            origin=str(good)))))
+    pc._get_regex_callable.cache_clear()
+    pc._acquisition_regex.cache_clear()
+
+    assert callable(pc._get_regex_callable())
+    grouped, channels = pc.enumerate_image_sets(root, [".tif"], "cellvoyager")
+    assert [s.label for s in grouped] == [
+        "A01 f001 (2ch)", "A01 f002 (2ch)", "A02 f001 (2ch)",
+        "A02 f002 (2ch)", "B03 f001 (2ch)", "B03 f002 (2ch)"]
+    assert channels == ["01", "02"]
+
+
+def test_an_unknown_dialect_drops_the_pattern_for_every_extension(tmp_path):
+    """One unusable dialect must not leave *some* extensions grouped.
+
+    The enumeration compiles the acquisition regex once per file extension
+    present, because trying all five variants per name cost 713 ms against
+    368 ms on a 98 304-file plate. A dialect the project does not know fails
+    for each extension in turn, and every one of those failures has to be
+    skipped rather than stored: a half-filled pattern table would group the
+    ``.tif`` half of a mixed folder and list the ``.png`` half flat, so the
+    same field of view would appear twice under two different names.
+    """
+    root = tmp_path / "mixed"
+    root.mkdir()
+    names = []
+    for well in WELLS:
+        for field in FIELDS:
+            for chan, ext in ((1, "tif"), (2, "png")):
+                name = (f"plate1_{well}_T0001F{field:03d}"
+                        f"L01A01Z01C{chan:02d}.{ext}")
+                (root / name).write_bytes(b"")
+                names.append(name)
+
+    flat, no_channels = pc.enumerate_image_sets(
+        root, [".tif", ".png"], "klingon")
+
+    assert pc._acquisition_regex("klingon", "tif") is None
+    assert pc._acquisition_regex("klingon", "png") is None
+    assert [s.key for s in flat] == [("", "", n) for n in sorted(names)]
+    assert no_channels == []
+
+    # The identical folder under a dialect spacr does know groups the two
+    # extensions into one field each, so the flat listing is the dialect's
+    # doing and not the mixed suffixes'.
+    grouped, channels = pc.enumerate_image_sets(
+        root, [".tif", ".png"], "cellvoyager")
+    assert [s.label for s in grouped] == [
+        "A01 f001 (2ch)", "A01 f002 (2ch)", "A02 f001 (2ch)",
+        "A02 f002 (2ch)", "B03 f001 (2ch)", "B03 f002 (2ch)"]
+    assert channels == ["01", "02"]
+
+
+def test_an_empty_folder_with_no_cap_box_still_reports_what_it_found(tmp_path):
+    """Nothing to show must read as "nothing", not as an unlabelled blank.
+
+    A folder with no matching file is the most common way a preview comes up
+    empty, and Mask reaches
+    :func:`~spacr.qt.widgets.preview_controls.apply_sample_to_combo` with no
+    cap box to configure. With both -- no box and no sets -- the call still has
+    to fill the (empty) dropdown and hand back the sentence, because a blank
+    selector with a blank tooltip tells the user nothing about whether the
+    folder was empty, the suffixes were wrong, or the panel simply broke.
+    """
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    sampler = pc.ImageSetSampler(max_sets=2)
+    sampler.enumerate(empty, [".tif"])
+    combo = QComboBox()
+
+    note = pc.apply_sample_to_combo(combo, None, sampler, None,
+                                    tooltip="Image set")
+
+    assert sampler.total == 0
+    assert note == "showing all 0 image sets"
+    assert _entries(combo) == []
+    assert combo.toolTip() == "Image set — showing all 0 image sets."
+    # The cap was left exactly as the panel set it: there was no box to clamp
+    # it against, and an empty folder must not silently widen it either.
+    assert sampler.max_sets == 2
+
+    # A folder that does hold sets fills the same dropdown through the same
+    # box-less call, so the empty listing is the empty folder's doing.
+    full = tmp_path / "plate"
+    _plate(full)
+    other = pc.ImageSetSampler(max_sets=2)
+    other.enumerate(full, [".tif"])
+    pc.apply_sample_to_combo(combo, None, other, None)
+    assert len(_entries(combo)) == 2
