@@ -48,7 +48,13 @@ GITHUB_NIGHTLY_API = (
 
 @dataclass
 class UpdateInfo:
-    """Result of a version check."""
+    """Result of a version check.
+
+    :ivar installed_version: version of the locally installed spaCR package.
+    :ivar latest_release: latest PyPI release, or ``None`` when unavailable.
+    :ivar nightly_sha: abbreviated nightly-branch commit, or ``None`` when
+        unavailable.
+    """
     installed_version: str
     latest_release:    Optional[str]
     nightly_sha:       Optional[str]
@@ -318,7 +324,10 @@ def canonical_package_name(name) -> str:
 
 
 def installed_version(name) -> Optional[str]:
-    """The version of ``name`` installed here, or ``None`` if it is absent."""
+    """The version of ``name`` installed here, or ``None`` if it is absent.
+
+    :param name: distribution name to query from installed package metadata.
+    """
     try:
         from importlib.metadata import PackageNotFoundError, version
     except Exception:
@@ -368,6 +377,8 @@ def dry_run_command(requirement) -> list:
     nothing; ``uv pip install --dry-run`` prints ``+ name==version`` lines.
     Both are parsed by :func:`dry_run_install`, because the second is the only
     one available on the desktop installs whose venv has no pip.
+
+    :param requirement: pip requirement string whose installation to preview.
     """
     if pip_available():
         return [sys.executable, "-m", "pip", "install", "--dry-run",
@@ -382,7 +393,12 @@ def dry_run_command(requirement) -> list:
 
 @dataclass(frozen=True)
 class PackageChange:
-    """One line of a dry-run report: what a package is now, and would be."""
+    """One line of a dry-run report: what a package is now, and would be.
+
+    :ivar name: distribution name reported by the resolver.
+    :ivar current: installed version, or ``None`` when the package is absent.
+    :ivar proposed: resolved version, or ``None`` when it would be removed.
+    """
 
     name: str
     current: Optional[str]
@@ -421,6 +437,9 @@ class DryRun:
 
     ``ok`` is False when the resolver refused, when the tool could not be
     run, or when it returned no machine-readable plan.
+
+    :ivar requirement: pip requirement string that was resolved.
+    :ivar ok: whether the packaging tool returned a readable successful plan.
     """
 
     requirement: str
@@ -638,6 +657,8 @@ class InstallOffer:
         installing; ``install`` when this environment can accept the package;
         ``elsewhere`` when the recipe requires another environment; or
         ``impossible`` when installing cannot satisfy the requirement.
+    :ivar title: short heading shown for the optional capability.
+    :ivar message: explanation shown with the offer.
     """
 
     action: str
@@ -663,22 +684,40 @@ class InstallOffer:
 
 
 def offer_ready(title: str, message: str) -> InstallOffer:
-    """An offer for something that is already available."""
+    """An offer for something that is already available.
+
+    :param title: short heading shown for the available capability.
+    :param message: explanation shown with the offer.
+    """
     return InstallOffer("ready", title, message)
 
 
 def offer_install(title: str, message: str, requirement: str,
                   recipe: str = "") -> InstallOffer:
-    """An offer that may run pip here, after a dry run and a confirmation."""
+    """An offer that may run pip here, after a dry run and a confirmation.
+
+    :param title: short heading shown for the optional capability.
+    :param message: explanation shown with the install offer.
+    :param requirement: pip requirement string that can satisfy the feature.
+    """
     return InstallOffer("install", title, message, str(requirement), recipe,
                         runs_anything=True)
 
 
 def offer_elsewhere(title: str, message: str, recipe: str) -> InstallOffer:
-    """An offer that names another environment and runs nothing."""
+    """An offer that names another environment and runs nothing.
+
+    :param title: short heading shown for the optional capability.
+    :param message: explanation of why installation must happen elsewhere.
+    :param recipe: instructions for preparing the external environment.
+    """
     return InstallOffer("elsewhere", title, message, None, recipe)
 
 
 def offer_impossible(title: str, message: str, recipe: str = "") -> InstallOffer:
-    """An offer that says installing cannot help, and why."""
+    """An offer that says installing cannot help, and why.
+
+    :param title: short heading shown for the unavailable capability.
+    :param message: explanation of why installation cannot satisfy it.
+    """
     return InstallOffer("impossible", title, message, None, recipe)
