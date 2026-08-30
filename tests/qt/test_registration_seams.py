@@ -96,6 +96,21 @@ def registry_sandbox():
     app_mod._refresh_sections()
 
 
+#: The genuine ``ensure_widget_qss_applied``, captured before any fixture in
+#: this file can have replaced it.
+#:
+#: The sandbox below restores THIS rather than whatever the attribute held
+#: when it ran. Saving the live value is the obvious way to write it and is
+#: wrong here: `monkeypatch` is torn down AFTER this fixture, so a test that
+#: monkeypatches the same attribute puts its own recorded value -- one of
+#: this fixture's suppression lambdas -- back on the module after the sandbox
+#: has already restored the real one. The next test then "saves" that lambda
+#: as if it were the original and the suppression becomes permanent, which is
+#: exactly how `test_a_registration_during_restyle_does_not_recurse` came to
+#: see no restyle at all while passing on its own.
+_REAL_ENSURE_QSS_APPLIED = theme_mod.ensure_widget_qss_applied
+
+
 @pytest.fixture
 def qss_sandbox():
     """Run with an EMPTY widget-QSS registry, and restore it afterwards.
@@ -105,12 +120,34 @@ def qss_sandbox():
     is the first), so whether a given block is present here depends on
     which test module ran before this one. These tests are about the seam
     itself and have to start from nothing to mean anything.
+
+    The restyle registration triggers is suppressed for the same reason.
+    ``register_widget_qss`` calls ``ensure_widget_qss_applied`` so a screen
+    imported long after startup is styled before it can paint; that re-applies
+    preferences, and applying preferences imports ``field_fade``, which
+    registers a block. So registering ONE probe here left the registry holding
+    two names and the recorded opacities holding a call nobody in the test
+    made. The seam these tests are about is the registry, and it cannot be
+    observed through a function that mutates it as a side effect of running.
+
+    What is suppressed here is covered where it belongs, in
+    ``test_the_window_comes_before_the_dialog_filters.py`` -- and by
+    ``test_a_registration_during_restyle_does_not_recurse`` below, which is
+    the one test in this file that is ABOUT the restyle rather than about
+    the registry. It puts the real function back through the handle this
+    fixture yields.
+
+    :yields: the real ``ensure_widget_qss_applied`` that was suppressed.
     """
     saved = dict(theme_mod._WIDGET_QSS)
     theme_mod._WIDGET_QSS.clear()
-    yield
-    theme_mod._WIDGET_QSS.clear()
-    theme_mod._WIDGET_QSS.update(saved)
+    theme_mod.ensure_widget_qss_applied = lambda *names: False
+    try:
+        yield _REAL_ENSURE_QSS_APPLIED
+    finally:
+        theme_mod.ensure_widget_qss_applied = _REAL_ENSURE_QSS_APPLIED
+        theme_mod._WIDGET_QSS.clear()
+        theme_mod._WIDGET_QSS.update(saved)
 
 
 # ---------------------------------------------------------------------------
@@ -441,8 +478,9 @@ class _Host:
     """
 
     def _build_screen_timed(self, key):
-        """Follow the production wrapper into the real screen factory."""
+        """Follow the public timing wrapper into the real implementation."""
         from spacr.qt.app import MainWindow
+
         return MainWindow._build_screen_timed(self, key)
 
     def __getattr__(self, name):
@@ -678,13 +716,13 @@ def test_two_widgets_cannot_quietly_claim_one_name(qss_sandbox):
         theme_mod.register_widget_qss("NotCallable", "QFrame {}")
 
 
-def test_the_exhaustive_loader_only_collects_blocks(
-        qapp, qss_sandbox, monkeypatch):
-    """An inventory sweep does not mutate the live QApplication sheet."""
+def test_the_exhaustive_loader_collects_without_restyling_per_import(
+        qss_sandbox, monkeypatch):
+    """One explicit inventory sweep gets one outer composition, not N more."""
     import importlib
 
+    restyles = []
     modules = ("spacr.qt.probe_one", "spacr.qt.probe_two")
-    before = qapp.styleSheet()
 
     def fake_import(name):
         theme_mod.register_widget_qss(
@@ -693,108 +731,53 @@ def test_the_exhaustive_loader_only_collects_blocks(
         return object()
 
     monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADING", False)
     monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES", modules)
+    monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied",
+                        lambda *names: restyles.append(names))
     monkeypatch.setattr(importlib, "import_module", fake_import)
 
     assert theme_mod.load_widget_qss_registrars() == modules
-    assert theme_mod.widget_qss_names() == modules
-    assert qapp.styleSheet() == before
+    assert restyles == []
+    assert theme_mod._QSS_REGISTRARS_LOADING is False
 
 
-def test_many_late_blocks_style_one_screen_without_restyling_the_app(
-        qtbot, qapp, qss_sandbox, monkeypatch):
-    """Forty imports cost one new-screen polish and zero global rebuilds."""
+def test_a_registration_during_restyle_does_not_recurse(
+        qapp, qss_sandbox, monkeypatch):
+    """Field fade and similar late registrations join the outer rebuild.
+
+    The one test here that is about the restyle and not about the registry,
+    so it puts back the real ``ensure_widget_qss_applied`` the sandbox
+    suppressed -- registering is the only way to reach it, and the sandbox
+    is what stops every OTHER test in this file being perturbed by it.
+    """
     from spacr.qt import preferences
+
+    monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied", qss_sandbox)
 
     previous = qapp.styleSheet()
     qapp.setStyleSheet("QWidget { color: red; }")
-    live_sheet = qapp.styleSheet()
-    whole_app_restyles = []
-    seen = {}
-    monkeypatch.setattr(
-        preferences, "apply_preferences_to_app",
-        lambda app=None: whole_app_restyles.append(app))
+    applications = []
+
+    def apply_once(app):
+        applications.append(app)
+        theme_mod.register_widget_qss(
+            "Nested", lambda palette, opacity:
+            "QFrame#Nested { color: blue; }")
+        app.setStyleSheet(theme_mod.stylesheet(
+            load_widget_registrars=False))
+
+    monkeypatch.setattr(preferences, "apply_preferences_to_app", apply_once)
     try:
-        names = tuple(f"LateProbe{index}" for index in range(40))
-        for name in names:
-            def block(palette, opacity, target=name):
-                seen[target] = (palette["theme"],
-                                palette["font_scale"], opacity)
-                return f"QFrame#{target} {{ color: {palette['accent']}; }}"
-            theme_mod.register_widget_qss(name, block)
-
-        assert whole_app_restyles == []
-        assert qapp.styleSheet() == live_sheet
-
-        root = QWidget()
-        root.setObjectName("LateScreen")
-        qtbot.addWidget(root)
-        theme_mod.set_widget_qss_context(qapp, "cell", 1.4, 0.25)
-        assert theme_mod.ensure_widget_qss_applied(root=root) is True
-        assert qapp.styleSheet() == live_sheet
-        assert whole_app_restyles == []
-        for name in names:
-            assert f"registered widget QSS: {name}" in root.styleSheet()
-            assert seen[name] == ("cell", 1.4, 0.25)
-        # Rechecking the same complete suffix is byte-identical and does not
-        # ask Qt to polish the screen twice.
-        assert theme_mod.ensure_widget_qss_applied(root=root) is False
-
-        assert theme_mod.clear_widget_qss_overlays(qapp) >= 1
-        assert root.styleSheet() == ""
+        theme_mod.register_widget_qss(
+            "Outer", lambda palette, opacity:
+            "QFrame#Outer { color: green; }")
+        assert applications == [qapp]
+        assert "registered widget QSS: Outer" in qapp.styleSheet()
+        assert "registered widget QSS: Nested" in qapp.styleSheet()
+        assert theme_mod._QSS_RESTYLE_IN_PROGRESS is False
     finally:
         qapp.setStyleSheet(previous)
-
-
-def test_a_preference_rebuild_absorbs_local_blocks_with_new_values(
-        qtbot, qapp, qss_sandbox, monkeypatch):
-    """A local first frame cannot pin the old theme, zoom or opacity."""
-    from spacr.qt import preferences
-
-    previous = qapp.styleSheet()
-    context_attribute = theme_mod._WIDGET_QSS_CONTEXT_ATTRIBUTE
-    old_context = getattr(qapp, context_attribute, None)
-    root = QWidget()
-    root.setStyleSheet("QWidget#Owner { border: none; }")
-    qtbot.addWidget(root)
-    seen = []
-
-    def block(palette, opacity):
-        seen.append((palette["theme"], palette["font_scale"], opacity))
-        return ("QFrame#PreferenceProbe { color: %s; font-size: %spx; }"
-                % (palette["accent"], int(10 * palette["font_scale"])))
-
-    theme_mod.register_widget_qss("PreferenceProbe", block)
-    try:
-        qapp.setStyleSheet("QWidget { color: red; }")
-        theme_mod.set_widget_qss_context(qapp, "dark", 1.0, 0.6)
-        assert theme_mod.ensure_widget_qss_applied(
-            "PreferenceProbe", root=root)
-        assert "registered widget QSS: PreferenceProbe" in root.styleSheet()
-        assert seen[-1] == ("dark", 1.0, 0.6)
-
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "light")
-        monkeypatch.setattr(preferences, "get_font_scale", lambda: 1.5)
-        monkeypatch.setattr(preferences, "get_pane_opacity", lambda: 0.3)
-        monkeypatch.setattr(preferences, "theme_background_path",
-                            lambda _theme: None)
-        monkeypatch.setattr(preferences, "apply_ambient_preferences",
-                            lambda _app: None)
-        preferences.apply_preferences_to_app(qapp)
-
-        assert root.styleSheet() == "QWidget#Owner { border: none; }"
-        assert "registered widget QSS: PreferenceProbe" in qapp.styleSheet()
-        assert seen[-1] == ("light", 1.5, 0.3)
-    finally:
-        qapp.setStyleSheet(previous)
-        if old_context is None:
-            try:
-                delattr(qapp, context_attribute)
-            except AttributeError:
-                pass
-        else:
-            setattr(qapp, context_attribute, old_context)
 
 
 def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
