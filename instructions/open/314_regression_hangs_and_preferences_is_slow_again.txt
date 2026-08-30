@@ -226,3 +226,29 @@ WHAT TO DO, REVISED BY THE MEASUREMENTS
    changed rather than the whole application.
 4. Only then look for a hang. Nothing measured here hangs, and a fix aimed at
    a hang nobody has reproduced is a guess.
+
+--------------------------------------------------------------------------------
+2026-08-30 -- THE EDITABLE ICON-CACHE MISS IS FIXED; ITEM REMAINS OPEN
+--------------------------------------------------------------------------------
+
+The persistent icon key now uses the SHA-256 digest of the compressed source
+artwork rather than its absolute path and mtime. The in-process key still
+carries mtime and size, so an edit is noticed immediately; the disk key then
+distinguishes the actual bytes. Consequently a checkout, reinstall or archive
+extraction that rewrites timestamps but not artwork reuses the finished PNG,
+while even a same-size content change gets a new entry.
+
+Measured over all 75 bundled PNGs on this machine, with module-import time
+excluded in all three arms:
+
+    cold decode + resize + re-ink       2.7814 s
+    persistent cache, unchanged mtime   0.0514 s
+    persistent cache, all mtimes moved  0.0508 s
+
+The mtime-only rewrite created no new cache files and never entered the source
+decode path. The two new invalidation tests plus the complete adjacent icon
+and Space-theme suite are 64/64 green. Implementation commit: ``3e9a5af3``.
+
+The item remains OPEN for the quiet-machine real-display backdrop on/off pair,
+the resulting frame-budget decision, and ten cold Regression starts through
+the wall-clock-guarded benchmark.
