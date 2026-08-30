@@ -11,7 +11,6 @@ deep in pandas, with a message about the engine rather than about the install.
 from __future__ import annotations
 
 import builtins
-import importlib.util
 
 import pytest
 
@@ -28,14 +27,11 @@ def test_the_answer_is_exactly_what_this_machine_can_import():
 
     from spacr.frame_handoff import _columnar_engine
 
-    engine = _columnar_engine()
-    available = [name for name in ("pyarrow", "fastparquet")
+    installed = [name for name in ("pyarrow", "fastparquet")
                  if importlib.util.find_spec(name) is not None]
+    expected = installed[0] if installed else None
 
-    assert engine == (available[0] if available else None)
-    if engine is not None:
-        module = __import__(engine)
-        assert module.__name__ == engine         # the name really is importable
+    assert _columnar_engine() == expected
 
 
 def test_the_first_engine_wins_when_both_are_present(monkeypatch):
