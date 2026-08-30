@@ -3118,6 +3118,9 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.layer_viewer",
     "spacr.qt.ortho_view",
     "spacr.qt.roi_tool",
+    # The lightweight Classify footer registers the theme-native box without
+    # importing FlowView itself.  Its renderer remains lazy until expansion.
+    "spacr.qt.screens.classify",
     "spacr.qt.screens.classifier_evaluation",
     "spacr.qt.screens.control_chart",
     "spacr.qt.screens.data_manager",

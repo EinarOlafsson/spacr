@@ -173,13 +173,20 @@ else:
             refresh_interval_ms: int = 50,
             export_path_provider: Callable[[], str | Path | None] | None = None,
             auto_start: bool = True,
+            embedded: bool = False,
         ) -> None:
             if refresh_interval_ms <= 0:
                 raise ValueError("refresh_interval_ms must be greater than zero")
             super().__init__(parent)
             self.setObjectName("FlowViewPanel")
+            self._embedded = bool(embedded)
+            panel_surface = (
+                "background: transparent; border: none;"
+                if self._embedded
+                else f"background: {CARD}; border: 1px solid #FFFFFF1A;"
+            )
             self.setStyleSheet(
-                f"#FlowViewPanel {{ background: {CARD}; border: 1px solid #FFFFFF1A; }}"
+                f"#FlowViewPanel {{ {panel_surface} }}"
                 f"QLabel, QPlainTextEdit {{ color: {TEXT_PRIMARY}; }}"
                 f"QPlainTextEdit {{ background: {CANVAS}; border: 1px solid #FFFFFF1A; }}"
             )
@@ -201,9 +208,10 @@ else:
             outer.setContentsMargins(10, 10, 10, 10)
             outer.setSpacing(8)
             toolbar = QHBoxLayout()
-            title = QLabel("FlowView")
-            title.setObjectName("FlowViewTitle")
-            toolbar.addWidget(title)
+            self.title_label = QLabel("FlowView")
+            self.title_label.setObjectName("FlowViewTitle")
+            self.title_label.setVisible(not self._embedded)
+            toolbar.addWidget(self.title_label)
             toolbar.addStretch(1)
             self.export_button = QPushButton("Export…")
             self.export_button.setToolTip("Export this run as SVG, HTML, or JSON")
