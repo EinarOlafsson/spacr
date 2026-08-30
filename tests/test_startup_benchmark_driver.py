@@ -238,6 +238,8 @@ def test_trace_integrity_is_a_new_worker_and_combined_artifact_schema():
     (("schema_version",), None, "worker schema_version must be 2"),
     (("environment", "hardware", "displays"), [],
      "displays must contain at least one display"),
+    (("budgets", "watchdog_record_floor_ms"), 49.0,
+     "budgets.watchdog_record_floor_ms must equal 50.0"),
     (("resources", "peak_rss_mb"), None,
      "resources.peak_rss_mb must be reported"),
     (("benchmark", "results"), [],
@@ -440,10 +442,32 @@ def test_timestamp_duration_decides_the_stall_budget_at_the_500ms_edge():
     )
 
 
+def test_timestamp_duration_below_500ms_does_not_inherit_rounded_failure():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.0,
+        "at": 0.4999995,
+        "late_ms": 500.0004,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 499.9995
+    home = artifact["benchmark"]["results"][0]
+    home.update({
+        "worst_event_loop_stall_ms": 499.9995,
+        "worst_overlapping_frame_interval_ms": 499.9995,
+        "stall_samples": 1,
+    })
+
+    assert driver._combined_violations([artifact]) == []
+
+
 @pytest.mark.parametrize(("field", "replacement", "message"), [
     ("started_at", None, "stalls[0].started_at must be finite"),
     ("at", 0.5, "stalls[0].at is before started_at"),
     ("late_ms", 1.0, "stalls[0].late_ms does not match its timestamps"),
+    ("source", "fabricated timer", "source is not 'event-loop watchdog'"),
+    ("thread", "worker-1", "thread is not MainThread"),
 ])
 def test_malformed_raw_frame_gaps_cannot_be_release_evidence(
         field, replacement, message):
@@ -461,6 +485,52 @@ def test_malformed_raw_frame_gaps_cannot_be_release_evidence(
     violations = driver._combined_violations([artifact])
 
     assert any(message in row for row in violations), violations
+
+
+@pytest.mark.parametrize("stalls", [
+    [
+        {"started_at": 0.1, "at": 0.2, "late_ms": 100.0,
+         "source": "event-loop watchdog", "thread": "MainThread"},
+        {"started_at": 0.15, "at": 0.25, "late_ms": 100.0,
+         "source": "event-loop watchdog", "thread": "MainThread"},
+    ],
+    [
+        {"started_at": 0.3, "at": 0.4, "late_ms": 100.0,
+         "source": "event-loop watchdog", "thread": "MainThread"},
+        {"started_at": 0.1, "at": 0.2, "late_ms": 100.0,
+         "source": "event-loop watchdog", "thread": "MainThread"},
+    ],
+])
+def test_raw_gaps_must_be_chronological_and_non_overlapping(stalls):
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = stalls
+    artifact["worst_event_loop_stall_ms"] = 100.0
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "overlaps or is out of chronological order" in row
+        for row in violations
+    )
+
+
+def test_raw_gaps_below_the_advertised_record_floor_are_rejected():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.1,
+        "at": 0.14,
+        "late_ms": 40.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 40.0
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "below the advertised 50 ms watchdog record floor" in row
+        for row in violations
+    )
 
 
 def test_combined_artifacts_have_exactly_one_or_two_processes(tmp_path):

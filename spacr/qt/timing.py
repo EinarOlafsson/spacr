@@ -119,6 +119,22 @@ def elapsed() -> float:
     return _now()
 
 
+def _stall_duration_ms(row: dict) -> float:
+    """Return the canonical watchdog duration proved by its timestamps."""
+    try:
+        started_at = float(row["started_at"])
+        ended_at = float(row["at"])
+        return max(0.0, ended_at - started_at) * 1000.0
+    except (KeyError, TypeError, ValueError):
+        # Compatibility for an in-memory diagnostic row made by an older
+        # caller.  Production watchdog rows always carry both timestamps and
+        # the release artifact validator rejects a row without them.
+        try:
+            return max(0.0, float(row.get("late_ms", 0.0)))
+        except (TypeError, ValueError):
+            return 0.0
+
+
 def stalls_between(started_at: float, ended_at: float,
                    stalls: Optional[List[dict]] = None) -> List[dict]:
     """Return watchdog gaps clipped to their overlap with one interval.
@@ -141,14 +157,17 @@ def stalls_between(started_at: float, ended_at: float,
     overlapping = []
     for row in source:
         gap_end = float(row.get("at", -1.0))
-        raw_ms = max(0.0, float(row.get("late_ms", 0.0)))
         gap_start = float(row.get(
-            "started_at", gap_end - raw_ms / 1000.0))
+            "started_at",
+            gap_end - max(0.0, float(row.get("late_ms", 0.0))) / 1000.0,
+        ))
+        raw_ms = _stall_duration_ms({**row, "started_at": gap_start})
         overlap_ms = max(
             0.0, min(end, gap_end) - max(start, gap_start)) * 1000.0
         if overlap_ms <= 0.0:
             continue
         row["started_at"] = gap_start
+        row["late_ms"] = raw_ms
         row["overlap_ms"] = min(raw_ms, overlap_ms)
         overlapping.append(row)
     return overlapping
@@ -304,14 +323,16 @@ def watch_the_gui_thread(parent=None):
         global _LAST_GUI_BEAT_AT
         now = time.perf_counter()
         previous = state["last"]
-        late = (now - previous) * 1000.0
+        gap_started_at = previous - _START
+        gap_ended_at = now - _START
+        late = max(0.0, gap_ended_at - gap_started_at) * 1000.0
         state["last"] = now
         _LAST_GUI_BEAT_AT = now
         if late >= STALL_FLOOR_MS:
             with _LOCK:
                 _STALLS.append({
-                    "at": now - _START,
-                    "started_at": previous - _START,
+                    "at": gap_ended_at,
+                    "started_at": gap_started_at,
                     "late_ms": late,
                     "source": "event-loop watchdog",
                     "thread": threading.current_thread().name,
@@ -775,7 +796,7 @@ def snapshot() -> dict:
         marks = [dict(value) for value in _MARKS]
         readiness = [dict(value) for value in _READINESS]
 
-    worst_stall = max((row["late_ms"] for row in stalls), default=0.0)
+    worst_stall = max((_stall_duration_ms(row) for row in stalls), default=0.0)
     qt_version = None
     qt_core = sys.modules.get("PySide6.QtCore")
     if qt_core is not None:
