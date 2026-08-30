@@ -109,7 +109,8 @@ HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
   * ``xvfb-run -a python tools/spacr_startup_benchmark.py`` exits zero on a
-    quiet machine, with every module inside its budget and Home inside 2.0 s;
+    quiet machine, with every module inside its budget and Home inside the
+    enforced 5.0 s budget;
   * regression opens on ten consecutive cold starts with no hang -- the report
     is of two hangs, so a single successful open proves nothing;
   * Preferences opens within a stated budget, and that budget is in the
@@ -150,8 +151,9 @@ Launched offscreen and sampled every three seconds, spaCR's own CPU is:
 It settles to EXACTLY ZERO and stays there, at a steady 286 MB. There is no
 busy loop in the start path, and nothing that keeps running once Home is up.
 Note also that it takes until roughly the nine-second mark to reach that
-floor, against 284's 2.0 s Home target -- but the machine was loaded when this
-was taken, so that figure is an upper bound and not a budget miss on its own.
+floor, against 284's maintainer-relaxed 5.0 s Home budget -- but the machine
+was loaded when this was taken, so that figure is an upper bound and not a
+budget miss on its own.
 
 2. ON A REAL DISPLAY IT IS PEGGED, AND THAT IS THE WHOLE DIFFERENCE.
 
