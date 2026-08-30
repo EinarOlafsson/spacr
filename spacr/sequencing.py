@@ -1033,6 +1033,14 @@ def generate_barecode_mapping(settings=None):
     from .io import parse_gz_files
 
     settings = set_default_generate_barecode_mapping(settings)
+    if (
+        settings["mode"] == "single"
+        and settings["single_direction"] not in {"R1", "R2"}
+    ):
+        raise ValueError(
+            "single_direction must be 'R1' or 'R2' when mode is 'single'; "
+            f"got {settings['single_direction']!r}"
+        )
     save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
 
     # THE MISMATCH BUDGET FOR THIS RUN. Set here, before any worker is

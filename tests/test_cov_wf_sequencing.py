@@ -275,9 +275,8 @@ def test_a_misspelt_single_direction_never_reaches_a_fastq_file(
     does not raises instead of quietly processing the other mate or writing
     an empty table that looks like a finished sample.
 
-    The exception it raises today is a bare ``NameError`` about ``R1``,
-    which names neither the setting nor the sample; that is a defect worth
-    a message, but raising is still the behaviour the counts depend on.
+    Validation happens before saving settings, parsing reads, or creating a
+    sample folder, and its message names the setting and the admitted values.
     """
     SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
                                    "single_direction": "R2"})
@@ -286,12 +285,9 @@ def test_a_misspelt_single_direction_never_reaches_a_fastq_file(
     assert kw["r1_file"].endswith("S1_R2.fastq.gz")
     assert kw["r2_file"] is None
 
-    with pytest.raises(NameError) as exc:
+    with pytest.raises(ValueError, match="single_direction.*'R1'.*'R2'"):
         SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
                                        "single_direction": "r2"})
-    assert "R1" in str(exc.value)
     assert len(mapping_env) == 1, (
         "an unrecognised direction still handed a file to the reader")
-    # The output folder for the unusable direction is created before the
-    # failure, so an interrupted run leaves an empty sample folder behind.
-    assert os.path.isdir(os.path.join(str(tmp_path), "S1_single_r2"))
+    assert not os.path.exists(os.path.join(str(tmp_path), "S1_single_r2"))
