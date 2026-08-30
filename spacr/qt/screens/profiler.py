@@ -493,7 +493,7 @@ class ProfilerScreen(QWidget):
     def _on_model_ready(self, model: Any) -> None:
         """Take a model, rank its inputs, draw the top one."""
         self._model = model
-        if model is None:                             # pragma: no cover
+        if model is None:
             self._set_status("The model could not be read.", problem=True)
             return
         # A live fitted object carries its own link and applies it inside
@@ -717,7 +717,7 @@ class ProfilerScreen(QWidget):
         """Load whatever was typed into the path box."""
         self.load_coefficients(self._path_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a coefficient CSV and load it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a coefficient table", "", "CSV (*.csv)")

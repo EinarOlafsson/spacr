@@ -177,7 +177,7 @@ class SetupCard(QWidget):
 
             if event.type() == QEvent.Type.HoverMove:
                 self._follow(event.position())
-        except Exception:                        # pragma: no cover
+        except Exception:
             pass
         return super().event(event)
 
@@ -196,7 +196,7 @@ class SetupCard(QWidget):
     def paintEvent(self, event):                # noqa: N802 - Qt naming
         try:
             self._paint()
-        except Exception:                        # pragma: no cover
+        except Exception:
             # Decoration is never load-bearing: an unpainted card is still a
             # card with working controls on it.
             pass
@@ -307,7 +307,7 @@ class SetupCard(QWidget):
             from PySide6.QtGui import QCursor
 
             here = self.mapFromGlobal(QCursor.pos())
-        except Exception:                        # pragma: no cover
+        except Exception:
             return False
         target = self.perimeter_position(QPointF(here))
         if target is None:
