@@ -695,6 +695,21 @@ def test_replacing_label_data_on_a_different_grid_is_refused():
     assert layer.labels().tolist() == [1]
 
 
+def test_replacing_label_data_keeps_the_whole_number_contract():
+    layer = LabelsLayer(np.zeros((2, 2), dtype=np.int32))
+    layer.data = np.array([[0.0, 1.0], [2.0, 3.0]])
+
+    assert layer.data.dtype.kind == "i"
+    assert layer.labels().tolist() == [1, 2, 3]
+    accepted = layer.data.copy()
+
+    with pytest.raises(LayerError, match="integer labels"):
+        layer.data = np.array([[0.0, 1.5], [2.0, 3.0]])
+
+    assert np.array_equal(layer.data, accepted)
+    assert layer.data.dtype.kind == "i"
+
+
 def test_the_brush_is_a_ball_in_world_space_not_in_array_elements():
     """A 5 um brush on a 2 um z-step covers fewer slices than rows."""
     volume = np.zeros((9, 9, 9), dtype=np.int32)
