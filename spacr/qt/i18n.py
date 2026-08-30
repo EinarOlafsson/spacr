@@ -355,6 +355,39 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "en cualquier parte de spaCR", "spaCR 中的任意位置",
         "em qualquer lugar no spaCR", "spaCR में कहीं भी", "spaCR 어디서나",
         "hvar sem er í spaCR", "partout dans spaCR"),
+    "the Annotate and Make Masks screens and the QC field browser": _row(
+        "skärmarna Annotering och Skapa masker samt QC-fältbläddraren",
+        "die Bildschirme Annotieren und Masken erstellen sowie der "
+        "QC-Feldbrowser",
+        "las pantallas Anotación y Crear máscaras y el explorador de campos "
+        "de CC",
+        "标注和创建掩膜屏幕以及质控视野浏览器",
+        "as telas Anotação e Criar máscaras e o navegador de campos de CQ",
+        "एनोटेशन और मास्क बनाएँ स्क्रीन तथा QC फ़ील्ड ब्राउज़र",
+        "어노테이션 및 마스크 만들기 화면과 QC 필드 브라우저",
+        "skjáirnir Merking og Búa til grímur ásamt QC-reitaflettaranum",
+        "les écrans Annotation et Créer des masques ainsi que "
+        "l'explorateur de champs CQ"),
+    "the QC field browser": _row(
+        "QC-fältbläddraren", "der QC-Feldbrowser",
+        "el explorador de campos de CC", "质控视野浏览器",
+        "o navegador de campos de CQ", "QC फ़ील्ड ब्राउज़र",
+        "QC 필드 브라우저", "QC-reitaflettarinn",
+        "l'explorateur de champs CQ"),
+    "Field browser": _row(
+        "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
+        "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
+        "Reitaflettari", "Explorateur de champs"),
+    "Quarantine or restore this field": _row(
+        "Karantänsätt eller återställ detta fält",
+        "Dieses Feld in Quarantäne stellen oder wiederherstellen",
+        "Poner en cuarentena o restaurar este campo",
+        "隔离或恢复此视野",
+        "Colocar em quarentena ou restaurar este campo",
+        "इस फ़ील्ड को क्वारंटीन करें या पुनर्स्थापित करें",
+        "이 필드를 격리하거나 복원",
+        "Setja þennan reit í sóttkví eða endurheimta hann",
+        "Mettre ce champ en quarantaine ou le restaurer"),
     "the Annotate and Make Masks screens": _row(
         "skärmarna Annotering och Skapa masker",
         "die Bildschirme Annotieren und Masken erstellen",

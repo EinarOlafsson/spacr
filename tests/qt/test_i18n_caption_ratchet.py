@@ -25,11 +25,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# Post-sweep compact surface on 2026-08-30.  The count catches additions; the
+# Post-sweep compact surface on 2026-08-29.  The count catches additions; the
 # digest also catches a replacement that happens to keep the count unchanged.
+#
+# 205 on 2026-08-30, +4/-1.  Admitted: "Field browser" and "Quarantine or
+# restore this field", the category and label for the Q key that quarantines a
+# field -- it was bound in the QC field browser and on no map, so the cheat
+# sheet told the reader it did not exist.  Also "the QC field browser" and
+# "the Annotate and Make Masks screens and the QC field browser", the scopes
+# that say where Q and the arrows work.  Retired: "the Annotate and Make Masks
+# screens", which the longer scope replaces -- the arrows drive the field
+# browser too, and the shorter wording had stopped being true.
 COMPACT_CAPTION_COUNT = 205
 COMPACT_CAPTION_SHA256 = (
-    "644fee2d0b7d268bde9ab5c2a6341d4b2e0b5fe94fbf7b123774978d913d1c87"
+    "9ada5b49f7286c502267c4a0cc091dde025e366efb518c72c9a37c027a2d93a8"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -38,14 +47,14 @@ COMPACT_CAPTION_SHA256 = (
 # this reviewed inventory deliberately even when the builder can generate a
 # source hash automatically.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1018,
-    "SETTING_TOOLTIPS": 1013,
+    "SETTING_LABELS": 1002,
+    "SETTING_TOOLTIPS": 997,
     "CATEGORY_HELP": 192,
-    "UI": 2691,
+    "UI": 2625,
     "MODULE_SUMMARIES": 64,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "302923574e2077d8f06559f022f07ee9daea0454c75afa81a39e20de83ce5902"
+    "db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
