@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "Abondance relative minimale, 0-1, qu’un gRNA doit atteindre parmi le nombre total de lectures d’un puits pour être retenu. Une valeur plus élevée élimine les gRNAs de faible abondance et ceux issus d’une contamination croisée, et réduit le nombre moyen de gRNAs par puits ; si elle est trop élevée, toutes les lignes sont supprimées et l’exécution déclenche une erreur. Utilisez None pour sélectionner automatiquement le seuil qui produit target_unique_count gRNAs par puits. Valeur par défaut : None."
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "Abondance relative minimale, 0-1, qu’un gRNA doit atteindre parmi le nombre total de lectures d’un puits pour être retenu. Une valeur plus élevée élimine les gRNAs de faible abondance et ceux issus d’une contamination croisée, et réduit le nombre moyen de gRNAs par puits ; si elle est trop élevée, toutes les lignes sont supprimées et l’exécution déclenche une erreur. Utilisez None pour sélectionner automatiquement le seuil qui produit target_unique_count gRNAs par puits. Valeur par défaut : None. La régression commence avec le seuil fixe reproductible 0.02 ; saisissez None uniquement lorsque le balayage automatique est voulu."
     }
   ]
 }

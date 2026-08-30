@@ -19,9 +19,9 @@
     {
       "table": "setting_tooltips",
       "key": "treatment_plate_metadata",
-      "source_sha256": "e353538ed6213f3f66e7fe26d7dc0484d2edd98f5333a2112987af093a894d11",
-      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None.",
-      "translation": "Brunnar som fick varje behandling, med en inre lista per behandling i samma ordning, till exempel [['r1','r2','r3'],['r4','r5','r6']]. Poster måste börja med 'r' för rad eller 'c' för kolumn; andra poster ignoreras och får ingen behandlingsetikett. Olistade brunnar behålls i utdata, och deras condition-värden innehåller endast tillgängliga cell-, patogen- eller behandlingsetiketter. Standard None."
+      "source_sha256": "1e7ed41533f616403bbc83f0b68a699c08538fba69c6bc3a58166fc72d01d6b7",
+      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
+      "translation": "Brunnar som fick varje behandling, med en inre lista per behandling i samma ordning, till exempel [['r1','r2','r3'],['r4','r5','r6']]. Poster måste börja med 'r' för rad eller 'c' för kolumn; andra poster ignoreras och får ingen behandlingsetikett. Olistade brunnar behålls i utdata, och deras condition-värden innehåller endast tillgängliga cell-, patogen- eller behandlingsetiketter. Standard None. Rekryteringsanalysen börjar med [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionsvis parat med de två ursprungliga behandlingsnamnen."
     }
   ]
 }
