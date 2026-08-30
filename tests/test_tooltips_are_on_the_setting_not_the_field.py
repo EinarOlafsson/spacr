@@ -99,7 +99,7 @@ def test_the_helper_moves_the_tooltip_and_leaves_the_field_quiet(qtbot):
     """The mechanism itself, on a screen known to have had 14 offenders."""
     from spacr.qt.screens.power import PowerScreen
     from spacr.qt.screens.settings_model import (
-        _sibling_label_for, retarget_field_tooltips)
+        _sibling_label_for, format_tooltip, retarget_field_tooltips)
 
     screen = PowerScreen()
     screen.resize(900, 700)
@@ -110,14 +110,22 @@ def test_the_helper_moves_the_tooltip_and_leaves_the_field_quiet(qtbot):
     field = next(c for c in screen.findChildren(QWidget)
                  if isinstance(c, EDITORS) and _sibling_label_for(c))
     label = _sibling_label_for(field)
+    help_text = "Help that belongs on the label."
+    app_key = str(field.property("settingsAppKey") or "")
+    key = str(field.property("settingKey") or "")
     label.setToolTip("")
-    field.setToolTip("Help that belongs on the label.")
+    field.setToolTip(help_text)
+    # A semantic setting's canonical source and rendered HTML are metadata,
+    # not its transient native Qt tooltip. Update that contract together.
+    field.setProperty("apiTooltipDescriptionSource", help_text)
+    field.setProperty("apiTooltipDescription", help_text)
+    field.setProperty("apiTooltipHtml", "")
     assert _offenders(screen)
 
     moved = retarget_field_tooltips(screen)
     assert moved >= 1
     assert field.toolTip() == ""
-    assert label.toolTip() == "Help that belongs on the label."
+    assert label.toolTip() == format_tooltip(help_text, app_key, key)
 
 
 def test_a_disabled_reason_stays_on_the_control_it_explains(qtbot):
@@ -208,9 +216,9 @@ def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
                      if c.toolTip()]
         for tip in authored:
             # Typed setting help wraps the authored body in linked HTML. The
-            # prose survives even though the rendered tooltip is no longer
-            # byte-for-byte equal to its plain source.
-            encoded = escape(tip)
+            # type prefix moves into a separate header, while the prose
+            # survives after the formatter's whitespace normalization.
+            encoded = escape(" ".join(sm._strip_type_prefix(tip).split()))
             if not any(tip == rendered or encoded in rendered
                        for rendered in surviving):
                 missing.append(
