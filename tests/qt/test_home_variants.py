@@ -1338,9 +1338,16 @@ def test_measure_sidebar_measures_the_scrolled_content(gen):
 
 def test_main_check_and_md_only_never_render(gen, sandbox, capsys):
     """The two cheap CLI paths. Neither may write a PNG."""
+    from spacr.qt import preferences
+
+    preference_module = preferences
+    assert os.path.samefile(gen.common.repo_root(), REPO_ROOT), (
+        "redirecting render output also redirected the checkout identity")
     assert gen.render.main(["--check", "--themes", "dark"]) == 0
     assert "self-check" in capsys.readouterr().out
     assert gen.render.main(["--md-only", "--themes", "dark"]) == 0
+    assert sys.modules.get("spacr.qt.preferences") is preference_module, (
+        "the render command replaced spaCR modules already used by its host")
     assert os.path.isfile(os.path.join(str(sandbox), "VARIANTS.md"))
     assert not [name
                 for _root, _dirs, files in os.walk(str(sandbox))
