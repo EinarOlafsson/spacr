@@ -30,14 +30,13 @@ from __future__ import annotations
 
 import os
 
+import matplotlib
 import numpy as np
 import pytest
 
-import matplotlib
 matplotlib.use("Agg")
 
 from spacr.qt.screens.train_compare import TrainCompareScreen
-
 from tests.test_train_compare import BASE_SETTINGS, make_run
 
 pytestmark = pytest.mark.qt

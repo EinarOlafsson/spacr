@@ -26,8 +26,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.ai import providers                                   # noqa: E402
-
+from spacr.qt.ai import providers  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # A scriptable stand-in for the child process

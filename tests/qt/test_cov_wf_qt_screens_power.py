@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import pandas as pd
 import pytest
-
 from PySide6.QtWidgets import QLabel
 
 from spacr.qt.screens.power import PowerCurveView, PowerScreen

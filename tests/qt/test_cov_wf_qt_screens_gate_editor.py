@@ -23,11 +23,11 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtGui import QPixmap                                # noqa: E402
-from PySide6.QtWidgets import QApplication                       # noqa: E402
+from PySide6.QtGui import QPixmap  # noqa: E402
+from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from spacr.qt.screens.gate_editor import GateEditorScreen        # noqa: E402
-from spacr.qt.widgets.table_chip import TableChip                # noqa: E402
+from spacr.qt.screens.gate_editor import GateEditorScreen  # noqa: E402
+from spacr.qt.widgets.table_chip import TableChip  # noqa: E402
 
 pytestmark = pytest.mark.qt
 

@@ -18,8 +18,14 @@ import logging
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSize, Qt
-from PySide6.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent,
-                           QWheelEvent, QWindowStateChangeEvent)
+from PySide6.QtGui import (
+    QCloseEvent,
+    QKeyEvent,
+    QMouseEvent,
+    QResizeEvent,
+    QWheelEvent,
+    QWindowStateChangeEvent,
+)
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QWidget
 
 from spacr.qt import app as app_mod

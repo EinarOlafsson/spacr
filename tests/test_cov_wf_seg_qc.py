@@ -36,7 +36,6 @@ from spacr.seg_qc import (
     write_scorecard,
 )
 
-
 # ---------------------------------------------------------------------------
 # synthetic masks — the same builders tests/test_seg_qc.py uses
 # ---------------------------------------------------------------------------

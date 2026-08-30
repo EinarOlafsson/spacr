@@ -36,10 +36,9 @@ pytest.importorskip("matplotlib")
 
 pytestmark = pytest.mark.qt
 
-from PySide6.QtWidgets import QWidget                     # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
 
-from spacr.qt.screens.control_chart import (              # noqa: E402
-    ControlChartCanvas, ControlChartScreen)
+from spacr.qt.screens.control_chart import ControlChartCanvas, ControlChartScreen  # noqa: E402
 
 
 def _campaign(plates: int = 30) -> pd.DataFrame:

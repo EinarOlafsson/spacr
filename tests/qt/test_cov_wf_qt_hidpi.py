@@ -35,12 +35,15 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QSize, Qt          # noqa: E402
-from PySide6.QtGui import QPixmap             # noqa: E402
+from PySide6.QtCore import QSize, Qt  # noqa: E402
+from PySide6.QtGui import QPixmap  # noqa: E402
 
-from spacr.qt import hidpi                    # noqa: E402
-from spacr.qt.hidpi import (                  # noqa: E402
-    MAX_RATIO, device_ratio, logical_size, scaled_for,
+from spacr.qt import hidpi  # noqa: E402
+from spacr.qt.hidpi import (  # noqa: E402
+    MAX_RATIO,
+    device_ratio,
+    logical_size,
+    scaled_for,
 )
 
 pytestmark = pytest.mark.qt

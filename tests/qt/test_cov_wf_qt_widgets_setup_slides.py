@@ -18,15 +18,19 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSize, Qt  # noqa: E402
-from PySide6.QtGui import (QDesktopServices, QMouseEvent,      # noqa: E402
-                           QResizeEvent, QShowEvent)
-from PySide6.QtWidgets import (QApplication, QComboBox,        # noqa: E402
-                               QLabel, QMessageBox)
+from PySide6.QtGui import QDesktopServices, QMouseEvent, QResizeEvent, QShowEvent  # noqa: E402
+from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMessageBox  # noqa: E402
 
-from spacr.qt.widgets import setup_slides as mod                # noqa: E402
-from spacr.qt.widgets.setup_slides import (GPU_NOTE_BAND, SLIDES,  # noqa: E402
-                                           SetupSlides, _held_at_the_top,
-                                           _let_go_of, _say, graphics_card)
+from spacr.qt.widgets import setup_slides as mod  # noqa: E402
+from spacr.qt.widgets.setup_slides import (  # noqa: E402
+    GPU_NOTE_BAND,
+    SLIDES,
+    SetupSlides,
+    _held_at_the_top,
+    _let_go_of,
+    _say,
+    graphics_card,
+)
 
 
 def _boom(*_a, **_k):

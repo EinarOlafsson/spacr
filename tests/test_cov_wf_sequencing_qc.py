@@ -18,15 +18,14 @@ from __future__ import annotations
 
 import io
 
+import matplotlib
 import pandas as pd
 import pytest
 
-import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 import spacr.sequencing_qc as QC
-
 
 # ---------------------------------------------------------------------------
 # One small plate, built so the ground truth of every assertion is known:

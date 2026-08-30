@@ -18,9 +18,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QFileDialog                   # noqa: E402
+from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
-from spacr.qt.widgets import file_list as fl                # noqa: E402
+from spacr.qt.widgets import file_list as fl  # noqa: E402
 
 pytestmark = pytest.mark.qt
 

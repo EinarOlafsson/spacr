@@ -26,9 +26,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QDialogButtonBox                     # noqa: E402
+from PySide6.QtWidgets import QDialogButtonBox  # noqa: E402
 
-from spacr.qt.widgets import refit_dialog as rd                    # noqa: E402
+from spacr.qt.widgets import refit_dialog as rd  # noqa: E402
 
 pytestmark = pytest.mark.qt
 

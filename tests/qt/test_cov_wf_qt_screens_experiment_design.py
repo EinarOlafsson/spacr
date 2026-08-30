@@ -56,7 +56,9 @@ def test_a_well_with_no_style_keeps_its_square_instead_of_crashing(screen):
     already had.
     """
     from spacr.qt.screens.experiment_design import (
-        MARK_RIM, OUTLINE_RIM, WELL_SIDE,
+        MARK_RIM,
+        OUTLINE_RIM,
+        WELL_SIDE,
     )
 
     well = next(label for label in screen._well_labels
@@ -191,8 +193,8 @@ def test_an_assignment_failure_with_no_message_leaves_the_last_status(screen):
     leaves the previous line standing; that is the deliberate choice here and
     the reason a plate map is never described by a count it does not have.
     """
-    from spacr.qt.widgets.plate_layout import Condition, ROLE_TREATMENT
     import spacr.qt.screens.experiment_design as module
+    from spacr.qt.widgets.plate_layout import ROLE_TREATMENT, Condition
 
     # The ordinary failure first: 500 replicates do not fit on 96 wells, and
     # the message the exception carries is what the user is shown.

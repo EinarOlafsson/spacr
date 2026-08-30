@@ -26,14 +26,16 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QComboBox, QDialog, QLineEdit, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QVBoxLayout, QWidget
 
-from spacr.qt.widgets.column_picker import (ACTION_INVALID, ACTION_USE,
-                                            ColumnPickerButton,
-                                            ColumnPickerDialog,
-                                            attach_column_picker,
-                                            set_field_text)
+from spacr.qt.widgets.column_picker import (
+    ACTION_INVALID,
+    ACTION_USE,
+    ColumnPickerButton,
+    ColumnPickerDialog,
+    attach_column_picker,
+    set_field_text,
+)
 from spacr.qt.widgets.flow import FlowLayout
 
 

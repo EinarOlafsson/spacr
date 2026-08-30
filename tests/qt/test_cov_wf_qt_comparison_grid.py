@@ -26,7 +26,6 @@ pytest.importorskip("PySide6")
 from spacr.layers import FieldKey, LayerStack
 from spacr.qt import comparison_grid as cg
 
-
 PLATE_KEY_VALUES = ("plate1", "A", "1", "1")
 
 

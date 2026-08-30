@@ -19,12 +19,12 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("pyqtgraph")
 
-import pyqtgraph as pg                                      # noqa: E402
-from PySide6.QtCore import QSize                            # noqa: E402
-from PySide6.QtGui import QColor, QResizeEvent              # noqa: E402
-from PySide6.QtWidgets import QApplication, QInputDialog    # noqa: E402
+import pyqtgraph as pg  # noqa: E402
+from PySide6.QtCore import QSize  # noqa: E402
+from PySide6.QtGui import QColor, QResizeEvent  # noqa: E402
+from PySide6.QtWidgets import QApplication, QInputDialog  # noqa: E402
 
-from spacr.qt.widgets import fast_plots as fp               # noqa: E402
+from spacr.qt.widgets import fast_plots as fp  # noqa: E402
 
 pytestmark = pytest.mark.qt
 

@@ -18,14 +18,13 @@ from __future__ import annotations
 import os
 import re
 
+import matplotlib
 import pandas as pd
 import pytest
 
-import matplotlib
 matplotlib.use("Agg")
 
 from spacr import sequencing as SEQ
-
 
 # ---------------------------------------------------------------------------
 # A tiny barcode layout: <col:4>GGAA<grna:4><row:4>, anchored on a

@@ -24,12 +24,12 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPoint, Qt          # noqa: E402
-from PySide6.QtGui import QPixmap              # noqa: E402
-from PySide6.QtTest import QTest               # noqa: E402
-from PySide6.QtWidgets import QWidget          # noqa: E402
+from PySide6.QtCore import QPoint, Qt  # noqa: E402
+from PySide6.QtGui import QPixmap  # noqa: E402
+from PySide6.QtTest import QTest  # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
 
-from spacr.qt.hidpi import logical_size         # noqa: E402
+from spacr.qt.hidpi import logical_size  # noqa: E402
 from spacr.qt.widgets import figure_grid_view as fgv  # noqa: E402
 
 pytestmark = pytest.mark.qt

@@ -13,6 +13,7 @@ import csv
 import os
 
 import matplotlib
+
 matplotlib.use("Agg")
 
 import numpy as np
@@ -20,12 +21,23 @@ import pytest
 import tifffile
 
 from spacr import spacrops
-from spacr.spacrops import (StitchedMultiAligner, _DiskFeatureStore,
-                            align_image_to_stitch, ops_preprocess,
-                            spacrStitcher, stitch_cycle_wells)
-from tests.spacrops_synth import (blob_canvas, channel_variant, crop,
-                                  row_of_tiles, tile_name, write_cyx,
-                                  write_plane)
+from spacr.spacrops import (
+    StitchedMultiAligner,
+    _DiskFeatureStore,
+    align_image_to_stitch,
+    ops_preprocess,
+    spacrStitcher,
+    stitch_cycle_wells,
+)
+from tests.spacrops_synth import (
+    blob_canvas,
+    channel_variant,
+    crop,
+    row_of_tiles,
+    tile_name,
+    write_cyx,
+    write_plane,
+)
 
 TILE = 384
 STEP = 150

@@ -30,8 +30,12 @@ pytest.importorskip("PySide6")
 pytest.importorskip("matplotlib")
 
 from spacr.qt.widgets.feature_rank import (
-    AUC, ExplorerError, ExplorerResult, ExplorerSpec, FeatureScore,
+    AUC,
     STATISTICS,
+    ExplorerError,
+    ExplorerResult,
+    ExplorerSpec,
+    FeatureScore,
 )
 
 

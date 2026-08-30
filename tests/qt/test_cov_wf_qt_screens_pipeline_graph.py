@@ -20,11 +20,10 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QLabel                      # noqa: E402
+from PySide6.QtWidgets import QLabel  # noqa: E402
 
-from spacr import artifacts                               # noqa: E402
-from spacr.pipeline_graph import (STATE_CURRENT,          # noqa: E402
-                                  STATE_STALE, Edge, Node, PipelineGraph)
+from spacr import artifacts  # noqa: E402
+from spacr.pipeline_graph import STATE_CURRENT, STATE_STALE, Edge, Node, PipelineGraph  # noqa: E402
 from spacr.qt.screens import pipeline_graph as screen_module  # noqa: E402
 
 pytestmark = pytest.mark.qt
