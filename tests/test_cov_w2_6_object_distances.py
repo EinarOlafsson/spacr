@@ -261,6 +261,20 @@ def test_a_single_plane_image_is_treated_as_one_channel():
     assert int(frame.iloc[0]["channel_0_maxima_count"]) >= 1
 
 
+def test_a_multichannel_stack_keeps_its_existing_channel_axis():
+    """A YXC stack must produce one measurement family per channel."""
+    mask = _one_square(size=8)
+    images = np.zeros((40, 40, 2), dtype=float)
+    images[12:14, 12:14, 0] = 100.0
+    images[14:16, 14:16, 1] = 50.0
+
+    frame = od.maxima_distances({"cell": mask}, images, primary="cell")
+
+    assert len(frame) == 1
+    assert "channel_0_maxima_count" in frame.columns
+    assert "channel_1_maxima_count" in frame.columns
+
+
 def test_a_channel_that_the_stack_does_not_have_is_skipped():
     mask = _one_square(size=8)
     image = np.zeros((40, 40), dtype=float)
