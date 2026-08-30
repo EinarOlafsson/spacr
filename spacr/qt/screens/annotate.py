@@ -1913,6 +1913,15 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._page_gen = 0
         self._closing = False
+        # ``_SettingsDialog`` contains signal/bound-method cycles.  A local
+        # variable alone does not own it after ``exec()`` returns, and cyclic
+        # GC may legally run in whichever Python thread crosses its threshold.
+        # Coverage changed that timing enough for the page QThread to collect
+        # the dialog's timer-bearing QWidget tree: Qt warned that QBasicTimer
+        # was stopped from the wrong thread and then segfaulted in the GUI
+        # dispatcher's stale timer event. Keep the Python wrapper here until
+        # Qt's GUI-thread DeferredDelete has destroyed the C++ object.
+        self._settings_dialog: Optional[_SettingsDialog] = None
         # Counting the population is database work, not widget work — see
         # `_refresh_total`. Its own runner, separate from the page loader,
         # because a settings apply cancels the count without disturbing the
@@ -2682,17 +2691,34 @@ class AnnotateScreen(QWidget):
 
     def _on_open_settings(self):
         dlg = _SettingsDialog(self._settings, self)
-        if dlg.exec() != QDialog.Accepted:
-            return
-        old_src = self._settings.src
-        old_col = self._settings.annotation_column
-        self._settings = dlg.collect()
-        self._rebuild_grid()
-        # Restart worker if src/col changed
-        if self._settings.src != old_src or self._settings.annotation_column != old_col:
-            self._open_source(self._settings.src)
-        else:
-            self._refresh_total(then=self._load_page)
+        self._settings_dialog = dlg
+        dlg.destroyed.connect(self._on_settings_dialog_destroyed)
+        try:
+            if dlg.exec() != QDialog.Accepted:
+                return
+            old_src = self._settings.src
+            old_col = self._settings.annotation_column
+            self._settings = dlg.collect()
+            self._rebuild_grid()
+            # Restart worker if src/col changed
+            if (self._settings.src != old_src
+                    or self._settings.annotation_column != old_col):
+                self._open_source(self._settings.src)
+            else:
+                self._refresh_total(then=self._load_page)
+        finally:
+            # Never drop the retained wrapper here. ``deleteLater`` is the
+            # ownership hand-off to the GUI event loop; ``destroyed`` clears
+            # it only after the QWidget tree has been deleted on that thread.
+            try:
+                dlg.deleteLater()
+            except RuntimeError:
+                self._settings_dialog = None
+
+    @Slot(object)
+    def _on_settings_dialog_destroyed(self, _dialog=None):
+        """Release the modal only after Qt destroyed it on the GUI thread."""
+        self._settings_dialog = None
 
     def _on_next(self):
         self._flush_pending()
