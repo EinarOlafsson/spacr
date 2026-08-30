@@ -29,7 +29,7 @@
   },
   "app_icon": {
     "candidate": null,
-    "sha256": "2a19c083b9405ffb001af6fa3cab9cb5b7eb5d17a1982b107f9d18eb345d5272"
+    "sha256": "1a26627576bf56c012101b60de7df62577e79fe4e2ef5ab58b2b2957f4ed9c60"
   },
   "barcode_qc": {
     "candidate": "barcode_qc/barcode_qc_01.png",
