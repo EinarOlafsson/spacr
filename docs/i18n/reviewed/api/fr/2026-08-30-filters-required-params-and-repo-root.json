@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.filters.read_identity#2",
+      "source": "path to the SQLite measurement database. It is opened read-only, so a missing file raises :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "context": "path to the SQLite measurement database. It is opened read-only, so a missing file throws :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "source_sha256": "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
+      "translation": "chemin vers la base de données de mesures SQLite. Elle est ouverte en lecture seule ; si le fichier est absent, :class:`sqlite3.OperationalError` est levée au lieu de créer une base de données vide."
+    },
+    {
+      "label": "spacr.filters.ensure_filters_table#1",
+      "source": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "context": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "source_sha256": "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
+      "translation": "la base de données de mesures. Une table existante est lue sans être modifiée ; le premier appel, ou une reconstruction, écrit la table d’identité dérivée des relations entre les objets de la base de données."
+    },
+    {
+      "label": "spacr.filters.export_gate#1",
+      "source": "the measurement database whose ``filters`` table is created when absent and then rewritten with the gate column.",
+      "context": "the measurement database whose ``filters`` table is created when absent and then rewritten with the data-selection boundary column.",
+      "source_sha256": "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
+      "translation": "la base de données de mesures dont la table ``filters`` est créée si elle est absente, puis réécrite avec la colonne de limite de sélection des données."
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#2",
+      "source": "path to the SQLite measurement database, opened read-only.",
+      "context": "path to the SQLite measurement database, opened read-only.",
+      "source_sha256": "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+      "translation": "chemin vers la base de données de mesures SQLite, ouverte en lecture seule."
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#3",
+      "source": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected gate path are read.",
+      "context": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected data-selection boundary path are read.",
+      "source_sha256": "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
+      "translation": "la table d’objets à évaluer. Seules ses colonnes d’identité et les colonnes de mesure utilisées par le chemin de limites de sélection des données sont lues."
+    },
+    {
+      "label": "spacr.filters.annotate_from_gates#2",
+      "source": "the objects to label. It must contain every measurement column referenced by the selected gates; the returned Series keeps this frame's index and row order.",
+      "context": "the objects to label. It must contain every measurement column referenced by the selected data-selection boundaries; the returned Series keeps this frame's index and row order.",
+      "source_sha256": "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
+      "translation": "les objets à étiqueter. Ils doivent contenir toutes les colonnes de mesure référencées par les limites de sélection des données ; la Series renvoyée conserve l’index et l’ordre des lignes de ce cadre."
+    },
+    {
+      "label": "spacr.filters.read_sampled#3",
+      "source": "the table to read. Its name is quoted as one SQLite identifier; a missing table raises :class:`sqlite3.OperationalError`.",
+      "context": "the table to read. Its name is quoted as one SQLite identifier; a missing table throws :class:`sqlite3.OperationalError`.",
+      "source_sha256": "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
+      "translation": "la table à lire. Son nom est placé entre guillemets comme un identifiant SQLite unique ; si la table est absente, :class:`sqlite3.OperationalError` est levée."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.repo_root#0",
+      "source": "Return the absolute spaCR checkout root.",
+      "context": "Return the absolute spaCR checkout root.",
+      "source_sha256": "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+      "translation": "Renvoie le répertoire racine absolu du checkout spaCR."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.repo_root#1",
+      "source": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
+      "context": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
+      "source_sha256": "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c",
+      "translation": "Le chemin est déterminé à partir de l’emplacement d’installation de ce module et ne dépend pas du répertoire configurable de sortie du rendu Home."
+    }
+  ]
+}

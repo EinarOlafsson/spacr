@@ -33,7 +33,7 @@ from __future__ import annotations
 import logging
 import re
 import sqlite3
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -256,6 +256,9 @@ def read_identity(db_path: str, table: str) -> pd.DataFrame:
     matter. ``SELECT *`` here is the difference between a bootstrap that takes
     a moment and one that reads the whole database.
 
+    :param db_path: path to the SQLite measurement database. It is opened
+        read-only, so a missing file raises :class:`sqlite3.OperationalError`
+        instead of being created as an empty database.
     :param table: must carry an ``object_label`` column -- that name, in any
         case. Every other identity column is optional and absent
         from the returned frame; the object label is not, because without it
@@ -664,6 +667,9 @@ def write_relationships(db_path: str) -> pd.DataFrame:
 def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame:
     """Return the ``filters`` table, building it the first time.
 
+    :param db_path: the measurement database. An existing table is read
+        without modification; the first call, or a rebuild, writes the
+        identity table derived from the database's object relationships.
     :param rebuild: discard and rebuild. The identity is derived entirely from
         the object tables, but any gate columns already written are LOST --
         which is why this is a parameter and not something the export path
@@ -770,6 +776,8 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
                 object_type: Optional[str] = None) -> Tuple[str, int]:
     """Write one gate to ``filters`` as a 1/0 column.
 
+    :param db_path: the measurement database whose ``filters`` table is
+        created when absent and then rewritten with the gate column.
     :param frame: the objects the gate was evaluated on. Must carry the FULL
         identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the
         canonical spellings -- see :func:`require_full_identity`); the
@@ -841,6 +849,9 @@ def gate_mask_over_table(db_path: str, table: str, gates, gate_name: str,
     columns plus the identity columns are read in full -- a handful out of
     hundreds, so this stays cheap even where reading the whole table is not.
 
+    :param db_path: path to the SQLite measurement database, opened read-only.
+    :param table: the object table to evaluate. Only its identity columns and
+        the measurement columns used by the selected gate path are read.
     :param gates: a ``GateSet``.
     :param gate_name: which gate in it.
     :returns: ``(identity frame, mask)`` ready for :func:`export_gate`.
@@ -912,6 +923,9 @@ def annotate_from_gates(frame: pd.DataFrame, gates, names: Sequence[str], *,
         classes with no objects in them, which no classifier can learn and
         every class-balance report would then have to explain.
 
+    :param frame: the objects to label. It must contain every measurement
+        column referenced by the selected gates; the returned Series keeps
+        this frame's index and row order.
     :param gates: a ``GateSet``.
     :param names: which gates to use, in the order the label reads.
     :returns: a Series aligned to ``frame`` -- integers for binary, class
@@ -1077,6 +1091,9 @@ def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
     sampled afterwards -- slower, but correct, and it says so in the log
     rather than quietly returning everything.
 
+    :param db_path: path to the SQLite measurement database, opened read-only.
+    :param table: the table to read. Its name is quoted as one SQLite
+        identifier; a missing table raises :class:`sqlite3.OperationalError`.
     :param fraction: how much of the table to read, in (0, 1].
     :param limit: a hard row cap applied after the fraction.
     """
@@ -1112,6 +1129,7 @@ def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
 def row_count(db_path: str, table: str) -> int:
     """How many objects the table has -- what a sample is a fraction OF.
 
+    :param db_path: path to the SQLite measurement database, opened read-only.
     :param table: goes into the query as a quoted name, so it must be a table
         that exists -- a typo raises :class:`sqlite3.OperationalError` rather
         than counting zero, and a caller sizing a sample should check with
