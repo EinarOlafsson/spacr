@@ -108,8 +108,7 @@ def render_offscreen(spec, path: str, *, size: Optional[Tuple[int, int]] = None,
     stem, _ = os.path.splitext(str(path))
     target = f"{stem}.{chosen}"
     parent = os.path.dirname(os.path.abspath(target))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
 
     plot = GroupedPlot(title=title or getattr(spec, "title", "") or "",
                        x_label=x_label or getattr(spec, "x_label", "") or "",

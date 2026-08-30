@@ -228,8 +228,7 @@ def write_table(frame: pd.DataFrame, path: Any, *,
     kind = table_format(path)
     target = resolve_path(path)
     parent = os.path.dirname(os.path.abspath(target))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     if canonicalise:
         mapping = schema.canonical_rename_plan(frame.columns)
         if mapping:
@@ -417,8 +416,7 @@ def write_database(frame: pd.DataFrame, db: Any, table: str, *,
     _quote_identifier(table)
     target = resolve_path(db)
     parent = os.path.dirname(os.path.abspath(target))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     if canonicalise:
         mapping = schema.canonical_rename_plan(frame.columns)
         if mapping:

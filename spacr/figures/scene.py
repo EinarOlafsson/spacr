@@ -1384,8 +1384,7 @@ def export_scene(widget, path) -> Optional[str]:
     item = widget.ci
     name = str(path).lower()
     folder = os.path.dirname(os.path.abspath(str(path)))
-    if folder:
-        os.makedirs(folder, exist_ok=True)
+    os.makedirs(folder, exist_ok=True)
     if name.endswith(".pdf"):
         FastPlot._export_pdf(item, path)
     elif name.endswith(".svg"):

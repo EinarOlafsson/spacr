@@ -383,8 +383,7 @@ class IlluminationModel:
         """
         path = os.path.abspath(path)
         parent = os.path.dirname(path)
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         arrays = {}
         index = {}
         for key, item in self.fields.items():

@@ -2038,8 +2038,7 @@ def populate_db_from_map(db_path: str, map_path: str,
     """
     frame = read_map(map_path)
     parent = os.path.dirname(os.path.abspath(db_path))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
         frame.to_sql(table, connection, if_exists='replace', index=False)

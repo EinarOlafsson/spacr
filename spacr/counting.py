@@ -398,8 +398,7 @@ class CountingSession:
 
         target = os.path.abspath(str(path))
         parent = os.path.dirname(target)
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         frame = self.summary() if summary else self.to_frame()
         frame.to_csv(target, index=False)
         return target

@@ -179,8 +179,7 @@ def write(figure, save_path, style: FigureStyle) -> str:
 
     path = os.fspath(save_path)
     parent = os.path.dirname(os.path.abspath(path))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     suffix = os.path.splitext(path)[1].lstrip(".").lower() or None
     raster = suffix in ("png", "jpg", "jpeg", "tif", "tiff")
     return save_figure(figure, path, fmt=suffix,

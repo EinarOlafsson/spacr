@@ -312,8 +312,7 @@ class CurationLog:
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         temporary = os.path.join(parent, f".{os.path.basename(target)}.tmp")
         with open(temporary, "w", encoding="utf-8") as handle:
             json.dump(self.to_dict(), handle, indent=2, sort_keys=True,
@@ -964,8 +963,7 @@ class TrackCuration:
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         self.to_frame().to_csv(target, index=False)
         self.log.artifact = target
         self.log.write_beside(target)
