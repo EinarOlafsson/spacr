@@ -273,7 +273,10 @@ def categories() -> Tuple[Tuple[str, Tuple[str, ...]], ...]:
 
 
 def category_of(key: str) -> str:
-    """The tab ``key`` is shown on, or ``""`` when it is not offered here."""
+    """The tab ``key`` is shown on, or ``""`` when it is not offered here.
+
+    :param key: picture-setting key to locate in the category specification.
+    """
     name = str(key or "").strip()
     for title, keys in categories():
         if name in keys:
@@ -296,7 +299,11 @@ def modes() -> Tuple[Tuple[str, str], ...]:
 
 
 def applies_to_picking(key: str, picking: str) -> bool:
-    """Whether ``key`` means anything for the chosen way of picking cells."""
+    """Whether ``key`` means anything for the chosen way of picking cells.
+
+    :param key: picture-setting key whose dependency is being checked.
+    :param picking: selected cell-picking strategy.
+    """
     entry = PICKING_ONLY.get(str(key or "").strip())
     if entry is None:
         return True
@@ -305,6 +312,9 @@ def applies_to_picking(key: str, picking: str) -> bool:
 
 def applies_to(key: str, mode: str) -> bool:
     """Whether ``key`` means anything in ``mode``.
+
+    :param key: picture-setting key whose source-mode applicability is tested.
+    :param mode: selected crop-source mode.
 
     A key this module has never heard of applies: it is not this module's job
     to grey out a setting it does not know, and a panel that hid the unknown
@@ -339,6 +349,9 @@ def applies_to(key: str, mode: str) -> bool:
 def why_not(key: str, mode: str) -> str:
     """The sentence a greyed control carries, or ``""`` when it applies.
 
+    :param key: picture-setting key whose inapplicability is explained.
+    :param mode: selected crop-source mode.
+
     GREYED, NEVER HIDDEN (INVARIANTS 6). A control that vanishes cannot tell
     the user why their mode does not offer it.
     """
@@ -354,12 +367,17 @@ def why_not(key: str, mode: str) -> str:
 
 
 def greyed_in(mode: str) -> Tuple[str, ...]:
-    """The keys a panel must grey for ``mode``, in a stable order."""
+    """The keys a panel must grey for ``mode``, in a stable order.
+
+    :param mode: selected crop-source mode.
+    """
     return tuple(key for key in ALL_KEYS if not applies_to(key, mode))
 
 
 def bounding_box_only(settings) -> bool:
     """Whether the chosen cut can only be a bounding box.
+
+    :param settings: picture settings containing the selected crop source.
 
     Coordinate-only sources have no object outline, so a panel should disable
     object-shaped crops before the cut rather than silently return a rectangle.
@@ -725,6 +743,8 @@ def available_arrays(source) -> Tuple[str, ...]:
 def available_coordinate_columns(frame) -> Tuple[str, ...]:
     """The object-table columns a bounding box could be cut from.
 
+    :param frame: measurement table whose coordinate columns are inspected.
+
     All four corners or none: three of them describe no box, so a chooser
     that offered them singly would let a user assemble a request that cannot
     be met.
@@ -822,6 +842,8 @@ PICKING_HELP: Dict[str, str] = {
 
 def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     """What a chooser for ``key`` should list, or ``()`` for free text.
+
+    :param key: picture-setting key whose current choices are requested.
 
     ONE PLACE, so the Cells tab and the annotation app cannot offer different
     answers for the same screen.
@@ -990,6 +1012,8 @@ RETIRED: dict = {
 
 def drop_retired(picture) -> tuple:
     """``(settings, [note])`` with the retired keys taken out.
+
+    :param picture: saved picture-settings mapping to migrate.
 
     Called wherever a saved picture-settings blob is read. The notes are
     returned rather than printed, so the caller decides whether this is

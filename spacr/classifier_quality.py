@@ -34,7 +34,14 @@ __all__ = [
 
 @dataclass(frozen=True)
 class Confusion:
-    """Binary confusion counts and their operating characteristics."""
+    """Binary confusion counts and their operating characteristics.
+
+    :ivar true_positive: positive cells called positive.
+    :ivar false_positive: negative cells called positive.
+    :ivar true_negative: negative cells called negative.
+    :ivar false_negative: positive cells called negative.
+    :ivar threshold: score cutoff used to make the calls.
+    """
 
     true_positive: int
     false_positive: int
@@ -117,6 +124,10 @@ def operating_points(scores: Sequence[float],
                      steps: int = 50) -> List[Confusion]:
     """Return confusion matrices across quantile-based score thresholds.
 
+    :param scores: classifier score for each labelled cell.
+    :param labels: true for cells belonging to the positive class, aligned
+        one-to-one with ``scores``.
+
     The sequence exposes the sensitivity-specificity trade-off rather than
     evaluating only the conventional threshold of 0.5.
     """
@@ -160,6 +171,10 @@ def sensitivity_by_prevalence(scores: Sequence[float],
                               threshold: float = 0.5,
                               bins: int = 4) -> List[Dict[str, float]]:
     """Measure classifier performance across well-prevalence bands.
+
+    :param scores: classifier score for each labelled cell.
+    :param labels: true for cells belonging to the positive class.
+    :param wells: well label for each score and truth value.
 
     Returns one row per populated band with prevalence, sensitivity,
     specificity, accuracy, and cell count. Dependence on prevalence can reveal
@@ -238,6 +253,9 @@ def rogan_gladen(observed: float, sensitivity: float, specificity: float, *,
 def deconvolve(scores: Sequence[float], *,
                seed: int = 0) -> Dict[str, float]:
     """Estimate two class distributions from unlabelled scores.
+
+    :param scores: unlabelled finite classifier scores to model as a
+        two-component mixture.
 
     A two-component Gaussian mixture estimates prevalence, sensitivity,
     specificity, and a midpoint threshold. ``separation`` is the distance
@@ -377,6 +395,8 @@ def measure_screen(root: str, *,
                    pattern: str = "*test_*.csv",
                    threshold: Optional[float] = None) -> Dict[str, Dict[str, float]]:
     """Measure sensitivity and specificity for each plate in a screen.
+
+    :param root: screen directory containing one result folder per plate.
 
     Plates are evaluated separately because their classifiers and selected
     thresholds can differ. The return value maps plate-folder names to the
