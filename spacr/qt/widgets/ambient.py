@@ -2040,6 +2040,8 @@ class AuroraEngine(_BufferedEngine):
         curtain would do, is the one thing that stops the whole theme reading
         as an aurora.
 
+        :param curtain: simulated curtain whose colour index and shimmer phase
+            choose the palette target and its current blend toward it.
         :param quantised: snap the shimmer to :data:`AURORA_HUE_STEPS` so the
             ray tile can be cached.
         """

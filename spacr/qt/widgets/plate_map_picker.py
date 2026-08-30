@@ -322,6 +322,8 @@ class PlateMapPicker(QDialog):
     def begin_drag(self, row: int, column: int, modifiers=None) -> None:
         """Anchor a drag on one well.
 
+        :param row: zero-based plate row of the pressed well.
+        :param column: zero-based plate column of the pressed well.
         :param modifiers: the keyboard state at the press. With Ctrl the
             rectangle ADDS to what is already chosen; without it the drag
             REPLACES the selection, which is what every other grid in this

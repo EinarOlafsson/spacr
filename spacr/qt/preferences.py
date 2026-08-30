@@ -6271,6 +6271,8 @@ def get_section_layout(panel: str) -> dict:
 def set_section_layout(panel: str, folded=(), sizes=()) -> None:
     """Remember which sections of ``panel`` are folded, and the divider sizes.
 
+    :param panel: stable category or panel name under which this layout is
+        stored, independently of every other panel's arrangement.
     :param folded: the titles that are folded away.
     :param sizes: the splitter's sizes, in its own order.
     """

@@ -470,6 +470,7 @@ class SweepRunsPanel(QWidget):
         :meth:`update_run` is told otherwise -- not ``ok``, because a row
         claiming ok is a row a click will try to open results from.
 
+        :param label: user-visible run name stored in the new row.
         :param settings: the dict the run was started with. Only
             :data:`RUN_SETTING_COLUMNS` are copied out of it, and they are the
             sweep's own setting columns -- which is what makes a run and a
@@ -1160,6 +1161,9 @@ class SweepRunsPanel(QWidget):
         saying what is in it, and there is no undo offered -- an undo that
         cannot honour itself is worse than none.
 
+        :param records: run-row mappings whose distinct, existing ``folder``
+            paths are candidates for deletion. A running record refuses the
+            whole operation.
         :param confirm: called with the message and the list of folders;
             returns True to go ahead. Defaults to a modal question. Injected
             rather than assumed so a headless test can drive the real method

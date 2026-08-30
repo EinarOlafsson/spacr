@@ -74,6 +74,8 @@ def load_merged_array(path: str, enumerate_sets: bool = True
     enumerates the folder on every load, and doing that on the GUI thread cost
     124 ms of the 2469 ms freeze this replaced.
 
+    :param path: NumPy array file to open; a usable payload must decode to one
+        merged ``(height, width, channels)`` array.
     :param enumerate_sets: ``False`` reuses the sampler's cached listing --
         the FOV dropdown hands out a path it already enumerated.
     :returns: ``{path, data, directory, sets, channels, error}``. ``data`` is

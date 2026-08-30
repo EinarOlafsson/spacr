@@ -360,6 +360,10 @@ def populate_fov_combo(combo: QComboBox, sources: Sequence[Path],
     Each entry stores its full path as item data, so the caller never has to
     reconstruct a path from the (deliberately short) visible label.
 
+    :param combo: field-of-view dropdown to clear and refill while its signals
+        are temporarily blocked.
+    :param sources: ordered source paths; each becomes one item whose data is
+        the full string path.
     :param labels: visible text per entry; defaults to each path's file name.
         Set-based enumeration passes ``A01 f003`` style labels so the entry
         names the *field of view* rather than one of its channel files.

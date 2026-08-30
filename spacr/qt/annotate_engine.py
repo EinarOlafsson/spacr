@@ -701,6 +701,11 @@ def outline_image(
     by :func:`normalize_object_filters`, so a caller that passes only it gets
     exactly what it always got.
 
+    :param base_img: RGB display image to receive the blended outlines. Its
+        current channel filtering is preserved except where an outlined
+        channel is deliberately blanked in outline-only mode.
+    :param full_img: unfiltered RGB image supplying the channel intensities
+        used to detect objects, aligned pixel-for-pixel with ``base_img``.
     :param should_stop: optional callable asked before each channel's Cellpose
         model construction and forward pass. When it answers True the work is
         abandoned by raising :class:`OutlineCancelled` rather than finishing a

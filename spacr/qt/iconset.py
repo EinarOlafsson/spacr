@@ -589,6 +589,8 @@ def bundled_icon_path(key: str, override: Optional[str] = None
     with underscores as spaces, and finally whatever
     :data:`SHARED_ICON_ASSETS` says this key borrows.
 
+    :param key: application registry key whose bundled artwork is requested;
+        it is also used verbatim to form the first conventional filename.
     :param override: explicit filename to try first. The per-screen key →
         filename table lives in :mod:`spacr.qt.app` next to the app
         registry it describes; this module only knows how to *render*
