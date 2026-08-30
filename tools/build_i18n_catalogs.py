@@ -216,7 +216,7 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
-    "CSV", "Cellpose-SAM", "JSON", "MIP", "ML", "NaN", "PDF",
+    "CSV", "Cellpose-SAM", "FlowView", "JSON", "MIP", "ML", "NaN", "PDF",
     "PNG", "QC", "RGB",
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
@@ -3253,7 +3253,7 @@ def canonical_sources() -> dict[str, object]:
     # the materialized catalogs and let the runtime catalog adapter reuse the
     # primary translation for higher numbered slots.
     from spacr.organelle_types import (
-        DEFAULT_NUMBER_OF_ORGANELLES,
+        CATALOGUED_ORGANELLE_SLOTS,
         organelle_number,
         organelle_role_of,
     )
@@ -3261,7 +3261,7 @@ def canonical_sources() -> dict[str, object]:
     def catalogued_setting(key: object) -> bool:
         role = organelle_role_of(str(key))
         return role is None or organelle_number(role) <= (
-            DEFAULT_NUMBER_OF_ORGANELLES
+            CATALOGUED_ORGANELLE_SLOTS
         )
 
     raw_tooltips = get_tooltips()

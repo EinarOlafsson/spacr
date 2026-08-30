@@ -20198,6 +20198,18 @@
         "c87a906243d0a1a753d81db54153fbd9d18148fc0491e7dd5da892d513011f62"
       ]
     },
+    "spacr.flowview._classify_stages": {
+      "source_blocks_sha256": [
+        "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
+        "b1cfa5566819f384af5a9d5d3f3fde1a4c0fff4a7122d4c6f7cad9158d56a425"
+      ],
+      "source_sha256": "79058f84bc47e1ccb5ab45f6ed25d09e1165aa482e6a0b5869980b833ea3de08",
+      "text": "승인된 클래식 그래프에 대한 실패 고립된 생활주기 이벤트.\n\n핵심 작업 흐름 모듈은 ``sys.modules`` 데이터 선택 경계를 통해서만이 개인 모듈에 도달합니다. 여기에서 상태 기계를 유지하면 CV 및 ML 구현은 장애인 경로에 FlowView을 가져오지 않고 한 시계와 하나의 주게이트 규칙을 제공합니다. 그들의 전화는 개인적으로 남아있다; 모듈 게이트서화는 이 도구가 왜 존재하는지 API 대중에게 그 도우미를 홍보하지 않고 설명합니다.",
+      "translation_source_blocks_sha256": [
+        "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
+        "f09950054a23b35ba85dd27703d05e85f78cf0bdd74479a90934ccef245d36e6"
+      ]
+    },
     "spacr.flowview.classify_blueprint": {
       "source_blocks_sha256": [
         "46654b7d8fa76e3ba1f112423ca4e517587b910baf2aed94d598bf59e4784fd0"
@@ -33503,12 +33515,12 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "c49f73eba18330bb69083ee18e993802bfdd236fa3dd185c0286ca7993450a95",
-      "text": "각 개체 특성에 대한 클래식 ML 기계 학습 분류 모델 (XGBoost / 물류 / RF)을 훈련하고 스크린의 각 마이크로 플레이트 샘플 위치를 점수합니다.\n\n읽어 보세요 The ``measurements.db`` 생산된 것에 의해 :func:`spacr.measure.measure_crop`, 세포/핵/병성/시토플라스마 기능 테이블을 결합, 마이크로 플레이트 샘플 위치를 사용하여 표시 ``positive_control`` / ``negative_control`` (또는 코멘트 열) 훈련 라벨으로, 위원회에 적합한 :func:`ml_analysis`, 그리고 개체별 예측, 변동 및 기능 중요성 테이블 플러스 실험실 마이크로 플레이트 열지도를 작성합니다. ``results/`` 출처 DB 옆에 있습니다.\n\n:param settings: :func:`spacr.settings.set_default_analyze_screen`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터 입력:\n\n    - ``src`` (str 또는 목록) - ``measurements/measurements.db``을 포함하는 폴더(s)\n    - ``channel_of_interest`` - 0 기반 채널은 고용 비율 함수; 또한 테이블 선택을 실행합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` - 훈련 라벨로 사용되는 마이크로 플레이트 샘플 위치 ID (예 : ``'c2'`` /``'c1'``).\n    - ``annotation_column`` - PNG 수준의 메모 열을 사용하여 초과 컨트롤.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` - 플레이트 열지도에 삽입된 함수.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 2개의 요소 목록 ``[output, plate_heatmap]``어디서, 어디서 ``output`` 10 요소 결과 목록 :func:`ml_analysis` 그리고 ``plate_heatmap`` 플레이트 온도지도 ``matplotlib`` 숫자 : The CSVs 그리고 숫자는 글을 쓰고 있다. ``results/`` 부작용으로; 그들의 길은 돌아오지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되지만 ``png_list`` 테이블이 ``prcfo`` / 그 열이 없거나 ``heatmap_feature``가 훈련 된 기능 중 하나가 아닌 경우.\n\n예를 들어 :\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n또한 참조: :func:`ml_analysis` - 기본 적합/평가 루틴. :func:`perform_regression` - 혼합 효과 샘플 위치 ML 점수에 대한 회복.",
+      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
+      "text": "각 개체 특성에 대한 클래식 ML 기계 학습 분류 모델 (XGBoost / 물류 / RF)을 훈련하고 스크린의 각 마이크로 플레이트 샘플 위치를 점수합니다.\n\n읽어 보세요 The ``measurements.db`` 생산된 것에 의해 :func:`spacr.measure.measure_crop`, 세포/핵/병성/시토플라스마 기능 테이블을 결합, 마이크로 플레이트 샘플 위치를 사용하여 표시 ``positive_control`` / ``negative_control`` (또는 코멘트 열) 훈련 라벨으로, 위원회에 적합한 :func:`ml_analysis`, 그리고 개체별 예측, 변동 및 기능 중요성 테이블 플러스 실험실 마이크로 플레이트 열지도를 작성합니다. ``results/`` 출처 DB 옆에 있습니다.\n\n:param settings: :func:`spacr.settings.set_default_analyze_screen`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터 입력:\n\n    - ``src`` (str 또는 목록) - ``measurements/measurements.db``을 포함하는 폴더(s)\n    - ``channel_of_interest`` - 0 기반 채널은 고용 비율 함수; 또한 테이블 선택을 실행합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` - 훈련 라벨로 사용되는 마이크로 플레이트 샘플 위치 ID (예 : ``'c2'`` /``'c1'``).\n    - ``annotation_column`` - PNG 수준의 메모 열을 사용하여 초과 컨트롤.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` - 플레이트 열지도에 삽입된 함수.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 2개의 요소 목록 ``[output, plate_heatmap]``어디서, 어디서 ``output`` 10 요소 결과 목록 :func:`ml_analysis` 그리고 ``plate_heatmap`` 플레이트 온도지도 ``matplotlib`` 숫자 : The CSVs 그리고 숫자는 글을 쓰고 있다. ``results/`` 부작용으로; 그들의 길은 돌아오지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되지만 ``png_list`` 테이블이 ``prcfo`` / 그 열, 그것의 개체 ID가 측정에 합류하지 않는 경우, 그것은 2 개 이상의 관찰 클래스를 포함, 또는 ``heatmap_feature``이 훈련 된 기능 중 하나가 아닌 경우.\n\n예를 들어 :\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n또한 참조: :func:`ml_analysis` - 기본 적합/평가 루틴. :func:`perform_regression` - 혼합 효과 샘플 위치 ML 점수에 대한 회복.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -33523,7 +33535,7 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2caabe5a3d04a197b3cf911fdf0c7e8a7ebf3b5cd7deedf15da1776097220bd0"
       ]
@@ -40080,14 +40092,16 @@
     },
     "spacr.parameter_sweep.memory_is_low": {
       "source_blocks_sha256": [
-        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
-        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+        "f12110ec5e585154e7b9a5dcdc96df196f76344ef8c9f91a7ec29e69bdf74340",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186",
+        "677ddfc51ac9b326243a490ef46a89afcb2f566ca7eb282c61085d1b2df265b0"
       ],
-      "source_sha256": "d900a747931e847a8d292cf370f32365cbf19b638afaf91c26dcd821c5398766",
-      "text": "True 무료 메모리가 시험을 시작하는 것을 멈추기 위해 충분히 멀리 떨어졌을 때.\n\n제출 사이에서 확인, 처음에뿐만 아니라 : 기계에있는 다른 것들 - 편집자, spaCR GUI, 또 다른 분석 - 땀이 실행하는 동안 성장하고, 땀은 그들을 실행보다는 그들에게 주어야합니다.",
+      "source_sha256": "35423f7293f9a29566aa9990ab6fd0b18b17ec500075741ed932e52abc2acb13",
+      "text": "True 기계 또는 spaCR 자체 프로세스 나무가 그 한계를 넘었을 때.\n\n제출 사이에서 확인, 처음에뿐만 아니라 : 기계에있는 다른 것들 - 편집자, spaCR GUI, 또 다른 분석 - 땀이 실행하는 동안 성장하고, 땀은 그들을 실행보다는 그들에게 주어야합니다.\n\n``spacr_ceiling_gib``은 기계 광범위한 무료 메모리 바닥이 기본 보안 정책으로 남아 있기 때문에 선택적입니다. 호출자가 처리 세션 예산을 제공 할 때, 활성 자원 샘플러의 최신 프로세스 나무 총은 경비원을 부여 할 수 있습니다 : 그것은 \"the machine is busy\"에서 \"spaCR is the reason\"를 구별 할 수있는 대신 동일한 숫자로 취급합니다.",
       "translation_source_blocks_sha256": [
-        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
-        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+        "f12110ec5e585154e7b9a5dcdc96df196f76344ef8c9f91a7ec29e69bdf74340",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186",
+        "b1965b1abfbb5e16f41065cc21bede930315da4098a1a93b5dfdaf4daeb84108"
       ]
     },
     "spacr.parameter_sweep.rank_trials": {
@@ -48776,12 +48790,14 @@
     },
     "spacr.qt.ask_for_the_path.columns_in": {
       "source_blocks_sha256": [
-        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+        "1059d56e7742ef1f4e7a0db0d7ce1d341eacd7e471a99691d44b490a54d6c135"
       ],
-      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
-      "text": "각 열에 하나의 테이블, 순서에 테이브는 그들을 선언합니다.",
+      "source_sha256": "dd496f3a065a88110c0fc116545491ad8f5bf001ac525140e4bf3562e497fe08",
+      "text": "각 열에 하나의 테이블, 순서에 테이브는 그들을 선언합니다.\n\n``PRAGMA`` 묶여있는 매개 변수가 없습니다, 그래서 테이블 이름은 여기에 인용됩니다. SQLite 인용 된 식별자 내부에 인용을 두 배로 벗어나 테이블을 실제로 이름을 지정할 수 있습니다. ``cell\"s`` - 탈출하지 않고, 식별자는 일찍 끝나고 전체 테이블은 절대 열이없는 것처럼 읽습니다.",
       "translation_source_blocks_sha256": [
-        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+        "1059d56e7742ef1f4e7a0db0d7ce1d341eacd7e471a99691d44b490a54d6c135"
       ]
     },
     "spacr.qt.ask_for_the_path.forget": {
@@ -56670,6 +56686,7 @@
         "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
         "37ff0626251196deb912a3ee21c2d31c78f7976060254b6571345559ea96de24",
         "cae940b965712a05e920d4ecb17ef9772a746f4cab55d516de3a6f2731e7c2ca",
         "d1cacd4d7a11271169c89394378f6032b4779db04989fe4bf8ddef1ad010b1ad",
@@ -56685,8 +56702,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "2c318ee8b7c1efe62facec5196092bec282d6675ebf9dd9b6826cbac462c6196",
-      "text": "사용자 얼굴 선호도 - 언어, 테마, 글꼴 규모 및 접근성.\n\n지속적인 설정은 :class:`PySide6.QtCore.QSettings`에 의해 지원되므로 응용 프로그램 재시작을 생존합니다.새 버튼은 작은 API (``get_theme()`` / ``set_theme(...)`` 등) 덕분에 사용자를 변경하지 않고 기존 버튼 옆에 슬롯 할 수 있습니다.\n\n윈도우 위원 :\n\n* :func:`apply_preferences_to_app` - 시작시 한 번, 설정 변경할 때마다 다시 전화; 현재 테마 + 글꼴 스케일을 가진 스타일리스트를 다시 적용합니다.\n* :class:`PreferencesDialog` - Ctrl+로 열리는 모다 옵션 대화 (:mod:`spacr.qt.shortcuts` 참조).\n\n공공 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n가치가 있는 :\n\n* ``theme``: ``\"dark\"`` ``\"light\"`` ``\"cell\"`` ``\"glass\"`` ``\"system\"`` (기본 ``\"system\"``). ``\"system\"``는 운영 체제 색상 계획을 따릅니다. ``\"cell\"``는 fluorescence 이미지를 사용하고 ``\"glass\"``는 내장 된 빛 필드 위에 중립 층 재료를 사용합니다.\n* ``space_seed``: int; 결정적 유산 우주 배경을 위해 유지.\n* ``font_scale``: 플로트, 1.0 = 100 % (기본). [0.75, 2.0]로 묶여 있습니다.\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"`` (기본 ``\"print\"``). 저장된 숫자에 사용되는 페이지와 그림 요소 색상을 제어합니다. ``SPACR_FIGURE_SAVE_MODE``는 프로세스 로컬 오버리드로 남아 있습니다; :func:`spacr.figure_style.figure_save_mode`를 참조하십시오.\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"`` (기본 ``\"off\"``). matplotlib 파란색 / 붉은 녹색 팔레트를 감각 유니폼 + 색상 눈먼 안전한 대안으로 변환 (연속을위한 viridis, 분류를위한 Okabe-Ito).\n* ``db_browser_editable`` : 볼, 초기 값 ``False``. 데이터베이스 브라우저가 읽기 글쓰기 연결을 열 수 있습니다. 세부 사항 : :func:`get_db_browser_editable`\n* ``dock_mode``: ``\"auto\"`` ``\"locked\"`` ``\"hidden\"`` (기본 ``\"locked\"``). 왼쪽 앱 도크가 홀에 나타나든, 영구 열로 덮여 있든, 아니면 전혀 없든.\n* ``pane_opacity``: int 퍼센트, 초기 값 ``60``. 공유 표면의 견고함을 제어하거나 유리에 물질 강도를 제어합니다. 페인트 시간 :func:`spacr.qt.theme.pane_alpha_floor`에서 낮은 경계를 설정합니다.\n* ``field_fade``: 폴, 기본 ``True``. 입력 필드의 컨테이너와 출력 램프는 왼쪽에 단단한에서 오른쪽에 완전히 투명한. 필드는 **``pane_opacity``**에서 제외되며, 이것은 :func:`get_field_fade_enabled` 및 :mod:`spacr.qt.widgets.field_fade`를 참조하십시오.\n* ``show_alpha`` / ``show_beta``: bool, 두 가지 기본 ``True``. 모듈 및 그 성숙성에서 설정이 표시되는지 확인합니다.\n* ``ambient_enabled``: bool, 초기 값 ``True``. 모듈 화면이 애니메이션 배경을 그리는지 여부를 제어합니다. 그것을 해제하는 것은 첫 번째 클래스 선택입니다; 세부 사항 : :func:`get_ambient_enabled`. 사용자 얼굴 제어는 애니마션 목록의 ``None`` 입력 대신 다른 스위치입니다 : 하나의 라인, 하나의 의미.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` | ``\"balanced\"`` (이상적인 ``\"balanced\"``얼마나 열심히 spaCR 기계의 길에서 벗어나려고 시도한다 - 그것은 자신의 캐시를 해방 할 때, 그리고 그것이 시각 설정을 초과하는지 여부. :func:`set_spacr_mode` 그리고 :mod:`spacr.qt.resource_cleanup`청소가 허용되는 것을 소유하고 있는 것(spaCR 자신의 기억, 그리고 다른 아무것도 - 다른 프로세스, 결코).\n* ``ambient_theme`` / ``ambient_palette``: 어떤 애니메이션, 그리고 어떤 색상. ``ambient_theme`` 또한 :data:`spacr.qt.widgets.ambient.NO_ANIMATION`을 유지 — :func:`get_ambient_animation`로 읽어, ``\"none\"``에 대답 할 수 있습니다, 또는 :func:`get_ambient_theme`로, 그 대답은 항상 뭔가 색칠 할 수 있습니다. :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`과 :func:`spacr.qt.widgets.ambient.palettes_for`에 대 한 검증; 패일은 *테마에 대 한*, 그래서 :func:`get_ambient_palette` 두 키가 서로 일관되어 있는 방법을 참조하십시오.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: 플로트, 모든 기본 ``1.0``, 모든 *다중기* 선택한 애니메이션이 이미 무엇을하고 있는지 - 얼마나 빠르게 움직이는지, 얼마나 큰 요소가 있는지, 그것이 얼마나 많은 세부 사항으로 끌려가는지, 그리고 몇 가지 요소를 가지고 있는지. 1.0은 각 테마에서 전송 된 애니메이션입니다, 정확히, 그래서 사용자가 결코 그들을 만지지 않는 것은 변화를 볼 수 없습니다. 글을 읽고 글을 쓰면 엔진이 선언한다 (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` 및 친구).\n* ``ambient_blur``: 플로트, 기본 ``0.0`` - 완성된 이미지가 8 픽셀의 단위로 얼마나 부드러워졌는지. 이미지 세부 사항은 ``ambient_resolution``에 의해 별도로 제어됩니다. 유산 블루 스케일 아래에 저장된 값은 읽을 때 한 번 :func:`_migrate_ambient_motion`로 번역됩니다.\n* ``ambient_drift_direction``: ``\"up\"`` ``\"down\"`` ``\"random\"`` (기본 ``\"up\"``). 스타필드 애니메이션이 여행하는 방법. 애니메이션 메뉴에 3 개의 입력 대신 선호; 왜 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`를 참조하십시오.\n* ``spinner_delay``: 플로트 초, 기본 ``2.0``. 활동 스핀이 나타나기 전에 얼마나 오래 배경 작업을 수행해야 하는지 - :func:`get_spinner_delay`를 참조하십시오.\n* ``setting_animations`` : bool, 기본 ``False`` 설정 도구 팁이 자동으로 애니메이션을 재생하는지 여부. 끄지 않을 때, hover는 사용자가 그 도구 팁의 발자국에서 **Animation**을 활성화 할 때까지 단순히 텍스트로 남아 있습니다. 참조 :func:`get_setting_animations_enabled`\n* ``language``: :mod:`spacr.qt.i18n`에서 묶여있는 언어 코드 중 하나; 영국어로 기본으로 입력하고 지속적인 값이 불법이 될 때 안전하게 반환됩니다.",
+      "source_sha256": "9f74a374f3a027d9aeebc90aa0ae5b9bce5e7b53499516135825c0b549ef7bbb",
+      "text": "사용자 얼굴 선호도 - 언어, 테마, 글꼴 규모 및 접근성.\n\n지속적인 설정은 :class:`PySide6.QtCore.QSettings`에 의해 지원되므로 응용 프로그램 재시작을 생존합니다.새 버튼은 작은 API (``get_theme()`` / ``set_theme(...)`` 등) 덕분에 사용자를 변경하지 않고 기존 버튼 옆에 슬롯 할 수 있습니다.\n\n윈도우 위원 :\n\n* :func:`apply_preferences_to_app` - 시작시 한 번, 설정 변경할 때마다 다시 전화; 현재 테마 + 글꼴 스케일을 가진 스타일리스트를 다시 적용합니다.\n* :class:`PreferencesDialog` - Ctrl+로 열리는 모다 옵션 대화 (:mod:`spacr.qt.shortcuts` 참조).\n\n공공 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n가치가 있는 :\n\n* ``theme``: ``\"dark\"`` ``\"light\"`` ``\"cell\"`` ``\"glass\"`` ``\"system\"`` (기본 ``\"system\"``). ``\"system\"``는 운영 체제 색상 계획을 따릅니다. ``\"cell\"``는 fluorescence 이미지를 사용하고 ``\"glass\"``는 내장 된 빛 필드 위에 중립 층 재료를 사용합니다.\n* ``space_seed``: int; 결정적 유산 우주 배경을 위해 유지.\n* ``font_scale``: 플로트, 1.0 = 100 % (기본). [0.75, 2.0]로 묶여 있습니다.\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"`` (기본 ``\"print\"``). 저장된 숫자에 사용되는 페이지와 그림 요소 색상을 제어합니다. ``SPACR_FIGURE_SAVE_MODE``는 프로세스 로컬 오버리드로 남아 있습니다; :func:`spacr.figure_style.figure_save_mode`를 참조하십시오.\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"`` (기본 ``\"off\"``). matplotlib 파란색 / 붉은 녹색 팔레트를 감각 유니폼 + 색상 눈먼 안전한 대안으로 변환 (연속을위한 viridis, 분류를위한 Okabe-Ito).\n* ``performance_logging``: ``\"off\"`` ``\"summary\"`` ``\"detailed\"`` (기본 ``\"summary\"``). 레코드 프로세스 나무 자원 사용은 구두 전화 추적에 관계없이; 참조 :func:`get_performance_logging` 및 :mod:`spacr.resource_log`.\n* ``db_browser_editable`` : 볼, 초기 값 ``False``. 데이터베이스 브라우저가 읽기 글쓰기 연결을 열 수 있습니다. 세부 사항 : :func:`get_db_browser_editable`\n* ``dock_mode``: ``\"auto\"`` ``\"locked\"`` ``\"hidden\"`` (기본 ``\"locked\"``). 왼쪽 앱 도크가 홀에 나타나든, 영구 열로 덮여 있든, 아니면 전혀 없든.\n* ``pane_opacity``: int 퍼센트, 초기 값 ``60``. 공유 표면의 견고함을 제어하거나 유리에 물질 강도를 제어합니다. 페인트 시간 :func:`spacr.qt.theme.pane_alpha_floor`에서 낮은 경계를 설정합니다.\n* ``field_fade``: 폴, 기본 ``True``. 입력 필드의 컨테이너와 출력 램프는 왼쪽에 단단한에서 오른쪽에 완전히 투명한. 필드는 **``pane_opacity``**에서 제외되며, 이것은 :func:`get_field_fade_enabled` 및 :mod:`spacr.qt.widgets.field_fade`를 참조하십시오.\n* ``show_alpha`` / ``show_beta``: bool, 두 가지 기본 ``True``. 모듈 및 그 성숙성에서 설정이 표시되는지 확인합니다.\n* ``ambient_enabled``: bool, 초기 값 ``True``. 모듈 화면이 애니메이션 배경을 그리는지 여부를 제어합니다. 그것을 해제하는 것은 첫 번째 클래스 선택입니다; 세부 사항 : :func:`get_ambient_enabled`. 사용자 얼굴 제어는 애니마션 목록의 ``None`` 입력 대신 다른 스위치입니다 : 하나의 라인, 하나의 의미.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` | ``\"balanced\"`` (이상적인 ``\"balanced\"``얼마나 열심히 spaCR 기계의 길에서 벗어나려고 시도한다 - 그것은 자신의 캐시를 해방 할 때, 그리고 그것이 시각 설정을 초과하는지 여부. :func:`set_spacr_mode` 그리고 :mod:`spacr.qt.resource_cleanup`청소가 허용되는 것을 소유하고 있는 것(spaCR 자신의 기억, 그리고 다른 아무것도 - 다른 프로세스, 결코).\n* ``ambient_theme`` / ``ambient_palette``: 어떤 애니메이션, 그리고 어떤 색상. ``ambient_theme`` 또한 :data:`spacr.qt.widgets.ambient.NO_ANIMATION`을 유지 — :func:`get_ambient_animation`로 읽어, ``\"none\"``에 대답 할 수 있습니다, 또는 :func:`get_ambient_theme`로, 그 대답은 항상 뭔가 색칠 할 수 있습니다. :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`과 :func:`spacr.qt.widgets.ambient.palettes_for`에 대 한 검증; 패일은 *테마에 대 한*, 그래서 :func:`get_ambient_palette` 두 키가 서로 일관되어 있는 방법을 참조하십시오.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: 플로트, 모든 기본 ``1.0``, 모든 *다중기* 선택한 애니메이션이 이미 무엇을하고 있는지 - 얼마나 빠르게 움직이는지, 얼마나 큰 요소가 있는지, 그것이 얼마나 많은 세부 사항으로 끌려가는지, 그리고 몇 가지 요소를 가지고 있는지. 1.0은 각 테마에서 전송 된 애니메이션입니다, 정확히, 그래서 사용자가 결코 그들을 만지지 않는 것은 변화를 볼 수 없습니다. 글을 읽고 글을 쓰면 엔진이 선언한다 (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` 및 친구).\n* ``ambient_blur``: 플로트, 기본 ``0.0`` - 완성된 이미지가 8 픽셀의 단위로 얼마나 부드러워졌는지. 이미지 세부 사항은 ``ambient_resolution``에 의해 별도로 제어됩니다. 유산 블루 스케일 아래에 저장된 값은 읽을 때 한 번 :func:`_migrate_ambient_motion`로 번역됩니다.\n* ``ambient_drift_direction``: ``\"up\"`` ``\"down\"`` ``\"random\"`` (기본 ``\"up\"``). 스타필드 애니메이션이 여행하는 방법. 애니메이션 메뉴에 3 개의 입력 대신 선호; 왜 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`를 참조하십시오.\n* ``spinner_delay``: 플로트 초, 기본 ``2.0``. 활동 스핀이 나타나기 전에 얼마나 오래 배경 작업을 수행해야 하는지 - :func:`get_spinner_delay`를 참조하십시오.\n* ``setting_animations`` : bool, 기본 ``False`` 설정 도구 팁이 자동으로 애니메이션을 재생하는지 여부. 끄지 않을 때, hover는 사용자가 그 도구 팁의 발자국에서 **Animation**을 활성화 할 때까지 단순히 텍스트로 남아 있습니다. 참조 :func:`get_setting_animations_enabled`\n* ``language``: :mod:`spacr.qt.i18n`에서 묶여있는 언어 코드 중 하나; 영국어로 기본으로 입력하고 지속적인 값이 불법이 될 때 안전하게 반환됩니다.",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -56700,6 +56717,7 @@
         "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
         "db0284b8b6ec5f644e1dc7d90d6c5cef91b22b81f2cb27d28a310b35c356a292",
         "cae940b965712a05e920d4ecb17ef9772a746f4cab55d516de3a6f2731e7c2ca",
         "b2021699f9a5d976c5ebfa79d30963dff403cebaa2b91773daf3325b4f253c88",
@@ -57568,6 +57586,20 @@
         "4a55ae8cbfa3d5f21f19e0196e9b26574084502480b134812d5f4445c1af38d9",
         "1ad39652ed069e05e6c2fb76fb5e57501673dda1f4f8f6d089613c1eab8cd4ea",
         "31774e2d7c82c8986df9620494b62bfc0441851db5296b040ff0dd94636ee48f"
+      ]
+    },
+    "spacr.qt.preferences.get_performance_logging": {
+      "source_blocks_sha256": [
+        "8f4216368f5a965cbc8f4e5d109ed4ce7c9e8ead390044cba7385be32627f758",
+        "1b18eb6abbb450894792733c9abe20767e2a2ba924ecdbdfb4fd6fbcc4c50e45",
+        "db31b8c46d50c3c1c5c439d8f1b2e59f6da20420ceda3ca5c2a57e2483884983"
+      ],
+      "source_sha256": "628b35c3b3aa4fa1a1aa9e1f03b52e7b1c238b0f6bb83859d76708a5016a593f",
+      "text": "독립적 인 프로세스 나무 리소스 기록 수준을 반환합니다.\n\n``summary``은 기본입니다 : 그것은 전체 실행 총과 초당 약 1 개의 샘플에서 최고를 기록합니다. ``detailed`` 또한 제한된 프로세스 / 독립적 인 실행 경로 시리즈를 유지합니다.이 설정은 결코 verbose 로그링을 허용하거나 프로필 호크를 설치하지 않습니다.\n\n:returns: :data:`PERFORMANCE_LOGGING_LEVELS`에 해당되는 글 1건",
+      "translation_source_blocks_sha256": [
+        "8f4216368f5a965cbc8f4e5d109ed4ce7c9e8ead390044cba7385be32627f758",
+        "5b7a38ef06572dc29de260537087fa3b55551ecab9cd1c6ae569edd9dcd01301",
+        "db31b8c46d50c3c1c5c439d8f1b2e59f6da20420ceda3ca5c2a57e2483884983"
       ]
     },
     "spacr.qt.preferences.get_popup_backdrop": {
@@ -58512,6 +58544,20 @@
         "045576692e252ee65a3d25400e7e30739be74b9b8cf3128f5d6a6986b7495676"
       ]
     },
+    "spacr.qt.preferences.set_performance_logging": {
+      "source_blocks_sha256": [
+        "22029a0ba40316ae8776f9fd6ce614e23d4d29216d3c9ad7a22e977f038808e6",
+        "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+        "fbfe7ce6510b800cd7144d49bc29eeb9e5bd063c99a86663f09ed321b7c8cf90"
+      ],
+      "source_sha256": "3b27d8af769fc122a42339f799aea8941abac64d5d822d32f3d7d102f48aaf59",
+      "text": "프로세스 나무 리소스 로그링 수준을 유지합니다.\n\n:param level: ``off``, ``summary`` or ``detailed``.\n:raises ValueError: ``level``가 지원되지 않은 모드를 지정합니다.",
+      "translation_source_blocks_sha256": [
+        "22029a0ba40316ae8776f9fd6ce614e23d4d29216d3c9ad7a22e977f038808e6",
+        "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+        "fbfe7ce6510b800cd7144d49bc29eeb9e5bd063c99a86663f09ed321b7c8cf90"
+      ]
+    },
     "spacr.qt.preferences.set_popup_backdrop": {
       "source_blocks_sha256": [
         "922254b9b0169199375f71b42d3ef71638bc638f992db0834c1dc4b12c9fbc31"
@@ -59306,6 +59352,18 @@
       "text": "강조 표시된 레시피이며, 없으면 ``None``입니다.",
       "translation_source_blocks_sha256": [
         "01c5d491d58b254f17fe243ed39cb54f66894de7c7166f8e05779c8e25c785bd"
+      ]
+    },
+    "spacr.qt.recipes.RecipeDialog.set_confirmation_runner": {
+      "source_blocks_sha256": [
+        "506d131c4413621965deb060d47686a48179982f6bbe7e287953cfd5c8195b1f",
+        "390cbfd42e11a6cb480c995e7fc6558fc3e2e13e2a5c238e54707f2c62afa193"
+      ],
+      "source_sha256": "84b66b024ad720165e35bf263bf410b3ce9ca57f98c289eedb56ab7356dce1d1",
+      "text": "버전 / 호환성 확인이 실행되는 방식을 대체합니다.\n\n기본적으로 실제 모탈 응용/ 취소 루프를 입력합니다. 테스트는 완전히 구성된 메시지 상자를 검사하고 차단없이 응답을 반환하는 라우너를 주입합니다. 호스트는 사용자 지정 프레젠테이션을 위해 동일한 세임을 사용할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "506d131c4413621965deb060d47686a48179982f6bbe7e287953cfd5c8195b1f",
+        "390cbfd42e11a6cb480c995e7fc6558fc3e2e13e2a5c238e54707f2c62afa193"
       ]
     },
     "spacr.qt.recipes.apply_recipe": {
@@ -60392,15 +60450,15 @@
       "source_blocks_sha256": [
         "55e756f45663f74b6a85948c4c7f4cbcce37cd9fbad2e2ebdbb9bd23dad8b743",
         "ce889d487a5a00e98c411f5a1f0c730293f15c86b0c5e554c8071d83f097efef",
-        "77f574e11afccd935db1e5e7b59555e4b556792ba047bcd8991c035a6cb3839e",
+        "c96d7991d20f017cb15e7a5d38ce393d4496b092c83191c4b0559643b7df2930",
         "253aa95e1d21ad45e472bae34c6a5a3f4202cec590de84d516a64becf4f3757e"
       ],
-      "source_sha256": "562c4f57e8fb40e2bd1b52440c52588a6ea48dc7dfc774a871896d4612e1ba2d",
-      "text": "스크린 위젯 - spacr 앱 당 하나.\n\n이 패키지는 그것의 레지스트리 라인을 소유 한 애플리케이션 보기가 존재하기 위해 실행되어야했기 때문에 상단에 9 개의 응용 프로그램 보기를 가져 오기 위해 사용되었으며,이 패키지에서는 각 애플리의 보기 창을 구축하는 경로에있다 - 그래서 하나의 앱 보기 가져 오는 9 개, 그들과 함께 pandas 그리고 그 아래의 모든 것, 창이 끌기 전에.\n\n라인은 더 이상 응용 프로그램 보기를 필요로하지 않습니다. :mod:`spacr.qt.app_catalog`는 구조화 된 데이터 이름, 이름, 문장, 섹션, 단계 및 애플리케이션 보기 공장의 이름을 선언하고, :func:`spacr.qt.app_catalog.register_declared`는 아무것도 가져오지 않고 모든 것을 기록합니다; 앱 보기는 처음으로 누군가가 그것을 열 때 가져옵니다. 스타일리스트 블록을 기여하는 애플리에이션 보기는 그 수입에 그것을 기록하고 :func:`spacr.qt.theme.register_widget_qss`는 첫 번째 위젯이 구축되기 전에 동시적으로 라이브 앱 잎에 넣습니다. :data:`spacr.qt.theme.WIDGET_QSS_MODULES`는 완전한/정적 인 스틸리스트가 명시적으로 요청되면 사용되는 저장소로 남아 있습니다.\n\n그래서 : 화면을 추가하려면 ``app_catalog``로 순서를 선언하고 - QSS 블록을 기록하는 경우 - ``WIDGET_QSS_MODULES``로 이름을 지정하여 완전한 잎이 남아 있습니다.",
+      "source_sha256": "b8fb8f64d26b26d385ebcd6a63bb7148a50ec7f1b21fcafc62b4f527df51d71e",
+      "text": "스크린 위젯 - spacr 앱 당 하나.\n\n이 패키지는 그것의 레지스트리 라인을 소유 한 애플리케이션 보기가 존재하기 위해 실행되어야했기 때문에 상단에 9 개의 응용 프로그램 보기를 가져 오기 위해 사용되었으며,이 패키지에서는 각 애플리의 보기 창을 구축하는 경로에있다 - 그래서 하나의 앱 보기 가져 오는 9 개, 그들과 함께 pandas 그리고 그 아래의 모든 것, 창이 끌기 전에.\n\n라인은 더 이상 응용 프로그램 보기를 필요로하지 않습니다. :mod:`spacr.qt.app_catalog`는 구조화 된 데이터 이름, 이름, 문장, 섹션, 단계 및 애플리케이션 보기 공장의 이름을 선언하고, :func:`spacr.qt.app_catalog.register_declared`는 아무것도 가져오지 않고 모든 것을 기록합니다; 응용 앱 보기는 처음으로 누군가가 그것을 열 때 가져옵니다. 스타일리스트 블록을 기여하는 응용 웹 보기는 그 수입에 그것을 기록하고 ``MainWindow``는 새 응용 뷰의 자체 QSS 범위에 등록 된 블록이 없어지기 전에 그것을 눈에 띄는 스택에 입력합니다. :data:`spacr.qt.theme.WIDGET_QSS_MODULES`는 완전한/정상적인 스택 페이지가 명시적으로 요청되면 사용되는 저장소로 남아 있습니다.\n\n그래서 : 화면을 추가하려면 ``app_catalog``로 순서를 선언하고 - QSS 블록을 기록하는 경우 - ``WIDGET_QSS_MODULES``로 이름을 지정하여 완전한 잎이 남아 있습니다.",
       "translation_source_blocks_sha256": [
         "55e756f45663f74b6a85948c4c7f4cbcce37cd9fbad2e2ebdbb9bd23dad8b743",
         "7a9e743056abe8b79368740d56a5657e6aff59a830f8fce064656d02c92ebd53",
-        "826b01439ded8b476dca4592436bc6e68884c039d7509ca79bd780f07e3dff32",
+        "08c11e83ca9c1db88df8fd6bbb60dcbaf17287770479d86b112238b8b85c9a3c",
         "253aa95e1d21ad45e472bae34c6a5a3f4202cec590de84d516a64becf4f3757e"
       ]
     },
@@ -61268,12 +61326,14 @@
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
-        "ac1d95c581e3e8b31a4dfdf03aee6b2a8702ce18e7310dcf834d4b0ee0e09bef"
+        "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
+        "6db4884fbd7891feb47094fd117a479f3d193384984c3dba79722ccc631a6fd4"
       ],
-      "source_sha256": "43cd29cd978ae814ef4aa00d6990ade7446a30394caa2f408b5e72b0e240a044",
-      "text": "이름/값 쌍을 `settings`에서 어떤 설정을 위젯이 응용 프로그램에 노출. 조용히 스키프 구조화 된 데이터 이름 현재 앱이 가지고 있지 않습니다 - 동일한 키 가치 맵링은 안전하게 여러 애플리케이션에 적용 될 수 있습니다.",
+      "source_sha256": "e15ba214585cffec9e0e23545d82016dabd542870628097ac62dbe51e78f0fd7",
+      "text": "이름/가치 쌍을 `settings`에서 이 앱이 표시하는 모든 설정 위젯으로 밀어 넣으십시오.\n\n대량 충전은 하나의 거래입니다.그것이 양식의 모양을 변경하는 경우, 완전한 합병 맵링은 값이 적용되기 전에 하나의 교체 스크린을 구축; 아무 신호도 롤을 통해 절반 방향으로 화면을 대체 할 수 없습니다.침묵적으로 현재 응용 프로그램이 가지고 있지 않은 구조화 된 데이터 이름을 스키 - 같은 키 값 맵핑은 안전하게 여러 앱에 적용 될 수 있습니다.",
       "translation_source_blocks_sha256": [
-        "c103ff60659df7c8ba1dc492cd854d81c1531ea027193f49422bc5b825a3f998"
+        "b167e9065cad1317b87d9628d34a5fc779e3b7bababa088309b3353c01bccd9c",
+        "066d414c2c811c3aeb43c327e12be7af258887be1e849e4275aaa101fb8d7af2"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
@@ -61544,6 +61604,18 @@
       "translation_source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "d0c9150f91d5e7d90387ac9151a4413c3f57140e9ba387fbb3df6aeed37a8ed8"
+      ]
+    },
+    "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
+      "source_blocks_sha256": [
+        "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+      ],
+      "source_sha256": "c259cf7d3f0dc92e7433feda51ca5f6eb4b77fa47a777e794cf8c66b277330d8",
+      "text": "섹션 위젯은 실제로 설정 패널에 설치되었습니다.\n\n``_settings_sections`` 의도적으로 또한 개체 문 설정에 대한 잠자는 양식을 포함합니다. 시각적 소비자 - 특히 성숙 및 범주 지표 - 대신이 하위 세트를 사용해야합니다.",
+      "translation_source_blocks_sha256": [
+        "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.restore_run_workspace": {
@@ -62298,14 +62370,76 @@
         "c152afbf2da10789e5c6f6e623648860955c57c53987f053d152da72ef844bcc"
       ]
     },
+    "spacr.qt.screens.classify.LazyFlowViewSection": {
+      "source_blocks_sha256": [
+        "ec30f6b922de90be1ab657e9f721ac77f5aebbf8e8e5676e3009dd859a5c5656",
+        "d2aef6c5078782ab9b7c6ca3b9b90035e9f726cef5cafd646bd744c276268c36"
+      ],
+      "source_sha256": "4123e578288b768d481d9e6b6e048346381cd5160bd3386029a357f672d9fdee",
+      "text": "FlowView을 지불하는 붕괴된 클래식 발자국은 열릴 때만 지불합니다.\n\n빈 ``content`` :class:`CollapsibleSection`로 전환하는 것은 의도적입니다 : 그래픽 렌더를 가져오면 크기 Qt/과학적 의존성 나무를 구축합니다. 클래식은 첫 번째 그림에이 작은 헤더만 얻을 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "ec30f6b922de90be1ab657e9f721ac77f5aebbf8e8e5676e3009dd859a5c5656",
+        "d2aef6c5078782ab9b7c6ca3b9b90035e9f726cef5cafd646bd744c276268c36"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.hideEvent": {
+      "source_blocks_sha256": [
+        "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383"
+      ],
+      "source_sha256": "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383",
+      "text": "캐시된 클래식 페이지는 숨겨져 있는 동안 사이클을 보내지 않아야 합니다.",
+      "translation_source_blocks_sha256": [
+        "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.panel": {
+      "source_blocks_sha256": [
+        "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d"
+      ],
+      "source_sha256": "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d",
+      "text": "처음 열기 전에 건설된 렌더 또는 ``None``를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.showEvent": {
+      "source_blocks_sha256": [
+        "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf"
+      ],
+      "source_sha256": "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf",
+      "text": "실제로 열려 있고 눈에 띄는 섹션을 위해서만 재현합니다.",
+      "translation_source_blocks_sha256": [
+        "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.shutdown": {
+      "source_blocks_sha256": [
+        "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed"
+      ],
+      "source_sha256": "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed",
+      "text": "렌더 소유 Qt 개체를 멈추고 릴리스하십시오.",
+      "translation_source_blocks_sha256": [
+        "af57d9a9f7d847c296c2e444fc180a385e9f27d1ee3383c51b793e50184854c7"
+      ]
+    },
+    "spacr.qt.screens.classify.install_flowview": {
+      "source_blocks_sha256": [
+        "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860"
+      ],
+      "source_sha256": "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860",
+      "text": "Mount Classify의 가벼운 FlowView 상자는 설정 아래에 있습니다.",
+      "translation_source_blocks_sha256": [
+        "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860"
+      ]
+    },
     "spacr.qt.screens.classify.install_folds": {
       "source_blocks_sha256": [
-        "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c"
+        "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8"
       ],
-      "source_sha256": "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c",
-      "text": "``screen``의 마스트 헤드에 Classify의 폴드 스트립을 넣으십시오.",
+      "source_sha256": "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8",
+      "text": "클래식의 FlowView 발자국과 폴드 스트립을 ``screen``에 넣으십시오.",
       "translation_source_blocks_sha256": [
-        "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c"
+        "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8"
       ]
     },
     "spacr.qt.screens.control_chart": {
@@ -71549,6 +71683,18 @@
         "eefc73d92314d3297539eb8414ab5ed2ee8b4b88cf4e5851681ead69fd634985"
       ]
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
+      "source_blocks_sha256": [
+        "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
+        "c65f13ac8f641b3040aaf9fe64a84ae3bac8b52d3b2f1927522d15b102585e00"
+      ],
+      "source_sha256": "8e94463448b2b20b5b37d5c90448a627644ecc7530a7ea6ebd13bc0d886b2b1d",
+      "text": "명백한 값을 대체하지 않고 저렴한 수입 사전을 적용합니다.\n\nmorphology/method/limit을 제공하는 설정 파일은 그 값을 소유하고 있습니다. 단 하나의 유형만 제공하는 파일은 피커가 직접 사용자 선택과 마찬가지로 실종된 권장 사항을 인용하도록 요청합니다.",
+      "translation_source_blocks_sha256": [
+        "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
+        "c65f13ac8f641b3040aaf9fe64a84ae3bac8b52d3b2f1927522d15b102585e00"
+      ]
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.build_sections": {
       "source_blocks_sha256": [
         "86007bce10c1491e1c79c4de376cbaf117605aefa880f8a3f3d3bdfb713df1ea",
@@ -71729,14 +71875,18 @@
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
       "source_blocks_sha256": [
-        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
-        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+        "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d"
       ],
-      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
-      "text": "의도적으로 숨겨진 실행 설정을 업데이트합니다.\n\n일부 값은 형식 밖에서 특별한 통제를 가지고 있습니다. UMAP 액션 스트립 GPU 타그글은 하나입니다 : 양식 체크 상자로 복제하면 진리의 두 가지 출처를 만들 것입니다. 숨겨진 것은 부재를 의미하지 않습니다 (변형 6), 그래서 가치가 살고있다. ``_defaults`` 그리고 아직도 수집에 도달합니다().",
+      "source_sha256": "775742ee793c892fe792874807a705b3438be146e65d564d1c89e93a07fabb32",
+      "text": "이 양식에 위젯이 없는 알려진 실행 설정을 업데이트합니다.\n\n이것은 현재 모양에 의해 놓친 형태와 개체 라인 이외의 전용 제어를 포함합니다.\n\n숨겨진 것은 부재를 의미하지 않습니다 : 수입 된 값은 ``_defaults``에 살고 여전히 ``collect()``에 도달합니다.\n\n현재 계산 위의 슬롯은 이 앱이 계산을 소유하고 구조화된 데이터 이름이 선언된 설정인 경우에만 수락되며 외국 앱 구조화 된 데이터 이름은 거부됩니다.",
       "translation_source_blocks_sha256": [
-        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
-        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+        "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87"
       ]
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
@@ -72120,16 +72270,16 @@
     "spacr.qt.screens.settings_model.organelle_morphology_now": {
       "source_blocks_sha256": [
         "9d6b465c48c38fb2865afdd46ea2aca95c4cca9fca96995f880b8e1129a2ef2b",
-        "3c2ccc3358ee8381b4e6ebf55af7d7459b1b6bac62e14e1037aafc6d264931bc",
+        "6344bbaae8b7b0882e7a9762362fb30063f19341e8e1c7347d41f8d89e03144a",
         "559d3267320e0415c7e60bdd87983477fb7d93dca4350de877abe1d86da929dc",
         "0e1f19f0c36d6c0ff01134b3d71fb53ee28a2079b382578e06057f670b8c0ed3",
         "55f2438b2fd8e799b9ec985704352391c387def8ff71e8c8bb188631c77ce586"
       ],
-      "source_sha256": "56bee590246538aabf4d209e5ead869f7ae2ec900de80b70a141c84cf428359e",
-      "text": "현재 organelle 슬롯에 적용되는 morphology를 해결합니다.\n\n``<role>_type`` 값은 :func:`spacr.organelle_types.resolve_type`로 해결됩니다. 인정된 프레세트의 경우 ``<role>_diameter``가 숫자 값으로 변환되고 :meth:`spacr.organelle_types.OrganelleType.morphology_for`로 전환됩니다. 잃어버린 또는 비숫자 직경이 ``None``으로 전환되며, 크기에 의존하는 프레 세트는 그들의 작은 개체 형태를 선택합니다. ``custom`` 또는 무효의 경우, 또는 프레셋이 지원되는 형태로 변환되지 않는 경우, 명시적인 ``<role>_morphology`` 가치가 대신 사용됩니다.\n\n:param role: ``organelle`` 또는 ``organelleb``과 같은 organelle-slot 설정을 위한 사전 설정.\n:param settings: 현재 값은 이름을 설정함으로써 열쇠를 지정합니다.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"`` 또는 ``None`` 해상도 경로가 지원되는 형태를 제공하지 않는 경우.",
+      "source_sha256": "5e8616160bbc08ab09104622769e1b638fcf9e7beb63c385dc9e41a5f7227a45",
+      "text": "현재 organelle 슬롯에 적용되는 morphology를 해결합니다.\n\n수집된 ``<role>_morphology``은 권한이 있습니다. 타입을 선택하면 그 제어에 권장 사항을 작성하고, 나중에 명시적으로 고급 선택은 사전 설정과 표시 결론을 이길 필요가 있습니다. ``<role>_type`` 및 ``<role>_diameter``를 직접 해결할 수 있습니다.\n\n:param role: ``organelle`` 또는 ``organelleb``과 같은 organelle-slot 설정을 위한 사전 설정.\n:param settings: 현재 값은 이름을 설정함으로써 열쇠를 지정합니다.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"`` 또는 ``None`` 해상도 경로가 지원되는 형태를 제공하지 않는 경우.",
       "translation_source_blocks_sha256": [
         "9d6b465c48c38fb2865afdd46ea2aca95c4cca9fca96995f880b8e1129a2ef2b",
-        "3c2ccc3358ee8381b4e6ebf55af7d7459b1b6bac62e14e1037aafc6d264931bc",
+        "6344bbaae8b7b0882e7a9762362fb30063f19341e8e1c7347d41f8d89e03144a",
         "559d3267320e0415c7e60bdd87983477fb7d93dca4350de877abe1d86da929dc",
         "0e1f19f0c36d6c0ff01134b3d71fb53ee28a2079b382578e06057f670b8c0ed3",
         "55f2438b2fd8e799b9ec985704352391c387def8ff71e8c8bb188631c77ce586"
@@ -73671,11 +73821,11 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+        "ccabc909941e3afe2105347182a893385388e4b12ec06203e711e10f5c44c215",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
-      "text": "키보드 첫 짧은 spaCR Qt GUI.\n\n주요 창에 글로벌 :class:`QShortcut` 링크를 기록하여 전체 애플리케이션이 마우스없이 사용할 수 있습니다.\n\n    Ctrl+H        집으로 가기\n    Ctrl+1..9     옆바에 있는 Nth 앱으로 스위치\n    Ctrl+K        명령 패널 열기\n    F1  / ?       Cheat Sheet에 대한 짧은 내용을 보여줍니다.\n    Ctrl+,        오픈 선호도\n    Ctrl+/        AI 컨솔을 열어보세요.\n    Cleaner Ctrl+End 최신 콘솔 줄로 이동 F11 전체 응용 프로그램 보기 전환 Esc 열린 대화 상자/팝업 닫기\n\n:func:`install`은 ``MainWindow.__init__``에서 한 번 호출됩니다.모든 링크는 :data:`SHORTCUTS`로 문서화되어 있으므로 사기판 대화는 실제로 연결된 것과 동기화됩니다.",
+      "source_sha256": "dfb645dee7b68ac6ed60a36c7db81f71bbff7ec786df070d970f393b81db5e2c",
+      "text": "키보드 첫 짧은 spaCR Qt GUI.\n\n주요 창에 글로벌 :class:`QShortcut` 링크를 기록하여 전체 애플리케이션이 마우스없이 사용할 수 있습니다.\n\n    Ctrl+H        집으로 가기\n    Ctrl+1..9     옆바에 있는 Nth 앱으로 스위치\n    Ctrl+K        명령 패널 열기\n    F1  / ?       Cheat Sheet에 대한 짧은 내용을 보여줍니다.\n    Ctrl+,        오픈 선호도\n    Ctrl+/        AI 컨솔을 열어보세요.\n    Ctrl+Shift+A 전체 애플리케이션 목록 열기 Ctrl+B 애니메이션 배경을 흰색으로 Ctrl+End 최신 콘솔 라인으로 점프 F11 완전한 응용 프로그램 보기 모음 Esc 열려있는 대화 / 팝업을 닫습니다.\n\n:func:`install`은 ``MainWindow.__init__``에서 한 번 호출됩니다.모든 링크는 :data:`SHORTCUTS`로 문서화되어 있으므로 사기판 대화는 실제로 연결된 것과 동기화됩니다.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
@@ -73685,7 +73835,7 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "d65a0add9677b70d6bd84a21fb592d982bfa33f878074d8b872aa36a41bf050e",
+        "5fc6269cba0646f24582e0e2fc44d52966b21db7196624b9d8cb42e334bb2779",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ]
     },
@@ -74909,6 +75059,20 @@
         "396de0295aa341954c8910e28fa710e99f7e55ee1dc335f3f749ddb1c18882d6"
       ]
     },
+    "spacr.qt.theme.clear_widget_qss_overlays": {
+      "source_blocks_sha256": [
+        "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+        "dcefae6883c40de5c67ea5e964fa076bb03fd37f1ccb9977880ffc0a69ab3b4a",
+        "2dbc0f1c436c7fe95d49069ebdfe5297caf4c538bd842070d08f31c98046f29d"
+      ],
+      "source_sha256": "85c0b84a711d3e313a195c5d79114fde2e9dceb541785dffa44700f92bb718be",
+      "text": "글로벌 테마가 재건되기 전에 스크린 로컬 늦은 QSS 소프트웨어를 제거합니다.\n\n재건된 애플리케이션 잎에는 새 테마, 오파시티 및 글꼴 규모로 지금까지 등록된 모든 블록이 포함되어 있습니다. 오래된 로컬 복사본을 남겨두면 이전의 선호도 값에 대한 응용 프로그램 전망과 우선 순위를 제공합니다.\n\n:returns: 스크린 뿌리의 수는 소유의 suffix가 제거되었습니다.",
+      "translation_source_blocks_sha256": [
+        "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+        "fdc06fad2596553f7584dd2065b88fdaa819ad24d95234cad1c549f2dec8a06d",
+        "2dbc0f1c436c7fe95d49069ebdfe5297caf4c538bd842070d08f31c98046f29d"
+      ]
+    },
     "spacr.qt.theme.close_mark_button": {
       "source_blocks_sha256": [
         "933f5c4abd4fae3c433cd4c422203e0a0f152ded10d9d3be637f32bbec5b2e93"
@@ -75065,22 +75229,24 @@
     },
     "spacr.qt.theme.ensure_widget_qss_applied": {
       "source_blocks_sha256": [
-        "04d6b35c442601ca66042efc70801f1a50423d0c963e63cf7a17b14cdf62f914",
-        "ca5b4888479f318807cdc2a8fecc3cccfa8a4aa4a969e52da89d38755a482af5",
-        "1dcc99de94a59e8bf77a61359ea64741e0d0290fc924fa0013b2cd572bc2938b",
-        "e728f094e7e23ffe76e51d408e7743dff5a577a6c99d12bae72bcca55d42225c",
-        "2ad63b243fcb0993da0ff969c3c0b9f96e025e1fb89e3654dd63beacba82060c",
-        "dbc0d41732843bfc35c13ac7327fbc52df0bafe7f10d6691f761aa157c9724fa"
+        "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
+        "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
+        "28c8a7af366dc8f22eb9da3ed30b4b13f3c3a6eb2c0cd0d221ed187c9adf9559",
+        "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
+        "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
+        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ],
-      "source_sha256": "2b0de7f19162e2d686bf4a31e0a4ac32ca7ef0790b63f9343201d9bee883e42c",
-      "text": "``names``이 없으면 응용 프로그램 스틸 탭을 다시 적용합니다.\n\n블록은 그것의 모듈의 **import**에 등록되며, 응용 프로그램 스타일리스트는 ``MainWindow``가 존재하기 전에 처음 생성됩니다. 생산 스타트업은 의도적으로 오픈되지 않은 애플리케이션 보기 모듈을 가져오지 않으므로 :func:`register_widget_qss`는 각 모듈이 도착했을 때 동시에 이것을 호출합니다.\n\n이것은 가설적이지 않습니다 : 모델 비교의 패널은 페이지 표면을 주어졌으며, 측정 테스트가 통과되었습니다 (테스트는 스타일리스트를 적용하기 전에 모듈을 가져옵니다) 그리고 패널이 실행 응용 프로그램에 여전히 텅 비어 있기 때문에 ``spacr.qt.screens.model_compare``는 스틸리스트가 구축되었을 때 ``sys.modules``에 있지 않습니다. ``spacr.qt.SELF_REGISTERING_MODULES``에 나열된 애플리케이션 뷰는 출시 중에 가져오지 않았으며 문제는 결코 없었습니다.\n\n기존 건축 전화는 내부 기능에서 등록 된 블록에 대한 유용하고 강력한 방어로 남아 있습니다. ``QApplication``가없는 no-op, 아직 스타일리스트가 없으며, 이미 진행 중인 재건 또는 요청된 모든 블록이 이미 존재할 때입니다.\n\n:param names: 등록된 블록 이름은 호출자가 살아 있어야 합니다.\n:returns: ``True`` 스타일리스트가 재생되었을 경우",
+      "source_sha256": "46cb62d3861ca489cb4ea2db2b17553e562d7918babae1ede8b85f13b1d480b9",
+      "text": "늦게 등록된 블록을 ``root``에 설치하여 앱을 복구하지 않습니다.\n\n생산 응용 프로그램 스타일리스트는 열리지 않은 스크린 모듈이 수입되기 전에 구성됩니다.\n\n각 수입에 대한 전체 잎을 대체하면 첫 번째 페인트 경주가 종료되지만 Qt 잎이 찢어지고 각 캐시된 응용 프로그램 보기에서 축적 된 모든 비지트를 다시 폴링합니다.\n\n스크리닝 뿌리는 QSS 범위입니다 : 거기에 설치된 규칙은 그 화면과 그 후손에 도달하고, 뿌리가 표시되기 전에 그들을 적용하면 홈이나 이전에 열린 모듈을 만지지 않고 동일한 첫 그림 계약을 유지합니다.\n\n소피스에는 신청서에서 부재된 모든 등록된 블록이 등록 명령에 포함되어 있으며, 단순히 ``names``이것은 화면의 의존성에 의해 수입 된 블록을 함께 유지하고 나중에 전화를받는 것은 다른 선호 값을 가진 조각 대신 하나의 완전한 suffix를 대체 할 수 있음을 의미합니다. ``names`` 그가 요구하는 블록에 대한 호출자의 문서가 남아있다; 그것을 무시하는 것은 MainWindow 스크린 호스트 경로\n\n그것은 ``root``, ``QApplication``, 또는 응용 프로그램 스타일리스트가없는 no-op입니다. spaCR 스타일링을 선택한 적이없는 호출기는 단순히 그것의 위젯 중 하나를 구축함으로써 선택되지 않습니다.\n\n:returns: ``True``은 ``root.setStyleSheet``이 호출되었을 때만 사용됩니다.",
       "translation_source_blocks_sha256": [
-        "04d6b35c442601ca66042efc70801f1a50423d0c963e63cf7a17b14cdf62f914",
-        "ae4a1d35306a4ae6ebc541157cdf26673a0f83f885b46053b7a8f50cd74e5547",
-        "5095e69d97865d2ae12af969eaf89e237a72e0e950ab4f0d17ca80022bcced7e",
-        "e728f094e7e23ffe76e51d408e7743dff5a577a6c99d12bae72bcca55d42225c",
-        "2ad63b243fcb0993da0ff969c3c0b9f96e025e1fb89e3654dd63beacba82060c",
-        "dbc0d41732843bfc35c13ac7327fbc52df0bafe7f10d6691f761aa157c9724fa"
+        "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
+        "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
+        "9d1683c66339204160718950b530883f665447ff6433c5b788cebfdb9acb38f8",
+        "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
+        "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
+        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ]
     },
     "spacr.qt.theme.field_chrome": {
@@ -75533,10 +75699,22 @@
         "64090ba1e7ec2bc65e37d8b5e5013cee540fca5e0a8187e7cf709255b35757cf"
       ]
     },
+    "spacr.qt.theme.preserve_widget_qss_overlay": {
+      "source_blocks_sha256": [
+        "6d809aa4bd114bbf7cacb14a06d0817c9019d114785d8e790992d5e3cede3f62",
+        "59872508f7f62b4dc36e73c019aea38f61ae3c93b2084016fbff5b08ffd5adef"
+      ],
+      "source_sha256": "f7e618c858e67eceb84f5bb52be16b7d4a087460a57476a7897bdb35dc12991a",
+      "text": "``stylesheet``를 ``root``의 소유 늦은 QSS suffix와 함께 반환합니다.\n\n애플리케이션 뷰는 늦은 유지트 블록이 설치된 후에 합법적으로 자신의 기본 스타일리스트를 대체할 수 있습니다.이 기존 임무에 suffix를 삽입하면 두 번째 ``setStyleSheet`` 호출 (그리고 그것의 팔레트 교환 카스카드)을 피하고 블록을 다음 페인트에 사용할 수 있도록 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "6d809aa4bd114bbf7cacb14a06d0817c9019d114785d8e790992d5e3cede3f62",
+        "87eee2ac2694041350d48cfba23df4f0d03e1e01dd0be730c117e4931e19bb68"
+      ]
+    },
     "spacr.qt.theme.register_widget_qss": {
       "source_blocks_sha256": [
         "6e8322b6d15f7a5672ce79902201747bcef0c56a0412c88803b79e4c6fee9910",
-        "2e2b2d574091b1dffd8a165bdcd93a35b6700daa33a413c4d2d970e9a76eeafd",
+        "92fb40dd32da260b602b8017f642a311b5dea80dc2d53798604419d6614c630a",
         "a9b640c7f6729691c3257fc3cded5357d6c9b24c08a61708163ac4ce90a2a4a0",
         "6ada1116970a8059e0993ccc92ee9a6d46a5c5f6104b9bf2d724abeae4ed81b4",
         "fc0c5b9ebaf7b399751694b683f73b6f8a67618f4414e84abaef62e0b8dbfcad",
@@ -75546,11 +75724,11 @@
         "82da4b6b050802e5354ffd2e09578386d4b6c247912ee6bd4ffb44e41d34724f",
         "96c8f9c7f17512e73036e0a4984df70222e73222130688245350994e773682f4"
       ],
-      "source_sha256": "c25d6551a74441bfd1166a3bc01984a070afbd539362a507e7227d4d73dbbf9d",
-      "text": "생성된 각 스틸 잎에 첨부된 QSS 블록을 등록합니다.\n\n``QApplication``이 이미 spaCR 스타일리스트를 가지고 있고 블록이 그 안에 있지 않은 경우, 등록은 동시에 라이브 잎을 재구성합니다. 애플리케이션 보기 모듈은 자신의 위젯 클래스를 정의하기 전에 등록합니다.\n\n:param name: 안정적인 식별자, 일반적으로 위젯의 ``objectName``. 그것은 블록에 의해 보고되고 등록되지 않습니다; 그것은 QSS에 나타나지 않습니다.\n:param fn: ``fn(palette, opacity) -> str``, :func:`stylesheet`에 한 번 호출.\n\n    ``palette``은 사용자의 페이지 오파시티를 통해 이미 제시된 세 개의 표면 역할 (``surface``, ``surface_alt``, ``surface_hi``)을 가진 테마의 팔레트입니다 - 같은 값은 내장된 규칙이 interpolate, 그래서 등록 된 블록은 알파 수학을하지 않고 앱과 일치합니다. 두 개의 예약된 색상이 아닌 구조된 데이터 이름은 ``theme`` ( :func:`pane_surface`, :func:`pane_alpha` 및 :func:`palette_for` 모두가 원하는 테마 이름)과 ``font_scale``을 따라 달라집니다.\n\n    ``opacity``는 사용자의 페이지-오파시티 선호도, 또는 ``None``를 위해 \"테마의 디자인 스크립트를 사용하십시오. :func:`block_surface` / :func:`pane_alpha`/ :func:`panel_alpha` 대신 그것을 해석하십시오 : ``None``는 1.0이 아니며, 읽기 층은 적용해야합니다.\n\n    :func:`block_surface` 및 **not** :func:`pane_surface`, 그것의 ``None``는 \"nobody told me\"를 의미하고 라이브 선호도를 읽으므로 그것을 사용하는 블록은 ``stylesheet(theme)``를 QSettings 값 대신 그것의 논쟁의 기능으로 변환합니다.\n:param replace: ``name``를 다시 등록할 수 있습니다. 기본적으로 끄기 때문에 두 개의 위젯이 한 명의 이름을 조용히 요구하지 않습니다.\n:raises ValueError: ``replace`` 없이 두 배 이름으로 사용합니다.\n:raises TypeError: ``fn``이 호출할 수 없는 경우.",
+      "source_sha256": "07ccbccf9b984e08f97f72a4b0adc3aac01c9d97f3ac1448c48bf1337c90f754",
+      "text": "생성된 각 스틸 잎에 첨부된 QSS 블록을 등록합니다.\n\n등록 자체는 다시는 적용되지 않습니다. ``QApplication`` 스타일리스트 Qt 모든 라이브 위젯을 글로벌에서 다시 폴리시합니다. ``setStyleSheet`` 호출; 그것을 한 번에 수입 한 응용 프로그램 전망에 따라 나중에 만든 모듈은 점차적으로 느리게 열립니다. :func:`ensure_widget_qss_applied` 새 응용 프로그램 보기의 뿌리에 놓친 블록을 설치하기 전에 그 대신에 그릴 수 있습니다.\n\n:param name: 안정적인 식별자, 일반적으로 위젯의 ``objectName``. 그것은 블록에 의해 보고되고 등록되지 않습니다; 그것은 QSS에 나타나지 않습니다.\n:param fn: ``fn(palette, opacity) -> str``, :func:`stylesheet`에 한 번 호출.\n\n    ``palette``은 사용자의 페이지 오파시티를 통해 이미 제시된 세 개의 표면 역할 (``surface``, ``surface_alt``, ``surface_hi``)을 가진 테마의 팔레트입니다 - 같은 값은 내장된 규칙이 interpolate, 그래서 등록 된 블록은 알파 수학을하지 않고 앱과 일치합니다. 두 개의 예약된 색상이 아닌 구조된 데이터 이름은 ``theme`` ( :func:`pane_surface`, :func:`pane_alpha` 및 :func:`palette_for` 모두가 원하는 테마 이름)과 ``font_scale``을 따라 달라집니다.\n\n    ``opacity``는 사용자의 페이지-오파시티 선호도, 또는 ``None``를 위해 \"테마의 디자인 스크립트를 사용하십시오. :func:`block_surface` / :func:`pane_alpha`/ :func:`panel_alpha` 대신 그것을 해석하십시오 : ``None``는 1.0이 아니며, 읽기 층은 적용해야합니다.\n\n    :func:`block_surface` 및 **not** :func:`pane_surface`, 그것의 ``None``는 \"nobody told me\"를 의미하고 라이브 선호도를 읽으므로 그것을 사용하는 블록은 ``stylesheet(theme)``를 QSettings 값 대신 그것의 논쟁의 기능으로 변환합니다.\n:param replace: ``name``를 다시 등록할 수 있습니다. 기본적으로 끄기 때문에 두 개의 위젯이 한 명의 이름을 조용히 요구하지 않습니다.\n:raises ValueError: ``replace`` 없이 두 배 이름으로 사용합니다.\n:raises TypeError: ``fn``이 호출할 수 없는 경우.",
       "translation_source_blocks_sha256": [
         "6e8322b6d15f7a5672ce79902201747bcef0c56a0412c88803b79e4c6fee9910",
-        "5ad738b40a0e71cf0c989b4e0a26da7c5d94a9818404d98b4e9f4cedbb00a10a",
+        "8279fe7a53700dd8d93c541a257a343751a3e13531768cefdb271b62069d2d6f",
         "a9b640c7f6729691c3257fc3cded5357d6c9b24c08a61708163ac4ce90a2a4a0",
         "6ada1116970a8059e0993ccc92ee9a6d46a5c5f6104b9bf2d724abeae4ed81b4",
         "953c0449cf369ace354e5697438e365df2b8416f63b212716260f17e90242c80",
@@ -75597,14 +75775,14 @@
     },
     "spacr.qt.theme.rim_colour": {
       "source_blocks_sha256": [
-        "42280360eb0631d50783c751d04020437db9ca80abd70bd8c456da989e7cb8c6",
-        "a83cec88d86dd6faafe4d05cccb9f34df5573c8a84b41c3568d584117551eff6"
+        "4a8a46fc86d1481187c0c564a1a644e37a94cb30e279e8b53545885b50d60e6c",
+        "e88f8fdc5f8f5329a41e26c256a216e3176d1c2655b19fe0eee2309233d30e88"
       ],
-      "source_sha256": "24c3cf6749369a31d9cd69ef4d93163b5602cf008757f2f4652c7f95ebb4e513",
-      "text": "각 끈을 설명하는 헤어 라인 - 주제의 자신의 인크.\n\n흰색은 어두운 테마, 빛에 가까운 검은색, 왜냐하면 그것이 ``fg``이 이미 무엇인지. \"얇은 흰색 림, 흰색 모드에 검은색\"으로 요청; ``fg`` 대신 ``#ffffff``을 쓰는 것은 공간과 세포가 무료로 얻을 수 있음을 의미하며, 조용히 보이지 않는 림을 끌어 올리는 테마가 추가 될 수 없습니다.",
+      "source_sha256": "d990f31a81dbafcccdcd100fd3248623f6a8eba5d76a87f14bda07f639eca84a",
+      "text": "상당한 헤어 라인은 뚜렷한 타일에 - 주제의 자체 인크.\n\n어두운 주제에 흰색, 빛에 가까운 검은색, 왜냐하면 그것이 이미 ``fg``이기 때문입니다.수평 카드와 상호 작용 하버 스테이션은 여전히 그것을 사용합니다; 휴식 홈 모듈 플레이트는 의도적으로하지 않습니다. ``fg`` 대신 ``#ffffff``을 쓰는 것은 각 팔레트가 합성에서 흐르는 원료 색상없이 오른쪽 인크를 얻는 것을 의미합니다.",
       "translation_source_blocks_sha256": [
-        "42280360eb0631d50783c751d04020437db9ca80abd70bd8c456da989e7cb8c6",
-        "a83cec88d86dd6faafe4d05cccb9f34df5573c8a84b41c3568d584117551eff6"
+        "4a8a46fc86d1481187c0c564a1a644e37a94cb30e279e8b53545885b50d60e6c",
+        "e88f8fdc5f8f5329a41e26c256a216e3176d1c2655b19fe0eee2309233d30e88"
       ]
     },
     "spacr.qt.theme.scrim_alpha": {
@@ -75681,6 +75859,16 @@
       "text": "Spaceout 애니메이션 시계를 설정하고, 0 또는 그 이상으로 접착합니다.",
       "translation_source_blocks_sha256": [
         "1cb4961ae050abca695023398d913a3e42e068d96e8ce64127fd8115d2b0f36d"
+      ]
+    },
+    "spacr.qt.theme.set_widget_qss_context": {
+      "source_blocks_sha256": [
+        "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608"
+      ],
+      "source_sha256": "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608",
+      "text": "늦은 스크리닝 블록에 대한 정확한 라이브 선호도 입력을 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608"
       ]
     },
     "spacr.qt.theme.size_close_mark": {
@@ -75809,10 +75997,10 @@
         "98a1e8ec1fa65c1d576b4288afe2c4f7fd50c1ca89451bda04bee763d3da5631",
         "ba845ce0deb5c416f138f775aab2edd7026eb5f943a329a03b6897eac8b38e1a",
         "1dc9288a2ce9e29f4950df06641e6a72350c4ce4bd02483d8e5faa7dd866b00d",
-        "eb37546ed05e7dd1943ad466f37cd95f4a525111a03e27be92224af97b1b46ee"
+        "4bd9369012c8b150e7795cecd08af07b29699d9d187c70b588bf5fbd75f4f140"
       ],
-      "source_sha256": "ba21acb72df08c2096257eb0ee618527cb79abd3d482e80c3892a2c048c97f36",
-      "text": "응용 프로그램의 각 사용자 지정 비게트를 스타일링하는 QSS 스트립을 반환합니다.\n\n:func:`register_widget_qss`로 등록된 블록은 아래의 모든 것에 따라 추가되므로 위젯의 자체 규칙은 일반적인 규칙에 대하여 특성 링크를 얻습니다.\n\n:param theme: :data:`THEMES`의 하나; 알려지지 않은 값이 어두워집니다.\n:param font_scale: 각 글꼴 크기에 적용된 복제자 :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: :data:`IMAGE_THEMES`의 테마만 사용; ``None`` (기본, 그리고 첫 번째 실행 중간 세대가 얻는 것)은 평평한 그라디언트로 돌아갑니다.\n:param surface_opacity: 사용자 요구된 알파는 모든 공유 모듈 표면에 대 한. ``None`` 테마의 디자인 스크립트를 사용 합니다.\n:param load_widget_registrars: 응용 프로그램 스타트업은 ``False``을 통과하여 열려 있지 않은 데이터 애플리케이션 뷰가 과학적 스택을 첫 번째 프레임으로 끌 수 없습니다; 늦은 :func:`register_widget_qss`은 그 애플리의 첫 번째 뷰를 구축 할 수 있기 전에 적용됩니다.",
+      "source_sha256": "6e7d68dd8ce096c857898c5c242d5671f16a8d5690269bb5321f7f94ae861f1a",
+      "text": "응용 프로그램의 각 사용자 지정 비게트를 스타일링하는 QSS 스트립을 반환합니다.\n\n:func:`register_widget_qss`로 등록된 블록은 아래의 모든 것에 따라 추가되므로 위젯의 자체 규칙은 일반적인 규칙에 대하여 특성 링크를 얻습니다.\n\n:param theme: :data:`THEMES`의 하나; 알려지지 않은 값이 어두워집니다.\n:param font_scale: 각 글꼴 크기에 적용된 복제자 :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: :data:`IMAGE_THEMES`의 테마만 사용; ``None`` (기본, 그리고 첫 번째 실행 중간 세대가 얻는 것)은 평평한 그라디언트로 돌아갑니다.\n:param surface_opacity: 사용자 요구된 알파는 모든 공유 모듈 표면에 대 한. ``None`` 테마의 디자인 스크립트를 사용 합니다.\n:param load_widget_registrars: 이것은 완전한 호출 및 테스트를위한 공공 기본으로 남아 있습니다. 애플리케이션 스타트업은 ``False``를 통과하여 열리지 않은 데이터 애플리에 대한 시각이 과학적 스택을 첫 번째 프레임으로 끌 수 없습니다; ``MainWindow`` 늦은 블록을 새 애플리의 시각에 끌어 넣기 전에 그 응용 프로그램 시각을 눈에 띄는 스택에 삽입합니다.",
       "translation_source_blocks_sha256": [
         "3408554d895feff2308c9209f02fca27a353e38125a0f787885b7e8373a3e074",
         "94bd8539720c5f96c1ef900f08786dfaec5b3930d37291445d320b0ee4902131",
@@ -75820,7 +76008,7 @@
         "98a1e8ec1fa65c1d576b4288afe2c4f7fd50c1ca89451bda04bee763d3da5631",
         "ba845ce0deb5c416f138f775aab2edd7026eb5f943a329a03b6897eac8b38e1a",
         "1dc9288a2ce9e29f4950df06641e6a72350c4ce4bd02483d8e5faa7dd866b00d",
-        "7c86e0b6f4fe2df6f00d3ac831fe8f69b70e2f1a86b97f6a863e82263dc81c69"
+        "e352eb648ef1007664aa0a9a8c051b83c8feb33f493f3eab2a5c91dd858b9d90"
       ]
     },
     "spacr.qt.theme.take_the_scroll_arrows_off": {
@@ -110457,6 +110645,272 @@
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
       ]
     },
+    "spacr.resource_log": {
+      "source_blocks_sha256": [
+        "7e9a1ded9fb3fd5f0285e73876eed5df6784f1f72e08b464c620d65a5d8c18f2",
+        "e77768ba0adbf9c21d371776bc8ade6fbb54edabf3e9579da6c9d17ec7614435",
+        "605f8a5ed779479b023ad00ff25827817c63ddebf05c47f2ec0f03b50a377255",
+        "8cdbc8e5f322440f36473877687edf07828f9ec76c3a1c27864893319bf9c7c7",
+        "97259178f63e32eec88b19a36f799a638722113bfaf1e1d92c5d37443acb0796",
+        "80e58ba2be5cbf3a9b8be85bbccf0e42da8de8d282e46e67d83afae5e7083542",
+        "9df66fc9063bcee33904aa4cd9baf9b167800835a9581905e038b55a86463be0",
+        "a96563b14c1e0b23cb411731cbad0770b140b241e2bca36aab69979200a9f26c"
+      ],
+      "source_sha256": "ea819f9daac05d0df1d418c087cfe1330ef18ab4bac03e9a49597285643ed497",
+      "text": "무엇을 spaCR's 프로세스 TREE는 실행하는 동안 비용, 자신의 설정에 따라.\n\n왜 이것이 읽기 spaCR 알레디 타크스가 아닙니다.\n\n패키지의 각 리소스 숫자는 CALLING 프로세스를 계산합니다 : `spacr.fit_resources.host_rss` 읽기 ``/proc/self/statm``, `spacr.qt.timing` 그것은 자신의 거주자 크기를 읽고, 매개 변수의 바닥은 말할 수없는 MACHINE의 무료 메모리를 읽습니다. spaCR 다른 임대인으로부터 자신의 자녀가 공유 상자에 있습니다.\n\nspaCR 가장 무거운 작업은 호출 과정에서 일어나지 않습니다 - `spacr.sequencing` 저장 과정이 시작되며, `spacr.parameter_sweep` 아이의 모든 시험은 실행됩니다 - 그래서 부모는 기억 밖의 재생자가 처리 세션을 수행 할 때까지 건강하게 보이며, 그 후에는 읽을 것이 없습니다.\n\n이 모듈은 프로세스와 각 후손을 합계하고 각각의 이름을 지정하므로 \"which trial was large\"는 기록이 대답 할 수있는 질문입니다.\n\n왜 로그인은 단어가 아닙니다. Verbose 로그링은 각 전화와 각 반환에 불을 붙이는 프로필 호크를 설치하고, 스타트업의 20 배로 측정합니다. 그것을 통해 가져온 계정은 실제 프로그램이 아닌 추적 된 프로그램을 설명 할 것이며, 이것은 정확히 아무도 측정하고 싶지 않은 프로그램입니다. 그러므로 이 샘플 대신 : 하나의 psutil은 독립적 인 데이몬 실행 경로에서 1 초를 읽고, 그것은 결코 GUI 실행의 주요 경로가 아니며, 그렇지 않으면 끊임없는 경로입니다. 유용한 기본이 \"off\"이 아니기 때문에 체크 상자 대신 세 개의 상태 - 가장 가치있는 자원 데이터는 실패 할 것으로 예상되지 않습니다.\n\n우리는 플랫폼이 그것을 제공하는 곳, 다음 PSS, 다음 RSS - 그리고 각 레코드는 그것이 사용하는 측정 이름, 왜냐하면 RSS 두 배로 페이지를 계산 하 고 나쁜 숫자를 과소 평가 합니다.\n\n여기서 아무것도 성공할 필요가 없습니다. 나열되고 읽는 사이에 나오는 아이는 예상되는 결과가 아니라 오류입니다 : 그 아이가 떨어지고 나무의 나머지는 보존되고, 떨어진 읽기의 수는 샘플에 가서 기록은 그것이 놓친 것을 말합니다. 플랫폼은 독립적 인 실행 경로 시간 기록을 제공 할 수 없습니다, 그것은 할 수 없기 때문에 결코 제로 \"this thread was free\". 독립적인 실행 길 GPU 메모리가 목적에 부족합니다 : CUDA 맥락은 프로세스에 속한다, 그래서 독립적으로 실행 도로 숫자는 판타지가 될 것입니다.",
+      "translation_source_blocks_sha256": [
+        "4d0d5c0163811f8dd9735d703e644b43401847c9eb1f9ce1b91674c81dc14225",
+        "e77768ba0adbf9c21d371776bc8ade6fbb54edabf3e9579da6c9d17ec7614435",
+        "605f8a5ed779479b023ad00ff25827817c63ddebf05c47f2ec0f03b50a377255",
+        "8d643a4339c8e1534b3b3ca879bc33d13f986f7d632f0c64992d18c27feca217",
+        "97259178f63e32eec88b19a36f799a638722113bfaf1e1d92c5d37443acb0796",
+        "b3a1719a63bb29ece558027db00cb2eeb23e6bcc3e641fd094101634cece739b",
+        "9df66fc9063bcee33904aa4cd9baf9b167800835a9581905e038b55a86463be0",
+        "99f28e8b8cc28728371dbd99c243ff7a35c870dee6686b30f5e91448fb52a7dd"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler": {
+      "source_blocks_sha256": [
+        "c8fd1d595c1bb34b4a36913c853834cce243c491261c1408cee43c9c41945803",
+        "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+        "a56e518c04cc78a83dfec7da833e411d5ed2d33100da5e203917a2c788858fb9",
+        "eee29c63eca776b5d694956a5d04c1e4d3d5d0cc822c618bdcc1761a2f859ae9",
+        "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556"
+      ],
+      "source_sha256": "c4c10294e67642d80fd54a9812593e8686df40d200b302d6b4eec9b642f935b4",
+      "text": "프로세스 나무가 얼마나 비용을 지불하는지에 대한 제한된 배경 기록.\n\n다이몬 스트립은 ``interval`` 초마다 ``capacity`` 샘플의 반지 부퍼로 한 번 읽는다., 그래서 일주일 동안 지속되는 실행은 제한없이 기록을 성장시킬 수 없으며 여전히 죽을 때 가장 최근의 시간을 떠나지 않습니다.\n\n독립적 인 실행 경로는 다이몬이며 GUI 실행의 주요 경로는 결코 아닙니다 : 그것은 출구에서 프로세스를 열 수 없으며 다시 그림을 지연 할 수 없습니다.\n\n경로가 주어지면 각 샘플은 하나로 쓰여집니다. JSON 라인 및 흐름, 레벨, 측정, 간격 및 시작을 지정하는 헤더 라인 후.이 파일을 처리 세션에 대하여 등록하는 것은 호출자의 작업입니다 -이 클래스는 아티팩트 데이터베이스가없는 노동자 프로세스에 의해 가져옵니다. GUI.\n\n``\"off\"`` 레벨에서는 열쇠가 시작되지 않고 파일이 열리지 않으며, 이는 실행 전과 후에 열쇠 검토가 볼 수있는 권리가 있습니다.",
+      "translation_source_blocks_sha256": [
+        "c8fd1d595c1bb34b4a36913c853834cce243c491261c1408cee43c9c41945803",
+        "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+        "392185ef260a4c743b84559648c7b5af0212315fc6cf412e2f41eb9bc220ea44",
+        "66933da868a43b7056d52cee28d3c90efe3f983e10982e65b6541bf9728b8730",
+        "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.__enter__": {
+      "source_blocks_sha256": [
+        "e04995414a22506de606c0bf5099a8c52cabc4d930191e90c35bfc353f03a1eb",
+        "6a0274893f576838a167b53ef603187cdbf7108d4a3279077a01e56526f33209"
+      ],
+      "source_sha256": "8f912fbb63f189138340ae8b1df9a7b2f78b5eb4fffefdbb7f913089fc5e4d3e",
+      "text": "블록의 기간 동안 샘플링을 시작합니다.\n\n:returns: 이 샘플",
+      "translation_source_blocks_sha256": [
+        "e04995414a22506de606c0bf5099a8c52cabc4d930191e90c35bfc353f03a1eb",
+        "6a0274893f576838a167b53ef603187cdbf7108d4a3279077a01e56526f33209"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.__exit__": {
+      "source_blocks_sha256": [
+        "d54fac58e9a27fb37618b36290faaa869daf981fe745b9458471f3a6f92351f0",
+        "23228801d97c7a9dda88e1c3261a52b5938b5b0200c8cd72614e44edc2dc9bba",
+        "f30c73fa140c61141ca405d8a5815f1efc8d9f6e5506e24ca4a06cdc325f1182"
+      ],
+      "source_sha256": "e2f839300bb6a057fcdf5eb00d666dd173e94320557256e56b45057449d1514f",
+      "text": "샘플링을 중단하십시오, 블록이 끝나면 무엇이든.\n\n:param exc_info: 예외는 블록이 상승하는 경우.\n:returns: ``False``, 그래서 블록에서 예외는 여전히 확산됩니다.",
+      "translation_source_blocks_sha256": [
+        "d54fac58e9a27fb37618b36290faaa869daf981fe745b9458471f3a6f92351f0",
+        "23228801d97c7a9dda88e1c3261a52b5938b5b0200c8cd72614e44edc2dc9bba",
+        "f30c73fa140c61141ca405d8a5815f1efc8d9f6e5506e24ca4a06cdc325f1182"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.describe": {
+      "source_blocks_sha256": [
+        "9cdd195b1d9fff361384d2892a84ddf1b0b2033d9a62ea8c2cf1f9216271fe6d",
+        "9e894a975ca59055f9b172e235c04c81d5f417a61c0b5242b8f9de236dcfc42e"
+      ],
+      "source_sha256": "580314eec4eb3da079c89492d345afba4b5fdb312038e986c3b003129dd48554",
+      "text": "사람으로서 꼭대기는 그들을 읽는다.\n\n:returns: :func:`describe`이 반환되는 경우, ``\"\"``은 아무것도 기록되지 않았을 때.",
+      "translation_source_blocks_sha256": [
+        "9cdd195b1d9fff361384d2892a84ddf1b0b2033d9a62ea8c2cf1f9216271fe6d",
+        "9e894a975ca59055f9b172e235c04c81d5f417a61c0b5242b8f9de236dcfc42e"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.is_running": {
+      "source_blocks_sha256": [
+        "c600fa5446ebff24383bd9187d3360f2357978cab1b8cd84e0a6a2ab40d3975b",
+        "02a5d0970c35d823396739644f51efefaf23a13cb7fb6c6025be1288e1398577"
+      ],
+      "source_sha256": "42a61f38c8a612e1d51972c2622411be610a5e5e631620be05f5f08cff488b08",
+      "text": "샘플링 테이프가 살아 있는지 여부\n\n:returns: ``True`` 테이프가 실행되는 동안.",
+      "translation_source_blocks_sha256": [
+        "c600fa5446ebff24383bd9187d3360f2357978cab1b8cd84e0a6a2ab40d3975b",
+        "02a5d0970c35d823396739644f51efefaf23a13cb7fb6c6025be1288e1398577"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.sample_once": {
+      "source_blocks_sha256": [
+        "c35ccdfb043261f75c471be1dc7f06df5589a2789833a4541df005796ac6a83f",
+        "43befbb7de9c15535375ce417409dd89a6dd707abcc565b69b0bc91a93eaedfa",
+        "13ee8853d45284419f5ffbb37729ae20ba142a9fb36d119580c8e1e57cb2e237"
+      ],
+      "source_sha256": "d8c0c46c817c8c0b8a53539241450ae6fffe9c0985c0cdbf6be7a0adc1d7db4f",
+      "text": "지금 한 번 읽고, 그것을 유지하고 글을 쓰십시오.\n\n공개적이고 구멍에서 분리하여 호출자 - 단계 경계, 테스트 - 그가 선택한 순간에 읽기를 할 수 있고 간격이 회전하기를 기다리는 대신.\n\n:returns: 샘플, 또는 ``None`` 수준에서 ``\"off\"``.",
+      "translation_source_blocks_sha256": [
+        "c35ccdfb043261f75c471be1dc7f06df5589a2789833a4541df005796ac6a83f",
+        "43befbb7de9c15535375ce417409dd89a6dd707abcc565b69b0bc91a93eaedfa",
+        "13ee8853d45284419f5ffbb37729ae20ba142a9fb36d119580c8e1e57cb2e237"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.samples": {
+      "source_blocks_sha256": [
+        "76bed299fb8c7044dab921eb80062bfb165a24434020e36c4d51dcd198685293",
+        "35cb1f9a86acc903b2c4f121ee80ceafd7f09dfaa88e884fa529545dc14aa35b"
+      ],
+      "source_sha256": "b96ce4361c5a3eeee5494c17c74b523d870f05bd5ff7ea32a2ebd625d027544d",
+      "text": "각 샘플은 아직 반지 부퍼에, 가장 오래된 첫 번째.\n\n:returns: 복사본, 그래서 호출자는 샘플링이 계속되는 동안 그것을 읽을 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "76bed299fb8c7044dab921eb80062bfb165a24434020e36c4d51dcd198685293",
+        "35cb1f9a86acc903b2c4f121ee80ceafd7f09dfaa88e884fa529545dc14aa35b"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.start": {
+      "source_blocks_sha256": [
+        "bca400d403f6cce7e4d97f146b2f54b398982a26e3814c89aa6028d906314e09",
+        "d63f78a2d4a0ebe77411f48c1dfb8817b63ba849760bd946fcde9b16abd42d25"
+      ],
+      "source_sha256": "442f65585631849d57ca689fe9fbcaeffa35dc4f9de0ca717b134519da8f52ad",
+      "text": "다이몬드 테이프에 샘플링을 시작하십시오.\n\n:returns: 샘플링 스트립이 현재 실행되고 있는지 여부는 ``False`` 수준에서 ``\"off\"``입니다.",
+      "translation_source_blocks_sha256": [
+        "bca400d403f6cce7e4d97f146b2f54b398982a26e3814c89aa6028d906314e09",
+        "d63f78a2d4a0ebe77411f48c1dfb8817b63ba849760bd946fcde9b16abd42d25"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.stop": {
+      "source_blocks_sha256": [
+        "6e2c42e7648326c3a8ab33b6f9bea12f93f10941cca15b7ad2330af4d559ef3a",
+        "50f8514e654bcde27c1ed710b43129f35e232383b7bb8e6adc010514e5ab24b8",
+        "fcfa390b457445f2d2f2660f8451ab9af0658de6a6280e0a478216b215c24cbc"
+      ],
+      "source_sha256": "942fbdab96b835b50bdadc53fb4f4729c9a63979eda090e81533d97ea854be50",
+      "text": "샘플링을 멈추고, 테이프에 합류하고 파일을 닫습니다.\n\n:param timeout: 트레일이 끝날 때까지 기다려야 한다.\n:returns: 샘플 테이프가 남아 있지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "6e2c42e7648326c3a8ab33b6f9bea12f93f10941cca15b7ad2330af4d559ef3a",
+        "50f8514e654bcde27c1ed710b43129f35e232383b7bb8e6adc010514e5ab24b8",
+        "fcfa390b457445f2d2f2660f8451ab9af0658de6a6280e0a478216b215c24cbc"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.summary": {
+      "source_blocks_sha256": [
+        "3c7f950e0e284dfb6177cfc1be8037579af4b05b996844fa51983146830fff92",
+        "ead0483d4f5e13a4c6727f0b76c82fa500a2733e0d85e81a8f5d41ef7aee6896"
+      ],
+      "source_sha256": "a7474d380ce8ca55ac697a9cd8c7ca2f4863fcdf4e59de0bdb16425a67fc6ea9",
+      "text": "녹음된 것과 기록된 것에 대한 전체 및 꼭대기.\n\n:returns: :func:`summarise`이 반환되면 아무것도 기록되지 않았을 때 텅 비어 있습니다.",
+      "translation_source_blocks_sha256": [
+        "3c7f950e0e284dfb6177cfc1be8037579af4b05b996844fa51983146830fff92",
+        "ead0483d4f5e13a4c6727f0b76c82fa500a2733e0d85e81a8f5d41ef7aee6896"
+      ]
+    },
+    "spacr.resource_log.describe": {
+      "source_blocks_sha256": [
+        "c36707623f8f26a549e0dca22d35b03a8905f01258a7e9c261d0e7c4bbe0a2ef",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "ee2d24b7ffbf523364166cd4f9f796c6b8f281a53cd85d3b439262e9c95ad8e9"
+      ],
+      "source_sha256": "4b7f58876f1fd4caee309957ecdd73d2e25a53a648e8adf7baaa8de4ea7f7ad0",
+      "text": "사람으로서 꼭대기는 로그 라인이나 지원 요청을 위해 그들을 읽습니다.\n\n:param samples: 기록은 :func:`tree_sample`에서 나온다.\n:returns: 라인, 또는 ``\"\"`` 아무것도 기록되지 않은 경우.",
+      "translation_source_blocks_sha256": [
+        "c36707623f8f26a549e0dca22d35b03a8905f01258a7e9c261d0e7c4bbe0a2ef",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "ee2d24b7ffbf523364166cd4f9f796c6b8f281a53cd85d3b439262e9c95ad8e9"
+      ]
+    },
+    "spacr.resource_log.level_source": {
+      "source_blocks_sha256": [
+        "9d38471e94ff10c6c9963ef522053318cf9fce880833c7212ccc1aea16908416",
+        "968d874a3513cc10ff22181d9a2b418e20a38bc617f8835cb99b8d3d891e9fe4",
+        "2b8770ca4ed3df82dab19d4a34e834b77a760de55731654cea4d852b0340e112",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "0c648faf0feab26c539166324ef48690920cfccddde72133a4c35e049c345dea",
+      "text": "무엇이 레벨을 결정했는지, 테스트 및 지원 요청을 위해.\n\n:param level: 동일한 논쟁 :func:`resolve_level`이 필요합니다.\n:returns: :data:`SOURCES`에 해당되는 글 1건\n:raises ValueError: 명시적인 수준이 :data:`LEVELS`의 수준이 아닌 경우.",
+      "translation_source_blocks_sha256": [
+        "9d38471e94ff10c6c9963ef522053318cf9fce880833c7212ccc1aea16908416",
+        "968d874a3513cc10ff22181d9a2b418e20a38bc617f8835cb99b8d3d891e9fe4",
+        "2b8770ca4ed3df82dab19d4a34e834b77a760de55731654cea4d852b0340e112",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ]
+    },
+    "spacr.resource_log.preferred_measure": {
+      "source_blocks_sha256": [
+        "bda94b5c1aaab0d9cbfc6e07ea55fb3d38dea3d93fab0738462b50c1268c5c69",
+        "e4917e439b9238bcf51fc9cd44cd1af40ac15adabaf5c8474b714fbd05de60ad",
+        "55e92870faa626794e6cc995c9092016b1723f2732460f9c6dd5b2bb113a391b"
+      ],
+      "source_sha256": "674a4cefec9c43af45e07940269d9f77ae865dc1ef080b5e468862504247479e",
+      "text": "이 플랫폼이 제공 할 수있는 메모리 정의는 무엇입니까?\n\n:param process: 이 과정에서 검사하는 과정, 또는 ``None``이 하나입니다.\n:returns: :data:`MEASURES` 또는 ``None``의 경우 아무것도 읽을 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "bda94b5c1aaab0d9cbfc6e07ea55fb3d38dea3d93fab0738462b50c1268c5c69",
+        "e4917e439b9238bcf51fc9cd44cd1af40ac15adabaf5c8474b714fbd05de60ad",
+        "55e92870faa626794e6cc995c9092016b1723f2732460f9c6dd5b2bb113a391b"
+      ]
+    },
+    "spacr.resource_log.read_log": {
+      "source_blocks_sha256": [
+        "7066b86ba7fb2fc0234577c6c3561bb69671176461bd163bd286b03cf403f3f8",
+        "3c11392b2f7e605f187ac863c1d54e16f9f47ba383b408a16b6e25f164479a5d",
+        "93981ff00ee8b1da6431c7e25948efa95f3099dcb65a1d75281ddb8b16ec817e",
+        "39e945c66b732e48a5e5cdca8375b86b3a12cd198c9e845184efe7487d808652"
+      ],
+      "source_sha256": "01d8b08e00a9cad8651f56612578add54ba8118c85dfabc029fa888cbcfe868d",
+      "text": "다시 기록 된 기록을 읽고, 중간 라인을 죽인 경로를 용납합니다.\n\n라인 당 JSON 개체는 죽음이 살아남는 형식입니다 : 죽음의 파시 전에 모든 것이 쓰여지고, 부분적인 마지막 라인은 파일을 읽을 수 없게하는 대신 떨어집니다.\n\n:param path: 이 파일은 :class:`ResourceSampler`로 작성되었습니다.\n:returns: ``header`` (파일이 없을 때 빈), ``samples``, 그리고 ``unreadable``, 파르세드 할 수없는 라인의 수.",
+      "translation_source_blocks_sha256": [
+        "7066b86ba7fb2fc0234577c6c3561bb69671176461bd163bd286b03cf403f3f8",
+        "3c11392b2f7e605f187ac863c1d54e16f9f47ba383b408a16b6e25f164479a5d",
+        "93981ff00ee8b1da6431c7e25948efa95f3099dcb65a1d75281ddb8b16ec817e",
+        "39e945c66b732e48a5e5cdca8375b86b3a12cd198c9e845184efe7487d808652"
+      ]
+    },
+    "spacr.resource_log.resolve_level": {
+      "source_blocks_sha256": [
+        "eab557c5aca55668203331cfb17d1e2b0ab6537e9dd362353002094245bafef3",
+        "523322c57197cfc8e173dd038e0f44e804ec402a2d6d9fa6ec7c2c7c9ea1fe4d",
+        "c9b493249a896f28f799cc29fa922a7a6c4a490d7db416a35ecf6cbf5eb0d212",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "de2822f3a46e9ef918438a66015bbe11cc73aa05e1bb0c456a903bc177e07efc",
+      "text": ":data:`LEVELS`에 해당되는 글 1건\n\n:param level: 명시적인 수준, 또는 ``None`` 환경에서 하나를 해결, 그 다음 저장 선호도, 다음 :data:`DEFAULT_LEVEL`.\n:returns: :data:`LEVELS`에 해당되는 글 1건\n:raises ValueError: 명시적인 수준이 :data:`LEVELS`의 수준이 아닌 경우.",
+      "translation_source_blocks_sha256": [
+        "eab557c5aca55668203331cfb17d1e2b0ab6537e9dd362353002094245bafef3",
+        "523322c57197cfc8e173dd038e0f44e804ec402a2d6d9fa6ec7c2c7c9ea1fe4d",
+        "c9b493249a896f28f799cc29fa922a7a6c4a490d7db416a35ecf6cbf5eb0d212",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ]
+    },
+    "spacr.resource_log.summarise": {
+      "source_blocks_sha256": [
+        "6f9ef80ba0bcfd7a6f8150b704e0af2cc5a8098e2686cc0e31efd6a3eb59417c",
+        "63a1f4fe42446fcb83b8d0840358ea8d25bd4e6b42bd4cd23e51d35889ef32a4",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "656ff1fd536ca643de4298e082d71930a6b45da194a4038d78f161060451f51a"
+      ],
+      "source_sha256": "5d15020542e71d98b31fce081beb917ce3a72c1261a4c0d68e77eb5245976e46",
+      "text": "전체 및 기록 된 샘플 위의 꼭대기, 그리고 어떤 pid는 꼭대기를 유지했다.\n\n아무것도 기록되지 않았을 때 빈 - 0이 아닌 이유로 `spacr.fit_resources.peak`는 \"nothing was using memory\"과 \"nobody measured\"가 반대의 발견이며, 첫 번째가 리더를 초대하여 실행을 마무리 할 때 두 번째를 나타내는 요약은 저렴했습니다.\n\n:param samples: 기록은 :func:`tree_sample`에서 나온다.\n:returns: ``samples``, ``measure``, ``missed`` 및 ``pids`` 항상; ``peak_total`` 및 ``peak_total_time`` 어떤 나무 전체가 읽을 때; ``peak_process``은 가장 큰 단일 주식을 보유한 pid의 이름을 지정합니다. ``cpu_seconds``, 가장 큰 CPU 전체 한 샘플에서 볼 때, 어떤 CPU 시간을 읽었다.",
+      "translation_source_blocks_sha256": [
+        "6f9ef80ba0bcfd7a6f8150b704e0af2cc5a8098e2686cc0e31efd6a3eb59417c",
+        "63a1f4fe42446fcb83b8d0840358ea8d25bd4e6b42bd4cd23e51d35889ef32a4",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "656ff1fd536ca643de4298e082d71930a6b45da194a4038d78f161060451f51a"
+      ]
+    },
+    "spacr.resource_log.tree_sample": {
+      "source_blocks_sha256": [
+        "d5821550715bbdd213164ce520610e1a98ac620ec3a24736fb4dd489c0a60dd2",
+        "59bc7f5f0c7355e35b192e8a88d12b18775838d4d341c0aebb2cfc14d0dee53e",
+        "da14207eaf7db83b2f38d068fc24fd26185f84414cf99211963adaa4e20af061",
+        "e5e1cb57c2c09868164be1efe1351f7e311e037486aa50962b67671364e82ccc",
+        "0b3e37cd37e5d1d88208ee00d51f953b5320b1a876c70a7716f225e3c8b5a6a6"
+      ],
+      "source_sha256": "4946d975c6c84a9163a0ee1698b924fdb61790de64698781fd774843f5fa74cd",
+      "text": "이 과정과 각 후손에 대한 한 번의 읽기.\n\n:param level: ``\"summary\"`` 또는 ``\"detailed\"``, 환경에서 해결하고 ``None``에서 선호합니다. ``\"detailed\"``은 독립적 인 실행 경로를 CPU 번 추가합니다. ``\"off\"``은 읽기 대신 배경 샘플러를 지배합니다, 호출자는 오른쪽으로 요청하고, 여기에서 ``\"summary\"``로 읽습니다.\n:param process: 이 과정에서 나무의 뿌리, 또는 ``None``.\n:param now: 벽 시계를 표시하는 시간표 또는 ``None``를 표시합니다.\n:returns: 녹음 키 ``record``, ``time`` , ``level`` , ``measure``, ``unit``, [``total``], ``processes`` 및 ``missed``. ``total``와 ``measure``는 아무것도 읽을 수 없을 때 ``None``이며, 이는 0과 동일하지 않습니다. ``missed``는 나무가 걷는 동안 읽기를 거부하거나 잃어버린 과정을 계산합니다.",
+      "translation_source_blocks_sha256": [
+        "d5821550715bbdd213164ce520610e1a98ac620ec3a24736fb4dd489c0a60dd2",
+        "be6a122c3c5933a3e7e223917c9d39bfdf262352ce172f90e1bb7460a9d04646",
+        "da14207eaf7db83b2f38d068fc24fd26185f84414cf99211963adaa4e20af061",
+        "e5e1cb57c2c09868164be1efe1351f7e311e037486aa50962b67671364e82ccc",
+        "0b3e37cd37e5d1d88208ee00d51f953b5320b1a876c70a7716f225e3c8b5a6a6"
+      ]
+    },
     "spacr.resources.home.versions._generators.common": {
       "source_blocks_sha256": [
         "f0bed03b6a0187a8208af3c38b03561d5b8c95ac144e9a92afb83dab41b43161",
@@ -114055,10 +114509,10 @@
         "2003ca286b46ea1d036c51314ec5d1a972c6445e39d5324734dc871977c120db",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
-        "39744cd8ef2d79778a3b1a5b97bd4e247f9d282fffba856ab59c32f7d23ea93a"
+        "05ee5611eb9eb553c778fbd41ffa5ccb6964a453851f5faf8887605b3ad578d2"
       ],
-      "source_sha256": "8788cbecd0663d0d798d8c70270a7b63e6f72abde0ab8bc8d7433ad3bb4e3816",
-      "text": "실행 컨텍스트: 하나의 ID, 하나의 씨앗, 하나의 오류 정책, 전체 실행을 위해.\n\n각 spaCR 작업 흐름이 필요하고 그들 중 어느 것도 없었던 세 가지가 있습니다.\n\n모든 로그 라인과 모든 출력에 있는 **One 프로세서 세션 ID.** 추적할 수 없게 사용된 프로세스 세션입니다. 기록은 필드가 실패했다고 말했습니다. 기록에 따르면 유물이 존재한다고 한다. 아무것도 그들을 연결하지 않았으므로 \"이 파일을 생성 한 처리 세션에서 모든 것을 보여주십시오\"는 답변이 없었습니다. :func:`run_context`은 하나의 ID를 표시하고, 프로세스 중 어느 곳에서나 만들어진 :class:`logging.LogRecord`에 표시하며, :func:`read_run_log`가 다시 읽는 JSONL 로그를 작성하고, *same* ID를 :func:`spacr.artifacts.register_run_outputs`로 유지합니다. 따라서 로그 라인과 출력은 ``run_id``에 연결될 수 있으며, 이는 전체 포인트입니다.\n\n**모든 것에 도달하는 한 개의 씨앗.** ``random_seed`` 흔히 읽을 수 있는 :mod:`spacr.deep_spacr` 그리고 :mod:`spacr.sim` 아무데도 없고, 이렇게 한 \"reproducible\" 실행은 여전히 자신의 필드를 다른 방식으로 고, 자신의 필드를 다른 방향으로 분할하고 이니셔티브화했습니다. Cellpose 매번 다르게 :func:`seed_everything` 씨앗 Python, NumPy (전세계적 가치가 있음) *그리고* 그분의 :class:`~numpy.random.Generator` 스트림 :func:`spacr_rng` 손 밖으로 나가서, Torch on CPU 그리고 모든 CUDA 장치, 그리고 - 이 두 가지를 통해 - Cellpose. sklearn 전 세계적으로 씨앗을 가지고 있지 않습니다; :func:`random_state` 그것은 무엇을 추정기 건설 사이트를 통과합니다. 무엇을 결정적으로 할 수없는 목록에 나와있다 :attr:`SeedReport.caveats` 그리고 그 안에서 :func:`seed_everything`문서화된 것보다는 서류화된 것입니다.\n\n**모든 배치 경계에서 명예된 하나의 오류 정책.** ``on_error``은 3개 상태, 기본 ``\"stop\"``입니다.\n\n``stop`` 첫 번째 실패한 단위는 처리 세션을 중단합니다. 기본적으로, 그것의 플레이트의 3 분의 1을 조용히 떨어 뜨리는 작업 흐름이 정확히 좋은 것처럼 보이는 숫자를 생성하기 때문입니다. ``skip`` 단위가 기록됩니다 - :class:`~spacr.errors.RunLedger` *및*에서 단위, 단계 및 이유를 지정하는 :class:`SkipRecord`로 - 그리고 처리가 진행됩니다. 절대 조용한 떨어지지지 않습니다 : :attr:`ErrorPolicy.skips`는 잃어버린 것입니다. ``retry`` 단위를 시도하는 경우 :attr:`ErrorPolicy.attempts` 시간, 그리고 예산이 실행하면 그것은 정확히 ``stop``처럼 행동합니다.\n\n사용하기\n--------\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\n공공 API\n----------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id`` 프로세션 세션 자체와 환경을 사용하는 노동자 또는 도서관 전화. ``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log`` S7 기계: 멘팅, 스탬핑 및 프로세서 세션 ID에 의해 쿼리. ``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED`` S5 기계: 하나의 전화는 그들 모두를 씨앗, 플러스 프리브라리 핸들 장소에 대한 글로벌 씨앗에 도달 할 수 없습니다. ``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES`` S9 기계. ``apply_defaults``, ``RUN_SETTING_KEYS`` 설정을 표시합니다: 이 모듈이 소유하고 있는 구조화된 데이터 이름은 모든 설정을 키 가치 맵링에 적용됩니다.",
+      "source_sha256": "0e1a9f6acdbe55c3dae71fc72da75000c6de415bfe78bda38263172b5b0f3843",
+      "text": "실행 컨텍스트: 하나의 ID, 하나의 씨앗, 하나의 오류 정책, 전체 실행을 위해.\n\n각 spaCR 작업 흐름이 필요하고 그들 중 어느 것도 없었던 세 가지가 있습니다.\n\n모든 로그 라인과 모든 출력에 있는 **One 프로세서 세션 ID.** 추적할 수 없게 사용된 프로세스 세션입니다. 기록은 필드가 실패했다고 말했습니다. 기록에 따르면 유물이 존재한다고 한다. 아무것도 그들을 연결하지 않았으므로 \"이 파일을 생성 한 처리 세션에서 모든 것을 보여주십시오\"는 답변이 없었습니다. :func:`run_context`은 하나의 ID를 표시하고, 프로세스 중 어느 곳에서나 만들어진 :class:`logging.LogRecord`에 표시하며, :func:`read_run_log`가 다시 읽는 JSONL 로그를 작성하고, *same* ID를 :func:`spacr.artifacts.register_run_outputs`로 유지합니다. 따라서 로그 라인과 출력은 ``run_id``에 연결될 수 있으며, 이는 전체 포인트입니다.\n\n**모든 것에 도달하는 한 개의 씨앗.** ``random_seed`` 흔히 읽을 수 있는 :mod:`spacr.deep_spacr` 그리고 :mod:`spacr.sim` 아무데도 없고, 이렇게 한 \"reproducible\" 실행은 여전히 자신의 필드를 다른 방식으로 고, 자신의 필드를 다른 방향으로 분할하고 이니셔티브화했습니다. Cellpose 매번 다르게 :func:`seed_everything` 씨앗 Python, NumPy (전세계적 가치가 있음) *그리고* 그분의 :class:`~numpy.random.Generator` 스트림 :func:`spacr_rng` 손 밖으로 나가서, Torch on CPU 그리고 모든 CUDA 장치, 그리고 - 이 두 가지를 통해 - Cellpose. sklearn 전 세계적으로 씨앗을 가지고 있지 않습니다; :func:`random_state` 그것은 무엇을 추정기 건설 사이트를 통과합니다. 무엇을 결정적으로 할 수없는 목록에 나와있다 :attr:`SeedReport.caveats` 그리고 그 안에서 :func:`seed_everything`문서화된 것보다는 서류화된 것입니다.\n\n**모든 배치 경계에서 명예된 하나의 오류 정책.** ``on_error``은 3개 상태, 기본 ``\"stop\"``입니다.\n\n``stop`` 첫 번째 실패한 단위는 처리 세션을 중단합니다. 기본적으로, 그것의 플레이트의 3 분의 1을 조용히 떨어 뜨리는 작업 흐름이 정확히 좋은 것처럼 보이는 숫자를 생성하기 때문입니다. ``skip`` 단위가 기록됩니다 - :class:`~spacr.errors.RunLedger` *및*에서 단위, 단계 및 이유를 지정하는 :class:`SkipRecord`로 - 그리고 처리가 진행됩니다. 절대 조용한 떨어지지지 않습니다 : :attr:`ErrorPolicy.skips`는 잃어버린 것입니다. ``retry`` 단위를 시도하는 경우 :attr:`ErrorPolicy.attempts` 시간, 그리고 예산이 실행하면 그것은 정확히 ``stop``처럼 행동합니다.\n\n사용하기\n--------\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\n공공 API\n----------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id`` 프로세션 세션 자체와 환경을 사용하는 노동자 또는 도서관 전화. ``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``, ``run_resource_path``, ``read_run_resources`` S7 기계: 멘팅, 스탬핑 및 프로세서 세션 ID에 의해 쿼리. ``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED`` S5 기계: 하나의 전화는 그들 모두를 씨앗, 플러스 프리브라리 핸들 장소에 대한 글로벌 씨앗에 도달 할 수 없습니다. ``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES`` S9 기계. ``apply_defaults``, ``RUN_SETTING_KEYS`` 설정을 표시합니다: 이 모듈이 소유하고 있는 구조화된 데이터 이름은 모든 설정을 키 가치 맵링에 적용됩니다.",
       "translation_source_blocks_sha256": [
         "c34ba7311379117c06c065329acbe840bd204acd4625902302a4bfc790135451",
         "378b9cb7af219cdba90eb12c98d06dbc34274479d75bf454399a4797b4d9e20d",
@@ -114068,7 +114522,7 @@
         "4630983421ef40ea5418f0353fd60afb5e3beee547ac3bb468c16df9e9577b39",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
-        "45f95afbe88b8388c3355a5205efdfc7bd8dde49f9e6c689fb4e309b50da7c5a"
+        "0400ef98a34985c2e0b8a1275a38b3f6c5407dfa485c7da71276e65c19fba827"
       ]
     },
     "spacr.runctx.ErrorPolicy": {
@@ -114315,6 +114769,30 @@
         "7edab67a77b31f6ef7b2cec14dc5127d541d87af6d5322299b6493feaf439890",
         "040323645f85f123c3d2263224caed3a86be1e26e69da77d0def6676dd8da9b8",
         "39c103bebd88e78f835456a98cff7f4ce5d6cc6bbd14c0e4ccb103e63f7a5e9a"
+      ]
+    },
+    "spacr.runctx.RunContext.register_worker": {
+      "source_blocks_sha256": [
+        "1a300d89a40f9c497a499b20afb9ac3a5bcd3451254d636c9491a0afad952ea7",
+        "147e3d676e391220abaeab070fa0a4debc8cf0b878f2276d82c37e8b40a705aa",
+        "d5a0dcb34c5df9721913eb1fcccaaa4d8c511870dce57aaec93825c39a6d82bb",
+        "b6c579477dfd17e43ea96af8098be98b57176ce6d1de84068ddcc1c5705dc712",
+        "a1f0b51ecbb8fa68f10f4ed87e6029207c5583f5afdd756ef3d56c7e8559936b",
+        "c9b2c38b57d36e4d71cdd3f7db6361d7182ee8e8607d7da823cd5e7a324edcd7",
+        "3a22b57b8876b1936fd0ce12556f8654385ca06b7bc4319e0ec08f82f8d59d26",
+        "815b3891cb2ec5319412bc813f033187b46c30e660579b3c078f6f2f408d3b1c"
+      ],
+      "source_sha256": "f7116ce3b689dd93b3ab807b883007f000d9a082a8617c114d92629f3f3d4bca",
+      "text": "한 명의 샘플 된 아이가 자신의 실행 특정 정체성을 처리합니다.\n\n샘플러는 항상 PID와 프로세스 이름을 보고할 수 있습니다.이 방법은 파라미터 스위프 또는 추적 부모가 PID가 예를 들어 ``trial 17`` 또는 ``FASTQ saver``이라는 사실을 추가하는 데 사용되는 시암입니다.\n\n``worker_kind``은 또한 :func:`spacr.fit_resources._worker_stamp`에 의해 반환되는 완전한 표지판이 될 수 있습니다; 이것이 PID 재사용 경주없이 스스로 창조 시간을 보고하는 방식입니다.\n\n:param worker_kind: 노동자 카테고리, 또는 완전한 스탬프 맵링.\n:param worker_id: 이 카테고리 내의 정체성.\n:param pid: 프로세스 ID; 통화 과정에 대한 결함.\n:param create_time: psutil 프로세스 창조 시간, 놓칠 때 해결.\n:returns: 샘플러의 안정적인 프로세스 정체성, 또는 ``\"\"`` 자원 회계가 꺼져 있거나 사용할 수 없을 때.",
+      "translation_source_blocks_sha256": [
+        "1a300d89a40f9c497a499b20afb9ac3a5bcd3451254d636c9491a0afad952ea7",
+        "147e3d676e391220abaeab070fa0a4debc8cf0b878f2276d82c37e8b40a705aa",
+        "d5a0dcb34c5df9721913eb1fcccaaa4d8c511870dce57aaec93825c39a6d82bb",
+        "b6c579477dfd17e43ea96af8098be98b57176ce6d1de84068ddcc1c5705dc712",
+        "a1f0b51ecbb8fa68f10f4ed87e6029207c5583f5afdd756ef3d56c7e8559936b",
+        "c9b2c38b57d36e4d71cdd3f7db6361d7182ee8e8607d7da823cd5e7a324edcd7",
+        "3a22b57b8876b1936fd0ce12556f8654385ca06b7bc4319e0ec08f82f8d59d26",
+        "815b3891cb2ec5319412bc813f033187b46c30e660579b3c078f6f2f408d3b1c"
       ]
     },
     "spacr.runctx.RunContext.rng": {
@@ -114565,6 +115043,20 @@
         "c28561dcc0fe6f7238bd7a4aa693b98c4e6ceff650c7d7b329ffc033cfbd5e89"
       ]
     },
+    "spacr.runctx.read_run_resources": {
+      "source_blocks_sha256": [
+        "a1de0ffc93ef7b3da7f84658bba6591ea7866157e08e680da191e356105e100e",
+        "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+        "40795bb0b9860f34179dc3a2c09f611104582688d725e8aeddcc7e9c20c2e830"
+      ],
+      "source_sha256": "4b608b389e5ca0f33e992096288fd8a2bb899ceea7ec0f2f0905b0388f043359",
+      "text": "하나의 처리 세션의 프로세스 나무 자원 문서를 읽으십시오.\n\n:param run_id: 읽기 위한 흐름.\n:returns: JSON 개체, 또는 읽을 수 있는 체크 포인트가 없을 때 빈 키 값을 지도합니다.",
+      "translation_source_blocks_sha256": [
+        "5a71fccc2b351aa87e514f7626e85afe9fed0678e7d191304378b583688c253e",
+        "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+        "d1b0b8c189099432e093d987ff332a8c4dbbcf0b95b6b56dc9b6c2a0788b3a29"
+      ]
+    },
     "spacr.runctx.resolve_error_policy": {
       "source_blocks_sha256": [
         "76a6f857cc76186ca249a3cbece8de02a79944fa8ec1d101a1364687ee4d551e",
@@ -114651,6 +115143,22 @@
       "text": "``run_id``에 대한 JSONL 로그 경로를 반환합니다.이 경로는 아직 존재하지 않아야합니다.",
       "translation_source_blocks_sha256": [
         "0336b7d6a4a9f8a075fcc84fd9f149123948a47bbf644bda0ee9ce81420d496b"
+      ]
+    },
+    "spacr.runctx.run_resource_path": {
+      "source_blocks_sha256": [
+        "6170f35b5aacc7293d4c42b457a0fc2a52c8461b6d328d39d98915029c74fa11",
+        "df1612a99dd6d207a863a892f3b1be607ce788ad47a40d33a50bbe6cddef2d94",
+        "402140f1f65249d9d53c7041ac8b7af73e7127b8c1a593b72ba2fad78e7d2551",
+        "8129536afe233c0ae587b512b7bdbdec6c230af4237628211d7fd6f1b62c5967"
+      ],
+      "source_sha256": "72aa445fff557324193304db59f4ecd9a67f5bfb512bbc887ed8f1af04bf4faf",
+      "text": "``run_id``에 대한 지속적인 프로세스 나무 자원 경로를 반환합니다.\n\n리소스 문서는 일반 실행 기록 옆에 살고 있지만 자체 소피스와 스케줄을 가지고 있습니다. :class:`spacr.fit_resources._ResourceSampler`로 원자로 작성되어 독자는 완전한 체크 포인트 또는 이전 완전 한 체크포인트를 볼 수 있습니다.\n\n:param run_id: 원하는 회계 기록을 획득하고자 합니다.\n:returns: 절대 JSON 경로.이 파일은 아직 존재하지 않아야합니다.",
+      "translation_source_blocks_sha256": [
+        "6170f35b5aacc7293d4c42b457a0fc2a52c8461b6d328d39d98915029c74fa11",
+        "df1612a99dd6d207a863a892f3b1be607ce788ad47a40d33a50bbe6cddef2d94",
+        "402140f1f65249d9d53c7041ac8b7af73e7127b8c1a593b72ba2fad78e7d2551",
+        "8129536afe233c0ae587b512b7bdbdec6c230af4237628211d7fd6f1b62c5967"
       ]
     },
     "spacr.runctx.runs_log_dir": {
@@ -117413,10 +117921,11 @@
         "fc823815486cd042f5d58108d47c9a8d2c12b330d5dd9cd2ab91474cec16fce5",
         "39d0c7d0eda7a7edf5bc0d4d673f03ef9199431241642609dc97f12d8bbd8a3f",
         "6eab2bde617590c6b7af9685d0a1c61301dc0d1c3b5caa86635eb436584d9c0f",
-        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f"
+        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f",
+        "e43507835ef236cef6fd88f95137167450e17db5bb453a40595f642ca6a58c44"
       ],
-      "source_sha256": "a0da6176956b62fb0d1f0dd641e1bdee2853093a1947cc3aef6f624c475f95cc",
-      "text": "2개의 동일한 길이의 읽기의 각 위치 합의를 반환합니다.\n\n각 위치에서 높은 품질의 기초가 유지됩니다; 하나의 전화가 ``N``인 경우 다른 하나는 품질에 관계없이 선호됩니다.\n\n:param seq1: 첫 번째 DNA 순서입니다.\n:param qual1: 품질 링 ``seq1``에 대한\n:param seq2: 2 차 DNA 순서\n:param qual2: 품질 링 ``seq2``에 대한\n:returns: 동의는 링으로 일관되게 한다.",
+      "source_sha256": "658c7809839b0e683a52cb65de36dde9e6fa71d92c75cd70f8f0d4ee7acbb3b5",
+      "text": "2개의 동일한 길이의 읽기의 각 위치 합의를 반환합니다.\n\n각 위치에서 높은 품질의 기초가 유지됩니다; 하나의 전화가 ``N``인 경우 다른 하나는 품질에 관계없이 선호됩니다.\n\n:param seq1: 첫 번째 DNA 순서입니다.\n:param qual1: 품질 링 ``seq1``에 대한\n:param seq2: 2 차 DNA 순서\n:param qual2: 품질 링 ``seq2``에 대한\n:returns: 동의는 링으로 일관되게 한다.\n:raises ValueError: 순서와 품질 쌍, 또는 두 개의 읽기가 다른 길이를 가지고 있다면, 부분적 합의가 잘못된 잘못에 바코드를 할당할 수 있으므로 불평등한 읽기가 흔들리는 대신 거부됩니다.",
       "translation_source_blocks_sha256": [
         "6adb05659750c33a25e60371e80d4457cdb7c07a45763b06df44ead980e62b73",
         "457283ceaa46431a0821f635db15e5404d2d077242d3a77011c86eda5943344e",
@@ -117424,7 +117933,8 @@
         "fc823815486cd042f5d58108d47c9a8d2c12b330d5dd9cd2ab91474cec16fce5",
         "39d0c7d0eda7a7edf5bc0d4d673f03ef9199431241642609dc97f12d8bbd8a3f",
         "6eab2bde617590c6b7af9685d0a1c61301dc0d1c3b5caa86635eb436584d9c0f",
-        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f"
+        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f",
+        "e43507835ef236cef6fd88f95137167450e17db5bb453a40595f642ca6a58c44"
       ]
     },
     "spacr.sequencing.extract_sequence_and_quality": {

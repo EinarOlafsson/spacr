@@ -20198,6 +20198,18 @@
         "c87a906243d0a1a753d81db54153fbd9d18148fc0491e7dd5da892d513011f62"
       ]
     },
+    "spacr.flowview._classify_stages": {
+      "source_blocks_sha256": [
+        "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
+        "b1cfa5566819f384af5a9d5d3f3fde1a4c0fff4a7122d4c6f7cad9158d56a425"
+      ],
+      "source_sha256": "79058f84bc47e1ccb5ab45f6ed25d09e1165aa482e6a0b5869980b833ea3de08",
+      "text": "Événements de cycle de vie isolés en cas de défaillance pour le graphique de classification approuvé.\n\nLes modules de flux de travail de base n'atteignent ce module privé qu'à travers une limite de sélection de données paresseuse ``sys.modules``. Le fait de garder la machine d'état ici donne aux implémentations CV et ML une horloge et une règle de commande sans importer FlowView sur leur chemin désactivé. Ses callables restent privés; la documentation du module explique pourquoi cette instrumentation existe sans promouvoir ces aides dans le public API.",
+      "translation_source_blocks_sha256": [
+        "b21361cdf8a2e2d0975818c4b9eacb0aea78ef0783dc17c0447a23a6bf283502",
+        "f09950054a23b35ba85dd27703d05e85f78cf0bdd74479a90934ccef245d36e6"
+      ]
+    },
     "spacr.flowview.classify_blueprint": {
       "source_blocks_sha256": [
         "46654b7d8fa76e3ba1f112423ca4e517587b910baf2aed94d598bf59e4784fd0"
@@ -33503,12 +33515,12 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "c49f73eba18330bb69083ee18e993802bfdd236fa3dd185c0286ca7993450a95",
-      "text": "Former un modèle classique de classification ML machine-learning (XGBoost / logistique / RF) sur les caractéristiques par objet et marquer chaque position d'échantillon microplaqué d'un criblage.\n\nLire les ``measurements.db`` produits par :func:`spacr.measure.measure_crop`, fusionner les tables des caractéristiques des cellules/noyaux/pathogènes/ cytoplasmes, utiliser les positions de l'échantillon de microplaques marquées ``positive_control`` / ``negative_control`` (ou une colonne d'annotation) comme étiquettes de formation, les délégués s'adaptant à :func:`ml_analysis`, et écrire des prédictions par objet, des tableaux de permutation et d'importance des fonctions, ainsi qu'une carte thermique de microplate de laboratoire en ``results/`` à côté de la DB source.\n\n:param settings: Configuration de la valeur de la clé, canonique via :func:`spacr.settings.set_default_analyze_screen`. Entrées de données structurées :\n\n    - ``src`` (str ou list) — dossier(s) contenant ``measurements/measurements.db``.\n    - ``channel_of_interest`` — canal 0 pour la fonction de taux de recrutement; il permet également de sélectionner la table.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — ID de position de l'échantillon de microplaques (p. ex. ``'c2'`` /``'c1'``) utilisés comme étiquettes d'entraînement.\n    - ``annotation_column`` — commandes de remplacement avec une colonne d'annotation au niveau PNG.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — caractéristique tracée sur la carte thermique de la plaque.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: La liste des deux éléments ``[output, plate_heatmap]``, où ``output`` est la liste des résultats des 10 éléments :func:`ml_analysis` et ``plate_heatmap`` est la figure de la carte de la plaque ``matplotlib``. Les CSV et les figures sont écrites à ``results/`` comme effet secondaire; leurs chemins ne sont pas retournés.\n:raises ValueError: si ``annotation_column`` est défini mais que la table ``png_list`` ne contient pas ``prcfo`` / cette colonne, ou si ``heatmap_feature`` n'est pas parmi les fonctions entraînées.\n\nExemple :\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVoir aussi: :func:`ml_analysis` — l'ajustement/évaluation de routine sous-jacent. :func:`perform_regression` — régression des effets mixtes sur les scores ML par microplaque.",
+      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
+      "text": "Former un modèle classique de classification ML machine-learning (XGBoost / logistique / RF) sur les caractéristiques par objet et marquer chaque position d'échantillon microplaqué d'un criblage.\n\nLire les ``measurements.db`` produits par :func:`spacr.measure.measure_crop`, fusionner les tables des caractéristiques des cellules/noyaux/pathogènes/ cytoplasmes, utiliser les positions de l'échantillon de microplaques marquées ``positive_control`` / ``negative_control`` (ou une colonne d'annotation) comme étiquettes de formation, les délégués s'adaptant à :func:`ml_analysis`, et écrire des prédictions par objet, des tableaux de permutation et d'importance des fonctions, ainsi qu'une carte thermique de microplate de laboratoire en ``results/`` à côté de la DB source.\n\n:param settings: Configuration de la valeur de la clé, canonique via :func:`spacr.settings.set_default_analyze_screen`. Entrées de données structurées :\n\n    - ``src`` (str ou list) — dossier(s) contenant ``measurements/measurements.db``.\n    - ``channel_of_interest`` — canal 0 pour la fonction de taux de recrutement; il permet également de sélectionner la table.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — ID de position de l'échantillon de microplaques (p. ex. ``'c2'`` /``'c1'``) utilisés comme étiquettes d'entraînement.\n    - ``annotation_column`` — commandes de remplacement avec une colonne d'annotation au niveau PNG.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — caractéristique tracée sur la carte thermique de la plaque.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: La liste des deux éléments ``[output, plate_heatmap]``, où ``output`` est la liste des résultats des 10 éléments :func:`ml_analysis` et ``plate_heatmap`` est la figure de la carte de la plaque ``matplotlib``. Les CSV et les figures sont écrites à ``results/`` comme effet secondaire; leurs chemins ne sont pas retournés.\n:raises ValueError: si ``annotation_column`` est défini mais que la table ``png_list`` manque ``prcfo`` / cette colonne, ses identifiants d'objet ne se joignent pas aux mesures, elle contient moins de deux classes observées, ou si ``heatmap_feature`` n'est pas parmi les fonctionnalités entraînées.\n\nExemple :\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVoir aussi: :func:`ml_analysis` — l'ajustement/évaluation de routine sous-jacent. :func:`perform_regression` — régression des effets mixtes sur les scores ML par microplaque.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -33523,7 +33535,7 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2caabe5a3d04a197b3cf911fdf0c7e8a7ebf3b5cd7deedf15da1776097220bd0"
       ]
@@ -40080,14 +40092,16 @@
     },
     "spacr.parameter_sweep.memory_is_low": {
       "source_blocks_sha256": [
-        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
-        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+        "f12110ec5e585154e7b9a5dcdc96df196f76344ef8c9f91a7ec29e69bdf74340",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186",
+        "677ddfc51ac9b326243a490ef46a89afcb2f566ca7eb282c61085d1b2df265b0"
       ],
-      "source_sha256": "d900a747931e847a8d292cf370f32365cbf19b638afaf91c26dcd821c5398766",
-      "text": "True lorsque la mémoire libre est tombée assez loin pour arrêter de commencer les essais.\n\nVérifié entre les soumissions, non seulement au début : les autres choses sur la machine -- un éditeur, le spaCR GUI, une autre analyse -- croissent pendant que le balayage tourne, et le balayage doit leur céder plutôt que de les courir.",
+      "source_sha256": "35423f7293f9a29566aa9990ab6fd0b18b17ec500075741ed932e52abc2acb13",
+      "text": "True lorsque l'arborescence de processus propre à la machine ou à spaCR a franchi sa limite.\n\nVérifié entre les soumissions, non seulement au début : les autres choses sur la machine -- un éditeur, le spaCR GUI, une autre analyse -- croissent pendant que le balayage tourne, et le balayage doit leur céder plutôt que de les courir.\n\n``spacr_ceiling_gib`` est facultatif parce que le plancher de mémoire libre à l'échelle de la machine reste la politique de sécurité par défaut. Lorsqu'un appelant fournit un budget de session de traitement, le dernier total de process-tree de l'échantillonneur de ressource active rend le garde attribuable : il peut distinguer \"the machine is busy\" de \"spaCR is the reason\" au lieu de traiter les deux comme le même nombre.",
       "translation_source_blocks_sha256": [
-        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
-        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+        "f12110ec5e585154e7b9a5dcdc96df196f76344ef8c9f91a7ec29e69bdf74340",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186",
+        "b1965b1abfbb5e16f41065cc21bede930315da4098a1a93b5dfdaf4daeb84108"
       ]
     },
     "spacr.parameter_sweep.rank_trials": {
@@ -48776,12 +48790,14 @@
     },
     "spacr.qt.ask_for_the_path.columns_in": {
       "source_blocks_sha256": [
-        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+        "1059d56e7742ef1f4e7a0db0d7ce1d341eacd7e471a99691d44b490a54d6c135"
       ],
-      "source_sha256": "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
-      "text": "Chaque colonne d'une table, dans l'ordre le tableau les déclare.",
+      "source_sha256": "dd496f3a065a88110c0fc116545491ad8f5bf001ac525140e4bf3562e497fe08",
+      "text": "Chaque colonne d'une table, dans l'ordre le tableau les déclare.\n\n``PRAGMA`` ne prend aucun paramètre lié, de sorte que le nom de la table est cité ici. SQLite échappe à une citation à l'intérieur d'un identifiant cité en le doublant, et une table peut vraiment s'appeler ``cell\"s`` -- unscaped, l'identificateur se termine tôt et la table entière se lit comme n'ayant aucune colonne du tout.",
       "translation_source_blocks_sha256": [
-        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4"
+        "245accd5da9124414d9582a61da9f27f05d542c9e1808677f2897d8b26a257f4",
+        "1059d56e7742ef1f4e7a0db0d7ce1d341eacd7e471a99691d44b490a54d6c135"
       ]
     },
     "spacr.qt.ask_for_the_path.forget": {
@@ -56670,6 +56686,7 @@
         "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
         "37ff0626251196deb912a3ee21c2d31c78f7976060254b6571345559ea96de24",
         "cae940b965712a05e920d4ecb17ef9772a746f4cab55d516de3a6f2731e7c2ca",
         "d1cacd4d7a11271169c89394378f6032b4779db04989fe4bf8ddef1ad010b1ad",
@@ -56685,8 +56702,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "2c318ee8b7c1efe62facec5196092bec282d6675ebf9dd9b6826cbac462c6196",
-      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent à des redémarrages app. De nouveaux boutons peuvent s'enclencher aux côtés des existants sans changer les consommateurs grâce à la petite tapée API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nFils:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et à nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de polices + thème actuel.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+ (voir :mod:`spacr.qt.shortcuts`).\n\nPublique API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme``: ``\"dark\"``= ``\"light\"``= ``\"cell\"``= ``\"glass\"``= ``\"system\"`` (par défaut ``\"system\"``). ``\"system\"`` suit le schéma de couleur du système d'exploitation. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` utilise des matériaux à couche neutre sur un champ de lumière intégré. Les accédeurs d'espace hérités restent pour les anciens réglages, mais l'espace n'est pas un thème sélectionnable.\n* ``space_seed``: int; conservé pour les antécédents déterministes de l'espace.\n* ``font_scale``: flotteur, 1,0 = 100 % (par défaut). Clampé à [0,75, 2,0].\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet au navigateur de la base de données d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"auto\"`` . ``\"locked\"`` , ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche se révèle sur hover, est épinglé ouvert en tant que colonne permanente, ou n'est pas du tout là.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade``: bool, par défaut ``True``. Indique si le conteneur d'un champ d'entrée et la rampe de contours de solide sur la gauche à entièrement transparent sur la droite. Les champs sont **exemptés de ``pane_opacity``** pendant que c'est activé — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"``, ou avec :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validé contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, avec quel détail elle est dessinée et avec combien d'éléments il y a. 1.0 est l'animation envoyée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail de fond doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il est en anglais et revient en toute sécurité lorsqu'une valeur persistante est invalide.",
+      "source_sha256": "9f74a374f3a027d9aeebc90aa0ae5b9bce5e7b53499516135825c0b549ef7bbb",
+      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent à des redémarrages app. De nouveaux boutons peuvent s'enclencher aux côtés des existants sans changer les consommateurs grâce à la petite tapée API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nFils:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et à nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de polices + thème actuel.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+ (voir :mod:`spacr.qt.shortcuts`).\n\nPublique API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_space_variant, set_space_variant,\n        get_cell_variant, set_cell_variant,\n        get_space_seed, set_space_seed,\n        space_background_path, cell_background_path,\n        theme_background_path,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_font_scale, set_font_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme``: ``\"dark\"``= ``\"light\"``= ``\"cell\"``= ``\"glass\"``= ``\"system\"`` (par défaut ``\"system\"``). ``\"system\"`` suit le schéma de couleur du système d'exploitation. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` utilise des matériaux à couche neutre sur un champ de lumière intégré. Les accédeurs d'espace hérités restent pour les anciens réglages, mais l'espace n'est pas un thème sélectionnable.\n* ``space_seed``: int; conservé pour les antécédents déterministes de l'espace.\n* ``font_scale``: flotteur, 1,0 = 100 % (par défaut). Clampé à [0,75, 2,0].\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``performance_logging``: ``\"off\"``=``\"summary\"``=``\"detailed\"`` (par défaut ``\"summary\"``). Enregistrer l'utilisation des ressources process-tree indépendamment de la recherche d'appels verbeux; voir :func:`get_performance_logging` et :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet au navigateur de la base de données d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"auto\"`` . ``\"locked\"`` , ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche se révèle sur hover, est épinglé ouvert en tant que colonne permanente, ou n'est pas du tout là.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade``: bool, par défaut ``True``. Indique si le conteneur d'un champ d'entrée et la rampe de contours de solide sur la gauche à entièrement transparent sur la droite. Les champs sont **exemptés de ``pane_opacity``** pendant que c'est activé — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"``, ou avec :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validé contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, avec quel détail elle est dessinée et avec combien d'éléments il y a. 1.0 est l'animation envoyée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail de fond doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il est en anglais et revient en toute sécurité lorsqu'une valeur persistante est invalide.",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -56700,6 +56717,7 @@
         "0c45394801c69bc4fb0b001f47667371f447a899a9b3e64ab66efd1e4168cf61",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
         "b9ddb6122e53d8c6d14d53ee4deac91f11798de108e7d055b96ff2fed712eada",
+        "640788923bf965fdf66b1a4bb0d857e8ee4063b5266303a1167f0f8f5028babe",
         "db0284b8b6ec5f644e1dc7d90d6c5cef91b22b81f2cb27d28a310b35c356a292",
         "cae940b965712a05e920d4ecb17ef9772a746f4cab55d516de3a6f2731e7c2ca",
         "b2021699f9a5d976c5ebfa79d30963dff403cebaa2b91773daf3325b4f253c88",
@@ -57568,6 +57586,20 @@
         "4a55ae8cbfa3d5f21f19e0196e9b26574084502480b134812d5f4445c1af38d9",
         "1ad39652ed069e05e6c2fb76fb5e57501673dda1f4f8f6d089613c1eab8cd4ea",
         "31774e2d7c82c8986df9620494b62bfc0441851db5296b040ff0dd94636ee48f"
+      ]
+    },
+    "spacr.qt.preferences.get_performance_logging": {
+      "source_blocks_sha256": [
+        "8f4216368f5a965cbc8f4e5d109ed4ce7c9e8ead390044cba7385be32627f758",
+        "1b18eb6abbb450894792733c9abe20767e2a2ba924ecdbdfb4fd6fbcc4c50e45",
+        "db31b8c46d50c3c1c5c439d8f1b2e59f6da20420ceda3ca5c2a57e2483884983"
+      ],
+      "source_sha256": "628b35c3b3aa4fa1a1aa9e1f03b52e7b1c238b0f6bb83859d76708a5016a593f",
+      "text": "Retourner le niveau d'enregistrement des ressources de l'arbre-processus indépendant.\n\n``summary`` est la valeur par défaut : elle enregistre les totaux et les pics à environ un échantillon par seconde. ``detailed`` conserve en outre la série de chemins d'exécution délimités/indépendants. Ce paramètre n'autorise jamais le logage verbeux ou installe un crochet de profil.\n\n:returns: un de :data:`PERFORMANCE_LOGGING_LEVELS`.",
+      "translation_source_blocks_sha256": [
+        "8f4216368f5a965cbc8f4e5d109ed4ce7c9e8ead390044cba7385be32627f758",
+        "5b7a38ef06572dc29de260537087fa3b55551ecab9cd1c6ae569edd9dcd01301",
+        "db31b8c46d50c3c1c5c439d8f1b2e59f6da20420ceda3ca5c2a57e2483884983"
       ]
     },
     "spacr.qt.preferences.get_popup_backdrop": {
@@ -58512,6 +58544,20 @@
         "045576692e252ee65a3d25400e7e30739be74b9b8cf3128f5d6a6986b7495676"
       ]
     },
+    "spacr.qt.preferences.set_performance_logging": {
+      "source_blocks_sha256": [
+        "22029a0ba40316ae8776f9fd6ce614e23d4d29216d3c9ad7a22e977f038808e6",
+        "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+        "fbfe7ce6510b800cd7144d49bc29eeb9e5bd063c99a86663f09ed321b7c8cf90"
+      ],
+      "source_sha256": "3b27d8af769fc122a42339f799aea8941abac64d5d822d32f3d7d102f48aaf59",
+      "text": "Persistez au niveau de l'exploitation des ressources des arbres-processus.\n\n:param level: ``off``, ``summary`` or ``detailed``.\n:raises ValueError: lorsque ``level`` ne nomme aucun mode supporté.",
+      "translation_source_blocks_sha256": [
+        "22029a0ba40316ae8776f9fd6ce614e23d4d29216d3c9ad7a22e977f038808e6",
+        "439db18cc79bde609aa968c21d43274ba179d68b77f2d412ac718107ddb93444",
+        "fbfe7ce6510b800cd7144d49bc29eeb9e5bd063c99a86663f09ed321b7c8cf90"
+      ]
+    },
     "spacr.qt.preferences.set_popup_backdrop": {
       "source_blocks_sha256": [
         "922254b9b0169199375f71b42d3ef71638bc638f992db0834c1dc4b12c9fbc31"
@@ -59306,6 +59352,18 @@
       "text": "La recette surlignée, ou ``None``.",
       "translation_source_blocks_sha256": [
         "01c5d491d58b254f17fe243ed39cb54f66894de7c7166f8e05779c8e25c785bd"
+      ]
+    },
+    "spacr.qt.recipes.RecipeDialog.set_confirmation_runner": {
+      "source_blocks_sha256": [
+        "506d131c4413621965deb060d47686a48179982f6bbe7e287953cfd5c8195b1f",
+        "390cbfd42e11a6cb480c995e7fc6558fc3e2e13e2a5c238e54707f2c62afa193"
+      ],
+      "source_sha256": "84b66b024ad720165e35bf263bf410b3ce9ca57f98c289eedb56ab7356dce1d1",
+      "text": "Remplacer le mode d'exécution de la confirmation version/compatibilité.\n\nLes tests injectent un coureur qui inspecte la boîte de message entièrement configurée et retourne une réponse sans blocage; un hôte peut utiliser la même couture pour une présentation personnalisée.",
+      "translation_source_blocks_sha256": [
+        "506d131c4413621965deb060d47686a48179982f6bbe7e287953cfd5c8195b1f",
+        "390cbfd42e11a6cb480c995e7fc6558fc3e2e13e2a5c238e54707f2c62afa193"
       ]
     },
     "spacr.qt.recipes.apply_recipe": {
@@ -60392,15 +60450,15 @@
       "source_blocks_sha256": [
         "55e756f45663f74b6a85948c4c7f4cbcce37cd9fbad2e2ebdbb9bd23dad8b743",
         "ce889d487a5a00e98c411f5a1f0c730293f15c86b0c5e554c8071d83f097efef",
-        "77f574e11afccd935db1e5e7b59555e4b556792ba047bcd8991c035a6cb3839e",
+        "c96d7991d20f017cb15e7a5d38ce393d4496b092c83191c4b0559643b7df2930",
         "253aa95e1d21ad45e472bae34c6a5a3f4202cec590de84d516a64becf4f3757e"
       ],
-      "source_sha256": "562c4f57e8fb40e2bd1b52440c52588a6ea48dc7dfc774a871896d4612e1ba2d",
-      "text": "Widgets criblage — un par application spacr.\n\nNOTHING EST IMPORTÉ ICI. Ce paquet utilisé pour importer neuf vues d'application en haut, parce qu'une vue de l'application qui possédait sa ligne de registre devait être exécutée pour que la ligne existe, et ce paquet est sur le chemin de chaque vue d' application la fenêtre build — donc importer une vue de application importé neuf, et avec eux pandas et tout ce qui est sous elle, avant que la fenêtre n'ait dessiné.\n\nUne ligne n'a plus besoin de la vue application. :mod:`spacr.qt.app_catalog` déclare le nom de données structurées, le nom, la phrase, la section, l'étape et le NOM de l'usine de vue application, et :func:`spacr.qt.app_catalog.register_declared` enregistre tout cela sans importer quoi que ce soit; la vue Application est importée la première fois que quelqu'un l'ouvre. Une vue application qui contribue à un bloc de feuille de style l'enregistre à cette importation, et:func:`spacr.qt.theme.register_widget_qss` la met dans la feuille d'application en direct synchronement, avant que son premier widget ne soit construit. :data:`spacr.qt.theme.WIDGET_QSS_MODULES` reste l'inventaire utilisé lorsqu'une feuille de styles exhaustive/statique est explicitement demandée.\n\nDonc, pour ajouter un criblage, déclarez sa ligne dans ``app_catalog`` et — s'il enregistre un bloc QSS — nommez-le dans ``WIDGET_QSS_MODULES`` afin que les feuilles exhaustives restent complètes. Ne l'importez pas ici simplement pour le style de démarrage.",
+      "source_sha256": "b8fb8f64d26b26d385ebcd6a63bb7148a50ec7f1b21fcafc62b4f527df51d71e",
+      "text": "Widgets criblage — un par application spacr.\n\nNOTHING EST IMPORTÉ ICI. Ce paquet utilisé pour importer neuf vues d'application en haut, parce qu'une vue de l'application qui possédait sa ligne de registre devait être exécutée pour que la ligne existe, et ce paquet est sur le chemin de chaque vue d' application la fenêtre build — donc importer une vue de application importé neuf, et avec eux pandas et tout ce qui est sous elle, avant que la fenêtre n'ait dessiné.\n\nUne ligne n'a plus besoin de la vue d'application. :mod:`spacr.qt.app_catalog` déclare le nom des données structurées, le nom, la phrase, la section, l'étape et le NOM de l'usine d'affichage d'une application, et :func:`spacr.qt.app_catalog.register_declared` enregistre tout cela sans importer quoi que ce soit; la vue de l ́application est importée la première fois que quelqu'un l'ouvre. Une vue d ́application qui contribue à un bloc de feuille de style l'enregistre à cette importation, et``MainWindow`` applique des blocs enregistrés manquants à la propre portée QSS de la nouvelle application avant d'insérer celle-ci dans la pile visible. :data:`spacr.qt.theme.WIDGET_QSS_MODULES` demeure l'inventaire utilisé lorsqu'une feuille de styles exhaustive/statique est explicitement demandée.\n\nDonc, pour ajouter un criblage, déclarez sa ligne dans ``app_catalog`` et — s'il enregistre un bloc QSS — nommez-le dans ``WIDGET_QSS_MODULES`` afin que les feuilles exhaustives restent complètes. Ne l'importez pas ici simplement pour le style de démarrage.",
       "translation_source_blocks_sha256": [
         "55e756f45663f74b6a85948c4c7f4cbcce37cd9fbad2e2ebdbb9bd23dad8b743",
         "7a9e743056abe8b79368740d56a5657e6aff59a830f8fce064656d02c92ebd53",
-        "826b01439ded8b476dca4592436bc6e68884c039d7509ca79bd780f07e3dff32",
+        "08c11e83ca9c1db88df8fd6bbb60dcbaf17287770479d86b112238b8b85c9a3c",
         "253aa95e1d21ad45e472bae34c6a5a3f4202cec590de84d516a64becf4f3757e"
       ]
     },
@@ -61268,12 +61326,14 @@
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict": {
       "source_blocks_sha256": [
-        "ac1d95c581e3e8b31a4dfdf03aee6b2a8702ce18e7310dcf834d4b0ee0e09bef"
+        "ea668f2ec5af454a98c1fff789fafdf60bc4b8889e2687607d82bb828be414d5",
+        "6db4884fbd7891feb47094fd117a479f3d193384984c3dba79722ccc631a6fd4"
       ],
-      "source_sha256": "43cd29cd978ae814ef4aa00d6990ade7446a30394caa2f408b5e72b0e240a044",
-      "text": "Poussez les paires de noms/valeurs de `settings` dans les paramètres que cette application affiche. Silencieusement, saute les noms de données structurées que l'application actuelle n'a pas — la même valeur clé peut être appliquée en toute sécurité à plusieurs applications. Renvoie le nombre de noms de données structurés effectivement appliqués.",
+      "source_sha256": "e15ba214585cffec9e0e23545d82016dabd542870628097ac62dbe51e78f0fd7",
+      "text": "Poussez les paires de noms/valeurs de `settings` dans les paramètres que cette application affiche.\n\nUne charge en vrac est une transaction. Si elle change la forme du formulaire, la cartographie complète fusionnée construit un criblage de remplacement avant l'application des valeurs; aucun signal ne peut remplacer le criblage à mi-chemin de la boucle. Silencieusement, saute les noms de données structurées que l'app actuelle n'a pas — la même valeur clé peut être appliquée en toute sécurité sur plusieurs applications.",
       "translation_source_blocks_sha256": [
-        "c103ff60659df7c8ba1dc492cd854d81c1531ea027193f49422bc5b825a3f998"
+        "b167e9065cad1317b87d9628d34a5fc779e3b7bababa088309b3353c01bccd9c",
+        "066d414c2c811c3aeb43c327e12be7af258887be1e849e4275aaa101fb8d7af2"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.apply_workspace_state": {
@@ -61544,6 +61604,18 @@
       "translation_source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
         "d0c9150f91d5e7d90387ac9151a4413c3f57140e9ba387fbb3df6aeed37a8ed8"
+      ]
+    },
+    "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
+      "source_blocks_sha256": [
+        "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+      ],
+      "source_sha256": "c259cf7d3f0dc92e7433feda51ca5f6eb4b77fa47a777e794cf8c66b277330d8",
+      "text": "Les widgets de section effectivement montés dans le panneau de paramètres.\n\n``_settings_sections`` contient délibérément aussi des formulaires dormants pour les paramètres de l'objet. Les consommateurs visuels -- la maturité et les indices de catégorie en particulier -- doivent utiliser ce sous-ensemble à la place.",
+      "translation_source_blocks_sha256": [
+        "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
+        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.restore_run_workspace": {
@@ -62298,14 +62370,76 @@
         "c152afbf2da10789e5c6f6e623648860955c57c53987f053d152da72ef844bcc"
       ]
     },
+    "spacr.qt.screens.classify.LazyFlowViewSection": {
+      "source_blocks_sha256": [
+        "ec30f6b922de90be1ab657e9f721ac77f5aebbf8e8e5676e3009dd859a5c5656",
+        "d2aef6c5078782ab9b7c6ca3b9b90035e9f726cef5cafd646bd744c276268c36"
+      ],
+      "source_sha256": "4123e578288b768d481d9e6b6e048346381cd5160bd3386029a357f672d9fdee",
+      "text": "Un pied de page effondré Classifie qui paie pour FlowView seulement lorsqu'il est ouvert.\n\nLe ``content`` vide passé à :class:`CollapsibleSection` est délibéré : l'importation du rendeur graphique construit un arbre de dépendance Qt/scientifique. Classer n'obtient que ce petit en-tête sur la première peinture; le panneau, sa scène et le graphique de prévisualisation approuvé arrivent sur la premiere expansion.",
+      "translation_source_blocks_sha256": [
+        "ec30f6b922de90be1ab657e9f721ac77f5aebbf8e8e5676e3009dd859a5c5656",
+        "d2aef6c5078782ab9b7c6ca3b9b90035e9f726cef5cafd646bd744c276268c36"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.hideEvent": {
+      "source_blocks_sha256": [
+        "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383"
+      ],
+      "source_sha256": "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383",
+      "text": "Une page cached Classify ne doit pas passer de cycles alors qu'elle est cachée.",
+      "translation_source_blocks_sha256": [
+        "38abc9880d556f7219c24992d310d2181f7cc62d8cd716ba78c897056dc09383"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.panel": {
+      "source_blocks_sha256": [
+        "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d"
+      ],
+      "source_sha256": "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d",
+      "text": "Retourne le rendu construit, ou ``None`` avant d'ouvrir.",
+      "translation_source_blocks_sha256": [
+        "123b01159458c506ba95f687b43bae5f0cd5681cb26d570697bd3f3423b3976d"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.showEvent": {
+      "source_blocks_sha256": [
+        "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf"
+      ],
+      "source_sha256": "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf",
+      "text": "Reprendre le rendu uniquement pour une section réellement ouverte et visible.",
+      "translation_source_blocks_sha256": [
+        "66268c5044477284b0953a6f0bde39d2a372e7551cccdd796147ea14cebf12bf"
+      ]
+    },
+    "spacr.qt.screens.classify.LazyFlowViewSection.shutdown": {
+      "source_blocks_sha256": [
+        "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed"
+      ],
+      "source_sha256": "bde5ed812223f268a48f9db2b8f41449524ca7db196164be869c3903dbf643ed",
+      "text": "Arrêter et relâcher les objets Qt appartenant au rendeur lors du démontage de la vue de l'application.",
+      "translation_source_blocks_sha256": [
+        "af57d9a9f7d847c296c2e444fc180a385e9f27d1ee3383c51b793e50184854c7"
+      ]
+    },
+    "spacr.qt.screens.classify.install_flowview": {
+      "source_blocks_sha256": [
+        "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860"
+      ],
+      "source_sha256": "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860",
+      "text": "Monter la boîte paresseuse FlowView directement sous ses paramètres.",
+      "translation_source_blocks_sha256": [
+        "aa86910ca4f8755fc5c8b60021dc188ff2f01d92f6f84f1ba87a22346e9f6860"
+      ]
+    },
     "spacr.qt.screens.classify.install_folds": {
       "source_blocks_sha256": [
-        "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c"
+        "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8"
       ],
-      "source_sha256": "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c",
-      "text": "Mettez la bande de pliage de Classify sur la tête de mât de ``screen``.",
+      "source_sha256": "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8",
+      "text": "Mettre le pied de page FlowView de Classify et plier la bande sur ``screen``.",
       "translation_source_blocks_sha256": [
-        "ea86f9c167518b3e80f26cf964278f386180af77d5232289766a1824e356c71c"
+        "6cb3132211a27acbb06d01078b2ec6a8e9af4d25dc7780d4aa2cf7a6b29995d8"
       ]
     },
     "spacr.qt.screens.control_chart": {
@@ -71549,6 +71683,18 @@
         "eefc73d92314d3297539eb8414ab5ed2ee8b4b88cf4e5851681ead69fd634985"
       ]
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
+      "source_blocks_sha256": [
+        "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
+        "c65f13ac8f641b3040aaf9fe64a84ae3bac8b52d3b2f1927522d15b102585e00"
+      ],
+      "source_sha256": "8e94463448b2b20b5b37d5c90448a627644ecc7530a7ea6ebd13bc0d886b2b1d",
+      "text": "Appliquer des préréglages importés clairsemés sans remplacer les valeurs explicites.\n\nUn fichier de paramètres qui fournit morphologie/méthode/seuils possède ces valeurs. Un fichier qui fournit seulement un type demande au sélectionneur de remplir ses recommandations manquantes tout comme un choix direct de l'utilisateur.",
+      "translation_source_blocks_sha256": [
+        "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
+        "c65f13ac8f641b3040aaf9fe64a84ae3bac8b52d3b2f1927522d15b102585e00"
+      ]
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.build_sections": {
       "source_blocks_sha256": [
         "86007bce10c1491e1c79c4de376cbaf117605aefa880f8a3f3d3bdfb713df1ea",
@@ -71729,14 +71875,18 @@
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
       "source_blocks_sha256": [
-        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
-        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+        "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d"
       ],
-      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
-      "text": "Mettre à jour un paramètre d'exécution délibérément caché.\n\nCertaines valeurs disposent d’une commande dédiée hors du formulaire. Le commutateur GPU de la barre d’actions d’Image UMAP en est un : le dupliquer comme case à cocher créerait deux sources de vérité. Masqué ne signifie pas manquant (règle immuable 6) ; la valeur reste donc dans ``_defaults`` et atteint toujours collect().",
+      "source_sha256": "775742ee793c892fe792874807a705b3438be146e65d564d1c89e93a07fabb32",
+      "text": "Mettre à jour un paramètre connu d'exécution dont le widget n'est pas sur ce formulaire.\n\nCela inclut les commandes dédiées en dehors des lignes de formulaire et d'objet omises par la forme actuelle.\n\nMasqué ne signifie pas absent : les valeurs importées sont conservées dans ``_defaults`` et parviennent toujours à ``collect()``.\n\nUne fente au-dessus du nombre courant n'est acceptée que lorsque cette application possède le nombre et que le nom de données structurées est un paramètre déclaré; les noms de données structurés de l'application étrangère restent rejetés.",
       "translation_source_blocks_sha256": [
-        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
-        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+        "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "ea7d50a112565a6015f9e1a7dab66461f469838875b3504057627fc66c3ecb87"
       ]
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
@@ -72120,16 +72270,16 @@
     "spacr.qt.screens.settings_model.organelle_morphology_now": {
       "source_blocks_sha256": [
         "9d6b465c48c38fb2865afdd46ea2aca95c4cca9fca96995f880b8e1129a2ef2b",
-        "3c2ccc3358ee8381b4e6ebf55af7d7459b1b6bac62e14e1037aafc6d264931bc",
+        "6344bbaae8b7b0882e7a9762362fb30063f19341e8e1c7347d41f8d89e03144a",
         "559d3267320e0415c7e60bdd87983477fb7d93dca4350de877abe1d86da929dc",
         "0e1f19f0c36d6c0ff01134b3d71fb53ee28a2079b382578e06057f670b8c0ed3",
         "55f2438b2fd8e799b9ec985704352391c387def8ff71e8c8bb188631c77ce586"
       ],
-      "source_sha256": "56bee590246538aabf4d209e5ead869f7ae2ec900de80b70a141c84cf428359e",
-      "text": "Résoudre la morphologie actuellement applicable à une fente organelle.\n\nLa valeur ``<role>_type`` est résolue avec :func:`spacr.organelle_types.resolve_type`. Pour un préréglage reconnu, ``<role>_diameter`` est converti en valeur numérique et passé à :meth:`spacr.organelle_types.OrganelleType.morphology_for`. Un diamètre manquant ou non numérique est passé sous ``None``; les presets dépendant de la taille sélectionnent alors leur morphologie d'objet plus petit. Si le type est ``custom`` ou invalide, ou si le préréglateur ne produit pas une morphology supportée, la valeur explicite ``<role>_morphology`` est utilisée à la place.\n\n:param role: Préfixe pour les paramètres organelle-slot, tels que ``organelle`` ou ``organelleb``.\n:param settings: Valeurs actuelles codées par le nom du paramètre.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"`` ou ``None`` lorsque ni le chemin de résolution ne fournit une morphologie supportée.",
+      "source_sha256": "5e8616160bbc08ab09104622769e1b638fcf9e7beb63c385dc9e41a5f7227a45",
+      "text": "Résoudre la morphologie actuellement applicable à une fente organelle.\n\nLe ``<role>_morphology`` collecté fait autorité. Choisir un type écrit sa recommandation dans ce contrôle, tandis qu'un choix avancé plus tard explicite doit gagner sur le preset et sur son inférence d'affichage. Seule une cartographie clairsemée sans morphologie revient directement à résoudre ``<role>_type`` et ``<role>_diameter``.\n\n:param role: Préfixe pour les paramètres organelle-slot, tels que ``organelle`` ou ``organelleb``.\n:param settings: Valeurs actuelles codées par le nom du paramètre.\n:returns: ``\"spots\"``, ``\"network\"``, ``\"irregular\"``, ``\"ring\"`` ou ``None`` lorsque ni le chemin de résolution ne fournit une morphologie supportée.",
       "translation_source_blocks_sha256": [
         "9d6b465c48c38fb2865afdd46ea2aca95c4cca9fca96995f880b8e1129a2ef2b",
-        "3c2ccc3358ee8381b4e6ebf55af7d7459b1b6bac62e14e1037aafc6d264931bc",
+        "6344bbaae8b7b0882e7a9762362fb30063f19341e8e1c7347d41f8d89e03144a",
         "559d3267320e0415c7e60bdd87983477fb7d93dca4350de877abe1d86da929dc",
         "0e1f19f0c36d6c0ff01134b3d71fb53ee28a2079b382578e06057f670b8c0ed3",
         "55f2438b2fd8e799b9ec985704352391c387def8ff71e8c8bb188631c77ce586"
@@ -73671,11 +73821,11 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
+        "ccabc909941e3afe2105347182a893385388e4b12ec06203e711e10f5c44c215",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
-      "text": "Raccourcis clavier-premier pour le spaCR Qt GUI.\n\nEnregistre les liaisons globales :class:`QShortcut` sur la fenêtre principale afin que l'application entière soit utilisable sans souris :\n\n    Ctrl+H        Rentre chez toi.\n    Ctrl+1..9     Passez à l'application Nth dans la barre latérale\n    Ctrl+K        Ouvrir la palette des commandes\n    F1  / ?       Afficher la feuille de triche des raccourcis\n    Ctrl+,        Ouvrir les préférences\n    Ctrl+/        Ouvrir la console d'IA\n    Ctrl+Fin Sauter à la dernière ligne de la console F11 Basculer l'affichage de l'application complète Échap Fermer toute boîte de dialogue / fenêtre contextuelle ouverte\n\n:func:`install` est appelé une fois à partir de ``MainWindow.__init__``. Chaque liaison est documentée dans :data:`SHORTCUTS` de sorte que la boîte de dialogue triche reste en synchronisation avec ce qui est réellement câblé.",
+      "source_sha256": "dfb645dee7b68ac6ed60a36c7db81f71bbff7ec786df070d970f393b81db5e2c",
+      "text": "Raccourcis clavier-premier pour le spaCR Qt GUI.\n\nEnregistre les liaisons globales :class:`QShortcut` sur la fenêtre principale afin que l'application entière soit utilisable sans souris :\n\n    Ctrl+H        Rentre chez toi.\n    Ctrl+1..9     Passez à l'application Nth dans la barre latérale\n    Ctrl+K        Ouvrir la palette des commandes\n    F1  / ?       Afficher la feuille de triche des raccourcis\n    Ctrl+,        Ouvrir les préférences\n    Ctrl+/        Ouvrir la console d'IA\n    Ctrl + Maj + A Ouvrir la liste complète des applications Ctrl+B Effacer l'arrière-plan animé Ctrl-Fin Aller à la ligne de console la plus récente F11 Basculer la vue complète de l'application Echap Fermer toute boîte de dialogue / fenêtre contextuelle ouverte\n\n:func:`install` est appelé une fois à partir de ``MainWindow.__init__``. Chaque liaison est documentée dans :data:`SHORTCUTS` de sorte que la boîte de dialogue triche reste en synchronisation avec ce qui est réellement câblé.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
@@ -73685,7 +73835,7 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "d65a0add9677b70d6bd84a21fb592d982bfa33f878074d8b872aa36a41bf050e",
+        "5fc6269cba0646f24582e0e2fc44d52966b21db7196624b9d8cb42e334bb2779",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ]
     },
@@ -74909,6 +75059,20 @@
         "396de0295aa341954c8910e28fa710e99f7e55ee1dc335f3f749ddb1c18882d6"
       ]
     },
+    "spacr.qt.theme.clear_widget_qss_overlays": {
+      "source_blocks_sha256": [
+        "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+        "dcefae6883c40de5c67ea5e964fa076bb03fd37f1ccb9977880ffc0a69ab3b4a",
+        "2dbc0f1c436c7fe95d49069ebdfe5297caf4c538bd842070d08f31c98046f29d"
+      ],
+      "source_sha256": "85c0b84a711d3e313a195c5d79114fde2e9dceb541785dffa44700f92bb718be",
+      "text": "Supprimer les suffixes QSS tardifs propres à l’écran avant de reconstruire le thème global.\n\nLa feuille d'application reconstruite contient tous les blocs enregistrés jusqu'à présent, avec le nouveau thème, l'opacité et l'échelle de police. Laisser une copie locale plus ancienne en place lui donnerait priorité et lancerait la vue de l'application sur les valeurs de préférence précédentes.\n\n:returns: nombre de racines d'criblage dont le suffixe a été retiré.",
+      "translation_source_blocks_sha256": [
+        "b0df51f9ffe55af73b0a83e89d18b6d78e7ad5342dc5773040382d967544ac23",
+        "fdc06fad2596553f7584dd2065b88fdaa819ad24d95234cad1c549f2dec8a06d",
+        "2dbc0f1c436c7fe95d49069ebdfe5297caf4c538bd842070d08f31c98046f29d"
+      ]
+    },
     "spacr.qt.theme.close_mark_button": {
       "source_blocks_sha256": [
         "933f5c4abd4fae3c433cd4c422203e0a0f152ded10d9d3be637f32bbec5b2e93"
@@ -75065,22 +75229,24 @@
     },
     "spacr.qt.theme.ensure_widget_qss_applied": {
       "source_blocks_sha256": [
-        "04d6b35c442601ca66042efc70801f1a50423d0c963e63cf7a17b14cdf62f914",
-        "ca5b4888479f318807cdc2a8fecc3cccfa8a4aa4a969e52da89d38755a482af5",
-        "1dcc99de94a59e8bf77a61359ea64741e0d0290fc924fa0013b2cd572bc2938b",
-        "e728f094e7e23ffe76e51d408e7743dff5a577a6c99d12bae72bcca55d42225c",
-        "2ad63b243fcb0993da0ff969c3c0b9f96e025e1fb89e3654dd63beacba82060c",
-        "dbc0d41732843bfc35c13ac7327fbc52df0bafe7f10d6691f761aa157c9724fa"
+        "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
+        "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
+        "28c8a7af366dc8f22eb9da3ed30b4b13f3c3a6eb2c0cd0d221ed187c9adf9559",
+        "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
+        "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
+        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ],
-      "source_sha256": "2b0de7f19162e2d686bf4a31e0a4ac32ca7ef0790b63f9343201d9bee883e42c",
-      "text": "Re-appliquer la feuille de style de l'application si ``names`` ne sont pas présents.\n\nUn bloc est enregistré à **import** de son module, alors que la feuille de style de l'application est générée pour la première fois avant l'existence de ``MainWindow``. Le démarrage de la production laisse intentionnellement les modules d'affichage d'applications non ouverts non importés, de sorte que :func:`register_widget_qss` appelle cela synchronement à l'arrivée de chacun. L'enregistrement est au-dessus de la classe de widget du module : la feuille reconstruite est donc en direct avant que la première instance puisse être construite ou peinte.\n\nCe n'est pas hypothétique : les panneaux de Model Compare ont reçu une surface de page, le test qui les mesure (un test importe le module avant qu'il n'applique la feuille de style), et les panneaux étaient encore nus dans l'application d'exécution, parce que ``spacr.qt.screens.model_compare`` n'était pas dans ``sys.modules`` quand la feuille est construite. Les vues de l' application énumérées dans ``spacr.qt.SELF_REGISTERING_MODULES`` sont importées au lancement et n'ont jamais eu le problème, c'est pourquoi il est passé inaperçu aussi longtemps qu'elle l'a fait.\n\nLes appels de constructeur existants restent utiles, la défense idémpotent pour les blocs enregistrés à partir de fonctions internes. C'est un non-op sans ``QApplication``, pas de feuille de style encore, une reconstruction déjà en cours, ou quand chaque bloc demandé est déjà présent.\n\n:param names: nom de bloc enregistré l'appelant doit être en direct.\n:returns: ``True`` si la feuille de style a été régénérée.",
+      "source_sha256": "46cb62d3861ca489cb4ea2db2b17553e562d7918babae1ede8b85f13b1d480b9",
+      "text": "Installez des blocs enregistrés tardifs sur ``root`` sans redyler l'application.\n\nLa feuille de style d'application de production est composée avant l'importation de modules d'criblage non ouverts.\n\nRemplacer cette feuille entière pour chaque importation ferme la course de première peinture, mais elle fait également Qt analyser la feuille et re-polish chaque widget accumulé dans chaque vue d'application mise en cache.\n\nUne racine d'criblage est une portée QSS: les règles installées là atteignent cet criblage et ses descendants, et les appliquer avant que la racine soit montrée préserve le même contrat de première peinture sans toucher Home ou tout module précédemment ouvert.\n\nLe suffixe contient tous les blocs enregistrés absents de la feuille d'application, dans l'ordre du registre, plutôt que seulement ``names``. Cela maintient les blocs importés par les dépendances d'un criblage et signifie qu'un appel ultérieur peut remplacer un suffix complet au lieu d'empiler des fragments avec des valeurs de préférence différentes. ``names`` reste la documentation de l'appelant sur les blocs qu'il nécessite; l'omettre est le chemin MainWindow criblage-hôte.\n\nC'est un non-op sans ``root``, pas ``QApplication``, ou pas de feuille de style d'application. Un appelant qui n'a jamais opté pour le style spaCR n'est pas choisi simplement en construisant l'un de ses widgets.\n\n:returns: ``True`` seulement lorsque ``root.setStyleSheet`` a été appelé.",
       "translation_source_blocks_sha256": [
-        "04d6b35c442601ca66042efc70801f1a50423d0c963e63cf7a17b14cdf62f914",
-        "ae4a1d35306a4ae6ebc541157cdf26673a0f83f885b46053b7a8f50cd74e5547",
-        "5095e69d97865d2ae12af969eaf89e237a72e0e950ab4f0d17ca80022bcced7e",
-        "e728f094e7e23ffe76e51d408e7743dff5a577a6c99d12bae72bcca55d42225c",
-        "2ad63b243fcb0993da0ff969c3c0b9f96e025e1fb89e3654dd63beacba82060c",
-        "dbc0d41732843bfc35c13ac7327fbc52df0bafe7f10d6691f761aa157c9724fa"
+        "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
+        "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
+        "9d1683c66339204160718950b530883f665447ff6433c5b788cebfdb9acb38f8",
+        "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
+        "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
+        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ]
     },
     "spacr.qt.theme.field_chrome": {
@@ -75533,10 +75699,22 @@
         "64090ba1e7ec2bc65e37d8b5e5013cee540fca5e0a8187e7cf709255b35757cf"
       ]
     },
+    "spacr.qt.theme.preserve_widget_qss_overlay": {
+      "source_blocks_sha256": [
+        "6d809aa4bd114bbf7cacb14a06d0817c9019d114785d8e790992d5e3cede3f62",
+        "59872508f7f62b4dc36e73c019aea38f61ae3c93b2084016fbff5b08ffd5adef"
+      ],
+      "source_sha256": "f7e618c858e67eceb84f5bb52be16b7d4a087460a57476a7897bdb35dc12991a",
+      "text": "Retour ``stylesheet`` avec le suffixe de la fin de QSS appartenant à ``root`` intact.\n\nUne vue d'application peut légitimement remplacer sa propre feuille de style de base après l'installation de ses blocs widget tardifs. Plier le suffixe dans cette affectation existante évite un second appel ``setStyleSheet`` (et sa cascade de changement de palette) tout en maintenant les blocs disponibles pour la prochaine peinture.",
+      "translation_source_blocks_sha256": [
+        "6d809aa4bd114bbf7cacb14a06d0817c9019d114785d8e790992d5e3cede3f62",
+        "87eee2ac2694041350d48cfba23df4f0d03e1e01dd0be730c117e4931e19bb68"
+      ]
+    },
     "spacr.qt.theme.register_widget_qss": {
       "source_blocks_sha256": [
         "6e8322b6d15f7a5672ce79902201747bcef0c56a0412c88803b79e4c6fee9910",
-        "2e2b2d574091b1dffd8a165bdcd93a35b6700daa33a413c4d2d970e9a76eeafd",
+        "92fb40dd32da260b602b8017f642a311b5dea80dc2d53798604419d6614c630a",
         "a9b640c7f6729691c3257fc3cded5357d6c9b24c08a61708163ac4ce90a2a4a0",
         "6ada1116970a8059e0993ccc92ee9a6d46a5c5f6104b9bf2d724abeae4ed81b4",
         "fc0c5b9ebaf7b399751694b683f73b6f8a67618f4414e84abaef62e0b8dbfcad",
@@ -75546,11 +75724,11 @@
         "82da4b6b050802e5354ffd2e09578386d4b6c247912ee6bd4ffb44e41d34724f",
         "96c8f9c7f17512e73036e0a4984df70222e73222130688245350994e773682f4"
       ],
-      "source_sha256": "c25d6551a74441bfd1166a3bc01984a070afbd539362a507e7227d4d73dbbf9d",
-      "text": "Enregistrez un bloc QSS annexé à chaque feuille de style générée.\n\nSi un ``QApplication`` porte déjà une feuille de style spaCR et que le bloc n'y est pas, l'enregistrement reconstruira synchronement cette feuille de live. Les modules d'affichage des applications s'enregistrent avant de définir leur classe de widget, qui ferme la course de première peinture sans importer de vues d'application non ouvertes au démarrage.\n\n:param name: identificateur stable, normalement le widget ``objectName``. C'est par quoi le bloc est signalé et non enregistré; il n'apparaît pas dans le QSS.\n:param fn: ``fn(palette, opacity) -> str``, appelé une fois par appel :func:`stylesheet`.\n\n    ``palette`` est la palette du thème avec les trois rôles de surface (``surface``, ``surface_alt``,``surface_hi``) déjà rendus à travers l'opacité de la page de l'utilisateur — les mêmes valeurs que les règles intégrées interpolent, de sorte qu'un bloc enregistré correspond à l'application sans faire les maths alpha. Deux noms de données structurés non-couleur réservés le long: ``theme`` (le nom du thème, qui :func:`pane_surface`, [:func:`pane_alpha` et :func:`palette_for` tous veulent) et ``font_scale``.\n\n    ``opacity`` est la préférence de l'utilisateur pour l'opacité de la page, ou ``None`` pour « utiliser le scrim conçu par le thème ». Passez-le directement à :func:`block_surface` / :func:`pane_alpha` /:func:`panel_alpha` plutôt que de le interpréter : ``None`` n'est pas 1.0, et le plancher de lisibilité est à eux d'appliquer.\n\n    :func:`block_surface` et **pas** :func:`pane_surface`, qui est l'accessoire quasi identique pour les appelants en ligne et les appelantes à temps de peinture. Son ``None`` signifie \"nobody told me\" et lit la préférence live, de sorte qu'un bloc utilisant ce dernier transforme ``stylesheet(theme)`` en fonction d'une valeur QSettings plutôt que de ses arguments.\n:param replace: permettre la réenregistrement ``name``. Désactive par défaut, de sorte que deux widgets ne peuvent pas revendiquer un nom tranquillement.\n:raises ValueError: sur un nom dupliqué sans ``replace``.\n:raises TypeError: si ``fn`` n'est pas callable.",
+      "source_sha256": "07ccbccf9b984e08f97f72a4b0adc3aac01c9d97f3ac1448c48bf1337c90f754",
+      "text": "Enregistrez un bloc QSS annexé à chaque feuille de style générée.\n\nL'enregistrement lui-même ne réapplique jamais la feuille de style ``QApplication``. Qt re-polishe chaque widget en direct sur un appel global ``setStyleSheet``; faire cela une fois pour chaque vue d'application importée sur demande fait module plus tard s'ouvre progressivement plus lentement. :func:`ensure_widget_qss_applied` installe les blocs manquants sur la racine de la nouvelle vue de l'application avant qu'elle puisse peindre à la place.\n\n:param name: identificateur stable, normalement le widget ``objectName``. C'est par quoi le bloc est signalé et non enregistré; il n'apparaît pas dans le QSS.\n:param fn: ``fn(palette, opacity) -> str``, appelé une fois par appel :func:`stylesheet`.\n\n    ``palette`` est la palette du thème avec les trois rôles de surface (``surface``, ``surface_alt``,``surface_hi``) déjà rendus à travers l'opacité de la page de l'utilisateur — les mêmes valeurs que les règles intégrées interpolent, de sorte qu'un bloc enregistré correspond à l'application sans faire les maths alpha. Deux noms de données structurés non-couleur réservés le long: ``theme`` (le nom du thème, qui :func:`pane_surface`, [:func:`pane_alpha` et :func:`palette_for` tous veulent) et ``font_scale``.\n\n    ``opacity`` est la préférence de l'utilisateur pour l'opacité de la page, ou ``None`` pour « utiliser le scrim conçu par le thème ». Passez-le directement à :func:`block_surface` / :func:`pane_alpha` /:func:`panel_alpha` plutôt que de le interpréter : ``None`` n'est pas 1.0, et le plancher de lisibilité est à eux d'appliquer.\n\n    :func:`block_surface` et **pas** :func:`pane_surface`, qui est l'accessoire quasi identique pour les appelants en ligne et les appelantes à temps de peinture. Son ``None`` signifie \"nobody told me\" et lit la préférence live, de sorte qu'un bloc utilisant ce dernier transforme ``stylesheet(theme)`` en fonction d'une valeur QSettings plutôt que de ses arguments.\n:param replace: permettre la réenregistrement ``name``. Désactive par défaut, de sorte que deux widgets ne peuvent pas revendiquer un nom tranquillement.\n:raises ValueError: sur un nom dupliqué sans ``replace``.\n:raises TypeError: si ``fn`` n'est pas callable.",
       "translation_source_blocks_sha256": [
         "6e8322b6d15f7a5672ce79902201747bcef0c56a0412c88803b79e4c6fee9910",
-        "5ad738b40a0e71cf0c989b4e0a26da7c5d94a9818404d98b4e9f4cedbb00a10a",
+        "8279fe7a53700dd8d93c541a257a343751a3e13531768cefdb271b62069d2d6f",
         "a9b640c7f6729691c3257fc3cded5357d6c9b24c08a61708163ac4ce90a2a4a0",
         "6ada1116970a8059e0993ccc92ee9a6d46a5c5f6104b9bf2d724abeae4ed81b4",
         "953c0449cf369ace354e5697438e365df2b8416f63b212716260f17e90242c80",
@@ -75597,14 +75775,14 @@
     },
     "spacr.qt.theme.rim_colour": {
       "source_blocks_sha256": [
-        "42280360eb0631d50783c751d04020437db9ca80abd70bd8c456da989e7cb8c6",
-        "a83cec88d86dd6faafe4d05cccb9f34df5573c8a84b41c3568d584117551eff6"
+        "4a8a46fc86d1481187c0c564a1a644e37a94cb30e279e8b53545885b50d60e6c",
+        "e88f8fdc5f8f5329a41e26c256a216e3176d1c2655b19fe0eee2309233d30e88"
       ],
-      "source_sha256": "24c3cf6749369a31d9cd69ef4d93163b5602cf008757f2f4652c7f95ebb4e513",
-      "text": "La ligne de cheveux qui dessine chaque carrelage — l'encre propre du thème.\n\nBlanc dans les thèmes sombres, presque noir dans la lumière, parce que c'est ce qui est déjà ``fg``. Interrogé comme \"une mince jante blanche, noir en mode blanc\"; dérivant de ``fg`` plutôt que d'écrire ``#ffffff`` signifie espace et cellule l'obtenir gratuitement et aucun thème ne peut être ajouté qui dessine silencieusement une jante invisible.",
+      "source_sha256": "d990f31a81dbafcccdcd100fd3248623f6a8eba5d76a87f14bda07f639eca84a",
+      "text": "La ligne de cheveux significative sur les tuiles esquissées — la propre encre du thème.\n\nBlanc dans les thèmes sombres, presque noir dans la lumière, parce que c'est ce que ``fg`` est déjà. Les cartes horizontales et les états de vol stationnaire interactifs l'utilisent encore; repos des tuiles de module Home délibérément ne pas. Dériver ``fg`` plutôt que d'écrire ``#ffffff`` signifie que chaque palette obtient la bonne encre sans dérive de couleur brute hors de la synchronisation.",
       "translation_source_blocks_sha256": [
-        "42280360eb0631d50783c751d04020437db9ca80abd70bd8c456da989e7cb8c6",
-        "a83cec88d86dd6faafe4d05cccb9f34df5573c8a84b41c3568d584117551eff6"
+        "4a8a46fc86d1481187c0c564a1a644e37a94cb30e279e8b53545885b50d60e6c",
+        "e88f8fdc5f8f5329a41e26c256a216e3176d1c2655b19fe0eee2309233d30e88"
       ]
     },
     "spacr.qt.theme.scrim_alpha": {
@@ -75681,6 +75859,16 @@
       "text": "Réglez l'horloge d'animation espacement, serrée à zéro ou plus.",
       "translation_source_blocks_sha256": [
         "1cb4961ae050abca695023398d913a3e42e068d96e8ce64127fd8115d2b0f36d"
+      ]
+    },
+    "spacr.qt.theme.set_widget_qss_context": {
+      "source_blocks_sha256": [
+        "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608"
+      ],
+      "source_sha256": "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608",
+      "text": "Enregistrez les entrées de préférences live exactes pour les blocs d'criblage tardifs.",
+      "translation_source_blocks_sha256": [
+        "64806ae05dd20c119ad731945fc28a756f0cfb65ca966dea2eaa3ac79de12608"
       ]
     },
     "spacr.qt.theme.size_close_mark": {
@@ -75809,10 +75997,10 @@
         "98a1e8ec1fa65c1d576b4288afe2c4f7fd50c1ca89451bda04bee763d3da5631",
         "ba845ce0deb5c416f138f775aab2edd7026eb5f943a329a03b6897eac8b38e1a",
         "1dc9288a2ce9e29f4950df06641e6a72350c4ce4bd02483d8e5faa7dd866b00d",
-        "eb37546ed05e7dd1943ad466f37cd95f4a525111a03e27be92224af97b1b46ee"
+        "4bd9369012c8b150e7795cecd08af07b29699d9d187c70b588bf5fbd75f4f140"
       ],
-      "source_sha256": "ba21acb72df08c2096257eb0ee618527cb79abd3d482e80c3892a2c048c97f36",
-      "text": "Retourne la chaîne QSS qui style chaque widget personnalisé dans l'application.\n\nLes blocs enregistrés avec :func:`register_widget_qss` sont annexés après tout ci-dessous, de sorte que les propres règles d'un widget gagnent une égalité de spécificité contre les règles générales.\n\n:param theme: une valeur :data:`THEMES`; les valeurs inconnues retournent à l'obscurité.\n:param font_scale: multiplicateur appliqué à chaque taille de police dans :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: chemin vers une image de fond. Seuls les thèmes de :data:`IMAGE_THEMES` l'utilisent; ``None`` (la valeur par défaut et ce qu'une première génération de milieu de exécution obtient) revient à un gradient plat.\n:param surface_opacity: alpha facultatif demandé par l'utilisateur pour toutes les surfaces de module partagées. ``None`` utilise les scrims conçus par le thème.\n:param load_widget_registrars: Importer chaque module qui contribue à un bloc de widget avant de composer. Ceci reste le défaut public pour les appelants et les tests exhaustifs. Le démarrage de l'application passe ``False`` de sorte qu'une vue d'application de données non ouverte ne peut pas tirer la pile scientifique dans le premier cadre; un late :func:`register_widget_qss` s'applique avant que le premier widnet de cette vue puisse être construit.",
+      "source_sha256": "6e7d68dd8ce096c857898c5c242d5671f16a8d5690269bb5321f7f94ae861f1a",
+      "text": "Retourne la chaîne QSS qui style chaque widget personnalisé dans l'application.\n\nLes blocs enregistrés avec :func:`register_widget_qss` sont annexés après tout ci-dessous, de sorte que les propres règles d'un widget gagnent une égalité de spécificité contre les règles générales.\n\n:param theme: une valeur :data:`THEMES`; les valeurs inconnues retournent à l'obscurité.\n:param font_scale: multiplicateur appliqué à chaque taille de police dans :data:`FONT_SIZE`. 1.0 = 100 %.\n:param background: chemin vers une image de fond. Seuls les thèmes de :data:`IMAGE_THEMES` l'utilisent; ``None`` (la valeur par défaut et ce qu'une première génération de milieu de exécution obtient) revient à un gradient plat.\n:param surface_opacity: alpha facultatif demandé par l'utilisateur pour toutes les surfaces de module partagées. ``None`` utilise les scrims conçus par le thème.\n:param load_widget_registrars: Importer chaque module qui contribue à un bloc de widget avant de composer. Ceci reste la valeur par défaut publique pour les appelants et les tests exhaustifs. Le démarrage de l'application passe ``False`` de sorte qu'une vue d'application de données non ouverte ne peut pas tirer la pile scientifique dans le premier cadre; ``MainWindow`` vise les blocs tardifs vers une nouvelle vue sur une application avant d'insérer cette vue dans la pile visible.",
       "translation_source_blocks_sha256": [
         "3408554d895feff2308c9209f02fca27a353e38125a0f787885b7e8373a3e074",
         "94bd8539720c5f96c1ef900f08786dfaec5b3930d37291445d320b0ee4902131",
@@ -75820,7 +76008,7 @@
         "98a1e8ec1fa65c1d576b4288afe2c4f7fd50c1ca89451bda04bee763d3da5631",
         "ba845ce0deb5c416f138f775aab2edd7026eb5f943a329a03b6897eac8b38e1a",
         "1dc9288a2ce9e29f4950df06641e6a72350c4ce4bd02483d8e5faa7dd866b00d",
-        "7c86e0b6f4fe2df6f00d3ac831fe8f69b70e2f1a86b97f6a863e82263dc81c69"
+        "e352eb648ef1007664aa0a9a8c051b83c8feb33f493f3eab2a5c91dd858b9d90"
       ]
     },
     "spacr.qt.theme.take_the_scroll_arrows_off": {
@@ -110457,6 +110645,272 @@
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
       ]
     },
+    "spacr.resource_log": {
+      "source_blocks_sha256": [
+        "7e9a1ded9fb3fd5f0285e73876eed5df6784f1f72e08b464c620d65a5d8c18f2",
+        "e77768ba0adbf9c21d371776bc8ade6fbb54edabf3e9579da6c9d17ec7614435",
+        "605f8a5ed779479b023ad00ff25827817c63ddebf05c47f2ec0f03b50a377255",
+        "8cdbc8e5f322440f36473877687edf07828f9ec76c3a1c27864893319bf9c7c7",
+        "97259178f63e32eec88b19a36f799a638722113bfaf1e1d92c5d37443acb0796",
+        "80e58ba2be5cbf3a9b8be85bbccf0e42da8de8d282e46e67d83afae5e7083542",
+        "9df66fc9063bcee33904aa4cd9baf9b167800835a9581905e038b55a86463be0",
+        "a96563b14c1e0b23cb411731cbad0770b140b241e2bca36aab69979200a9f26c"
+      ],
+      "source_sha256": "ea819f9daac05d0df1d418c087cfe1330ef18ab4bac03e9a49597285643ed497",
+      "text": "Ce que coûte le processus TREE de spaCR pendant qu'il s'exécute, sous son propre réglage.\n\nPourquoi ce n'est pas la lecture spaCR qui prend déjà.\n\nChaque chiffre de ressource dans le paquet compte le processus APPEL : `spacr.fit_resources.host_rss` lit ``/proc/self/statm``, `spacr.qt.timing` lit sa propre taille de résident, et le plancher du paramètre balaye lit la mémoire libre du MACHINE, qui ne peut pas dire les propres enfants de spaCR d'un autre locataire sur une boîte partagée.\n\nLe travail le plus lourd de spaCR ne se produit pas dans le processus d'appel -- `spacr.sequencing` commence un processus d ́épargnant et `spacr.parameter_sweep` exécute chaque essai chez un enfant -- de sorte que le parent semble en bonne santé jusqu'au moment où le moissonneur hors mémoire prend la session de traitement, et après il n'y a rien à lire.\n\nCe module résume le processus et chaque descendant, et nomme chacun, donc \"which trial was large\" est une question que l'enregistrement peut répondre.\n\nPOURQUOI IL N'EST PAS VERBOSE LOGGING. Verbose log installe un crochet de profil qui allume chaque appel et chaque retour, mesuré à vingt fois le démarrage. Un compte pris à travers il décrirait le programme tracé plutôt que le vrai, qui est exactement le programme que personne ne veut mesuré. Donc ce samples plutôt : un psutil lisait une seconde, sur un chemin d'exécution indépendant de démon qui n'est jamais le chemin principal de l'exécution GUI, sur une exécution autrement non perturbée. Trois états plutôt qu'une case à cocher, parce que la valeur par défaut utile n'était pas \"off\" -- les données de ressources les plus précieuses proviennent de lancers que personne n'attendait d'échouer.\n\nQUI NUMÉRO EST ENREGISTRÉ. USS où la plate-forme lui donne, puis PSS, puis RSS -- et chaque enregistrement NAMES la mesure qu'il a utilisée, parce que RSS double-compte les pages des actions de fourche et surestime un balayage mal. Un nombre dont la définition n'est pas enregistrée ne peut pas être comparé entre deux machines.\n\nRien ici n'est nécessaire pour réussir. Un enfant qui sort entre être énuméré et être lu est un résultat attendu et non une erreur: cet enfant est sauté, le reste de l'arbre est gardé, et le nombre de lectures sautées va dans l'échantillon ainsi le dossier dit ce qu'il a manqué. Une plate-forme qui ne peut pas fournir un chemin d'exécution indépendant enregistre le temps qu'elle ne peut, jamais un zéro, parce qu'un zéro se lit comme \"this thread was free\". La mémoire de chemin d'exécution indépendant GPU est absente dans le but : un contexte CUDA appartient à un processus, donc une figure de chemin de l'exécution indépendante serait de la fiction.",
+      "translation_source_blocks_sha256": [
+        "4d0d5c0163811f8dd9735d703e644b43401847c9eb1f9ce1b91674c81dc14225",
+        "e77768ba0adbf9c21d371776bc8ade6fbb54edabf3e9579da6c9d17ec7614435",
+        "605f8a5ed779479b023ad00ff25827817c63ddebf05c47f2ec0f03b50a377255",
+        "8d643a4339c8e1534b3b3ca879bc33d13f986f7d632f0c64992d18c27feca217",
+        "97259178f63e32eec88b19a36f799a638722113bfaf1e1d92c5d37443acb0796",
+        "b3a1719a63bb29ece558027db00cb2eeb23e6bcc3e641fd094101634cece739b",
+        "9df66fc9063bcee33904aa4cd9baf9b167800835a9581905e038b55a86463be0",
+        "99f28e8b8cc28728371dbd99c243ff7a35c870dee6686b30f5e91448fb52a7dd"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler": {
+      "source_blocks_sha256": [
+        "c8fd1d595c1bb34b4a36913c853834cce243c491261c1408cee43c9c41945803",
+        "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+        "a56e518c04cc78a83dfec7da833e411d5ed2d33100da5e203917a2c788858fb9",
+        "eee29c63eca776b5d694956a5d04c1e4d3d5d0cc822c618bdcc1761a2f859ae9",
+        "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556"
+      ],
+      "source_sha256": "c4c10294e67642d80fd54a9812593e8686df40d200b302d6b4eec9b642f935b4",
+      "text": "Un historique limité de ce que l'arbre de processus coûte.\n\nUn fil de démon prend une lecture toutes les ``interval`` secondes dans un tampon d'anneau de ``capacity`` échantillons, de sorte qu'un essai qui dure une semaine ne peut pas faire croître le log sans limite et laisse toujours l'heure la plus récente quand il meurt.\n\nLe chemin d'exécution indépendant est un démon et n'est jamais le chemin principal de l'exécution GUI : il ne peut pas tenir le processus ouvert à la sortie et ne peut retarder un repaint.\n\nLorsqu'un chemin est donné, chaque échantillon est écrit comme une ligne JSON et rincée, après une ligne d'en-tête indiquant le niveau, la mesure, l'intervalle et le début. L'enregistrement de ce fichier contre une session de traitement est le travail de l'appelant -- cette classe est importée par des processus de processus workers qui n'ont pas de base de données d'artefacts et pas de GUI.\n\nAu niveau ``\"off\"``, aucun thread n’est démarré et aucun fichier n’est ouvert ; c’est ce qu’un recensement des threads avant et après une exécution est en droit de constater.",
+      "translation_source_blocks_sha256": [
+        "c8fd1d595c1bb34b4a36913c853834cce243c491261c1408cee43c9c41945803",
+        "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
+        "392185ef260a4c743b84559648c7b5af0212315fc6cf412e2f41eb9bc220ea44",
+        "66933da868a43b7056d52cee28d3c90efe3f983e10982e65b6541bf9728b8730",
+        "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.__enter__": {
+      "source_blocks_sha256": [
+        "e04995414a22506de606c0bf5099a8c52cabc4d930191e90c35bfc353f03a1eb",
+        "6a0274893f576838a167b53ef603187cdbf7108d4a3279077a01e56526f33209"
+      ],
+      "source_sha256": "8f912fbb63f189138340ae8b1df9a7b2f78b5eb4fffefdbb7f913089fc5e4d3e",
+      "text": "Commencez l'échantillonnage pour la durée d'un bloc.\n\n:returns: cet échantillonneur.",
+      "translation_source_blocks_sha256": [
+        "e04995414a22506de606c0bf5099a8c52cabc4d930191e90c35bfc353f03a1eb",
+        "6a0274893f576838a167b53ef603187cdbf7108d4a3279077a01e56526f33209"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.__exit__": {
+      "source_blocks_sha256": [
+        "d54fac58e9a27fb37618b36290faaa869daf981fe745b9458471f3a6f92351f0",
+        "23228801d97c7a9dda88e1c3261a52b5938b5b0200c8cd72614e44edc2dc9bba",
+        "f30c73fa140c61141ca405d8a5815f1efc8d9f6e5506e24ca4a06cdc325f1182"
+      ],
+      "source_sha256": "e2f839300bb6a057fcdf5eb00d666dd173e94320557256e56b45057449d1514f",
+      "text": "Arrêtez l'échantillonnage, peu importe ce qui a fini le bloc.\n\n:param exc_info: l'exception du bloc soulevé, le cas échéant.\n:returns: ``False``, donc une exception dans le bloc se propage encore.",
+      "translation_source_blocks_sha256": [
+        "d54fac58e9a27fb37618b36290faaa869daf981fe745b9458471f3a6f92351f0",
+        "23228801d97c7a9dda88e1c3261a52b5938b5b0200c8cd72614e44edc2dc9bba",
+        "f30c73fa140c61141ca405d8a5815f1efc8d9f6e5506e24ca4a06cdc325f1182"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.describe": {
+      "source_blocks_sha256": [
+        "9cdd195b1d9fff361384d2892a84ddf1b0b2033d9a62ea8c2cf1f9216271fe6d",
+        "9e894a975ca59055f9b172e235c04c81d5f417a61c0b5242b8f9de236dcfc42e"
+      ],
+      "source_sha256": "580314eec4eb3da079c89492d345afba4b5fdb312038e986c3b003129dd48554",
+      "text": "Les pics comme une personne les lit.\n\n:returns: que :func:`describe` retourne, ``\"\"`` quand rien n'a été enregistré.",
+      "translation_source_blocks_sha256": [
+        "9cdd195b1d9fff361384d2892a84ddf1b0b2033d9a62ea8c2cf1f9216271fe6d",
+        "9e894a975ca59055f9b172e235c04c81d5f417a61c0b5242b8f9de236dcfc42e"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.is_running": {
+      "source_blocks_sha256": [
+        "c600fa5446ebff24383bd9187d3360f2357978cab1b8cd84e0a6a2ab40d3975b",
+        "02a5d0970c35d823396739644f51efefaf23a13cb7fb6c6025be1288e1398577"
+      ],
+      "source_sha256": "42a61f38c8a612e1d51972c2622411be610a5e5e631620be05f5f08cff488b08",
+      "text": "Indique si un fil échantillonneur est vivant.\n\n:returns: ``True`` pendant que le fil est en cours d'exécution.",
+      "translation_source_blocks_sha256": [
+        "c600fa5446ebff24383bd9187d3360f2357978cab1b8cd84e0a6a2ab40d3975b",
+        "02a5d0970c35d823396739644f51efefaf23a13cb7fb6c6025be1288e1398577"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.sample_once": {
+      "source_blocks_sha256": [
+        "c35ccdfb043261f75c471be1dc7f06df5589a2789833a4541df005796ac6a83f",
+        "43befbb7de9c15535375ce417409dd89a6dd707abcc565b69b0bc91a93eaedfa",
+        "13ee8853d45284419f5ffbb37729ae20ba142a9fb36d119580c8e1e57cb2e237"
+      ],
+      "source_sha256": "d8c0c46c817c8c0b8a53539241450ae6fffe9c0985c0cdbf6be7a0adc1d7db4f",
+      "text": "Prenez une lecture maintenant, gardez-la et écrivez-la.\n\nPublic et séparé de la boucle donc un appelant -- une limite d'étape, un test -- peut prendre une lecture à un moment qu'il choisit plutôt que d'attendre que l'intervalle arrive.\n\n:returns: l'échantillon, ou ``None`` au niveau ``\"off\"``.",
+      "translation_source_blocks_sha256": [
+        "c35ccdfb043261f75c471be1dc7f06df5589a2789833a4541df005796ac6a83f",
+        "43befbb7de9c15535375ce417409dd89a6dd707abcc565b69b0bc91a93eaedfa",
+        "13ee8853d45284419f5ffbb37729ae20ba142a9fb36d119580c8e1e57cb2e237"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.samples": {
+      "source_blocks_sha256": [
+        "76bed299fb8c7044dab921eb80062bfb165a24434020e36c4d51dcd198685293",
+        "35cb1f9a86acc903b2c4f121ee80ceafd7f09dfaa88e884fa529545dc14aa35b"
+      ],
+      "source_sha256": "b96ce4361c5a3eeee5494c17c74b523d870f05bd5ff7ea32a2ebd625d027544d",
+      "text": "Chaque échantillon est toujours dans le tampon de l'anneau, le plus ancien d'abord.\n\n:returns: une copie, de sorte que l'appelant peut la lire pendant que le prélèvement continue.",
+      "translation_source_blocks_sha256": [
+        "76bed299fb8c7044dab921eb80062bfb165a24434020e36c4d51dcd198685293",
+        "35cb1f9a86acc903b2c4f121ee80ceafd7f09dfaa88e884fa529545dc14aa35b"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.start": {
+      "source_blocks_sha256": [
+        "bca400d403f6cce7e4d97f146b2f54b398982a26e3814c89aa6028d906314e09",
+        "d63f78a2d4a0ebe77411f48c1dfb8817b63ba849760bd946fcde9b16abd42d25"
+      ],
+      "source_sha256": "442f65585631849d57ca689fe9fbcaeffa35dc4f9de0ca717b134519da8f52ad",
+      "text": "Commencez l'échantillonnage sur un fil de démon.\n\n:returns: si un fil sampler est en cours d'exécution, qui est ``False`` au niveau ``\"off\"``.",
+      "translation_source_blocks_sha256": [
+        "bca400d403f6cce7e4d97f146b2f54b398982a26e3814c89aa6028d906314e09",
+        "d63f78a2d4a0ebe77411f48c1dfb8817b63ba849760bd946fcde9b16abd42d25"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.stop": {
+      "source_blocks_sha256": [
+        "6e2c42e7648326c3a8ab33b6f9bea12f93f10941cca15b7ad2330af4d559ef3a",
+        "50f8514e654bcde27c1ed710b43129f35e232383b7bb8e6adc010514e5ab24b8",
+        "fcfa390b457445f2d2f2660f8451ab9af0658de6a6280e0a478216b215c24cbc"
+      ],
+      "source_sha256": "942fbdab96b835b50bdadc53fb4f4729c9a63979eda090e81533d97ea854be50",
+      "text": "Arrêter l'échantillonnage, rejoindre le fil et fermer le fichier.\n\n:param timeout: secondes pour attendre la fin du fil.\n:returns: s'il ne reste pas de fil d'échantillonnage.",
+      "translation_source_blocks_sha256": [
+        "6e2c42e7648326c3a8ab33b6f9bea12f93f10941cca15b7ad2330af4d559ef3a",
+        "50f8514e654bcde27c1ed710b43129f35e232383b7bb8e6adc010514e5ab24b8",
+        "fcfa390b457445f2d2f2660f8451ab9af0658de6a6280e0a478216b215c24cbc"
+      ]
+    },
+    "spacr.resource_log.ResourceSampler.summary": {
+      "source_blocks_sha256": [
+        "3c7f950e0e284dfb6177cfc1be8037579af4b05b996844fa51983146830fff92",
+        "ead0483d4f5e13a4c6727f0b76c82fa500a2733e0d85e81a8f5d41ef7aee6896"
+      ],
+      "source_sha256": "a7474d380ce8ca55ac697a9cd8c7ca2f4863fcdf4e59de0bdb16425a67fc6ea9",
+      "text": "Totals et pics par rapport à ce qui a été enregistré.\n\n:returns: que :func:`summarise` retourne, vide quand rien n'a été enregistré.",
+      "translation_source_blocks_sha256": [
+        "3c7f950e0e284dfb6177cfc1be8037579af4b05b996844fa51983146830fff92",
+        "ead0483d4f5e13a4c6727f0b76c82fa500a2733e0d85e81a8f5d41ef7aee6896"
+      ]
+    },
+    "spacr.resource_log.describe": {
+      "source_blocks_sha256": [
+        "c36707623f8f26a549e0dca22d35b03a8905f01258a7e9c261d0e7c4bbe0a2ef",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "ee2d24b7ffbf523364166cd4f9f796c6b8f281a53cd85d3b439262e9c95ad8e9"
+      ],
+      "source_sha256": "4b7f58876f1fd4caee309957ecdd73d2e25a53a648e8adf7baaa8de4ea7f7ad0",
+      "text": "Les pics comme une personne les lit, pour une ligne de journal ou une demande de support.\n\n:param samples: les enregistrements de :func:`tree_sample`.\n:returns: les lignes, ou ``\"\"`` quand rien n'a été enregistré.",
+      "translation_source_blocks_sha256": [
+        "c36707623f8f26a549e0dca22d35b03a8905f01258a7e9c261d0e7c4bbe0a2ef",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "ee2d24b7ffbf523364166cd4f9f796c6b8f281a53cd85d3b439262e9c95ad8e9"
+      ]
+    },
+    "spacr.resource_log.level_source": {
+      "source_blocks_sha256": [
+        "9d38471e94ff10c6c9963ef522053318cf9fce880833c7212ccc1aea16908416",
+        "968d874a3513cc10ff22181d9a2b418e20a38bc617f8835cb99b8d3d891e9fe4",
+        "2b8770ca4ed3df82dab19d4a34e834b77a760de55731654cea4d852b0340e112",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "0c648faf0feab26c539166324ef48690920cfccddde72133a4c35e049c345dea",
+      "text": "Ce qui a décidé le niveau, pour un test et pour une demande de soutien.\n\n:param level: le même argument :func:`resolve_level` prend.\n:returns: un de :data:`SOURCES`.\n:raises ValueError: si un niveau explicite n'est pas de :data:`LEVELS`.",
+      "translation_source_blocks_sha256": [
+        "9d38471e94ff10c6c9963ef522053318cf9fce880833c7212ccc1aea16908416",
+        "968d874a3513cc10ff22181d9a2b418e20a38bc617f8835cb99b8d3d891e9fe4",
+        "2b8770ca4ed3df82dab19d4a34e834b77a760de55731654cea4d852b0340e112",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ]
+    },
+    "spacr.resource_log.preferred_measure": {
+      "source_blocks_sha256": [
+        "bda94b5c1aaab0d9cbfc6e07ea55fb3d38dea3d93fab0738462b50c1268c5c69",
+        "e4917e439b9238bcf51fc9cd44cd1af40ac15adabaf5c8474b714fbd05de60ad",
+        "55e92870faa626794e6cc995c9092016b1723f2732460f9c6dd5b2bb113a391b"
+      ],
+      "source_sha256": "674a4cefec9c43af45e07940269d9f77ae865dc1ef080b5e468862504247479e",
+      "text": "Quelle définition de mémoire cette plate-forme peut fournir.\n\n:param process: le processus à sonder, ou ``None`` pour celui-ci.\n:returns: un de :data:`MEASURES`, ou ``None`` quand rien ne peut être lu.",
+      "translation_source_blocks_sha256": [
+        "bda94b5c1aaab0d9cbfc6e07ea55fb3d38dea3d93fab0738462b50c1268c5c69",
+        "e4917e439b9238bcf51fc9cd44cd1af40ac15adabaf5c8474b714fbd05de60ad",
+        "55e92870faa626794e6cc995c9092016b1723f2732460f9c6dd5b2bb113a391b"
+      ]
+    },
+    "spacr.resource_log.read_log": {
+      "source_blocks_sha256": [
+        "7066b86ba7fb2fc0234577c6c3561bb69671176461bd163bd286b03cf403f3f8",
+        "3c11392b2f7e605f187ac863c1d54e16f9f47ba383b408a16b6e25f164479a5d",
+        "93981ff00ee8b1da6431c7e25948efa95f3099dcb65a1d75281ddb8b16ec817e",
+        "39e945c66b732e48a5e5cdca8375b86b3a12cd198c9e845184efe7487d808652"
+      ],
+      "source_sha256": "01d8b08e00a9cad8651f56612578add54ba8118c85dfabc029fa888cbcfe868d",
+      "text": "Lire un journal écrit en arrière, tolérer une course qui a été tuée en milieu de ligne.\n\nUn objet JSON par ligne est le format qui survit à un kill : tout ce qui est écrit avant les analyses de kill, et la dernière ligne partielle est supprimée plutôt que de rendre le fichier illisible.\n\n:param path: le fichier qu'un :class:`ResourceSampler` a écrit.\n:returns: ``header`` (vide lorsque le fichier n'en a pas), ``samples`` et ``unreadable``, le nombre de lignes qui n'ont pas pu être analysées.",
+      "translation_source_blocks_sha256": [
+        "7066b86ba7fb2fc0234577c6c3561bb69671176461bd163bd286b03cf403f3f8",
+        "3c11392b2f7e605f187ac863c1d54e16f9f47ba383b408a16b6e25f164479a5d",
+        "93981ff00ee8b1da6431c7e25948efa95f3099dcb65a1d75281ddb8b16ec817e",
+        "39e945c66b732e48a5e5cdca8375b86b3a12cd198c9e845184efe7487d808652"
+      ]
+    },
+    "spacr.resource_log.resolve_level": {
+      "source_blocks_sha256": [
+        "eab557c5aca55668203331cfb17d1e2b0ab6537e9dd362353002094245bafef3",
+        "523322c57197cfc8e173dd038e0f44e804ec402a2d6d9fa6ec7c2c7c9ea1fe4d",
+        "c9b493249a896f28f799cc29fa922a7a6c4a490d7db416a35ecf6cbf5eb0d212",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ],
+      "source_sha256": "de2822f3a46e9ef918438a66015bbe11cc73aa05e1bb0c456a903bc177e07efc",
+      "text": "Lequel de :data:`LEVELS` est en vigueur.\n\n:param level: un niveau explicite, ou ``None`` pour résoudre un de l'environnement, puis la préférence stockée, puis :data:`DEFAULT_LEVEL`.\n:returns: un de :data:`LEVELS`.\n:raises ValueError: si un niveau explicite n'est pas de :data:`LEVELS`.",
+      "translation_source_blocks_sha256": [
+        "eab557c5aca55668203331cfb17d1e2b0ab6537e9dd362353002094245bafef3",
+        "523322c57197cfc8e173dd038e0f44e804ec402a2d6d9fa6ec7c2c7c9ea1fe4d",
+        "c9b493249a896f28f799cc29fa922a7a6c4a490d7db416a35ecf6cbf5eb0d212",
+        "2de55926a090cee02a3125215e8bb2a8ed948916416cb4816859c1c5bea0fa3f"
+      ]
+    },
+    "spacr.resource_log.summarise": {
+      "source_blocks_sha256": [
+        "6f9ef80ba0bcfd7a6f8150b704e0af2cc5a8098e2686cc0e31efd6a3eb59417c",
+        "63a1f4fe42446fcb83b8d0840358ea8d25bd4e6b42bd4cd23e51d35889ef32a4",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "656ff1fd536ca643de4298e082d71930a6b45da194a4038d78f161060451f51a"
+      ],
+      "source_sha256": "5d15020542e71d98b31fce081beb917ce3a72c1261a4c0d68e77eb5245976e46",
+      "text": "Les totaux et les pics sur les échantillons enregistrés, et qui pid a maintenu le pic.\n\nVidez quand rien n'a été enregistré -- PAS zéro, pour la raison `spacr.fit_resources.peak` donne: \"nothing was using memory\" et \"nobody measured\" sont des résultats opposés, et un résumé qui épele le second comme le premier invite un lecteur à conclure que la course était bon marché.\n\n:param samples: les enregistrements de :func:`tree_sample`.\n:returns: ``samples``, ``measure``,``missed`` et ``pids`` toujours; ``peak_total`` et``peak_total_time`` quand un total d'arbres a été lu; ``peak_process`` nommant le pid qui détenait la plus grande part; ``cpu_seconds``, le plus grand total CPU vu dans un échantillon, quand un temps CPU a été lus.",
+      "translation_source_blocks_sha256": [
+        "6f9ef80ba0bcfd7a6f8150b704e0af2cc5a8098e2686cc0e31efd6a3eb59417c",
+        "63a1f4fe42446fcb83b8d0840358ea8d25bd4e6b42bd4cd23e51d35889ef32a4",
+        "81dc75835eb762401e68d0e6ffb9257bed75cf97c2326dceaee887583822e849",
+        "656ff1fd536ca643de4298e082d71930a6b45da194a4038d78f161060451f51a"
+      ]
+    },
+    "spacr.resource_log.tree_sample": {
+      "source_blocks_sha256": [
+        "d5821550715bbdd213164ce520610e1a98ac620ec3a24736fb4dd489c0a60dd2",
+        "59bc7f5f0c7355e35b192e8a88d12b18775838d4d341c0aebb2cfc14d0dee53e",
+        "da14207eaf7db83b2f38d068fc24fd26185f84414cf99211963adaa4e20af061",
+        "e5e1cb57c2c09868164be1efe1351f7e311e037486aa50962b67671364e82ccc",
+        "0b3e37cd37e5d1d88208ee00d51f953b5320b1a876c70a7716f225e3c8b5a6a6"
+      ],
+      "source_sha256": "4946d975c6c84a9163a0ee1698b924fdb61790de64698781fd774843f5fa74cd",
+      "text": "Une lecture de ce processus et de chaque descendant.\n\n:param level: ``\"summary\"`` ou ``\"detailed\"``, résolu à partir de l'environnement et de la préférence lorsque ``None``. ``\"detailed\"`` ajoute un chemin d'exécution indépendant CPU fois. ``\"off\"`` régit l'échantillonneur d'arrière-plan plutôt que la lecture d'un appelant demande carrément, et se lit comme ``\"summary\"`` ici.\n:param process: la racine de l'arbre, ou ``None`` pour ce processus.\n:param now: l'horodatage à tamponner, ou ``None`` pour l'horloge murale.\n:returns: un enregistrement marqué ``record``, ``time``,``level``, [``measure``,] ``unit``, (``total``), ``processes`` et [``missed``. ``total`` et ``measure`` sont ``None`` lorsque rien n'a pu être lu, ce qui n'est pas le même que zéro. ``missed`` compte les processus qui ont disparu ou refusé d'être lus pendant que l'arbre était marché.",
+      "translation_source_blocks_sha256": [
+        "d5821550715bbdd213164ce520610e1a98ac620ec3a24736fb4dd489c0a60dd2",
+        "be6a122c3c5933a3e7e223917c9d39bfdf262352ce172f90e1bb7460a9d04646",
+        "da14207eaf7db83b2f38d068fc24fd26185f84414cf99211963adaa4e20af061",
+        "e5e1cb57c2c09868164be1efe1351f7e311e037486aa50962b67671364e82ccc",
+        "0b3e37cd37e5d1d88208ee00d51f953b5320b1a876c70a7716f225e3c8b5a6a6"
+      ]
+    },
     "spacr.resources.home.versions._generators.common": {
       "source_blocks_sha256": [
         "f0bed03b6a0187a8208af3c38b03561d5b8c95ac144e9a92afb83dab41b43161",
@@ -114055,10 +114509,10 @@
         "2003ca286b46ea1d036c51314ec5d1a972c6445e39d5324734dc871977c120db",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
-        "39744cd8ef2d79778a3b1a5b97bd4e247f9d282fffba856ab59c32f7d23ea93a"
+        "05ee5611eb9eb553c778fbd41ffa5ccb6964a453851f5faf8887605b3ad578d2"
       ],
-      "source_sha256": "8788cbecd0663d0d798d8c70270a7b63e6f72abde0ab8bc8d7433ad3bb4e3816",
-      "text": "Le contexte de l’exécution : un id, une graine, une politique d'erreur, pour une exécution entière.\n\nTrois choses que chaque flux de travail spaCR a besoin et aucune d'entre elles n'avait:\n\n**Un identifiant de session de traitement sur chaque ligne de journal et chaque sortie.** Une session de traitement était autrefois impossible à retracer. Le journal signalait l’échec d’un champ de vision ; le registre signalait l’existence d’un artefact ; rien ne les reliait, si bien que « montre-moi tout ce qui provient de la session de traitement ayant produit ce fichier » n’avait aucune réponse. :func:`run_context` crée un identifiant, l’ajoute à chaque :class:`logging.LogRecord` produit dans le processus, écrit un journal JSONL par session que :func:`read_run_log` relit, puis transmet le *même* identifiant à :func:`spacr.artifacts.register_run_outputs`. Une ligne de journal et une sortie peuvent donc être jointes sur ``run_id``, ce qui est précisément l’objectif.\n\n**Une graine qui atteint tout.** ``random_seed`` était lue par :mod:`spacr.deep_spacr` et :mod:`spacr.sim` et nulle part ailleurs, de sorte qu'un \"reproducible\" courait encore ses champs différemment, scintille ses plis différemment et initialisé Cellpose différemment à chaque fois. :func:`seed_everything` graines Python, NumPy (la légicité globale *et* le flux :class:`~numpy.random.Generator` :func:`spacr_rng` mains dehors), Torche sur CPU et chaque dispositif CUDA, et — à travers ces deux — Cellpose. sklearn n'a aucune graine globale; :func:`random_state` est ce que passent les chantiers de construction des estimateurs. Ce qui ne peut être rendu déterministe est inscrit dans :attr:`SeedReport.caveats` et dans la doctrition de :func:`seed_everything` plutôt que sur papier.\n\n**Une politique d'erreur, honorée à chaque limite de lot.** ``on_error`` est un tri-état, par défaut ``\"stop\"``:\n\n``stop`` la première unité échouée avorte la session de traitement. La par défaut, parce qu'un workflow qui lâche discrètement un tiers de ses plaques produit un nombre qui ressemble exactement à un bon. ``skip`` l'unité est enregistrée — sur le :class:`~spacr.errors.RunLedger` *et* comme un :class:`SkipRecord` nommant l'appareil, l'étape et pourquoi — et la session du traitement continue. Jamais une goutte silencieuse: :attr:`ErrorPolicy.skips` est ce qui a été perdu. ``retry`` l ́unité est tentée :attr:`ErrorPolicy.attempts` fois avec un backoff exponentiel, et si le budget s'épuise, il se comporte exactement comme ``stop``.\n\nUtilisation\n-----------\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\nPublique API\n------------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id`` La session de traitement elle-même, et la recherche ambiante qu'utilise un travailleur ou un appel de bibliothèque. ``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log`` Les machines S7 : mâcher, tamponner et interroger par id de session de traitement. ``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED`` Les machines S5 : un appel qui les ensemence tous, plus les poignées par bibliothèque pour les endroits où une graine globale ne peut pas atteindre. ``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES`` Les machines S9. ``apply_defaults``, ``RUN_SETTING_KEYS`` Les paramètres seem: les données structurées nomment ce module, appliqué à n'importe quel paramétrage de valeur clé.",
+      "source_sha256": "0e1a9f6acdbe55c3dae71fc72da75000c6de415bfe78bda38263172b5b0f3843",
+      "text": "Le contexte de l’exécution : un id, une graine, une politique d'erreur, pour une exécution entière.\n\nTrois choses que chaque flux de travail spaCR a besoin et aucune d'entre elles n'avait:\n\n**Un identifiant de session de traitement sur chaque ligne de journal et chaque sortie.** Une session de traitement était autrefois impossible à retracer. Le journal signalait l’échec d’un champ de vision ; le registre signalait l’existence d’un artefact ; rien ne les reliait, si bien que « montre-moi tout ce qui provient de la session de traitement ayant produit ce fichier » n’avait aucune réponse. :func:`run_context` crée un identifiant, l’ajoute à chaque :class:`logging.LogRecord` produit dans le processus, écrit un journal JSONL par session que :func:`read_run_log` relit, puis transmet le *même* identifiant à :func:`spacr.artifacts.register_run_outputs`. Une ligne de journal et une sortie peuvent donc être jointes sur ``run_id``, ce qui est précisément l’objectif.\n\n**Une graine qui atteint tout.** ``random_seed`` était lue par :mod:`spacr.deep_spacr` et :mod:`spacr.sim` et nulle part ailleurs, de sorte qu'un \"reproducible\" courait encore ses champs différemment, scintille ses plis différemment et initialisé Cellpose différemment à chaque fois. :func:`seed_everything` graines Python, NumPy (la légicité globale *et* le flux :class:`~numpy.random.Generator` :func:`spacr_rng` mains dehors), Torche sur CPU et chaque dispositif CUDA, et — à travers ces deux — Cellpose. sklearn n'a aucune graine globale; :func:`random_state` est ce que passent les chantiers de construction des estimateurs. Ce qui ne peut être rendu déterministe est inscrit dans :attr:`SeedReport.caveats` et dans la doctrition de :func:`seed_everything` plutôt que sur papier.\n\n**Une politique d'erreur, honorée à chaque limite de lot.** ``on_error`` est un tri-état, par défaut ``\"stop\"``:\n\n``stop`` la première unité échouée avorte la session de traitement. La par défaut, parce qu'un workflow qui lâche discrètement un tiers de ses plaques produit un nombre qui ressemble exactement à un bon. ``skip`` l'unité est enregistrée — sur le :class:`~spacr.errors.RunLedger` *et* comme un :class:`SkipRecord` nommant l'appareil, l'étape et pourquoi — et la session du traitement continue. Jamais une goutte silencieuse: :attr:`ErrorPolicy.skips` est ce qui a été perdu. ``retry`` l ́unité est tentée :attr:`ErrorPolicy.attempts` fois avec un backoff exponentiel, et si le budget s'épuise, il se comporte exactement comme ``stop``.\n\nUtilisation\n-----------\n.. code-block:: python\n\n    from spacr.runctx import run_context\n\n    with run_context(\"mask\", settings) as run:\n        for plate in plates:\n            for attempt in run.policy.attempts_for(plate, stage=\"plate\"):\n                with attempt:\n                    process(plate)\n        run.register_outputs(roots=plates)\n\nPublique API\n------------\n``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id`` La session de traitement elle-même, et la recherche ambiante qu'utilise un travailleur ou un appel de bibliothèque. ``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``, ``run_resource_path``, ``read_run_resources`` Les machines S7 : mentage, estampage et requête par id de session de traitement. ``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED`` Les machines S5 : un appel qui les ensemence tous, plus les poignées par bibliothèque pour les endroits où une graine globale ne peut pas atteindre. ``ErrorPolicy``, ``resolve_error_policy``, ``SkipRecord``, ``SKIPPED``, ``ON_ERROR_STOP``, ``ON_ERROR_SKIP``, ``ON_ERROR_RETRY``, ``ON_ERROR_MODES`` Les machines S9. ``apply_defaults``, ``RUN_SETTING_KEYS`` Les paramètres seem: les données structurées nomment ce module, appliqué à n'importe quel paramétrage de valeur clé.",
       "translation_source_blocks_sha256": [
         "c34ba7311379117c06c065329acbe840bd204acd4625902302a4bfc790135451",
         "378b9cb7af219cdba90eb12c98d06dbc34274479d75bf454399a4797b4d9e20d",
@@ -114068,7 +114522,7 @@
         "4630983421ef40ea5418f0353fd60afb5e3beee547ac3bb468c16df9e9577b39",
         "8d59829c1e15afe1a7fae93e8e5e32d8511bec5fd598a09f4fea6033b31e8a66",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
-        "45f95afbe88b8388c3355a5205efdfc7bd8dde49f9e6c689fb4e309b50da7c5a"
+        "0400ef98a34985c2e0b8a1275a38b3f6c5407dfa485c7da71276e65c19fba827"
       ]
     },
     "spacr.runctx.ErrorPolicy": {
@@ -114315,6 +114769,30 @@
         "7edab67a77b31f6ef7b2cec14dc5127d541d87af6d5322299b6493feaf439890",
         "040323645f85f123c3d2263224caed3a86be1e26e69da77d0def6676dd8da9b8",
         "39c103bebd88e78f835456a98cff7f4ce5d6cc6bbd14c0e4ccb103e63f7a5e9a"
+      ]
+    },
+    "spacr.runctx.RunContext.register_worker": {
+      "source_blocks_sha256": [
+        "1a300d89a40f9c497a499b20afb9ac3a5bcd3451254d636c9491a0afad952ea7",
+        "147e3d676e391220abaeab070fa0a4debc8cf0b878f2276d82c37e8b40a705aa",
+        "d5a0dcb34c5df9721913eb1fcccaaa4d8c511870dce57aaec93825c39a6d82bb",
+        "b6c579477dfd17e43ea96af8098be98b57176ce6d1de84068ddcc1c5705dc712",
+        "a1f0b51ecbb8fa68f10f4ed87e6029207c5583f5afdd756ef3d56c7e8559936b",
+        "c9b2c38b57d36e4d71cdd3f7db6361d7182ee8e8607d7da823cd5e7a324edcd7",
+        "3a22b57b8876b1936fd0ce12556f8654385ca06b7bc4319e0ec08f82f8d59d26",
+        "815b3891cb2ec5319412bc813f033187b46c30e660579b3c078f6f2f408d3b1c"
+      ],
+      "source_sha256": "f7116ce3b689dd93b3ab807b883007f000d9a082a8617c114d92629f3f3d4bca",
+      "text": "Donnez à un enfant échantillonné son identité propre à l'exécution.\n\nL'échantillonneur peut toujours rapporter un PID et un nom de processus. Cette méthode est la couture d'un paramètre balayage ou séquençage parent utilise pour ajouter le fait que le PID est, par exemple, ``trial 17`` ou ``FASTQ saver``.\n\n``worker_kind`` peut également être le tampon complet retourné par :func:`spacr.fit_resources._worker_stamp`; c'est ainsi qu'un travailleur frayé signale son propre temps de création sans course de réutilisation PID.\n\n:param worker_kind: catégorie de processus workers, ou une cartographie complète du timbre.\n:param worker_id: l'identité au sein de cette catégorie.\n:param pid: processus id; par défaut pour le processus d'appel.\n:param create_time: temps de création du processus psutil, résolu quand omis.\n:returns: l'identité du processus stable de l'échantillonneur, ou ``\"\"`` lorsque la comptabilité des ressources est désactivée ou indisponible.",
+      "translation_source_blocks_sha256": [
+        "1a300d89a40f9c497a499b20afb9ac3a5bcd3451254d636c9491a0afad952ea7",
+        "147e3d676e391220abaeab070fa0a4debc8cf0b878f2276d82c37e8b40a705aa",
+        "d5a0dcb34c5df9721913eb1fcccaaa4d8c511870dce57aaec93825c39a6d82bb",
+        "b6c579477dfd17e43ea96af8098be98b57176ce6d1de84068ddcc1c5705dc712",
+        "a1f0b51ecbb8fa68f10f4ed87e6029207c5583f5afdd756ef3d56c7e8559936b",
+        "c9b2c38b57d36e4d71cdd3f7db6361d7182ee8e8607d7da823cd5e7a324edcd7",
+        "3a22b57b8876b1936fd0ce12556f8654385ca06b7bc4319e0ec08f82f8d59d26",
+        "815b3891cb2ec5319412bc813f033187b46c30e660579b3c078f6f2f408d3b1c"
       ]
     },
     "spacr.runctx.RunContext.rng": {
@@ -114565,6 +115043,20 @@
         "c28561dcc0fe6f7238bd7a4aa693b98c4e6ceff650c7d7b329ffc033cfbd5e89"
       ]
     },
+    "spacr.runctx.read_run_resources": {
+      "source_blocks_sha256": [
+        "a1de0ffc93ef7b3da7f84658bba6591ea7866157e08e680da191e356105e100e",
+        "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+        "40795bb0b9860f34179dc3a2c09f611104582688d725e8aeddcc7e9c20c2e830"
+      ],
+      "source_sha256": "4b608b389e5ca0f33e992096288fd8a2bb899ceea7ec0f2f0905b0388f043359",
+      "text": "Lisez le document de ressources process-tree d'une session de traitement.\n\n:param run_id: la course à lire.\n:returns: l'objet JSON, ou un mapping de valeur de clé vide lorsqu'il n'existe pas de point de contrôle lisible. La comptabilité manquante n'est jamais représentée comme zéro.",
+      "translation_source_blocks_sha256": [
+        "5a71fccc2b351aa87e514f7626e85afe9fed0678e7d191304378b583688c253e",
+        "95da0bf887886816c411b65dfc60babf3aebcc1adebf2e8d37184baa89d470a9",
+        "d1b0b8c189099432e093d987ff332a8c4dbbcf0b95b6b56dc9b6c2a0788b3a29"
+      ]
+    },
     "spacr.runctx.resolve_error_policy": {
       "source_blocks_sha256": [
         "76a6f857cc76186ca249a3cbece8de02a79944fa8ec1d101a1364687ee4d551e",
@@ -114651,6 +115143,22 @@
       "text": "Retourne le chemin de log JSONL pour ``run_id``. Il n'a pas besoin d'exister encore.",
       "translation_source_blocks_sha256": [
         "0336b7d6a4a9f8a075fcc84fd9f149123948a47bbf644bda0ee9ce81420d496b"
+      ]
+    },
+    "spacr.runctx.run_resource_path": {
+      "source_blocks_sha256": [
+        "6170f35b5aacc7293d4c42b457a0fc2a52c8461b6d328d39d98915029c74fa11",
+        "df1612a99dd6d207a863a892f3b1be607ce788ad47a40d33a50bbe6cddef2d94",
+        "402140f1f65249d9d53c7041ac8b7af73e7127b8c1a593b72ba2fad78e7d2551",
+        "8129536afe233c0ae587b512b7bdbdec6c230af4237628211d7fd6f1b62c5967"
+      ],
+      "source_sha256": "72aa445fff557324193304db59f4ecd9a67f5bfb512bbc887ed8f1af04bf4faf",
+      "text": "Retourne le chemin de la ressource process-tree pour ``run_id``.\n\nLe document de ressource vit à côté du journal ordinaire mais a son propre suffixe et schéma. Il est écrit atomiquement par :class:`spacr.fit_resources._ResourceSampler`, de sorte qu'un lecteur voit soit un point de contrôle complet ou le point de repère précédent complet.\n\n:param run_id: la course dont le dossier comptable est recherché.\n:returns: un chemin absolu JSON. Le fichier n'a pas encore besoin d'exister.",
+      "translation_source_blocks_sha256": [
+        "6170f35b5aacc7293d4c42b457a0fc2a52c8461b6d328d39d98915029c74fa11",
+        "df1612a99dd6d207a863a892f3b1be607ce788ad47a40d33a50bbe6cddef2d94",
+        "402140f1f65249d9d53c7041ac8b7af73e7127b8c1a593b72ba2fad78e7d2551",
+        "8129536afe233c0ae587b512b7bdbdec6c230af4237628211d7fd6f1b62c5967"
       ]
     },
     "spacr.runctx.runs_log_dir": {
@@ -117413,10 +117921,11 @@
         "fc823815486cd042f5d58108d47c9a8d2c12b330d5dd9cd2ab91474cec16fce5",
         "39d0c7d0eda7a7edf5bc0d4d673f03ef9199431241642609dc97f12d8bbd8a3f",
         "6eab2bde617590c6b7af9685d0a1c61301dc0d1c3b5caa86635eb436584d9c0f",
-        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f"
+        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f",
+        "e43507835ef236cef6fd88f95137167450e17db5bb453a40595f642ca6a58c44"
       ],
-      "source_sha256": "a0da6176956b62fb0d1f0dd641e1bdee2853093a1947cc3aef6f624c475f95cc",
-      "text": "Retourner un consensus par position de deux lectures d'égale longueur.\n\nÀ chaque position, la base de qualité supérieure est conservée; si un appel est ``N`` l'autre est préféré, quelle que soit la qualité.\n\n:param seq1: première séquence DNA.\n:param qual1: chaîne de qualité pour ``seq1``.\n:param seq2: deuxième séquence DNA.\n:param qual2: chaîne de qualité pour ``seq2``.\n:returns: la séquence de consensus comme une chaîne.",
+      "source_sha256": "658c7809839b0e683a52cb65de36dde9e6fa71d92c75cd70f8f0d4ee7acbb3b5",
+      "text": "Retourner un consensus par position de deux lectures d'égale longueur.\n\nÀ chaque position, la base de qualité supérieure est conservée; si un appel est ``N`` l'autre est préféré, quelle que soit la qualité.\n\n:param seq1: première séquence DNA.\n:param qual1: chaîne de qualité pour ``seq1``.\n:param seq2: deuxième séquence DNA.\n:param qual2: chaîne de qualité pour ``seq2``.\n:returns: la séquence de consensus comme une chaîne.\n:raises ValueError: si la séquence et la paire de qualité, ou les deux lectures, ont des longueurs différentes. Un consensus partiel pourrait attribuer un code-barres au mauvais puits, de sorte que les lectures inégales sont rejetées plutôt que tronquées.",
       "translation_source_blocks_sha256": [
         "6adb05659750c33a25e60371e80d4457cdb7c07a45763b06df44ead980e62b73",
         "457283ceaa46431a0821f635db15e5404d2d077242d3a77011c86eda5943344e",
@@ -117424,7 +117933,8 @@
         "fc823815486cd042f5d58108d47c9a8d2c12b330d5dd9cd2ab91474cec16fce5",
         "39d0c7d0eda7a7edf5bc0d4d673f03ef9199431241642609dc97f12d8bbd8a3f",
         "6eab2bde617590c6b7af9685d0a1c61301dc0d1c3b5caa86635eb436584d9c0f",
-        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f"
+        "f18a6aa891203e76c4584fd9ea83ac773d4d6b4939137c84c3bb25946bc3311f",
+        "e43507835ef236cef6fd88f95137167450e17db5bb453a40595f642ca6a58c44"
       ]
     },
     "spacr.sequencing.extract_sequence_and_quality": {

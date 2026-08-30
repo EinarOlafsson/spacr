@@ -3372,9 +3372,13 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     """Install late registered blocks on ``root`` without restyling the app.
 
     The production application stylesheet is composed before unopened screen
-    modules are imported.  Replacing that whole sheet for each import closes
+    modules are imported.
+
+    Replacing that whole sheet for each import closes
     the first-paint race, but it also makes Qt parse the sheet and re-polish
-    every widget accumulated in every cached screen.  A screen root is a QSS
+    every widget accumulated in every cached screen.
+
+    A screen root is a QSS
     scope: rules installed there reach that screen and its descendants, and
     applying them before the root is shown preserves the same first-paint
     contract without touching Home or any previously opened module.

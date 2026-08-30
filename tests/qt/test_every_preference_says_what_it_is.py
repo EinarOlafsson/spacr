@@ -1,12 +1,12 @@
-"""Every Preferences row is explained, on its label.
+"""Every Preferences row is explained through its label.
 
 "all of the settings in preferences also need tooltips and only on the
 setting text not the field, like allways."
 
 The words are what a reader points at when they want to know what
-something is; a tooltip on the control is one they find only after
-reaching for it. Before this, 27 rows of 110 explained themselves on the
-field and 83 said nothing at all.
+something is. Preferences moves that label help into its non-modal hint
+strip, so the label remains the hover target without opening a native
+tooltip over the dialog.
 
 The check walks the FINISHED dialog rather than the source, so a row
 added anywhere in it is covered -- and a row added without a tooltip
@@ -21,12 +21,18 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QFormLayout, QLabel
 
 from spacr.qt.preferences import PREFERENCE_TIPS, PreferencesDialog
+from spacr.qt.widgets.hint_bar import HintBar
 
 
 @pytest.fixture
 def rows(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """Every ``(label, field)`` pair the dialog builds."""
+    import spacr.qt.theme as theme
+
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    # Include the launcher-only Fractal tab when judging whether the source
+    # table carries dead keys. An ordinary launch deliberately hides it.
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     dialog = PreferencesDialog()
     qtbot.addWidget(dialog)
     dialog.show()
@@ -46,9 +52,16 @@ def rows(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     return found
 
 
+def _explanation(label: QLabel) -> str:
+    """The sentence this label writes into its window's hint strip."""
+    bar = label.window().findChild(HintBar)
+    assert bar is not None, "Preferences built no hint strip"
+    return bar.explains(label)
+
+
 def test_every_row_is_explained(rows):
     unexplained = [label.text() for label, _field in rows
-                   if not (label.toolTip() or "").strip()]
+                   if not _explanation(label).strip()]
 
     assert not unexplained, f"rows with no tooltip: {unexplained}"
 
@@ -80,7 +93,7 @@ def test_the_explanations_say_something(rows):
     empty = []
     for label, _field in rows:
         text = (label.text() or "").replace("&", "").strip().lower()
-        tip = (label.toolTip() or "").strip()
+        tip = _explanation(label).strip()
         if len(tip) < 12 or tip.lower() == text:
             empty.append(label.text())
 

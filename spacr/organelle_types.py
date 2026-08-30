@@ -49,6 +49,13 @@ from typing import Dict, Mapping, Optional, Sequence, Tuple
 #: recommends nothing.
 DEFAULT_TYPE = "custom"
 
+#: Organelle slots whose setting captions remain materialized in every
+#: runtime translation catalog. This is the four-slot legacy catalog
+#: contract, not the number a new form should display: fresh forms correctly
+#: start with zero organelles, while slots five through twenty-six reuse the
+#: primary slot's source-bound translation at runtime.
+CATALOGUED_ORGANELLE_SLOTS = 4
+
 #: Above this diameter, in PIXELS, a round compartment's lumen is resolvable
 #: and it images as a ring rather than a filled dot.
 #:

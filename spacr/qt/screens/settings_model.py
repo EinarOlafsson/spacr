@@ -9025,8 +9025,12 @@ class SettingsWidgets:
         """Update a known run setting whose widget is not on this form.
 
         This includes dedicated controls outside the form and object rows
-        omitted by the current shape. Hidden does not mean absent: imported
-        values live in ``_defaults`` and still reach ``collect()``. A slot
+        omitted by the current shape.
+
+        Hidden does not mean absent: imported
+        values live in ``_defaults`` and still reach ``collect()``.
+
+        A slot
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
         """

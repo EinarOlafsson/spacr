@@ -108,7 +108,7 @@ def setting_label(
         default_limit = 4
         try:
             from spacr.organelle_types import (
-                DEFAULT_NUMBER_OF_ORGANELLES,
+                CATALOGUED_ORGANELLE_SLOTS,
                 organelle_number,
                 organelle_role_of,
                 primary_setting,
@@ -116,7 +116,7 @@ def setting_label(
 
             role = organelle_role_of(str(key))
             number = organelle_number(role) if role else 0
-            default_limit = DEFAULT_NUMBER_OF_ORGANELLES
+            default_limit = CATALOGUED_ORGANELLE_SLOTS
             primary = primary_setting(str(key))
             primary_source = canonical.get(primary)
             expected = (
@@ -174,7 +174,7 @@ def setting_tooltip(
         default_limit = 4
         try:
             from spacr.organelle_types import (
-                DEFAULT_NUMBER_OF_ORGANELLES,
+                CATALOGUED_ORGANELLE_SLOTS,
                 organelle_number,
                 organelle_role_of,
                 primary_setting,
@@ -182,7 +182,7 @@ def setting_tooltip(
 
             role = organelle_role_of(str(key))
             number = organelle_number(role) if role else 0
-            default_limit = DEFAULT_NUMBER_OF_ORGANELLES
+            default_limit = CATALOGUED_ORGANELLE_SLOTS
             primary = primary_setting(str(key))
             primary_source = canonical.get(primary)
             expected = str(primary_source)

@@ -37,7 +37,10 @@ def test_every_registered_displayed_setting_has_authored_help():
             if not str(descriptions.get(key, "")).strip():
                 missing.append(f"{app_key}.{key}")
 
-    assert checked > 800, (
+    # Fresh forms now start with zero organelles, so inactive generated slots
+    # no longer inflate this occurrence count. Ratchet the complete current
+    # registry instead of retaining the pre-count threshold.
+    assert checked >= 759, (
         f"only {checked} setting occurrences were checked; the registry "
         "inventory is no longer exhaustive")
     assert not missing, (

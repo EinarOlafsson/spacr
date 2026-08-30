@@ -1,14 +1,20 @@
 """What spaCR's process TREE costs while it runs, under its own setting.
 
-WHY THIS IS NOT THE READINGS spaCR ALREADY TAKES. Every resource figure in
+WHY THIS IS NOT THE READINGS spaCR ALREADY TAKES.
+
+Every resource figure in
 the package counts the CALLING process: `spacr.fit_resources.host_rss` reads
 ``/proc/self/statm``, `spacr.qt.timing` reads its own resident size, and the
 parameter sweep's floor reads the MACHINE's free memory, which cannot tell
-spaCR's own children from another tenant on a shared box. spaCR's heaviest
+spaCR's own children from another tenant on a shared box.
+
+spaCR's heaviest
 work does not happen in the calling process -- `spacr.sequencing` starts a
 saver process and `spacr.parameter_sweep` runs every trial in a child -- so
 the parent looks healthy right up to the moment the out-of-memory reaper
-takes the run, and afterwards there is nothing to read. This module sums the
+takes the run, and afterwards there is nothing to read.
+
+This module sums the
 process and every descendant, and names each one, so "which trial was large"
 is a question the record can answer.
 
@@ -593,6 +599,7 @@ class ResourceSampler:
     A daemon thread takes one reading every ``interval`` seconds into a ring
     buffer of ``capacity`` samples, so a run that lasts a week cannot grow
     the log without limit and still leaves the most recent hour when it dies.
+
     The thread is a daemon and is never the GUI thread: it cannot hold the
     process open at exit and it cannot delay a repaint.
 
