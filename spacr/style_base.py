@@ -167,9 +167,8 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
         axes.set_axisbelow(True)
     else:
         axes.grid(False)
-    if style.hide_top_right_spines:
-        for side in ("top", "right"):
-            axes.spines[side].set_visible(False)
+    for side in ("top", "right"):
+        axes.spines[side].set_visible(not style.hide_top_right_spines)
     if str(style.background_color or "none") != "none":
         figure.patch.set_facecolor(style.background_color)
         axes.set_facecolor(style.background_color)
