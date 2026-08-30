@@ -319,15 +319,22 @@ def interpret_kappa(kappa: float) -> str:
 class PairAgreement:
     """Cohen's κ for one pair of annotators, with everything needed to read it.
 
+    :ivar column_a: name of the first annotator column (the confusion-matrix
+        row axis).
+    :ivar column_b: name of the second annotator column (the confusion-matrix
+        column axis).
     :ivar kappa: Cohen's κ, or ``nan`` when it is undefined/degenerate —
         check :attr:`defined` before quoting it.
     :ivar percent_agreement: raw pₒ, the fraction of compared rows where
         the two labels are identical. Always meaningful, even when κ is not.
     :ivar expected_agreement: pₑ, agreement expected from the marginals alone.
     :ivar n_compared: rows *both* annotators labelled — κ's denominator.
+    :ivar n_agree: compared rows on which the two annotators agreed.
+    :ivar n_disagree: compared rows on which the two annotators disagreed.
     :ivar n_abstained: rows exactly one of them labelled. Excluded from κ
         (an abstention is not a disagreement) and reported here instead.
     :ivar n_neither: rows neither of them has reached yet.
+    :ivar labels: ordered class universe used for the confusion matrix.
     :ivar confusion: ``a`` labels down the rows, ``b`` across the columns.
     :ivar note: why κ is ``nan``, or what to watch out for when it is not.
     """
@@ -630,6 +637,7 @@ def _connect(db_path: str) -> sqlite3.Connection:
 def table_columns(db_path: str, table: str = PNG_TABLE) -> List[str]:
     """Return the column names of ``table``, in declaration order.
 
+    :param db_path: path to the SQLite database, opened read-only.
     :raises ValueError: when the database has no such table.
     """
     con = _connect(db_path)
@@ -760,17 +768,29 @@ def load_annotations(db_path: str, columns: Sequence[str],
 class AgreementReport:
     """Everything :func:`agreement_report` worked out, in one object.
 
+    :ivar db_path: path of the source annotation database.
+    :ivar table: source table that holds the annotation columns.
+    :ivar key: column that identifies each annotated row.
+    :ivar columns: annotator columns, in report order.
     :ivar pairs: one :class:`PairAgreement` per unordered column pair.
     :ivar overall_kappa: Cohen's κ for two annotators, Fleiss' κ for
         three or more (computed on rows *every* annotator labelled).
+    :ivar overall_method: name of the κ statistic used for the overall value.
+    :ivar overall_note: interpretive caveat or reason the overall value is
+        undefined; empty when no caveat applies.
+    :ivar interpretation: Landis–Koch convention label for ``overall_kappa``.
+    :ivar labels: ordered class universe used throughout the report.
     :ivar per_class: one row per class — its one-vs-rest κ, how often the
         annotators were unanimous on it, and its prevalence. This is where
         "we agree on the negatives, we argue about the positives" shows up.
+    :ivar n_rows: total annotation-table rows examined.
     :ivar n_complete: rows every annotator labelled.
     :ivar n_partial: rows some but not all labelled — abstentions, not
         disagreements.
+    :ivar n_unlabelled: rows none of the annotators labelled.
     :ivar n_disagreements: rows where two annotators who both committed
         chose differently. This is the review queue's length.
+    :ivar percent_agreement: fraction of complete rows with unanimous labels.
     """
 
     db_path: str
@@ -804,7 +824,11 @@ class AgreementReport:
         return not (k is None or math.isnan(float(k)))
 
     def pair(self, a: str, b: str) -> Optional[PairAgreement]:
-        """Return the :class:`PairAgreement` for two columns, either order."""
+        """Return the :class:`PairAgreement` for two columns, either order.
+
+        :param a: name of either annotator column in the pair.
+        :param b: name of the other annotator column in the pair.
+        """
         for p in self.pairs:
             if {p.column_a, p.column_b} == {a, b}:
                 return p
