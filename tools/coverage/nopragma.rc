@@ -1,0 +1,7 @@
+[run]
+branch = True
+[report]
+# Deliberately EMPTY: the point is to see whether the tests reach the lines
+# the pragmas hide, which the default exclude list would keep hidden.
+exclude_lines =
+    a^
