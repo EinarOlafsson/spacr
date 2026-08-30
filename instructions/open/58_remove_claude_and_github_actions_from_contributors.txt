@@ -2,10 +2,11 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    REOPENED, 2026-08-29. Claude attribution is absent from current
-           remote history, but six default-branch commits still carry the
-           github-actions committer identity and GitHub's homepage fragment
-           remains stale for both names.
+Status:    OPEN — the complete 2026-08-30 current-history rewrite is pushed
+           and verified, and GitHub's REST/graph indexes list only the two
+           human contributors. The separately cached homepage/sidebar still
+           lists Claude and github-actions[bot]; GitHub Support must rebuild
+           that server-owned cache and its immutable pull-request refs.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -317,3 +318,56 @@ The public contributors graph and both contributor REST endpoints have now
 been checked and contain only EinarOlafsson and jak18015. The four-name result
 is isolated to the public homepage fragment, so it is a GitHub-side indexing
 problem after the current-history cleanup, not local browser cache.
+
+--------------------------------------------------------------------------------
+2026-08-30 -- COMPLETE CURRENT-HISTORY REWRITE; GITHUB SIDEBAR SUPPORT BLOCKER
+--------------------------------------------------------------------------------
+
+The maintainer explicitly moved this task forward and asked for the rewrite
+immediately. A complete off-workspace recovery bundle was made first:
+
+    /mnt/firecuda2/codex/backups/
+      spacr-pre-contributor-rewrite-2026-08-30-4ba64525.bundle
+    SHA-256:
+      c725d3be6a307dc5457bde475680e79aacc66719985ee801e1f4b25c61bc51bf
+
+The bundle contains all nine owner-writable branch/tag refs. The rewrite
+changed attribution only: all 4,587 rewritten commit trees were byte-identical
+to their predecessors, while the exact forbidden author, committer and trailer
+identities fell to zero. The two real contributors were preserved.
+
+The verified public tips after the atomic ref swap are:
+
+    main       dc108c67541ea1adb1f55cd36d7e5225f311acd4
+    nightly    3f6334a6b766289f9387a0f09a37666ff94c5ee3
+
+Seven owner-writable release/example tags were rewritten in the same atomic
+operation. The temporary staging tag was deleted and the main ruleset's
+non-fast-forward/deletion protection was restored afterward.
+
+Post-rewrite data at 2026-08-30 02:18 UTC proves the remaining disagreement is
+inside GitHub rather than in a local clone or browser:
+
+  * the contributor REST endpoint returns only EinarOlafsson (2,959) and
+    jak18015 (18);
+  * ``graphs/contributors-data`` returns only EinarOlafsson (2,909) and
+    jak18015 (18);
+  * ``/_sidebar`` and a clean unauthenticated Chrome render still return four:
+    EinarOlafsson, claude, jak18015 and github-actions[bot];
+  * the stale sidebar ETag ``W/\"2b96760e16e8d49bcae2a37652d21a1d\"`` did
+    not change during the 02:02--02:18 UTC observation window.
+
+A read-only audit of every advertised ref found the obsolete attribution only
+in GitHub-owned refs the repository owner cannot update or delete:
+
+    refs/pull/{94,95,96,97,99,100,102,103,104,105,106,107,109}/head
+
+Their union retains 38 historical Claude co-author trailers and seven
+github-actions[bot]-authored commits. Every owner-writable branch and tag is
+clean. Therefore rewriting again, pushing an empty commit, toggling the default
+branch or clearing a browser cache would not address the remaining state.
+
+ONLY REMAINING ACCEPTANCE ACTION: submit the prepared evidence to GitHub
+Support and have GitHub invalidate/rebuild the repository Contributors sidebar
+cache, preserving EinarOlafsson and jak18015. Close this item only when the
+public homepage widget itself reports two contributors.
