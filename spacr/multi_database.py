@@ -123,7 +123,15 @@ class MergeCancelled(RuntimeError):
 
 @dataclass(frozen=True)
 class SourceSummary:
-    """What one database contributes to a merge."""
+    """What one database contributes to a merge.
+
+    :ivar path: filesystem path of the source database.
+    :ivar label: short unique provenance label assigned to the source.
+    :ivar table: table inspected in the source database.
+    :ivar rows: number of rows the source table contributes.
+    :ivar columns: source table's stored column names in order.
+    :ivar plates: canonical plate identifiers contributed by the source.
+    """
 
     path: str
     label: str
@@ -181,6 +189,13 @@ class MergePlan:
     a merge produces IS the analysis they are about to run, and finding out
     afterwards that half the measurements were dropped is finding out too
     late.
+
+    :ivar sources: per-database summaries in the requested merge order.
+    :ivar common_columns: canonical columns present in every source.
+    :ivar partial_columns: mapping from a non-common column to source labels
+        that contain it.
+    :ivar colliding_plates: plate ids duplicated within a screen, mapped to
+        the source labels that contribute them.
     """
 
     sources: Tuple[SourceSummary, ...]
@@ -387,6 +402,8 @@ def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
        measurements.db`` layout;
     3. the historical parent/stem rule with a numeric tail, for the case where
        even the folders repeat.
+
+    :param paths: database paths to label together in their given order.
     """
     paths = [str(path) for path in paths]
     stems = [os.path.splitext(os.path.basename(path))[0] for path in paths]
@@ -659,6 +676,15 @@ class MergeDecision:
     Deliberately flat and JSON-safe: this is written to a log that outlives
     the session, so it holds strings and numbers rather than objects whose
     class may not exist by the time somebody reads it back.
+
+    :ivar table: database table the merge targeted.
+    :ivar sources: source database paths in merge order.
+    :ivar labels: provenance labels corresponding to ``sources``.
+    :ivar rows: pre-merge row count keyed by source label.
+    :ivar columns: column-selection rule used for the merge.
+    :ivar dropped_columns: columns omitted by the selected merge rule.
+    :ivar colliding_plates: duplicate plate ids mapped to their source labels.
+    :ivar outcome: final ``'merged'`` or ``'refused'`` result.
     """
 
     table: str
@@ -742,6 +768,8 @@ def record_decision(decision: MergeDecision,
     Never raises for an unwritable log -- a read-only home directory must not
     take a screen down for the sake of an audit line -- but returns ``""`` so
     a caller that wants to say the record was not kept can.
+
+    :param decision: JSON-safe merge decision to append.
     """
     target = path or decision_log_path()
     try:

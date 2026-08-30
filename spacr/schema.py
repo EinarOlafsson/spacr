@@ -902,6 +902,8 @@ def is_object_type(object_type: Any) -> bool:
     :data:`OBJECT_TYPE_KEY` on the frame. ``png_list``, a summary table or a
     user's own table answer False, and the frame stays untyped — which is the
     key spaCR has always written, so nothing regresses.
+
+    :param object_type: candidate table or object-type name.
     """
     if object_type is None:
         return False
@@ -1037,7 +1039,10 @@ def _index_of(value: Any, prefix: str) -> Optional[int]:
 
 
 def row_index(value: Any) -> Optional[int]:
-    """``'r3'`` → ``3``; ``'C'`` → ``3``; an unparseable id → ``None``."""
+    """``'r3'`` → ``3``; ``'C'`` → ``3``; an unparseable id → ``None``.
+
+    :param value: prefixed row id, row letters, or numeric row token.
+    """
     if isinstance(value, str):
         text = value.strip()
         if _ROW_ONLY.match(text) and not _PREFIXED_INT.match(text):
@@ -1046,17 +1051,26 @@ def row_index(value: Any) -> Optional[int]:
 
 
 def column_index(value: Any) -> Optional[int]:
-    """``'c12'`` → ``12``; an unparseable id → ``None``."""
+    """``'c12'`` → ``12``; an unparseable id → ``None``.
+
+    :param value: prefixed column id or numeric column token.
+    """
     return _index_of(value, KEY_PREFIXES[COLUMN_KEY])
 
 
 def field_index(value: Any) -> Optional[int]:
-    """``'f2'`` → ``2``; ``'fxy'`` → ``None``."""
+    """``'f2'`` → ``2``; ``'fxy'`` → ``None``.
+
+    :param value: prefixed field id or numeric field token.
+    """
     return _index_of(value, KEY_PREFIXES[FIELD_KEY])
 
 
 def time_index(value: Any) -> Optional[int]:
-    """``'t7'`` → ``7``; an unparseable id → ``None``."""
+    """``'t7'`` → ``7``; an unparseable id → ``None``.
+
+    :param value: prefixed timepoint id or numeric time token.
+    """
     return _index_of(value, KEY_PREFIXES[TIME_KEY])
 
 
@@ -1065,6 +1079,8 @@ def object_index(value: Any) -> Optional[int]:
 
     Split through :func:`split_object_id` rather than by stripping ``'o'``, so
     a typed id reads back as the number it is instead of as ``None``.
+
+    :param value: typed, untyped, or bare object-label token.
     """
     _kind, label = split_object_id(value, require_prefix=False)
     if not label:
@@ -1491,6 +1507,10 @@ class FieldID:
 class ObjectID:
     """One segmented object's identity — the ``prcfo`` a merged row is keyed on.
 
+    :ivar plateID: plate identifier carried by the containing field.
+    :ivar rowID: canonical ``'r<N>'`` row identifier.
+    :ivar columnID: canonical ``'c<N>'`` column identifier.
+    :ivar fieldID: canonical ``'f<N>'`` imaging-site identifier.
     :ivar objectID: ``'o<N>'`` when the object's type is not stated, or
         ``'<type><N>'`` when it is. The type lives *inside* this field rather
         than beside it so that two :class:`ObjectID` values compare equal
@@ -1965,11 +1985,17 @@ class ObjectTableSchema:
         return base + (OBJECT_LABEL_KEY,)
 
     def feature_column(self, name: Any) -> bool:
-        """Return whether ``name`` belongs to this table's feature namespace."""
+        """Return whether ``name`` belongs to this table's feature namespace.
+
+        :param name: candidate column name.
+        """
         return str(name).startswith(f'{self.object_type}_')
 
     def validate(self, frame, *, timelapse: Optional[bool] = None):
-        """Validate and return a canonical-column copy of ``frame``."""
+        """Validate and return a canonical-column copy of ``frame``.
+
+        :param frame: pandas frame to validate against this table contract.
+        """
         return validate_object_table_frame(
             frame, self.table, timelapse=timelapse)
 
@@ -1999,6 +2025,7 @@ DERIVED_MODEL_FEATURES = frozenset({
 def object_table_schema(table: str) -> ObjectTableSchema:
     """Return the canonical schema for ``table``.
 
+    :param table: canonical object measurement table name.
     :raises ObjectTableSchemaError: when no canonical contract exists.
     """
     try:
@@ -2311,6 +2338,8 @@ def model_feature_frame(frame, **kwargs):
     it repairs what is losslessly repairable first
     (:func:`coerce_model_feature_types`) instead of refusing a frame whose
     only fault is that pandas typed an all-NULL measurement ``object``.
+
+    :param frame: pandas frame to coerce and restrict to model features.
     """
     frame = coerce_model_feature_types(frame, **kwargs)
     return frame.loc[:, model_feature_columns(frame, **kwargs)].copy()
@@ -2598,13 +2627,24 @@ def comparable_key_value(value: Any) -> str:
 
 
 def comparable_key_values(values) -> Tuple[str, ...]:
-    """:func:`comparable_key_value` over a column."""
+    """:func:`comparable_key_value` over a column.
+
+    :param values: iterable of metadata cells to reduce for comparison.
+    """
     return tuple(comparable_key_value(value) for value in values)
 
 
 @dataclass(frozen=True)
 class ColumnCollision:
-    """What happened when several columns claimed one metadata key."""
+    """What happened when several columns claimed one metadata key.
+
+    :ivar canonical: canonical metadata key claimed by all source columns.
+    :ivar sources: source columns in their original frame order.
+    :ivar chosen: source column retained under the canonical name.
+    :ivar dropped: redundant source columns removed from the frame.
+    :ivar disagreeing_rows: number of rows whose source values disagreed.
+    :ivar rows: total number of rows compared.
+    """
 
     #: the canonical key they all meant, e.g. ``'wellID'``.
     canonical: str

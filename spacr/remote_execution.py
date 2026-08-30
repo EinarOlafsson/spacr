@@ -67,7 +67,10 @@ class RemoteExecutionError(RuntimeError):
 
 @dataclass(frozen=True)
 class CommandResult:
-    """Result returned by the injectable command runner."""
+    """Result returned by the injectable command runner.
+
+    :ivar returncode: process exit status, where zero denotes success.
+    """
 
     returncode: int
     stdout: str = ""
@@ -160,6 +163,9 @@ class ExecutionProfile:
     :func:`shlex.split` and support ``{job_id}``, ``{module}``, ``{settings}``
     and ``{external_id}`` placeholders.  They are argument templates, not
     shell scripts.
+
+    :ivar name: human-readable profile name used to select this target.
+    :ivar backend: execution mechanism, one of :data:`BACKENDS`.
     """
 
     name: str
@@ -258,7 +264,10 @@ class ExecutionProfile:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "ExecutionProfile":
-        """Construct and validate a profile from JSON-compatible data."""
+        """Construct and validate a profile from JSON-compatible data.
+
+        :param value: stored profile fields keyed by their dataclass names.
+        """
         fields = cls.__dataclass_fields__
         profile = cls(**{key: value[key] for key in fields if key in value})
         return profile.validate()
@@ -266,7 +275,13 @@ class ExecutionProfile:
 
 @dataclass
 class RemoteJob:
-    """Persistent local record of one submitted job."""
+    """Persistent local record of one submitted job.
+
+    :ivar job_id: locally generated stable identifier for the job.
+    :ivar module: resolved spaCR command-line module key to execute.
+    :ivar profile_name: name of the execution profile used for submission.
+    :ivar backend: backend recorded at submission time.
+    """
 
     job_id: str
     module: str
@@ -292,7 +307,10 @@ class RemoteJob:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "RemoteJob":
-        """Construct a job from a stored mapping, tolerating future fields."""
+        """Construct a job from a stored mapping, tolerating future fields.
+
+        :param value: stored job fields keyed by their dataclass names.
+        """
         fields = cls.__dataclass_fields__
         job = cls(**{key: value[key] for key in fields if key in value})
         if job.status not in _ALL_STATES:
@@ -385,7 +403,10 @@ class ProfileStore:
         return sorted(profiles, key=lambda profile: profile.name.casefold())
 
     def get(self, name: str) -> ExecutionProfile:
-        """Return a named profile or raise a user-facing error."""
+        """Return a named profile or raise a user-facing error.
+
+        :param name: profile name to match case-insensitively.
+        """
         wanted = str(name).casefold()
         for profile in self.list():
             if profile.name.casefold() == wanted:
@@ -395,7 +416,10 @@ class ProfileStore:
         )
 
     def save(self, profile: ExecutionProfile) -> None:
-        """Insert or replace one profile atomically."""
+        """Insert or replace one profile atomically.
+
+        :param profile: validated execution profile to persist.
+        """
         profile.validate()
         with _LOCK, _file_lock(self.lock_path):
             raw = _read_json(self.path, {"profiles": []})
@@ -409,7 +433,10 @@ class ProfileStore:
             _write_json_atomic(self.path, {"version": 1, "profiles": rows})
 
     def delete(self, name: str) -> bool:
-        """Delete one profile; return whether it existed."""
+        """Delete one profile; return whether it existed.
+
+        :param name: profile name to delete case-insensitively.
+        """
         wanted = str(name).casefold()
         with _LOCK, _file_lock(self.lock_path):
             raw = _read_json(self.path, {"profiles": []})
@@ -443,7 +470,10 @@ class JobStore:
         return sorted(jobs, key=lambda job: job.created_utc, reverse=True)
 
     def get(self, job_id: str) -> RemoteJob:
-        """Return a job by full ID or unambiguous prefix."""
+        """Return a job by full ID or unambiguous prefix.
+
+        :param job_id: complete job identifier or an unambiguous prefix.
+        """
         wanted = str(job_id).strip()
         matches = [
             job for job in self.list() if job.job_id.startswith(wanted)
@@ -457,7 +487,10 @@ class JobStore:
         return matches[0]
 
     def save(self, job: RemoteJob) -> None:
-        """Insert or replace one job atomically."""
+        """Insert or replace one job atomically.
+
+        :param job: remote-job record to persist.
+        """
         job.updated_utc = _utc_now()
         with _LOCK, _file_lock(self.lock_path):
             raw = _read_json(self.path, {"jobs": []})
@@ -495,6 +528,10 @@ def map_settings_paths(
 
     Non-path strings and paths outside the configured root are unchanged.
     Mapping keys are intentionally preserved: setting names are not paths.
+
+    :param value: nested settings value whose absolute path strings are mapped.
+    :param local_root: local dataset root that mapped paths must lie below.
+    :param remote_root: remote dataset root that replaces ``local_root``.
     """
     if isinstance(value, dict):
         return {
@@ -976,7 +1013,12 @@ class RemoteJobManager:
         settings: Mapping[str, Any],
         profile_name: str,
     ) -> RemoteJob:
-        """Submit resolved settings through a named execution profile."""
+        """Submit resolved settings through a named execution profile.
+
+        :param module: headless spaCR module name accepted by ``spacr-run``.
+        :param settings: resolved module settings to serialize for the job.
+        :param profile_name: name of the execution profile to use.
+        """
         from .cli import resolve_module
 
         module_record = resolve_module(module)
@@ -1028,7 +1070,10 @@ class RemoteJobManager:
         return job
 
     def refresh(self, job_id: str, *, include_logs: bool = True) -> RemoteJob:
-        """Poll one non-terminal job and optionally retain its latest log tail."""
+        """Poll one non-terminal job and optionally retain its latest log tail.
+
+        :param job_id: complete local job identifier or unambiguous prefix.
+        """
         job = self.jobs.get(job_id)
         if job.status in TERMINAL_STATES:
             return job
@@ -1058,7 +1103,10 @@ class RemoteJobManager:
         return self.jobs.list()
 
     def cancel(self, job_id: str) -> RemoteJob:
-        """Request cancellation and persist the result."""
+        """Request cancellation and persist the result.
+
+        :param job_id: complete local job identifier or unambiguous prefix.
+        """
         job = self.jobs.get(job_id)
         if job.status in TERMINAL_STATES:
             return job
@@ -1076,7 +1124,10 @@ class RemoteJobManager:
         return job
 
     def logs(self, job_id: str, lines: int = 200) -> str:
-        """Retrieve and persist the tail of one remote job's log."""
+        """Retrieve and persist the tail of one remote job's log.
+
+        :param job_id: complete local job identifier or unambiguous prefix.
+        """
         job = self.jobs.get(job_id)
         profile = ExecutionProfile.from_dict(job.profile)
         text = _backend(profile, self.runner).logs(profile, job, lines)
