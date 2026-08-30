@@ -16,8 +16,13 @@ from spacr.qt.bridge import resolve_pipeline_entry
 def test_app_screen_constructs_for_every_key(qtbot, qt_theme_applied, app_key):
     screen = AppScreen(app_key)
     qtbot.addWidget(screen)
-    # Console widget exists and starts with only the trailing stretch.
-    assert screen._console._entries.count() == 1
+    # The final layout item is always the stretch that keeps entries anchored
+    # at the top.  Construction may already have written an actionable status
+    # message (for example, that no optional AI provider is installed), so an
+    # absolute-empty assertion races legitimate startup diagnostics.
+    entries = screen._console._entries
+    assert entries.count() >= 1
+    assert entries.itemAt(entries.count() - 1).spacerItem() is not None
     # Run + stop + import + clear buttons exist and start in expected state.
     assert screen._btn_run.isEnabled()
     assert not screen._btn_stop.isEnabled()

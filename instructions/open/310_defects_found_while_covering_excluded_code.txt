@@ -1227,3 +1227,31 @@ the object they inspect.
     deleted (section 18) or written down here. That is the only way instruction
     288's per-module numbers mean anything: a module short of 100% is either a
     gap or a line in this document, and never a shrug.
+
+--------------------------------------------------------------------------------
+27. STARTUP CONTRACTS COUNTED THE TEST HARNESS AS PRODUCT STATE
+--------------------------------------------------------------------------------
+
+Three more coverage-shard failures came from assertions whose baseline was no
+longer owned by the operation under test. Eight AppScreen no-op tests required
+an absolutely empty console even though construction may already write an
+actionable optional-provider diagnostic. The general construction test likewise
+required exactly one console layout item, although the only structural promise
+is that its trailing stretch remains last. Both now compare before/after state
+or assert that stable layout invariant.
+
+The cold-launch import budget counted every module in the child interpreter.
+Coverage's subprocess tracer starts before the test body and legitimately adds
+hundreds of harness modules, turning the same product import graph from 434
+modules into 1,374. The ratchet now counts modules added after QApplication is
+ready: 283 were measured, with a 450 ceiling that still detects the roughly
+four-hundred-module analysis stack regression it was written for.
+
+Finally, the dependency-profile contract still required the literal Python
+3.9--3.14 matrix after the intentional Python 3.15 prerelease cell had been
+added. It now requires that cell together with its prerelease and informational
+guards, so the test protects the new policy rather than rejecting it.
+
+THE GENERAL RULE. A budget subtracts instrumentation that exists before the
+measured path, a no-op test compares state around the no-op, and a workflow
+test describes the policy currently promised by that workflow.
