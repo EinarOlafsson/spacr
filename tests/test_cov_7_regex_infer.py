@@ -16,6 +16,7 @@ from spacr import regex_infer
 from spacr.regex_infer import (
     FieldEvidence,
     _assign_roles,
+    _merge_wells,
     _proposal_for,
     propose,
 )
@@ -83,6 +84,53 @@ def test_a_constant_number_is_only_absorbed_when_it_makes_a_well():
     assert "wellID" not in proposal.fields
     assert "12" in proposal.pattern
     assert proposal.matched == 2
+
+
+def test_a_letter_run_and_a_digit_run_that_do_not_make_a_well_stay_apart():
+    """The check that keeps ``L01`` and ``C02`` out of the well group.
+
+    ``_merge_wells`` folds an adjacent letter slot and digit slot into one --
+    ``A01`` tokenises as two runs and neither of them is a well. But a
+    two-letter code beside a three-digit number joins to ``ab123``, which is
+    not a well, and merging it would name a channel or a cycle as the plate
+    position. Every downstream grouping -- normalisation, the plate heatmap,
+    the well-level regression -- then aggregates by something that is not a
+    well.
+
+    Driven at the function rather than through a filename, because the
+    tokeniser decides whether these two slots are ever adjacent, and this is
+    about what happens once they are.
+    """
+    pieces = [
+        {"slot": FieldEvidence(index=0, values=("ab", "cd"), numeric=False)},
+        {"slot": FieldEvidence(index=1, values=("123", "456"), numeric=True)},
+    ]
+
+    _merge_wells(pieces)
+
+    assert len(pieces) == 2, "two slots that are not a well were merged"
+    assert not pieces[0]["slot"].role, "the letter run was labelled a well"
+    assert pieces[1]["slot"].values == ("123", "456")
+
+
+def test_a_letter_and_two_digits_are_folded_into_one_well_slot():
+    """The path the refusal above is defined against.
+
+    Without it, "did not merge" would pass on an implementation that never
+    merges anything.
+    """
+    pieces = [
+        {"slot": FieldEvidence(index=0, values=("A", "B"), numeric=False)},
+        {"slot": FieldEvidence(index=1, values=("01", "02"), numeric=True)},
+    ]
+
+    _merge_wells(pieces)
+
+    assert len(pieces) == 1
+    merged = pieces[0]["slot"]
+    assert merged.role == "wellID"
+    assert merged.values == ("A01", "B02")
+    assert "read as a well" in merged.because
 
 
 # ---------------------------------------------------------------------------
