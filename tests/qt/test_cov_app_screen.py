@@ -1217,6 +1217,8 @@ class TestRunStopStateMachine:
 class TestErrorRouting:
 
     def test_error_prints_raw_when_ai_is_off(self, qtbot, monkeypatch):
+        monkeypatch.setattr("spacr.qt.preferences.get_ai_on_by_default",
+                            lambda: False)
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
                             lambda: False)
         scr = _make_screen(qtbot, "mask")
@@ -1458,6 +1460,11 @@ class TestAiControls:
 
     def test_ai_switch_autoselects_the_first_configured_provider(
             self, qtbot, monkeypatch):
+        # The shipped preference now starts AI on.  This test exercises the
+        # transition from off to on, so give it that precondition explicitly
+        # instead of depending on an older product default.
+        monkeypatch.setattr("spacr.qt.preferences.get_ai_on_by_default",
+                            lambda: False)
         providers = [_FakeProvider("codex", "Codex")]
         monkeypatch.setattr("spacr.qt.ai.configured_providers",
                             lambda: providers)

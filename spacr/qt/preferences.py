@@ -3966,10 +3966,13 @@ def apply_preferences_to_app(app=None) -> None:
     style_changed = (
         getattr(app, "_spacr_preferences_style_signature", None)
         != style_signature
-        # A test/embedding host can deliberately clear the application sheet.
-        # The signature is an optimisation hint, never authority to leave a
-        # running interface unthemed.
-        or not app.styleSheet()
+        # QApplication's sheet is public state.  Tests, embedding hosts and
+        # theme integrations may replace it without going through this
+        # function, so the signature is only valid while the exact sheet it
+        # describes is still installed.  Checking the text is cheap beside a
+        # global Qt repolish and also catches a non-empty foreign sheet.
+        or app.styleSheet()
+        != getattr(app, "_spacr_preferences_stylesheet", None)
     )
     if style_changed:
         # Record the exact inputs any screen-local late block must share with
@@ -3986,6 +3989,7 @@ def apply_preferences_to_app(app=None) -> None:
         clear_widget_qss_overlays(app)
         app.setStyleSheet(sheet)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
+        setattr(app, "_spacr_preferences_stylesheet", sheet)
 
         # A field whose QSS did not change still has to redraw when the paint
         # hook is turned off. Field fade is part of the signature, so this is

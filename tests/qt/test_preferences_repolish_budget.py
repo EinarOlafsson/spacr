@@ -61,3 +61,25 @@ def test_a_visual_change_still_rebuilds_the_global_sheet(qapp, monkeypatch):
         assert composed == [True]
     finally:
         setattr(qapp, "_spacr_preferences_style_signature", original)
+
+
+def test_a_foreign_nonempty_sheet_invalidates_the_visual_signature(
+    qapp, monkeypatch
+):
+    """A host may replace public QApplication state behind the cache."""
+    preferences.apply_preferences_to_app(qapp)
+    expected = qapp.styleSheet()
+    qapp.setStyleSheet("QWidget { background: #123456; }")
+
+    composed = []
+    real_stylesheet = theme.stylesheet
+
+    def counted_stylesheet(*args, **kwargs):
+        composed.append(True)
+        return real_stylesheet(*args, **kwargs)
+
+    monkeypatch.setattr(theme, "stylesheet", counted_stylesheet)
+    preferences.apply_preferences_to_app(qapp)
+
+    assert composed == [True]
+    assert qapp.styleSheet() == expected
