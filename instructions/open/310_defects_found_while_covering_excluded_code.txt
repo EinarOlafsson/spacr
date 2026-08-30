@@ -1304,3 +1304,25 @@ generated notebook cells in the same tested tree.
     have. The test was written expecting it to pass; it failed, and the
     failure was the defect rather than the test. Removing the fix makes it
     fail again, which was checked.
+
+--------------------------------------------------------------------------------
+30. THE SMALLEST SETTINGS DIALOG HAD NO VERTICAL TRAVEL OR DRAG SURFACE
+--------------------------------------------------------------------------------
+
+Coverage shard 7 exposed two platform-dependent holes in the application-wide
+dialog wrapper on Ubuntu with Qt 6.11. ``_WellChoice`` opened 142 pixels tall,
+exactly the wrapper's 120-pixel content floor plus its margins. Asking for half
+that height therefore answered 142 again: the window advertised a size grip
+but could not become one pixel shorter. The same font metrics let the controls
+consume every pixel of a wrapped ``PictureSettingsDialog`` holder, leaving no
+interior background from which its frameless window could be dragged.
+
+The readable scrolled-content floor is now 80 pixels, below the natural height
+of the smallest real settings form. Six pixels of the original left dialog
+margin are also retained inside the holder. The controls remain at the same
+screen coordinate and the total opening size is unchanged, while that strip
+is a deterministic drag handle independent of fonts and layout rounding.
+
+Measured with PySide6/Qt 6.11.2 under the offscreen CI setup: all 278 dialog
+resize, opening-size, scrolling, grip, movement, and lifecycle contracts pass
+in file order with coverage enabled.
