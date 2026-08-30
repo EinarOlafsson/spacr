@@ -1231,3 +1231,93 @@ def test_every_source_the_normaliser_can_produce_is_a_word_the_reader_knows():
         f"will raise on it and open_crop_source will swallow the error.")
     # And every alias has to name a word resolve_crop_source really takes.
     assert set(CROP_SOURCE_ALIASES.values()) <= {"png", "merged", "auto"}
+
+
+def test_a_crop_that_cannot_be_written_into_the_test_split_is_also_survived(
+        tmp_path, capsys):
+    """The two write loops are separate code, and both can fail.
+
+    A dataset is only useful if BOTH splits landed, so a failure on the test
+    side has to be counted and reported the same way as one on the train side
+    -- otherwise a test set quietly smaller than it should be makes every
+    evaluation optimistic by an amount nobody can see.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    items = []
+    for i in range(10):
+        p = src / f"good_{i}.png"
+        Image.new("RGB", (8, 8)).save(p)
+        items.append(str(p))
+    # Enough missing entries that the grouped split puts some on each side.
+    items += [str(src / f"missing_{i}.png") for i in range(10)]
+    out = str(tmp_path / "ds")
+
+    generate_dataset_from_lists(out, [items], ["only"], test_split=0.5,
+                                group_by="cell")
+
+    printed = capsys.readouterr().out
+    assert "could not be written" in printed
+    written = glob.glob(os.path.join(out, "*", "*", "*.png"))
+    assert len(written) == 10, "a writable crop was lost"
+
+
+def test_only_the_first_five_failures_are_named(tmp_path, capsys):
+    """The cap, and the count that makes it safe.
+
+    A screen can select tens of thousands of crops. Naming every failure turns
+    a warning into a wall of output that hides the summary line underneath it,
+    so five are named and the total is reported once -- the scale of the
+    problem is the part the reader needs.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    items = []
+    for i in range(4):
+        p = src / f"good_{i}.png"
+        Image.new("RGB", (8, 8)).save(p)
+        items.append(str(p))
+    items += [str(src / f"missing_{i:02d}.png") for i in range(12)]
+    out = str(tmp_path / "ds")
+
+    generate_dataset_from_lists(out, [items], ["only"], test_split=0.25,
+                                group_by="cell")
+
+    printed = capsys.readouterr().out
+    named = [line for line in printed.splitlines()
+             if line.startswith("Could not add")]
+    assert len(named) == 5, f"the cap did not hold: {len(named)} named"
+    assert "12 of 16 crops could not be written" in printed
+
+
+def test_a_split_where_nothing_could_be_written_is_refused_with_the_way_out(
+        tmp_path, capsys):
+    """Not a partial result -- a broken input, and training on it is training
+    on nothing.
+
+    The message names ``crop_source='merged'`` because the overwhelmingly
+    common cause is a PNG crop folder that was deleted or moved after the
+    measurements were made, and cutting the crops out of ``merged/*.npy``
+    instead is the fix rather than a workaround.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    # Four, so the counter stays under the naming cap on BOTH sides of the
+    # split and the test-split failure is named as well as the train ones.
+    items = [str(src / f"missing_{i}.png") for i in range(4)]
+    out = str(tmp_path / "ds")
+
+    with pytest.raises(RuntimeError) as caught:
+        generate_dataset_from_lists(out, [items], ["only"], test_split=0.5,
+                                    group_by="cell")
+
+    message = str(caught.value)
+    assert "No crop could be written" in message
+    assert "crop_source='merged'" in message
+
+    printed = capsys.readouterr().out
+    assert "/test/" in printed or "test" in printed.lower(), (
+        "the test-split failures were never reported")
