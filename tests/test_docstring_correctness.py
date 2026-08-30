@@ -14,6 +14,7 @@ The legacy Tk modules are excluded, the same four excluded from instruction
 from __future__ import annotations
 
 import ast
+import hashlib
 import pathlib
 import re
 
@@ -45,6 +46,50 @@ def _documented_functions():
                 yield path, node, doc
 
 
+def _public_field_documented_functions():
+    """AutoAPI-visible functions/methods that use ``:param:`` fields."""
+    root = pathlib.Path(__file__).resolve().parent.parent / "spacr"
+
+    def visible(name):
+        return (
+            not name.startswith("_")
+            or (
+                name != "__init__"
+                and name.startswith("__")
+                and name.endswith("__")
+            )
+        )
+
+    for path in sorted(root.rglob("*.py")):
+        if path.name in LEGACY_MODULES:
+            continue
+        try:
+            tree = ast.parse(path.read_text(errors="replace"))
+        except SyntaxError:
+            continue
+        relative = path.relative_to(root).with_suffix("")
+        parts = list(relative.parts)
+        if parts[-1] == "__init__":
+            parts.pop()
+        module = ".".join(("spacr", *parts))
+        for node in tree.body:
+            candidates = []
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if visible(node.name):
+                    candidates.append((node.name, node))
+            elif isinstance(node, ast.ClassDef) and not node.name.startswith("_"):
+                candidates.extend(
+                    (f"{node.name}.{child.name}", child)
+                    for child in node.body
+                    if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    and visible(child.name)
+                )
+            for qualified_name, candidate in candidates:
+                doc = ast.get_docstring(candidate)
+                if doc and ":param" in doc:
+                    yield f"{module}.{qualified_name}", candidate, doc
+
+
 def _real_parameters(node):
     args = node.args
     names = {a.arg for a in
@@ -53,6 +98,20 @@ def _real_parameters(node):
         names.add(args.vararg.arg)
     if args.kwarg:
         names.add(args.kwarg.arg)
+    return names - {"self", "cls"}
+
+
+def _required_parameters(node):
+    """Parameters without a positional or keyword-only default."""
+    args = node.args
+    positional = list(args.posonlyargs) + list(args.args)
+    if args.defaults:
+        positional = positional[:-len(args.defaults)]
+    names = {arg.arg for arg in positional}
+    names.update(
+        arg.arg for arg, default in zip(args.kwonlyargs, args.kw_defaults)
+        if default is None
+    )
     return names - {"self", "cls"}
 
 
@@ -93,6 +152,34 @@ def test_no_docstring_names_a_parameter_that_does_not_exist():
         f"only {checked} documented functions found -- the sweep is not "
         "covering the package, so a green result proves nothing")
     assert not ghosts, "\n  ".join(ghosts)
+
+
+def test_no_new_undocumented_required_public_parameters():
+    """Ratchet the reverse direction while the recorded legacy debt is fixed.
+
+    The digest prevents one omission from replacing another without changing
+    the total.  This is deliberately not presented as zero debt: the exact
+    baseline remains 206 required parameters across 126 public callables.
+    """
+    omissions = []
+    checked = 0
+    for symbol, node, doc in _public_field_documented_functions():
+        checked += 1
+        documented = {
+            name.lstrip("*") for name, _body in PARAM_FIELD.findall(doc)
+        }
+        omissions.extend(
+            f"{symbol}:{name}"
+            for name in _required_parameters(node) - documented
+        )
+    omissions.sort()
+    digest = hashlib.sha256("\n".join(omissions).encode()).hexdigest()
+
+    assert checked == 2_067
+    assert len(omissions) == 206
+    assert digest == (
+        "7805f045a8f94af0a5e5ed94ef3b999a49a9cdc388c777ec0a5c77cabd9107de"
+    )
 
 
 def test_no_docstring_claims_a_default_the_signature_contradicts():

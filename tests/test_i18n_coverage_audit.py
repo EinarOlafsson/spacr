@@ -18,8 +18,8 @@ REVIEWED_RUNTIME_COUNTS = {
     "hi": 67, "ko": 183, "is": 73, "fr": 56,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 180, "de": 122, "es": 16, "zh_CN": 140, "pt": 128,
-    "hi": 74, "ko": 106, "is": 588, "fr": 106,
+    "sv": 182, "de": 124, "es": 18, "zh_CN": 142, "pt": 130,
+    "hi": 76, "ko": 108, "is": 590, "fr": 108,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -151,17 +151,21 @@ def test_written_review_scope_matches_current_source_bound_evidence():
             runtime_builder.reviewed_runtime_translations(language)
         ) == runtime_expected
         assert len(reviewed_api) == api_expected
-        source_blocks, _ = api_builder.translatable_blocks(
-            docs["spacr.__main__.main"]
-        )
         payload = json.loads((
             ROOT / "docs" / "source" / "_static" / "i18n" / "api"
             / f"{language}.json"
         ).read_text(encoding="utf-8"))
-        translated_blocks, _ = api_builder.translatable_blocks(
-            payload["symbols"]["spacr.__main__.main"]["text"]
-        )
-        assert translated_blocks == [reviewed_api[block] for block in source_blocks]
+        for symbol in (
+            "spacr.__main__.main",
+            "spacr.qt.widgets.home.SystemPanel",
+        ):
+            source_blocks, _ = api_builder.translatable_blocks(docs[symbol])
+            translated_blocks, _ = api_builder.translatable_blocks(
+                payload["symbols"][symbol]["text"]
+            )
+            assert translated_blocks == [
+                reviewed_api[block] for block in source_blocks
+            ]
         row = (
             f"| {DISPLAY_NAMES[language]} | {runtime_expected:,} | "
             f"{runtime_expected / 4_960:.2%} | {4_960 - runtime_expected:,} | "

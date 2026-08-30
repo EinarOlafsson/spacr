@@ -95884,13 +95884,13 @@
     "spacr.qt.widgets.home.SystemPanel": {
       "source_blocks_sha256": [
         "e544ae5c2f5d7f0be43b82fecce1460fd2261041ebde1c1e2754cae45703cbd8",
-        "3f5297c84e4ec92a5427fb458890b8eb26ed81ae77214a47c32e95de026b0e8c"
+        "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3"
       ],
-      "source_sha256": "42e53e78a150c7bc212adef7b9b4316b4ba1fd3420fc37674b14a206f646506f",
-      "text": "GPU / VRAM / 디스크, 건설에 읽고 각 홈 검토.\n\n모든 읽기는 사라지기보다는 줄로 떨어집니다 - 흰 줄은 \"broken\"로 읽고 \"no CUDA\"는 대답으로 읽습니다.",
+      "source_sha256": "8cef8f481296cb2f6be4c1b78bf9ea2a19323209edd7700b91464f29901eb19a",
+      "text": "GPU / VRAM / 디스크를 패널 구성 시점과 홈을 다시 방문할 때마다 읽습니다.\n\n각 측정값은 사라지는 대신 문자열로 대체됩니다 — 빈 행은 \"broken\"으로 표시되고, ``n/a``는 경량 시스템 프로브가 장치를 측정할 수 없었음을 정확히 나타냅니다. 홈은 대시보드를 꾸미기 위해 모델 런타임을 가져와서는 안 됩니다.",
       "translation_source_blocks_sha256": [
         "e544ae5c2f5d7f0be43b82fecce1460fd2261041ebde1c1e2754cae45703cbd8",
-        "3f5297c84e4ec92a5427fb458890b8eb26ed81ae77214a47c32e95de026b0e8c"
+        "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3"
       ]
     },
     "spacr.qt.widgets.home.TotalsPanel": {
