@@ -1026,3 +1026,37 @@ exception-masking protection; a pragma is not an acceptable substitute.
     modules that cannot reach 100% however many tests are written, and 288
     allows no pragma to hide them. The alternative was sixteen entries in this
     document arguing the same thing sixteen times.
+
+--------------------------------------------------------------------------------
+20. A PROCESS-WIDE TEST ESCAPE HATCH WROTE TO THE REAL GITHUB TRACKER
+--------------------------------------------------------------------------------
+
+``SPACR_ALLOW_GITHUB_WRITES=1`` was intended to let offline tests exercise the
+issue-reporting path after replacing its HTTP calls. It was inherited by child
+processes and remained set across fixture/module teardown. In a broad xdist
+batch, ``submit_report`` resolved a different ``github_auth`` module instance
+from the one four tests had patched. The environment flag still admitted that
+unpatched instance, which found the developer's real ``gh`` credential and
+posted four ``Seen again`` comments to issue #114. Repeated batch executions
+eventually left 11 public test comments. This was observed from GitHub, not
+inferred from a mock.
+
+The old ``PYTEST_CURRENT_TEST`` check was not a session boundary either: pytest
+removes it between phases and before teardown. The replacement is installed by
+the root conftest before collection as ``SPACR_PYTEST_SESSION=1`` and is
+inherited by ordinary subprocesses. There is no environment escape hatch.
+Every GitHub search/comment/create boundary refuses before credential lookup
+when the real transport is installed. Offline tests replace a process-local
+``_HTTP_OPEN`` seam; that substitution cannot be inherited, and restoring the
+real opener immediately re-arms refusal.
+
+Verification used deliberately invalid GitHub credentials and dead HTTP/HTTPS
+proxies: 146 focused reporting tests passed. A replay of the exact historical
+60-file xdist batch produced 1,624 passes and seven skips; every write-guard
+test passed and the GitHub issue remained at exactly 11 comments. Direct
+coverage of ``github_auth.py`` is 131/131 statements and 38/38 branches.
+
+THE GENERAL RULE. A boolean that says "unsafe external action allowed" is not
+a mock. Test permission must be coupled to the substituted capability itself,
+and a test-session prohibition must outlive every individual test phase and
+follow child processes.
