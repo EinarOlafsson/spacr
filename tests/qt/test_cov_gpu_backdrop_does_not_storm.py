@@ -66,24 +66,40 @@ def _gpu_or_skip():
         pytest.skip(f"no usable GL context here: {error}")
 
 
-def test_a_program_that_will_not_link_is_refused_at_construction(monkeypatch):
-    """The eager link must turn a bad shader into `GpuBackendError`.
+def test_an_es_context_is_refused_before_the_program_is_built(monkeypatch):
+    """The refusal is a question asked of the context, not a trial draw.
 
-    Without it the program links at the first DrawEvent instead, where the
-    caller's fallback cannot see it.
+    An earlier version forced the shaders to link by drawing once in
+    `_Canvas.__init__`, so that a context which cannot run them failed
+    where the caller's CPU fallback could catch it. That draws into a
+    canvas Qt has not realized, and on an NVIDIA driver it takes the
+    process down -- opening Mask or Measure died with "Segmentation fault
+    (core dumped)", once per screen.
+
+    Reading GL_SHADING_LANGUAGE_VERSION establishes the same fact and is
+    safe. vispy prepends `#version 120`, desktop GLSL, to shaders carrying
+    no version of their own, and an ES context rejects it.
     """
-    # `gloo` is imported inside the factory, so the patch has to land on
-    # vispy itself rather than on this module.
     import vispy.gloo
-    monkeypatch.setattr(vispy.gloo, "Program", _RefusingProgram)
+
+    real = vispy.gloo.gl.glGetParameter
+
+    def say_es(name):
+        if name == vispy.gloo.gl.GL_SHADING_LANGUAGE_VERSION:
+            return "OpenGL ES GLSL ES 3.20"
+        return real(name)
+
+    monkeypatch.setattr(vispy.gloo.gl, "glGetParameter", say_es)
     with pytest.raises(fractal_travel.GpuBackendError) as caught:
         fractal_travel._make_gpu_widget(
             fractal_travel.Settings(),
             fractal_travel.RuntimeControls(),
             fractal_travel.HardwareProfile(logical_cpus=4))
-    # The refusal has to carry the driver's words: the storm's real cost was
-    # that "unsupported version 120" scrolled away under the repeats.
-    assert "unsupported version 120" in str(caught.value)
+    said = str(caught.value)
+    # The refusal must name what it saw, so the reason is in the log rather
+    # than only in someone's head.
+    assert "OpenGL ES GLSL ES 3.20" in said
+    assert "120" in said
 
 
 def test_a_draw_that_fails_mid_run_stops_instead_of_storming():

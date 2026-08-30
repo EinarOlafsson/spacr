@@ -1382,6 +1382,23 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             #: Set once Qt has freed the C++ side. The timer checks it so a
             #: single late tick does not become an endless retry.
             self._dead = False
+            # REFUSE A GLES CONTEXT, BY ASKING, NOT BY DRAWING. vispy
+            # prepends `#version 120` -- desktop GLSL -- to shaders that
+            # carry no version of their own, and a GLES context rejects it:
+            # "unsupported version 120". Left to the first DrawEvent the
+            # failure lands where the caller's CPU fallback cannot reach it,
+            # and the backdrop sits blank.
+            try:
+                self.set_current()
+                language = str(gloo.gl.glGetParameter(
+                    gloo.gl.GL_SHADING_LANGUAGE_VERSION) or "")
+            except Exception:                                # noqa: BLE001
+                language = ""
+            if "ES" in language.upper():
+                raise GpuBackendError(
+                    f"this is an OpenGL ES context ({language.strip()}) and "
+                    f"vispy compiles these shaders as desktop GLSL 120, "
+                    f"which ES rejects")
             self._program = gloo.Program(VERTEX_SHADER, _FRAGMENT)
             self._program["a_position"] = np.asarray(
                 [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
@@ -1407,31 +1424,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                               exc_info=True)
             gloo.set_state(depth_test=False, blend=False)
             self._update_uniforms(0.0)
-            # LINK THE PROGRAM HERE, NOT AT THE FIRST FRAME. vispy compiles
-            # a program lazily on its first draw, and that draw happens
-            # inside a DrawEvent, where `_make_gpu_widget`'s caller can no
-            # longer reach it: shaders that will not compile raise into
-            # vispy's own event handler, which catches, logs and RETRIES,
-            # so the backdrop becomes an endless
-            #     ERROR: Invoking ... for DrawEvent
-            #     ERROR: Invoking ... repeat 2, 4, 8, 16 ...
-            # over a window that never draws a single frame. Failing during
-            # construction instead lets the caller fall back to the CPU
-            # renderer, which is what it already does for every other way
-            # building the GPU backdrop can fail.
-            #
-            # Wayland is the case that made this necessary. Qt hands vispy a
-            # GLES context there, vispy prepends `#version 120` -- desktop
-            # GLSL -- and the vertex shader dies with "unsupported version
-            # 120". The same session under `QT_QPA_PLATFORM=xcb` gets a GLX
-            # context and compiles cleanly, so this is a property of the
-            # platform plugin rather than of the machine or its driver.
-            try:
-                self._program.draw("triangle_strip")
-            except Exception as error:                       # noqa: BLE001
-                raise GpuBackendError(
-                    f"the fractal shaders do not compile on this GL "
-                    f"context: {error}") from error
+            # NO EAGER LINK HERE. Forcing the shaders to compile in
+            # __init__ -- by drawing once -- moved the failure to where the
+            # caller's CPU fallback could catch it, but it draws into a
+            # canvas Qt has not realized yet, and on this driver that takes
+            # the process down: opening Mask or Measure died with
+            # "Segmentation fault (core dumped)", once per screen, because
+            # every screen builds a backdrop. The same fact is obtained by
+            # asking, in the probe above.
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
                                           connect=self._on_timer, start=True)
             # STOPPED WHEN QT FREES THE WIDGET, not only when someone calls
