@@ -1756,7 +1756,7 @@ class MainWindow(QMainWindow):
         # screen, holding a list most sessions never touch — and it is
         # the reason Home could not fit its five categories plus a state
         # column without scrolling. As a drawer it costs 6 px of trigger
-        # strip and is one hover, one click, or Ctrl+B away.
+        # strip and is one hover, one click, or Ctrl+Shift+A away.
         #
         # The slot is what "lock the dock" fills: see
         # :meth:`apply_dock_mode`. It exists whatever the mode, because a
@@ -2301,7 +2301,7 @@ class MainWindow(QMainWindow):
         # this one names a drawer most users never knew existed.
         #
         # The action itself stays, registered on the window rather than on
-        # the menu. Ctrl+B is the only keyboard route into the edge reveal --
+        # the menu. Ctrl+Shift+A is the keyboard route into the edge reveal --
         # a panel you can otherwise summon only by hovering a 6 px strip is
         # a panel a keyboard user does not have -- and deleting the action
         # would take the shortcut with it.
@@ -2317,7 +2317,7 @@ class MainWindow(QMainWindow):
         act_all.triggered.connect(self.toggle_app_drawer)
         self.addAction(act_all)
 
-        # THE BACKDROP OFF AND ON. Registered on the window like Ctrl+B
+        # THE BACKDROP OFF AND ON. Registered on the window like Ctrl+Shift+A
         # above, so it works wherever focus is. It STOPS the animation
         # rather than hiding it: a hidden backdrop that kept rendering would
         # be the worst of both, spending the cores and showing nothing.
@@ -2366,9 +2366,8 @@ class MainWindow(QMainWindow):
         # paints the ground flat, which is what "I am looking at images and
         # want nothing behind them" actually asks for.
         #
-        # NOT Ctrl+B: that is the app drawer, and the only keyboard route to
-        # it (see the note above `act_all`), so taking it would remove a
-        # panel from keyboard users to gain a decoration toggle.
+        # Ctrl+B was explicitly requested for this action. The drawer moved
+        # to Ctrl+Shift+A, which keeps both window actions keyboard-reachable.
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
@@ -2379,7 +2378,7 @@ class MainWindow(QMainWindow):
         act_flat.toggled.connect(self._set_backdrop_blank)
         self.addAction(act_flat)
         self._act_flat = act_flat
-        #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+B that
+        #: Kept so :meth:`apply_dock_mode` can grey it out — a Ctrl+Shift+A that
         #: silently does nothing because the dock is hidden is worse than
         #: a menu entry that says so.
         self._act_all_apps = act_all
@@ -3378,7 +3377,7 @@ class MainWindow(QMainWindow):
                 "Show the full app list.")
 
     def _set_backdrop_blank(self, blank: bool) -> int:
-        """Pause every backdrop and paint the ground flat. Ctrl+Shift+B.
+        """Pause every backdrop and paint the ground flat. Ctrl+B.
 
         :returns: how many backdrops were hidden, so a test can assert a
             number rather than a screenshot.

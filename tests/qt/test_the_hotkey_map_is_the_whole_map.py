@@ -186,8 +186,7 @@ class TestItIsInTheHelpMenu:
         labels = [a.text().replace("&", "") for a in self._help_actions(window)
                   if a.text()]
 
-        assert labels.index("Keyboard shortcuts") < labels.index(
-            "Tutorial (web)")
+        assert labels.index("Keyboard shortcuts") < labels.index("Tutorial")
 
     def test_pressing_it_opens_the_map(self, window, qtbot):
         opened = {}

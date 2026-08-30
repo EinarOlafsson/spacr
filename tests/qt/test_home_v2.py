@@ -595,11 +595,12 @@ def test_the_replication_screen_opens(qtbot, qt_theme_applied,
 def test_the_categories_are_the_ones_that_were_asked_for():
     """The section vocabulary, recorded so a rename is deliberate.
 
-    Six names and seven tabs counting Home. Explore is the sixth: it was
+    Seven declared names; only non-empty sections receive tabs. Explore was
     declared in ``SECTION_ORDER`` and empty — no tab, nothing drawn —
     until Layer Viewer and Graph Builder registered into it from their
-    own modules, which is exactly what a declared-and-empty section is
-    for. Design is still declared and still empty.
+    own modules, which is exactly what a declared-and-empty section is for.
+    Segmentation-model tools are now reached from Make Masks, leaving that
+    declared section empty and therefore absent from the live tab list.
 
     It briefly asserted seven and eight. #16i added "Alpha modules" and
     "Beta modules" as CATEGORIES, which took every app out of Data,
@@ -619,12 +620,12 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     # Motility assay moved into it from Core.
     assert app_mod.SECTION_ASSAYS == "Assays"
     assert app_mod.SECTION_DESIGN == "Design"
-    assert app_mod.SECTIONS == (
+    assert app_mod.SECTION_ORDER == (
         "Core", "Data", "Segmentation models", "Results & QC", "Explore",
         "Assays", "Design")
-    # Design draws a tab now: Power / Design claimed it, which is the last
-    # of the seven declared sections to be claimed. It was the example of
-    # a declared-but-empty section for as long as it was empty.
+    assert app_mod.SECTIONS == (
+        "Core", "Data", "Results & QC", "Explore", "Assays", "Design")
+    assert app_mod.SECTION_MODELS not in app_mod.SECTIONS
     assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
     # The staging categories are gone as *places*. Named here so that
     # re-adding one has to argue with this line first.
@@ -632,7 +633,8 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert not hasattr(app_mod, "SECTION_BETA")
     assert not hasattr(app_mod, "MATURITY_SECTIONS")
     assert not hasattr(app_mod, "STAGED_FROM")
-    assert len(app_mod.SECTIONS) == 7
+    assert len(app_mod.SECTION_ORDER) == 7
+    assert len(app_mod.SECTIONS) == 6
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
@@ -672,14 +674,12 @@ def test_home_is_the_first_tab_and_holds_everything(home):
 def test_the_category_tabs_follow_the_workflow_order(home):
     """One tab per live section, and each label counts its own tab.
 
-    Seven now that Design has an app in it; it was six when Explore
-    filled, five before that, and seven for a different reason while
-    Alpha and Beta had tabs of their own — every section declared has
-    now been claimed. ``section_members`` is what the tab draws, so it
-    is what the label has to count.
+    Six live sections now that Design has an app and segmentation-model
+    workflows have folded into Make Masks. ``section_members`` is what the
+    tab draws, so it is what the label has to count.
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 7
+    assert len(labels) == len(SECTIONS) == 6
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -796,13 +796,14 @@ ALPHA_MODULES = {
     # And the three that landed just after the seam that would have made
     # them reachable, and waited the same way for the same reason.
     "power", "run_compare",
-    # The four built on the provenance and run-record work: the DAG of
-    # what produced what, the ranked hit list, the profiler that sweeps a
-    # fitted model, and the methods-and-results exporter. Same posture as
-    # the rest — built, tested and reachable, not yet trusted end to end.
+    # Four were built on the provenance and run-record work: the DAG of what
+    # produced what, the ranked hit list, the profiler that sweeps a fitted
+    # model, and the methods-and-results exporter. The hit list and exporter
+    # have since been signed off (stable is the absence of an APP_STAGE row),
+    # leaving the DAG and profiler alpha.
     # Image Scatter was the fifth and is folded onto Image UMAP now; a
     # stage is a property of a tile, so it left this list with its row.
-    "pipeline_graph", "hit_list", "profiler", "methods_export",
+    "pipeline_graph", "profiler",
     # And the two that read the links the database has always held rather
     # than adding anything to it: the cell → nucleus → pathogen tree, and
     # correcting a mask and its tracks by hand with every edit journalled.
@@ -1455,7 +1456,7 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     a menu item whose purpose is not obvious from its name costs attention
     every time it is read, and this one named an edge drawer most users
     never knew existed. The ACTION stayed, registered on the window, and
-    Ctrl+B with it, because a panel you can otherwise summon only by
+    Ctrl+Shift+A with it, because a panel you can otherwise summon only by
     hovering a 6 px strip is a panel a keyboard user does not have. So the
     keyboard route is asserted where it now lives, and the menu is
     asserted NOT to carry it — the mistake the change invites is deleting
@@ -1487,8 +1488,8 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     drawer_action = next(
         (a for a in window.actions() if a.text() == "All apps"), None)
     assert drawer_action is not None, (
-        "the drawer QAction is gone from the window, and Ctrl+B with it")
-    assert drawer_action.shortcut().toString() == "Ctrl+B"
+        "the drawer QAction is gone from the window, and Ctrl+Shift+A with it")
+    assert drawer_action.shortcut().toString() == "Ctrl+Shift+A"
 
 
 def test_the_sidebar_draws_an_ampersand_instead_of_a_mnemonic(window):

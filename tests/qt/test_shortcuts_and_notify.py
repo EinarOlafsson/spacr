@@ -21,7 +21,7 @@ def test_shortcuts_install_adds_qshortcuts(qtbot, qt_theme_applied):
     scs = win.findChildren(QShortcut)
     # At least Ctrl+H + Ctrl+1..9 + Ctrl+K + Ctrl+, + Ctrl+/ + F1 + ?
     #
-    # `installed()`, NOT `SHORTCUTS`: `Ctrl+B` and `F11` are window-wide but
+    # `installed()`, NOT `SHORTCUTS`: backdrop, drawer and full-screen keys
     # are bound on window actions, so they are on the map and are not
     # install()'s to create.
     assert len(scs) >= len(shortcuts.installed())

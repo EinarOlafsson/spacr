@@ -1591,7 +1591,7 @@ class HomePage(QWidget):
 
         # No "All apps" button: the first tab IS all apps. The edge
         # drawer still exists for the screens that are not Home, and is
-        # reachable there from the spaCR menu or Ctrl+B.
+        # reachable there from the spaCR menu or Ctrl+Shift+A.
         return hero
 
     def _build_tabs(self) -> QWidget:

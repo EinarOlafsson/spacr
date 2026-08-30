@@ -696,7 +696,7 @@ class TestDockModes:
         assert not win._app_drawer.is_open()
         win.toggle_app_drawer()
         assert not win._app_drawer.is_open(), (
-            "Ctrl+B opened a dock the user asked not to have")
+            "Ctrl+Shift+A opened a dock the user asked not to have")
         assert not win._act_all_apps.isEnabled()
         assert "Preferences" in win._act_all_apps.toolTip()
 

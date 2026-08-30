@@ -82,9 +82,9 @@ def test_install_binds_every_key_that_is_not_bound_elsewhere(window):
         if spec.scope != sc.EVERYWHERE:
             continue
         assert sc.native(spec.keys) in bound, spec.keys
-    # Window actions own these two rather than ``install()``.
-    assert sc.native("Ctrl+B") not in bound
-    assert sc.native("F11") not in bound
+    # Window actions own these rather than ``install()``.
+    for keys in sc.BOUND_ELSEWHERE:
+        assert sc.native(keys) not in bound
 
 
 # --------------------------------------------------------------------------
@@ -604,11 +604,11 @@ def test_the_card_never_grows_wider_than_the_window_it_covers(window):
 def test_a_narrow_window_wraps_the_categories_instead_of_widening(window):
     window.resize(700, 600)
     narrow = sc.show_cheat_sheet(window)
-    narrow_rows = narrow._card.layout().rowCount()
+    narrow_rows = narrow._card_content.layout().rowCount()
     narrow.dismiss()
     window.resize(1900, 900)
     wide = sc.show_cheat_sheet(window)
-    assert narrow_rows > wide._card.layout().rowCount()
+    assert narrow_rows > wide._card_content.layout().rowCount()
     wide.dismiss()
 
 

@@ -324,7 +324,7 @@ class _EdgeTrigger(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip("All apps — hover to reveal (Ctrl+B)")
+        self.setToolTip("All apps — hover to reveal (Ctrl+Shift+A)")
         self.setGeometry(0, 0, EdgeDrawer.TRIGGER_W, host.height())
 
     def enterEvent(self, event):
