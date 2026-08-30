@@ -21,7 +21,11 @@ MASK_DIM_KEYS = tuple(f"{role}_mask_dim" for role in schema.SEGMENTED_ROLES)
 
 
 def mask_planes(data: np.ndarray, settings: Mapping[str, Any]) -> set[int]:
-    """Return last-axis planes that contain labels rather than intensities."""
+    """Return last-axis planes that contain labels rather than intensities.
+
+    :param data: merged field array whose last axis contains image planes.
+    :param settings: resolved mask-dimension settings for segmented roles.
+    """
     n_planes = int(data.shape[-1])
     found: set[int] = set()
     for key in MASK_DIM_KEYS:
@@ -39,7 +43,12 @@ def mask_planes(data: np.ndarray, settings: Mapping[str, Any]) -> set[int]:
 
 def signal_max(data: np.ndarray,
                settings: Mapping[str, Any]) -> Tuple[float, bool]:
-    """Return the largest finite intensity and whether an intensity plane exists."""
+    """Return the largest finite intensity and whether one exists.
+
+    :param data: merged field array whose last axis contains image planes.
+    :param settings: resolved mask-dimension settings used to exclude label
+        planes from the intensity scan.
+    """
     planes = [index for index in range(int(data.shape[-1]))
               if index not in mask_planes(data, settings)]
     if not planes:
@@ -70,6 +79,10 @@ def _kind(dtype: np.dtype, top: float, has_intensity: bool) -> str:
 def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
                      settings: Mapping[str, Any]) -> Dict[str, Any]:
     """Inspect all fields and return a JSON/pickle-safe plate scaling plan.
+
+    :param src: directory containing the merged array files.
+    :param filenames: merged-array filenames to inspect as one plate set.
+    :param settings: resolved parsing and mask-plane settings.
 
     Raw-valued fields on a plate share ``65535 / plate_max`` when any one of
     them exceeds the uint16 ceiling.  Normalised floating-point fields retain
@@ -136,7 +149,12 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
 
 def fallback_record(data: np.ndarray, filename: str,
                     settings: Mapping[str, Any]) -> Dict[str, Any]:
-    """Return the explicitly non-comparable per-field fallback decision."""
+    """Return the explicitly non-comparable per-field fallback decision.
+
+    :param data: loaded merged field array to characterize.
+    :param filename: field filename used to recover the plate identifier.
+    :param settings: resolved parsing and mask-plane settings.
+    """
     top, has_intensity = signal_max(data, settings)
     kind = _kind(data.dtype, top, has_intensity)
     if kind == "fixed_normalized":
@@ -169,7 +187,12 @@ def fallback_record(data: np.ndarray, filename: str,
 
 def resolve_record(data: np.ndarray, filename: str,
                    settings: Mapping[str, Any]) -> Dict[str, Any]:
-    """Resolve and verify one worker's record against the precomputed plan."""
+    """Resolve and verify one worker's record against the precomputed plan.
+
+    :param data: loaded merged field array handled by the worker.
+    :param filename: field filename used to locate its planned record.
+    :param settings: resolved settings containing the optional plate plan.
+    """
     plan = settings.get(PLAN_SETTINGS_KEY)
     if not isinstance(plan, dict) or filename in plan.get("failures", {}):
         return fallback_record(data, filename, settings)
@@ -205,6 +228,9 @@ def resolve_record(data: np.ndarray, filename: str,
 
 
 def needs_warning(factor: float) -> bool:
-    """Whether a conversion factor is neither identity nor fixed [0, 1]."""
+    """Whether a conversion factor is neither identity nor fixed [0, 1].
+
+    :param factor: multiplicative intensity conversion factor to classify.
+    """
     return not (np.isclose(float(factor), 1.0)
                 or np.isclose(float(factor), UINT16_MAX))

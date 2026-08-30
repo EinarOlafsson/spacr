@@ -87,7 +87,11 @@ _UNPREFIXED: Tuple[str, ...] = IDENTITY + (
 
 @dataclass(frozen=True)
 class PlateDatabase:
-    """One plate row of the input table and the database attached to it."""
+    """One plate row of the input table and the database attached to it.
+
+    :ivar plate: input-table plate label used in user-facing diagnostics.
+    :ivar path: filesystem path to the plate's measurements database.
+    """
 
     plate: str
     path: str
@@ -111,6 +115,19 @@ class TableMerge:
     record a panel reads to answer "what happened to my numbers": which
     aggregation each column got, whether the table was rolled up or joined
     directly, and which join type its cardinality earned it.
+
+    :ivar table: source object-table name.
+    :ivar plan: multi-database read plan used for this table.
+    :ivar rows: number of source rows read before joining or roll-up.
+    :ivar keys: columns used to join or group the table.
+    :ivar how: join mode selected from the table cardinality.
+    :ivar rolled_up: whether child rows were aggregated onto the anchor.
+    :ivar aggregations: aggregation chosen for each source measurement.
+    :ivar default_columns: source columns that matched no named aggregation
+        rule.
+    :ivar dropped: columns absent from at least one source database and
+        omitted by a common-column merge.
+    :ivar note: explanation when this table contributed no rows.
     """
 
     table: str
@@ -138,6 +155,9 @@ class TableMerge:
     def merged_column(self, column: str) -> str:
         """The name ``column`` carries in the merged frame.
 
+        :param column: source-table column name to express in merged-frame
+            form.
+
         The same rule :func:`spacr.merge_tables.roll_up` applies: a join key
         keeps its name, a column that already starts with the table's name is
         left alone -- ``nucleus_area`` must not become ``nucleus_nucleus_area``
@@ -155,7 +175,13 @@ class TableMerge:
 
 @dataclass(frozen=True)
 class PlateMerge:
-    """The merged frame, and everything the Measurements tab has to say about it."""
+    """The merged frame and the Measurements tab's audit information.
+
+    :ivar frame: final anchor-level measurements frame.
+    :ivar anchor: object table whose rows define the output cardinality.
+    :ivar attachments: plate/database rows included in the merge.
+    :ivar tables: per-table read, join, roll-up, and aggregation records.
+    """
 
     frame: pd.DataFrame
     anchor: str
@@ -322,6 +348,9 @@ def plate_databases(attachments: Any) -> Tuple[PlateDatabase, ...]:
 def unattached_plates(attachments: Any) -> Tuple[str, ...]:
     """The plates with no database, which is legal and must be said out loud.
 
+    :param attachments: input-table attachment rows in any shape accepted by
+        :func:`plate_databases`.
+
     The regression runs on scores and counts; the database is what makes the
     Measurements tab possible for that plate. Its absence disables that plate
     there rather than failing the run -- so the plate is listed, and the
@@ -331,12 +360,19 @@ def unattached_plates(attachments: Any) -> Tuple[str, ...]:
 
 
 def missing_databases(attachments: Any) -> Tuple[PlateDatabase, ...]:
-    """Attached databases that are not on disk, named BEFORE the run starts."""
+    """Attached databases that are not on disk, named before the run starts.
+
+    :param attachments: input-table attachment rows in any shape accepted by
+        :func:`plate_databases`.
+    """
     return tuple(row for row in plate_databases(attachments) if not row.exists)
 
 
 def available_tables(attachments: Any) -> Tuple[str, ...]:
     """The object tables present in EVERY attached database.
+
+    :param attachments: input-table attachment rows whose existing databases
+        define the table intersection.
 
     The intersection, not the union, and this is not a nicety:
     :func:`spacr.multi_database.describe_merge` raises a bare
@@ -531,6 +567,11 @@ def ambiguous_identifiers(child: pd.DataFrame, keys: Sequence[str], *,
 def describe_identifier_refusal(table: str, column: str,
                                 detail: Mapping[str, Any]) -> str:
     """One line saying why ``column`` was left out, with an example.
+
+    :param table: child table whose identifier could not be carried safely.
+    :param column: varying text-identifier column that was omitted.
+    :param detail: ambiguity record from :func:`ambiguous_identifiers`,
+        including the affected group count and optional examples.
 
     Written here rather than in the panel so the headless merge and the Qt one
     say the same sentence.
