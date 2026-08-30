@@ -124,6 +124,12 @@ def test_a_qapplication_that_will_not_start_is_reported(monkeypatch):
     real_import = builtins.__import__
 
     def patched(name, globals=None, locals=None, fromlist=(), level=0):
+        # The function only verifies that pyqtgraph can be imported here; a
+        # sentinel keeps this test on the QApplication branch without making
+        # pyqtgraph's own Qt-binding import depend on our deliberately tiny
+        # QtWidgets shim.
+        if name == "pyqtgraph":
+            return types.ModuleType("pyqtgraph")
         if name == "PySide6.QtWidgets" or (
                 name == "PySide6" and "QtWidgets" in (fromlist or ())):
             module = types.ModuleType("PySide6.QtWidgets")
