@@ -216,6 +216,8 @@ DEFAULT_SCAN_DEPTH = 6
 def metric_direction(name: Any) -> Optional[str]:
     """Return ``'max'``, ``'min'`` or ``None`` for a metric column name.
 
+    :param name: metric column name whose optimisation direction is requested.
+
     ``None`` means "no meaningful best" — ``optimal_threshold`` and
     ``train_time`` are recorded per epoch but neither has a direction, and
     calling the largest one "best" would be a fabrication.
@@ -313,9 +315,14 @@ class TrainingRun:
 class Series:
     """One line on the plot: a run, a split and (for k-fold) a fold.
 
+    :ivar run_id: identifier of the training run that produced this line.
+    :ivar split: logged data split, such as ``'train'`` or ``'val'``.
+    :ivar fold: fold name, empty for a single split and ``'mean'`` for a fold
+        mean.
     :ivar kind: ``'single'`` (one train/val split), ``'fold'`` (one fold of a
         k-fold run) or ``'mean'`` (the fold mean, with ``__sd`` columns and an
         ``n_folds`` column recording how many folds reached each epoch).
+    :ivar label: complete legend label for this plotted line.
     :ivar frame: ``epoch`` plus the numeric metric columns, in epoch order and
         **at this series' own length** — never resampled onto a shared axis.
     """
@@ -336,20 +343,29 @@ class Series:
         return int(len(self.frame))
 
     def values(self, metric: str) -> np.ndarray:
-        """This series' values for ``metric`` (empty array when absent)."""
+        """This series' values for ``metric`` (empty array when absent).
+
+        :param metric: metric column whose numeric values are requested.
+        """
         if metric not in self.frame.columns:
             return np.array([], dtype=float)
         return pd.to_numeric(self.frame[metric], errors="coerce").to_numpy()
 
     def sd(self, metric: str) -> Optional[np.ndarray]:
-        """Fold-to-fold sd for a ``'mean'`` series, else ``None``."""
+        """Fold-to-fold sd for a ``'mean'`` series, else ``None``.
+
+        :param metric: base metric whose ``__sd`` column is requested.
+        """
         col = f"{metric}__sd"
         if col not in self.frame.columns:
             return None
         return pd.to_numeric(self.frame[col], errors="coerce").to_numpy()
 
     def has(self, metric: str) -> bool:
-        """True when this series has at least one finite value for ``metric``."""
+        """True when this series has at least one finite value for ``metric``.
+
+        :param metric: metric column to check for finite observations.
+        """
         vals = self.values(metric)
         return bool(vals.size) and bool(np.isfinite(vals).any())
 
@@ -384,6 +400,8 @@ class Series:
     def best(self, metric: str) -> Optional[Dict[str, Any]]:
         """``{'epoch', 'value', 'direction'}`` for the best epoch, or ``None``.
 
+        :param metric: metric whose direction-aware optimum is requested.
+
         ``None`` when the metric is absent, entirely NaN, or has no meaningful
         direction (see :func:`metric_direction`).
         """
@@ -397,7 +415,10 @@ class Series:
                 "direction": direction}
 
     def last(self, metric: str) -> Optional[Dict[str, Any]]:
-        """``{'epoch', 'value'}`` for the last epoch with a finite value."""
+        """``{'epoch', 'value'}`` for the last epoch with a finite value.
+
+        :param metric: metric whose last finite observation is requested.
+        """
         if not self.has(metric):
             return None
         vals = self.values(metric)
@@ -411,6 +432,7 @@ class Series:
 class Comparison:
     """The result of :func:`compare_runs` — series to plot plus the diff.
 
+    :ivar runs: source training runs, in comparison order.
     :ivar series: every line that will be drawn, in run order.
     :ivar settings_diff: the bucketed diff (see :func:`diff_settings`).
     :ivar metrics: metric columns available on at least one series, sorted with
@@ -431,14 +453,20 @@ class Comparison:
         return [s.label for s in self.series]
 
     def series_for(self, label: str) -> Optional[Series]:
-        """The series with this label, or ``None``."""
+        """The series with this label, or ``None``.
+
+        :param label: exact legend label to look up.
+        """
         for s in self.series:
             if s.label == label:
                 return s
         return None
 
     def series_with(self, metric: str) -> List[Series]:
-        """Series that actually have finite values for ``metric``."""
+        """Series that actually have finite values for ``metric``.
+
+        :param metric: metric each returned series must contain.
+        """
         return [s for s in self.series if s.has(metric)]
 
     def epoch_ranges(self) -> Dict[str, Tuple[int, int]]:
@@ -1057,6 +1085,8 @@ def available_metrics(runs: Sequence[TrainingRun],
                       folds: str = "per_fold") -> List[str]:
     """Metric columns these runs logged, common ones first.
 
+    :param runs: training runs whose plottable metrics are requested.
+
     Lets a caller populate a metric picker before anything is compared.
     """
     series = [s for r in runs for s in _series_from_run(r, folds)]
@@ -1065,6 +1095,8 @@ def available_metrics(runs: Sequence[TrainingRun],
 
 def render_setting_value(value: Any, width: int = 40) -> str:
     """One-line, length-capped rendering of a settings value.
+
+    :param value: settings value to render.
 
     Thin public wrapper over :func:`spacr.run_journal._render_value` so the GUI
     renders settings exactly the way the console report does.
@@ -1095,6 +1127,8 @@ def _ordered_metrics(series: Sequence[Series]) -> List[str]:
 def is_env_key(key: Any, env_keys: Sequence[str] = ()) -> bool:
     """True when a settings key records the machine, not a modelling decision.
 
+    :param key: settings key to classify.
+
     Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not.
     ``src`` deliberately does **not** match — a run on a different dataset is a
     real difference and belongs in ``changed``, even though it is a path.
@@ -1108,6 +1142,8 @@ def is_env_key(key: Any, env_keys: Sequence[str] = ()) -> bool:
 def diff_settings(runs: Sequence[TrainingRun],
                   env_keys: Sequence[str] = ()) -> Dict[str, Any]:
     """Bucket the settings differences across N runs.
+
+    :param runs: training runs whose settings are compared.
 
     Generalises :func:`spacr.run_journal.diff_runs` from two runs to many and
     reuses its comparison (:func:`spacr.run_journal.values_equal`) and its
@@ -1398,6 +1434,8 @@ def _table(rows: Sequence[Sequence[str]], indent: str = "  ") -> List[str]:
 def format_comparison(comparison: Comparison, metric: str = "accuracy",
                       max_drift_names: int = 6) -> str:
     """Render a :class:`Comparison` as a console report.
+
+    :param comparison: completed run comparison to render.
 
     Ordering mirrors :func:`spacr.run_journal.format_run_diff`: the runs, then
     the curves, then the settings that changed (the signal), then environment
