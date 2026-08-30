@@ -75,7 +75,10 @@ def _tokens(name: str) -> Tuple[str, ...]:
 
 
 def is_measurement(name: str) -> bool:
-    """Whether ``name`` measures the object rather than naming it."""
+    """Whether ``name`` measures the object rather than naming it.
+
+    :param name: candidate column name to classify.
+    """
     parts = _tokens(name)
     if not parts:
         return False
@@ -84,6 +87,8 @@ def is_measurement(name: str) -> bool:
 
 def measurement_columns(frame: pd.DataFrame) -> List[str]:
     """Every numeric column of ``frame`` that is a measurement.
+
+    :param frame: object-measurement table whose numeric columns are screened.
 
     A COLUMN THAT DUPLICATES AN IDENTIFIER IS ALSO OUT, whatever it is called.
     `pathogen_pathogen` passes the name test and is the object label to four
@@ -116,7 +121,13 @@ def measurement_columns(frame: pd.DataFrame) -> List[str]:
 
 @dataclass(frozen=True)
 class SweepResult:
-    """The grid, and the tidy table a reader actually looks at."""
+    """The grid, and the tidy table a reader actually looks at.
+
+    :ivar table: tidy multiple-testing result table for the sweep grid.
+    :ivar effects: per-measurement effect estimates underlying the table.
+    :ivar n_wells: number of independent wells included in the fit.
+    :ivar n_blocks: number of experimental blocks included in the design.
+    """
 
     table: pd.DataFrame
     effects: pd.DataFrame

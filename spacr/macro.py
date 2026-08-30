@@ -195,6 +195,8 @@ def macros_dir() -> str:
 def macro_path(run_dir: Any) -> str:
     """Return the macro script path inside a run journal folder.
 
+    :param run_dir: run journal directory that will contain the script.
+
     Deliberately beside ``manifest.json`` and ``settings.json``: the
     journal folder is already what ``spacr-repro`` and
     :func:`spacr.notebook_export.export_run` are pointed at, so the script
@@ -547,6 +549,8 @@ class Macro:
     def write(self, path: Any) -> str:
         """Write the script to ``path`` and return the path.
 
+        :param path: destination Python-script path.
+
         Written to a neighbouring temporary file and renamed, so a reader
         that opens it while a later step is being appended never sees half
         a script.
@@ -657,7 +661,11 @@ class _RunIdCapture(logging.Handler):
 
 @dataclass
 class Recording:
-    """One run being recorded. Created by :func:`begin_recording`."""
+    """One run being recorded. Created by :func:`begin_recording`.
+
+    :ivar module: application key of the pipeline being recorded.
+    :ivar settings: copied launch settings captured before pipeline mutation.
+    """
 
     module: str
     settings: Dict[str, Any]
@@ -1378,6 +1386,8 @@ def _is_path_join(node: ast.AST) -> bool:
 def summarise(record: Mapping[str, Any]) -> str:
     """Return a one-block human summary of a record from :func:`read_macro`.
 
+    :param record: decoded macro metadata record to summarize.
+
     What a methods section starts from: the version, the chain, and per
     step the entry point, the run id and how many settings were the user's
     rather than defaults.
@@ -1408,6 +1418,8 @@ def summarise(record: Mapping[str, Any]) -> str:
 
 def to_json(record: Mapping[str, Any], **kwargs: Any) -> str:
     """Return a record from :func:`read_macro` as JSON.
+
+    :param record: decoded macro metadata record to serialize.
 
     For a consumer that would rather have JSON than a Python dict — the
     methods exporter prompt, a web view, a diff. ``default=str`` so a value

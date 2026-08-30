@@ -108,7 +108,10 @@ def _read_fractions(path: str) -> pd.DataFrame:
 
 
 def control_fitted_embedding(result: HitAttributionResult) -> pd.DataFrame:
-    """Fit PCA on target-free morphology and transform all cells."""
+    """Fit PCA on target-free morphology and transform all cells.
+
+    :param result: completed attribution result carrying cells and features.
+    """
     from sklearn.decomposition import PCA
     from sklearn.impute import SimpleImputer
     from sklearn.preprocessing import StandardScaler
@@ -172,7 +175,10 @@ def _review_gallery_selection(result: HitAttributionResult,
 
 def review_gallery_manifest(result: HitAttributionResult,
                             per_stratum: int = 24) -> pd.DataFrame:
-    """Return a shuffled reviewer sheet that does not disclose group or score."""
+    """Return a shuffled reviewer sheet that does not disclose group or score.
+
+    :param result: completed attribution result from which candidates are drawn.
+    """
     selection = _review_gallery_selection(result, per_stratum)
     if selection.empty:
         return selection
@@ -185,13 +191,20 @@ def review_gallery_manifest(result: HitAttributionResult,
 
 def review_gallery_key(result: HitAttributionResult,
                        per_stratum: int = 24) -> pd.DataFrame:
-    """Return the analyst-only key for a blinded gallery manifest."""
+    """Return the analyst-only key for a blinded gallery manifest.
+
+    :param result: completed attribution result from which candidates are drawn.
+    """
     return _review_gallery_selection(result, per_stratum)
 
 
 def evaluate_blinded_reviews(reviews: pd.DataFrame,
                              key: pd.DataFrame) -> Dict[str, Any]:
-    """Compare one or more blinded binary reviewers with held-back scores."""
+    """Compare one or more blinded binary reviewers with held-back scores.
+
+    :param reviews: blinded reviewer rows carrying binary labels.
+    :param key: analyst-only mapping from review IDs to model probabilities.
+    """
     required_review = {"review_id", "reviewer_id", "reviewer_label"}
     required_key = {"review_id", "hit_like_probability"}
     if not required_review.issubset(reviews):
@@ -274,7 +287,10 @@ def hit_investigation_default_settings(settings=None) -> Dict[str, Any]:
 
 
 def investigate_hit(settings: Mapping[str, Any]) -> Dict[str, Any]:
-    """Run one exact regression hit through the cell-attribution workflow."""
+    """Run one exact regression hit through the cell-attribution workflow.
+
+    :param settings: hit-investigation inputs and inference settings.
+    """
     configured = hit_investigation_default_settings(settings)
     for key in ("db_path", "predictions_file", "guide_fractions_file"):
         path = os.path.abspath(os.path.expanduser(str(configured[key])))

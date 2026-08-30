@@ -80,6 +80,10 @@ def _soft_threshold_block(vector: np.ndarray, amount: float) -> np.ndarray:
 def max_lambda(X, y, labels) -> float:
     """The smallest penalty that zeroes every group.
 
+    :param X: design matrix with one column per guide.
+    :param y: response vector with one value per design row.
+    :param labels: gene label for each design column.
+
     Useful as the top of a path: any larger value gives the same all-zero fit,
     and starting a path above it wastes every iteration spent there.
     """
@@ -302,6 +306,10 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
 
 def gene_effects(X, y, labels, **kwargs):
     """One number per gene: the L2 norm of its guide block.
+
+    :param X: design matrix with one column per guide.
+    :param y: response vector with one value per design row.
+    :param labels: gene label for each design column.
 
     The block is zero or it is not, so the norm is the natural per-gene effect
     size -- and unlike a coefficient it is never negative, which is honest:
