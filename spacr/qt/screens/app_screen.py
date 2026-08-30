@@ -56,6 +56,8 @@ from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
     category_tooltip,
+    object_of_setting,
+    object_switch_keys,
     section_tooltip,
 )
 
@@ -1123,6 +1125,11 @@ class AppScreen(QWidget):
         self._settings_panel = self._build_settings_panel()
         body.addWidget(self._settings_panel)
         self.the_name_carries_the_help()
+        # Record the shape of an ordinary first-open screen too. Rebuilt
+        # screens already get this stamp in ``MainWindow.rebuild_app_screen``;
+        # without the matching first-open stamp, merely leaving an unchanged
+        # watched field rebuilt the whole page once and stole focus.
+        self._form_shape_on_screen = self._form_shape()
         self._watch_the_settings_that_decide_the_form()
         # Runtime panel (right)
         body.addWidget(self._build_runtime_panel())
@@ -1885,6 +1892,16 @@ class AppScreen(QWidget):
             layout.addWidget(self._empty_state_card)
 
         self._settings_sections = []
+        # Sections pruned from the rendered tree can still own form rows that
+        # collect, search and a later object-visibility pass must reach. They
+        # therefore stay in the complete section registry, but live under an
+        # explicitly hidden, screen-owned host: unlike ``setParent(None)``,
+        # that cannot turn their headers into stray top-level windows.
+        self._discarded_settings_host = QWidget(content)
+        self._discarded_settings_host.setObjectName(
+            "DiscardedSettingsSections")
+        self._discarded_settings_host.hide()
+        self._discarded_settings_sections = []
         # Heading text -> the blurb its PATH resolved to, so the strip under
         # the actions row can answer for a sub-heading whose bare word means
         # something else somewhere else in the tool.
@@ -1896,12 +1913,11 @@ class AppScreen(QWidget):
         # headers taller than the panel, and the expanded one paints a slab
         # of `surface_alt` that reads as black.
         #
-        # THE SECTIONS THEMSELVES ARE UNCHANGED. Each still knows its own
-        # maturity, hint and rows, and `_settings_sections` still holds every
-        # one -- so applicability greying, tooltip retargeting and everything
-        # else that walks that list works the same. Only where they are
-        # MOUNTED changes. (The list is deepest-first rather than in drawing
-        # order; `_build_settings_section` says why.)
+        # THE RENDERED SECTIONS THEMSELVES ARE UNCHANGED. Each still knows
+        # its own maturity, hint and rows. ``_settings_sections`` is the
+        # complete form/search registry; ``rendered_settings_sections`` is
+        # the subset mounted in this layout. (Both retain the deepest-first
+        # order `_build_settings_section` explains.)
         self._settings_tabs = None
         if str(self.app_key) in self.SETTINGS_AS_TABS and len(sections) > 2:
             self._settings_tabs = QTabWidget()
@@ -1919,8 +1935,9 @@ class AppScreen(QWidget):
         # Map widget → plain-text hint so the bottom hint strip AND our
         # sticky HoverTooltip can look up the description for the object
         # under the cursor. Initialized in __init__.
-        for spec in sections:
+        for section_order, spec in enumerate(sections):
             section = self._build_settings_section(spec)
+            section._settings_top_level_order = section_order
             # A CATEGORY WITH NOTHING IN IT IS NOT SHOWN. Asked for
             # 2026-08-28: "this will help not overwhelm the user."
             #
@@ -1936,7 +1953,7 @@ class AppScreen(QWidget):
             # count, by the maturity filter, or by a rule added later is the
             # same empty heading.
             if not self._section_holds_anything(section):
-                section.setParent(None)
+                self._discard_settings_section(section)
                 continue
             if self._settings_tabs is not None:
                 page = QWidget()
@@ -2028,14 +2045,120 @@ class AppScreen(QWidget):
         """
         from ..widgets.section import Section
 
-        rows = getattr(section, "_row_widgets", None) or ()
-        if any(widget is not None for _label, widget in rows):
+        def already_built_rows(owner):
+            """Iterate registered rows without forcing deferred captions."""
+            rows = getattr(owner, "_row_widgets", None)
+            if rows is None:
+                return iter(())
+            if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+                # ``bool``, ``len`` and normal iteration are the public
+                # completeness seam of this list and deliberately build all
+                # waiting rows. Empty-section pruning only needs to inspect
+                # rows that are already laid out; materialising hidden object
+                # rows here defeats the caption-saving optimisation it is
+                # meant to preserve.
+                return list.__iter__(rows)
+            return iter(rows)
+
+        def holds_an_active_slot(owner) -> bool:
+            """Whether deferred rows belong to a count-requested organelle."""
+            from ...organelle_types import organelle_role_of
+
+            # The organelle COUNT settles the form's shape before a channel
+            # is chosen. Its requested slots therefore own their categories
+            # already, even though channel-gated detail rows still wait for a
+            # caption. Counting the declarations keeps that category in the
+            # tree without iterating the lazy row list; nucleus/pathogen rows
+            # do not match this role vocabulary and remain prunable while
+            # their switches are empty.
+            return any(
+                key is not None and organelle_role_of(key) is not None
+                for key, _label, _widget in
+                (getattr(owner, "_spacr_declared_rows", None) or ())
+            )
+
+        if any(widget is not None for _label, widget
+               in already_built_rows(section)):
+            return True
+        if holds_an_active_slot(section):
             return True
         for child in section.findChildren(Section):
-            child_rows = getattr(child, "_row_widgets", None) or ()
-            if any(widget is not None for _label, widget in child_rows):
+            if any(widget is not None for _label, widget
+                   in already_built_rows(child)):
+                return True
+            if holds_an_active_slot(child):
                 return True
         return False
+
+    def rendered_settings_sections(self) -> tuple:
+        """The section widgets actually mounted in the settings panel.
+
+        ``_settings_sections`` deliberately also contains dormant forms for
+        object-gated settings. Visual consumers -- maturity and category
+        hints in particular -- must use this subset instead.
+        """
+        return tuple(
+            section for section in getattr(self, "_settings_sections", ())
+            if not section.property("settingsSectionDiscarded")
+        )
+
+    def _discard_settings_section(self, section, restore_parent=None) -> None:
+        """Keep a pruned section's form indexed without making its header live.
+
+        Settings controls are also the model's value store, so deleting an
+        empty section would leave ``SettingsWidgets._widgets`` pointing at
+        deleted Qt objects. Search and delayed captions likewise need its
+        form and model row registration. Park the whole tree under a hidden
+        owned widget instead; visual consumers explicitly ignore it.
+        """
+        from ..widgets.section import Section
+
+        section._settings_restore_parent = restore_parent
+        for member in (section, *section.findChildren(Section)):
+            member.setProperty("settingsSectionDiscarded", True)
+            member.hide()
+        if restore_parent is None:
+            section.setParent(self._discarded_settings_host)
+        section.hide()
+        self._discarded_settings_sections.append(section)
+
+    def _restore_settings_section(self, section) -> bool:
+        """Mount a dormant heading whose object-gated rows now apply."""
+        if not section.property("settingsSectionDiscarded"):
+            return False
+
+        parent = getattr(section, "_settings_restore_parent", None)
+        if parent is not None:
+            self._restore_settings_section(parent)
+        else:
+            # Top-level dormant sections are the only ones moved to the host.
+            # Put one back at its declaration-order position amongst the
+            # other top-level cards. The notice stays above every category
+            # and the stretch stays below them, just as on the first build.
+            layout = self._settings_content.layout()
+            section.setParent(self._settings_content)
+            order = getattr(section, "_settings_top_level_order", -1)
+            before = [
+                layout.indexOf(other)
+                for other in self.rendered_settings_sections()
+                if getattr(other, "_settings_restore_parent", None) is None
+                and getattr(other, "_settings_top_level_order", -1) > order
+                and layout.indexOf(other) >= 0
+            ]
+            if before:
+                at = min(before)
+            else:
+                at = layout.count()
+                if at and layout.itemAt(at - 1).spacerItem() is not None:
+                    at -= 1
+            layout.insertWidget(at, section)
+
+        section.setProperty("settingsSectionDiscarded", False)
+        self._discarded_settings_sections[:] = [
+            dormant for dormant in self._discarded_settings_sections
+            if dormant is not section
+        ]
+        return True
 
     #: What the screen ABOUT TO BE BUILT should be shaped for.
     #:
@@ -2051,10 +2174,33 @@ class AppScreen(QWidget):
     #: the module's own defaults as it always did.
     values_the_next_screen_is_built_for = None
 
-    #: Settings whose value decides which OTHER settings exist. Changing one
-    #: rebuilds the form; changing anything else does not.
-    FORM_SHAPING_KEYS = ("number_of_organelles", "nucleus_channel",
-                         "pathogen_channel", "cell_channel")
+    #: Settings whose value decides which OTHER settings exist on every
+    #: applicable panel. Object switches are added from the widgets the panel
+    #: actually owns by :meth:`_form_shaping_keys`: Mask uses ``*_channel``,
+    #: Measure uses ``*_mask_dim``, and each active organelle slot has its own
+    #: switch. Cell is deliberately excluded because its family is never
+    #: gated.
+    FORM_SHAPING_KEYS = ("number_of_organelles",)
+
+    def _form_shaping_keys(self) -> tuple[str, ...]:
+        """Return every committed value that shapes this panel's form.
+
+        The list must follow the live widget inventory rather than a fixed
+        trio of Mask keys. Measure owns mask-plane switches instead of image
+        channels, and organelle switches appear only after the count creates
+        their slots. A missing switch cannot shape this panel; the cell switch
+        never shapes one because cell settings always remain available.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = [key for key in self.FORM_SHAPING_KEYS if key in widgets]
+        for key in widgets:
+            role = object_of_setting(key)
+            if role is None or role == "cell":
+                continue
+            if key in object_switch_keys(role):
+                keys.append(key)
+        return tuple(dict.fromkeys(keys))
 
     def _watch_the_settings_that_decide_the_form(self) -> None:
         """Rebuild the form when a value that shapes it is COMMITTED.
@@ -2074,7 +2220,7 @@ class AppScreen(QWidget):
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
-        for key in self.FORM_SHAPING_KEYS:
+        for key in self._form_shaping_keys():
             widget = getattr(model, "_widgets", {}).get(key)
             if widget is None:
                 continue
@@ -2098,7 +2244,7 @@ class AppScreen(QWidget):
     def _form_shape(self) -> tuple:
         """What the form's shape currently depends on.
 
-        :returns: the committed values of :data:`FORM_SHAPING_KEYS`.
+        :returns: the committed form-shaping key/value pairs.
 
         Compared before rebuilding so a signal that did not actually change
         the shape -- a second commit of the same value, or the two signals a
@@ -2106,8 +2252,18 @@ class AppScreen(QWidget):
         """
         model = getattr(self, "_settings_model", None)
         values = dict((model.collect() if model is not None else {}) or {})
-        return tuple(str(values.get(key, "")).strip()
-                     for key in self.FORM_SHAPING_KEYS)
+        return tuple((key, str(values.get(key, "")).strip())
+                     for key in self._form_shaping_keys())
+
+    def _worker_thread_is_running(self) -> bool:
+        """Whether this screen still owns a live pipeline QThread."""
+        thread = getattr(self, "_thread", None)
+        if thread is None:
+            return False
+        try:
+            return bool(thread.isRunning())
+        except (AttributeError, RuntimeError):
+            return False
 
     def _rebuild_the_form(self, *_args) -> None:
         """Rebuild this screen for the shape the values now describe.
@@ -2125,20 +2281,68 @@ class AppScreen(QWidget):
         WHAT THE USER HAS TYPED SURVIVES. Every current value is collected
         first and applied to the new screen, so a form that gains twenty
         nucleus settings does not lose the twelve already filled in.
+
+        A RUN OWNS THIS SCREEN UNTIL ITS QTHREAD HAS STOPPED. A shaping edit
+        made during a run is remembered and rebuilt afterwards; closing the
+        screen here would request cancellation before ``closeEvent`` could
+        decide to refuse the replacement.
         """
         if getattr(self, "_rebuilding_the_form", False):
             return
+        model = getattr(self, "_settings_model", None)
+        if getattr(model, "_applying_settings", False):
+            return
+        if self._worker_thread_is_running():
+            # Preserve values a bulk import supplied for controls this form
+            # has not built yet, then let later on-screen edits win for every
+            # key the current form does hold.
+            deferred = dict(getattr(self, "_deferred_form_values", None) or {})
+            try:
+                deferred.update(dict((model.collect() if model else {}) or {}))
+            except Exception:                               # noqa: BLE001
+                pass
+            self._deferred_form_values = deferred
+            self._form_rebuild_deferred = True
+            return
+        deferred_values = getattr(self, "_deferred_form_values", None)
+        if deferred_values is not None:
+            # The deferred snapshot may be minutes old. Values supplied for
+            # controls absent from this shape stay in it; every value the live
+            # form can collect is refreshed now so next-run edits made after
+            # the import are never rolled back when the worker finishes.
+            merged = dict(deferred_values)
+            try:
+                merged.update(dict((model.collect() if model else {}) or {}))
+            except Exception:                               # noqa: BLE001
+                pass
+            deferred_values = self._deferred_form_values = merged
         shape = self._form_shape()
-        if shape == getattr(self, "_form_shape_on_screen", None):
+        if (deferred_values is None
+                and shape == getattr(self, "_form_shape_on_screen", None)):
+            self._form_rebuild_deferred = False
             return
         window = self.window()
         rebuild = getattr(window, "rebuild_app_screen", None)
         if not callable(rebuild):
+            self._form_rebuild_deferred = False
             return
         self._rebuilding_the_form = True
         try:
-            keep = dict((self._settings_model.collect() or {}))
+            keep = (dict(deferred_values) if deferred_values is not None
+                    else dict((self._settings_model.collect() or {})))
+            deferred_bulk = getattr(self, "_deferred_bulk_settings", None)
             rebuild(self.app_key, keep)
+            fresh = getattr(window, "_screens", {}).get(self.app_key)
+            if (deferred_bulk is not None and fresh is not None
+                    and fresh is not self):
+                # The target mapping already populated the replacement. What
+                # still needs provenance is a sparse Type preset: only the
+                # originally supplied keys tell us which recommended values
+                # were missing and which advanced values were explicit.
+                fresh._refresh_after_bulk_apply(deferred_bulk)
+            self._deferred_form_values = None
+            self._deferred_bulk_settings = None
+            self._form_rebuild_deferred = False
         except Exception:                                    # noqa: BLE001
             LOG.exception("could not rebuild the settings form")
         finally:
@@ -2277,7 +2481,12 @@ class AppScreen(QWidget):
             # an umbrella over nothing but empty sub-headings is empty by
             # the time the parent asks.
             if not self._section_holds_anything(nested):
-                nested.setParent(None)
+                # Keep the dormant heading in its intended place in the
+                # hierarchy. It remains explicitly hidden, but can be
+                # revealed in place if its object switch changes before the
+                # normal committed-value screen rebuild.
+                section.add_prose(nested)
+                self._discard_settings_section(nested, section)
                 continue
             section.add_prose(nested)
             # A HEADING OPENED FROM OUTSIDE OPENS ITS ANCESTORS. The search
@@ -2364,8 +2573,16 @@ class AppScreen(QWidget):
         back = [key for key in waiting if key not in hidden]
         if not back:
             return
+        owners = {waiting[key] for key in back}
         for key in back:
             self._lay_out_one_waiting_row(key)
+        restored = False
+        for section in owners:
+            restored = self._restore_settings_section(section) or restored
+        if restored:
+            self.refresh_maturity_visibility()
+            if getattr(self, "_category_hint", None) is not None:
+                self._wire_category_hints()
         # NOT the object rule again: this IS the object rule, and it decides
         # every row it has just been handed the moment this returns.
         self._the_rows_moved(judge_them=False)
@@ -2657,6 +2874,11 @@ class AppScreen(QWidget):
             # Tooltips live on the LABEL only — hovering
             # the input field itself is left alone so
             # focus / edit interactions aren't disturbed.
+            # Keep the field's semantic metadata for language refreshes, but
+            # mark it quiet before clearing the native tooltip. Otherwise a
+            # later object-visibility refresh restores the help on hidden
+            # fields after this row has already moved it to the label.
+            field.setProperty("apiTooltipDisplayRole", "metadata")
             field.setToolTip("")
 
             # SettingsWidgets may already have disabled an
@@ -3401,7 +3623,7 @@ class AppScreen(QWidget):
 
         hidden_stages = set()
         gated = self._dimension_hidden_sections()
-        for section in getattr(self, "_settings_sections", []):
+        for section in self.rendered_settings_sections():
             visible = maturity_is_visible(section.maturity())
             section.setVisible(visible and id(section) not in gated)
             if not visible:
@@ -5133,7 +5355,7 @@ class AppScreen(QWidget):
         each installation separately — two installs on one header means one
         hover writing the strip twice.
         """
-        for section in getattr(self, "_settings_sections", []):
+        for section in self.rendered_settings_sections():
             header = section.header()
             if header is None or header.property("categoryHintWired"):
                 continue
@@ -7744,6 +7966,10 @@ class AppScreen(QWidget):
         """
         self._thread = None
         self._worker = None
+        if getattr(self, "_form_rebuild_deferred", False):
+            # Leave the QThread.finished delivery before replacing this
+            # screen. The next event-loop turn is both safe and imperceptible.
+            QTimer.singleShot(0, self._rebuild_the_form)
 
     def _on_stop(self):
         """Stop the run, asking first whether to wait or to kill.
@@ -8228,16 +8454,50 @@ class AppScreen(QWidget):
 
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings
-        widgets this app exposes. Silently skips keys the current app
-        does not have — the same dict can safely be applied across
-        several apps. Returns the count of keys actually applied."""
+        widgets this app exposes.
+
+        A bulk load is one transaction. If it changes the form's shape, the
+        complete merged mapping builds one replacement screen before values
+        are applied; no signal may replace the screen halfway through the
+        loop. Silently skips keys the current app does not have — the same
+        dict can safely be applied across several apps. Returns the count of
+        keys actually applied.
+        """
         settings = _translate_legacy_setting_keys(settings)
         settings = self._migrate_control_wells(settings)
+        model = getattr(self, "_settings_model", None)
+        settings = self._infer_legacy_organelle_count(settings, model)
+        try:
+            current = dict((model.collect() if model is not None else {}) or {})
+        except Exception:                                   # noqa: BLE001
+            current = {}
+        target = dict(current)
+        target.update(settings)
+
+        if self._bulk_apply_changes_form_shape(settings, current):
+            window = self.window()
+            rebuild = getattr(window, "rebuild_app_screen", None)
+            if callable(rebuild):
+                if self._worker_thread_is_running():
+                    # The run keeps its screen. Values that have no widget on
+                    # the old shape wait here and are carried into the one
+                    # replacement made after QThread.finished.
+                    self._deferred_form_values = target
+                    deferred_bulk = dict(getattr(
+                        self, "_deferred_bulk_settings", None) or {})
+                    deferred_bulk.update(settings)
+                    self._deferred_bulk_settings = deferred_bulk
+                    self._form_rebuild_deferred = True
+                else:
+                    rebuild(self.app_key, target)
+                    fresh = getattr(window, "_screens", {}).get(self.app_key)
+                    if fresh is not None and fresh is not self:
+                        return fresh.apply_settings_dict(settings)
+
         applied = 0
         # ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a
         # rule that reads other settings must not act on it. See
         # `_show_the_value_it_will_have`.
-        model = getattr(self, "_settings_model", None)
         if model is not None:
             model._applying_settings = True
         try:
@@ -8245,11 +8505,19 @@ class AppScreen(QWidget):
         finally:
             if model is not None:
                 model._applying_settings = False
-                try:
-                    model._refresh_setting_dependencies()
-                except Exception:                            # noqa: BLE001
-                    LOG.debug("could not refresh dependencies after a bulk "
-                              "apply", exc_info=True)
+        self._refresh_after_bulk_apply(settings)
+        return applied
+
+    def _refresh_after_bulk_apply(self, settings: dict) -> None:
+        """Apply cross-setting rules once, after a complete bulk mapping."""
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            try:
+                model.apply_organelle_presets_from_mapping(settings)
+                model._refresh_setting_dependencies()
+            except Exception:                               # noqa: BLE001
+                LOG.debug("could not refresh dependencies after a bulk "
+                          "apply", exc_info=True)
         self._sync_folded_switches(settings)
         # And the two switches that decide which DIMENSIONS the form is
         # about, for the same reason: a file that asks for a volumetric run
@@ -8259,7 +8527,56 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not sync the dimension switches after a bulk "
                       "apply", exc_info=True)
-        return applied
+
+    @staticmethod
+    def _infer_legacy_organelle_count(settings: dict, model) -> dict:
+        """Add the count implied by slots in a pre-count settings file."""
+        from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
+                                        organelle_role_of)
+
+        defaults = getattr(model, "_defaults", {}) if model is not None else {}
+        if (NUMBER_OF_ORGANELLES not in defaults
+                or NUMBER_OF_ORGANELLES in settings
+                or not any(organelle_role_of(key) is not None
+                           for key in settings)):
+            return settings
+        migrated = dict(settings)
+        migrated[NUMBER_OF_ORGANELLES] = organelle_count(settings)
+        return migrated
+
+    def _bulk_apply_changes_form_shape(
+            self, settings: dict, current: dict) -> bool:
+        """Whether supplied values require a differently shaped form."""
+        from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
+                                        organelle_number)
+        from ..settings_diff import _values_equal
+
+        supports_organelles = NUMBER_OF_ORGANELLES in current
+        target = dict(current)
+        target.update(settings)
+        target_count = organelle_count(target) if supports_organelles else 0
+        for key, value in settings.items():
+            key = str(key)
+            if key == NUMBER_OF_ORGANELLES and supports_organelles:
+                if not _values_equal(current.get(key), value):
+                    return True
+                continue
+            role = object_of_setting(key)
+            if role is None or role == "cell":
+                continue
+            if key not in object_switch_keys(role):
+                continue
+            if role not in ("nucleus", "pathogen"):
+                if not supports_organelles:
+                    continue
+                try:
+                    if organelle_number(role) > target_count:
+                        continue
+                except ValueError:
+                    continue
+            if not _values_equal(current.get(key), value):
+                return True
+        return False
 
     def _sync_folded_switches(self, settings: dict) -> tuple:
         """Move this screen's fold switches to match settings just applied.
@@ -8337,7 +8654,12 @@ class AppScreen(QWidget):
             w = self._settings_model._widgets.get(key)
             if w is None:
                 if self._settings_model.set_hidden_value(key, val):
-                    applied += 1
+                    # Preserve every known off-form value, but keep the
+                    # historical return contract: only dedicated hidden
+                    # controls count as exposed/applied rows.
+                    from .settings_model import _APP_HIDDEN_KEYS
+                    if key in _APP_HIDDEN_KEYS.get(self.app_key, set()):
+                        applied += 1
                 continue
             try:
                 self._apply_value(w, val)

@@ -156,7 +156,7 @@ def apply(on: Optional[bool] = None) -> Dict[str, object]:
         try:
             from . import preferences
 
-            if preferences.ambient_enabled():
+            if preferences.get_ambient_enabled():
                 preferences.set_ambient_enabled(False)
                 changed.append("ambient_enabled=False")
         except Exception:                                # noqa: BLE001

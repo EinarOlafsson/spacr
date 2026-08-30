@@ -4592,7 +4592,7 @@ tooltips = {
         "hidden slot keeps its values, is still written to the settings "
         "file, and comes back exactly as it was when the number is raised "
         "again, so a smaller number can be tried without losing work. "
-        "Default 4.",
+        "Default 0.",
     'organelle_channel': "(int) - Zero-indexed raw acquisition channel segmented into organelle masks by whichever organelle_method is chosen (otsu, adaptive, log, dog, ridge, hysteresis, cellpose, unet). Setting it to an integer adds an organelle mask plane to merged/ and unlocks the Organelle setting categories in the GUI; None skips organelle segmentation entirely. Default None.",
     'organelle_type': "(str) - Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelle_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.",
     'organelle_morphology': "(str) - Shape family of the target organelle; selects the segmentation pipeline and restricts valid organelle_method values. 'spots' denotes punctate structures such as vesicles and lipid droplets; 'network' denotes filamentous structures such as mitochondria and endoplasmic-reticulum tubules; 'irregular' denotes solid, irregular structures such as Golgi and lysosomes; and 'ring' denotes hollow structures such as endosomes and autophagosomes. An unsupported morphology-method pair raises before image loading. Default 'spots'.",

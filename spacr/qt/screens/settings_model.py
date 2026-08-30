@@ -661,14 +661,11 @@ def organelle_morphology_now(role: str,
                              settings: Dict[str, Any]) -> Optional[str]:
     """Resolve the morphology currently applicable to an organelle slot.
 
-    The ``<role>_type`` value is resolved with
-    :func:`spacr.organelle_types.resolve_type`. For a recognized preset,
-    ``<role>_diameter`` is converted to a numeric value and passed to
-    :meth:`spacr.organelle_types.OrganelleType.morphology_for`. A missing or
-    non-numeric diameter is passed as ``None``; size-dependent presets then
-    select their smaller-object morphology. If the type is ``custom`` or
-    invalid, or if the preset does not produce a supported morphology, the
-    explicit ``<role>_morphology`` value is used instead.
+    The collected ``<role>_morphology`` is authoritative. Selecting a type
+    writes its recommendation into that control, while a later explicit
+    advanced choice must win over the preset and over its display inference.
+    Only a sparse mapping with no morphology falls back to resolving
+    ``<role>_type`` and ``<role>_diameter`` directly.
 
     :param role: Prefix for the organelle-slot settings, such as ``organelle``
         or ``organelleb``.
@@ -676,6 +673,10 @@ def organelle_morphology_now(role: str,
     :returns: ``"spots"``, ``"network"``, ``"irregular"``, ``"ring"``, or
         ``None`` when neither resolution path supplies a supported morphology.
     """
+    own = settings.get(f"{role}_morphology")
+    if own in _MORPHOLOGY_SETTINGS:
+        return own
+
     from ...organelle_types import resolve_type
 
     try:
@@ -691,8 +692,7 @@ def organelle_morphology_now(role: str,
         morphology = preset.morphology_for(diameter)
         if morphology in _MORPHOLOGY_SETTINGS:
             return morphology
-    own = settings.get(f"{role}_morphology")
-    return own if own in _MORPHOLOGY_SETTINGS else None
+    return None
 
 
 def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
@@ -728,6 +728,12 @@ def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
     for key in on_panel:
         role = object_of_setting(key)
         if role is None:
+            continue
+        # CELL IS NEVER GATED. It is the object every other one is measured
+        # against, and instruction 300 explicitly superseded the earlier
+        # channel-following rule for this one family. Its plane may be empty,
+        # but the controls a fresh run needs must remain available.
+        if role == "cell":
             continue
         is_slot = role not in CHANNELLED_OBJECTS
         if counted and is_slot and role not in active:
@@ -7934,10 +7940,20 @@ class SettingsWidgets:
         current_values = {str(k): v for k, v in (current or {}).items()}
         deciding = dict(shipped)
         deciding.update(current_values)
-        try:
-            wanted = int(deciding.get("number_of_organelles", 0) or 0)
-        except (TypeError, ValueError):
-            wanted = 0
+        from spacr.organelle_types import (NUMBER_OF_ORGANELLES,
+                                           organelle_count,
+                                           organelle_role_of)
+
+        # A file written before the count existed still means what its slot
+        # keys say. Do not let the shipped count (now zero) shadow that
+        # inference when such a mapping builds a replacement form.
+        current_names_slots = any(
+            organelle_role_of(key) is not None for key in current_values)
+        if (NUMBER_OF_ORGANELLES in current_values
+                or current_names_slots):
+            wanted = organelle_count(current_values)
+        else:
+            wanted = organelle_count(shipped)
         self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
         self._defaults = organelle_slots_beyond_the_count(
             shipped, self._slots_built_for)
@@ -7951,7 +7967,6 @@ class SettingsWidgets:
         # settles the form's SHAPE; without this the new form arrives at the
         # module's defaults, so a second rebuild collects a nucleus channel
         # of None and takes the nucleus settings away again.
-        from spacr.organelle_types import organelle_role_of
         from spacr.settings import expected_types
 
         for key, value in current_values.items():
@@ -7983,6 +7998,11 @@ class SettingsWidgets:
         self._headings_of_absent_slots: Dict[int, Any] = {}
         self._object_row_guard = _HiddenRowWatcher(self, parent)
         self._object_rule_pass_queued = False
+        #: Values the currently selected organelle preset still owns. A user
+        #: edit removes its key, so a later diameter change can update a
+        #: size-dependent recommendation without overwriting advanced work.
+        self._organelle_preset_owned: Dict[str, Dict[str, Any]] = {}
+        self._applying_organelle_preset = False
         #: Called with the keys this pass is hiding, just before row
         #: visibility is decided, so the screen can lay out any row it left
         #: unbuilt that is about to be shown. The model decides WHETHER a row
@@ -8229,14 +8249,16 @@ class SettingsWidgets:
     @staticmethod
     def _keys_of_objects_the_run_has_no_channel_for(settings,
                                                     deciding=None) -> set:
-        """Settings for an object whose channel names no plane.
+        """Settings for an object whose switch names no plane.
 
         :param settings: the defaults the panel is about to build from.
         :returns: the keys not to build.
 
-        A run with no nucleus channel has no nucleus, so nucleus-specific
-        settings under multiple headings would be settings the run can never
-        use. The same rule applies to the other optional object classes.
+        A segmenting module switches an object with ``*_channel``; Measure
+        has no such settings and switches the same objects with
+        ``*_mask_dim``. A run whose applicable switch is empty has no such
+        object, so its object-specific settings under multiple headings would
+        be settings the run can never use.
 
         CELL IS ALWAYS THERE. It is the object every other one is measured
         against and the one a run is most likely to want, so hiding it on an
@@ -8251,16 +8273,23 @@ class SettingsWidgets:
         absent = set()
         answers = deciding if deciding is not None else settings
         for role in gated:
-            value = answers.get(f"{role}_channel")
-            named = value is not None and str(value).strip() != ""
+            switches = tuple(
+                key for key in object_switch_keys(role) if key in settings)
+            # A module that owns neither spelling does not own this gate.
+            # Treating a missing ``*_channel`` as an empty channel removed
+            # Measure's real ``*_mask_dim`` control and left no way to say a
+            # nucleus or pathogen mask exists.
+            if not switches:
+                continue
+            named = any(_names_a_plane(answers.get(key)) for key in switches)
             if named:
                 continue
             prefix = f"{role}_"
             for key in settings:
                 name = str(key)
-                if name == f"{role}_channel":
-                    # THE CHANNEL ITSELF STAYS, or there is no way to say
-                    # the run has this object after all.
+                if name in switches:
+                    # THE SWITCH ITSELF STAYS, or there is no way to say the
+                    # run has this object after all.
                     continue
                 if name.startswith(prefix):
                     absent.add(name)
@@ -8982,16 +9011,23 @@ class SettingsWidgets:
         return True
 
     def set_hidden_value(self, key: str, value: Any) -> bool:
-        """Update a deliberately hidden run setting.
+        """Update a known run setting whose widget is not on this form.
 
-        Some values have a dedicated control outside the form.  Image UMAP's
-        action-strip GPU toggle is one: duplicating it as a form checkbox would
-        create two sources of truth.  Hidden does not mean absent (invariant
-        6), so the value lives in ``_defaults`` and still reaches collect().
+        This includes dedicated controls outside the form and object rows
+        omitted by the current shape. Hidden does not mean absent: imported
+        values live in ``_defaults`` and still reach ``collect()``. A slot
+        above the current count is accepted only when this app owns the count
+        and the key is a declared setting; foreign-app keys remain rejected.
         """
-        if key not in self._defaults or key not in _APP_HIDDEN_KEYS.get(
-                self.app_key, set()):
-            return False
+        if key not in self._defaults:
+            from ...organelle_types import (NUMBER_OF_ORGANELLES,
+                                            organelle_role_of)
+            from ...settings import expected_types
+
+            if (NUMBER_OF_ORGANELLES not in self._defaults
+                    or organelle_role_of(key) is None
+                    or key not in expected_types):
+                return False
         self._defaults[key] = self._coerce_to_expected_type(key, value)
         return True
 
@@ -9840,33 +9876,191 @@ class SettingsWidgets:
             label.setVisible(visible)
 
     def _connect_object_visibility_signals(self) -> None:
-        """Deliberately connects nothing. The form is decided when it opens.
+        """Follow the three committed values that narrow an organelle slot.
 
-        THE RULE USED TO FOLLOW EVERY KEYSTROKE, and that is what made the
-        Mask module hang: `_on_object_switch_changed` fired on each character
-        typed into a channel and ran the whole pass synchronously -- reading
-        every value on the panel, deciding all 1,551 gated rows, and BUILDING
-        the rows it had decided to show. Typing "1" into Nucleus channel did
-        that once per keypress, on the GUI thread, so the window stopped
-        answering.
+        Object channels and slot counts are deliberately NOT connected here.
+        A channel is typed character by character, and the former connection
+        ran a whole 1,551-row visibility pass per keystroke. ``AppScreen``
+        watches their committed values and rebuilds the optimized form once.
 
-        The rule therefore runs ONCE, from `build_sections`. A value typed
-        afterwards changes what the run does without repeatedly rebuilding or
-        rearranging the form under the hands typing it.
-
-        A row that is on the form and does not apply is a smaller defect than
-        a module that stops responding -- and the settings a run ignores it
-        has always ignored quietly anyway.
-
-        Kept as a method rather than deleted because `build_sections` calls
-        it, and one place saying why nothing is connected is clearer than a
-        missing call nobody can ask about.
+        Type and morphology are closed choices, however, and diameter is
+        relevant when a size-dependent preset is selected. Those values can
+        change which already-owned detection rows apply, so one user choice
+        refreshes them in place. Diameter waits for ``editingFinished`` where
+        available; it never rearranges the panel while a number is typed.
         """
-        return
+        if getattr(self, "_object_visibility_signals_connected", False):
+            return
+        self._object_visibility_signals_connected = True
+        from ...organelle_types import ORGANELLE_TYPES, slot_setting
+
+        primary_targets = {"organelle_morphology", "organelle_method"}
+        for preset in ORGANELLE_TYPES.values():
+            primary_targets.update(preset.params)
+
+        roles = {object_of_setting(key) for key in self._widgets}
+        roles = {role for role in roles
+                 if role is not None and role not in CHANNELLED_OBJECTS}
+        for role in roles:
+            # A rebuilt panel can arrive already holding a preset. Remember
+            # only recommendations its widgets still equal; differing values
+            # are explicit overrides and diameter must leave them alone.
+            recommended = self._organelle_recommendations(role)
+            owned = self._organelle_preset_owned.setdefault(role, {})
+            for key, value in recommended.items():
+                if self._setting_value_equals(key, value):
+                    owned[key] = value
+
+            type_widget = self._widgets.get(f"{role}_type")
+            if type_widget is not None:
+                _connect_value_changed(
+                    type_widget,
+                    partial(self._on_organelle_type_changed, role))
+
+            diameter = self._widgets.get(f"{role}_diameter")
+            if diameter is not None:
+                changed = partial(self._on_organelle_diameter_changed, role)
+                committed = getattr(diameter, "editingFinished", None)
+                if committed is not None:
+                    try:
+                        committed.connect(changed)
+                    except Exception:                        # noqa: BLE001
+                        _connect_value_changed(diameter, changed)
+                else:
+                    _connect_value_changed(diameter, changed)
+
+            for primary in primary_targets:
+                key = slot_setting(primary, role)
+                widget = self._widgets.get(key)
+                if widget is None:
+                    continue
+                _connect_value_changed(
+                    widget,
+                    partial(self._on_organelle_preset_target_changed,
+                            role, key))
 
     def _on_object_switch_changed(self, *_args) -> None:
-        """No longer connected. See `_connect_object_visibility_signals`."""
-        return
+        """Refresh rows after one slot-narrowing value is committed."""
+        self.refresh_object_visibility()
+
+    def _setting_value(self, key: str) -> Any:
+        """Return one widget value with the same coercion as ``collect``."""
+        widget = self._widgets.get(key)
+        if widget is None:
+            return self._defaults.get(key)
+        try:
+            return self._coerce_to_expected_type(key, self._read_widget(widget))
+        except Exception:                                    # noqa: BLE001
+            return self._defaults.get(key)
+
+    def _setting_value_equals(self, key: str, expected: Any) -> bool:
+        try:
+            from ..settings_diff import _values_equal
+
+            return bool(_values_equal(self._setting_value(key), expected))
+        except Exception:                                    # noqa: BLE001
+            try:
+                return bool(self._setting_value(key) == expected)
+            except Exception:                                # noqa: BLE001
+                return False
+
+    def _organelle_recommendations(self, role: str) -> Dict[str, Any]:
+        """Return the selected type's recommendations in this slot's keys."""
+        from ...organelle_types import preset_for, slot_setting
+
+        try:
+            recommended = preset_for(
+                self._setting_value(f"{role}_type"),
+                self._setting_value(f"{role}_diameter"),
+            )
+        except (TypeError, ValueError):
+            return {}
+        return {slot_setting(key, role): value
+                for key, value in recommended.items()}
+
+    def _apply_organelle_recommendations(
+            self, role: str, *, overwrite: bool) -> None:
+        """Write one preset into widgets while preserving diameter overrides."""
+        recommended = self._organelle_recommendations(role)
+        previous = dict(self._organelle_preset_owned.get(role, {}))
+        now_owned: Dict[str, Any] = {}
+        self._applying_organelle_preset = True
+        try:
+            for key, value in recommended.items():
+                may_write = overwrite or (
+                    key in previous
+                    and self._setting_value_equals(key, previous[key])
+                )
+                if not may_write or not self.set_value_for_key(key, value):
+                    continue
+                now_owned[key] = value
+        finally:
+            self._applying_organelle_preset = False
+        self._organelle_preset_owned[role] = now_owned
+
+    def _on_organelle_type_changed(self, role: str, *_args) -> None:
+        """A deliberate type choice populates its actual execution values."""
+        if getattr(self, "_applying_settings", False):
+            return
+        self._apply_organelle_recommendations(role, overwrite=True)
+        self.refresh_object_visibility()
+
+    def _on_organelle_diameter_changed(self, role: str, *_args) -> None:
+        """Update only size-dependent values the preset still owns."""
+        if getattr(self, "_applying_settings", False):
+            return
+        self._apply_organelle_recommendations(role, overwrite=False)
+        self.refresh_object_visibility()
+
+    def _on_organelle_preset_target_changed(
+            self, role: str, key: str, *_args) -> None:
+        """Mark an advanced edit as the user's, then refresh morphology rows."""
+        if (getattr(self, "_applying_settings", False)
+                or self._applying_organelle_preset):
+            return
+        self._organelle_preset_owned.setdefault(role, {}).pop(key, None)
+        if key == f"{role}_morphology":
+            self.refresh_object_visibility()
+
+    def apply_organelle_presets_from_mapping(
+            self, settings: Dict[str, Any]) -> None:
+        """Apply sparse imported presets without replacing explicit values.
+
+        A settings file that supplies morphology/method/thresholds owns those
+        values. A file that supplies only a type asks the picker to populate
+        its missing recommendations just as a direct user choice does.
+        """
+        from ...organelle_types import organelle_role_of
+
+        supplied = {str(key) for key in settings}
+        roles = {organelle_role_of(key) for key in supplied}
+        roles.discard(None)
+        for role in roles:
+            owned = self._organelle_preset_owned.setdefault(role, {})
+            for key in supplied:
+                if organelle_role_of(key) == role:
+                    owned.pop(key, None)
+            if f"{role}_type" not in supplied:
+                if f"{role}_diameter" in supplied:
+                    self._apply_organelle_recommendations(
+                        role, overwrite=False)
+                continue
+            recommended = self._organelle_recommendations(role)
+            self._applying_organelle_preset = True
+            try:
+                for key, value in recommended.items():
+                    if key in supplied and settings.get(key) is not None:
+                        continue
+                    # An imported slot may not name a channel yet, so its
+                    # dependent controls are deliberately absent. Preserve
+                    # the preset in the same off-form defaults that preserve
+                    # explicit imported values; activating the channel later
+                    # then builds the correct morphology and method.
+                    if (self.set_value_for_key(key, value)
+                            or self.set_hidden_value(key, value)):
+                        owned[key] = value
+            finally:
+                self._applying_organelle_preset = False
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):
@@ -10116,6 +10310,13 @@ def retarget_field_tooltips(root: QWidget) -> int:
             label.setCursor(Qt.WhatsThisCursor)
         label.setProperty("apiTooltipHtml", tip)
         label.setProperty("apiTooltipDisplayRole", "tooltip")
+        # This widget now OWNS setting help. ``install_api_tooltips`` later
+        # discovers fields by ``settingKey``; without this mark it also
+        # rediscovers these labels as though they were editors. On a compact
+        # grid that second pass pairs each label with the label to its left,
+        # overwriting two UMAP help strings and leaving their real labels
+        # empty.
+        label.setProperty("settingHelpLabel", True)
         # THE LABEL HAS TO CARRY THE SETTING'S IDENTITY, or the language
         # pass cannot refresh the help it now owns: `refresh_api_tooltips`
         # skips any widget without both of these, so a translated caption

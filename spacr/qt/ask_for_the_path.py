@@ -167,12 +167,19 @@ def tables_in(database: str) -> list:
 
 
 def columns_in(database: str, table: str) -> list:
-    """Every column of one table, in the order the table declares them."""
+    """Every column of one table, in the order the table declares them.
+
+    ``PRAGMA`` takes no bound parameters, so the table name is quoted here.
+    SQLite escapes a quote inside a quoted identifier by doubling it, and a
+    table really can be named ``cell"s`` -- unescaped, the identifier ends
+    early and the whole table reads as having no columns at all.
+    """
     from ..database_concurrency import connect
 
+    quoted = str(table).replace('"', '""')
     try:
         with connect(database, readonly=True) as db:
-            rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+            rows = db.execute(f'PRAGMA table_info("{quoted}")').fetchall()
     except Exception:                                    # noqa: BLE001
         return []
     return [str(row[1]) for row in rows]

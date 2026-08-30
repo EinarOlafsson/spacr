@@ -3709,11 +3709,21 @@ class MainWindow(QMainWindow):
         from .screens.app_screen import AppScreen
 
         old = self._screens.get(key)
+        old_preset_owned = {}
+        if old is not None:
+            try:
+                from copy import deepcopy
+
+                old_preset_owned = deepcopy(
+                    old._settings_model._organelle_preset_owned)
+            except (AttributeError, TypeError):
+                old_preset_owned = {}
         # BUILT BEFORE THE OLD ONE IS TAKEN AWAY. Removing it from the stack
         # first drops the window to whatever is left showing -- Home -- so
         # typing a channel value sent the user back to the start screen and
         # then returned them, which is not a visibility toggle by any
         # reading. The stack only ever changes once the replacement exists.
+        previous_build_values = AppScreen.values_the_next_screen_is_built_for
         AppScreen.values_the_next_screen_is_built_for = dict(values or {})
         try:
             fresh = self._build_screen(key)
@@ -3724,7 +3734,7 @@ class MainWindow(QMainWindow):
             # ALWAYS CLEARED. Every other module open must build from the
             # module's own defaults, and a value left here would shape the
             # next screen somebody opened for reasons they could not see.
-            AppScreen.values_the_next_screen_is_built_for = None
+            AppScreen.values_the_next_screen_is_built_for = previous_build_values
 
         try:
             self._theme_screen(fresh, key)
@@ -3749,6 +3759,10 @@ class MainWindow(QMainWindow):
         try:
             fresh._form_shape_on_screen = fresh._form_shape()
         except Exception:                                    # noqa: BLE001
+            pass
+        try:
+            fresh._settings_model._organelle_preset_owned = old_preset_owned
+        except AttributeError:
             pass
 
         self._screens[key] = fresh
