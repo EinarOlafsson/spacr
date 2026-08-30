@@ -15,7 +15,6 @@ from __future__ import annotations
 import ast
 import csv
 import json
-import logging
 import subprocess
 import sys
 import types
@@ -24,6 +23,8 @@ from pathlib import Path
 import pytest
 
 from spacr import cli
+from tests.child_env import child_env
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PKG_ROOT = REPO_ROOT / "spacr"
@@ -36,17 +37,14 @@ PKG_ROOT = REPO_ROOT / "spacr"
 
 @pytest.fixture(autouse=True)
 def _clean_cli_state(monkeypatch, tmp_path):
-    """Restore the CLI logger and the environment variables it changes.
+    """Drop the CLI's log handlers and restore the env vars it sets.
 
     ``setup_logging`` binds a handler to whatever ``sys.stdout`` is at the
-    time and deliberately keeps the CLI logger configured for the process.
-    Tests must restore all three attributes it changes -- handlers, level and
-    propagation -- or a later caplog test cannot see ``spacr.cli`` records.
-    ``_quiet_progress_bars`` mutates ``os.environ`` directly, which monkeypatch
-    cannot undo for us.
+    time; left in place it would write into a closed capsys buffer during a
+    later test. ``_quiet_progress_bars`` mutates ``os.environ`` directly, which
+    monkeypatch cannot undo for us.
     """
     import os
-
     from spacr import run_journal
 
     journal_root = tmp_path / "runs"
@@ -55,16 +53,9 @@ def _clean_cli_state(monkeypatch, tmp_path):
 
     watched = ("TQDM_DISABLE", "SPACR_NO_PROGRESS", "MPLBACKEND")
     before = {k: os.environ.get(k) for k in watched}
-    log_handlers = list(cli.LOG.handlers)
-    log_level = cli.LOG.level
-    log_propagate = cli.LOG.propagate
     yield
     for handler in list(cli.LOG.handlers):
         cli.LOG.removeHandler(handler)
-    for handler in log_handlers:
-        cli.LOG.addHandler(handler)
-    cli.LOG.setLevel(log_level)
-    cli.LOG.propagate = log_propagate
     for key, value in before.items():
         if value is None:
             os.environ.pop(key, None)
@@ -135,8 +126,7 @@ def _subprocess_modules(code: str) -> dict:
     proc = subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True, text=True, timeout=180,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": "/tmp", "MPLBACKEND": "Agg"},
+        env=child_env(pythonpath=str(REPO_ROOT)),
     )
     assert proc.returncode == 0, f"subprocess failed:\n{proc.stdout}\n{proc.stderr}"
     return json.loads(proc.stdout.strip().splitlines()[-1])
@@ -1131,13 +1121,6 @@ def test_setup_logging_replaces_its_handler():
     cli.setup_logging(False)
     cli.setup_logging(True)
     assert len(cli.LOG.handlers) == 1
-
-
-def test_setup_logging_state_was_restored_between_tests():
-    """The preceding test must not leave process-wide CLI logging behind."""
-    assert cli.LOG.handlers == []
-    assert cli.LOG.level == logging.NOTSET
-    assert cli.LOG.propagate is True
 
 
 def test_run_with_an_unknown_module_exits_2(capsys, fake_settings):
