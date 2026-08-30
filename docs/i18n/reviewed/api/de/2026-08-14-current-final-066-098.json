@@ -108,7 +108,7 @@
       "translation": "``env`` vergleicht den in ``manifest.json`` gespeicherten ``env``-Schnappschuss — spaCR-Version, git-Hash, python, Plattform sowie Versionen von torch / cellpose / numpy —, denn dort liegt gewöhnlich die Ursache einer unerklärlichen Verhaltensänderung."
     },
     {
-      "label": "spacr.run_journal.resolve_run_dir#5",
+      "label": "spacr.run_journal.resolve_run_dir#6",
       "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
       "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
       "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",

@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.agreement.AgreementReport#7",
+      "source": "name of the κ statistic used for the overall value.",
+      "context": "name of the κ statistic used for the overall value.",
+      "source_sha256": "ffb9d8d89d3d7fa65ae753edcf45081bad81ea5c51f19ff91e5e4bdccc862395",
+      "translation": "heiti κ-tölfræðinnar sem notuð er fyrir heildargildið."
+    },
+    {
+      "label": "spacr.agreement.AgreementReport.pair#1",
+      "source": "name of either annotator column in the pair.",
+      "context": "name of either annotator column in the pair.",
+      "source_sha256": "2a3545a187b1e73f341b8a59d5414293ba5de499984b81ea86d51ace57b36de7",
+      "translation": "heiti annars hvors dálks merkingaraðila í parinu."
+    },
+    {
+      "label": "spacr.checkpoint.CheckpointStore.artifact_path#1",
+      "source": "stable work-unit identity to hash into the filename.",
+      "context": "stable work-unit identity to hash into the filename.",
+      "source_sha256": "f493fd0fec766953d257702c7abdd958f894c41c88440910e754480d8530384b",
+      "translation": "stöðugt auðkenni vinnueiningar sem breytt er í tætigildi fyrir skráarheitið."
+    },
+    {
+      "label": "spacr.external_masks.InputGroup#7",
+      "source": "pixel or filename evidence supporting the proposal.",
+      "context": "pixel or filename evidence supporting the proposal.",
+      "source_sha256": "a59360e7d422201e44300a4746b93c9cab21d4d14a126920c5bd893ce0747329",
+      "translation": "sönnunargögn úr dílum eða skráarheiti sem styðja tillöguna."
+    },
+    {
+      "label": "spacr.import_plan.Renamed#5",
+      "source": "captured field-of-view identifier.",
+      "context": "captured field-of-view identifier.",
+      "source_sha256": "94a1db72d9152c3b9fd6886ed25b1f88a9065eeb19a3cd190a81990d8e903a0e",
+      "translation": "auðkenni myndsvæðisins sem var tekið."
+    },
+    {
+      "label": "spacr.regex_infer.FieldEvidence#1",
+      "source": "token position in the filename family.",
+      "context": "token position in the filename family.",
+      "source_sha256": "ff40e464842ef256c9a0899d2d00a0ea5638419dac108868c853d55c0ad98f49",
+      "translation": "staðsetning táknhlutans í fjölskyldu skráarheita."
+    },
+    {
+      "label": "spacr.regression_failure.write_failure_report#1",
+      "source": "run-results directory in which to write the report.",
+      "context": "run-results directory in which to write the report.",
+      "source_sha256": "8be4e9aa38c9ab0afd51a7adfa5ccdede092617760c739ba5073a7fbff7294aa",
+      "translation": "mappa niðurstaðna keyrslunnar þar sem skrifa á skýrsluna."
+    },
+    {
+      "label": "spacr.report.Report.section#1",
+      "source": "stable report-section key to locate.",
+      "context": "stable report-section key to locate.",
+      "source_sha256": "a9cc891e22f0152028bd8991f33efe80f3e004159934db1677ef1ee3d5539558",
+      "translation": "stöðugur lykill skýrsluhlutans sem á að finna."
+    },
+    {
+      "label": "spacr.roi.RoiSet.covers#1",
+      "source": "merged-field filename or stem to test.",
+      "context": "merged-field filename or stem to test.",
+      "source_sha256": "d370bfce0add8ae5a721047416a5b1d2877f487435799b1fb13129bf78ec55e8",
+      "translation": "skráarheiti eða stofn sameinaðs myndsvæðis sem á að prófa."
+    },
+    {
+      "label": "spacr.run_journal.resolve_run_dir#1",
+      "source": "run object, directory path, run id, or unambiguous id prefix.",
+      "context": "run object, directory path, run id, or unambiguous id prefix.",
+      "source_sha256": "cd42b3b7d9a616541f3a721c2ed099b9ef82f03df9f111f5f324d525c4a2b8a6",
+      "translation": "keyrsluhlutur, möppuslóð, keyrsluauðkenni eða ótvírætt forskeyti auðkennis."
+    },
+    {
+      "label": "spacr.runctx.RunIdFilter.filter#1",
+      "source": "log record to stamp with a run id.",
+      "context": "log record to stamp with a run id.",
+      "source_sha256": "7031c417dbfcdb9ac1b35642921511feed9bc859d6555ec3736931d08abb7481",
+      "translation": "annálsfærsla sem á að merkja með keyrsluauðkenni."
+    },
+    {
+      "label": "spacr.runctx.run_log_path#1",
+      "source": "run identifier used as the log filename.",
+      "context": "run identifier used as the log filename.",
+      "source_sha256": "251bff670942fba224f6d240d81d619ffb4ec2fc6eb1f667874dfb50f6b3c7e9",
+      "translation": "keyrsluauðkenni sem er notað sem skráarheiti annálsins."
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.set_meta_regex#1",
+      "source": "string or compiled regex with well, site, channel, and magnification groups.",
+      "context": "string or compiled regex with well, site, channel, and magnification groups.",
+      "source_sha256": "feadf4ac30dae81b4edf9481459d712595bbfc6afb0afc6f095c1cbe3cc2c6f5",
+      "translation": "strengur eða þýdd regluleg segð með hópum fyrir brunn, myndsvæði, rás og stækkun."
+    },
+    {
+      "label": "spacr.sudoku.constrain_to_fractions#1",
+      "source": "graph-propagated cell-by-guide evidence matrix.",
+      "context": "graph-propagated cell-by-guide evidence matrix.",
+      "source_sha256": "1495ecd828028d76931f26d8df05cbc50bc737f21e74db673f9d32efa1a926c3",
+      "translation": "sönnunarfylki frumna og leiðara sem hefur verið dreift um grafið."
+    },
+    {
+      "label": "spacr.well_spec.row_number#1",
+      "source": "alphabetic plate-map row label.",
+      "context": "alphabetic laboratory microplate-map row label.",
+      "source_sha256": "a6e303958c371aa652f1a3e00bfd7b5275ad1e81cf36c4b0ed5b390143018e7e",
+      "translation": "stafrófsmerki raðar á korti örplötu."
+    }
+  ]
+}

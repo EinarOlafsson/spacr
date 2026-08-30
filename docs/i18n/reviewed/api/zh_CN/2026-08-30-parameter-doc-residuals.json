@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.annotation_validation.Verdict#2",
+      "source": "share of called cells assigned to the correct guide.",
+      "context": "share of called cells assigned to the correct guide.",
+      "source_sha256": "79ca4cc565c7aa9d5be65aaa198d715fa512a9940ba810e623a9fba02127adff",
+      "translation": "已判定细胞中被分配至正确引导序列的比例。"
+    },
+    {
+      "label": "spacr.foreign.MaskMapping#4",
+      "source": "plate identifier parsed from the matched field stem.",
+      "context": "laboratory microplate identifier parsed from the matched microscope field of view stem.",
+      "source_sha256": "a29b6a1a06d7434045fb842685ca1113ddb0aa727648f96e08e2d967cc2c1ce0",
+      "translation": "从匹配的显微镜视野文件名主干中解析出的实验室微孔板标识符。"
+    },
+    {
+      "label": "spacr.guide_attribution.Attribution#4",
+      "source": "Shannon entropy of the cell's guide posterior, in bits.",
+      "context": "Shannon entropy of the cell's guide posterior, in bits.",
+      "source_sha256": "271baab0e193c14761ccea126ca87cbcb3d94be414a971580735f6b37baa3c08",
+      "translation": "细胞引导序列后验分布的香农熵，单位为比特。"
+    },
+    {
+      "label": "spacr.guide_permutation.prepare_long_gene_data#1",
+      "source": "long regression table containing well, guide, gene, fraction, and phenotype columns.",
+      "context": "long regression table containing well, guide, gene, fraction, and phenotype columns.",
+      "source_sha256": "7a9cfec89e77a51b8fb0b4186371095dd6b734e52130d9b003a4157bb942d6b0",
+      "translation": "包含孔位、引导序列、基因、比例和表型列的长格式回归表。"
+    },
+    {
+      "label": "spacr.illumination.IlluminationField.dark_stack#1",
+      "source": "source channel indices in the order required by the array being corrected.",
+      "context": "source image data channel indices in the order required by the array being corrected.",
+      "source_sha256": "97bb595173ee0b332376b00861ef84ed5dcb0e3140d35cb8f06a506b9dfeba86",
+      "translation": "按待校正数组所需顺序排列的源图像数据通道索引。"
+    },
+    {
+      "label": "spacr.import_plan.Renamed#5",
+      "source": "captured field-of-view identifier.",
+      "context": "captured field-of-view identifier.",
+      "source_sha256": "94a1db72d9152c3b9fd6886ed25b1f88a9065eeb19a3cd190a81990d8e903a0e",
+      "translation": "所采集视野的标识符。"
+    },
+    {
+      "label": "spacr.intensity_rescale.build_plate_plan#2",
+      "source": "merged-array filenames to inspect as one plate set.",
+      "context": "merged-array filenames to inspect as one plate set.",
+      "source_sha256": "003548f5b966148286d4478f78ef5e4c1491bbdcf26f91d6696670bbbdcad42b",
+      "translation": "作为同一微孔板集合进行检查的合并数组文件名。"
+    },
+    {
+      "label": "spacr.measure_hooks.PreprocessingContext#8",
+      "source": "source channel indices in array-axis order.",
+      "context": "source image data channel indices in array-axis order.",
+      "source_sha256": "fa8805324c13d0f987bb54485ba04ec603d73a485c86e0800b2b4e41d30a3b52",
+      "translation": "按数组轴顺序排列的源图像数据通道索引。"
+    },
+    {
+      "label": "spacr.pipeline_v2.StackFile#5",
+      "source": "human-readable channel names in array order.",
+      "context": "easy-to-read image data channel names in array order.",
+      "source_sha256": "8002d1e7a758ba5284757d0c77965d169ea02f649692c627e20d7c2674806def",
+      "translation": "按数组顺序排列的易读图像数据通道名称。"
+    },
+    {
+      "label": "spacr.regression_failure.write_failure_report#1",
+      "source": "run-results directory in which to write the report.",
+      "context": "run-results directory in which to write the report.",
+      "source_sha256": "8be4e9aa38c9ab0afd51a7adfa5ccdede092617760c739ba5073a7fbff7294aa",
+      "translation": "用于写入报告的运行结果目录。"
+    },
+    {
+      "label": "spacr.selection.CategoryFilter#2",
+      "source": "accepted values; an empty tuple accepts no rows.",
+      "context": "accepted values; an empty tuple accepts no rows.",
+      "source_sha256": "643586a7350c80061e0fb4c0da1912589d06ed2ca02c8d446f55edade3a49ad0",
+      "translation": "可接受的值；空元组不接受任何行。"
+    },
+    {
+      "label": "spacr.utils.CustomCellClassifier.custom_forward#1",
+      "source": "three-channel image batch to classify.",
+      "context": "three-image data channel image batch to classify.",
+      "source_sha256": "ae71cfd462ad3923bc5e5e8310aa816c81f213cd54dc2a61d9da2882ba15ba75",
+      "translation": "待分类的三通道图像批次。"
+    },
+    {
+      "label": "spacr.utils.CustomCellClassifier.forward#1",
+      "source": "three-channel image batch to classify.",
+      "context": "three-image data channel image batch to classify.",
+      "source_sha256": "ae71cfd462ad3923bc5e5e8310aa816c81f213cd54dc2a61d9da2882ba15ba75",
+      "translation": "待分类的三通道图像批次。"
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.percentile_normalize#1",
+      "source": "channels-last image array to normalize.",
+      "context": "image-channel-last image array to normalize.",
+      "source_sha256": "074d97b5cfb81690d782bb3e457539e6aee8162f9c6d1b49ed07b55ade304859",
+      "translation": "待归一化的通道位于最后一维的图像数组。"
+    },
+    {
+      "label": "spacr.utils.SaliencyMapGenerator.percentile_normalize#1",
+      "source": "channels-last image array to normalize.",
+      "context": "image-channel-last image array to normalize.",
+      "source_sha256": "074d97b5cfb81690d782bb3e457539e6aee8162f9c6d1b49ed07b55ade304859",
+      "translation": "待归一化的通道位于最后一维的图像数组。"
+    },
+    {
+      "label": "spacr.workspace.resolve_mode#1",
+      "source": "mode name, boolean, common yes/no alias, or ``None``.",
+      "context": "mode name, boolean, common yes/no alias, or ``None``.",
+      "source_sha256": "51ec042e36e6e23b07ea84ee7db7e6cbd4707112b96f0a9118cfaf41b6349233",
+      "translation": "模式名称、布尔值、常见的“是/否”别名或 ``None``。"
+    }
+  ]
+}

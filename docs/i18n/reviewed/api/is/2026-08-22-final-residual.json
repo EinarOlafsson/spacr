@@ -10,14 +10,14 @@
     },
     {
       "context": "The observed statistic is Spearman correlation between guide effect and mean neighbour purity. The permutation null shuffles effects between guides while preserving the purity values and guide counts. The result includes the correlation, two-sided permutation p-value, group means for positive and negative effects, and a boolean separation call.",
-      "label": "spacr.annotation_umap_qc.effect_agreement#1",
+      "label": "spacr.annotation_umap_qc.effect_agreement#3",
       "source": "The observed statistic is Spearman correlation between guide effect and mean neighbour purity. The permutation null shuffles effects between guides while preserving the purity values and guide counts. The result includes the correlation, two-sided permutation p-value, group means for positive and negative effects, and a boolean separation call.",
       "source_sha256": "055d90ab1a8d01b673261a9d13226a3b9bf666dc169336b7081771884231d336",
       "translation": "Mæld prófstærð er Spearman-fylgni milli áhrifa leiðarvísis og meðaltals hreinleika nágranna. Núlltilgátudreifing umraðana stokkar áhrif milli leiðarvísa en varðveitir hreinleikagildi og fjölda leiðarvísa. Niðurstaðan inniheldur fylgnina, tvíhliða p-gildi umraðana, hópmeðaltöl fyrir jákvæð og neikvæð áhrif og Boole-gildi sem segir hvort hóparnir aðskiljist."
     },
     {
       "context": "The permutation preserves cells, features, machine-learning classification model scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
-      "label": "spacr.annotation_validation.permuted#1",
+      "label": "spacr.annotation_validation.permuted#2",
       "source": "The permutation preserves cells, features, classifier scores, well sizes, and the distribution of guide fractions while breaking the sequencing-to- imaging relationship. Truth and fractions are permuted together so the returned object remains internally consistent for null benchmarking.",
       "source_sha256": "c56b9446737ab56eb6435666b8b34cf38d7f25fb0c7e8c40570175194355e595",
       "translation": "Umröðunin varðveitir frumur, eiginleika, stig flokkunarlíkans, stærðir brunna og dreifingu hlutfalla leiðarvísa en rýfur tengsl raðgreiningar og myndgreiningar. Rétt merking og hlutföll eru stokkuð saman svo skilaði hluturinn haldist innbyrðis samkvæmur fyrir núllviðmiðun."

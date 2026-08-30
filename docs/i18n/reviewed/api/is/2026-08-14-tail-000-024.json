@@ -171,7 +171,7 @@
       "translation": ":func:`register` sér um alla uppsetninguna og er óbreytanlegt, svo smíði sem hefur ekki enn bætt þessari einingu við ræsilistann getur kallað það hvar sem er áður en fyrsti glugginn opnast."
     },
     {
-      "label": "spacr.object_roles.organelle_settings_view#1",
+      "label": "spacr.object_roles.organelle_settings_view#3",
       "source_sha256": "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f",
       "source": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` keys. Keeping that well-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
       "context": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` structured-data names. Keeping that microplate sample position-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",

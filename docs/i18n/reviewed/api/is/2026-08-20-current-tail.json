@@ -38,7 +38,7 @@
     },
     {
       "context": "A SINK THAT RAISES DOES NOT LOSE THE FILE, for the same reason as in :func:`publish`: the file is already on disk and the announcement is best-effort, so a GUI that has gone away must not take the processing session's output with it.",
-      "label": "spacr.figure_sink.publish_file#2",
+      "label": "spacr.figure_sink.publish_file#3",
       "source": "A SINK THAT RAISES DOES NOT LOSE THE FILE, for the same reason as in :func:`publish`: the file is already on disk and the announcement is best-effort, so a GUI that has gone away must not take the run's output with it.",
       "source_sha256": "921f8830b85c8a27eed7d333a7082029e4877b3b8e6b37851830ce4efae6ccd3",
       "translation": "VASKUR SEM HÆKKAR TAPAR EKKI SKRÁINN, af sömu ástæðu og í :func:`publish`: skráin er þegar á diski og tilkynningin er besta viðleitni, þannig að GUI sem hefur horfið má ekki taka úttak vinnslulotunnar með sér."
@@ -640,7 +640,7 @@
     },
     {
       "context": "THE WORST ONE, not the commonest and not an average. Nineteen panels passing and one saying the design is rank deficient is a run whose coefficients are one of infinitely many solutions, and a summary that reports \"95% passed\" is a summary that hides exactly the panel the suite was run for.",
-      "label": "spacr.regression_qc.worst_verdict#1",
+      "label": "spacr.regression_qc.worst_verdict#2",
       "source": "THE WORST ONE, not the commonest and not an average. Nineteen panels passing and one saying the design is rank deficient is a run whose coefficients are one of infinitely many solutions, and a summary that reports \"95% passed\" is a summary that hides exactly the panel the suite was run for.",
       "source_sha256": "2717cb8aa519d7bf96071ef77bacb1288d718de75df1d95d1adae5d5f6f6ea14",
       "translation": "ÞAÐ VERSTA, ekki sá algengasti og ekki meðaltal. Nítján spjöld fara framhjá og einn sem segir að hönnunin sé ábótavant er keyrsla þar sem stuðlarnir eru ein af óendanlega mörgum lausnum, og samantekt sem segir að \"95% standist\" er samantekt sem felur nákvæmlega það spjald sem föruneytið var keyrt fyrir."

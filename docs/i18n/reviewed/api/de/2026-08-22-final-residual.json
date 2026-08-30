@@ -24,7 +24,7 @@
     },
     {
       "context": "Guides at least ``outlier_factor`` times the median are excluded from the quantile calculation and counted separately because a single threshold does not describe them. The result reports the threshold, sample counts, and the number of guides that require guide-specific review or correction.",
-      "label": "spacr.read_background.suggest_threshold#1",
+      "label": "spacr.read_background.suggest_threshold#2",
       "source": "Guides at least ``outlier_factor`` times the median are excluded from the quantile calculation and counted separately because a single threshold does not describe them. The result reports the threshold, sample counts, and the number of guides that require guide-specific review or correction.",
       "source_sha256": "c559bdaef6184929d4b2543bb607e2a95272114a7dd02869808bb420f172b804",
       "translation": "Guides mit mindestens dem ``outlier_factor``-Fachen des Medians werden von der Quantilberechnung ausgeschlossen und separat gezählt, da ein einzelner Schwellenwert sie nicht beschreibt. Das Ergebnis gibt den Schwellenwert, die Stichprobenzahlen und die Anzahl der Guides an, die einzeln überprüft oder korrigiert werden müssen."

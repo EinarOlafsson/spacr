@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.annotation.gene_number#1",
+      "source": "feature, accession, guide, or design-term value to parse.",
+      "context": "feature, accession, guide, or design-term value to parse.",
+      "source_sha256": "50718ab34802a68035675f62b66a12e15374558a150f072006adfd9d709035b5",
+      "translation": "Merkmals-, Akzessions-, Guide- oder Designtermwert, der analysiert werden soll."
+    },
+    {
+      "label": "spacr.measurement_scan.MeasurementEffect#10",
+      "source": "Simes global-null P value passed to the across-scan correction.",
+      "context": "Simes global-null P value passed to the across-scan correction.",
+      "source_sha256": "c623b6031be9e5965307b7b82275bbdf4397b128cc85dcffba6bca017bfd3cfe",
+      "translation": "Global-Null-P-Wert nach Simes, der an die scanübergreifende Korrektur übergeben wird."
+    },
+    {
+      "label": "spacr.merge_tables.object_keys#1",
+      "source": "object-label series to coerce to nullable integers.",
+      "context": "object-label series to coerce to nullable integers.",
+      "source_sha256": "2a1b24f144c646b6590bc1c96b98813e29df0bde9beb3c6e54a5b2240c8a4c55",
+      "translation": "Serie von Objektbezeichnungen, die in Ganzzahlen mit zulässigen Nullwerten umgewandelt werden soll."
+    },
+    {
+      "label": "spacr.openmp_guard.guarded_n_jobs#1",
+      "source": "caller-requested job count to constrain when guarded.",
+      "context": "caller-requested job count to constrain when guarded.",
+      "source_sha256": "f4d2b7ac2de4493ecd5125cb69450fba36b823156d34e52d9271ae2f3413fde3",
+      "translation": "Vom Aufrufer angeforderte Auftragsanzahl, die im abgesicherten Modus begrenzt werden soll."
+    },
+    {
+      "label": "spacr.plate_measurements.TableMerge.merged_column#1",
+      "source": "source-table column name to express in merged-frame form.",
+      "context": "source-table column name to express in merged-frame form.",
+      "source_sha256": "a3e5df17bf7da58907ef01d2010f5a48ea0c6030c91921a09ef8173b36022669",
+      "translation": "Name der Quelltabellenspalte, der in der Form des zusammengeführten Datenrahmens dargestellt werden soll."
+    },
+    {
+      "label": "spacr.read_background.resolve_exclusions#1",
+      "source": "guide or gene identifiers requested for exclusion, or None.",
+      "context": "guide or gene identifiers requested for exclusion, or None.",
+      "source_sha256": "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
+      "translation": "Guide- oder Genkennungen, die ausgeschlossen werden sollen, oder None."
+    },
+    {
+      "label": "spacr.read_background.unmatched_exclusions#1",
+      "source": "guide or gene identifiers requested for exclusion, or None.",
+      "context": "guide or gene identifiers requested for exclusion, or None.",
+      "source_sha256": "1d29613ab9e6e6d66282e0d488c10921d277f51ed682cceffe9a112dd49b029e",
+      "translation": "Guide- oder Genkennungen, die ausgeschlossen werden sollen, oder None."
+    },
+    {
+      "label": "spacr.regression_failure.write_failure_report#1",
+      "source": "run-results directory in which to write the report.",
+      "context": "run-results directory in which to write the report.",
+      "source_sha256": "8be4e9aa38c9ab0afd51a7adfa5ccdede092617760c739ba5073a7fbff7294aa",
+      "translation": "Verzeichnis der Laufergebnisse, in das der Bericht geschrieben wird."
+    },
+    {
+      "label": "spacr.schema.model_feature_frame#2",
+      "source": "pandas frame to coerce and restrict to model features.",
+      "context": "pandas frame to coerce and restrict to model features.",
+      "source_sha256": "f31cf6ffe5f4d32041f0aa7451af6462defafbd0dea03d52476339caaeb7fbec",
+      "translation": "pandas-Datenrahmen, der konvertiert und auf Modellmerkmale beschränkt werden soll."
+    },
+    {
+      "label": "spacr.train_compare.Comparison#1",
+      "source": "source training runs, in comparison order.",
+      "context": "source training processing sessions, in comparison order.",
+      "source_sha256": "4c086e88d5bd466a9747247d5cac3b2192742de94e50f8127a3f5073dfc32adb",
+      "translation": "Quellläufe des Trainings in der Reihenfolge des Vergleichs."
+    },
+    {
+      "label": "spacr.updater.dry_run_command#2",
+      "source": "pip requirement string whose installation to preview.",
+      "context": "pip requirement string whose installation to preview.",
+      "source_sha256": "7ee235a23d3feb9275e6d46712ad73ddfd172d6ae480997af57491c9b769c7d3",
+      "translation": "pip-Anforderungszeichenfolge, deren Installation in der Vorschau angezeigt werden soll."
+    }
+  ]
+}

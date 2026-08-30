@@ -37,8 +37,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    # The reviewed Power-form sweep added 32 source-bound entries.
-    assert len(reviewed) == 110
+    # The Power-form sweep added 32 entries; current evidence includes one
+    # later source-bound repair as well.
+    assert len(reviewed) == 111
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -63,8 +64,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    # The reviewed Power-form sweep added 32 source-bound entries.
-    assert len(reviewed) == 88
+    # The Power-form sweep added 32 entries; current evidence includes one
+    # later source-bound repair as well.
+    assert len(reviewed) == 89
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

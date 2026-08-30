@@ -24,7 +24,7 @@
       "translation": "**Uma célula sem rótulo representa uma abstenção, não uma discordância.** Cada par é avaliado somente nas linhas que *ambos* os anotadores rotularam (casos completos por par). As linhas em que apenas um deles atribuiu um rótulo são contadas e informadas separadamente como ``n_abstained``. Tratá-las como discordâncias reduziria silenciosamente κ na proporção do atraso do anotador mais lento — uma característica do calendário, não da anotação."
     },
     {
-      "label": "spacr.agreement.PairAgreement#4",
+      "label": "spacr.agreement.PairAgreement#6",
       "source_sha256": "b1476c2c9a35fc63e27d5cfc6a5c62fba3d3781bce688e282bf97e01a8516e08",
       "source": "rows *both* annotators labelled — κ's denominator.",
       "context": "rows *both* annotators labelled — κ's denominator.",
@@ -122,7 +122,7 @@
       "translation": "quando não for possível importar o módulo de valores padrão. Antes, isto retornava ``{}`` para que ``--describe`` continuasse funcionando na ausência de uma dependência opcional, mas :func:`resolve_settings` pertence ao caminho de **execução**, não apenas ao caminho de descrição: convert, illumination, foreign, external_masks, barcode_qc, anndata_export e todos os aplicativos de plugins passavam então a usar um mapeamento de configurações entre chaves e valores sem nenhum valor padrão, e ``spacr-run convert --set z_handling=max`` era rejeitado com \"nomeia uma configuração inexistente para o módulo 'convert'\" — direcionando a pessoa para sua própria linha de comando, em vez de indicar a dependência realmente ausente. ``--describe`` não é afetado: ele tem sua própria proteção em torno desta chamada."
     },
     {
-      "label": "spacr.confusion.object_keys_for#2",
+      "label": "spacr.confusion.object_keys_for#3",
       "source_sha256": "e26acf5588a933a2e8df6dbdeef39a2b1c4006d837d6f0746e5f7e9071d5ad81",
       "source": "Duplicates are dropped. They are not assumed away: two rows can legitimately share a key — augmented copies of one crop collapse onto the same ``object`` stem — so :func:`key_collisions` says how many rows the grid will be short of the count the matrix showed, rather than leaving that to be discovered by counting tiles.",
       "context": "Duplicates are dropped. They are not assumed away: two rows can legitimately share a structured-data name — augmented copies of one extracted image region collapse onto the same ``object`` stem — so :func:`key_collisions` says how many rows the grid will be short of the count the matrix showed, rather than leaving that to be discovered by counting tiles.",

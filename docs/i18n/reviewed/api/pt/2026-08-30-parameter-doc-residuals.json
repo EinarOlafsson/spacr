@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "context": "round-by-round metrics frame from :func:`learning_curve`.",
+      "label": "spacr.active_learning.format_learning_curve#1",
+      "source": "round-by-round metrics frame from :func:`learning_curve`.",
+      "source_sha256": "55b793ee3944c05584edf0024940cd84158551656e24a7c25a3ca3b0345ace9a",
+      "translation": "tabela de métricas por rodada gerada por :func:`learning_curve`."
+    },
+    {
+      "context": "Simes global-null P value passed to the across-scan correction.",
+      "label": "spacr.measurement_scan.MeasurementEffect#10",
+      "source": "Simes global-null P value passed to the across-scan correction.",
+      "source_sha256": "c623b6031be9e5965307b7b82275bbdf4397b128cc85dcffba6bca017bfd3cfe",
+      "translation": "Valor-p da hipótese nula global de Simes fornecido à correção entre varreduras."
+    },
+    {
+      "context": "source table's stored column names in order.",
+      "label": "spacr.multi_database.SourceSummary#5",
+      "source": "source table's stored column names in order.",
+      "source_sha256": "bbe84b4b849b10f27384c3db3d1e55ac39d2bd0112e477d911291405ac2cd54d",
+      "translation": "nomes de colunas armazenados na tabela de origem, por ordem."
+    },
+    {
+      "context": "run-results directory in which to write the report.",
+      "label": "spacr.regression_failure.write_failure_report#1",
+      "source": "run-results directory in which to write the report.",
+      "source_sha256": "8be4e9aa38c9ab0afd51a7adfa5ccdede092617760c739ba5073a7fbff7294aa",
+      "translation": "diretório de resultados da execução no qual o relatório será gravado."
+    },
+    {
+      "context": "cache structured-data name to look up.",
+      "label": "spacr.utils.Cache.get#1",
+      "source": "cache key to look up.",
+      "source_sha256": "f55c8fa36b990df9d750b3fd32103ccf0bec877d30ce3cc7a32c5f5496716b03",
+      "translation": "chave de cache a procurar."
+    },
+    {
+      "context": "cache structured-data name under which to store the value.",
+      "label": "spacr.utils.Cache.put#1",
+      "source": "cache key under which to store the value.",
+      "source_sha256": "6bed3b552eb7630ea3c7942cf8ccc3174d562b5727a3cec885a7b8bacc61f4c4",
+      "translation": "chave de cache sob a qual armazenar o valor."
+    }
+  ]
+}
