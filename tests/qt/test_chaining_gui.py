@@ -601,7 +601,7 @@ def test_the_factory_wires_the_same_signals_build_screen_wires():
     """The duplicated wiring is checked against its original, not trusted."""
     from spacr.qt.app import MainWindow
 
-    source = inspect.getsource(MainWindow._build_screen)
+    source = inspect.getsource(MainWindow._build_screen_timed)
     tail = source.split("from .screens.app_screen import AppScreen")[-1]
     wired = dict(re.findall(r"screen\.(\w+)\.connect\(\s*self\.(\w+)", tail))
 
@@ -613,7 +613,7 @@ def test_no_chained_module_has_its_own_branch_in_build_screen():
     """The factory only pre-empts the generic AppScreen tail."""
     from spacr.qt.app import MainWindow
 
-    source = inspect.getsource(MainWindow._build_screen)
+    source = inspect.getsource(MainWindow._build_screen_timed)
     branch_keys = set(re.findall(r'if key == "([^"]+)"', source))
 
     assert branch_keys, "no explicit screen branches found"

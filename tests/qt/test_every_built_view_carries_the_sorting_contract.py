@@ -33,6 +33,10 @@ class _FactoryHost(QObject):
     def _snapshot_current_screen_settings(self):
         return "mask", {}
 
+    def _build_screen_timed(self, key):
+        """Follow the production wrapper into the real screen factory."""
+        return MainWindow._build_screen_timed(self, key)
+
     def __getattr__(self, name):
         if name.startswith("__"):
             raise AttributeError(name)
