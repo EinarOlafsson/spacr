@@ -76,6 +76,14 @@ class TableChip(QWidget):
         # THE MARK IS MEASURED, NOT GUESSED. The chip has to hold the name
         # AND whatever box the close mark takes at the user's Zoom, or a
         # larger mark would crop the name it belongs to.
+        #
+        # A widget inherits the application's QSS font only when Qt polishes
+        # it.  Measuring an unpolished chip therefore uses the platform
+        # default font, which can be narrower than the font drawn after
+        # ``show()`` (Ubuntu's fallback is one example).  Resolve the style
+        # first so this minimum describes the text the user will actually
+        # see, not the construction-time fallback.
+        self.ensurePolished()
         metrics = self.fontMetrics()
         self.setMinimumHeight(
             max(metrics.height() + 6, self._close.height() + 4))

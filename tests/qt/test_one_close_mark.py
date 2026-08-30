@@ -261,7 +261,12 @@ def test_the_glyph_is_drawn_larger_than_the_mark_it_replaces(qtbot, qapp):
         _x, _y, old_w, old_h = _glyph_box(was)
         _x, _y, new_w, new_h = _glyph_box(mark)
 
-        assert new_w > old_w and new_h > old_h, (
+        # Rasterisation can round one axis to the same pixel on two fonts.
+        # It is still a larger drawn mark when neither axis contracts and
+        # the painted bounding box grows on the other axis (7x7 versus 7x6
+        # on Ubuntu/PySide 6.11.2, for example).
+        assert (new_w >= old_w and new_h >= old_h
+                and new_w * new_h > old_w * old_h), (
             f"the mark is {new_w}x{new_h}; the one it replaces is "
             f"{old_w}x{old_h}")
     finally:
