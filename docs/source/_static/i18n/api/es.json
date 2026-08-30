@@ -46,14 +46,16 @@
       "source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ],
-      "source_sha256": "ca3e92447b6600c372106a7572a3d9ee27e2fdd396ce60a88575b3ce496b3df3",
-      "text": "Punto de entrada CLI; envío al subcomando spacr solicitado.\n\n:param argv: Lista de argumentos a analizar. Cuando se utiliza None, ``sys.argv[1:]``.\n:returns: Procesar código de salida (0 en el éxito, 2 en el comando desconocido).",
+      "source_sha256": "1b0090f4954af1de35005df5e6ef3122776fb73303155d273a5d7e8f95858e91",
+      "text": "Punto de entrada de la CLI; despacha al subcomando de spacr solicitado.\n\n:param argv: Lista de argumentos que se analizará. Cuando es None, se usa ``sys.argv[1:]``.\n:returns: Código de salida del proceso, 0 si se completa correctamente.\n:raises SystemExit: con el código 2 para un comando que el analizador acepta y que el despacho de abajo no reconoce -- `parser.error` nunca retorna, por lo que no hay ningún código de salida que devolver en ese caso.",
       "translation_source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ]
     },
     "spacr._v1_v2_bridge": {

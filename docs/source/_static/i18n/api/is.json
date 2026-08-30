@@ -46,14 +46,16 @@
       "source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ],
-      "source_sha256": "ca3e92447b6600c372106a7572a3d9ee27e2fdd396ce60a88575b3ce496b3df3",
-      "text": "CLI innfangsstaða; send til beðið spacr undirkomandi.\n\n:param argv: Þegar None er notað er ``sys.argv[1:]`` notuð.\n:returns: Hugbúnaður útgangskód (0 á árangri, 2 á ókunnulegt beint).",
+      "source_sha256": "1b0090f4954af1de35005df5e6ef3122776fb73303155d273a5d7e8f95858e91",
+      "text": "CLI-inngangspunktur; sendir áfram í umbeðna spacr-undirskipun.\n\n:param argv: Listi viðfanga sem á að þátta. Þegar gildið er None er ``sys.argv[1:]`` notað.\n:returns: Útgöngukóði ferlis, 0 þegar keyrsla tekst.\n:raises SystemExit: með kóða 2 fyrir skipun sem þáttari samþykkir en afgreiðslan hér fyrir neðan þekkir ekki -- `parser.error` skilar aldrei, svo enginn útgöngukóði er til að skila í því tilviki.",
       "translation_source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ]
     },
     "spacr._v1_v2_bridge": {

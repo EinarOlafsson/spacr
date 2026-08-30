@@ -38,3 +38,9 @@ is a no-op; they never use the locale-expanding `tw2sp` configuration.
 The research-only NLLB checkpoint used by the separate tutorial-production
 workspace is deliberately not used for the shipped application, installer,
 README, or API catalogs.
+
+The exact source-bound semantic-review subset, reviewed English identities,
+fallback behavior, sampling method, and unreviewed remainder at the 1.5.0.5
+release gate are recorded in
+[`REVIEW_SCOPE_2026-08-30.md`](REVIEW_SCOPE_2026-08-30.md). That report is an
+evidence boundary, not an exhaustive fluent-speaker-review claim.

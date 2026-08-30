@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "context": "CLI entry point; dispatch to the requested spacr subcommand.",
+      "label": "spacr.__main__.main#0",
+      "source": "CLI entry point; dispatch to the requested spacr subcommand.",
+      "source_sha256": "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
+      "translation": "CLI-inngangspunktur; sendir áfram í umbeðna spacr-undirskipun."
+    },
+    {
+      "context": "Argument list to parse. When None, ``sys.argv[1:]`` is used.",
+      "label": "spacr.__main__.main#1",
+      "source": "Argument list to parse. When None, ``sys.argv[1:]`` is used.",
+      "source_sha256": "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
+      "translation": "Listi viðfanga sem á að þátta. Þegar gildið er None er ``sys.argv[1:]`` notað."
+    },
+    {
+      "context": "Process exit code, 0 on success.",
+      "label": "spacr.__main__.main#2",
+      "source": "Process exit code, 0 on success.",
+      "source_sha256": "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+      "translation": "Útgöngukóði ferlis, 0 þegar keyrsla tekst."
+    },
+    {
+      "context": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
+      "label": "spacr.__main__.main#3",
+      "source": "with code 2 for a command the parser accepts and the dispatch below does not know -- `parser.error` never returns, so there is no exit code to hand back for that case.",
+      "source_sha256": "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12",
+      "translation": "með kóða 2 fyrir skipun sem þáttari samþykkir en afgreiðslan hér fyrir neðan þekkir ekki -- `parser.error` skilar aldrei, svo enginn útgöngukóði er til að skila í því tilviki."
+    }
+  ]
+}
