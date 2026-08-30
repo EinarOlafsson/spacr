@@ -107,6 +107,9 @@ def reported_control_share(fractions: pd.DataFrame, positive_guide: str, *,
                            guide_column: str = "grna") -> Dict[str, float]:
     """What sequencing says the positive control's share of each well is.
 
+    :param fractions: per-well guide fractions, typically returned by
+        :func:`well_fractions`.
+    :param positive_guide: guide identifier whose share is reported.
     :returns: ``{well: fraction}``, zero for a well the control did not
         survive the threshold in -- which is a measurement, not a gap: the
         threshold decided that guide was not there.
@@ -387,7 +390,11 @@ def compare_normalisations(counts: pd.DataFrame,
 
 
 def describe(result: Mapping[str, Any]) -> str:
-    """The sweep in one line, for a log or a run summary."""
+    """The sweep in one line, for a log or a run summary.
+
+    :param result: calibration result returned by
+        :func:`sweep_fraction_threshold`.
+    """
     if result.get("chosen") is None:
         return f"fraction_threshold not measured: {result.get('reason', '')}"
     note = ""

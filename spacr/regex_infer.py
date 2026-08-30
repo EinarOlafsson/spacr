@@ -101,6 +101,10 @@ def hint_for(before: str) -> str:
 class FieldEvidence:
     """Describe the observed values and suggested role of one filename slot.
 
+    :ivar index: token position in the filename family.
+    :ivar values: observed values for this slot, in input order.
+    :ivar numeric: whether every observed value contains only digits.
+
     Attributes
     ----------
     index
@@ -162,6 +166,8 @@ class FieldEvidence:
 @dataclass
 class Proposal:
     """Store a candidate filename regex and the evidence for reviewing it.
+
+    :ivar pattern: regular-expression pattern with named capture groups.
 
     Attributes
     ----------

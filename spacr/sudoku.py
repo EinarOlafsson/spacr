@@ -268,6 +268,11 @@ def constrain_to_fractions(mass: np.ndarray,
                            tolerance: float = 1e-9) -> np.ndarray:
     """Project the propagated mass onto the counts sequencing implies.
 
+    :param mass: graph-propagated cell-by-guide evidence matrix.
+    :param wells: one well identifier for each row of ``mass``.
+    :param names: guide identifiers in the column order of ``mass``.
+    :param fractions: sequencing fractions mapped by well and then guide.
+
     Within each well, scale the guide columns so each sums to ``pi_g * N_w``
     and renormalise the rows to 1, alternately. This is iterative
     proportional fitting -- the same fixed point

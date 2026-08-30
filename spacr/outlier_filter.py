@@ -43,7 +43,11 @@ _TO_SIGMA = 1.4826
 
 
 def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
-    """Resolve the measurement column used by an outlier criterion."""
+    """Resolve the measurement column used by an outlier criterion.
+
+    :param frame: object-measurement table whose columns are searched.
+    :param criterion: supported outlier-filter setting from :data:`CRITERIA`.
+    """
     for name in COLUMNS.get(str(criterion), ()):
         if name in getattr(frame, "columns", ()):
             return name
@@ -148,7 +152,10 @@ def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
 
 
 def describe(report: Sequence[Dict[str, Any]]) -> str:
-    """Format the per-criterion outlier report for run output."""
+    """Format the per-criterion outlier report for run output.
+
+    :param report: per-criterion records returned by :func:`apply`.
+    """
     if not report:
         return ""
     lines = ["Outliers removed before annotation:"]

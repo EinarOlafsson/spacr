@@ -800,7 +800,10 @@ def gpu_allocated() -> Optional[int]:
 
 
 def readable(total: Optional[int]) -> str:
-    """Bytes as the unit a person decides in, or "not measured"."""
+    """Bytes as the unit a person decides in, or "not measured".
+
+    :param total: byte count to format, or None when no measurement exists.
+    """
     if total is None:
         return "not measured"
     size = float(max(0, int(total)))
@@ -840,6 +843,9 @@ def record_stage(settings: Any, name: str) -> Dict[str, Any]:
 def peak(settings: Any) -> Dict[str, Any]:
     """The largest reading recorded, and where it was taken.
 
+    :param settings: mapping-like fit settings carrying the recorded resource
+        history.
+
     Empty when nothing was recorded -- NOT zero, for the reason `host_rss`
     gives.
     """
@@ -860,7 +866,11 @@ def peak(settings: Any) -> Dict[str, Any]:
 
 
 def describe_resources(settings: Any) -> str:
-    """The per-stage table, for a summary or a failure report. "" when empty."""
+    """The per-stage table, for a summary or a failure report. "" when empty.
+
+    :param settings: mapping-like fit settings carrying the recorded resource
+        history.
+    """
     try:
         readings = list(settings.get(RESOURCE_KEY) or [])
     except Exception:                                            # noqa: BLE001

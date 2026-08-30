@@ -204,6 +204,8 @@ def _linear_predictor(model: Any, frame: pd.DataFrame) -> Optional[np.ndarray]:
 def response_scale(model: Any) -> str:
     """Name what :func:`predict` returns for this model, for the axis label.
 
+    :param model: fitted model or result whose prediction scale is identified.
+
     Not cosmetic. The same curve means "probability that a well is
     positive", "positive objects per cell" or "distance from a decision
     boundary" depending on the backend, and a plot that does not say which
@@ -267,7 +269,10 @@ class FittedLinear:
                      if str(name) != "Intercept")
 
     def predict(self, exog: Any) -> np.ndarray:
-        """Predict on the response scale, applying :attr:`link`."""
+        """Predict on the response scale, applying :attr:`link`.
+
+        :param exog: design row or rows aligned with the fitted coefficients.
+        """
         frame = _as_frame(exog)
         eta = _linear_predictor(self, frame)
         if eta is None:
@@ -453,7 +458,11 @@ class Profile:
         return (self.predictions[-1] - self.predictions[0]) / run
 
     def at(self, value: float) -> float:
-        """The prediction at the swept point nearest ``value``."""
+        """The prediction at the swept point nearest ``value``.
+
+        :param value: swept-variable value whose nearest prediction is
+            requested.
+        """
         if not self.values:
             return float("nan")
         index = int(np.argmin(np.abs(np.asarray(self.values) - float(value))))
