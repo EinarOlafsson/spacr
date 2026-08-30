@@ -550,7 +550,7 @@ def _search_figure_dir(settings, app_key: str):
     src = ""
     try:
         src = str((settings or {}).get("src", "") or "").strip()
-    except Exception:                           # pragma: no cover - defensive
+    except Exception:
         src = ""
     if src:
         try:
@@ -565,7 +565,7 @@ def _search_figure_dir(settings, app_key: str):
             pass
     try:
         return Path(tempfile.mkdtemp(prefix="spacr-search-"))
-    except Exception:                           # pragma: no cover - defensive
+    except Exception:
         return None
 
 

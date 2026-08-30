@@ -488,7 +488,7 @@ class PCAResult:
         k = self._check(k)
         column = self.loadings[:, k]
         total = float((column ** 2).sum())
-        if total <= 0:  # pragma: no cover - a unit-norm column cannot be zero
+        if total <= 0:
             return 1.0
         positive = float((column[column > 0] ** 2).sum())
         return max(positive, total - positive) / total

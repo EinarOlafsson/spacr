@@ -266,7 +266,7 @@ class RunCompareScreen(QWidget):
                 f"registry, so nothing here recorded what it ran. Runs "
                 f"started from this version of spaCR will appear.",
                 blocked=False)
-        except Exception as exc:                      # pragma: no cover
+        except Exception as exc:
             self.last_error = str(exc)
             self._set_verdict(f"Could not read that project: {exc}",
                               blocked=True)

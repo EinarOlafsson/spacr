@@ -905,7 +905,7 @@ class HoverTooltip(QFrame):
         # the popup when it is over that frame.
         try:
             return self.frameGeometry().contains(QCursor.pos())
-        except (RuntimeError, TypeError):        # pragma: no cover
+        except (RuntimeError, TypeError):
             return False
 
     def _maybe_hide(self) -> None:

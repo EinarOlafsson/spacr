@@ -531,7 +531,7 @@ class AvailabilityPanel(QFrame):
             try:
                 inside = self.geometry().contains(event.globalPosition()
                                                   .toPoint())
-            except AttributeError:                       # pragma: no cover
+            except AttributeError:
                 inside = self.geometry().contains(self._cursor_pos())
             if not inside:
                 self.dismiss()

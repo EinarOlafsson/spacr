@@ -190,7 +190,7 @@ def _describe(key: str) -> Tuple[str, str, str]:
     default_name = key.replace("_", " ").title()
     try:
         from .. import app as app_module
-    except Exception:                                   # pragma: no cover
+    except Exception:
         app_module = None
     name, description, registered = default_name, "", False
     for row in (getattr(app_module, "APPS", ()) if app_module else ()):
@@ -232,7 +232,7 @@ class FoldButton(QPushButton):
         icon = None
         try:
             icon = iconset.app_icon(key)
-        except Exception:                               # pragma: no cover
+        except Exception:
             icon = None
         if icon is not None and not icon.isNull():
             self.setIcon(icon)

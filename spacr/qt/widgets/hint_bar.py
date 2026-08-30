@@ -100,7 +100,7 @@ class HintBar(QLabel):
     def _translated(self, text: str) -> str:
         try:
             from ..i18n import tr
-        except Exception:                               # pragma: no cover
+        except Exception:
             return text
         return tr(text)
 
