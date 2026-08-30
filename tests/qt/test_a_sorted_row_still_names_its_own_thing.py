@@ -151,3 +151,62 @@ def test_a_sorted_dose_response_row_draws_its_own_curve(qtbot, qapp):
     assert shown in screen.report.toPlainText(), (
         f"row 0 shows {shown} but the report describes something else:\n"
         + screen.report.toPlainText()[:300])
+
+
+def test_a_row_carrying_no_index_falls_back_to_its_own_position(qtbot, qapp):
+    """The identity stamp is what survives a sort, and it can be absent.
+
+    Every row is stamped with the entry's index under ``Qt.UserRole``, which
+    is what makes a sorted table still name the right model. A row rebuilt by
+    something that did not stamp it -- a filter that repopulated the table, a
+    plugin adding a row -- has no stamp, and falling back to the ROW NUMBER is
+    right for exactly as long as nothing has been sorted.
+
+    Asserted with the table unsorted, because that is the only state in which
+    the fallback is correct, and it is better than returning nothing at all.
+    """
+    from spacr.qt.screens import model_zoo as zoo_screen
+    from spacr import model_zoo as zoo
+
+    screen = zoo_screen.ModelZooScreen()
+    qtbot.addWidget(screen)
+    screen.set_entries([
+        zoo.ModelEntry(key="a", name="alpha", path="/tmp/a.pth",
+                       kind="cellpose", source="local", size_bytes=1),
+        zoo.ModelEntry(key="b", name="beta", path="/tmp/b.pth",
+                       kind="cellpose", source="local", size_bytes=2),
+    ])
+    qapp.processEvents()
+
+    # Strip the stamp from row 1, the way a repopulate that forgot it would.
+    screen._table.item(1, 0).setData(Qt.UserRole, None)
+    screen.select(1)
+    qapp.processEvents()
+
+    chosen = screen.selected_entries()
+
+    assert [entry.name for entry in chosen] == ["beta"]
+
+
+def test_a_row_whose_index_points_past_the_entries_is_dropped(qtbot, qapp):
+    """A stale stamp names a model that is no longer in the list.
+
+    Returning it would raise IndexError inside whatever the user clicked --
+    delete, benchmark, set as default -- so the row is simply not offered.
+    """
+    from spacr.qt.screens import model_zoo as zoo_screen
+    from spacr import model_zoo as zoo
+
+    screen = zoo_screen.ModelZooScreen()
+    qtbot.addWidget(screen)
+    screen.set_entries([
+        zoo.ModelEntry(key="a", name="alpha", path="/tmp/a.pth",
+                       kind="cellpose", source="local", size_bytes=1),
+    ])
+    qapp.processEvents()
+
+    screen._table.item(0, 0).setData(Qt.UserRole, 99)
+    screen.select(0)
+    qapp.processEvents()
+
+    assert screen.selected_entries() == []
