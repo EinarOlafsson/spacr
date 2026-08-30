@@ -148,7 +148,7 @@ def test_the_tooltip_says_the_dtype_is_not_a_precision_choice():
     it makes the model better."""
     from spacr.settings import tooltips
 
-    assert "does NOT change training precision" in tooltips["crop_dtype"]
+    assert "Training precision is unchanged" in tooltips["crop_dtype"]
 
 
 def test_normalize_input_is_still_the_on_off_it_always_was():

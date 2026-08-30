@@ -102,9 +102,7 @@ def test_projections_that_do_not_converge_are_refused(monkeypatch):
     The coefficients would then not be the least-squares ones, and nothing
     downstream could tell.
     """
-    import sys
-
-    demean_module = sys.modules['pyfixest.core.demean']
+    demean_module = pytest.importorskip('pyfixest.core.demean')
     real_demean = demean_module.demean
     monkeypatch.setattr(demean_module, 'demean',
                         lambda *a, **k: (real_demean(*a, **k)[0], False))
@@ -122,6 +120,7 @@ def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused():
     arbitrary solution out of infinitely many; naming that is the difference
     between a refusal and a wrong number.
     """
+    pytest.importorskip('pyfixest.core.demean')
     design = absorbable_design(extra=('fraction',))
     design['fraction_copy'] = design['fraction']
     y = np.arange(float(len(design)))
@@ -293,6 +292,7 @@ def test_a_glum_information_matrix_that_is_singular_is_refused(monkeypatch):
     inverted through a pseudo-inverse, which would give standard errors for one
     arbitrary solution out of infinitely many.
     """
+    pytest.importorskip('glum')
     rng = np.random.default_rng(7)
     design = pd.DataFrame({'Intercept': np.ones(12),
                            'fraction': rng.uniform(0.1, 0.9, 12)})
@@ -312,6 +312,7 @@ def test_a_gaussian_glum_fit_estimates_its_own_dispersion():
     Fixing it at one would report standard errors that ignore how much scatter
     the response actually has.
     """
+    pytest.importorskip('glum')
     rng = np.random.default_rng(11)
     x = rng.normal(size=40)
     design = pd.DataFrame({'Intercept': np.ones(40), 'x': x})

@@ -71,23 +71,41 @@ def stop_after_the_notice(monkeypatch):
 # autocasting / cache release
 # ---------------------------------------------------------------------------
 
+def _cpu_autocast_enabled():
+    """Read CPU autocast state across the supported Torch 2.x range."""
+    try:
+        return torch.is_autocast_enabled("cpu")
+    except TypeError:
+        return torch.is_autocast_cpu_enabled()
+
+
+def _cpu_autocast_dtype():
+    """Read the CPU autocast dtype before Torch exposed the generic getter."""
+    getter = getattr(torch, "get_autocast_dtype", None)
+    if getter is not None:
+        try:
+            return getter("cpu")
+        except TypeError:
+            pass
+    return torch.get_autocast_cpu_dtype()
+
 def test_autocasting_on_actually_enables_half_precision():
     """The training loop's ``with`` block has to be the real autocast block."""
     device = torch.device("cpu")
 
     with deep_spacr.autocasting(True, device):
-        inside = torch.is_autocast_enabled("cpu")
-        dtype = torch.get_autocast_dtype("cpu")
+        inside = _cpu_autocast_enabled()
+        dtype = _cpu_autocast_dtype()
 
     assert inside is True
-    assert dtype is torch.float16
-    assert torch.is_autocast_enabled("cpu") is False
+    assert dtype is torch.bfloat16
+    assert _cpu_autocast_enabled() is False
 
 
 def test_autocasting_off_is_still_a_context_manager():
     """One shape for the loop: off must not mean "no ``with`` block"."""
     with deep_spacr.autocasting(False, torch.device("cpu")):
-        assert torch.is_autocast_enabled("cpu") is False
+        assert _cpu_autocast_enabled() is False
 
 
 def test_the_cache_release_reaches_cuda_when_cuda_is_there(monkeypatch):

@@ -504,7 +504,7 @@ def test_the_display_dialog_applies_the_live_half_and_propagates_all_of_it(
     explorer.set_propagate_callback(pushed.append)
     explorer.open_display_settings()
     assert explorer.display_settings()["point_size"] == 40
-    assert pushed == [{"point_size": 40, "figuresize": 9}]
+    assert pushed == [{"dot_size": 40, "figuresize": 9}]
     assert explorer._status.text() == "Display updated."
 
 

@@ -32,11 +32,16 @@ UNPUBLISHED = frozenset({"tests", "__pycache__", "backup_icons"})
 
 
 def live_module_names(package: Path = PACKAGE) -> set[str]:
-    """Every dotted module name, and every prefix of one, in the source tree.
+    """Every dotted module name/prefix and package-level public definition.
 
     A package directory counts through the ``.py`` files inside it, because
     ``spacr.resources`` carries documented modules without an ``__init__``.
+    A public function or class defined by the package ``__init__`` also owns a
+    two-part catalog key. It must not be mistaken for a deleted module merely
+    because its name occupies the same dotted position as one.
     """
+    import ast
+
     names: set[str] = set()
     for path in package.rglob("*.py"):
         if any(part in UNPUBLISHED for part in path.parts):
@@ -46,6 +51,14 @@ def live_module_names(package: Path = PACKAGE) -> set[str]:
             parts.pop()
         for end in range(1, len(parts) + 1):
             names.add(".".join(parts[:end]))
+    init_path = package / "__init__.py"
+    if init_path.is_file():
+        tree = ast.parse(init_path.read_text(encoding="utf-8"))
+        for node in tree.body:
+            if (isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                  ast.ClassDef))
+                    and not node.name.startswith("_")):
+                names.add(f"{package.name}.{node.name}")
     return names
 
 
