@@ -61,6 +61,14 @@ Preferences control that sets it, or delete the branch and the docstring
 sentence. Do not leave a third state where the code reads a setting nothing
 can write. Assert the CALL SITE, not just the function.
 
+FIXED 2026-08-29. ``get_figure_save_mode`` and its validating setter now own
+``prefs/figure_save_mode``. The real Figures page exposes print, screen and
+transparent choices, saves the selected item, restores it in a newly opened
+dialog, and resets it to print. The call-site test then reads the choice
+through ``spacr.figure_style.figure_save_mode``; a valid environment override
+still wins. The focused preference/call-site cohort is 19/19 green.
+Implementation commit: ``b47caef2``.
+
 --------------------------------------------------------------------------------
 2. A BARE VEuPATHDB ACCESSION IS CLASSIFIED AS A GUIDE  (lane: spacr/hits.py)
 --------------------------------------------------------------------------------
