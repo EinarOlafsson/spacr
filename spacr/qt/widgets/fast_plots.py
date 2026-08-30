@@ -4353,8 +4353,8 @@ class FastPlot(QWidget):
                     rows=None) -> ScatterPlotItem:
         """Add points and wire up clicking them.
 
-        :param x: x coordinates in frame order. An entry is omitted when it
-            or its paired y coordinate is non-finite.
+        :param x: x coordinates in the order supplied. An entry is omitted
+            when it or its paired y coordinate is non-finite.
         :param y: y coordinates aligned one-for-one with ``x``.
         :param colours: one QColor per point, or None for a single colour.
         :param symbol_list: one pyqtgraph symbol per point, or None for

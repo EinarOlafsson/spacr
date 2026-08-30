@@ -187,7 +187,8 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
            scaled: bool = True) -> Curve:
     """Fit one of the diagnostic smoothers to ``y`` against ``x``.
 
-    :param x: ordered predictor values, one per observation.
+    :param x: predictor values, one per observation. They may arrive unsorted;
+        ``x`` and ``y`` are sorted together before fitting.
     :param y: response values aligned one-to-one with ``x``.
     :param scaled: standardise ``x`` before fitting for the methods that
         need it, and say so in the note. KNN and the Gaussian process are

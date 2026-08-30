@@ -143,7 +143,7 @@ def benchmark(work: Callable[[Any], Any], items: Sequence[Any], *,
 
     :param work: callable invoked once for every warm-up and measured item;
         its return value is ignored because only resource use is measured.
-    :param items: ordered workload to copy and process. At least one item is
+    :param items: ordered workload to process. At least one item is
         required, and the final item is always kept in the measured set.
     :param warmup: items processed before the clock starts. The first field
         pays for imports, CUDA context creation and page faults that no later
