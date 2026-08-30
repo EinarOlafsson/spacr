@@ -814,3 +814,76 @@ def test_nothing_the_volcano_says_to_a_user_mentions_an_aspect_ratio(
     offending = [word for word in words
                  if word and "aspect ratio" in word.lower()]
     assert offending == [], offending
+
+
+# ---------------------------------------------------------------------------
+# which control a renderer error should turn red
+# ---------------------------------------------------------------------------
+
+def test_the_setting_a_message_spells_out_is_the_one_blamed():
+    """``x_column='foo' is not a column`` points at ``x_column``."""
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    assert _setting_named_in(
+        "x_column='foo' is not a column of the results") == "x_column"
+
+
+def test_a_longer_setting_name_wins_over_a_prefix_of_itself():
+    """``color_by`` is a prefix of nothing, but ``colormap`` shares one.
+
+    Sorting by length descending is what stops a short name answering for a
+    longer one that happens to contain it -- the reader would be sent to a
+    control that is not the problem, and the one that is stays unmarked.
+    """
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    named = _setting_named_in("colormap='nope' is not a colormap")
+
+    assert named == "colormap"
+
+
+def test_a_bare_mention_is_used_when_nothing_is_spelled_with_an_equals():
+    """The second pass, which had never run.
+
+    A renderer may describe a setting without quoting an assignment -- "the
+    colormap could not be resolved". There is still exactly one control to
+    point at, and pointing at it is better than showing an explanation with
+    nothing highlighted.
+    """
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    assert _setting_named_in(
+        "the colormap could not be resolved") == "colormap"
+
+
+def test_the_name_with_an_equals_beats_a_bare_mention_of_another():
+    """A message may name a second setting only to suggest it.
+
+    "x_column='foo' is not a column; try colormap" blames x_column. Taking
+    the suggestion as the fault would turn the wrong control red and leave
+    the user changing something that was never wrong.
+    """
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    assert _setting_named_in(
+        "x_column='foo' is not a column; try colormap") == "x_column"
+
+
+def test_a_message_naming_no_setting_blames_nothing():
+    """The explanation is still shown; it just has no control to turn red.
+
+    Returning a plausible-looking name here would mark a control the message
+    never mentioned.
+    """
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    assert _setting_named_in("the results table is empty") == ""
+    assert _setting_named_in("") == ""
+
+
+def test_a_message_that_is_not_a_string_is_still_read():
+    """Renderer errors arrive as exceptions, not always as text."""
+    from spacr.qt.widgets.volcano_explorer import _setting_named_in
+
+    assert _setting_named_in(ValueError("colormap='nope' is unknown")) == (
+        "colormap")
