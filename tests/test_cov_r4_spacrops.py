@@ -360,7 +360,12 @@ def test_a_tile_already_at_its_destination_is_not_moved_onto_itself(tmp_path,
     result = stitch_cycle_wells(_settings(root, root, collision="overwrite"))
 
     assert result["organized"]["by_well"]["A1"] == tiles
-    assert result["organized"]["moved"] == 1
+    # ZERO, because the move was skipped, and a skipped move is not a move.
+    # The count that matters to a caller is how many files were actually
+    # relocated; reporting one here would say the organizer had done work it
+    # deliberately declined to do. What the run must guarantee is the line
+    # above -- the plate is still on the far side.
+    assert result["organized"]["moved"] == 0
 
 
 def test_a_dry_run_plans_the_links_and_the_move_and_makes_neither(tmp_path,

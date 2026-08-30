@@ -121,11 +121,22 @@ class _WithoutSysconf:
 
 
 class _PaintedButton(QPushButton):
+    """Counts repaints through paintEvent, not by overriding ``update``.
+
+    The probe deliberately calls ``QWidget.update(control)`` rather than
+    ``control.update()``: QTableWidget and QListWidget overload ``update``
+    with a QModelIndex, so the bound call raises TypeError on exactly the
+    table and list screens the instrumentation is measuring. Overriding
+    ``update`` here would therefore count nothing -- the explicit
+    QWidget call goes straight past the override -- and the test would
+    read a correct implementation as a broken one.
+    """
+
     update_calls = 0
 
-    def update(self, *args):  # noqa: D102 - Qt naming
+    def paintEvent(self, event):  # noqa: D102 - Qt naming
         self.update_calls += 1
-        super().update(*args)
+        super().paintEvent(event)
 
 
 def _page():
@@ -521,10 +532,13 @@ def test_only_visible_controls_are_repainted_when_the_loop_starts(
     hidden_before = hidden.update_calls
 
     timing.event_loop_started()
+    qtbot.wait(20)          # let the requested repaints be delivered
 
     assert shown.isVisible() and not hidden.isVisible()
-    assert shown.update_calls == shown_before + 1
-    assert hidden.update_calls == hidden_before
+    assert shown.update_calls > shown_before, (
+        "a visible control must be repainted when the loop starts")
+    assert hidden.update_calls == hidden_before, (
+        "a hidden one must not be")
 
 
 def test_a_control_deleted_before_the_loop_starts_retires_the_probe(
