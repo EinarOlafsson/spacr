@@ -655,3 +655,133 @@ def test_a_finished_run_reaches_the_montages_status_line(loaded_view):
     assert panel.result() is not None, panel.report_text()
     assert "Annotate:" in loaded_view.status_text()
     assert "Annotate tab" in loaded_view.status_text()
+
+
+# ---------------------------------------------------------------------------
+# the providers, when the screen behind them cannot answer
+# ---------------------------------------------------------------------------
+
+def test_the_score_column_falls_back_when_there_is_no_provider(qtbot):
+    """The panel is built before the screen that feeds it.
+
+    A default of "pred" is what the montage windows on anyway, so a panel with
+    no provider yet is usable rather than broken.
+    """
+    widget = AnnotationStrategyPanel(threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        assert widget._score_column() == "pred"
+    finally:
+        _drop(widget)
+
+
+def test_a_provider_that_raises_does_not_take_the_panel_with_it(qtbot):
+    """The provider reaches into the live screen, which can be mid-rebuild.
+
+    Letting that exception out would kill the panel while a user was reading
+    it, over a value that has a perfectly good default.
+    """
+    def explodes():
+        raise RuntimeError("the results table is being rebuilt")
+
+    widget = AnnotationStrategyPanel(score_provider=explodes,
+                                     objects_provider=explodes,
+                                     threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        assert widget._score_column() == "pred"
+        assert widget._objects() is None
+    finally:
+        _drop(widget)
+
+
+def test_a_provider_answering_nothing_is_the_same_as_no_provider(qtbot):
+    """An empty string is not a column name.
+
+    Passing "" through would window the montage on a column that does not
+    exist, which fails later and further away than defaulting here.
+    """
+    widget = AnnotationStrategyPanel(score_provider=lambda: "",
+                                     threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        assert widget._score_column() == "pred"
+    finally:
+        _drop(widget)
+
+
+def test_with_no_objects_provider_there_are_no_rows_to_choose_from(qtbot):
+    """``None`` means "cannot answer", which the caller checks for."""
+    widget = AnnotationStrategyPanel(threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        assert widget._objects() is None
+    finally:
+        _drop(widget)
+
+
+# ---------------------------------------------------------------------------
+# saving
+# ---------------------------------------------------------------------------
+
+def test_saving_before_a_run_says_so_rather_than_writing_nothing(qtbot):
+    """An empty mapping and a silent no-op are different failures.
+
+    A user who clicks Save before running gets a sentence; without it they get
+    a file dialog, choose a folder, and nothing appears in it.
+    """
+    widget = AnnotationStrategyPanel(threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        assert widget.save() == {}
+        assert "nothing to save" in widget._status.text().lower()
+    finally:
+        _drop(widget)
+
+
+def test_a_folder_that_cannot_be_written_is_reported_not_raised(qtbot,
+                                                                tmp_path):
+    """A full disk during the save must not take the panel down.
+
+    The result is still in memory, so the user can free some space and click
+    Save again -- but only if the panel survived to be clicked.
+    """
+    class _Result:
+        def write(self, folder):
+            raise OSError("No space left on device")
+
+    widget = AnnotationStrategyPanel(threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        widget._result = _Result()
+
+        written = widget.save(folder=str(tmp_path))
+
+        assert written == {}
+        assert "Could not write" in widget._status.text()
+        assert "No space left" in widget._status.text()
+    finally:
+        _drop(widget)
+
+
+def test_a_successful_save_says_how_many_files_and_where(qtbot, tmp_path):
+    """The counterpart, and the sentence the user reads afterwards."""
+    class _Result:
+        def write(self, folder):
+            os.makedirs(folder, exist_ok=True)
+            return {"selected": os.path.join(folder, "selected.csv"),
+                    "holdout": os.path.join(folder, "holdout.csv")}
+
+    widget = AnnotationStrategyPanel(threaded=False)
+    qtbot.addWidget(widget)
+    try:
+        widget._result = _Result()
+
+        written = widget.save(folder=str(tmp_path))
+
+        assert len(written) == 2
+        said = widget._status.text()
+        assert "Wrote 2 file(s)" in said
+        assert widget.strategy_key() in said
+    finally:
+        _drop(widget)
