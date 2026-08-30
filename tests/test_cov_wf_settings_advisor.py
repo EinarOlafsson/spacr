@@ -21,9 +21,7 @@ import pandas as pd
 import pytest
 
 from spacr.regression_qc import QC_NUMBERS_FILE
-from spacr.settings_advisor import (advise_the_screen, read_the_counts,
-                                    read_the_last_run, refusals)
-
+from spacr.settings_advisor import advise_the_screen, read_the_counts, read_the_last_run, refusals
 
 # ---------------------------------------------------------------------------
 # Count tables on disk. The readers read FILES, so a DataFrame fixture would

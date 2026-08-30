@@ -24,9 +24,8 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
-from spacr.qt.widgets.class_editor import (              # noqa: E402
-    ClassChip, ClassEditorWidget)
-from spacr.qt.widgets.sortable_table import tree_item    # noqa: E402
+from spacr.qt.widgets.class_editor import ClassChip, ClassEditorWidget  # noqa: E402
+from spacr.qt.widgets.sortable_table import tree_item  # noqa: E402
 
 
 @pytest.fixture

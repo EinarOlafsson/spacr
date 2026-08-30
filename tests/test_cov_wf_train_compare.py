@@ -25,11 +25,11 @@ behaviours pinned:
 """
 from __future__ import annotations
 
+import matplotlib
 import numpy as np
 import pandas as pd
 import pytest
 
-import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
@@ -40,7 +40,6 @@ from spacr.train_compare import (
     load_run,
     plot_curves,
 )
-
 
 # ---------------------------------------------------------------------------
 # Run folders, written the way training writes them

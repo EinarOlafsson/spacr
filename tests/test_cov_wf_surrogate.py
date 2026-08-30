@@ -309,7 +309,9 @@ def test_dependence_panels_are_skipped_when_the_shap_tables_name_others(
     """
     aligned = surrogate.write_surrogate_result(
         _hand_result(), str(tmp_path / "aligned"))
-    assert (tmp_path / "aligned" / "shap_dependence.pdf").is_file()
+    assert aligned["shap_dependence_pdf"] == str(
+        tmp_path / "aligned" / "shap_dependence.pdf")
+    assert os.path.isfile(aligned["shap_dependence_pdf"])
 
     renamed = {"cell_area": "cell_area_um2", "noise_a": "noise_a_v2"}
     mismatched = _hand_result()

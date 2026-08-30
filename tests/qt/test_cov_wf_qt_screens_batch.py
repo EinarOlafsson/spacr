@@ -25,11 +25,10 @@ is a hang until morning.
 from __future__ import annotations
 
 import pytest
-
 from PySide6.QtCore import Qt
 
-from spacr import batch as bt
 import spacr.qt.screens.batch as batch_mod
+from spacr import batch as bt
 from spacr.qt.screens.batch import COLUMNS, BatchScreen
 
 pytestmark = pytest.mark.qt

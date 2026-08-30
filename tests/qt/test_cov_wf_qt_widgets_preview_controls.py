@@ -27,7 +27,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from PySide6.QtWidgets import QComboBox
 
 from spacr.qt.widgets import preview_controls as pc

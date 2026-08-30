@@ -26,10 +26,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox,  # noqa: E402
-                               QLineEdit, QSpinBox)
+from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox  # noqa: E402
 
-import spacr.picture_settings as ps                        # noqa: E402
+import spacr.picture_settings as ps  # noqa: E402
 from spacr.qt.widgets import picture_settings_dialog as psd  # noqa: E402
 
 pytestmark = pytest.mark.qt

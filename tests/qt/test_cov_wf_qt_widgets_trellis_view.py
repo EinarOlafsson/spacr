@@ -42,10 +42,8 @@ pytest.importorskip("matplotlib")
 
 from spacr.qt.linked_selection import LinkedSelection
 from spacr.qt.theme import active_palette
-from spacr.qt.widgets.graph_spec import (
-    CONTINUOUS, EMPTY, HISTOGRAM, SCATTER, GraphSpec)
-from spacr.qt.widgets.trellis_spec import (
-    SCALE_FREE, SCALE_SHARED, TrellisSpec)
+from spacr.qt.widgets.graph_spec import CONTINUOUS, EMPTY, HISTOGRAM, SCATTER, GraphSpec
+from spacr.qt.widgets.trellis_spec import SCALE_FREE, SCALE_SHARED, TrellisSpec
 from spacr.qt.widgets.trellis_view import TrellisCanvas, TrellisPanelWidget
 
 #: ``classify_columns`` calls a numeric column with twelve or fewer distinct

@@ -35,7 +35,6 @@ import pytest
 
 import spacr.active_learning as al
 
-
 # ---------------------------------------------------------------------------
 # A minimal screen: png_list plus a feature matrix handed in directly, so the
 # tests below exercise the round and not the measurement join (which
@@ -55,7 +54,7 @@ def _screen(tmp_path, per_well=6, plate="plate1"):
     db = os.path.join(str(tmp_path), "measurements.db")
     rng = np.random.default_rng(7)
     crops, features = [], {}
-    for well_index, (row_id, column_id) in enumerate(WELLS):
+    for _well_index, (row_id, column_id) in enumerate(WELLS):
         for obj in range(1, per_well + 1):
             prcf = f"{plate}_{row_id}_{column_id}_f1"
             cls = obj % 2

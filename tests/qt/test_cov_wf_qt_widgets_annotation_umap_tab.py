@@ -27,11 +27,13 @@ pytest.importorskip("PySide6")
 pytest.importorskip("pyqtgraph")
 
 from spacr import annotation_umap_qc as qc
-from spacr.qt.widgets.annotation_umap_tab import (ANNOTATED,
-                                                  AnnotationUmapTab,
-                                                  GROUP_SYMBOLS,
-                                                  PURITY_COLORMAP,
-                                                  PurityScatter)
+from spacr.qt.widgets.annotation_umap_tab import (
+    ANNOTATED,
+    GROUP_SYMBOLS,
+    PURITY_COLORMAP,
+    AnnotationUmapTab,
+    PurityScatter,
+)
 
 #: Where each guide's annotated cells are placed along the control gradient.
 #: The controls run from all-negative at x=0 to all-positive at x=19.5, so a

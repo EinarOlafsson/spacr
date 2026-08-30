@@ -32,7 +32,11 @@ pytest.importorskip("PySide6")
 
 from spacr.qt.widgets import feature_rank as FR
 from spacr.qt.widgets.feature_rank import (
-    AUC, KS, DEFAULT_TOP, ExplorerSpec, rank_features,
+    AUC,
+    DEFAULT_TOP,
+    KS,
+    ExplorerSpec,
+    rank_features,
 )
 
 

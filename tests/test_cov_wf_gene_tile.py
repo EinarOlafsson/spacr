@@ -21,7 +21,6 @@ import pandas as pd
 
 from spacr import gene_tile as GT
 
-
 #: Two distinct protospacers, twenty nucleotides each, as a real reference
 #: writes them.
 SEQUENCE = "ACGTACGTACGTACGTACGT"

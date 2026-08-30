@@ -21,10 +21,10 @@ import pytest
 from spacr import batch
 from spacr.batch import (
     ERROR,
+    STATUS_SUCCESS,
     Job,
     Queue,
     QueueResult,
-    STATUS_SUCCESS,
     plan,
     validate_queue,
 )

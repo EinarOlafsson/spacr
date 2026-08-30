@@ -25,10 +25,14 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QDialog, QDialogButtonBox
 
 from spacr.qt.screens import distributed_jobs as dj
-from spacr.qt.screens.distributed_jobs import (DistributedJobsScreen,
-                                               ExecutionProfileDialog)
-from spacr.remote_execution import (ExecutionProfile, JobStore, ProfileStore,
-                                    RemoteJob, RemoteJobManager)
+from spacr.qt.screens.distributed_jobs import DistributedJobsScreen, ExecutionProfileDialog
+from spacr.remote_execution import (
+    ExecutionProfile,
+    JobStore,
+    ProfileStore,
+    RemoteJob,
+    RemoteJobManager,
+)
 
 
 class Runner:

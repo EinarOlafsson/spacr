@@ -29,11 +29,13 @@ matplotlib.use("Agg")
 
 pytestmark = pytest.mark.qt
 
-from PySide6.QtCore import QEvent, Qt                            # noqa: E402
-from PySide6.QtGui import QKeyEvent                              # noqa: E402
+from PySide6.QtCore import QEvent, Qt  # noqa: E402
+from PySide6.QtGui import QKeyEvent  # noqa: E402
 
-from spacr.qt.widgets.sweep_runs import (                        # noqa: E402
-    SOURCE_SWEEP, STATUS_RUNNING, SweepRunsPanel,
+from spacr.qt.widgets.sweep_runs import (  # noqa: E402
+    SOURCE_SWEEP,
+    STATUS_RUNNING,
+    SweepRunsPanel,
 )
 
 

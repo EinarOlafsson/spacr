@@ -16,9 +16,14 @@ import inspect
 import pytest
 
 from spacr.qt import app as app_mod
-from spacr.qt.app_catalog import (DECLARED_APPS, DeclaredApp,
-                                  LazyScreenFactory, declared_app,
-                                  declared_for, register_declared)
+from spacr.qt.app_catalog import (
+    DECLARED_APPS,
+    DeclaredApp,
+    LazyScreenFactory,
+    declared_app,
+    declared_for,
+    register_declared,
+)
 
 #: A module the catalog deliberately declares no row for: its registration
 #: does real work (it re-reads the whole registry), so it is imported at

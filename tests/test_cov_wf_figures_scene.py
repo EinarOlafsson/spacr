@@ -20,18 +20,30 @@ import numpy as np
 import pytest
 
 matplotlib.use("Agg", force=True)
-import matplotlib.pyplot as plt                                  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
 
 pytest.importorskip("PySide6")
 
-from spacr.figures import scene as sc                            # noqa: E402
-from spacr.figures.scene import (SceneReport, _Look, _add_legend,  # noqa: E402
-                                 _add_line, _add_line_collection,
-                                 _add_path_collection, _add_rectangles,
-                                 _add_text, _carry_ticks, _configure_axes,
-                                 _lay_out, _plain_text, _reference_line,
-                                 _translate_axes, _translate_colorbar,
-                                 pyqtgraph_ready, render_figure)
+from spacr.figures import scene as sc  # noqa: E402
+from spacr.figures.scene import (  # noqa: E402
+    SceneReport,
+    _add_legend,
+    _add_line,
+    _add_line_collection,
+    _add_path_collection,
+    _add_rectangles,
+    _add_text,
+    _carry_ticks,
+    _configure_axes,
+    _lay_out,
+    _Look,
+    _plain_text,
+    _reference_line,
+    _translate_axes,
+    _translate_colorbar,
+    pyqtgraph_ready,
+    render_figure,
+)
 
 
 @pytest.fixture(autouse=True)

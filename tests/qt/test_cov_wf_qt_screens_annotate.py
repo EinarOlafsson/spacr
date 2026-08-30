@@ -21,11 +21,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 from PIL import Image
-from PySide6.QtCore import QRect, QThread, Qt, Signal
+from PySide6.QtCore import QRect, Qt, QThread, Signal
 
 from spacr.qt import annotate_engine as engine
 from spacr.qt.screens import annotate as annotate_mod
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- a real experiment folder, because every path here reads one

@@ -16,17 +16,16 @@ render.
 from __future__ import annotations
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_rgba
-
 import numpy as np
 import pandas as pd
 import pytest
+from matplotlib.colors import to_rgba
 
 from spacr.localisation import table
-from spacr.volcano_style import (VolcanoStyle, page_ground, point_localizations,
-                                 render_volcano)
+from spacr.volcano_style import VolcanoStyle, page_ground, point_localizations, render_volcano
 
 
 def _results(n=24, seed=3):

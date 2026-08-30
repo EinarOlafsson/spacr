@@ -25,11 +25,9 @@ import sqlite3
 from dataclasses import replace
 
 import pandas as pd
-import pytest
 
 from spacr.multi_database import SCREEN_COLUMN
-from spacr.plate_measurements import (describe_identifier_refusal,
-                                      merge_plate_databases)
+from spacr.plate_measurements import describe_identifier_refusal, merge_plate_databases
 
 _IDENTITY = {"rowID": "A", "columnID": "1", "fieldID": "f1"}
 

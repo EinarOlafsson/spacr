@@ -31,11 +31,9 @@ import os
 import sqlite3
 
 import pytest
-
 from PySide6.QtGui import QImage
 
 from spacr.qt.screens.agreement import AgreementScreen
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

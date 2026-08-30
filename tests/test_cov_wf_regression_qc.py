@@ -23,11 +23,9 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
-
 from matplotlib.figure import Figure
 
 from spacr import regression_qc as rq
-
 
 # ---------------------------------------------------------------------------
 # builders

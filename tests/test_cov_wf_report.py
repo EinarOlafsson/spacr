@@ -19,7 +19,6 @@ from pathlib import Path
 
 from spacr import report as R
 
-
 # ---------------------------------------------------------------------------
 # Run status: a failure record that is not a dict
 # ---------------------------------------------------------------------------

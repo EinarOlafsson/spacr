@@ -19,12 +19,14 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-import spacr.hits as hits                                          # noqa: E402
-import spacr.regression_qc as regression_qc                        # noqa: E402
-from spacr.qt.widgets import refit_dialog                          # noqa: E402
-from spacr.qt.widgets.fast_plots import VolcanoPlot                # noqa: E402
-from spacr.qt.widgets.regression_results import (                  # noqa: E402
-    RegressionResultsPanel, for_table, read_run_tables,
+import spacr.hits as hits  # noqa: E402
+import spacr.regression_qc as regression_qc  # noqa: E402
+from spacr.qt.widgets import refit_dialog  # noqa: E402
+from spacr.qt.widgets.fast_plots import VolcanoPlot  # noqa: E402
+from spacr.qt.widgets.regression_results import (  # noqa: E402
+    RegressionResultsPanel,
+    for_table,
+    read_run_tables,
 )
 
 

@@ -15,10 +15,10 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import Qt                      # noqa: E402
-from PySide6.QtWidgets import QWidget              # noqa: E402
+from PySide6.QtCore import Qt  # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
 
-from spacr.qt import theme                         # noqa: E402
+from spacr.qt import theme  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -77,7 +77,6 @@ def spare_block_names():
     yield names
     for name in names:
         theme.unregister_widget_qss(name)
-    theme._QSS_BATCH_PENDING.clear()
 
 
 # --- scrim bounds ---------------------------------------------------------
@@ -238,47 +237,52 @@ def test_repolish_repaints_a_widget_whose_style_has_gone(qtbot):
     assert styleless.repaints == 1
 
 
-# --- batched QSS registration ---------------------------------------------
+# --- screen-local QSS registration ----------------------------------------
 
-def test_a_run_of_blocks_in_one_batch_restyles_the_application_once(
-        monkeypatch, spare_block_names):
-    """Registering a QSS block normally rebuilds the live stylesheet at once,
-    so a screen imported long after startup is styled before its first paint.
-    A cold launch imports four such screens in a row and paid for four full
-    rebuilds, three of them thrown away. Inside a batch the names are
-    collected and the rebuild is owed once, on the way out -- and a name
-    registered twice inside the batch must be queued once, or the flush pays
-    per registration again and the saving is gone.
+def test_a_run_of_blocks_is_scoped_to_one_screen_without_restyling_the_app(
+        qtbot, qt_theme_applied, spare_block_names):
+    """Late blocks land on the new screen and never re-polish the whole app.
+
+    Registration only records each block. The screen host installs one
+    complete suffix on its root before first paint, leaving the application's
+    already-live stylesheet byte-identical. Replacing a block before that
+    handoff must install only the replacement, and applying the same complete
+    suffix again must be a no-op rather than a second screen re-polish.
     """
     first, second, solo = spare_block_names
-    applied = []
-
-    def record(*names):
-        applied.append(names)
-        return True
-
-    monkeypatch.setattr(theme, "ensure_widget_qss_applied", record)
+    qapp = qt_theme_applied
+    live_sheet = qapp.styleSheet()
+    root = QWidget()
+    root.setObjectName("ACovWfThemeScreen")
+    qtbot.addWidget(root)
 
     theme.register_widget_qss(solo, lambda palette, opacity: "QWidget#S {}")
+    theme.register_widget_qss(first,
+                              lambda palette, opacity: "QWidget#A {}")
+    theme.register_widget_qss(second,
+                              lambda palette, opacity: "QWidget#B {}")
+    theme.register_widget_qss(first,
+                              lambda palette, opacity: "QWidget#C {}",
+                              replace=True)
 
-    assert applied == [(solo,)]
+    assert qapp.styleSheet() == live_sheet
+    assert root.styleSheet() == ""
 
-    with theme.batched_widget_qss():
-        theme.register_widget_qss(first,
-                                  lambda palette, opacity: "QWidget#A {}")
-        theme.register_widget_qss(second,
-                                  lambda palette, opacity: "QWidget#B {}")
-        theme.register_widget_qss(first,
-                                  lambda palette, opacity: "QWidget#C {}",
-                                  replace=True)
-        assert applied == [(solo,)]
-        assert list(theme._QSS_BATCH_PENDING) == [first, second]
+    try:
+        assert theme.ensure_widget_qss_applied(
+            first, second, solo, root=root) is True
+        screen_sheet = root.styleSheet()
 
-    assert applied == [(solo,), (first, second)]
-    assert list(theme._QSS_BATCH_PENDING) == []
+        assert qapp.styleSheet() == live_sheet
+        assert "registered widget QSS: ACovWfThemeBlockSolo" in screen_sheet
+        assert "registered widget QSS: ACovWfThemeBlockOne" in screen_sheet
+        assert "registered widget QSS: ACovWfThemeBlockTwo" in screen_sheet
+        assert "QWidget#C {}" in screen_sheet
+        assert "QWidget#A {}" not in screen_sheet
+        assert "QWidget#B {}" in screen_sheet
 
-    sheet = theme.stylesheet(theme="dark")
-
-    assert "QWidget#C {}" in sheet
-    assert "QWidget#A {}" not in sheet
-    assert "QWidget#B {}" in sheet
+        assert theme.ensure_widget_qss_applied(
+            first, second, solo, root=root) is False
+        assert root.styleSheet() == screen_sheet
+    finally:
+        theme.clear_widget_qss_overlays(qapp)
