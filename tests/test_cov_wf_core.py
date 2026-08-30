@@ -149,6 +149,43 @@ def test_a_v2_run_without_a_nucleus_channel_segments_on_the_cell_plane_alone(
     assert both["channels_for_cellpose"] == (1, 0)
 
 
+def test_consolidate_keeps_each_source_in_its_own_plate(tmp_path, monkeypatch):
+    """A list of plates is consolidated in order without becoming one path."""
+    import spacr.core as core
+    import spacr.utils as su
+
+    roots = [tmp_path / "plate1", tmp_path / "plate2"]
+    for root in roots:
+        root.mkdir()
+    calls = []
+
+    def image_map(source):
+        calls.append(("map", source))
+        return {f"{source}/raw.tif": f"{source}/renamed.tif"}
+
+    def consolidate(mapping, source):
+        calls.append(("copy", source, mapping))
+        os.makedirs(os.path.join(source, "consolidated"))
+
+    monkeypatch.setattr(su, "generate_image_path_map", image_map)
+    monkeypatch.setattr(su, "copy_images_to_consolidated", consolidate)
+    settings = _mask_settings(roots[0], masks=False, consolidate=True)
+    settings["src"] = [str(root) for root in roots]
+
+    core.preprocess_generate_masks(settings)
+
+    assert calls == [
+        ("map", str(roots[0])),
+        ("copy", str(roots[0]), {
+            f"{roots[0]}/raw.tif": f"{roots[0]}/renamed.tif"}),
+        ("map", str(roots[1])),
+        ("copy", str(roots[1]), {
+            f"{roots[1]}/raw.tif": f"{roots[1]}/renamed.tif"}),
+    ]
+    for root in roots:
+        assert (root / "consolidated" / "settings").is_dir()
+
+
 # ---------------------------------------------------------------------------
 # preprocess_generate_masks -- the "already generated" skip, per object type
 # ---------------------------------------------------------------------------

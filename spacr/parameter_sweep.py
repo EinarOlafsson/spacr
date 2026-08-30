@@ -45,13 +45,12 @@ from typing import Any, Callable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-from .trial_metrics import METRIC_COLUMNS as _METRIC_COLUMNS
-from .trial_metrics import summarise_trial
-
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib
 # only inside its own functions, so naming it here costs
 # nothing at import time.
 from .figures.style import figure_style, theme_target
+from .trial_metrics import METRIC_COLUMNS as _METRIC_COLUMNS
+from .trial_metrics import summarise_trial
 
 __all__ = [
     "DEFAULT_SWEEP_SPACE",
@@ -368,11 +367,12 @@ def _named_control_rows(results: pd.DataFrame, names: Mapping[str, str]
             continue
         row = frame.loc[hit].iloc[0]
         if effect_column:
-            out[f"{alias}_effect"] = float(row[effect_column])
             position = ranked_labels.str.contains(
                 str(needle), regex=False, na=False)
             if position.any():
+                row = ranked.loc[position].iloc[0]
                 out[f"{alias}_rank"] = int(position.idxmax()) + 1
+            out[f"{alias}_effect"] = float(row[effect_column])
         if q_column and pd.notna(row.get(q_column)):
             out[f"{alias}_q"] = float(row[q_column])
         if p_column and pd.notna(row.get(p_column)):
@@ -1407,9 +1407,12 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             row["status"] = "failed"
             row["error_type"] = type(error).__name__
             row["error"] = str(error).splitlines()[0][:300]
-            with open(os.path.join(folder, "error.txt"), "w",
-                      encoding="utf-8") as handle:
-                handle.write(traceback.format_exc())
+            try:
+                with open(os.path.join(folder, "error.txt"), "w",
+                          encoding="utf-8") as handle:
+                    handle.write(traceback.format_exc())
+            except OSError:
+                pass
             record = exhausted.setdefault(
                 signature, {"count": 0, "error_type": row["error_type"],
                             "first_trial": trial["trial_id"]})

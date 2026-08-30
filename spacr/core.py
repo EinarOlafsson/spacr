@@ -248,9 +248,14 @@ def preprocess_generate_masks(settings):
     # inside the per-source loop; read defensively here so a settings dict
     # without the key doesn't raise KeyError before that point.
     if settings.get('consolidate', False):
-        image_map = generate_image_path_map(settings['src'])
-        copy_images_to_consolidated(image_map, settings['src'])
-        settings['src'] = os.path.join(settings['src'], 'consolidated')
+        sources = (settings['src'] if isinstance(settings['src'], list)
+                   else [settings['src']])
+        consolidated_sources = []
+        for source in sources:
+            image_map = generate_image_path_map(source)
+            copy_images_to_consolidated(image_map, source)
+            consolidated_sources.append(os.path.join(source, 'consolidated'))
+        settings['src'] = consolidated_sources
 
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
