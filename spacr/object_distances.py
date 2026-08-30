@@ -81,6 +81,8 @@ def _as_spacing(spacing, ndim: int) -> Optional[Tuple[float, ...]]:
 def surface_distance_transform(mask, spacing=None):
     """Distance from every point to the nearest object surface in ``mask``.
 
+    :param mask: label or binary image containing the target objects.
+
     ZERO INSIDE AN OBJECT. `distance_transform_edt` measures distance to the
     nearest ZERO, so it is run on the INVERTED mask: the result is 0 on any
     labelled pixel and grows outward. That is what makes a lookup at another
@@ -101,6 +103,8 @@ def surface_distance_transform(mask, spacing=None):
 
 def interior_distance_transform(mask, spacing=None):
     """Distance from every point INSIDE an object to that object's boundary.
+
+    :param mask: label or binary image containing the target objects.
 
     The complement of :func:`surface_distance_transform`: run on the mask
     itself, so it is 0 outside and peaks at each object's deepest point.
@@ -188,6 +192,9 @@ def _min_over_boundary(field, boundary) -> float:
 def local_maxima(image, mask, label: int) -> np.ndarray:
     """Coordinates of the intensity peaks inside one object.
 
+    :param image: intensity image aligned with ``mask``.
+    :param mask: labelled object image that limits the peak search.
+    :param label: object label whose interior is searched.
     :returns: an ``(n, ndim)`` array, possibly empty.
     """
     from skimage.feature import peak_local_max
@@ -385,6 +392,12 @@ def intensity_centre_offset(mask, images, *, primary: str,
                             channels: Sequence[int] = (),
                             spacing=None) -> pd.DataFrame:
     """How far each channel's intensity centre sits from the geometric one.
+
+    :param mask: label image whose instances define rows and geometric
+        centroids.
+    :param images: aligned intensity field with channels on its final axis,
+        or a single intensity plane.
+    :param primary: name of the object type represented by ``mask``.
 
     POLARISATION IN ONE NUMBER. A uniformly stained object has an offset of
     about zero; one whose signal is all at one end does not, and no

@@ -76,6 +76,9 @@ class FigureStyle:
     def shared_with(self, other: "FigureStyle") -> Dict[str, Any]:
         """The fields BOTH styles have, so one can be applied to the other.
 
+        :param other: figure-style dataclass whose shared field names define
+            the returned values.
+
         What makes a house style a house style: a font size and a grid
         chosen on a volcano should reach the comparison figure beside it,
         while the volcano's effect-size threshold must not follow it there.
@@ -104,6 +107,8 @@ FigureStyle.CHOICES = dict(SHARED_CHOICES)
 def style_kind(style: Any) -> str:
     """Return a stable figure kind derived from a style class name.
 
+    :param style: style instance whose class name identifies the figure kind.
+
     For example, ``VolcanoStyle`` becomes ``"volcano"``. Deriving the value
     prevents independently declared names from colliding and keeps this
     headless helper independent of the Qt plotting widgets.
@@ -116,6 +121,10 @@ def style_kind(style: Any) -> str:
 
 def apply_page(figure, axes, style: FigureStyle) -> None:
     """Apply shared axes, typography, grid, spine, and page settings.
+
+    :param figure: Matplotlib figure whose page appearance is updated.
+    :param axes: Matplotlib axes whose presentation is updated.
+    :param style: shared figure-style settings to apply.
 
     Call this after drawing plot-specific marks. It changes figure and axes
     presentation only; it does not add or remove data marks.
@@ -168,6 +177,11 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
 
 def write(figure, save_path, style: FigureStyle) -> str:
     """Write a styled figure with spaCR's standard export pipeline.
+
+    :param figure: drawn Matplotlib figure to export.
+    :param save_path: destination path; its suffix selects the format.
+    :param style: figure-style export settings, including DPI and
+        transparency.
 
     The extension in ``save_path`` selects the format. Raster outputs use the
     style's DPI; font embedding, paper repainting, transparency, and bounding

@@ -69,6 +69,11 @@ def resolve_exclusions(exclude: Optional[Iterable[str]],
                        genes: Optional[Sequence[str]] = None) -> Set[str]:
     """Resolve guide and gene exclusions to guide identifiers.
 
+    :param exclude: guide or gene identifiers requested for exclusion, or
+        None.
+    :param guides: available guide identifiers, aligned with ``genes`` when
+        provided.
+
     Gene names select every associated guide. Matching uses the same
     organism-prefix handling as the control settings. If the shared resolver
     cannot run, exact guide-name matches are returned as a conservative
@@ -100,7 +105,13 @@ def resolve_exclusions(exclude: Optional[Iterable[str]],
 def unmatched_exclusions(exclude: Optional[Iterable[str]],
                          guides: Sequence[str],
                          genes: Optional[Sequence[str]] = None) -> List[str]:
-    """Return exclusion entries that match no guide in the screen."""
+    """Return exclusion entries that match no guide in the screen.
+
+    :param exclude: guide or gene identifiers requested for exclusion, or
+        None.
+    :param guides: available guide identifiers, aligned with ``genes`` when
+        provided.
+    """
     wanted = [str(e) for e in (exclude or ()) if str(e).strip()]
     missing: List[str] = []
     for entry in wanted:
@@ -181,6 +192,9 @@ def suggest_threshold(measurement: Mapping[str, object], *,
                       outlier_factor: float = 20.0) -> Dict[str, float]:
     """Estimate a global fraction threshold from diffuse background.
 
+    :param measurement: background summary returned by
+        :func:`background_from_controls`.
+
     Guides at least ``outlier_factor`` times the median are excluded from the
     quantile calculation and counted separately because a single threshold
     does not describe them. The result reports the threshold, sample counts,
@@ -226,6 +240,9 @@ def subtract_background(fractions: Mapping[str, float],
                         renormalise: bool = True) -> Dict[str, float]:
     """Subtract guide-specific background from one well.
 
+    :param fractions: guide-fraction mapping for one well.
+    :param background: guide-specific, control-derived background fractions.
+
     ``scale`` multiplies the control-derived background before subtraction;
     values are clipped at zero. When ``renormalise`` is true, corrected values
     are rescaled to preserve the original finite total. Use a scale below one
@@ -252,6 +269,9 @@ def suspicious(measurement: Mapping[str, object], *,
                factor: float = 20.0,
                everywhere: float = 0.9) -> List[Dict[str, object]]:
     """Return guides with high, recurrent control-well background.
+
+    :param measurement: background summary returned by
+        :func:`background_from_controls`.
 
     Candidates must reach ``factor`` times the median background and appear
     in at least ``everywhere`` of eligible control wells. Results are sorted
