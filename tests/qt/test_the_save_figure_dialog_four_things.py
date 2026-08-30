@@ -485,3 +485,125 @@ class TestTheTwoInksAreSeparate:
         style_for_file(figure, text_colour="#231F20")
 
         assert bool(figure.axes[0].xaxis._major_tick_kw.get("gridOn"))
+
+
+# ---------------------------------------------------------------------------
+# choosing a colour that is not on the list
+# ---------------------------------------------------------------------------
+
+def _colour_box(dialog):
+    """The first combo box that offers the "choose a colour…" entry."""
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt.widgets.save_figure_dialog import _CHOOSE
+
+    for box in dialog.findChildren(QComboBox):
+        if box.findData(_CHOOSE) >= 0:
+            return box
+    pytest.skip("this dialog offers no colour chooser")
+
+
+def test_a_chosen_colour_is_added_to_the_list_and_selected(dialog,
+                                                           monkeypatch):
+    """The chooser entry has to become a real, re-selectable colour.
+
+    Leaving the box on "choose a colour…" would save the figure with whatever
+    the placeholder resolves to, and the user has no way to tell that from the
+    colour they picked.
+    """
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+
+    box = _colour_box(dialog)
+    before = box.count()
+    monkeypatch.setattr(colour_picker, "pick_colour",
+                        lambda *a, **k: QColor("#123456"))
+
+    from spacr.qt.widgets.save_figure_dialog import _CHOOSE
+
+    box.setCurrentIndex(box.findData(_CHOOSE))
+
+    assert box.count() == before + 1, "the chosen colour was not kept"
+    assert box.currentData() == "#123456"
+    # ...and the chooser is still the last entry, so it can be used again.
+    assert box.itemData(box.count() - 1) == _CHOOSE
+
+
+def test_cancelling_the_colour_chooser_falls_back_to_the_first_entry(
+        dialog, monkeypatch):
+    """An invalid colour is what a cancelled dialog returns.
+
+    Staying on the chooser entry would leave the form in a state that is not
+    a colour at all, so the box returns to a real choice.
+    """
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+    from spacr.qt.widgets.save_figure_dialog import _CHOOSE
+
+    box = _colour_box(dialog)
+    before = box.count()
+    monkeypatch.setattr(colour_picker, "pick_colour",
+                        lambda *a, **k: QColor())      # invalid
+
+    box.setCurrentIndex(box.findData(_CHOOSE))
+
+    assert box.count() == before, "a cancelled choice added an entry"
+    assert box.currentIndex() == 0
+    assert box.currentData() != _CHOOSE
+
+
+def test_choosing_a_colour_already_on_the_list_selects_it_rather_than_adding(
+        dialog, monkeypatch):
+    """Two entries with the same colour is a list the user cannot read.
+
+    The case is the whole difficulty. ``QColor.name()`` answers in lower case
+    and the shipped entries are written upper, so an exact ``findData`` misses
+    "white" for ``#ffffff`` and inserts a second, visually identical row --
+    once for every time the user picks a colour the list already had. The
+    dropdown grows without limit and every added row looks like the one above
+    it.
+    """
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+    from spacr.qt.widgets.save_figure_dialog import _CHOOSE
+
+    box = _colour_box(dialog)
+    existing = next(
+        (box.itemData(i) for i in range(box.count())
+         if isinstance(box.itemData(i), str)
+         and box.itemData(i).startswith("#")), None)
+    assert existing is not None, (
+        "the colour box offers no plain colour to re-select, so this "
+        "dialog's list is not what this test assumes")
+    before = box.count()
+    monkeypatch.setattr(colour_picker, "pick_colour",
+                        lambda *a, **k: QColor(existing))
+
+    box.setCurrentIndex(box.findData(_CHOOSE))
+
+    assert box.count() == before
+    assert box.currentData() == existing
+
+
+def test_the_chooser_does_not_re_enter_itself(dialog, monkeypatch):
+    """``_picking`` guards a signal the chooser's own setCurrentIndex emits.
+
+    Without it, selecting the colour re-fires currentIndexChanged, which sees
+    the chooser entry again and opens a second dialog -- one click, two colour
+    pickers, and the second one cancelled undoes the first.
+    """
+    from PySide6.QtGui import QColor
+    from spacr.qt.widgets import colour_picker
+    from spacr.qt.widgets.save_figure_dialog import _CHOOSE
+
+    box = _colour_box(dialog)
+    opened = []
+
+    def once(*args, **kwargs):
+        opened.append(1)
+        return QColor("#abcdef")
+
+    monkeypatch.setattr(colour_picker, "pick_colour", once)
+
+    box.setCurrentIndex(box.findData(_CHOOSE))
+
+    assert len(opened) == 1, f"the picker opened {len(opened)} times"
