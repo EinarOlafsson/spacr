@@ -24,11 +24,22 @@ import pathlib
 import re
 import sys
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
+
+import pytest
 
 #: Sphinx ``:param name:`` up to the next field or the end.
 PARAM_FIELD = re.compile(r":param\s+([*\w]+)\s*:(.*?)(?=\n\s*:|\Z)", re.S)
+
+#: Sphinx instance-variable fields accepted only for generated constructors.
+IVAR_FIELD = re.compile(
+    r"(?m)^[ \t]*:ivar[ \t]+(\*{0,2}[A-Za-z_]\w*)[ \t]*:")
+
+GENERATED_CONSTRUCTOR_CATEGORIES = frozenset({
+    "dataclass_constructor",
+    "namedtuple_constructor",
+})
 
 #: The source spellings Napoleon accepts as parameter sections in these docs.
 _NUMPY_PARAMETER_SECTIONS = {"parameters", "other parameters"}
@@ -1447,6 +1458,47 @@ def _documented_parameter_names(docstring: str) -> frozenset[str]:
     return frozenset(documented)
 
 
+def _generated_constructor_ivar_names(
+    item: _PublicCallable,
+) -> frozenset[str]:
+    """Required generated fields visibly described by exact ``:ivar:``."""
+    if item.category not in GENERATED_CONSTRUCTOR_CATEGORIES:
+        return frozenset()
+    fields = {
+        name.lstrip("*") for name in IVAR_FIELD.findall(item.docstring)
+    }
+    return frozenset(fields & item.required_parameters)
+
+
+def _missing_required_parameters(item: _PublicCallable) -> frozenset[str]:
+    """Required names absent from all callable-appropriate source prose."""
+    documented = (
+        _documented_parameter_names(item.docstring)
+        | _generated_constructor_ivar_names(item)
+    )
+    return item.required_parameters - documented
+
+
+def _required_parameter_omission_inventory(
+    items,
+    canonical_aliases=frozenset(),
+) -> tuple[list[str], Counter[str], Counter[str]]:
+    """Exact omissions after narrow generated-field and alias handling."""
+    omissions: list[str] = []
+    omitted_callables: Counter[str] = Counter()
+    omitted_parameters: Counter[str] = Counter()
+    for item in items:
+        if item.symbol in canonical_aliases:
+            continue
+        missing = _missing_required_parameters(item)
+        if missing:
+            omitted_callables[item.category] += 1
+            omitted_parameters[item.category] += len(missing)
+        omissions.extend(
+            f"{item.symbol}:{name}" for name in missing)
+    return omissions, omitted_callables, omitted_parameters
+
+
 def _ghost_parameters(item: _PublicCallable) -> frozenset[str]:
     """Documented names that the callable's reviewed contract cannot take."""
     documented = _documented_parameter_names(item.docstring)
@@ -1455,8 +1507,10 @@ def _ghost_parameters(item: _PublicCallable) -> frozenset[str]:
     return documented - item.accepted_documented_parameters
 
 
-def _documentation_public_docstrings() -> dict[str, str]:
-    """Load the source extractor in isolation, without importing ``spacr``."""
+@lru_cache(maxsize=1)
+def _documentation_source_contract(
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Load rendered prose and reviewed aliases without importing ``spacr``."""
     root = pathlib.Path(__file__).resolve().parent.parent
     tools = root / "tools"
     module_path = tools / "build_documentation_i18n.py"
@@ -1470,11 +1524,68 @@ def _documentation_public_docstrings() -> dict[str, str]:
     sys.modules[module_name] = builder
     try:
         spec.loader.exec_module(builder)
-        return builder.public_docstrings()
+        return builder.public_docstrings(), dict(builder.API_DOC_ALIASES)
     finally:
         sys.modules.pop(module_name, None)
         if inserted_path:
             sys.path.remove(str(tools))
+
+
+def _documentation_public_docstrings() -> dict[str, str]:
+    """Exact source prose visible at each rendered AutoAPI boundary."""
+    return _documentation_source_contract()[0]
+
+
+def _documentation_api_doc_aliases() -> dict[str, str]:
+    """Reviewed exact aliases used by the production documentation builder."""
+    return _documentation_source_contract()[1]
+
+
+def _callable_signature_contract(item: _PublicCallable):
+    """All source-derived signature properties relevant to documentation."""
+    return (
+        item.category,
+        item.exposure,
+        item.parameters,
+        item.required_parameters,
+        item.accepted_documented_parameters,
+        item.accepts_arbitrary_keywords,
+    )
+
+
+def _validated_callable_api_doc_aliases(
+    items,
+    rendered_docs: dict[str, str],
+    aliases: dict[str, str],
+) -> dict[str, str]:
+    """Callable aliases with identical signatures and rendered prose."""
+    by_symbol = {item.symbol: item for item in items}
+    callable_aliases: dict[str, str] = {}
+    for alias, canonical in aliases.items():
+        assert canonical not in aliases, (
+            f"API doc alias chain is not canonical: {alias} -> {canonical}"
+        )
+        assert alias in rendered_docs, f"API doc alias is not rendered: {alias}"
+        assert canonical in rendered_docs, (
+            f"API doc alias target is not rendered: {canonical}"
+        )
+        assert rendered_docs[alias], f"API doc alias has empty prose: {alias}"
+        assert rendered_docs[alias] == rendered_docs[canonical], (
+            f"API doc alias prose differs: {alias} -> {canonical}"
+        )
+
+        alias_item = by_symbol.get(alias)
+        if alias_item is None:
+            continue
+        canonical_item = by_symbol.get(canonical)
+        assert canonical_item is not None, (
+            f"callable API doc alias target is absent: {alias} -> {canonical}"
+        )
+        assert _callable_signature_contract(alias_item) == (
+            _callable_signature_contract(canonical_item)
+        ), f"callable API doc alias signature differs: {alias} -> {canonical}"
+        callable_aliases[alias] = canonical
+    return callable_aliases
 
 
 def _docstring_contract_differences(
@@ -1930,6 +2041,46 @@ def test_documented_parameter_parser_matches_rendered_source_styles():
     assert not _documented_parameter_names(inspect.cleandoc(rejected))
 
 
+def test_generated_constructor_ivars_cannot_leak_to_ordinary_callables():
+    """Accept exact generated-field prose without weakening other contracts."""
+    generated = _PublicCallable(
+        symbol="spacr.synthetic.Generated",
+        category="dataclass_constructor",
+        parameters=frozenset({"field", "missing", "optional"}),
+        required_parameters=frozenset({"field", "missing"}),
+        docstring=inspect.cleandoc("""
+            :ivar field: Visible generated-field prose.
+            :ivar optional: Optional state is not required debt.
+        """),
+        accepted_documented_parameters=frozenset({
+            "field", "missing", "optional",
+        }),
+        variant_count=1,
+        docless_variant_count=0,
+        constructor_prose_variant_count=0,
+    )
+    assert _generated_constructor_ivar_names(generated) == {"field"}
+    assert _missing_required_parameters(generated) == {"missing"}
+    assert _missing_required_parameters(
+        replace(generated, category="namedtuple_constructor")
+    ) == {"missing"}
+
+    for category in (
+        "function",
+        "method",
+        "constructor",
+        "exception_constructor",
+        "inherited_or_default_constructor",
+    ):
+        ordinary = replace(generated, category=category)
+        assert not _generated_constructor_ivar_names(ordinary)
+        assert _missing_required_parameters(ordinary) == {"field", "missing"}
+
+    malformed = replace(generated, docstring=":ivar field\nNo field colon.")
+    assert not _generated_constructor_ivar_names(malformed)
+    assert _missing_required_parameters(malformed) == {"field", "missing"}
+
+
 def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
@@ -1961,46 +2112,206 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert differences[0].startswith("spacr.Example\0")
 
 
+def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
+    """Freeze the 301 visible fields and the four ordinary counterexamples."""
+    items = list(_public_callables())
+    rendered_docs = _documentation_public_docstrings()
+    required_ivars = {
+        item.symbol: frozenset(
+            name.lstrip("*") for name in IVAR_FIELD.findall(item.docstring)
+        ) & item.required_parameters
+        for item in items
+    }
+    required_ivars = {
+        symbol: names for symbol, names in required_ivars.items() if names
+    }
+    by_symbol = {item.symbol: item for item in items}
+    generated = {
+        symbol: names for symbol, names in required_ivars.items()
+        if by_symbol[symbol].category in GENERATED_CONSTRUCTOR_CATEGORIES
+    }
+    ordinary = {
+        symbol: names for symbol, names in required_ivars.items()
+        if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
+    }
+
+    assert len(required_ivars) == 81
+    assert sum(map(len, required_ivars.values())) == 312
+    assert len(generated) == 77
+    assert sum(map(len, generated.values())) == 301
+    assert Counter(by_symbol[symbol].category for symbol in generated) == {
+        "dataclass_constructor": 75,
+        "namedtuple_constructor": 2,
+    }
+    assert Counter(
+        by_symbol[symbol].category
+        for symbol in generated
+        for _name in generated[symbol]
+    ) == {
+        "dataclass_constructor": 291,
+        "namedtuple_constructor": 10,
+    }
+    assert len(ordinary) == 4
+    assert sum(map(len, ordinary.values())) == 11
+    assert {
+        by_symbol[symbol].category for symbol in ordinary
+    } == {"constructor"}
+
+    remaining = {
+        symbol: _missing_required_parameters(by_symbol[symbol])
+        for symbol in generated
+    }
+    assert sum(not names for names in remaining.values()) == 66
+    assert sum(bool(names) for names in remaining.values()) == 11
+    assert sum(map(len, remaining.values())) == 46
+    assert all(
+        rendered_docs[symbol] == by_symbol[symbol].docstring
+        for symbol in generated
+    )
+    assert all(
+        names <= _missing_required_parameters(by_symbol[symbol])
+        for symbol, names in ordinary.items()
+    )
+
+
+def test_callable_api_doc_alias_validation_rejects_contract_mutations():
+    """A reviewed alias is unusable after any signature or prose drift."""
+    canonical = _PublicCallable(
+        symbol="spacr.synthetic.Base.apply",
+        category="method",
+        parameters=frozenset({"payload", "optional"}),
+        required_parameters=frozenset({"payload"}),
+        docstring=":param payload: Canonical source prose.",
+        accepted_documented_parameters=frozenset({"payload", "optional"}),
+        variant_count=1,
+        docless_variant_count=0,
+        constructor_prose_variant_count=0,
+    )
+    alias = replace(
+        canonical,
+        symbol="spacr.synthetic.Child.apply",
+        docstring="",
+    )
+    aliases = {alias.symbol: canonical.symbol}
+    rendered_docs = {
+        canonical.symbol: canonical.docstring,
+        alias.symbol: canonical.docstring,
+    }
+    assert _validated_callable_api_doc_aliases(
+        [canonical, alias], rendered_docs, aliases,
+    ) == aliases
+
+    signature_mutations = (
+        replace(alias, parameters=frozenset({"renamed", "optional"})),
+        replace(alias, required_parameters=frozenset()),
+        replace(alias, accepted_documented_parameters=frozenset({"payload"})),
+        replace(alias, accepts_arbitrary_keywords=True),
+    )
+    for mutated_alias in signature_mutations:
+        with pytest.raises(AssertionError, match="signature differs"):
+            _validated_callable_api_doc_aliases(
+                [canonical, mutated_alias], rendered_docs, aliases,
+            )
+
+    mutated_docs = dict(rendered_docs)
+    mutated_docs[alias.symbol] = "Different rendered prose."
+    with pytest.raises(AssertionError, match="prose differs"):
+        _validated_callable_api_doc_aliases(
+            [canonical, alias], mutated_docs, aliases,
+        )
+
+
+def test_callable_api_doc_alias_reduction_is_exact():
+    """Deduplicate only current rendered aliases; keep canonical debt live."""
+    items = list(_public_callables())
+    by_symbol = {item.symbol: item for item in items}
+    declared_aliases = _documentation_api_doc_aliases()
+    callable_aliases = _validated_callable_api_doc_aliases(
+        items,
+        _documentation_public_docstrings(),
+        declared_aliases,
+    )
+
+    assert len(declared_aliases) == 119
+    assert len(callable_aliases) == 113
+    assert set(declared_aliases) - set(callable_aliases) == {
+        "spacr.layers.ImageLayer.ndim",
+        "spacr.layers.ImageLayer.shape",
+        "spacr.layers.LabelsLayer.ndim",
+        "spacr.layers.LabelsLayer.shape",
+        "spacr.layers.PointsLayer.ndim",
+        "spacr.layers.ShapesLayer.ndim",
+    }
+    assert {
+        by_symbol[alias].category for alias in callable_aliases
+    } == {"method"}
+    assert {
+        by_symbol[alias].exposure for alias in callable_aliases
+    } == {"autoapi"}
+
+    alias_debt = {
+        alias: _missing_required_parameters(by_symbol[alias])
+        for alias in callable_aliases
+        if _missing_required_parameters(by_symbol[alias])
+    }
+    canonical_debt = {
+        canonical: _missing_required_parameters(by_symbol[canonical])
+        for canonical in set(callable_aliases.values())
+        if _missing_required_parameters(by_symbol[canonical])
+    }
+    assert len(alias_debt) == 96
+    assert sum(map(len, alias_debt.values())) == 151
+    assert len(canonical_debt) == 5
+    assert sum(map(len, canonical_debt.values())) == 6
+
+    raw = _required_parameter_omission_inventory(items)
+    deduplicated = _required_parameter_omission_inventory(
+        items, callable_aliases,
+    )
+    assert len(raw[0]) - len(deduplicated[0]) == 151
+    assert raw[1] - deduplicated[1] == {"method": 96}
+    assert raw[2] - deduplicated[2] == {"method": 151}
+
+
 def test_no_new_undocumented_required_public_parameters():
     """Ratchet the full reverse-direction debt while it is repaired.
 
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
-    completed.  The source-derived denominator above exposes the real current
-    baseline: 4,165 omissions across 2,703 public callables.  Count, category
-    counts and digest are all exact so deleting a field/docstring, or swapping
-    one omission for another, cannot turn this test green.
+    completed. The source-derived denominator, exact generated-field rule and
+    validated rendered aliases expose the real current baseline: 3,713
+    omissions across 2,541 public callables. Count, category counts and digest
+    are all exact so deleting prose, weakening a boundary, or swapping one
+    omission for another cannot turn this test green.
     """
-    omissions: list[str] = []
-    omitted_callables: Counter[str] = Counter()
-    omitted_parameters: Counter[str] = Counter()
-    for item in _public_callables():
-        documented = _documented_parameter_names(item.docstring)
-        missing = item.required_parameters - documented
-        if missing:
-            omitted_callables[item.category] += 1
-            omitted_parameters[item.category] += len(missing)
-        omissions.extend(
-            f"{item.symbol}:{name}" for name in missing)
+    items = list(_public_callables())
+    callable_aliases = _validated_callable_api_doc_aliases(
+        items,
+        _documentation_public_docstrings(),
+        _documentation_api_doc_aliases(),
+    )
+    omissions, omitted_callables, omitted_parameters = (
+        _required_parameter_omission_inventory(items, callable_aliases)
+    )
 
-    assert len(omissions) == 4_165
-    assert sum(omitted_callables.values()) == 2_703
+    assert len(omissions) == 3_713
+    assert sum(omitted_callables.values()) == 2_541
     assert omitted_callables == {
         "function": 1_079,
-        "method": 1_368,
+        "method": 1_272,
         "constructor": 51,
-        "dataclass_constructor": 201,
-        "namedtuple_constructor": 4,
+        "dataclass_constructor": 137,
+        "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_572,
-        "method": 1_684,
+        "method": 1_533,
         "constructor": 81,
-        "dataclass_constructor": 806,
-        "namedtuple_constructor": 22,
+        "dataclass_constructor": 515,
+        "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "945d5463dd064b7eda924dc58481049e34668588cdc699772264551302daec57"
+        "e174378a235f2da37e42567dc1d9c023cfc266201a15db9fd86b15b32a2a3137"
     )
 
 
