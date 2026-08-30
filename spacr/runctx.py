@@ -58,7 +58,7 @@ Public API
 ----------
 ``run_context``, ``RunContext``, ``current_run_context``, ``current_run_id``
     The run itself, and the ambient lookup a worker or a library call uses.
-``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``
+``new_run_id``, ``install_run_id_logging``, ``uninstall_run_id_logging``, ``RunIdFilter``, ``runs_log_dir``, ``run_log_path``, ``read_run_log``, ``run_resource_path``, ``read_run_resources``
     The S7 machinery: minting, stamping and querying by run id.
 ``seed_everything``, ``SeedReport``, ``resolve_seed``, ``random_state``, ``spacr_rng``, ``torch_generator``, ``seed_worker``, ``DEFAULT_SEED``
     The S5 machinery: one call that seeds them all, plus the per-library
@@ -118,10 +118,12 @@ __all__ = [
     "new_run_id",
     "random_state",
     "read_run_log",
+    "read_run_resources",
     "resolve_error_policy",
     "resolve_seed",
     "run_context",
     "run_log_path",
+    "run_resource_path",
     "runs_log_dir",
     "seed_everything",
     "seed_worker",
@@ -331,6 +333,36 @@ def runs_log_dir() -> str:
 def run_log_path(run_id: str) -> str:
     """Return the JSONL log path for ``run_id``. It need not exist yet."""
     return os.path.join(runs_log_dir(), f"{str(run_id).strip()}.jsonl")
+
+
+def run_resource_path(run_id: str) -> str:
+    """Return the persisted process-tree resource path for ``run_id``.
+
+    The resource document lives beside the ordinary run log but has its own
+    suffix and schema. It is written atomically by
+    :class:`spacr.fit_resources._ResourceSampler`, so a reader sees either a
+    complete checkpoint or the preceding complete checkpoint.
+
+    :param run_id: the run whose accounting record is wanted.
+    :returns: an absolute JSON path. The file need not exist yet.
+    """
+    return os.path.join(
+        runs_log_dir(), f"{str(run_id).strip()}.resources.json")
+
+
+def read_run_resources(run_id: str) -> Dict[str, Any]:
+    """Read one run's process-tree resource document.
+
+    :param run_id: the run to read.
+    :returns: the JSON object, or an empty dict when no readable checkpoint
+        exists. Missing accounting is never represented as a zero.
+    """
+    try:
+        with open(run_resource_path(run_id), "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError, TypeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
 
 
 def read_run_log(run_id: str,
@@ -1230,6 +1262,9 @@ class RunContext:
     seed_report: Optional[SeedReport] = None
     started_utc: str = field(default_factory=_utcnow)
     log_path: str = ""
+    resource_log_path: str = ""
+    resource_artifact_id: str = ""
+    _resource_sampler: Any = field(default=None, repr=False)
 
     @property
     def log(self) -> logging.Logger:
@@ -1273,6 +1308,54 @@ class RunContext:
         """This run's seed, for an estimator's ``random_state=``."""
         return int(self.seed) if self.seed is not None else default
 
+    def register_worker(self, worker_kind: Any, worker_id: Any = None, *,
+                        pid: Optional[int] = None,
+                        create_time: Optional[float] = None) -> str:
+        """Give one sampled child process its run-specific identity.
+
+        The sampler can always report a PID and process name. This method is
+        the seam a parameter sweep or sequencing parent uses to add the fact
+        that the PID is, for example, ``trial 17`` or ``FASTQ saver``.
+
+        ``worker_kind`` may also be the complete stamp returned by
+        :func:`spacr.fit_resources._worker_stamp`; that is how a spawned
+        worker reports its own creation time without a PID-reuse race.
+
+        :param worker_kind: worker category, or a complete stamp mapping.
+        :param worker_id: identity within that category.
+        :param pid: process id; defaults to the calling process.
+        :param create_time: psutil process creation time, resolved when
+            omitted.
+        :returns: the sampler's stable process identity, or ``""`` when
+            resource accounting is off or unavailable.
+        """
+        sampler = self._resource_sampler
+        if sampler is None:
+            return ""
+        if isinstance(worker_kind, Mapping):
+            stamp = dict(worker_kind)
+        else:
+            process_id = os.getpid() if pid is None else int(pid)
+            created = create_time
+            if created is None:
+                try:
+                    import psutil
+
+                    created = float(psutil.Process(process_id).create_time())
+                except Exception:                                # noqa: BLE001
+                    created = None
+            stamp = {
+                "pid": process_id,
+                "create_time": created,
+                "worker_kind": str(worker_kind),
+                "worker_id": str(worker_id),
+            }
+        try:
+            return str(sampler._register_worker(stamp))
+        except Exception:                                        # noqa: BLE001
+            self.log.debug("could not label resource worker", exc_info=True)
+            return ""
+
     def register_outputs(self, module: Optional[str] = None,
                          settings: Optional[Mapping[str, Any]] = None,
                          **kwargs: Any) -> Tuple[Any, ...]:
@@ -1301,6 +1384,8 @@ class RunContext:
             "on_error": self.policy.mode,
             "on_error_attempts": self.policy.attempts,
             "started_utc": self.started_utc, "log_path": self.log_path,
+            "resource_log_path": self.resource_log_path,
+            "resource_artifact_id": self.resource_artifact_id,
             "skipped": [record.to_dict() for record in self.policy.skips],
             "seed_report": (self.seed_report.to_dict()
                             if self.seed_report else None),
@@ -1310,6 +1395,106 @@ class RunContext:
         """``run <id> (<module>) seed=… on_error=…``."""
         return (f"run {self.run_id} ({self.module or 'spacr'}) "
                 f"seed={self.seed} on_error={self.policy.mode}")
+
+
+def _performance_logging_preference(values: Mapping[str, Any]) -> Any:
+    """Resolve the GUI preference without pulling Qt into a headless run."""
+    if "performance_logging" in values:
+        return values.get("performance_logging")
+    if "SPACR_PERFORMANCE_LOG" in os.environ:
+        # ``None`` asks the sampler to resolve the environment itself and
+        # preserve the fact that the environment, not a preference, won.
+        return None
+    if "PySide6.QtCore" not in sys.modules:
+        return None
+    try:
+        from .qt.preferences import get_performance_logging
+
+        return get_performance_logging()
+    except Exception:                                           # noqa: BLE001
+        return None
+
+
+def _start_resource_accounting(context: RunContext) -> None:
+    """Arm this run's bounded sampler; never make diagnostics fail a run."""
+    try:
+        from .fit_resources import _ResourceSampler
+
+        sampler = _ResourceSampler(
+            run_resource_path(context.run_id),
+            mode=_performance_logging_preference(context.settings),
+        )
+        context._resource_sampler = sampler
+        sampler._start()
+        if sampler.mode != "off":
+            context.resource_log_path = str(sampler.output)
+    except Exception as exc:                                    # noqa: BLE001
+        context._resource_sampler = None
+        context.log.warning("could not start resource accounting: %s", exc)
+
+
+def _register_resource_artifact(context: RunContext, document: Mapping[str, Any],
+                                reason: str) -> None:
+    """Attach a surviving resource document to the run's artifact registry."""
+    path = context.resource_log_path
+    if not path or not os.path.isfile(path):
+        return
+    try:
+        from . import artifacts, ports
+
+        project = ports.project_root(context.settings, context.module)
+        if not project or not os.path.isdir(project):
+            return
+        status = artifacts.STATUS_FAILED if reason == "failed" else (
+            artifacts.STATUS_PARTIAL if context.policy.n_skipped
+            else artifacts.STATUS_COMPLETE)
+        record = artifacts.register(
+            project=project,
+            module=context.module or "spacr",
+            kind="resource-log",
+            role="performance",
+            path=path,
+            settings=context.settings,
+            run_id=context.run_id,
+            status=status,
+            extra={
+                "schema_version": document.get("schema_version"),
+                "mode": document.get("mode"),
+                "summary": document.get("summary") or {},
+            },
+        )
+        context.resource_artifact_id = record.artifact_id
+    except Exception:                                           # noqa: BLE001
+        context.log.warning("could not register the resource log",
+                            exc_info=True)
+
+
+def _stop_resource_accounting(context: RunContext, reason: str) -> None:
+    """Stop, summarise and register this run's sampler, best effort."""
+    sampler = context._resource_sampler
+    if sampler is None:
+        return
+    try:
+        sampler._stop(reason)
+        document = read_run_resources(context.run_id)
+        summary = document.get("summary") or {}
+        if summary:
+            from .fit_resources import readable
+
+            context.log.info(
+                "run %s resources — peak tree=%s; peak processes=%s; "
+                "samples=%s; measure=%s",
+                context.run_id,
+                readable(summary.get("peak_tree_memory_bytes")),
+                summary.get("peak_process_count", "not measured"),
+                summary.get("samples_recorded", 0),
+                document.get("summary", {}).get(
+                    "memory_measure_sample_counts", {}),
+            )
+        _register_resource_artifact(context, document, reason)
+    except Exception:                                           # noqa: BLE001
+        context.log.warning("could not finish resource accounting",
+                            exc_info=True)
 
 
 @contextlib.contextmanager
@@ -1388,7 +1573,10 @@ def run_context(module: str = "",
     token = _ACTIVE.set(context)
     previous_env = os.environ.get(RUN_ID_ENV)
     os.environ[RUN_ID_ENV] = identifier
+    if log:
+        _start_resource_accounting(context)
     started = time.time()
+    resource_reason = "stopped"
     context.log.info("run %s started — module=%s seed=%s on_error=%s",
                      identifier, module or "spacr", resolved_seed, policy.mode)
     if report is not None:
@@ -1396,16 +1584,19 @@ def run_context(module: str = "",
     try:
         yield context
     except BaseException as exc:
+        resource_reason = "failed"
         context.log.error("run %s failed after %.1fs — %s: %s", identifier,
                           time.time() - started, type(exc).__name__, exc)
         raise
     else:
+        resource_reason = "completed"
         summary = policy.summary()
         if summary:
             context.log.warning("run %s: %s", identifier, summary)
         context.log.info("run %s finished in %.1fs — %d skipped",
                          identifier, time.time() - started, policy.n_skipped)
     finally:
+        _stop_resource_accounting(context, resource_reason)
         _ACTIVE.reset(token)
         if previous_env is None:
             os.environ.pop(RUN_ID_ENV, None)
