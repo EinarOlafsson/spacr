@@ -1139,3 +1139,29 @@ can change its decision and observes only the state owned by the operation.
 Cold-process tests derive their checkout, rendering tests tolerate legitimate
 font metrics, and lazy UI tests exercise the public transition that constructs
 the object they inspect.
+
+--------------------------------------------------------------------------------
+24. response_distribution.py:293 -- `if handles:` AFTER TWO `hist` CALLS
+    ---------------------------------------------------------------------
+    The twin-axis branch of `plot_response_distribution`:
+
+        ax.hist(before, bins=40, ...)
+        twin.hist(after, bins=40, ...)
+        handles = [ax.patches[0]] if ax.patches else []
+        handles += [twin.patches[0]] if twin.patches else []
+        if handles:                      # 293
+            ax.legend(...)
+
+    Arc 293->306 cannot be taken. `Axes.hist` with a fixed `bins=40` adds
+    forty patches whatever the data -- measured, an EMPTY array still produces
+    forty zero-height bars -- and the only input that produces none is one
+    that makes `hist` RAISE (an all-NaN array: "autodetected range of
+    [nan, nan] is not finite"), which never reaches line 293 at all.
+
+    So `ax.patches` is non-empty by the time the guard runs, and `handles`
+    always holds at least one entry. Family 1 again: a defensive re-check
+    after a call that already guarantees the condition.
+
+    No test was written for it. The two `if ax.patches else []` guards on the
+    lines above are the same shape and are equally dead, which is three arcs
+    in four lines.
