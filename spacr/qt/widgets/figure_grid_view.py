@@ -14,13 +14,19 @@ collapsible-section and workspace-state mechanisms.
 
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Optional
 
 from PySide6.QtCore import QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QFrame, QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy,
-    QVBoxLayout, QWidget,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
 )
 
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
@@ -685,11 +691,13 @@ class FigureGridView(QScrollArea):
         if not isinstance(state, dict):
             return False
         applied = False
+        needs_relayout = False
         collapsed = state.get("collapsed")
         if isinstance(collapsed, list):
             self._collapsed = {tuple(key) if isinstance(key, (list, tuple))
                                else key for key in collapsed}
             applied = True
+            needs_relayout = True
         width = state.get("cell_width")
         if width:
             try:
@@ -698,8 +706,11 @@ class FigureGridView(QScrollArea):
                 # something else happened to trigger a relayout.
                 self.set_target_cell_width(int(width))
                 applied = True
+                needs_relayout = False
             except (TypeError, ValueError):
                 pass
+        if needs_relayout:
+            self._relayout()
         return applied
 
     def is_section_collapsed(self, label, start) -> bool:
