@@ -130,9 +130,20 @@ in ``execnet.serve`` while pytest-timeout printed faulthandler dumps every
 five minutes -- the classic signature of a worker whose process vanished while
 the master waited on it.
 
-Until it is fixed, ANY of these is required for a full-suite coverage run:
-excluding that file, running with ``-p no:cacheprovider --timeout-method=thread``
-so a dead worker is reaped, or running that file in its own process.
+There is a SECOND one: ``tests/qt/test_layout_drops.py`` also core dumps
+offscreen, found independently by a wave-3 verifier on 2026-08-29.
+
+``--timeout-method=thread`` does NOT rescue either of them, and it was tried:
+a segfault kills the process outright, so no thread survives to time out. The
+run wedges exactly as before -- workers idle in ``execnet.serve`` while
+pytest-timeout prints faulthandler dumps. EXCLUDING both files is currently
+the only thing that lets a full-suite coverage run finish.
+
+Separately, do NOT set ``ulimit -v`` for such a run. A 12 GB virtual-address
+cap was tried and killed a worker mid-test, which xdist reports as an
+INTERNALERROR and which loses the coverage JSON even though every test ran.
+torch and numba reserve far more address space than they commit; physical
+memory is the real constraint.
 
 This is a REAL defect, not just a test-harness annoyance: a right-click on a
 live figure tile is an ordinary user action, and it takes the interpreter down
