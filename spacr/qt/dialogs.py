@@ -185,8 +185,19 @@ SLACK = 1.0 / 3.0
 #: NOT ZERO, and not the content's own minimum either. Zero lets a window
 #: be dragged down to nothing at all; the content's minimum is the floor
 #: this exists to remove. This is a floor the user cannot get stuck at:
-#: wide enough for the scroll bar and a readable strip beside it.
-SMALLEST = 120
+#: wide enough for the scroll bar and a readable strip beside it. Eighty is
+#: also deliberately below the natural content height of the application's
+#: smallest real settings dialog. At 120, Qt 6.11 on Ubuntu made
+#: ``_WellChoice`` open exactly at this floor (120 plus its margins), so the
+#: supposedly resizable window could not become one pixel shorter.
+SMALLEST = 80
+
+#: Width moved from the dialog's left margin into the wrapped form. The
+#: controls stay at exactly the same screen coordinate and the opening size
+#: is unchanged, but the holder retains a predictable piece of empty surface
+#: from which a frameless window can be dragged. Depending on font metrics,
+#: the fields could otherwise consume every pixel of the holder.
+DRAG_HANDLE = 6
 
 
 def _field_types():
@@ -492,7 +503,8 @@ def let_the_content_scroll(dialog) -> bool:
 
     layout = dialog.layout()
     margins = layout.getContentsMargins()
-    layout.setContentsMargins(0, 0, 0, 0)
+    handle = min(DRAG_HANDLE, margins[0])
+    layout.setContentsMargins(handle, 0, 0, 0)
 
     holder = QWidget()
     # Steals the layout from the dialog, and the fields come with it.
@@ -507,7 +519,7 @@ def let_the_content_scroll(dialog) -> bool:
     scroll.setWidget(holder)
 
     outer = QVBoxLayout(dialog)
-    outer.setContentsMargins(*margins)
+    outer.setContentsMargins(margins[0] - handle, *margins[1:])
     outer.setSpacing(0)
     outer.addWidget(scroll)
 
