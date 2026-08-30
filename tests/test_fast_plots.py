@@ -4,8 +4,10 @@ These cover the reasons the switch was made: the plots must be fast, every
 point must map back to its own row, and the numbers behind the picture must be
 readable without opening a CSV.
 """
+import ast
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -95,6 +97,10 @@ class TestTheVolcano:
         qtbot.addWidget(plot)
         assert plot.set_results(results) == len(results)
 
+    @pytest.mark.skipif(
+        sys.gettrace() is not None,
+        reason="wall-clock performance budgets require an uninstrumented process",
+    )
     def test_it_is_fast(self, qtbot, results):
         """The whole reason for leaving matplotlib."""
         import time
@@ -290,6 +296,10 @@ class TestTheLastGraphIsNotSlowAnyMore:
         assert each < 30, f"a plain volcano took {each:.0f} ms"
 
     @pytest.mark.slow
+    @pytest.mark.skipif(
+        sys.gettrace() is not None,
+        reason="wall-clock performance budgets require an uninstrumented process",
+    )
     def test_colouring_does_not_cost_a_brush_per_point(self, qtbot, big):
         """pg.mkBrush() per point built 1,215 QBrush objects: 39.5 ms.
 
@@ -407,3 +417,57 @@ class TestRestylingTheFastPlots:
         qtbot.addWidget(widget)
         widget.set_results(frame, drop_untested=False)   # no category column
         assert not widget._legend_box.isEnabled()
+
+
+def test_every_wall_clock_budget_is_skipped_while_tracing():
+    """Coverage tracing must not change the quantity a timing test measures."""
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+
+    def has_millisecond_ceiling(function):
+        return any(
+            isinstance(statement, ast.Assert)
+            and isinstance(statement.test, ast.Compare)
+            and isinstance(statement.test.left, ast.Name)
+            and statement.test.left.id == "each"
+            and any(isinstance(operator, ast.Lt)
+                    for operator in statement.test.ops)
+            and any(isinstance(limit, ast.Constant)
+                    and isinstance(limit.value, (int, float))
+                    for limit in statement.test.comparators)
+            for statement in ast.walk(function)
+        )
+
+    budget_tests = {
+        node.name: node for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name.startswith("test_")
+        and has_millisecond_ceiling(node)
+    }
+    assert set(budget_tests) == {
+        "test_it_is_fast",
+        "test_the_plain_volcano_is_immediate",
+        "test_colouring_does_not_cost_a_brush_per_point",
+    }
+
+    unguarded = []
+    for name, function in budget_tests.items():
+        guarded = any(
+            isinstance(decorator, ast.Call)
+            and ast.unparse(decorator.func) == "pytest.mark.skipif"
+            and decorator.args
+            and ast.unparse(decorator.args[0]) == "sys.gettrace() is not None"
+            and any(
+                keyword.arg == "reason"
+                and isinstance(keyword.value, ast.Constant)
+                and keyword.value.value == (
+                    "wall-clock performance budgets require an "
+                    "uninstrumented process"
+                )
+                for keyword in decorator.keywords
+            )
+            for decorator in function.decorator_list
+        )
+        if not guarded:
+            unguarded.append(name)
+
+    assert unguarded == []
