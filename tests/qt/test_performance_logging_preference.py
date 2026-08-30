@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+import threading
 
 import pytest
 
@@ -37,6 +38,11 @@ def test_the_dialog_saves_performance_logging_without_enabling_the_profiler(
     preferences, _store = isolated_store
     preferences.set_verbose_logging(False)
     profile_before = sys.getprofile()
+    sampler_threads_before = {
+        thread.ident for thread in threading.enumerate()
+        if thread.name.startswith(("spacr-resource-sampler-",
+                                   "spacr-resource-log"))
+    }
 
     dialog = preferences.PreferencesDialog()
     qtbot.addWidget(dialog)
@@ -54,6 +60,11 @@ def test_the_dialog_saves_performance_logging_without_enabling_the_profiler(
     assert preferences.get_performance_logging() == "detailed"
     assert preferences.get_verbose_logging() is False
     assert sys.getprofile() is profile_before
+    assert {
+        thread.ident for thread in threading.enumerate()
+        if thread.name.startswith(("spacr-resource-sampler-",
+                                   "spacr-resource-log"))
+    } == sampler_threads_before
 
 
 def test_off_mode_starts_no_sampler_thread(isolated_store, tmp_path):
