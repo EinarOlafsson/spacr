@@ -379,6 +379,51 @@ def test_the_outline_model_is_built_once_and_kept(stub_cellpose):
     assert stub_cellpose[0]["gpu"] is torch.cuda.is_available()
 
 
+@pytest.mark.parametrize("card", [True, False])
+def test_the_outline_model_takes_the_card_exactly_when_there_is_one(
+        stub_cellpose, monkeypatch, card):
+    """``gpu=`` is whatever ``torch.cuda.is_available()`` said, and nothing else.
+
+    This used to assert ``gpu is False`` with the note "a test asked for the
+    card". That reads as a policy and is really a fact about the machine: on
+    a host with a GPU the model is built with ``gpu=True``, correctly, and
+    the test went red without spaCR changing. Worse, it only ever exercised
+    whichever branch the runner happened to have.
+
+    Both are stated here, so the mapping is what is asserted rather than the
+    hardware -- and a build that ignored the probe and hard-coded either
+    value now fails on one of the two.
+    """
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: card)
+
+    ae._get_cellpose_outline_model()
+
+    assert stub_cellpose[0]["gpu"] is card
+
+
+def test_a_torch_that_cannot_answer_leaves_the_card_alone(stub_cellpose,
+                                                          monkeypatch):
+    """The except: a probe that raises must mean CPU, not crash the outline.
+
+    ``torch.cuda.is_available()`` raises on a broken or partially installed
+    driver, and an outline is a convenience -- refusing to draw one because
+    the GPU could not be interrogated would be a worse answer than drawing
+    it on the CPU.
+    """
+    import torch
+
+    def unavailable():
+        raise RuntimeError("no CUDA driver could be loaded")
+
+    monkeypatch.setattr(torch.cuda, "is_available", unavailable)
+
+    ae._get_cellpose_outline_model()
+
+    assert stub_cellpose[0]["gpu"] is False
+
+
 def test_a_cellpose_outline_is_drawn_from_its_mask(stub_cellpose,
                                                    monkeypatch):
     """A list of masks is what CellposeModel.eval returns."""
