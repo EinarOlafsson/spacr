@@ -833,3 +833,22 @@ arc, which is why they are reliable while the aggregate is not.
     Left in place: it is the correct guard for the grouping, and the floor
     above it is a scientific rule that could be relaxed without anyone
     remembering this depends on it.
+
+--------------------------------------------------------------------------------
+14. A MALFORMED CLASSES DICT ESCAPED A NEVER-RAISE CHECKER
+    (lane: spacr/model_check.py)  -- FIXED 2026-08-30
+--------------------------------------------------------------------------------
+
+``check_model`` promises never to raise because it runs from a click, but it
+called ``expected_classes`` before creating its problem list. A malformed
+Classes entry such as ``{"a": 1}`` therefore let ``ClassDefinitionError``
+escape onto the Qt event loop instead of returning the diagnostic the dialog
+exists to show.
+
+The class-count read is now guarded at the diagnostic boundary. Its
+``ClassDefinitionError`` (a ``ValueError``) becomes a problem that names the
+``classes`` setting and preserves the parser's specific explanation. It does
+not add the misleading second claim that no classes were defined, and it is
+retained if a custom model file has an independent load problem. The former
+strict xfail is now an ordinary regression contract and pins the complete
+user-facing report.
