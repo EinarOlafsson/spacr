@@ -5,8 +5,9 @@ CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 Status:    OPEN — the complete 2026-08-30 current-history rewrite is pushed
            and verified, and GitHub's REST/graph indexes list only the two
            human contributors. The separately cached homepage/sidebar still
-           lists Claude and github-actions[bot]; GitHub Support must rebuild
-           that server-owned cache and its immutable pull-request refs.
+           lists Claude and github-actions[bot]. GitHub Support ticket
+           #4711257 now asks GitHub to rebuild that server-owned cache and
+           reindex or exclude its immutable pull-request refs.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -367,7 +368,15 @@ github-actions[bot]-authored commits. Every owner-writable branch and tag is
 clean. Therefore rewriting again, pushing an empty commit, toggling the default
 branch or clearing a browser cache would not address the remaining state.
 
-ONLY REMAINING ACCEPTANCE ACTION: submit the prepared evidence to GitHub
-Support and have GitHub invalidate/rebuild the repository Contributors sidebar
-cache, preserving EinarOlafsson and jak18015. Close this item only when the
-public homepage widget itself reports two contributors.
+GitHub Support ticket #4711257 was submitted from the repository owner's
+personal account on 2026-08-30. It includes the two clean public index results,
+the stale sidebar response and ETag, both rewritten branch tips, the immutable
+pull-ref inventory, and an explicit request to preserve EinarOlafsson and
+jak18015 while removing claude and github-actions[bot]. Confirmation stated
+that the message was successfully submitted; the ticket is open at:
+
+    https://support.github.com/ticket/personal/0/4711257
+
+ONLY REMAINING ACCEPTANCE ACTION: have GitHub invalidate/rebuild the repository
+Contributors sidebar cache. Close this item only when the public homepage
+widget itself reports two contributors.
