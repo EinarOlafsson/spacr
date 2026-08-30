@@ -105,18 +105,42 @@ def install_the_spaceout_fractal(screen) -> bool:
             RuntimeControls, Settings, create_fractal_widget)
 
         values = get_fractal_settings()
+        # EVERY SETTING THE DIALOG OFFERS, not three of them. `pattern` was
+        # missing here, so `Settings` fell back to its default and the
+        # backdrop drew Mandelbrot whichever pattern the user picked --
+        # which is what "the spaceout themes do not work" looks like from
+        # the outside. The six RuntimeControls values below were dropped the
+        # same way: the pointer and zoom sliders moved and nothing changed.
         widget = create_fractal_widget(
-            Settings(backend=values["backend"], quality=values["quality"],
-                     scale=values["scale"]),
+            Settings(pattern=values["pattern"], backend=values["backend"],
+                     quality=values["quality"], scale=values["scale"]),
             RuntimeControls(speed=values["speed"], dream=values["dream"],
-                            variable_speed=values["variable_speed"]),
+                            variable_speed=values["variable_speed"],
+                            pointer_size=values["pointer_size"],
+                            pointer_strength=values["pointer_strength"],
+                            zoom_rate=values["zoom_rate"],
+                            speed_min=values["speed_min"],
+                            speed_max=values["speed_max"],
+                            speed_period=values["speed_period"]),
         )
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not build the spaceout fractal")
         return False
 
     try:
+        from PySide6.QtCore import Qt as _Qt
+
         widget.setParent(screen)
+        # CLICK-THROUGH. `create_fractal_widget` already says the backdrop
+        # "must not accept events, or it would eat the clicks meant for the
+        # interface in front of it" -- but nothing ever set the attribute,
+        # so it did. Lowering it puts it behind the interface, and that is
+        # enough for the widgets that are actually there; it is not enough
+        # for the bare background, where the backdrop is the topmost widget
+        # under the cursor and swallows the press. That is why the main
+        # window could not be dragged.
+        widget.setAttribute(
+            _Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         widget.setGeometry(screen.rect())
         widget.lower()
         widget.show()
