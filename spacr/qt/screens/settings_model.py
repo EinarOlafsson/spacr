@@ -4646,6 +4646,7 @@ _MODE_TITLES = {
     "logit": "binomial GLM, logit link",
     "probit": "binomial GLM, probit link",
     "quantile": "quantile regression",
+    "spline": "least squares with spline-adjusted covariates",
     "mixed": "mixed effects, guides nested in genes",
     "lasso": "penalised least squares, L1",
     "ridge": "penalised least squares, L2",
@@ -4753,6 +4754,14 @@ _MODE_NOTES = {
         "appears here and in no mean model. It is the one backend whose "
         "answer changes meaning with a setting, so name the quantile "
         "alongside the result."
+    ),
+    "spline": (
+        "Ordinary least squares in which each continuous nuisance covariate "
+        "may bend through a B-spline basis. spline_knots controls how many "
+        "knots each basis receives and spline_degree controls its polynomial "
+        "degree; indicators and low-cardinality covariates remain linear. "
+        "Guide and gene columns are never expanded, so each perturbation "
+        "keeps one coefficient and its usual OLS p-value."
     ),
     "lasso": (
         "L1-penalised least squares sets coefficients to zero; alpha='auto' "
@@ -5181,6 +5190,8 @@ MODEL_API_LINKS = {
                  _STATSMODELS
                  + "statsmodels.regression.quantile_regression.QuantReg"
                    ".html"),
+    "spline": ("spacr.nonparametric_fits.spline_design",
+               "nonparametric_fits"),
     "mixed": ("statsmodels MixedLM",
               _STATSMODELS
               + "statsmodels.regression.mixed_linear_model.MixedLM.html"),

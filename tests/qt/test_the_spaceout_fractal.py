@@ -215,13 +215,13 @@ def test_every_setting_round_trips(sandbox):
     assert stored["variable_speed"] is True
 
 
-def test_a_number_out_of_range_is_clamped(sandbox):
+def test_only_a_number_that_cannot_work_is_clamped(sandbox):
     from spacr.qt.preferences import get_fractal_settings, set_fractal_settings
 
     set_fractal_settings(dream=99.0, speed=-5.0)
     values = get_fractal_settings()
-    assert values["dream"] == 1.5
-    assert values["speed"] == 0.15
+    assert values["dream"] == 99.0, "large usable values must survive storage"
+    assert values["speed"] == 0.0, "travel cannot run backwards"
 
 
 def test_an_unknown_backend_is_refused(sandbox):
@@ -688,8 +688,8 @@ def test_the_home_screen_path_gets_it_too(qtbot, sandbox, monkeypatch):
 # --- the second pattern -----------------------------------------------------
 
 
-def test_both_patterns_are_offered():
-    assert F.PATTERNS == ("orbit", "cascade")
+def test_every_pattern_is_offered():
+    assert F.PATTERNS == ("orbit", "cascade", "space", "mandelbrot")
 
 
 def test_the_cascade_draws_something_that_is_not_flat():
@@ -764,7 +764,7 @@ def test_they_do_not_share_a_budget():
 
 
 def test_an_unknown_pattern_falls_back(qtbot):
-    assert F.Settings(pattern="spiral").validated().pattern == "orbit"
+    assert F.Settings(pattern="spiral").validated().pattern == F.DEFAULT_PATTERN
 
 
 def test_the_pattern_is_a_preference(sandbox):
@@ -850,22 +850,37 @@ def test_every_fractal_row_has_a_caption(row):
     assert len(PREFERENCE_TIPS[row]) > 40
 
 
-def test_the_captions_reach_the_labels(qtbot, sandbox, monkeypatch):
+def test_the_dream_caption_does_not_invent_a_storage_ceiling():
+    """The caption agrees with the deliberately uncapped stored value."""
+    from spacr.qt.preferences import PREFERENCE_TIPS
+
+    caption = PREFERENCE_TIPS["Dream"].lower()
+    assert "1.5 is the default" in caption
+    assert "without a fixed ceiling" in caption
+    assert "1.5 is the maximum" not in caption
+
+
+def test_the_captions_reach_the_hint_bar_through_the_labels(
+        qtbot, sandbox, monkeypatch):
     """A caption in the catalogue that never renders is the same as none.
 
-    `explain_every_row` puts the tooltip on the LABEL, not on the field --
-    checking the field finds nothing and proves nothing.
+    Preferences moves label help into its non-modal hint bar, so the label is
+    the registered hover target and no native tooltip remains to cover it.
     """
     from PySide6.QtWidgets import QFormLayout, QLabel
 
     import spacr.qt.theme as theme
     from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
 
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     dialog = PreferencesDialog()
     qtbot.addWidget(dialog)
+    bar = dialog.findChild(HintBar)
+    assert bar is not None
 
     explained = {}
+    duplicates = []
     for form in dialog.findChildren(QFormLayout):
         for index in range(form.rowCount()):
             item = form.itemAt(index, QFormLayout.LabelRole)
@@ -875,10 +890,13 @@ def test_the_captions_reach_the_labels(qtbot, sandbox, monkeypatch):
             if isinstance(label, QLabel):
                 text = (label.text() or "").replace("&", "").strip()
                 if text in FRACTAL_ROWS:
-                    explained[text] = bool((label.toolTip() or "").strip())
+                    explained[text] = bool(bar.explains(label))
+                    if (label.toolTip() or "").strip():
+                        duplicates.append(text)
 
     assert set(explained) == set(FRACTAL_ROWS), "a row is missing its label"
     assert all(explained.values()), f"unexplained: {explained}"
+    assert not duplicates, f"native tooltip duplicates the hint bar: {duplicates}"
 
 
 def test_the_caption_says_what_the_cascade_costs():
