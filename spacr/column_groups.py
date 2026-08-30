@@ -82,6 +82,8 @@ def group_names(columns: Iterable[str]) -> Dict[str, List[str]]:
 
     Channels sort NUMERICALLY -- ``channel_2`` before ``channel_10`` -- which
     a plain string sort gets wrong the moment a run has more than ten.
+
+    :param columns: available measurement column names to classify.
     """
     grouped = classify(columns)
     names: Dict[str, List[str]] = {}
@@ -101,6 +103,9 @@ def columns_in(columns: Iterable[str], kind: str, name: str) -> List[str]:
     :raises KeyError: an unknown kind, naming the ones there are. A typo here
         would otherwise select nothing and read as "this table has no
         intensity measurements".
+    :param columns: available measurement column names to classify.
+    :param kind: grouping dimension, one of :data:`GROUP_KINDS`.
+    :param name: group name within the selected grouping dimension.
     """
     if kind not in GROUP_KINDS:
         raise KeyError(f"{kind!r} is not a group kind; choose from "
@@ -145,6 +150,8 @@ def summarise(columns: Iterable[str],
 
     A reduction over 400 columns and one over 4 look identical in a dialog
     until something says which it is.
+
+    :param columns: available column names whose selected fraction is reported.
     """
     columns = tuple(str(column) for column in columns)
     chosen = resolve(columns, selection, explicit=explicit)

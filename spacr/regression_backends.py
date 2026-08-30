@@ -127,7 +127,10 @@ def resolve_backend_name(value) -> str:
 
 
 def backend_label(name) -> str:
-    """The combo entry for a backend -- always suffixed ``(CPU)``/``(GPU)``."""
+    """The combo entry for a backend -- always suffixed ``(CPU)``/``(GPU)``.
+
+    :param name: backend key, label, or alias to resolve.
+    """
     return str(REGRESSION_BACKENDS[resolve_backend_name(name)]['label'])
 
 
@@ -137,6 +140,10 @@ def backend_supports(name, regression_type) -> bool:
     ``regression_type=None`` means "auto-selected from the response", which
     only the default backend can answer, since the choice is made after the
     data is read.
+
+    :param name: backend key, label, or alias to inspect.
+    :param regression_type: requested model family, or ``None`` for automatic
+        family selection.
     """
     spec = REGRESSION_BACKENDS[resolve_backend_name(name)]
     types = spec['types']
@@ -153,6 +160,8 @@ def package_installed(name) -> bool:
     ``find_spec`` on a package that is not there raises ``ModuleNotFoundError``
     for a missing PARENT, which is a different question from the one being
     asked, so it is caught.
+
+    :param name: import package name, or an empty value for a core backend.
     """
     if not name:
         return True
@@ -699,6 +708,7 @@ def availability_entry(name, regression_type=None) -> dict:
     that neither of its two callers has to import Qt to build one, and so
     that this module keeps its promise not to import torch or PySide6.
 
+    :param name: backend key, label, or alias represented by the entry.
     :returns: ``{key, title, reason, url, offer, enabled}``.
     """
     status = backend_status(name, regression_type)
