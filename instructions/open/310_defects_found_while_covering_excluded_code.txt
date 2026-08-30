@@ -1615,3 +1615,95 @@ families already in this document; a few are new instances worth reading.
   spacr/qt/widgets/feature_explorer.py  215->219
       False arc of `if position >= 0:` in set_spec, where position = self._statistic.findData(spec.statistic): ExplorerSpec.__post_init__ raises ExplorerError unless statistic is in feature_rank.STATISTICS, and __init__ populates the picker with an item for every entry of that same STATISTICS tuple, so findData never returns -1 for any spec that can be constructed (family 1: a defensive re-check after a value the constructor already guarantees). My test test_the_statistic_picker_offers_exactly_the_known_statistics pins both halves of that invariant.
 
+
+==============================================================================
+27. TWO MEASUREMENT DEFECTS THAT SILENTLY INVALIDATE A COVERAGE RUN
+==============================================================================
+
+Both cost real time, both produce a number that looks fine, and neither
+announces itself. Recorded because the failure mode is indistinguishable
+from success until something else contradicts it.
+
+27a. MEASURING A DIFFERENT TREE THAN THE AGENTS TEST
+
+  I measured coverage in a clean git worktree checked out at HEAD, for
+  reproducibility. The agents closing arcs ran pytest in the ordinary
+  working tree. The two differed by 247 modified files, because a second
+  lane had uncommitted work in flight.
+
+  Nothing errors. Both runs pass. But an arc is a pair of line numbers,
+  so every target in a dirty file named a line in a file the agent never
+  saw. 1,662 arcs -- 38% of everything left -- looked "blocked by
+  uncommitted work" when they were only blocked by my measuring the
+  wrong tree.
+
+  The fix is not to commit the other lane's work to make HEAD match. It
+  is to measure what the agents actually import: rsync the working tree
+  into the measurement worktree and measure the snapshot. That also buys
+  immunity to a second race (27b), because a snapshot cannot be rewritten
+  underneath a running measurement.
+
+  Rule: the measured tree and the tested tree must be the same tree.
+  Verify it, do not assume it -- `diff -rq` between them should print
+  nothing before a run is trusted.
+
+27b. A FULL-SUITE RUN CANNOT SHARE A CHECKOUT WITH AGENTS WRITING TESTS
+
+  A whole-suite xdist run in the live repo aborted at collection:
+
+    Different tests were collected between gw5 and gw0
+
+  A coverage agent had rewritten tests/qt/test_cov_r3_qt_app_1.py while
+  the workers were collecting, so two workers enumerated two different
+  versions of the same file and xdist refused to schedule. The run died
+  after 50 seconds having measured nothing.
+
+  This is not xdist being fragile. It is a genuine race, and xdist
+  detecting it is the good outcome -- the bad outcome is 27a, where the
+  same race produces a plausible number instead of an error.
+
+  Rule: any measurement that takes longer than an agent takes to write a
+  file must run against a snapshot, never the live checkout.
+
+27c. THE COROLLARY FOR `--cov-append`
+
+  Both defects share a root: coverage data is only meaningful relative to
+  the exact source that produced it. Appending across runs, unioning two
+  JSON artifacts, or reusing yesterday's target list all assume a tree
+  that has not moved. When the tree has moved, every one of those
+  operations produces a number that is wrong in the optimistic direction.
+  An earlier union of two runs across commits read 98.68%; restricted to
+  the files that were byte-identical between them it read 98.06%.
+
+==============================================================================
+28. THE anndata DEPENDENCY BLOCK WAS AN ARTIFACT OF THE OLD PIN, NOT anndata
+==============================================================================
+
+721 arcs live in modules that import anndata or catboost, and were
+written off as unreachable because installing anndata into the pinned
+environment broke the stack: pip pulled numpy 2.5.2 and pandas 3.0.5 on
+top of a tree pinned to numpy 1.26 / pandas 2.2, and sklearn then failed
+to import with
+
+    module 'numpy' has no attribute 'long'
+
+raised from scipy/sparse/_sputils.py. The obvious reading is "anndata is
+incompatible with this package". That reading is wrong.
+
+The error is scipy 1.13 being too old for numpy 2, not anndata being
+wrong. Against a coherent modern stack the same two packages resolve
+with no downgrade of anything:
+
+    numpy    2.5.2      anndata   0.13.3.post0
+    pandas   3.0.5      catboost  1.2.10
+    scipy    1.18.1     sklearn   1.9.0
+
+`pip install --dry-run anndata catboost` reports only additions -- zarr,
+h5py, plotly and friends -- and touches no pinned package. All six
+import together.
+
+So the 721 arcs are not dependency-blocked. They are blocked on the
+modernization, which is a decision rather than an obstacle, and they
+become reachable the moment it lands. The only reason they looked
+permanent is that the first install attempt was made against the stack
+the modernization is meant to replace.
