@@ -19,11 +19,29 @@ import pytest
 from tests.test_regression_entry_points import APP_KEY, _write_screen
 
 
-@pytest.fixture()
-def default_run(tmp_path):
+def _registered_figures():
+    """Return pyplot's existing figures without creating a missing number."""
+    from matplotlib._pylab_helpers import Gcf
+
+    return tuple(manager.canvas.figure for manager in Gcf.get_all_fig_managers())
+
+
+@pytest.fixture(scope="module")
+def default_run(tmp_path_factory):
+    """One regression run, with teardown for only the figures it displayed.
+
+    All tests below only read the returned settings and result.  Running the
+    same analysis four times used to retain five displayed figures per test;
+    the fourth run therefore crossed pyplot's 20-figure warning threshold.
+    Keep pre-existing figures outside this fixture's ownership and release
+    precisely the figures this run registered when the module is finished.
+    """
     from spacr.cli import MODULES, resolve_settings
     from spacr.ml import perform_regression
 
+    tmp_path = tmp_path_factory.mktemp("default-regression")
+    before = _registered_figures()
+    before_ids = {id(figure) for figure in before}
     score_csv, count_csv, _cdir = _write_screen(tmp_path)
     settings_csv = tmp_path / "regression.csv"
     pd.DataFrame(
@@ -34,7 +52,27 @@ def default_run(tmp_path):
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
     settings["min_cell_count"] = None
     np.random.seed(0)
-    return settings, perform_regression(settings)
+    output = perform_regression(settings)
+    owned = tuple(
+        figure for figure in _registered_figures()
+        if id(figure) not in before_ids
+    )
+    assert len(owned) == 5, (
+        "this run's displayed figure ownership changed; update its precise "
+        "teardown rather than hiding the change with plt.close('all')")
+
+    try:
+        yield settings, output
+    finally:
+        import matplotlib.pyplot as plt
+
+        for figure in owned:
+            plt.close(figure)
+        remaining = _registered_figures()
+        remaining_ids = {id(figure) for figure in remaining}
+        assert not remaining_ids.intersection(map(id, owned))
+        assert before_ids.issubset(remaining_ids), (
+            "the fixture closed a pyplot figure owned by its caller")
 
 
 def test_the_default_is_the_permutation_path(default_run):
