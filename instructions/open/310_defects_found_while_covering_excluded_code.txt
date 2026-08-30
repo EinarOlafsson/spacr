@@ -1953,3 +1953,67 @@ by someone else's test file.
 The cheapest available check is the strongest: a module that already has
 a `test_cov_*` file naming it is a module whose chunk should be
 re-derived before anyone is sent to it.
+
+==============================================================================
+33. live_preview's MIP TOOLTIP READS THE FIELD ID AS A TIME AXIS
+==============================================================================
+
+Reported by a coverage agent, verified here, NOT fixed -- the fix is a
+design decision rather than a correction.
+
+spacr/qt/widgets/live_preview.py:2019, in `_refresh_mip_toggle`:
+
+    timed = any(len(s.key) > 2 and s.key[2] for s in sets) and planes > 1
+
+`s` is an `ImageSet`, and its key is declared at preview_controls.py:400
+as
+
+    key: Tuple[str, str, str]     # (plate, well, field)
+
+which `ImageSet.label()` unpacks eight lines later as
+`_plate, well, fieldid = self.key`. So `s.key[2]` is the FIELD ID, not a
+timepoint. It is non-empty for every ordinary acquisition, so `timed` is
+true for essentially every z-stack, and the tooltip gains
+
+    "Projects within a timepoint only; the time axis is left alone."
+
+on data that has no time axis at all.
+
+WHY THIS IS NOT A ONE-LINE FIX
+
+There is no time signal available to correct it with. `ImageSet` carries
+exactly four fields -- key, directory, channels, planes -- and none of
+them is a timepoint or a time count. The word "timelapse" does not appear
+anywhere in live_preview.py except inside the docstring of this very
+method, which says the 4-D axis order "is never inferred here; that is
+`t_axis_order`'s job in the pipeline, and it deliberately has no default
+because (T,Z,Y,X) and (Z,T,Y,X) cannot be told apart."
+
+So the method's own documentation says this widget cannot know, and the
+line beneath it guesses anyway from a field that means something else.
+
+The three ways out are a product decision, not a correction:
+
+  1. Drop the sentence. The tooltip then describes the z-projection only,
+     which is all this widget can honestly claim.
+  2. Plumb the timelapse flag in from the settings the run was configured
+     with, and say it only when that flag is set.
+  3. Give `ImageSet` a real time field at discovery time, which is the
+     largest change and the only one that would let the preview show
+     anything else time-aware later.
+
+Left alone deliberately. Whoever owns the preview should pick; pinning
+the current behaviour in a test would only make the wrong sentence
+harder to remove.
+
+CONTRAST WITH THE custom_model DEFECT FIXED IN 387b47b5
+
+That one was also found by reading rather than by a failing test, and it
+was fixed the same afternoon -- because the correct behaviour was not in
+question. The description, the validator and every consumer agreed
+`custom_model` is a path; only the type table disagreed, and the repo
+already had a precedent for exactly that fix. Where the intended
+behaviour is unambiguous, fix it. Where the fix requires choosing what
+the software should do, report it and stop. The difference is not how
+sure you are that the code is wrong; it is whether "right" has one
+answer.
