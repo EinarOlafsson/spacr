@@ -433,9 +433,17 @@ class ComparisonGrid(LinkedView, QWidget):
         free = [key for key in self._panels
                 if key in self._canvas_link
                 and not self._canvas_link.is_locked(key)]
-        note = (f" · {len(free)} free ({', '.join(free)})" if free
-                else " · all linked")
-        self.status.setText(f"{len(self._panels)} panel(s){note}")
+        unlinked = [key for key in self._panels
+                    if key not in self._canvas_link]
+        notes = []
+        if free:
+            notes.append(f"{len(free)} free ({', '.join(free)})")
+        if unlinked:
+            notes.append(
+                f"{len(unlinked)} not linked ({', '.join(unlinked)})")
+        self.status.setText(
+            f"{len(self._panels)} panel(s) · "
+            + (" · ".join(notes) if notes else "all linked"))
 
     def closeEvent(self, event) -> None:
         """Leave the shared selection and let go of every panel's model."""
