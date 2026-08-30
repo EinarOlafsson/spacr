@@ -744,7 +744,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +5/-0 for instruction 312's independent resource accounting: the
     # `qt.preferences` performance-logging getter and setter, `runctx`'s two
     # persisted-resource readers, and `RunContext.register_worker`.
-    expected = 8774
+    # +6/-0 for FlowView's lazily mounted Classify section, measured against
+    # the exact a1ca11f9 inventory this ratchet last pinned:
+    # `spacr.qt.screens.classify.LazyFlowViewSection`, its public
+    # `hideEvent`, `panel`, `showEvent` and `shutdown` contracts, plus
+    # `install_flowview`. Nothing retired; all six are present in every
+    # regenerated language catalog in this change.
+    expected = 8780
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -759,7 +765,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8893
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8899
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

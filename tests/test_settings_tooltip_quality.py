@@ -10,8 +10,9 @@ to earn its place. The bar these tests enforce:
   * it is long enough to have said what changes when you alter the value,
   * no key is silently shadowed by a duplicate entry.
 
-The two allow-lists below are deliberately explicit: a setting may only be
-exempt if someone wrote down why.
+No tooltip is exempt from these checks. The twelve entries that once sat in
+``KNOWN_THIN`` are pinned below to the implementation facts established when
+that blanket waiver was retired.
 """
 from __future__ import annotations
 
@@ -19,26 +20,28 @@ import re
 
 import pytest
 
-from spacr.settings import descriptions, expected_types, tooltips
+from spacr.settings import expected_types, tooltips
 
-
-# Settings whose tooltip is still the original short text because the audit
-# could not establish the truth (dead knobs with no consumer, or claims the
-# grader could not verify). Shrinking this list is good; growing it needs a
-# reason.
-#: Settings whose tooltip is thin and known to be so.
-#:
-#: The entries that were "verified dead: declared in settings.py but read by
-#: nothing" have since been DELETED rather than tolerated -- the maintainer
-#: asked for dead settings removed entirely, not documented. A name left here
-#: after its setting is gone makes this list lie about what it is waiving,
-#: which is what `test_known_thin_list_contains_no_stale_entries` catches.
-KNOWN_THIN = {
-    "backgrounds", "normalize_plots", "organelle_chann_dim", "visualize",
-    "from_scratch", "width_height",
-    # audit could not confirm behaviour to the grader's standard
-    "pathogen_model", "train", "train_channels", "rescale",
-    "pathogen_limit", "save",
+# Concrete facts read from the factories and consumers during the final audit.
+# This mapping does not waive quality checks: every key still passes the same
+# length and non-tautology rules as every other shipped tooltip.
+VERIFIED_TOOLTIP_FACTS = {
+    "backgrounds": ("Legacy compatibility", "cell_background", "does not alter"),
+    "normalize_plots": ("Legacy compatibility", "do not read", "Default True"),
+    "organelle_chann_dim": ("organelle_channel", "organelle_mask_dim", "Default None"),
+    "visualize": (
+        "always joins measurement tables",
+        "crops cell images",
+        "Default 'cell'",
+    ),
+    "from_scratch": ("randomly initialised weights", "pretrained model", "Default False"),
+    "width_height": ("target_size", "does not change training", "Default [1000, 1000]"),
+    "pathogen_model": ("CPSAM-architecture", "pathogen_model_name", "Default None"),
+    "train": ("existing model_path", "without retraining", "Default True"),
+    "train_channels": ("'r', 'g' and 'b'", "input tensor", "Default ['r', 'g', 'b']"),
+    "rescale": ("30/diameter", "Cellpose", "Default False"),
+    "pathogen_limit": ("Maximum pathogens per cell", "varies by module", "1000"),
+    "save": ("optional disk artifacts", "three-item list", "varies by module"),
 }
 
 TYPE_PREFIX = re.compile(r"^\((?P<type>[^)]+)\)\s*-\s*(?P<body>.+)$", re.S)
@@ -156,8 +159,6 @@ def test_no_tooltip_merely_restates_its_key():
     """
     offenders = []
     for key, text in _all_tooltips().items():
-        if key in KNOWN_THIN:
-            continue
         body = _body(text)
         words = body.split()
         key_words = [w for w in key.lower().split("_") if len(w) > 2]
@@ -182,8 +183,6 @@ def test_tooltips_say_what_changes_when_you_alter_the_value():
     """
     thin = []
     for key, text in _all_tooltips().items():
-        if key in KNOWN_THIN:
-            continue
         if len(_body(text).split()) < 15:
             thin.append((key, _body(text)))
     assert not thin, (
@@ -192,14 +191,12 @@ def test_tooltips_say_what_changes_when_you_alter_the_value():
     )
 
 
-def test_known_thin_list_contains_no_stale_entries():
-    """Every exemption must still correspond to a real setting.
-
-    Stops the allow-list rotting into a place where typos hide.
-    """
-    known = set(_all_tooltips())
-    stale = sorted(k for k in KNOWN_THIN if k not in known)
-    assert not stale, f"KNOWN_THIN names settings that no longer have tooltips: {stale}"
+@pytest.mark.parametrize("key", sorted(VERIFIED_TOOLTIP_FACTS))
+def test_every_former_thin_waiver_states_its_verified_contract(key):
+    """The old exceptions now say the exact behavior found in source."""
+    text = _all_tooltips()[key]
+    missing = [fact for fact in VERIFIED_TOOLTIP_FACTS[key] if fact not in text]
+    assert not missing, f"{key} lost verified tooltip facts: {missing}"
 
 
 # ---------------------------------------------------------------------------

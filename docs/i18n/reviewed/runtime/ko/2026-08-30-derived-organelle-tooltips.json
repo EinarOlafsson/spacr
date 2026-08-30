@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_chann_dim",
+      "source_sha256": "949753319b57569b8e87e8f28fb9bad451e49ba96ddd73707c0eaf6888216f01",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelleb_channel to decide whether to append the mask plane, and Measure uses organelleb_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "이전 설정 파일을 위해 유지되는 레거시 병합 필드입니다. 현재 Mask는 마스크 평면을 추가할지 결정할 때 organelleb_channel 값을 사용하고, Measure는 그 평면을 찾을 때 organelleb_mask_dim 값을 사용하므로 이 필드를 변경해도 아무 영향이 없습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_chann_dim",
+      "source_sha256": "5b06e0c1488b0b0840d34d28c1417c0ef19610d5c38024f004af00e014ec3a71",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organellec_channel to decide whether to append the mask plane, and Measure uses organellec_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "이전 설정 파일을 위해 유지되는 레거시 병합 필드입니다. 현재 Mask는 마스크 평면을 추가할지 결정할 때 organellec_channel 값을 사용하고, Measure는 그 평면을 찾을 때 organellec_mask_dim 값을 사용하므로 이 필드를 변경해도 아무 영향이 없습니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_chann_dim",
+      "source_sha256": "100804d1e512c4d454536c4c6fa99a95a24e0ef892a7c25be9a7b2d4d5751c66",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelled_channel to decide whether to append the mask plane, and Measure uses organelled_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "이전 설정 파일을 위해 유지되는 레거시 병합 필드입니다. 현재 Mask는 마스크 평면을 추가할지 결정할 때 organelled_channel 값을 사용하고, Measure는 그 평면을 찾을 때 organelled_mask_dim 값을 사용하므로 이 필드를 변경해도 아무 영향이 없습니다. 기본값 None."
+    }
+  ]
+}

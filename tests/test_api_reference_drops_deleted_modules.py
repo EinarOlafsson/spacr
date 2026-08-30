@@ -17,6 +17,7 @@ for a module the product does not have.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -163,3 +164,56 @@ def test_the_documentation_build_starts_from_an_empty_generated_tree():
         "the docs workflow no longer clears docs/_build and docs/source/api "
         "before sphinx-build, so pages of deleted modules stay published"
     )
+
+
+def _docs_build_script() -> str:
+    """Return the real shell body of the workflow's ``Build docs`` step."""
+    import yaml
+
+    workflow = yaml.safe_load(DOCS_WORKFLOW.read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["build"]["steps"]
+    return next(step["run"] for step in steps if step.get("name") == "Build docs")
+
+
+def test_the_documentation_build_treats_every_sphinx_warning_as_an_error():
+    """``index.html`` is an output check, never an override of Sphinx's rc."""
+    script = _docs_build_script()
+    command = re.sub(r"\\\s*\n\s*", " ", script)
+
+    assert re.search(r"\bsphinx-build\s+(?:[^\n]*\s)?-W(?:\s|$)", command)
+    assert "rc=${PIPESTATUS[0]}" in script
+    assert re.search(r'if \[ "\$rc" -ne 0 \]; then', script)
+    assert 'exit "$rc"' in script
+
+
+def test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit(tmp_path):
+    """Execute the workflow body against a Sphinx stub that fails late."""
+    import os
+    import subprocess
+
+    executable = tmp_path / "bin" / "sphinx-build"
+    executable.parent.mkdir()
+    executable.write_text(
+        "#!/usr/bin/env bash\n"
+        "mkdir -p docs/_build/html\n"
+        "printf '<html>partial</html>' > docs/_build/html/index.html\n"
+        "printf 'warning: synthetic broken reference\\n'\n"
+        "exit 7\n",
+        encoding="utf-8",
+    )
+    executable.chmod(0o755)
+    (tmp_path / "docs" / "source").mkdir(parents=True)
+    env = {**os.environ, "PATH": f"{executable.parent}:{os.environ['PATH']}"}
+
+    completed = subprocess.run(
+        ["bash", "-o", "pipefail", "-c", _docs_build_script()],
+        cwd=tmp_path,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert (tmp_path / "docs" / "_build" / "html" / "index.html").is_file()
+    assert completed.returncode == 7
+    assert "FATAL: sphinx-build reported warnings or errors" in completed.stdout

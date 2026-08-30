@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_chann_dim",
+      "source_sha256": "949753319b57569b8e87e8f28fb9bad451e49ba96ddd73707c0eaf6888216f01",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelleb_channel to decide whether to append the mask plane, and Measure uses organelleb_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "Äldre sammanslagningsfält som behålls för gamla inställningsfiler. Nuvarande Mask använder organelleb_channel för att avgöra om maskplanet ska läggas till, och Measure använder organelleb_mask_dim för att hitta planet; en ändring av fältet har ingen effekt. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_chann_dim",
+      "source_sha256": "5b06e0c1488b0b0840d34d28c1417c0ef19610d5c38024f004af00e014ec3a71",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organellec_channel to decide whether to append the mask plane, and Measure uses organellec_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "Äldre sammanslagningsfält som behålls för gamla inställningsfiler. Nuvarande Mask använder organellec_channel för att avgöra om maskplanet ska läggas till, och Measure använder organellec_mask_dim för att hitta planet; en ändring av fältet har ingen effekt. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_chann_dim",
+      "source_sha256": "100804d1e512c4d454536c4c6fa99a95a24e0ef892a7c25be9a7b2d4d5751c66",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelled_channel to decide whether to append the mask plane, and Measure uses organelled_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "Äldre sammanslagningsfält som behålls för gamla inställningsfiler. Nuvarande Mask använder organelled_channel för att avgöra om maskplanet ska läggas till, och Measure använder organelled_mask_dim för att hitta planet; en ändring av fältet har ingen effekt. Standard None."
+    }
+  ]
+}
