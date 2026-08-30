@@ -208,7 +208,8 @@ def test_snapshot_exposes_the_release_budgets_and_peak_resources(
 
     path = tmp_path / "timing.json"
     assert timing.write_json(str(path)) == str(path)
-    assert json.loads(path.read_text(encoding="utf-8"))["schema_version"] == 1
+    assert json.loads(path.read_text(encoding="utf-8"))[
+        "schema_version"] == timing.SCHEMA_VERSION == 2
 
 
 def test_a_watchdog_gap_is_clipped_to_the_interaction_it_overlaps(
@@ -297,6 +298,34 @@ def test_benchmark_waits_for_a_post_checkpoint_watchdog_beat(
 
     qtbot.waitUntil(lambda: bool(observed), timeout=1000)
     assert observed == [True]
+    controller._finished = True
+    timing.unsubscribe_readiness(controller._ready)
+
+
+def test_result_windows_seal_on_a_post_readiness_watchdog_beat(
+        qapp, enabled_timing, tmp_path, monkeypatch):
+    window = SimpleNamespace(_sidebar=SimpleNamespace(_items=[]))
+    controller = BenchmarkController(
+        qapp, window, (), str(tmp_path / "sealed.json"), timeout_s=2.0)
+    controller.timeout.stop()
+    beats = iter((0.9, 1.1))
+    queued = []
+
+    class FakeTimer:
+        @staticmethod
+        def singleShot(delay, callback):  # noqa: N802 - Qt naming
+            queued.append((delay, callback))
+
+    monkeypatch.setattr(timing, "last_gui_beat_at", lambda: next(beats))
+    monkeypatch.setattr(benchmark_module, "QTimer", FakeTimer)
+
+    def retry():
+        return None
+
+    assert controller._sealed_stall_window_end(1.0, retry) is None
+    assert queued == [(benchmark_module.SETTLE_MS, retry)]
+    assert controller._sealed_stall_window_end(1.0, retry) == 1.1
+
     controller._finished = True
     timing.unsubscribe_readiness(controller._ready)
 

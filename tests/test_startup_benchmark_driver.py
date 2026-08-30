@@ -29,20 +29,23 @@ def _artifact(label: str, keys: list[str], violations=()):
         "controls": ["HomeButton"],
         "thread": "MainThread",
         "stall_window_started_at": 0.0,
-        "stall_window_ended_at": 1.0,
+        "stall_window_ended_at": 1.1,
         "worst_event_loop_stall_ms": 0.0,
         "worst_overlapping_frame_interval_ms": 0.0,
         "event_loop_stall_budget_met": True,
         "stall_samples": 0,
     }
     preferences = {
+        "at": 1.6,
+        "started_at": 1.5,
+        "event_loop_started_at": 0.5,
         "duration_s": 0.1,
         "name": "interactive preferences",
         "detail": "__preferences__",
         "budget_s": driver.PREFERENCES_BUDGET_S,
         "within_budget": True,
-        "stall_window_started_at": 1.0,
-        "stall_window_ended_at": 1.1,
+        "stall_window_started_at": 1.5,
+        "stall_window_ended_at": 1.7,
         "worst_event_loop_stall_ms": 0.0,
         "worst_overlapping_frame_interval_ms": 0.0,
         "event_loop_stall_budget_met": True,
@@ -52,21 +55,21 @@ def _artifact(label: str, keys: list[str], violations=()):
     for index, key in enumerate(keys):
         row = dict(home)
         row.update({
-            "at": 2.0 + index,
-            "started_at": 1.0 + index,
+            "at": 3.0 + index,
+            "started_at": 2.0 + index,
             "event_loop_started_at": 0.5,
             "duration_s": 1.0,
             "name": "interactive module",
             "detail": key,
             "budget_s": driver.MODULE_BUDGET_S,
             "controls": [f"{key}Button"],
-            "stall_window_started_at": 1.0 + index,
-            "stall_window_ended_at": 2.0 + index,
+            "stall_window_started_at": 2.0 + index,
+            "stall_window_ended_at": 3.1 + index,
         })
         modules.append(row)
     return {
         "schema_version": driver.WORKER_SCHEMA_VERSION,
-        "elapsed_s": 3.0 + len(keys),
+        "elapsed_s": 4.0 + len(keys),
         "budgets": {
             "home_ready_s": driver.HOME_BUDGET_S,
             "module_ready_s": driver.MODULE_BUDGET_S,
@@ -219,8 +222,20 @@ def test_a_complete_worker_artifact_passes_the_independent_schema_ratchet():
     ]) == []
 
 
+def test_trace_integrity_is_a_new_worker_and_combined_artifact_schema():
+    assert driver.WORKER_SCHEMA_VERSION == 2
+    assert driver.SCHEMA_VERSION == 2
+    old = _artifact("cold-process", ["probe"])
+    old["schema_version"] = 1
+
+    assert any(
+        "worker schema_version must be 2" in row
+        for row in driver._combined_violations([old])
+    )
+
+
 @pytest.mark.parametrize(("path", "replacement", "message"), [
-    (("schema_version",), None, "worker schema_version must be 1"),
+    (("schema_version",), None, "worker schema_version must be 2"),
     (("environment", "hardware", "displays"), [],
      "displays must contain at least one display"),
     (("resources", "peak_rss_mb"), None,
@@ -274,7 +289,7 @@ def test_the_old_skeletal_registry_only_shape_is_rejected():
 
     violations = driver._combined_violations([skeletal])
 
-    assert "cold-process: worker schema_version must be 1" in violations
+    assert "cold-process: worker schema_version must be 2" in violations
     assert any("worker process evidence is missing" in row for row in violations)
     assert any("benchmark.results" in row for row in violations)
 
@@ -337,6 +352,92 @@ def test_a_raw_frame_gap_and_its_independently_derived_fields_can_agree():
     })
 
     assert driver._combined_violations([artifact]) == []
+
+
+def test_a_later_beat_beginning_at_a_sealed_window_is_not_charged_backwards():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 1.1,
+        "at": 1.3,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 200.0
+
+    assert driver._combined_violations([artifact]) == []
+
+
+def test_a_shifted_stall_window_cannot_hide_the_actual_readiness_interval():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.6,
+        "at": 0.8,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 200.0
+    home = artifact["benchmark"]["results"][0]
+    home["stall_window_started_at"] = 1.1
+    home["stall_window_ended_at"] = 1.4
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "benchmark.results[0].stall_window_started_at does not match "
+        "started_at" in row
+        for row in violations
+    )
+
+
+def test_a_raw_gap_cannot_extend_beyond_the_artifact_clock():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    elapsed = artifact["elapsed_s"]
+    artifact["stalls"] = [{
+        "started_at": elapsed + 0.1,
+        "at": elapsed + 0.3,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 200.0
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "stalls[0].at is after artifact elapsed_s" in row
+        for row in violations
+    )
+
+
+def test_timestamp_duration_decides_the_stall_budget_at_the_500ms_edge():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.0,
+        "at": 0.5000004,
+        "late_ms": 499.9995,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 499.9995
+    home = artifact["benchmark"]["results"][0]
+    home.update({
+        "worst_event_loop_stall_ms": 499.9995,
+        "worst_overlapping_frame_interval_ms": 499.9995,
+        "stall_samples": 1,
+    })
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "worst_event_loop_stall_ms reached the 500 ms ceiling" in row
+        for row in violations
+    )
+    assert any(
+        "stall_budget_met does not match raw stalls" in row
+        for row in violations
+    )
 
 
 @pytest.mark.parametrize(("field", "replacement", "message"), [
@@ -441,7 +542,7 @@ def test_a_non_object_worker_json_is_a_failed_artifact_not_a_driver_crash(
         "invalid worker artifact: root is not a JSON object"]
     assert result["worker"]["returncode"] == 0
     assert any(
-        "worker schema_version must be 1" in row
+        "worker schema_version must be 2" in row
         for row in driver._combined_violations([result])
     )
 
@@ -467,6 +568,7 @@ def test_combined_artifact_is_atomically_replaced(
     artifact = driver.run_benchmark(output, runs=1)
 
     assert artifact["passed"] is True
+    assert artifact["schema_version"] == driver.SCHEMA_VERSION
     assert replaced and replaced[-1][1] == output
     assert replaced[-1][0] != output
     assert json.loads(output.read_text(encoding="utf-8"))["passed"] is True

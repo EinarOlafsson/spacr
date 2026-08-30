@@ -71,6 +71,7 @@ class BenchmarkController(QObject):
         self._preferences_factory = preferences_factory
         self._preferences_dialog = None
         self._preferences_started_elapsed = 0.0
+        self._preferences_ready_at: Optional[float] = None
         self._hard_timeout = None
         self._armed_timeout_s = self.timeout_s
         self._attempt_started = time.perf_counter()
@@ -150,14 +151,37 @@ class BenchmarkController(QObject):
         # the first settled paint; only the stall inventory waits two frames.
         QTimer.singleShot(SETTLE_MS, self._settle_ready)
 
+    @staticmethod
+    def _sealed_stall_window_end(
+            observed_at: float, retry: Callable[[], None]) -> Optional[float]:
+        """Return the first observed watchdog beat after readiness.
+
+        A wall-clock snapshot between watchdog beats is not a stable boundary:
+        the next beat begins at the preceding beat and therefore spans backward
+        across that snapshot.  Sealing at a beat instead makes every later raw
+        interval begin exactly at or after the closed result window.  Unit
+        environments without the production watchdog retain the current clock
+        fallback because no later watchdog trace can appear there.
+        """
+        latest = timing.last_gui_beat_at()
+        if latest is None:
+            return timing.elapsed()
+        if latest <= float(observed_at):
+            QTimer.singleShot(SETTLE_MS, retry)
+            return None
+        return float(latest)
+
     def _settle_ready(self) -> None:
         if self._pending is None or self._finished:
             return
         entry = self._pending
+        end = self._sealed_stall_window_end(
+            float(entry.get("at", 0.0)), self._settle_ready)
+        if end is None:
+            return
         self._pending = None
         state = timing.snapshot()
         start = float(entry.get("started_at", 0.0))
-        end = float(state["elapsed_s"])
         interval_stalls = timing.stalls_between(start, end, state["stalls"])
         # Preserve the exact window used for the derived stall fields.  The
         # readiness timestamp precedes the two-frame settling interval above,
@@ -243,6 +267,7 @@ class BenchmarkController(QObject):
     def _open_preferences(self) -> None:
         """Construct and paint the real Preferences dialog under a budget."""
         self._preferences_started_elapsed = timing.elapsed()
+        self._preferences_ready_at = None
         self._arm_timeout(min(self.timeout_s, PREFERENCES_HANG_TIMEOUT_S))
         try:
             if self._preferences_factory is None:
@@ -264,12 +289,18 @@ class BenchmarkController(QObject):
     def _settle_preferences(self) -> None:
         if self._finished or self.phase != "preferences":
             return
+        if self._preferences_ready_at is None:
+            self._preferences_ready_at = timing.elapsed()
+        ready_at = self._preferences_ready_at
+        ended = self._sealed_stall_window_end(
+            ready_at, self._settle_preferences)
+        if ended is None:
+            return
         self._disarm_timeout()
         state = timing.snapshot()
-        ended = float(state["elapsed_s"])
         stalls = timing.stalls_between(
             self._preferences_started_elapsed, ended, state["stalls"])
-        duration = max(0.0, ended - self._preferences_started_elapsed)
+        duration = max(0.0, ready_at - self._preferences_started_elapsed)
         worst = max(
             (float(row["overlap_ms"]) for row in stalls), default=0.0)
         raw_worst = max(
@@ -277,6 +308,9 @@ class BenchmarkController(QObject):
         self.results.append({
             "name": "interactive preferences",
             "detail": "__preferences__",
+            "at": ready_at,
+            "started_at": self._preferences_started_elapsed,
+            "event_loop_started_at": state.get("event_loop_started_at"),
             "duration_s": duration,
             "budget_s": PREFERENCES_BUDGET_S,
             "within_budget": duration <= PREFERENCES_BUDGET_S,
@@ -295,6 +329,7 @@ class BenchmarkController(QObject):
     def _close_preferences_dialog(self) -> None:
         dialog = self._preferences_dialog
         self._preferences_dialog = None
+        self._preferences_ready_at = None
         if dialog is None:
             return
         try:

@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from tools import spacr_hardware_report as report_module
+from tools import spacr_startup_benchmark as benchmark_driver
 
 
 def _run_launch_report(monkeypatch, first_loop: str) -> list[str]:
@@ -64,11 +65,19 @@ def test_quick_report_does_not_disguise_a_subset_as_registry_coverage(
     assert "hand-picked subset" in text
 
 
+def test_hardware_report_consumes_the_current_benchmark_schema() -> None:
+    assert report_module.STARTUP_BENCHMARK_SCHEMA_VERSION == (
+        benchmark_driver.SCHEMA_VERSION)
+
+
 def test_full_report_reads_the_exact_registry_driver_artifact(
         monkeypatch) -> None:
     def completed(command, **_kwargs):
         output = Path(command[command.index("--out") + 1])
         output.write_text(json.dumps({
+            "schema_version": report_module.STARTUP_BENCHMARK_SCHEMA_VERSION,
+            "passed": True,
+            "violations": [],
             "registry_keys": ["mask", "measure"],
             "runs": [{"benchmark": {
                 "measured_keys": ["mask", "measure"],
@@ -94,6 +103,34 @@ def test_full_report_reads_the_exact_registry_driver_artifact(
 
     text = "\n".join(say.lines)
     assert "live registry                    2 app(s)" in text
+    assert "ratchet passed                   True" in text
     assert "measured registry                2 app(s)" in text
     assert "sets equal                       True" in text
     assert "mask                                1.250 s" in text
+
+
+def test_full_report_rejects_an_old_registry_artifact_shape(monkeypatch) -> None:
+    def completed(command, **_kwargs):
+        output = Path(command[command.index("--out") + 1])
+        output.write_text(json.dumps({
+            "schema_version": 1,
+            "passed": True,
+            "registry_keys": ["mask"],
+            "runs": [{"benchmark": {
+                "measured_keys": ["mask"],
+                "results": [],
+                "violations": [],
+            }}],
+        }), encoding="utf-8")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr("subprocess.run", completed)
+    monkeypatch.setattr(
+        report_module.Report, "_out", staticmethod(lambda _text: None))
+    say = report_module.Report()
+
+    report_module.screens(say, quick=False)
+
+    text = "\n".join(say.lines)
+    assert "FAILED (artifact schema 1, expected 2)" in text
+    assert "sets equal" not in text
