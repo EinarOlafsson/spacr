@@ -243,7 +243,9 @@ def test_a_readiness_subscriber_is_registered_once_and_removable(timing):
 
 def test_unsubscribing_something_never_subscribed_is_not_an_error(timing):
     """Teardown runs on paths where setup did not, and must not raise there."""
+    before = list(timing._READY_CALLBACKS)
     timing.unsubscribe_readiness(lambda _entry: None)
+    assert timing._READY_CALLBACKS == before
 
 
 def test_the_event_loop_start_is_recorded_once(timing):

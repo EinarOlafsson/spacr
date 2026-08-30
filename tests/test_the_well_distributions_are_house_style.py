@@ -656,13 +656,19 @@ def test_saving_writes_the_same_two_filenames_the_pipeline_always_wrote(
     """The grid view, the queue and ``test_cov_ml_regression_core`` all find
     these figures by name; a restyle that renames them is a restyle that
     loses them."""
-    written = D.save_distributions(_wells(), str(tmp_path),
-                                   response_variable="log_pred",
-                                   target="print")
-    assert set(written) == {"guide_fraction", "response"}
-    assert (tmp_path / "fraction_histogram.pdf").stat().st_size > 0
-    assert (tmp_path / "log_pred_histogram.pdf").stat().st_size > 0
-    assert not plt.get_fignums(), "save_distributions leaked an open figure"
+    caller_figure = plt.figure()
+    figures_before = set(plt.get_fignums())
+    try:
+        written = D.save_distributions(_wells(), str(tmp_path),
+                                       response_variable="log_pred",
+                                       target="print")
+        assert set(written) == {"guide_fraction", "response"}
+        assert (tmp_path / "fraction_histogram.pdf").stat().st_size > 0
+        assert (tmp_path / "log_pred_histogram.pdf").stat().st_size > 0
+        assert set(plt.get_fignums()) == figures_before, (
+            "save_distributions leaked a figure or closed one it did not own")
+    finally:
+        plt.close(caller_figure)
 
 
 def test_a_saved_distribution_is_inked_for_the_page_not_for_the_gui_theme(

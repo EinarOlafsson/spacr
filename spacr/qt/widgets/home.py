@@ -815,7 +815,9 @@ class SystemPanel(Panel):
     """GPU / VRAM / Disk, read on build and on every Home revisit.
 
     Every reading degrades to a string rather than vanishing — a blank
-    row reads as "broken", "no CUDA" reads as an answer.
+    row reads as "broken", while ``n/a`` honestly says the lightweight
+    system probe could not measure a device.  Home must not import a model
+    runtime merely to decorate the dashboard.
     """
 
     def __init__(self, parent=None):
@@ -841,11 +843,7 @@ class SystemPanel(Panel):
             handle = nvml.nvmlDeviceGetHandleByIndex(0)
             return f"{nvml.nvmlDeviceGetUtilizationRates(handle).gpu}%"
         except Exception:
-            try:
-                import torch
-                return "idle" if torch.cuda.is_available() else "no CUDA"
-            except Exception:
-                return "n/a"
+            return "n/a"
 
     @staticmethod
     def gpu_vram() -> str:
@@ -857,12 +855,6 @@ class SystemPanel(Panel):
             info = nvml.nvmlDeviceGetMemoryInfo(handle)
             return f"{info.used / 1e9:.1f} / {info.total / 1e9:.0f} GB"
         except Exception:
-            try:
-                import torch
-                if torch.cuda.is_available():
-                    return f"{torch.cuda.memory_allocated() / 1e9:.1f} GB"
-            except Exception:
-                pass
             return "n/a"
 
     @staticmethod
