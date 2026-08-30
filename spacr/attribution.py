@@ -210,7 +210,10 @@ class ClassScoreModel(nn.Module):
         return raw
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return ``(B, n_classes)`` scores for ``x``."""
+        """Return ``(B, n_classes)`` scores for ``x``.
+
+        :param x: input batch passed to the wrapped classifier.
+        """
         raw = self._note_width(self.model(x))
         if raw.shape[-1] == 1:
             return torch.cat([-raw, raw], dim=-1)
@@ -312,6 +315,8 @@ def conv_layer_names(model: nn.Module) -> List[str]:
 
 def recommended_layer(model: nn.Module) -> Optional[str]:
     """The last convolutional layer — the usual CAM target — or None.
+
+    :param model: model whose convolutional layers are scanned.
 
     Mirrors :func:`spacr.utils.recommend_target_layers`, but returns None for a
     model with no convolutions instead of raising, so the CAM adapters can raise
@@ -1059,6 +1064,7 @@ class MethodSpec:
         ``'attention'`` — the families fail in different ways, which is why
         agreement *across* families is worth more than agreement within one.
     :ivar backend: ``'torchcam'``, ``'captum'`` or ``'spacr'``.
+    :ivar fn: adapter callable that computes this method's attribution.
     :ivar needs_layer: whether a spatial target layer is required.
     :ivar smoothed: whether the adapter should wrap itself in SmoothGrad.
     :ivar description: one line the GUI can show.

@@ -3289,7 +3289,10 @@ class PanelVerdict(NamedTuple):
         return VERDICT_WORDS.get(self.level, self.level.upper())
 
     def worse_than(self, other) -> bool:
-        """Whether this verdict is the one a summary should report."""
+        """Whether this verdict is the one a summary should report.
+
+        :param other: verdict whose severity is compared with this one.
+        """
         return _LEVEL_RANK.get(self.level, 0) > _LEVEL_RANK.get(
             getattr(other, "level", "unknown"), 0)
 
@@ -3803,6 +3806,10 @@ def score_panel(name, stats) -> PanelVerdict:
 def draw_verdict(ax, verdict) -> None:
     """Stamp a verdict onto the panel it belongs to.
 
+    :param ax: Matplotlib axes containing the diagnostic panel.
+    :param verdict: panel verdict to stamp; None or an unknown verdict leaves
+        the panel unchanged.
+
     BOTTOM LEFT, in a box, because every panel in this module already spends
     its top corners on the statistics block and its own annotations -- and a
     verdict written over a data point is a verdict that gets moved instead of
@@ -3828,6 +3835,8 @@ def draw_verdict(ax, verdict) -> None:
 
 def worst_verdict(verdicts):
     """The verdict a suite should be summarised by, or None when there is none.
+
+    :param verdicts: iterable of panel verdicts or None entries to compare.
 
     THE WORST ONE, not the commonest and not an average. Nineteen panels
     passing and one saying the design is rank deficient is a run whose
