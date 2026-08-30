@@ -445,3 +445,13 @@ emptied and checking ``executed_branches`` for the specific arc -- so a
 misread line number shows up as a test that does not close what it claimed,
 rather than as a green test measuring the wrong thing. That check caught three
 tests in this session that exercised nothing.
+
+  * spacr/plate_qc.py:1014 -- ``if parent:`` in ``write_layout_csv``, a FOURTH
+    instance of the dead ``dirname(abspath(...))`` guard after roi.py:451 and
+    figures/headless.py:111. Same proof: '', '.', '/', 'out.csv' and 'a/b.csv'
+    all yield a non-empty directory.
+
+    Three independent copies makes this a package-wide idiom rather than three
+    slips, and it is worth one shared helper -- ``_ensure_parent(path)`` that
+    does the abspath and the makedirs together -- rather than three guards that
+    each read correct and can never fire. Filed as a decision, not taken here.
