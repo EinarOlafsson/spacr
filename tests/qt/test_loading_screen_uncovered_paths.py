@@ -213,7 +213,10 @@ def test_a_splash_with_no_logo_still_paints_the_sentence(qapp, monkeypatch):
     screen.advance(3)
     image = _painted(screen).toImage()
 
-    ink = sum(image.pixelColor(x, y).name() == "#ffffff"
+    # Glyph edges are antialiased, and Qt's offscreen font backend is free
+    # to render a thin face without any fully saturated centre pixel.  What
+    # matters is that ink made it onto the otherwise all-black image.
+    ink = sum(image.pixelColor(x, y).value() > 0
               for y in range(image.height())
               for x in range(image.width()))
 
@@ -232,22 +235,31 @@ def test_the_lit_and_the_unlit_phases_are_inked_differently(qapp,
                          "splash_track": "#000000",
                          "splash_fill": "#000000"})
 
-    def _has(screen, name):
+    def _has(screen, channel):
+        # Keep the colour probe about the sentence.  The packaged mark has
+        # its own antialiased pixels and is not part of this contract.
+        screen._logo = None
         image = _painted(screen).toImage()
-        return any(image.pixelColor(x, y).name() == name
-                   for y in range(image.height())
-                   for x in range(image.width()))
+        for y in range(image.height()):
+            for x in range(image.width()):
+                colour = image.pixelColor(x, y)
+                channels = (colour.red(), colour.green(), colour.blue())
+                wanted = channels[channel]
+                others = channels[:channel] + channels[channel + 1:]
+                if wanted > max(others):
+                    return True
+        return False
 
     waiting = ls.LoadingScreen(total=3)
     assert waiting.lit_phases() == 0
-    assert _has(waiting, "#0000ff")
-    assert not _has(waiting, "#00ff00")
+    assert _has(waiting, 2)
+    assert not _has(waiting, 1)
 
     half = ls.LoadingScreen(total=3)
     half.advance(2)
     assert half.lit_phases() == 2
-    assert _has(half, "#00ff00")
-    assert _has(half, "#0000ff")
+    assert _has(half, 1)
+    assert _has(half, 2)
 
 
 def test_a_resize_repaints_the_cover(qapp, monkeypatch):

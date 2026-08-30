@@ -27,7 +27,6 @@ import numpy as np
 import pytest
 from PySide6.QtCore import QEvent, QPointF, Qt
 from PySide6.QtGui import QColor, QImage, QMouseEvent
-
 from scipy.ndimage import label as _label
 
 from spacr.qt import mask_engine as engine
@@ -38,7 +37,7 @@ from spacr.qt.screens.make_masks import (
     MakeMasksScreen,
     _MaskCanvas,
 )
-from spacr.qt.theme import DARK_PALETTE
+from spacr.qt.theme import active_palette
 
 CANVAS_W, CANVAS_H = 600, 400
 IMG_N = 64
@@ -84,13 +83,14 @@ def drag(widget, points) -> None:
 
 
 def accent_pixels(widget) -> int:
-    """Pixels the widget renders in the theme accent — the gesture preview."""
+    """Pixels rendered in the active theme's gesture-preview accent."""
     image = QImage(widget.size(), QImage.Format_RGB32)
     image.fill(QColor("black"))
     widget.render(image)
     arr = np.frombuffer(image.constBits(), dtype=np.uint32).reshape(
         image.height(), image.bytesPerLine() // 4)
-    return int((arr == np.uint32(QColor(DARK_PALETTE["accent"]).rgb())).sum())
+    accent = np.uint32(QColor(active_palette()["accent"]).rgb())
+    return int((arr[:, :image.width()] == accent).sum())
 
 
 def field_image() -> np.ndarray:
