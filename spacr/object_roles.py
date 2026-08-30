@@ -48,12 +48,17 @@ def is_segmented(role: str) -> bool:
 
 
 def is_organelle(role: str) -> bool:
-    """True when ``role`` is one of the closed organelle slots."""
+    """True when ``role`` is one of the closed organelle slots.
+
+    :param role: object-role name to test.
+    """
     return str(role) in ORGANELLE_ROLES
 
 
 def organelle_index(role: str) -> int:
     """Return the one-based user-facing index of an organelle slot.
+
+    :param role: organelle role whose numeric slot is requested.
 
     ANSWERED FROM THE LETTER, not from a list of the slots that happen to
     segment today. The suffix IS the number -- organelle, organelleb,
@@ -72,7 +77,10 @@ def organelle_index(role: str) -> int:
 
 
 def organelle_label(role: str) -> str:
-    """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``)."""
+    """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``).
+
+    :param role: organelle role to render for users.
+    """
     from .organelle_types import organelle_slot_label
 
     return organelle_slot_label(role)
@@ -155,7 +163,10 @@ def _split_id_suffix(key: str) -> str:
 
 
 def setting_label(key: str) -> str:
-    """Humanise a setting key, giving organelle slots numbered labels."""
+    """Humanise a setting key, giving organelle slots numbered labels.
+
+    :param key: canonical setting key to turn into a display label.
+    """
     from .organelle_types import organelle_role_of
 
     key = str(key)
@@ -176,7 +187,11 @@ def setting_label(key: str) -> str:
 
 
 def role_setting(role: str, suffix: str) -> str:
-    """Return the setting key for ``suffix`` in one segmented role."""
+    """Return the setting key for ``suffix`` in one segmented role.
+
+    :param role: segmented object role that owns the setting.
+    :param suffix: role-relative setting suffix such as ``channel``.
+    """
     role = str(role)
     if role not in SEGMENTED_ROLES:
         raise ValueError(f"{role!r} is not a segmented role")
@@ -184,13 +199,19 @@ def role_setting(role: str, suffix: str) -> str:
 
 
 def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
-    """Organelle slots whose ``<role>_channel`` is enabled, in plane order."""
+    """Organelle slots whose ``<role>_channel`` is enabled, in plane order.
+
+    :param settings: settings mapping carrying per-role channel assignments.
+    """
     return tuple(role for role in ORGANELLE_ROLES
                  if settings.get(role_setting(role, "channel")) is not None)
 
 
 def organelle_settings_view(settings: Mapping[str, Any], role: str) -> Dict[str, Any]:
     """Return a copy exposing one slot through the legacy ``organelle_*`` API.
+
+    :param settings: complete settings mapping to adapt without mutating it.
+    :param role: organelle slot to expose under legacy key names.
 
     The classical organelle segmenter predates slots and reads roughly forty
     ``organelle_*`` keys. Keeping that well-tested implementation and adapting
@@ -281,7 +302,10 @@ def anchor_column(table: str) -> str:
 
 
 def is_one_row_per_cell(table: str) -> bool:
-    """True when ``table`` holds one row per cell and needs no roll-up."""
+    """True when ``table`` holds one row per cell and needs no roll-up.
+
+    :param table: object-table name to classify.
+    """
     return str(table).strip().lower() in ONE_ROW_PER_CELL
 
 

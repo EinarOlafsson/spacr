@@ -105,6 +105,9 @@ class FilenameMapper:
     root) so users can Excel-open ``filename_map.csv`` and see the
     original path of every image in the run.
 
+    :param records: parsed filename records in file-system order.
+    :param metadata_type: name of the metadata convention used to parse them.
+    :param regex: regular-expression source used for parsing.
     :ivar records: list of :class:`FilenameRecord` in file-system order.
     :ivar metadata_type: which regex was used (``"cellvoyager"`` /
         ``"yokogawa"`` / ``"custom"``).
@@ -185,7 +188,10 @@ class FilenameMapper:
     # -- persistence -------------------------------------------------------
     def save_csv(self, path: Path) -> Path:
         """Write the mapping to ``path`` as a CSV that Excel opens
-        cleanly. One row per (original image, resulting stack slot)."""
+        cleanly. One row per (original image, resulting stack slot).
+
+        :param path: destination CSV path; its parent directory is created.
+        """
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         cols = ["original_path", "plate", "well", "field", "channel",
@@ -205,7 +211,10 @@ class FilenameMapper:
 
     @classmethod
     def load_csv(cls, path: Path) -> "FilenameMapper":
-        """Rehydrate a mapper from a previously-saved CSV."""
+        """Rehydrate a mapper from a previously-saved CSV.
+
+        :param path: mapping CSV previously written by :meth:`save_csv`.
+        """
         path = Path(path)
         recs: List[FilenameRecord] = []
         with open(path) as f:
@@ -303,6 +312,11 @@ class StackFile:
     Populated by :func:`stream_originals_to_stack` before Cellpose
     runs (C = image channels only). After :func:`stream_masks_from_stack`
     the same file has additional mask channels appended.
+
+    :ivar field_id: stable field identifier used in the stack filename.
+    :ivar path: path to the on-disk NumPy stack.
+    :ivar shape: ``(height, width, channels)`` shape at write time.
+    :ivar channels: human-readable channel names in array order.
     """
     field_id:  str
     path:      Path
