@@ -738,7 +738,7 @@ def test_feature_views_survive_a_classifier_that_cannot_group_the_columns(
     views = ra.feature_views([c for c in plate.columns if c != "pred"])
 
     assert isinstance(views, dict)
-    for name, columns in views.items():
+    for _name, columns in views.items():
         assert not columns or all(isinstance(c, str) for c in columns)
 
 
