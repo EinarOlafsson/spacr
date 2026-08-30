@@ -359,3 +359,44 @@ batch were genuinely reachable and now have tests; this was the sixth.
     it for emptiness is a guard that reads correct and can never fire. A
     third copy will appear; the check is whether an abspath sits above the
     dirname.
+
+  * spacr/errors.py:724 -- the ``finally: if conn is not None:`` in
+    ``read_run_status``, arc 724->726. Falling through to 726 with ``conn``
+    still None requires the try block to complete normally WITHOUT having
+    connected, and there is no such path: ``connect`` either returns a handle
+    (so the guard is true), or raises sqlite3.Error into the except that
+    re-raises, or returns None and the next line raises something the except
+    does not catch. Every route out with ``conn is None`` is an exception,
+    which does not take the 724->726 arc. Unreachable, guard left in place.
+
+--------------------------------------------------------------------------------
+6. A CRASH FOUND BY WRITING A TEST FOR A BRANCH  (lane: spacr/annotation.py)
+--------------------------------------------------------------------------------
+
+FIXED 2026-08-29. ``spacr.annotation.annotate`` raised
+
+    KeyError: "['gene_nr'] not found in axis"
+
+on any table whose gene column is literally named ``gene_nr``.
+
+The cause: the join did ``out.merge(right[["gene_nr"] + new], left_on=
+"_gene_nr", right_on="gene_nr")`` and then ``out.drop(columns=["gene_nr"])``.
+When the caller's own frame already carries ``gene_nr``, pandas suffixes both
+sides into ``gene_nr_x`` and ``gene_nr_y``, so the drop finds no ``gene_nr``
+and raises.
+
+THIS IS NOT AN EXOTIC INPUT. ``gene_nr`` is the FIRST name ``_key_column``
+looks for, ahead of ``gene``, ``gene_id``, ``grna`` and ``feature`` -- so it is
+the canonical spelling, and it is what spaCR's own annotated output is keyed
+on. Re-annotating a table that this very function had already written crashed.
+It went unnoticed because every fixture in the suite keyed on ``grna`` or
+``gene``, which is also why the "already annotated, stay quiet" branch below
+it had never run: nothing had ever reached a second pass.
+
+Fixed by renaming the right-hand key to a private ``_JOIN_KEY`` before the
+merge, so the two sides cannot collide and the drop names a column that is
+certainly there. Regression: 622 annotation/toxo tests pass, and a table keyed
+on ``gene_nr`` now survives two passes.
+
+The branch that started this is tests/test_the_last_branch_in_five_readers.py::
+test_a_second_annotation_pass_says_nothing_when_asked_to_be_quiet.
