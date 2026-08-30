@@ -19,8 +19,16 @@ from __future__ import annotations
 from typing import Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QPlainTextEdit,
-                               QPushButton, QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QPlainTextEdit,
+    QPushButton,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ...annotation_umap_qc import NEGATIVE, POSITIVE
 from .fast_plots import FastPlot, ResultsTable
@@ -143,6 +151,8 @@ class AnnotationUmapTab(QWidget):
         super().__init__(parent)
         self._frame = None
         self._embedding = None
+        self._controls = []
+        self._effects = {}
 
         layout = QVBoxLayout(self)
         row = QHBoxLayout()
@@ -267,8 +277,12 @@ class AnnotationUmapTab(QWidget):
     def _score(self, method: str) -> dict:
         import numpy as np
 
-        from ...annotation_umap_qc import (effect_agreement, fit_on_controls,
-                                           neighbour_purity, purity_by_guide)
+        from ...annotation_umap_qc import (
+            effect_agreement,
+            fit_on_controls,
+            neighbour_purity,
+            purity_by_guide,
+        )
 
         features = self._frame.select_dtypes(include=[np.number])
         marks = self._controls

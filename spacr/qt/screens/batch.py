@@ -50,7 +50,6 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -360,6 +359,8 @@ class BatchScreen(QWidget):
         :param overrides: ``key=value`` strings, exactly like ``--set``.
         :returns: True when the job was added.
         """
+        settings = (settings if str(settings).strip()
+                    else self._settings_edit.text().strip())
         job = bt.Job(
             module=module or self._module_combo.currentData() or "",
             settings=settings,
@@ -845,8 +846,16 @@ class BatchScreen(QWidget):
                 "" if not job.log_path else f"(no log yet at {job.log_path})")
             return
         try:
-            with open(job.log_path, "r", encoding="utf-8", errors="replace") as handle:
-                text = handle.read(_LOG_TAIL_BYTES)
+            with open(job.log_path, "rb") as handle:
+                handle.seek(0, os.SEEK_END)
+                size = handle.tell()
+                handle.seek(-min(size, _LOG_TAIL_BYTES), os.SEEK_END)
+                raw = handle.read(_LOG_TAIL_BYTES)
+                text = raw.decode("utf-8", errors="replace")
+                # Match text mode's universal-newline decoding. In particular,
+                # QPlainTextEdit returns LF, so an unchanged Windows log must
+                # not look different and reset the scroll position each tick.
+                text = text.replace("\r\n", "\n").replace("\r", "\n")
         except OSError as exc:
             text = f"(could not read {job.log_path}: {exc})"
         if self._log_view.toPlainText() != text:

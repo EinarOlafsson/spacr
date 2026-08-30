@@ -199,6 +199,17 @@ class TestTheTab:
         assert tab._embedding is None
         assert "Nothing is computed" in tab.report.toPlainText()
 
+    def test_a_fresh_tab_can_build_a_guide_table(self, tab):
+        """The public table builder has the same empty effect state as set_frame."""
+        frame = tab.guide_table({
+            "guide-1": {"purity": 0.75, "spread": 0.1, "cells": 12},
+        })
+
+        assert tab._controls == []
+        assert tab._effects == {}
+        assert frame.loc[0, "guide"] == "guide-1"
+        assert np.isnan(frame.loc[0, "effect"])
+
     def test_a_score_picked_method_is_refused_instead_of_drawn(self, tab):
         """The warning is shown INSTEAD of the plot, not beside it -- a
         picture under a caption saying it means nothing is still a picture
