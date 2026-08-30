@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from spacr.guide_permutation import (
+    gene_freedman_lane_test,
     adjust_p_values,
     analyse_long_guide_table,
     guide_freedman_lane_test,
@@ -239,3 +240,80 @@ def test_the_permutation_p_really_is_quantised_to_that_floor():
         assert floor <= 1.0 / n
     assert 1.0 / 1001 > 9e-4      # 1,000 cannot reach 1e-3
     assert 1.0 / 200001 < 6e-6    # the default resolves to about 5e-6
+
+
+# ---------------------------------------------------------------------------
+# the gene pass, and the metadata it may not be given
+# ---------------------------------------------------------------------------
+
+def test_a_gene_pass_without_metadata_still_reports_every_gene():
+    """``gene_metadata`` is optional, and its absence is not an error.
+
+    The gene pass renames the guide columns and relabels the level; the
+    metadata only ever ADDS a ``guides_in_gene`` count. A screen whose library
+    file was not loaded -- which is every screen analysed straight from a
+    measurements database -- has no metadata to give, and must still get its
+    gene-level test rather than a KeyError from the enrichment step.
+    """
+    fractions, outcomes = _small_screen()
+
+    result = gene_freedman_lane_test(fractions, outcomes, "score",
+                                     n_permutations=99, random_state=3)
+
+    # "rare" is present in two wells and the default min_wells=4 drops it,
+    # which is the support rule doing its job rather than the gene pass
+    # losing a row.
+    assert set(result["gene"]) == {"hit", "null"}
+    assert (result["level"] == "gene").all()
+    assert "guides_in_gene" not in result.columns
+    # The renames really happened: the guide spelling must be gone.
+    assert "guide" not in result.columns
+    assert "wells_with_gene" in result.columns
+
+
+def test_metadata_without_the_count_column_adds_no_count():
+    """A metadata frame is not a promise that the count is in it.
+
+    Library files carry whatever their author put in them. Reading a column
+    that is not there would fail on a real, valid library -- so the presence
+    of the frame and the presence of the column are two separate questions,
+    and only the second one adds the column.
+    """
+    fractions, outcomes = _small_screen()
+    metadata = pd.DataFrame({"something_else": [1, 2, 3]},
+                            index=["hit", "null", "rare"])
+
+    result = gene_freedman_lane_test(fractions, outcomes, "score",
+                                     gene_metadata=metadata,
+                                     n_permutations=99, random_state=3)
+
+    assert "guides_in_gene" not in result.columns
+
+
+def test_metadata_with_the_count_column_carries_it_through():
+    """The path the other two are defined against.
+
+    Without this, "no column added" would pass on an implementation that never
+    adds one.
+    """
+    fractions, outcomes = _small_screen()
+    metadata = pd.DataFrame({"guides_in_gene": [4, 2, 1]},
+                            index=["hit", "null", "rare"])
+
+    result = gene_freedman_lane_test(fractions, outcomes, "score",
+                                     gene_metadata=metadata,
+                                     n_permutations=99, random_state=3)
+
+    assert "guides_in_gene" in result.columns
+    counts = dict(zip(result["gene"], result["guides_in_gene"]))
+    assert counts["hit"] == 4 and counts["null"] == 2
+
+
+def test_the_gene_columns_lead_with_what_identifies_the_row():
+    """outcome, gene, level first -- a table read left to right by a human."""
+    fractions, outcomes = _small_screen()
+
+    result = gene_freedman_lane_test(fractions, outcomes, "score",
+                                     n_permutations=99, random_state=3)
+
+    assert list(result.columns[:3]) == ["outcome", "gene", "level"]
