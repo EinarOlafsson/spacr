@@ -27,7 +27,7 @@ name = "spacr"
 # resolver branches, so 3.9 has its own blocking CI cell rather than being a
 # README-only claim. The three native packaging scripts carry the same floor.
 #
-# The ceiling is now 3.15, and every blocker that held it at 3.14 was closed
+# The blocking ceiling is now 3.15, and every blocker that held it at 3.14 was closed
 # rather than reasoned away. Measured in throwaway conda envs, never in the
 # working one:
 #
@@ -55,12 +55,15 @@ name = "spacr"
 #     fast-suite cell; neither package is required to import core spaCR.
 #
 # Python 3.14.1 is excluded because supported torchvision releases explicitly
-# exclude that interpreter patch release. Current 3.14 releases are covered
-# by CI; the upper bound remains an honest guard against an untested 3.15.
+# exclude that interpreter patch release. Python 3.15 is admitted as a
+# deliberate forward declaration and has an experimental CI cell: PySide6
+# 6.11.2 still declares ``<3.15,>=3.10``, so the dependency resolve is expected
+# to fail there until Qt publishes a compatible release. The upper bound keeps
+# the next untested interpreter out.
 #
 # Every version admitted here has a CI cell — see the classifier note below.
 # ---------------------------------------------------------------------------
-requires-python = ">=3.9,<3.15,!=3.14.1"
+requires-python = ">=3.9,<3.16,!=3.14.1"
 
 authors = [
     { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
@@ -101,6 +104,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Image Recognition",
 ]

@@ -177,17 +177,19 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_39_through_314_except_3141():
+def test_requires_python_admits_39_through_315_except_3141():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.9: this is a supported interpreter in real use. Its resolver
     selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
     pingouin and IPython lines; a blocking CI cell exercises that branch.
 
-    Ceiling <3.15: every admitted minor has a blocking CI cell. Native
-    dependencies without CPython 3.14 wheels are optional and lazily loaded.
-    Python 3.14.1 is excluded because torchvision excludes that exact patch
-    release in its own package metadata.
+    Ceiling <3.16: every admitted minor has a CI cell. The 3.15 cell is
+    deliberately experimental until PySide6 raises its own <3.15 ceiling;
+    all earlier minor cells are blocking. Native dependencies without CPython
+    3.14 wheels are optional and lazily loaded. Python 3.14.1 is excluded
+    because torchvision excludes that exact patch release in its own package
+    metadata.
 
     This test used to be called
     ``test_requires_python_admits_310_through_312_and_nothing_else`` and it
@@ -205,8 +207,8 @@ def test_requires_python_admits_39_through_314_except_3141():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-    unsupported = ["3.7", "3.8", "3.14.1", "3.15"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+    unsupported = ["3.7", "3.8", "3.14.1", "3.16"]
 
     for v in supported:
         version = Version(v if v.count(".") == 2 else v + ".0")
@@ -235,6 +237,7 @@ def test_python_classifiers_match_requires_python_exactly():
     admitted = sorted(
         v for v in (
             "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14",
+            "3.15",
         )
         if spec.contains(Version(v + ".0"))
     )
@@ -718,7 +721,8 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     """
     workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
 
-    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]' in workflow
+    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]' in workflow
+    assert "continue-on-error: ${{ matrix.python-version == '3.15' }}" in workflow
     assert "Install the core graph and import spaCR" in workflow
     assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
     assert "import spacr" in workflow

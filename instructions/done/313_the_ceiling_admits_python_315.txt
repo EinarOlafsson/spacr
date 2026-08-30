@@ -2,7 +2,7 @@
 THE PYTHON CEILING ADMITS 3.15
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29. BLOCKED on files another session holds.
+Status:    DONE, 2026-08-30.
 Owner:     packaging. Sits with 308.
 Requested: 2026-08-29 — "please change spacr.py to support python 3.9 to 3.15
            so change <3.15 to <3.16".
@@ -84,6 +84,13 @@ WHAT TO DO
    <3.15,>=3.10" as evidence the range "resolves on every interpreter". That
    sentence is true only while the ceiling stays below 3.15.
 
+Decision recorded 2026-08-30: take option (a), the explicit forward
+declaration requested by the user. ``requires-python`` now admits 3.15 and the
+classifier and CI matrix say the same thing. The 3.15 job is
+``continue-on-error`` and names PySide6 6.11.2's current ``<3.15`` metadata as
+the expected blocker. Python 3.9-3.14 remain blocking. The package comments no
+longer claim the Qt dependency resolves on 3.15.
+
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
@@ -102,3 +109,14 @@ DELIBERATELY NOT DONE
 The ceiling was NOT raised on its own. A one-file change would have left three
 packaging tests red and made a claim CI cannot check — which is the exact
 failure the ratchet exists to prevent, and which its own error message names.
+
+--------------------------------------------------------------------------------
+COMPLETION EVIDENCE (2026-08-30)
+--------------------------------------------------------------------------------
+
+  * ``requires-python = ">=3.9,<3.16,!=3.14.1"`` and the Python 3.15
+    classifier landed together.
+  * ``compat-matrix.yml`` includes 3.15 and marks only that forward cell
+    continue-on-error until PySide6 catches up.
+  * ``tests/test_packaging_metadata.py``: 37 passed.
+  * Fatal Ruff selection and ``git diff --check`` passed.
