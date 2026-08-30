@@ -266,7 +266,11 @@ def test_main_window_refreshes_home_dock_and_menus_together(
         action.isVisible() == (app_stage(key) == "stable")
         for key, action in window._app_actions.items()
     )
-    assert not window._demo_actions["timelapse"].isVisible()
+    assert all(
+        action.isVisible() == (
+            app_stage(window.DEMO_TARGETS[key][0]) == "stable")
+        for key, action in window._demo_actions.items()
+    )
     assert {
         tile.stage for tile in window._startup.findChildren(AppTile)
     } == {"stable"}
@@ -277,4 +281,8 @@ def test_main_window_refreshes_home_dock_and_menus_together(
         action.isVisible() == (app_stage(key) != "beta")
         for key, action in window._app_actions.items()
     )
-    assert not window._demo_actions["timelapse"].isVisible()
+    assert all(
+        action.isVisible() == (
+            app_stage(window.DEMO_TARGETS[key][0]) != "beta")
+        for key, action in window._demo_actions.items()
+    )

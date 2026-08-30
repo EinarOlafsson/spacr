@@ -794,7 +794,7 @@ def test_the_destination_is_where_the_runs_write(qtbot, two_plates, tmp_path):
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
-    assert "src" not in screen._settings_model.collect()
+    assert screen._settings_model.collect()["src"] is None
 
     screen._settings_model._widgets["paired_data"].set_value(
         _rows(two_plates, tmp_path))

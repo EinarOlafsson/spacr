@@ -625,7 +625,13 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     row = next(r for r in app_mod.APPS if r[0] == screen.APP_KEY)
     assert row[1] == screen.APP_NAME
     assert row[3] == app_mod.SECTION_EXPLORE
-    assert app_mod.APP_FACTORIES[screen.APP_KEY] is screen.make_tabulate_screen
+    from spacr.qt.app_catalog import LazyScreenFactory
+
+    assert isinstance(
+        app_mod.APP_FACTORIES[screen.APP_KEY], LazyScreenFactory
+    ) or app_mod.APP_FACTORIES[screen.APP_KEY] is screen.make_tabulate_screen
+    assert app_mod.registered_factory(
+        screen.APP_KEY) is screen.make_tabulate_screen
 
     from spacr import cli
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES

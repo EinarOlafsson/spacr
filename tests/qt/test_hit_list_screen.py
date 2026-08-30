@@ -86,15 +86,18 @@ def screen(qtbot, folder):
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_the_screen_registers_itself_through_the_seam():
-    from spacr.qt.app import APPS, SECTION_RESULTS, registered_factory
+def test_the_screen_is_reached_through_the_regression_fold_seam():
+    """Hit List has one front door: Regression's seeded fold button."""
+    from spacr.qt.app import APPS
+    from spacr.qt.widgets.fold_strip import folded_fallback
 
-    row = next((r for r in APPS if r[0] == screen_module.APP_KEY), None)
-    assert row is not None, "importing the module did not register the app"
-    assert row[3] == SECTION_RESULTS
-    assert registered_factory(screen_module.APP_KEY) is (
-        screen_module.make_hit_list_screen)
-    assert screen_module.register() is False, "register() is not idempotent"
+    assert screen_module.APP_KEY not in {row[0] for row in APPS}
+    assert not hasattr(screen_module, "register")
+    assert folded_fallback(screen_module.APP_KEY) == (
+        screen_module.APP_NAME,
+        screen_module.APP_DESCRIPTION,
+        "alpha",
+    )
 
 
 def test_the_screen_answers_spacr_run_with_a_sentence():

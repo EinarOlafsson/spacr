@@ -195,11 +195,12 @@ def test_the_summary_reports_the_spread_not_a_winner(tmp_path):
 # ------------------------------------------------------------------- screen
 
 
-def test_the_screen_registers_as_a_spacr_module(qtbot):
-    import spacr.qt.screens  # noqa: F401 - triggers registration
+def test_the_screen_is_folded_into_regression_instead_of_registered(qtbot):
     from spacr.qt.app import APPS
+    from spacr.qt.screens.parameter_sweep import sweepable
 
-    assert any(row[0] == "parameter_sweep" for row in APPS)
+    assert "parameter_sweep" not in {row[0] for row in APPS}
+    assert sweepable("regression") is True
 
 
 def test_the_screen_builds_a_space_from_its_ticked_axes(qtbot):
