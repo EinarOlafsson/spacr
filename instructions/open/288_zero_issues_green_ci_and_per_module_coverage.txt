@@ -293,19 +293,29 @@ line in whatever ends up being the standing instruction for these runs: check
 the disk before starting one, and clear /tmp/pytest-of-olafsson down to the
 newest handful.
 
-THE ACTIONABLE GITHUB ISSUE QUEUE IS EMPTY (2026-08-30)
---------------------------------------------------------
-The last open issue was #114, an automatically repeated ``ml_analyze`` report
-whose empty table reached scikit-learn's ``train_test_split`` and raised the
-generic ``n_samples=0`` error.  The current ``nightly`` history already held
-the direct fix in ``fc84ff25482abda69dd7381e2b9960184d7fe4b7``:
-``ml_analysis`` rejects a zero-row measurement table before splitting and
-also names the adjacent no-label and unmatched-control cases.
+UNCOMMITTED TEST DELETIONS IN THE SHARED TREE (2026-08-30, unresolved)
+-----------------------------------------------------------------------
+Noticed while checking this lane's git state, NOT acted on. The working tree
+has 19 deleted test files that are not this lane's work:
 
-The dedicated regression file was rerun on the integration head (7/7 passed),
-the fix commit was confirmed to be an ancestor of the pushed nightly head,
-and issue #114 was closed with that evidence.  A fresh
-``gh issue list --state open`` then returned an empty list.  This satisfies the
-issue-queue half of the contract at this point in time; the instruction stays
-OPEN because the same final SHA must still make every required CI job green
-and every shipped module reach the coverage ratchet.
+  tests/flowview/  (14 files)   -- deleted alongside spacr/flowview/ itself,
+                                   which is coherent: the module is gone.
+  tests/test_installed_import_path.py               5 tests
+  tests/test_known_bug_contracts.py                 4 tests
+  tests/test_optional_dependency_python_markers.py  4 tests
+  tests/test_pyinstaller_spec.py                    4 tests  (spacr.spec is
+                                                    also gone, so consistent)
+  tests/test_timelapse_model_feature_schema.py      3 tests
+
+The flowview set and the pyinstaller one follow their targets out of the tree.
+The other three do not obviously: `07_known_bugs_not_fixed.txt`, which
+test_known_bug_contracts.py checks, is still there.
+
+That is 20 contracts leaving the suite in an uncommitted state, in a directory
+this lane owns. Left exactly as found -- it is somebody's work in progress and
+reverting it would destroy it. Recorded because a deletion that lands with no
+note reads later as a test that never existed, and because any coverage figure
+measured after it is measured against a smaller suite.
+
+WHOEVER LANDS THIS: say in the commit why each file went. Three of them name
+targets that are still in the tree.
