@@ -127,6 +127,30 @@ def install_the_spaceout_fractal(screen) -> bool:
         LOG.exception("Could not build the spaceout fractal")
         return False
 
+    # NO BACKDROP AT ALL RATHER THAN A CPU ONE. When the GPU was wanted and
+    # refused -- an OpenGL ES context cannot compile shaders vispy emits as
+    # desktop GLSL 120 -- the fallback is the CPU renderer, and that is not a
+    # cheap substitute. It takes about 78% of the machine, the application
+    # builds one backdrop per screen, and the GUI thread never gets a turn:
+    # the window will not drag and the desktop reports the process as not
+    # responding.
+    #
+    # Stilling it after construction was not enough, because the first frame
+    # is already being rendered by then, at full window size.
+    #
+    # An explicit backend='cpu' is untouched and still animates.
+    if (getattr(widget, "backend_name", "") == "cpu"
+            and values["backend"] in ("auto", "gpu")):
+        LOG.warning("no GPU context can run the backdrop shaders here, and "
+                    "the CPU renderer costs more than the backdrop is "
+                    "worth; running without one")
+        for step in ("shutdown", "deleteLater"):
+            try:
+                getattr(widget, step)()
+            except Exception:                                # noqa: BLE001
+                pass
+        return False
+
     try:
         from PySide6.QtCore import Qt as _Qt
 
