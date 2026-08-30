@@ -39,18 +39,19 @@ def _sidecar(src: Path, failures) -> Path:
     return sidecar
 
 
-def test_a_failure_written_as_a_string_does_not_break_the_verdict(tmp_path):
+def test_a_failure_written_as_a_string_is_reported_without_breaking_the_verdict(
+        tmp_path):
     """A sidecar can be hand-written, or written by an older spaCR, with its
     failures as plain strings instead of the {item, stage, error} records
     this version writes. The per-failure bullets are built by reaching into
-    those records, so a string among them must be stepped over rather than
-    indexed -- and, far more importantly, the plate must still read PARTIAL.
+    those records, so a string among them needs a stable fallback rather than
+    being indexed or silently dropped -- and the plate must still read PARTIAL.
     A folder whose failures could not be itemised reading as "complete" is
     the exact way a broken run gets forwarded as a finished one.
     """
     src = tmp_path / "plate_legacy"
     sidecar = _sidecar(src, [
-        "OSError: truncated file",
+        "OSError: truncated <file>",
         {"item": "B02.tif", "stage": "measure", "error": "ValueError: nan"},
     ])
 
@@ -64,10 +65,24 @@ def test_a_failure_written_as_a_string_does_not_break_the_verdict(tmp_path):
     # failures are still declared even though only one can be itemised.
     assert "2 of 3 item(s) failed" in body
     assert "2 of 3 wells failed" in body
-    # The dict failure is itemised; the string one contributes no bullet.
-    assert body.count("class='sub'") == 1
+    # The structured record keeps its existing item/stage/error rendering.
+    assert body.count("class='sub'") == 2
     assert "B02.tif" in body and "ValueError: nan" in body
-    assert "OSError: truncated file" not in body
+    # The legacy record is labelled as unstructured, escaped in HTML, and
+    # carried into the plain-text/PDF source instead of disappearing.
+    assert "<code>failure record</code>" in body
+    assert "OSError: truncated &lt;file&gt;" in body
+    assert "OSError: truncated <file>" not in body
+    assert "failure record: OSError: truncated <file>" in "\n".join(
+        section.text_lines)
+
+
+def test_an_unstructured_failure_record_has_one_stable_bounded_line():
+    record = ["legacy", {"z": 1, "a": 2}]
+    assert R._failure_record_text(record) == '["legacy", {"a": 2, "z": 1}]'
+    assert R._failure_record_text("") == "(empty failure record)"
+    assert R._failure_record_text("x" * 600).endswith("…")
+    assert len(R._failure_record_text("x" * 600)) == 500
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +99,8 @@ def _measurements_db(path: Path) -> Path:
     return path
 
 
-def test_an_empty_database_does_not_swallow_the_rest_of_the_appendix(tmp_path):
+def test_an_empty_database_is_named_and_does_not_swallow_the_appendix(
+        tmp_path, monkeypatch):
     """A run that dies before Measure writes a table leaves a measurements.db
     that exists and holds nothing. The feature dictionary then has no
     families to show and -- because nothing went wrong -- no error to report
@@ -102,20 +118,43 @@ def test_an_empty_database_does_not_swallow_the_rest_of_the_appendix(tmp_path):
 
     section = R._collect_appendix(empty_dir, {"databases": [empty_db]})
     assert section.notes == []
-    assert "Measured features" not in section.body_html
+    assert "<h3>Measured features</h3>" in section.body_html
+    assert "No measured features were found." in section.body_html
+    assert "measurements.db</code> exists" in section.body_html
+    assert "contains no measured features" in "\n".join(section.text_lines)
     # The inventory still ran, so the appendix is not "nothing found".
     assert section.status == R.STATUS_OK
     assert section.table is not None
     assert section.table.caption == "File inventory"
     assert any("top level" in row[0] for row in section.table.rows)
 
-    # And the same appendix on a database that does hold measurements shows
-    # the heading the empty one had to omit.
+    # A database that does hold measurements has the dictionary, not the empty
+    # database disclosure.
     full_dir = tmp_path / "full_plate"
     full_dir.mkdir()
     full = R._collect_appendix(full_dir, {
         "databases": [_measurements_db(full_dir / "measurements.db")]})
     assert "Measured features" in full.body_html
+    assert "No measured features were found." not in full.body_html
+
+    # No database is the genuinely missing case.
+    absent_dir = tmp_path / "absent_plate"
+    absent_dir.mkdir()
+    absent = R._collect_appendix(absent_dir, {})
+    assert absent.status == R.STATUS_MISSING
+    assert "No measurements database and no files were found" in absent.body_html
+    assert "No measured features were found." not in absent.body_html
+
+    # A describer failure is recorded as an error note, not rewritten as an
+    # empty database. The inventory still survives that independent failure.
+    monkeypatch.setattr(
+        R, "_feature_dictionary",
+        lambda *_a, **_k: ([], [], 0, "feature dictionary unavailable (boom)"))
+    failed = R._collect_appendix(empty_dir, {"databases": [empty_db]})
+    assert "feature dictionary unavailable (boom)" in failed.notes
+    assert "No measured features were found." not in failed.body_html
+    assert failed.table is not None
+    assert failed.table.caption == "File inventory"
 
 
 def _annotated_db(path: Path, as_view: bool) -> Path:

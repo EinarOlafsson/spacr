@@ -411,6 +411,30 @@ def test_the_break_is_sized_from_what_is_kept_below_it(plot):
     assert "10 to 100 is not drawn" in plot._status.text()
 
 
+def test_duplicate_layers_do_not_make_the_axis_break_taller(qtbot):
+    """The break belongs to the axes, not to each artist using the axes.
+
+    Redrawing an identical series as a highlight or comparison layer does not
+    create more screen geometry. Counting every layer's span would make the
+    visual gap three times taller here even though all extrema are unchanged.
+    """
+    single = fp.FastPlot(title="single", x_label="ex", y_label="why")
+    duplicated = fp.FastPlot(title="duplicated", x_label="ex", y_label="why")
+    qtbot.addWidget(single)
+    qtbot.addWidget(duplicated)
+    x = np.arange(4.0)
+    y = np.array([1.0, 3.0, 1000.0, 1200.0])
+    single.add_scatter(x, y, size=6)
+    for _ in range(3):
+        duplicated.add_scatter(x, y, size=6)
+
+    assert single.set_y_split(10.0, 900.0) == ""
+    assert duplicated.set_y_split(10.0, 900.0) == ""
+    kept_span = (3.0 - 1.0) + (1200.0 - 1000.0)
+    assert single._split_gap == pytest.approx(kept_span * 0.06)
+    assert duplicated._split_gap == pytest.approx(single._split_gap)
+
+
 def test_each_refused_split_names_its_own_reason(points):
     """A refusal the user cannot act on is the same as a control that is dead.
 

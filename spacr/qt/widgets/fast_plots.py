@@ -2347,10 +2347,14 @@ class FastPlot(QWidget):
         A FIXED FRACTION OF WHAT IS KEPT, not of what is hidden. A band 40
         decades tall between two segments three decades tall is the case this
         control exists for, and a gap sized from the hidden band would then
-        be thirteen times the data.
+        be thirteen times the data. The kept span is the shared plot geometry,
+        independent of how many layers happen to draw the same coordinates.
         """
         low, high = self._split_drawn()
-        span = 0.0
+        below_min: Optional[float] = None
+        below_max: Optional[float] = None
+        above_min: Optional[float] = None
+        above_max: Optional[float] = None
         for entry in self._drawn:
             if entry.y is None:
                 continue
@@ -2364,9 +2368,24 @@ class FastPlot(QWidget):
             below = values[values <= low]
             above = values[values >= high]
             if below.size:
-                span += float(below.max() - below.min())
+                entry_min = float(below.min())
+                entry_max = float(below.max())
+                below_min = (entry_min if below_min is None
+                             else min(below_min, entry_min))
+                below_max = (entry_max if below_max is None
+                             else max(below_max, entry_max))
             if above.size:
-                span += float(above.max() - above.min())
+                entry_min = float(above.min())
+                entry_max = float(above.max())
+                above_min = (entry_min if above_min is None
+                             else min(above_min, entry_min))
+                above_max = (entry_max if above_max is None
+                             else max(above_max, entry_max))
+        span = 0.0
+        if below_min is not None and below_max is not None:
+            span += below_max - below_min
+        if above_min is not None and above_max is not None:
+            span += above_max - above_min
         return max(span * 0.06, 1e-9)
 
     def _install_split_ticks(self) -> None:
