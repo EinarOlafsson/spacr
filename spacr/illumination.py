@@ -292,7 +292,11 @@ class IlluminationField:
         return np.stack(gains, axis=-1).astype(np.float32, copy=False)
 
     def dark_stack(self, channels: Sequence[int]) -> np.ndarray:
-        """``(C,)`` additive offsets for ``channels``, ready to broadcast."""
+        """``(C,)`` additive offsets for ``channels``, ready to broadcast.
+
+        :param channels: source channel indices in the order required by the
+            array being corrected.
+        """
         return np.asarray([self.dark[self.index_of(c)] for c in channels],
                           dtype=np.float32)
 
@@ -349,6 +353,7 @@ class IlluminationModel:
     def field_for(self, plate: str) -> IlluminationField:
         """The :class:`IlluminationField` that applies to ``plate``.
 
+        :param plate: plate key whose estimated illumination field is needed.
         :raises IlluminationError: when nothing in the model covers it. This
             is deliberately not a fall back to "some other plate's field":
             illumination differs between acquisition sessions, which is the

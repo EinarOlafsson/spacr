@@ -41,6 +41,9 @@ def _parts(path: str) -> List[str]:
 def candidate_roots(root: Optional[str]) -> Tuple[str, ...]:
     """Every folder ``root`` could mean, nearest first.
 
+    :param root: plate, screen, measurements folder, or database path to
+        normalize into candidate roots; ``None`` yields no candidates.
+
     Accepts the plate folder, the screen folder, the ``measurements/`` folder,
     or the ``measurements.db`` file itself -- callers hold different ones and
     should not each have to normalise.
@@ -255,6 +258,9 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
 
 def source_root_for_database(db_path: str) -> str:
     """The plate folder a ``measurements.db`` belongs to.
+
+    :param db_path: path to the measurements database; an empty path yields an
+        empty result.
 
     ``<plate>/measurements/measurements.db`` -> ``<plate>``, which is the
     folder that holds ``data/``. Derived rather than passed so a reader gains

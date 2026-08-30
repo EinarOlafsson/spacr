@@ -1066,6 +1066,9 @@ def _as_paths(roots: Any) -> List[Path]:
 def hf_uri(repo_id: str, filename: str) -> str:
     """The download URL for a file in a Hugging Face **dataset** repo.
 
+    :param repo_id: Hugging Face dataset repository identifier.
+    :param filename: repository-relative name of the file to download.
+
     Exactly the URL :func:`spacr.utils.download_models` and
     :func:`spacr.qt.hf_download._download_one` build, kept in one place so the
     zoo cannot drift away from the downloader spaCR already ships.

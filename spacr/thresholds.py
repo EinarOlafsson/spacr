@@ -96,6 +96,8 @@ DIMENSIONALLY_ODD = ("var",)
 def canonical(method) -> str:
     """The canonical name for ``method``.
 
+    :param method: threshold method name or accepted alias; falsey values mean
+        ``"none"``.
     :raises ValueError: naming every method, rather than falling back to a
         default the caller did not ask for.
     """
@@ -109,7 +111,10 @@ def canonical(method) -> str:
 
 
 def describe(method) -> str:
-    """One line saying what a method measures."""
+    """One line saying what a method measures.
+
+    :param method: threshold method name or accepted alias to describe.
+    """
     key = canonical(method)
     text = METHODS[key][1]
     if key in DIMENSIONALLY_ODD:
