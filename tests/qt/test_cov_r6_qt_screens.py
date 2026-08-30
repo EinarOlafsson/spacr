@@ -39,7 +39,8 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QObject, Qt, Signal                 # noqa: E402
-from PySide6.QtGui import QPixmap, QStandardItemModel          # noqa: E402
+from PySide6.QtGui import (QColor, QPixmap,                      # noqa: E402
+                           QStandardItemModel)
 from PySide6.QtWidgets import (QComboBox, QLabel, QTabWidget,  # noqa: E402
                                QVBoxLayout, QWidget)
 
@@ -493,18 +494,63 @@ def test_a_selection_off_the_end_of_the_grid_draws_no_highlight(qtbot):
     well from a 384 plate while a 96 is on screen -- and a rectangle drawn
     for a well that is not there would sit on top of one that is.
     """
-    grid = plate_view_mod.PlateGridWidget()
-    qtbot.addWidget(grid)
-    grid.resize(400, 300)
-    grid.set_plate(_layout_frame(), vmin=0.0, vmax=5.0)
-    unselected = _image(grid)
+    def _grid(selection):
+        """A FRESH widget per reading.
 
-    grid.select(9, 9)
-    assert grid.selected_well() == (9, 9), "the selection was silently dropped"
-    assert _image(grid) == unselected, "an off-grid well was outlined anyway"
+        Reusing one and selecting into it compares paints taken at
+        different points in that widget's life, and those differ for
+        reasons unrelated to the selection -- which is why this test failed
+        only when another file had run before it. Building each case from
+        scratch leaves the selection as the single difference.
+        """
+        widget = plate_view_mod.PlateGridWidget()
+        qtbot.addWidget(widget)
+        widget.resize(400, 300)
+        widget.set_plate(_layout_frame(), vmin=0.0, vmax=5.0)
+        if selection is not None:
+            widget.select(*selection)
+        return widget
 
-    grid.select(1, 2)
-    assert _image(grid) != unselected, "an on-grid well was not outlined"
+    def _accent_pixels(widget):
+        """How much of the highlight colour the widget painted.
+
+        Whole-image equality answers for everything the widget draws, and
+        two freshly built widgets can differ in ways that have nothing to
+        do with the selection -- which is why this test failed only when
+        another file had run first. The rectangle is drawn in the accent
+        colour and nothing else uses it, so counting those pixels asks
+        exactly the question the test is about.
+        """
+        from spacr.qt.theme import active_palette
+
+        accent = QColor(active_palette()["accent"]).rgb()
+        image = _image(widget)
+        return sum(image.pixel(x, y) == accent
+                   for x in range(0, image.width(), 2)
+                   for y in range(0, image.height(), 2))
+
+    grid = _grid(None)
+    unselected = _accent_pixels(grid)
+
+    # BOTH READINGS, and the pixels are the weaker of the two. An image
+    # comparison answers for everything the widget draws, so any global a
+    # previous test file left behind -- a palette, a pyqtgraph menu, a
+    # stylesheet -- can change it without the selection changing at all.
+    # The rectangle's own geometry is the claim being made here.
+    off = _grid((9, 9))
+    assert off.selected_well() == (9, 9), "the selection was silently dropped"
+    # The plate is 1x2 and the wells are numbered from one, so (9, 9) is
+    # outside it -- which is the condition paintEvent checks before drawing
+    # the rectangle. Stated here so the pixel comparison below has a reason
+    # attached to it.
+    assert not (1 <= 9 <= off._n_rows and 1 <= 9 <= off._n_cols)
+    assert _accent_pixels(off) == unselected, (
+        "an off-grid well was outlined anyway")
+
+    on = _grid((1, 2))
+    assert 1 <= 1 <= on._n_rows and 1 <= 2 <= on._n_cols
+    assert _accent_pixels(on) > unselected, (
+        "an on-grid well was not outlined")
 
 
 def _measurements_db(tmp_path):

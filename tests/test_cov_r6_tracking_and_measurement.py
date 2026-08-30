@@ -389,6 +389,8 @@ def test_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     helper, and the two real plates must both come back.
     """
     df = _qc_frame()
+    # pandas yields the unused category as an empty frame of its own
+    # (``observed=False``), after the two plates that do have rows.
     df["plateID"] = pd.Categorical(
         df["plateID"], categories=["p1", "p2", "p3_never_imaged"])
 

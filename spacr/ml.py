@@ -6893,10 +6893,20 @@ def _annotate_level_coefficients(coef_df, n_grna, n_gene):
     # is the right side (the counts) that must stay unique: a duplicate there
     # would fan the coefficient table out and every hit would be written to
     # results_significant.csv more than once.
+    #
+    # CARRY `.attrs` ACROSS. `DataFrame.merge` does not propagate it --
+    # `copy` and `concat` do, which is what makes the loss easy to miss --
+    # and `regression` puts the QC manifest there for `_perform_regression`
+    # to read back. Without this the manifest died between the two, so a
+    # run's `output` carried no 'qc' key at all and instruction 115's
+    # verdict never reached the caller.
+    carried = dict(getattr(coef_df, "attrs", {}) or {})
     coef_df = coef_df.merge(n_grna, how='left', on='grna',
                             validate='many_to_one')
     coef_df = coef_df.merge(n_gene, how='left', on='gene',
                             validate='many_to_one')
+    if carried:
+        coef_df.attrs.update(carried)
     return coef_df
 
 

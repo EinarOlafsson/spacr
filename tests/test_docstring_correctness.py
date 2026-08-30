@@ -1812,7 +1812,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
     ) == 49
-    assert sum(len(item.parameters) for item in callables) == 15_873
+    # -1: `_fractal_heading(text)` is gone. It and `_quality_fills_the_rest`
+    # were nested handlers in the preferences dialog whose call sites commit
+    # 1a20f6f4 removed; the bodies were left behind and are now deleted too.
+    assert sum(len(item.parameters) for item in callables) == 15_872
     assert sum(len(item.required_parameters) for item in callables) == 7_964
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -1823,7 +1826,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "8a275dc9230a06831204e120ede6e919889fc6d595e1130c47b73347623ed551"
+    ) == "92c3b57fb99fa65be46755bc3947f51141caa267eaf623d79cacfd42ff4986cd"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2098,7 +2101,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     # 8,945 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_838
+    # +1: `spacr.qt.i18n.language_resolved_once`, committed because
+    # `qt.screens.settings_model` already imported it while the helper was
+    # unstaged, so the package did not import at all.
+    assert len(docs) == 8_839
     assert len(rendered_documented_callables) == 7_324
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
@@ -2299,24 +2305,27 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    assert len(omissions) == 2_698
-    assert sum(omitted_callables.values()) == 1_951
+    # +13 from the same two changes above: removing the two nested handlers
+    # and admitting the i18n helper both move which callables the omission
+    # inventory walks.
+    assert len(omissions) == 2_711
+    assert sum(omitted_callables.values()) == 1_961
     assert omitted_callables == {
-        "function": 698,
-        "method": 1_137,
-        "constructor": 46,
+        "function": 706,
+        "method": 1_138,
+        "constructor": 47,
         "dataclass_constructor": 68,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_004,
-        "method": 1_381,
-        "constructor": 68,
+        "function": 1_015,
+        "method": 1_382,
+        "constructor": 69,
         "dataclass_constructor": 233,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1"
+        "681d440fe04baf6725eb33f938ac98edda0f32b0e140b0af2ccba54f7784385b"
     )
 
 
