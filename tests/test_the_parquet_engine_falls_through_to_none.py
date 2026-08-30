@@ -16,8 +16,16 @@ import importlib.util
 import pytest
 
 
-def test_an_engine_is_found_when_one_is_installed():
-    """The ordinary answer here, where pyarrow or fastparquet is present."""
+def test_the_answer_is_exactly_what_this_machine_can_import():
+    """The ordinary answer here, cross-checked against the install.
+
+    The contract is not "some string" -- it is a name pandas can pass to
+    ``to_parquet``. So the assertion is an equality against what is actually
+    importable on this machine, which catches a typo'd name and a stale
+    preference order alike, and holds on a machine with neither engine.
+    """
+    import importlib.util
+
     from spacr.frame_handoff import _columnar_engine
 
     engine = _columnar_engine()
