@@ -11,9 +11,10 @@ The happy paths are covered elsewhere (``test_ai_providers_offline.py``,
 part that only shows up when a child misbehaves or when two cleanup paths
 race: a child that ignores SIGTERM, a child that can no longer be signalled at
 all, and the registry entry being removed twice because the reader's own
-teardown and the global shutdown both reached for it. Every one of those must
-end with the child dead and the registry empty, because the alternative is a
-blocked reader thread that takes the application down with it.
+teardown and the global shutdown both reached for it. A child whose exit is
+confirmed must be reaped and removed; one that is still live after signalling
+failed must remain registered, because dropping its only handle guarantees a
+blocked reader thread survives the next shutdown attempt.
 
 The transport boundary is ``subprocess.Popen``; nothing here spawns a real
 vendor CLI or touches the network.
@@ -67,6 +68,7 @@ class _FakeChild:
         self.stdout = _FakeStdout(lines)
         self.stdin = None
         self.calls = []
+        self.wait_timeouts = []
         self._wait_raises = wait_raises          # how many wait()s time out
         self._terminate_raises = terminate_raises
         self._on_terminate = on_terminate
@@ -87,6 +89,7 @@ class _FakeChild:
 
     def wait(self, timeout=None):
         self.calls.append("wait")
+        self.wait_timeouts.append(timeout)
         if self._wait_raises > 0:
             self._wait_raises -= 1
             raise subprocess.TimeoutExpired(cmd="fake-cli", timeout=timeout or 0)
@@ -145,23 +148,23 @@ def test_a_child_that_ignores_terminate_is_killed_not_merely_asked(registry):
 
     assert providers.terminate_all_streams() == 2
 
-    assert stubborn.calls == ["poll", "terminate", "wait", "kill"]
+    assert stubborn.calls == ["poll", "terminate", "wait", "kill", "wait"]
+    assert stubborn.wait_timeouts == [1, 1]
     assert polite.calls == ["poll", "terminate", "wait"]   # no gratuitous kill
     assert stubborn.running is False
     assert polite.running is False
     assert registry == [], "a terminated stream stayed in the registry"
 
 
-def test_a_child_that_cannot_be_signalled_does_not_strand_the_others(registry):
-    """One unreachable process must not abandon every process behind it.
+def test_a_live_child_that_cannot_be_signalled_stays_registered_for_retry(
+        registry):
+    """One unreachable process must not be forgotten or strand the next one.
 
-    The children are terminated in a plain loop, so an OSError from one
-    ``terminate()`` -- the child was already reaped by the OS, or its pid is
-    gone -- would, unhandled, abandon every stream later in the list. Those
-    readers stay blocked and the abort-on-exit is back, caused by a process
-    that was ALREADY dead. The failure is swallowed per-child instead, and the
-    dead one is still dropped from the registry so shutdown does not retry it
-    forever; only the child actually asked to stop is counted.
+    An OSError from ``terminate()`` says only that this signalling attempt
+    failed. When ``poll()`` still says the child is running, removing it from
+    the registry loses the only handle a later shutdown can retry. The loop
+    must still reach healthy children behind it, and a later successful retry
+    must finish and reap the first child.
     """
     unreachable = _FakeChild(terminate_raises=OSError("no such process"))
     healthy = _FakeChild()
@@ -170,10 +173,16 @@ def test_a_child_that_cannot_be_signalled_does_not_strand_the_others(registry):
     # The one that raised is not counted; the one behind it still is.
     assert providers.terminate_all_streams() == 1
 
-    assert unreachable.calls == ["poll", "terminate"]      # blew up mid-step
+    assert unreachable.calls == ["poll", "terminate", "poll"]
     assert healthy.calls == ["poll", "terminate", "wait"]  # reached anyway
     assert healthy.running is False
-    assert registry == [], "the unsignallable entry was left to be retried"
+    assert registry == [unreachable]
+
+    unreachable._terminate_raises = None
+    assert providers.terminate_all_streams() == 1
+    assert unreachable.calls[-3:] == ["poll", "terminate", "wait"]
+    assert unreachable.running is False
+    assert registry == []
 
 
 def test_an_already_deregistered_stream_is_not_removed_twice(registry):
@@ -288,4 +297,28 @@ def test_a_stream_that_ends_on_its_own_removes_its_own_entry(monkeypatch,
     assert list(stream) == ["omega\n"]
     assert registry == []                       # removed by its own finally
     assert child.calls == ["wait"]              # exited normally, no signals
+    assert provider._current_proc is None
+
+
+def test_a_stream_escalation_reaps_the_child_after_killing_it(monkeypatch,
+                                                               registry):
+    """The reader-side teardown must reap after its SIGKILL escalation.
+
+    This is distinct from global shutdown: a generator can be closed by its
+    own consumer while the vendor CLI ignores both the initial wait and
+    SIGTERM. Killing without the final wait leaves a zombie even though the
+    registry no longer calls it live.
+    """
+    stubborn = _FakeChild(lines=["done\n"], wait_raises=2)
+    _install_fake_popen(monkeypatch, stubborn)
+    provider = providers.GeminiCliProvider()
+
+    assert list(providers._stream_process(["gemini", "hello"],
+                                          provider=provider)) == ["done\n"]
+
+    assert stubborn.calls == [
+        "wait", "terminate", "wait", "kill", "wait"]
+    assert stubborn.wait_timeouts == [1, 1, 1]
+    assert stubborn.running is False
+    assert registry == []
     assert provider._current_proc is None

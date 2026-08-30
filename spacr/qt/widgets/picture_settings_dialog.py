@@ -9,10 +9,20 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
-                               QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-                               QLabel, QLineEdit, QSpinBox, QTabWidget,
-                               QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QSpinBox,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ...crops import LOAD_IMAGES
 from ...picture_settings import ALL_KEYS, applies_to, categories, why_not
@@ -199,9 +209,17 @@ class PictureSettingsDialog(QDialog):
             form = QFormLayout(page)
             form.setLabelAlignment(Qt.AlignRight)
             for key in keys:
+                value = start.get(key)
+                if key == "cap" and isinstance(value, float):
+                    # CAP IS A COUNT even when a settings table round-trip
+                    # stores it as a float. Normalise at the boundary, using
+                    # the same truncation the montage already applies, so the
+                    # dialog cannot hand a fractional object count back to its
+                    # caller and the control remains the live-wired QSpinBox.
+                    value = int(value)
                 if key in CHANNEL_KEYS:
                     editor = ChannelPicker(
-                        start.get(key), page,
+                        value, page,
                         # `channels` with nothing on is a blank picture;
                         # `normalize_channels` with nothing on means
                         # "normalise nothing" and `outline` with nothing on
@@ -209,9 +227,9 @@ class PictureSettingsDialog(QDialog):
                         # `outline`'s default is off.
                         allow_none=(key != "channels"))
                 elif key in PAIR_KEYS:
-                    editor = PercentilePair(start.get(key), page)
+                    editor = PercentilePair(value, page)
                 else:
-                    editor = _editor(start.get(key), page,
+                    editor = _editor(value, page,
                                      choices=offered_values(key, source=source,
                                                             frame=objects))
                 label = QLabel(key.replace("_", " "), page)
@@ -334,9 +352,6 @@ class PictureSettingsDialog(QDialog):
         editor = self._editors.get("cap")
         if label is None or editor is None:
             return
-        cost = montage_cap_cost(_value_of(editor))
-        if not cost:
-            return
         # THE HELP IS REMEMBERED, not read back off the label. Re-reading it
         # appends the new sentence to the last one, so a reader who tried
         # three caps got three of them.
@@ -344,6 +359,13 @@ class PictureSettingsDialog(QDialog):
         if base is None:
             base = str(label.toolTip() or "")
             self._cap_help = base
+        cost = montage_cap_cost(_value_of(editor))
+        if not cost:
+            # ZERO HAS NO PRICE. Remove the previous count's sentence rather
+            # than leaving a tooltip that describes a value no longer in the
+            # control; the setting's original help remains truthful at zero.
+            label.setToolTip(base)
+            return
         # PLAIN OR RICH, whichever the label ended up with: the API help is
         # HTML, so the sentence is appended as a paragraph there and as a
         # blank line on a plain tooltip.
