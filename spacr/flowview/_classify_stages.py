@@ -1,10 +1,12 @@
-# Failure-isolated lifecycle events for the approved Classify graph.
-#
-# Core pipeline modules reach this private module only through a lazy
-# ``sys.modules`` gate. Keeping the state machine here gives the CV and ML
-# implementations one clock and one ordering rule without importing FlowView
-# on their disabled path. It deliberately has no module docstring or public
-# callables: private instrumentation is not part of the translated API corpus.
+"""Failure-isolated lifecycle events for the approved Classify graph.
+
+Core pipeline modules reach this private module only through a lazy
+``sys.modules`` gate. Keeping the state machine here gives the CV and ML
+implementations one clock and one ordering rule without importing FlowView on
+their disabled path. Its callables remain private; the module documentation
+explains why this instrumentation exists without promoting those helpers into
+the public API.
+"""
 
 from __future__ import annotations
 
