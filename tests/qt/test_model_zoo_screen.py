@@ -646,3 +646,96 @@ def test_compose_labels_refuses_a_mask_that_is_not_a_label_image():
 
 def test_selecting_a_field_with_no_result_is_a_no_op(screen):
     assert screen.select_field(0) is False
+
+
+def test_scanning_with_no_folder_reads_whatever_the_box_holds(screen,
+                                                              local_models):
+    """``scan()`` with no argument is what the Rescan button calls.
+
+    The folder comes from the box, and the box is what the user typed. Passing
+    a folder explicitly ALSO writes it into the box, so the two ways of
+    starting a scan cannot disagree about which folder was scanned -- a screen
+    listing one folder's models above another folder's path is unreadable.
+    """
+    root, _a, _b = local_models
+
+    screen._scan_edit.setText(str(root))
+    assert screen.scan(include_catalogue=False) is True
+
+    assert sorted(row[0] for row in screen.rows()) == [
+        "no_provenance.CP_model", "with_provenance.CP_model"]
+    assert screen._scan_edit.text() == str(root)
+
+
+def test_an_explicit_folder_is_written_into_the_box(screen, local_models):
+    """The other direction of the same rule."""
+    root, _a, _b = local_models
+    screen._scan_edit.setText("/somewhere/else/entirely")
+
+    screen.scan(str(root), include_catalogue=False)
+
+    assert screen._scan_edit.text() == str(root)
+
+
+def test_a_folder_that_is_not_there_says_so_and_lists_nothing(screen,
+                                                              tmp_path):
+    """Never raises and never opens a dialog: the docstring's own promise.
+
+    A mistyped path is the commonest way to reach this, and the status label
+    is where it has to land -- an exception out of a Rescan click would take
+    the screen down for a typo.
+    """
+    missing = tmp_path / "not_here"
+
+    assert screen.scan(str(missing), include_catalogue=False) is False
+
+    assert "No such folder" in screen.status_text()
+    assert str(missing) in screen.status_text()
+
+
+def test_a_model_already_in_the_catalogue_is_not_listed_twice(screen,
+                                                              local_models):
+    """The catalogue and the folder can name the same file.
+
+    A model downloaded into the scan folder is in both, and two rows for one
+    file means the user picks one, benchmarks the other, and compares numbers
+    from what they think are different models.
+    """
+    root, a, _b = local_models
+    from spacr import model_zoo as zoo
+
+    entry = zoo.ModelEntry(key="dup", name="already-known", path=str(a),
+                           kind="cellpose", source="catalogue", size_bytes=1)
+
+    monkey = getattr(zoo, "catalogue")
+    zoo.catalogue = lambda: [entry]
+    try:
+        screen.scan(str(root), include_catalogue=True)
+    finally:
+        zoo.catalogue = monkey
+
+    paths = [r for r in screen.rows()]
+    assert len(paths) == 2, f"a duplicate path was listed: {paths}"
+
+
+def test_an_empty_folder_box_reads_the_catalogue_alone(screen):
+    """No folder is not an error; it is "show me what ships".
+
+    The screen opens with the box empty, and the first thing it must do is
+    list the bundled and declared models. Treating a blank box as a folder
+    would produce "No such folder: " with nothing after the colon, on a screen
+    the user has not touched yet.
+    """
+    from spacr import model_zoo as zoo
+
+    entry = zoo.ModelEntry(key="bundled", name="cpsam", path="",
+                           kind="cellpose", source="catalogue", size_bytes=0)
+    real = zoo.catalogue
+    zoo.catalogue = lambda: [entry]
+    try:
+        assert screen.scan("", include_catalogue=True) is True
+    finally:
+        zoo.catalogue = real
+
+    assert [row[0] for row in screen.rows()] == ["cpsam"]
+    assert "No such folder" not in screen.status_text()
