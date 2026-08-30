@@ -350,3 +350,12 @@ argued exclusion rather than an unexplained gap in the per-module report.
 
 Found while closing the one-arc modules for item 288. Five of the six in that
 batch were genuinely reachable and now have tests; this was the sixth.
+
+  * spacr/figures/headless.py:111 -- ``if parent:`` around ``os.makedirs``,
+    the SAME dead pattern as roi.py:451 above and dead for the same reason:
+    line 110 is ``parent = os.path.dirname(os.path.abspath(target))``, so
+    ``parent`` is never empty. Two independent occurrences of one mistake is
+    a pattern worth naming: writing ``dirname(abspath(x))`` and then testing
+    it for emptiness is a guard that reads correct and can never fire. A
+    third copy will appear; the check is whether an abspath sits above the
+    dirname.
