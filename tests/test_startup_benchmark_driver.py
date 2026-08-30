@@ -41,6 +41,7 @@ def test_worker_uses_a_real_timed_entry_point_without_import_profiler_skew(
     assert time.time() - 5.0 <= float(
         env["SPACR_TIMING_PROCESS_START"]) <= time.time()
     assert env["SPACR_BENCHMARK_TIMEOUT_S"] == "17.0"
+    assert env["SPACR_BENCHMARK_HARD_TIMEOUT"] == "1"
     assert env["QT_QPA_PLATFORM"] == "offscreen"
     assert env["HOME"] == str(tmp_path / "home")
     assert env["PYTHONPATH"] == str(driver.PACKAGE_ROOT)
