@@ -11057,8 +11057,7 @@ def write_plot(plot, path, title=""):
     stem, _ = os.path.splitext(str(path))
     target = f"{stem}.{chosen}"
     parent = os.path.dirname(os.path.abspath(target))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     try:
         written = plot.export(target)
     finally:

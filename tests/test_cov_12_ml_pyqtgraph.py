@@ -304,3 +304,41 @@ def test_nothing_is_written_for_a_plot_that_was_never_built(tmp_path):
     """
     assert ml.write_plot(None, str(tmp_path / 'x.pdf'), 'title') is None
     assert not list(tmp_path.iterdir())
+
+
+def test_a_bare_plot_path_uses_its_absolute_parent(monkeypatch, tmp_path):
+    """A filename without a directory still exports in the working folder.
+
+    ``dirname(abspath(target))`` is always non-empty, including for this bare
+    path.  The writer therefore creates that resolved parent unconditionally
+    rather than carrying an impossible branch for a case that cannot occur.
+    """
+    import spacr.figure_sink as figure_sink
+    import spacr.plot as plot_module
+
+    class Plot:
+        deleted = False
+
+        def export(self, target):
+            with open(target, 'w', encoding='utf-8') as handle:
+                handle.write('plot')
+            return target
+
+        def deleteLater(self):
+            self.deleted = True
+
+    announced = []
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(plot_module, 'figure_output_preferences',
+                        lambda: ('svg', 300))
+    monkeypatch.setattr(figure_sink, 'publish_file',
+                        lambda path, *, title=None: announced.append(
+                            (path, title)))
+    plot = Plot()
+
+    written = ml.write_plot(plot, 'result.pdf', 'response')
+
+    assert written == 'result.svg'
+    assert (tmp_path / 'result.svg').read_text(encoding='utf-8') == 'plot'
+    assert announced == [('result.svg', 'response')]
+    assert plot.deleted is True
