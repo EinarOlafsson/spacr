@@ -89,6 +89,8 @@ def summarise(groups: Dict[str, Sequence[float]],
               kind: str) -> Dict[str, Dict[str, float]]:
     """Summarize grouped observations for a bar chart.
 
+    :param groups: group labels mapped to the observations behind each bar.
+    :param kind: whisker statistic requested from :func:`spread_of`.
     :returns: ``{level: {"mean", "spread", "n"}}``. Groups without finite
         observations are omitted rather than drawn as zero-valued bars.
     """

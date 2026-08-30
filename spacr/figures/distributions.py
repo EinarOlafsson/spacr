@@ -57,12 +57,19 @@ def _column(frame, names) -> Optional[str]:
 
 
 def fraction_column(frame) -> Optional[str]:
-    """The guide-share column."""
+    """The guide-share column.
+
+    :param frame: table whose columns are searched for a known guide-share
+        name.
+    """
     return _column(frame, FRACTION_COLUMNS)
 
 
 def well_column(frame) -> Optional[str]:
-    """The well identifier, or None when the frame does not carry one."""
+    """The well identifier, or None when the frame does not carry one.
+
+    :param frame: table whose columns are searched for a known well identifier.
+    """
     return _column(frame, WELL_COLUMNS)
 
 
@@ -75,6 +82,9 @@ def response_column(frame, column: Optional[str] = None) -> Optional[str]:
     past that does this guess from :data:`RESPONSE_COLUMNS`, and a panel that
     got here by guessing names the column it drew on the axis, so the guess is
     never invisible.
+
+    :param frame: model-input table whose numeric and named response columns
+        are inspected.
     """
     if column is not None:
         return column if column in frame.columns else None
@@ -122,6 +132,8 @@ def gini(values) -> float:
     NaN for an empty sample or one that sums to zero, rather than a
     ZeroDivisionError or a silent 0.0 -- an evenness of zero would be read as
     "perfectly even", which is the opposite of "there was nothing to measure".
+
+    :param values: guide-representation values; non-finite values are ignored.
     """
     array = np.sort(_finite(values))
     if array.size == 0 or array.min() < 0:
@@ -145,6 +157,10 @@ def relative_representation(frame, fraction: str, well: str):
     well produce shares an order of magnitude apart with no unevenness
     whatsoever. Dividing by the well's own equal share removes exactly that
     and nothing else, and it is what makes a single reference line legitimate.
+
+    :param frame: guide-level table containing the share and well columns.
+    :param fraction: name of the guide-share column in ``frame``.
+    :param well: name of the well-identifier column in ``frame``.
     """
     shares = np.asarray(frame[fraction], dtype="float64")
 
@@ -183,6 +199,8 @@ def shape_of(values) -> dict:
     Returned rather than printed so a test can assert the number a reader is
     shown, and so the console summary can quote the same
     one the panel does instead of computing its own.
+
+    :param values: response values whose finite observations define the shape.
     """
     from scipy import stats
 
@@ -226,6 +244,12 @@ def one_value_per_well(frame, column: str, well: Optional[str]):
 
     Checked rather than assumed: a response that genuinely varies within a
     well is left alone, because collapsing it would then be the error.
+
+    :param frame: observation table containing the response and optional well
+        identifier.
+    :param column: response column to extract from ``frame``.
+    :param well: well-identifier column, or ``None`` to retain every response
+        observation.
     """
     if well is None or well not in frame.columns:
         return _finite(frame[column]), False
@@ -298,6 +322,10 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
     quantity is a RATIO: half and twice equal representation are the same
     distance from 1, which they are not on a linear axis, and a library's
     abundances are log-normal to begin with.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: guide-level table containing a recognized share column and,
+        for the relative view, a well identifier.
     """
     fraction = fraction_column(frame)
     if fraction is None:
@@ -396,6 +424,9 @@ def response(ax, frame, *, column: Optional[str] = None,
     numbers that decide what a reader does next: skewness and excess
     kurtosis. A bare "distribution of the response" leaves them to judge
     symmetry by eye, which is exactly what nobody can do.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: model-input table containing the response observations.
     """
     name = response_column(frame, column)
     if name is None:
@@ -494,6 +525,9 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
     the grid. The style is a CONTEXT MANAGER, as everywhere in this package:
     spaCR draws from a long-lived GUI and a global rcParams write would
     restyle every later figure in the session.
+
+    :param key: distribution-panel name from :data:`REGISTRY`.
+    :param frame: data table consumed by the selected panel.
     """
     import matplotlib.pyplot as plt
 
@@ -516,6 +550,10 @@ def save_distributions(frame, dst, *, response_variable: Optional[str] = None,
     The default ``target='print'`` produces page-readable ink for saved files.
     Pass another target explicitly when the output will be embedded on a GUI
     surface.
+
+    :param frame: well- or guide-level table consumed by the distribution
+        panels.
+    :param dst: results directory in which to write the panel files.
     """
     import os
 

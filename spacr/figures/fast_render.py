@@ -55,6 +55,8 @@ class RenderedPanel:
     ``renderer`` is RECORDED rather than assumed, because the answer varies
     per run and per machine and a user comparing a figure on screen against a
     figure in a folder has to be able to find out which one they are holding.
+
+    :ivar key: generated-panel key identifying the requested figure.
     """
 
     key: str
@@ -201,6 +203,8 @@ def build_fast_plot(key: str, frame, *, alpha: float = 0.05):
     ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` are the
     generated side's single statement of it.
 
+    :param key: generated-panel key with an entry in :data:`FAST_PANELS`.
+    :param frame: coefficient table used to populate the interactive plot.
     :returns: the widget, or None when this table cannot support the panel.
     :raises KeyError: on a key with no interactive twin.
     """

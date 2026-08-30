@@ -94,6 +94,8 @@ def plate_names(frame) -> List[str]:
     Screens whose keys are the plain three-token form -- which is every one
     this module has been run on -- are unaffected: the plate is still the
     first token because there is nothing in front of it.
+
+    :param frame: long-format table whose ``prc`` values identify wells.
     """
     if "prc" not in getattr(frame, "columns", ()):
         return []
@@ -122,6 +124,8 @@ def full_plate_grid(rows: Sequence[int], columns: Sequence[int]) -> Tuple[int, i
     position out, and an edge effect is the artefact a plate heatmap exists
     to show.
 
+    :param rows: measured 1-based plate row indices.
+    :param columns: measured 1-based plate column indices.
     :returns: ``(n_rows, n_columns)`` of the smallest standard format that
         contains every measured well, or the bounding box when the wells fit
         no standard plate (a partial or non-standard layout).
@@ -291,6 +295,9 @@ def shared_limits(matrices: Sequence[np.ndarray], min_max="allq"
     The ``min_max`` spec is :func:`spacr.plot.generate_plate_heatmap`'s --
     ``'all'``, ``'allq'`` or a two-element range, floats being quantiles --
     so a caller's existing setting keeps its meaning.
+
+    :param matrices: per-plate value matrices; non-finite wells are excluded
+        from the shared scale.
     """
     pool = np.concatenate([m.ravel() for m in matrices]) if matrices \
         else np.array([], dtype="float64")
@@ -353,6 +360,8 @@ def plate_figure_name(variable: str, prefix: str = "plate_heatmap",
     key separator -- ``log_pred`` would be written as ``log%5Fpred``. This
     is a file name and not a key: an underscore is exactly what belongs in
     it, and only characters a path cannot hold are replaced.
+
+    :param variable: measurement name to include in the file name.
     """
     text = "".join(character if character.isalnum() or character in "-_."
                    else "_" for character in str(variable).strip())
