@@ -18,18 +18,14 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def _allow_writes_because_everything_here_is_mocked(monkeypatch):
-    """`file_issue` refuses to post from a test run unless this is set.
+def _github_transport_is_offline(monkeypatch):
+    """Use the explicit process-local HTTP seam; never an env bypass."""
+    from spacr.qt.ai import github_auth
 
-    That backstop exists because `[auto 54a0e8] [mask] Error: boom` (#75)
-    reached the PUBLIC tracker from a fixture's exception -- spaCR posts
-    whenever a token is resolvable and `gh` supplies one on a dev machine.
+    def _no_network(*args, **kwargs):
+        pytest.fail("an offline issue-report test reached HTTP")
 
-    Every test in this file replaces `github_auth` wholesale, so nothing here
-    can reach the network; the flag says that deliberately rather than
-    leaving the guard to be discovered as five confusing failures.
-    """
-    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", _no_network)
 
 
 
@@ -512,6 +508,11 @@ def test_open_issue_in_browser_swallows_backend_errors(monkeypatch):
 def _patch_auth(monkeypatch, *, authed, create=None):
     from spacr.qt.ai import github_auth
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: authed)
+    monkeypatch.setattr(
+        github_auth,
+        "find_issue_by_fingerprint",
+        lambda repo, fingerprint: (True, None),
+    )
     if create is not None:
         monkeypatch.setattr(github_auth, "create_issue", create)
     else:

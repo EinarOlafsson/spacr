@@ -1,7 +1,7 @@
 """Offline tests for ``spacr.qt.ai.github_auth`` (+ keys / settings stubs).
 
 Every HTTP call is intercepted at the transport boundary
-(``urllib.request.urlopen``) and the request that WOULD have been sent is
+(``github_auth._HTTP_OPEN``) and the request that WOULD have been sent is
 asserted: URL, method, all five headers and the JSON body shape. The
 response-parsing and error paths — 401, 422, 429, network timeout,
 malformed JSON, empty body — are exercised with synthetic responses.
@@ -83,7 +83,7 @@ def _stub_urlopen(monkeypatch, handler):
         seen["raw_body"] = req.data
         return handler(req, timeout)
 
-    monkeypatch.setattr(github_auth.urllib.request, "urlopen", _fake)
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", _fake)
     return seen
 
 
@@ -290,7 +290,7 @@ def test_create_issue_without_any_token_never_touches_the_network(monkeypatch):
     def _explode(*a, **k):
         raise AssertionError("urlopen must not be called without a token")
 
-    monkeypatch.setattr(ga.urllib.request, "urlopen", _explode)
+    monkeypatch.setattr(ga, "_HTTP_OPEN", _explode)
     ok, err = ga.create_issue("o/r", "t", "b", labels=["x"])
     assert ok is False
     assert err == "Not signed in to GitHub (no token available)."

@@ -456,45 +456,19 @@ def open_issue_in_browser(url: str) -> bool:
 
 def submit_report(report: Dict[str, str]) -> str:
     """Submit one payload the user has already approved in the preview."""
-    # NOTHING REACHES THE REAL TRACKER FROM A TEST RUN.
-    #
-    # spaCR posts whenever a token is resolvable, and on a developer machine
-    # the `gh` CLI supplies one -- so a test that reaches this helper without
-    # mocking files a live issue. That is how `[auto 54a0e8] [mask] Error:
-    # boom` (#75) arrived on the public tracker from a fixture's exception.
-    #
-    # The guard sits HERE rather than on github_auth.create_issue, which the
-    # offline suite exercises deliberately with a mocked urllib to check its
-    # error handling. This is the end-to-end helper the application calls;
-    # blocking it costs the tests nothing and closes the hole.
-    import os
-    # THE GUARD SITS ON THE WRITING PATH, NOT ON THE FUNCTION. It used to
-    # refuse here, before the authentication check, which also blocked the
-    # BROWSER FALLBACK -- a path that builds a URL string and opens it, and
-    # cannot create anything on GitHub. That broke
-    # `test_file_issue_returns_url_without_opening`, which exercises exactly
-    # that fallback with the opener stubbed and `is_authenticated` forced
-    # False: no write was possible and the guard refused anyway.
-    #
-    # A guard that fires where nothing could happen teaches people to
-    # disable it, so it now fires only where an issue would really be
-    # created.
-    def _writes_are_allowed() -> bool:
-        return (not os.environ.get("PYTEST_CURRENT_TEST")
-                or os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1")
-
-    # Refuse before authentication as well as before the write. Merely asking
-    # a developer's credential store is an external action a forgotten test
-    # mock must never reach.
-    if not _writes_are_allowed():
-        return ("refusing to file a GitHub issue from inside a test run; set "
-                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
-
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
+        # This check uses the module instance resolved NOW.  A broad batch once
+        # left this module holding a different instance from the one a test had
+        # patched; its process-wide allow flag then sent four real comments to
+        # issue #114.  A real transport is refused before credential discovery,
+        # while an explicitly substituted offline seam can exercise the flow.
+        refusal = github_auth._transport_refusal()
+        if refusal:
+            return refusal
         if github_auth.is_authenticated():
             # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
             # same bug hashes the same across runs and machines, and nothing
