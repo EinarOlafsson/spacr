@@ -57,7 +57,18 @@ def main(argv=None) -> int:
         payload = json.load(handle)
     settings = payload.get("settings", payload)
 
-    result = {"status": "failed", "trial_id": payload.get("trial_id")}
+    trial_id = payload.get("trial_id")
+    from .fit_resources import _worker_stamp
+
+    result = {
+        "status": "failed",
+        "trial_id": trial_id,
+        # The parent removes this private transport field before writing the
+        # sweep table. PID plus creation time lets the run sampler attach the
+        # trial name to samples it took while this short-lived child existed.
+        "_resource_worker": _worker_stamp(
+            "parameter_sweep_trial", trial_id),
+    }
     began = time.time()
     try:
         import matplotlib
