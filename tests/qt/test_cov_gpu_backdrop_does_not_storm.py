@@ -57,8 +57,13 @@ def _gpu_or_skip():
             fractal_travel.Settings(),
             fractal_travel.RuntimeControls(),
             fractal_travel.HardwareProfile(logical_cpus=4))
-    except Exception as error:      # pragma: no cover - platform-dependent
-        pytest.skip(f"no usable GL context here: {error!r}")
+    except fractal_travel.GpuBackendError as error:
+        # ONLY this one. `GpuBackendError` is precisely "this environment
+        # cannot give us a GL context", which is the one condition worth
+        # skipping for. Catching Exception here would turn a genuine break
+        # in the factory into a skip -- which is the whole reason the
+        # backdrop bug this file guards went unnoticed for so long.
+        pytest.skip(f"no usable GL context here: {error}")
 
 
 def test_a_program_that_will_not_link_is_refused_at_construction(monkeypatch):
