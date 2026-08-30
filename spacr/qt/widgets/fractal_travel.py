@@ -2167,7 +2167,8 @@ def create_fractal_widget(settings: Optional[Settings] = None,
 
     # `gpu_is_available` covers the explicit 'gpu' request as well: asking
     # for a renderer this platform would crash on is still a crash.
-    if settings.backend in ("auto", "gpu") and gpu_is_available():
+    wanted_the_gpu = settings.backend in ("auto", "gpu")
+    if wanted_the_gpu and gpu_is_available():
         try:
             return _make_gpu_widget(settings, controls, hardware)
         except Exception:                                    # noqa: BLE001
@@ -2186,4 +2187,24 @@ def create_fractal_widget(settings: Optional[Settings] = None,
         LOG.warning("the Mandelbrot pattern needs the GPU renderer; "
                     "drawing %s instead", FALLBACK_PATTERN)
         settings = replace(settings, pattern=FALLBACK_PATTERN)
-    return _make_cpu_widget(settings, controls, hardware)
+    widget = _make_cpu_widget(settings, controls, hardware)
+    if wanted_the_gpu:
+        # A FALLBACK MUST NOT COST MORE THAN THE THING IT REPLACES.
+        # `resolved_cpu_threads` deliberately takes about 78% of the
+        # machine -- 24 of 32 cores here -- which is a reasonable
+        # bargain for someone who CHOSE the CPU renderer and quite
+        # unreasonable for someone who asked for the GPU and got
+        # this instead. Measured at 800x600 it burned 82 s of CPU in
+        # 4 s of wall clock, which starves the GUI thread: the window
+        # will not drag, modules take forever to open, and the
+        # process can be killed outright.
+        #
+        # So an unasked-for CPU backdrop is drawn once and then
+        # stopped. A still fractal is a fine backdrop; an
+        # unusable application is not.
+        try:
+            widget.pause()
+        except Exception:                            # noqa: BLE001
+            LOG.debug('could not still the fallback backdrop',
+                      exc_info=True)
+    return widget
