@@ -12,9 +12,13 @@ WHAT IS ALREADY IN PLACE
     at: the full author list with Einar's ORCID, the licence, the software
     type, keywords, and the links to the repository, the documentation and
     PyPI. Without it a Zenodo record takes its authors from GitHub
-    usernames.
-  * `CITATION.cff` holds the same author list and must have its `version`
-    and `date-released` moved to 1.5.0.5 as part of the bump.
+    usernames. Commit ``11ab48db`` corrected its live Zenodo vocabulary ID
+    to ``polyform-noncommercial-1.0.0`` and stopped describing the
+    noncommercial release as open source.
+  * `CITATION.cff` holds the same author list and the SPDX identifier
+    ``PolyForm-Noncommercial-1.0.0``. It validates against CFF schema 1.2.0;
+    its `version` and `date-released` must move to 1.5.0.5 as part of the
+    maintainer-approved bump.
 
 WHAT ONLY THE MAINTAINER CAN DO
 

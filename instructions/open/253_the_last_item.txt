@@ -5,8 +5,8 @@ THE LAST ITEM: GO THROUGH THE WHOLE LIST AGAIN, THEN SHIP
 Status:    OPEN. Requested 2026-08-25. THIS ITEM IS LAST BY CONSTRUCTION --
            it cannot be closed until every other item is.
 Owner:     the whole tree.
-Depends:   every other open item. At this reconciliation that is 01, 02, 03,
-           05, 07, 08, 288, 304, 305, 306 and 307; the live index remains
+Depends:   every other open item. At this reconciliation that is 01, 05, 58,
+           288, 304, 305, 306, 310 and 314; the live index remains
            authoritative if more work is discovered.
 Requested: 2026-08-28 — "then finish all items on the linstructions list
            including these."
@@ -35,7 +35,7 @@ that would have noticed was deleted in the same commit. A sweep run while
 items are still landing measures a moving target, which is why this one runs
 at the end.
 
-227 of the items carry their own "HOW TO KNOW IT WORKED" section. That is
+266 of the items carry their own "HOW TO KNOW IT WORKED" section. That is
 the checklist -- each criterion gets a verdict with evidence, and a
 criterion that cannot be checked is reported as unchecked rather than
 assumed. A false pass is worse than an admitted gap, because a false pass is
@@ -69,13 +69,13 @@ In this order, none of it before the two sections above are true:
 
   a. the version becomes 1.5.0.5;
   b. `nightly` goes to `main`;
-  c. the history rewrite of item 250 -- the contributor identities and the
-     working folders -- runs LAST of all, because it invalidates every
-     outstanding branch and working tree, including any a concurrent
-     session still holds.
+  c. the contributor-history rewrite requested separately by the maintainer is
+     already complete. Its pre-rewrite bundle is retained at
+     ``/mnt/firecuda2/codex/backups/spacr-pre-contributor-rewrite-2026-08-30-4ba64525.bundle``;
+     do not rewrite it again as part of the release.
 
-CONFIRM BEFORE (b) AND (c). Both rewrite what the public sees, and (c)
-cannot be undone by another commit.
+CONFIRM BEFORE (b). Updating the public main branch and publishing the release
+remain held even though the separately authorised history rewrite is complete.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
