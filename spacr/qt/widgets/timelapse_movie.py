@@ -23,6 +23,9 @@ partway through the strip.
 from __future__ import annotations
 
 import logging
+import sys
+import time
+import weakref
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -59,6 +62,21 @@ def _to_pixmap(rgb: np.ndarray) -> QPixmap:
     from .live_preview import numpy_to_qpixmap
 
     return numpy_to_qpixmap(rgb, normalise=False)
+
+
+_LIVE_MOVIES: "weakref.WeakSet[FovMovie]" = weakref.WeakSet()
+
+
+def _live_cache_owners():
+    """Movie render caches that still belong to a live widget."""
+    return tuple(_LIVE_MOVIES)
+
+
+def _ensure_cache_budget_sweep() -> None:
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
 
 
 class FilmStrip(QScrollArea):
@@ -143,6 +161,9 @@ class FovMovie(QWidget):
         self._show_tracks = True
         self._frame = 0
         self._cache: Dict[Tuple[int, bool, bool], np.ndarray] = {}
+        self._cache_last_used: Dict[Tuple[int, bool, bool], float] = {}
+        _LIVE_MOVIES.add(self)
+        _ensure_cache_budget_sweep()
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -208,6 +229,7 @@ class FovMovie(QWidget):
         self._tracks = tracks
         self._channel = int(channel)
         self._cache.clear()
+        self._cache_last_used.clear()
 
         count = 0 if self._images is None else int(len(self._images))
         self._scrub.setMaximum(max(0, count - 1))
@@ -236,6 +258,7 @@ class FovMovie(QWidget):
         key = (index, self._show_objects, self._show_tracks)
         cached = self._cache.get(key)
         if cached is not None:
+            self._cache_last_used[key] = time.time()
             return cached
 
         from .timelapse_preview import render_frame
@@ -256,7 +279,24 @@ class FovMovie(QWidget):
             LOG.debug("could not render frame %s", index, exc_info=True)
             return None
         self._cache[key] = rgb
+        self._cache_last_used[key] = time.time()
         return rgb
+
+    def _cache_budget_entries(self):
+        """Measured composited frames; every one is exactly reproducible."""
+        now = time.time()
+        return [
+            (key, max(0, int(rgb.nbytes)),
+             float(self._cache_last_used.get(key, now)), False)
+            for key, rgb in list(self._cache.items())
+        ]
+
+    def _drop_cache_budget_entry(self, key) -> bool:
+        """Drop one composited frame without disturbing displayed pixmaps."""
+        existed = key in self._cache
+        self._cache.pop(key, None)
+        self._cache_last_used.pop(key, None)
+        return existed
 
     def _render_strip(self) -> None:
         if self._images is None or not len(self._images):

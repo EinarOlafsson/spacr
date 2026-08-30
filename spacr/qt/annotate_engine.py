@@ -290,6 +290,8 @@ def _check_stop(should_stop) -> None:
 
 
 _cellpose_outline_model = None
+_cellpose_outline_last_used = 0.0
+_cellpose_outline_in_use = 0
 # Cellpose/PyTorch model construction and inference enter native code and are
 # not safe to run concurrently through one cached model.  Annotate page loads
 # used to fan out across several QThreads and ThreadPoolExecutors, so two crops
@@ -307,7 +309,7 @@ def _get_cellpose_outline_model(should_stop=None):
         1.2 GB checkpoint, so a caller that has already given up must not pay
         for it.
     """
-    global _cellpose_outline_model
+    global _cellpose_outline_last_used, _cellpose_outline_model
     _check_stop(should_stop)
     with _cellpose_outline_lock:
         _check_stop(should_stop)
@@ -320,6 +322,7 @@ def _get_cellpose_outline_model(should_stop=None):
                 gpu = False
             _cellpose_outline_model = cp_models.CellposeModel(
                 gpu=gpu, pretrained_model="cpsam", device=None)
+        _cellpose_outline_last_used = time.time()
         return _cellpose_outline_model
 
 
@@ -331,16 +334,22 @@ def _cellpose_foreground(channel_2d, should_stop=None) -> "np.ndarray":
         pass — so the question is asked again on the far side of it rather
         than only on the way in.
     """
+    global _cellpose_outline_in_use, _cellpose_outline_last_used
     _check_stop(should_stop)
     with _cellpose_outline_lock:
-        model = _get_cellpose_outline_model(should_stop=should_stop)
-        _check_stop(should_stop)
-        res = model.eval(
-            channel_2d.astype(np.float32),
-            diameter=None,
-            flow_threshold=0.4,
-            cellprob_threshold=0.0,
-        )
+        _cellpose_outline_in_use += 1
+        try:
+            model = _get_cellpose_outline_model(should_stop=should_stop)
+            _check_stop(should_stop)
+            res = model.eval(
+                channel_2d.astype(np.float32),
+                diameter=None,
+                flow_threshold=0.4,
+                cellprob_threshold=0.0,
+            )
+        finally:
+            _cellpose_outline_in_use -= 1
+            _cellpose_outline_last_used = time.time()
     mask = res[0]
     if isinstance(mask, list):
         mask = mask[0]
@@ -444,6 +453,54 @@ def forget_outline_masks() -> None:
     _EDGE_CACHE_USED.clear()
 
 
+def _model_bytes(model) -> int:
+    """Measured parameter and buffer bytes without importing torch."""
+    network = getattr(model, "net", model)
+    total = 0
+    seen = set()
+    for accessor_name in ("parameters", "buffers"):
+        accessor = getattr(network, accessor_name, None)
+        if not callable(accessor):
+            continue
+        try:
+            values = accessor()
+        except Exception:                                    # noqa: BLE001
+            continue
+        for value in values:
+            marker = id(value)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            try:
+                total += max(0, int(value.numel())
+                             * int(value.element_size()))
+            except Exception:                                # noqa: BLE001
+                try:
+                    total += max(0, int(value.nbytes))
+                except Exception:                            # noqa: BLE001
+                    continue
+    return total
+
+
+def _release_cached_models() -> int:
+    """Release Annotate's warm Cellpose reference when it is not in use.
+
+    The non-blocking lock is important: a five-second GUI budget tick must
+    never wait behind native Cellpose inference.  The next tick can retry.
+    """
+    global _cellpose_outline_last_used, _cellpose_outline_model
+    if not _cellpose_outline_lock.acquire(blocking=False):
+        return 0
+    try:
+        if _cellpose_outline_in_use or _cellpose_outline_model is None:
+            return 0
+        _cellpose_outline_model = None
+        _cellpose_outline_last_used = 0.0
+        return 1
+    finally:
+        _cellpose_outline_lock.release()
+
+
 def cache_budget_entries():
     """Measured records for decoded outline arrays retained between draws."""
     rows = []
@@ -454,12 +511,22 @@ def cache_budget_entries():
         for key, value in list((cache or {}).items()):
             rows.append(((kind, key), max(0, int(value.nbytes)),
                          float(used.get(key, now)), False))
+    model = _cellpose_outline_model
+    if model is not None:
+        rows.append((
+            ("model", "cellpose-outline"),
+            _model_bytes(model),
+            float(_cellpose_outline_last_used or now),
+            bool(_cellpose_outline_in_use),
+        ))
     return rows
 
 
 def drop_cache_budget_entry(record_key) -> bool:
     """Evict one decoded array selected by the global memory policy."""
     kind, key = record_key
+    if kind == "model":
+        return bool(_release_cached_models())
     cache = _MASK_CACHE if kind == "mask" else _EDGE_CACHE
     used = _MASK_CACHE_USED if kind == "mask" else _EDGE_CACHE_USED
     if cache is None:
