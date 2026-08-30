@@ -1012,9 +1012,11 @@ exception-masking protection; a pragma is not an acceptable substitute.
     figures/scene, illumination, ml (x2), plate_qc, roi, style_base,
     tabular (x2), volcano_style.
 
-    Thirteen removed, in the eleven files no other lane had open. align.py and
-    ml.py were modified in the shared tree at the time and keep theirs for
-    whoever lands those; they are two arcs.
+    All sixteen are now removed. The initially deferred ``align.py`` guard and
+    the first ``ml.py`` guard landed with their owning lanes; commit
+    ``729c5fcc`` removed the last residual guard in ``ml.write_plot`` and added
+    a direct bare-filename export test. No ``if parent`` remains after a
+    ``dirname(abspath(...))`` computation.
 
     tests/test_a_parent_directory_is_always_there_to_make.py asserts the
     property over eleven path shapes, and then asserts the BEHAVIOUR through
