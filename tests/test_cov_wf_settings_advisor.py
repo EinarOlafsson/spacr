@@ -75,7 +75,10 @@ def test_a_screen_with_no_reads_reports_no_fraction_instead_of_a_fake_one(
     assert silent["plates"] == spoken["plates"] == 1
     assert silent["wells"] == spoken["wells"] == 4
     assert silent["guides"] == spoken["guides"] == 3
-    assert silent["trouble"] == []
+    assert silent["trouble"] == [
+        "the count tables contain no positive guide fractions, so no well "
+        "has usable reads for a threshold"
+    ]
 
     # The file with reads produces every fraction number ...
     assert spoken["fraction_median"] == pytest.approx(1 / 3)
@@ -87,6 +90,12 @@ def test_a_screen_with_no_reads_reports_no_fraction_instead_of_a_fake_one(
     for key in ("fraction_median", "fraction_q90", "guides_per_well",
                 "kept_at_two_percent"):
         assert key not in silent, f"{key} was invented from zero reads"
+
+    advice = advise_the_screen([empty])
+    why = advice.why("fraction_threshold")
+    assert "no positive guide fractions" in why
+    assert "usable reads in any well" in why
+    assert "did not yield a fraction column" not in why
 
 
 def test_a_guide_column_that_is_only_the_organism_names_no_genes(tmp_path):

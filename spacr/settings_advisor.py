@@ -12,7 +12,7 @@ reuse the same analysis helpers as the regression pipeline.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -201,6 +201,12 @@ def _plate_of(wells: "pd.Series") -> "pd.Series":
     return wells.astype(str).str.split("_").str[0]
 
 
+_NO_USABLE_FRACTIONS = (
+    "the count tables contain no positive guide fractions, so no well has "
+    "usable reads for a threshold"
+)
+
+
 def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
     """Measure plates, wells, guides, genes, and replication from count data.
 
@@ -252,6 +258,8 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
             # What the usual default would cost THIS screen, which is the
             # number a user can act on.
             out["kept_at_two_percent"] = float((share >= 0.02).mean())
+        else:
+            out["trouble"].append(_NO_USABLE_FRACTIONS)
     except Exception:                                        # noqa: BLE001
         pass
 
@@ -842,10 +850,20 @@ def _thresholds(reading: Reading, chosen: List[Choice],
     kept = reading.kept_at_two_percent
     median = reading.fraction_median
     if median is None:
+        if _NO_USABLE_FRACTIONS in reading.trouble:
+            reason = (
+                "the count tables contain no positive guide fractions; "
+                "without usable reads in any well, nothing here can say "
+                "what a threshold would cost"
+            )
+        else:
+            reason = (
+                "the count tables did not yield a fraction column, so "
+                "nothing here can say what a threshold would cost"
+            )
         undecided.append(Undecided(
             "fraction_threshold",
-            "the count tables did not yield a fraction column, so nothing "
-            "here can say what a threshold would cost"))
+            reason))
     elif kept is not None and kept < 0.5:
         # A tenth of the typical share: low enough to keep the library,
         # which is the failure that matters, and still above nothing.
