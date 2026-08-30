@@ -1508,3 +1508,38 @@ missing companion contracts now pin the live behavior: every member of a mixed
 multi-channel selection remains in its folder name, and punctuation-only text
 such as ``"---"`` becomes ``x`` instead of collapsing a path component to an
 empty string.
+
+--------------------------------------------------------------------------------
+39. COVERAGE-ONLY TOOLING BROKE EVERY LEAN TEST JOB DURING COLLECTION
+--------------------------------------------------------------------------------
+
+``tests/test_module_coverage_ratchet.py`` executed
+``tools/run_coverage_batches.py`` at module import time.  That runner imports
+coverage.py, which is deliberately installed by the coverage shards but not by
+the independent NAS, GPU, Slow, Network, Integration or Qt jobs.  Pytest
+imports every candidate test module before applying marker deselection, so all
+six otherwise unrelated job families stopped at collection with
+``ModuleNotFoundError: coverage`` and never reached their selected tests.
+
+The coverage runner is now loaded only inside the two contracts that exercise
+it.  Those contracts skip honestly when the optional tool is absent and still
+run in the required coverage shards; the other ratchet contracts remain
+collectable everywhere.  All ten tests pass with coverage installed, and a
+fresh import hook that makes every ``coverage`` import fail proves the module
+still collects without it.
+
+--------------------------------------------------------------------------------
+40. THREE TOLERANT CONSOLE TESTS ASSERTED ONLY THAT PYTHON DID NOT RAISE
+--------------------------------------------------------------------------------
+
+Three new ``mask._say`` tests called the no-console, wrong-object and
+raising-console paths without one assertion.  They could pass if the helper
+silently attached a console, changed unrelated screen state, or partly wrote
+before swallowing the exception.  The suite-hygiene ratchet rejected all
+three in coverage shard 10 before that false confidence could become baseline.
+
+The fake console now records attempted calls as well as completed text.  Each
+tolerant path asserts the screen state it must preserve, and the raising path
+proves both that the real append was attempted and that no partial text was
+retained.  The adjacent working-console test pins the positive side.  The full
+15-test Mask example-data file and the assertion-free hygiene gate pass.
