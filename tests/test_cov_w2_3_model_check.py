@@ -86,10 +86,6 @@ def test_a_custom_model_cannot_be_checked_without_pytorch(tmp_path, monkeypatch)
     assert "PyTorch is not installed" in report.problems[0]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "model_check.py:174 imports KNOWN_MODELS from spacr.model_zoo, which has "
-    "never exported that name, so the ImportError branch always wins and no "
-    "model_type is ever refused"))
 def test_a_builtin_model_spacr_does_not_know_is_offered_the_ones_it_does():
     """An unrecognised backbone name is a problem, not a silent pass.
 
