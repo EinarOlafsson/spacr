@@ -222,6 +222,33 @@ def _esc(value: Any) -> str:
     return _html.escape(str(value), quote=True)
 
 
+def _failure_record_text(value: Any, width: int = 500) -> str:
+    """One safe, stable line for a legacy unstructured failure record.
+
+    Strings are already the error message older sidecars wrote. Other JSON
+    shapes use sorted JSON so the same record has the same representation on
+    every run; an unexpected in-memory object is named by type without calling
+    its potentially unsafe or unstable ``repr``. The report remains bounded
+    when a hand-written sidecar contains a whole traceback in one value.
+    """
+    if isinstance(value, str):
+        rendered = value
+    else:
+        try:
+            rendered = json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                default=lambda item: f"<{type(item).__name__}>",
+            )
+        except (TypeError, ValueError, OverflowError):
+            rendered = f"<{type(value).__name__}>"
+    rendered = " ".join(str(rendered).split())
+    if not rendered:
+        rendered = "(empty failure record)"
+    return rendered if len(rendered) <= width else rendered[: width - 1] + "…"
+
+
 def _fmt_bytes(n: Any) -> str:
     """Render a byte count as ``1.4 MB``."""
     try:
@@ -814,6 +841,12 @@ def _collect_run_status(src: Path, artifacts: Dict[str, Any],
                     body.append(
                         f"<li class='sub'><code>{_esc(failure.get('item'))}</code> "
                         f"[{_esc(failure.get('stage'))}] {_esc(failure.get('error'))}</li>")
+                else:
+                    rendered = _failure_record_text(failure)
+                    body.append(
+                        "<li class='sub'><code>failure record</code> "
+                        f"{_esc(rendered)}</li>")
+                    lines.append(f"    failure record: {rendered}")
         body.append("</ul>")
         section.status = STATUS_PROBLEM
 
@@ -1680,6 +1713,19 @@ def _collect_appendix(src: Path, artifacts: Dict[str, Any],
                             rows=entries, n_total_rows=n_total)) + "</details>")
             lines.append(f"  feature dictionary: {n_total} column(s) across "
                          f"{len(families)} family/families")
+        else:
+            # THE FILE EXISTS, BUT MEASURE WROTE NO FEATURES. This is neither
+            # an absent database nor a describer error, and omitting it makes a
+            # run interrupted before its first table look complete.
+            have_something = True
+            body.append("<h3>Measured features</h3>")
+            body.append(
+                "<p class='muted'><strong>No measured features were found.</strong> "
+                f"<code>{_esc(_figure_title(db, src))}</code> exists, but "
+                "contains no measured feature columns.</p>")
+            lines.append(
+                f"  feature dictionary: {_figure_title(db, src)} exists, but "
+                "contains no measured features")
 
         columns, n_annotated, ann_error = _annotation_summary(db)
         if ann_error:
