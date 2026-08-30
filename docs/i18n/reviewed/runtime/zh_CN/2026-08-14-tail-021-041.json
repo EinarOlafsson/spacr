@@ -5,9 +5,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "gRNA 在一个微孔总读数中必须达到的最低相对丰度，范围为 0–1。将此值设得更高会去除低丰度和串扰 gRNAs，并降低每个微孔的平均 gRNAs 数；若设置过高，所有行都会被删除且运行会报错。使用 None 可自动选择使每个微孔达到 target_unique_count 个 gRNAs 的截断值。默认值为 None。"
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "gRNA 在一个微孔总读数中必须达到的最低相对丰度，范围为 0–1。将此值设得更高会去除低丰度和串扰 gRNAs，并降低每个微孔的平均 gRNAs 数；若设置过高，所有行都会被删除且运行会报错。使用 None 可自动选择使每个微孔达到 target_unique_count 个 gRNAs 的截断值。默认值为 None。回归从可复现的固定截断值 0.02 开始；仅在确实需要自动扫描时才输入 None。"
     },
     {
       "table": "setting_tooltips",
