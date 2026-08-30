@@ -149,6 +149,9 @@ def is_empty_path(value: Any) -> bool:
 def same_path(left: Any, right: Any) -> bool:
     """Compare two settings values as paths, list-insensitively.
 
+    :param left: first scalar or nested list or tuple of path values.
+    :param right: second path value or collection to compare.
+
     ``["/plate"]`` and ``"/plate"`` name the same folder; Classify keeps its
     source in a list and every other module keeps it as a string, so a
     comparison that called those different would record a pin every time a
@@ -1314,6 +1317,8 @@ def ports_for_kinds(kinds: Sequence[str]) -> Tuple[Port, ...]:
 def db_candidates(root: str) -> Tuple[str, ...]:
     """Return every SQLite database in a project, the declared one first.
 
+    :param root: candidate project root to search.
+
     The declared location comes from the :data:`spacr.ports.MEASUREMENTS_DB`
     port; the rest is a shallow listing of the root and of the folder that
     port names. Two databases in one project is not an error and not a thing
@@ -1347,6 +1352,8 @@ def db_candidates(root: str) -> Tuple[str, ...]:
 
 def result_tables(root: str) -> Tuple[str, ...]:
     """Return the result tables a project has written, sorted.
+
+    :param root: candidate project root to search.
 
     The folders searched are the ones the result-bearing ports declare —
     ``results/`` and ``settings/`` today — one level deep, so a drop on a
@@ -1465,7 +1472,10 @@ class DropResolution:
         return bool(self.choices)
 
     def target_for(self, kind: str) -> Optional[DropTarget]:
-        """Return the resolved target of ``kind``, or None."""
+        """Return the resolved target of ``kind``, or None.
+
+        :param kind: port or artifact vocabulary kind to find.
+        """
         for target in self.targets:
             if target.kind == kind:
                 return target
@@ -1488,6 +1498,8 @@ class DropResolution:
 def looks_laid_out(folder: str) -> bool:
     """True when ``folder`` holds any of spaCR's declared layout folders.
 
+    :param folder: candidate project directory to inspect.
+
     The cheap structural answer to "is this a project?", nine ``stat`` calls
     against :func:`layout_directories`. :func:`spacr.projects.looks_like_project`
     is the thorough one and reads the registry and every module's outputs;
@@ -1502,6 +1514,10 @@ def looks_laid_out(folder: str) -> bool:
 
 def satisfies(root: str, ports: Sequence[Port]) -> bool:
     """True when ``root`` holds everything ``ports`` requires.
+
+    :param root: candidate project root whose artifacts are checked.
+    :param ports: input port declarations whose required artifacts must
+        resolve beneath ``root``.
 
     With no ports the question is "is this a project at all?", which is what a
     screen that takes a whole project — the pipeline graph, the QC dashboard —

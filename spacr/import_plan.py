@@ -43,7 +43,15 @@ CHANNEL_MEANINGS: Tuple[str, ...] = (
 
 @dataclass(frozen=True)
 class Renamed:
-    """One file, and what the import would call it."""
+    """One file, and what the import would call it.
+
+    :ivar before: basename supplied to the import preview.
+    :ivar after: TIFF filename that the import would write.
+    :ivar plate: parsed or fallback plate identifier.
+    :ivar well: captured well identifier.
+    :ivar field: captured field-of-view identifier.
+    :ivar channel: captured imaging-channel identifier.
+    """
 
     before: str
     after: str
@@ -125,6 +133,8 @@ class ImportPlan:
 def group_names(regex: str) -> Tuple[str, ...]:
     """The named groups in ``regex``, in the order they appear.
 
+    :param regex: filename regular expression to inspect.
+
     Returns an empty tuple while the pattern is incomplete or invalid.
     """
     try:
@@ -136,6 +146,8 @@ def group_names(regex: str) -> Tuple[str, ...]:
 
 def role_trouble(roles: Mapping[str, str]) -> Tuple[str, ...]:
     """Return user-facing problems in a regex-group role assignment.
+
+    :param roles: named capture groups mapped to their selected import roles.
 
     Duplicate roles and missing required roles are reported before import so
     no captured group is silently ignored.
