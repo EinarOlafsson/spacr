@@ -15,12 +15,10 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPointF                     # noqa: E402
-from PySide6.QtWidgets import (QApplication, QCheckBox,  # noqa: E402
-                               QComboBox)
+from PySide6.QtCore import QPointF  # noqa: E402
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox  # noqa: E402
 
-from spacr.qt.widgets.setup_slides import (GREETINGS, PROVIDERS, SLIDES,
-                                           SetupSlides, greeting_for)
+from spacr.qt.widgets.setup_slides import GREETINGS, PROVIDERS, SLIDES, SetupSlides, greeting_for
 
 
 def _past_the_greeting(slides):
@@ -57,8 +55,10 @@ def own_config(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def slides(app):
-    return SetupSlides()
+def slides(app, qtbot):
+    widget = SetupSlides()
+    qtbot.addWidget(widget)
+    return widget
 
 
 class TestTheOrderIsTheMaintainers:
@@ -355,12 +355,14 @@ class TestTheRim:
             slides.card._tick()
         assert slides.card.position > before or slides.card.position < before
 
-    def test_the_two_directions_differ(self, app):
+    def test_the_two_directions_differ(self, app, qtbot):
         """The direction is the message: it tells the user which way they
         went, which is worth more than the animation."""
         from spacr.qt.widgets.setup_card import SetupCard
 
         forward, back = SetupCard(), SetupCard()
+        qtbot.addWidget(forward)
+        qtbot.addWidget(back)
         forward.resize(200, 120)
         back.resize(200, 120)
         forward.circuit(clockwise=True)
@@ -371,12 +373,13 @@ class TestTheRim:
         assert forward.position > 0 and back.position < 1.0
         assert forward.position != back.position
 
-    def test_a_lap_ends_exactly_where_it_started(self, app):
+    def test_a_lap_ends_exactly_where_it_started(self, app, qtbot):
         """Floating error across thirty frames would leave the accent a
         little further round after every circuit."""
         from spacr.qt.widgets.setup_card import SetupCard
 
         card = SetupCard()
+        qtbot.addWidget(card)
         card.resize(200, 120)
         card.circuit(clockwise=True)
         for _ in range(200):
@@ -385,18 +388,19 @@ class TestTheRim:
                 break
         assert card.position == pytest.approx(0.0, abs=1e-6)
 
-    def test_the_pointer_does_not_steer_a_running_circuit(self, app):
+    def test_the_pointer_does_not_steer_a_running_circuit(self, app, qtbot):
         """A lap dragged off course by a mouse movement is not a lap, and
         the user cannot tell whether it went round."""
         from spacr.qt.widgets.setup_card import SetupCard
 
         card = SetupCard()
+        qtbot.addWidget(card)
         card.resize(200, 120)
         card.circuit(clockwise=True)
         card.flow_towards(QPointF(200, 60))
         assert card._towards == 0.0
 
-    def test_it_flows_rather_than_jumping(self, app, monkeypatch):
+    def test_it_flows_rather_than_jumping(self, app, qtbot, monkeypatch):
         """"the blue rim should flow like water towards the mouse", and
         water does not teleport between corners.
 
@@ -409,6 +413,7 @@ class TestTheRim:
         from spacr.qt.widgets.setup_card import SetupCard
 
         card = SetupCard()
+        qtbot.addWidget(card)
         card.resize(200, 120)
         monkeypatch.setattr(module.SetupCard, "_aim_at_the_cursor",
                             lambda self: False)
@@ -423,7 +428,6 @@ class TestTheRim:
 class TestDecorationIsNotLoadBearing:
 
     def test_it_builds_with_no_backdrop(self, app, monkeypatch):
-        from spacr.qt.widgets import setup_slides
 
         def boom(self):
             raise RuntimeError("no ambient engine")
@@ -432,7 +436,8 @@ class TestDecorationIsNotLoadBearing:
         with pytest.raises(RuntimeError):
             SetupSlides()
 
-    def test_a_failed_backdrop_is_caught_inside(self, app, monkeypatch):
+    def test_a_failed_backdrop_is_caught_inside(
+            self, app, qtbot, monkeypatch):
         """The catch is in `_install_backdrop` itself, so the dialog is
         built either way."""
         import spacr.qt.widgets.setup_slides as module
@@ -440,15 +445,20 @@ class TestDecorationIsNotLoadBearing:
         monkeypatch.setattr(
             module, "BACKDROP_THEME", "no-such-theme", raising=False)
         built = SetupSlides()
+        qtbot.addWidget(built)
         assert built.answers()
 
-    def test_the_answers_are_the_same_without_it(self, app, monkeypatch):
+    def test_the_answers_are_the_same_without_it(
+            self, app, qtbot, monkeypatch):
         import spacr.qt.widgets.setup_slides as module
 
         plain = SetupSlides()
+        qtbot.addWidget(plain)
         monkeypatch.setattr(module, "BACKDROP_THEME", "no-such-theme",
                             raising=False)
-        assert SetupSlides().answers() == plain.answers()
+        undecorated = SetupSlides()
+        qtbot.addWidget(undecorated)
+        assert undecorated.answers() == plain.answers()
 
 
 class TestItIsStillDismissible:
@@ -485,10 +495,12 @@ class TestItIsReachableFromHelp:
     """
 
     @pytest.fixture
-    def window(self, app):
+    def window(self, app, qtbot):
         from spacr.qt.app import MainWindow
 
-        return MainWindow()
+        widget = MainWindow()
+        qtbot.addWidget(widget)
+        return widget
 
     def _help_menu(self, window):
         for menu in window.menuBar().findChildren(type(
