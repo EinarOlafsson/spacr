@@ -46,14 +46,16 @@
       "source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ],
-      "source_sha256": "ca3e92447b6600c372106a7572a3d9ee27e2fdd396ce60a88575b3ce496b3df3",
-      "text": "CLI 입력점; 요청된 spacr 하위 명령으로 전송.\n\n:param argv: 논문에 대한 논문을 읽어보세요.When None, ``sys.argv[1:]`` 사용되는 것 입니다.\n:returns: 프로세스 출력 코드 (0 성공, 2 알려지지 않은 명령).",
+      "source_sha256": "1b0090f4954af1de35005df5e6ef3122776fb73303155d273a5d7e8f95858e91",
+      "text": "CLI 진입점이며, 요청된 spacr 하위 명령으로 디스패치합니다.\n\n:param argv: 구문 분석할 인수 목록입니다. 값이 None 이면 ``sys.argv[1:]`` 을 사용합니다.\n:returns: 프로세스 종료 코드이며, 성공 시 0입니다.\n:raises SystemExit: 파서가 허용하지만 아래 디스패치가 알지 못하는 명령의 경우 코드 2와 함께 종료됩니다 -- `parser.error`는 절대 반환하지 않으므로 이 경우 돌려줄 종료 코드가 없습니다.",
       "translation_source_blocks_sha256": [
         "72ee35e95b6609d29d07d88dbb9d81f5d2237aae12431967e70605566b0747f3",
         "0cdad70edd391599ed8568e261c25b6f093520e382ef220f83a01d2470c0f0fd",
-        "0998077b2c48082d0a0c910aa84f0e5cd90a2a7ed7aa5dce166153fadd889708"
+        "70e0666185c3ff9cc8178a7a6f24d73230df5d32f6060103572841a4915a7c9c",
+        "47eb1f812a0ba6dc4735951cd9b1bb4f1094d198ba8a78a414a757205ae09b12"
       ]
     },
     "spacr._v1_v2_bridge": {
