@@ -671,19 +671,35 @@ class TestStage2Measure:
         assert set(nuclei["nucleus_channel_0_periphery_mean"]) == {float(NUC0)}
         assert set(nuclei["nucleus_channel_1_periphery_mean"]) == {float(NUC1)}
 
-    def test_no_measurement_column_is_entirely_missing(self, tables):
-        """A NaN column is a measurement that silently did not happen.
+    def test_only_unobservable_measurements_are_missing(self, tables):
+        """Only a texture distance wider than its object may be missing.
 
-        Not a golden - a floor. Every numeric column of every object table
-        has to hold a number for every object, because every object here is
-        a well-formed solid square with a positive area in both channels.
+        Every ordinary numeric measurement still has to hold a value for
+        every well-formed object.  The four eight-pixel-wide cells are the
+        deliberate exception: no horizontal pixel pair exists at distance
+        eight, so reporting homogeneity there as a number would invent an
+        observation.  Cytoplasm inherits the same bounding box.
         """
+        expected = {
+            "cell": {
+                "cell_channel_0_homogeneity_distance_8",
+                "cell_channel_1_homogeneity_distance_8",
+            },
+            "cytoplasm": {
+                "cytoplasm_channel_0_homogeneity_distance_8",
+                "cytoplasm_channel_1_homogeneity_distance_8",
+            },
+        }
         for name in ("cell", "nucleus", "pathogen", "cytoplasm", "organelle",
                      "cell_organelle_summary"):
             frame = tables[name].select_dtypes(include=[np.number])
-            empty = [column for column in frame.columns
-                     if frame[column].isna().any()]
-            assert not empty, f"{name} has NaN in {empty}"
+            missing = {column for column in frame.columns
+                       if frame[column].isna().any()}
+            assert missing == expected.get(name, set()), (name, missing)
+            for column in missing:
+                labels = set(frame.loc[frame[column].isna(), "object_label"])
+                assert labels == {4}, (name, column, labels)
+                assert SIDE[4] == 8
 
 
 class TestStage2OrganelleSummaries:
