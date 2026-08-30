@@ -81,7 +81,7 @@ APP_NAME = "Hit List"
 #: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
 #: that the button actually reads.
 APP_DESCRIPTION = (
-    "Filter and rank annotated gene-level hits by effect size, FDR and guide "
+    "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
     "agreement")
 
 #: What the module does, in a paragraph. This screen draws its own

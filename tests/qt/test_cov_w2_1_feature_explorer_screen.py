@@ -204,7 +204,7 @@ def test_the_export_carries_every_statistic_not_only_the_ranked_one(
                                     "mutual_info", "higher_in", "against",
                                     "min_n", "shape_not_shift"}
     assert written["rank"].tolist() == list(range(1, len(written) + 1))
-    assert "ranking written to ranking.csv" in screen._source.text()
+    assert "Ranking written to ranking.csv" in screen._source.text()
 
 
 def test_exporting_before_ranking_says_there_is_nothing_to_write(screen,

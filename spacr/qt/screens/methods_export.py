@@ -74,7 +74,8 @@ APP_NAME = "Methods & Results"
 #: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
 #: that the button actually reads.
 APP_DESCRIPTION = (
-    "Generate traceable Methods and Results drafts from recorded run metadata")
+    "Draft the methods and results sections from the run, with every number "
+    "traced")
 
 #: What the module does, in a paragraph. This screen draws its own
 #: :class:`~spacr.qt.screens.app_screen.ModuleHeader`, so nothing reads this

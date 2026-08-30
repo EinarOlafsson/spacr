@@ -192,8 +192,13 @@ def test_snapshot_exposes_the_release_budgets_and_peak_resources(
     }
     assert state["stall_budget_met"] is False
     assert state["resources"]["peak_rss_mb"] > 0
-    assert state["resources"]["gpu"] == {
-        "allocated_mb": None, "peak_allocated_mb": None}
+    # A process that never imported Torch reports unknown; an earlier test
+    # may have imported it without initializing CUDA, which honestly reports
+    # zero instead. Neither path initializes CUDA merely to take a snapshot.
+    assert state["resources"]["gpu"] in (
+        {"allocated_mb": None, "peak_allocated_mb": None},
+        {"allocated_mb": 0.0, "peak_allocated_mb": 0.0},
+    )
     assert state["environment"]["pid"] > 0
     hardware = state["environment"]["hardware"]
     assert hardware["logical_cpu_count"] >= 1

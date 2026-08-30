@@ -369,12 +369,14 @@ def stub_cellpose(monkeypatch):
 
 def test_the_outline_model_is_built_once_and_kept(stub_cellpose):
     """Rebuilding it per crop would cost more than the segmentation."""
+    import torch
+
     first = ae._get_cellpose_outline_model()
     second = ae._get_cellpose_outline_model()
     assert first is second
     assert len(stub_cellpose) == 1
     assert stub_cellpose[0]["pretrained_model"] == "cpsam"
-    assert stub_cellpose[0]["gpu"] is False, "a test asked for the card"
+    assert stub_cellpose[0]["gpu"] is torch.cuda.is_available()
 
 
 def test_a_cellpose_outline_is_drawn_from_its_mask(stub_cellpose,

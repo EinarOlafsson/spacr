@@ -78,15 +78,16 @@ class _Draft:
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_the_screen_registers_itself_through_the_seam():
-    from spacr.qt.app import APPS, SECTION_RESULTS, registered_factory
+def test_the_screen_is_reached_through_regressions_fold_seam():
+    """The seeded fold replaced the standalone tile and empty-path factory."""
+    from spacr.qt.app import APPS, registered_factory
+    from spacr.qt.screens import regression
 
-    row = next((r for r in APPS if r[0] == screen_module.APP_KEY), None)
-    assert row is not None, "importing the module did not register the app"
-    assert row[3] == SECTION_RESULTS
-    assert registered_factory(screen_module.APP_KEY) is (
-        screen_module.make_methods_export_screen)
-    assert screen_module.register() is False, "register() is not idempotent"
+    assert screen_module.APP_KEY not in {row[0] for row in APPS}
+    assert registered_factory(screen_module.APP_KEY) is None
+    assert screen_module.APP_KEY in regression.FOLDED_APPS
+    assert regression.BUILDERS[screen_module.APP_KEY] is (
+        regression.build_methods_export)
 
 
 def test_the_screen_answers_spacr_run_with_a_sentence():

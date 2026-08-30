@@ -120,9 +120,12 @@ def test_both_controls_exist_in_the_preferences_dialog(qtbot):
     from PySide6.QtWidgets import QCheckBox, QFormLayout, QLabel, QSpinBox
 
     from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
 
     dialog = PreferencesDialog()
     qtbot.addWidget(dialog)
+    bar = dialog.findChild(HintBar)
+    assert bar is not None
 
     def fields_explained_by(phrase, kind):
         found = []
@@ -135,7 +138,7 @@ def test_both_controls_exist_in_the_preferences_dialog(qtbot):
                 label, field = label_item.widget(), field_item.widget()
                 if not isinstance(label, QLabel) or not isinstance(field, kind):
                     continue
-                if phrase in (label.toolTip() or ""):
+                if phrase in bar.explains(label):
                     found.append(field)
         return found
 
