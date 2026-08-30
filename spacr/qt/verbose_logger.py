@@ -17,7 +17,7 @@ record fires mid-toggle.
 Design:
 
 * One :class:`_ConsoleForwarder` handler is added to the root ``spacr``
-  logger (and to ``spacr.qt``). Its emit() hands the formatted line to
+  logger. Its emit() hands the formatted line to
   :class:`_ConsoleRelay`, which delivers it to whatever ConsolePanel is
   registered via :func:`register_console_target`.
 * Registration is a weak reference to avoid keeping a closed screen
@@ -70,6 +70,7 @@ _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
 _relay: "Optional[_ConsoleRelay]" = None
 _file_handler: "Optional[RotatingFileHandler]" = None
+_SINK_LOGGER = "spacr"
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
                         "spacr.updater", "spacr.trace")
@@ -173,7 +174,7 @@ def current_log_file() -> Path:
 
 
 def _ensure_file_handler() -> RotatingFileHandler:
-    """Attach a rotating file handler to every attached spaCR logger.
+    """Attach a rotating file handler once at the spaCR package root.
 
     Idempotent. The handler writes to ``~/.spacr/logs/spacr-YYYYMMDD.log``,
     rotates at 5 MB, and keeps 5 backups. Always attached — this is
@@ -209,10 +210,13 @@ def _ensure_file_handler() -> RotatingFileHandler:
     handler.setFormatter(_CompactTraceFormat(
         "%(asctime)s %(name)s %(levelname)s  %(message)s"))
     handler.setLevel(logging.INFO)
+    sink = logging.getLogger(_SINK_LOGGER)
+    if handler not in sink.handlers:
+        sink.addHandler(handler)
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
-        if handler not in logger.handlers:
-            logger.addHandler(handler)
+        if name != _SINK_LOGGER and handler in logger.handlers:
+            logger.removeHandler(handler)
         # Ensure records propagate to the root logger's format if any.
         logger.setLevel(min(logger.level or logging.INFO, logging.INFO))
     _file_handler = handler
@@ -318,8 +322,11 @@ class _ConsoleForwarder(logging.Handler):
 
 
 def _ensure_handler() -> _ConsoleForwarder:
-    """Attach the single :class:`_ConsoleForwarder` to every spaCR
-    logger. Idempotent — safe to call from anywhere."""
+    """Attach the console sink once at ``spacr``'s package logger.
+
+    Descendants propagate there. Attaching the same handler to both a child
+    and its ancestors delivers one record repeatedly as logging walks upward.
+    """
     global _handler
     if _handler is None:
         _handler = _ConsoleForwarder()
@@ -327,10 +334,13 @@ def _ensure_handler() -> _ConsoleForwarder:
             fmt="[%(asctime)s] %(name)s %(levelname)s  %(message)s",
             datefmt="%H:%M:%S",
         ))
+    sink = logging.getLogger(_SINK_LOGGER)
+    if _handler not in sink.handlers:
+        sink.addHandler(_handler)
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
-        if _handler not in logger.handlers:
-            logger.addHandler(_handler)
+        if name != _SINK_LOGGER and _handler in logger.handlers:
+            logger.removeHandler(_handler)
     return _handler
 
 

@@ -102,16 +102,17 @@ def test_a_file_handler_that_cannot_be_opened_is_skipped_not_fatal(
     assert vlog._file_handler is None
 
 
-def test_the_file_handler_attaches_once_to_every_spacr_logger(vlog):
-    """Idempotent: a second call hands back the handler already attached."""
+def test_the_file_handler_attaches_once_at_the_spacr_package_root(vlog):
+    """Idempotent: descendants propagate to one package-level sink."""
     vlog._file_handler = None
 
     first = vlog._ensure_file_handler()
     second = vlog._ensure_file_handler()
 
     assert first is second
-    for name in vlog._ATTACHED_LOGGERS:
-        assert logging.getLogger(name).handlers.count(first) == 1
+    assert logging.getLogger("spacr").handlers.count(first) == 1
+    for name in vlog._ATTACHED_LOGGERS[1:]:
+        assert first not in logging.getLogger(name).handlers
 
 
 def test_a_relay_built_on_a_worker_ends_up_on_the_gui_thread(vlog, qapp):
