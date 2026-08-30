@@ -285,6 +285,8 @@ def test_the_count_control_carries_the_number_the_file_holds(qapp):
 def test_the_count_itself_is_declared_like_any_other_setting():
     assert S.expected_types["number_of_organelles"] is int
     assert "number_of_organelles" in S.tooltips
+    assert "Default 0." in S.tooltips["number_of_organelles"]
+    assert "Default 4." not in S.tooltips["number_of_organelles"]
     assert S.categories["Organelle"][0] == "number_of_organelles"
     for factory in (S.set_default_settings_preprocess_generate_masks,
                     S.get_measure_crop_settings):

@@ -510,6 +510,51 @@ def test_the_tab_is_there_before_a_montage_is_and_says_why_it_cannot_run(
     assert fresh_view.minimumSizeHint().width() <= 560
 
 
+def test_the_action_strip_wraps_at_the_largest_zoom_without_clipping(
+        qt_theme_applied):
+    """Accessibility Zoom spends height; it never hides a required action.
+
+    The old one-line layout reached 569 px under a legitimate shipped font
+    state. Its guide selector had an ``Ignored`` horizontal policy, so meeting
+    the nominal 560 px cap meant giving that selector zero pixels. Drive the
+    largest Zoom the preferences dialog offers and measure the live geometry:
+    every control must retain its full hint inside the wrapping host.
+    """
+    from spacr.qt import preferences
+    from spacr.qt.theme import stylesheet
+
+    original_sheet = qt_theme_applied.styleSheet()
+    view = None
+    try:
+        qt_theme_applied.setStyleSheet(stylesheet(
+            font_scale=preferences.FONT_SCALE_MAX))
+        view = CellMontageView(threaded=False)
+        view.annotate_the_cells()
+        view.resize(560, 900)
+        view.show()
+        QApplication.processEvents()
+
+        controls = (
+            view._show,
+            view._picture_button,
+            view._compare_button,
+            view._per_guide,
+            view._save,
+        )
+        assert view.minimumSizeHint().width() <= 560
+        assert len({control.y() for control in controls}) > 1
+        assert all(control.isVisibleTo(view) for control in controls)
+        assert all(control.width() >= control.sizeHint().width()
+                   for control in controls)
+        assert all(view._controls_row.rect().contains(control.geometry())
+                   for control in controls)
+    finally:
+        if view is not None:
+            _drop(view)
+        qt_theme_applied.setStyleSheet(original_sheet)
+        QApplication.processEvents()
+
+
 def test_opening_the_tab_is_what_builds_it(fresh_view):
     """Selecting the tab builds its content once, and only once."""
     index = fresh_view._tabs.indexOf(fresh_view._annotation_page)

@@ -120,6 +120,11 @@ def test_apply_mask_demo_populates_app_screen(qtbot, qt_theme_applied,
     assert screen is not None
     win._apply_demo_to_screen(screen, layout)
 
+    # Applying channels can rebuild an object-shaped form. Inspect the live
+    # replacement in the window, not the retired screen passed to the load.
+    screen = win._screens.get("mask")
+    assert screen is not None
+
     src_w = getattr(screen, "_settings_model", None)
     assert src_w is not None
     widgets = src_w._widgets
@@ -166,6 +171,10 @@ def test_demo_settings_survive_the_widget_round_trip(qtbot, qt_theme_applied,
     assert hasattr(screen, "apply_settings_dict"), target_app
 
     win._apply_demo_to_screen(screen, layout)
+    # A bulk settings load may replace the form when object channels or mask
+    # dimensions change. The replacement is what the user sees and runs.
+    screen = win._screens.get(target_app)
+    assert screen is not None
     collected = screen._settings_model.collect()
 
     from spacr.utils import load_settings

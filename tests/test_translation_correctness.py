@@ -64,6 +64,8 @@ DELIBERATELY_UNTRANSLATED = {
     "Design": {"sv"},
     # Storage, in the resource row. "Disk" is the Swedish word too.
     "Disk": {"sv"},
+    # French uses the same spelling for the documentation noun.
+    "Documentation": {"fr"},
     "Documentation (web)": {"fr"},
     # The figures container's own heading; French spells it the same way.
     "Figures": {"fr"},
@@ -88,6 +90,8 @@ DELIBERATELY_UNTRANSLATED = {
     "SYSTEM": {"de", "sv"},
     "Status": {"de", "pt", "sv"},
     "System": {"de", "sv"},
+    # Established loanword with the same spelling in these three locales.
+    "Tutorial": {"de", "es", "pt"},
     "Toxoplasma": {"de", "es", "fr", "is", "pt", "sv"},
     "Tutorial (web)": {"es", "pt"},
     # Natural-language cognates and established clinical terms whose target

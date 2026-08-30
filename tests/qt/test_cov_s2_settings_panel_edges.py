@@ -234,8 +234,13 @@ class TestReadingTheControlsTheVisibilityRuleNeeds:
         """The rule is shared by every screen; not every screen has the key."""
         panel = sm.SettingsWidgets("mask")
         panel.build_sections()
+        controls_before = dict(panel._widgets)
 
         panel._set_row_visible("no_such_setting_anywhere", False)
+
+        assert panel._widgets.keys() == controls_before.keys()
+        assert all(panel._widgets[key] is control
+                   for key, control in controls_before.items())
 
     def test_a_field_with_no_row_yet_is_hidden_along_with_its_name(self,
                                                                    qtbot):
@@ -258,3 +263,39 @@ class TestReadingTheControlsTheVisibilityRuleNeeds:
 
         assert field.isVisibleTo(host) is False
         assert label.isVisibleTo(host) is False
+
+
+# -- the first visibility pass belongs to the screen -------------------------
+
+class TestTheFirstVisibilityPass:
+
+    def test_it_runs_on_the_next_event_loop_turn(self, qtbot, monkeypatch):
+        """The parent-owned timer works on PySide 6.6 as well as newer."""
+        parent = QWidget()
+        qtbot.addWidget(parent)
+        panel = sm.SettingsWidgets("mask", parent=parent)
+        calls = []
+        monkeypatch.setattr(
+            panel, "refresh_object_visibility", lambda: calls.append(True))
+
+        panel.build_sections()
+        calls_before_event_turn = len(calls)
+
+        qtbot.waitUntil(lambda: len(calls) > calls_before_event_turn)
+        assert len(calls) == calls_before_event_turn + 1
+
+    def test_closing_the_screen_cancels_its_pending_pass(
+            self, qtbot, monkeypatch):
+        """A callback must not reach widgets after their owner is destroyed."""
+        parent = QWidget()
+        panel = sm.SettingsWidgets("mask", parent=parent)
+        calls = []
+        monkeypatch.setattr(
+            panel, "refresh_object_visibility", lambda: calls.append(True))
+        panel.build_sections()
+        calls_before_close = len(calls)
+
+        shiboken6.delete(parent)
+        qtbot.wait(10)
+
+        assert len(calls) == calls_before_close

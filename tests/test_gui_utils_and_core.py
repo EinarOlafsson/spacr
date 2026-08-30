@@ -50,6 +50,18 @@ def test_convert_settings_dict_list_becomes_entry_string():
     assert out["channels"][0] in ("entry", "combo")
 
 
+def test_convert_settings_dict_unknown_container_stays_editable_as_text():
+    """Unrecognised value types must still reach the settings panel."""
+    value = {"plate": "A", "wells": ("A01", "A02")}
+
+    kind, options, default = GU.convert_settings_dict_for_gui(
+        {"plugin_payload": value}
+    )["plugin_payload"]
+
+    assert (kind, options) == ("entry", None)
+    assert default == str(value)
+
+
 def test_convert_settings_dict_special_case_metadata_type_is_combo():
     out = GU.convert_settings_dict_for_gui({"metadata_type": "cellvoyager"})
     kind, options, default = out["metadata_type"]

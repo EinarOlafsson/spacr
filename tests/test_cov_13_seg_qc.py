@@ -484,6 +484,26 @@ def test_a_card_with_a_nul_byte_in_a_row_is_refused(tmp_path):
     assert "not CSV (NUL byte)" in error
 
 
+def test_a_csv_runtime_that_raises_for_nul_uses_the_same_diagnosis(
+        tmp_path, monkeypatch):
+    """Python 3.9 raises where 3.12 returns a row; the contract is identical."""
+    path = _write_card(str(tmp_path / CARD_DIR / f"{CARD_PREFIX}cell.csv"),
+                       [{"field": "plate1_A01_f1", "n_objects": 1}])
+
+    class _RejectsNul:
+        fieldnames = ["field", "n_objects"]
+
+        def __iter__(self):
+            raise csv.Error("line contains NUL")
+
+    monkeypatch.setattr(seg_qc.csv, "DictReader", lambda _handle: _RejectsNul())
+
+    rows, error = read_scorecard(path)
+
+    assert rows == []
+    assert error.endswith("is not CSV (NUL byte)")
+
+
 def test_a_count_that_is_not_a_number_reads_back_as_no_objects(tmp_path):
     """A hand-edited card can carry text where the count belongs.
 

@@ -362,5 +362,7 @@ def test_f11_still_toggles_fullscreen(qtbot, window):
                   if a.shortcut() == QKeySequence("F11"))
     action.trigger()
     qtbot.waitUntil(lambda: window.isFullScreen(), timeout=3000)
+    assert window.isFullScreen()
     action.trigger()
     qtbot.waitUntil(lambda: not window.isFullScreen(), timeout=3000)
+    assert not window.isFullScreen()

@@ -17,6 +17,7 @@ than by reading a flag:
 from __future__ import annotations
 
 import ast
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -119,6 +120,34 @@ def test_it_passes_none_through_so_the_console_script_reads_sys_argv(
     assert seen["argv"] is None
 
 
+def test_python_m_spaceout_runs_startup_hooks_and_propagates_exit_status(
+        monkeypatch):
+    """The module route must behave like the installed ``spaceout`` command."""
+    import spacr.qt as qt
+
+    calls = []
+    monkeypatch.setattr(
+        qt, "_install_quiet_qt_logging", lambda: calls.append("qt logging"))
+    monkeypatch.setattr(
+        qt, "_quiet_vispy_logging", lambda: calls.append("vispy logging"))
+    monkeypatch.setattr(
+        theme, "enable_spaceout", lambda: calls.append("spaceout palette"))
+
+    def fake_run(argv=None):
+        calls.append(("run", argv))
+        return 23
+
+    monkeypatch.setattr(qt, "run", fake_run)
+    monkeypatch.delitem(sys.modules, "spacr.qt.spaceout", raising=False)
+
+    with pytest.raises(SystemExit) as stopped:
+        runpy.run_module("spacr.qt.spaceout", run_name="__main__")
+
+    assert stopped.value.code == 23
+    assert calls == [
+        "qt logging", "vispy logging", "spaceout palette", ("run", None)]
+
+
 def test_only_the_dressing_changes(undressed):
     """The stylesheet is the whole application's chrome, and under the
     dressing it must differ from an ordinary one in COLOURS AND NOTHING
@@ -175,6 +204,7 @@ def test_no_dropdown_in_the_real_preferences_dialog_offers_it(
     entry as one that is always there.
     """
     from PySide6.QtWidgets import QComboBox
+
     from spacr.qt.preferences import PreferencesDialog
 
     # The animation is never on offer under any name, anywhere in the
@@ -233,6 +263,7 @@ def test_a_settings_file_that_says_fractal_does_not_dress_an_ordinary_start(
     """The leak the request rules out, written by hand into the store the
     way a downgrade or a text editor would."""
     from PySide6.QtCore import QSettings
+
     from spacr.qt import preferences
 
     theme.disable_spaceout()
@@ -253,6 +284,7 @@ def test_launching_writes_nothing_to_the_settings_store(monkeypatch,
     into an ordinary start, which is the one thing that is ruled out. So the
     whole store is snapshotted around a launch."""
     from PySide6.QtCore import QSettings
+
     import spacr.qt as qt
     from spacr.qt import spaceout
 

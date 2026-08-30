@@ -373,6 +373,28 @@ def deferred_deletions_flushed(qapp):
 
 
 @pytest.fixture(autouse=True)
+def _qt_catalog_matches_test_language(
+        deferred_deletions_flushed, _isolated_qsettings_store):
+    """Start each test with Qt's native catalog in its declared language.
+
+    The QApplication is session-scoped while both the environment and the
+    QSettings store are isolated per test.  A test that explicitly renders a
+    widget in Swedish therefore used to leave Qt's own Swedish translator
+    installed for the next test even though :func:`current_language` had
+    returned to English.  Reset at the next test's setup, after deferred
+    widget deletion, because installing a translator emits application-wide
+    ``LanguageChange`` events and teardown is still destroying widgets.
+    """
+    from spacr.qt.i18n import current_language, install_qt_translations
+
+    app = deferred_deletions_flushed
+    code = current_language()
+    if getattr(app, "_spacr_qt_translator_code", None) != code:
+        install_qt_translations(app, code)
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _skip_first_launch_tour():
     """The first-launch tour attaches a modal overlay to the MainWindow
     the first time it opens. Left alone, it steals focus + adds widgets
