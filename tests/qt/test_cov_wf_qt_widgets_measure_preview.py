@@ -262,13 +262,14 @@ def test_clearing_the_grid_empties_it_even_past_a_spacer(panel):
     assert panel._grid.indexOf(label) == -1
 
 
-def test_a_click_on_a_thumbnail_that_is_gone_says_nothing_new(panel, tmp_path):
-    """A stale thumbnail index must not be described as if it were a crop.
+def test_a_click_on_a_thumbnail_that_is_gone_is_ignored(panel, tmp_path):
+    """A stale thumbnail index must not select or describe a phantom crop.
 
     The thumbnails carry the index they were built with, and a re-crop can
     shorten the list while an old thumbnail is still on screen. Reading
     ``self._crops[index]`` for one of those indices would raise inside a signal
-    handler -- taking the whole click, and the selection with it.
+    handler. It must also stay out of ``current_params``: downstream callers
+    cannot use an index beyond the advertised crop count.
     """
     panel.load_array(_merged(tmp_path))
     assert len(panel._crops) == 2
@@ -281,8 +282,9 @@ def test_a_click_on_a_thumbnail_that_is_gone_says_nothing_new(panel, tmp_path):
         f"{entry['category']} · 1 selected")
 
     panel._on_thumb_clicked(99)
-    assert 99 in panel._selected      # the click was registered
-    assert panel._status.text() == described   # but nothing was described
+    assert 99 not in panel._selected
+    assert panel.current_params()["selected"] == [0]
+    assert panel._status.text() == described
 
 
 # ---------------------------------------------------------------------------
