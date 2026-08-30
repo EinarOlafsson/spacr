@@ -16,7 +16,10 @@ PathValue = Union[str, PathLike[str]]
 
 
 def cv2_to_rgb(image: Optional[np.ndarray]) -> Optional[np.ndarray]:
-    """Convert an OpenCV BGR/BGRA array to spaCR's RGB/RGBA contract."""
+    """Convert an OpenCV BGR/BGRA array to spaCR's RGB/RGBA contract.
+
+    :param image: decoded OpenCV array, grayscale array, or ``None``.
+    """
     if image is None:
         return None
     arr = np.asarray(image)
@@ -30,7 +33,10 @@ def cv2_to_rgb(image: Optional[np.ndarray]) -> Optional[np.ndarray]:
 
 
 def rgb_to_cv2(image: np.ndarray) -> np.ndarray:
-    """Convert an RGB/RGBA array only for an immediate OpenCV write call."""
+    """Convert an RGB/RGBA array only for an immediate OpenCV write call.
+
+    :param image: spaCR RGB/RGBA array, or a grayscale array to pass through.
+    """
     arr = np.asarray(image)
     if arr.ndim != 3:
         return arr
@@ -42,14 +48,21 @@ def rgb_to_cv2(image: np.ndarray) -> np.ndarray:
 
 
 def read_image_rgb(path: PathValue, flags: int = -1) -> Optional[np.ndarray]:
-    """Read with OpenCV and immediately return RGB/RGBA in memory."""
+    """Read with OpenCV and immediately return RGB/RGBA in memory.
+
+    :param path: image path accepted by OpenCV.
+    """
     import cv2
 
     return cv2_to_rgb(cv2.imread(str(path), flags))
 
 
 def write_image_rgb(path: PathValue, image: np.ndarray, params=None) -> bool:
-    """Write an RGB/RGBA array through OpenCV without leaking BGR internally."""
+    """Write an RGB/RGBA array through OpenCV without leaking BGR internally.
+
+    :param path: output image path passed to OpenCV.
+    :param image: spaCR RGB/RGBA array, converted immediately before encoding.
+    """
     import cv2
 
     encoded = rgb_to_cv2(image)

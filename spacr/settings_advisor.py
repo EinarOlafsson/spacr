@@ -46,7 +46,11 @@ class Choice:
 
 @dataclass(frozen=True)
 class Undecided:
-    """A setting this module will not guess, and why not."""
+    """A setting this module will not guess, and why not.
+
+    :ivar key: setting name left unresolved.
+    :ivar why: evidence-based reason the setting cannot be inferred.
+    """
 
     key: str
     why: str
@@ -213,6 +217,8 @@ def read_the_counts(paths: Sequence[str]) -> Dict[str, Any]:
     All count rows are used. Per-well fractions are calculated with
     :func:`spacr.cell_montage.fractions_from_counts`, matching the values used
     by the regression pipeline.
+
+    :param paths: count-table paths to read together as one screen design.
     """
     from .cell_montage import fractions_from_counts
     from .control_names import common_prefix
@@ -500,6 +506,8 @@ def questions_for(reading: Reading) -> Tuple[Question, ...]:
 
     The direction question is omitted for a binary response, where only an
     increase can represent the positive outcome.
+
+    :param reading: measured screen properties used to omit answered questions.
     """
     out = []
     for question in QUESTIONS:
@@ -526,7 +534,10 @@ class Advice:
         return {c.key: c.value for c in self.chosen}
 
     def why(self, key: str) -> str:
-        """The reason for one key, or ``''``."""
+        """The reason for one key, or ``''``.
+
+        :param key: chosen or unresolved setting name to look up.
+        """
         for choice in self.chosen:
             if choice.key == key:
                 return choice.why
@@ -1113,6 +1124,8 @@ def advise(reading: Reading,
 
     This function has no settings side effects. The caller decides whether
     and how to display or apply the returned :class:`Advice`.
+
+    :param reading: measured screen properties from which settings are derived.
     """
     answers = dict(answers or {})
     chosen: List[Choice] = []

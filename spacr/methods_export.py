@@ -371,6 +371,10 @@ def check_draft(methods: str, results: str,
     """Verify both sections. ``(methods verdict, results verdict)``.
 
     The methods section additionally has to state the run's caveats.
+
+    :param methods: generated methods-section text to verify.
+    :param results: generated results-section text to verify.
+    :param digest: source digest against which numbers and caveats are checked.
     """
     return (verify_numbers(methods, digest, require_caveats=True),
             verify_numbers(results, digest))
@@ -887,6 +891,8 @@ def render_methods(digest: Mapping[str, Any]) -> str:
     back to, and what the number-provenance tests assert against. Every
     number in the output comes from ``digest``; every caveat in the digest is
     stated. No trailing newline.
+
+    :param digest: collected run facts from which to render the section.
     """
     run = digest.get("run") or {}
     environment = digest.get("environment") or {}
@@ -967,6 +973,8 @@ def render_results(digest: Mapping[str, Any]) -> str:
     """Write the results section from the digest, with no model involved.
 
     Every number comes from ``digest``. No trailing newline.
+
+    :param digest: collected run facts from which to render the section.
     """
     statistics = digest.get("statistics") or {}
     qc = digest.get("qc") or {}

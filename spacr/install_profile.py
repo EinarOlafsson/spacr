@@ -64,7 +64,13 @@ def _torch_facts() -> Dict[str, Any]:
 
 
 def build_profile(requested_backend: str, detected_accelerator: str) -> Dict[str, Any]:
-    """Build a validated profile using the torch installation now on disk."""
+    """Build a validated profile using the torch installation now on disk.
+
+    :param requested_backend: installer backend choice, normalized and
+        validated before recording.
+    :param detected_accelerator: detected hardware class from
+        :data:`VALID_DETECTED_ACCELERATORS`.
+    """
     requested = str(requested_backend).strip().lower()
     detected = str(detected_accelerator).strip().lower()
     if not _BACKEND_RE.fullmatch(requested):
@@ -92,7 +98,12 @@ def write_profile(
     report_issues: bool = False,
     sign_in_now: bool = False,
 ) -> Dict[str, Any]:
-    """Atomically write and return an installer profile."""
+    """Atomically write and return an installer profile.
+
+    :param path: destination of the JSON installer profile.
+    :param requested_backend: installer backend choice to validate and record.
+    :param detected_accelerator: detected hardware class to validate and record.
+    """
     target = Path(path).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = build_profile(requested_backend, detected_accelerator)
