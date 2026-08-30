@@ -15,17 +15,10 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from spacr.control_names import (
-    COMMON_PREFIX_SHARE,
-    GENE,
-    GUIDE,
-    ControlNotFound,
-    common_prefix,
-    matches,
-    resolve_control,
-    resolve_controls,
-    rows_for,
-)
+from spacr.control_names import (COMMON_PREFIX_SHARE, GENE, GUIDE,
+                                 ControlNotFound,
+                                 ControlSpec, common_prefix, matches,
+                                 resolve_control, resolve_controls, rows_for)
 
 #: A library shaped like the maintainer's: one organism tag, three genes.
 LIBRARY = [f"TGGT1_{gene}_{n}"
@@ -428,7 +421,14 @@ class TestTheDataHasAlreadyDroppedThePrefix:
 
     def test_a_name_that_is_nothing_but_a_trailing_separator_matches_nothing(
             self):
-        """A spreadsheet-paste residue matches no rows without raising."""
+        """What a spreadsheet paste leaves behind, and what it must not do.
+
+        "sgCtrl_   " strips to "sgCtrl_", so the part after the separator is
+        empty and there is nothing to retry with. The answer is zero rows and
+        no exception: the name really does match nothing, and raising here
+        would take down normalisation, every volcano baseline and every nc/pc
+        reference over a stray character.
+        """
         held = ["TGGT1_233460_1", "TGGT1_233460_2"]
 
         mask, _note = rows_for("sgCtrl_   ", pd.Series(held))
@@ -436,7 +436,11 @@ class TestTheDataHasAlreadyDroppedThePrefix:
         assert int(mask.sum()) == 0
 
     def test_the_same_name_still_raises_under_strict(self):
-        """Strict mode must still report a control that resolves to no rows."""
+        """And giving up quietly must not skip the raise a caller asked for.
+
+        Silently zero controls is the failure this module exists to prevent,
+        so a caller who said `strict` hears about it.
+        """
         held = ["TGGT1_233460_1"]
 
         with pytest.raises(ControlNotFound):
