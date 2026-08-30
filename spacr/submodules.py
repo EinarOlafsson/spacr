@@ -5207,14 +5207,12 @@ def generate_score_heatmap(settings):
             ``plateID_rowID_columnID``.
         """
         
-        # 145: canonicalised, which is why the `elif 'column'` fallback
-        # below is now unreachable rather than load-bearing -- every
-        # spelling arrives here as `columnID`.
+        # `read_table` canonicalises, so every spelling of the column
+        # arrives here as `columnID`. There used to be an `elif 'column'`
+        # fallback under this; it was unreachable rather than load-bearing,
+        # and an unreachable branch is one no test can ever justify.
         df = read_table(csv)
         if 'columnID' in df.columns:
-            df = df[df['columnID']==column]
-        elif 'column' in df.columns:
-            df['columnID'] = df['column']
             df = df[df['columnID']==column]
         if not plate is None:
             df['plateID'] = f"plate{plate}"
