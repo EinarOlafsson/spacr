@@ -1143,3 +1143,55 @@ def test_a_database_with_no_provenance_column_at_all_is_not_ours(theirs,
         assert fg._importer_owns(connection, "foreign_cell") is True
     finally:
         connection.close()
+
+
+def test_a_stale_staging_table_from_a_killed_import_is_cleared_first(
+        theirs, tmp_path):
+    """An import killed mid-merge leaves its scratch table behind.
+
+    The next import stages into the same name. Finding rows already there
+    would merge a dead run's conversion rows into the live map -- filenames
+    from an import the user cancelled, presented afterwards as this project's
+    own provenance.
+
+    Dropping it first is what makes the merge idempotent, and that drop had
+    never run.
+    """
+    dst = tmp_path / "project"
+    db = _real_spacr_project(dst)
+
+    # Give the project a conversion map, so the merge path is taken at all.
+    native = tmp_path / "native" / "plateZ" / "B02"
+    _write(str(native / "img_C1.tif"), np.full((SIZE, SIZE), 7, np.uint16))
+    conversion = cv.convert(
+        cv.plan(cv.scan(str(tmp_path / "native")), plate_naming="index"),
+        str(dst / fg.IMAGES_DIRNAME))
+    cv.populate_db_from_map(db, conversion.map_path)
+
+    # What a killed import leaves: a staging table holding a row that must
+    # never reach the live map.
+    staging = fg._CONVERSION_STAGING
+    connection = sqlite3.connect(db)
+    try:
+        connection.execute(
+            f'CREATE TABLE "{staging}" (target TEXT, source TEXT)')
+        connection.execute(
+            f'INSERT INTO "{staging}" (target, source) '
+            'VALUES ("a_cancelled_run.tif", "never_happened.tif")')
+        connection.commit()
+    finally:
+        connection.close()
+
+    fg.run_import(_plan(theirs), str(dst))
+
+    after = _read(db, cv.CONVERSION_TABLE)
+    assert "a_cancelled_run.tif" not in set(after["target"]), (
+        "a cancelled import's staged rows reached the live conversion map")
+
+    connection = sqlite3.connect(db)
+    try:
+        names = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+    finally:
+        connection.close()
+    assert staging not in names, "the scratch table outlived the merge"
