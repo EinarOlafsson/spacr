@@ -440,6 +440,11 @@ class _Host:
     exist, which the shipped window would hit just as hard.
     """
 
+    def _build_screen_timed(self, key):
+        """Follow the production wrapper into the real screen factory."""
+        from spacr.qt.app import MainWindow
+        return MainWindow._build_screen_timed(self, key)
+
     def __getattr__(self, name):
         from spacr.qt.app import MainWindow
         if callable(vars(MainWindow).get(name)):
