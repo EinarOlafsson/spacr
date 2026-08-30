@@ -1,0 +1,104 @@
+================================================================================
+THE PYTHON CEILING ADMITS 3.15
+================================================================================
+
+Status:    OPEN, filed 2026-08-29. BLOCKED on files another session holds.
+Owner:     packaging. Sits with 308.
+Requested: 2026-08-29 — "please change spacr.py to support python 3.9 to 3.15
+           so change <3.15 to <3.16".
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+pyproject.toml:63 declares ``requires-python = ">=3.9,<3.15,!=3.14.1"``. The
+edit itself is one character. It was made, measured, and REVERTED, because
+raising the ceiling alone leaves the repository's own packaging ratchet
+failing three tests, and because the change does not do what it appears to do.
+
+1. THE CHANGE DOES NOT ACTUALLY BUY 3.15 SUPPORT.
+
+Checked live against the PyPI JSON API on 2026-08-29, not inferred from a
+comment:
+
+    PySide6  6.11.2  requires_python = '<3.15,>=3.10'
+
+PySide6 is a CORE dependency at ``>=6.6,<7``, so no release in that range
+admits 3.15. Raising spaCR's ceiling therefore means pip accepts spaCR on a
+3.15 interpreter and then fails with "No matching distribution found for
+PySide6" — the same shape as the Intel-macOS failure recorded in item 308,
+where a claimed interpreter cannot actually resolve.
+
+numba (0.67.0), llvmlite (0.49.0), torch (2.13.0) and numpy (2.5.2) all
+declare only a floor and are NOT blockers. PySide6 is the single blocker.
+
+2. THE RATCHET REFUSES IT, CORRECTLY.
+
+With the ceiling at ``<3.16`` and the 3.15 classifier added, three tests in
+tests/test_packaging_metadata.py fail:
+
+  * ``test_requires_python_admits_39_through_314_except_3141`` — its own
+    message reads: "If that is intentional, add the classifier and the CI cell
+    in the same commit — an untested claim is how the 3.13 numpy compiler
+    error reached users."
+  * ``test_python_classifiers_match_requires_python_exactly`` — the candidate
+    list it compares against stops at 3.14 and must be extended.
+  * ``test_every_claimed_python_version_has_a_ci_cell`` — "classifiers claim
+    Python ['3.15'] but no CI workflow mentions ['3.15']."
+
+pyproject.toml's own header states the same invariant: "Every version admitted
+here has a CI cell."
+
+3. WHY IT IS FILED RATHER THAN DONE.
+
+The change needs four files in ONE commit, and three of them were held with
+uncommitted work by the concurrent session when this was attempted:
+
+    pyproject.toml                        free — the edit is trivial
+    tests/test_packaging_metadata.py      HELD — the ratchet's candidate list
+    .github/workflows/compat-matrix.yml   HELD — the 3.15 cell
+    setup.py:418-421                      HELD — its comment states the old
+                                                 ceiling and the PySide6 cap
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Decide which of two things is wanted, because they are not the same:
+   (a) ADMIT 3.15 now, knowing the install fails on PySide6 until Qt ships a
+       release that admits it. Defensible as a forward declaration, since no
+       3.15 exists yet and nobody can hit the failure today.
+   (b) WAIT for PySide6 to raise its own ceiling, then admit 3.15 with a CI
+       cell that actually proves the install.
+   The ratchet was written to make (a) a deliberate act rather than an
+   accident. Whichever is chosen, record it here.
+
+2. If (a): in ONE commit — set ``requires-python = ">=3.9,<3.16,!=3.14.1"``,
+   add the ``Programming Language :: Python :: 3.15`` classifier, extend the
+   candidate list in test_packaging_metadata.py, add a 3.15 cell to
+   compat-matrix.yml, and correct setup.py:418-421 which currently states the
+   old ceiling. Mark the 3.15 cell ``continue-on-error`` until PySide6 admits
+   it, so a known-impossible resolve does not read as a regression.
+
+3. Either way, correct setup.py's comment: it records "PySide6 6.11.1 declares
+   <3.15,>=3.10" as evidence the range "resolves on every interpreter". That
+   sentence is true only while the ceiling stays below 3.15.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * tests/test_packaging_metadata.py passes with the new ceiling — all three
+    of the tests above, not just the first.
+  * ``pip install --dry-run`` on a 3.15 interpreter either succeeds, or fails
+    with a message naming PySide6, and the CI cell records which.
+  * No comment in setup.py or pyproject.toml still states a ceiling the file
+    does not have.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+The ceiling was NOT raised on its own. A one-file change would have left three
+packaging tests red and made a claim CI cannot check — which is the exact
+failure the ratchet exists to prevent, and which its own error message names.
