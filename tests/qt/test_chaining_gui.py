@@ -440,7 +440,7 @@ def test_changing_a_setting_marks_the_existing_result_stale(
     bar.refresh()
     assert bar._stale.isHidden()
 
-    screen._settings_model._widgets["cell_mask_dim"].setValue(5)
+    assert screen._settings_model.set_value_for_key("cell_mask_dim", 5)
     bar.refresh()
 
     notes = bar.stale_notes()
