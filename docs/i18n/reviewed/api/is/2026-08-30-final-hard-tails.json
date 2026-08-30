@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "context": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "label": "spacr.flowview.items.NodeItem#2",
+      "source": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "source_sha256": "c47fda8b0be8f2ec0efbdb18118e621fa6b15ec5ada24f7b992bbaafec3b0595",
+      "translation": "hnútur í keyrslugrafi þar sem kortið sýnir merki, stöðu, mæligildi, framvindu og valfrjálsa smámynd."
+    },
+    {
+      "context": "the ChatProvider to stream from.",
+      "label": "spacr.qt.ai.worker.StreamWorker#5",
+      "source": "the ChatProvider to stream from.",
+      "source_sha256": "366ecf6292aa246510491ad3d1e1b66c3a2c33d3f362d074419f71c75340ebe5",
+      "translation": "ChatProvider-veitan sem streymt er frá."
+    },
+    {
+      "context": "optional explicit module name for run-history records.",
+      "label": "spacr.qt.bridge.PipelineWorker#10",
+      "source": "optional explicit module name for run-history records.",
+      "source_sha256": "9043c52584eb211b1ea3dae11e1f22212e45310a6242632606fb68b11ba01972",
+      "translation": "valfrjálst skýrt heiti einingar fyrir færslur í keyrslusögu."
+    },
+    {
+      "context": "explicit filename to try first. The per-application view structured-data name → filename table lives in :mod:`spacr.qt.app` next to the app registry it describes; this module only knows how to *render* what it's pointed at, plus the handful of structured-data names in :data:`SHARED_ICON_ASSETS` that share one picture everywhere.",
+      "label": "spacr.qt.iconset.bundled_icon_path#3",
+      "source": "explicit filename to try first. The per-screen key → filename table lives in :mod:`spacr.qt.app` next to the app registry it describes; this module only knows how to *render* what it's pointed at, plus the handful of keys in :data:`SHARED_ICON_ASSETS` that share one picture everywhere.",
+      "source_sha256": "2d47fb997933e40ef6a0b47ad1ef73ba9ab4d38bc39abbba7b04f27a27c805e1",
+      "translation": "skýrt skráarheiti sem reynt er fyrst. Taflan sem tengir lykil hvers skjás → skráarheiti er í :mod:`spacr.qt.app` við hlið forritaskrárinnar sem hún lýsir; þessi eining kann aðeins að *birta* það sem henni er bent á, ásamt þeim fáu lyklum í :data:`SHARED_ICON_ASSETS` sem nota sömu mynd alls staðar."
+    },
+    {
+      "context": "Kept a free function so a test can compare it with the shader and so the frame kernel below stays a loop and nothing else.",
+      "label": "spacr.qt.widgets.fractal_space.sample_space#1",
+      "source": "Kept a free function so a test can compare it with the shader and so the frame kernel below stays a loop and nothing else.",
+      "source_sha256": "d942e187740d9e1f8d40823aef6e717e3cd3b93f66d77b10c3be82008dbdac9b",
+      "translation": "fallið er haft sjálfstætt svo próf geti borið það saman við skyggiforritið og svo rammakjarninn hér að neðan haldist lykkja og ekkert annað."
+    },
+    {
+      "context": "the settings the processing session on application view used. Read only; the new key-value mapping is built by :func:`spacr.refit.refit_settings`.",
+      "label": "spacr.qt.widgets.refit_dialog.RefitDialog#1",
+      "source": "the settings the run on screen used. Read only; the new dict is built by :func:`spacr.refit.refit_settings`.",
+      "source_sha256": "f4ad32e5a081025663b8b8a07bd2cf3c180340cef5744b41ba008fce695a73db",
+      "translation": "stillingarnar sem keyrslan á skjánum notaði. Aðeins til lestrar; nýja orðabókin er búin til af :func:`spacr.refit.refit_settings`."
+    }
+  ]
+}
