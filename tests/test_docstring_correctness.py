@@ -30,6 +30,23 @@ from functools import lru_cache
 #: Sphinx ``:param name:`` up to the next field or the end.
 PARAM_FIELD = re.compile(r":param\s+([*\w]+)\s*:(.*?)(?=\n\s*:|\Z)", re.S)
 
+#: The source spellings Napoleon accepts as parameter sections in these docs.
+_NUMPY_PARAMETER_SECTIONS = {"parameters", "other parameters"}
+_GOOGLE_PARAMETER_SECTIONS = {
+    "args",
+    "arguments",
+    "keyword args",
+    "keyword arguments",
+    # Napoleon accepts this Google-style colon form as an alias too. Ten
+    # current required parameters use it, so omitting it would merely move the
+    # same false-negative from ``Args:`` to ``Parameters:``.
+    "parameters",
+    "other parameters",
+}
+_NUMPY_SECTION_UNDERLINE = re.compile(
+    r"^[=\-`:'\"~^_*+#<>]{2,}\s*$")
+_SOURCE_PARAMETER_NAME = re.compile(r"^\*{0,2}[A-Za-z_]\w*$")
+
 #: "Defaults to X" / "defaults to ``X``".
 CLAIMED_DEFAULT = re.compile(r"[Dd]efaults?\s+to\s+``?([^`.,;)\s]+)``?")
 
@@ -1287,7 +1304,7 @@ def test_no_docstring_names_a_parameter_that_does_not_exist():
     for path, node, doc in _documented_functions():
         checked += 1
         real = _real_parameters(node)
-        documented = {name.lstrip("*") for name, _ in PARAM_FIELD.findall(doc)}
+        documented = _documented_parameter_names(doc)
         missing = documented - real
         if missing:
             ghosts.append(
@@ -1304,11 +1321,135 @@ def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
 
+def _line_indent(line: str) -> int:
+    """Return the number of leading whitespace characters in ``line``."""
+    return len(line) - len(line.lstrip())
+
+
+def _section_field_names(line: str, *, google: bool) -> frozenset[str]:
+    """Extract one valid source-style parameter field header.
+
+    NumPy permits ``left, right : type`` and a name without a type. Google
+    requires its field colon and permits ``name (type): description``. The
+    identifier check is deliberately strict: prose, bullets and attribute
+    fields must not become parameter documentation merely because they carry
+    a colon.
+    """
+    before, colon, _after = line.strip().partition(":")
+    if google:
+        if not colon:
+            return frozenset()
+        typed = re.fullmatch(r"(.+?)\(\s*(.*\S)\s*\)\s*", before)
+        if typed:
+            before = typed.group(1).strip()
+
+    raw_names = [name.strip() for name in before.split(",") if name.strip()]
+    if not raw_names or any(
+        _SOURCE_PARAMETER_NAME.fullmatch(name) is None
+        for name in raw_names
+    ):
+        return frozenset()
+    return frozenset(name.lstrip("*") for name in raw_names)
+
+
+def _documented_parameter_names(docstring: str) -> frozenset[str]:
+    """Names documented in source formats enabled by ``docs/source/conf.py``.
+
+    This is intentionally source-only: the ordinary test environment does
+    not install Sphinx. It mirrors the relevant Napoleon boundary without
+    treating arbitrary prose as structured documentation:
+
+    * native reST ``:param name:`` fields;
+    * underlined NumPy ``Parameters`` / ``Other Parameters`` sections; and
+    * indented Google ``Args:`` / argument / keyword aliases.
+
+    NumPy ``Attributes`` and reST ``:ivar:`` describe object state, not call
+    arguments. Markdown-looking ``Parameters:\n- name: ...`` also remains
+    outside the boundary because Napoleon renders it as prose, not a parameter
+    field.
+    """
+    documented = {
+        name.lstrip("*") for name, _body in PARAM_FIELD.findall(docstring)
+    }
+    lines = docstring.splitlines()
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        heading = line.strip().lower()
+        heading_indent = _line_indent(line)
+
+        if (
+            heading in _NUMPY_PARAMETER_SECTIONS
+            and index + 1 < len(lines)
+            and _NUMPY_SECTION_UNDERLINE.fullmatch(
+                lines[index + 1].strip()) is not None
+        ):
+            field_index = index + 2
+            while field_index < len(lines):
+                field_line = lines[field_index]
+                field_heading = field_line.strip().lower()
+                if (
+                    field_index + 1 < len(lines)
+                    and _NUMPY_SECTION_UNDERLINE.fullmatch(
+                        lines[field_index + 1].strip()) is not None
+                ):
+                    break
+                if (
+                    _line_indent(field_line) == heading_indent
+                    and field_heading.endswith(":")
+                    and field_heading[:-1] in _GOOGLE_PARAMETER_SECTIONS
+                ):
+                    break
+                if field_line and _line_indent(field_line) < heading_indent:
+                    break
+                if (
+                    not field_line
+                    and field_index + 1 < len(lines)
+                    and not lines[field_index + 1]
+                ):
+                    break
+                if field_line and _line_indent(field_line) == heading_indent:
+                    documented.update(
+                        _section_field_names(field_line, google=False))
+                field_index += 1
+            index = field_index
+            continue
+
+        google_heading = (
+            heading[:-1] if heading.endswith(":") else "")
+        if google_heading in _GOOGLE_PARAMETER_SECTIONS:
+            field_index = index + 1
+            while field_index < len(lines) and not lines[field_index]:
+                field_index += 1
+            if (
+                field_index < len(lines)
+                and _line_indent(lines[field_index]) > heading_indent
+            ):
+                field_indent = _line_indent(lines[field_index])
+                while field_index < len(lines):
+                    field_line = lines[field_index]
+                    if (
+                        field_line
+                        and _line_indent(field_line) <= heading_indent
+                    ):
+                        break
+                    if (
+                        field_line
+                        and _line_indent(field_line) == field_indent
+                    ):
+                        documented.update(
+                            _section_field_names(field_line, google=True))
+                    field_index += 1
+                index = field_index
+                continue
+        index += 1
+
+    return frozenset(documented)
+
+
 def _ghost_parameters(item: _PublicCallable) -> frozenset[str]:
     """Documented names that the callable's reviewed contract cannot take."""
-    documented = frozenset(
-        name.lstrip("*") for name, _body in PARAM_FIELD.findall(item.docstring)
-    )
+    documented = _documented_parameter_names(item.docstring)
     if item.accepts_arbitrary_keywords:
         return frozenset()
     return documented - item.accepted_documented_parameters
@@ -1730,6 +1871,65 @@ def test_no_new_public_callable_ghost_parameters():
     )
 
 
+def test_documented_parameter_parser_matches_rendered_source_styles():
+    """Keep accepted Napoleon syntax narrow, source-only and adversarial."""
+    accepted = """
+    :param native: Native reST field.
+
+    Parameters
+    ----------
+    left, right : numpy.ndarray
+        NumPy permits several names on one field.
+    *values
+        A NumPy field does not require an explicit type.
+
+    Other Parameters
+    ----------------
+    optional : bool
+        A supported secondary NumPy section.
+
+    Args:
+        google (str): Typed Google field.
+
+    Arguments:
+        plain: Untyped Google field.
+
+    Parameters:
+        napoleon_alias (int): Napoleon's Google-style alias.
+
+    Keyword Args:
+        keyword_one: First keyword spelling.
+
+    Keyword Arguments:
+        **keyword_rest: Remaining keywords.
+    """
+    assert _documented_parameter_names(inspect.cleandoc(accepted)) == {
+        "native",
+        "left",
+        "right",
+        "values",
+        "optional",
+        "google",
+        "plain",
+        "napoleon_alias",
+        "keyword_one",
+        "keyword_rest",
+    }
+
+    rejected = """
+    Attributes
+    ----------
+    numpy_attribute : int
+        Object state is not a call parameter.
+
+    :ivar rst_attribute: Also object state, not a call parameter.
+
+    Parameters:
+    - markdown_name: This bullet is not an indented Google field.
+    """
+    assert not _documented_parameter_names(inspect.cleandoc(rejected))
+
+
 def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
@@ -1765,7 +1965,7 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed.  The source-derived denominator above exposes the real current
-    baseline: 4,442 omissions across 2,880 public callables.  Count, category
+    baseline: 4,173 omissions across 2,708 public callables.  Count, category
     counts and digest are all exact so deleting a field/docstring, or swapping
     one omission for another, cannot turn this test green.
     """
@@ -1773,10 +1973,7 @@ def test_no_new_undocumented_required_public_parameters():
     omitted_callables: Counter[str] = Counter()
     omitted_parameters: Counter[str] = Counter()
     for item in _public_callables():
-        documented = {
-            name.lstrip("*")
-            for name, _body in PARAM_FIELD.findall(item.docstring)
-        }
+        documented = _documented_parameter_names(item.docstring)
         missing = item.required_parameters - documented
         if missing:
             omitted_callables[item.category] += 1
@@ -1784,24 +1981,24 @@ def test_no_new_undocumented_required_public_parameters():
         omissions.extend(
             f"{item.symbol}:{name}" for name in missing)
 
-    assert len(omissions) == 4_442
-    assert sum(omitted_callables.values()) == 2_880
+    assert len(omissions) == 4_173
+    assert sum(omitted_callables.values()) == 2_708
     assert omitted_callables == {
-        "function": 1_227,
-        "method": 1_385,
-        "constructor": 59,
-        "dataclass_constructor": 204,
-        "namedtuple_constructor": 5,
+        "function": 1_079,
+        "method": 1_368,
+        "constructor": 56,
+        "dataclass_constructor": 201,
+        "namedtuple_constructor": 4,
     }
     assert omitted_parameters == {
-        "function": 1_799,
-        "method": 1_710,
-        "constructor": 93,
-        "dataclass_constructor": 812,
-        "namedtuple_constructor": 28,
+        "function": 1_572,
+        "method": 1_684,
+        "constructor": 89,
+        "dataclass_constructor": 806,
+        "namedtuple_constructor": 22,
     }
     assert _sha256_lines(omissions) == (
-        "abae5cae2b52be756903a494e3566c28b273953bdefa8503682402302d5b7145"
+        "6c797ce493db888cc0bd38ec82945b44bc5c52380b0688e042700d506543fe08"
     )
 
 
