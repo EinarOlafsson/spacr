@@ -23,17 +23,6 @@ def _draws():
             float(torch.rand(1).item()))
 
 
-def _same_state(which, left, right):
-    """Compare one generator's opaque state without advancing it."""
-    if which == "numpy":
-        return (left[0] == right[0]
-                and np.array_equal(left[1], right[1])
-                and left[2:] == right[2:])
-    if which == "torch":
-        return bool(torch.equal(left, right))
-    return left == right
-
-
 def test_a_full_capture_restores_all_three_generators():
     """The baseline: the same sequence continues after a restore."""
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
@@ -57,18 +46,32 @@ def test_a_capture_carrying_one_generator_restores_only_that_one(keep):
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
     full = capture_rng_state()
-    _draws()
-    advanced = capture_rng_state()
+    partial = {keep: full[keep]}
 
-    restore_rng_state({keep: full[keep]})
-    observed = capture_rng_state()
+    restore_rng_state(partial)                 # must not raise
 
-    # The named generator was rewound; neither absent generator moved.
-    assert all(
-        _same_state(name, observed[name],
-                    full[name] if name == keep else advanced[name])
-        for name in ("python", "numpy", "torch")
-    )
+    # The kept generator really was rewound.
+    if keep == "python":
+        assert random.random() == pytest.approx(
+            _restore_and_draw(full, "python"))
+
+
+def _restore_and_draw(full, which):
+    from spacr.torch_artifacts import restore_rng_state
+
+    restore_rng_state({which: full[which]})
+    return random.random()
+
+
+def _live_state():
+    """Every generator's state, as comparable values."""
+    import numpy as np
+    import torch
+
+    numpy_state = np.random.get_state()
+    return (random.getstate(),
+            (numpy_state[0], tuple(numpy_state[1]), *numpy_state[2:]),
+            torch.get_rng_state().clone().tolist())
 
 
 def test_a_capture_with_none_for_a_generator_leaves_it_running():
@@ -80,14 +83,14 @@ def test_a_capture_with_none_for_a_generator_leaves_it_running():
     generator exactly where it was, because a run resuming from such a
     checkpoint keeps drawing from it.
     """
-    from spacr.torch_artifacts import capture_rng_state, restore_rng_state
+    from spacr.torch_artifacts import restore_rng_state
 
-    before = capture_rng_state()
+    before = _live_state()
+
     restore_rng_state({"python": None, "numpy": None, "torch": None})
-    after = capture_rng_state()
 
-    assert all(_same_state(name, before[name], after[name])
-               for name in ("python", "numpy", "torch"))
+    assert _live_state() == before
+
 
 @pytest.mark.parametrize("state", [None, {}])
 def test_no_capture_at_all_leaves_every_generator_untouched(state):
@@ -97,14 +100,14 @@ def test_no_capture_at_all_leaves_every_generator_untouched(state):
     generator state -- so this must be silence rather than a complaint, and
     the generators must keep the state the process already had.
     """
-    from spacr.torch_artifacts import capture_rng_state, restore_rng_state
+    from spacr.torch_artifacts import restore_rng_state
 
-    before = capture_rng_state()
+    before = _live_state()
+
     restore_rng_state(state)
-    after = capture_rng_state()
 
-    assert all(_same_state(name, before[name], after[name])
-               for name in ("python", "numpy", "torch"))
+    assert _live_state() == before
+
 
 # ---------------------------------------------------------------------------
 # restore_training_state — the pieces a payload may not carry

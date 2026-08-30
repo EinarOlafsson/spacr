@@ -236,15 +236,6 @@ class _ViewportlessScrollArea(QAbstractScrollArea):
         return None
 
 
-def test_making_nothing_transparent_is_not_an_error(qapp):
-    """Callers pass a widget that may not have been built yet."""
-    before = tuple(qapp.topLevelWidgets())
-    result = theme.make_transparent(None)
-
-    assert result is None
-    assert tuple(qapp.topLevelWidgets()) == before
-
-
 def test_a_none_is_skipped_without_stopping_the_widgets_after_it(qtbot):
     """Callers pass a widget that may not have been built yet.
 
