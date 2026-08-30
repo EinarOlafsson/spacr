@@ -212,6 +212,11 @@ def test_a_gene_level_multivariate_montage_still_draws_its_wells():
     assert [w.well for w in plan.wells] == ["plate1_r1_c1", "plate1_r1_c2"]
     assert [w.n_selected for w in plan.wells] == [2, 3]
     assert plan.n_objects == 5
+    assert not any("GENE: no well carries it" in note for note in plan.notes)
+    assert any(note.startswith("GENE_1 can be attributed")
+               for note in plan.notes)
+    assert any(note.startswith("GENE_2 can be attributed")
+               for note in plan.notes)
     for well in plan.wells:
         assert str(well.n_selected) in well.note
 

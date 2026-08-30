@@ -42,7 +42,6 @@ import pandas as pd
 
 from . import portable_paths
 
-
 LOG = logging.getLogger(__name__)
 
 __all__ = [
@@ -1464,8 +1463,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     excluded_note = ""
     if exclude_grnas:
         try:
-            from .read_background import (resolve_exclusions,
-                                          unmatched_exclusions)
+            from .read_background import resolve_exclusions, unmatched_exclusions
 
             names = counts[guide_column].astype(str) \
                 if guide_column in counts.columns else pd.Series([], dtype=str)
@@ -1549,12 +1547,18 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     fractions_by_well[label] = here
             finite = scores[np.isfinite(scores)]
             if fractions_by_well and finite.size:
-                verdict = preflight(
-                    name, fractions_by_well, effects,
-                    scale=float(np.std(finite)) or 1.0,
-                    centre=float(np.median(finite)),
-                    threshold=float(threshold))
-                notes.append(verdict.note())
+                # Fractions and effects are guide-keyed.  A gene-level
+                # coefficient therefore has to pre-flight the guides it
+                # covers; asking for the gene name itself always produces
+                # the false verdict "no well carries it".
+                targets = covered if resolved_level == "gene" else [name]
+                for target in targets:
+                    verdict = preflight(
+                        target, fractions_by_well, effects,
+                        scale=float(np.std(finite)) or 1.0,
+                        centre=float(np.median(finite)),
+                        threshold=float(threshold))
+                    notes.append(verdict.note())
         except Exception:                                    # noqa: BLE001
             # A pre-flight is a courtesy, not a precondition. It must never
             # be the reason a montage does not draw.
@@ -1672,8 +1676,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 counts, label, keys, guide_column, fraction_column)
             columns = [c for c in effects_grid.columns if c in ranked.columns]
             if len(here_fractions) > 1 and columns:
-                from .guide_attribution import (normalise_fractions,
-                                                posterior_multivariate)
+                from .guide_attribution import normalise_fractions, posterior_multivariate
 
                 priors = normalise_fractions(here_fractions)
                 grid = {g: effects_grid.loc[g, columns].to_numpy(dtype=float)
@@ -1717,8 +1720,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             here_fractions = _well_guide_fractions(
                 counts, label, keys, guide_column, fraction_column)
             if len(here_fractions) > 1:
-                from .guide_attribution import (assign_well, attribute_well,
-                                          normalise_fractions)
+                from .guide_attribution import assign_well, attribute_well, normalise_fractions
 
                 spread = float(ranked["_montage_score"].std()) or 1.0
                 middle = float(ranked["_montage_score"].median())
@@ -2099,7 +2101,8 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
         except Exception as error:                               # noqa: BLE001
             raise MontageError(
                 f"The count CSVs name no well: they need a 'prc' column, or "
-                f"plateID / rowID / columnID to compose one ({error}).")
+                f"plateID / rowID / columnID to compose one ({error})."
+            ) from error
 
     totals = counts.groupby("prc")["count"].sum().reset_index()
     totals = totals.rename(columns={"count": "_well_total"})
