@@ -835,7 +835,9 @@ setup(
         # pretrained weights on first use; trackpy/btrack/iou stay available
         # without it. BSD-3, PyTorch-only, no TensorFlow.
         'trackastra': [
-            'trackastra>=0.5,<1.0; python_version >= "3.10"',
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
         ],
         # `pip install spacr[ultrack]` — global-optimisation object tracking
         # (timelapse_mode='ultrack'). Kept alongside trackastra rather than
@@ -849,7 +851,9 @@ setup(
         # no-op instead of an unsatisfiable installation; spaCR's other
         # tracking modes remain available there.
         'ultrack': [
-            'ultrack>=0.6,<1.0; python_version < "3.14"',
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
         ],
         # `pip install spacr[attribution]` — the five torchcam CAM variants
         # (gradcam, gradcam_pp, scorecam, xgradcam, layercam) in
@@ -1199,8 +1203,12 @@ setup(
             'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
-            'trackastra>=0.5,<1.0; python_version >= "3.10"',
-            'ultrack>=0.6,<1.0; python_version < "3.14"',
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
             'pylibCZIrw>=5.0.0,<7.0',
