@@ -151,11 +151,15 @@ def _gate_tree_qss(palette, opacity=None) -> str:
         background: {palette['accent']};
         color: {palette['bg']};
     }}
-    QHeaderView::section {{
+    QTreeWidget#GateHierarchy QHeaderView::section {{
         background: transparent;
         color: {palette['fg_muted']};
         border: none;
         padding: 2px 4px;
+    }}
+    QTreeWidget#GateHierarchy QHeaderView::section:hover {{
+        background: {palette['accent']};
+        color: {palette['bg']};
     }}
     QWidget#GateTree {{
         background: transparent;

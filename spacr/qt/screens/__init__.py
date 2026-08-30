@@ -11,8 +11,8 @@ the key, the name, the sentence, the section, the stage and the NAME of the
 screen factory, and :func:`spacr.qt.app_catalog.register_declared` registers
 all of that without importing anything; the screen is imported the first time
 somebody opens it. A screen that contributes a stylesheet block registers it
-at that import, and :func:`spacr.qt.theme.register_widget_qss` puts it into the
-live application sheet synchronously, before its first widget is constructed.
+at that import, and ``MainWindow`` applies missing registered blocks to the
+new screen's own QSS scope before inserting it into the visible stack.
 :data:`spacr.qt.theme.WIDGET_QSS_MODULES` remains the inventory used when an
 exhaustive/static stylesheet is explicitly requested.
 

@@ -673,13 +673,13 @@ def test_two_widgets_cannot_quietly_claim_one_name(qss_sandbox):
         theme_mod.register_widget_qss("NotCallable", "QFrame {}")
 
 
-def test_the_exhaustive_loader_collects_without_restyling_per_import(
-        qss_sandbox, monkeypatch):
-    """One explicit inventory sweep gets one outer composition, not N more."""
+def test_the_exhaustive_loader_only_collects_blocks(
+        qapp, qss_sandbox, monkeypatch):
+    """An inventory sweep does not mutate the live QApplication sheet."""
     import importlib
 
-    restyles = []
     modules = ("spacr.qt.probe_one", "spacr.qt.probe_two")
+    before = qapp.styleSheet()
 
     def fake_import(name):
         theme_mod.register_widget_qss(
@@ -688,45 +688,108 @@ def test_the_exhaustive_loader_collects_without_restyling_per_import(
         return object()
 
     monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
-    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADING", False)
     monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES", modules)
-    monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied",
-                        lambda *names: restyles.append(names))
     monkeypatch.setattr(importlib, "import_module", fake_import)
 
     assert theme_mod.load_widget_qss_registrars() == modules
-    assert restyles == []
-    assert theme_mod._QSS_REGISTRARS_LOADING is False
+    assert theme_mod.widget_qss_names() == modules
+    assert qapp.styleSheet() == before
 
 
-def test_a_registration_during_restyle_does_not_recurse(
-        qapp, qss_sandbox, monkeypatch):
-    """Field fade and similar late registrations join the outer rebuild."""
+def test_many_late_blocks_style_one_screen_without_restyling_the_app(
+        qtbot, qapp, qss_sandbox, monkeypatch):
+    """Forty imports cost one new-screen polish and zero global rebuilds."""
     from spacr.qt import preferences
 
     previous = qapp.styleSheet()
     qapp.setStyleSheet("QWidget { color: red; }")
-    applications = []
-
-    def apply_once(app):
-        applications.append(app)
-        theme_mod.register_widget_qss(
-            "Nested", lambda palette, opacity:
-            "QFrame#Nested { color: blue; }")
-        app.setStyleSheet(theme_mod.stylesheet(
-            load_widget_registrars=False))
-
-    monkeypatch.setattr(preferences, "apply_preferences_to_app", apply_once)
+    live_sheet = qapp.styleSheet()
+    whole_app_restyles = []
+    seen = {}
+    monkeypatch.setattr(
+        preferences, "apply_preferences_to_app",
+        lambda app=None: whole_app_restyles.append(app))
     try:
-        theme_mod.register_widget_qss(
-            "Outer", lambda palette, opacity:
-            "QFrame#Outer { color: green; }")
-        assert applications == [qapp]
-        assert "registered widget QSS: Outer" in qapp.styleSheet()
-        assert "registered widget QSS: Nested" in qapp.styleSheet()
-        assert theme_mod._QSS_RESTYLE_IN_PROGRESS is False
+        names = tuple(f"LateProbe{index}" for index in range(40))
+        for name in names:
+            def block(palette, opacity, target=name):
+                seen[target] = (palette["theme"],
+                                palette["font_scale"], opacity)
+                return f"QFrame#{target} {{ color: {palette['accent']}; }}"
+            theme_mod.register_widget_qss(name, block)
+
+        assert whole_app_restyles == []
+        assert qapp.styleSheet() == live_sheet
+
+        root = QWidget()
+        root.setObjectName("LateScreen")
+        qtbot.addWidget(root)
+        theme_mod.set_widget_qss_context(qapp, "cell", 1.4, 0.25)
+        assert theme_mod.ensure_widget_qss_applied(root=root) is True
+        assert qapp.styleSheet() == live_sheet
+        assert whole_app_restyles == []
+        for name in names:
+            assert f"registered widget QSS: {name}" in root.styleSheet()
+            assert seen[name] == ("cell", 1.4, 0.25)
+        # Rechecking the same complete suffix is byte-identical and does not
+        # ask Qt to polish the screen twice.
+        assert theme_mod.ensure_widget_qss_applied(root=root) is False
+
+        assert theme_mod.clear_widget_qss_overlays(qapp) >= 1
+        assert root.styleSheet() == ""
     finally:
         qapp.setStyleSheet(previous)
+
+
+def test_a_preference_rebuild_absorbs_local_blocks_with_new_values(
+        qtbot, qapp, qss_sandbox, monkeypatch):
+    """A local first frame cannot pin the old theme, zoom or opacity."""
+    from spacr.qt import preferences
+
+    previous = qapp.styleSheet()
+    context_attribute = theme_mod._WIDGET_QSS_CONTEXT_ATTRIBUTE
+    old_context = getattr(qapp, context_attribute, None)
+    root = QWidget()
+    root.setStyleSheet("QWidget#Owner { border: none; }")
+    qtbot.addWidget(root)
+    seen = []
+
+    def block(palette, opacity):
+        seen.append((palette["theme"], palette["font_scale"], opacity))
+        return ("QFrame#PreferenceProbe { color: %s; font-size: %spx; }"
+                % (palette["accent"], int(10 * palette["font_scale"])))
+
+    theme_mod.register_widget_qss("PreferenceProbe", block)
+    try:
+        qapp.setStyleSheet("QWidget { color: red; }")
+        theme_mod.set_widget_qss_context(qapp, "dark", 1.0, 0.6)
+        assert theme_mod.ensure_widget_qss_applied(
+            "PreferenceProbe", root=root)
+        assert "registered widget QSS: PreferenceProbe" in root.styleSheet()
+        assert seen[-1] == ("dark", 1.0, 0.6)
+
+        monkeypatch.setattr(preferences, "resolve_effective_theme",
+                            lambda: "light")
+        monkeypatch.setattr(preferences, "get_font_scale", lambda: 1.5)
+        monkeypatch.setattr(preferences, "get_pane_opacity", lambda: 0.3)
+        monkeypatch.setattr(preferences, "theme_background_path",
+                            lambda _theme: None)
+        monkeypatch.setattr(preferences, "apply_ambient_preferences",
+                            lambda _app: None)
+        preferences.apply_preferences_to_app(qapp)
+
+        assert root.styleSheet() == "QWidget#Owner { border: none; }"
+        assert "registered widget QSS: PreferenceProbe" in qapp.styleSheet()
+        assert seen[-1] == ("light", 1.5, 0.3)
+    finally:
+        qapp.setStyleSheet(previous)
+        if old_context is None:
+            try:
+                delattr(qapp, context_attribute)
+            except AttributeError:
+                pass
+        else:
+            setattr(qapp, context_attribute, old_context)
 
 
 def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,

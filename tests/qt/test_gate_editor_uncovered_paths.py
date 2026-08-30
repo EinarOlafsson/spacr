@@ -114,6 +114,9 @@ def test_the_editor_still_imports_when_the_theme_refuses_its_stylesheet(
     qss = module._gate_tree_qss({"fg": "#ff0000", "bg": "#000000",
                                  "accent": "#00ff00", "fg_muted": "#888888"})
     assert "#ff0000" in qss and "QTreeWidget#GateHierarchy" in qss
+    assert "QTreeWidget#GateHierarchy QHeaderView::section" in qss
+    assert "QTreeWidget#GateHierarchy QHeaderView::section:hover" in qss
+    assert "\n    QHeaderView::section" not in qss
     assert dict(theme._WIDGET_QSS) == before, \
         "a refused registration must not change the registry"
     assert any("gate tree stylesheet" in record.message

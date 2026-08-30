@@ -66,6 +66,37 @@ def test_the_strip_is_made_once(qtbot, qt_theme_applied):
     assert map_barcodes.host_pages(screen) is first
 
 
+def test_a_later_fold_refreshes_the_existing_hosts_qss_scope(
+        qtbot, qt_theme_applied):
+    """A registrar imported by fold two cannot disappear behind fold one."""
+    from spacr.qt.theme import (
+        clear_widget_qss_overlays,
+        register_widget_qss,
+        unregister_widget_qss,
+    )
+
+    screen = _host(qtbot)
+    pages = map_barcodes.host_pages(screen)
+    live_sheet = qt_theme_applied.styleSheet()
+    name = "_SecondFoldProbe"
+    register_widget_qss(
+        name,
+        lambda palette, opacity: f"QFrame#{name} {{ color: #ff00ff; }}",
+        replace=True,
+    )
+    folded = QWidget()
+    qtbot.addWidget(folded)
+    try:
+        assert name not in screen.styleSheet()
+        assert map_barcodes.show_as_page(folded, screen, "Second") is folded
+        assert screen._fold_pages is pages
+        assert f"registered widget QSS: {name}" in screen.styleSheet()
+        assert qt_theme_applied.styleSheet() == live_sheet
+    finally:
+        unregister_widget_qss(name)
+        clear_widget_qss_overlays(qt_theme_applied)
+
+
 def test_a_screen_that_names_itself_gets_that_name_on_its_page(
         qtbot, qt_theme_applied):
     """A screen with no registry key says what to call its own page.
@@ -128,15 +159,33 @@ def test_a_host_with_no_body_falls_back_to_a_window(qtbot, qt_theme_applied):
     # Not registered with qtbot: it becomes a child window of `bare`
     # below, so `bare` is what closes it -- and a second close of a widget
     # Qt has already deleted is a RuntimeError at teardown.
+    from spacr.qt.theme import (
+        clear_widget_qss_overlays,
+        register_widget_qss,
+        unregister_widget_qss,
+    )
+
     folded = AppScreen(app_key="barcode_qc")
     opener = map_barcodes.FoldOpener(
         bare, "barcode_qc", lambda _window: folded)
+    live_sheet = qt_theme_applied.styleSheet()
+    name = "_FoldWindowProbe"
+    register_widget_qss(
+        name,
+        lambda palette, opacity: f"QFrame#{name} {{ color: #ff00ff; }}",
+        replace=True,
+    )
+    try:
+        shown = opener.open()
 
-    shown = opener.open()
-
-    assert shown is folded
-    assert shown.isWindow()
-    assert shown.windowTitle() == "Barcode QC"
+        assert shown is folded
+        assert shown.isWindow()
+        assert shown.windowTitle() == "Barcode QC"
+        assert f"registered widget QSS: {name}" in shown.styleSheet()
+        assert qt_theme_applied.styleSheet() == live_sheet
+    finally:
+        unregister_widget_qss(name)
+        clear_widget_qss_overlays(qt_theme_applied)
 
 
 def test_a_screen_with_no_layout_carries_no_pages(qtbot):
@@ -149,10 +198,9 @@ def test_the_page_strip_is_styled_by_the_time_it_exists(
         qtbot, qt_theme_applied):
     """An unstyled tab strip is a black rectangle, not a slightly-off one.
 
-    The strip's block is registered when the first page is made rather
-    than at import, because a fold is opened long after the application
-    stylesheet was composed -- so the sheet has to be rebuilt with the
-    rule in it, which is what `ensure_widget_qss_applied` is for.
+    A fold is opened long after the application stylesheet was composed.
+    Its rule is installed on the host screen before the tab strip is made,
+    without rebuilding the application sheet around every cached screen.
     """
     from PySide6.QtWidgets import QApplication
 
@@ -165,6 +213,7 @@ def test_the_page_strip_is_styled_by_the_time_it_exists(
     # empty, which `ensure_widget_qss_applied` reads as "nothing has
     # styled the application", but without the block under test.
     app.setStyleSheet(stylesheet())
+    live_sheet = app.styleSheet()
     assert f"QTabWidget#{map_barcodes.PAGES_NAME}" not in app.styleSheet()
     screen = _host(qtbot)
 
@@ -172,7 +221,8 @@ def test_the_page_strip_is_styled_by_the_time_it_exists(
         map_barcodes.host_pages(screen)
 
         assert map_barcodes.PAGES_NAME in widget_qss_names()
-        assert f"QTabWidget#{map_barcodes.PAGES_NAME}" in app.styleSheet()
+        assert app.styleSheet() == live_sheet
+        assert f"QTabWidget#{map_barcodes.PAGES_NAME}" in screen.styleSheet()
     finally:
         # The themed application is a session fixture; leaving it holding
         # this test's sheet would follow every test after it.

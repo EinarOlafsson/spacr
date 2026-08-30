@@ -645,34 +645,51 @@ def test_the_probe_can_see_the_black_pane(qtbot, app_theme_restored,
         "made the running app black")
 
 
-def test_a_late_registered_block_reaches_the_app_before_its_first_widget(
+def test_a_late_registered_block_reaches_its_screen_before_first_paint(
         qtbot, qt_theme_applied):
-    """The registration seam closes the first-paint race synchronously.
+    """The local registration seam closes the first-paint race synchronously.
 
     ``app.py`` imports a screen's module inside the branch that builds it,
     which is long after the launch stylesheet was generated — so a block
     registered at module import is not in the sheet that is live, and the
-    screen used to open unstyled however correct its rule was.  Registration
-    happens above the module's widget class, so it must update the live sheet
-    before construction can reach that class.
+    screen used to open unstyled however correct its rule was. The screen root
+    receives the block before it is shown, without re-polishing the rest of
+    the application.
     """
     from spacr.qt.theme import ensure_widget_qss_applied, register_widget_qss
 
     name = "_TestLateBlock"
+    live_sheet = qt_theme_applied.styleSheet()
     assert name not in qt_theme_applied.styleSheet(), (
         "the fixture's stylesheet must predate this registration")
     register_widget_qss(name, lambda palette, opacity:
-                        "QLabel#_TestLateBlock { color: #ff00ff; }",
+                        "QLabel#_TestLateBlock { "
+                        "background-color: #ff00ff; color: #ff00ff; }",
                         replace=True)
+    root = QWidget()
+    root.resize(40, 40)
+    widget = QLabel(root)
+    widget.setObjectName(name)
+    widget.setGeometry(0, 0, 40, 40)
+    qtbot.addWidget(root)
     try:
-        assert name in qt_theme_applied.styleSheet()
-        # Only now can the first widget from the late module be constructed.
-        widget = QLabel()
-        widget.setObjectName(name)
-        qtbot.addWidget(widget)
-        # Idempotent: a second call has nothing to fix.
-        assert ensure_widget_qss_applied(name) is False
+        assert qt_theme_applied.styleSheet() == live_sheet
+        # The same host hook every production screen passes before insertion
+        # into MainWindow's visible stack.
+        from spacr.qt.app import MainWindow
+        MainWindow._theme_screen(object(), root, "late_probe")
+        assert name in root.styleSheet()
+        assert qt_theme_applied.styleSheet() == live_sheet
+        root.show()
+        qt_theme_applied.processEvents()
+        pixel = widget.grab().toImage().pixelColor(20, 20)
+        assert (pixel.red(), pixel.green(), pixel.blue()) == (255, 0, 255)
+        # Idempotent: a second call has nothing to fix or repaint.
+        assert ensure_widget_qss_applied(name, root=root) is False
     finally:
-        from spacr.qt.theme import stylesheet, unregister_widget_qss
+        from spacr.qt.theme import (
+            clear_widget_qss_overlays,
+            unregister_widget_qss,
+        )
         unregister_widget_qss(name)
-        qt_theme_applied.setStyleSheet(stylesheet())
+        clear_widget_qss_overlays(qt_theme_applied)
