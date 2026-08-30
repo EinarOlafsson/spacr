@@ -3,7 +3,7 @@
 Two things the figure queue does that nothing else in spaCR does, and that
 fail quietly when they go wrong.
 
-REPLACING. "Show this as a violin instead" does not redraw a Figure -- 
+REPLACING. "Show this as a violin instead" does not redraw a Figure --
 ``create_grouped_plot`` builds a NEW one, because spacrGraph makes its own.
 So the queue, the grid tile, the thumbnail and the id-to-index map all have to
 be pointed at the new object together. Miss one and the menu says violin while
@@ -18,6 +18,7 @@ half-written pickle is what a later restore would load.
 from __future__ import annotations
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pytest
@@ -25,7 +26,7 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("pytestqt")
 
-from spacr.qt.widgets.figure_queue import FigureQueue              # noqa: E402
+from spacr.qt.widgets.figure_queue import FigureQueue  # noqa: E402
 
 pytestmark = pytest.mark.qt
 

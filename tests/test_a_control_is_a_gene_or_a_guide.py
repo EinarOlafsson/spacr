@@ -15,10 +15,17 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from spacr.control_names import (COMMON_PREFIX_SHARE, GENE, GUIDE,
-                                 ControlNotFound,
-                                 ControlSpec, common_prefix, matches,
-                                 resolve_control, resolve_controls, rows_for)
+from spacr.control_names import (
+    COMMON_PREFIX_SHARE,
+    GENE,
+    GUIDE,
+    ControlNotFound,
+    common_prefix,
+    matches,
+    resolve_control,
+    resolve_controls,
+    rows_for,
+)
 
 #: A library shaped like the maintainer's: one organism tag, three genes.
 LIBRARY = [f"TGGT1_{gene}_{n}"
