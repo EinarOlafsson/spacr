@@ -41,6 +41,18 @@ def test_writes_selected_rows_and_creates_column(tmp_path):
     assert _values(database, "umap_annotation") == [(7,), (None,), (9,)]
 
 
+def test_writes_into_an_existing_annotation_column(tmp_path):
+    """A second save updates the column instead of trying to add it again."""
+    database = tmp_path / "measurements.db"
+    _database(database, ("a.png",))
+    record = [{"db_path": database, "db_png_path": "a.png"}]
+
+    assert write_umap_annotations(record, [2], "umap_annotation") == (1, 0)
+    assert write_umap_annotations(record, [8], "umap_annotation") == (1, 0)
+
+    assert _values(database, "umap_annotation") == [(8,)]
+
+
 def test_groups_multiple_databases_and_quotes_column_name(tmp_path):
     first = tmp_path / "first.db"
     second = tmp_path / "second.db"

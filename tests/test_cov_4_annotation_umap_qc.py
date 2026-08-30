@@ -32,6 +32,39 @@ def test_a_label_per_row_is_required_before_splitting():
     assert result == {"error": "too few control cells to split"}
 
 
+def test_grouped_fit_requires_one_group_per_control_cell():
+    """A shorter group vector cannot silently misalign the control rows."""
+    features = np.arange(60, dtype=float).reshape(20, 3)
+    labels = [POSITIVE] * 10 + [NEGATIVE] * 10
+
+    result = fit_on_controls(
+        features,
+        labels,
+        groups=[f"well-{index}" for index in range(19)],
+        recipes=[{"n_neighbors": 5}],
+    )
+
+    assert result == {"error": "one group is needed per control cell"}
+
+
+def test_a_grouped_split_refusal_keeps_the_requested_level():
+    """Invalid split settings return an actionable error, not an exception."""
+    features = np.arange(60, dtype=float).reshape(20, 3)
+    labels = [POSITIVE] * 10 + [NEGATIVE] * 10
+
+    result = fit_on_controls(
+        features,
+        labels,
+        groups=[f"well-{index}" for index in range(20)],
+        group_by="well",
+        holdout=1.0,
+        recipes=[{"n_neighbors": 5}],
+    )
+
+    assert result["split_level"] == "well"
+    assert "strictly between 0 and 1" in result["error"]
+
+
 def test_a_recipe_the_embedding_rejects_is_recorded_and_the_run_continues(
         monkeypatch):
     """A bad recipe names its own failure instead of ending the search."""

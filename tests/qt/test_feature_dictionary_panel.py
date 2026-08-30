@@ -179,6 +179,15 @@ def test_register_adds_the_app_through_the_seam(registered):
     assert app_mod.registered_factory(fd.APP_KEY) is fd.make_screen
 
 
+def test_register_declares_the_browser_interactive_only(registered):
+    """A self-registered GUI row must not masquerade as a pipeline entry."""
+    from spacr.cli import INTERACTIVE_ONLY
+
+    app_mod = registered
+    assert app_mod.APP_META[fd.APP_KEY]["cli_note"] == fd.APP_CLI_NOTE
+    assert INTERACTIVE_ONLY[fd.APP_KEY] == fd.APP_CLI_NOTE
+
+
 def test_registering_makes_the_explore_section_appear(registered):
     app_mod = registered
     assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS

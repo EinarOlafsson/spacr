@@ -22,6 +22,8 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtWidgets import QApplication, QWidget
 
+from spacr.qt.screens.app_screen import AppScreen
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
 from tests import conftest as root_conftest
 from tests.qt import conftest as qt_conftest
 
@@ -102,3 +104,40 @@ def test_no_boundary_fixture_forces_python_collection_over_live_qt_wrappers():
             and node.func.attr == "collect"
         ]
         assert not calls, f"boundary fixture calls collect on lines {calls}"
+
+
+def test_menu_cleanup_does_not_load_pyqtgraph_for_a_plain_screen(
+        qtbot, monkeypatch):
+    """Closing a plot-free module must not cold-load optional plotting code."""
+    import builtins
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    imported = builtins.__import__
+
+    def guarded(name, *args, **kwargs):
+        if name == "pyqtgraph" or name.startswith("pyqtgraph."):
+            raise AssertionError("cleanup imported pyqtgraph")
+        return imported(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded)
+    assert retire_pyqtgraph_menus(owner) == 0
+
+
+def test_closing_a_plot_screen_retires_its_parentless_menu_tree(qapp):
+    """One regression screen used to leave about 650 live menu widgets."""
+    before = _live_widgets()
+    screen = AppScreen("regression")
+
+    built = _live_widgets()
+    assert built > before + 1000, "the real pyqtgraph-heavy screen was not built"
+
+    retired = retire_pyqtgraph_menus(screen)
+    screen.close()
+    screen.deleteLater()
+    from PySide6.QtCore import QCoreApplication, QEvent
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+    assert retired >= 10, "the ownership walk stopped finding plot menus"
+    assert _live_widgets() < before + 100, (
+        "closing one screen left its parentless pyqtgraph menu tree alive")

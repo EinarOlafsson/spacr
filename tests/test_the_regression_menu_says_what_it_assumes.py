@@ -71,6 +71,23 @@ def test_nothing_is_renamed():
         assert label.startswith(f"{value} — "), label
 
 
+def test_the_menu_filters_a_group_entry_that_is_not_fittable(monkeypatch):
+    """A stale grouping must not advertise a backend the fitter cannot run.
+
+    The inventory-parity test above catches drift during development.  This
+    checks the runtime safeguard itself: even before that drift is repaired,
+    the user-facing menu only returns values accepted by the fit inventory.
+    """
+    import spacr.regression_families as families
+
+    monkeypatch.setattr(families, "_fittable", lambda: ("mixed", "rra"))
+
+    assert [value for value, _label in families.regression_family_choices()] == [
+        "mixed",
+        "rra",
+    ]
+
+
 def test_each_family_states_what_it_assumes():
     for value, label in regression_family_choices():
         assumption = REGRESSION_FAMILY_ASSUMPTIONS[value]

@@ -44,6 +44,14 @@ def test_a_table_without_a_well_column_names_no_wells():
     assert wells_of(frame, ["g1"]) == []
 
 
+def test_wells_are_unique_in_first_occurrence_order():
+    """Two selected guides in one well must not duplicate that well."""
+    assert wells_of(_frame(), ["g1", "g2", "g3"]) == [
+        "p1_r1_c1",
+        "p1_r1_c2",
+    ]
+
+
 # ---------------------------------------------------------------------------
 # An empty table
 # ---------------------------------------------------------------------------
@@ -66,6 +74,29 @@ def test_no_table_at_all_yields_an_empty_frame_not_none():
     assert isinstance(out, pd.DataFrame)
     assert len(out) == 0
     assert report["rows"] == 0
+
+
+def test_an_unknown_scope_is_refused_with_the_supported_values():
+    """A typo cannot silently widen a plot to a different population."""
+    with pytest.raises(ValueError) as excinfo:
+        select(_frame(), scope="neighbouring plates", guides=["g1"])
+
+    message = str(excinfo.value)
+    assert "neighbouring plates" in message
+    assert all(scope in message for scope in ("guides", "wells", "all"))
+
+
+def test_well_scope_without_a_well_column_keeps_only_the_chosen_guides():
+    """The fallback is narrow and explains why well-mates are unavailable."""
+    frame = _frame().drop(columns=["prc"])
+
+    out, report = select(frame, scope="wells", guides=["g2"])
+
+    assert out["grna"].tolist() == ["g2"]
+    assert report["rows"] == 1
+    assert report["chosen"] == 1
+    assert report["mates"] == 0
+    assert "names no well" in report["note"]
 
 
 # ---------------------------------------------------------------------------

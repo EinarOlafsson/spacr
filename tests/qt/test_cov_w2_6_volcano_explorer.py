@@ -718,6 +718,13 @@ def test_two_compartments_can_be_ticked_at_once_on_the_menu(localised):
     by_text = {a.text(): a for a in menu_entries(menu)}
     by_text["dense granules"].setChecked(True)
     assert localised.style().localizations == ("dense granules",)
+
+    # Applying a style rebuilds the context menu, just as it rebuilds the
+    # plotted artists. Reopen it before making the second user choice rather
+    # than retaining a QAction whose owning QMenu has been deleted.
+    menu = localised.build_style_menu()
+    by_text = {a.text(): a for a in menu_entries(menu)}
+    assert by_text["dense granules"].isChecked()
     by_text["rhoptries 1"].setChecked(True)
     assert localised.style().localizations == ("dense granules",
                                                "rhoptries 1")

@@ -15,7 +15,6 @@ import pytest
 
 from spacr import multiple_testing as mt
 
-
 # ---------------------------------------------------------------------------
 # canonical_method: the statsmodels-spelling fallback
 # ---------------------------------------------------------------------------
@@ -79,6 +78,12 @@ def test_a_uniform_family_estimates_pi0_near_one_rather_than_falling_back():
     assert 0.9 <= pi0 <= 1.0
 
 
+def test_an_explicit_lambda_grid_can_be_empty_after_validation():
+    """Out-of-domain lambda probes carry no information, so pi0 is one."""
+    assert mt.estimate_pi0(np.linspace(0.01, 0.99, 40),
+                           lambdas=[-0.1, 1.0]) == 1.0
+
+
 # ---------------------------------------------------------------------------
 # storey_qvalue
 # ---------------------------------------------------------------------------
@@ -94,6 +99,12 @@ def test_storey_q_values_of_an_empty_family_is_an_empty_array():
     """An empty input is not an error; it is an empty result."""
     out = mt.storey_qvalue([])
     assert out.shape == (0,)
+
+
+def test_storey_q_values_accept_an_explicit_null_fraction():
+    """A caller-supplied pi0 bypasses estimation and scales BH directly."""
+    out = mt.storey_qvalue([0.01, 0.2, 0.8], pi0=0.5)
+    assert np.allclose(out, [0.015, 0.15, 0.4])
 
 
 # ---------------------------------------------------------------------------
@@ -137,6 +148,11 @@ def test_the_beta_uniform_fit_ignores_nan_before_deciding_it_is_empty():
     assert mt._beta_uniform_fit([np.nan, np.nan]) == (1.0, 1.0)
 
 
+def test_zero_requested_em_iterations_return_the_initial_mixture():
+    """The private diagnostic hook permits a zero-work probe."""
+    assert mt._beta_uniform_fit([0.1, 0.5], iterations=0) == (0.5, 0.5)
+
+
 def test_the_local_fdr_of_an_all_nan_family_stays_nan():
     """Nothing finite to fit a density to, and the shape still has to match."""
     out = mt.local_fdr([np.nan, np.nan, np.nan])
@@ -154,3 +170,12 @@ def test_a_family_under_the_minimum_gets_the_conservative_one():
     small = [0.001] * (mt.LOCAL_FDR_MIN_TESTS - 1)
     out = mt.local_fdr(small)
     assert np.all(out == 1.0)
+
+
+def test_local_fdr_accepts_an_explicit_null_fraction():
+    """Supplying pi0 bypasses the mixture-derived null proportion."""
+    family = np.linspace(0.001, 0.999, mt.LOCAL_FDR_MIN_TESTS)
+    out = mt.local_fdr(family, pi0=0.4)
+    assert out.shape == family.shape
+    assert np.isfinite(out).all()
+    assert np.all((0.0 <= out) & (out <= 1.0))
