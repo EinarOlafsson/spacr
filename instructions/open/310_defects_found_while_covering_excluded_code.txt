@@ -764,3 +764,59 @@ found in a third place.
     ('cell1' + '7' == 'cell' + '17'). That is the test that catches the real
     risk: the organelle roles are the ones a maintainer would extend, and the
     fifth is naturally called 'organelle2'.
+
+--------------------------------------------------------------------------------
+13. THE MEASUREMENT ITSELF IS NOT YET TRUSTWORTHY  (lane: item 288)
+--------------------------------------------------------------------------------
+
+Two complete full-suite runs now exist and their whole-library figures DISAGREE
+in the wrong direction:
+
+    2026-08-29, commit 4eccf7b8   95.00%   494 modules, 167 at 100%
+                                  46,918 passed / 453 failed / 1:49:41
+                                  2 'node down' events
+
+    2026-08-30, commit 955faa4e   88.99%   508 modules, 132 at 100%
+                                  47,673 passed / 421 failed / 2:05:00
+                                  3 'node down' events
+
+The second run has 755 MORE passing tests, 32 FEWER failures, and 99 new test
+files -- and reports six points LESS coverage. That is not a regression, and
+the tests prove it is not: 186 modules read materially lower and only 17 read
+higher, which is a systematic loss rather than 186 separate ones.
+
+THE CAUSE IS THE LOST WORKERS. Each 'node down' takes an xdist worker's
+coverage data with it. The tests it had already run still count toward the
+pass/fail summary -- the master reassigns them or the run continues -- but the
+lines they executed are gone from the report.
+
+PROOF, on a module whose gap this session closed: spacr/figure_font.py measures
+51/51 units when its own test file is run alone, 38/51 in this full run, and
+31/51 in the previous one. The module did not change between the last two
+numbers; the worker that ran its tests did.
+
+CONSEQUENCE FOR ITEM 288. Its contract wants "a clean frozen-worktree coverage
+run [that] reports 100% statements and branches for every spaCR module". A run
+that silently loses a worker's data cannot demonstrate that -- it will report
+modules as short when they are complete, and no amount of test-writing will
+close a gap that is an artifact of the harness.
+
+WHAT WOULD FIX IT, in preference order:
+
+  1. ``-p xdist --dist loadfile`` with ``--max-worker-restart`` set, so a
+     worker that dies is replaced and its FILES are re-run rather than lost.
+     This also restarts the interpreter periodically, which addresses the
+     six-fold deceleration HANDOFF 3d records.
+  2. Batched runs in fresh processes, combining ``.coverage.*`` at the end --
+     the design already written at
+     covscratch/run_coverage.sh. Slower, but every batch's data is on disk
+     before the next begins, so one death costs one batch.
+  3. A single-process run (no -n). Trustworthy and far too slow for 48,000
+     tests, but it is the reference a batched run should be checked against
+     once.
+
+Until one of those is done, every whole-library percentage in this instruction
+is a FLOOR, and the per-module rows are only trustworthy where they read 100%.
+Individual closures in this sweep were each verified by re-running the module's
+own tests under coverage and checking ``executed_branches`` for the specific
+arc, which is why they are reliable while the aggregate is not.
