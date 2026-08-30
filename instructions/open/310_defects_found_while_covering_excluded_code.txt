@@ -2,8 +2,9 @@
 DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29. A RUNNING LIST -- appended to as the
-           coverage sweep reaches more modules.
+Status:    OPEN only as item 310's running intake while item 288 / Claude
+           coverage work remains active. Resolved or rejected reports stay
+           recorded here as history.
 Owner:     mixed; each entry names its own lane.
 Requested: 2026-08-29 -- "continue with the tests and dont stop until the tests
            are complete and all moduals are 100% covered", under the standing
@@ -36,9 +37,11 @@ FIXED and pushed, and are recorded here only so they are not re-derived:
     a methods section rendered "The largest absolute effect among them was
     nan, with a median of nan" into manuscript text. Fixed.
 
-The entries below are NOT fixed. Each was found with a test proving the
-current behaviour, and each was left because fixing it needs a decision or a
-file outside the finder's lane.
+The entries below are a historical ledger, not a uniformly open queue. Each
+keeps its original evidence and any later resolution; many are now fixed,
+intentional or false. Appendix A carries the compact current reconciliation.
+New findings remain in scope only while item 288 / Claude coverage work is
+active.
 
 --------------------------------------------------------------------------------
 1. THE FIGURE SAVE MODE HAS NO WAY TO BE SET  (lane: spacr/qt)
@@ -1660,6 +1663,52 @@ be misreadings. Treat each as a lead with an address, not as a finding.
 They are recorded because an agent that reads a module closely enough to
 cover its branches is the best-placed reader it will get, and throwing that
 away to keep the coverage number clean would be the wrong trade.
+
+APPENDIX A STATUS RECONCILIATION (2026-08-30)
+
+These entries remain as historical coverage-sweep leads. Their current
+dispositions are:
+
+  intentional:
+    A1, A2, A9, A15, A16, A32, A52, A56, A57
+
+  false:
+    A3, A7, A10, A17, A33, A51
+
+  dead-guard-removed:
+    A29 -> a7c08a82
+
+  external-harness:
+    A42 -> shared coverage-file collision outside the product; the repository
+           batch runner has used distinct COVERAGE_FILE paths since 4d7375f3
+
+  fixed:
+    A4, A5, A6       -> 6399f834
+    A8               -> b6495fbb
+    A11, A12, A13    -> 3192b75f
+    A14              -> 4d153c1b
+    A18              -> b6d73e56
+    A19              -> 4a9b2328
+    A20              -> 4829ffa8
+    A21, A22, A23,
+    A24              -> efc9a78c
+    A25, A26, A27    -> fc8feaab
+    A28              -> ee7e5459
+    A30, A31         -> 155b034b
+    A34              -> c04b62c6
+    A35, A36, A37    -> 1ad4358f
+    A38              -> d07f710a
+    A39              -> a2318e78
+    A40              -> 611c6e88
+    A41              -> b661febd
+    A43, A44, A45    -> ac57569a
+    A46              -> 184f2d48
+    A47              -> e7c286dd
+    A48              -> d3c6baa1
+    A49              -> c99fa8e8
+    A50              -> 604407ee
+    A53, A54, A55    -> da9b0d5b
+    A58              -> 6b2916af
 
 A1. spacr/qt/crash_recovery.py:79 (note_that_a_launch_began) together with :100 (note_a_clean_shutdown)
     WHAT: The unclean-exit test is `os.path.exists(marker)`, which is True for a *directory* at `<logdir>/running.marker`, while `os.remove` at line 100 can never delete one (it raises IsADirectoryError and is swallowed at 103-104). A stale directory at that path — a botched restore, an rsync of a tree, a sync tool that materialises a name as a folder — is therefore permanently interpreted as "the last run died" on every single launch, and no clean shutdown can ever clear it.
