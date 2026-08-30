@@ -252,3 +252,64 @@ and Space-theme suite are 64/64 green. Implementation commit: ``3e9a5af3``.
 The item remains OPEN for the quiet-machine real-display backdrop on/off pair,
 the resulting frame-budget decision, and ten cold Regression starts through
 the wall-clock-guarded benchmark.
+
+--------------------------------------------------------------------------------
+2026-08-30 -- THE REAL-DISPLAY CAUSE IS PROVEN AND ITS FRAME BUDGET IS FIXED
+--------------------------------------------------------------------------------
+
+The required on/off comparison drove the ACTUAL ``spacr.qt.run(["--no-setup"])``
+entry point on Xorg display ``:0`` at 3840x2160, with a clean temporary HOME
+for every series.  The process tree was sampled with psutil and the arms were
+interleaved so background machine load could not line up with one condition.
+Hardware/software: Ryzen 9 5950X (32 logical CPUs), RTX 3090, Python 3.12.4,
+PySide6 6.11.2.  All launches returned zero and had empty stderr.
+
+Before the change, two disabled/backdrop/backdrop/disabled arms measured:
+
+    condition      process CPU mean   median   maximum   final RSS
+    disabled #1          0.167%        0.0%      1.0%     296.6 MB
+    backdrop #1         25.033%       25.1%     26.0%     296.6 MB
+    backdrop #2         24.483%       24.3%     25.1%     296.7 MB
+    disabled #2          0.000%        0.0%      0.0%     296.0 MB
+
+This is causal rather than a profile inference: toggling only the backdrop
+repeatedly adds one quarter of a CPU core while RSS is unchanged.  System CPU
+varied between roughly 19 and 26 percent across the arms, while spaCR's own
+disabled process stayed at zero.
+
+The shared production installer now gives this slow diffuse animation a
+12-fps idle budget instead of repainting at the direct widget's full 24 fps.
+The public ``AmbientWidget`` default and an explicit caller's requested rate
+remain unchanged.  Repeating the same interleaved real-display experiment:
+
+    condition      process CPU mean   median   maximum   final RSS
+    disabled #1          0.000%        0.0%      0.0%     296.7 MB
+    backdrop #1         12.480%       12.6%     13.6%     296.8 MB
+    backdrop #2         12.080%       11.6%     13.0%     296.9 MB
+    disabled #2          0.000%        0.0%      0.0%     295.8 MB
+
+The repeated enabled-arm mean fell from 24.758 to 12.280 percent, a 50.4
+percent reduction, with no memory tradeoff.  This is the requested frame
+budget rather than an off switch.
+
+The same audit found a separate exit-time failure in spaceout's CPU fallback.
+Closing the real app during its first Numba compilation destroyed a live
+QThread and Qt aborted the process (exit 134).  Renderer shutdown now joins at
+explicit shutdown, widget destruction AND QApplication ``aboutToQuit``; if a
+finite render exceeds the five-second soft deadline, shutdown waits rather
+than entering Qt's process-fatal detached state.  The identical one-second
+real-display reproducer now exits zero with no critical log.  Direct and
+adjacent verification is 175 ambient tests, 94 fractal tests and 23 movement/
+budget tests, all passing.  Implementation commit: ``c419697a``.
+
+Preferences' measured whole-dialog construction is 0.823 seconds against its
+3.0-second benchmark budget.  Unchanged preference applications now skip the
+global QApplication stylesheet re-polish which the profile attributed 13.5
+percent of self time to (``1aa373be``).  The startup ratchet now measures
+Preferences as a real post-paint state and has a wall-clock backstop which can
+fail a blocked GUI thread even when its QTimer cannot run (``3f0b3c98``).
+The two re-polish budget tests and 22 startup/readiness driver tests pass.
+
+The item remains OPEN only for ten consecutive cold Regression starts through
+that wall-clock-guarded benchmark on a machine no longer occupied by the CI
+partition replays.  Timing them beside those jobs would not be valid evidence.
