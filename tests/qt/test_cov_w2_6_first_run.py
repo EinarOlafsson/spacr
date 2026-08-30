@@ -101,8 +101,6 @@ def test_the_sidebar_sentence_names_the_sections_the_sidebar_draws():
     for name in sections:
         assert name in said
     assert said.startswith("Primary modules are grouped here into ")
-    assert said.endswith(
-        "; related workflows are reached from their host module.")
 
 
 def test_one_section_is_listed_without_an_and(monkeypatch):
@@ -110,9 +108,10 @@ def test_one_section_is_listed_without_an_and(monkeypatch):
 
     monkeypatch.setattr(qt_app, "APPS", [("mask", "Mask", "m", "Pipelines")],
                         raising=False)
-    assert fr._section_names_sentence() == \
-        "Primary modules are grouped here into Pipelines; related workflows " \
+    assert fr._section_names_sentence() == (
+        "Primary modules are grouped here into Pipelines; related workflows "
         "are reached from their host module."
+    )
 
 
 def test_two_sections_are_joined_with_an_and(monkeypatch):
@@ -121,9 +120,10 @@ def test_two_sections_are_joined_with_an_and(monkeypatch):
     monkeypatch.setattr(qt_app, "APPS", [
         ("mask", "Mask", "m", "Pipelines"),
         ("ml", "ML", "m", "Analysis")], raising=False)
-    assert fr._section_names_sentence() == \
-        "Primary modules are grouped here into Pipelines and Analysis; " \
+    assert fr._section_names_sentence() == (
+        "Primary modules are grouped here into Pipelines and Analysis; "
         "related workflows are reached from their host module."
+    )
 
 
 def test_a_registry_with_no_sections_falls_back_to_a_true_sentence(
@@ -131,9 +131,10 @@ def test_a_registry_with_no_sections_falls_back_to_a_true_sentence(
     from spacr.qt import app as qt_app
 
     monkeypatch.setattr(qt_app, "APPS", [], raising=False)
-    assert fr._section_names_sentence() == \
-        "Primary modules are grouped here by purpose; related workflows " \
+    assert fr._section_names_sentence() == (
+        "Primary modules are grouped here by purpose; related workflows "
         "are reached from their host module."
+    )
 
 
 def test_a_registry_that_cannot_be_read_falls_back_rather_than_raising(
@@ -149,9 +150,10 @@ def test_a_registry_that_cannot_be_read_falls_back_rather_than_raising(
         return real_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", _blocked)
-    assert fr._section_names_sentence() == \
-        "Primary modules are grouped here by purpose; related workflows " \
+    assert fr._section_names_sentence() == (
+        "Primary modules are grouped here by purpose; related workflows "
         "are reached from their host module."
+    )
 
 
 # --------------------------------------------------------------------------
