@@ -3,11 +3,11 @@
   "language": "de",
   "records": [
     {
-      "context": "Unavailable live-panel placeholder. A boxed live run graph suitable for insertion below Classify settings.",
+      "context": "Placeholder used when PySide6 is unavailable.",
       "label": "spacr.flowview.panel.FlowViewPanel#0",
-      "source": "Unavailable live-panel placeholder. A boxed live run graph suitable for insertion below Classify settings.",
-      "source_sha256": "079f0b47cfec3ac8251d07f27e4726195ce3a4f73dbc9a72882e710cd860c364",
-      "translation": "Platzhalter für ein nicht verfügbares Live-Panel. Ein eingerahmter Graph eines laufenden Verarbeitungslaufs, der sich zum Einfügen unterhalb der Classify-Einstellungen eignet."
+      "source": "Placeholder used when PySide6 is unavailable.",
+      "source_sha256": "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
+      "translation": "Platzhalter, der verwendet wird, wenn PySide6 nicht verfügbar ist."
     }
   ]
 }
