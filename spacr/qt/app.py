@@ -4688,14 +4688,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
             LOG.debug("could not open the setup screen", exc_info=True)
 
     _timing.mark("MainWindow")
-    # Building the window imports four modules that each register a widget
-    # QSS block, and each registration used to re-apply the whole
-    # application stylesheet on the way past -- five full compositions on a
-    # cold launch where one is owed. The window has not been shown yet, so
-    # the single restyle this batch flushes still lands before first paint.
-    from .theme import batched_widget_qss
-    with batched_widget_qss():
-        win = MainWindow(initial_app=initial_app)
+    # No batching scope here. The other lineage's `register_widget_qss`
+    # re-applied the whole application stylesheet on every registration, so
+    # building the window composed the sheet five times and threw four
+    # away; `batched_widget_qss` existed to collect those. This tree's
+    # `register_widget_qss` only stores the block and returns, so there is
+    # nothing to batch and the scope would be an empty wrapper.
+    win = MainWindow(initial_app=initial_app)
     benchmark_controller = None
     if os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
         from .startup_benchmark import maybe_start as _maybe_start_benchmark
