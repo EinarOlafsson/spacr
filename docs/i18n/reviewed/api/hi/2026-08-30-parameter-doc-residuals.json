@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "context": "backend identifier recorded in logs and run metadata.",
+      "label": "spacr.mixed_gpu.TorchMixedResults#18",
+      "source": "backend identifier recorded in logs and run metadata.",
+      "source_sha256": "48f9f569faa52d709489e0401bb5b7a1b8cd9583ad7fb52fd7b694c225640991",
+      "translation": "लॉग और रन मेटाडेटा में दर्ज बैकएंड पहचानकर्ता।"
+    },
+    {
+      "context": "run-results directory in which to write the report.",
+      "label": "spacr.regression_failure.write_failure_report#1",
+      "source": "run-results directory in which to write the report.",
+      "source_sha256": "8be4e9aa38c9ab0afd51a7adfa5ccdede092617760c739ba5073a7fbff7294aa",
+      "translation": "वह रन-परिणाम निर्देशिका जिसमें रिपोर्ट लिखनी है।"
+    },
+    {
+      "context": "log record to stamp with a run id.",
+      "label": "spacr.runctx.RunIdFilter.filter#1",
+      "source": "log record to stamp with a run id.",
+      "source_sha256": "7031c417dbfcdb9ac1b35642921511feed9bc859d6555ec3736931d08abb7481",
+      "translation": "रन आईडी अंकित करने के लिए लॉग रिकॉर्ड।"
+    },
+    {
+      "context": "graph-propagated cell-by-guide evidence matrix.",
+      "label": "spacr.sudoku.constrain_to_fractions#1",
+      "source": "graph-propagated cell-by-guide evidence matrix.",
+      "source_sha256": "1495ecd828028d76931f26d8df05cbc50bc737f21e74db673f9d32efa1a926c3",
+      "translation": "ग्राफ़ के माध्यम से प्रसारित कोशिका-दर-गाइड साक्ष्य मैट्रिक्स।"
+    }
+  ]
+}

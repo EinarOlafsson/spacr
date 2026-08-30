@@ -3,7 +3,7 @@
   "records": [
     {
       "context": "The sequence exposes the sensitivity-specificity trade-off rather than evaluating only the conventional threshold of 0.5.",
-      "label": "spacr.classifier_quality.operating_points#1",
+      "label": "spacr.classifier_quality.operating_points#3",
       "source": "The sequence exposes the sensitivity-specificity trade-off rather than evaluating only the conventional threshold of 0.5.",
       "source_sha256": "67af57c9f39a7d8bf9453e2f9b5244494ce7e155003094db1a7462edab8a567d",
       "translation": "A sequência explicita o compromisso entre sensibilidade e especificidade, em vez de avaliar apenas o limiar convencional de 0.5."

@@ -330,3 +330,30 @@ Those files were deliberately not edited concurrently.  API catalogs must be
 regenerated from the new source once the current source batches are integrated;
 until that strict source-to-catalog rebuild is green, item 306 remains OPEN and
 release-blocking.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- POST-SWEEP API CATALOGS CURRENT
+--------------------------------------------------------------------------------
+
+The required-parameter sweep is now propagated through all nine API catalogs.
+Each locale contains 8,824/8,824 current symbol documents with zero API
+orphans; the increase from 8,817 is seven newly documented public methods.
+The strict API catalog audit and independent live-source coverage audit pass,
+as does a fresh 507-document ``sphinx-build -W -E --keep-going`` with zero
+warnings.
+
+The rebuild revalidated 18 existing reviewed blocks whose indices shifted when
+structured parameter paragraphs were inserted; their source, context, hash and
+translation are unchanged.  Source-bound evidence resolves exactly 54 new
+residual symbol/block labels representing 51 unique source blocks across
+Swedish, German, Simplified Chinese, Portuguese, Hindi, Icelandic and French.
+Every replacement is bound to its exact source, contextual translation input
+and SHA-256 hash and passes the protected-syntax, semantic and target-script
+gates.
+
+This closes the stale-catalog condition in the preceding progress entry, not
+item 306.  The structured-description ratchet remains 2,730 omissions across
+1,976 public callables, digest
+``58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef``,
+and no exhaustive fluent-speaker review is recorded.  Item 306 remains OPEN and
+release-blocking.

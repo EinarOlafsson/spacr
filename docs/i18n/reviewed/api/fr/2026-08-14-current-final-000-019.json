@@ -52,7 +52,7 @@
       "translation": "Il en va de même pour une substitution qui nomme un nom de donnée structurée que spaCR *connaît* mais que rien ne lit. Ces cas sont pires, car ils réussissent tous les tests « ce réglage existe-t-il ? » : ``remove_border_pathogens`` est typé, documenté par une infobulle et proposé par la catégorie Pathogen, et ``spacr-run mask --set remove_border_pathogens=True`` était accepté silencieusement sans aucun effet. ``spacr.settings.DEAD_SETTINGS`` répertorie chacun de ces noms de données structurées ainsi que l’orthographe qui fonctionne à la place."
     },
     {
-      "label": "spacr.convert.ConversionResult#4",
+      "label": "spacr.convert.ConversionResult#6",
       "source_sha256": "0e9f5cd53c9955b4eeda4bdbaf6172c2d6d2bdf6bc9be37fd05fea044b9d891e",
       "source": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",
       "context": "sources skipped without being attempted (an absent optional reader, an unreadable file), as ``(path, reason)``.",

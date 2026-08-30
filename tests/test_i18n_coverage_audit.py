@@ -18,8 +18,8 @@ REVIEWED_RUNTIME_COUNTS = {
     "hi": 100, "ko": 218, "is": 106, "fr": 89,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 181, "de": 126, "es": 27, "zh_CN": 152, "pt": 131,
-    "hi": 86, "ko": 116, "is": 598, "fr": 117,
+    "sv": 182, "de": 136, "es": 27, "zh_CN": 166, "pt": 137,
+    "hi": 90, "ko": 116, "is": 613, "fr": 118,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -141,7 +141,7 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-08-30.md").read_text(
         encoding="utf-8",
     )
-    assert len(docs) == 8_817
+    assert len(docs) == 8_824
     for language, runtime_expected in REVIEWED_RUNTIME_COUNTS.items():
         api_expected = REVIEWED_API_BLOCK_COUNTS[language]
         reviewed_api = api_builder.reviewed_api_block_translations(
@@ -169,8 +169,8 @@ def test_written_review_scope_matches_current_source_bound_evidence():
         row = (
             f"| {DISPLAY_NAMES[language]} | {runtime_expected:,} | "
             f"{runtime_expected / 4_978:.2%} | {4_978 - runtime_expected:,} | "
-            f"{api_expected:,} | {api_expected / 8_817:.2%} | "
-            f"{8_817 - api_expected:,} |"
+            f"{api_expected:,} | {api_expected / 8_824:.2%} | "
+            f"{8_824 - api_expected:,} |"
         )
         assert row in report
 

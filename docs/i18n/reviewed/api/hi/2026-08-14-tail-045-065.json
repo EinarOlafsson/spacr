@@ -66,7 +66,7 @@
     },
     {
       "context": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
-      "label": "spacr.run_journal.resolve_run_dir#5",
+      "label": "spacr.run_journal.resolve_run_dir#6",
       "source": "an unambiguous *prefix* of a run-id (``\"2026-07-23_2147\"``), handy from a shell.",
       "source_sha256": "295c06519a1bb6d2153e0a7af56e096b3500285de350540e3b7b03e6c07a1ee0",
       "translation": "निष्पादन आईडी का स्पष्ट *prefix* (``\"2026-07-23_2147\"``), जो shell से उपयोगी है।"

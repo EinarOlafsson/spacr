@@ -38,7 +38,7 @@
       "translation": "``fn(images, config) -> masks``이며 기본값은 :func:`spacr.model_compare.segment_with_cellpose`입니다. 이는 GUI 화면과 테스트가 사용하는 교체 지점이며, 이 테스트에서 Cellpose 모델을 불러오지 않는 이유입니다."
     },
     {
-      "label": "spacr.roi.RoiSet.rois_for#1",
+      "label": "spacr.roi.RoiSet.rois_for#2",
       "source_sha256": "ba83cbbb5592a7bcedeba9862c530882066dec84954681f5ce2dd1e2be8e5d56",
       "source": "The field's own entry wins over :data:`ANY_FIELD`; a field entry that is present but empty means \"this field has an ROI and it encloses nothing\", which is not the same as having no entry.",
       "context": "The field's own entry wins over :data:`ANY_FIELD`; a field entry that is present but empty means \"this field has an ROI and it encloses nothing\", which is not the same as having no entry.",

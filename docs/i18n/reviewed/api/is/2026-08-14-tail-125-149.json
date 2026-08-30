@@ -115,7 +115,7 @@
     },
     {
       "context": "The object-level chi-squared asks whether 20,000 objects came from one distribution. Objects in a microplate sample position share a treatment, a transfection, an imaging session and a monolayer, so that is not the question anyone asked, and its p-value is smaller than the experiment supports by orders of magnitude. This asks the question the design supports: do the Microplate sample positions differ, with n = the number of microplate sample positions.",
-      "label": "spacr.plot.proportion_test_by_unit#1",
+      "label": "spacr.plot.proportion_test_by_unit#5",
       "source": "The object-level chi-squared asks whether 20,000 objects came from one distribution. Objects in a well share a treatment, a transfection, an imaging session and a monolayer, so that is not the question anyone asked, and its p-value is smaller than the experiment supports by orders of magnitude. This asks the question the design supports: do the WELLS differ, with n = the number of wells.",
       "source_sha256": "71505e10c69dd1caac1dd7f60c185c179d41d35188ced185c562c469db5cbae5",
       "translation": "Chi-ferning á hlutastigi spyr hvort 20.000 hlutir komu úr einni dreifingu. Hlutir í sýnatökustöðu á örplötu deila meðferð, umritun, myndatöku og einlaga, svo það er ekki sú spurning sem einhver spurði, og p-gildið hennar er minna en tilrauninn styður um margföldun. Þetta spyr þá spurningu sem hönnunin styður: eru sýnatökustöður á örplötu mismunandi, með n = fjöldi sýnatökustaða á örplötu."

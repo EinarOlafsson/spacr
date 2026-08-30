@@ -80,7 +80,7 @@
       "translation": "AI Console ræsir söluaðila kóðunar-umboðs CLI (claude / codex / gemini). Hvert CLI auðkennir sig með spjalláskrift notandans, ekki með mældri API lykli. Qt GUI notar ekki lengur API lykla."
     },
     {
-      "label": "spacr.openmp_guard.guarded_n_jobs#2",
+      "label": "spacr.openmp_guard.guarded_n_jobs#3",
       "source_sha256": "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
       "source": "The clamp is a per-thread ICV, so a joblib worker thread starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 threads parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling thread keeps the clamp meaningful.",
       "context": "The clamp is a per-independent execution path ICV, so a joblib background execution unit starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 independent execution paths parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling independent execution path keeps the clamp meaningful.",

@@ -31,7 +31,7 @@
     },
     {
       "context": "Same argv, same exit-code contract as :func:`subprocess_runner` — it calls :func:`spacr.cli.main` directly — but with none of the isolation: a segfault here takes the work list with it. Use it only where spawning is not possible (a frozen single-file build), and never from the GUI.",
-      "label": "spacr.batch.inprocess_runner#1",
+      "label": "spacr.batch.inprocess_runner#4",
       "source": "Same argv, same exit-code contract as :func:`subprocess_runner` — it calls :func:`spacr.cli.main` directly — but with none of the isolation: a segfault here takes the queue with it. Use it only where spawning is not possible (a frozen single-file build), and never from the GUI.",
       "source_sha256": "f395a89baa2049f8c45cbe6afdfcb83d25ecbe929902aed019181cef3137e133",
       "translation": "其 argv 和退出码约定与 :func:`subprocess_runner` 相同——它会直接调用 :func:`spacr.cli.main`——但完全没有进程隔离：这里发生段错误会连同整个工作列表一起崩溃。仅应在无法创建子进程时使用它（例如冻结的单文件构建），并且绝不能从 GUI 调用。"

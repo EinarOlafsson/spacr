@@ -10,7 +10,7 @@
     },
     {
       "context": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",
-      "label": "spacr.train_compare.is_env_key#1",
+      "label": "spacr.train_compare.is_env_key#2",
       "source": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",
       "source_sha256": "fd15311ccf6b61d16e861e556890c5c18fb47cb5605adc14a74c452b55629e16",
       "translation": "Merkjatexta-vísar, ekki undirteki: ``start_time`` passar, ``update_freq`` passar ekki. ``src`` passar með ásetningi **ekki** — keyrsla á öðru gagnasafni er raunveruleg munur og á heima í ``changed``, jafnvel þó það sé slóði."

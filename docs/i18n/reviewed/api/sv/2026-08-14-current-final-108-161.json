@@ -157,7 +157,7 @@
       "translation": "maskinläsbar, till exempel ``\"version-changed\"``."
     },
     {
-      "label": "spacr.run_journal.resolve_run_dir#4",
+      "label": "spacr.run_journal.resolve_run_dir#5",
       "source_sha256": "2d39e610cd7bf806ca4a626fce4a316e09945f6c7ccf8c16485f49e2e7cfc588",
       "source": "a run-id — the folder basename, e.g. ``\"2026-07-23_214737_b66bae6b__mask\"`` — resolved under :func:`runs_root`,",
       "context": "a processing-session id — the folder basename, e.g. ``\"2026-07-23_214737_b66bae6b__mask\"`` — resolved under :func:`runs_root`,",
