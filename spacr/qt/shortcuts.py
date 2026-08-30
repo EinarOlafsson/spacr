@@ -10,8 +10,6 @@ the whole app is usable without a mouse:
     F1  / ?       Show the shortcuts cheat sheet
     Ctrl+,        Open Preferences
     Ctrl+/        Open the AI Console
-    Ctrl+Shift+A  Open the full app list
-    Ctrl+B        Blank the animated background
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
     Esc           Close any open dialog / popup
@@ -87,14 +85,14 @@ SHORTCUTS: List[ShortcutSpec] = [
                  "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
-    # BOUND ON WINDOW ACTIONS: the window carries them, so they belong on the
-    # map even though `install()` is not the code that creates them.
-    ShortcutSpec("Ctrl+B",       "Blank the background",   "Appearance"),
-    ShortcutSpec("Ctrl+T",       "Pause or resume the animated background",
-                 "Appearance"),
-    ShortcutSpec("Ctrl+R",       "Restart the background", "Appearance"),
-    ShortcutSpec("Ctrl+Shift+F", "Show only the background full screen",
-                 "Appearance"),
+    ShortcutSpec("Ctrl+T",       "Pause or resume the background",
+                 "Background"),
+    ShortcutSpec("Ctrl+R",       "Restart the background", "Background"),
+    ShortcutSpec("Ctrl+Shift+F", "Show the background full screen",
+                 "Background"),
+    ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
+    # BOUND ON WINDOW ACTIONS: the window carries these, so they
+    # belongs on the map, and `install()` is not the one that creates it.
     ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
     ShortcutSpec("?",            "Show this cheat sheet",  "Help")
@@ -152,6 +150,7 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Make Masks",
                  "the Make Masks screen"),
+
     ShortcutSpec("Q",            "Quarantine or restore this field",
                  "Field browser",
                  "the QC field browser"),
@@ -160,7 +159,7 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 
 #: Window-wide keys that something OTHER than `install()` binds. They are
 #: attached to window actions, so they belong on the map and not in
-#: ``install()``'s count. Per-screen keys live in :data:`SCREEN_SHORTCUTS`.
+#: ``install()``'s count.
 BOUND_ELSEWHERE = frozenset({
     "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
 })
@@ -428,7 +427,7 @@ def _toggle_ai(window: QMainWindow) -> None:
                 not current._ai_switch.isChecked()
             )
     except Exception:
-        LOG.debug("could not toggle the AI switch", exc_info=True)
+        pass
 
 
 def _consoles(window) -> list:
