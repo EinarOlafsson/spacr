@@ -1326,3 +1326,21 @@ is a deterministic drag handle independent of fonts and layout rounding.
 Measured with PySide6/Qt 6.11.2 under the offscreen CI setup: all 278 dialog
 resize, opening-size, scrolling, grip, movement, and lifecycle contracts pass
 in file order with coverage enabled.
+
+--------------------------------------------------------------------------------
+31. RENDERING A HOME VARIANT REPLACED THE HOST'S LIVE SPACR MODULES
+--------------------------------------------------------------------------------
+
+The Home review generator deliberately redirects ``here()`` to a temporary
+output directory in tests. ``repo_root()`` was derived from that overridable
+function, so the later bootstrap mistook ``/tmp`` for the checkout. Its
+checkout-preference guard then evicted every loaded ``spacr`` module and
+imported a second copy. Code holding the first ``preferences`` module wrote a
+setting which a hover callback read from the replacement module, making the
+same preference simultaneously true and false inside one process.
+
+``repo_root()`` now derives checkout identity only from ``common.py``'s own
+``__file__``. The render sandbox remains redirectable, while a regression test
+proves that it cannot redirect repository identity or replace a live
+preferences module. The exact failing order is green under PySide6 6.11.2 and
+branch coverage: all 114 Home-variant and tooltip-layout contracts pass.
