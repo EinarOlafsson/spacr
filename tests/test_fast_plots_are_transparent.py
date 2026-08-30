@@ -66,27 +66,58 @@ def test_the_widget_does_not_paint_its_own_background(plot):
 
 
 def test_closing_retires_the_plot_context_menus(qapp):
-    """A closed plot must not leave pyqtgraph's parentless menus behind."""
+    """A closed plot retires its menus and leaves an unrelated menu alone.
+
+    The wrappers themselves stay alive through the assertion.  Comparing
+    only ``id(wrapper)`` is not a valid QObject identity check: Shiboken may
+    release a Python wrapper before Qt handles its deferred delete and reuse
+    the address for any of the thousands of wrappers in a long Qt shard.
+    """
     from PySide6.QtCore import QCoreApplication, QEvent
     from PySide6.QtWidgets import QApplication, QMenu
+    from shiboken6 import isValid
 
     from spacr.qt.widgets.fast_plots import FastPlot
 
-    before = {id(widget) for widget in QApplication.topLevelWidgets()}
+    unrelated = QMenu("unrelated live menu")
+    before = list(QApplication.topLevelWidgets())
+    before_ids = {id(existing) for existing in before}
     widget = FastPlot(title="owned menus")
-    menus = {
-        id(menu)
+    menus = [
+        menu
         for menu in QApplication.topLevelWidgets()
-        if isinstance(menu, QMenu) and id(menu) not in before
-    }
+        if isinstance(menu, QMenu)
+        and id(menu) not in before_ids
+    ]
 
-    widget.close()
-    widget.deleteLater()
-    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    def belongs_to_plot(menu):
+        parent = menu
+        while parent is not None:
+            if parent is widget:
+                return True
+            parent = parent.parent()
+        return False
 
-    remaining = {id(widget) for widget in QApplication.allWidgets()}
-    assert len(menus) >= 2, "the real pyqtgraph menu tree was not built"
-    assert menus.isdisjoint(remaining)
+    try:
+        widget.close()
+        # QMenu submenus keep the Window flag, so QWidget.isAncestorOf() does
+        # not count them even though their QObject parent chain reaches the
+        # plot.
+        assert all(belongs_to_plot(menu) for menu in menus), (
+            "closing did not transfer every pyqtgraph menu into plot "
+            "ownership")
+        widget.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+        assert len(menus) >= 2, "the real pyqtgraph menu tree was not built"
+        assert all(not isValid(menu) for menu in menus)
+        assert isValid(unrelated), "cleanup reached outside the closing plot"
+    finally:
+        if isValid(widget):
+            widget.deleteLater()
+        if isValid(unrelated):
+            unrelated.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
 
 
 def test_restyle_re_inks_a_live_plot(plot):

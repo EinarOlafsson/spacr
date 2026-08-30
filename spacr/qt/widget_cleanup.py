@@ -43,18 +43,41 @@ def retire_pyqtgraph_menus(owner: Any) -> int:
     PlotItem = getattr(pyqtgraph, "PlotItem", ())
     ViewBox = getattr(pyqtgraph, "ViewBox", ())
 
-    menus = set()
+    # Keep the wrappers alive until every root has been detached from
+    # pyqtgraph and queued.  ``id(menu)`` by itself is not an ownership token:
+    # Shiboken may release a wrapper as soon as PlotItem/ViewBox drops its
+    # Python reference even though the C++ object is waiting for a deferred
+    # delete.  On a large Qt session the next wrapper can then reuse that id
+    # and be mistaken for a root already visited.
+    menus: dict[int, Any] = {}
+    # The same applies to C++-owned submenu/control wrappers discovered below.
+    owned_widgets: list[Any] = []
 
     def retire(menu) -> None:
         if menu is None or id(menu) in menus:
             return
-        menus.add(id(menu))
+        menus[id(menu)] = menu
         try:
+            # Repair the ownership hole before relying on the event loop.
+            # The closing plot now provides a final, synchronous destruction
+            # boundary if a platform defers (or coalesces) deleteLater events
+            # differently. Reparenting may clear the menu's window flag,
+            # which is harmless after close has begun. This is deliberately
+            # the supplied owner, never a QApplication-wide retirement bin.
+            if (isinstance(owner, QWidget)
+                    and menu.parentWidget() is None):
+                try:
+                    menu.setParent(owner)
+                except RuntimeError:
+                    # Deletion is still queued below if a binding rejects the
+                    # ownership transfer during its own close notification.
+                    pass
             # ViewBoxMenu embeds spin boxes and combo-box popup views that Qt
             # promotes to top-level windows. Delete the whole QObject-owned
             # widget tree before deleting the menu root, not just submenus,
             # or those controls are reparented to ``None`` and survive it.
             for child in reversed(menu.findChildren(QWidget)):
+                owned_widgets.append(child)
                 child.close()
                 child.deleteLater()
             # pyqtgraph's generated ``Ui_Form`` control holders are ordinary
@@ -65,7 +88,14 @@ def retire_pyqtgraph_menus(owner: Any) -> int:
                 for value in vars(controls).values():
                     if not isinstance(value, QWidget):
                         continue
+                    owned_widgets.append(value)
+                    if value.parentWidget() is None:
+                        try:
+                            value.setParent(menu)
+                        except RuntimeError:
+                            pass
                     for child in reversed(value.findChildren(QWidget)):
+                        owned_widgets.append(child)
                         child.close()
                         child.deleteLater()
                     value.close()
