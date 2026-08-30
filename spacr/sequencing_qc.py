@@ -699,7 +699,7 @@ def collision_summary(references: Mapping[str, Any],
             at_risk = set(subset["name_a"]).union(subset["name_b"])
         n = len(table)
         reads_at_risk = None
-        if counts is not None and n:
+        if counts is not None and n and label == "grna":
             total = float(counts["count"].sum())
             if total > 0:
                 hit = counts[counts["grna"].astype(str).isin(at_risk)]

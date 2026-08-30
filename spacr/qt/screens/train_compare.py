@@ -449,12 +449,17 @@ class TrainCompareScreen(QWidget):
         return self._run_job(_job, self._apply_runs)
 
     def _apply_runs(self, runs: Any) -> None:
-        self._runs = list(runs or [])
+        next_runs = list(runs or [])
+        # Clear the old tree's curves before any visible state starts naming
+        # the new tree. If Qt rejects the redraw because its canvas has been
+        # deleted, no new run state has been installed and no old curve
+        # mapping survives behind it.
+        self._clear_plot()
+        self._runs = next_runs
         self._comparison = None
         self._fill_runs_list()
         self._fill_problems()
         self._clear_diff()
-        self._clear_plot()
         n = len(self._runs)
         if n == 0:
             self._set_status(
@@ -649,8 +654,8 @@ class TrainCompareScreen(QWidget):
         # first redraw paints the opaque rectangle straight back.
         self._figure.patch.set_alpha(0.0)
         self._figure.spacr_series_by_label = {}
-        self._canvas.draw_idle()
         self._picked.setText("")
+        self._canvas.draw_idle()
 
     def _draw(self) -> None:
         """Redraw the curves for the current metric into the shared figure."""
