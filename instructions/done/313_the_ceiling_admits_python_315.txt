@@ -118,5 +118,9 @@ COMPLETION EVIDENCE (2026-08-30)
     classifier landed together.
   * ``compat-matrix.yml`` includes 3.15 and marks only that forward cell
     continue-on-error until PySide6 catches up.
-  * ``tests/test_packaging_metadata.py``: 37 passed.
+  * The 3.15 setup uses setup-python's ``allow-prereleases`` fallback with
+    the ordinary ``3.15`` selector. This provisions the newest prerelease
+    before GA exists and automatically selects the stable line once it does;
+    Python 3.9-3.14 do not opt into prereleases.
+  * ``tests/test_packaging_metadata.py``: 39 passed.
   * Fatal Ruff selection and ``git diff --check`` passed.
