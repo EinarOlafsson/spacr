@@ -275,20 +275,26 @@ jobs:
     name: ${{ matrix.python-version }} installs, from wheels only
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # spaCR deliberately admits the next interpreter before Qt does. PySide6
+    # 6.11.2 declares <3.15, so this cell is expected to fail at the dependency
+    # resolve until a compatible Qt release appears; its weekly run tells us
+    # when that blocker has moved.
+    continue-on-error: ${{ matrix.python-version == '3.15' }}
     strategy:
       fail-fast: false
       matrix:
         # THE WHOLE CLAIMED RANGE, not just the top of it. pyproject says
-        # requires-python = ">=3.9,<3.15", and this job is the cheap check
-        # that the claim is true -- it only asks whether pip accepts spacr
-        # and resolves to wheels, so covering six interpreters costs little.
+        # requires-python = ">=3.9,<3.16", and this job is the cheap check
+        # that the claim is true -- it asks whether pip accepts spacr and
+        # resolves to wheels. The 3.15 forward cell is informational until
+        # PySide6 admits that interpreter; the other six remain blocking.
         #
         # It was ["3.13", "3.14"], which verified the two newest and left
         # 3.9 through 3.12 asserted by the metadata and tested by nothing.
         # A claimed floor nobody exercises is the same defect as the
         # cellpose one: pip resolves it happily and the failure lands on a
         # user instead of on CI.
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
 
     steps:
       - uses: actions/checkout@v7

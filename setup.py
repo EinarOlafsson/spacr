@@ -414,11 +414,13 @@ dependencies = [
     # always worked out of the box and the Qt one, which is the primary GUI,
     # did not.
     #
-    # SAFE ACROSS THE WHOLE SUPPORT MATRIX, checked rather than assumed --
-    # `requires-python` is >=3.9,<3.15 and a core dependency with no wheel is
+    # SAFE ACROSS THE BLOCKING SUPPORT MATRIX, checked rather than assumed --
+    # `requires-python` is >=3.9,<3.16, with 3.15 deliberately forward-
+    # declared in an experimental CI cell. A core dependency with no wheel is
     # an install failure, not a missing feature:
-    #   PySide6   6.11.1 declares <3.15,>=3.10; 6.6/6.7 cover 3.9. The
-    #             `>=6.6,<7` range therefore resolves on every interpreter.
+    #   PySide6   6.11.2 declares <3.15,>=3.10; 6.6/6.7 cover 3.9. The
+    #             `>=6.6,<7` range resolves on 3.9-3.14. The 3.15 CI cell is
+    #             expected to fail until PySide6 raises its ceiling.
     #   pyqtgraph 0.14 declares >=3.10; 0.13.3 covers 3.9 and is the first
     #             release whose LabelItem base-class order works with
     #             PySide6 6.6. Same reasoning.
