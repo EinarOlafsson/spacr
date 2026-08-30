@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using these metadata."
 title: "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens"
-abstract: "An open-source Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression."
+abstract: "A source-available Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression."
 type: software
 authors:
   - family-names: "Olafsson"
@@ -27,7 +27,7 @@ authors:
     given-names: "Matthew J."
 version: "1.5.0.4"
 date-released: "2026-08-10"
-license: MIT
+license: PolyForm-Noncommercial-1.0.0
 repository-code: "https://github.com/EinarOlafsson/spacr"
 url: "https://einarolafsson.github.io/spacr/"
 keywords:

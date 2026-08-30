@@ -1,8 +1,8 @@
 {
   "title": "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens",
-  "description": "<p>An open-source Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression.</p>",
+  "description": "<p>A source-available Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression.</p>",
   "upload_type": "software",
-  "license": "MIT",
+  "license": "polyform-noncommercial-1.0.0",
   "access_right": "open",
   "creators": [
     {
