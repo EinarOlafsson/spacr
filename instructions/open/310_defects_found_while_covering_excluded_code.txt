@@ -180,7 +180,7 @@ installed, so the test makes coverage and performance measurement mutually
 exclusive. Either raise the budget under coverage, mark it to skip when a
 tracer is active, or measure it outside the coverage job.
 
-FIXED in ``e8de72ce``. The 30 ms assertion remains unchanged and passes in an
+FIXED in ``1707fdab``. The 30 ms assertion remains unchanged and passes in an
 uninstrumented process; only that wall-clock node skips when ``sys.gettrace()``
 reports active instrumentation. A focused ``pytest --cov`` replay confirms the
 node is skipped rather than comparing traced time to the production budget.
@@ -266,7 +266,7 @@ uncommented.
     case-sensitive directories created by released installers, not prose.
     The gate now exempts only those literal legacy identifiers; an ordinary
     mis-cased project name on the same line still fails. That gate caught a
-    later ``SPACR`` in the recovered resource-accounting module; ``e9b43e04``
+    later ``SPACR`` in the recovered resource-accounting module; ``193a43db``
     corrected it to ``spaCR`` and the naming/resource cohort passed 68/68.
   * [ACCEPTED] spacr/fit_resources.py ``readable`` and spacr/mixed_gpu.py
     ``_readable``
@@ -664,7 +664,7 @@ an assertion that the import itself fails. Those tests must be UPDATED when the
 check is given a real source, not deleted -- they are the record that makes the
 change a fix rather than a regression.
 
-FIXED in ``ec4bee23``. The click-time checker now asks TorchVision's own
+FIXED in ``3972514a``. The click-time checker now asks TorchVision's own
 ``list_models`` registry and falls back to the lightweight curated settings
 inventory when TorchVision is absent or its registry raises. A misspelling such
 as ``maxvit_tt`` is refused before training, while ``maxvit_t`` and
@@ -698,7 +698,7 @@ tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py, which says
 in its docstring that it is pinned and not endorsed. A fix would carry ``role``
 into the fall-through; that belongs to whoever owns the feature dictionary.
 
-FIXED in ``9908e848``. The longest-prefix loop now retains the role it matched
+FIXED in ``7eb8f2f8``. The longest-prefix loop now retains the role it matched
 and gives that role to the unknown-feature fallback. The regression walks all
 four organelle roles, so a future fifth role added to the tuple must retain its
 identity too. The non-Qt feature dictionary cohort passed 331/331; the two Qt

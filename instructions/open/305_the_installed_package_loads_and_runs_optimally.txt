@@ -236,7 +236,7 @@ fresh-process lazy-import tests passed in the isolated implementation lane.
 The four most overlap-sensitive suites were then repeated after integration:
 87/87 passed.  The deterministic CUDA test presents two exact allocator-device
 seams; it verifies the policy without requiring the offscreen test process to
-allocate physical GPU memory.  Implementation commit: ``9afbe136``.
+allocate physical GPU memory.  Implementation commit: ``ee33bf15``.
 
 Item 4 is closed.  This instruction remains OPEN for the installed-artifact
 matrix, final post-paint all-module traces and the operation-boundary/profile
@@ -247,7 +247,7 @@ evidence in items 1–3 and 5–6.
 --------------------------------------------------------------------------------
 
 A wheel and sdist were built from implementation commit ``3adc8160`` (the
-same product change integrated as ``86cfb9a8``), with no release, tag or
+same product change integrated as ``f58aadbf``), with no release, tag or
 version change.  The build took 11.73 seconds and 52,268 KB peak RSS, and
 ``twine check`` passed both artifacts:
 
