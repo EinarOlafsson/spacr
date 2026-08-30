@@ -1427,7 +1427,6 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # context and compiles cleanly, so this is a property of the
             # platform plugin rather than of the machine or its driver.
             try:
-                self.set_current()
                 self._program.draw("triangle_strip")
             except Exception as error:                       # noqa: BLE001
                 raise GpuBackendError(
