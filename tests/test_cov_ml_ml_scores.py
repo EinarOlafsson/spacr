@@ -329,12 +329,14 @@ def test_classify_flowview_matches_run_journal_and_database(
         assert f"metrics={encoded_metrics}" in log_text
 
 
-def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rng):
-    """One annotated class + NaNs: the missing half is sampled from the
-    unannotated rows, and the controls are derived from the annotation.
+def test_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
+        tmp_path, rng):
+    """One real class plus unknowns is not a two-class training set.
 
-    The DB deliberately lacks the weighted-centroid columns, so the
-    pathogen<->nucleus shortest-distance step fails and is swallowed.
+    The former fallback sampled unannotated objects and assigned them a made-
+    up second label. That fabricated ground truth and made the model's metrics
+    meaningless. Unknown objects are for scoring after two real classes have
+    been annotated, not a source of synthetic controls.
     """
     from spacr.ml import generate_ml_scores
 
@@ -343,29 +345,33 @@ def test_generate_ml_scores_annotation_column_balances_single_class(tmp_path, rn
     src = _make_src(tmp_path, "plate_annot1", rng, annotation=annotation,
                     with_centroids=False)
     settings = _ml_settings(src, annotation_column="test")
-    output, _ = generate_ml_scores(settings)
+    with pytest.raises(ValueError) as excinfo:
+        generate_ml_scores(settings)
 
-    # THE ANNOTATION COLUMN DRIVES THE RUN WITHOUT REWRITING THE SETTINGS.
-    #
-    # This used to assert `settings["location_column"] == "test"` -- i.e. it
-    # pinned the mutation AS the contract. That mutation is issues #91-#93:
-    # `location_column` is a user-facing setting, shown in the panel and
-    # saved with the project, and overwriting it left a user who tried
-    # annotation mode once unable to return to metadata mode by changing the
-    # mode. The column the run trains on is derived into a local now, so the
-    # caller's setting comes back exactly as they wrote it.
-    assert settings["location_column"] == "columnID", (
-        "the caller's location_column was overwritten again")
-    assert settings["positive_control"] == "1.0"
-    assert settings["negative_control"] == "2.0"
-    counts = output[0]["test"].value_counts().to_dict()
-    assert counts["1.0"] == 12          # originally annotated
-    assert counts["2.0"] == 12          # sampled from the unannotated rows
-    assert counts["nan"] == N_OBJ - 24  # untouched
-    # both classes were actually used for training
-    assert set(output[0]["data_usage"].unique()) == {"train", "test", "not_used"}
-    # the shortest-distance feature could not be computed (no centroids)
-    assert "pathogen_nucleus_shortest_distance" not in output[0].columns
+    message = str(excinfo.value)
+    assert "only one observed class" in message
+    assert "12 labelled object rows" in message
+    assert "Annotate objects in a second class" in message
+    assert "will not assign them a training label" in message
+    assert settings["location_column"] == "columnID"
+    assert settings["positive_control"] == "c2"
+    assert settings["negative_control"] == "c1"
+
+
+def test_generate_ml_scores_names_an_annotation_column_with_no_labels(
+        tmp_path, rng):
+    """An empty label column fails before control matching or sklearn."""
+    from spacr.ml import generate_ml_scores
+
+    src = _make_src(
+        tmp_path, "plate_annot_empty", rng, annotation=[None] * N_OBJ)
+    with pytest.raises(ValueError) as excinfo:
+        generate_ml_scores(_ml_settings(src, annotation_column="test"))
+
+    message = str(excinfo.value)
+    assert "annotation_column='test'" in message
+    assert f"0 non-empty labels across {N_OBJ} joined object rows" in message
+    assert "n_samples=0" not in message
 
 
 def test_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng):

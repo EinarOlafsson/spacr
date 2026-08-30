@@ -9735,8 +9735,9 @@ def generate_ml_scores(settings):
         figure. The CSVs and figures are written to ``results/`` as a
         side effect; their paths are not returned.
     :raises ValueError: if ``annotation_column`` is set but the
-        ``png_list`` table lacks ``prcfo`` / that column, or if
-        ``heatmap_feature`` is not among the trained features.
+        ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
+        not join to the measurements, it contains fewer than two observed
+        classes, or if ``heatmap_feature`` is not among the trained features.
 
     Example:
         .. code-block:: python
@@ -9850,35 +9851,47 @@ def generate_ml_scores(settings):
         # plate id and the same object identity now describes two different
         # objects. That has to stop here rather than double every measurement
         # row and quietly double the training set.
+        measurement_rows = len(df)
+        annotation_rows = len(annotated_df)
         df = annotated_df.merge(df, left_index=True, right_index=True,
                                 validate='many_to_one')
+        if df.empty:
+            raise ValueError(
+                f"annotation_column={settings['annotation_column']!r} joined "
+                f"to 0 measured objects by 'prcfo' ({annotation_rows} "
+                f"annotation rows; {measurement_rows} measurement rows), so "
+                f"there is no training data. Verify that png_list and the "
+                f"measurement tables come from the same source and use the "
+                f"same object identities.")
         unique_values = df[settings['annotation_column']].dropna().unique()
         print(f"Unique values in annotation column: {unique_values}")
-        
-        if len(unique_values) == 1:
-            unannotated_rows = df[df[settings['annotation_column']].isna()].index
-            existing_value = unique_values[0]
-            next_value = existing_value + 1 
 
-            settings['positive_control'] = str(existing_value)
-            settings['negative_control'] = str(next_value)
-
-            existing_count = df[df[settings['annotation_column']] == existing_value].shape[0]
-            num_to_select = min(existing_count, len(unannotated_rows))
-            selected_rows = np.random.choice(unannotated_rows, size=num_to_select, replace=False)
-            df.loc[selected_rows, settings['annotation_column']] = next_value
-
-            # Print the counts for existing_value and next_value
-            existing_count_final = df[df[settings['annotation_column']] == existing_value].shape[0]
-            next_count_final = df[df[settings['annotation_column']] == next_value].shape[0]
-
-            print(f"Number of rows with value {existing_value}: {existing_count_final}")
-            print(f"Number of rows with value {next_value}: {next_count_final}")
-            df[settings['annotation_column']] = df[settings['annotation_column']].apply(str)
+        # A BINARY CLASSIFIER NEEDS TWO OBSERVED CLASSES. The former one-class
+        # fallback randomly labelled unannotated objects as a made-up second
+        # class. That made the split run, but it changed unknown samples into
+        # ground truth and made every downstream metric scientifically false.
+        # Unannotated rows remain available for scoring after a real two-class
+        # model is trained; they are never promoted into training examples.
+        if len(unique_values) < 2:
+            labelled_rows = int(
+                df[settings['annotation_column']].notna().sum())
+            if not len(unique_values):
+                state = (f"has 0 non-empty labels across {len(df)} joined "
+                         f"object rows")
+            else:
+                state = (f"has only one observed class across "
+                         f"{labelled_rows} labelled object rows")
+            raise ValueError(
+                f"annotation_column={settings['annotation_column']!r} "
+                f"{state}; binary ML training requires two real annotated "
+                f"classes. Annotate objects in a second class, or choose the "
+                f"annotation column that already contains both classes. "
+                f"Unannotated objects will be scored after training; spaCR "
+                f"will not assign them a training label.")
             
         if settings['positive_control'] is None and settings['negative_control'] is None:
             settings['positive_control'] = str(unique_values[0])
-            settings['negative_control'] = str(unique_values[1]) if len(unique_values) > 1 else str(int(unique_values[0]) + 1)
+            settings['negative_control'] = str(unique_values[1])
             print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
     _flowview_advance("dataset")
@@ -10271,6 +10284,13 @@ def ml_analysis(
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
+    if df.empty:
+        raise ValueError(
+            "the measurement table contains 0 object rows, so there is "
+            "nothing to train or score. Verify that the selected source has "
+            "completed measurement tables containing objects before running "
+            "Classify (ML).")
+
     correction_metadata = df.copy()
     # THE POISONED-SETTINGS SIGNATURE, NAMED RATHER THAN RAISED THROUGH.
     # `df[[name]]` on a missing column raises a pandas KeyError from three
@@ -10297,6 +10317,16 @@ def ml_analysis(
             f"so a later metadata run looked for an annotation column in the "
             f"measurement table. Set location_column back to your well "
             f"column ('columnID' or 'rowID').")
+
+    control_column = df[location_column]
+    if (isinstance(control_column, pd.Series)
+            and not control_column.notna().any()):
+        raise ValueError(
+            f"location_column={location_column!r} has 0 non-empty values "
+            f"across {len(df)} object rows, so no training class can be "
+            f"selected. Populate two real class labels in that column, or "
+            f"set location_column to the metadata column that identifies "
+            f"the positive and negative controls.")
 
     df_metadata = df[[location_column]].copy()
 

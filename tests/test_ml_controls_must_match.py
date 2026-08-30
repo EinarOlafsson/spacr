@@ -16,6 +16,11 @@ The defaults are `location_column='columnID'`, `positive_control='c2'`,
 `negative_control='c1'`. A plate whose columns are named '1' and '2', or
 whose controls live in a different column, matches nothing.
 
+The same released split failure resurfaced as issue #114 (fingerprint 328c8c).
+An entirely empty measurement frame and a populated frame whose control
+column contains no labels are separate diagnoses: neither should be described
+as a typo in the control values.
+
 There is a `verbose` branch that prints "samples: 0", but verbose is False on
 every shipped path.
 """
@@ -121,3 +126,29 @@ def test_a_duplicated_location_column_gets_its_own_diagnosis():
     assert "2 columns named 'columnID'" in message
     assert "positive_control" not in message, (
         "this sends the user to a setting that cannot fix it")
+
+
+def test_an_empty_measurement_table_is_named_before_feature_filtering():
+    frame = pd.DataFrame(columns=["columnID", "feat_a", "feat_b"])
+
+    with pytest.raises(ValueError) as excinfo:
+        ml_analysis(frame, verbose=False)
+
+    message = str(excinfo.value)
+    assert "measurement table contains 0 object rows" in message
+    assert "selected source" in message
+    assert "positive_control" not in message
+    assert "n_samples=0" not in message
+
+
+def test_a_control_column_with_no_labels_is_not_called_a_control_typo():
+    frame = plate([None, None])
+
+    with pytest.raises(ValueError) as excinfo:
+        ml_analysis(frame, verbose=False)
+
+    message = str(excinfo.value)
+    assert "location_column='columnID' has 0 non-empty values" in message
+    assert "two real class labels" in message
+    assert "positive_control" not in message
+    assert "n_samples=0" not in message
