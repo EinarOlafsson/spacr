@@ -55,19 +55,13 @@ def _record(name: str, level: int, message: str = "m") -> logging.LogRecord:
     return logging.LogRecord(name, level, __file__, 1, message, (), None)
 
 
-def test_a_logger_that_already_carries_the_file_handler_is_not_given_it_twice(
+def test_a_descendant_record_reaches_the_file_handler_exactly_once(
         vlog, tmp_path, monkeypatch):
     """The log file a user attaches to a bug report must read once per event.
 
-    ``_ensure_file_handler`` walks seven loggers and attaches the same
-    handler object to each. ``logging`` does not de-duplicate: a logger that
-    is handed the handler a second time emits every record through it twice,
-    so the trail we ask users for would show each line doubled and any
-    "how many times did this happen" reading off it would be wrong. The
-    guard that prevents that is the ``handler not in logger.handlers`` check,
-    and the level line after it must still run for the logger that was
-    skipped -- otherwise a logger left at NOTSET would drop the INFO records
-    the file exists to keep.
+    Python logging invokes a handler once at the emitting logger and again at
+    every ancestor carrying the same object. The sink therefore belongs only
+    on ``spacr``; descendants propagate to it and must not carry another copy.
     """
     from logging.handlers import RotatingFileHandler
 
@@ -84,17 +78,29 @@ def test_a_logger_that_already_carries_the_file_handler_is_not_given_it_twice(
     handler = vlog._ensure_file_handler()
 
     assert handler is already
-    for name in vlog._ATTACHED_LOGGERS:
-        assert logging.getLogger(name).handlers.count(already) == 1
+    assert logging.getLogger("spacr").handlers.count(already) == 1
+    for name in vlog._ATTACHED_LOGGERS[1:]:
+        assert already not in logging.getLogger(name).handlers
     # The skipped logger still went through the level line below the guard.
     assert spacr_logger.level == logging.INFO
 
-    spacr_logger.info("one event, one line")
+    logging.getLogger("spacr.qt.hf_download").info("one event, one line")
     already.flush()
     assert log_path.read_text().count("one event, one line") == 1
 
     spacr_logger.removeHandler(already)
     already.close()
+
+
+def test_the_console_forwarder_is_attached_only_at_the_package_root(vlog):
+    """A descendant console record must follow the same one-sink topology."""
+    vlog._handler = None
+
+    handler = vlog._ensure_handler()
+
+    assert logging.getLogger("spacr").handlers.count(handler) == 1
+    for name in vlog._ATTACHED_LOGGERS[1:]:
+        assert handler not in logging.getLogger(name).handlers
 
 
 def test_a_foreign_console_filter_survives_being_re_gated(vlog):
