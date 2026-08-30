@@ -16,6 +16,7 @@ import pandas as pd
 import pytest
 
 from spacr.control_names import (COMMON_PREFIX_SHARE, GENE, GUIDE,
+                                 ControlNotFound,
                                  ControlSpec, common_prefix, matches,
                                  resolve_control, resolve_controls, rows_for)
 
@@ -417,3 +418,19 @@ class TestTheDataHasAlreadyDroppedThePrefix:
         mask, _note = rows_for("TGGT1_000000", pd.Series(held))
 
         assert int(mask.sum()) == 1
+
+    def test_a_name_that_is_nothing_but_a_trailing_separator_matches_nothing(
+            self):
+        """A spreadsheet-paste residue matches no rows without raising."""
+        held = ["TGGT1_233460_1", "TGGT1_233460_2"]
+
+        mask, _note = rows_for("sgCtrl_   ", pd.Series(held))
+
+        assert int(mask.sum()) == 0
+
+    def test_the_same_name_still_raises_under_strict(self):
+        """Strict mode must still report a control that resolves to no rows."""
+        held = ["TGGT1_233460_1"]
+
+        with pytest.raises(ControlNotFound):
+            rows_for("sgCtrl_   ", pd.Series(held), strict=True)
