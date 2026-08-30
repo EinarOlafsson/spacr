@@ -14,12 +14,12 @@ if str(TOOLS) not in sys.path:
 import audit_i18n_coverage as coverage  # noqa: E402
 
 REVIEWED_RUNTIME_COUNTS = {
-    "sv": 110, "de": 80, "es": 87, "zh_CN": 234, "pt": 91,
-    "hi": 99, "ko": 215, "is": 105, "fr": 88,
+    "sv": 111, "de": 81, "es": 88, "zh_CN": 235, "pt": 92,
+    "hi": 100, "ko": 218, "is": 106, "fr": 89,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 181, "de": 126, "es": 27, "zh_CN": 152, "pt": 130,
-    "hi": 83, "ko": 114, "is": 592, "fr": 115,
+    "sv": 181, "de": 126, "es": 27, "zh_CN": 152, "pt": 131,
+    "hi": 86, "ko": 116, "is": 598, "fr": 117,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
