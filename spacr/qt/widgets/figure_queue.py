@@ -109,7 +109,7 @@ def set_figure_text_size_override(fig, size: int) -> None:
     """
     try:
         setattr(fig, FIGURE_TEXT_SIZE_ATTR, max(0, int(size or 0)))
-    except (AttributeError, TypeError, ValueError):     # pragma: no cover
+    except (AttributeError, TypeError, ValueError):
         LOG.debug("could not remember a per-figure text size", exc_info=True)
 
 
@@ -1299,7 +1299,7 @@ class FigureQueue(QWidget):
         try:
             return str(getattr(figure, "_spacr_title", "")
                        or (figure.get_label() or ""))
-        except Exception:               # pragma: no cover - not a Figure
+        except Exception:
             return ""
 
     def figure_titles(self):
@@ -1362,6 +1362,18 @@ class FigureQueue(QWidget):
         # below. Tear it down first so neither those callbacks nor a queued
         # matplotlib idle draw can outlive the objects they refer to.
         self._show_raster()
+        if self._figures:
+            try:
+                import matplotlib.pyplot as plt
+                for figure in tuple(self._figures.values()):
+                    try:
+                        plt.close(figure)
+                    except Exception:                         # noqa: BLE001
+                        LOG.debug("could not close a queued figure",
+                                  exc_info=True)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not import pyplot to close queued figures",
+                          exc_info=True)
         self._list.clear()
         self._ram.clear()
         self._ram_last_used.clear()
@@ -1534,7 +1546,7 @@ class FigureQueue(QWidget):
         try:
             from matplotlib.backends.backend_qtagg import (
                 FigureCanvasQTAgg, NavigationToolbar2QT)
-        except Exception as error:  # pragma: no cover - no Qt backend
+        except Exception as error:
             LOG.debug("no Qt matplotlib backend, staying on the raster: %s",
                       error)
             return False
@@ -1699,7 +1711,7 @@ class FigureQueue(QWidget):
             # A sane floor for a view that has not been laid out yet, and a
             # ceiling so a maximised 4K window does not ask for a 6000 px draw.
             return float(min(max(longest, 600.0), 2400.0))
-        except Exception:  # pragma: no cover - headless
+        except Exception:
             return float(self.PREVIEW_MAX_PX)
 
     def _render_preview_async(self, fig) -> bool:
@@ -1929,7 +1941,7 @@ class FigureQueue(QWidget):
             from ..preferences import live_figure_allowance
 
             return int(live_figure_allowance())
-        except Exception:  # pragma: no cover - headless / no QSettings
+        except Exception:
             return 20
 
     def dynamic_figures_enabled(self) -> bool:
@@ -1937,7 +1949,7 @@ class FigureQueue(QWidget):
         try:
             from ..preferences import get_figure_dynamic
             return bool(get_figure_dynamic())
-        except Exception:  # pragma: no cover
+        except Exception:
             return True
 
     def live_figure_count(self) -> int:
@@ -2044,7 +2056,7 @@ class FigureQueue(QWidget):
 
             with FIGURE_LOCK:
                 plt.close(figure)
-        except Exception:  # pragma: no cover - defensive
+        except Exception:
             pass
         return True
 
