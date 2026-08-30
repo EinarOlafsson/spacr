@@ -351,6 +351,18 @@ def test_the_terms_gate_is_drawn_and_the_slide_refuses_to_be_left(slides):
     assert slides._refuse_to_leave_the_terms() == terms_index
 
 
+def test_a_pending_terms_signal_forgives_a_deleted_switch(slides):
+    """A queued scroll signal can arrive while Qt deletes the terms page.
+
+    The Python wrapper remains truthy after its C++ Toggle is gone, so the
+    redraw must validate each child before touching it.
+    """
+    from shiboken6 import delete
+
+    delete(slides._agree)
+    slides._draw_the_terms_gate(True)
+
+
 # ------------------------------------------------------------ the backdrop
 
 

@@ -298,6 +298,17 @@ def _say(text: str, **values) -> str:
         return text.format(**values) if values else text
 
 
+def _still_a_widget(widget: object | None) -> bool:
+    """Whether a Python Qt wrapper still owns its C++ object."""
+    if widget is None:
+        return False
+    try:
+        from shiboken6 import isValid
+    except Exception:                                        # noqa: BLE001
+        return True
+    return bool(isValid(widget))
+
+
 def _let_go_of(process) -> None:
     """Detach a still-running `gh` from a dialog that is being destroyed.
 
@@ -703,15 +714,11 @@ class SetupSlides(QDialog):
         keeps its Python wrapper, so ``is not None`` says yes right up
         until the attribute access raises.
         """
-        try:
-            from shiboken6 import isValid
-        except Exception:                                    # noqa: BLE001
-            return True
         for name in ("_gh_status", "_gh_mark"):
             widget = getattr(self, name, None)
-            if widget is not None and not isValid(widget):
+            if widget is not None and not _still_a_widget(widget):
                 return False
-        return isValid(self)
+        return _still_a_widget(self)
 
     #: What each token source is called on screen.
     GITHUB_SOURCES = {
@@ -1098,16 +1105,16 @@ class SetupSlides(QDialog):
     def _draw_the_terms_gate(self, read: bool) -> None:
         """Put the gate's one state on both halves of the page."""
         box = getattr(self, "_agree", None)
-        if box is not None:
+        if _still_a_widget(box):
             box.setEnabled(bool(read))
         body = getattr(self, "_terms_body", None)
-        if body is not None:
+        if _still_a_widget(body):
             # THE TEXT IS GREYED TOO, not only the switch. A live-looking
             # document over a dead control reads as a broken control; one
             # greyed page reads as a page waiting for something.
             body.setStyleSheet("" if read else f"color: {self._dim_ink()};")
         hint = getattr(self, "_scroll_hint", None)
-        if hint is not None:
+        if _still_a_widget(hint):
             hint.setVisible(not read)
 
     @staticmethod
