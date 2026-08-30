@@ -468,6 +468,10 @@ def cover_box(src_w: int, src_h: int, out_w: int, out_h: int,
     stylesheet — which centres the image without repeating it — can
     never end up letterboxing it into bands of flat colour.
 
+    :param src_w: width of the source image in pixels.
+    :param src_h: height of the source image in pixels.
+    :param out_w: width of the target area in pixels.
+    :param out_h: height of the target area in pixels.
     :param focus: vertical centre of the crop as a fraction of the
         source height. Clamped so the box stays inside the frame.
     """

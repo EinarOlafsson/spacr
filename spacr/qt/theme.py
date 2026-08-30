@@ -526,6 +526,8 @@ def legible_scrim_floor(theme: str, role: str,
     thing the theme's wallpaper pipeline can put behind it. Below this
     number the panel stops being readable; it is a hard lower bound.
 
+    :param theme: name of the palette whose surface is being evaluated.
+    :param role: palette surface role on which the text is painted.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     :param under: what is actually behind the surface, when it is not
@@ -604,6 +606,8 @@ def solve_scrim_alpha(theme: str, role: str,
     legibility wins, and the shortfall is visible in
     :func:`scrim_report`.
 
+    :param theme: name of the palette whose surface is being solved.
+    :param role: palette surface role whose opacity is being chosen.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     """

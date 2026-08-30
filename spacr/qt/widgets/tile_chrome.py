@@ -65,9 +65,14 @@ def paint_tile(painter: QPainter, w: float, h: float, pixmap, *,
                current: bool = False) -> None:
     """Draw one tile: the clipped crop, its state ring, and the hover ring.
 
+    :param painter: active Qt painter for the tile widget.
+    :param w: tile width in painter coordinates.
+    :param h: tile height in painter coordinates.
     :param pixmap: the crop, or ``None`` for an empty slot -- which still
         gets its rings, because an empty tile the cursor is on has to look
         like the tile the cursor is on.
+    :param border_colour: colour of the persistent state border; an empty
+        string omits the border.
     :param current: whether the cursor (or the keyboard) is on this tile.
     """
     painter.setRenderHint(QPainter.Antialiasing, True)

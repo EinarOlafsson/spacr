@@ -152,6 +152,8 @@ class Section(QFrame):
     ) -> None:
         """Add a labeled row, optionally with an information-link icon.
 
+        :param label: text or widget shown on the row's label side.
+        :param widget: setting control shown on the row's field side.
         :param wrap_label: build the ``SettingLabelWithInfo`` host even with
             no info widget to put in it. The host is what right-aligns the
             label against its field; it used to arrive only as a side effect
@@ -189,6 +191,7 @@ class Section(QFrame):
     def add_prose(self, widget: QWidget, *, at_top: bool = False) -> None:
         """Add full-width content that is NOT a setting row.
 
+        :param widget: prose or other non-setting content to add.
         :param at_top: put it above the section's controls rather than below.
 
         THE DIFFERENCE FROM :meth:`add_widget` IS `_row_widgets`, and it is

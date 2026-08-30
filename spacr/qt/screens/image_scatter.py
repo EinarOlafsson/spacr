@@ -94,6 +94,8 @@ def load_scatter_frame(db_path: str, table: str,
     Deliberately a module-level function taking strings: it must never touch a
     widget, and the surest way to guarantee that is for it not to have one.
 
+    :param db_path: path to the SQLite measurements database.
+    :param table: measurement table to read from the database.
     :param limit: a hard row cap. A million-row table plotted at three pixels
         a point is a solid rectangle, so the cap costs no information and
         keeps a mis-click on the wrong table from being a two-minute freeze.
@@ -622,6 +624,7 @@ class ImageScatterScreen(LinkedView, QWidget):
                   x: str = "", y: str = "", note: str = "") -> None:
         """Plot ``frame``. The seam a test — or another screen — goes through.
 
+        :param frame: measurement rows to display in the scatter plot.
         :param keys: one object key per row. Derived from the frame when it
             carries :data:`spacr.selection.OBJECT_KEY_COLUMNS` and omitted.
             Without keys the plot still draws, but a click cannot open

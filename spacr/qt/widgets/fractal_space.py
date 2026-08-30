@@ -415,6 +415,10 @@ class SpaceEngine:
                pull: float = 0.0, push: float = 0.0) -> np.ndarray:
         """One finished frame as ``(height, width, 3)`` uint8.
 
+        :param width: width of the finished frame in pixels.
+        :param height: height of the finished frame in pixels.
+        :param t: elapsed animation time used to advance the flight.
+        :param speed: multiplier applied to the flight's forward motion.
         :param dream: unused. The flight has no dream term -- the scene is a
             star field, and warping it toward a hallucination is what the
             other two patterns are for.

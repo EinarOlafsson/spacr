@@ -487,6 +487,8 @@ def galaxy(width: int, height: int, seed: int = DEFAULT_SEED,
            pitch: float = 0.30) -> np.ndarray:
     """Render a logarithmic-spiral galaxy, (height, width, 3) float32.
 
+    :param width: width of the rendered image in pixels.
+    :param height: height of the rendered image in pixels.
     :param center: galaxy centre as a fraction of (width, height).
     :param radius_frac: disc scale radius as a fraction of the short edge.
     :param arms: number of spiral arms.
@@ -933,6 +935,8 @@ def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
 
     Deterministic: identical arguments always give identical bytes.
 
+    :param width: width of the rendered image in pixels.
+    :param height: height of the rendered image in pixels.
     :param legible: when true (always, outside the tests) the finished
         frame is bounded by the Space palette's bare-text limit — see
         :func:`_compress_highlights` and :func:`_enforce_legibility`.
