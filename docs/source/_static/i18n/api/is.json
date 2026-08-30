@@ -19650,16 +19650,18 @@
       "source_blocks_sha256": [
         "532df211acd07bc9354e719e8206a5163bf0f0e40f593749bd8cd5c165ba1bb4",
         "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+        "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "487d11a4b0c782f59816ef08396c45f8b0724ed755570f12f3b4ad23a4f06bb0",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
         "db16e4795a3e957ccbcbe4eb74f62bbd1238e0401fb5da2909e942aba3dac2a9"
       ],
-      "source_sha256": "30b3e709850268f080469cf5f5fb45ed06d5bb629176392f1188103bc36b6a01",
-      "text": "Læsaðu hvert objekt frá SEVERAL gögn-sælingu takmarka á sama tíma.\n\n``binary`` 1 þegar hluturinn er innan ALLRA valinna gagna-valsvæða, 0 annars. Skurðurinn, vegna þess að það er það sem „merkja miðað við öll gagna-valsvæði“ þýðir þegar svarið þarf að vera í einni dálki. ``multiclass`` ein flokkun fyrir hverja staðfesta samsetningu aðildar. Aðeins þær samsetningar sem raunverulega eiga sér stað verða að flokkum – að telja upp öll 2^n myndi bjóða upp á flokka með engum hlutum í þeim, sem engin vélarnáms flokkunarlíkan getur lært og hvert skýrsla um jafnvægi flokka þyrfti þá að útskýra.\n\n:param gates: a ``GateSet``.\n:param names: hvaða gögn-sælingu takmarka til að nota, í orðum sem tákn lesa.\n:returns: a Sérian tengist ``frame`` - íhuga fyrir bináris, klásamenn fyrir fjölklás.\n:raises FilterError: engin gögn-sælingu takmörk valda, eða aðferð sem er ekki til.",
+      "source_sha256": "7ac3fbc7de5bd4a760c6b03693687c9809471edbd59cae691bf08fe1ebf06ccb",
+      "text": "Læsaðu hvert objekt frá SEVERAL gögn-sælingu takmarka á sama tíma.\n\n``binary`` 1 þegar hluturinn er innan ALLRA valinna gagna-valsvæða, 0 annars. Skurðurinn, vegna þess að það er það sem „merkja miðað við öll gagna-valsvæði“ þýðir þegar svarið þarf að vera í einni dálki. ``multiclass`` ein flokkun fyrir hverja staðfesta samsetningu aðildar. Aðeins þær samsetningar sem raunverulega eiga sér stað verða að flokkum – að telja upp öll 2^n myndi bjóða upp á flokka með engum hlutum í þeim, sem engin vélarnáms flokkunarlíkan getur lært og hvert skýrsla um jafnvægi flokka þyrfti þá að útskýra.\n\n:param frame: hlutirnir sem á að merkja. Ramminn verður að innihalda alla mælingadálka sem völdu gagnavalsmörkin vísa í; skilaða Series heldur vísinum og röð lína rammans.\n:param gates: a ``GateSet``.\n:param names: hvaða gögn-sælingu takmarka til að nota, í orðum sem tákn lesa.\n:returns: a Sérian tengist ``frame`` - íheyrir fyrir bináris, klásamenn fyrir fjölklás.\n:raises FilterError: engin gögn-sælingu takmörk valda, eða aðferð sem er ekki til.",
       "translation_source_blocks_sha256": [
         "ebe21fb1e0699db050533fb5953e0ca40eec13887cad164cf63131ffb6f9f060",
         "7b1796f2c76162d4c1cc45917836a1321e4cc4f91d748e4dbe610e806afe92c6",
+        "1f112dafe7efd51816730c657f6e2651c40318156370f845b016ed3420e8d757",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "0e715dbc42b139b8789626d6a0152a8c313490af2ff1aeeeb8f58fc2a5bfde49",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
@@ -19787,13 +19789,15 @@
     "spacr.filters.ensure_filters_table": {
       "source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "779dfed19c08931dfa179b370f372b77eaac83d854761c711f2bf3a301089085",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ],
-      "source_sha256": "273180c9bb51f6b4016dd50f58a86a2719bce24288a5a745ad8e03885958953a",
-      "text": "Til baka ``filters`` tabla, byggja það fyrst.\n\n:param rebuild: Identity er tekin í heild af hlutaböndum, en allar gögn-sjálfun hringslum sem eru þegar skrifað eru LOST - það er ástæðan fyrir því að þetta er parametrur og ekki eitthvað útgangurinn gerir á sjálfum sér.\n:returns: Bíl sem nú er á skítum.",
+      "source_sha256": "24edc0eed8d7fa4efb3d0b3d62c2efad61801841eb18eb305e4f58f5d464a6e8",
+      "text": "Til baka ``filters`` tabla, byggja það í fyrsta skipti.\n\n:param db_path: mælingagagnagrunnurinn. Fyrirliggjandi tafla er lesin án breytinga; fyrsta kall, eða endurbygging, skrifar auðkennistöfluna sem er leidd af tengslum hluta í gagnagrunninum.\n:param rebuild: Identity er tekin í heild af hlutaböndum, en allar gögn-sjálfun hringslum sem eru þegar skrifað eru LOST - það er ástæðan fyrir því að þetta er parametrur og ekki eitthvað útgangurinn gerir á sjálfum sér.\n:returns: Töluna eins og það er nú staðsett á skítanum.",
       "translation_source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "938b4272fb8b060c02609cbe465497e591ec1639c5d90936029fd2bdaceb2ddc",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ]
@@ -19843,6 +19847,7 @@
     "spacr.filters.export_gate": {
       "source_blocks_sha256": [
         "11615c451b62f9b5d6e63cebdf1977d93ea65925dd8e86c3b77e6d3f5efd7799",
+        "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
         "85a308762fb17d26c28fea71de03d6ce3de1d2b1a40e762c80b05be725c560e6",
         "4612f769bbf98d2a9dbaf9eb6635bab39f947e610464bc7fa78bc8cbfd57480d",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19852,10 +19857,11 @@
         "bc215890347e78e5954c73b4cc3d100359c03a88d74694effe6de19b8cf78c4f",
         "7d7b1e75bb7eddb2f950bb26377a26ad3995e8f4dff1cecb5a57fe9bde07ba00"
       ],
-      "source_sha256": "baf248c2eda1e821d2f1aa107646b0d841314810afddd0eacbf8118c7e5991ef",
-      "text": "Skrifaðu einn gögn-sælingu takmörk til ``filters`` sem 1/0 stefnu.\n\n:param frame: Þau þurfa að hafa FULL identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, í kanónískum spellingu - sjá :func:`require_full_identity`); mættingar eru ekki nauðsynlegar og ekki lesið.\n:param inside: boolean maska yfir ``frame``, True fyrir hlutum í gögn-sælingu.\n:param gate_name: Nafn á kolumnið.\n:param rebuild: að byggja upp skilaboðinn fyrst, fjarlægja gögn-sælingu takmarkanna.\n:param object_type: hvaða tegund ``frame`` holds - nafnið á mælingastöluna sem það var lesið frá. Gefðu það þegar þú þekkir það. ``filters`` hefur celler, Kjarna og sjúkdómur á síðu, og ``object_label`` er einstakt í mikroskópum sviði aðeins fyrir ONE tegund: samskipti sem yfirgefur tákn út skrifar gögn-sjálfun hringinn þreytur á kjólum 2 á celi 2 einnig, sem er sama rangt svör :func:`require_full_identity` er til að koma í veg fyrir, Einn axis yfir. ``None`` hallar blinda samskipti fyrir samtal sem sannarlega getur ekki sagt, og fyrir gögn með engin ``object_type`` stefnu.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: kermi er að missa einhver hluti af augnablikinu, eða maska samsvarar ekki það.\n\nObjektum INTE í ``frame`` fá 0, ekki null. notandi sem geyma á 20% próf og útvörtu það annars myndi fá stólun sem er null fyrir fjórar objektum í fimm, og null er ekki það sem \"outside the gate\" þýðir. GUI lesa aftur fullri tákn áður en kalla þetta nákvæmlega svo að 0s eru raunverulegur - sjá :func:`gate_mask_over_table`.",
+      "source_sha256": "ca2b4cd9b6aa30e49c4a3487753a586d4d97cd154899bef9fd6fe47125a122ff",
+      "text": "Skrifaðu einn gögn-sælingu takmörk til ``filters`` sem 1/0 stefnu.\n\n:param db_path: mælingagagnagrunnurinn þar sem ``filters`` taflan er búin til ef hún vantar og síðan endurskrifuð með dálki gagnavalsmarkanna.\n:param frame: Þau þurfa að hafa FULL identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, í kanónískum spellingu - sjá :func:`require_full_identity`); mættingar eru ekki nauðsynlegar og ekki lesið.\n:param inside: boolean maska yfir ``frame``, True fyrir hlutum í gögn-sælingu.\n:param gate_name: Nafn á kolumnið.\n:param rebuild: að byggja upp skilaboðinn fyrst, fjarlægja gögn-sælingu takmarkanna.\n:param object_type: hvaða tegund ``frame`` holds - nafnið á mælingastöluna sem það var lesið frá. Gefðu það þegar þú þekkir það. ``filters`` hefur celler, Kjarna og sjúkdómur á síðu, og ``object_label`` er einstakt í mikroskópum sviði aðeins fyrir ONE tegund: samskipti sem yfirgefur tákn út skrifar gögn-sjálfun hringinn þreytur á kjólum 2 á celi 2 einnig, sem er sama rangt svör :func:`require_full_identity` er til að koma í veg fyrir, Einn axis yfir. ``None`` hallar blinda samskipti fyrir hringandi sem raunverulega getur ekki sagt, og fyrir gögn með engin ``object_type`` stefnu.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: kermi er að missa hvaða hluti af augnablikinu, eða maska samsvarar það ekki.\n\nObjektum NEIN í ``frame`` fá 0, ekki null. notandi sem gerði á 20% próf og útvarpaði það annars myndi fá stefnu sem er null fyrir fjögur objektum í fimm, og null er ekki það sem \"outside the gate\" þýðir. GUI lesa aftur fullri tákn áður en kalla þetta nákvæmlega svo að 0s eru raunverulegur - sjá :func:`gate_mask_over_table`.",
       "translation_source_blocks_sha256": [
         "75027a702041992eb7162142acc160f28c50cf5b644fbbe481522bcf484ee047",
+        "0bb109ce4d5112dfd86015044d0a425469ef0f4594386acd15f0494a7d070947",
         "d87ba599fa2e3e4fb81e2bb316ed7cab2947e88c64731c425ee23fbaae1e8961",
         "e2838df61ee68c4e1b33e8392d0f420ccf3e747117356ecb5e56e6db023021e7",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19870,16 +19876,20 @@
       "source_blocks_sha256": [
         "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
         "72b376f4ea9a551bc4b617b2f3bb386fa6621eb8b69c91630caa203545481109",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "d8c1fd3bcc2b5b11a057ff46dd201acd5f8f52df80642e865f2d511cde5b5014",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
         "30fc2ec7c04d2e57db5b0ca8e39ec55eb0f40dabff1d9b50d48a9ebd8d52ce80"
       ],
-      "source_sha256": "739a8644b87eb0fa52a37476ec1fe0a01e2e77aa49066b70ab433309186352cc",
-      "text": "Beita gagnavalsmörkum á HVERT hlut og lesa aðeins dálkana sem þarf.\n\nÁstæður á sýningarnar er að notandi velur rán með því að nota hluta stórt tól; ástæða þess er að útvörun er ekki. gögn-sjálfun hringurinn eigin tólum plus identity tólunum eru lesin í fullu - handfull af hundruðum, þannig að þetta er ódýr jafnvel þar sem lesa allan tól er ekki .\n\n:param gates: a ``GateSet``.\n:param gate_name: Hvaða gögn-sælingu takmarkaði í henni.\n:returns: ``(identity frame, mask)`` tilbúinn fyrir :func:`export_gate`.\n:raises FilterError: stól sem gögn-sjálfun hringjanlegri þörf er ekki í tablanum.",
+      "source_sha256": "087d9b5dcd794e20e4a1e6c92e07edd628dd1089e5b13430d9fd07370ee2ae59",
+      "text": "Beita gagnavalsmörkum á HVERT hlut og lesa aðeins dálkana sem þarf.\n\nÁstæður á sýningarnar er að notandi velur rán með því að nota hluta stórt tól; ástæða þess er að útvörun er ekki. gögn-sjálfun hringurinn eigin tólum plus identity tólunum eru lesin í fullu - handfull af hundruðum, þannig að þetta er ódýr jafnvel þar sem lesa allan tól er ekki .\n\n:param db_path: slóð að SQLite-mælingagagnagrunninum, opnuðum í lesham.\n:param table: hlutataflan sem á að meta. Aðeins auðkennisdálkar hennar og mælingadálkarnir sem slóð valinna gagnavalsmarka notar eru lesnir.\n:param gates: a ``GateSet``.\n:param gate_name: Hvaða gögn-sælingu takmarkaði í henni.\n:returns: ``(identity frame, mask)`` tilbúinn fyrir :func:`export_gate`.\n:raises FilterError: stól sem gögn-sjálfun hringjanlegri þörf er ekki í tablanum.",
       "translation_source_blocks_sha256": [
         "864fa61f61c52fc78455d4075d2e4816b35ddf438ca92a58ea16354419d43e26",
         "1c47adb35e2ddb0079a9a6dfcafdd1d00f9546284efb0c3200b945f19061e56d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "11450eb5e1bf6fbbff17e7d15e92241170da7e93ad5eea6646116b18b4e015c9",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "59b7816456a03407a70ccdfdfd749fbacef2c05f150f45ea238701eff8cc5f74",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
@@ -19950,14 +19960,16 @@
       "source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ],
-      "source_sha256": "903622a1d0d552133bbe44639e3e36f229a2cdbb106d518000e049ab40758660",
-      "text": "Einhver skilyrði á einum borðinu og ekkert annað.\n\nIdentity aðeins, vegna þess að þetta fer yfir hvert hluttabla í gögninni og mæðingabla er breiður - hundruð hjólum sem fjögur er efni. ``SELECT *`` hér er munurinn milli bootstrap sem tekur stund og einn sem lesa allan gögnan.\n\n:param table: Það verður að búa til ``object_label`` stefnu - þessi nafn, í öllum tilvikum. Hver annar einkenni stefnu er óþægilegt og fjarlægð frá endurnýjandi rammi; objektetikur er ekki, vegna þess að án þess er ekki hægt að segja ránum frá sér.\n:raises FilterError: ``table`` hefur engin objekta etikett stólur.",
+      "source_sha256": "ef597432cae520ed2d77402579485d65995b23c091a4f996c83f687ef4ae4b5c",
+      "text": "Einhver skilyrði á einum borðinu og ekkert annað.\n\nIdentity aðeins, vegna þess að þetta fer yfir hvert hluttabla í gögninni og mæðingabla er breiður - hundruð hjólum sem fjögur er efni. ``SELECT *`` hér er munurinn milli bootstrap sem tekur stund og einn sem lesa allan gögnan.\n\n:param db_path: slóð að SQLite-mælingagagnagrunninum. Hann er opnaður í lesham, þannig að ef skrána vantar er :class:`sqlite3.OperationalError` kastað í stað þess að tómur gagnagrunnur sé búinn til.\n:param table: Það verður að búa til ``object_label`` stefnu - þessi nafn, í öllum tilvikum. Hver annar einkenni stefnu er óþægilegt og fjarlægð frá endurnýjandi rammi; objektetikur er ekki, vegna þess að án þess er ekki hægt að segja ránum frá sér.\n:raises FilterError: ``table`` hefur engin objekta etikett stólur.",
       "translation_source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "fde130ae621de21f87e19beb14a8d93c1741190ce1ffae6cc76b44bc2c223098",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ]
@@ -19966,14 +19978,18 @@
       "source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ],
-      "source_sha256": "daf8ee2f1d3b5f89401229bcc5338953b8787032233f760bc28d42ccf7bb02a3",
-      "text": "Lesa ``table``, valframt taka aðeins hluti af ránum sínum.\n\nSameining gerist í SQL þar sem það getur, vegna þess að málin er að ekki lesa ránum. Tól sem skugga hverri rán ID alias er lesið hel og sýnt eftir - lágra en rétt, og það segir svo í dagskrá en ekki þöglu aftur allt.\n\n:param fraction: Hversu mikið af borðinu á að lesa, í (0, 1).\n:param limit: Hjarta hliðarhullin er notað eftir fraktion.",
+      "source_sha256": "cff6969d32019959fc292ef2066f27eabafc5dddcdae16ecd545a987cac841ce",
+      "text": "Lesa ``table``, opcionlega taka aðeins hluti af ránum sínum.\n\nSameining gerist í SQL þar sem það er hægt, vegna þess að málin er að lesa ekki ránum. Tábla sem skugga hverri rán id alias er lesið heill og sýnt síðar - lágra, en rétt, og það segir svo í dagskrá en í stað þess að klárlega aftur allt.\n\n:param db_path: slóð að SQLite-mælingagagnagrunninum, opnuðum í lesham.\n:param table: taflan sem á að lesa. Heiti hennar er sett í gæsalappir sem eitt SQLite-auðkenni; ef töfluna vantar er :class:`sqlite3.OperationalError` kastað.\n:param fraction: Hversu mikið af borðinu á að lesa, í (0, 1).\n:param limit: Hjarta hliðið er notað eftir frakningu.",
       "translation_source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "423a12ba5d7c6986f70ae8caba12b6a66a6ae9324f06b8220b7fe08303f3ce46",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ]
@@ -20015,12 +20031,14 @@
     "spacr.filters.row_count": {
       "source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ],
-      "source_sha256": "d3e353bce8c3f1ceaf232db3da7539e8c88a188b0e9356c414813f4509af546d",
-      "text": "Hversu mörg hlutur má tilefni - hvað sýning er flokk.\n\n:param table: kemur inn í spurningina sem nefnd, svo það verður að vera tól sem er til - typo hækkar :class:`sqlite3.OperationalError` en ekki tákna null, og samtalandi sem stærð próf ætti að skoða með :func:`table_names` fyrst.",
+      "source_sha256": "0e22c79b7cc9fa07f15426282625db97ae0fdebf889582b43d7a0c72e229ba4c",
+      "text": "Hversu margir hlutir tákninn hefur - hvaða sýning er hluti af.\n\n:param db_path: slóð að SQLite-mælingagagnagrunninum, opnuðum í lesham.\n:param table: kemur inn í spurningina sem nefnd, þannig að það verður að vera tabla sem er til - typo hækkar :class:`sqlite3.OperationalError` í stað þess að tákna null, og kallaður sem stendur fyrirmynd ætti að athuga með :func:`table_names` fyrst.",
       "translation_source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ]
     },
@@ -111167,12 +111185,14 @@
     },
     "spacr.resources.home.versions._generators.common.repo_root": {
       "source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ],
-      "source_sha256": "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb",
-      "text": "Fullkominn leið á spacr checkout rjóta (fíu stig upp).",
+      "source_sha256": "5781168b11171a40bb03aeb920e4a24dc701aa2d4185d44b587fb459ea2ee678",
+      "text": "Skila algerri rót spaCR-kóðatrésins.\n\nSlóðin er leidd af uppsetningarstað þessarar einingar og er óháð stillanlegri úttaksmöppu Home-myndgerðarinnar.",
       "translation_source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ]
     },
     "spacr.resources.home.versions._generators.common.section_names": {

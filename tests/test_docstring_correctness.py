@@ -159,7 +159,7 @@ def test_no_new_undocumented_required_public_parameters():
 
     The digest prevents one omission from replacing another without changing
     the total.  This is deliberately not presented as zero debt: the exact
-    baseline remains 206 required parameters across 126 public callables.
+    baseline remains 197 required parameters across 119 public callables.
     """
     omissions = []
     checked = 0
@@ -176,9 +176,9 @@ def test_no_new_undocumented_required_public_parameters():
     digest = hashlib.sha256("\n".join(omissions).encode()).hexdigest()
 
     assert checked == 2_067
-    assert len(omissions) == 206
+    assert len(omissions) == 197
     assert digest == (
-        "7805f045a8f94af0a5e5ed94ef3b999a49a9cdc388c777ec0a5c77cabd9107de"
+        "30076e69fd8b032a7e01eeca78c2433b01c7f42a822fd2692cb2026023436bc0"
     )
 
 

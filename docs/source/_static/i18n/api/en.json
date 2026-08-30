@@ -12194,13 +12194,14 @@
       "source_blocks_sha256": [
         "532df211acd07bc9354e719e8206a5163bf0f0e40f593749bd8cd5c165ba1bb4",
         "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+        "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "487d11a4b0c782f59816ef08396c45f8b0724ed755570f12f3b4ad23a4f06bb0",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
         "db16e4795a3e957ccbcbe4eb74f62bbd1238e0401fb5da2909e942aba3dac2a9"
       ],
-      "source_sha256": "30b3e709850268f080469cf5f5fb45ed06d5bb629176392f1188103bc36b6a01",
-      "text": "Label every object from SEVERAL gates at once.\n\n``binary``\n    1 when the object is inside EVERY chosen gate, 0 otherwise. The\n    intersection, because that is what \"annotate based on all the gates\"\n    means when the answer has to be one column.\n``multiclass``\n    one class per observed combination of memberships. Only combinations\n    that actually occur become classes -- enumerating all 2^n would offer\n    classes with no objects in them, which no classifier can learn and\n    every class-balance report would then have to explain.\n\n:param gates: a ``GateSet``.\n:param names: which gates to use, in the order the label reads.\n:returns: a Series aligned to ``frame`` -- integers for binary, class\n    names for multiclass.\n:raises FilterError: no gates chosen, or a mode that does not exist."
+      "source_sha256": "7ac3fbc7de5bd4a760c6b03693687c9809471edbd59cae691bf08fe1ebf06ccb",
+      "text": "Label every object from SEVERAL gates at once.\n\n``binary``\n    1 when the object is inside EVERY chosen gate, 0 otherwise. The\n    intersection, because that is what \"annotate based on all the gates\"\n    means when the answer has to be one column.\n``multiclass``\n    one class per observed combination of memberships. Only combinations\n    that actually occur become classes -- enumerating all 2^n would offer\n    classes with no objects in them, which no classifier can learn and\n    every class-balance report would then have to explain.\n\n:param frame: the objects to label. It must contain every measurement\n    column referenced by the selected gates; the returned Series keeps\n    this frame's index and row order.\n:param gates: a ``GateSet``.\n:param names: which gates to use, in the order the label reads.\n:returns: a Series aligned to ``frame`` -- integers for binary, class\n    names for multiclass.\n:raises FilterError: no gates chosen, or a mode that does not exist."
     },
     "spacr.filters.build_filters_frame": {
       "source_blocks_sha256": [
@@ -12278,11 +12279,12 @@
     "spacr.filters.ensure_filters_table": {
       "source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "779dfed19c08931dfa179b370f372b77eaac83d854761c711f2bf3a301089085",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ],
-      "source_sha256": "273180c9bb51f6b4016dd50f58a86a2719bce24288a5a745ad8e03885958953a",
-      "text": "Return the ``filters`` table, building it the first time.\n\n:param rebuild: discard and rebuild. The identity is derived entirely from\n    the object tables, but any gate columns already written are LOST --\n    which is why this is a parameter and not something the export path\n    does on its own.\n:returns: the table as it now stands on disk."
+      "source_sha256": "24edc0eed8d7fa4efb3d0b3d62c2efad61801841eb18eb305e4f58f5d464a6e8",
+      "text": "Return the ``filters`` table, building it the first time.\n\n:param db_path: the measurement database. An existing table is read\n    without modification; the first call, or a rebuild, writes the\n    identity table derived from the database's object relationships.\n:param rebuild: discard and rebuild. The identity is derived entirely from\n    the object tables, but any gate columns already written are LOST --\n    which is why this is a parameter and not something the export path\n    does on its own.\n:returns: the table as it now stands on disk."
     },
     "spacr.filters.ensure_relationships_table": {
       "source_blocks_sha256": [
@@ -12312,6 +12314,7 @@
     "spacr.filters.export_gate": {
       "source_blocks_sha256": [
         "11615c451b62f9b5d6e63cebdf1977d93ea65925dd8e86c3b77e6d3f5efd7799",
+        "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
         "85a308762fb17d26c28fea71de03d6ce3de1d2b1a40e762c80b05be725c560e6",
         "4612f769bbf98d2a9dbaf9eb6635bab39f947e610464bc7fa78bc8cbfd57480d",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -12321,20 +12324,22 @@
         "bc215890347e78e5954c73b4cc3d100359c03a88d74694effe6de19b8cf78c4f",
         "7d7b1e75bb7eddb2f950bb26377a26ad3995e8f4dff1cecb5a57fe9bde07ba00"
       ],
-      "source_sha256": "baf248c2eda1e821d2f1aa107646b0d841314810afddd0eacbf8118c7e5991ef",
-      "text": "Write one gate to ``filters`` as a 1/0 column.\n\n:param frame: the objects the gate was evaluated on. Must carry the FULL\n    identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the\n    canonical spellings -- see :func:`require_full_identity`); the\n    measurements are not needed and not read.\n:param inside: boolean mask over ``frame``, True for objects in the gate.\n:param gate_name: names the column.\n:param rebuild: rebuild the identity table first, discarding gate columns.\n:param object_type: which kind of object ``frame`` holds -- the name of\n    the measurement table it was read from. GIVE IT WHENEVER YOU KNOW\n    IT. ``filters`` holds cells, nuclei and pathogens side by side, and\n    ``object_label`` is unique within a field only for ONE kind: a merge\n    that leaves the type out writes a gate drawn on nucleus 2 onto cell\n    2 as well, which is the same wrong answer\n    :func:`require_full_identity` exists to prevent, one axis over.\n    ``None`` keeps the type-blind merge for a caller that genuinely\n    cannot say, and for a database with no ``object_type`` column.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: the frame is missing any part of the object identity,\n    or the mask does not match it.\n\nObjects NOT in ``frame`` get 0, not null. A user who gated on a 20% sample\nand exported it would otherwise get a column that is null for four objects\nin five, and null is not what \"outside the gate\" means. The GUI re-reads\nthe full table before calling this precisely so that the 0s are real --\nsee :func:`gate_mask_over_table`."
+      "source_sha256": "ca2b4cd9b6aa30e49c4a3487753a586d4d97cd154899bef9fd6fe47125a122ff",
+      "text": "Write one gate to ``filters`` as a 1/0 column.\n\n:param db_path: the measurement database whose ``filters`` table is\n    created when absent and then rewritten with the gate column.\n:param frame: the objects the gate was evaluated on. Must carry the FULL\n    identity (:data:`IDENTITY_COLUMNS` plus ``object_label``, in the\n    canonical spellings -- see :func:`require_full_identity`); the\n    measurements are not needed and not read.\n:param inside: boolean mask over ``frame``, True for objects in the gate.\n:param gate_name: names the column.\n:param rebuild: rebuild the identity table first, discarding gate columns.\n:param object_type: which kind of object ``frame`` holds -- the name of\n    the measurement table it was read from. GIVE IT WHENEVER YOU KNOW\n    IT. ``filters`` holds cells, nuclei and pathogens side by side, and\n    ``object_label`` is unique within a field only for ONE kind: a merge\n    that leaves the type out writes a gate drawn on nucleus 2 onto cell\n    2 as well, which is the same wrong answer\n    :func:`require_full_identity` exists to prevent, one axis over.\n    ``None`` keeps the type-blind merge for a caller that genuinely\n    cannot say, and for a database with no ``object_type`` column.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: the frame is missing any part of the object identity,\n    or the mask does not match it.\n\nObjects NOT in ``frame`` get 0, not null. A user who gated on a 20% sample\nand exported it would otherwise get a column that is null for four objects\nin five, and null is not what \"outside the gate\" means. The GUI re-reads\nthe full table before calling this precisely so that the 0s are real --\nsee :func:`gate_mask_over_table`."
     },
     "spacr.filters.gate_mask_over_table": {
       "source_blocks_sha256": [
         "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
         "72b376f4ea9a551bc4b617b2f3bb386fa6621eb8b69c91630caa203545481109",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "d8c1fd3bcc2b5b11a057ff46dd201acd5f8f52df80642e865f2d511cde5b5014",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
         "30fc2ec7c04d2e57db5b0ca8e39ec55eb0f40dabff1d9b50d48a9ebd8d52ce80"
       ],
-      "source_sha256": "739a8644b87eb0fa52a37476ec1fe0a01e2e77aa49066b70ab433309186352cc",
-      "text": "Apply a gate to EVERY object, reading only the columns it needs.\n\nThe point of the sampling setting is that a user gates on a fraction of a\nlarge table; the point of this is that the export does not. The gate's own\ncolumns plus the identity columns are read in full -- a handful out of\nhundreds, so this stays cheap even where reading the whole table is not.\n\n:param gates: a ``GateSet``.\n:param gate_name: which gate in it.\n:returns: ``(identity frame, mask)`` ready for :func:`export_gate`.\n:raises FilterError: a column the gate needs is not in the table."
+      "source_sha256": "087d9b5dcd794e20e4a1e6c92e07edd628dd1089e5b13430d9fd07370ee2ae59",
+      "text": "Apply a gate to EVERY object, reading only the columns it needs.\n\nThe point of the sampling setting is that a user gates on a fraction of a\nlarge table; the point of this is that the export does not. The gate's own\ncolumns plus the identity columns are read in full -- a handful out of\nhundreds, so this stays cheap even where reading the whole table is not.\n\n:param db_path: path to the SQLite measurement database, opened read-only.\n:param table: the object table to evaluate. Only its identity columns and\n    the measurement columns used by the selected gate path are read.\n:param gates: a ``GateSet``.\n:param gate_name: which gate in it.\n:returns: ``(identity frame, mask)`` ready for :func:`export_gate`.\n:raises FilterError: a column the gate needs is not in the table."
     },
     "spacr.filters.identity_columns_of": {
       "source_blocks_sha256": [
@@ -12378,21 +12383,24 @@
       "source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ],
-      "source_sha256": "903622a1d0d552133bbe44639e3e36f229a2cdbb106d518000e049ab40758660",
-      "text": "The identity columns of one table, and nothing else.\n\nIdentity only, because this runs over every object table in the database\nand a measurement table is wide -- hundreds of columns of which four\nmatter. ``SELECT *`` here is the difference between a bootstrap that takes\na moment and one that reads the whole database.\n\n:param table: must carry an ``object_label`` column -- that name, in any\n    case. Every other identity column is optional and absent\n    from the returned frame; the object label is not, because without it\n    the rows cannot be told apart.\n:raises FilterError: ``table`` has no object label column."
+      "source_sha256": "ef597432cae520ed2d77402579485d65995b23c091a4f996c83f687ef4ae4b5c",
+      "text": "The identity columns of one table, and nothing else.\n\nIdentity only, because this runs over every object table in the database\nand a measurement table is wide -- hundreds of columns of which four\nmatter. ``SELECT *`` here is the difference between a bootstrap that takes\na moment and one that reads the whole database.\n\n:param db_path: path to the SQLite measurement database. It is opened\n    read-only, so a missing file raises :class:`sqlite3.OperationalError`\n    instead of being created as an empty database.\n:param table: must carry an ``object_label`` column -- that name, in any\n    case. Every other identity column is optional and absent\n    from the returned frame; the object label is not, because without it\n    the rows cannot be told apart.\n:raises FilterError: ``table`` has no object label column."
     },
     "spacr.filters.read_sampled": {
       "source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ],
-      "source_sha256": "daf8ee2f1d3b5f89401229bcc5338953b8787032233f760bc28d42ccf7bb02a3",
-      "text": "Read ``table``, optionally taking only a fraction of its rows.\n\nSampling happens in SQL where it can, because the point is to not read\nthe rows. A table that shadows every row id alias is read whole and\nsampled afterwards -- slower, but correct, and it says so in the log\nrather than quietly returning everything.\n\n:param fraction: how much of the table to read, in (0, 1].\n:param limit: a hard row cap applied after the fraction."
+      "source_sha256": "cff6969d32019959fc292ef2066f27eabafc5dddcdae16ecd545a987cac841ce",
+      "text": "Read ``table``, optionally taking only a fraction of its rows.\n\nSampling happens in SQL where it can, because the point is to not read\nthe rows. A table that shadows every row id alias is read whole and\nsampled afterwards -- slower, but correct, and it says so in the log\nrather than quietly returning everything.\n\n:param db_path: path to the SQLite measurement database, opened read-only.\n:param table: the table to read. Its name is quoted as one SQLite\n    identifier; a missing table raises :class:`sqlite3.OperationalError`.\n:param fraction: how much of the table to read, in (0, 1].\n:param limit: a hard row cap applied after the fraction."
     },
     "spacr.filters.require_full_identity": {
       "source_blocks_sha256": [
@@ -12418,10 +12426,11 @@
     "spacr.filters.row_count": {
       "source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ],
-      "source_sha256": "d3e353bce8c3f1ceaf232db3da7539e8c88a188b0e9356c414813f4509af546d",
-      "text": "How many objects the table has -- what a sample is a fraction OF.\n\n:param table: goes into the query as a quoted name, so it must be a table\n    that exists -- a typo raises :class:`sqlite3.OperationalError` rather\n    than counting zero, and a caller sizing a sample should check with\n    :func:`table_names` first."
+      "source_sha256": "0e22c79b7cc9fa07f15426282625db97ae0fdebf889582b43d7a0c72e229ba4c",
+      "text": "How many objects the table has -- what a sample is a fraction OF.\n\n:param db_path: path to the SQLite measurement database, opened read-only.\n:param table: goes into the query as a quoted name, so it must be a table\n    that exists -- a typo raises :class:`sqlite3.OperationalError` rather\n    than counting zero, and a caller sizing a sample should check with\n    :func:`table_names` first."
     },
     "spacr.filters.rowid_expression": {
       "source_blocks_sha256": [
@@ -71087,10 +71096,11 @@
     },
     "spacr.resources.home.versions._generators.common.repo_root": {
       "source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ],
-      "source_sha256": "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb",
-      "text": "Absolute path of the spacr checkout root (five levels up)."
+      "source_sha256": "5781168b11171a40bb03aeb920e4a24dc701aa2d4185d44b587fb459ea2ee678",
+      "text": "Return the absolute spaCR checkout root.\n\nThe path is derived from this module's installed location and is\nindependent of the configurable Home render-output directory."
     },
     "spacr.resources.home.versions._generators.common.section_names": {
       "source_blocks_sha256": [

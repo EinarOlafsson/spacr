@@ -19650,16 +19650,18 @@
       "source_blocks_sha256": [
         "532df211acd07bc9354e719e8206a5163bf0f0e40f593749bd8cd5c165ba1bb4",
         "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+        "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "487d11a4b0c782f59816ef08396c45f8b0724ed755570f12f3b4ad23a4f06bb0",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
         "db16e4795a3e957ccbcbe4eb74f62bbd1238e0401fb5da2909e942aba3dac2a9"
       ],
-      "source_sha256": "30b3e709850268f080469cf5f5fb45ed06d5bb629176392f1188103bc36b6a01",
-      "text": "Märk varje objekt från SEVERAL data-val gränser på en gång.\n\n``binary`` 1 när objektet är inne i VARJE vald data- valgräns, 0 annars. Skärningspunkten, eftersom det är vad \"annotera baserat på alla data- urval gränser\" betyder när svaret måste vara en kolumn. ``multiclass`` en klass per observerad kombination av medlemskap. Endast kombinationer som faktiskt inträffar blir klasser -- att räkna alla 2^n skulle erbjuda klasser utan objekt i dem, som ingen maskininlärning klassificering modell kan lära och varje klass- balans rapport skulle då behöva förklara.\n\n:param gates: a ``GateSet``.\n:param names: vilka datavalsgränser som ska användas, i den ordning som etiketten lyder.\n:returns: a Serien är anpassad till ``frame`` – heltal för binära klassnamn för flerklass.\n:raises FilterError: Inga valda data-valgränser eller ett läge som inte finns.",
+      "source_sha256": "7ac3fbc7de5bd4a760c6b03693687c9809471edbd59cae691bf08fe1ebf06ccb",
+      "text": "Märk varje objekt från SEVERAL data-val gränser på en gång.\n\n``binary`` 1 när objektet är inne i VARJE vald data- valgräns, 0 annars. Skärningspunkten, eftersom det är vad \"annotera baserat på alla data- urval gränser\" betyder när svaret måste vara en kolumn. ``multiclass`` en klass per observerad kombination av medlemskap. Endast kombinationer som faktiskt inträffar blir klasser -- att räkna alla 2^n skulle erbjuda klasser utan objekt i dem, som ingen maskininlärning klassificering modell kan lära och varje klass- balans rapport skulle då behöva förklara.\n\n:param frame: objekten att märka. Den måste innehålla varje mätkolumn som refereras till av de valda datavalsgränserna. Den returnerade serien behåller ramens index och radordning.\n:param gates: a ``GateSet``.\n:param names: vilka datavalsgränser som ska användas, i den ordning som etiketten lyder.\n:returns: a Serien är anpassad till ``frame`` – heltal för binära klassnamn för flera klasser.\n:raises FilterError: Inga valda data-valgränser eller ett läge som inte finns.",
       "translation_source_blocks_sha256": [
         "ebe21fb1e0699db050533fb5953e0ca40eec13887cad164cf63131ffb6f9f060",
         "7b1796f2c76162d4c1cc45917836a1321e4cc4f91d748e4dbe610e806afe92c6",
+        "1f112dafe7efd51816730c657f6e2651c40318156370f845b016ed3420e8d757",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "0e715dbc42b139b8789626d6a0152a8c313490af2ff1aeeeb8f58fc2a5bfde49",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
@@ -19787,13 +19789,15 @@
     "spacr.filters.ensure_filters_table": {
       "source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "779dfed19c08931dfa179b370f372b77eaac83d854761c711f2bf3a301089085",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ],
-      "source_sha256": "273180c9bb51f6b4016dd50f58a86a2719bce24288a5a745ad8e03885958953a",
-      "text": "Lämna tillbaka tabellen ``filters`` och bygg den första gången.\n\n:param rebuild: Kassera och återuppbygga. Identiteten härleds helt från objekttabellerna, men alla redan skrivna kolumner för datavalsgräns är LOST -- vilket är anledningen till att detta är en parameter och inte något som exportvägen gör på egen hand.\n:returns: bordet som det står nu på diskett.",
+      "source_sha256": "24edc0eed8d7fa4efb3d0b3d62c2efad61801841eb18eb305e4f58f5d464a6e8",
+      "text": "Lämna tillbaka tabellen ``filters`` och bygg den första gången.\n\n:param db_path: Mätdatabasen. En befintlig tabell läses utan ändring; det första anropet, eller en ombyggnad, skriver identitetstabellen som härleds från databasens objektrelationer.\n:param rebuild: Kassera och återuppbygga. Identiteten härleds helt från objekttabellerna, men alla redan skrivna kolumner för datavalsgräns är LOST -- vilket är anledningen till att detta är en parameter och inte något som exportvägen gör på egen hand.\n:returns: bordet som det nu står på diskett.",
       "translation_source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "938b4272fb8b060c02609cbe465497e591ec1639c5d90936029fd2bdaceb2ddc",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ]
@@ -19843,6 +19847,7 @@
     "spacr.filters.export_gate": {
       "source_blocks_sha256": [
         "11615c451b62f9b5d6e63cebdf1977d93ea65925dd8e86c3b77e6d3f5efd7799",
+        "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
         "85a308762fb17d26c28fea71de03d6ce3de1d2b1a40e762c80b05be725c560e6",
         "4612f769bbf98d2a9dbaf9eb6635bab39f947e610464bc7fa78bc8cbfd57480d",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19852,10 +19857,11 @@
         "bc215890347e78e5954c73b4cc3d100359c03a88d74694effe6de19b8cf78c4f",
         "7d7b1e75bb7eddb2f950bb26377a26ad3995e8f4dff1cecb5a57fe9bde07ba00"
       ],
-      "source_sha256": "baf248c2eda1e821d2f1aa107646b0d841314810afddd0eacbf8118c7e5991ef",
-      "text": "Skriv en datavalsgräns till ``filters`` som en 1/0-kolumn.\n\n:param frame: objekten som datavalsgränsen utvärderades på. Måste bära FULL-identiteten (:data:`IDENTITY_COLUMNS` plus ``object_label``, i de kanoniska stavningarna – se :func:`require_full_identity`); mätningarna behövs inte och läses inte.\n:param inside: booleansk mask över ``frame``, True för objekt i datavalsgränsen.\n:param gate_name: Namnge kolumnen.\n:param rebuild: Bygga upp identitetstabellen först, kasta data-urval gränskolumner.\n:param object_type: vilken typ av objekt ``frame`` innehar -- namnet på mättabellen som den lästes från. GIV DET NÄR DU VET DET. ``filters`` innehar celler, kärnor och patogener sida vid sida, och ``object_label`` är unikt inom ett mikroskopfält endast för ETT slag: en sammanfogning som lämnar typen ute skriver en datavalsgräns som dras på cell 2 också, vilket är samma fel svar :func:`require_full_identity` existerar för att förhindra, en axel över. ``None`` håller den typblinda sammanfogningen för en anropare som verkligen inte kan säga, och för en databas med ingen ``object_type`` kolumn.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: Ramen saknas någon del av objektets identitet, eller så matchar inte masken den.\n\nObjekt INTE i ``frame`` får 0, inte noll. En användare som gated på en 20% prov och exporterade det skulle annars få en kolumn som är noll för fyra objekt i fem, och noll är inte vad \"outside the gate\" betyder. GUI läser om hela tabellen innan du ringer detta exakt så att 0s är verkliga -- se :func:`gate_mask_over_table`.",
+      "source_sha256": "ca2b4cd9b6aa30e49c4a3487753a586d4d97cd154899bef9fd6fe47125a122ff",
+      "text": "Skriv en datavalsgräns till ``filters`` som en 1/0-kolumn.\n\n:param db_path: Den mätdatabas vars tabell ``filters`` skapas när den saknas och sedan skrivs om med kolumnen för datavalsgräns.\n:param frame: objekten som datavalsgränsen utvärderades på. Måste bära FULL-identiteten (:data:`IDENTITY_COLUMNS` plus ``object_label``, i de kanoniska stavningarna – se :func:`require_full_identity`); mätningarna behövs inte och läses inte.\n:param inside: booleansk mask över ``frame``, True för objekt i datavalsgränsen.\n:param gate_name: Namnge kolumnen.\n:param rebuild: Bygga upp identitetstabellen först, kasta data-urval gränskolumner.\n:param object_type: vilken typ av objekt ``frame`` innehar -- namnet på mättabellen som den lästes från. GIV DET NÄR DU VET DET. ``filters`` innehar celler, kärnor och patogener sida vid sida, och ``object_label`` är unikt inom ett mikroskopfält endast för ETT slag: en sammanfogning som lämnar typen ute skriver en datavalsgräns som dras på cell 2 också, vilket är samma fel svar :func:`require_full_identity` existerar för att förhindra, en axel över. ``None`` håller den typblinda sammanfogningen för en anropare som verkligen inte kan säga, och för en databas med ingen ``object_type`` kolumn.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: ram saknas någon del av objektets identitet, eller masken inte matchar den.\n\nObjekt INTE i ``frame`` får 0, inte noll. En användare som gated på en 20% prov och exporterade det skulle annars få en kolumn som är noll för fyra objekt i fem, och noll är inte vad \"outside the gate\" betyder. GUI läser om hela tabellen innan du ringer detta exakt så att 0s är verkliga -- se :func:`gate_mask_over_table`.",
       "translation_source_blocks_sha256": [
         "75027a702041992eb7162142acc160f28c50cf5b644fbbe481522bcf484ee047",
+        "0bb109ce4d5112dfd86015044d0a425469ef0f4594386acd15f0494a7d070947",
         "d87ba599fa2e3e4fb81e2bb316ed7cab2947e88c64731c425ee23fbaae1e8961",
         "e2838df61ee68c4e1b33e8392d0f420ccf3e747117356ecb5e56e6db023021e7",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19870,16 +19876,20 @@
       "source_blocks_sha256": [
         "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
         "72b376f4ea9a551bc4b617b2f3bb386fa6621eb8b69c91630caa203545481109",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "d8c1fd3bcc2b5b11a057ff46dd201acd5f8f52df80642e865f2d511cde5b5014",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
         "30fc2ec7c04d2e57db5b0ca8e39ec55eb0f40dabff1d9b50d48a9ebd8d52ce80"
       ],
-      "source_sha256": "739a8644b87eb0fa52a37476ec1fe0a01e2e77aa49066b70ab433309186352cc",
-      "text": "Tillämpa en data-selection gräns för VARJE objekt, läsa bara kolumner det behöver.\n\nPoängen med provtagningsinställningen är att en användare väljer rader med en bråkdel av en stor tabell; poängen med detta är att exporten inte gör det. Datavalsgränsens egna kolumner plus identitetskolumnerna läses i sin helhet – en handfull av hundratals, så detta förblir billigt även om det inte är att läsa hela tabellen.\n\n:param gates: a ``GateSet``.\n:param gate_name: Vilken data-valgräns i det.\n:returns: ``(identity frame, mask)`` redo för :func:`export_gate`\n:raises FilterError: En kolumn för behov av datavalsgräns finns inte i tabellen.",
+      "source_sha256": "087d9b5dcd794e20e4a1e6c92e07edd628dd1089e5b13430d9fd07370ee2ae59",
+      "text": "Tillämpa en data-selection gräns för VARJE objekt, läsa bara kolumner det behöver.\n\nPoängen med provtagningsinställningen är att en användare väljer rader med en bråkdel av en stor tabell; poängen med detta är att exporten inte gör det. Datavalsgränsens egna kolumner plus identitetskolumnerna läses i sin helhet – en handfull av hundratals, så detta förblir billigt även om det inte är att läsa hela tabellen.\n\n:param db_path: sökväg till mätdatabasen SQLite, öppen endast läsbar.\n:param table: objekttabellen för att utvärdera. Endast dess identitetskolumner och de mätkolumner som används av den valda datavalsgränssökvägen läses.\n:param gates: a ``GateSet``.\n:param gate_name: Vilken data-valgräns i det.\n:returns: ``(identity frame, mask)`` redo för :func:`export_gate`.\n:raises FilterError: En kolumn för behov av datavalsgräns finns inte i tabellen.",
       "translation_source_blocks_sha256": [
         "864fa61f61c52fc78455d4075d2e4816b35ddf438ca92a58ea16354419d43e26",
         "1c47adb35e2ddb0079a9a6dfcafdd1d00f9546284efb0c3200b945f19061e56d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "11450eb5e1bf6fbbff17e7d15e92241170da7e93ad5eea6646116b18b4e015c9",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "59b7816456a03407a70ccdfdfd749fbacef2c05f150f45ea238701eff8cc5f74",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
@@ -19950,14 +19960,16 @@
       "source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ],
-      "source_sha256": "903622a1d0d552133bbe44639e3e36f229a2cdbb106d518000e049ab40758660",
-      "text": "ID-kolumnerna i en tabell, och inget annat.\n\nIdentitet endast, eftersom detta kör över varje objekttabell i databasen och en mättabell är bred -- hundratals kolumner av vilka fyra materia. ``SELECT *`` Här är skillnaden mellan en bootstrap som tar ett ögonblick och en som läser hela databasen.\n\n:param table: måste bära en kolumn ``object_label`` -- det namnet, i alla fall. Varje annan identitetskolumn är valfri och saknas från den returnerade ramen; objektetiketten är inte det, eftersom raderna utan den inte kan berättas isär.\n:raises FilterError: ``table`` har ingen objektetikettkolumn.",
+      "source_sha256": "ef597432cae520ed2d77402579485d65995b23c091a4f996c83f687ef4ae4b5c",
+      "text": "ID-kolumnerna i en tabell, och inget annat.\n\nIdentitet endast, eftersom detta kör över varje objekttabell i databasen och en mättabell är bred -- hundratals kolumner av vilka fyra materia. ``SELECT *`` Här är skillnaden mellan en bootstrap som tar ett ögonblick och en som läser hela databasen.\n\n:param db_path: sökväg till mätdatabasen SQLite. Den öppnas endast läs-, så en fil som saknas kastar :class:`sqlite3.OperationalError` istället för att skapas som en tom databas.\n:param table: måste bära en kolumn ``object_label`` -- det namnet, i alla fall. Varje annan identitetskolumn är valfri och saknas från den returnerade ramen; objektetiketten är inte det, eftersom raderna utan den inte kan berättas isär.\n:raises FilterError: ``table`` har ingen objektetikettkolumn.",
       "translation_source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "fde130ae621de21f87e19beb14a8d93c1741190ce1ffae6cc76b44bc2c223098",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ]
@@ -19966,14 +19978,18 @@
       "source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ],
-      "source_sha256": "daf8ee2f1d3b5f89401229bcc5338953b8787032233f760bc28d42ccf7bb02a3",
-      "text": "Läs ``table``, eventuellt med endast en bråkdel av sina rader.\n\nProvtagning sker i SQL där det kan, eftersom poängen är att inte läsa raderna. En tabell som skuggar varje rads alias läses hela och provtas efteråt - långsammare, men korrekt, och det står så i loggen snarare än tyst returnerar allt.\n\n:param fraction: hur mycket av tabellen som ska läsas, i (0, 1].\n:param limit: ett hårt radlock applicerat efter bråket.",
+      "source_sha256": "cff6969d32019959fc292ef2066f27eabafc5dddcdae16ecd545a987cac841ce",
+      "text": "Läs ``table``, eventuellt med endast en bråkdel av sina rader.\n\nProvtagning sker i SQL där det kan, eftersom poängen är att inte läsa raderna. En tabell som skuggar varje rads alias läses hela och provtas efteråt - långsammare, men korrekt, och det står så i loggen snarare än tyst returnerar allt.\n\n:param db_path: sökväg till mätdatabasen SQLite, öppen endast läsbar.\n:param table: Tabellen att läsa. Dess namn anges som en SQLite-identifierare; en saknad tabell kastar :class:`sqlite3.OperationalError`.\n:param fraction: hur mycket av tabellen att läsa, i (0, 1].\n:param limit: ett hårdradigt lock applicerat efter bråket.",
       "translation_source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "423a12ba5d7c6986f70ae8caba12b6a66a6ae9324f06b8220b7fe08303f3ce46",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ]
@@ -20015,12 +20031,14 @@
     "spacr.filters.row_count": {
       "source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ],
-      "source_sha256": "d3e353bce8c3f1ceaf232db3da7539e8c88a188b0e9356c414813f4509af546d",
-      "text": "Hur många objekt som bordet har -- vad ett prov är en bråkdel av.\n\n:param table: går in i frågan som ett citerat namn, så det måste vara en tabell som finns -- ett typo höjer :class:`sqlite3.OperationalError` snarare än räknar noll, och en anropare som storlekssorterar ett prov bör först kontrollera med :func:`table_names`.",
+      "source_sha256": "0e22c79b7cc9fa07f15426282625db97ae0fdebf889582b43d7a0c72e229ba4c",
+      "text": "Hur många objekt tabellen har -- vad ett prov är en bråkdel av.\n\n:param db_path: sökväg till mätdatabasen SQLite, öppen endast läsbar.\n:param table: går in i frågan som ett citerat namn, så det måste vara en tabell som finns -- ett typo höjer :class:`sqlite3.OperationalError` snarare än att räkna noll, och en anropare som dimensionerar ett prov bör först kontrollera med :func:`table_names`.",
       "translation_source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ]
     },
@@ -111167,12 +111185,14 @@
     },
     "spacr.resources.home.versions._generators.common.repo_root": {
       "source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ],
-      "source_sha256": "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb",
-      "text": "Absolut sökväg för spacr-utcheckningsroten (fem nivåer uppåt).",
+      "source_sha256": "5781168b11171a40bb03aeb920e4a24dc701aa2d4185d44b587fb459ea2ee678",
+      "text": "Returnera den absoluta utcheckningsrooten spaCR.\n\nSökvägen härleds från modulens installerade plats och är oberoende av den konfigurerbara katalogen för hemutmatning.",
       "translation_source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ]
     },
     "spacr.resources.home.versions._generators.common.section_names": {

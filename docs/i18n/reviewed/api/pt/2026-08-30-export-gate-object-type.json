@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.filters.export_gate#6",
+      "source": "which kind of object ``frame`` holds -- the name of the measurement table it was read from. GIVE IT WHENEVER YOU KNOW IT. ``filters`` holds cells, nuclei and pathogens side by side, and ``object_label`` is unique within a field only for ONE kind: a merge that leaves the type out writes a gate drawn on nucleus 2 onto cell 2 as well, which is the same wrong answer :func:`require_full_identity` exists to prevent, one axis over. ``None`` keeps the type-blind merge for a caller that genuinely cannot say, and for a database with no ``object_type`` column.",
+      "context": "which kind of object ``frame`` holds -- the name of the measurement table it was read from. GIVE IT WHENEVER YOU KNOW IT. ``filters`` holds cells, nuclei and pathogens side by side, and ``object_label`` is unique within a microscope field of view only for ONE kind: a merge that leaves the type out writes a data-selection boundary drawn on nucleus 2 onto cell 2 as well, which is the same wrong answer :func:`require_full_identity` exists to prevent, one axis over. ``None`` keeps the type-blind merge for a caller that genuinely cannot say, and for a database with no ``object_type`` column.",
+      "source_sha256": "59d0bb9bf73d84def52ffd1571283be944511db7f2c36cc8bd3dc833f67efade",
+      "translation": "o tipo de objeto que ``frame`` contém — o nome da tabela de medições da qual foi lido. FORNEÇA-O SEMPRE QUE SOUBER. ``filters`` contém células, núcleos e patógenos lado a lado, e ``object_label`` é único dentro de um campo de visão microscópico apenas para UM tipo: uma junção que omite o tipo também escreve uma região de seleção de dados desenhada no núcleo 2 na célula 2, o mesmo resultado incorreto que :func:`require_full_identity` existe para impedir, em outro eixo. ``None`` mantém a junção que ignora o tipo para um chamador que realmente não consiga determiná-lo e para um banco de dados sem a coluna ``object_type``."
+    }
+  ]
+}

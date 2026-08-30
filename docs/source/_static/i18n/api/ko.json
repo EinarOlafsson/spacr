@@ -19650,16 +19650,18 @@
       "source_blocks_sha256": [
         "532df211acd07bc9354e719e8206a5163bf0f0e40f593749bd8cd5c165ba1bb4",
         "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+        "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "487d11a4b0c782f59816ef08396c45f8b0724ed755570f12f3b4ad23a4f06bb0",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
         "db16e4795a3e957ccbcbe4eb74f62bbd1238e0401fb5da2909e942aba3dac2a9"
       ],
-      "source_sha256": "30b3e709850268f080469cf5f5fb45ed06d5bb629176392f1188103bc36b6a01",
-      "text": "SEVERAL 데이터 선택 한계에서 각 개체를 한 번에 표시합니다.\n\n``binary`` 1 개의 개체가 모든 선택된 데이터 선택 경계 내에있을 때, 0 그렇지 않다. 교차점, 왜냐하면 그것이 \"모든 데이터 선택 한계를 기반으로 기록\"은 대답이 하나의 열이 될 때를 의미합니다. ``multiclass`` 멤버십의 관찰 된 조합 당 하나의 클래스. 실제로 발생하는 조합만 클래스로 - 모든 2^n을 나열하면 기계 학습 분류 모델이 배울 수없는 객체가없는 클래스를 제공 할 것이며, 그 후에 모든 클래식 균형 보고서가 설명해야합니다.\n\n:param gates: a ``GateSet``.\n:param names: 어떤 데이터 선택의 한계를 사용할 것인가, 라벨이 읽는 순서에.\n:returns: ``frame``에 맞게 일련의 - 이중, 다중 클래스의 클래식 이름을 위한 전체.\n:raises FilterError: 선택된 데이터 선택 경계 또는 존재하지 않는 모드가 없습니다.",
+      "source_sha256": "7ac3fbc7de5bd4a760c6b03693687c9809471edbd59cae691bf08fe1ebf06ccb",
+      "text": "SEVERAL 데이터 선택 한계에서 각 개체를 한 번에 표시합니다.\n\n``binary`` 1 개의 개체가 모든 선택된 데이터 선택 경계 내에있을 때, 0 그렇지 않다. 교차점, 왜냐하면 그것이 \"모든 데이터 선택 한계를 기반으로 기록\"은 대답이 하나의 열이 될 때를 의미합니다. ``multiclass`` 멤버십의 관찰 된 조합 당 하나의 클래스. 실제로 발생하는 조합만 클래스로 - 모든 2^n을 나열하면 기계 학습 분류 모델이 배울 수없는 객체가없는 클래스를 제공 할 것이며, 그 후에 모든 클래식 균형 보고서가 설명해야합니다.\n\n:param frame: 레이블을 지정할 객체입니다. 선택한 게이트가 참조하는 모든 측정 열을 포함해야 하며, 반환된 Series는 이 프레임의 인덱스와 행 순서를 유지합니다.\n:param gates: a ``GateSet``.\n:param names: 어떤 데이터 선택의 한계를 사용할 것인가, 라벨이 읽는 순서에.\n:returns: ``frame``로 일치하는 시리즈 - 바이너리, 멀티 클래스에 대한 수업 이름을 포함합니다.\n:raises FilterError: 선택된 데이터 선택 경계 또는 존재하지 않는 모드가 없습니다.",
       "translation_source_blocks_sha256": [
         "ebe21fb1e0699db050533fb5953e0ca40eec13887cad164cf63131ffb6f9f060",
         "7b1796f2c76162d4c1cc45917836a1321e4cc4f91d748e4dbe610e806afe92c6",
+        "1f112dafe7efd51816730c657f6e2651c40318156370f845b016ed3420e8d757",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "0e715dbc42b139b8789626d6a0152a8c313490af2ff1aeeeb8f58fc2a5bfde49",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
@@ -19787,13 +19789,15 @@
     "spacr.filters.ensure_filters_table": {
       "source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "779dfed19c08931dfa179b370f372b77eaac83d854761c711f2bf3a301089085",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ],
-      "source_sha256": "273180c9bb51f6b4016dd50f58a86a2719bce24288a5a745ad8e03885958953a",
-      "text": "``filters`` 테이블을 반환하고 처음으로 구축합니다.\n\n:param rebuild: 정체성은 개체 테이블에서 완전히 추출되지만 이미 작성된 모든 데이터 선택 경계 열은 LOST입니다 - 그래서 이것은 매개 변수이며 수출 경로가 스스로하는 것이 아닙니다.\n:returns: 지금은 디스크 위에 있는 테이블.",
+      "source_sha256": "24edc0eed8d7fa4efb3d0b3d62c2efad61801841eb18eb305e4f58f5d464a6e8",
+      "text": "``filters`` 테이블을 반환하여 처음으로 구축합니다.\n\n:param db_path: 측정 데이터베이스입니다. 기존 테이블은 변경하지 않고 읽으며, 최초 호출이나 재구성 시 데이터베이스의 객체 관계에서 파생된 식별 테이블을 씁니다.\n:param rebuild: 정체성은 개체 테이블에서 완전히 추출되지만 이미 작성된 모든 데이터 선택 경계 열은 LOST입니다 - 그래서 이것은 매개 변수이며 수출 경로가 스스로하는 것이 아닙니다.\n:returns: 테이블은 지금 디스크에 서있는 것처럼.",
       "translation_source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "938b4272fb8b060c02609cbe465497e591ec1639c5d90936029fd2bdaceb2ddc",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ]
@@ -19843,6 +19847,7 @@
     "spacr.filters.export_gate": {
       "source_blocks_sha256": [
         "11615c451b62f9b5d6e63cebdf1977d93ea65925dd8e86c3b77e6d3f5efd7799",
+        "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
         "85a308762fb17d26c28fea71de03d6ce3de1d2b1a40e762c80b05be725c560e6",
         "4612f769bbf98d2a9dbaf9eb6635bab39f947e610464bc7fa78bc8cbfd57480d",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19852,10 +19857,11 @@
         "bc215890347e78e5954c73b4cc3d100359c03a88d74694effe6de19b8cf78c4f",
         "7d7b1e75bb7eddb2f950bb26377a26ad3995e8f4dff1cecb5a57fe9bde07ba00"
       ],
-      "source_sha256": "baf248c2eda1e821d2f1aa107646b0d841314810afddd0eacbf8118c7e5991ef",
-      "text": "1/0 열로 ``filters``로 하나의 데이터 선택 경계를 입력합니다.\n\n:param frame: 데이터 선택 경계가 평가된 개체는 FULL ID(:data:`IDENTITY_COLUMNS` 플러스 ``object_label``, 캐논 녹음 - 참조 :func:`require_full_identity`)를 가져야 합니다; 측정은 필요하지 않으며 읽을 수 없습니다.\n:param inside: ``frame``, True 이상의 볼레인 마스크는 데이터 선택 경계에있는 개체에 대 한.\n:param gate_name: 콜럼 이름을 지정합니다.\n:param rebuild: 먼저 정체성 테이블을 재건하여 데이터 선택 경계 열을 제거합니다.\n:param object_type: 어떤 종류의 개체가 ``frame``을 보유하고 있는지 - 그것이 읽은 측정 테이블의 이름. 당신이 그것을 알고있을 때마다 그것을 주십시오. ``filters``은 세포를 소유하고 있습니다. 핵과 병원균은 측면에서 측면으로, 그리고 ``object_label``은 단지 ONE 유형의 마이크로스코프 시각 필드 내에서 독특합니다 : 타입을 떠나는 합병은 또한 2 세포에 2 코너에 끌려있는 데이터 선택 경계를 작성합니다. 똑같은 잘못된 대답 :func:`require_full_identity`이 존재하는 것을 방지하기 위해, 한 개의 좌석을 넘어섰다. ``None``은 진정으로 말할 수 없는 호출자와 ``object_type`` 열이 없는 데이터베이스를 위한 타입 눈먼 조합을 유지합니다.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: 프레임은 개체 정체성의 어떤 부분도 놓치거나 마스크가 그것과 일치하지 않습니다.\n\n개체 안에 있는 것들 ``frame`` 20 %의 샘플을 타고 그것을 수출 한 사용자는 그렇지 않으면 5 개의 4 개의 개체에 대해 0이 아닌 열을 얻을 것이며, 0은 무엇이 아닙니다. \"outside the gate\" 의미를 니다.The GUI 전체 테이블을 다시 읽기 전에 이것을 정확하게 호출하여 0s가 실제로 나타납니다. :func:`gate_mask_over_table`.",
+      "source_sha256": "ca2b4cd9b6aa30e49c4a3487753a586d4d97cd154899bef9fd6fe47125a122ff",
+      "text": "1/0 열로 ``filters``로 하나의 데이터 선택 경계를 입력합니다.\n\n:param db_path: ``filters`` 테이블이 없으면 생성한 뒤 게이트 열과 함께 다시 쓰는 측정 데이터베이스입니다.\n:param frame: 데이터 선택 경계가 평가된 개체는 FULL ID(:data:`IDENTITY_COLUMNS` 플러스 ``object_label``)를 가져야 하며, 캐논 기록에서는 :func:`require_full_identity`를 참조하십시오; 측정은 필요하지 않으며 읽을 수 없습니다.\n:param inside: ``frame``, True 이상의 볼레인 마스크는 데이터 선택 경계에있는 개체에 대 한.\n:param gate_name: 콜로나 이름을 지정합니다.\n:param rebuild: 먼저 정체성 테이블을 재건하여 데이터 선택 경계 열을 제거합니다.\n:param object_type: 어떤 종류의 개체가 ``frame``을 보유하고 있는지 - 그것이 읽은 측정 테이블의 이름. 당신이 그것을 알고있을 때마다 그것을 주십시오. ``filters``은 세포를 소유하고 있습니다. 핵과 병원균은 측면에서 측면으로, 그리고 ``object_label``은 단지 ONE 유형의 마이크로스코프 시각 필드 내에서 독특합니다 : 타입을 떠나는 합병은 또한 2 세포에 2 코너에 끌려있는 데이터 선택 경계를 작성합니다. 똑같은 잘못된 대답 :func:`require_full_identity`이 존재하는 것을 방지하기 위해, 한 개의 좌석을 넘어섰다. ``None``은 진정으로 말할 수 없는 호출자와 ``object_type`` 열이 없는 데이터베이스를 위한 타입 눈먼 조합을 유지합니다.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: 프레임은 개체 정체성의 어떤 부분을 놓치거나 마스크가 그것과 일치하지 않습니다.\n\n개체 안에 있는 것들 ``frame`` 20 %의 샘플을 타고 그것을 수출 한 사용자는 그렇지 않으면 5 개의 4 개의 개체에 대해 0이 아닌 열을 얻을 것이며, 0은 무엇이 아닙니다. \"outside the gate\" 의미를 니다.The GUI 전체 테이블을 다시 읽기 전에 이것을 정확하게 호출하여 0s가 실제로 나타납니다. :func:`gate_mask_over_table`.",
       "translation_source_blocks_sha256": [
         "75027a702041992eb7162142acc160f28c50cf5b644fbbe481522bcf484ee047",
+        "0bb109ce4d5112dfd86015044d0a425469ef0f4594386acd15f0494a7d070947",
         "d87ba599fa2e3e4fb81e2bb316ed7cab2947e88c64731c425ee23fbaae1e8961",
         "e2838df61ee68c4e1b33e8392d0f420ccf3e747117356ecb5e56e6db023021e7",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19870,16 +19876,20 @@
       "source_blocks_sha256": [
         "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
         "72b376f4ea9a551bc4b617b2f3bb386fa6621eb8b69c91630caa203545481109",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "d8c1fd3bcc2b5b11a057ff46dd201acd5f8f52df80642e865f2d511cde5b5014",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
         "30fc2ec7c04d2e57db5b0ca8e39ec55eb0f40dabff1d9b50d48a9ebd8d52ce80"
       ],
-      "source_sha256": "739a8644b87eb0fa52a37476ec1fe0a01e2e77aa49066b70ab433309186352cc",
-      "text": "모든 개체에 데이터 선택 경계를 적용하고, 그것이 필요로하는 열만 읽으십시오.\n\n샘플링 설정의 점은 사용자가 큰 테이블의 부분을 사용하여 라인을 선택한다는 것입니다; 이 점은 수출이 아니라는 것입니다. 데이터 선택 경계의 자신의 열뿐만 아니라 정체성 열은 완전히 읽어집니다 - 수백 개의 수많은, 그래서이 저렴하게 남아있다, 심지어 전체 테이브를 읽는 곳이 아닙니다.\n\n:param gates: a ``GateSet``.\n:param gate_name: 그 안에 있는 데이터 선택의 한계가 무엇인가.\n:returns: ``(identity frame, mask)`` 준비가 :func:`export_gate`에 대 한.\n:raises FilterError: 데이터 선택의 경계 요구 사항이 테이블에 표시되지 않는 열입니다.",
+      "source_sha256": "087d9b5dcd794e20e4a1e6c92e07edd628dd1089e5b13430d9fd07370ee2ae59",
+      "text": "모든 개체에 데이터 선택 경계를 적용하고, 그것이 필요로하는 열만 읽으십시오.\n\n샘플링 설정의 점은 사용자가 큰 테이블의 부분을 사용하여 라인을 선택한다는 것입니다; 이 점은 수출이 아니라는 것입니다. 데이터 선택 경계의 자신의 열뿐만 아니라 정체성 열은 완전히 읽어집니다 - 수백 개의 수많은, 그래서이 저렴하게 남아있다, 심지어 전체 테이브를 읽는 곳이 아닙니다.\n\n:param db_path: 읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다.\n:param table: 평가할 객체 테이블입니다. 식별 열과 선택한 게이트 경로가 사용하는 측정 열만 읽습니다.\n:param gates: a ``GateSet``.\n:param gate_name: 그 안에 있는 데이터 선택의 한계가 무엇인가.\n:returns: ``(identity frame, mask)`` :func:`export_gate`에 대한 준비가 되어 있습니다.\n:raises FilterError: 데이터 선택 경계 요구 사항이 테이블에 표시되지 않는 열입니다.",
       "translation_source_blocks_sha256": [
         "864fa61f61c52fc78455d4075d2e4816b35ddf438ca92a58ea16354419d43e26",
         "1c47adb35e2ddb0079a9a6dfcafdd1d00f9546284efb0c3200b945f19061e56d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "11450eb5e1bf6fbbff17e7d15e92241170da7e93ad5eea6646116b18b4e015c9",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "59b7816456a03407a70ccdfdfd749fbacef2c05f150f45ea238701eff8cc5f74",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
@@ -19950,14 +19960,16 @@
       "source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ],
-      "source_sha256": "903622a1d0d552133bbe44639e3e36f229a2cdbb106d518000e049ab40758660",
-      "text": "정체성은 하나의 테이블의 열, 그리고 다른 아무것도.\n\n이것은 데이터베이스의 모든 개체 테이블 위에서 실행되기 때문에 단지 정체성이며, 측정 테이브가 넓기 때문에 - 네 개의 물질을 가진 수백 개의 열입니다. ``SELECT *`` 여기에 잠시 걸리는 부트 스트립과 전체 데이터베이터를 읽는 하나의 차이점입니다.\n\n:param table: ``object_label`` 열을 가지고 있어야합니다 - 그 이름, 어쨌든. 다른 모든 정체성 열은 선택적이며 반환 된 프레임에서 부재됩니다. 개체 표지판은 아니기 때문에, 그것이 없으면 라인은 분리 될 수 없습니다.\n:raises FilterError: ``table``에는 개체 라벨 열이 없습니다.",
+      "source_sha256": "ef597432cae520ed2d77402579485d65995b23c091a4f996c83f687ef4ae4b5c",
+      "text": "정체성은 하나의 테이블의 열, 그리고 다른 아무것도.\n\n이것은 데이터베이스의 모든 개체 테이블 위에서 실행되기 때문에 단지 정체성이며, 측정 테이브가 넓기 때문에 - 네 개의 물질을 가진 수백 개의 열입니다. ``SELECT *`` 여기에 잠시 걸리는 부트 스트립과 전체 데이터베이터를 읽는 하나의 차이점입니다.\n\n:param db_path: SQLite 측정 데이터베이스의 경로입니다. 읽기 전용으로 열리므로 파일이 없으면 빈 데이터베이스를 생성하지 않고 :class:`sqlite3.OperationalError` 예외를 발생시킵니다.\n:param table: ``object_label`` 열을 가지고 있어야합니다 - 그 이름, 어쨌든. 다른 모든 정체성 열은 선택적이며 반환 된 프레임에서 부재됩니다. 개체 표지판은 아니기 때문에, 그것이 없으면 라인은 분리 될 수 없습니다.\n:raises FilterError: ``table``에는 개체 라벨 열이 없습니다.",
       "translation_source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "fde130ae621de21f87e19beb14a8d93c1741190ce1ffae6cc76b44bc2c223098",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ]
@@ -19966,14 +19978,18 @@
       "source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ],
-      "source_sha256": "daf8ee2f1d3b5f89401229bcc5338953b8787032233f760bc28d42ccf7bb02a3",
-      "text": "``table``을 읽고, 선택적으로 라인의 단지 한 부분만 취하십시오.\n\n각 라인 ID 알리어를 그림자로 읽는 테이블은 전체를 읽고 나중에 샘플링됩니다 - 느리지만 정확하며, 그것은 모든 것을 조용히 반환하는 대신 로고에서 그렇게 말합니다.\n\n:param fraction: 얼마나 많은 테이블을 읽을 수 있습니까, (0, 1).\n:param limit: 단단한 줄 캡은 부분 후에 적용됩니다.",
+      "source_sha256": "cff6969d32019959fc292ef2066f27eabafc5dddcdae16ecd545a987cac841ce",
+      "text": "읽기 ``table``, 선택적으로 그것의 라인의 단지 한 부분을 가져옵니다.\n\n샘플링은 가능한 곳에서 SQL에서 발생합니다, 왜냐하면 포인트는 라인을 읽지 않는 것입니다. 각 라인 ID alias를 그림자로 읽는 테이블은 전체로 읽고 나중에 템플링됩니다 - 느리지만 올바르며, 그것은 모든 것을 조용히 반환하는 대신 로고에서 그렇게 말합니다.\n\n:param db_path: 읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다.\n:param table: 읽을 테이블입니다. 이름은 하나의 SQLite 식별자로 따옴표 처리되며, 테이블이 없으면 :class:`sqlite3.OperationalError` 예외가 발생합니다.\n:param fraction: 얼마나 많은 테이블을 읽을 수 있습니까 (0, 1).\n:param limit: 하드 라인 캡은 부분 후에 적용됩니다.",
       "translation_source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "423a12ba5d7c6986f70ae8caba12b6a66a6ae9324f06b8220b7fe08303f3ce46",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ]
@@ -20015,12 +20031,14 @@
     "spacr.filters.row_count": {
       "source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ],
-      "source_sha256": "d3e353bce8c3f1ceaf232db3da7539e8c88a188b0e9356c414813f4509af546d",
-      "text": "테이블에 얼마나 많은 개체가 있는지 - 어떤 샘플이 하나의 부분입니다.\n\n:param table: 그것은 언급 된 이름으로 쿼리에 들어가서, 그래서 그것은 존재하는 테이블이어야합니다 - 타이포는 0을 계산하는 대신 :class:`sqlite3.OperationalError`를 올리고, 샘플을 크게하는 호출자는 먼저 :func:`table_names`로 확인해야합니다.",
+      "source_sha256": "0e22c79b7cc9fa07f15426282625db97ae0fdebf889582b43d7a0c72e229ba4c",
+      "text": "테이블에 얼마나 많은 개체가 있습니까 - 어떤 샘플은 부분입니다.\n\n:param db_path: 읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다.\n:param table: 그것은 언급 된 이름으로 쿼리에 들어가서, 그래서 그것은 존재하는 테이블이어야합니다 - 타이포는 0을 계산하는 대신 :class:`sqlite3.OperationalError`를 올리고, 샘플을 크게하는 호출자는 먼저 :func:`table_names`로 확인해야합니다.",
       "translation_source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ]
     },
@@ -111167,12 +111185,14 @@
     },
     "spacr.resources.home.versions._generators.common.repo_root": {
       "source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ],
-      "source_sha256": "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb",
-      "text": "spacr 체크 뿌리의 절대 경로(5 레벨 위)",
+      "source_sha256": "5781168b11171a40bb03aeb920e4a24dc701aa2d4185d44b587fb459ea2ee678",
+      "text": "spaCR 체크아웃의 절대 루트 경로를 반환합니다.\n\n이 경로는 이 모듈의 설치 위치에서 파생되며 구성 가능한 Home 렌더링 출력 디렉터리와 무관합니다.",
       "translation_source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ]
     },
     "spacr.resources.home.versions._generators.common.section_names": {

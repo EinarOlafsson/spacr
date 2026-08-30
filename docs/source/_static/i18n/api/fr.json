@@ -19650,16 +19650,18 @@
       "source_blocks_sha256": [
         "532df211acd07bc9354e719e8206a5163bf0f0e40f593749bd8cd5c165ba1bb4",
         "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+        "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "487d11a4b0c782f59816ef08396c45f8b0724ed755570f12f3b4ad23a4f06bb0",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
         "db16e4795a3e957ccbcbe4eb74f62bbd1238e0401fb5da2909e942aba3dac2a9"
       ],
-      "source_sha256": "30b3e709850268f080469cf5f5fb45ed06d5bb629176392f1188103bc36b6a01",
-      "text": "Étiquetez chaque objet à partir des limites de sélection de données SEVERAL à la fois.\n\n``binary`` 1 lorsque l'objet se trouve à l'intérieur de CHAQUE limite de sélection de données choisie, 0 sinon. L'intersection, parce que c'est ce que signifie \"l'annotation basée sur toutes les limites de sélection des données\" lorsque la réponse doit être une colonne. ``multiclass`` une classe par combinaison observée d'adhésions. Seules les combinaisons qui se produisent réellement deviennent des classes -- énumérer toutes les 2^n offrirait des classes sans objet en elles, qu'aucun modèle de classification machine-learning ne peut apprendre et chaque rapport d'équilibre de classe devrait alors expliquer.\n\n:param gates: a ``GateSet``.\n:param names: les limites de sélection des données à utiliser, dans l'ordre indiqué par l'étiquette.\n:returns: a Série alignée à ``frame`` -- entiers pour binaire, noms de classes pour multiclasse.\n:raises FilterError: aucune limite de sélection de données, ou un mode qui n'existe pas.",
+      "source_sha256": "7ac3fbc7de5bd4a760c6b03693687c9809471edbd59cae691bf08fe1ebf06ccb",
+      "text": "Étiquetez chaque objet à partir des limites de sélection de données SEVERAL à la fois.\n\n``binary`` 1 lorsque l'objet se trouve à l'intérieur de CHAQUE limite de sélection de données choisie, 0 sinon. L'intersection, parce que c'est ce que signifie \"l'annotation basée sur toutes les limites de sélection des données\" lorsque la réponse doit être une colonne. ``multiclass`` une classe par combinaison observée d'adhésions. Seules les combinaisons qui se produisent réellement deviennent des classes -- énumérer toutes les 2^n offrirait des classes sans objet en elles, qu'aucun modèle de classification machine-learning ne peut apprendre et chaque rapport d'équilibre de classe devrait alors expliquer.\n\n:param frame: les objets à étiqueter. Ils doivent contenir toutes les colonnes de mesure référencées par les limites de sélection des données ; la Series renvoyée conserve l’index et l’ordre des lignes de ce cadre.\n:param gates: a ``GateSet``.\n:param names: les limites de sélection des données à utiliser, dans l'ordre indiqué par l'étiquette.\n:returns: a Série alignée à ``frame`` -- entiers pour binaire, noms de classe pour multiclasse.\n:raises FilterError: aucune limite de sélection de données, ou un mode qui n'existe pas.",
       "translation_source_blocks_sha256": [
         "ebe21fb1e0699db050533fb5953e0ca40eec13887cad164cf63131ffb6f9f060",
         "7b1796f2c76162d4c1cc45917836a1321e4cc4f91d748e4dbe610e806afe92c6",
+        "1f112dafe7efd51816730c657f6e2651c40318156370f845b016ed3420e8d757",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "0e715dbc42b139b8789626d6a0152a8c313490af2ff1aeeeb8f58fc2a5bfde49",
         "222a62d15cf1bbda1407b576e873f4ab60d8bbdcf17ca5ff459a393f76e65295",
@@ -19787,13 +19789,15 @@
     "spacr.filters.ensure_filters_table": {
       "source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "779dfed19c08931dfa179b370f372b77eaac83d854761c711f2bf3a301089085",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ],
-      "source_sha256": "273180c9bb51f6b4016dd50f58a86a2719bce24288a5a745ad8e03885958953a",
-      "text": "Retournez la table ``filters``, en la construisant la première fois.\n\n:param rebuild: L'identité est entièrement dérivée des tables d'objets, mais toutes les colonnes de limites de sélection de données déjà écrites sont LOST -- c'est pourquoi il s'agit d'un paramètre et non d'une chose que le chemin d'exportation fait seul.\n:returns: la table telle qu'elle se trouve maintenant sur le disque.",
+      "source_sha256": "24edc0eed8d7fa4efb3d0b3d62c2efad61801841eb18eb305e4f58f5d464a6e8",
+      "text": "Retournez la table ``filters``, en la construisant la première fois.\n\n:param db_path: la base de données de mesures. Une table existante est lue sans être modifiée ; le premier appel, ou une reconstruction, écrit la table d’identité dérivée des relations entre les objets de la base de données.\n:param rebuild: L'identité est entièrement dérivée des tables d'objets, mais toutes les colonnes de limites de sélection de données déjà écrites sont LOST -- c'est pourquoi il s'agit d'un paramètre et non d'une chose que le chemin d'exportation fait seul.\n:returns: la table telle qu'elle se trouve maintenant sur le disque.",
       "translation_source_blocks_sha256": [
         "28cf20496dd0947d7a6a8097eebab00e46af255fe3c0d43f03d0146d11d4b824",
+        "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
         "938b4272fb8b060c02609cbe465497e591ec1639c5d90936029fd2bdaceb2ddc",
         "8f330ff4cc5e9a305e7c931152240768193323be20056c7c5cdbc55c5ba79f8d"
       ]
@@ -19843,6 +19847,7 @@
     "spacr.filters.export_gate": {
       "source_blocks_sha256": [
         "11615c451b62f9b5d6e63cebdf1977d93ea65925dd8e86c3b77e6d3f5efd7799",
+        "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
         "85a308762fb17d26c28fea71de03d6ce3de1d2b1a40e762c80b05be725c560e6",
         "4612f769bbf98d2a9dbaf9eb6635bab39f947e610464bc7fa78bc8cbfd57480d",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19852,10 +19857,11 @@
         "bc215890347e78e5954c73b4cc3d100359c03a88d74694effe6de19b8cf78c4f",
         "7d7b1e75bb7eddb2f950bb26377a26ad3995e8f4dff1cecb5a57fe9bde07ba00"
       ],
-      "source_sha256": "baf248c2eda1e821d2f1aa107646b0d841314810afddd0eacbf8118c7e5991ef",
-      "text": "Écrire une limite de sélection de données à ``filters`` en tant que colonne 1/0.\n\n:param frame: les objets sur lesquels la limite de sélection des données a été évaluée. Doit porter l'identité FULL (:data:`IDENTITY_COLUMNS` plus ``object_label``, dans l'orthographe canonique -- voir :func:`require_full_identity`); les mesures ne sont pas nécessaires et ne sont donc pas lues.\n:param inside: masque booléen sur ``frame``, True pour les objets dans la limite de sélection des données.\n:param gate_name: donne le nom de la colonne.\n:param rebuild: Reconstruisez d'abord le tableau d'identité, en jetant les colonnes de limite de sélection des données.\n:param object_type: quel type d'objet ``frame`` détient -- le nom de la table de mesure à partir de laquelle il a été lu. Donne-le quand tu le sais. ``filters`` contient des cellules, noyaux et pathogènes côte à côte, et ``object_label`` est unique à l'intérieur d'un champ de vision au microscope uniquement pour le type ONE : une fusion qui laisse le type en dehors écrit une limite de sélection de données tracée sur le noyau 2 sur la cellule 2 ainsi, qui est la même mauvaise réponse :func:`require_full_identity` existe pour prévenir, un axe au-dessus. ``None`` maintient la fusion aveugle de type pour un appelant qui ne peut vraiment pas dire, et pour une base de données sans colonne ``object_type``.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: le cadre manque une partie de l'identité de l'objet, ou le masque ne correspond pas.\n\nLes objets PAS dans ``frame`` obtenir 0, pas null. Un utilisateur qui a fermé sur un échantillon de 20% et exporté il obtiendrait autrement une colonne qui est null pour quatre objets dans cinq, et null n'est pas ce que \"outside the gate\" signifie. Le GUI re-lise la table complète avant d'appeler cela précisément de sorte que les 0s soient réels -- voir :func:`gate_mask_over_table`.",
+      "source_sha256": "ca2b4cd9b6aa30e49c4a3487753a586d4d97cd154899bef9fd6fe47125a122ff",
+      "text": "Écrire une limite de sélection de données à ``filters`` en tant que colonne 1/0.\n\n:param db_path: la base de données de mesures dont la table ``filters`` est créée si elle est absente, puis réécrite avec la colonne de limite de sélection des données.\n:param frame: les objets sur lesquels la limite de sélection des données a été évaluée. Doit porter l'identité FULL (:data:`IDENTITY_COLUMNS` plus ``object_label``, dans l'orthographe canonique -- voir :func:`require_full_identity`); les mesures ne sont pas nécessaires et ne sont donc pas lues.\n:param inside: masque booléen sur ``frame``, True pour les objets dans la limite de sélection des données.\n:param gate_name: donne le nom de la colonne.\n:param rebuild: Reconstruisez d'abord le tableau d'identité, en jetant les colonnes de limite de sélection des données.\n:param object_type: quel type d'objet ``frame`` détient -- le nom de la table de mesure à partir de laquelle il a été lu. Donne-le quand tu le sais. ``filters`` contient des cellules, noyaux et pathogènes côte à côte, et ``object_label`` est unique à l'intérieur d'un champ de vision au microscope uniquement pour le type ONE : une fusion qui laisse le type en dehors écrit une limite de sélection de données tracée sur le noyau 2 sur la cellule 2 ainsi, qui est la même mauvaise réponse :func:`require_full_identity` existe pour prévenir, un axe au-dessus. ``None`` maintient la fusion aveugle de type pour un appelant qui ne peut vraiment pas dire, et pour une base de données sans colonne ``object_type``.\n:returns: ``(column name, objects marked)``.\n:raises FilterError: le cadre manque n'importe quelle partie de l'identité d'objet, ou le masque ne correspond pas.\n\nLes objets PAS dans ``frame`` obtenir 0, pas null. Un utilisateur qui a fermé sur un échantillon de 20% et exporté il obtiendrait autrement une colonne qui est null pour quatre objets dans cinq, et null n'est pas ce que \"outside the gate\" signifie. Le GUI re-lise la table complète avant d'appeler cela précisément de sorte que les 0s soient réels -- voir :func:`gate_mask_over_table`.",
       "translation_source_blocks_sha256": [
         "75027a702041992eb7162142acc160f28c50cf5b644fbbe481522bcf484ee047",
+        "0bb109ce4d5112dfd86015044d0a425469ef0f4594386acd15f0494a7d070947",
         "d87ba599fa2e3e4fb81e2bb316ed7cab2947e88c64731c425ee23fbaae1e8961",
         "e2838df61ee68c4e1b33e8392d0f420ccf3e747117356ecb5e56e6db023021e7",
         "e246e0289808ea5f11ee4470695c461c483dffb8b3a8fee0af0428fc028ea86f",
@@ -19870,16 +19876,20 @@
       "source_blocks_sha256": [
         "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
         "72b376f4ea9a551bc4b617b2f3bb386fa6621eb8b69c91630caa203545481109",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "d8c1fd3bcc2b5b11a057ff46dd201acd5f8f52df80642e865f2d511cde5b5014",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
         "30fc2ec7c04d2e57db5b0ca8e39ec55eb0f40dabff1d9b50d48a9ebd8d52ce80"
       ],
-      "source_sha256": "739a8644b87eb0fa52a37476ec1fe0a01e2e77aa49066b70ab433309186352cc",
-      "text": "Appliquer une limite de sélection de données à CHAQUE objet, en ne lisant que les colonnes dont il a besoin.\n\nLe point du paramètre d'échantillonnage est qu'un utilisateur sélectionne des lignes en utilisant une fraction d'une grande table; le point de cela est que l'exportation ne le fait pas. Les propres colonnes de la limite de sélection des données plus les colonnes d'identité sont lues en entier -- une poignée sur des centaines, donc cela reste bon marché même lorsque la lecture de toute la table n'est pas.\n\n:param gates: a ``GateSet``.\n:param gate_name: la limite de sélection des données.\n:returns: ``(identity frame, mask)`` prêt pour :func:`export_gate`.\n:raises FilterError: une colonne dont la limite de sélection des données n'est pas nécessaire dans le tableau.",
+      "source_sha256": "087d9b5dcd794e20e4a1e6c92e07edd628dd1089e5b13430d9fd07370ee2ae59",
+      "text": "Appliquer une limite de sélection de données à CHAQUE objet, en ne lisant que les colonnes dont il a besoin.\n\nLe point du paramètre d'échantillonnage est qu'un utilisateur sélectionne des lignes en utilisant une fraction d'une grande table; le point de cela est que l'exportation ne le fait pas. Les propres colonnes de la limite de sélection des données plus les colonnes d'identité sont lues en entier -- une poignée sur des centaines, donc cela reste bon marché même lorsque la lecture de toute la table n'est pas.\n\n:param db_path: chemin vers la base de données de mesures SQLite, ouverte en lecture seule.\n:param table: la table d’objets à évaluer. Seules ses colonnes d’identité et les colonnes de mesure utilisées par le chemin de limites de sélection des données sont lues.\n:param gates: a ``GateSet``.\n:param gate_name: la limite de sélection des données.\n:returns: ``(identity frame, mask)`` prêt pour :func:`export_gate`.\n:raises FilterError: une colonne dont la limite de sélection des données n'est pas nécessaire dans le tableau.",
       "translation_source_blocks_sha256": [
         "864fa61f61c52fc78455d4075d2e4816b35ddf438ca92a58ea16354419d43e26",
         "1c47adb35e2ddb0079a9a6dfcafdd1d00f9546284efb0c3200b945f19061e56d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "11450eb5e1bf6fbbff17e7d15e92241170da7e93ad5eea6646116b18b4e015c9",
         "fe61798180318efe90598db740b7c157750ac5dcf4f3353aa210933978c2759a",
         "59b7816456a03407a70ccdfdfd749fbacef2c05f150f45ea238701eff8cc5f74",
         "42f8597fcee5a12efe580666ceba04cac494ec9aaa953442bb71f70020ee512b",
@@ -19950,14 +19960,16 @@
       "source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ],
-      "source_sha256": "903622a1d0d552133bbe44639e3e36f229a2cdbb106d518000e049ab40758660",
-      "text": "Les colonnes d'identité d'une table, et rien d'autre.\n\nIdentité seulement, parce que cela s'exécute sur chaque table d'objet dans la base de données et qu'une table de mesure est large -- des centaines de colonnes dont quatre matières. ``SELECT *`` voici la différence entre un bootstrap qui prend un moment et une qui lit toute la base.\n\n:param table: doit porter une colonne ``object_label`` -- ce nom, dans tous les cas. Toutes les autres colonnes d'identité sont optionnelles et absentes du cadre retourné; l'étiquette de l'objet n'est pas, parce que sans elle les lignes ne peuvent pas être décrites séparément.\n:raises FilterError: ``table`` n'a pas de colonne d'étiquette d'objet.",
+      "source_sha256": "ef597432cae520ed2d77402579485d65995b23c091a4f996c83f687ef4ae4b5c",
+      "text": "Les colonnes d'identité d'une table, et rien d'autre.\n\nIdentité seulement, parce que cela s'exécute sur chaque table d'objet dans la base de données et qu'une table de mesure est large -- des centaines de colonnes dont quatre matières. ``SELECT *`` voici la différence entre un bootstrap qui prend un moment et une qui lit toute la base.\n\n:param db_path: chemin vers la base de données de mesures SQLite. Elle est ouverte en lecture seule ; si le fichier est absent, :class:`sqlite3.OperationalError` est levée au lieu de créer une base de données vide.\n:param table: doit porter une colonne ``object_label`` -- ce nom, dans tous les cas. Toutes les autres colonnes d'identité sont optionnelles et absentes du cadre retourné; l'étiquette de l'objet n'est pas, parce que sans elle les lignes ne peuvent pas être décrites séparément.\n:raises FilterError: ``table`` n'a pas de colonne d'étiquette d'objet.",
       "translation_source_blocks_sha256": [
         "0ff8688ccfa2be5cb3f0b45357793f1e336bba32196c6ee1b5865102da3ebf47",
         "c2b50fd8c84f7b6ebb58de7cab46bbc0588ed3cecc5de7c34ddaa0791851e7ff",
+        "fde130ae621de21f87e19beb14a8d93c1741190ce1ffae6cc76b44bc2c223098",
         "4c005fd34365986331af1e3b29a3dbd68d726ebee82602a7f5e40ef26765028a",
         "edf0d2541183b5e398af9eb08dc76294986d9cdbd6378f7764d0430dc798c09e"
       ]
@@ -19966,14 +19978,18 @@
       "source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ],
-      "source_sha256": "daf8ee2f1d3b5f89401229bcc5338953b8787032233f760bc28d42ccf7bb02a3",
-      "text": "Lire ``table``, en option, ne prenant qu'une fraction de ses lignes.\n\nL'échantillonnage se fait dans SQL où il le peut, parce que le point est de ne pas lire les lignes. Une table qui ombre chaque alias de ligne id est lu entier et échantillonné après -- plus lent, mais correct, et il le dit dans le journal plutôt que de renvoyer tout tranquillement.\n\n:param fraction: combien de la table à lire, dans (0, 1).\n:param limit: un bouchon de rangée dure appliqué après la fraction.",
+      "source_sha256": "cff6969d32019959fc292ef2066f27eabafc5dddcdae16ecd545a987cac841ce",
+      "text": "Lire ``table``, ne prenant en option qu'une fraction de ses lignes.\n\nL'échantillonnage se produit dans SQL où il le peut, parce que le point est de ne pas lire les lignes. Une table qui ombre chaque alias de ligne id est lu entier et échantillonné après -- plus lent, mais correct, et il le dit dans le log plutôt que de renvoyer tranquillement tout.\n\n:param db_path: chemin vers la base de données de mesures SQLite, ouverte en lecture seule.\n:param table: la table à lire. Son nom est placé entre guillemets comme un identifiant SQLite unique ; si la table est absente, :class:`sqlite3.OperationalError` est levée.\n:param fraction: combien de la table à lire, dans (0, 1).\n:param limit: un bouchon de rangée dure appliqué après la fraction.",
       "translation_source_blocks_sha256": [
         "737adc2ee92cf753d4fc7389e043a69ce0689d9e48809c0e590ce4896a1a4498",
         "89360c1fc4c8c11a8297b030d0a1e818635ade47766738e7650bccb3930b24f6",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+        "423a12ba5d7c6986f70ae8caba12b6a66a6ae9324f06b8220b7fe08303f3ce46",
         "06154ef7444293d85b5f7d3aace7b797277c4a746fd9d87ff4a71f3a40334654",
         "1f9a9a7b42c87b9d38a46b651c33ff732af2d1b88feba893c72ffab6670040ff"
       ]
@@ -20015,12 +20031,14 @@
     "spacr.filters.row_count": {
       "source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ],
-      "source_sha256": "d3e353bce8c3f1ceaf232db3da7539e8c88a188b0e9356c414813f4509af546d",
-      "text": "Combien d'objets la table a -- ce qu'un échantillon est une fraction DE.\n\n:param table: va dans la requête comme un nom cité, donc il doit être une table qui existe -- une typo soulève :class:`sqlite3.OperationalError` plutôt que de compter zéro, et un appelant size un échantillon doit vérifier avec :func:`table_names` d'abord.",
+      "source_sha256": "0e22c79b7cc9fa07f15426282625db97ae0fdebf889582b43d7a0c72e229ba4c",
+      "text": "Combien d'objets la table a -- ce qu'un échantillon est une fraction DE.\n\n:param db_path: chemin vers la base de données de mesures SQLite, ouverte en lecture seule.\n:param table: va dans la requête comme un nom cité, de sorte qu'il doit être une table qui existe -- un typo soulève :class:`sqlite3.OperationalError` plutôt que de compter zéro, et un appelant size un échantillon doit d'abord vérifier avec :func:`table_names`.",
       "translation_source_blocks_sha256": [
         "1d336aa80429a75c4edc7d5a122c9be495e25b565bf2740a3133d26dab27598d",
+        "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
         "e8d7bf0da6ad0f758fed05840fe00cffebb41dcbf242390868b9fc8e271e65e8"
       ]
     },
@@ -111167,12 +111185,14 @@
     },
     "spacr.resources.home.versions._generators.common.repo_root": {
       "source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ],
-      "source_sha256": "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb",
-      "text": "Chemin absolu de la racine de caisse spacr (cinq niveaux en haut).",
+      "source_sha256": "5781168b11171a40bb03aeb920e4a24dc701aa2d4185d44b587fb459ea2ee678",
+      "text": "Renvoie le répertoire racine absolu du checkout spaCR.\n\nLe chemin est déterminé à partir de l’emplacement d’installation de ce module et ne dépend pas du répertoire configurable de sortie du rendu Home.",
       "translation_source_blocks_sha256": [
-        "85fa080339fb161e39080af4557f43f0e4de718367f9aa28c82e383b621fcabb"
+        "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+        "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c"
       ]
     },
     "spacr.resources.home.versions._generators.common.section_names": {

@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.filters.read_identity#2",
+      "source": "path to the SQLite measurement database. It is opened read-only, so a missing file raises :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "context": "path to the SQLite measurement database. It is opened read-only, so a missing file throws :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "source_sha256": "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
+      "translation": "SQLite 测量数据库的路径。数据库以只读方式打开，因此文件不存在时会引发 :class:`sqlite3.OperationalError`，而不会创建空数据库。"
+    },
+    {
+      "label": "spacr.filters.ensure_filters_table#1",
+      "source": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "context": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "source_sha256": "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
+      "translation": "测量数据库。读取现有表时不会修改它；首次调用或重建时，会写入从数据库对象关系派生的标识表。"
+    },
+    {
+      "label": "spacr.filters.export_gate#1",
+      "source": "the measurement database whose ``filters`` table is created when absent and then rewritten with the gate column.",
+      "context": "the measurement database whose ``filters`` table is created when absent and then rewritten with the data-selection boundary column.",
+      "source_sha256": "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
+      "translation": "测量数据库；当 ``filters`` 表不存在时会创建该表，然后用门控列重写它。"
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#2",
+      "source": "path to the SQLite measurement database, opened read-only.",
+      "context": "path to the SQLite measurement database, opened read-only.",
+      "source_sha256": "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+      "translation": "SQLite 测量数据库的路径，以只读方式打开。"
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#3",
+      "source": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected gate path are read.",
+      "context": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected data-selection boundary path are read.",
+      "source_sha256": "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
+      "translation": "要评估的对象表。只读取其标识列以及所选门控路径使用的测量列。"
+    },
+    {
+      "label": "spacr.filters.annotate_from_gates#2",
+      "source": "the objects to label. It must contain every measurement column referenced by the selected gates; the returned Series keeps this frame's index and row order.",
+      "context": "the objects to label. It must contain every measurement column referenced by the selected data-selection boundaries; the returned Series keeps this frame's index and row order.",
+      "source_sha256": "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
+      "translation": "要标记的对象。其中必须包含所选门控引用的每个测量列；返回的 Series 保留该数据框的索引和行顺序。"
+    },
+    {
+      "label": "spacr.filters.read_sampled#3",
+      "source": "the table to read. Its name is quoted as one SQLite identifier; a missing table raises :class:`sqlite3.OperationalError`.",
+      "context": "the table to read. Its name is quoted as one SQLite identifier; a missing table throws :class:`sqlite3.OperationalError`.",
+      "source_sha256": "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
+      "translation": "要读取的表。表名作为一个 SQLite 标识符加引号；如果表不存在，则会引发 :class:`sqlite3.OperationalError`。"
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.repo_root#0",
+      "source": "Return the absolute spaCR checkout root.",
+      "context": "Return the absolute spaCR checkout root.",
+      "source_sha256": "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
+      "translation": "返回 spaCR 检出目录的绝对根路径。"
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.repo_root#1",
+      "source": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
+      "context": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
+      "source_sha256": "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c",
+      "translation": "该路径根据此模块的安装位置确定，与可配置的 Home 渲染输出目录无关。"
+    }
+  ]
+}

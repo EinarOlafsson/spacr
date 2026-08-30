@@ -12,6 +12,7 @@ INTERNAL_PROVENANCE = re.compile(
     r"\b(?:asked for|requested|reported|measured|changed)(?:\s+on)?\s+20\d\d-|"
     r"\b(?:the|this)\s+instruction(?:'s)?\s+(?:asked|words|is about)|"
     r"\banother agent(?:'s)?\s+work-in-progress|"
+    r"\brender tests?\b|"
     r"\b(?:because that is )?where\s+(?:the\s+)?user\s+"
     r"(?:asked|requested|wanted)|"
     r"\b(?:feature|layout|panel|widget|style|theme|position|location|"
@@ -95,6 +96,7 @@ def test_provenance_pattern_catches_creator_directed_history():
         "Measured 2026-08-18 while repairing the dialog.",
         "The instruction's words require this layout.",
         "Another agent's work-in-progress may add a theme.",
+        "Render tests redirect this helper to a temporary directory.",
         "The panel sits here because the user asked for it.",
     )
 

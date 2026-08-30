@@ -28,13 +28,13 @@ runtime percentage is not a unique-string percentage.
 |---|---:|---:|---:|---:|---:|---:|
 | Swedish | 78 | 1.57% | 4,882 | 182 | 2.05% | 8,717 |
 | German | 48 | 0.97% | 4,912 | 124 | 1.39% | 8,775 |
-| Spanish | 55 | 1.11% | 4,905 | 18 | 0.20% | 8,881 |
-| Simplified Chinese | 202 | 4.07% | 4,758 | 142 | 1.60% | 8,757 |
-| Portuguese | 59 | 1.19% | 4,901 | 130 | 1.46% | 8,769 |
-| Hindi | 67 | 1.35% | 4,893 | 76 | 0.85% | 8,823 |
-| Korean | 183 | 3.69% | 4,777 | 108 | 1.21% | 8,791 |
-| Icelandic | 73 | 1.47% | 4,887 | 590 | 6.63% | 8,309 |
-| French | 56 | 1.13% | 4,904 | 108 | 1.21% | 8,791 |
+| Spanish | 55 | 1.11% | 4,905 | 27 | 0.30% | 8,872 |
+| Simplified Chinese | 202 | 4.07% | 4,758 | 151 | 1.70% | 8,748 |
+| Portuguese | 59 | 1.19% | 4,901 | 131 | 1.47% | 8,768 |
+| Hindi | 67 | 1.35% | 4,893 | 85 | 0.96% | 8,814 |
+| Korean | 183 | 3.69% | 4,777 | 117 | 1.31% | 8,782 |
+| Icelandic | 73 | 1.47% | 4,887 | 599 | 6.73% | 8,300 |
+| French | 56 | 1.13% | 4,904 | 117 | 1.31% | 8,782 |
 
 In addition, `tools/i18n_reviewed_ui.py` pins 84 context-sensitive UI sources
 in every locale: 84 x 9 = 756 reviewed source/target pairs.  Those rows overlap
@@ -64,6 +64,15 @@ The subsequent Home repair reviewed both blocks of
 `spacr.qt.widgets.home.SystemPanel` in every language after its lightweight
 probe contract changed.  Those 18 source-bound records also used no model
 decoding.
+
+The filters parameter sweep reviewed seven newly documented required-parameter
+blocks plus both corrected `repo_root` blocks in Spanish, Simplified Chinese,
+Hindi, Korean, Icelandic, and French.  Those 54 source-bound records replace
+model output that retained English, reversed missing-file behaviour, or read
+"checkout" as a purchase/cashier term.  Portuguese additionally records the
+source-bound repair of an existing `object_type` block that incremental layout
+had left in English.  Swedish, German, and the other Portuguese changes were
+regenerated and mechanically audited but are not added to the reviewed count.
 
 ## Explicit English identities and fallbacks
 
@@ -155,8 +164,8 @@ the 56 shared-tooltip variants has been semantically reviewed.
 
 API parameter checks reject ghost `:param:` names and contradictory literal
 defaults.  The reverse-direction ratchet now inventories the exact AutoAPI
-field-list boundary, but records rather than excuses 206 required parameters
-without a `:param:` field across 126 public callables.  Its count and digest
+field-list boundary, but records rather than excuses 197 required parameters
+without a `:param:` field across 119 public callables.  Its count and digest
 fail on additions or substitutions; the debt is still nonzero.
 
 ## Disposition
@@ -164,6 +173,6 @@ fail on additions or substitutions; the debt is still nonzero.
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 206 required-parameter omissions are resolved, the
+move to done only after the 197 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.

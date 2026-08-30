@@ -39,12 +39,10 @@ def versions_dir() -> str:
 
 
 def repo_root() -> str:
-    """Absolute path of the spaCR checkout root (five levels up).
+    """Return the absolute spaCR checkout root.
 
-    Resolve from this module's source file, not :func:`here`. Render tests
-    redirect ``here()`` to a temporary output tree; that must never make a
-    later :func:`bootstrap` mistake ``/tmp`` for the checkout and evict every
-    already-imported ``spacr`` module from the hosting process.
+    The path is derived from this module's installed location and is
+    independent of the configurable Home render-output directory.
     """
     source_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.normpath(os.path.join(source_dir, *([".."] * 5)))
