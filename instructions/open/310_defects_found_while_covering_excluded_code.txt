@@ -800,3 +800,59 @@ arc, which is why they are reliable while the aggregate is not.
     call the viewport already had. tests/qt/test_the_backdrop_behind_the_
     crops_is_rounded.py measures the corner and now passes; it was one of the
     14 test files that genuinely failed rather than failing on isolation.
+
+15. A FOURTH UNREACHABLE-ARC FAMILY: THE GUARD INSIDE A `finally`
+    --------------------------------------------------------------
+    Found on spacr/errors.py:724, and it generalises.
+
+        conn = None
+        try:
+            conn = connect(...)          # raises -> conn stays None
+            ...
+        except sqlite3.Error as exc:
+            raise RunStatusUnreadable(...) from exc
+        finally:
+            if conn is not None:         # 724
+                conn.close()             # 725
+        records = []                     # 726
+
+    Arc 724->726 -- the guard being False and falling through -- can never be
+    recorded. conn is None only when connect raised, and in that case the
+    finally runs with an exception in flight and control leaves by re-raising,
+    not by falling through to 726. When conn is NOT None the True arc is taken.
+    There is no third case.
+
+    PROVEN, not argued. A fifteen-line reproduction with no spaCR in it:
+
+        def f(fail):
+            conn = None
+            try:
+                if fail: raise ValueError("boom")
+                conn = object()
+            except ValueError:
+                raise RuntimeError("converted")
+            finally:
+                if conn is not None:     # line 11
+                    pass                 # line 12
+            return "normal"              # line 13
+
+        f(False); f(True)  -> executed [[5,6],[5,7],[11,12]]
+                              missing  [[11,13]]
+
+    Both paths through the function ran and 11->13 is still missing.
+
+    WHY IT MATTERS BEYOND THIS ONE LINE. This is the shape of every "close it
+    if we opened it" cleanup, so it will appear once per such function across
+    the package, always as exactly one missing branch. A module sitting at
+    "one branch short of 100%" is worth reading before it is worth testing:
+    the arc may not be a gap at all.
+
+    The guard is still worth a test, and errors.py now has one -- not for the
+    arc, but for what removing the guard would do: the finally would raise
+    AttributeError on None while the real exception was unwinding, and the
+    caller would get a traceback about NoneType instead of the message telling
+    them to wait for the writer or check the file.
+
+    Families so far: (1) defensive re-checks after a guarded call, (2) loop
+    else-arcs where the loop cannot complete, (3) model-check dead branches,
+    (4) this one.
