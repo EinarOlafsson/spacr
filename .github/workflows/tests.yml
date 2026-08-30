@@ -226,6 +226,171 @@ jobs:
       marker_expression: "nas and not gpu and not gui"
       timeout_minutes: 90
 
+  # COVERAGE IS THE SHIPPED PACKAGE, NOT A HAND-MAINTAINED MODULE LIST.
+  # Twelve file shards exercise the full coverage-eligible suite with branch
+  # tracing. Each shard is split again into fresh two-worker batches because
+  # scientific and Qt imports retain enough state to exhaust a hosted runner
+  # when thousands of tests share one interpreter. The five ignored files are
+  # wall-clock/RSS measurement suites: tracing changes the quantity they
+  # measure, and the blocking Qt job runs each one serially without tracing.
+  coverage-shards:
+    name: Coverage shard ${{ matrix.shard }} of 12
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
+      XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      # The deterministic four-field Hugging Face fixture is coverage-bearing
+      # application work, while a hosted runner has no CUDA device.
+      SPACR_HF_E2E_STUB: "1"
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+
+      - name: Install spaCR and branch-coverage tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" torchvision
+          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          python -m pip install \
+            "coverage>=7.10,<8" \
+            "pytest-cov>=7,<8"
+          python -m pip check
+
+      - name: Run coverage shard in bounded batches
+        env:
+          SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
+          SPACR_COVERAGE_SHARD: ${{ matrix.shard }}
+        run: |
+          python tools/run_coverage_batches.py tests \
+            --marker "not gui" \
+            --shard-index "$SPACR_COVERAGE_SHARD" \
+            --shard-count 12 \
+            --batch-size 32 \
+            --workers 2 \
+            --data-dir "$SPACR_COVERAGE_DATA_DIR" \
+            --exclude-file tests/test_perf_guard.py \
+            --exclude-file tests/qt/test_gui_responsiveness.py \
+            --exclude-file tests/qt/test_home_stage_and_dock.py \
+            --exclude-file tests/qt/test_figure_queue.py \
+            --exclude-file tests/qt/test_pca.py
+
+      - name: Upload coverage process data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: >-
+            spacr-coverage-data-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/spacr-coverage-data/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 3
+
+  coverage-combine:
+    name: Coverage / every shipped module at 100%
+    if: always()
+    needs: coverage-shards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install coverage verifier dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "coverage>=7.10,<8" "setuptools>=64"
+
+      - name: Download every uniquely named coverage shard
+        uses: actions/download-artifact@v8
+        with:
+          pattern: >-
+            spacr-coverage-data-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/spacr-coverage-input
+          merge-multiple: true
+
+      - name: Combine process data and write coverage.py JSON
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
+          SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
+          SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+        run: |
+          mkdir -p -- "$SPACR_COVERAGE_COMBINED" "$SPACR_COVERAGE_REPORT"
+          python -m coverage combine --keep "$SPACR_COVERAGE_INPUT"
+          python -m coverage json --pretty-print \
+            -o "$SPACR_COVERAGE_REPORT/coverage.json"
+
+      - name: Enforce the per-module 100% ratchet
+        env:
+          SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
+        run: |
+          python tools/verify_module_coverage.py \
+            --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
+            --root . \
+            --expected-file-count 505 \
+            --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
+            --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
+
+      - name: Upload human and machine-readable coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: >-
+            spacr-module-coverage-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/spacr-coverage-report/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Require every coverage shard to have passed its tests
+        if: always()
+        env:
+          SPACR_COVERAGE_SHARDS_RESULT: ${{ needs['coverage-shards'].result }}
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+
+          result = os.environ["SPACR_COVERAGE_SHARDS_RESULT"]
+          if result != "success":
+              sys.exit(f"coverage shards finished with {result}")
+          print("all coverage shards passed their selected tests")
+          PY
+
   quality:
     name: Lint / types / complexity
     runs-on: ubuntu-24.04
@@ -378,6 +543,7 @@ jobs:
       - gpu
       - network
       - nas
+      - coverage-combine
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 
