@@ -25,6 +25,7 @@ pytest.importorskip("pytestqt")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -32,14 +33,18 @@ pytestmark = pytest.mark.qt
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
     widget._console = types.SimpleNamespace(
         said=[], append_notice=None, append_stdout=None)
     lines = []
     widget._console.said = lines
     widget._console.append_notice = lines.append
     widget._console.append_stdout = lines.append
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 def _boom(*_args, **_kwargs):
@@ -105,11 +110,22 @@ class TestTheRunsTabRow:
 
     def test_a_column_fit_row_that_will_not_take_the_outcome_is_survivable(
             self, screen, monkeypatch):
+        updates = []
+
+        def refusing_update(handle, **fields):
+            updates.append((handle, fields))
+            raise RuntimeError("the row has gone")
+
         monkeypatch.setattr(screen, "_sweep_runs",
-                            types.SimpleNamespace(update_run=_boom))
+                            types.SimpleNamespace(update_run=refusing_update))
         screen._column_run_handles["response_a"] = "row-7"
 
         screen._on_column_fit_finished("response_a", {"ok": False})
+
+        assert updates == [("row-7", {
+            "status": "failed", "folder": None, "n_results": None,
+            "error_type": "did not fit"})]
+        assert "response_a" not in screen._column_run_handles
 
     def test_a_column_fit_with_no_row_is_left_alone(self, screen,
                                                     monkeypatch):
@@ -135,10 +151,19 @@ class TestTheRunsTabRow:
 
     def test_a_runs_tab_that_will_not_take_the_mark_back_is_survivable(
             self, screen, monkeypatch):
+        refusals = []
+
+        def refusing_mark(why):
+            refusals.append(why)
+            raise RuntimeError("the Runs tab has gone")
+
         monkeypatch.setattr(screen, "_sweep_runs",
-                            types.SimpleNamespace(the_load_failed=_boom))
+                            types.SimpleNamespace(
+                                the_load_failed=refusing_mark))
 
         screen._the_run_did_not_open("the table is empty")
+
+        assert refusals == ["the table is empty"]
 
     def test_no_runs_tab_means_no_mark_to_hand_back(self, screen,
                                                     monkeypatch):
@@ -146,14 +171,22 @@ class TestTheRunsTabRow:
 
         screen._the_run_did_not_open("the table is empty")
 
+        assert screen._sweep_runs is None
+        assert screen._console.said == []
+
 
 class TestRebuildingTheFigureGrid:
 
     def test_a_screen_with_no_grid_rebuilds_nothing(self, screen,
                                                      monkeypatch):
+        pin_attempts = []
         monkeypatch.setattr(screen, "_figure_grid", None)
+        monkeypatch.setattr(screen, "_pin_regression_graph",
+                            lambda: pin_attempts.append(True))
 
         screen._refresh_figure_grid()
+
+        assert pin_attempts == []
 
     def test_a_grid_that_refuses_the_rebuild_still_gets_its_live_tile(
             self, screen, monkeypatch):
@@ -174,6 +207,9 @@ class TestRebuildingTheFigureGrid:
 
     def test_nothing_is_pinned_without_a_grid_or_a_results_panel(
             self, screen, monkeypatch):
+        frame_reads = []
+        monkeypatch.setattr(screen, "_results_panel", types.SimpleNamespace(
+            results_frame=lambda: frame_reads.append(True)))
         monkeypatch.setattr(screen, "_figure_grid", None)
         screen._pin_regression_graph()
 
@@ -181,15 +217,28 @@ class TestRebuildingTheFigureGrid:
         monkeypatch.setattr(screen, "_results_panel", None)
         screen._pin_regression_graph()
 
+        assert frame_reads == []
+
     def test_a_results_panel_that_will_not_be_photographed_is_survivable(
             self, screen, monkeypatch):
         """The tile is a photograph of a live widget; a run has other output."""
+        frame_reads = []
+        grid_updates = []
+
+        def refusing_frame():
+            frame_reads.append(True)
+            raise RuntimeError("the results panel has gone")
+
         monkeypatch.setattr(screen, "_figure_grid", types.SimpleNamespace(
-            set_figures=lambda *a, **k: None))
+            set_figures=lambda *args, **kwargs:
+            grid_updates.append((args, kwargs))))
         monkeypatch.setattr(screen, "_results_panel",
-                            types.SimpleNamespace(results_frame=_boom))
+                            types.SimpleNamespace(results_frame=refusing_frame))
 
         screen._pin_regression_graph()
+
+        assert frame_reads == [True]
+        assert grid_updates == []
 
     def test_a_tile_menu_that_will_not_open_leaves_the_grid_alone(
             self, screen, monkeypatch):
@@ -396,13 +445,26 @@ class TestARunRemovedFromTheRunsTab:
 
     def test_a_queue_that_will_not_forget_is_survivable(self, screen,
                                                          monkeypatch):
+        panel_forgets = []
+        queue_forgets = []
+        folder = "/data/run"
+        screen._run_photographs[os.path.abspath(folder)] = object()
+
+        def refusing_queue(label):
+            queue_forgets.append(label)
+            raise RuntimeError("the figure queue has gone")
+
         monkeypatch.setattr(screen, "_results_panel", types.SimpleNamespace(
-            forget_run=lambda _f: None))
+            forget_run=panel_forgets.append))
         monkeypatch.setattr(screen, "_compare_panel", None, raising=False)
         monkeypatch.setattr(screen, "_figure_queue",
-                            types.SimpleNamespace(forget_run=_boom))
+                            types.SimpleNamespace(forget_run=refusing_queue))
 
-        screen._on_runs_removed([{"folder": "/data/run", "run": "run 3"}])
+        screen._on_runs_removed([{"folder": folder, "run": "run 3"}])
+
+        assert panel_forgets == [folder]
+        assert queue_forgets == ["run 3"]
+        assert os.path.abspath(folder) not in screen._run_photographs
 
 
 class TestOpeningASecondRunBeside:
@@ -450,9 +512,14 @@ class TestOpeningASecondRunBeside:
 class TestOpeningAResultsTab:
 
     def test_a_screen_with_no_tabs_raises_nothing(self, screen, monkeypatch):
+        page = object()
         monkeypatch.setattr(screen, "_results_tabs", None)
+        monkeypatch.setattr(screen, "_results_page", page, raising=False)
 
         screen._raise_the_results_tab()
+
+        assert screen._results_tabs is None
+        assert screen._results_page is page
 
     def test_opening_the_cells_tab_re_reads_it(self, screen, monkeypatch):
         """Nothing signals a database being attached while the tab is behind."""
@@ -469,39 +536,67 @@ class TestOpeningAResultsTab:
 
     def test_a_cells_tab_that_will_not_refresh_is_survivable(self, screen,
                                                               monkeypatch):
+        refreshes = []
+
+        def refusing_refresh():
+            refreshes.append(True)
+            raise RuntimeError("the cells tab has gone")
+
         monkeypatch.setattr(screen, "_cell_montage", types.SimpleNamespace(
-            refresh=_boom, shutdown=lambda: None))
+            refresh=refusing_refresh, shutdown=lambda: None))
         monkeypatch.setattr(screen, "_results_tabs", types.SimpleNamespace(
             widget=lambda _i: screen._cell_montage))
 
         screen._on_results_tab_changed(0)
 
+        assert refreshes == [True]
+
     def test_an_older_measurements_tab_with_no_refresh_is_left_alone(
             self, screen, monkeypatch):
         """The capability is asked for, not assumed."""
+        older_panel = types.SimpleNamespace()
         monkeypatch.setattr(screen, "_cell_montage", None)
-        monkeypatch.setattr(screen, "_scan_panel", types.SimpleNamespace(),
+        monkeypatch.setattr(screen, "_scan_panel", older_panel,
                             raising=False)
         monkeypatch.setattr(screen, "_results_tabs", types.SimpleNamespace(
             widget=lambda _i: screen._scan_panel))
 
         screen._on_results_tab_changed(0)
 
+        assert screen._scan_panel is older_panel
+
     def test_a_measurements_tab_that_will_not_refresh_is_survivable(
             self, screen, monkeypatch):
+        refreshes = []
+
+        def refusing_refresh():
+            refreshes.append(True)
+            raise RuntimeError("the measurements tab has gone")
+
         monkeypatch.setattr(screen, "_cell_montage", None)
         monkeypatch.setattr(screen, "_scan_panel", types.SimpleNamespace(
-            refresh_databases=_boom), raising=False)
+            refresh_databases=refusing_refresh), raising=False)
         monkeypatch.setattr(screen, "_results_tabs", types.SimpleNamespace(
             widget=lambda _i: screen._scan_panel))
 
         screen._on_results_tab_changed(0)
 
+        assert refreshes == [True]
+
     def test_a_screen_with_no_results_tabs_changes_nothing(self, screen,
                                                             monkeypatch):
+        refreshes = []
         monkeypatch.setattr(screen, "_results_tabs", None)
+        monkeypatch.setattr(screen, "_cell_montage", types.SimpleNamespace(
+            refresh=lambda: refreshes.append("cells"),
+            shutdown=lambda: None))
+        monkeypatch.setattr(screen, "_scan_panel", types.SimpleNamespace(
+            refresh_databases=lambda: refreshes.append("measurements")),
+                            raising=False)
 
         screen._on_results_tab_changed(0)
+
+        assert refreshes == []
 
 
 def test_a_refit_with_no_settings_starts_nothing(screen):

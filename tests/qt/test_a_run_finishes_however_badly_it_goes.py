@@ -328,20 +328,31 @@ def test_the_redirector_accepts_what_a_pipeline_actually_writes():
 
 def test_a_console_that_raises_does_not_break_the_pipeline_writing_to_it():
     """The consumer is a GUI widget; the producer is somebody's analysis."""
-    def _explode(_text):
+    received = []
+
+    def _explode(text):
+        received.append(text)
         raise RuntimeError("the console widget has been deleted")
 
     redirect = B._StreamRedirector(_explode)
 
-    redirect.write("a line\n")   # must not raise
+    written = redirect.write("a line\n")
     redirect.flush()
+
+    assert written == len("a line\n")
+    assert received == ["a line\n"], "the failing consumer was still reached"
+    assert redirect._buf == "", "the delivered line must not remain buffered"
 
 
 def test_the_router_survives_a_target_that_cannot_flush():
     router = B._ThreadStreamRouter(sys.__stdout__)
 
     class _Unflushable:
+        def __init__(self):
+            self.flushes = 0
+
         def flush(self):
+            self.flushes += 1
             raise RuntimeError("gone")
 
         def write(self, text):
@@ -353,6 +364,9 @@ def test_the_router_survives_a_target_that_cannot_flush():
         router.flush()          # must not raise
     finally:
         router.unregister(target)
+
+    assert target.flushes == 1, "the registered stream was asked to flush"
+    assert router._target() is sys.__stdout__
 
 
 def test_the_router_reports_the_original_streams_terminal_and_encoding():
@@ -564,9 +578,13 @@ def test_stopping_every_job_gives_up_when_the_budget_is_spent():
 def test_a_job_whose_thread_vanishes_while_shutting_down_is_not_an_error():
     worker = B.PipelineWorker(lambda settings: None, {})
     registry = B.RunRegistry()
-    registry.register(B.RunHandle("measure", worker, _VanishingThread()))
+    handle = registry.register(
+        B.RunHandle("measure", worker, _VanishingThread()))
 
-    registry.cancel_all(timeout_ms=50)   # must not raise
+    remaining = registry.cancel_all(timeout_ms=50)
+
+    assert remaining == [handle], "a still-live writer must keep vetoing close"
+    assert worker.cancel_token.cancelled
 
 
 # ---------------------------------------------------------------------------
@@ -718,7 +736,14 @@ def test_the_show_router_is_restored_even_when_removing_it_fails(
         qtbot, monkeypatch):
     """Teardown runs in ``finally``; anything raising there would take the
     ``finished`` emit with it."""
-    def _explode(_target):
+    real_unregister = B._unregister_matplotlib_show
+
+    def _explode(target):
+        # Fail *after* exercising the real removal.  Leaving the deliberately
+        # registered main-thread target behind would contaminate whichever
+        # test next checks the router's no-capture fallback; that is test
+        # pollution, not part of this worker's exception contract.
+        real_unregister(target)
         raise RuntimeError("the router registry is confused")
 
     monkeypatch.setattr(B, "_unregister_matplotlib_show", _explode)

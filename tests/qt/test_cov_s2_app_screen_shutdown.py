@@ -27,6 +27,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtGui import QCloseEvent                            # noqa: E402
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -34,8 +35,12 @@ pytestmark = pytest.mark.qt
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 class Refusing:
@@ -221,6 +226,15 @@ class TestTheStopDialogsThreeAnswers:
         screen._on_stop()
 
     def test_stop_pressed_with_no_run_does_nothing(self, screen, monkeypatch):
+        from spacr.qt import shutdown
+
+        questions = []
         monkeypatch.setattr(screen, "_thread", None)
+        monkeypatch.setattr(shutdown, "ask_how_to_quit",
+                            lambda *args, **kwargs:
+                            questions.append((args, kwargs)))
 
         screen._on_stop()
+
+        assert questions == []
+        assert screen._thread is None

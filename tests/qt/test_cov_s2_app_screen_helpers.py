@@ -105,12 +105,17 @@ def test_a_widget_that_refuses_to_be_unparented_is_still_let_go():
     case this exists for; letting the exception out would abandon the screen
     mid-construction instead of the one widget.
     """
+    attempts = []
+
     class Awkward:
-        def setParent(self, _parent):
+        def setParent(self, parent):
+            attempts.append(parent)
             raise RuntimeError("this widget is already gone")
 
     aps._discard_widget(Awkward())
     aps._discard_widget(None)
+
+    assert attempts == [None]
 
 
 # -- the late translation pass ------------------------------------------------

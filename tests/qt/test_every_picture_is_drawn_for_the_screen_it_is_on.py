@@ -578,12 +578,19 @@ def test_a_redraw_that_throws_does_not_take_the_window_with_it(qapp, qtbot):
     label = QLabel()
     qtbot.addWidget(label)
 
+    redraws = []
+
     def redraw():
+        redraws.append(True)
         raise RuntimeError("the picture is gone")
 
-    follow_device_ratio(label, redraw)
+    watcher = follow_device_ratio(label, redraw)
     label.devicePixelRatioF = lambda: 2.0
     qapp.sendEvent(label, QEvent(QEvent.Type.DevicePixelRatioChange))
+
+    assert watcher is not None
+    assert redraws == [True], "the ratio change reached the guarded redraw"
+    assert watcher.ratio() == 2.0
 
 
 # --------------------------------------------------------------------------

@@ -25,6 +25,7 @@ pytest.importorskip("pytestqt")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from spacr.qt.screens.app_screen import AppScreen                # noqa: E402
+from spacr.qt.widget_cleanup import retire_pyqtgraph_menus       # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -32,8 +33,12 @@ pytestmark = pytest.mark.qt
 @pytest.fixture
 def screen(qtbot):
     widget = AppScreen("regression")
-    qtbot.addWidget(widget)
-    return widget
+    try:
+        yield widget
+    finally:
+        retire_pyqtgraph_menus(widget)
+        widget.close()
+        widget.deleteLater()
 
 
 class TestWhichFolderTheRunIsIn:
@@ -182,7 +187,10 @@ class TestKeepingTheSweepsEffectsGrid:
         """The sweep produced its answer; the grid is a picture of it."""
         from spacr import cell_montage
 
-        def refusing(_effects, _folder):
+        attempts = []
+
+        def refusing(effects, folder):
+            attempts.append((effects, folder))
             raise OSError("the run folder is read-only")
 
         monkeypatch.setattr(cell_montage, "write_effects_grid", refusing)
@@ -193,6 +201,8 @@ class TestKeepingTheSweepsEffectsGrid:
 
         screen._keep_the_effects_grid(
             types.SimpleNamespace(effects=[{"gene": "A"}]))
+
+        assert attempts == [([{"gene": "A"}], str(tmp_path))]
 
 
 class TestTheSweepsInputs:

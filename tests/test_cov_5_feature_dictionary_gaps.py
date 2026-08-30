@@ -398,13 +398,21 @@ def test_install_swallows_both_of_its_failures(qtbot, monkeypatch):
     window = QMainWindow()
     qtbot.addWidget(window)
 
+    attempts = []
+
     def refuse_action(_window):
+        attempts.append("action")
         raise RuntimeError("no menu bar yet")
 
     def refuse_filter(*_args, **_kwargs):
+        attempts.append("filter")
         raise RuntimeError("no application object")
 
     monkeypatch.setattr(fd, "install_help_action", refuse_action)
     monkeypatch.setattr(fd, "install_context_menu_filter", refuse_filter)
 
-    fd.install_window_hooks(window)
+    result = fd.install_window_hooks(window)
+
+    assert result is None
+    assert attempts == ["action", "filter"], (
+        "one failed optional hook must not prevent trying the other")

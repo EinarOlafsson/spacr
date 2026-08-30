@@ -56,7 +56,12 @@ def test_it_survives_a_screen_with_neither_tab():
         _on_loaded_run_changed_refresh_tabs = \
             A.AppScreen._on_loaded_run_changed_refresh_tabs
 
-    _Bare()._on_loaded_run_changed_refresh_tabs({"run": "ols_2"})
+    bare = _Bare()
+
+    result = bare._on_loaded_run_changed_refresh_tabs({"run": "ols_2"})
+
+    assert result is None
+    assert vars(bare) == {}, "the absent tabs must not be synthesised"
 
 
 def test_a_tab_that_raises_does_not_stop_the_other(qtbot):

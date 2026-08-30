@@ -318,13 +318,20 @@ def test_panels_that_cannot_be_listed_are_not_narrowed(screen, monkeypatch):
     _axes(screen, "area", "intensity")
     screen.set_axis_cutoffs("x", 20.0, 60.0)
 
+    attempts = []
+
     def _explode():
+        attempts.append(True)
         raise RuntimeError("the canvas has not drawn yet")
 
     monkeypatch.setattr(screen.gates.canvas, "panel_axes", _explode,
                         raising=False)
 
-    screen._narrow_to_cutoffs()  # must not raise
+    result = screen._narrow_to_cutoffs()
+
+    assert result is None
+    assert attempts == [True], "the unavailable panel list was consulted once"
+    assert screen._cutoffs.get("area") == AxisCutoff(20.0, 60.0)
 
 
 def test_a_repaint_that_fails_does_not_lose_the_narrowing(screen, monkeypatch):
