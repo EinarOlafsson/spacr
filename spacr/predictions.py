@@ -173,8 +173,27 @@ _NAME_COLUMNS: Tuple[str, ...] = ("path", "png_path", "file_name")
 #: Per-crop-mode object-id columns :func:`spacr.utils.filepaths_to_database`
 #: writes ('o<n>' strings). Used to rebuild ``prcfo`` when a table somehow
 #: lacks the column but still carries the metadata it is made of.
+#:
+#: DERIVED FROM THE ROLES, NOT LISTED BY HAND. This was a hand-written copy of
+#: spacr.utils.PNG_OBJECT_ID_COLUMNS and it had drifted: the four organelle
+#: roles were absent, so an organelle-mode score table could not rebuild its
+#: key and its join matched zero rows -- read as "no per-object score", which
+#: is the exact failure the comment in ``_result_keys`` says was fixed for the
+#: plainer spellings. PNG_OBJECT_ID_COLUMNS carries a comment about organelle
+#: having been missing from IT once, for the same reason.
+#:
+#: ``spacr.utils`` is imported lazily elsewhere in this module to avoid a
+#: cycle, so the roles come from ``spacr.schema`` -- which is where
+#: PNG_OBJECT_ID_COLUMNS gets them too.
+#:
+#: Order is precedence, and the two additions go LAST so no table that
+#: resolved before resolves differently now.
+from .schema import OBJECT_KEY as _OBJECT_KEY, ORGANELLE_ROLES as _ORGANELLE_ROLES
+
 _OBJECT_ID_COLUMNS: Tuple[str, ...] = (
     "cell_id", "nucleus_id", "pathogen_id", "cytoplasm_id", "object",
+    *(f"{role}_id" for role in _ORGANELLE_ROLES),
+    _OBJECT_KEY,
 )
 
 #: Metadata columns ``prcfo`` is assembled from, in order.
