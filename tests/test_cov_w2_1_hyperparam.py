@@ -361,23 +361,32 @@ def test_the_pareto_front_is_printed_when_objectives_are_declared():
 # The estimator ladder
 
 
-@pytest.mark.parametrize("model_type, expected", [
-    ("random_forest", "RandomForestClassifier"),
-    ("extra_trees", "ExtraTreesClassifier"),
-    ("logistic_regression", "LogisticRegression"),
-    ("gradient_boosting", "HistGradientBoostingClassifier"),
-    ("xgboost", "XGBClassifier"),
-    ("lightgbm", "LGBMClassifier"),
-    ("catboost", "CatBoostClassifier"),
-    ("svm", "SVC"),
-    ("mlp", "MLPClassifier"),
+@pytest.mark.parametrize("model_type, expected, optional_package", [
+    ("random_forest", "RandomForestClassifier", None),
+    ("extra_trees", "ExtraTreesClassifier", None),
+    ("logistic_regression", "LogisticRegression", None),
+    ("gradient_boosting", "HistGradientBoostingClassifier", None),
+    ("xgboost", "XGBClassifier", None),
+    ("lightgbm", "LGBMClassifier", "lightgbm"),
+    ("catboost", "CatBoostClassifier", "catboost"),
+    ("svm", "CalibratedClassifierCV", None),
+    ("mlp", "MLPClassifier", None),
 ])
-def test_every_offered_model_type_builds_its_estimator(model_type, expected):
-    """The combo box offers these nine; each has to construct."""
-    model = hp.build_sklearn_model(model_type, {"n_estimators": 7,
-                                                "learning_rate": 0.2,
-                                                "reg_lambda": 2.0,
-                                                "max_depth": 3}, seed=1)
+def test_every_offered_model_type_builds_its_estimator(
+        model_type, expected, optional_package):
+    """Each offered backend constructs or names its optional installation."""
+    try:
+        model = hp.build_sklearn_model(
+            model_type,
+            {"n_estimators": 7, "learning_rate": 0.2,
+             "reg_lambda": 2.0, "max_depth": 3},
+            seed=1,
+        )
+    except ImportError as exc:
+        if optional_package is None:
+            raise
+        assert f"pip install {optional_package}" in str(exc)
+        return
 
     assert type(model).__name__ == expected
 
@@ -397,7 +406,9 @@ def test_the_regularisation_strength_is_the_inverse_of_reg_lambda():
 
 def test_a_zero_reg_lambda_does_not_divide_by_zero():
     """An unregularised request is a huge C, not a ZeroDivisionError."""
-    assert hp.build_sklearn_model("svm", {"reg_lambda": 0.0}).C > 1e8
+    model = hp.build_sklearn_model(
+        "logistic_regression", {"reg_lambda": 0.0})
+    assert model.C > 1e8
 
 
 # ---------------------------------------------------------------------------
@@ -455,9 +466,6 @@ def test_an_estimator_without_probabilities_is_scored_on_its_margin(
     assert 0.0 <= score <= 1.0
 
 
-@pytest.mark.xfail(strict=True, reason="hyperparam.py still builds "
-                                       "SVC(probability=True); ml.py builds a "
-                                       "CalibratedClassifierCV instead")
 def test_the_searched_svm_is_the_svm_the_real_run_fits():
     """The search must configure the estimator ``ml_analysis`` will fit.
 

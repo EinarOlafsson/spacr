@@ -23,11 +23,12 @@ This test re-derives the answer from the source every run, so it rots in
 neither direction: a field that gains a reader must leave the allowlist, and
 a field that loses its last reader must join it or be deleted.
 
-WHAT IT CAN AND CANNOT SEE. "Reader" means the field name appears in some
-other module under `spacr/`. That is deliberately generous -- it will count
-a mention that merely passes the value along -- so a field this test calls
-dead really is dead. It cannot see a field that is read but ignored, which
-is a different defect and needs its own test.
+WHAT IT CAN AND CANNOT SEE. "Reader" means the field name appears in another
+module under `spacr/`, or is loaded as an attribute outside its declaring
+dataclass. The latter matters for a module such as ``fractal_travel`` that
+owns both its settings object and the renderer consuming it. It cannot see a
+field that is read but ignored, which is a different defect and needs its own
+test.
 """
 from __future__ import annotations
 
@@ -92,6 +93,20 @@ def _settings_fields():
 FIELDS = _settings_fields()
 
 
+def _declaring_module_reads(path, cls, field) -> bool:
+    """Whether code outside ``cls`` loads this field in the same module."""
+    tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+    for statement in tree.body:
+        if isinstance(statement, ast.ClassDef) and statement.name == cls:
+            continue
+        for node in ast.walk(statement):
+            if (isinstance(node, ast.Attribute)
+                    and isinstance(node.ctx, ast.Load)
+                    and node.attr == field):
+                return True
+    return False
+
+
 def test_the_scan_finds_the_dataclasses_it_is_supposed_to_guard():
     """A scan that silently matched nothing would pass every test below."""
     assert FIELDS, "no settings dataclasses found -- the scan is broken"
@@ -113,6 +128,8 @@ def test_every_settings_field_is_read_somewhere(path, cls, field):
         if other != path
         and pattern.search(other.read_text(encoding="utf-8", errors="replace"))
     ]
+    if _declaring_module_reads(path, cls, field):
+        readers.append(path.relative_to(REPO))
 
     reason = KNOWN_UNREAD.get((cls, field))
     if reason is not None:
