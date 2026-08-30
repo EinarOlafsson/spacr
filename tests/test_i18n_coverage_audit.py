@@ -18,7 +18,7 @@ REVIEWED_RUNTIME_COUNTS = {
     "hi": 99, "ko": 215, "is": 105, "fr": 88,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 180, "de": 125, "es": 25, "zh_CN": 148, "pt": 130,
+    "sv": 181, "de": 126, "es": 27, "zh_CN": 152, "pt": 130,
     "hi": 83, "ko": 114, "is": 592, "fr": 115,
 }
 DISPLAY_NAMES = {

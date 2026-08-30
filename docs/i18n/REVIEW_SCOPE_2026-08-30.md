@@ -27,10 +27,10 @@ runtime percentage is not a unique-string percentage.
 
 | Language | Reviewed runtime sources | Of 4,978 | Arithmetic remainder | Reviewed API blocks | Of 8,817 | Arithmetic remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 110 | 2.21% | 4,868 | 180 | 2.04% | 8,637 |
-| German | 80 | 1.61% | 4,898 | 125 | 1.42% | 8,692 |
-| Spanish | 87 | 1.75% | 4,891 | 25 | 0.28% | 8,792 |
-| Simplified Chinese | 234 | 4.70% | 4,744 | 148 | 1.68% | 8,669 |
+| Swedish | 110 | 2.21% | 4,868 | 181 | 2.05% | 8,636 |
+| German | 80 | 1.61% | 4,898 | 126 | 1.43% | 8,691 |
+| Spanish | 87 | 1.75% | 4,891 | 27 | 0.31% | 8,790 |
+| Simplified Chinese | 234 | 4.70% | 4,744 | 152 | 1.72% | 8,665 |
 | Portuguese | 91 | 1.83% | 4,887 | 130 | 1.47% | 8,687 |
 | Hindi | 99 | 1.99% | 4,879 | 83 | 0.94% | 8,734 |
 | Korean | 215 | 4.32% | 4,763 | 114 | 1.29% | 8,703 |
@@ -71,8 +71,15 @@ blocks in Spanish, Simplified Chinese, Hindi, Korean, Icelandic, and French.
 Those 42 source-bound records replace model output that retained English or
 reversed missing-file behaviour.  Portuguese additionally records the
 source-bound repair of an existing `object_type` block that incremental layout
-had left in English.  Swedish, German, and the other Portuguese changes were
-regenerated and mechanically audited but are not added to the reviewed count.
+had left in English.  Other regenerated changes were mechanically audited but
+are not added to the reviewed count.
+
+The final hard-tail review records the FlowView `NodeItem` card description in
+Swedish, German, Spanish, and Simplified Chinese; the even-odd ray-casting
+description for Spanish `points_in_polygon`; and three technical blocks from
+the Simplified Chinese Freedman-Lane guide-permutation documentation.  Each
+record is bound to its exact current source block, contextual model input, and
+SHA-256 hash, and passes the protected-literal and target-script gates.
 
 ## Explicit English identities and fallbacks
 
@@ -154,7 +161,7 @@ The former twelve `KNOWN_THIN` tooltip waivers are gone.  Each now passes the
 ordinary type, length, non-tautology, default-presence, and link checks and is
 separately pinned to implementation facts.  Unit ratchets cover all 110
 diameter/radius keys plus explicit `_px` and `_um` keys.  Across registered app
-defaults, 660 parseable tooltip/default comparisons are pinned: 604 match
+defaults, 675 parseable tooltip/default comparisons are pinned: 619 match
 directly and 56 module-specific variants have an exact no-substitution digest.
 Forty-seven inactive real-default dependency cases spanning 33 settings must
 also state which source setting made them inapplicable.  These are concrete
@@ -163,8 +170,8 @@ the 56 shared-tooltip variants has been semantically reviewed.
 
 API parameter checks reject ghost `:param:` names and contradictory literal
 defaults.  The reverse-direction ratchet now inventories the exact AutoAPI
-field-list boundary, but records rather than excuses 197 required parameters
-without a `:param:` field across 119 public callables.  Its count and digest
+field-list boundary, but records rather than excuses 4,165 required parameters
+without a `:param:` field across 2,703 public callables.  Its count and digest
 fail on additions or substitutions; the debt is still nonzero.
 
 ## Disposition
@@ -172,6 +179,6 @@ fail on additions or substitutions; the debt is still nonzero.
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 197 required-parameter omissions are resolved, the
+move to done only after the 4,165 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.

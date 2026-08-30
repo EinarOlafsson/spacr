@@ -1967,7 +1967,7 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed.  The source-derived denominator above exposes the real current
-    baseline: 4,173 omissions across 2,708 public callables.  Count, category
+    baseline: 4,165 omissions across 2,703 public callables.  Count, category
     counts and digest are all exact so deleting a field/docstring, or swapping
     one omission for another, cannot turn this test green.
     """
@@ -1983,24 +1983,24 @@ def test_no_new_undocumented_required_public_parameters():
         omissions.extend(
             f"{item.symbol}:{name}" for name in missing)
 
-    assert len(omissions) == 4_173
-    assert sum(omitted_callables.values()) == 2_708
+    assert len(omissions) == 4_165
+    assert sum(omitted_callables.values()) == 2_703
     assert omitted_callables == {
         "function": 1_079,
         "method": 1_368,
-        "constructor": 56,
+        "constructor": 51,
         "dataclass_constructor": 201,
         "namedtuple_constructor": 4,
     }
     assert omitted_parameters == {
         "function": 1_572,
         "method": 1_684,
-        "constructor": 89,
+        "constructor": 81,
         "dataclass_constructor": 806,
         "namedtuple_constructor": 22,
     }
     assert _sha256_lines(omissions) == (
-        "6c797ce493db888cc0bd38ec82945b44bc5c52380b0688e042700d506543fe08"
+        "945d5463dd064b7eda924dc58481049e34668588cdc699772264551302daec57"
     )
 
 
