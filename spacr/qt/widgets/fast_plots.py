@@ -4332,6 +4332,9 @@ class FastPlot(QWidget):
         that merely received the key know only the key, so letting them write
         last replaces the answer with the question.
 
+        :param key: the shared row identifier to name in the status line. It
+            is compared as text with the plot's existing detail so a richer
+            click report for the same row is not overwritten.
         :param found: whether this plot actually drew that row. ``False`` is a
             real answer and is said out loud: a coefficient with an unusable
             p-value is on no plot, a nuisance term is off the volcano on
@@ -4350,6 +4353,9 @@ class FastPlot(QWidget):
                     rows=None) -> ScatterPlotItem:
         """Add points and wire up clicking them.
 
+        :param x: x coordinates in frame order. An entry is omitted when it
+            or its paired y coordinate is non-finite.
+        :param y: y coordinates aligned one-for-one with ``x``.
         :param colours: one QColor per point, or None for a single colour.
         :param symbol_list: one pyqtgraph symbol per point, or None for
             ``symbol`` everywhere. This provides an independent categorical
@@ -4624,6 +4630,12 @@ class FastPlot(QWidget):
         selection therefore contains exactly the points visibly enclosed by
         the supplied bounds.
 
+        :param x0: x coordinate of the first rectangle corner; it need not be
+            the lower bound.
+        :param y0: y coordinate of the first rectangle corner; it need not be
+            the lower bound.
+        :param x1: x coordinate of the opposite rectangle corner.
+        :param y1: y coordinate of the opposite rectangle corner.
         :param add: extend the current selection rather than replacing it,
             as used when a modifier key is held during selection.
         :returns: selected keys in pick order.
@@ -6484,6 +6496,9 @@ class VolcanoPlot(FastPlot):
                     run_method: Optional[str] = None):
         """Draw ``frame``. Returns the number of points actually plotted.
 
+        :param frame: the coefficient table. Rows without a finite effect and
+            raw p-value are left off the plot, while their original positions
+            remain the identifiers used for linked selections.
         :param symbol_column: optional categorical column encoded by marker
             shape, independently of colour.
         :param opacity_column: optional categorical column encoded by opacity.
@@ -7832,6 +7847,8 @@ class QQPlot(FastPlot):
     def set_p_values(self, values, *, keys=None):
         """Draw the Q-Q. Returns the number of usable tests.
 
+        :param values: one p-value per frame row, including missing entries;
+            only finite positive values are ranked and drawn.
         :param keys: one identifier per element of ``values``, IN THE ORDER
             THEY WERE HANDED IN -- i.e. in frame order, including the ones
             with no usable p-value. Given them, every point is clickable and
@@ -7964,6 +7981,9 @@ class ScaleLocationPlot(FastPlot):
                            labels: Sequence[str] = (), reason: str = ""):
         """Draw it. Returns the number of wells plotted.
 
+        :param fitted: one fitted response per well, aligned with
+            ``std_resid`` and ``labels``; pairs containing a non-finite value
+            are not drawn.
         :param std_resid: ``RegressionQCContext.std_resid``. All-NaN when the
             model class has no error scale -- see
             :func:`spacr.regression_qc.resolve_residual_standardisation`.
