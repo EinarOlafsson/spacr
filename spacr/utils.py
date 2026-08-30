@@ -6938,8 +6938,7 @@ class SaliencyMapGenerator:
         """Render a grid overlaying saliency maps on inputs with predicted-class labels.
 
         The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
-        ``axis('off')`` is applied only to the panels that get a sample, so an
-        incomplete last row renders as empty framed boxes. The figure is
+        unused panels in an incomplete last row are hidden. The figure is
         returned, never shown.
 
         :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
@@ -6950,15 +6949,15 @@ class SaliencyMapGenerator:
         :param saliency: torch tensor of at least ``N`` entries. It is indexed
             and moved to the CPU on every iteration even when ``overlay`` is
             false, so a numpy array raises ``AttributeError`` either way. Each
-            entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is
-            transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)``
-            raise ``TypeError`` from ``imshow``.
+            entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading
+            singleton is removed and a leading RGB dimension is transposed to
+            channels-last. Other three-dimensional shapes reach ``imshow`` and
+            raise ``TypeError``.
         :param predictions: sequence supporting ``predictions[i].item()``,
             whose scalar is stamped in each panel's corner. A plain Python list
             of ints raises ``AttributeError``.
-        :param overlay: false draws no image at all -- neither the input nor
-            the map -- leaving a grid of bare class labels on empty axes.
-            Default ``True``.
+        :param overlay: true draws the input beneath a translucent map; false
+            draws the map alone. Default ``True``.
         :param normalize: percentile-stretch the input image only; the saliency
             map is always drawn raw. Has no effect unless ``overlay`` is true,
             and a channel that is flat between its 2nd and 98th percentiles
@@ -6976,6 +6975,12 @@ class SaliencyMapGenerator:
         # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+
+            # An incomplete last row must be absent, not seven empty framed
+            # panels beside the final sample. Used panels stay off too because
+            # an image grid has no meaningful ticks or spines.
+            for ax in axs.flat:
+                ax.axis('off')
 
             for i in range(N):
                 ax = axs[i // 8, i % 8]
@@ -7119,8 +7124,7 @@ class GradCAMGenerator:
         """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels.
 
         The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
-        ``axis('off')`` is applied only to the panels that get a sample, so an
-        incomplete last row renders as empty framed boxes. The figure is
+        unused panels in an incomplete last row are hidden. The figure is
         returned, never shown.
 
         :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
@@ -7128,19 +7132,15 @@ class GradCAMGenerator:
             The pixels are read only under ``overlay``, where the sample is
             permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
             raises ``TypeError`` from ``imshow``.
-        :param gradcam: torch tensor of per-sample 2-D maps, i.e. ``(N, H, W)``
-            as returned by :meth:`compute_gradcam_and_predictions`. Unlike
-            :meth:`SaliencyMapGenerator.plot_activation_grid` there is no
-            channels-first transpose here, so an ``(N, 3, H, W)`` stack raises
-            ``TypeError``. It is indexed and moved to the CPU on every
-            iteration even when ``overlay`` is false, so it must be a tensor
-            either way.
+        :param gradcam: torch tensor with at least ``N`` entries. Each map may
+            be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``, with the same shape
+            normalization used by the saliency twin. It is indexed and moved
+            to the CPU on every iteration, so it must be a tensor either way.
         :param predictions: sequence supporting ``predictions[i].item()``,
             whose scalar is stamped in each panel's corner. A plain Python list
             of ints raises ``AttributeError``.
-        :param overlay: false draws no image at all -- neither the input nor
-            the map -- leaving a grid of bare class labels on empty axes.
-            Default ``True``.
+        :param overlay: true draws the input beneath a translucent map; false
+            draws the map alone. Default ``True``.
         :param normalize: percentile-stretch the input image only; the Grad-CAM
             map is always drawn raw. Has no effect unless ``overlay`` is true,
             and a channel that is flat between its 2nd and 98th percentiles
@@ -7157,6 +7157,9 @@ class GradCAMGenerator:
         # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+
+            for ax in axs.flat:
+                ax.axis('off')
 
             for i in range(N):
                 ax = axs[i // 8, i % 8]
@@ -8127,10 +8130,9 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
         all of its members -- no sampling happens.
     :param img_zoom: scale factor handed to ``OffsetImage``, applied to the
         file's own pixel dimensions rather than to data units.
-    :param colors: bound by the ``zip`` and then never read, so it contributes
-        no color at all. What it does contribute is a length: ``zip`` stops at
-        the shorter sequence, and since ``np.unique`` counts the ``-1`` noise
-        label a palette sized to the real clusters silently drops the last one.
+    :param colors: accepted for caller compatibility but not read. Thumbnail
+        overlays do not use a cluster color, and palette length no longer
+        limits how many labels are visited.
     :param cluster_indices: mapping of label to the row indices to draw from.
         Looked up with ``.get(label, [])``, so a label present in ``labels``
         but absent here plots nothing instead of raising.
@@ -8257,13 +8259,10 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
     :param cluster_images: ordered mapping of cluster label to that cluster's
         list of image arrays; one column per key, and an empty mapping raises
         ``ValueError`` from ``subplots``.
-    :param colors: consumed two different ways in the same figure. The panel
-        border uses ``colors[label]`` for integer keys, so the palette must
-        reach the largest label, while the legend swatches beside the grid are
-        taken positionally -- with non-contiguous labels the two disagree, and
-        cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``.
-        String keys use the positional index for both. A palette shorter than
-        the mapping raises ``IndexError``, and entries need at least three
+    :param colors: palette used consistently for both panel borders and legend
+        swatches. Integer labels index it by label (wrapping when necessary),
+        while string labels use their position in ``cluster_images``. An empty
+        palette falls back to neutral grey, and entries need at least three
         components.
     :param figuresize: figure height in inches and the label font size; the
         width is this times the cluster count. It is shrunk to
@@ -8293,7 +8292,18 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         grid_fig.patch.set_facecolor(plot_colors['background'])
         if num_clusters == 1:
             grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
-        for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
+        cluster_labels = list(cluster_images.keys())
+
+        def cluster_color(cluster_label):
+            """Resolve one cluster's color once for panels and legend."""
+            if isinstance(cluster_label, str):
+                idx = cluster_labels.index(cluster_label)
+            else:
+                idx = int(cluster_label)
+            return (colors[idx % len(colors)] if len(colors)
+                    else (0.5, 0.5, 0.5))
+
+        for cluster_label, axes in zip(cluster_labels, grid_axes):
             axes.set_facecolor(plot_colors['background'])
             images = cluster_images[cluster_label]
             num_images = len(images)
@@ -8306,13 +8316,11 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
             # 0..k-1, so a run with more clusters than colours used to die here
             # with a bare "list index out of range" from colors[cluster_label].
             # Reusing a colour is a worse figure; crashing is a lost run.
-            if isinstance(cluster_label, str):
-                idx = list(cluster_images.keys()).index(cluster_label)
-                if verbose:
-                    print(f'Lable: {cluster_label} index: {idx}')
-            else:
-                idx = int(cluster_label)
-            color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
+            if isinstance(cluster_label, str) and verbose:
+                print(
+                    f'Lable: {cluster_label} '
+                    f'index: {cluster_labels.index(cluster_label)}')
+            color = cluster_color(cluster_label)
 
             axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
             axes.axis('off')
@@ -8329,7 +8337,8 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
     
         # Add cluster labels beside the UMAP plot
         spacing_factor = 0.5  # Adjust this value to control the spacing between labels
-        for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
+        for i, cluster_label in enumerate(cluster_labels):
+            color = cluster_color(cluster_label)
             label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
             grid_fig.text(
                 1.05, label_y, f'Cluster {cluster_label}',
