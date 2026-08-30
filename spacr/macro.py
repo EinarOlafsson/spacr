@@ -556,8 +556,9 @@ class Macro:
         if parent:
             os.makedirs(parent, exist_ok=True)
         temporary = f"{target}.{os.getpid()}.tmp"
+        rendered = self.source()
         with open(temporary, "w", encoding="utf-8") as handle:
-            handle.write(self.source())
+            handle.write(rendered)
         os.replace(temporary, target)
         return target
 
