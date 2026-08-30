@@ -283,13 +283,13 @@ IMAGE_THEMES = ("cell", "glass")
 # each is derived from one that is already there.
 
 def rim_colour(theme: str = "dark") -> str:
-    """The hairline that outlines every tile — the theme's own ink.
+    """The meaningful hairline on outlined tiles — the theme's own ink.
 
     White in the dark themes, near-black in the light one, because that
-    is what ``fg`` already is. Asked for as "a thin white rim, black in
-    white mode"; deriving it from ``fg`` rather than writing ``#ffffff``
-    means Space and Cell get it for free and no theme can be added that
-    silently draws an invisible rim.
+    is what ``fg`` already is. Horizontal cards and interactive hover states
+    still use it; resting Home module tiles deliberately do not. Deriving it
+    from ``fg`` rather than writing ``#ffffff`` means every palette gets the
+    right ink without a raw colour drifting out of sync.
     """
     return palette_for(theme)["fg"]
 
@@ -526,6 +526,8 @@ def legible_scrim_floor(theme: str, role: str,
     thing the theme's wallpaper pipeline can put behind it. Below this
     number the panel stops being readable; it is a hard lower bound.
 
+    :param theme: name of the palette whose surface is being evaluated.
+    :param role: palette surface role on which the text is painted.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     :param under: what is actually behind the surface, when it is not
@@ -604,6 +606,8 @@ def solve_scrim_alpha(theme: str, role: str,
     legibility wins, and the shortfall is visible in
     :func:`scrim_report`.
 
+    :param theme: name of the palette whose surface is being solved.
+    :param role: palette surface role whose opacity is being chosen.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     """
@@ -3040,10 +3044,20 @@ QPushButton:hover {{
     background: {high};
     border: 1px solid {rim};
 }}
-QPushButton#Tile, QPushButton#HTile, QPushButton#AppTile {{
+QPushButton#Tile, QPushButton#HTile {{
     background: {tile};
     border: 1px solid {rim};
     border-radius: 16px;
+}}
+/* Module launchers sit directly on the Home pane. A resting glass rim made
+   each row read as a ruled table; only an interactive state earns an edge. */
+QPushButton#AppTile {{
+    background: {tile};
+    border: none;
+    border-radius: 16px;
+}}
+QPushButton#AppTile:focus {{
+    border: 1px solid {base["accent"]};
 }}
 QGroupBox {{
     border: 1px solid {rim_soft};
@@ -3090,8 +3104,10 @@ _WIDGET_QSS: Dict[str, object] = {}
 #: This is the exhaustive/static stylesheet inventory.  The public
 #: :func:`stylesheet` default imports it so documentation, screenshots and
 #: callers that request one complete sheet retain that contract.  Production
-#: startup skips the imports: a module's own :func:`register_widget_qss` call
-#: synchronously updates the already-live sheet when that screen is opened.
+#: startup skips the imports: when a screen is opened, its root receives the
+#: registered blocks that are absent from the application sheet before that
+#: root is shown.  Scoping the late rules to the new screen avoids asking Qt
+#: to re-polish every widget already alive merely because one module arrived.
 #: Order follows registration order, with later rules winning ties.
 WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.settings_search",
@@ -3106,6 +3122,9 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.layer_viewer",
     "spacr.qt.ortho_view",
     "spacr.qt.roi_tool",
+    # The lightweight Classify footer registers the theme-native box without
+    # importing FlowView itself.  Its renderer remains lazy until expansion.
+    "spacr.qt.screens.classify",
     "spacr.qt.screens.classifier_evaluation",
     "spacr.qt.screens.control_chart",
     "spacr.qt.screens.data_manager",
@@ -3119,7 +3138,8 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.image_scatter",
     # The fold page strip every module screen grows when a fold is opened.
     # A page can be opened long after launch, so its import-time registration
-    # updates the live sheet then; exhaustive sheets include it up front too.
+    # is applied to its host screen then; exhaustive sheets include it up
+    # front too.
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
@@ -3155,20 +3175,6 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
 )
 
 _QSS_REGISTRARS_LOADED = False
-# True only while the explicit exhaustive loader is walking the registrar
-# modules.  Registrations made during that walk are collected by the outer
-# ``stylesheet()`` call; trying to restyle after every import would turn one
-# sweep into dozens of nested preference applications.
-_QSS_REGISTRARS_LOADING = False
-
-#: Open :func:`batched_widget_qss` scopes, and the block names registered
-#: inside them that still owe the application a restyle.
-_QSS_BATCH_DEPTH = 0
-_QSS_BATCH_PENDING: List[str] = []
-# A late registrar can arrive while a preference application is already
-# rebuilding the sheet (field fade does exactly that).  The outer rebuild
-# will include it, so a recursive rebuild is both unnecessary and unsafe.
-_QSS_RESTYLE_IN_PROGRESS = False
 
 
 def load_widget_qss_registrars() -> Tuple[str, ...]:
@@ -3189,36 +3195,33 @@ def load_widget_qss_registrars() -> Tuple[str, ...]:
 
     :returns: the module names that imported cleanly.
     """
-    global _QSS_REGISTRARS_LOADED, _QSS_REGISTRARS_LOADING
+    global _QSS_REGISTRARS_LOADED
     if _QSS_REGISTRARS_LOADED:
         return ()
     _QSS_REGISTRARS_LOADED = True
-    _QSS_REGISTRARS_LOADING = True
 
     import importlib
 
     loaded = []
-    try:
-        for name in WIDGET_QSS_MODULES:
-            try:
-                importlib.import_module(name)
-            except Exception:
-                LOG.debug("could not load the widget QSS in %s", name,
-                          exc_info=True)
-            else:
-                loaded.append(name)
-    finally:
-        _QSS_REGISTRARS_LOADING = False
+    for name in WIDGET_QSS_MODULES:
+        try:
+            importlib.import_module(name)
+        except Exception:
+            LOG.debug("could not load the widget QSS in %s", name,
+                      exc_info=True)
+        else:
+            loaded.append(name)
     return tuple(loaded)
 
 
 def register_widget_qss(name: str, fn, *, replace: bool = False):
     """Register a QSS block appended to every generated stylesheet.
 
-    If a ``QApplication`` already carries a spaCR stylesheet and the block is
-    not in it, registration synchronously rebuilds that live sheet.  Screen
-    modules register before defining their widget class, which closes the
-    first-paint race without importing unopened screens at startup.
+    Registration itself never re-applies the ``QApplication`` stylesheet.
+    Qt re-polishes every live widget on a global ``setStyleSheet`` call; doing
+    that once for every screen imported on demand made later module opens
+    progressively slower.  :func:`ensure_widget_qss_applied` installs the
+    missing blocks on the new screen's root before it can paint instead.
 
     :param name: stable identifier, normally the widget's ``objectName``.
         It is what the block is reported and unregistered by; it does not
@@ -3261,61 +3264,7 @@ def register_widget_qss(name: str, fn, *, replace: bool = False):
             f"widget QSS {name!r} is already registered; pass replace=True "
             "if that is really what you mean")
     _WIDGET_QSS[name] = fn
-    # Production startup deliberately does not import every screen merely to
-    # harvest its stylesheet.  When one of those modules is imported later,
-    # registration happens before its widget class can be constructed; make
-    # the block live synchronously at this seam so the widget's first paint is
-    # styled.  The exhaustive loader has its own outer composition and must
-    # not re-apply once per module.
-    if _QSS_REGISTRARS_LOADING:
-        return fn
-    if _QSS_BATCH_DEPTH:
-        # Inside a batch the caller has promised to flush before anything it
-        # imported can paint, so the restyle is owed once rather than once per
-        # module.  See :func:`batched_widget_qss`.
-        if name not in _QSS_BATCH_PENDING:
-            _QSS_BATCH_PENDING.append(name)
-        return fn
-    ensure_widget_qss_applied(name)
     return fn
-
-
-@contextmanager
-def batched_widget_qss():
-    """Coalesce the restyles that import-time QSS registrations trigger.
-
-    :func:`register_widget_qss` re-applies the application stylesheet the
-    moment a block is registered, so that a screen imported long after
-    startup is styled before it can paint. That is right for one module
-    arriving on its own and wrong for a run of them: rebuilding the sheet is
-    a full :func:`stylesheet` composition plus a Qt-wide re-polish, and doing
-    it once per module makes the cost quadratic in the number of screens the
-    window happens to pull in.
-
-    A cold launch was paying it five times. ``launch`` applies preferences,
-    then builds ``MainWindow``, and building the window imports
-    :mod:`~spacr.qt.shortcuts`, :mod:`~spacr.qt.settings_search`,
-    :mod:`~spacr.qt.recipes` and :mod:`~spacr.qt.screens.map_barcodes`, each
-    of which registers a block at import and each of which therefore
-    restyled the whole application on the way past. Four of those five
-    passes were thrown away by the next one.
-
-    Inside this scope the names are collected and the restyle is done once,
-    on the way out -- so it is the caller's job to close the scope before
-    anything imported inside it can paint. Reentrant, and it flushes even if
-    the body raises, because a half-styled application is worse than a
-    launch that reports its error.
-    """
-    global _QSS_BATCH_DEPTH
-    _QSS_BATCH_DEPTH += 1
-    try:
-        yield
-    finally:
-        _QSS_BATCH_DEPTH -= 1
-        if _QSS_BATCH_DEPTH <= 0 and _QSS_BATCH_PENDING:
-            names = tuple(_QSS_BATCH_PENDING)
-            _QSS_BATCH_PENDING.clear()
-            ensure_widget_qss_applied(*names)
 
 
 def unregister_widget_qss(name: str) -> bool:
@@ -3333,63 +3282,159 @@ def widget_qss_names() -> Tuple[str, ...]:
 #: module was imported.
 _WIDGET_QSS_MARKER = "/* --- registered widget QSS: {name} --- */"
 
+# A late block lives on the root of the screen that needed it.  The outer
+# markers make that suffix replaceable as more modules are imported and
+# removable before the next whole-application preference rebuild.  The
+# attribute holds the exact suffix, including its leading newline, so a
+# screen's own stylesheet is restored byte-for-byte rather than reparsed.
+_LOCAL_WIDGET_QSS_START = "/* --- local registered widget QSS: start --- */"
+_LOCAL_WIDGET_QSS_END = "/* --- local registered widget QSS: end --- */"
+_LOCAL_WIDGET_QSS_ATTRIBUTE = "_spacr_local_widget_qss_suffix"
+_WIDGET_QSS_CONTEXT_ATTRIBUTE = "_spacr_widget_qss_context"
 
-def ensure_widget_qss_applied(*names: str) -> bool:
-    """Re-apply the application stylesheet if ``names`` are missing from it.
 
-    A block is registered at its module's **import**, while the application
-    stylesheet is first generated before ``MainWindow`` exists.  Production
-    startup intentionally leaves unopened screen modules unimported, so
-    :func:`register_widget_qss` calls this synchronously as each one arrives.
-    Registration is above the module's widget class: the rebuilt sheet is
-    therefore live before the first instance can be constructed or painted.
+def set_widget_qss_context(app, theme: str, font_scale: float,
+                           surface_opacity: Optional[float]) -> None:
+    """Record the exact live preference inputs for late screen blocks."""
+    if app is not None:
+        setattr(app, _WIDGET_QSS_CONTEXT_ATTRIBUTE,
+                (str(theme), float(font_scale), surface_opacity))
 
-    That is not hypothetical: Model Compare's panels were given a page
-    surface, the test that measures them passed (a test imports the module
-    before it applies the stylesheet), and the panels were still bare in the
-    running app, because ``spacr.qt.screens.model_compare`` is not in
-    ``sys.modules`` when the stylesheet is built. The screens listed in
-    ``spacr.qt.SELF_REGISTERING_MODULES`` are imported at launch and never
-    had the problem, which is why it went unnoticed for as long as it did.
 
-    Existing constructor calls remain useful, idempotent defence for blocks
-    registered from inside functions.  It is a no-op with no
-    ``QApplication``, no stylesheet yet, a rebuild already in progress, or
-    when every requested block is already present.
-
-    :param names: registered block names the caller needs to be live.
-    :returns: ``True`` if the stylesheet was regenerated.
-    """
-    global _QSS_RESTYLE_IN_PROGRESS
-    if _QSS_RESTYLE_IN_PROGRESS:
-        return False
+def _live_widget_qss_context(app) -> Tuple[str, float, Optional[float]]:
+    """Return the preference inputs used by the live application sheet."""
+    context = getattr(app, _WIDGET_QSS_CONTEXT_ATTRIBUTE, None)
+    if (isinstance(context, tuple) and len(context) == 3):
+        return context
     try:
-        from PySide6.QtWidgets import QApplication
-    except Exception:  # PySide6 is a hard dependency here
+        from .preferences import (
+            get_font_scale,
+            get_pane_opacity,
+            resolve_effective_theme,
+        )
+        return (resolve_effective_theme(), get_font_scale(),
+                get_pane_opacity())
+    except Exception:
+        return "dark", 1.0, None
+
+
+def _widget_qss_palette(theme: str, font_scale: float,
+                        surface_opacity: Optional[float]) -> dict:
+    """Build the callback palette shared by global and screen-local QSS."""
+    base = palette_for(theme)
+    palette = dict(base)
+    for role in ("surface", "surface_alt", "surface_hi"):
+        palette[role] = css_color(
+            base[role], panel_alpha(theme, role, surface_opacity))
+    palette["theme"] = theme
+    palette["font_scale"] = font_scale
+    return palette
+
+
+def clear_widget_qss_overlays(app=None) -> int:
+    """Remove screen-local late-QSS suffixes before a global theme rebuild.
+
+    The rebuilt application sheet contains every block registered so far,
+    with the new theme, opacity and font scale.  Leaving an older local copy
+    in place would give it precedence and strand the screen on the previous
+    preference values.
+
+    :returns: number of screen roots whose owned suffix was removed.
+    """
+    app = app or QApplication.instance()
+    if app is None:
+        return 0
+    cleared = 0
+    for widget in list(app.allWidgets()):
+        suffix = getattr(widget, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+        if not suffix:
+            continue
+        try:
+            current = widget.styleSheet()
+            setattr(widget, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+            if current.endswith(suffix):
+                widget.setStyleSheet(current[:-len(suffix)])
+            cleared += 1
+        except RuntimeError:
+            # The C++ widget was deleted while Qt was draining its queue.
+            pass
+    return cleared
+
+
+def preserve_widget_qss_overlay(root, stylesheet: str) -> str:
+    """Return ``stylesheet`` with ``root``'s owned late-QSS suffix intact.
+
+    A screen may legitimately replace its own base stylesheet after its late
+    widget blocks were installed.  Folding the suffix into that existing
+    assignment avoids a second ``setStyleSheet`` call (and its palette-change
+    cascade) while keeping the blocks available for the next paint.
+    """
+    return str(stylesheet) + getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+
+
+def ensure_widget_qss_applied(*names: str, root=None) -> bool:
+    """Install late registered blocks on ``root`` without restyling the app.
+
+    The production application stylesheet is composed before unopened screen
+    modules are imported.
+
+    Replacing that whole sheet for each import closes
+    the first-paint race, but it also makes Qt parse the sheet and re-polish
+    every widget accumulated in every cached screen.
+
+    A screen root is a QSS
+    scope: rules installed there reach that screen and its descendants, and
+    applying them before the root is shown preserves the same first-paint
+    contract without touching Home or any previously opened module.
+
+    The suffix contains every registered block absent from the application
+    sheet, in registry order, rather than only ``names``.  This keeps blocks
+    imported by a screen's dependencies together and means a later call can
+    replace one complete suffix instead of stacking fragments with different
+    preference values.  ``names`` remains the caller's documentation of the
+    blocks it requires; omitting it is the MainWindow screen-host path.
+
+    It is a no-op with no ``root``, no ``QApplication``, or no application
+    stylesheet.  A caller that never opted into spaCR styling is not opted in
+    merely by constructing one of its widgets.
+
+    :returns: ``True`` only when ``root.setStyleSheet`` was called.
+    """
+    if root is None:
         return False
     app = QApplication.instance()
     if app is None:
         return False
-    sheet = app.styleSheet()
-    if not sheet:
-        # Nothing has styled the application, so there is nothing to be
-        # missing from and re-applying would install a stylesheet the caller
-        # never asked for.
+    app_sheet = app.styleSheet()
+    if not app_sheet:
         return False
-    if all(_WIDGET_QSS_MARKER.format(name=name) in sheet for name in names):
-        return False
+    wanted = tuple(
+        name for name in _WIDGET_QSS
+        if _WIDGET_QSS_MARKER.format(name=name) not in app_sheet
+    )
+    theme, font_scale, opacity = _live_widget_qss_context(app)
+    palette = _widget_qss_palette(theme, font_scale, opacity)
+    fragment = registered_widget_qss(palette, opacity, names=wanted)
+    if fragment:
+        body_px = max(6, int(round(FONT_SIZE["body"] * font_scale)))
+        fragment += close_mark_rules(theme, body_px)
+    suffix = (
+        f"\n{_LOCAL_WIDGET_QSS_START}\n{fragment}"
+        f"{_LOCAL_WIDGET_QSS_END}"
+        if fragment else ""
+    )
     try:
-        from .preferences import apply_preferences_to_app
-    except Exception:
+        current = root.styleSheet()
+        previous = getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+        base = current[:-len(previous)] if (
+            previous and current.endswith(previous)) else current
+        desired = base + suffix
+        setattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, suffix)
+        if desired == current:
+            return False
+        root.setStyleSheet(desired)
+    except (AttributeError, RuntimeError):
         return False
-    _QSS_RESTYLE_IN_PROGRESS = True
-    try:
-        apply_preferences_to_app(app)
-    except Exception:
-        LOG.exception("Could not re-apply the stylesheet for %s", names)
-        return False
-    finally:
-        _QSS_RESTYLE_IN_PROGRESS = False
     return True
 
 
@@ -3471,7 +3516,8 @@ QTabWidget#{object_name} QTextEdit[readOnly="true"] {{
 
 
 def registered_widget_qss(palette: dict,
-                          opacity: Optional[float] = None) -> str:
+                          opacity: Optional[float] = None, *,
+                          names=None) -> str:
     """Render every registered block into one QSS fragment.
 
     Empty (not even a newline) while nothing is registered, which is what
@@ -3484,8 +3530,11 @@ def registered_widget_qss(palette: dict,
     would leave the whole application unstyled — black text on a black
     window — because one contributed widget had a typo.
     """
+    wanted = None if names is None else {str(name) for name in names}
     parts = []
     for name, fn in list(_WIDGET_QSS.items()):
+        if wanted is not None and name not in wanted:
+            continue
         try:
             block = fn(palette, opacity)
         except Exception:
@@ -3523,13 +3572,13 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
         widget block before composing.  This remains the public default for
         exhaustive callers and tests.  Application startup passes ``False``
         so an unopened data screen cannot pull the scientific stack into the
-        first frame; a late :func:`register_widget_qss` applies itself before
-        that screen's first widget can be constructed.
+        first frame; ``MainWindow`` scopes late blocks to a new screen before
+        inserting that screen into the visible stack.
     """
     base = palette_for(theme)
-    # Exhaustive callers get every known block in one static sheet.  The live
-    # application opts out and lets `register_widget_qss` install a module's
-    # block synchronously when that module is first opened.
+    # Exhaustive callers get every known block in one static sheet. The live
+    # application opts out; MainWindow installs blocks registered by a lazy
+    # module on that module's screen root before it is shown.
     if load_widget_registrars:
         load_widget_qss_registrars()
 
@@ -3539,10 +3588,7 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     # For dark and light every alpha is 1.0 and this is a no-op that
     # emits the same hex it always did; for Space each one becomes an
     # ``rgba()`` so the background image reads through the panel.
-    P = dict(base)
-    for role in ("surface", "surface_alt", "surface_hi"):
-        P[role] = css_color(
-            base[role], panel_alpha(theme, role, surface_opacity))
+    P = _widget_qss_palette(theme, font_scale, surface_opacity)
     # Opaque variants for the places translucency would be wrong.
     ELEVATED = css_color(
         base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
@@ -3592,10 +3638,10 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     DOCK_BG = (dock_colour(theme) if over_image else css_color(
         dock_colour(theme),
         panel_alpha(theme, "surface_alt", surface_opacity)))
-    # The hairline every tile carries, and the three maturity hues its
-    # hover switches to. `RIM` is the theme's ink; the hover fill is the
-    # stage colour at a low alpha so the tile lights UP rather than being
-    # replaced by a block of magenta.
+    # The theme ink used by outlined horizontal tiles, and the three maturity
+    # hues a module tile switches to on hover. Resting AppTiles are rimless;
+    # the hover fill is the stage colour at a low alpha so the tile lights UP
+    # rather than being replaced by a block of magenta.
     RIM = rim_colour(theme)
     SELECTION_INK = selection_ink(theme)
     STAGE_RULES = "\n".join(
@@ -3654,8 +3700,7 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
     # this callback is the only place it would otherwise have to guess it
     # (guessing means reading the preference again, which is wrong while
     # a stylesheet is being generated for a theme that is not yet live).
-    WIDGET_QSS = registered_widget_qss(
-        dict(P, theme=theme, font_scale=font_scale), surface_opacity)
+    WIDGET_QSS = registered_widget_qss(P, surface_opacity)
     # LAST, after the contributed blocks. The close mark is the one glyph
     # the whole application shares, so a widget block that grows a rule for
     # its own X loses the tie instead of quietly winning it. See
@@ -3932,7 +3977,7 @@ QPushButton#HTile:pressed {{
 QPushButton#AppTile {{
     background-color: {TILE_BG};
     color: {P["fg"]};
-    border: 1px solid {css_color(RIM, 0.35)};
+    border: none;
     border-radius: {R["lg"]}px;
     padding: 0px;
     min-height: {TILE_MIN_H}px;
@@ -3954,6 +3999,11 @@ QPushButton#AppTile:pressed {{
    aside — a tile that lights magenta is a beta module, and the legend
    beside it is what says so. */
 {STAGE_RULES}
+/* A resting rim is decoration; a keyboard-focus ring carries state. Keep it
+   after the maturity rules so focus remains visible while a tile is hovered. */
+QPushButton#AppTile:focus {{
+    border: 1px solid {P["accent"]};
+}}
 QLabel#HTileName {{
     color: {P["fg"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
