@@ -389,6 +389,10 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
                    figure=None, save_path=None, screen: bool = False):
     """Draw the volcano described by ``style`` and return ``(figure, axes)``.
 
+    :param results: coefficient table supplying the effect, significance and
+        annotation columns named by ``style``.
+    :param style: complete volcano appearance and data-mapping specification,
+        including cut-offs, labels, colours and figure geometry.
     :param figure: draw into this figure instead of creating one, so a live
         canvas can be redrawn in place.
     :param save_path: also write the figure here. The extension chooses the

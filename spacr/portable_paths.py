@@ -190,6 +190,8 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
     :param frame: any DataFrame; a missing column is not an error, because the
         PNG route and the merged route carry different ones and a caller
         should be able to ask for both.
+    :param column: name of the path-bearing column to resolve and, when any
+        paths move, replace in place.
     :param src_root: anything :func:`candidate_roots` accepts.
     :returns: a :class:`RerootReport`, which counts as its own ``moved`` in a
         boolean or integer context, so a caller that only wants the number

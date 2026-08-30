@@ -78,6 +78,8 @@ def _env_allows() -> bool:
 def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
     """``'cuml'`` or ``'cpu'`` for ``method``, and never a surprise.
 
+    :param method: reducer name. Only algorithms in :data:`ACCELERATED` can
+        select cuML; unsupported names remain on the CPU path.
     :param prefer_gpu: opt in. Default False, so an existing caller keeps the
         CPU path and the reproducibility that goes with it.
     :returns: the backend that will actually run.
@@ -92,6 +94,8 @@ def backend_for(method: str, *, prefer_gpu: bool = False) -> str:
 def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[Any, str]:
     """Build the estimator for ``method``, on whichever backend is available.
 
+    :param method: reducer name understood by the cuML or CPU estimator
+        factories (``umap``, ``tsne``, ``pca``, ``dbscan`` or ``kmeans``).
     :param kwargs: passed to the estimator. The parameter names cuML shares
         with the CPU libraries -- ``n_neighbors``, ``min_dist``,
         ``n_components``, ``eps``, ``min_samples``, ``n_clusters`` -- carry

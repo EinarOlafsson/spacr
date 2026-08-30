@@ -404,6 +404,11 @@ def crops_from_merged(array: np.ndarray, settings: Mapping[str, Any], *,
                       ) -> List[Tuple[int, np.ndarray]]:
     """Every object's crop from one merged array.
 
+    :param array: merged ``(height, width, planes)`` image whose configured
+        object-mask plane supplies the labels and whose other planes supply
+        the crop pixels.
+    :param settings: crop settings used to choose the object mask, extracted
+        channels, crop shape and optional fixed image size.
     :param labels: only these objects; by default every label in the mask.
     :returns: ``(label, image)`` pairs, skipping objects that are not present.
     :raises CropSourceError: a setting that makes cutting impossible.

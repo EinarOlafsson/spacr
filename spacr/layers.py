@@ -153,6 +153,9 @@ def to_rgba(colour: Any, *, alpha: Optional[float] = None
     component above 1 switches the whole tuple to the 0–255 reading, which is
     the only unambiguous rule — ``(1, 1, 1)`` is white either way).
 
+    :param colour: named, hexadecimal or three-/four-component colour value
+        to normalise; numeric components may use either the 0–1 or 0–255
+        scale.
     :param alpha: overrides whatever the colour carried.
     :raises LayerError: on anything else.
     """

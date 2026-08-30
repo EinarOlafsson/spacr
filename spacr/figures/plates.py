@@ -324,6 +324,8 @@ def small_multiple_layout(count: int, plate_aspect: float,
     Four plates in a row is 4 x 1.5 = a 6:1 composite; four in a 2 x 2 is
     1.5:1. Both hold the same picture; only one of them fills a tile.
 
+    :param count: number of plates to place. A non-positive count has no grid
+        and returns ``(0, 0)``.
     :param plate_aspect: one plate's width over its height, in wells.
     :param target: the composite width-over-height to aim at.
     :returns: ``(rows, columns)``.
@@ -380,8 +382,14 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
                column_labels=None) -> None:
     """One plate into one axes, with square wells and no gridlines.
 
+    :param ax: matplotlib axes that receives the wash, image, ticks and title.
     :param matrix: ``(n_rows, n_columns)``, ``nan`` where no well was
         measured.
+    :param vmin: lower endpoint shared by the plate's colour normalisation.
+    :param vmax: upper endpoint shared by the plate's colour normalisation.
+    :param cmap: matplotlib colormap (or registered colormap name) used for
+        measured wells.
+    :param ink: colour used for ticks, labels, spines and the plate wash.
     :param row_labels: ``True`` to draw the row letters, ``False`` to leave
         the axis bare (an inner plate of the small multiple shares the
         outer one's).

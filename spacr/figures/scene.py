@@ -1465,6 +1465,10 @@ def write_figure(figure, path, *, fmt=None, dpi=None, renderer=None,
     gallery tile, the format preference or the resolution preference on the
     way past.
 
+    :param figure: drawn matplotlib figure whose artists become the scene, or
+        which is saved directly when scene translation is unavailable.
+    :param path: destination path or stem; the configured or explicit format
+        settles its final extension before either exporter writes it.
     :param renderer: force one of :data:`RENDERERS`; None asks
         :func:`scene_renderer`.
     :param dpi: force an output resolution; otherwise use the configured

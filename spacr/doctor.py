@@ -1933,6 +1933,8 @@ def run_checks(
     ``KeyboardInterrupt`` is the one exception — the user asking to stop is not
     a diagnostic finding.
 
+    :param ctx: invocation context passed unchanged to every selected check,
+        including the checkout, optional project inputs and GPU-probe choice.
     :param checks: the checks to run, in order; ``None`` runs every check
         registered in :data:`CHECKS`.
     """
@@ -1983,6 +1985,9 @@ def summarize(results: Iterable[Result]) -> Dict[str, int]:
 def exit_code(results: Iterable[Result], strict: bool = False) -> int:
     """``0`` when the installation is healthy, ``1`` otherwise.
 
+    :param results: diagnostic rows to inspect. ``FAIL`` and ``ERROR`` always
+        make the result non-zero; other statuses remain healthy unless strict
+        warning handling applies.
     :param strict: also fail on ``WARN``, for CI that wants a clean bill.
     """
     rows = list(results)

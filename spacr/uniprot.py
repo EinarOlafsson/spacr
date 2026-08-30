@@ -449,6 +449,9 @@ TARGETED_MAX = 300
 def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
     """The entries for named ``genes`` in ``resolution``'s organism.
 
+    :param resolution: resolved annotation target. Only an ``organism``
+        resolution supplies the taxonomy identifier needed for this query;
+        other kinds return ``None`` without a request.
     :param genes: gene names or accessions from the table being annotated.
     :returns: a DataFrame, or None when the query could not be made.
     """

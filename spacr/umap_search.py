@@ -299,6 +299,9 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
     The returned list lets the panel report the total trial count before the
     first trial starts.
 
+    :param base: recipe cloned for every candidate. Its values fill dimensions
+        with no explicit grid, and its neighbour count scales the default
+        neighbour walk.
     :param steps: how many to return when no explicit grid is given. The
         default grid walks ``n_neighbors``, which is the parameter that
         actually changes the shape of a UMAP; ``min_dist`` mostly changes how
