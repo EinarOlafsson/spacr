@@ -306,6 +306,9 @@ def preset_for(name: Optional[str],
                diameter_px: Optional[float] = None) -> Dict[str, object]:
     """What this type RECOMMENDS. It does not apply anything.
 
+    :param name: organelle type name resolved by :func:`resolve_type`; blank
+        or ``custom`` yields no recommended settings, while an unknown name
+        raises instead of silently changing the segmentation.
     :param diameter_px: the value of `organelle_diameter`. It is half the
         mapping: the same type is a dot at one size and a ring at another.
     :returns: settings to their recommended values, empty for 'custom'.

@@ -555,6 +555,8 @@ def read_object_tables(db_path: str,
     cells and nuclei but no pathogens is a legitimate experiment, not a
     broken database.
 
+    :param db_path: path to the measurements SQLite database, opened
+        read-only so the loader is safe to run on a worker thread.
     :param limit: per-table row cap, so a mis-aimed path cannot turn into a
         two-minute read behind a spinner.
     :raises LineageError: when there is no database at ``db_path``.

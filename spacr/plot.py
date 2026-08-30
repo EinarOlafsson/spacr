@@ -341,6 +341,8 @@ def print_ready(fig, mode=None, announce=True):
     legible on the page. A light-mode save therefore changes nothing at all,
     which is the property that makes this safe to switch on by default.
 
+    :param fig: matplotlib figure whose page, chrome and grid artists are
+        repainted temporarily and restored when the context exits.
     :param mode: one of :data:`spacr.figure_style.SAVE_MODES`; None asks the
         preference. ``'screen'`` is a no-op by construction.
     :param announce: print the 150 D sentence when a data colour has stopped

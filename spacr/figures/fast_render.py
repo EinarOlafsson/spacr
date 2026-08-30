@@ -122,6 +122,8 @@ def qt_application():
 def renderer_for(key: str, force: Optional[str] = None) -> tuple:
     """``(renderer, reason)`` for one panel. The decision, in one place.
 
+    :param key: generated-panel key. Only keys in :data:`FAST_PANELS` have an
+        interactive twin; every other key is assigned to matplotlib.
     :param force: one of :data:`RENDERERS`, overriding the environment and
         the auto rule.
     :returns: ``('pyqtgraph'|'matplotlib', reason)``. The reason is never
@@ -421,6 +423,10 @@ def write_panels(frame, dst, *, keys: Sequence[str] = SHEET_ORDER,
                  verbose: bool = True) -> list:
     """Write every house-style panel into ``dst``. Returns the records.
 
+    :param frame: coefficient/results table used to build panels that have no
+        live plot and by any matplotlib fallback.
+    :param dst: output directory, created when absent; each panel key becomes
+        the destination file stem within it.
     :param plots: ``{key: live FastPlot}`` for the panels that are on screen.
         Anything absent is built from the frame.
     :param verbose: print one line naming the renderer that drew them, so a

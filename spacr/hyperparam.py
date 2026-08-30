@@ -1450,6 +1450,9 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
     parameter the fit function accepts can be an axis, and each axis
     carries its own step and resolution.
 
+    :param fit_fn: callable invoked with each candidate parameter mapping. It
+        returns a number, ``(score, metrics)`` pair, or mapping containing a
+        ``score`` key, exactly as :func:`_normalise_outcome` accepts.
     :param start: one value per axis, plus any parameters held fixed --
         anything not named by an axis is passed to every fit unchanged.
     :param axes: the search space. Empty raises.

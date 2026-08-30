@@ -70,6 +70,8 @@ def spread_of(values: Sequence[float], kind: str) -> float:
 def spread_label(kind: str, *, unit: str = "") -> str:
     """Return an axis label that identifies the whisker statistic.
 
+    :param kind: one of :data:`SPREAD_CHOICES`; ``none`` produces an empty
+        label and any unrecognised value raises :class:`ValueError`.
     :param unit: measurement unit. Variance labels append a squared unit.
     """
     if kind == SPREAD_NONE:

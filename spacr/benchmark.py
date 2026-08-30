@@ -141,6 +141,10 @@ def benchmark(work: Callable[[Any], Any], items: Sequence[Any], *,
     them in parallel measures the sum while hiding the per-worker figure that
     the recommendation divides by.
 
+    :param work: callable invoked once for every warm-up and measured item;
+        its return value is ignored because only resource use is measured.
+    :param items: ordered workload to copy and process. At least one item is
+        required, and the final item is always kept in the measured set.
     :param warmup: items processed before the clock starts. The first field
         pays for imports, CUDA context creation and page faults that no later
         field pays again, and counting it makes a short run look far slower

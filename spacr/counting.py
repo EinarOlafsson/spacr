@@ -392,6 +392,8 @@ class CountingSession:
     def to_csv(self, path: str, *, summary: bool = False) -> str:
         """Write the export to ``path``; returns the absolute path.
 
+        :param path: destination CSV path. Missing parent directories are
+            created before the frame is written without its index.
         :param summary: write one row per class instead of one per marker.
         """
         import os

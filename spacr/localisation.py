@@ -118,6 +118,8 @@ def present(frame, *, key_column: str = "feature",
 def mask(frame, compartment: Optional[str], *, key_column: str = "feature"):
     """A boolean Series: which rows are in ``compartment``.
 
+    :param frame: table whose feature names are classified and whose index is
+        preserved on the returned boolean Series.
     :param compartment: ``None`` or ``""`` selects nothing, which is the
         right answer for "no compartment chosen" and lets a caller pass the
         menu's state straight through without a branch.

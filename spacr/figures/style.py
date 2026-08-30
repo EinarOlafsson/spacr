@@ -444,6 +444,8 @@ def text_legend(ax, entries: Sequence, x: float = 0.02, y: float = 0.97,
     a corner of the axes and adds a box the style has no other boxes to
     match.
 
+    :param ax: matplotlib axes that receives the labels in axes-relative
+        coordinates.
     :param entries: ``[(label, colour), ...]``.
     """
     for index, (label, colour) in enumerate(entries):

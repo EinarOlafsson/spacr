@@ -113,6 +113,8 @@ def resolve(columns: Iterable[str],
             *, explicit: Sequence[str] = ()) -> List[str]:
     """The columns a selection actually means, de-duplicated and in order.
 
+    :param columns: available column names. Their input order is preserved in
+        the resolved result, regardless of group or checkbox order.
     :param selection: ``{kind: [group name, ...]}`` -- the groups ticked.
     :param explicit: individual columns ticked, which are added to whatever
         the groups select. Both halves of the request are the same list in

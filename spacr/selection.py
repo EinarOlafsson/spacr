@@ -680,6 +680,8 @@ class Selection:
         * a typed key matches a row stating no type. The row has not
           contradicted it; it has said nothing.
 
+        :param df: object table to match; the returned NumPy mask has one
+            boolean value per row in this frame.
         :param object_type: the table ``df`` came from, when the frame does
             not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """
@@ -905,6 +907,8 @@ class ObjectRequest:
         Trying them in that order is what keeps a request naming both a
         nucleus 1 and a pathogen 1 opening as two rows rather than one.
 
+        :param df: object table to filter and reorder according to the
+            request's key order.
         :param object_type: the table ``df`` came from, when the frame does
             not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """

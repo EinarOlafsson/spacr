@@ -88,6 +88,10 @@ def list_strategies(project: str) -> List[str]:
 def save(project: str, name: str, payload: Any) -> str:
     """Write ``payload`` as the strategy called ``name``.
 
+    :param project: project directory whose ``gates`` library receives the
+        strategy.
+    :param name: display name converted to a safe ``.json`` filename by
+        :func:`slugify`; it cannot escape the project library.
     :param payload: whatever ``GateSet.to_json``-shaped structure the caller
         holds. Serialised here rather than accepting a pre-made string so a
         caller cannot store something that will not read back.
