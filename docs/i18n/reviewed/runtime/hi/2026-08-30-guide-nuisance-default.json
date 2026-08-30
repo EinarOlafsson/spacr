@@ -7,7 +7,7 @@
       "key": "guide_nuisance_columns",
       "source_sha256": "6bc5f919f3cb74cf8c17e42c1340ce365a535018dc2c6e41cf9a6711617008f3",
       "source": "Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default []. Regression starts with ['rowID', 'columnID'] to remove plate-position structure before the within-plate permutation.",
-      "translation": "परीक्षण से पहले phenotype और guide fraction, दोनों से अवशिष्ट प्रभाव हटाने के लिए अतिरिक्त मापे गए वेल-स्तरीय सहचर। उपचार के बाद के परिणाम यहाँ न डालें। डिफ़ॉल्ट []. Regression, प्लेट के भीतर permutation से पहले प्लेट-स्थिति की संरचना हटाने के लिए ['rowID', 'columnID'] से शुरू होता है।"
+      "translation": "परीक्षण से पहले लक्षणप्ररूप और गाइड अंश, दोनों से अवशिष्ट प्रभाव हटाने के लिए अतिरिक्त मापे गए वेल-स्तरीय सहचर। उपचार के बाद के परिणाम यहाँ न डालें। डिफ़ॉल्ट []. Regression, प्लेट के भीतर क्रमचय से पहले प्लेट-स्थिति की संरचना हटाने के लिए ['rowID', 'columnID'] से शुरू होता है।"
     }
   ]
 }
