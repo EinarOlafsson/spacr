@@ -820,3 +820,16 @@ is a FLOOR, and the per-module rows are only trustworthy where they read 100%.
 Individual closures in this sweep were each verified by re-running the module's
 own tests under coverage and checking ``executed_branches`` for the specific
 arc, which is why they are reliable while the aggregate is not.
+
+  * spacr/hit_attribution.py:446 -- ``if folds < 2: raise
+    InsufficientDesignError`` in ``crossfit_candidate_probabilities``.
+    Unreachable, because a guard 30 lines above already requires at least four
+    independent target wells AND four independent control wells. That forces
+    at least eight distinct wells, so well-level grouping yields at least eight
+    groups; the plate-level path is only taken when there are at least four
+    plates. ``folds = min(max(2, n_splits), group_count)`` is therefore always
+    at least 2.
+
+    Left in place: it is the correct guard for the grouping, and the floor
+    above it is a scientific rule that could be relaxed without anyone
+    remembering this depends on it.
