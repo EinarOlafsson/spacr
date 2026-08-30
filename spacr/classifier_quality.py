@@ -254,8 +254,8 @@ def deconvolve(scores: Sequence[float], *,
                seed: int = 0) -> Dict[str, float]:
     """Estimate two class distributions from unlabelled scores.
 
-    :param scores: unlabelled finite classifier scores to model as a
-        two-component mixture.
+    :param scores: unlabelled classifier scores to model as a two-component
+        mixture; non-finite values are ignored.
 
     A two-component Gaussian mixture estimates prevalence, sensitivity,
     specificity, and a midpoint threshold. ``separation`` is the distance
