@@ -2,8 +2,8 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
-Status: OPEN — mixed historical record; every deliberately left defect must
-        be re-audited and either fixed, explicitly accepted, or proven obsolete.
+Status: OPEN — the final Korean catalog fixed point is still running. The
+        other deliberately left defects are fixed or explicitly accepted.
 
 Each of these was measured rather than suspected. Each has a reason for
 not being fixed, and the reason is the useful part -- otherwise the next
@@ -14,16 +14,21 @@ person rediscovers it and makes the same call from scratch, or worse,
 STATUS RECONCILIATION -- 2026-08-29
 --------------------------------------------------------------------------------
 
-The deliberately unresolved items in this record are now these four decisions
-or external checks:
+Re-audit result, 2026-08-30:
 
-  * whether the three shared sequences in the original 1,385-row TSG101 guide
-    library were intentional is a library-designer decision;
-  * retiring the remaining Space wallpaper/code is a product decision;
-  * an empty GLCM needs a downstream missing-feature policy before it can emit
-    an honest missing value;
-  * the Korean ``min_cell_count`` tooltip needs external language/domain
-    review against the current English contract.
+  * the original TSG101 provenance question is explicitly accepted as an
+    external library-designer decision. The shipped library and importer are
+    both unambiguous, so that unknowable history is not a product defect;
+  * the remaining Space implementation is retained. ``deep_field`` is a
+    supported wallpaper, the procedural variants are live Preferences choices,
+    and ``SPACE_PALETTE`` is deliberate settings-file compatibility;
+  * empty GLCMs now emit an honest missing value. Entirely unobservable
+    features are dropped, while partially observed features are median-imputed
+    before variance/correlation filtering and model use (``7524c916``);
+  * the Korean ``min_cell_count`` tooltip has been re-translated against the
+    exact current English contract and passes the semantic rejection gates;
+    this file remains open only until that reviewed entry reaches the final
+    generated nine-locale catalog and fixed-point audit.
 
 The old coverage count is historical and the final 100% statement-and-branch
 target is tracked by instruction 288. The timelapse, calibration,
@@ -55,6 +60,14 @@ designer can say whether those shared sequences were intentional. Do not
 silently assign any of them to one gene, and do not edit an external source
 library on the assumption that the bundled-file decision answers that
 experimental-design question.
+
+DECISION 2026-08-30 -- ACCEPTED EXTERNAL PROVENANCE. The historical intent is
+not recoverable from this repository and is not needed to make the software
+safe: the bundled file contains no ambiguity and imported libraries reject all
+rows carrying a shared sequence. Preserve the warning above for anyone who has
+the original library, but do not keep the product instruction open waiting for
+an answer only the library designer can supply. The four focused bundled,
+shared, duplicate and mapping checks pass on the exact Python 3.12 stack.
 
 --------------------------------------------------------------------------------
 2. timelapse.py called the feature selector without coercing
@@ -95,6 +108,7 @@ is in the coverage runner notes, not here.
 
 --------------------------------------------------------------------------------
 4. The Space theme retirement was left half-finished
+   [RE-AUDITED 2026-08-30; LIVE WALLPAPER CODE RETAINED]
 --------------------------------------------------------------------------------
 
 Reachable nightly commit ``44006a10`` retired Space as a selectable theme.
@@ -109,10 +123,14 @@ in four places, and `deep_field` survives as a wallpaper VARIANT even
 though "space" is no longer a theme. SPACE_PALETTE is kept deliberately so
 an old settings file naming "space" resolves rather than raising.
 
-So this is not dead code that can simply be deleted. It is a retirement
-that stopped halfway, and finishing it means deciding whether the
-deep_field wallpaper is still offered at all. The tests were updated to
-match the current state; nothing is red.
+DECISION 2026-08-30 -- KEEP IT. The retired thing is the selectable ``space``
+colour theme, not the ambient-wallpaper feature. ``deep_field`` remains an
+explicit Preferences choice, the procedural variants in ``space.py`` remain
+choices beside it, and the old palette is a safe compatibility fallback for a
+persisted setting. Deleting those files would remove supported behaviour and
+break old settings rather than finish a retirement. The names are historical,
+but the code and asset are live product surface. The 214-test Space/theme/photo
+cohort passes on Python 3.12 with PySide 6.11.2 after this decision.
 
 --------------------------------------------------------------------------------
 5. Diagnostic scripts wrote to the real user preferences
@@ -345,7 +363,7 @@ proves successful batches cannot contain `None`.
 
 --------------------------------------------------------------------------------
 N+2. An EMPTY GLCM returns plausible numbers instead of nothing, for most
-     nuclei and pathogens
+     nuclei and pathogens                              [FIXED 2026-08-30]
 --------------------------------------------------------------------------------
 
 Found 2026-08-10 while benchmarking the GLCM block, and measured rather than
@@ -368,18 +386,22 @@ confident 1.0 -- a perfect correlation reported for an object that has no
 pixel pairs at that distance at all. Both land in the feature table and
 enrol automatically in every classifier and UMAP matrix.
 
-WHY IT IS NOT FIXED HERE: the honest repair is to emit NaN (or omit the
-column) when the matrix is empty, and `utils.filter_dataframe_features` does
-`df.dropna(axis=1)` -- so a single small nucleus anywhere in the plate would
-delete the whole column from every model matrix. Fixing this properly means
-deciding what an absent texture measurement should DO downstream, which is a
-question about the feature pipeline rather than about GLCM.
+FIXED in ``7524c916``. ``_calculate_homogeneity`` checks the normalized matrix
+before calling ``graycoprops`` and writes NaN when it contains no pixel pair.
+The downstream policy is explicit and shared by Classify and the unfiltered
+UMAP/statistics path: drop a feature only when every object lacks it; otherwise
+fill missing rows with that feature's median before variance/correlation
+filtering. Median is deliberately neutral and robust for long-tailed intensity
+features, so absence cannot masquerade as unusually strong or weak texture.
 
-That decision belongs with instruction 71's texture work. Whoever takes it
-should also know: at 32 grey levels a fully rotation-invariant seven-property
-block costs LESS than today's single rotation-dependent property at 256
-levels (1.108 ms vs 1.206 ms per region), so the correct statistic is
-affordable -- it just renames every existing homogeneity column.
+The regressions pin a small region's finite d=2 value and missing d=6 value,
+partial median imputation, all-missing feature removal, and finite unfiltered
+preprocessing. The focused measurement/feature/ML/Qt cohorts passed 352 tests
+(135 direct plus 217 broader) on the exact Python 3.12 / PySide 6.11.2 stack.
+The earlier benchmark remains useful: at 32 grey levels a fully
+rotation-invariant seven-property block costs less than today's single
+rotation-dependent property at 256 levels (1.108 ms vs 1.206 ms per region),
+but expanding or renaming the public feature set is separate feature work.
 
 --------------------------------------------------------------------------------
 2026-08-11 - FOUND BY DOCUMENTING PARAMETERS. ALL ARE NOW FIXED.
