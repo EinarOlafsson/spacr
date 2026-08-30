@@ -1518,6 +1518,16 @@ class AppScreen(QWidget):
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
             return
+        # A palette event can arrive from the explicit ``processEvents``
+        # calls in the settings builder, before either backdrop path has
+        # been resolved.  At that point ``page_fill`` cannot answer the page
+        # colour yet: seeing ``_ambient is None`` is only "not decided", not
+        # "there is no backdrop".  The constructor performs this complete
+        # refresh after setting the readiness flag, so deferring the event
+        # loses no theme update and prevents an unnecessary full re-polish of
+        # the half-built widget tree.
+        if not getattr(self, "_ambient_install_ready", False):
+            return
         self.refresh_ambient_background()
         self._retheme_backdrops()
         # THE EXPLAINER BOXES PAINT WITH PALETTE TOKENS (instruction 144), so
