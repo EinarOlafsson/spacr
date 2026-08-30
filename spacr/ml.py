@@ -629,7 +629,10 @@ class QuasiBinomial(Binomial):
         self.variance = _DispersedVariance(self.__dict__['variance'], dispersion)
 
     def variance(self, mu):
-        """Adjust the variance with the dispersion parameter."""
+        """Adjust the binomial variance by the configured dispersion.
+
+        :param mu: fitted response means at which variance is evaluated.
+        """
         return self.dispersion * super().variance(mu)
 
 def calculate_p_values(X, y, model):
@@ -1153,6 +1156,8 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
 
 def screen_is_blockable(df) -> bool:
     """Whether ``screenID`` can be a term in this frame's design.
+
+    :param df: candidate design frame, or ``None``.
 
     True only when the column exists and carries more than one distinct
     value. A single-screen project is the normal case and must be untouched
@@ -5719,6 +5724,9 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
                            guide_column='grna'):
     """Choose ``analysis_mode`` for ``inference='auto'`` from the design.
 
+    :param data: analysis frame used to count wells, guides, and block levels.
+    :param settings: regression settings whose inference choice is resolved.
+
     The simultaneous model estimates one coefficient per guide from the wells,
     so it needs more wells than guides -- with an intercept and any plate fixed
     effects on top -- before those coefficients are identifiable at all. Below
@@ -5822,6 +5830,9 @@ _MINIMUM_PAIRED_WELL_FRACTION = 0.5
 def normalize_regression_input_pairs(settings):
     """Return explicit ``score``/``count`` rows, migrating legacy lists.
 
+    :param settings: mutable regression settings containing paired or legacy
+        input declarations; normalized projections are written back in place.
+
     New settings store ``paired_data``. Older files remain valid: their flat
     lists are zipped positionally, exactly matching the former behaviour, and
     the migration is reported so the invisible legacy assumption is visible.
@@ -5891,6 +5902,9 @@ def normalize_regression_input_pairs(settings):
 
 def load_regression_input_pairs(pairs):
     """Read paired inputs and resolve plate identity without filename guesses.
+
+    :param pairs: normalized score/count input rows, optionally carrying an
+        explicit plate identity.
 
     Resolution order is own column, partner column, then pair-row order.
     Conflicting declarations are refused. Returns ``(count_frame,
@@ -6907,6 +6921,9 @@ def _perform_regression_set_paths(settings):
 
 def results_folder_kind(settings) -> str:
     """What a run's results folder is NAMED after.
+
+    :param settings: regression settings containing analysis mode and model
+        type choices.
 
     The inference method when it decides the answer, and the regression type
     otherwise. Under `analysis_mode='guide_permutation'` the regression type
@@ -9400,6 +9417,9 @@ BETA_SQUEEZE_NOTE = (
 def beta_logit(values):
     """A proportion on the logit scale, with the endpoints squeezed in.
 
+    :param values: numeric proportions to transform; non-finite entries are
+        preserved.
+
     ``transform='beta'`` is intended for proportional responses such as
     classification scores and their well aggregates, where a logarithm is
     not appropriate.
@@ -9445,7 +9465,11 @@ def apply_transformation(X, transform):
     return transformer
 
 def check_normality(data, variable_name, verbose=False):
-    """Check if the data is normally distributed using the Shapiro-Wilk test."""
+    """Check if the data is normally distributed using the Shapiro-Wilk test.
+
+    :param data: numeric observations; non-finite values are ignored.
+    :param variable_name: label used in optional diagnostic output.
+    """
     values = np.asarray(data, dtype=float)
     values = values[np.isfinite(values)]
     if values.size < 3:

@@ -44,6 +44,7 @@ class GateLibraryError(ValueError):
 def slugify(name: str) -> str:
     """The filename for ``name``, with no way out of the library directory.
 
+    :param name: user-facing strategy name to make safe for one filename.
     :raises GateLibraryError: a name that is empty once cleaned. Writing it
         would produce ``.json``, an invisible file the list would then show
         with no name.
@@ -57,12 +58,18 @@ def slugify(name: str) -> str:
 
 
 def library_dir(project: str) -> str:
-    """The library directory for ``project``. Not created."""
+    """The library directory for ``project``. Not created.
+
+    :param project: project root that owns the saved gate library.
+    """
     return os.path.join(str(project), LIBRARY_DIRNAME)
 
 
 def path_for(project: str, name: str) -> str:
     """Where the strategy called ``name`` lives.
+
+    :param project: project root that owns the saved gate library.
+    :param name: display name of the strategy to locate.
 
     Always inside the library directory: the name is slugified first, so a
     name carrying ``/`` or ``..`` cannot climb out of it.
@@ -72,6 +79,8 @@ def path_for(project: str, name: str) -> str:
 
 def list_strategies(project: str) -> List[str]:
     """Every saved strategy in ``project``, by name, sorted.
+
+    :param project: project root whose gate library is listed.
 
     An unreadable directory is an empty library rather than an error: a
     dropdown that cannot be filled is not a reason to refuse to open a screen.
@@ -128,6 +137,8 @@ def save(project: str, name: str, payload: Any) -> str:
 def load(project: str, name: str) -> Any:
     """Read the strategy called ``name``.
 
+    :param project: project root that owns the saved gate library.
+    :param name: display name of the strategy to read.
     :raises GateLibraryError: no such strategy, or the file is not readable
         JSON. Both name the strategy, because "expecting value: line 1" on
         its own tells a user nothing about which one to fix.
@@ -148,7 +159,11 @@ def load(project: str, name: str) -> Any:
 
 
 def delete(project: str, name: str) -> bool:
-    """Remove the strategy called ``name``. ``False`` if there was none."""
+    """Remove the strategy called ``name``. ``False`` if there was none.
+
+    :param project: project root that owns the saved gate library.
+    :param name: display name of the strategy to remove.
+    """
     try:
         os.unlink(path_for(project, name))
         return True
@@ -160,6 +175,9 @@ def delete(project: str, name: str) -> bool:
 
 def describe(project: str, name: str) -> Tuple[int, Optional[str]]:
     """``(gate count, error)`` for one saved strategy, without applying it.
+
+    :param project: project root that owns the saved gate library.
+    :param name: display name of the strategy to inspect.
 
     What a list needs to show next to a name. A strategy that will not read
     reports its error rather than a count, so a broken file is visible in the

@@ -70,6 +70,10 @@ class Migration:
 
     ``version`` is the schema version after ``apply`` succeeds.  Consequently
     a migration numbered ``3`` upgrades version ``2`` to version ``3``.
+
+    :ivar version: schema version reached after the migration succeeds.
+    :ivar name: human-readable transition name recorded in migration reports.
+    :ivar apply: callable that mutates a connection and reports column renames.
     """
 
     version: int
@@ -79,7 +83,14 @@ class Migration:
 
 @dataclass(frozen=True)
 class MigrationReport:
-    """Result of bringing one database to a requested schema version."""
+    """Result of bringing one database to a requested schema version.
+
+    :ivar path: database path label, or ``None`` for an unnamed connection.
+    :ivar from_version: schema version observed before migration.
+    :ivar to_version: schema version after successful migration.
+    :ivar applied: ordered names of migrations that ran.
+    :ivar column_renames: ``(table, old, new)`` column repairs that ran.
+    """
 
     path: Optional[str]
     from_version: int
@@ -212,6 +223,8 @@ def _pragma_int(connection: sqlite3.Connection, pragma: str) -> int:
 
 def database_schema_version(source) -> int:
     """Return ``source``'s SQLite ``user_version``.
+
+    :param source: open SQLite connection or path to an existing database.
 
     ``source`` may be an open :class:`sqlite3.Connection` or a path.  A path
     must already exist; inspecting a typo must not create an empty database.
@@ -421,6 +434,8 @@ def migrate_database(
 def repair_legacy_columns(db_path, *, timeout: float = 30.0):
     """Re-run the non-destructive column repair without changing the version.
 
+    :param db_path: database file whose legacy column aliases are repaired.
+
     This compatibility operation remains useful for a manually edited
     database that already declares the current version.  Normal opens should
     use :func:`migrate_database`, which runs each migration only once.
@@ -447,6 +462,9 @@ def ensure_database_schema(
     timeout: float = 30.0,
 ) -> MigrationReport:
     """Migrate a database and repair schema drift at the current version.
+
+    :param db_path: database file to migrate after expanding user-relative
+        path syntax.
 
     Old spaCR readers performed the non-destructive column repair on every
     open.  Retaining that small safety net matters for databases manually

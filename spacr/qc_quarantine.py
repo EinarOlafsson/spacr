@@ -82,7 +82,10 @@ def _quarantine_dir(path: _PathValue) -> Path:
 
 
 def quarantine_dir_for(merged_dir: _PathValue) -> Path:
-    """Return ``<plate>/merged_quarantined`` for ``<plate>/merged``."""
+    """Return ``<plate>/merged_quarantined`` for ``<plate>/merged``.
+
+    :param merged_dir: validated plate ``merged`` directory.
+    """
     merged = _merged_dir(merged_dir)
     return merged.parent / QUARANTINE_DIRNAME
 
@@ -91,7 +94,11 @@ def quarantine_record_path(
     quarantine_dir: _PathValue,
     field: _PathValue,
 ) -> Path:
-    """Return the audit sidecar path for one quarantined field."""
+    """Return the audit sidecar path for one quarantined field.
+
+    :param quarantine_dir: plate ``merged_quarantined`` directory.
+    :param field: merged-field stem, with an optional ``.npy`` suffix.
+    """
     folder = _quarantine_dir(quarantine_dir)
     return folder / f"{_field_stem(field)}.npy{_RECORD_SUFFIX}"
 
@@ -294,6 +301,9 @@ def restore_field(
 ) -> Path:
     """Move one quarantined array back to its sibling ``merged`` folder.
 
+    :param quarantine_dir: plate ``merged_quarantined`` directory.
+    :param field: field stem, with an optional ``.npy`` suffix, to restore.
+
     The sidecar remains in ``merged_quarantined`` as the plate's audit trail
     and gains a restoration event.  As with quarantine, a ledger-write
     failure rolls the file move back.
@@ -341,14 +351,21 @@ def is_quarantined(
     merged_dir: _PathValue,
     field: _PathValue,
 ) -> bool:
-    """Return whether the sibling quarantine currently holds ``field``."""
+    """Return whether the sibling quarantine currently holds ``field``.
+
+    :param merged_dir: plate ``merged`` directory whose quarantine is checked.
+    :param field: field stem, with an optional ``.npy`` suffix, to locate.
+    """
     quarantine = quarantine_dir_for(merged_dir)
     path = _field_path(quarantine, field)
     return path.is_file() and not path.is_symlink()
 
 
 def list_quarantined(merged_dir: _PathValue) -> List[str]:
-    """Return sorted field stems currently excluded from ``merged/*.npy``."""
+    """Return sorted field stems currently excluded from ``merged/*.npy``.
+
+    :param merged_dir: plate ``merged`` directory whose quarantine is listed.
+    """
     quarantine = quarantine_dir_for(merged_dir)
     try:
         entries = list(quarantine.iterdir())
@@ -365,7 +382,11 @@ def resolve_field_path(
     merged_dir: _PathValue,
     field: _PathValue,
 ) -> Optional[Path]:
-    """Locate a field in ``merged`` or its quarantine, active copy first."""
+    """Locate a field in ``merged`` or its quarantine, active copy first.
+
+    :param merged_dir: plate ``merged`` directory to search first.
+    :param field: field stem, with an optional ``.npy`` suffix, to locate.
+    """
     merged = _merged_dir(merged_dir)
     active = _field_path(merged, field)
     if active.is_file() and not active.is_symlink():
