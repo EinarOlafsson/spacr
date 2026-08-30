@@ -1851,3 +1851,105 @@ The general defect in 27 is that coverage data is meaningless once its
 source has moved. This instance shows the same thing one level up: it is
 just as meaningless once its BASELINE has moved, and the baseline is the
 half nobody thinks to pin.
+
+==============================================================================
+31. `--cov=<DOTTED PATH TO A Qt MODULE>` DUMPS CORE BEFORE ANY TEST RUNS
+==============================================================================
+
+Four agents on round 4 hit this independently and each spent real time on
+it, so it is worth stating exactly. Measuring a Qt module by its dotted
+module path kills the process:
+
+    pytest <any test file> --cov=spacr.qt.widgets.annotation_strategy_panel
+    -> "timeout: the monitored command dumped core"
+
+No traceback, no pytest output, no coverage data. It reproduces with a
+trivial one-line test file, so it is nothing to do with the tests being
+measured. One agent traced the death to tests/conftest.py's
+`from PySide6.QtCore import QSettings` inside `pytest_configure`.
+
+WHAT DOES AND DOES NOT CRASH -- measured, not assumed:
+
+    --cov=spacr                                        works
+    --cov=spacr.qt.widgets            (package)        works
+    --cov=spacr.utils                 (non-Qt module)  works
+    --cov=spacr.qt.widgets.<any Qt widget module>      DUMPS CORE
+
+It is not the import on its own. Importing that module in a bare
+interpreter with no QApplication succeeds, and constructing
+`coverage.Coverage(source=['spacr.qt.widgets.annotation_strategy_panel'])`
+outside pytest succeeds too. It needs both: coverage resolving a `source=`
+entry by importing it WHILE conftest is bringing PySide6 up in
+`pytest_configure`. An ordering interaction, not a plain import failure.
+
+THE PRACTICAL RULE
+
+Measure with a package spec and filter afterwards:
+
+    pytest <files> --cov=spacr --cov-branch --cov-report=json:out.json
+    # then select the module out of out.json["files"]
+
+`tools/coverage/batched_coverage.sh` already uses `--cov=spacr`, so the
+whole-library measurement is not affected by this. What IS affected is
+every ad-hoc per-module check, which is exactly what a coverage agent
+reaches for first.
+
+WHY IT MATTERS BEYOND THE INCONVENIENCE
+
+A crashed process writes no coverage data, but the tests it was running
+still ran. Anyone who takes the surviving data as the module's coverage
+reads a module that has been measured as far less covered than it is --
+which is one of the ways a target list comes to name arcs that are
+already closed. See 32.
+
+==============================================================================
+32. A STALE TARGET LIST SENDS AGENTS TO ALREADY-COVERED CODE
+==============================================================================
+
+Round 4 was scoped from a coverage artifact measured at 06:11, filtered
+for modules whose source had not changed since. That filter was not
+enough, and five agents reported the same thing from different modules:
+
+  setup_slides      226 of the chunk's 229 arcs already closed
+  annotation_umap_tab   every listed line and arc already closed; the
+                        module was already at 100%/100%
+  figure_settings   all 13 targets already closed
+  model_zoo (screen)  7 of 12 arcs already closed
+  memory_budget     18 of 21 already closed, by a commit landed that day
+  mask              chunk said 59.8%; the pre-existing tests give 77%
+
+Three separate causes, and they need separating because the fixes differ:
+
+  1. DATA LOST AT MEASUREMENT TIME. A batch whose worker died contributes
+     nothing while its tests still count as passed, so real coverage is
+     recorded as missing. 31 is one way that happens.
+
+  2. THE ARTIFACT PREDATES RECENT WORK. Round 3 landed between the
+     artifact and round 4, so round 4's biggest targets were precisely
+     what round 3 had just finished. Excluding round 3's six modules by
+     hand caught most but not all of it -- memory_budget was closed by a
+     commit that same morning.
+
+  3. LINE NUMBERS DRIFT FROM COMMITS, NOT JUST FROM UNCOMMITTED EDITS.
+     One agent proved its chunk was measured at commit 80a1a4b6 by
+     re-parsing every revision of the file and finding exactly one with
+     zero invalid statements and zero invalid arcs; HEAD's copy had been
+     rewritten by 84b3bff2, so 51 of 58 arcs named positions that are not
+     statements any more. Another found model_zoo's numbers uniformly off
+     by +2. Both worked around it by building a difflib line map from the
+     measured revision to HEAD, which is the right move and should be the
+     documented one.
+
+THE RULE THAT FOLLOWS
+
+A target list is only valid against the exact tree it was measured on.
+Before dispatching a round, either re-measure at HEAD, or record the
+commit the artifact was measured at and remap through difflib -- and in
+both cases drop any module that has acquired a test file since. An
+mtime filter against the artifact catches uncommitted edits only; it
+does not catch a commit, and it does not catch coverage that was closed
+by someone else's test file.
+
+The cheapest available check is the strongest: a module that already has
+a `test_cov_*` file naming it is a module whose chunk should be
+re-derived before anyone is sent to it.
