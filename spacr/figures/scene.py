@@ -1183,18 +1183,21 @@ def _add_legend(plot, legend, look) -> int:
     """
     import pyqtgraph as pg
 
+    texts = legend.get_texts()
+    if not texts:
+        return 0
     entries = []
-    for text in legend.get_texts():
+    for text, handle in zip(texts, legend.legend_handles):
         body = text.get_text()
         if body:
-            entries.append(str(body))
+            entries.append((str(body), text, handle))
     if not entries:
         return 0
-    ink = look.paint(_hex(legend.get_texts()[0].get_color()), "chrome")
+    ink = look.paint(_hex(entries[0][1].get_color()), "chrome")
     item = pg.LegendItem(offset=(30, 20), labelTextColor=ink or "#222222",
                          labelTextSize="7pt")
     item.setParentItem(plot.getViewBox())
-    for entry, handle in zip(entries, legend.legend_handles):
+    for entry, _text, handle in entries:
         colour = None
         for getter in ("get_color", "get_facecolor", "get_edgecolor"):
             try:
