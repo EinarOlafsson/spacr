@@ -897,3 +897,44 @@ arc, which is why they are reliable while the aggregate is not.
     the test passed, and nothing was covered. Only the arc check caught it.
     That is now three times in this instruction (5, 7, this) that a test
     exercising nothing looked correct.
+
+17. A DEAD `except` THAT LEFT NaN WHERE THE CODE MEANT None (sklearn 1.7+)
+    ------------------------------------------------------------------------
+    spacr/regression_annotation.py, `_score_holdout`.
+
+        try:
+            auc = float(roc_auc_score(y_test, values))
+        except ValueError:
+            auc = None
+
+    A hold-out that comes out all-positive or all-negative is routine on a
+    small screen. scikit-learn RAISED ValueError for it up to 1.6 and RETURNS
+    NaN with an UndefinedMetricWarning from 1.7 (measured on 1.9.0). So the
+    handler is dead on any current install, and `FitReport.roc_auc` carries
+    NaN where its own type says `Optional[float]` and its docstring says
+    "None when the hold-out has one class".
+
+    THE COST IS NOT COSMETIC. Two readers check for None:
+
+      FitReport.lift    falls back to balanced accuracy when roc_auc is None.
+                        `nan is None` is False, so it takes NaN as the base
+                        and returns NaN. That lift is the number the
+                        named-method leak check compares between the fit with
+                        the score's input columns and the fit without them --
+                        the control that tells a real phenotype from a leak.
+                        NaN compares False against everything, so the check
+                        stops detecting either.
+
+      FitReport.summary prints "ROC AUC nan" where it means "ROC AUC n/a".
+
+    Fixed by normalising a non-finite AUC to None, keeping the except for
+    older scikit-learn. The test asserts BOTH consequences -- the lift falling
+    back and the summary saying n/a -- not merely that the field is None; and
+    removing the fix makes it fail, which was checked rather than assumed.
+
+    WORTH GENERALISING. This is a dependency changing an error CONTRACT
+    without changing an API: same call, same arguments, same return type,
+    different way of saying "undefined". A pinned upper bound would not have
+    caught it and a type checker cannot see it. The only thing that does is a
+    test that drives the degenerate case -- and the reason there wasn't one is
+    that the branch looked defensive.
