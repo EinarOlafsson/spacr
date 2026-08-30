@@ -2482,7 +2482,10 @@ def score_digest(
 
 
 def format_digest(digest: QCDigest) -> str:
-    """Render a digest as text — what the console prints, what a test reads."""
+    """Render a digest as text — what the console prints, what a test reads.
+
+    :param digest: completed segmentation-QC digest to render.
+    """
     lines = [f"Segmentation QC: {digest.verdict.upper()} — {digest.headline}"]
     if digest.subhead:
         lines.append(f"  {digest.subhead}")

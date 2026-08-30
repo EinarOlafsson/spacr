@@ -157,7 +157,10 @@ def compare(values: Sequence[float], transform: str) -> Dict[str, Any]:
 
 
 def caption(result: Dict[str, Any]) -> str:
-    """Format a statistical caption for a :func:`compare` result."""
+    """Format a statistical caption for a :func:`compare` result.
+
+    :param result: response-distribution comparison result to render.
+    """
     before, after = result["before"], result["after"]
 
     def one(part: Dict[str, Any]) -> str:

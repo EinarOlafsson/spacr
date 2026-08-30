@@ -156,7 +156,10 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
 
 
 def describe(report: Dict[str, Any]) -> str:
-    """Format a concise description of the plotted population."""
+    """Format a concise description of the plotted population.
+
+    :param report: well-scope selection report to summarize.
+    """
     if report.get("note"):
         return report["note"]
     scope = report.get("scope")

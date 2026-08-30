@@ -45,7 +45,10 @@ def _columns_of(cursor, table: str) -> set:
 
 
 def describe(rows: Sequence[Mapping]) -> str:
-    """Summarize a proposed attribution write for user confirmation."""
+    """Summarize a proposed attribution write for user confirmation.
+
+    :param rows: proposed per-cell attribution rows.
+    """
     total = len(rows)
     called = sum(1 for row in rows
                  if str(row.get("grna_attributed") or "") not in

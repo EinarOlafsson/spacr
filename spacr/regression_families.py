@@ -138,6 +138,8 @@ def family_group(name: str) -> str:
 def family_label(name: str) -> str:
     """The one line a dropdown shows for a family: its kind and its assumption.
 
+    :param name: stored regression-family value to label.
+
     The stored value leads, because that is what a user is looking for and
     what every settings file and results folder is named after.
     """

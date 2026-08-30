@@ -62,6 +62,8 @@ def file_sink() -> Optional[Callable[..., Any]]:
 def publish_file(path, title=None):
     """Announce a figure FILE somebody else already wrote. Returns the path.
 
+    :param path: existing figure file to announce to the active sink.
+
     The rule -- saved and visible are the same event -- with
     the half that :func:`publish` cannot cover. A pyqtgraph scene exported by
     ``FastPlot.export`` is a finished file and never was a matplotlib Figure,

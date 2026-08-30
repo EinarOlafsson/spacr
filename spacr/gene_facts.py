@@ -287,7 +287,10 @@ class GeneFacts:
         return bool(self.values)
 
     def value(self, column: str, default: Any = None) -> Any:
-        """One annotation column, or ``default`` when it had a gap."""
+        """One annotation column, or ``default`` when it had a gap.
+
+        :param column: annotation column whose value is requested.
+        """
         return self.values.get(column, default)
 
     def sections(self) -> Tuple[Tuple[str, Tuple[Tuple[str, str], ...]], ...]:

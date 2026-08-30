@@ -390,6 +390,8 @@ def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
 def png_crop_type(db_path: str) -> Optional[str]:
     """WHICH OBJECT the crops in ``png_list`` are pictures of.
 
+    :param db_path: measurements database whose ``png_list`` schema is read.
+
     `png_list` names its id column after the object it cropped --
     ``cell_id``, ``pathogen_id``, ``organelle_id`` -- so the crop mode a run
     used is recoverable from the schema rather than having to be remembered.

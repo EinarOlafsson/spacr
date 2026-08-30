@@ -539,7 +539,10 @@ class Report:
     n_figures_embedded: int = 0
 
     def section(self, key: str) -> Optional[Section]:
-        """Return the section with ``key``, or None."""
+        """Return the section with ``key``, or None.
+
+        :param key: stable report-section key to locate.
+        """
         for sec in self.sections:
             if sec.key == key:
                 return sec

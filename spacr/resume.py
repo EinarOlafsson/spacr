@@ -456,6 +456,8 @@ def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
 def identity_to_prcf(identity: Mapping[str, str]) -> str:
     """Render an identity dict as the ``prcf`` string the tables also carry.
 
+    :param identity: canonical field-identity components to join.
+
     Used only for display and for the "no candidate list" mode of
     :func:`completed_fields_in_db`; never as a delete key.
     """

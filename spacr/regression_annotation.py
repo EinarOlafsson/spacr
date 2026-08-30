@@ -833,7 +833,10 @@ class Prepared:
                           dtype=int)
 
     def positive_share(self, positions: Sequence[int]) -> float:
-        """Return the positive-label fraction among ``positions``."""
+        """Return the positive-label fraction among ``positions``.
+
+        :param positions: integer row positions whose prepared labels are read.
+        """
         index = np.asarray(list(positions), dtype=int)
         if index.size == 0:
             return float("nan")

@@ -640,7 +640,10 @@ class CountDiff:
         return tuple(r for r in self.rows if r.scope == "overall")
 
     def for_plate(self, plate: str) -> Tuple[CountRow, ...]:
-        """The rows for one plate."""
+        """The rows for one plate.
+
+        :param plate: plate scope whose comparison rows are requested.
+        """
         return tuple(r for r in self.rows if r.scope == plate)
 
     @property
