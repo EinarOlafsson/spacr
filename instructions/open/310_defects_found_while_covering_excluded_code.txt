@@ -1414,3 +1414,28 @@ contracts pass under PySide6/Qt 6.11.2.
     produces the thing, so "no complaint" is the code agreeing rather than the
     code never having run. Both new tests here do that now, and it makes them
     fail on a mistyped app key without needing coverage at all.
+
+--------------------------------------------------------------------------------
+35. THE ARC CHECKER COULD NOT READ AN EXIT ARC
+--------------------------------------------------------------------------------
+    coverage.py writes a return or fall-off-the-end as a NEGATIVE target:
+
+        [617, -610]   "line 617 exits the function that starts at 610"
+
+    `check_arcs.py` split each target on "-" and int()'d both halves, so
+    `617--610` produced an empty second field and the script died with
+
+        ValueError: invalid literal for int() with base 10: ''
+
+    -- in the middle of verifying a commit. Every early return in the package
+    is an arc of that shape, so the one tool this work depends on could not
+    check the single most common branch there is. It was worked around by
+    hand twice before being fixed, which is twice too many.
+
+    Fixed: split on the first separator after position 0, so a leading minus
+    stays with the head and the tail keeps its own sign.
+
+    Worth noting for what it says about the artifact rather than the script.
+    A tool that silently could not answer a whole CLASS of question is the
+    same failure as a coverage run that silently loses a worker: the number
+    it gives is right, and it is not the number you asked for.
