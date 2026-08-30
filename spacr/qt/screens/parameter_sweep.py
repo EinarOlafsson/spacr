@@ -694,7 +694,13 @@ def _lazy_sweep_panel(host):
     finds the sweep by looking for that pair (see
     :func:`spacr.qt.dnd_handlers._sweep_panel`); asking for either builds the
     real panel, so a drop onto a card nobody has opened behaves exactly as it
-    did when the panel was built up front.
+    did when the panel was built up front. ``destination``,
+    ``apply_settings``, and the panel's public ``space`` model are the only
+    other interfaces its callers use. They are forwarded explicitly rather
+    than through a catch-all ``__getattr__``:
+    translation probes every widget for optional methods such as ``set_url``
+    and ``retranslate_dynamic_content``, and treating an introspection probe
+    as a demand for the panel defeats the whole deferral.
     """
     from PySide6.QtWidgets import QVBoxLayout, QWidget
 
@@ -718,17 +724,33 @@ def _lazy_sweep_panel(host):
             """Whether the real panel exists yet. For tests and diagnostics."""
             return self._panel is not None
 
+        @property
+        def score_data(self):
+            """The real panel's score-file list, built on first use."""
+            return self.panel().score_data
+
+        @property
+        def count_data(self):
+            """The real panel's count-file list, built on first use."""
+            return self.panel().count_data
+
+        @property
+        def destination(self):
+            """The real panel's output-folder editor, built on first use."""
+            return self.panel().destination
+
+        @property
+        def space(self):
+            """The real panel's sweep-space model, built on first use."""
+            return self.panel().space
+
+        def apply_settings(self, settings):
+            """Seed the real panel when the user opens the sweep card."""
+            return self.panel().apply_settings(settings)
+
         def showEvent(self, event):                      # noqa: N802
             self.panel()
             super().showEvent(event)
-
-        def __getattr__(self, name):
-            # Only reached for names this object does not carry, so the two
-            # methods above and everything QWidget defines answer without
-            # building anything.
-            if name.startswith("_") or name in ("panel", "built"):
-                raise AttributeError(name)
-            return getattr(self.panel(), name)
 
     return LazySweepPanel()
 
