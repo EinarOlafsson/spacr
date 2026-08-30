@@ -653,6 +653,23 @@ def test_install_lowers_it_behind_every_sibling(qtbot):
     assert layout.count() == 1
 
 
+def test_install_uses_the_idle_frame_budget(qtbot):
+    """The always-present production backdrop need not repaint at 24 fps."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    widget = install_ambient(host, theme="blobs", palette="spacr", seed=1)
+    assert widget.fps() == amb._INSTALLED_FPS
+
+
+def test_install_preserves_an_explicit_frame_budget(qtbot):
+    """Embedding callers can still ask for the direct widget's full rate."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    widget = install_ambient(host, theme="blobs", palette="spacr", seed=1,
+                             fps=amb.DEFAULT_FPS)
+    assert widget.fps() == amb.DEFAULT_FPS
+
+
 def test_install_follows_the_hosts_size(qtbot):
     host = QWidget()
     qtbot.addWidget(host)

@@ -588,6 +588,15 @@ DEFAULT_FPS = 24
 MIN_FPS = 1
 MAX_FPS = 60
 
+#: The ordinary application installs a backdrop on every live screen.  Its
+#: motion is deliberately slow and diffuse, so spending the direct widget's
+#: full 24-frame budget while the application is otherwise idle only feeds
+#: repaints that are visually redundant.  Keep ``AmbientWidget``'s public
+#: default unchanged for callers that explicitly construct one; the shared
+#: production installer uses this lower idle budget unless a caller asks for
+#: a particular rate.
+_INSTALLED_FPS = 12
+
 #: Largest simulation step accepted from the wall clock, in seconds. If the
 #: app was busy for two seconds the animation resumes where it was instead of
 #: teleporting.
@@ -5311,6 +5320,7 @@ def install_ambient(host: QWidget, layout=None, *,
     if replacement is not None:
         return replacement
 
+    kwargs.setdefault("fps", _INSTALLED_FPS)
     widget = AmbientWidget(host, theme=theme, palette=palette,
                            backdrop=backdrop, corner_radius=corner_radius,
                            **kwargs)
