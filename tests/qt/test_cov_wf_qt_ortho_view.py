@@ -10,13 +10,10 @@ places the view has to survive something it did not build itself:
 * a labels layer with no :class:`~spacr.layers.FieldKey`, where a click can
   say "label 17" but has no measurement-table name to publish, so the shared
   selection must be left alone rather than told a wrong one;
-* a mask whose array no longer contains the label its own ``labels()`` reports
-  — the guard that stops a linked selection from moving the crosshair to the
-  mean of nothing, which is ``nan`` and takes the snap arithmetic with it.
+* a fractional replacement for a labels layer, which must be refused before
+  linked selection truncates a label and looks for pixels that do not exist.
 """
 from __future__ import annotations
-
-import math
 
 import numpy as np
 import pytest
@@ -26,7 +23,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QSlider
 
-from spacr.layers import FieldKey, LayerStack, Spacing
+from spacr.layers import FieldKey, LayerError, LayerStack, Spacing
 from spacr.qt import ortho_view as ov
 from spacr.qt.linked_selection import LinkedSelection, Selection
 
@@ -210,29 +207,18 @@ def test_a_mask_with_no_field_key_publishes_nothing_until_it_has_one(
 
 
 # ---------------------------------------------------------------------------
-# A selection naming a label the array no longer holds
+# Fractional replacement cannot corrupt linked selection
 # ---------------------------------------------------------------------------
 
-def test_a_selection_for_a_label_the_array_does_not_hold_moves_nothing(
+def test_a_fractional_replacement_cannot_break_linked_label_selection(
         qtbot, qt_theme_applied):
-    """The crosshair must not be sent to the mean of an empty index array.
+    """The setter enforces the same integer-label contract as construction.
 
     ``on_linked_selection_changed`` finds the label whose object key another
     view selected and moves the crosshair to that object's centre of mass.
-    The centre comes from ``np.argwhere(data == label)``, and when that is
-    empty ``mean(axis=0)`` is ``nan`` — which reaches ``move_to`` and dies in
-    ``int(round(nan))`` inside ``_snap``, i.e. a ``ValueError`` raised out of
-    a signal handler on the selection bus, taking down whichever view
-    published the selection.
-
-    A mask can hold labels its own array does not: ``LabelsLayer.labels()``
-    returns the raw unique values, while this loop compares ``data ==
-    int(label)``. Replace a mask's data with a float array — the setter
-    allows it, unlike the constructor — and 17.5 is a label whose key is
-    ``…_17`` and whose pixels are nowhere. The first half of this test shows
-    the same selection moving the crosshair when the array is intact, so the
-    absence asserted in the second half is a real difference and not a
-    selection that never arrived.
+    Fractional labels would be truncated while forming the object key and then
+    have no matching pixels. Refusing that replacement leaves the valid mask
+    intact, so the same linked selection can still find and select its object.
     """
     stack = _volume(with_mask=True)
     view = _view(qtbot, stack, width=128)
@@ -250,17 +236,13 @@ def test_a_selection_for_a_label_the_array_does_not_hold_moves_nothing(
     view.move_to(z=0.0)
     corrupt = np.asarray(mask.data, dtype=np.float64)
     corrupt[corrupt > 0] += 0.5
-    mask.data = corrupt
-    assert mask.labels().tolist() == [17.5], \
-        "the mask no longer reports the label this test needs"
+    with pytest.raises(LayerError, match="integer labels"):
+        mask.data = corrupt
+    assert mask.labels().tolist() == [17]
+    assert mask.data.dtype.kind == "i"
 
     view.on_linked_selection_changed(Selection(keys=[OBJECT_KEY],
                                                source="umap"))
 
-    assert mask.selected_label == 17, \
-        "the loop never matched the key, so the guard was never reached"
-    assert view.slice_index("z") == 0, \
-        "the crosshair moved to the centre of an object with no pixels"
-    assert not math.isnan(view.views.point["z"])
-    assert view.views.point["z"] == pytest.approx(0.0), \
-        "the crosshair left the slice it was parked on"
+    assert mask.selected_label == 17
+    assert view.slice_index("z") == OBJECT_SLICE

@@ -1985,6 +1985,12 @@ class LabelsLayer(Layer):
                 f"array is {array.shape}. Replace the layer rather than its "
                 f"data if the grid really changed — the spacing describes the "
                 f"old grid.")
+        if not np.issubdtype(array.dtype, np.integer):
+            if not np.all(np.equal(np.mod(array, 1), 0)):
+                raise LayerError(
+                    f"a labels layer needs integer labels, got dtype "
+                    f"{array.dtype} with fractional values")
+            array = array.astype(np.int64)
         self._data = array
         self._notify("data", kind="data")
 
