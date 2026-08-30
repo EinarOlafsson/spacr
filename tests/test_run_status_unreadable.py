@@ -249,3 +249,42 @@ def test_the_batch_queue_survives_an_unreadable_artifact(partial_db, tmp_path):
         collected = batch._collect_run_status(settings, before)
     assert isinstance(before, dict)
     assert collected is None or isinstance(collected, dict)
+
+
+# ---------------------------------------------------------------------------
+# 6. a connection that was never opened is not a connection to close
+# ---------------------------------------------------------------------------
+
+def test_a_connect_that_fails_reports_the_database_not_the_cleanup(tmp_path,
+                                                                   monkeypatch):
+    """The ``finally`` guards on ``conn is not None`` for a reason.
+
+    ``connect`` itself raises when the file is a database SQLite refuses to
+    open at all -- a corrupt header, a permissions refusal, an exhausted file
+    handle table. The name ``conn`` is bound to None before the ``try``
+    precisely so that the cleanup can tell "never opened" from "opened and
+    must be closed".
+
+    Without the guard the ``finally`` raises ``AttributeError: 'NoneType'
+    object has no attribute 'close'`` on its way out, and THAT is what the
+    caller sees: the carefully written RunStatusUnreadable message, which
+    tells the user to wait for the writer or check the file, is replaced by
+    a traceback about None. The wrong diagnosis for the right fault.
+    """
+    from spacr import database_concurrency
+
+    database = tmp_path / 'measurements.db'
+    database.write_bytes(b'not a database at all')
+
+    def refuse_to_connect(*args, **kwargs):
+        raise sqlite3.OperationalError('unable to open database file')
+
+    monkeypatch.setattr(database_concurrency, 'connect', refuse_to_connect)
+
+    with pytest.raises(RunStatusUnreadable) as excinfo:
+        read_run_status(database)
+
+    message = str(excinfo.value)
+    assert 'unable to open database file' in message
+    assert str(database) in message
+    assert 'NoneType' not in message
