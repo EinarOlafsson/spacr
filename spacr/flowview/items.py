@@ -61,10 +61,18 @@ if not QT_AVAILABLE:
             raise ImportError(QT_MISSING_MESSAGE) from _QT_IMPORT_ERROR
 
     class NodeItem(_MissingQtItem):
-        """Unavailable node item placeholder."""
+        """Placeholder used when PySide6 is unavailable.
+
+        Construction raises :class:`ImportError` with the
+        ``pip install spacr[flowview]`` remediation.
+        """
 
     class EdgeItem(_MissingQtItem):
-        """Unavailable edge item placeholder."""
+        """Placeholder used when PySide6 is unavailable.
+
+        Construction raises :class:`ImportError` with the
+        ``pip install spacr[flowview]`` remediation.
+        """
 
 else:
 
@@ -90,7 +98,13 @@ else:
 
 
     class NodeItem(QGraphicsItem):
-        """A journal-like node card painted without a plotting dependency."""
+        """With PySide6 available, ``NodeItem`` paints a selectable node card.
+
+        :param node: run-graph node whose label, state, metrics, progress,
+            and optional thumbnail the card displays.
+        :param box: layout coordinates and dimensions used to position and
+            bound the card.
+        """
 
         def __init__(self, node: Node, box: NodeLayout) -> None:
             super().__init__()
@@ -202,7 +216,15 @@ else:
 
 
     class EdgeItem(QGraphicsItem):
-        """A curved transfer edge with logarithmic volume weight."""
+        """With PySide6 available, ``EdgeItem`` paints a non-interactive edge.
+
+        :param edge: transfer whose volume controls logarithmic stroke width
+            and whose optional label is painted on the curve.
+        :param source: layout geometry of the source node.
+        :param target: layout geometry of the target node.
+        :param source_running: whether to initially paint the dashed marker
+            for an active source stage.
+        """
 
         def __init__(
             self,

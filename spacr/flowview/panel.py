@@ -55,10 +55,18 @@ if not QT_AVAILABLE:
             raise ImportError(QT_MISSING_MESSAGE) from _QT_IMPORT_ERROR
 
     class FlowGraphicsView(_MissingQtWidget):
-        """Unavailable graphics-view placeholder."""
+        """Placeholder used when PySide6 is unavailable.
+
+        Construction raises :class:`ImportError` with the
+        ``pip install spacr[flowview]`` remediation.
+        """
 
     class FlowViewPanel(_MissingQtWidget):
-        """Unavailable live-panel placeholder."""
+        """Placeholder used when PySide6 is unavailable.
+
+        Construction raises :class:`ImportError` with the
+        ``pip install spacr[flowview]`` remediation.
+        """
 
 else:
 
@@ -111,7 +119,11 @@ else:
 
 
     class FlowGraphicsView(QGraphicsView):
-        """A panning graphics view with bounded cursor-centred wheel zoom."""
+        """With PySide6, ``FlowGraphicsView`` provides panning and bounded zoom.
+
+        :param scene: graphics scene displayed by the view.
+        :param parent: optional Qt parent widget.
+        """
 
         MIN_ZOOM = 0.25
         MAX_ZOOM = 4.0
@@ -161,7 +173,20 @@ else:
 
 
     class FlowViewPanel(QWidget):
-        """A boxed live run graph suitable for insertion below Classify settings."""
+        """With PySide6, ``FlowViewPanel`` renders and inspects live snapshots.
+
+        :param collector: event collector whose snapshots the panel renders.
+        :param parent: optional Qt parent widget.
+        :param refresh_interval_ms: positive timer interval, in milliseconds,
+            between automatic refreshes.
+        :param export_path_provider: optional callback returning the export
+            destination, or ``None`` to cancel. Without one, export opens a
+            Qt file dialog.
+        :param auto_start: whether to start the refresh timer after the initial
+            forced render.
+        :param embedded: whether to use a transparent, borderless surface and
+            hide the panel title for embedding in another screen.
+        """
 
         SAMPLE_NOTE = "Live display is sampling updates because the event queue filled."
 
@@ -258,7 +283,7 @@ else:
             return self._snapshot
 
         def start(self) -> bool:
-            """Start approximately 20 Hz collection, unless already active."""
+            """Start refreshing at the configured interval; report if started."""
 
             if self.timer.isActive():
                 return False
@@ -274,7 +299,11 @@ else:
             return True
 
         def refresh(self, *, force: bool = False) -> bool:
-            """Drain events and repaint only when the graph content changed."""
+            """Drain events and repaint after a change or whenever ``force=True``.
+
+            :param force: repaint even when the collector revision is unchanged.
+            :returns: whether the graph was repainted.
+            """
 
             if self._follow_global_collector:
                 try:
