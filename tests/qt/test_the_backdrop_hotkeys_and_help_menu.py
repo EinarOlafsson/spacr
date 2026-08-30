@@ -1,4 +1,4 @@
-"""Ctrl+T stops the background, Ctrl+Shift+B blanks it, and Help is tidy."""
+"""Ctrl+T stops the background, Ctrl+B blanks it, and Help is tidy."""
 
 import pytest
 
@@ -25,20 +25,19 @@ def test_ctrl_t_stops_the_animation(window):
     assert action.isCheckable()
 
 
-def test_ctrl_shift_b_blanks_it(window):
+def test_ctrl_b_blanks_it(window):
     action = window.findChild(QAction, "BlankBackdrop")
     assert action is not None
-    assert action.shortcut().toString() == "Ctrl+Shift+B"
+    assert action.shortcut().toString() == "Ctrl+B"
 
 
-def test_it_is_not_ctrl_b(window):
-    """Ctrl+B is the app drawer and the only keyboard route to it. Taking it
-    would remove a panel from keyboard users to gain a decoration toggle."""
+def test_the_drawer_keeps_its_own_key(window):
+    """Blanking and opening the drawer must remain distinct actions."""
     taken = {a.shortcut().toString() for a in window.actions()
              if a.shortcut().toString()}
-    assert "Ctrl+B" in taken, "the app drawer lost its shortcut"
+    assert "Ctrl+Shift+A" in taken, "the app drawer lost its shortcut"
     blank = window.findChild(QAction, "BlankBackdrop")
-    assert blank.shortcut().toString() != "Ctrl+B"
+    assert blank.shortcut().toString() == "Ctrl+B"
 
 
 def test_blanking_stops_the_animation_before_hiding(window):

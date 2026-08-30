@@ -42,7 +42,7 @@ def _open_urls(window, monkeypatch):
     opened: list[str] = []
     monkeypatch.setattr(webbrowser, "open", opened.append)
     for act in _help_actions(window):
-        if act.text().endswith("(web)"):
+        if act.text() in {"Tutorial", "Documentation"}:
             act.trigger()
     return opened
 
@@ -101,8 +101,8 @@ def test_the_tutorial_action_keeps_its_translated_label(win):
     from spacr.qt.i18n import has_translation
 
     labels = [a.text() for a in _help_actions(win)]
-    assert "Tutorial (web)" in labels
-    assert has_translation("Tutorial (web)", "sv")
+    assert "Tutorial" in labels
+    assert has_translation("Tutorial", "sv")
 
 
 def test_the_tutorial_action_no_longer_calls_itself_unfinished(win):

@@ -199,8 +199,8 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
     declared = {s.keys for s in SHORTCUTS}
     assert {"Ctrl+F", "Ctrl+Shift+R"} <= declared
 
-    # A QAction'S SHORTCUT IS BOUND TOO. `Ctrl+B` opens the full app list
-    # and is set on the menu action rather than on a QShortcut -- looking
+    # A QAction'S SHORTCUT IS BOUND TOO. `Ctrl+Shift+A` opens the full app
+    # list and is set on a window action rather than on a QShortcut -- looking
     # only at QShortcut called a wired key unwired. The rule this test is
     # for is "documented and reachable", and either kind reaches.
     from PySide6.QtGui import QAction, QShortcut

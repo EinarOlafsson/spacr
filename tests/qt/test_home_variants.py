@@ -76,43 +76,13 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: and content taller than the fixed canvas. Module folds reduce this set;
 #: longer labels or new visible apps can increase it.
 KNOWN_LAYOUT_DEFECTS: dict = {
-    # The shipped Home baseline carries long scientific summaries and a
-    # scrollable sidebar on this fixed canvas.
-    1:  {"clipped": 4, "overflow": 1},
-    # Five bands of seven fit vertically; the remaining defects are names
-    # too long for their fixed tile widths. The launched registry includes
-    # the nine apps registered by their screen modules, so these counts cover
-    # the same 47 rows users see after startup.
-    2:  {"elided": 22, "overflow": 1},
-    3:  {"elided": 5},
-    5:  {"elided": 6},
-    13: {"clipped": 2},
-    17: {"overflow": 1},
-    19: {"clipped": 1},
-    24: {"clipped": 1},
-    28: {"elided": 4, "overflow": 1},
-    30: {"elided": 4},
+    # The stage-banded review candidate still needs one vertical scrollbar.
+    # All earlier clipping and elision disappeared after the module folds and
+    # the QSS/layout work; retaining those old entries would hide a real win.
+    2: {"overflow": 1},
 }
 
-# Bundled Open Sans produces the same counts on supported platforms except
-# for two one- or two-pixel vertical boundary cases: hosted Ubuntu's font
-# rasterizer fits variants 19 and 24 exactly, while the maintainer Linux
-# workstation clips one and two descriptions respectively. Keep both exact
-# profiles so a new/worse defect still fails instead of making font-hinting
-# differences look like a product regression.
-#: The two variants that sit ON the boundary, one pixel either side.
-BOUNDARY_VARIANTS = (19, 24)
-
-#: Every combination of the boundary variants fitting or not. Both used
-#: to be listed as one pair -- either both clipped or neither -- and a
-#: run where 24 fitted while 19 clipped failed as a regression when
-#: nothing had regressed. They are independent measurements, so they are
-#: recorded independently.
-KNOWN_LAYOUT_DEFECT_PROFILES = tuple(
-    {number: defects for number, defects in KNOWN_LAYOUT_DEFECTS.items()
-     if number not in dropped}
-    for dropped in ((), (19,), (24,), (19, 24))
-)
+KNOWN_LAYOUT_DEFECT_PROFILES = (KNOWN_LAYOUT_DEFECTS,)
 
 
 def _load(name: str, module_name: str):
@@ -365,7 +335,7 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 12, (
+        assert len(keys) <= 11, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...AND THE FLOOR IS THE WIDEST BAND, not the average one.
@@ -373,7 +343,7 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     # The widest band, rather than the arithmetic average, is the actual
     # width the fixed grid must accommodate.
     widest = max(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert widest == 12, (
+    assert widest == 11, (
         f"the widest band is {widest}; the cap above is the width the "
         f"grid must accommodate, so move them together")
 
@@ -1705,13 +1675,9 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
         # The other half of "nothing is excused by being listed": the
         # Variants with no line in the table carry no defect at all. The
-        # current local profile has eight measured variants; two font-boundary
-        # candidates may clip on hosted Ubuntu. Both exact totals are asserted
-        # so a new defect cannot hide inside a subtraction that still sums to
-        # thirty.
-        assert (len(measured), N_VARIANTS - len(measured)) in {
-            (8, 22), (9, 21), (10, 20),
-        }
+        # Only the single recorded candidate is still red. Exact totals stop
+        # a new defect hiding inside a subtraction that still sums to thirty.
+        assert (len(measured), N_VARIANTS - len(measured)) == (1, 29)
     finally:
         _prefs.set_font_scale(_original_zoom)
 
