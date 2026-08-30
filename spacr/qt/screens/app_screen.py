@@ -45,12 +45,7 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import (
-    SPACING,
-    ensure_widget_qss_applied,
-    preserve_widget_qss_overlay,
-    register_widget_qss,
-)
+from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
 from .settings_model import (
     CATEGORY_TOOLTIPS,
@@ -1042,24 +1037,22 @@ class AppScreen(QWidget):
     # AttributeError.
     _ambient = None
     _ambient_applied = None
-    _ambient_install_ready = False
     _backdrop_applied = None
+    _backdrops_ready = False
     _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
-        # A stylesheet/palette event can be delivered from the explicit
-        # ``processEvents`` calls used while the settings form is built.  The
-        # refresh handler must be able to answer during that half-constructed
-        # interval, but it must not install a backdrop yet: doing so sweeps an
-        # incomplete tree, then the normal constructor path installs a second
-        # widget and leaves the first one alive and untracked.
+        self.app_key = app_key
+        # Qt can deliver show/palette events from nested layout activation
+        # before this constructor reaches the backdrop section.  Keep those
+        # events from installing against a half-built widget tree; the normal
+        # install below is the single point where backdrop ownership begins.
         self._ambient = None
         self._ambient_applied = None
-        self._ambient_install_ready = False
         self._backdrop_applied = None
+        self._backdrops_ready = False
         self._dna_rain = None
-        self.app_key = app_key
         self._last_error_text: str = ""
         # widget → plain-text hint. Walking it hands over every caption,
         # including the ones the object rule left waiting; see the class.
@@ -1090,6 +1083,12 @@ class AppScreen(QWidget):
                               in DIMENSION_TOGGLES}
         #: ``dimension -> the toggle in the action row``, once there is one.
         self._dimension_switches = {}
+
+        # This module is imported lazily by `app.py`, long after the launch
+        # stylesheet was generated, so the block registered above is not in
+        # it. Without this the settings column opens unpanelled — see
+        # `ensure_widget_qss_applied`.
+        ensure_widget_qss_applied(SETTINGS_PANEL_NAME)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
@@ -1125,7 +1124,7 @@ class AppScreen(QWidget):
         self._settings_panel = self._build_settings_panel()
         body.addWidget(self._settings_panel)
         self.the_name_carries_the_help()
-        # Record the shape of an ordinary first-open screen too. Rebuilt
+        # Record the shape of an ordinary first-open screen too.  Rebuilt
         # screens already get this stamp in ``MainWindow.rebuild_app_screen``;
         # without the matching first-open stamp, merely leaving an unchanged
         # watched field rebuilt the whole page once and stole focus.
@@ -1208,7 +1207,6 @@ class AppScreen(QWidget):
         # button beside the AI toggle — they used to be a permanent bar
         # across the bottom of the page, which is more chrome than a
         # backdrop is worth.
-        self._dna_rain = None
         if self.app_key in DNA_RAIN_APPS:
             try:
                 from ..widgets.dna_rain import install_dna_rain
@@ -1244,7 +1242,7 @@ class AppScreen(QWidget):
         #: (theme, palette) last pushed at — or attempted on — the
         #: widget, so a tab switch that changed nothing neither restarts
         #: the animation nor retries an install that already failed.
-        self._ambient_install_ready = True
+        self._backdrops_ready = True
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
@@ -1310,12 +1308,6 @@ class AppScreen(QWidget):
             LOG.debug("could not take the tab scroll arrows off",
                       exc_info=True)
 
-        # This module is imported lazily by `app.py`, long after the launch
-        # stylesheet was generated. Apply its block to this screen only,
-        # after the page-colour code has finished setting the root's own
-        # stylesheet and before MainWindow can put the screen on display.
-        ensure_widget_qss_applied(SETTINGS_PANEL_NAME, root=self)
-
     # ------------------------------------------------------------------
     # Ambient backdrop
     # ------------------------------------------------------------------
@@ -1350,9 +1342,7 @@ class AppScreen(QWidget):
         palette event, which a stylesheet re-apply raises. A preference
         change moves the pair and the attempt happens again.
         """
-        if not getattr(self, "_ambient_install_ready", False):
-            return
-        if self._ambient is not None:
+        if not self._backdrops_ready or self._ambient is not None:
             return
         widget = None
         try:
@@ -1444,8 +1434,6 @@ class AppScreen(QWidget):
 
         Never raises, for the same reason the install does not.
         """
-        if not getattr(self, "_ambient_install_ready", False):
-            return
         if not uses_ambient_background(self.app_key):
             # Belt and braces: sequencing must not acquire one through
             # this path either.
@@ -1518,15 +1506,14 @@ class AppScreen(QWidget):
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
             return
-        # A palette event can arrive from the explicit ``processEvents``
-        # calls in the settings builder, before either backdrop path has
-        # been resolved.  At that point ``page_fill`` cannot answer the page
-        # colour yet: seeing ``_ambient is None`` is only "not decided", not
-        # "there is no backdrop".  The constructor performs this complete
-        # refresh after setting the readiness flag, so deferring the event
-        # loses no theme update and prevents an unnecessary full re-polish of
-        # the half-built widget tree.
-        if not getattr(self, "_ambient_install_ready", False):
+        # A nested layout activation can deliver this while ``__init__`` is
+        # still building the two page columns.  Skipping only the ambient
+        # install is not enough: syncing the page palette here first paints a
+        # flat page for a screen that is about to gain a backdrop, then the
+        # real install has to withdraw that style again.  The finished build
+        # installs/re-themes the backdrop and syncs the page once below, so no
+        # palette work is lost by deferring the construction-time event.
+        if not self._backdrops_ready:
             return
         self.refresh_ambient_background()
         self._retheme_backdrops()
@@ -1711,7 +1698,7 @@ class AppScreen(QWidget):
                 # Back to whatever the stylesheet and the app palette say.
                 self.setAutoFillBackground(False)
                 self.setPalette(QPalette())
-                self.setStyleSheet(preserve_widget_qss_overlay(self, ""))
+                self.setStyleSheet("")
             else:
                 palette = QPalette(self.palette())
                 palette.setColor(QPalette.Window, colour)
@@ -1732,10 +1719,8 @@ class AppScreen(QWidget):
                 # panels carry their own surface colour at the page opacity,
                 # and painting the page colour onto them would flatten the
                 # layering the scheme is built on.
-                self.setStyleSheet(preserve_widget_qss_overlay(
-                    self,
-                    f"AppScreen {{ background-color: {colour.name()}; }}",
-                ))
+                self.setStyleSheet(
+                    f"AppScreen {{ background-color: {colour.name()}; }}")
             self._page_applied = wanted
         finally:
             self._syncing_page = False
@@ -1903,7 +1888,7 @@ class AppScreen(QWidget):
 
         self._settings_sections = []
         # Sections pruned from the rendered tree can still own form rows that
-        # collect, search and a later object-visibility pass must reach. They
+        # collect, search and a later object-visibility pass must reach.  They
         # therefore stay in the complete section registry, but live under an
         # explicitly hidden, screen-owned host: unlike ``setParent(None)``,
         # that cannot turn their headers into stray top-level windows.
@@ -2063,7 +2048,7 @@ class AppScreen(QWidget):
             if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
                 # ``bool``, ``len`` and normal iteration are the public
                 # completeness seam of this list and deliberately build all
-                # waiting rows. Empty-section pruning only needs to inspect
+                # waiting rows.  Empty-section pruning only needs to inspect
                 # rows that are already laid out; materialising hidden object
                 # rows here defeats the caption-saving optimisation it is
                 # meant to preserve.
@@ -2075,9 +2060,9 @@ class AppScreen(QWidget):
             from ...organelle_types import organelle_role_of
 
             # The organelle COUNT settles the form's shape before a channel
-            # is chosen. Its requested slots therefore own their categories
+            # is chosen.  Its requested slots therefore own their categories
             # already, even though channel-gated detail rows still wait for a
-            # caption. Counting the declarations keeps that category in the
+            # caption.  Counting the declarations keeps that category in the
             # tree without iterating the lazy row list; nucleus/pathogen rows
             # do not match this role vocabulary and remain prunable while
             # their switches are empty.
@@ -2104,7 +2089,7 @@ class AppScreen(QWidget):
         """The section widgets actually mounted in the settings panel.
 
         ``_settings_sections`` deliberately also contains dormant forms for
-        object-gated settings. Visual consumers -- maturity and category
+        object-gated settings.  Visual consumers -- maturity and category
         hints in particular -- must use this subset instead.
         """
         return tuple(
@@ -2117,8 +2102,8 @@ class AppScreen(QWidget):
 
         Settings controls are also the model's value store, so deleting an
         empty section would leave ``SettingsWidgets._widgets`` pointing at
-        deleted Qt objects. Search and delayed captions likewise need its
-        form and model row registration. Park the whole tree under a hidden
+        deleted Qt objects.  Search and delayed captions likewise need its
+        form and model row registration.  Park the whole tree under a hidden
         owned widget instead; visual consumers explicitly ignore it.
         """
         from ..widgets.section import Section
@@ -6406,19 +6391,6 @@ class AppScreen(QWidget):
                 return
             self._thread = None
             self._worker = None
-        # FlowView is built lazily below Classify's settings and owns its own
-        # refresh timer plus graphics scene. Child widgets do not reliably
-        # receive close events when a cached screen is retired, so release it
-        # explicitly after the live pipeline has reached the safe boundary
-        # above. A visualisation fault must never obstruct screen teardown.
-        flowview_section = getattr(self, "_flowview_section", None)
-        shutdown_flowview = getattr(flowview_section, "shutdown", None)
-        if callable(shutdown_flowview):
-            try:
-                shutdown_flowview()
-            except Exception:                                   # noqa: BLE001
-                LOG.debug("could not shut down Classify FlowView",
-                          exc_info=True)
         # Stop polling before shutting the runner down, or the 2 s timer can
         # start one more job while `shutdown` is draining the last.
         try:
