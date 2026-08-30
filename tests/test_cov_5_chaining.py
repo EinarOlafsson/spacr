@@ -388,3 +388,47 @@ def test_a_drop_into_a_list_shaped_setting_arrives_as_a_list(tmp_path):
             break
     else:
         pytest.fail("the drop filled no src target")
+
+
+def test_a_module_check_ready_does_not_know_falls_back_to_its_ports(tmp_path):
+    """A plugin's module has ports but no readiness rule, and must still say why.
+
+    ``check_ready`` is keyed by module name and raises ``UnknownModule`` for
+    anything not in the registry -- a contributed screen, a module renamed
+    between spaCR versions, a settings file naming one that no longer exists.
+    The drop still has to explain itself, so the fallback validates each port
+    on its own and returns what they say.
+
+    Losing this branch is the "nothing happened" failure the test above exists
+    to prevent, arriving by a different route: an unknown module would raise
+    into the drop handler and the user would see no message at all.
+    """
+    from spacr.ports import Port
+
+    port = Port(kind="directory", role="images", path="images",
+                required=True, description="the raw fields")
+
+    problems = chaining._problems_for(
+        "a_module_that_was_never_registered", (port,), str(tmp_path), None)
+
+    assert problems, "an unknown module explained nothing"
+    assert any("images" in str(problem.message) for problem in problems)
+
+
+def test_a_module_check_ready_does_know_answers_with_its_own_words(tmp_path):
+    """The path the fallback is a fallback FROM.
+
+    Without this, "the unknown module still explains itself" would pass on an
+    implementation that had stopped consulting check_ready at all -- and every
+    module would then get the generic per-port message instead of the one
+    written for it.
+    """
+    from spacr.ports import module_ports
+
+    module = "measure"
+    ports = tuple(module_ports(module).consumes)
+    assert ports, "the fixture module declares no ports"
+
+    problems = chaining._problems_for(module, ports, str(tmp_path), None)
+
+    assert problems, "a known module on an empty folder reported no problem"
