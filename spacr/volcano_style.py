@@ -681,16 +681,31 @@ def _annotate(panels, frame, x, y, significant, style):
     rows = [(text, index) for index, name in enumerate(labels)
             if (text := wanted.get(name)) is not None]
     rows.sort(key=lambda item: x[item[1]])
-    axis = panels[0]
     for order, (text, index) in enumerate(rows):
         offset, align = ((-5, 8), "right") if order % 2 == 0 else ((5, -15), "left")
-        target = axis
+        point_y = y[index]
+        anchor_y = point_y
+        target = panels[0]
+        visible = False
         for panel in panels:
-            low, high = panel.get_ylim()
-            if low <= y[index] <= high:
+            low, high = sorted(panel.get_ylim())
+            if low <= point_y <= high:
                 target = panel
+                visible = True
                 break
-        target.annotate(text, (x[index], y[index]), xytext=offset,
+        if not visible and np.isfinite(point_y):
+            # A break has no data coordinate to draw on. Put the anchor on its
+            # nearest visible edge and move the text towards the panel's
+            # interior, or clipping erases the label while retaining its Text.
+            edges = []
+            for panel in panels:
+                bottom, top = panel.get_ylim()
+                edges.extend(((abs(point_y - bottom), panel, bottom, 1),
+                              (abs(point_y - top), panel, top, -1)))
+            _distance, target, anchor_y, inward = min(
+                edges, key=lambda candidate: candidate[0])
+            offset = (offset[0], inward * abs(offset[1]))
+        target.annotate(text, (x[index], anchor_y), xytext=offset,
                         textcoords="offset points",
                         fontsize=style.label_font_size,
                         fontweight="bold", ha=align)
