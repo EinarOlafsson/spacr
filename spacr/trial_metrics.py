@@ -58,6 +58,8 @@ def _numeric(frame: pd.DataFrame, column: Optional[str]) -> np.ndarray:
 def fit_quality(model) -> dict:
     """R-squared and the information criteria, when the model reports them.
 
+    :param model: fitted model result object, or ``None``.
+
     The supported model families do not agree on which statistics exist. An
     RLM fit has no R-squared, a penalised model's value is not
     comparable to OLS's, and a permutation test has no model object at all.
@@ -92,6 +94,8 @@ def fit_quality(model) -> dict:
 
 def residual_diagnostics(model) -> dict:
     """Homoscedasticity, autocorrelation and normality of the residuals.
+
+    :param model: fitted model result object, or ``None``.
 
     These are what decide whether the p-values mean anything. A funnel in the
     residuals inflates or deflates every standard error in the fit, so a
@@ -258,7 +262,10 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
 
 
 def calibration(results: pd.DataFrame) -> dict:
-    """Is the null flat? Inflation above 1 says the hits are partly artefact."""
+    """Is the null flat? Inflation above 1 says the hits are partly artefact.
+
+    :param results: result table carrying raw ``p_value`` values.
+    """
     out: dict[str, Any] = {}
     if results is None or not len(results):
         return out
@@ -281,7 +288,10 @@ def calibration(results: pd.DataFrame) -> dict:
 
 
 def design_summary(output: Mapping[str, Any]) -> dict:
-    """How much data reached the fit, and whether it was identifiable."""
+    """How much data reached the fit, and whether it was identifiable.
+
+    :param output: trial output mapping optionally carrying ``model_data``.
+    """
     out: dict[str, Any] = {}
     frame = output.get("model_data") if isinstance(output, Mapping) else None
     if isinstance(frame, pd.DataFrame):
@@ -294,6 +304,8 @@ def design_summary(output: Mapping[str, Any]) -> dict:
 
 def design_diagnostics(model) -> dict:
     """Rank, identifiability and collinearity -- read off the existing fit.
+
+    :param model: fitted model result object, or ``None``.
 
     NOTHING IS RECOMPUTED HERE THAT THE FIT ALREADY KNOWS.
     :func:`spacr.regression_diagnostics.design_report` answers the same
@@ -417,6 +429,8 @@ _COLLINEAR_THRESHOLD = 0.95
 def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
     """How many of the hits rest on a single guide.
 
+    :param results: guide-level result table used to compute gene support.
+
     A gene with one surviving guide has a gene-level p identical to that
     guide's, so it is not independent evidence -- and on this screen the top
     of the list is exactly that. A count of them belongs in the row.
@@ -443,7 +457,10 @@ def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
 
 
 def hit_counts(output: Mapping[str, Any], alpha: float = 0.05) -> dict:
-    """How many things the trial called, raw and corrected."""
+    """How many things the trial called, raw and corrected.
+
+    :param output: trial output carrying result and significant-hit frames.
+    """
     out: dict[str, Any] = {}
     if not isinstance(output, Mapping):
         return out
@@ -544,6 +561,9 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
 def summarise_trial(output: Mapping[str, Any],
                     settings: Mapping[str, Any]) -> dict:
     """Every metric, flat, for one trial's row.
+
+    :param output: completed trial output with results, model, and fitted data.
+    :param settings: trial settings used for thresholds and control recovery.
 
     Each block is guarded on its own: a family with no R-squared must still
     contribute its control recovery, and a design too wide for White's test

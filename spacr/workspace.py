@@ -143,7 +143,10 @@ def register(name: str, provider: Callable[[], Any]) -> None:
 
 
 def unregister(name: str) -> bool:
-    """Remove a provider and return whether it was registered."""
+    """Remove a provider and return whether it was registered.
+
+    :param name: registered workspace section name to remove.
+    """
     with _LOCK:
         return _PROVIDERS.pop(str(name), None) is not None
 
@@ -279,7 +282,10 @@ def _walk_strings(value: Any, trail: str = "", _depth: int = 0) -> Iterator[Tupl
 
 
 def hash_file(path: Path, chunk_size: int = 1 << 20) -> Optional[str]:
-    """A file's full SHA-256, or ``None`` if it cannot be read."""
+    """A file's full SHA-256, or ``None`` if it cannot be read.
+
+    :param path: regular file whose bytes are hashed.
+    """
     try:
         h = hashlib.sha256()
         with open(path, "rb") as fh:
@@ -402,6 +408,8 @@ def collect(
 def resolve_mode(value: Any) -> str:
     """Normalize a workspace-saving mode.
 
+    :param value: mode name, boolean, common yes/no alias, or ``None``.
+
     ``None`` and unrecognized values select :data:`DEFAULT_MODE`; boolean and
     common yes/no aliases are accepted. Invalid values do not stop a run.
     """
@@ -421,14 +429,20 @@ def resolve_mode(value: Any) -> str:
 
 
 def mode_from_settings(settings: Mapping[str, Any]) -> str:
-    """Return the workspace mode requested by a settings mapping."""
+    """Return the workspace mode requested by a settings mapping.
+
+    :param settings: run settings that may declare ``save_workspace``.
+    """
     if not isinstance(settings, Mapping) or settings.get("save_workspace") is None:
         return default_mode()
     return resolve_mode(settings.get("save_workspace"))
 
 
 def copy_limit_from_settings(settings: Mapping[str, Any]) -> float:
-    """Return the non-negative per-file copy limit in megabytes."""
+    """Return the non-negative per-file copy limit in megabytes.
+
+    :param settings: run settings that may declare a workspace copy limit.
+    """
     if isinstance(settings, Mapping) and settings.get("workspace_copy_limit_mb") is not None:
         try:
             limit = float(settings["workspace_copy_limit_mb"])
@@ -553,6 +567,7 @@ def save_for_run(
 def load(run_dir: Any) -> Optional[Dict[str, Any]]:
     """Read a workspace document from a run folder or document path.
 
+    :param run_dir: run directory or workspace document path to read.
     :returns: the decoded document, or ``None`` when it is absent or invalid.
     """
     path = Path(run_dir)
@@ -571,7 +586,10 @@ def load(run_dir: Any) -> Optional[Dict[str, Any]]:
 
 
 def has_workspace(run_dir: Any) -> bool:
-    """Return whether ``run_dir`` contains ``workspace.json``."""
+    """Return whether ``run_dir`` contains ``workspace.json``.
+
+    :param run_dir: run directory to inspect.
+    """
     try:
         return (Path(run_dir) / DOC_NAME).is_file()
     except Exception:                                 # noqa: BLE001
@@ -696,7 +714,10 @@ def _human_size(n: Any) -> str:
 
 
 def inventory_text(doc: Mapping[str, Any], *, run_dir: Any = None) -> str:
-    """Format a workspace document as a human-readable inventory."""
+    """Format a workspace document as a human-readable inventory.
+
+    :param doc: decoded workspace document to summarize.
+    """
     if not isinstance(doc, Mapping):
         return "no workspace document"
     lines = [
@@ -733,7 +754,10 @@ def inventory_text(doc: Mapping[str, Any], *, run_dir: Any = None) -> str:
 
 
 def report_text(report: Mapping[str, Any]) -> str:
-    """Format a restore report as human-readable text."""
+    """Format a restore report as human-readable text.
+
+    :param report: workspace restoration report to summarize.
+    """
     restored = report.get("restored") or []
     skipped = report.get("skipped") or []
     lines = []
