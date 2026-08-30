@@ -204,6 +204,7 @@ def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
     is everything but the guide number. `TGGT1_ROP18_kinase_1` is
     `ROP18_kinase`, not `kinase`.
 
+    :param guide: bare guide name or bracketed regression design term to parse.
     :param prefix: an organism prefix MEASURED from the library, as
         :func:`spacr.control_names.common_prefix` returns. Given, it is
         removed first, and the remainder read as `<gene>_<guide>`. This is
@@ -257,6 +258,8 @@ def gene_fractions(fractions: pd.DataFrame,
     measurement" must not be a different arithmetic from the fit that found
     the gene in the first place.
 
+    :param fractions: well-by-guide fraction matrix. Columns assigned to the
+        same gene are summed row-wise.
     :param gene_of: guide name -> gene id. Defaults to
         :func:`spacr.hits.gene_of`, which is the key the metadata join uses,
         so the two cannot disagree about which gene a guide belongs to.
@@ -1014,6 +1017,8 @@ def plot_measurement_families(result: "SweepResult",
 
     The families are coarse on purpose -- see :data:`MEASUREMENT_FAMILIES`.
 
+    :param result: completed guide/measurement sweep whose significant rows
+        are grouped into measurement families.
     :param top: how many genes to draw, most-hits first.
     :returns: the matplotlib Figure, or ``None`` when nothing survived.
     """

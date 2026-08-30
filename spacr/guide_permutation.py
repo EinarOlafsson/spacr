@@ -315,6 +315,13 @@ def guide_freedman_lane_test(
     identical across thresholds; only the adjusted value changes with family
     size.
 
+    :param fractions: well-by-guide matrix of finite, non-negative guide
+        fractions. Its index defines the well order and its columns name the
+        tested guides.
+    :param outcomes: table indexed by well containing the phenotype, block,
+        and any nuisance columns. It is reordered to ``fractions`` when the
+        same well identifiers arrive in a different order.
+    :param outcome_column: numeric phenotype column in ``outcomes`` to test.
     :param statistic: ``'pearson'`` (default) or ``'rank'``.
 
         THE INFERENCE WAS ALWAYS DISTRIBUTION-FREE; THE STATISTIC WAS NOT.
@@ -898,6 +905,9 @@ def gene_freedman_lane_test(
 
     :param gene_fractions: well-by-gene matrix from
         :func:`prepare_long_gene_data`.
+    :param outcomes: well-indexed phenotype and nuisance table aligned to
+        ``gene_fractions``.
+    :param outcome_column: numeric phenotype column to test.
     :param gene_metadata: the per-gene guide counts, joined onto the result.
     :param kwargs: forwarded to :func:`guide_freedman_lane_test`.
     :returns: one row per gene per minimum-wells family, BH-corrected WITHIN

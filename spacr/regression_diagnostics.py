@@ -153,6 +153,8 @@ def collinear_guide_pairs(fractions: pd.DataFrame, *,
     amount of correction distinguishes them, because the data contain no
     contrast between them. Reported as a table so the offenders can be named.
 
+    :param fractions: well-by-guide fraction matrix whose nonconstant guide
+        columns are compared pairwise.
     :param threshold: absolute Pearson correlation at or above which a pair is
         listed.
     :param limit: stop after this many pairs; a wide screen has millions and
@@ -249,6 +251,8 @@ def variance_inflation_factors(fractions: pd.DataFrame, *,
 def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> dict:
     """Summarise the residuals of a fitted model.
 
+    :param observed: observed response values.
+    :param fitted: model predictions aligned one-to-one with ``observed``.
     :param design: the model matrix. When given, leverage and Cook's distance
         are computed from its hat matrix; without it those keys are omitted
         rather than guessed.
@@ -931,6 +935,8 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     that mapping's contract is "key -> a file that exists". A reader is told
     whether the numbers are fine rather than expected to know.
 
+    :param destination: output directory created as needed for all diagnostic
+        figures, CSV tables, and the optional suite summary.
     :param formats: force particular formats, one file per format. ``None``,
         the default, writes ONE file per panel in the format the user's figure
         preference asks for.

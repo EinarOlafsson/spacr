@@ -311,7 +311,9 @@ def maxima_distances(masks: Dict[str, "np.ndarray"], images, *,
                      spacing=None) -> pd.DataFrame:
     """Where each object's intensity peaks are, and what they are near.
 
+    :param masks: object-type label images sharing the field geometry.
     :param images: the field as ``(..., channel)``.
+    :param primary: object type whose labelled instances define output rows.
     :param channels: which channels to find maxima in. Empty means all.
     :returns: one row per primary object, keyed on ``label``.
     """
@@ -431,6 +433,7 @@ def object_distances(masks: Dict[str, "np.ndarray"], images=None, *,
     :param masks: object type -> label image.
     :param images: the field, for the intensity-derived families. None
         skips them.
+    :param primary: object type whose instances define the returned rows.
     :param maxima: whether to find local maxima. The most expensive part.
     """
     frame = between_object_types(masks, primary=primary, spacing=spacing)

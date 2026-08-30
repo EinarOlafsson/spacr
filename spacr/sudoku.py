@@ -96,6 +96,8 @@ def anchors_for(guide: str,
                 max_per_well: int = 50) -> np.ndarray:
     """Indices of the cells taken as near-certain examples of ``guide``.
 
+    :param guide: guide whose high-fraction wells and high-scoring cells are
+        being selected as anchors.
     :param wells: one well label per cell.
     :param fractions: ``{well: {guide: fraction}}``.
     :param scores: the classification score per cell.
@@ -455,6 +457,10 @@ def sudoku_all(features: np.ndarray,
                **kwargs) -> SudokuResult:
     """Assign guides sequentially in descending confidence order.
 
+    :param features: cell-by-feature matrix used to propagate anchor support.
+    :param scores: classification score for every cell, aligned to ``features``.
+    :param wells: well identifier for every cell.
+    :param fractions: sequencing fractions as ``{well: {guide: fraction}}``.
     :param ranking: ``[(guide, confidence)]`` in descending processing order.
         The caller defines confidence, for example by combining effect size
         and statistical significance.

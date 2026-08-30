@@ -187,6 +187,8 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
            scaled: bool = True) -> Curve:
     """Fit one of the diagnostic smoothers to ``y`` against ``x``.
 
+    :param x: ordered predictor values, one per observation.
+    :param y: response values aligned one-to-one with ``x``.
     :param scaled: standardise ``x`` before fitting for the methods that
         need it, and say so in the note. KNN and the Gaussian process are
         distance-based, so an unscaled covariate silently makes one unit of
@@ -300,6 +302,7 @@ def agreement(design, response, linear_effect: Dict[str, float], *,
     """Rank guides a second way and compare it with the linear ranking.
 
     :param design: wells x guides. One row per WELL, never per cell.
+    :param response: phenotype value for every row of ``design``.
     :param linear_effect: the fit's own per-guide effect, ranked by
         magnitude to give the ranking this is compared against.
     :param groups: the well each row belongs to. Passed to the splitter so
@@ -438,6 +441,9 @@ def report_agreement(coefficients, design, response, *,
     reported.
 
     :param coefficients: the run's table, with `feature` and `coefficient`.
+    :param design: the completed fit's design matrix. Guide-design columns are
+        matched back to coefficient feature names.
+    :param response: phenotype vector aligned to the rows of ``design``.
     :returns: the sentence to print, or "" when there is nothing to compare
         -- too few shared guides, or a table with no coefficients in it.
     """

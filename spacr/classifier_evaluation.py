@@ -245,6 +245,10 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     This is intentionally stricter than silently scoring a model on siblings
     of its training rows or on a holdout that contains only one class.
 
+    :param groups: group identifier for every labelled object. All members of
+        one group remain on the same side of the split.
+    :param labels: class label for every object, aligned to ``groups``.
+    :param holdout: requested test fraction, strictly between zero and one.
     :param hold_out_groups: groups that go to the TEST side whatever the
         fraction says. This is what `holdout_plate` is: cross-validation
         splits within the data it is given, so a model can learn the plate
