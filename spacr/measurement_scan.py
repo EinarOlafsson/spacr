@@ -75,7 +75,28 @@ class ScanRefused(ValueError):
 
 @dataclass(frozen=True)
 class MeasurementEffect:
-    """One scanned measurement: its best gene, and both corrections."""
+    """One scanned measurement: its best gene, and both corrections.
+
+    :ivar measurement: name of the scanned response column.
+    :ivar n_wells: wells used to fit this measurement's model.
+    :ivar n_genes: non-baseline gene terms fitted in the design.
+    :ivar top_gene: gene with the largest absolute standardised effect.
+    :ivar effect_size: signed top-gene coefficient in residual-standard-
+        deviation units.
+    :ivar coefficient: signed top-gene effect in the measurement's own units.
+    :ivar p_value: raw two-sided P value for the top gene.
+    :ivar within_run_q: best adjusted P value across this measurement's genes.
+    :ivar within_run_hits: genes called significant by the within-run
+        correction.
+    :ivar measurement_p: Simes global-null P value passed to the across-scan
+        correction.
+    :ivar across_scan_q: adjusted P value for this measurement in the full
+        scan.
+    :ivar survives_within_run: whether the within-run correction called at
+        least one gene at the requested alpha.
+    :ivar survives_across_scan: whether this measurement survived the
+        across-scan correction at the requested alpha.
+    """
 
     measurement: str
     #: Wells the model was fitted on. Not constant across a merged frame --
@@ -109,7 +130,22 @@ class MeasurementEffect:
 
 @dataclass(frozen=True)
 class ScanResult:
-    """Every measurement the scan looked at, and how it was corrected."""
+    """Every measurement the scan looked at, and how it was corrected.
+
+    :ivar rows: successfully scanned measurement results.
+    :ivar skipped: mapping from unscanned measurements to the reason each was
+        skipped.
+    :ivar block_columns: blocking factors retained in the fitted design.
+    :ivar gene_column: frame column containing the gene assignment.
+    :ivar control_genes: gene labels requested as the effect baseline.
+    :ivar within_run_method: multiplicity correction applied across genes
+        within each measurement.
+    :ivar across_scan_method: multiplicity correction applied across scanned
+        measurements.
+    :ivar alpha: significance level used for both correction stages.
+    :ivar effective_n_tests: Li–Ji estimate of the number of independent
+        measurement tests, or ``nan`` when unavailable.
+    """
 
     rows: Tuple[MeasurementEffect, ...]
     #: ``{measurement: why it could not be scanned}``. Named rather than
@@ -201,6 +237,9 @@ def simes_p_value(p_values) -> float:
     This is what one measurement contributes to the across-scan stage. The raw
     minimum of 23 gene tests is not a P value and would smuggle the
     within-measurement multiplicity past the second correction.
+
+    :param p_values: raw P values for one family of tests; non-finite values
+        are ignored.
     """
     values = np.asarray(p_values, dtype=float)
     values = values[np.isfinite(values)]

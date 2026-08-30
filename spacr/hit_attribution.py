@@ -129,6 +129,12 @@ def build_hit_cell_frame(
 
     The returned ``candidate_percentile`` ranks cells only within their well.
     It is deliberately not named a probability or infection call.
+
+    :param cells: cell-level measurements with the phenotype score and stable
+        well and object identifiers.
+    :param guide_fractions: one sequencing-fraction row per guide and well.
+    :param target_guides: guide identifiers assigned to the hit gene.
+    :param score_column: column in ``cells`` containing the phenotype score.
     """
     if not target_guides:
         raise HitAttributionError("choose at least one target guide")
@@ -316,7 +322,27 @@ def _fit_mixture(values: np.ndarray, fractions: np.ndarray,
 
 @dataclass
 class HitAttributionResult:
-    """Cross-fitted hit-like probabilities and independent-unit evidence."""
+    """Cross-fitted hit-like probabilities and independent-unit evidence.
+
+    :ivar cells: cell-level frame with cross-fitted probabilities, calls,
+        uncertainties, and fold assignments.
+    :ivar wells: well-level probability, prevalence, score, and guide-fraction
+        summaries.
+    :ivar guide_evidence: per-guide dose-response and probability contrasts.
+    :ivar threshold_sensitivity: well-level prevalence contrasts across the
+        evaluated probability thresholds.
+    :ivar validation: well-resampling and permutation validation statistics.
+    :ivar feature_columns: morphology features used to fit the mixture.
+    :ivar well_columns: columns that form the well identity.
+    :ivar object_columns: columns that form the stable cell-object identity.
+    :ivar target_gene: gene whose hit-like morphology was attributed.
+    :ivar target_guides: guides treated as evidence for ``target_gene``.
+    :ivar score_column: input column holding the original phenotype score.
+    :ivar direction: phenotype direction, ``"positive"`` or ``"negative"``.
+    :ivar threshold: probability cutoff used for ``hit_like_call``.
+    :ivar split_level: held-out grouping level used for cross-fitting.
+    :ivar random_seed: seed used for validation resampling.
+    """
 
     cells: pd.DataFrame
     wells: pd.DataFrame
@@ -362,7 +388,16 @@ class HitAttributionResult:
 
 @dataclass(frozen=True)
 class HitRunContext:
-    """The exact regression result a cell investigation came from."""
+    """The exact regression result a cell investigation came from.
+
+    :ivar regression_results_folder: folder containing the source regression
+        result.
+    :ivar regression_run_sha256: SHA-256 digest identifying that regression
+        run.
+    :ivar gene: selected hit gene.
+    :ivar phenotype: selected regression phenotype.
+    :ivar effect: regression effect estimate for the selected hit.
+    """
 
     regression_results_folder: str
     regression_run_sha256: str
@@ -376,7 +411,16 @@ class HitRunContext:
 
 @dataclass
 class HitInvestigationResult:
-    """Portable result bundle used by the GUI and database persistence."""
+    """Portable result bundle used by the GUI and database persistence.
+
+    :ivar attribution_run_id: identifier assigned to this investigation.
+    :ivar context: regression hit and source-run provenance.
+    :ivar cells: cell-level candidate probabilities and calls.
+    :ivar wells: well-level candidate-prevalence summary.
+    :ivar enrichment: well-level enrichment and resampling statistics.
+    :ivar feature_columns: morphology features used by the classifier.
+    :ivar split_level: held-out grouping level used for cross-fitting.
+    """
 
     attribution_run_id: str
     context: HitRunContext
@@ -404,6 +448,9 @@ def crossfit_candidate_probabilities(
     hierarchical mixture. It predicts ``candidate_probability`` and never
     calls it infection probability. Model outputs, guide fractions, object
     identifiers and annotations are excluded from the default feature set.
+
+    :param frame: cell-level candidate frame with target-well labels and
+        plate, row, and column identifiers.
     """
     _require_columns(frame, [target_column, "plateID", "rowID", "columnID"],
                      "candidate cell frame")
@@ -488,7 +535,11 @@ def quantify_candidate_enrichment(
     permutation_iterations: int = 1000,
     random_seed: int = 0,
 ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """Quantify candidate prevalence at the well experimental unit."""
+    """Quantify candidate prevalence at the well experimental unit.
+
+    :param scored: cell-level frame containing cross-fitted candidate
+        probabilities and well identifiers.
+    """
     well_columns = [column for column in WELL_COLUMNS if column in scored.columns]
     _require_columns(scored, well_columns + [target_column, "candidate_probability"],
                      "scored candidate frame")
@@ -664,6 +715,10 @@ def fit_hit_attribution(
     ``frame`` must be the output of :func:`build_hit_cell_frame`. Every cell
     is predicted by a mixture fitted without its well, or without its plate
     when at least three plates make that split identifiable.
+
+    :param frame: ranked cell frame produced by
+        :func:`build_hit_cell_frame`.
+    :param target_gene: gene name to attach to the attribution result.
     """
     well_columns = list(frame.attrs.get("well_columns", WELL_COLUMNS))
     well_columns = [column for column in well_columns if column in frame.columns]
@@ -810,7 +865,11 @@ def fit_hit_attribution(
 def quantify_hit_enrichment(wells: pd.DataFrame, *, random_seed: int = 0,
                             n_bootstrap: int = 1000,
                             n_permutations: int = 1000) -> Dict[str, Any]:
-    """Per-well enrichment, well bootstrap CI, and a within-plate null."""
+    """Per-well enrichment, well bootstrap CI, and a within-plate null.
+
+    :param wells: well-level frame containing target-guide fractions,
+        hit-like prevalence, and mean hit-like probabilities.
+    """
     _require_columns(wells, ["target_guide_fraction", "hit_like_prevalence"],
                      "well summary")
     positive = wells["target_guide_fraction"].to_numpy(float) > 0
@@ -860,7 +919,12 @@ def _object_key(row: pd.Series, columns: Sequence[str]) -> str:
 
 def write_hit_attribution(db_path: str, result: HitAttributionResult,
                           *, run_id: Optional[str] = None) -> str:
-    """Persist a versioned attribution without touching annotation columns."""
+    """Persist a versioned attribution without touching annotation columns.
+
+    :param db_path: path to the existing SQLite measurements database.
+    :param result: attribution result whose run metadata and cell scores will
+        be stored.
+    """
     path = os.path.abspath(os.path.expanduser(db_path))
     if not os.path.isfile(path):
         raise HitAttributionError(f"no database at {path}")
@@ -931,7 +995,13 @@ _SQL_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 def promote_hit_calls(db_path: str, result: HitAttributionResult, *,
                       run_id: str, annotation_column: str,
                       positive_value: Any = 1) -> str:
-    """Explicitly promote positive calls to a fresh, reversible annotation."""
+    """Explicitly promote positive calls to a fresh, reversible annotation.
+
+    :param db_path: path to the SQLite measurements database to update.
+    :param result: attribution result containing the positive object calls.
+    :param run_id: attribution-run identifier to record in the audit.
+    :param annotation_column: fresh ``png_list`` column to receive the calls.
+    """
     column = str(annotation_column)
     if not _SQL_NAME.fullmatch(column):
         raise HitAttributionError(
@@ -977,7 +1047,11 @@ def promote_hit_calls(db_path: str, result: HitAttributionResult, *,
 
 
 def undo_hit_promotion(db_path: str, promotion_id: str) -> int:
-    """Clear values written by one promotion; preserve the audit record."""
+    """Clear values written by one promotion; preserve the audit record.
+
+    :param db_path: path to the SQLite measurements database to update.
+    :param promotion_id: identifier returned by :func:`promote_hit_calls`.
+    """
     with sqlite3.connect(db_path, timeout=30) as connection:
         rows = connection.execute(
             "SELECT annotation_column, prcfo FROM hit_attribution_promotions "
@@ -1001,7 +1075,11 @@ def undo_hit_promotion(db_path: str, promotion_id: str) -> int:
 
 
 def store_attribution(db_path: str, result: HitInvestigationResult) -> int:
-    """Store the GUI investigation bundle under its immutable run context."""
+    """Store the GUI investigation bundle under its immutable run context.
+
+    :param db_path: path to the existing SQLite measurements database.
+    :param result: investigation bundle to persist.
+    """
     path = os.path.abspath(os.path.expanduser(db_path))
     if not os.path.isfile(path):
         raise HitAttributionError(f"no database at {path}")
@@ -1066,7 +1144,12 @@ def store_attribution(db_path: str, result: HitInvestigationResult) -> int:
 
 def promote_calls(db_path: str, attribution_run_id: str,
                   annotation_column: str) -> str:
-    """Promote stored calls while recording every previous annotation value."""
+    """Promote stored calls while recording every previous annotation value.
+
+    :param db_path: path to the SQLite measurements database to update.
+    :param attribution_run_id: stored investigation whose calls to promote.
+    :param annotation_column: ``png_list`` column to create or update.
+    """
     column = str(annotation_column)
     if not _SQL_NAME.fullmatch(column):
         raise HitAttributionError(
@@ -1127,6 +1210,9 @@ def revert_promotion(db_path: str, promotion_id: str) -> int:
     ``sqlite3.OperationalError: no such table`` out of a spaCR API. An undo
     that crashes when there is nothing to undo makes a stray click look like
     a corrupt database.
+
+    :param db_path: path to the SQLite measurements database to update.
+    :param promotion_id: identifier returned by :func:`promote_calls`.
     """
     with sqlite3.connect(db_path, timeout=30) as connection:
         audited = connection.execute(
