@@ -5,6 +5,7 @@ point must map back to its own row, and the numbers behind the picture must be
 readable without opening a CSV.
 """
 import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -275,6 +276,10 @@ class TestTheLastGraphIsNotSlowAnyMore:
         return (time.perf_counter() - start) / 5 * 1000
 
     @pytest.mark.slow
+    @pytest.mark.skipif(
+        sys.gettrace() is not None,
+        reason="wall-clock performance budgets require an uninstrumented process",
+    )
     def test_the_plain_volcano_is_immediate(self, qtbot, big):
         """matplotlib needed ~115 ms for this, on every redraw."""
         from spacr.qt.widgets.fast_plots import VolcanoPlot
