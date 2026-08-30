@@ -218,6 +218,12 @@ def attribute_well(scores: Sequence[float], fractions: Mapping[str, float],
                    seed: int = 0) -> Tuple[Attribution, ...]:
     """One :class:`Attribution` per cell, in the order the scores came.
 
+    :param scores: one classification or measurement score per cell, in the
+        output order.
+    :param fractions: sequencing fractions keyed by guide for this well. The
+        usable positive fractions are normalised before attribution.
+    :param effects: fitted score effect keyed by guide; a missing guide is
+        treated as having zero effect.
     :param threshold: "if it gets a grna above 0.55 then it gets annotated
         with that gene and the probability score", and below it the cell is
         tagged :data:`AMBIGUOUS` -- carrying the highest probability any guide
@@ -262,6 +268,11 @@ def attributable(effect: float, scale: float, prior: float, *,
     Determine whether a guide can reach the assignment threshold within the
     supplied score range.
 
+    :param effect: the guide's fitted shift on the selected likelihood scale.
+    :param scale: the positive spread of scores used to express the plausible
+        range and likelihood width; non-positive values resolve to one.
+    :param prior: the guide's sequencing fraction in the well, clipped to the
+        closed interval from zero to one.
     :param others: the competition, as ``(effect, prior)`` pairs. Omit it and
         the rest of the well is treated as one competitor with no effect,
         which provides the most permissive comparison.
@@ -599,6 +610,8 @@ def posterior_multivariate(measurements: np.ndarray,
     fitting then applies, so the guide masses still match the sequencing.
 
     :param measurements: cells x measurements.
+    :param priors: normalised sequencing fraction keyed by guide. Its key
+        order defines the columns in the returned posterior matrix.
     :param effects: ``{guide: [effect per measurement]}``, in the columns'
         order. A guide with no entry is flat, which is the honest prior for
         a guide nothing was fitted for.

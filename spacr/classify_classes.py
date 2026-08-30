@@ -16,8 +16,17 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import (TYPE_CHECKING, Any, Dict, List, Mapping, MutableMapping,
-                    Optional, Sequence, Tuple)
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 import numpy as np
 
@@ -98,6 +107,8 @@ def candidate_columns(settings: Mapping[str, Any],
     the dict's keys from the VALUES of the chosen column, so this is the first
     half of "you set the column then the keys of this dict get populated".
 
+    :param settings: classification settings whose resolved dataset basis
+        decides whether coordinate metadata or annotation columns are offered.
     :param available: the table's columns, used to filter the metadata list --
         a database with no ``well`` column must not offer one.
     """
@@ -119,6 +130,8 @@ def values_in(frame: pd.DataFrame, column: str,
     Nulls are excluded: "not annotated" is the absence of a class, and
     offering it as one is how a user ends up training on their own blanks.
 
+    :param frame: table containing the candidate class column.
+    :param column: column whose distinct non-null values define class choices.
     :param limit: refuse to enumerate a free-form column. Past this many
         distinct values it is a measurement, not a label, and the Gate Editor
         is what turns a measurement into a class.
@@ -429,6 +442,10 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
     accident -- a comparison group ten times the size of the class it is
     compared against teaches the model the prior, not the difference.
 
+    :param frame: object table whose rows are to be labelled. Rule column names
+        are resolved against this table.
+    :param settings: classification settings containing the ordered
+        :data:`CLASSES` definitions.
     :param seed: fixes the random complement. A training set that changes
         every time it is built cannot be compared with the run before it.
     :returns: a Series of class names aligned to ``frame``.

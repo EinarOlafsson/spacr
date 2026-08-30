@@ -14,7 +14,7 @@ and specificity do not identify it.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 
@@ -136,6 +136,9 @@ def best_threshold(scores: Sequence[float],
                    criterion: str = "youden") -> Confusion:
     """Select an operating point for annotation.
 
+    :param scores: classifier score for each labelled cell.
+    :param labels: true for cells belonging to the positive class, aligned
+        one-to-one with ``scores``.
     :param criterion: ``'youden'`` maximises ``se + sp - 1``, which is the
         denominator of the Rogan--Gladen correction and therefore favours
         stable prevalence correction.
@@ -201,6 +204,10 @@ def rogan_gladen(observed: float, sensitivity: float, specificity: float, *,
 
         p_true = (p_observed - (1 - sp)) / (se + sp - 1)
 
+    :param observed: observed share called positive, conventionally between
+        zero and one.
+    :param sensitivity: true-positive rate at the chosen classifier threshold.
+    :param specificity: true-negative rate at the chosen classifier threshold.
     :param n: the number of cells, if the standard error is wanted. The
         correction inflates variance by ``1 / (se + sp - 1)^2``.
 
