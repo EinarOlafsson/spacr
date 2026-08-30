@@ -750,7 +750,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # `hideEvent`, `panel`, `showEvent` and `shutdown` contracts, plus
     # `install_flowview`. Nothing retired; all six are present in every
     # regenerated language catalog in this change.
-    expected = 8780
+    # +25/-0 from following executable module-scope branches instead of only
+    # ``tree.body``: 18 conditional FlowView callable contracts, three
+    # no-numba fractal functions, and the four conditional FlowView properties
+    # ``source_running``, ``node_id``, ``zoom`` and ``graph``. The callable
+    # scanner/extractor cross-check independently proves its formerly missing
+    # FlowView/fractal 21 are now present with byte-equal source content.
+    expected = 8805
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -765,7 +771,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8899
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8924
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -786,6 +792,35 @@ def test_documented_dunders_exclude_init_private_and_package_forwarders():
     # Package-level lazy forwarding hooks are not emitted in AutoAPI pages.
     assert "spacr.__getattr__" not in docs
     assert "spacr.qt.widgets.__getattr__" not in docs
+
+
+def test_class_documents_match_autoapi_class_content_both_exactly():
+    node = ast.parse('''
+class Example:
+    """Class prose."""
+
+    def __init__(self, value):
+        """Constructor prose.
+
+        :param value: one value.
+        """
+''').body[0]
+
+    assert builder._autoapi_class_doc(node) == (
+        "Class prose.\nConstructor prose.\n\n:param value: one value."
+    )
+
+    fallback = ast.parse('''
+class FromNew:
+    def __init__(self):
+        pass
+
+    def __new__(cls):
+        """Construction prose from new."""
+''').body[0]
+    assert builder._autoapi_class_doc(fallback) == (
+        "\nConstruction prose from new."
+    )
 
 
 def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
