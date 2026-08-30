@@ -264,6 +264,22 @@ def pytest_configure(config):
     is collected, and a conftest hook only reaches nodes at or below its own
     directory, which is one level too late to keep ``tests`` itself stable.
     """
+    # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
+    # slice is a real bug and this suite promotes it to an error -- but
+    # pandas 3 DELETED the class, because copy-on-write made the warning
+    # unnecessary, and a `filterwarnings` line in pytest.ini naming a class
+    # that is gone is an AttributeError during collection: the whole suite
+    # fails to start, before a single test runs. Registered here instead, so
+    # the guard holds on pandas 2 and simply does not apply on pandas 3,
+    # where the fault it guards against cannot happen.
+    try:
+        from pandas.errors import SettingWithCopyWarning
+    except ImportError:
+        pass
+    else:
+        config.addinivalue_line(
+            "filterwarnings", "error::pandas.errors.SettingWithCopyWarning")
+
     if not config.pluginmanager.has_plugin(_ONE_NODE_PER_DIRECTORY):
         config.pluginmanager.register(_OneNodePerDirectory(),
                                       _ONE_NODE_PER_DIRECTORY)
