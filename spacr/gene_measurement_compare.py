@@ -760,18 +760,28 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
 
     figure = plot(comparison, kind=kind, title=title)
     if figure is not None:
-        from .plot import save_figure
+        import matplotlib.pyplot as plt
 
-        for suffix in ("pdf", "png"):
-            path = os.path.join(folder, f"comparison.{suffix}")
-            try:
-                # BOTH FORMATS ON PURPOSE (the folder is a deliverable), so
-                # `fmt` is the loop's; everything else `save_figure` does --
-                # the DPI rule and the repaint for paper -- is gained.
-                written[suffix] = save_figure(figure, path, fmt=suffix,
-                                              bbox_inches="tight")
-            except Exception:                                # noqa: BLE001
-                continue
+        try:
+            from .plot import save_figure
+
+            for suffix in ("pdf", "png"):
+                path = os.path.join(folder, f"comparison.{suffix}")
+                try:
+                    # BOTH FORMATS ON PURPOSE (the folder is a deliverable),
+                    # so `fmt` is the loop's; everything else `save_figure`
+                    # does -- the DPI rule and the repaint for paper -- is
+                    # gained.
+                    written[suffix] = save_figure(
+                        figure, path, fmt=suffix, bbox_inches="tight")
+                except Exception:                            # noqa: BLE001
+                    continue
+        finally:
+            # ``save`` returns paths rather than the figure, so there is no
+            # caller that can own this pyplot registration.  Keeping it open
+            # accumulated one figure per saved comparison in long-lived GUI
+            # and batched-test processes.
+            plt.close(figure)
 
     if len(comparison.frame):
         path = os.path.join(folder, "data.csv")

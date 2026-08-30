@@ -17,6 +17,7 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
+from matplotlib import pyplot as plt
 
 from spacr import gene_measurement_compare as gmc
 from spacr.gene_measurement_compare import REST, Comparison, build
@@ -184,15 +185,23 @@ def test_a_group_with_no_finite_values_is_skipped_not_drawn_at_zero(kind):
     comparison = _comparison({"g": [np.nan, np.nan],
                               REST: [1.0, 2.0, 3.0, 4.0]})
 
-    figure = gmc.plot(comparison, kind=kind)
-    assert figure is not None
-    labels = [t.get_text() for t in figure.axes[0].get_xticklabels()]
-    assert any(label.startswith("g\n(n=0)") for label in labels)
-    assert any(label.startswith(f"{REST}\n(n=4)") for label in labels)
+    figure = None
+    rendered = None
+    try:
+        figure = gmc.plot(comparison, kind=kind)
+        assert figure is not None
+        labels = [t.get_text() for t in figure.axes[0].get_xticklabels()]
+        assert any(label.startswith("g\n(n=0)") for label in labels)
+        assert any(label.startswith(f"{REST}\n(n=4)") for label in labels)
 
-    style = gmc.ComparisonStyle(kind=kind)
-    rendered, axes = gmc.render_comparison(comparison, style)
-    assert rendered is not None and axes is not None
+        style = gmc.ComparisonStyle(kind=kind)
+        rendered, axes = gmc.render_comparison(comparison, style)
+        assert rendered is not None and axes is not None
+    finally:
+        if figure is not None:
+            plt.close(figure)
+        if rendered is not None:
+            plt.close(rendered)
 
 
 def test_a_path_writes_the_figure_through_the_one_export_writer(objects,
@@ -208,9 +217,33 @@ def test_a_path_writes_the_figure_through_the_one_export_writer(objects,
     target = tmp_path / "comparison.pdf"
 
     figure = gmc.plot(comparison, str(target))
+    try:
+        assert figure is not None
+        assert target.exists() and target.stat().st_size > 0
+    finally:
+        if figure is not None:
+            plt.close(figure)
 
-    assert figure is not None
-    assert target.exists() and target.stat().st_size > 0
+
+def test_saving_closes_its_private_figure_without_touching_callers(
+        objects, tmp_path):
+    """A saver returning paths owns its figure; an open caller figure is not.
+
+    The comparison panel can save repeatedly inside one GUI process.  One
+    registered pyplot figure per click is an unbounded resource leak, while
+    closing every figure would destroy unrelated plots already on screen.
+    """
+    comparison = build(objects, "pathogen_area", level="cell",
+                       groups={"g": objects.index[:6]})
+    caller_figure = plt.figure()
+    figures_before = set(plt.get_fignums())
+    try:
+        written = gmc.save(comparison, str(tmp_path / "out"))
+
+        assert {"pdf", "png", "data", "settings"} <= set(written)
+        assert set(plt.get_fignums()) == figures_before
+    finally:
+        plt.close(caller_figure)
 
 
 # ---------------------------------------------------------------------------

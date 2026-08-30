@@ -142,12 +142,18 @@ def test_the_sheet_can_be_asked_which_panels_a_table_supports():
         "p_value": np.linspace(1e-6, 0.9, 30),
     })
 
-    answer = panels.available(frame)
+    caller_figure = plt.figure()
+    figures_before = set(plt.get_fignums())
+    try:
+        answer = panels.available(frame)
 
-    assert set(answer) == set(panels.SHEET_ORDER)
-    assert all(isinstance(value, bool) for value in answer.values())
-    assert answer["volcano"] is True
-    assert plt.get_fignums() == [], "available() left a figure open"
+        assert set(answer) == set(panels.SHEET_ORDER)
+        assert all(isinstance(value, bool) for value in answer.values())
+        assert answer["volcano"] is True
+        assert set(plt.get_fignums()) == figures_before, (
+            "available() leaked a figure or closed one it did not own")
+    finally:
+        plt.close(caller_figure)
 
 
 def test_a_table_with_no_effect_column_supports_no_effect_panel():
@@ -174,8 +180,14 @@ def test_a_panel_that_raises_is_reported_unavailable_not_propagated(
         "p_value": [0.001, 0.002, 0.5],
     })
 
-    answer = panels.available(frame)
+    caller_figure = plt.figure()
+    figures_before = set(plt.get_fignums())
+    try:
+        answer = panels.available(frame)
 
-    assert answer["qq"] is False
-    assert answer["volcano"] is True, "one broken panel disabled the others"
-    assert plt.get_fignums() == []
+        assert answer["qq"] is False
+        assert answer["volcano"] is True, "one broken panel disabled the others"
+        assert set(plt.get_fignums()) == figures_before, (
+            "available() leaked a figure or closed one it did not own")
+    finally:
+        plt.close(caller_figure)
