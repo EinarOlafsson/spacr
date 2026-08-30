@@ -1178,3 +1178,37 @@ arc, which is why they are reliable while the aggregate is not.
     stray comma is read as a literal to match on, which finds nothing and
     says so by showing nothing, rather than raising a syntax message about a
     character the user did not mean to type.
+
+26. utils.py:9755 -- A TYPE CHECK NO CALLER CAN SATISFY
+    ----------------------------------------------------
+    `feature_folder_name`'s inner helper:
+
+        def _one(member):
+            if isinstance(member, int):
+                return str(member)              # 9755 -- unreachable
+            return re.sub(r'[^0-9A-Za-z]+', '_', str(member)).strip('_') or 'x'
+
+    `_one` has exactly two call sites and neither can pass it an int:
+
+        if isinstance(selection, int):   return f"channel_{selection}"
+        if not isinstance(selection, list): return _one(selection)   # not an int
+        if all(isinstance(m, int) ...):  return "channels_" + ...    # inline
+        return "_".join(f"channel_{m}" if isinstance(m, int) else _one(m) ...)
+
+    The last line makes the int case itself, so `_one` only ever sees the
+    non-int members. And `feature_selection` canonicalises before any of this
+    -- a numpy integer comes back a plain `int`, a float and a bool raise --
+    so there is no third type that slips past `isinstance(selection, int)` and
+    then satisfies `isinstance(member, int)`.
+
+    THE MISTAKE WORTH RECORDING. The tests written for it pass, and the commit
+    message first claimed they covered this line. They did not; the arc check
+    said MISSING and the message was amended. That is the fifth time in this
+    document -- see section 23 -- and it is the first where the WRONG CLAIM
+    reached a commit message before being caught. The lesson stands and gains
+    a clause: arc-check before writing the message, not after.
+
+    The tests are kept. They pin that a channel number in a mixture keeps its
+    digits, that no channel is dropped from a multi-channel name, and that a
+    filter slugifying to nothing still names a folder -- all real properties
+    of the folder a run writes its features into.
