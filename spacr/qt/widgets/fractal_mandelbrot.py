@@ -442,7 +442,11 @@ def perturbation_escape_map(orbit, width, height, scale, max_iter,
     """A low-resolution map of what escapes and how fast.
 
     :param orbit: the reference :class:`ReferenceOrbit`.
+    :param width: number of horizontal samples in the survey grid.
+    :param height: number of vertical samples in the survey grid.
     :param scale: the viewport's half-height.
+    :param max_iter: requested escape-iteration ceiling; evaluation is also
+        capped by the number of points available in ``orbit``.
     :returns: ``(escaped, iterations)``, both ``(height, width)``.
 
     Vectorised over the whole grid rather than looped per pixel: this runs
@@ -588,6 +592,12 @@ def plan_guided_step(orbit, scale, max_iter, strength=0.09,
                      offset_im=0.0):
     """Choose where the dive should head next.
 
+    :param orbit: reference orbit against which the current neighbourhood is
+        surveyed.
+    :param scale: current viewport half-height, used to translate the survey
+        into perturbations around ``orbit``.
+    :param max_iter: escape-iteration budget for deciding which structures
+        survive at this depth.
     :param strength: how far off centre to look, in screen units.
     :param candidates: how many directions to try.
     :param step_index: which step this is; rotates the search.
@@ -753,6 +763,10 @@ class SteeringCamera:
         :param offset: ``(dx, dy)`` from `plan_guided_step`, or None when
             nothing was found -- which asks again sooner rather than giving
             up on steering for the rest of the dive.
+        :param depth: current zoom depth in decades; the next steering deadline
+            is scheduled relative to it.
+        :param scale: current viewport half-height, which converts the
+            screen-unit offset into a complex-plane displacement.
         """
         if offset is None:
             self.next_steer = float(depth) + 0.35 * self.interval
@@ -914,7 +928,10 @@ def best_reference_in_view(orbit, offset_re: float, offset_im: float,
 
     :param orbit: the reference the view is currently drawn against.
     :param offset_re: where the camera sits, relative to that reference.
+    :param offset_im: imaginary component of that same camera displacement.
     :param scale: the viewport's half-height.
+    :param max_iter: escape-iteration budget used to distinguish bounded,
+        boundary, and longest-surviving survey points.
     :returns: ``(dx, dy)`` relative to the CURRENT reference, or None.
 
     A REFERENCE HAS TO BE IN THE SET. Perturbation measures every pixel as a

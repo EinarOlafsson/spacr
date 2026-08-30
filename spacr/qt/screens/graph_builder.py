@@ -74,6 +74,9 @@ def read_table(path: str, table: Optional[str] = None,
                limit: Optional[int] = None) -> pd.DataFrame:
     """Read a CSV or one table of a SQLite measurement database.
 
+    :param path: CSV, TSV, text, or SQLite database path. Delimited files are
+        read directly; every other suffix is opened as SQLite in read-only
+        mode.
     :param limit: optional row cap, applied in SQL. The chart's own large-data
         policy handles size once the frame is in memory; this is only for the
         case where the *file* is too big to read at all.

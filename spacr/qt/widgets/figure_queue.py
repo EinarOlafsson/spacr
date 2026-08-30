@@ -944,6 +944,8 @@ class FigureQueue(QWidget):
         colour, text size -- and no context menu at all, so a figure could not
         be restyled by clicking on it.
 
+        :param position: global screen position at which Qt opens the context
+            menu.
         :param navigate: whether ``idx`` becomes the current figure first. The
             thumbnail strip wants that; the figure grid does not, because a
             grid is for comparing figures and jumping to one loses the

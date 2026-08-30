@@ -390,6 +390,8 @@ class OutliersScreen(QWidget):
                   scan: bool = True) -> None:
         """Scan ``frame``. The one call a host needs.
 
+        :param frame: unmodified measurement table to expose in the feature
+            picker and pass to the configured outlier scan.
         :param scan: ``False`` loads the table and fills the feature picker
             without running anything, for a caller that wants to set the
             method first.

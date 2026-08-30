@@ -37,6 +37,8 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
                     restart_detail: str = "") -> str:
     """Ask whether to stop cooperatively or to kill.
 
+    :param parent: widget that owns and centres the modal question, or
+        ``None`` for an application-level dialog.
     :param what: what is being quit, in the user's words -- "spaCR" or the
         name of a module. It is used in the sentence, so it reads as a
         noun: "Quit Mask Generation?".

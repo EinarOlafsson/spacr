@@ -145,6 +145,9 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
     The Folder is returned so the caller can hold it: it owns the event
     filter, and a Folder nobody keeps stops working silently.
 
+    :param heading: label that receives the click event filter and displays
+        the open or shut marker.
+    :param body: panel whose visibility the heading toggles.
     :param persist_key: ``"<module>/<panel>"``. Given, the fold survives a
         restart. Empty means it does not, which is what a bare panel in a
         test wants -- a test that wrote to the real preferences would fold a

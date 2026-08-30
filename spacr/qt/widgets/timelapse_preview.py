@@ -1054,6 +1054,9 @@ def open_sequence_payload(path, max_frames: int = 12,
     fill the channel dropdown -- doing it here turns that read into a cache
     hit rather than a second trip to disk.
 
+    :param path: sequence file or frame directory accepted by
+        :meth:`FrameSequence.open`; the same value is returned as text in the
+        payload even when opening fails.
     :param list_siblings: ``False`` reuses the sampler's cached listing; the
         FOV dropdown hands out a path it has already enumerated.
     :returns: ``{path, sequence, siblings, error}``.

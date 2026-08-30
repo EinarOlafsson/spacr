@@ -147,6 +147,8 @@ class Pointer:
                strength: float = 1.0) -> "Pointer":
         """Read the pointer relative to ``widget``. Never raises.
 
+        :param widget: visible Qt widget whose global rectangle defines the
+            returned centred -1..1 coordinates and inside/outside state.
         :param size: how far the effect reaches, in the same -1..1 space as
             the coordinates -- 1.0 reaches the widget's short edge.
         :param strength: how hard it pulls, 0 to 2.

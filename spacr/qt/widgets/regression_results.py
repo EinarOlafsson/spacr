@@ -1896,6 +1896,8 @@ class RegressionResultsPanel(QWidget):
         nothing at all, and that has to reach the same header rather than
         being logged at debug level and dropped.
 
+        :param text: concise status shown in the results header and retained
+            for :meth:`status_text`.
         :param detail: the tooltip; the long form, when there is one.
         """
         self._status = text

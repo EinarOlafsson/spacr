@@ -704,6 +704,8 @@ class ReadOnlyDb:
         ``rows[i]`` uniquely (or is ``None`` when the table has no key,
         in which case the caller must refuse to edit it).
 
+        :param table: validated user-table name to page through. Its schema
+            determines both the returned columns and each row's stable key.
         :param loaded: only used by the ``OFFSET`` fallback for tables
             with no single-column key.
         """
@@ -1600,6 +1602,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         Always resets edit mode to off: a database the user armed for
         editing is *that* database, never the next one.
 
+        :param path: SQLite database file or run ``src`` directory containing
+            one; paths are expanded and resolved by :class:`ReadOnlyDb`.
         :param explicit: True when the user chose this database
             themselves. Pass False when spaCR opens one on their behalf
             (a remembered path, a folder handed over by another screen);

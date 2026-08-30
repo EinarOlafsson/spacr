@@ -33,6 +33,8 @@ IMAGE_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".nd2", ".czi",
 def images_under(paths: Sequence[str], *, limit: int = 5000) -> List[str]:
     """Every image among ``paths``, walking any folder given.
 
+    :param paths: files and directories from the drop or file picker. Supported
+        files are kept directly and directories are walked recursively.
     :param limit: stop after this many. A plate is tens of thousands of
         files and the table is a PREVIEW -- the regex is inferred from an
         aligned set, and the set does not have to be all of it.
