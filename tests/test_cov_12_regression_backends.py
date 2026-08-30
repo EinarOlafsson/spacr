@@ -143,3 +143,56 @@ def test_an_installed_but_unwired_backend_is_offered_nothing_to_install(
     offer = backend_install_offer('gpytorch', regression_type='mixed')
     assert offer.action == 'impossible'
     assert 'routes no fit through it yet' in offer.message
+
+
+def test_an_unwired_backend_that_IS_installed_does_not_advertise_a_pip_command(
+        monkeypatch):
+    """"not wired up; installed" is the whole truth, and adding a pip line
+    to it would be advice that fixes nothing.
+
+    Four backends are declared and not implemented -- pymer4, cuml, numpyro,
+    gpytorch. A reader who already has one of them installed and sees
+    "pip install numpyro" beside it will run it, watch pip report the
+    requirement is already satisfied, and come back no wiser. The install
+    clause is added only when installing would actually change the row.
+    """
+    monkeypatch.setattr(backends, 'package_installed', lambda name: True)
+
+    status = backend_status('numpyro', regression_type=None)
+
+    assert status['enabled'] is False
+    assert status['short_reason'].endswith('not wired up; installed')
+    assert 'pip install' not in status['short_reason']
+
+
+def test_an_unwired_backend_that_is_absent_does_say_how_to_get_it(monkeypatch):
+    """The counterpart, so the omission above is about the install state.
+
+    Not wired up AND not installed is two separate obstacles, and the row
+    names the one the reader can act on.
+    """
+    monkeypatch.setattr(backends, 'package_installed', lambda name: False)
+
+    status = backend_status('numpyro', regression_type=None)
+
+    assert 'not wired up' in status['short_reason']
+    assert 'not installed' in status['short_reason']
+    assert 'pip install numpyro' in status['short_reason']
+
+
+def test_an_unwired_backend_with_nothing_to_install_says_only_that(monkeypatch):
+    """No pip command means no clause, rather than a dangling dash.
+
+    pymer4 is the real case: it needs R, rpy2 and lme4, so `pip install
+    pymer4` succeeds and the backend still does not run. A row ending in
+    "— None" would be worse than one that stops.
+    """
+    spec = dict(REGRESSION_BACKENDS['numpyro'])
+    spec['pip'] = None
+    monkeypatch.setitem(REGRESSION_BACKENDS, 'numpyro', spec)
+    monkeypatch.setattr(backends, 'package_installed', lambda name: False)
+
+    status = backend_status('numpyro', regression_type=None)
+
+    assert status['short_reason'].endswith('not wired up')
+    assert 'None' not in status['short_reason']
