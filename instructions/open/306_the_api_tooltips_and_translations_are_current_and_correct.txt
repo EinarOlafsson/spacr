@@ -238,3 +238,32 @@ the one API catalog refresh, a real ``sphinx-build -W`` required-CI exit gate,
 disposition of all twelve tooltip waivers, and semantic repair/review of the
 remaining source-current-but-wrong translations. Release 1.5.0.5 remains on
 hold.
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-30 -- MECHANICAL GATES GREEN, SEMANTIC DEBT IS NOW EXACT
+--------------------------------------------------------------------------------
+
+The stale API record and SystemPanel source drift are repaired. Both catalog
+audits now agree with live source: all nine runtime catalogs contain 4,960 of
+4,960 entries with zero orphans, and all nine API catalogs contain 8,899 of
+8,899 current symbol documents. Required docs CI preserves a clean
+``sphinx-build -W -E --keep-going`` exit status. A real-browser ratchet loads,
+validates and selects every complete 8,899-document locale catalog, while
+missing-tooltip and broken-link mutations prove the runtime and link gates
+turn red.
+
+The twelve blanket ``KNOWN_THIN`` tooltip waivers are gone. Concrete source
+ratchets now cover 660 parseable default comparisons, 110 diameter/radius
+units, and 47 inactive-default applicability cases. They deliberately record
+56 module-specific default variants by exact digest rather than pretending a
+shared tooltip has been semantically resolved in every context.
+
+This is not closure. The bidirectional public-parameter inventory exposes 206
+required parameters without a ``:param:`` field across 126 public callables.
+The debt's count and digest are now ratcheted, not waived. Unit and
+applicability rules remain mechanical scopes rather than an exhaustive prose
+review, the browser exercise renders representative real pages rather than
+all API pages, and no exhaustive fluent-speaker review of all nine locales is
+recorded. The exact reviewed proportions and arithmetic remainders are in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``. Item 306 stays open until those
+semantic remainders are disposed honestly.
