@@ -8,10 +8,12 @@ last post-paint ready state.  The first process is labelled cold and the
 second warm; both use the same isolated home so the latter sees filesystem and
 spaCR caches without inheriting Python modules or Qt objects.
 
-The default is a strict release ratchet: Home must be ready in 5 seconds,
+The default is a strict performance ratchet: Home must be ready in 5 seconds,
 every registry module in 10 seconds, every key must be measured exactly once,
 and no measured interval may contain a 500 ms event-loop stall.  ``--record-
 only`` writes evidence without turning a budget miss into a non-zero exit.
+``--release-acceptance`` additionally requires the exact cold + warm protocol,
+a real Qt display platform, and a failing exit for every invalid result.
 
 Hosted CI deliberately ratchets this artifact's schema through unit fixtures,
 not by claiming its offscreen Qt plugin is release performance evidence.  A
@@ -42,6 +44,9 @@ MODULE_BUDGET_S = 10.0
 PREFERENCES_BUDGET_S = 3.0
 STALL_BUDGET_MS = 500.0
 WATCHDOG_RECORD_FLOOR_MS = 50.0
+HEADLESS_QT_PLATFORMS = frozenset({
+    "minimal", "minimalegl", "offscreen", "vnc",
+})
 
 WORKER = """
 import os
@@ -63,6 +68,45 @@ raise SystemExit(spacr.qt.run(["--no-setup"]))
 def _default_output() -> Path:
     root = Path.home() / ".spacr" / "reports"
     return root / f"startup-{time.strftime('%Y%m%d-%H%M%S')}.json"
+
+
+def _qt_platform_name(value: object) -> str:
+    """Return the Qt platform plugin name without plugin arguments."""
+    return str(value or "").strip().lower().split(":", 1)[0]
+
+
+def _is_headless_qt_platform(value: object) -> bool:
+    return any(
+        _qt_platform_name(candidate) in HEADLESS_QT_PLATFORMS
+        for candidate in str(value or "").split(";")
+    )
+
+
+def _release_acceptance_configuration_violations(
+        *, runs: int, offscreen: bool, record_only: bool = False,
+        environ=None) -> list[str]:
+    """Reject configurations that cannot produce release evidence."""
+    environ = os.environ if environ is None else environ
+    violations: list[str] = []
+    if type(runs) is not int or runs != 2:
+        violations.append(
+            "--release-acceptance requires exactly --runs 2 "
+            "(one cold process followed by one warm process)")
+    if offscreen:
+        violations.append(
+            "--release-acceptance cannot be combined with --offscreen; "
+            "run on a real display")
+    inherited_platform = environ.get("QT_QPA_PLATFORM")
+    if _is_headless_qt_platform(inherited_platform):
+        violations.append(
+            "--release-acceptance rejects inherited "
+            f"QT_QPA_PLATFORM={inherited_platform!r}; unset it and run on a "
+            "real display")
+    if record_only:
+        violations.append(
+            "--release-acceptance cannot be combined with --record-only; "
+            "release failures must return a non-zero status")
+    return violations
 
 
 def _worker_environment(home: Path, output: Path, label: str,
@@ -321,7 +365,8 @@ def _overlapping_stalls(stalls: Sequence[dict[str, float]],
 
 def _worker_schema_violations(
         artifact: object, expected_label: str,
-        package_root: Optional[Path] = None) -> list[str]:
+        package_root: Optional[Path] = None, *,
+        release_acceptance: bool = False) -> list[str]:
     """Validate one worker artifact without trusting its own verdict flags.
 
     The worker JSON is release evidence, not a best-effort diagnostic blob.
@@ -412,6 +457,12 @@ def _worker_schema_violations(
     if (not isinstance(hardware.get("qt_platform"), str)
             or not hardware.get("qt_platform")):
         reject("environment.hardware.qt_platform is missing or empty")
+    elif (release_acceptance
+          and _is_headless_qt_platform(hardware["qt_platform"])):
+        reject(
+            "release acceptance requires a real Qt display platform; "
+            "environment.hardware.qt_platform is "
+            f"{hardware['qt_platform']!r}")
     displays = hardware.get("displays")
     if not isinstance(displays, list) or not displays:
         reject("environment.hardware.displays must contain at least one display")
@@ -764,10 +815,15 @@ def _worker_schema_violations(
 
 
 def _combined_violations(
-    runs: Sequence[dict], package_root: Optional[Path] = None) -> list[str]:
+        runs: Sequence[dict], package_root: Optional[Path] = None, *,
+        release_acceptance: bool = False) -> list[str]:
     violations: list[str] = []
     registries: list[list[str]] = []
-    if len(runs) not in (1, 2):
+    if release_acceptance and len(runs) != 2:
+        violations.append(
+            "release acceptance combined artifact must contain exactly one "
+            "cold run followed by one warm run")
+    elif len(runs) not in (1, 2):
         violations.append(
             "combined artifact must contain one cold run or cold + warm runs")
     expected_labels = ("cold-process", "warm-process")
@@ -777,7 +833,9 @@ def _combined_violations(
             else f"unexpected-process-{index + 1}"
         )
         violations.extend(
-            _worker_schema_violations(artifact, label, package_root))
+            _worker_schema_violations(
+                artifact, label, package_root,
+                release_acceptance=release_acceptance))
         if not isinstance(artifact, dict):
             continue
         benchmark = artifact.get("benchmark", {})
@@ -796,10 +854,19 @@ def _combined_violations(
 
 def run_benchmark(output: Path, *, runs: int = 2, timeout_s: float = 30.0,
                   offscreen: bool = False,
-                  package_root: Optional[Path] = None) -> dict:
+                  package_root: Optional[Path] = None,
+                  release_acceptance: bool = False) -> dict:
     """Run fresh cold/warm processes and return their combined artifact."""
     if type(runs) is not int or runs not in (1, 2):
         raise ValueError("runs must be one cold process or cold + warm processes")
+    if type(release_acceptance) is not bool:
+        raise ValueError("release_acceptance must be a boolean")
+    if release_acceptance:
+        configuration_violations = (
+            _release_acceptance_configuration_violations(
+                runs=runs, offscreen=offscreen))
+        if configuration_violations:
+            raise ValueError("; ".join(configuration_violations))
     output = output.expanduser().resolve()
     package_root = (package_root or PACKAGE_ROOT).expanduser().resolve()
     if not (package_root / "spacr" / "__init__.py").is_file():
@@ -818,7 +885,9 @@ def run_benchmark(output: Path, *, runs: int = 2, timeout_s: float = 30.0,
                 home, worker_output, label, timeout_s, offscreen,
                 package_root=package_root))
 
-    violations = _combined_violations(artifacts, package_root)
+    violations = _combined_violations(
+        artifacts, package_root,
+        release_acceptance=release_acceptance)
     registries = []
     for run in artifacts:
         if not isinstance(run, dict):
@@ -837,6 +906,7 @@ def run_benchmark(output: Path, *, runs: int = 2, timeout_s: float = 30.0,
             "executable": sys.executable,
             "platform": platform.platform(),
             "offscreen": bool(offscreen),
+            "release_acceptance": release_acceptance,
             "runs": runs,
             "per_state_timeout_s": timeout_s,
             "package_root": str(package_root),
@@ -874,6 +944,11 @@ def _parser() -> argparse.ArgumentParser:
                         help=("use Qt's offscreen platform for diagnostics; "
                               "it is not real-display release evidence"))
     parser.add_argument(
+        "--release-acceptance", action="store_true",
+        help=("require exactly one cold and one warm process on a real Qt "
+              "display, with every failure producing a non-zero exit"),
+    )
+    parser.add_argument(
         "--package-root", type=Path, default=PACKAGE_ROOT,
         help=("directory containing the exact spacr package to measure; pass "
               "the clean environment's site-packages for a wheel audit"),
@@ -884,13 +959,22 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    args = _parser().parse_args(argv)
+    parser = _parser()
+    args = parser.parse_args(argv)
+    if args.release_acceptance:
+        configuration_violations = (
+            _release_acceptance_configuration_violations(
+                runs=args.runs, offscreen=args.offscreen,
+                record_only=args.record_only))
+        if configuration_violations:
+            parser.error("; ".join(configuration_violations))
     if not 1.0 <= args.timeout <= 300.0:
         raise SystemExit("--timeout must be between 1 and 300 seconds")
     output = (args.out or _default_output()).expanduser().resolve()
     artifact = run_benchmark(
         output, runs=args.runs, timeout_s=args.timeout,
-        offscreen=args.offscreen, package_root=args.package_root)
+        offscreen=args.offscreen, package_root=args.package_root,
+        release_acceptance=args.release_acceptance)
     print(f"spaCR startup benchmark written to {output}")
     print(
         f"registry: {artifact['registry_count']} apps; "
