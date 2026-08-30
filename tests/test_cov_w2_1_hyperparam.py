@@ -17,7 +17,6 @@ import pytest
 from spacr import hyperparam as hp
 from spacr.hyperparam import SearchSpace
 
-
 # ---------------------------------------------------------------------------
 # Folds
 
@@ -1780,3 +1779,37 @@ def test_a_random_attribution_sweep_samples_its_methods(corner_model):
     assert result.higher_is_better is False
     assert any("no ground truth" in note for note in result.notes)
     assert any("sanity check was skipped" in note for note in result.notes)
+
+
+def test_one_undefined_fold_does_not_decide_the_sweep():
+    """A NaN fold loses its own trial and nothing else.
+
+    This became reachable when scikit-learn changed its mind: a validation
+    fold holding one class made ``roc_auc_score`` RAISE up to 1.6 and RETURN
+    NaN from 1.7. ``statistics.fmean`` then makes the whole trial NaN, and NaN
+    compares False against everything -- so a search that carried it would
+    pick a configuration by whatever order the trials happened to be in and
+    print a number beside it.
+
+    ``_run_trials`` already refuses a non-finite trial score, and this asserts
+    the OUTCOME that refusal buys rather than the line that implements it: the
+    bad configuration is recorded with its reason, the good one still wins,
+    and the sweep is not lost -- which is the whole point of scoring each
+    configuration separately.
+    """
+    space = SearchSpace({"depth": [1, 2]})
+
+    def sometimes_undefined(params, train_idx, val_idx):
+        return float("nan") if params["depth"] == 2 else 0.7
+
+    result = hp.cv_search(sometimes_undefined, space, labels=_labels(),
+                          groups=_wells(), n_folds=2)
+
+    assert result.best is not None, "one bad configuration lost the sweep"
+    assert result.best.params["depth"] == 1
+    assert result.best.score == pytest.approx(0.7)
+
+    failed = [t for t in result.trials if t.params["depth"] == 2]
+    assert len(failed) == 1
+    assert failed[0].score is None
+    assert "non-finite" in (failed[0].error or "")
