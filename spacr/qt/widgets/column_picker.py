@@ -409,11 +409,15 @@ def find_existing(name: str, columns: Sequence[str]) -> str:
     case, so ``Annotate`` *is* ``annotate`` and adding it would fail with
     "duplicate column name" rather than create a second column.
     """
-    target = str(name or "").strip().lower()
+    raw = str(name or "")
+    target = raw.strip().lower()
     if not target:
         return ""
     for col in columns:
-        if str(col).lower() == target:
+        if str(col).lower() == raw.lower():
+            return str(col)
+    for col in columns:
+        if str(col).strip().lower() == target:
             return str(col)
     return ""
 
