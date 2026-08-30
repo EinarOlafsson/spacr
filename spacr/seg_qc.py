@@ -1701,10 +1701,11 @@ def _flag_findings(
         fields = tuple(sorted(q.field for q in members))
         where = plate or "this project"
         located = _name_list(list(wells), max_named)
+        named_fields = _name_list(list(fields), max_named)
         if located:
             where += f", wells {located}"
-        elif fields:
-            where += f", fields {_name_list(list(fields), max_named)}"
+        elif named_fields:
+            where += f", fields {named_fields}"
         # The severity is the flag's own, with one exception that has to be
         # honoured: `_apply_plate_context` demotes empty and near-empty fields
         # on a sparse plate, because with a plate median of 2 pathogens per

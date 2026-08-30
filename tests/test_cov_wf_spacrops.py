@@ -335,14 +335,14 @@ def _settings(src, dst, **kw):
     return base
 
 
-def test_reorganising_a_plate_onto_itself_with_overwrite_destroys_the_tiles(tmp_path, canvas):
+def test_reorganising_a_plate_onto_itself_keeps_the_tiles(tmp_path, canvas):
     """Re-running the organizer in place must not eat the plate.
 
     ``dst_root`` defaults to ``src``, so a second run over an already organized
     plate finds each tile at exactly the destination it would move it to.
-    Under ``collision='rename'`` that is harmless.  Under
-    ``collision='overwrite'`` the destination is deleted first and the
-    self-move then skipped: the raw frame is gone, counted as moved.
+    ``collision='rename'`` deliberately gives that tile a new name, while
+    ``collision='overwrite'`` has nothing to overwrite or move when source and
+    destination are the same file.
     """
     kept_root = tmp_path / "kept"
     _plate_in(str(kept_root / "A1"), canvas)
@@ -351,12 +351,15 @@ def test_reorganising_a_plate_onto_itself_with_overwrite_destroys_the_tiles(tmp_
     survivor = res["organized"]["by_well"]["A1"][0]
     assert os.path.exists(survivor) and survivor.endswith("_001.tif")
 
-    lost_root = tmp_path / "lost"
-    lost = _plate_in(str(lost_root / "A1"), canvas)[0]
-    res = stitch_cycle_wells(_settings(lost_root, lost_root, collision="overwrite"))
-    assert res["organized"]["moved"] == 1
-    assert res["organized"]["by_well"]["A1"] == [lost]
-    assert not os.path.exists(lost), "DEFECT: the tile was deleted, not moved"
+    overwrite_root = tmp_path / "overwrite"
+    tile = _plate_in(str(overwrite_root / "A1"), canvas)[0]
+    before = tifffile.imread(tile).copy()
+    res = stitch_cycle_wells(
+        _settings(overwrite_root, overwrite_root, collision="overwrite"))
+    assert res["organized"]["moved"] == 0
+    assert res["organized"]["by_well"]["A1"] == [tile]
+    assert os.path.exists(tile)
+    assert np.array_equal(tifffile.imread(tile), before)
 
 
 def test_a_dry_run_leaves_the_plate_exactly_where_it_found_it(tmp_path, canvas):

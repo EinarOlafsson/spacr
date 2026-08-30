@@ -3001,14 +3001,17 @@ def stitch_cycle_wells(settings):
                 if rp is None:
                     skipped += 1
                     continue
-                if not dry_run:
+                already_in_place = (
+                    os.path.normcase(os.path.realpath(sp))
+                    == os.path.normcase(os.path.realpath(rp))
+                )
+                if not dry_run and not already_in_place:
                     if collision == "overwrite" and os.path.exists(dp) and rp == dp:
                         try:
                             os.remove(dp)
                         except FileNotFoundError:
                             pass
-                    if sp != rp:
-                        shutil.move(sp, rp)
+                    shutil.move(sp, rp)
                     moved += 1
                 out_paths.append(rp if rp is not None else dp)
             else:
