@@ -24,7 +24,11 @@ from ..figures.style import figure_style, theme_target
 
 @dataclass
 class Panel:
-    """Metadata describing a rendered or unavailable figure panel."""
+    """Metadata describing a rendered or unavailable figure panel.
+
+    :ivar key: stable registry key for the panel.
+    :ivar title: short display title for the panel.
+    """
 
     key: str
     #: Short lower-case title, normally two to four words.
@@ -63,12 +67,17 @@ def effect_column(frame) -> Optional[str]:
 
     spaCR writes ``coefficient``; a statsmodels summary carries ``coef``.
     Both are the same quantity and both have to plot.
+
+    :param frame: coefficient table whose columns are inspected.
     """
     return _column(frame, "coefficient", "coef", "effect", "estimate")
 
 
 def p_column(frame) -> Optional[str]:
-    """The raw p-value column, whatever this backend calls it."""
+    """The raw p-value column, whatever this backend calls it.
+
+    :param frame: coefficient table whose columns are inspected.
+    """
     return _column(frame, "p_value", "p", "pvalue", "P>|z|", "P>|t|")
 
 
@@ -79,6 +88,8 @@ def q_column(frame) -> Optional[str]:
     have no p-value to correct, and a run asked for ``multiple_testing_method
     = 'none'`` deliberately has none either. A panel that finds no q falls
     back to the raw p and says which one it drew.
+
+    :param frame: coefficient table whose columns are inspected.
     """
     return _column(frame, "q_value", "adjusted_p_value", "fdr", "qval")
 
@@ -89,6 +100,8 @@ def statistic_column(frame) -> Optional[str]:
     OLS and RLM report ``t value``; GLM, Poisson and the mixed model report
     ``z value``; the penalised backends report neither and give a selection
     frequency instead. Every one of those tables has to display.
+
+    :param frame: coefficient table whose columns are inspected.
     """
     return _column(frame, "t_value", "z_value", "t value", "z value",
                    "statistic", "selection_frequency")
@@ -445,6 +458,9 @@ def p_histogram(ax, frame, *, bins=40) -> Panel:
     Under the null p is uniform. Flat with a spike at zero is a screen with
     real hits; a slope, a hump in the middle or a spike at one is a model
     that is wrong, and no amount of FDR fixes it.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: coefficient table containing the tested p-values.
     """
     p = p_column(frame)
     if p is None:
@@ -480,6 +496,9 @@ def qq_plot(ax, frame) -> Panel:
 
     A screen whose points leave the diagonal early has either real signal or
     a mis-specified model, and lambda says which is more likely.
+
+    :param ax: Matplotlib axes on which to draw the q-q plot.
+    :param frame: coefficient table containing the tested p-values.
     """
     p = p_column(frame)
     if p is None:
@@ -602,6 +621,9 @@ def guide_agreement(ax, frame) -> Panel:
     The one thing a volcano structurally cannot show. A gene called by one
     guide out of six is the commonest way a pooled screen makes a confident
     artefact, and it is the same dot as a gene whose guides agree.
+
+    :param ax: Matplotlib axes on which to draw guide concordance.
+    :param frame: per-guide coefficient table with parseable feature terms.
     """
     from ..hits import gene_of
 
@@ -656,7 +678,11 @@ def guide_agreement(ax, frame) -> Panel:
 
 
 def effect_distribution(ax, frame) -> Panel:
-    """Where the screen's effects sit, and where the controls sit in them."""
+    """Where the screen's effects sit, and where the controls sit in them.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: coefficient table containing the tested effects.
+    """
     effect = effect_column(frame)
     if effect is None:
         return Panel("effect_distribution", "effect distribution", drawn=False,
@@ -704,7 +730,10 @@ SHEET_ORDER = ("volcano", "effect_rank", "effect_distribution", "controls",
 
 
 def available(frame) -> Dict[str, bool]:
-    """Which panels this table can support, without drawing anything."""
+    """Which panels this table can support, without drawing anything.
+
+    :param frame: coefficient table to check against every registered panel.
+    """
     import matplotlib.pyplot as plt
 
     answer = {}

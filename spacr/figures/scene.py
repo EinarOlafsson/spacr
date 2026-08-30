@@ -1381,6 +1381,10 @@ def export_scene(widget, path) -> Optional[str]:
     PIXMAPS into the vector file, and a PDF full of little bitmaps of a dot is
     a PDF that claims to be vector and is not. Writing a second exporter here
     would recreate the same exporter duplication one level down.
+
+    :param widget: built pyqtgraph scene widget to export.
+    :param path: destination path; its suffix selects PDF, SVG, or raster
+        export.
     """
     from ..qt.widgets.fast_plots import FastPlot
 

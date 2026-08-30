@@ -42,7 +42,12 @@ CELL_HEIGHT = 2.05
 
 @dataclass
 class Sheet:
-    """A rendered sheet and everything needed to write its legend."""
+    """A rendered sheet and everything needed to write its legend.
+
+    :ivar figure: Matplotlib figure containing the rendered panel grid.
+    :ivar panels: successfully drawn panels, in figure-reading order.
+    :ivar skipped: unavailable panels retained with their reasons.
+    """
 
     figure: object
     panels: List[Panel]
@@ -158,6 +163,8 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
                 figsize=(3.4, 2.6), **kwargs):
     """One panel on its own figure, for the grid view and for saving.
 
+    :param key: panel name from :data:`spacr.figures.panels.REGISTRY`.
+    :param frame: coefficient table consumed by the selected panel.
     :returns: ``(figure, Panel)``.
     """
     import matplotlib.pyplot as plt
@@ -186,6 +193,10 @@ def attach(figure, panel) -> None:
     Private attributes on a matplotlib Figure rather than a wrapper object,
     because the figure is handed through the Qt bridge, the queue, a spill
     file and back, and a wrapper would be lost at the first of those.
+
+    :param figure: Matplotlib figure that will carry the export metadata.
+    :param panel: panel metadata to attach; ``None`` leaves the figure
+        unchanged.
     """
     if panel is None:
         return

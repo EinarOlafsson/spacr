@@ -69,6 +69,8 @@ def stars(p) -> str:
     Non-significant comparisons are SHOWN rather than omitted, which is what
     the published figures do -- a missing bracket reads as a comparison
     nobody made.
+
+    :param p: p-value to translate into the reporting convention.
     """
     try:
         p = float(p)
@@ -85,7 +87,14 @@ def stars(p) -> str:
 
 @dataclass
 class Assumption:
-    """One assumption check, and whether it could see anything."""
+    """One assumption check, and whether it could see anything.
+
+    :ivar name: name of the assumption test.
+    :ivar statistic: test statistic, or ``nan`` when it could not be computed.
+    :ivar p_value: test p-value, or ``nan`` when it could not be computed.
+    :ivar informative: whether the check had enough usable data to interpret.
+    :ivar verdict: plain-language conclusion, including inconclusive cases.
+    """
 
     name: str
     statistic: float
@@ -109,7 +118,14 @@ class Assumption:
 
 @dataclass
 class Comparison:
-    """One test, everything needed to report it, and how it was chosen."""
+    """One test, everything needed to report it, and how it was chosen.
+
+    :ivar test: name of the selected statistical test.
+    :ivar statistic: statistic returned by that test.
+    :ivar p_value: unadjusted p-value returned by that test.
+    :ivar groups: group labels in the order tested.
+    :ivar n: usable observation counts for those groups, in matching order.
+    """
 
     test: str
     statistic: float
@@ -157,7 +173,10 @@ def _clean(values) -> np.ndarray:
 
 
 def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
-    """Shapiro-Wilk per group, and whether it could see anything."""
+    """Shapiro-Wilk per group, and whether it could see anything.
+
+    :param groups: numeric sample array for each group being compared.
+    """
     from scipy import stats
 
     smallest = min((group.size for group in groups), default=0)
@@ -228,6 +247,8 @@ def check_equal_variance(groups: Sequence[np.ndarray]) -> Assumption:
     The median-centred Brown-Forsythe form is less sensitive to non-normal
     data than the mean-centred form. This function is called before the
     normality verdict is known.
+
+    :param groups: numeric sample array for each group being compared.
     """
     from scipy import stats
 
@@ -471,6 +492,9 @@ def table(comparisons: Sequence[Comparison], *, correction: str = "fdr_bh"):
     Correcting ACROSS the comparisons is the part a hand-written stats table
     always forgets: six pairwise tests at 0.05 is a 26% chance of at least one
     false positive, and the individual p-values give no hint of it.
+
+    :param comparisons: completed comparison results to tabulate and correct
+        as one family.
     """
     import pandas as pd
 

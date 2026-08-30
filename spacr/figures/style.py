@@ -395,6 +395,9 @@ def panel_letter(ax, letter: str, dx: float = -0.16, dy: float = 1.06) -> None:
     """A bold upper-case letter at the panel's top left. No period.
 
     Sized from the measured 1.9-2.2x of the axis-label tier.
+
+    :param ax: Matplotlib axes that receives the panel label.
+    :param letter: panel identifier, converted to upper case.
     """
     ax.text(dx, dy, letter.upper(), transform=ax.transAxes,
             fontsize=TYPE_SCALE["panel_letter"], fontweight="bold",
@@ -406,6 +409,9 @@ def descriptor(ax, text: str) -> None:
 
     NOT a sentence title. The axis labels carry the content; a descriptor
     only says which condition this panel is.
+
+    :param ax: Matplotlib axes whose title is set.
+    :param text: short descriptor to place above the axes.
     """
     ax.set_title(text, fontsize=TYPE_SCALE["label"], pad=3.0)
 
@@ -416,6 +422,8 @@ def reference_line(ax, *, x=None, y=None, label: str = "",
 
     Thin, dashed and grey — never bold, never coloured. A reference is not a
     result and must not compete with one.
+
+    :param ax: Matplotlib axes on which to draw the reference line.
     """
     colour = colour or ROLES["reference"]
     drawn = (ax.axvline(x, color=colour, lw=WEIGHTS["reference"], ls=(0, (4, 3)),
@@ -455,7 +463,10 @@ def text_legend(ax, entries: Sequence, x: float = 0.02, y: float = 0.97,
 
 
 def rotate_ticks(ax, degrees: int = 45) -> None:
-    """Long categorical labels rotate 45 degrees, right-aligned."""
+    """Long categorical labels rotate 45 degrees, right-aligned.
+
+    :param ax: Matplotlib axes whose x tick labels are rotated.
+    """
     for label in ax.get_xticklabels():
         label.set_rotation(degrees)
         label.set_ha("right")
@@ -468,6 +479,9 @@ def annotate(ax, text: str, *, x: float = 0.02, y: float = 0.97,
     """An in-panel note: an n, a correlation coefficient, a count.
 
     No frame, no box. The published figures never draw one.
+
+    :param ax: Matplotlib axes that receives the note.
+    :param text: annotation text to draw inside the axes.
     """
     ax.text(x, y, text, transform=ax.transAxes,
             fontsize=TYPE_SCALE["annotation"],
@@ -479,6 +493,8 @@ def hide_unused(axes: Iterable) -> None:
 
     An empty framed box in a figure sheet reads as a panel that failed to
     draw, which is worse than a gap.
+
+    :param axes: iterable of unused Matplotlib axes to turn off.
     """
     for ax in axes:
         ax.set_axis_off()
