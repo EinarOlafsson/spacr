@@ -91,7 +91,7 @@ def test_a_panel_with_an_empty_stack_is_kept_but_not_put_on_the_link(qtbot):
     assert grid.panels["unloaded"] is empty_panel
     assert empty_panel.caption.text() == "unloaded"
     assert empty_panel.canvas.canvas is None
-    assert grid.status.text() == "2 panel(s) · all linked"
+    assert grid.status.text() == "2 panel(s) · 1 not linked (unloaded)"
 
 
 def test_an_unloaded_panel_that_gains_layers_can_join_the_link_later(qtbot):
@@ -176,7 +176,7 @@ def test_link_all_relinks_the_loaded_panels_and_steps_over_the_empty_one(
         grid.canvas_link["a"].origin)
     assert grid.canvas_link.is_locked("b") is True
     assert grid.panels["unloaded"].lock_box.isChecked() is True
-    assert grid.status.text() == "3 panel(s) · all linked"
+    assert grid.status.text() == "3 panel(s) · 1 not linked (unloaded)"
 
 
 # ---------------------------------------------------------------------------
