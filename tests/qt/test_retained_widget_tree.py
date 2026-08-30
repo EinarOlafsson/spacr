@@ -28,8 +28,7 @@ from tests import conftest as root_conftest
 from tests.qt import conftest as qt_conftest
 
 #: Large enough that failing to deliver the queued deletes is unmistakable.
-RETAINED_WIDGET_CEILING = 2000
-LEAKED = RETAINED_WIDGET_CEILING + 500
+LEAKED = 2500
 
 
 class _Cyclic(QWidget):
@@ -49,7 +48,19 @@ def _live_widgets():
     return len(QApplication.instance().allWidgets())
 
 
-def test_owner_requested_deletions_are_pending_when_the_test_ends():
+@pytest.fixture(scope="module")
+def retained_widget_baseline(qapp):
+    """Widget count inherited from the worker before this module begins.
+
+    A long Qt shard legitimately owns widgets created by earlier modules.
+    This file is responsible for proving its own 2,500 requested deletions
+    disappear, not for imposing an absolute ceiling on the whole worker.
+    """
+    return _live_widgets()
+
+
+def test_owner_requested_deletions_are_pending_when_the_test_ends(
+        retained_widget_baseline):
     """``deleteLater`` queues ownership cleanup; it is not synchronous."""
     before = _live_widgets()
     leaked = [_Cyclic() for _ in range(LEAKED)]
@@ -62,25 +73,25 @@ def test_owner_requested_deletions_are_pending_when_the_test_ends():
         "deleteLater must stay deferred until Qt reaches a safe boundary")
 
 
-def test_the_next_test_does_not_inherit_them():
+def test_the_next_test_does_not_inherit_them(retained_widget_baseline):
     """Runs straight after the leak above, which is the whole point.
 
-    No fixture is requested and nothing is cleaned up here. If this passes,
-    the deferred deletes were delivered between the two tests -- which is
-    where that has to happen for the rest of the suite to stop paying for it.
+    Nothing is cleaned up here. If this passes, the deferred deletes were
+    delivered between the two tests -- which is where that has to happen for
+    the rest of the suite to stop paying for it.
     """
-    assert _live_widgets() < RETAINED_WIDGET_CEILING
+    assert _live_widgets() <= retained_widget_baseline
 
 
 @pytest.mark.parametrize("round_number", range(3))
-def test_the_tree_stays_bounded_over_repeated_owned_deletions(round_number):
+def test_the_tree_stays_bounded_over_repeated_owned_deletions(
+        round_number, retained_widget_baseline):
     """One deletion batch is a blip; the suite has hundreds.
 
-    Each round leaks the same amount again and finds the tree back under the
-    threshold at its own start, so the ceiling is a ceiling rather than a
-    slower climb.
+    Each round leaks the same amount again and finds the tree back at its
+    module-entry baseline, so the bound is a bound rather than a slower climb.
     """
-    assert _live_widgets() < RETAINED_WIDGET_CEILING
+    assert _live_widgets() <= retained_widget_baseline
     leaked = [_Cyclic() for _ in range(LEAKED)]
     assert _live_widgets() >= LEAKED
     for widget in leaked:
