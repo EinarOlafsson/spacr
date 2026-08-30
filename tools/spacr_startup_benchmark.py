@@ -12,11 +12,19 @@ The default is a strict release ratchet: Home must be ready in 5 seconds,
 every registry module in 10 seconds, every key must be measured exactly once,
 and no measured interval may contain a 500 ms event-loop stall.  ``--record-
 only`` writes evidence without turning a budget miss into a non-zero exit.
+
+Hosted CI deliberately ratchets this artifact's schema through unit fixtures,
+not by claiming its offscreen Qt plugin is release performance evidence.  A
+hosted runner has neither the documented lower-end hardware profile nor a real
+display server/compositor/refresh path, and its shared-host scheduling noise is
+not hardware-normalised.  ``--offscreen`` therefore remains diagnostic; final
+acceptance is a real-display run whose complete artifact passes this driver.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import platform
 import subprocess
@@ -27,6 +35,12 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+SCHEMA_VERSION = 1
+WORKER_SCHEMA_VERSION = 1
+HOME_BUDGET_S = 5.0
+MODULE_BUDGET_S = 10.0
+PREFERENCES_BUDGET_S = 3.0
+STALL_BUDGET_MS = 500.0
 
 WORKER = """
 import os
@@ -110,6 +124,22 @@ def _run_worker(home: Path, output: Path, label: str, timeout_s: float,
             value = value.decode("utf-8", errors="replace")
         return str(value or "")[-4000:]
 
+    def _append_failure(artifact: dict, message: str) -> None:
+        benchmark = artifact.get("benchmark")
+        if not isinstance(benchmark, dict):
+            benchmark = {
+                "run": label,
+                "violations": [
+                    "invalid worker artifact: benchmark is not a JSON object"],
+            }
+            artifact["benchmark"] = benchmark
+        failures = benchmark.get("violations")
+        if not isinstance(failures, list):
+            failures = [
+                "invalid worker artifact: benchmark.violations is not an array"]
+            benchmark["violations"] = failures
+        failures.append(message)
+
     try:
         completed = subprocess.run(
             [sys.executable, "-c", WORKER],
@@ -121,9 +151,18 @@ def _run_worker(home: Path, output: Path, label: str, timeout_s: float,
             artifact = json.loads(output.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError):
             artifact = {"benchmark": {"run": label, "violations": []}}
-        artifact.setdefault("benchmark", {}).setdefault(
-            "violations", []).append(
-                f"worker exceeded its controlled {process_timeout:.0f} s timeout")
+        if not isinstance(artifact, dict):
+            artifact = {
+                "benchmark": {
+                    "run": label,
+                    "violations": [
+                        "invalid worker artifact: root is not a JSON object"],
+                }
+            }
+        _append_failure(
+            artifact,
+            f"worker exceeded its controlled {process_timeout:.0f} s timeout",
+        )
         artifact["worker"] = {
             "returncode": None,
             "elapsed_s": time.perf_counter() - started,
@@ -143,6 +182,14 @@ def _run_worker(home: Path, output: Path, label: str, timeout_s: float,
                     "violations": [f"invalid worker artifact: {error}"],
                 }
             }
+        if not isinstance(artifact, dict):
+            artifact = {
+                "benchmark": {
+                    "run": label,
+                    "violations": [
+                        "invalid worker artifact: root is not a JSON object"],
+                }
+            }
     else:
         artifact = {
             "benchmark": {
@@ -157,9 +204,8 @@ def _run_worker(home: Path, output: Path, label: str, timeout_s: float,
         "stderr_tail": _tail(completed.stderr),
     }
     if completed.returncode != 0:
-        artifact.setdefault("benchmark", {}).setdefault(
-            "violations", []).append(
-                f"worker exited with status {completed.returncode}")
+        _append_failure(
+            artifact, f"worker exited with status {completed.returncode}")
     return artifact
 
 
@@ -174,33 +220,407 @@ def _path_is_within(value: object, root: Path) -> bool:
     return True
 
 
+def _finite_number(value: object, *, minimum: Optional[float] = None,
+                   maximum: Optional[float] = None) -> bool:
+    """Return whether *value* is a finite non-boolean number in the range."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    number = float(value)
+    if not math.isfinite(number):
+        return False
+    if minimum is not None and number < minimum:
+        return False
+    if maximum is not None and number > maximum:
+        return False
+    return True
+
+
+def _worker_schema_violations(
+        artifact: object, expected_label: str,
+        package_root: Optional[Path] = None) -> list[str]:
+    """Validate one worker artifact without trusting its own verdict flags.
+
+    The worker JSON is release evidence, not a best-effort diagnostic blob.
+    Every field used to claim a painted, budgeted result is therefore checked
+    here by the parent process.  This also makes an old, truncated or manually
+    assembled artifact fail closed instead of inheriting ``passed=True`` from
+    a handful of self-reported booleans.
+    """
+    prefix = f"{expected_label}:"
+    violations: list[str] = []
+
+    def reject(message: str) -> None:
+        violations.append(f"{prefix} {message}")
+
+    if not isinstance(artifact, dict):
+        reject("worker artifact root is not a JSON object")
+        return violations
+    if (type(artifact.get("schema_version")) is not int
+            or artifact.get("schema_version") != WORKER_SCHEMA_VERSION):
+        reject(
+            f"worker schema_version must be {WORKER_SCHEMA_VERSION}")
+    if not _finite_number(artifact.get("elapsed_s"), minimum=0.0):
+        reject("elapsed_s is missing or is not a finite non-negative number")
+
+    budgets = artifact.get("budgets")
+    expected_budgets = {
+        "home_ready_s": HOME_BUDGET_S,
+        "module_ready_s": MODULE_BUDGET_S,
+        "max_event_loop_stall_ms": STALL_BUDGET_MS,
+    }
+    if not isinstance(budgets, dict):
+        reject("budgets is not a JSON object")
+        budgets = {}
+    for field, expected in expected_budgets.items():
+        if (not _finite_number(budgets.get(field), minimum=0.0)
+                or float(budgets[field]) != expected):
+            reject(f"budgets.{field} must equal {expected}")
+    floor = budgets.get("watchdog_record_floor_ms")
+    if (not _finite_number(floor, minimum=0.0)
+            or (_finite_number(budgets.get("max_event_loop_stall_ms"))
+                and float(floor) >= float(
+                    budgets["max_event_loop_stall_ms"]))):
+        reject(
+            "budgets.watchdog_record_floor_ms must be finite, non-negative, "
+            "and below the stall budget")
+
+    environment = artifact.get("environment")
+    if not isinstance(environment, dict):
+        reject("environment is not a JSON object")
+        environment = {}
+    for field in (
+            "python", "implementation", "platform", "machine", "qt",
+            "executable", "spacr_version"):
+        if not isinstance(environment.get(field), str) or not environment[field]:
+            reject(f"environment.{field} is missing or empty")
+    if not isinstance(environment.get("processor"), str):
+        # Some supported platforms honestly return an empty processor string;
+        # the field must still be present and typed rather than silently lost.
+        reject("environment.processor is missing or is not a string")
+    if (type(environment.get("pid")) is not int
+            or environment.get("pid", 0) <= 0):
+        reject("environment.pid is missing or is not a positive integer")
+    root = package_root.expanduser().resolve() if package_root else None
+    if root is not None:
+        for field in ("spacr_file", "qt_package_file"):
+            if not _path_is_within(environment.get(field), root):
+                reject(f"{field} did not resolve inside {root}")
+    else:
+        for field in ("spacr_file", "qt_package_file"):
+            if not isinstance(environment.get(field), str) or not environment[field]:
+                reject(f"environment.{field} is missing or empty")
+
+    hardware = environment.get("hardware")
+    if not isinstance(hardware, dict):
+        reject("environment.hardware is not a JSON object")
+        hardware = {}
+    if (type(hardware.get("logical_cpu_count")) is not int
+            or hardware.get("logical_cpu_count", 0) <= 0):
+        reject("environment.hardware.logical_cpu_count must be positive")
+    if not _finite_number(hardware.get("total_memory_mb"), minimum=0.0):
+        reject("environment.hardware.total_memory_mb must be reported")
+    if (not isinstance(hardware.get("performance_level"), str)
+            or not hardware.get("performance_level")):
+        reject("environment.hardware.performance_level is missing or empty")
+    if (not isinstance(hardware.get("qt_platform"), str)
+            or not hardware.get("qt_platform")):
+        reject("environment.hardware.qt_platform is missing or empty")
+    displays = hardware.get("displays")
+    if not isinstance(displays, list) or not displays:
+        reject("environment.hardware.displays must contain at least one display")
+        displays = []
+    for index, display in enumerate(displays):
+        path = f"environment.hardware.displays[{index}]"
+        if not isinstance(display, dict):
+            reject(f"{path} is not a JSON object")
+            continue
+        if not isinstance(display.get("name"), str):
+            reject(f"{path}.name is missing or is not a string")
+        for field in ("logical_width", "logical_height"):
+            if (type(display.get(field)) is not int
+                    or display.get(field, 0) <= 0):
+                reject(f"{path}.{field} must be a positive integer")
+        if not _finite_number(
+                display.get("device_pixel_ratio"), minimum=0.000001):
+            reject(f"{path}.device_pixel_ratio must be positive")
+        if not _finite_number(display.get("refresh_hz"), minimum=0.0):
+            reject(f"{path}.refresh_hz must be finite and non-negative")
+
+    resources = artifact.get("resources")
+    if not isinstance(resources, dict):
+        reject("resources is not a JSON object")
+        resources = {}
+    if not _finite_number(resources.get("peak_rss_mb"), minimum=0.000001):
+        reject("resources.peak_rss_mb must be reported and positive")
+    gpu = resources.get("gpu")
+    if not isinstance(gpu, dict):
+        reject("resources.gpu is not a JSON object")
+        gpu = {}
+    for field in ("allocated_mb", "peak_allocated_mb"):
+        if field not in gpu:
+            reject(f"resources.gpu.{field} is missing")
+            continue
+        value = gpu.get(field)
+        if value is not None and not _finite_number(value, minimum=0.0):
+            reject(f"resources.gpu.{field} must be null or non-negative")
+    allocated = gpu.get("allocated_mb")
+    peak_allocated = gpu.get("peak_allocated_mb")
+    if (_finite_number(allocated, minimum=0.0)
+            and _finite_number(peak_allocated, minimum=0.0)
+            and float(peak_allocated) < float(allocated)):
+        reject("resources.gpu.peak_allocated_mb is below allocated_mb")
+
+    for field in ("spans", "imports", "stalls", "marks", "readiness"):
+        if not isinstance(artifact.get(field), list):
+            reject(f"{field} is not a JSON array")
+    if not _finite_number(
+            artifact.get("event_loop_started_at"), minimum=0.0):
+        reject("event_loop_started_at was not recorded")
+    worst_global = artifact.get("worst_event_loop_stall_ms")
+    if not _finite_number(worst_global, minimum=0.0):
+        reject("worst_event_loop_stall_ms was not recorded")
+    elif float(worst_global) >= STALL_BUDGET_MS:
+        reject("worst_event_loop_stall_ms reached the 500 ms ceiling")
+    if artifact.get("stall_budget_met") is not True:
+        reject("stall_budget_met is not true")
+    if artifact.get("import_timing_enabled") is not False:
+        reject("import_timing_enabled must be false for an unbiased sweep")
+
+    worker = artifact.get("worker")
+    if not isinstance(worker, dict):
+        reject("worker process evidence is missing")
+        worker = {}
+    if type(worker.get("returncode")) is not int or worker.get("returncode") != 0:
+        reject("worker.returncode is not zero")
+    if not _finite_number(worker.get("elapsed_s"), minimum=0.0):
+        reject("worker.elapsed_s was not recorded")
+    for field in ("stdout_tail", "stderr_tail"):
+        if not isinstance(worker.get(field), str):
+            reject(f"worker.{field} is missing or is not a string")
+
+    benchmark = artifact.get("benchmark")
+    if not isinstance(benchmark, dict):
+        reject("benchmark is not a JSON object")
+        return violations
+    if benchmark.get("run") != expected_label:
+        reject(f"benchmark.run must equal {expected_label!r}")
+    if benchmark.get("exit_reason") != "registry sweep complete":
+        reject("worker did not complete the registry sweep")
+    reported_violations = benchmark.get("violations")
+    if not isinstance(reported_violations, list):
+        reject("benchmark.violations is not a JSON array")
+    elif reported_violations:
+        for message in reported_violations:
+            reject(f"worker reported violation: {message}")
+
+    keys = benchmark.get("registry_keys")
+    keys_valid = (
+        isinstance(keys, list)
+        and bool(keys)
+        and all(isinstance(key, str) and key for key in keys)
+        and len(keys) == len(set(keys))
+    )
+    if not keys_valid:
+        reject("benchmark.registry_keys must be non-empty, unique strings")
+        keys = []
+    if (type(benchmark.get("registry_count")) is not int
+            or benchmark.get("registry_count") != len(keys)):
+        reject("benchmark.registry_count does not equal registry_keys")
+    if benchmark.get("final_registry_keys") != keys:
+        reject("benchmark.final_registry_keys does not equal registry_keys")
+    if benchmark.get("registry_stable") is not True:
+        reject("benchmark.registry_stable is not true")
+    if benchmark.get("measured_keys") != keys:
+        reject("benchmark.measured_keys does not equal registry_keys")
+    if (type(benchmark.get("measured_count")) is not int
+            or benchmark.get("measured_count") != len(keys)):
+        reject("benchmark.measured_count does not equal registry_keys")
+    if benchmark.get("registry_matches_measurements") is not True:
+        reject("measured app sequence did not equal its registry")
+    if benchmark.get("preferences_measured") is not True:
+        reject("benchmark.preferences_measured is not true")
+    if (not _finite_number(benchmark.get("preferences_budget_s"), minimum=0.0)
+            or float(benchmark["preferences_budget_s"])
+            != PREFERENCES_BUDGET_S):
+        reject(
+            f"benchmark.preferences_budget_s must equal "
+            f"{PREFERENCES_BUDGET_S}")
+
+    expected_details = ["__home__", "__preferences__", *keys]
+    results = benchmark.get("results")
+    if not isinstance(results, list):
+        reject("benchmark.results is not a JSON array")
+        results = []
+    if len(results) != len(expected_details):
+        reject(
+            "benchmark.results count does not equal Home + Preferences + "
+            "the live registry")
+
+    for index, expected_detail in enumerate(expected_details):
+        if index >= len(results):
+            break
+        row = results[index]
+        row_path = f"benchmark.results[{index}]"
+        if not isinstance(row, dict):
+            reject(f"{row_path} is not a JSON object")
+            continue
+        if row.get("detail") != expected_detail:
+            reject(f"{row_path}.detail must equal {expected_detail!r}")
+        expected_name = (
+            "interactive Home" if expected_detail == "__home__"
+            else "interactive preferences"
+            if expected_detail == "__preferences__"
+            else "interactive module"
+        )
+        if row.get("name") != expected_name:
+            reject(f"{row_path}.name must equal {expected_name!r}")
+        duration = row.get("duration_s")
+        budget = row.get("budget_s")
+        expected_budget = (
+            HOME_BUDGET_S if expected_detail == "__home__"
+            else PREFERENCES_BUDGET_S
+            if expected_detail == "__preferences__"
+            else MODULE_BUDGET_S
+        )
+        if not _finite_number(duration, minimum=0.0):
+            reject(f"{row_path}.duration_s was not recorded")
+        if (not _finite_number(budget, minimum=0.0)
+                or float(budget) != expected_budget):
+            reject(f"{row_path}.budget_s must equal {expected_budget}")
+        if row.get("within_budget") is not True:
+            reject(f"{row_path}.within_budget is not true")
+        if (_finite_number(duration, minimum=0.0)
+                and _finite_number(budget, minimum=0.0)
+                and float(duration) > float(budget)):
+            reject(f"{row_path}.duration_s exceeds its declared budget")
+        worst = row.get("worst_event_loop_stall_ms")
+        raw_worst = row.get("worst_overlapping_frame_interval_ms")
+        if not _finite_number(worst, minimum=0.0):
+            reject(f"{row_path}.worst_event_loop_stall_ms was not recorded")
+        elif float(worst) >= STALL_BUDGET_MS:
+            reject(f"{row_path} reached the 500 ms event-loop stall ceiling")
+        if not _finite_number(raw_worst, minimum=0.0):
+            reject(
+                f"{row_path}.worst_overlapping_frame_interval_ms was not "
+                "recorded")
+        elif (_finite_number(worst, minimum=0.0)
+              and float(raw_worst) < float(worst)):
+            reject(
+                f"{row_path}.worst_overlapping_frame_interval_ms is below "
+                "the clipped stall")
+        if row.get("event_loop_stall_budget_met") is not True:
+            reject(f"{row_path}.event_loop_stall_budget_met is not true")
+        if (type(row.get("stall_samples")) is not int
+                or row.get("stall_samples", -1) < 0):
+            reject(f"{row_path}.stall_samples was not recorded")
+        if row.get("error"):
+            reject(f"{row_path} contains an error")
+
+        # Preferences has its own shown-dialog observation. Home and every
+        # registry app, however, may pass only with the stronger production
+        # probe: an event-loop callback followed by a painted usable control.
+        if expected_detail != "__preferences__":
+            for field in ("at", "started_at", "event_loop_started_at"):
+                if not _finite_number(row.get(field), minimum=0.0):
+                    reject(f"{row_path}.{field} was not recorded")
+            at = row.get("at")
+            started_at = row.get("started_at")
+            event_loop_at = row.get("event_loop_started_at")
+            if (_finite_number(at, minimum=0.0)
+                    and _finite_number(started_at, minimum=0.0)
+                    and float(started_at) > float(at)):
+                reject(f"{row_path}.started_at is after readiness")
+            if (_finite_number(at, minimum=0.0)
+                    and _finite_number(event_loop_at, minimum=0.0)
+                    and float(event_loop_at) > float(at)):
+                reject(f"{row_path}.event_loop_started_at is after readiness")
+            if (_finite_number(at, minimum=0.0)
+                    and _finite_number(started_at, minimum=0.0)
+                    and _finite_number(duration, minimum=0.0)
+                    and not math.isclose(
+                        float(duration), float(at) - float(started_at),
+                        rel_tol=1e-9, abs_tol=1e-6)):
+                reject(f"{row_path}.duration_s does not match its timestamps")
+            if not isinstance(row.get("root_painted"), bool):
+                reject(f"{row_path}.root_painted is missing")
+            if row.get("screen_tree_painted") is not True:
+                reject(f"{row_path}.screen_tree_painted is not true")
+            painted = row.get("painted_usable_controls")
+            usable = row.get("usable_controls")
+            if type(painted) is not int or painted <= 0:
+                reject(f"{row_path}.painted_usable_controls is not positive")
+            if type(usable) is not int or usable <= 0:
+                reject(f"{row_path}.usable_controls is not positive")
+            elif type(painted) is int and usable < painted:
+                reject(f"{row_path}.usable_controls is below painted controls")
+            controls = row.get("controls")
+            if (not isinstance(controls, list) or not controls
+                    or not all(isinstance(value, str) and value
+                               for value in controls)):
+                reject(f"{row_path}.controls lacks painted control names")
+            if row.get("thread") != "MainThread":
+                reject(f"{row_path}.thread is not MainThread")
+
+    readiness = artifact.get("readiness")
+    expected_readiness = ["__home__", *keys]
+    if isinstance(readiness, list):
+        readiness_details = [
+            row.get("detail") if isinstance(row, dict) else None
+            for row in readiness
+        ]
+        if readiness_details != expected_readiness:
+            reject(
+                "readiness sequence does not equal Home + the live registry")
+        result_by_detail = {
+            row.get("detail"): row for row in results
+            if isinstance(row, dict)
+        }
+        evidence_fields = (
+            "at", "started_at", "duration_s", "name", "detail", "budget_s",
+            "within_budget", "event_loop_started_at", "root_painted",
+            "screen_tree_painted", "painted_usable_controls",
+            "usable_controls", "controls", "thread",
+        )
+        for index, row in enumerate(readiness):
+            if not isinstance(row, dict):
+                continue
+            detail = row.get("detail")
+            result = result_by_detail.get(detail)
+            if not isinstance(result, dict):
+                continue
+            for field in evidence_fields:
+                if row.get(field) != result.get(field):
+                    reject(
+                        f"readiness[{index}].{field} does not match its "
+                        "benchmark result")
+
+    return violations
+
+
 def _combined_violations(
-        runs: Sequence[dict], package_root: Optional[Path] = None) -> list[str]:
+    runs: Sequence[dict], package_root: Optional[Path] = None) -> list[str]:
     violations: list[str] = []
     registries: list[list[str]] = []
-    root = package_root.expanduser().resolve() if package_root else None
-    for artifact in runs:
-        benchmark = artifact.get("benchmark", {})
-        label = str(benchmark.get("run", "run"))
-        if benchmark.get("exit_reason") != "registry sweep complete":
-            violations.append(
-                f"{label}: worker did not complete the registry sweep")
-        violations.extend(
-            f"{label}: {message}"
-            for message in benchmark.get("violations", ())
+    if len(runs) not in (1, 2):
+        violations.append(
+            "combined artifact must contain one cold run or cold + warm runs")
+    expected_labels = ("cold-process", "warm-process")
+    for index, artifact in enumerate(runs):
+        label = (
+            expected_labels[index] if index < len(expected_labels)
+            else f"unexpected-process-{index + 1}"
         )
+        violations.extend(
+            _worker_schema_violations(artifact, label, package_root))
+        if not isinstance(artifact, dict):
+            continue
+        benchmark = artifact.get("benchmark", {})
+        if not isinstance(benchmark, dict):
+            continue
         keys = benchmark.get("registry_keys")
-        if isinstance(keys, list):
+        if (isinstance(keys, list)
+                and all(isinstance(key, str) for key in keys)):
             registries.append([str(key) for key in keys])
-        if benchmark.get("registry_matches_measurements") is not True:
-            violations.append(
-                f"{label}: measured app sequence did not equal its registry")
-        if root is not None:
-            environment = artifact.get("environment", {})
-            for field in ("spacr_file", "qt_package_file"):
-                if not _path_is_within(environment.get(field), root):
-                    violations.append(
-                        f"{label}: {field} did not resolve inside {root}")
     if len(registries) != len(runs):
         violations.append("one or more runs did not report the live registry")
     elif any(keys != registries[0] for keys in registries[1:]):
@@ -212,6 +632,8 @@ def run_benchmark(output: Path, *, runs: int = 2, timeout_s: float = 30.0,
                   offscreen: bool = False,
                   package_root: Optional[Path] = None) -> dict:
     """Run fresh cold/warm processes and return their combined artifact."""
+    if type(runs) is not int or runs not in (1, 2):
+        raise ValueError("runs must be one cold process or cold + warm processes")
     output = output.expanduser().resolve()
     package_root = (package_root or PACKAGE_ROOT).expanduser().resolve()
     if not (package_root / "spacr" / "__init__.py").is_file():
@@ -231,12 +653,18 @@ def run_benchmark(output: Path, *, runs: int = 2, timeout_s: float = 30.0,
                 package_root=package_root))
 
     violations = _combined_violations(artifacts, package_root)
-    registries = [
-        run.get("benchmark", {}).get("registry_keys") for run in artifacts
-        if isinstance(run.get("benchmark", {}).get("registry_keys"), list)
-    ]
+    registries = []
+    for run in artifacts:
+        if not isinstance(run, dict):
+            continue
+        benchmark = run.get("benchmark")
+        if not isinstance(benchmark, dict):
+            continue
+        keys = benchmark.get("registry_keys")
+        if isinstance(keys, list):
+            registries.append(keys)
     combined = {
-        "schema_version": 1,
+        "schema_version": SCHEMA_VERSION,
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "driver": {
             "python": platform.python_version(),
@@ -277,7 +705,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=30.0,
                         help="controlled timeout for each Home/module state")
     parser.add_argument("--offscreen", action="store_true",
-                        help="use Qt's offscreen platform (CI/headless only)")
+                        help=("use Qt's offscreen platform for diagnostics; "
+                              "it is not real-display release evidence"))
     parser.add_argument(
         "--package-root", type=Path, default=PACKAGE_ROOT,
         help=("directory containing the exact spacr package to measure; pass "
