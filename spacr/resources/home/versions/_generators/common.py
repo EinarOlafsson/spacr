@@ -39,8 +39,15 @@ def versions_dir() -> str:
 
 
 def repo_root() -> str:
-    """Absolute path of the spacr checkout root (five levels up)."""
-    return os.path.normpath(os.path.join(here(), *([".."] * 5)))
+    """Absolute path of the spaCR checkout root (five levels up).
+
+    Resolve from this module's source file, not :func:`here`. Render tests
+    redirect ``here()`` to a temporary output tree; that must never make a
+    later :func:`bootstrap` mistake ``/tmp`` for the checkout and evict every
+    already-imported ``spacr`` module from the hosting process.
+    """
+    source_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.normpath(os.path.join(source_dir, *([".."] * 5)))
 
 
 def _prefer_checkout_package() -> None:
