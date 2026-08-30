@@ -1,6 +1,6 @@
 """The feature explorer's edge paths: no table, no kept feature, no canvas.
 
-Three moments the panel has to survive without a traceback and without
+Four moments the panel has to survive without a traceback and without
 quietly showing the wrong thing:
 
 * the table it was pointed at is taken away again (a file closed, a filter
@@ -9,7 +9,10 @@ quietly showing the wrong thing:
 * a ranking comes back having kept nothing, so the list must clear instead of
   leaving the previous table's rows under a summary describing a new one;
 * the panel is closed while a redraw is pending, on a canvas that does not
-  own the deferred-draw timer the packaged one owns.
+  own the deferred-draw timer the packaged one owns;
+* a saved spec is pushed back in naming a statistic this build's picker does
+  not carry, so the picker must stay on the one it is actually ranking by
+  rather than going blank over an AUC fallback.
 
 Every check drives the working case in the same test as the empty one, so an
 "it is empty" assertion cannot pass by exercising nothing.
@@ -355,3 +358,60 @@ def test_the_statistic_picker_offers_exactly_the_known_statistics(panel):
     # `set_spec` never comes back empty.
     with pytest.raises(ExplorerError, match="unknown separation statistic"):
         ExplorerSpec(label="cls", statistic="ttest")
+
+
+# ---------------------------------------------------------------------------
+# A restored spec naming a statistic this build does not carry
+# ---------------------------------------------------------------------------
+
+def test_a_spec_naming_an_unknown_statistic_leaves_the_picker_alone(panel,
+                                                                    planted):
+    """Restoring a foreign analysis must not blank the Rank-by picker.
+
+    ``ExplorerSpec`` checks its statistic against ``STATISTICS`` when it is
+    constructed -- but a spec does not always arrive by construction. A
+    session restore rebuilds the object field by field without re-running
+    that validation, so an analysis saved by a build carrying one more
+    statistic comes back naming something this picker has never heard of.
+    ``set_spec`` looks the name up and, finding nothing, leaves the picker
+    where it was. Without that guard the lookup's ``-1`` would go straight to
+    ``setCurrentIndex``, which *clears* a combo box: the picker would show
+    nothing, ``currentData()`` would come back ``None``, and ``rank_now``
+    would quietly rank by its AUC fallback under a blank control -- a number
+    on screen with no statement of what produced it, which is the one failure
+    this whole panel exists to prevent. Everything the spec asks for that
+    this build can honour is still applied.
+    """
+    import pickle
+
+    from spacr.qt.widgets.feature_rank import COHEN_D
+
+    panel.set_frame(planted)
+    # The same call with a statistic the picker does carry: it moves.
+    panel.set_spec(ExplorerSpec(label="cls", statistic=COHEN_D, top=5))
+    assert panel._statistic.currentData() == COHEN_D
+    assert panel._top.value() == 5
+
+    # The spec a restore hands back. `object.__setattr__` stands in for the
+    # build that offered "ttest"; the pickle round trip is the restore
+    # itself, and it demonstrably does not re-validate -- the name survives.
+    foreign = ExplorerSpec(label="cls", statistic=COHEN_D, top=3,
+                           n_permutations=50)
+    object.__setattr__(foreign, "statistic", "ttest")
+    restored = pickle.loads(pickle.dumps(foreign))
+    assert restored.statistic == "ttest"
+    assert restored.statistic not in STATISTICS
+
+    panel.set_spec(restored)
+
+    # The picker did not move and, above all, did not go blank.
+    assert panel._statistic.currentIndex() >= 0
+    assert panel._statistic.currentData() == COHEN_D
+    assert panel._statistic.currentText() != ""
+    # The rest of the spec was applied, and the ranking that came back names
+    # the statistic actually used rather than the one that was asked for.
+    assert panel._top.value() == 3
+    assert panel._null.isChecked()
+    assert panel.result.spec.statistic == COHEN_D
+    assert panel.result.spec.n_permutations == 50
+    assert [s.feature for s in panel.result.scores] == ["perfect", "partial"]

@@ -297,3 +297,105 @@ def test_a_class_the_round_does_not_know_is_dropped_not_written_elsewhere():
     assert padded[:, 1] == pytest.approx(0.0)
     assert padded[:, 2] == pytest.approx(0.6)
     assert padded.sum(axis=1) == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# should_stop — a curve that never recorded a held-out size still gets a
+# verdict, and gets it without a standard error it cannot compute
+# ---------------------------------------------------------------------------
+
+def test_a_curve_with_no_recorded_holdout_size_still_returns_a_flat_verdict():
+    """A missing ``n_holdout`` must not cost the annotator the stopping rule.
+
+    ``noise`` is a binomial standard error, and it needs the size of the
+    held-out set to exist. Rounds recorded by an older spaCR — or by a
+    caller that assembled the curve by hand from ``holdout_accuracy`` alone
+    — carry no ``n_holdout``, so ``noise`` is ``None``. The flat branch then
+    has to decide whether to attach the "the held-out set is too small"
+    caveat while holding no number to justify it, and the only honest answer
+    is to withhold it: quoting a standard error of zero would tell the
+    annotator the plateau is proven when nothing measured it.
+
+    The ordering of that guard is the part worth pinning. ``noise is not
+    None`` has to be tested *before* ``abs(gain) <= noise``, because
+    comparing a float to ``None`` raises ``TypeError`` in Python 3. A
+    refactor that swaps the two halves — or replaces them with
+    ``abs(gain) <= (noise or 0)`` — turns "no held-out size recorded" from a
+    usable verdict into a crash, or into a confident claim of convergence.
+    """
+    accuracies = [0.90, 0.90, 0.9025]
+
+    sizeless = al.should_stop(_curve(accuracies, n_holdout=0),
+                              label_window=50, min_gain=0.003)
+    assert sizeless.stop is True
+    assert sizeless.trend == "flat"
+    assert sizeless.gain == pytest.approx(0.0025)
+    assert sizeless.noise is None
+    # No held-out size means no basis for calling the plateau confident.
+    assert sizeless.confident is False
+    assert "not buying measurable accuracy" in sizeless.reason
+    assert "standard error" not in sizeless.reason
+    assert "unmeasurable" not in sizeless.reason
+
+    # The same curve WITH a held-out size, so the withheld caveat above is
+    # the missing number doing its job and not a sentence nobody writes.
+    sized = al.should_stop(_curve(accuracies, n_holdout=200),
+                           label_window=50, min_gain=0.003)
+    assert sized.stop is True
+    assert sized.trend == "flat"
+    assert sized.noise == pytest.approx(float(np.sqrt(0.9025 * 0.0975 / 200)))
+    assert "held-out set is only 200 objects" in sized.reason
+    assert "standard error" in sized.reason
+
+
+# ---------------------------------------------------------------------------
+# _predict_proba — a NEGATIVE class id is dropped by the same guard that
+# drops an over-large one
+# ---------------------------------------------------------------------------
+
+def test_a_negative_class_id_is_dropped_and_does_not_index_from_the_end():
+    """``classes_ = [-1, ...]`` must not write into the LAST class column.
+
+    ``-1`` is the standard scikit-learn marker for "unlabelled" or "outlier"
+    — ``LabelSpreading``, ``LabelPropagation`` and the novelty detectors all
+    emit it — and a model handed to a round is not always the one the round
+    fitted: ``retrain_round`` can be pointed at an estimator reloaded from an
+    earlier round, or at a semi-supervised fit over the annotator's partial
+    labels. The re-indexing loop writes ``out[:, int(class_id)]``, and
+    ``out[:, -1]`` is perfectly legal NumPy: it silently writes the
+    unlabelled column's probability into the round's HIGHEST class. The
+    queue would then rank crops as most-likely-class-N on the strength of a
+    score that means "no label", which is the opposite of informative.
+
+    The lower half of the range guard is what prevents that, and it is a
+    separate half from the upper bound: a test that only feeds an oversized
+    class id leaves ``0 <= class_id`` unpinned.
+    """
+    class _SemiSupervisedModel:
+        classes_ = np.array([-1, 0, 1])
+
+        def predict_proba(self, x):
+            return np.tile([0.7, 0.1, 0.2], (len(x), 1))
+
+    out = al._predict_proba(_SemiSupervisedModel(), np.zeros((5, 2)), 2)
+    assert out.shape == (5, 2)
+    assert out[:, 0] == pytest.approx(0.1)
+    # The 0.7 belonging to class -1 is gone, NOT wrapped onto the last
+    # column: had it wrapped, class 1 would read 0.7 instead of 0.2.
+    assert out[:, 1] == pytest.approx(0.2), "class -1 wrapped onto class 1"
+    assert out.sum(axis=1) == pytest.approx(0.3)
+
+    # The counterpart runs the SAME re-indexing loop with every id in range
+    # — ``classes_`` out of order also defeats the fast path — so the missing
+    # 0.7 above is the negative id being rejected and not the loop dropping
+    # columns generally.
+    class _ReorderedModel:
+        classes_ = np.array([1, 0])
+
+        def predict_proba(self, x):
+            return np.tile([0.3, 0.7], (len(x), 1))
+
+    kept = al._predict_proba(_ReorderedModel(), np.zeros((5, 2)), 2)
+    assert kept[:, 0] == pytest.approx(0.7), "classes_ order was ignored"
+    assert kept[:, 1] == pytest.approx(0.3)
+    assert kept.sum(axis=1) == pytest.approx(1.0)

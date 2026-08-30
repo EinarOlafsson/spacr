@@ -247,6 +247,20 @@ def test_a_plane_already_written_is_not_also_reported_as_failed(
     assert sorted(rows.loc[rows["status"] == "failed", "target"]) == failed
     assert sorted(rows.loc[rows["status"] == "converted", "target"]) == written
 
+    # And the counterpart that proves the empty list above came from the
+    # half-written field and not from resume being dead: with the disk back,
+    # a resumed run finishes the field, and only then does a third run skip
+    # it as already done.
+    monkeypatch.setattr(cv, "_atomic_write", real_write)
+    repaired = cv.convert(conversion_plan, str(out), resume=True)
+    assert repaired.resumed_fields == [], "nothing was complete to resume yet"
+    assert sorted(m.target for m in repaired.written) == failed
+    again = cv.convert(conversion_plan, str(out), resume=True)
+    assert again.resumed_fields == ["plate1/A01/f0001"]
+    assert again.n_written == 0
+    assert sorted(m.target for m in again.existing) == sorted(
+        m.target for m in conversion_plan.mappings)
+
 
 # ---------------------------------------------------------------------------
 # An older map file, missing the prcf column

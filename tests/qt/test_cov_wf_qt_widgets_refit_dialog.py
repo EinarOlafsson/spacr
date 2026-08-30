@@ -214,3 +214,37 @@ def test_a_refusal_still_reaches_the_button_when_the_box_is_where_it_was(
     assert box.button(QDialogButtonBox.Ok).isEnabled() is False
     assert box.button(QDialogButtonBox.Cancel).isEnabled() is True
     assert "count data" in dialog._notice.text()
+
+
+# --------------------------------------------------- the modal entry point
+
+def test_cancelling_the_dialog_starts_no_fit_and_accepting_returns_the_run(
+        monkeypatch, qtbot):
+    """:func:`ask_refit` is what the plot's context menu actually calls, and
+    it is the only place the user's Cancel is honoured. A re-fit is minutes of
+    compute writing a new results folder, so a cancelled dialog has to return
+    ``None`` -- not the settings it happened to be showing -- or the menu
+    would start the fit the user just declined and leave a folder they never
+    asked for beside their real results.
+
+    Accepting the same dialog on the same settings does return the new run,
+    which is what makes the ``None`` above a decision rather than a dead path.
+    """
+    def _cancel(self):
+        return rd.QDialog.Rejected
+
+    def _accept(self):
+        # Pick a model that differs from the run on screen, the way a user
+        # would before pressing "Re-fit".
+        _pick_type(self, "ridge")
+        return rd.QDialog.Accepted
+
+    monkeypatch.setattr(rd.RefitDialog, "exec", _cancel)
+    assert rd.ask_refit(dict(_RUNNABLE)) is None
+
+    monkeypatch.setattr(rd.RefitDialog, "exec", _accept)
+    settings, notes = rd.ask_refit(dict(_RUNNABLE))
+
+    assert settings["regression_type"] == "ridge"
+    assert settings["count_data"] == "/data/screen/counts.csv"
+    assert any("'ols' -> 'ridge'" in note for note in notes), notes

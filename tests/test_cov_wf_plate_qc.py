@@ -295,3 +295,197 @@ def test_a_ring_cap_of_zero_reports_no_rings_and_keeps_the_edge_test():
     # the cap's doing.
     assert "Ring profile" in pq.format_edge_report(
         pq.detect_edge_effect(frame, "value"))
+
+
+# ---------------------------------------------------------------------------
+# The measurement picker when nothing at all is plottable
+# ---------------------------------------------------------------------------
+
+def _one_measurement_db(path, values):
+    """A ``cell`` table with one identifier and one REAL measurement column.
+
+    ``values`` are written into ``area`` one row per well, so the same table
+    shape can be built once full of numbers and once full of NULLs.
+    """
+    con = sqlite3.connect(path)
+    try:
+        con.execute("CREATE TABLE cell (prc TEXT, area REAL)")
+        con.executemany(
+            "INSERT INTO cell VALUES (?, ?)",
+            [(f"plate1_r1_c{i + 1}", v) for i, v in enumerate(values)])
+        con.commit()
+    finally:
+        con.close()
+    return str(path)
+
+
+def test_a_table_whose_only_measurement_is_empty_offers_nothing_to_plot(tmp_path):
+    """A measure run that died after creating its tables leaves every feature
+    column in place and every row NULL. ``numeric_columns`` is what fills the
+    plate view's measurement dropdown, and the declared REAL affinity cannot
+    tell the two cases apart — only reading the rows can. If the empty column
+    were offered, the user would pick it, get a blank plate, and conclude the
+    plate failed rather than the run. An empty list is what lets the caller
+    say "this database holds no measurements yet".
+    """
+    empty = _one_measurement_db(tmp_path / "empty.db", [None] * 12)
+    written = _one_measurement_db(tmp_path / "written.db",
+                                  [10.0 * i for i in range(1, 13)])
+
+    assert pq.numeric_columns(empty, "cell") == []
+    # The identical table *with* numbers in it does offer the column, so the
+    # empty list above is the NULLs' doing and not a query that never matches.
+    assert pq.numeric_columns(written, "cell") == ["area"]
+    # The column exists in both databases — its contents, not the schema,
+    # decide whether it can be plotted.
+    assert pq.table_columns(empty, "cell") == ["prc", "area"]
+    assert pq.table_columns(empty, "cell") == pq.table_columns(written, "cell")
+
+
+# ---------------------------------------------------------------------------
+# Forced geometry larger than anything on the plate
+# ---------------------------------------------------------------------------
+
+def test_a_1536_plate_pipetted_in_a_384_footprint_keeps_its_real_edge():
+    """Screens routinely fill one 384-well quadrant footprint of a 1536 plate.
+    Inference sees a 16x24 extent and calls it a 384 plate, which puts row P
+    and column 24 on the outer ring — they are interior plastic, four rings
+    deep, and nothing evaporates there. Forcing 1536 has to accept the grid as
+    given without the "forced geometry is smaller than the data" warning: that
+    warning is the signal the user typed the wrong format, and it means
+    nothing if it also fires when the format fits.
+    """
+    frame = _long_frame(16, 24)
+
+    forced = pq.plate_layout(frame, "value", plate_format=1536)
+    inferred = pq.plate_layout(frame, "value")
+
+    assert forced.attrs["plate_format"] == 1536
+    assert (forced.attrs["n_rows"], forced.attrs["n_cols"]) == (32, 48)
+    assert not [n for n in forced.attrs["notes"] if "Forced" in n]
+    assert len(forced) == 16 * 24                      # the wells that exist
+    assert pq.layout_matrix(forced).shape == (32, 48)  # the grid they sit in
+
+    # P24 — the corner of the pipetted block — is 15 rings in on the real
+    # plate, and only row A / column 1 stay on the true outer ring.
+    corner = forced[(forced["row_index"] == 16) & (forced["column_index"] == 24)]
+    assert int(corner["ring"].iloc[0]) == 15
+    assert not bool(corner["is_edge"].iloc[0])
+    assert int(forced["is_edge"].sum()) == 24 + 16 - 1
+
+    # The contrast: left to infer, the same frame calls that corner an edge
+    # well and hands the edge test a ring made of interior plastic.
+    assert inferred.attrs["plate_format"] == 384
+    inferred_corner = inferred[(inferred["row_index"] == 16)
+                               & (inferred["column_index"] == 24)]
+    assert bool(inferred_corner["is_edge"].iloc[0])
+    assert int(inferred["is_edge"].sum()) == 2 * 16 + 2 * 24 - 4
+
+
+# ---------------------------------------------------------------------------
+# An interior median that cannot be computed
+# ---------------------------------------------------------------------------
+
+def _with_interior_infinities(n_rows=8, n_cols=12):
+    """The 8x12 frame with every *interior* object set to ``inf``.
+
+    The mirror image of ``_long_frame(edge_value=inf)``: here it is the group
+    the edge is measured *against* that has no median.
+    """
+    frame = _long_frame(n_rows, n_cols)
+    rc = frame["prc"].str.extract(r"_r(\d+)_c(\d+)$").astype(int)
+    rows, cols = rc[0].to_numpy(), rc[1].to_numpy()
+    ring = np.minimum.reduce([rows - 1, n_rows - rows, cols - 1, n_cols - cols])
+    frame.loc[ring >= 1, "value"] = float("inf")
+    return frame
+
+
+def test_an_infinite_interior_median_leaves_the_difference_undefined():
+    """The baseline the edge is compared against can be the poisoned one: a
+    single overflowing feature in the middle of the plate is enough. The edge
+    median is then a perfectly good number and the interior median is not, so
+    the *difference* is unknown. Reporting it as the edge median alone — or as
+    zero — would tell the user the ring matches an interior nobody measured.
+    The percentage has to stay undefined with it, since there is no baseline
+    to divide by.
+    """
+    report = pq.detect_edge_effect(_with_interior_infinities(), "value")
+
+    assert report.ok                          # both groups are populated
+    assert (report.n_edge_wells, report.n_interior_wells) == (36, 60)
+    assert report.edge_median == pytest.approx(100.0, abs=5.0)
+    assert report.interior_median is None     # inf is not a number to report
+    assert report.median_difference is None
+    assert report.pct_difference is None
+    # The rank test still answers: every interior well outranks every edge one.
+    assert report.cliffs_delta == pytest.approx(-1.0)
+
+    text = pq.format_edge_report(report)
+    _assert_no_nan_rendered(text)
+    assert "interior median     undefined" in text
+    assert "median difference   undefined" in text
+    assert "undetermined amount" in text
+    # And the edge median it *could* compute is still printed, so the report
+    # says which half of the comparison failed.
+    assert re.search(r"edge median\s+\d", text), text
+
+    # The contrast: a finite interior gives both medians and a real difference.
+    finite = pq.detect_edge_effect(_long_frame(8, 12, edge_boost=0.30), "value")
+    assert finite.interior_median == pytest.approx(100.0, abs=5.0)
+    assert finite.median_difference == pytest.approx(30.0, abs=8.0)
+
+
+# ---------------------------------------------------------------------------
+# How deep "the core" is
+# ---------------------------------------------------------------------------
+
+def test_a_deeper_core_reports_one_more_ring_before_the_profile_stops():
+    """The ring profile stops where the rings become the core it compares
+    against — past that point a ring would be tested against itself and every
+    row after it would read as "no difference" for arithmetic reasons rather
+    than biological ones. ``core_depth`` is therefore what decides how far the
+    table runs: at depth 3 the user gets ring 2 as a real comparison against
+    the innermost 12 wells, and at the default depth 2 that row is correctly
+    withheld.
+    """
+    frame = _long_frame(8, 12, edge_boost=0.30)
+
+    deep = pq.detect_edge_effect(frame, "value", core_depth=3)
+    default = pq.detect_edge_effect(frame, "value")
+
+    assert [r.ring for r in deep.rings] == [0, 1, 2]
+    assert [r.n_wells for r in deep.rings] == [36, 28, 20]
+    assert deep.rings[0].pct == pytest.approx(30.0, abs=8.0)
+    # Rings 1 and 2 are ordinary interior wells: no boost was applied there.
+    assert deep.rings[1].pct == pytest.approx(0.0, abs=5.0)
+    assert deep.rings[2].pct == pytest.approx(0.0, abs=5.0)
+    # The shallower default core swallows ring 2 rather than comparing it
+    # against wells it contains.
+    assert [r.ring for r in default.rings] == [0, 1]
+    # Neither depth changes the headline test.
+    assert deep.edge_detected and default.edge_detected
+    assert deep.pct_difference == pytest.approx(default.pct_difference)
+
+
+def test_a_core_deeper_than_the_plate_says_which_depth_it_fell_back_to():
+    """Asking for a core 5 rings in on a 96-well plate asks for wells that do
+    not exist — the deepest ring there is 3. Silently profiling against an
+    empty or two-well core would put statistics in the table computed from
+    almost nothing. The profile backs off to the deepest usable core and has
+    to say so, because "vs core" means something different afterwards.
+    """
+    frame = _long_frame(8, 12, edge_boost=0.30)
+
+    fallback = pq.detect_edge_effect(frame, "value", core_depth=5)
+
+    notes = [n for n in fallback.notes if "core" in n]
+    assert len(notes) == 1
+    assert "at least 5" in notes[0] and "depth >= 3" in notes[0]
+    # The table itself is still the full three rings outside that core.
+    assert [r.ring for r in fallback.rings] == [0, 1, 2]
+    assert [r.n_wells for r in fallback.rings] == [36, 28, 20]
+    assert fallback.rings[0].pct == pytest.approx(30.0, abs=8.0)
+    # A core the plate can supply produces no such note, so the note above is
+    # the impossible depth's doing.
+    assert not [n for n in pq.detect_edge_effect(
+        frame, "value", core_depth=3).notes if "core" in n]

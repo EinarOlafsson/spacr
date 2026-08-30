@@ -311,3 +311,155 @@ def test_an_object_box_left_over_from_a_removed_row_writes_nowhere(widget,
     assert widget.groups()[0].object_type == "pathogen"
     assert seen == [1]
     assert "pathogen" in OBJECT_TYPES
+
+
+# ---------------------------------------------------------------------------
+# The same three guards again, reached without touching the disk.
+#
+# Everything above builds its groups by running detect_inputs over real tifs,
+# so every one of those tests carries the whole detection heuristic, tifffile
+# and a tmp_path with it. The guards below are pure index arithmetic and do
+# not need any of that: these tests hand the widget the group dicts directly,
+# which is both the second supported shape of set_value and a route to the
+# guards that cannot be broken by a change in how folders are classified.
+# ---------------------------------------------------------------------------
+
+def _group_dict(key, role, object_type=None, count=1):
+    """One InputGroup as the mapping ``set_value`` accepts from a saved run."""
+    return {
+        "key": key,
+        "root": f"/data/{key}",
+        "paths": [f"/data/{key}/fov{n:03d}.tif" for n in range(1, count + 1)],
+        "role": role,
+        "object_type": object_type,
+        "confidence": 0.75,
+        "reason": f"restored {key}",
+    }
+
+
+def test_a_synthetic_row_with_no_source_cell_maps_to_no_group(widget):
+    """Rows outnumbering groups is a state the table really passes through.
+
+    ``_rebuild`` calls ``setRowCount`` first and fills the cells afterwards,
+    so between those two statements the table holds rows whose source cell
+    is still ``None``. "Remove selected" firing on such a row -- a queued
+    click, a selection restored by the settings page -- must resolve to no
+    group at all. If it resolved to its own row number instead, the widget
+    would delete whichever folder happened to sit at that index, and the
+    user would lose a mask folder they never selected from the run.
+    """
+    widget.set_value([_group_dict("images", "image", count=2),
+                      _group_dict("cells", "mask", "cell")])
+    undrawn = widget._table.rowCount()
+    widget._table.setRowCount(undrawn + 2)
+
+    assert widget._table.item(undrawn, 0) is None
+    assert widget._group_of_row(undrawn) == -1
+    assert widget._group_of_row(undrawn + 1) == -1
+    # The rows that were drawn still resolve, so this is a mapping failure
+    # and not a handler that has stopped answering.
+    assert [widget._group_of_row(row) for row in range(undrawn)] == [0, 1]
+
+    announced = []
+    widget.value_changed.connect(lambda: announced.append(1))
+    widget._table.clearSelection()
+    widget._table.selectRow(undrawn)
+    widget.remove_selected()
+
+    assert widget.group_count() == 2
+    assert announced == []
+    assert [group.key for group in widget.groups()] == ["images", "cells"]
+
+
+def test_a_role_arriving_for_a_row_past_the_end_changes_nothing(widget):
+    """A role box outlives its row, and its captured index outlives its group.
+
+    The lambda wired to each role box captures the row it was built for, and
+    Qt keeps that box alive after the table has shrunk under it. So
+    ``_role_changed`` is genuinely called with indices that no longer name a
+    group. Without the bounds check the very next statement is
+    ``self._groups[row].role = role`` -- an ``IndexError`` raised inside a Qt
+    slot, which in PySide6 takes down the settings page instead of surfacing
+    anywhere the user can act on.
+    """
+    widget.set_value([_group_dict("cells", "mask", "cell")])
+
+    announced = []
+    widget.value_changed.connect(lambda: announced.append(1))
+    widget._role_changed(4, "ignore")
+    widget._role_changed(-1, "ignore")
+
+    # Nothing was written and nothing was announced for either bad index ...
+    assert widget.groups()[0].role == "mask"
+    assert widget.groups()[0].object_type == "cell"
+    assert announced == []
+
+    # ... while the one row that does exist still writes through, so the
+    # guard is a bounds check rather than a handler that has stopped working.
+    widget._role_changed(0, "image")
+    assert widget.groups()[0].role == "image"
+    assert announced == [1]
+
+
+def test_a_role_still_lands_when_the_object_cell_holds_no_widget(widget):
+    """Greying the neighbouring box is a courtesy, not a precondition.
+
+    The object-type box lives in a cell the table owns and can tear down --
+    a rebuild, a sort, a removed row. ``_role_changed`` looks it up fresh
+    every time precisely because it may be gone by then. If the handler
+    assumed the box were always there it would raise ``AttributeError`` on
+    ``None.setEnabled`` and the user's choice of "image" would be dropped,
+    even though there was nothing wrong with the group itself.
+    """
+    widget.set_value([_group_dict("cells", "mask", "cell"),
+                      _group_dict("nuclei", "mask", "nucleus")])
+    widget._table.removeCellWidget(0, 3)
+    assert widget._table.cellWidget(0, 3) is None
+
+    announced = []
+    widget.value_changed.connect(lambda: announced.append(1))
+    widget._role_changed(0, "image")
+
+    assert widget.groups()[0].role == "image"
+    assert announced == [1]
+
+    # The row that still has its box gets it greyed out, so the skipped
+    # branch is doing real work whenever the cell is populated.
+    surviving = widget._table.cellWidget(1, 3)
+    assert surviving.isEnabled() is True
+    widget._role_changed(1, "ignore")
+    assert surviving.isEnabled() is False
+    assert [group.role for group in widget.groups()] == ["image", "ignore"]
+    # The ignored row drops out of the saved value; the row whose role
+    # landed without its box is still there to be run.
+    saved = widget.get_value()
+    assert [item["key"] for item in saved] == ["cells"]
+    assert saved[0]["role"] == "image"
+
+
+def test_an_object_type_arriving_for_a_row_past_the_end_changes_nothing(
+        widget):
+    """A stale object-type box must not relabel a group that is still live.
+
+    The object type decides which ``masks/<object>_mask_stack`` folder the
+    run writes, so a leftover box landing on whatever group now sits at its
+    captured index would silently retype the user's cell masks as nuclei --
+    and Measure would then extract nucleus features from cell outlines
+    without any complaint the user could notice.
+    """
+    widget.set_value([_group_dict("cells", "mask", "cell")])
+
+    announced = []
+    widget.value_changed.connect(lambda: announced.append(1))
+    widget._object_changed(3, "nucleus")
+    widget._object_changed(-2, "nucleus")
+
+    assert widget.groups()[0].object_type == "cell"
+    assert announced == []
+
+    # The live row accepts the same value, so the bad indices were refused
+    # for being out of range and not for naming an unknown object type.
+    widget._object_changed(0, "nucleus")
+    assert widget.groups()[0].object_type == "nucleus"
+    assert announced == [1]
+    assert "nucleus" in OBJECT_TYPES

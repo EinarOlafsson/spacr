@@ -17,6 +17,19 @@ of a guard that stands between the user and a crash or a lie:
 * an entry in ``matched`` that is **not a label of this mask** (0, a negative,
   or an id from the other model's mask) must colour nothing, because the one
   thing this preview promises is that teal means "has a partner".
+
+One arc in ``_on_worker_error_text`` is deliberately left open, because no
+input can close it: the *continue* side of ``if candidate.strip():``, which
+would need the scan-back loop to reject a line and go on to the next one. It
+never does. The loop reads ``reversed(str(tb).strip().splitlines())``, and not
+one of the characters ``splitlines()`` treats as a line boundary survives
+``strip()`` at the end of a string: line feed, carriage return, vertical tab,
+form feed, the four ASCII separators, NEL, and the two Unicode line/paragraph
+separators are all ``isspace()``. So a stripped traceback either is empty, and
+the body never runs (the blank-traceback test below), or it ends in a
+non-blank character, which puts a non-blank line first under ``reversed`` and
+breaks on iteration one. Checked by walking every Unicode code point, not
+argued from the ASCII ones.
 """
 from __future__ import annotations
 
@@ -180,6 +193,11 @@ def test_the_field_count_only_reloads_once_a_folder_has_been_chosen(
     assert len(screen.field_names()) == 1
     assert "Loaded 1 field(s)" in screen.status_text()
 
+    # The "no error yet" assertion above is worth something only if this
+    # screen can produce one at all: naming a folder that is not there does.
+    assert screen.set_source(fields + "_gone") is False
+    assert screen.last_error.startswith("Load failed: no such folder:")
+
 
 # ---------------------------------------------------------------------------
 # a report with no rows in it
@@ -260,16 +278,23 @@ def test_the_sweep_retires_the_stopped_job_and_keeps_the_running_one(
 # a worker traceback with nothing in it
 # ---------------------------------------------------------------------------
 
-def test_an_empty_worker_traceback_still_produces_a_sentence(screen):
+def test_an_empty_worker_traceback_still_produces_a_sentence(screen, fields):
     """A status line reading "Comparison failed:" tells the user nothing.
 
     The worker's ``error`` signal carries whatever text the failure produced,
-    and a process that died without unwinding Python — a segfaulting Cellpose
-    build, a killed CUDA context — emits blank. The screen scans back from the
-    end for the last line with anything on it; when there is no such line the
-    status has to fall back to a name for the failure rather than trailing off
-    mid-sentence, and it must still clear the stale table underneath it.
+    and a process that died without unwinding Python — a segfaulting
+    Cellpose build, a killed CUDA context — emits blank. The screen scans
+    back from the end for the last line with anything on it; when there is no
+    such line the status has to fall back to a name for the failure rather
+    than trailing off mid-sentence. Either way the numbers from the run before
+    have to go: a table of per-field ARIs left standing under "failed" reads
+    as the result of the run that just failed.
     """
+    screen.set_source(fields)
+    assert screen.compare() is True
+    assert len(screen.metric_rows()) == 3
+    assert screen.report().n_fields == 3
+
     screen._pending.append(({}, None, "comparison"))
     screen._on_worker_error_text(
         "Traceback (most recent call last):\n"
@@ -277,11 +302,12 @@ def test_an_empty_worker_traceback_still_produces_a_sentence(screen):
     assert screen.status_text() == (
         "Comparison failed: RuntimeError: cellpose is not installed")
     assert screen.last_error == screen.status_text()
-
-    screen._on_worker_error_text("  \n \n\t ")
-    assert screen.status_text() == "Comparison failed: unknown error"
     assert screen.metric_rows() == []
     assert screen.report() is None
+
+    # The same slot with nothing but whitespace on the wire: still a sentence.
+    screen._on_worker_error_text("  \n \n\t ")
+    assert screen.status_text() == "Comparison failed: unknown error"
 
 
 # ---------------------------------------------------------------------------

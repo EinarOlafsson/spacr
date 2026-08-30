@@ -172,3 +172,72 @@ def test_forgetting_the_filter_needs_no_application_to_take_it_off(
     owners_filter = glass._INSTALLED
     assert glass.uninstall_glass_everywhere() is True
     assert owner.removed == [owners_filter]
+
+
+def test_a_whole_messy_lifecycle_still_ends_on_one_filter_and_one_owner(
+        monkeypatch, caplog):
+    """The bookkeeping has to survive every seam in a single session.
+
+    The three cases above are each driven on their own, from a clean pair of
+    globals. A long-lived process does not get that: an embedded host that
+    reloads spaCR, swaps applications, and tears the last one down hits the
+    orphaned owner, the refusing owner and the absent application one after
+    another, each starting from the state the previous one left. If any of
+    them leaked -- an old filter kept while the owner was replaced, or an
+    owner kept after the filter was forgotten -- the next
+    ``install_glass_everywhere`` would see a matching pair, answer "already
+    installed", and hand the live application nothing. Every settings dialog
+    opened from then on paints its own black rectangle over the card, and
+    nothing raises to say so.
+    """
+    caplog.set_level(logging.DEBUG, logger="spacr.qt.glass")
+
+    first = _StandInApplication()
+    assert glass.install_glass_everywhere(first) is True
+    # An upgrade in place, or a module reload: the filter outlives the memory
+    # of who owns it.
+    glass._INSTALLED_APP = None
+
+    # No owner recorded, so there is nobody to take the old filter off and the
+    # successor is installed anyway.
+    second = _StandInApplication(refuse_removal=True)
+    assert glass.install_glass_everywhere(second) is True, \
+        "an orphaned filter must not veto the next application"
+    assert first.removed == [], \
+        "with the owner forgotten there is no application to remove it from"
+    assert second.installed == [glass._INSTALLED]
+
+    # Now the owner IS remembered, and refuses to give the filter back.
+    third = _StandInApplication()
+    assert glass.install_glass_everywhere(third) is True, \
+        "a refusal from the previous owner must not fail the new install"
+    assert "the old glass filter would not come off" in caplog.text, \
+        "the refusal is swallowed, so the debug line is the only record"
+    thirds_filter = glass._INSTALLED
+    assert third.installed == [thirds_filter]
+
+    # A cooperating owner does record the removal -- so both empty lists in
+    # this test are the seam under test and not a stand-in that never notices.
+    fourth = _StandInApplication()
+    assert glass.install_glass_everywhere(fourth) is True
+    assert third.removed == [thirds_filter], \
+        "a remembered, willing owner is the one the old filter comes off"
+
+    # Shutdown, with the application already gone and its ownership forgotten.
+    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
+    glass._INSTALLED_APP = None
+    assert glass.uninstall_glass_everywhere() is True, \
+        "a filter was registered, so the call reports that it forgot one"
+    assert fourth.removed == [], \
+        "no owner and no instance leaves no application to take it off"
+    assert glass._INSTALLED is None and glass._INSTALLED_APP is None, \
+        "the pair must end empty, or the next install is a false no-op"
+
+    # And the very next install still works from that emptied state.
+    fifth = _StandInApplication()
+    assert glass.install_glass_everywhere(fifth) is True, \
+        "an emptied pair must leave the next application installable"
+    assert fifth.installed == [glass._INSTALLED]
+    assert glass.uninstall_glass_everywhere() is True
+    assert fifth.removed == fifth.installed, \
+        "a remembered owner still gets the filter taken off at shutdown"
