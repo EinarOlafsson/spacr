@@ -30,7 +30,14 @@ concurrency:
 jobs:
   bump:
     name: Prepare repository version
-    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    # A force-push can make github.event.before unreachable from the new
+    # history.  It must never be mistaken for a setup.py version bump: the
+    # contributor-history rewrite demonstrated that this otherwise starts a
+    # release from an unchanged version.  A real release remains available
+    # through workflow_dispatch after any history operation.
+    if: >-
+      github.event_name != 'push' ||
+      (github.actor != 'github-actions[bot]' && github.event.forced != true)
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -82,6 +89,9 @@ jobs:
               )
           PY
               fi
+            else
+              echo "::notice::The pre-push setup.py is not reachable; refusing to infer a release from rewritten history."
+              release_required=false
             fi
           fi
           python packaging/release.py verify >/dev/null
