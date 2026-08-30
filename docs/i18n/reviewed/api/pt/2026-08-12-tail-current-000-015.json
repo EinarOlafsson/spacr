@@ -59,13 +59,6 @@
       "translation": "As regras fornecidas para ``QTabBar``/``QTabWidget::pane`` pintam ``P[\"surface\"]`` e ``P[\"surface_alt\"]`` — **hexadecimal bruto**. Assim, uma faixa de abas usada como conteúdo principal da interface (Avaliação do modelo de classificação, Histórico de execuções) permanecia como uma placa plana e opaca enquanto os cartões ao lado se tornavam transparentes com o controle deslizante."
     },
     {
-      "label": "spacr.qt.tutorial.engine.Narrator#1",
-      "source_sha256": "3b6cfc72d5054162ac9cdcee5f8e2637fd63c779db3d6f57843b0d86908ca0ea",
-      "source": "Uses the Piper CLI (already installed via pip install piper-tts). Voice model defaults to ~/.spacr/piper/en_US-lessac-medium.onnx but any Piper .onnx can be passed via `voice_model=`.",
-      "context": "Uses the Piper CLI installed with pip install piper-tts. The default voice is ~/.spacr/piper/en_US-lessac-medium.onnx; `voice_model=` accepts any Piper .onnx voice.",
-      "translation": "Usa a CLI do Piper instalada com pip install piper-tts. A voz padrão é ~/.spacr/piper/en_US-lessac-medium.onnx; `voice_model=` aceita qualquer voz .onnx do Piper."
-    },
-    {
       "label": "spacr.qt.widgets.activity_spinner#14",
       "source_sha256": "ff345edcda570289e90c6eb5a89bb7def6673b1a98f892750139a6fa57370345",
       "source": "So the widget waits :func:`spacr.qt.preferences.get_spinner_delay` seconds (default 2) before showing. The mechanism is a **delay, not a prediction**: :meth:`ActivitySpinner._sync` starts a single-shot timer the moment work begins and the spinner becomes visible only if :meth:`ActivitySpinner.is_busy` is *still* true when that timer fires. A job that finishes at 1.9 s cancels the timer on its way out and never puts anything on screen -- there is no estimate of duration anywhere in this file, and therefore nothing to be wrong about.",

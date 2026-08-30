@@ -38,13 +38,6 @@
       "translation": "Einlínu talnasamantekt forskoðunar: sýnisstöður á örplötu, sjónsvið og myndrásir."
     },
     {
-      "label": "spacr.qt.tutorial.engine.Recorder#1",
-      "source_sha256": "02e9e305e21197a0727a49879a4d586aca0da874443b3a007c2e2f0d3f2030c2",
-      "source": "The clean MainWindow pixmap is cached until a scripted action changes the UI. Each output frame copies that keyframe, then composites the spotlight, highlight ring, and synthetic cursor.",
-      "context": "The clean MainWindow pixmap is cached until a scripted action changes the UI. Each output frame copies that keyframe, then composites the spotlight, highlight ring, and synthetic cursor.",
-      "translation": "Hreint pixmap MainWindow er geymt þar til forskrifuð aðgerð breytir UI-viðmótinu. Hver úttaksrammi afritar lykilrammann og leggur síðan ofan á kastljós, áhersluhring og tilbúinn bendil."
-    },
-    {
       "label": "spacr.qt.widgets.dose_response#19",
       "source_sha256": "b12bc0004afe90e99a7abfc68303f554edb51688cdb120db00c70b7a9a4db97a",
       "source": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",

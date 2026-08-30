@@ -50,20 +50,6 @@
       "context": "the table to read. Its name is quoted as one SQLite identifier; a missing table throws :class:`sqlite3.OperationalError`.",
       "source_sha256": "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
       "translation": "la table à lire. Son nom est placé entre guillemets comme un identifiant SQLite unique ; si la table est absente, :class:`sqlite3.OperationalError` est levée."
-    },
-    {
-      "label": "spacr.resources.home.versions._generators.common.repo_root#0",
-      "source": "Return the absolute spaCR checkout root.",
-      "context": "Return the absolute spaCR checkout root.",
-      "source_sha256": "8fb0958547026c1b54796c6e86c445ed5d792183eca12e8d74ebe7cefce0a27e",
-      "translation": "Renvoie le répertoire racine absolu du checkout spaCR."
-    },
-    {
-      "label": "spacr.resources.home.versions._generators.common.repo_root#1",
-      "source": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
-      "context": "The path is derived from this module's installed location and is independent of the configurable Home render-output directory.",
-      "source_sha256": "f6594b71a1b74a7dcdc70576dbed1e20d2363ab00d13d11ca72c40c996a9419c",
-      "translation": "Le chemin est déterminé à partir de l’emplacement d’installation de ce module et ne dépend pas du répertoire configurable de sortie du rendu Home."
     }
   ]
 }

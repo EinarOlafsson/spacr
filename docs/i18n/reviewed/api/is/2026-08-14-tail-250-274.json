@@ -16,13 +16,6 @@
       "translation": "þegar staðfesting fann villur og ``force`` er False — með *hverri* vandamáli í skilaboðunum, ekki bara fyrsta."
     },
     {
-      "context": "QApplication.setStyleSheet re-polishes EVERY top-level widget. Inside pytest-qt the application is shared, so widgets belonging to other tests -- including ones mid-teardown whose C++ side is already gone -- get re-polished, and the process SEGFAULTS. That is what took the tests/qt suite down here, and it is the same trap the theme work hit with QApplication.topLevelWidgets().",
-      "label": "spacr.resources.home.versions._generators.common.Ctx.apply_theme#1",
-      "source": "QApplication.setStyleSheet re-polishes EVERY top-level widget. Inside pytest-qt the application is shared, so widgets belonging to other tests -- including ones mid-teardown whose C++ side is already gone -- get re-polished, and the process SEGFAULTS. That is what took the tests/qt suite down here, and it is the same trap the theme work hit with QApplication.topLevelWidgets().",
-      "source_sha256": "79d3c1abfe2543f0085109e9e54d1dc8908448f180cfa4013d1bcc40281a43cf",
-      "translation": "QApplication.setStyleSheet endur-púlsar ALLA efstu stigs widgets. Inní pytest-qt er forritið deilt, svo græjur sem tilheyra öðrum prófum -- þar á meðal þeirra sem eru í miðri niðurrifferli þar sem C++ hliðin er þegar horfin -- geta verið endurpússað, og ferlið SEGFAULTS. Það er það sem tók prófin/qt safnið niður hér, og það er sama gildran sem þemavinnan lenti í með QApplication.topLevelWidgets()."
-    },
-    {
       "context": "Colour (fixed, or a random hue per column), speed, visibility and font size, all live. They are **not** on the application view: they live in a popover behind a ``DNA`` button beside the ``AI`` toggle — see :mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar` is the panel itself, which lays out either as that popover's grid or as the original single row.",
       "label": "spacr.qt.widgets.dna_rain#16",
       "source": "Colour (fixed, or a random hue per column), speed, visibility and font size, all live. They are **not** on the screen: they live in a popover behind a ``DNA`` button beside the ``AI`` toggle — see :mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar` is the panel itself, which lays out either as that popover's grid or as the original single row.",

@@ -79,13 +79,6 @@
       "translation": "Lögunarmatrísin sem endurþjálfun innan forritsins passar á. Mæligögn frekar en pixla með ásetningi: tilgangurinn með því að endurþjálfa innan Annotate er að fá ferska röðun á sekúndum, á vélinni þar sem merkingarmaðurinn situr, án GPU og án þess að yfirgefa sýn forritsins. CNN endurþjálfun er rétt aðgerð við *enda* lykkjunnar, ekki á milli tveggja pagina af unnum myndasvæðum."
     },
     {
-      "context": "Order is fixed: nucleus, cell, pathogen, organelle (drops any that are None or absent). Uses the same C-axis convention that ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows end-to-end through v2 unchanged.",
-      "label": "spacr._v1_v2_bridge.v2_channels_from_settings#1",
-      "source": "Order is fixed: nucleus, cell, pathogen, organelle (drops any that are None or absent). Uses the same C-axis convention that ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows end-to-end through v2 unchanged.",
-      "source_sha256": "cb8f80df83ccf4e23deb34ab9120ee0df0c32b8008cc623c8d4372c410387783",
-      "translation": "Röð er föst: kjarni, fruma, sýkill, frumulíffæri (sleppir öllum sem eru None eða fjarverandi). Notar sama C-ás samviseinu og ``spacr.qt.synthetic.CHANNEL_LAYOUT`` notar svo sýnidata flæðir óbreytt í gegnum v2 frá upphafi til enda."
-    },
-    {
       "context": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",
       "label": "spacr.qt.space.sample_star_fluxes#2",
       "source": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",

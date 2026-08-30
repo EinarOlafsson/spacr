@@ -86,13 +86,6 @@
       "translation": "Fylkið er opnað með ``mmap_mode='r'``: að skera einn hlut les lag myndarinnar sem táknar hlutarhlutinn einu sinni (skýmt) og síðan aðeins útdrættið myndarými glugga, aldrei allt smásjársviðið. Smásjársvið 2048x2048x5 uint16 er 40 MB; að materialísera það fyrir hvern hlut myndi gera beiðnirit ristina hægari en PNG möppuna sem hún kemur í staðinn."
     },
     {
-      "context": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
-      "label": "spacr.qt.tutorial.engine#2",
-      "source": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
-      "source_sha256": "9e4fcda7a23c67f193054e37680fb9f0bb17a561b9020096d46ffe5265db86c2",
-      "translation": "1. Sameina frásögn hvers skrefs í gegnum Piper → WAV, vita lengd 2. Ræsdu MainWindow (á raunverulegu SKJÁ eða undir Xvfb) í 1920x1080 3. Fara í gegnum skrefin, taka hreina skjámynd aðeins þegar handritað aðgerð breytir UI. Búðu til 30 röframma á sekúndu myndskeið úr þeim geymdu lykilrammum á meðan hringlaga fókusmerki hreyfist að markinu og leitt ljós dregur úr birtu annars en á valið viðmótseiningu. Skref getur valið að taka lifandi upptöku þegar appið sjálft er raunverulega þróað. 4. Sameina öll skref WAV → í eina hljóðrás 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Framleiða samsvarandi .srt aukaskrá"
-    },
-    {
       "context": "``binary`` 1 when the object is inside EVERY chosen data-selection boundary, 0 otherwise. The intersection, because that is what \"annotate based on all the data-selection boundaries\" means when the answer has to be one column. ``multiclass`` one class per observed combination of memberships. Only combinations that actually occur become classes -- enumerating all 2^n would offer classes with no objects in them, which no machine-learning classification model can learn and every class-balance report would then have to explain.",
       "label": "spacr.filters.annotate_from_gates#1",
       "source": "``binary`` 1 when the object is inside EVERY chosen gate, 0 otherwise. The intersection, because that is what \"annotate based on all the gates\" means when the answer has to be one column. ``multiclass`` one class per observed combination of memberships. Only combinations that actually occur become classes -- enumerating all 2^n would offer classes with no objects in them, which no classifier can learn and every class-balance report would then have to explain.",
@@ -140,13 +133,6 @@
       "source": "Only the fields below and the honoured keys of :attr:`extra` reach ``CellposeModel.eval``. Anything in :attr:`extra` that Cellpose 4 ignores is kept, reported and *not* passed on, so it shows up in the report as the no-op it is instead of quietly making two runs look identical.",
       "source_sha256": "f9362a8709630c63476a675513dab3462e1e6c4003023660ab12adf8f53b610e",
       "translation": "Aðeins reitirnir hér að neðan og virðulegu nöfnin á uppbyggðum gögnum :attr:`extra` ná til ``CellposeModel.eval``. Allt í :attr:`extra` sem Cellpose 4 hunsar er varðveitt, skráð og *ekki* áfram sent, þannig að það kemur fram í skýrslunni sem engin aðgerð sem það er í stað þess að láta tvo keyrslur líta út eins án þess að segja frá."
-    },
-    {
-      "context": "A stylesheet set on a widget cascades to its children, so styling the root being rendered is equivalent for our purposes and touches nothing else. The application-wide path is used only when bootstrap() created the application, i.e. in the standalone generator.",
-      "label": "spacr.resources.home.versions._generators.common.Ctx.apply_theme#2",
-      "source": "A stylesheet set on a widget cascades to its children, so styling the root being rendered is equivalent for our purposes and touches nothing else. The application-wide path is used only when bootstrap() created the application, i.e. in the standalone generator.",
-      "source_sha256": "c1b2518edd6ff9556d8353fa1044a74d6fb3abf8fc116a22aac2b1431aa432f9",
-      "translation": "Stílsnið sett á viðmótsefni flæðir niður til barna þess, svo stíll á rót sem er renderaður er jafngildur fyrir okkar tilgangi og snertir ekkert annað. Helsti leiðin til forritsins er aðeins notuð þegar bootstrap() bjó til forritið, þ.e. í sjálfstæða framleiðanda."
     }
   ],
   "schema": 1
