@@ -56,6 +56,8 @@ def test_opening_classify_does_not_import_its_operation_stack():
         from spacr.qt.app import MainWindow
         app = QApplication.instance() or QApplication([])
         win = MainWindow()
+        win.show()
+        app.processEvents()
         win._on_nav_selected('classify_merged')
         app.processEvents()
         forbidden = {{
@@ -64,7 +66,11 @@ def test_opening_classify_does_not_import_its_operation_stack():
         }}
         imported = sorted(forbidden.intersection(sys.modules))
         win.close()
-        assert not imported, imported
+        app.processEvents()
+        from spacr.qt.job_runner import shutdown_all
+        shutdown_all()
+        if imported:
+            raise AssertionError(imported)
         """
     )
     env = os.environ.copy()

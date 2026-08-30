@@ -176,7 +176,7 @@ class JobRunner(QObject):
         thread, worker = make_thread(
             lambda payload, _fn=fn: _capture(_fn, payload), box,
             app_key=self._app_key, journal=False,
-            user_visible=self._user_visible)
+            user_visible=self._user_visible, capture_figures=False)
         # Strong references. PySide6 does not keep the worker alive through
         # the started->run connection alone, and a collected worker means the
         # thread spins forever without ever calling run().
