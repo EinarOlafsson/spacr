@@ -29,7 +29,7 @@ pytest.importorskip("pytestqt")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import (                                  # noqa: E402
-    QFormLayout, QLabel, QLineEdit, QWidget,
+    QLabel, QLineEdit, QWidget,
 )
 
 from spacr.qt.screens import app_screen as aps                   # noqa: E402
@@ -49,7 +49,7 @@ def _console_text(console) -> str:
 
 @pytest.fixture
 def screen(qtbot):
-    """A regression screen -- the module with results, figures and a volcano."""
+    """A regression screen: results, figures and the live volcano."""
     widget = AppScreen("regression")
     try:
         yield widget
@@ -485,7 +485,6 @@ class TestRebuildingTheForm:
         screen._rebuild_the_form()
 
         assert len(asked) == 1
-
 
 
 # -- the settings the run has no object for, and the rows that wait ----------
@@ -940,7 +939,7 @@ class TestOpeningTheHeadingsAbove:
 class TestTheTablesTheAdvisorReads:
 
     def test_a_plate_row_naming_only_a_score_contributes_only_a_score(self):
-        """Half-filled rows are ordinary: the count arrives with the next drop."""
+        """Half-filled rows are ordinary: the count arrives next."""
         counts, scores = AppScreen._tables_for_the_advisor({
             "paired_data": [
                 {"score": "plate1_dv.csv"},
@@ -962,7 +961,7 @@ class TestTheTablesTheAdvisorReads:
         assert scores == ["old_scores.csv"]
 
 
-# -- folding the console away --------------------------------------------------
+# -- folding the console away -------------------------------------------------
 
 class _OnePaneSplitter:
     """A splitter holding the console and nothing else.
@@ -1208,7 +1207,7 @@ class TestLoadingTheExampleImages:
 
     def test_with_no_downloader_named_the_real_one_is_reached_for(
             self, screen, monkeypatch, tmp_path):
-        """``ask`` exists for tests; the button passes nothing and gets this."""
+        """``ask`` exists for tests; the button passes nothing."""
         from spacr.qt import hf_download
 
         self._point_at(screen, monkeypatch, tmp_path)
@@ -1504,7 +1503,8 @@ class TestWhereTheMergedMeasurementsGo:
         monkeypatch.setattr(
             screen, "_attached_database_rows",
             lambda: [{"database": ""},
-                     {"database": "/proj/plate1/measurements/measurements.db"}])
+                     {"database":
+                      "/proj/plate1/measurements/measurements.db"}])
 
         assert screen._measurements_destination() == os.path.join(
             "/proj/plate1", "measurements")
@@ -1557,7 +1557,7 @@ class TestForgettingARemovedRun:
         assert dropped == ["run 2"]
 
 
-# -- the sweep's effects grid --------------------------------------------------
+# -- the sweep's effects grid -------------------------------------------------
 
 class TestTheEffectsGrid:
 
@@ -1618,7 +1618,7 @@ class TestTheScreenFoldersAboveARun:
                 os.path.join("/data", "screen")]
 
 
-# -- the publication sheet ------------------------------------------------------
+# -- the publication sheet ----------------------------------------------------
 
 class _Sheet:
     def __init__(self, figure, skipped):
@@ -1678,7 +1678,7 @@ class TestThePublicationSheet:
         assert "QQ not shown (no residuals)" in _console_text(screen._console)
 
 
-# -- the grid of a trial's saved figures ---------------------------------------
+# -- the grid of a trial's saved figures --------------------------------------
 
 def _write_png(path, colour="red"):
     from PySide6.QtGui import QColor, QPixmap
@@ -1898,8 +1898,8 @@ class TestMigratingTheControlWells:
         monkeypatch.setattr(
             classify_classes, "normalize_settings",
             lambda settings: dict(settings, classes=[["A1"], ["B2"]]))
-        assert screen._migrate_control_wells(old)["classes"] == [["A1"],
-                                                                ["B2"]]
+        migrated = screen._migrate_control_wells(old)
+        assert migrated["classes"] == [["A1"], ["B2"]]
 
         def refusing(_settings):
             raise ValueError("a well name that is not a well")
@@ -2051,3 +2051,49 @@ class TestTheUmapGpuSwitch:
 
         assert switch.isChecked() is True
         assert recorded == [("gpu", True)]
+
+
+# -- five branches nothing can drive, and why ---------------------------------
+#
+# Each of these is a defensive re-check placed after a call that has already
+# guaranteed the condition, so no input reaches the other arm. They are left
+# in the source unmarked: none is dead weight, and a `# pragma: no cover` on
+# any of them would hide the day one of the guarantees below stops holding.
+#
+# 1. `_lay_out_one_waiting_row`, "the taken row has no field" and "the taken
+#    row has no label" (`if field_item is None` / `if label_item is None`).
+#    The row it takes back is `form.takeRow(form.rowCount() - 1)`, and the
+#    statement immediately before it is `self._lay_out_setting_row(...)`,
+#    whose only exit is `Section.add_row(lbl_widget, widget, wrap_label=True)`
+#    -> `QFormLayout.addRow(form_label, widget)` -- a two-item row appended at
+#    the end. `_lay_out_setting_row` contains no `return`, no `raise` and no
+#    `try`, and `_attach_column_picker`, the last thing it calls, only
+#    `replaceWidget`s the field in place. So the last row is always a labelled
+#    row holding a field.
+#
+# 2. `_build_runtime_panel`, "this module's preview card is missing"
+#    (`if getattr(self, card_attr, None) is not None`). Every key in
+#    `preview_controls` -- mask, timelapse, motility, measure -- has an
+#    `elif self.app_key == ...` arm earlier in the SAME method that assigns
+#    the card and passes it straight to `QSplitter.addWidget`, which raises on
+#    None. A screen that reaches the check therefore has its card.
+#
+# 3. `_build_runtime_panel`, "the figure queue cannot be clicked"
+#    (`if queue is not None and hasattr(queue, "figure_clicked")`).
+#    `self._figure_queue = FigureQueue(...)` runs earlier in the same method,
+#    and `figure_clicked` is a class-level `Signal` on `FigureQueue`.
+#
+# 4. `apply_settings_dict`, "there is no model to mark as applying"
+#    (`if model is not None: model._applying_settings = True`). The false arm
+#    falls into `_apply_each_setting`, which dereferences
+#    `self._settings_model._widgets` and calls
+#    `self._settings_model._refresh_contextual_widgets()` unconditionally --
+#    so a screen with no model raises `AttributeError` on the next statement
+#    rather than completing the apply. Nothing can take that arm and return.
+#
+# 5. `_show_publication_sheet`, the `from spacr.figures import build_sheet`
+#    fallback. The line it guards is `from ...figures import build_sheet`, and
+#    a relative import is resolved against this module's `__package__`
+#    ("spacr.qt.screens"), so both spellings name `spacr.figures`. The
+#    fallback can only run when the first raises, and then it raises
+#    identically.
