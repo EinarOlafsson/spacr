@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, List, Mapping, Optional, Tuple
 
 LOG = logging.getLogger("spacr.model_check")
 
@@ -171,10 +171,20 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
             problems=("no model is chosen: set model_type, or point "
                       "custom_model_path at a saved model",))
 
-    wanted_classes = expected_classes(settings)
-    wanted_channels = expected_channels(settings)
     problems: List[str] = []
     notes: List[str] = []
+    classes_problem = False
+    try:
+        wanted_classes = expected_classes(settings)
+    except ValueError as exc:
+        # ``class_names`` raises ClassDefinitionError (a ValueError) when the
+        # Classes editor has written an incomplete rule.  This checker is a
+        # click-time diagnostic, so that user error belongs in its report,
+        # not on the Qt event loop as an exception.
+        wanted_classes = None
+        classes_problem = True
+        problems.append(f"the classes setting is invalid: {exc}")
+    wanted_channels = expected_channels(settings)
     head: Optional[int] = None
 
     if kind == "custom":
@@ -182,15 +192,20 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
         try:
             model = _load_custom(name)
         except ValueError as exc:
+            problems.append(str(exc))
             return ModelReport(ok=False, source=os.path.basename(name),
-                               problems=(str(exc),),
+                               problems=tuple(problems),
                                classes=wanted_classes,
                                channels=wanted_channels)
         except ImportError:
+            problems.append(
+                "PyTorch is not installed in this environment, so a saved "
+                "model cannot be checked")
             return ModelReport(
                 ok=False, source=os.path.basename(name),
-                problems=("PyTorch is not installed in this environment, so a "
-                          "saved model cannot be checked",))
+                problems=tuple(problems),
+                classes=wanted_classes,
+                channels=wanted_channels)
         head = _head_size(model)
     else:
         known = _known_builtin_models()
@@ -200,9 +215,10 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
                 f"{', '.join(sorted(known)[:8])}…")
 
     if wanted_classes is None:
-        problems.append(
-            "no classes are defined, so the model's output cannot be checked; "
-            "set the Classes dict")
+        if not classes_problem:
+            problems.append(
+                "no classes are defined, so the model's output cannot be "
+                "checked; set the Classes dict")
     elif wanted_classes < 2:
         problems.append(
             f"only {wanted_classes} class is defined; a classifier needs two")

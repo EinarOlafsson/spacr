@@ -133,10 +133,6 @@ def test_no_model_at_all_names_both_settings_that_would_fix_it():
     assert "custom_model_path" in report.problems[0]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "model_check.py:87 calls class_names, which raises ClassDefinitionError "
-    "for a malformed classes dict; check_model is documented (line 141) to "
-    "never raise because it runs from a click"))
 def test_a_malformed_classes_dict_is_reported_not_raised():
     """A dialog that crashes the screen is a worse answer than a sentence.
 
@@ -146,7 +142,31 @@ def test_a_malformed_classes_dict_is_reported_not_raised():
     """
     report = MC.check_model({"model_type": "resnet50", "classes": {"a": 1}})
     assert report.ok is False
-    assert any("classes" in problem for problem in report.problems)
+    assert report.classes is None
+    assert report.problems == (
+        "the classes setting is invalid: class 'a' is defined as 1; it needs "
+        "a column and a value, or random_complement",
+    )
+    assert "no classes are defined" not in report.summary()
+
+
+def test_a_bad_custom_file_does_not_hide_the_malformed_classes_problem(
+        tmp_path, monkeypatch):
+    """Independent input defects are both useful; neither should win."""
+    path = tmp_path / "broken.pth"
+    path.write_bytes(b"not a model")
+
+    def refuse_model(_path):
+        raise ValueError("this file is not a saved model")
+
+    monkeypatch.setattr(MC, "_load_custom", refuse_model)
+    report = MC.check_model({"custom_model_path": str(path),
+                             "classes": {"a": 1}})
+
+    assert report.source == "broken.pth"
+    assert len(report.problems) == 2
+    assert report.problems[0].startswith("the classes setting is invalid:")
+    assert report.problems[1] == "this file is not a saved model"
 
 
 def test_a_saved_model_is_checked_against_the_classes_that_were_chosen(tmp_path):
