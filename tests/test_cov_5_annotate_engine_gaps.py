@@ -238,3 +238,111 @@ def test_a_writer_told_to_stop_while_idle_leaves_no_thread_behind(tmp_path):
 
     assert writer.is_alive is False, "the writer outlived its terminate flag"
     writer.stop(wait=True)
+
+
+# ---------------------------------------------------------------------------
+# reading the numbers a filter box holds
+# ---------------------------------------------------------------------------
+
+def test_a_bound_that_is_not_a_finite_number_is_no_bound_at_all():
+    """NaN reaches here from an empty spin box and from a float('nan') setting.
+
+    ``None`` means "no limit". NaN would be carried into the comparison
+    instead, and every comparison with NaN is False -- so a NaN lower bound
+    silently rejects EVERY object rather than accepting them all, and an
+    annotator shows an empty grid with no explanation.
+    """
+    from spacr.qt.annotate_engine import filter_bound
+
+    assert filter_bound(float("nan")) is None
+    assert filter_bound(None) is None
+    assert filter_bound("") is None
+    assert filter_bound("not a number") is None
+    # ...and a real bound survives, so the four refusals mean something.
+    assert filter_bound("12.5") == 12.5
+    assert filter_bound(3) == 3.0
+
+
+def test_a_filter_for_a_channel_that_does_not_exist_is_ignored():
+    """Settings outlive the form that wrote them.
+
+    A saved filter naming a channel this run has not got must be dropped
+    rather than added -- an unknown key in the bounds map is read later as a
+    filter nothing can satisfy.
+    """
+    from spacr.qt.annotate_engine import (empty_object_filters,
+                                          normalize_object_filters)
+
+    bounds = normalize_object_filters(
+        {"a_channel_that_was_never_defined": (1, 2)})
+
+    assert bounds == empty_object_filters()
+
+
+def test_a_filter_whose_value_is_not_a_pair_is_ignored():
+    """A settings file can hold a single number where a pair belongs.
+
+    Unpacking it raises, and the honest response is to leave that filter
+    unset -- taking the run down because one saved bound was written by an
+    older spaCR would make the settings file a liability.
+    """
+    from spacr.qt.annotate_engine import (FILTER_CHANNELS, filter_key,
+                                          normalize_object_filters)
+
+    key = filter_key(FILTER_CHANNELS[0], "area")
+
+    for broken in (5, None, (1, 2, 3), object()):
+        bounds = normalize_object_filters({key: broken})
+        assert bounds[key] == (None, None), f"{broken!r} was accepted"
+
+    # NOT a refusal, and worth pinning so nobody "fixes" it by accident: a
+    # two-character string DOES unpack, so "12" is read as the pair
+    # ("1", "2"). It is legal Python and it is what the settings file would
+    # have to contain for it to matter.
+    assert normalize_object_filters({key: "12"})[key] == (1.0, 2.0)
+
+    # A real pair still lands.
+    bounds = normalize_object_filters({key: (10, 200)})
+    assert bounds[key] == (10.0, 200.0)
+
+
+# ---------------------------------------------------------------------------
+# the image-type expression
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("expression", ["", "   ", None])
+def test_an_empty_image_filter_selects_everything(expression):
+    """No expression is not an expression that matches nothing.
+
+    ``("", [])`` is the caller's signal to add no WHERE clause at all. A
+    filter that matched nothing would show an empty annotator for a run whose
+    filter box the user simply never touched.
+    """
+    from spacr.qt.annotate_engine import parse_image_type
+
+    assert parse_image_type(expression) == ("", [])
+
+
+def test_punctuation_left_in_the_box_is_a_filter_not_an_error():
+    """The tokeniser keeps anything that is not whitespace.
+
+    A box holding a stray comma is read as a literal to match on, which finds
+    nothing and says so by showing nothing -- rather than raising a syntax
+    message about a character the user did not mean to type. Pinned because
+    it is the reason `if not tokens` below it can never fire: whitespace-only
+    text is already gone by then, and everything else produces a token.
+    """
+    from spacr.qt.annotate_engine import parse_image_type
+
+    sql, params = parse_image_type("   ,,,   ")
+
+    assert sql and params == ["%,,,%"]
+
+
+def test_a_real_expression_still_produces_a_clause():
+    """Otherwise the three empty cases prove nothing."""
+    from spacr.qt.annotate_engine import parse_image_type
+
+    sql, params = parse_image_type("nucleus")
+
+    assert sql and params
