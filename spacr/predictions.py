@@ -571,6 +571,9 @@ def _choose_key(results: pd.DataFrame, db_frame: pd.DataFrame,
 class MergeReport:
     """What one merge did, in numbers.
 
+    :ivar table: database table into which prediction results were merged.
+    :ivar key: join-key strategy selected for the merge.
+
     Returned by :func:`merge_prediction_results` and printed by it. Every
     count is here because a merge that matched three rows of forty thousand
     used to be indistinguishable from one that matched all of them.

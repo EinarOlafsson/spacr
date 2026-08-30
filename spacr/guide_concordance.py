@@ -151,6 +151,9 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
 def annotate_results(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
     """``results`` with the guide-support columns joined on.
 
+    :param results: result rows whose features are to be annotated with
+        per-gene guide support.
+
     Returned as a copy: a diagnostic must not quietly rewrite the table the
     caller is about to save.
     """
@@ -168,6 +171,8 @@ def annotate_results(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame
 def flag_single_guide_hits(results: pd.DataFrame, alpha: float = 0.05,
                            p_column: str = "p_value") -> pd.DataFrame:
     """Hits whose evidence is one guide. Ranked as the table ranks them.
+
+    :param results: result rows from which per-gene guide support is computed.
 
     These are not necessarily false -- a single guide can be the only one that
     cut -- but they are a different claim from a gene whose guides agree, and

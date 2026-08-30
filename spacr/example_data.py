@@ -97,6 +97,10 @@ def _digest(path) -> str:
 def is_whole(path, entry) -> bool:
     """Return whether a file matches one manifest entry.
 
+    :param path: file whose size and SHA-256 digest are to be checked.
+    :param entry: manifest mapping containing the expected ``bytes`` and
+        ``sha256`` values.
+
     The inexpensive size check runs before the SHA-256 digest is calculated.
     """
     try:

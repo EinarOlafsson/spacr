@@ -404,6 +404,9 @@ def module_states(root: Any, *, modules: Sequence[str] = (),
 def looks_like_project(root: Any) -> bool:
     """Whether a folder is a spaCR project, judged without the registry.
 
+    :param root: folder to inspect for registry, artifact, input, or output
+        evidence of a spaCR project.
+
     True when a registry file sits in it, or when any declared *output* of any
     producing module is on disk, or when the mask pipeline's declared *input*
     finds raw images there. That last clause is what makes a plate folder
@@ -908,7 +911,10 @@ def format_project(summary: ProjectSummary, *, limit: int = 6) -> str:
 
 
 def format_projects(summaries: Sequence[ProjectSummary]) -> str:
-    """Render a whole browse as a table, one row per project."""
+    """Render a whole browse as a table, one row per project.
+
+    :param summaries: project summaries to render in their existing order.
+    """
     if not summaries:
         return "No projects found."
     rows = [("Project", "Stage", "Size", "Last run", "State", "Note")]

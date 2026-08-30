@@ -81,6 +81,7 @@ def table() -> Dict[str, str]:
 def of(frame, *, key_column: str = "feature"):
     """The compartment of each row of ``frame``, as a Series aligned to it.
 
+    :param frame: result frame whose feature identifiers are to be looked up.
     :returns: a pandas Series of compartment names, empty string where the
         gene is not in the table.
 
@@ -103,6 +104,9 @@ def of(frame, *, key_column: str = "feature"):
 def present(frame, *, key_column: str = "feature",
             minimum: int = MIN_GENES) -> List[str]:
     """The compartments this screen actually has, commonest first.
+
+    :param frame: result frame whose represented compartments are to be
+        counted.
 
     NOT ALL 27. A menu listing every compartment in the reference table
     offers the user 22 choices that would colour nothing, and a choice that

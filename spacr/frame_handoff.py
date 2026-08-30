@@ -97,6 +97,8 @@ def hold(path: Any, frame: pd.DataFrame) -> str:
 def held(path: Any) -> Optional[pd.DataFrame]:
     """The frame offered for ``path``, or ``None`` when there is none.
 
+    :param path: filesystem path whose in-memory offer is requested.
+
     ``None`` is not a failure: it means the reader should read the file, which
     is what it would have done anyway.
     """
@@ -110,6 +112,8 @@ def held(path: Any) -> Optional[pd.DataFrame]:
 
 def describe(path: Any) -> str:
     """One line naming what was handed over for ``path``, for a log.
+
+    :param path: filesystem path whose in-memory offer is to be described.
 
     Empty when nothing was offered, so a caller can print it unconditionally
     and say nothing when there is nothing to say.

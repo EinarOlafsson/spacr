@@ -197,6 +197,8 @@ def animations_by_setting() -> Mapping[str, SettingAnimation]:
 def animation_for_setting(setting_key: str) -> Optional[SettingAnimation]:
     """Return the animation mapped to ``setting_key``, if one exists.
 
+    :param setting_key: exact, case-sensitive settings key to look up.
+
     Matching is deliberately exact and case-sensitive so similarly named
     scientific settings cannot accidentally display misleading help.
     """
@@ -204,7 +206,10 @@ def animation_for_setting(setting_key: str) -> Optional[SettingAnimation]:
 
 
 def animation_path_for_setting(setting_key: str) -> Optional[Path]:
-    """Return the installed GIF path for ``setting_key``, if available."""
+    """Return the installed GIF path for ``setting_key``, if available.
+
+    :param setting_key: exact settings key whose animation path is requested.
+    """
     animation = animation_for_setting(setting_key)
     return animation.path if animation is not None else None
 
