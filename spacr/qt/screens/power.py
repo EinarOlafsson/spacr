@@ -755,6 +755,37 @@ class PowerScreen(QWidget):
         form.addRow(self._cost_note)
         layout.addWidget(run)
 
+        # This is a hand-built form, but these are still ordinary registered
+        # settings.  Carry the same semantic identity as SettingsWidgets so
+        # the post-construction tooltip pass can use the source-hashed
+        # SETTING_TOOLTIPS catalog and a later language switch can rebuild the
+        # help.  Without these properties retarget_field_tooltips merely moved
+        # the authored English string from editor to label; all nine locale
+        # translations existed in the catalog and none could reach this form.
+        self._setting_fields = {
+            "power_n_genes": self._genes,
+            "power_n_grnas_per_gene": self._grnas,
+            "power_score_per": self._score_per,
+            "power_cells_per_well": self._cells,
+            "power_wells_per_plate": self._plate_format,
+            "power_n_plates": self._plates,
+            "power_constructs_per_well": self._constructs,
+            "power_background_positive_rate": self._background,
+            "power_effect_fold": self._effect,
+            "power_hit_rate": self._prevalence,
+            "power_reads_per_well": self._reads,
+            "power_n_replicates": self._replicates,
+            "power_detection_auroc": self._threshold,
+            "power_seed": self._seed,
+            "power_backend": self._backend,
+        }
+        for key, field in self._setting_fields.items():
+            source = _setting_tooltip(key)
+            field.setProperty("settingsAppKey", APP_KEY)
+            field.setProperty("settingKey", key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
+
         buttons = QHBoxLayout()
         self._btn_run = QPushButton("Run the power analysis")
         self._btn_run.clicked.connect(self.run)
