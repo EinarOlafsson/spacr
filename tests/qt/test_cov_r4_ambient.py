@@ -28,7 +28,7 @@ from PySide6.QtWidgets import QWidget                           # noqa: E402
 from spacr.qt.widgets import ambient as amb                     # noqa: E402
 from spacr.qt.widgets.ambient import (BUFFER_MAX_PIXELS,        # noqa: E402
                                       BUFFER_MIN_EDGE,
-                                      AmbientWidget, Form,
+                                      AmbientWidget,
                                       _FractalTracksItsHost,
                                       _FrameProducer,
                                       _retire_fractals_on,
