@@ -18,10 +18,15 @@ page and signal integration is implemented by
 from __future__ import annotations
 
 import logging
+import time
+import weakref
 from typing import Callable, Dict, Optional, Tuple
 
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
+from ..i18n import tr
+from ..theme import ensure_widget_qss_applied, register_widget_qss
+from ..widgets.collapsible_section import CollapsibleSection
 from ..widgets.fold_strip import FoldStrip
 from . import activation
 from .map_barcodes import install_fold_strip
@@ -32,6 +37,42 @@ LOG = logging.getLogger(__name__)
 #: the merged module -- Torch on crops and gradient boosting on measured
 #: features behind one form -- so its key is not ``classify``.
 HOST_KEY = "classify_merged"
+
+#: The settings-column surface that advertises FlowView without importing its
+#: renderer.  The real panel is created only after the user opens the fold.
+FLOWVIEW_SECTION_NAME = "ClassifyFlowViewSection"
+FLOWVIEW_BODY_NAME = "ClassifyFlowViewBody"
+
+#: A visualisation failure must not cost Classify its settings or Run button.
+#: The exception itself is retained in the debug log; this is the useful next
+#: action for the person looking at the panel.
+FLOWVIEW_OPEN_ERROR = (
+    "FlowView could not open. Collapse this section and open it again to retry."
+)
+FLOWVIEW_TOOLTIP = "Fold FlowView away, or open it again"
+
+
+def _flowview_section_qss(palette: dict, _opacity=None) -> str:
+    """Theme-native box around the lazily constructed FlowView renderer."""
+
+    return f"""
+QWidget#{FLOWVIEW_SECTION_NAME} {{
+    background-color: {palette["surface"]};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: 8px;
+}}
+QWidget#{FLOWVIEW_BODY_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QWidget#{FLOWVIEW_SECTION_NAME} QWidget#FlowViewPanel {{
+    background: transparent;
+    border: none;
+}}
+"""
+
+
+register_widget_qss(FLOWVIEW_SECTION_NAME, _flowview_section_qss)
 
 #: Registry keys of the modules folded into it, in the order the strip
 #: draws them: judge the model first, then ask which measured features it
@@ -109,6 +150,210 @@ BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
 }
 
 
+class LazyFlowViewSection(CollapsibleSection):
+    """A collapsed Classify footer that pays for FlowView only when opened.
+
+    The empty ``content`` passed to :class:`CollapsibleSection` is deliberate:
+    importing the graphics renderer constructs a sizeable Qt/scientific
+    dependency tree.  Classify gets only this small header on first paint;
+    the panel, its scene and the approved preview graph arrive on the first
+    expansion.
+    """
+
+    OPEN_MINIMUM = 420
+
+    def __init__(self, screen: QWidget, parent: QWidget | None = None) -> None:
+        self._screen_ref = weakref.ref(screen)
+        self._panel = None
+        self._error_label: QLabel | None = None
+        self._shut_down = False
+
+        body = QWidget(parent)
+        body.setObjectName(FLOWVIEW_BODY_NAME)
+        body_layout = QVBoxLayout(body)
+        body_layout.setContentsMargins(6, 0, 6, 6)
+        body_layout.setSpacing(6)
+        self._body_layout = body_layout
+
+        super().__init__("FlowView", body, expanded=False, parent=parent)
+        self.setObjectName(FLOWVIEW_SECTION_NAME)
+        # The section is installed after the screen's first translation pass,
+        # so render its chrome immediately while retaining the English source
+        # properties the next live-language pass needs.
+        self._header.setProperty("_spacr_i18n_text", "FlowView")
+        self._header.setText(tr("FlowView"))
+        self._header.setProperty("_spacr_i18n_tooltip", FLOWVIEW_TOOLTIP)
+        self._header.setToolTip(tr(FLOWVIEW_TOOLTIP))
+        self.set_open_minimum(self.OPEN_MINIMUM)
+        self.toggled.connect(self._flowview_toggled)
+
+    def panel(self):
+        """Return the constructed renderer, or ``None`` before first open."""
+
+        return self._panel
+
+    def _settings(self) -> dict:
+        """Take one detached snapshot of the Classify form for the preview."""
+
+        screen = self._screen_ref()
+        model = getattr(screen, "_settings_model", None) if screen else None
+        collect = getattr(model, "collect", None)
+        return dict(collect() or {}) if callable(collect) else {}
+
+    def _collector_for_open_panel(self):
+        """Enable tracing and return the live collector the panel must follow.
+
+        A fresh process owns an empty generic collector.  Replacing only that
+        empty graph with Classify's approved eight-node preview gives the
+        opened panel something informative immediately.  A populated global
+        collector belongs to a run already under observation and wins.
+        """
+
+        from spacr.flowview.classify_blueprint import classify_graph
+        from spacr.flowview.collector import Collector
+        from spacr.flowview.trace import enable, get_collector
+
+        collector = get_collector()
+        try:
+            has_live_graph = bool(collector.snapshot().nodes)
+        except Exception:  # a broken visualisation never reaches Classify
+            has_live_graph = False
+        if not has_live_graph:
+            graph = classify_graph(
+                self._settings(),
+                run_id=f"classify-preview-{time.time_ns()}",
+            )
+            collector = Collector(graph)
+        return enable(collector)
+
+    def _clear_error(self) -> None:
+        label = self._error_label
+        self._error_label = None
+        if label is None:
+            return
+        self._body_layout.removeWidget(label)
+        label.deleteLater()
+
+    def _show_open_error(self, error: Exception) -> None:
+        """Surface one recoverable error without letting it escape the fold."""
+
+        self._clear_error()
+        try:
+            from spacr.flowview.panel import QT_MISSING_MESSAGE
+        except Exception:
+            message = FLOWVIEW_OPEN_ERROR
+        else:
+            message = QT_MISSING_MESSAGE if isinstance(error, ImportError) else (
+                FLOWVIEW_OPEN_ERROR
+            )
+        label = QLabel(self.content())
+        label.setObjectName("ClassifyFlowViewError")
+        label.setProperty("_spacr_i18n_text", message)
+        label.setText(tr(message))
+        label.setWordWrap(True)
+        self._body_layout.addWidget(label)
+        self._error_label = label
+
+    def _ensure_panel(self):
+        """Build the real FlowView panel once, on the first expansion."""
+
+        if self._panel is not None or self._shut_down:
+            return self._panel
+        self._clear_error()
+        try:
+            from spacr.flowview.panel import FlowViewPanel
+
+            collector = self._collector_for_open_panel()
+            panel = FlowViewPanel(
+                collector,
+                self.content(),
+                auto_start=False,
+                embedded=True,
+            )
+            self._body_layout.addWidget(panel, 1)
+            self._panel = panel
+            screen = self._screen_ref()
+            if screen is not None:
+                ensure_widget_qss_applied(FLOWVIEW_SECTION_NAME, root=screen)
+        except Exception as error:  # noqa: BLE001 - optional UI isolation
+            LOG.debug("could not open Classify FlowView", exc_info=True)
+            self._show_open_error(error)
+        return self._panel
+
+    def _flowview_toggled(self, expanded: bool) -> None:
+        if expanded:
+            panel = self._ensure_panel()
+            if panel is not None and self.isVisible():
+                panel.start()
+            return
+        panel = self._panel
+        if panel is not None:
+            panel.stop()
+
+    def showEvent(self, event) -> None:  # noqa: N802 - Qt virtual name
+        """Resume rendering only for an actually open, visible section."""
+
+        super().showEvent(event)
+        if self.is_expanded():
+            panel = self._ensure_panel()
+            if panel is not None:
+                panel.start()
+
+    def hideEvent(self, event) -> None:  # noqa: N802 - Qt virtual name
+        """A cached Classify page must spend no cycles while hidden."""
+
+        panel = self._panel
+        if panel is not None:
+            panel.stop()
+        super().hideEvent(event)
+
+    def shutdown(self) -> None:
+        """Stop and release renderer-owned Qt objects during screen teardown."""
+
+        if self._shut_down:
+            return
+        self._shut_down = True
+        panel = self._panel
+        self._panel = None
+        if panel is not None:
+            panel.stop()
+            panel.close()
+            panel.deleteLater()
+        self._clear_error()
+
+
+def install_flowview(screen: QWidget) -> Optional[LazyFlowViewSection]:
+    """Mount Classify's lazy FlowView box directly below its settings."""
+
+    if getattr(screen, "app_key", None) != HOST_KEY:
+        return None
+    existing = getattr(screen, "_flowview_section", None)
+    if isinstance(existing, LazyFlowViewSection):
+        return existing
+    try:
+        content = getattr(screen, "_settings_content", None)
+        layout = content.layout() if content is not None else None
+        if layout is None:
+            return None
+        section = LazyFlowViewSection(screen, content)
+        last = layout.itemAt(layout.count() - 1) if layout.count() else None
+        insert_at = layout.count() - 1 if (
+            last is not None and last.spacerItem() is not None
+        ) else layout.count()
+        layout.insertWidget(max(0, insert_at), section)
+        screen._flowview_section = section
+        ensure_widget_qss_applied(FLOWVIEW_SECTION_NAME, root=screen)
+        return section
+    except Exception:  # noqa: BLE001 - optional UI must not cost Classify
+        LOG.debug("could not install Classify FlowView", exc_info=True)
+        return None
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
-    """Put Classify's fold strip on ``screen``'s masthead."""
+    """Put Classify's FlowView footer and fold strip on ``screen``."""
+
+    try:
+        install_flowview(screen)
+    except Exception:  # a broken optional panel must not cost the fold strip
+        LOG.debug("could not install Classify FlowView", exc_info=True)
     return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

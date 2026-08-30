@@ -6396,6 +6396,19 @@ class AppScreen(QWidget):
                 return
             self._thread = None
             self._worker = None
+        # FlowView is built lazily below Classify's settings and owns its own
+        # refresh timer plus graphics scene. Child widgets do not reliably
+        # receive close events when a cached screen is retired, so release it
+        # explicitly after the live pipeline has reached the safe boundary
+        # above. A visualisation fault must never obstruct screen teardown.
+        flowview_section = getattr(self, "_flowview_section", None)
+        shutdown_flowview = getattr(flowview_section, "shutdown", None)
+        if callable(shutdown_flowview):
+            try:
+                shutdown_flowview()
+            except Exception:                                   # noqa: BLE001
+                LOG.debug("could not shut down Classify FlowView",
+                          exc_info=True)
         # Stop polling before shutting the runner down, or the 2 s timer can
         # start one more job while `shutdown` is draining the last.
         try:
