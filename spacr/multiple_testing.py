@@ -53,7 +53,15 @@ LOCAL_FDR_MIN_TESTS = 20
 
 @dataclass(frozen=True)
 class MethodSpec:
-    """One correction: its canonical key, label, family and controlled rate."""
+    """One correction: its canonical key, label, family and controlled rate.
+
+    :ivar key: canonical settings and command-line identifier.
+    :ivar label: human-readable name shown in method selectors.
+    :ivar controls: error rate controlled by the method, or ``'nothing'``.
+    :ivar statsmodels_name: name passed to ``statsmodels``, or ``None`` for a
+        correction implemented locally or no correction.
+    :ivar summary: concise explanation of the method and its assumptions.
+    """
 
     key: str
     label: str
@@ -183,6 +191,8 @@ def canonical_method(method) -> str:
     aliases. ``None`` maps to ``'none'``. Raises :class:`ValueError` with the
     full inventory for anything else, rather than silently falling back to a
     correction the user did not ask for.
+
+    :param method: canonical key, statsmodels spelling, alias, or ``None``.
     """
     if method is None:
         return "none"
@@ -206,7 +216,10 @@ def method_choices() -> list[str]:
 
 
 def method_label(method) -> str:
-    """Human-readable label for ``method``."""
+    """Human-readable label for ``method``.
+
+    :param method: any correction spelling accepted by :func:`canonical_method`.
+    """
     return METHODS[canonical_method(method)].label
 
 
@@ -218,6 +231,8 @@ def estimate_pi0(p_values, *, lambdas: Sequence[float] | None = None) -> float:
     value is stable, then clipped to (0, 1]. With few tests the grid collapses
     and the estimator returns 1.0, which makes the q-values fall back to
     Benjamini-Hochberg -- the conservative answer, not an error.
+
+    :param p_values: raw P values; non-finite entries are excluded.
     """
     values = np.asarray(p_values, dtype=float)
     values = values[np.isfinite(values)]
@@ -246,6 +261,8 @@ def storey_qvalue(p_values, *, pi0: float | None = None):
     ``q[i]`` is the minimum positive-FDR at which test ``i`` is called
     significant. The result is monotone in the P value, as the definition
     requires. NaNs are preserved.
+
+    :param p_values: raw P-value array whose shape and NaNs are preserved.
     """
     values = np.asarray(p_values, dtype=float)
     out = np.full(values.shape, np.nan, dtype=float)
