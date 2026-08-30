@@ -48,6 +48,8 @@ _DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 def gene_number(value) -> Optional[str]:
     """The bare gene number named by ``value``, or ``None``.
 
+    :param value: feature, accession, guide, or design-term value to parse.
+
     Accepts every spelling this project has: a design term
     (``gene_fraction:gene[224750]``, ``fraction:grna[224750_2]``), a gene id
     in either strain (``TGGT1_224750``, ``TGME49_224750``), a split gene

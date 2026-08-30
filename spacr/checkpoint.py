@@ -293,6 +293,8 @@ class CheckpointStore:
     def artifact_path(self, unit: str, suffix: str = ".npy") -> Path:
         """Return a collision-resistant artifact path for ``unit``.
 
+        :param unit: stable work-unit identity to hash into the filename.
+
         The directory is created lazily. ``unit`` itself is not used as a
         filename; its digest prevents paths/settings from becoming filesystem
         syntax.

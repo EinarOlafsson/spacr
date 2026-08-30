@@ -375,7 +375,10 @@ def uniprot_reference(accession: str, annotation=None):
 
 
 def toxodb_url(accession: str) -> str:
-    """The ToxoDB gene record page for a full accession. Never fetched."""
+    """The ToxoDB gene record page for a full accession. Never fetched.
+
+    :param accession: full ToxoDB gene accession to place in the URL.
+    """
     return TOXODB_GENE_URL.format(accession=accession)
 
 

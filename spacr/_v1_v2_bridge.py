@@ -42,6 +42,8 @@ def v2_channels_from_settings(settings: Dict[str, Any]
                                 ) -> Tuple[List[int], List[str]]:
     """Pick out ``(channel_indices, channel_names)`` from a v1 settings dict.
 
+    :param settings: v1 settings carrying object-channel assignments.
+
     Order is fixed: nucleus, cell, pathogen, organelle (drops any that
     are None or absent). Uses the same C-axis convention that
     ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows

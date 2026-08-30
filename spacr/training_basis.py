@@ -182,7 +182,10 @@ def inapplicable_settings(basis: str) -> Tuple[str, ...]:
 
 
 def describe_basis(basis: str) -> str:
-    """One line for the settings panel, naming what the user must fill in."""
+    """One line for the settings panel, naming what the user must fill in.
+
+    :param basis: normalized training-basis name to describe.
+    """
     return {
         "metadata": ("Classes come from plate metadata — the wells named by "
                      "positive/negative control, or by class_metadata."),

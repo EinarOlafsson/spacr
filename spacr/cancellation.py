@@ -102,7 +102,10 @@ def checkpoint() -> None:
 
 @contextmanager
 def installed_token(token: CancellationToken) -> Iterator[CancellationToken]:
-    """Install ``token`` for this thread and restore any prior token on exit."""
+    """Install ``token`` for this thread and restore any prior token on exit.
+
+    :param token: cancellation token to expose within the context.
+    """
     marker = object()
     previous = getattr(_LOCAL, "token", marker)
     _LOCAL.token = token

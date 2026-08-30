@@ -262,6 +262,8 @@ def refit_settings(base: dict, *, regression_type=None,
 def destination(settings: dict) -> Optional[str]:
     """Return the output directory a run would use without executing it.
 
+    :param settings: regression settings used to resolve source and model kind.
+
     The result uses the same folder-selection rule as the regression run.
     """
     from .ml import _next_results_folder

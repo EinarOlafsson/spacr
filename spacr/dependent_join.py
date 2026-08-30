@@ -218,7 +218,10 @@ def join(objects: pd.DataFrame, dependent: pd.DataFrame, *,
 
 
 def describe(report: Dict[str, Any]) -> str:
-    """Format the join route and matched-row count for display."""
+    """Format the join route and matched-row count for display.
+
+    :param report: dependent-variable join report to summarize.
+    """
     if not report.get("route"):
         return "the dependent variable was not joined"
     fallback = "" if report["route"] == ROUTES[0][0] else \

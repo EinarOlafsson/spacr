@@ -773,7 +773,10 @@ class WellFractions:
         return out
 
     def reads_retained_at(self, thresholds) -> np.ndarray:
-        """Share of all mapped reads surviving each threshold."""
+        """Share of all mapped reads surviving each threshold.
+
+        :param thresholds: one or more minimum guide-fraction thresholds.
+        """
         thresholds = np.atleast_1d(np.asarray(thresholds, dtype=float))
         frame = self._reads_sorted_by_fraction
         fractions = frame["fraction"].to_numpy(float)

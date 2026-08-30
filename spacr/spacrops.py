@@ -628,7 +628,11 @@ class spacrStitcher:
 
 
     def set_meta_regex(self, pattern: Union[str, re.Pattern]):
-        """Replace the filename regex used to parse well, site, channel and magnification."""
+        """Replace the filename regex used to parse image metadata.
+
+        :param pattern: string or compiled regex with well, site, channel, and
+            magnification groups.
+        """
         self._meta_re = re.compile(pattern, re.IGNORECASE) if isinstance(pattern, str) else pattern
 
     def _parse_meta(self, path: str) -> Dict[str, Union[str, int, None]]:

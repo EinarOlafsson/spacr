@@ -242,7 +242,10 @@ def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
 
 
 def describe_normalization(mode: Any, **kwargs) -> str:
-    """One line for the log, so a model card records what it was trained on."""
+    """One line for the log, so a model card records what it was trained on.
+
+    :param mode: normalization preset or explicit normalization mode.
+    """
     try:
         stats = normalization_stats(mode, **kwargs)
     except ValueError as exc:

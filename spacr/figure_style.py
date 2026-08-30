@@ -73,6 +73,8 @@ GENERAL_DEFAULTS: dict[str, Any] = {
 def chrome_of(style, element: str = "grid") -> str:
     """Resolve the color of a grid, spine, or box element.
 
+    :param style: figure-style mapping containing chrome color overrides.
+
     A nonempty element-specific value takes precedence over
     ``chrome_colour``. An empty result indicates that the resolved figure ink
     color should be used.

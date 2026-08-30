@@ -162,6 +162,8 @@ def recommend(diagnostics: Mapping[str, Any], *,
 def format_recommendations(items: List[Recommendation]) -> str:
     """Format recommendations for the end of a run summary.
 
+    :param items: ordered run recommendations to render.
+
     An empty input is reported explicitly so a completed check with no
     recommendations is distinguishable from a missing result.
     """

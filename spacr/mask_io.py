@@ -112,6 +112,8 @@ def save_mask(path: PathLike, mask: np.ndarray,
 def load_mask(path: PathLike) -> np.ndarray:
     """Read a Cellpose mask regardless of on-disk format.
 
+    :param path: mask file or extensionless stem to resolve and load.
+
     Accepts a full path (``foo.tif`` / ``foo.npy``) OR a stem
     (``foo``) — in the stem case, tif → tiff → npy is tried and the
     first extant file is loaded.

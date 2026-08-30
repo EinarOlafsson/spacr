@@ -195,6 +195,8 @@ def _warn_once(runtimes: List[str], label: str) -> None:
 def guarded_n_jobs(requested, label: str = "this step"):
     """``1`` while the clamp is in force, otherwise ``requested`` unchanged.
 
+    :param requested: caller-requested job count to constrain when guarded.
+
     For joblib call sites *inside* a :class:`single_threaded_openmp` region —
     ``permutation_importance`` above all, which re-enters the fitted model.
 
