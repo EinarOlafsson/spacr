@@ -210,3 +210,83 @@ def test_a_row_whose_index_points_past_the_entries_is_dropped(qtbot, qapp):
     qapp.processEvents()
 
     assert screen.selected_entries() == []
+
+
+def _zoo(qtbot):
+    from spacr.qt.screens import model_zoo as zoo_screen
+
+    screen = zoo_screen.ModelZooScreen()
+    qtbot.addWidget(screen)
+    return screen
+
+
+def test_a_worker_failure_with_nobody_waiting_reaches_the_status_line(qtbot):
+    """A job can fail after whatever queued it has gone.
+
+    The screen was rebuilt, the user navigated away and back, the job list was
+    cleared -- and the traceback still arrives. Dropping it silently leaves a
+    model that did not download and a screen that says nothing; the status
+    line is the last place it can be said.
+    """
+    screen = _zoo(qtbot)
+    screen._pending = []
+
+    screen._on_worker_error_text(
+        "Traceback (most recent call last):\n"
+        "  File \"x.py\", line 1, in <module>\n"
+        "ConnectionError: the host refused the connection")
+
+    assert "refused the connection" in screen._status.text()
+
+
+def test_the_message_is_the_exception_not_the_whole_traceback(qtbot):
+    """A status line is one line, and the useful line is the last one.
+
+    Showing the traceback's first frame would put a filename where the reason
+    belongs, and the exception CLASS is stripped too -- "the host refused the
+    connection" reads; "ConnectionError: the host refused the connection" in a
+    narrow status strip usually does not.
+    """
+    screen = _zoo(qtbot)
+    screen._pending = []
+
+    screen._on_worker_error_text(
+        "Traceback (most recent call last):\n"
+        "  File \"deep/inside/urllib.py\", line 400, in read\n"
+        "OSError: no route to host")
+
+    said = screen._status.text()
+    assert "no route to host" in said
+    assert "urllib.py" not in said
+    assert not said.startswith("OSError")
+
+
+def test_a_failure_somebody_is_waiting_for_goes_to_them_instead(qtbot):
+    """The queued job's own handler knows what to say about its own failure.
+
+    Sending it to the status line as well would say the same thing twice, in
+    two places, one of them less specific.
+    """
+    screen = _zoo(qtbot)
+    heard = []
+    screen._status.setText("unchanged")
+    screen._pending = [("job", object(), heard.append)]
+
+    screen._on_worker_error_text("ValueError: that model has no weights")
+
+    assert heard == ["that model has no weights"]
+    assert screen._status.text() == "unchanged"
+
+
+def test_an_empty_traceback_still_says_something(qtbot):
+    """A worker can die without producing text at all.
+
+    "unknown error" is not informative and it is not nothing, which is the
+    difference between a screen that looks broken and one that looks idle.
+    """
+    screen = _zoo(qtbot)
+    screen._pending = []
+
+    screen._on_worker_error_text("")
+
+    assert screen._status.text().strip() != ""
