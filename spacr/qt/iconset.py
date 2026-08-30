@@ -243,6 +243,32 @@ def _file_stamp(path: str):
         return (path, 0, 0)
 
 
+@lru_cache(maxsize=192)
+def _source_digest(stamp) -> str:
+    """Stable digest of an icon's compressed source bytes.
+
+    ``stamp`` still includes mtime so an edit invalidates this small in-process
+    memo immediately. The persistent cache key uses the resulting content
+    digest, however: reinstalling or checking out byte-identical artwork can
+    change every mtime without forcing spaCR to decode, resize and re-ink every
+    icon again.
+
+    Reading the compressed PNG once is deliberately cheaper than decoding it.
+    If the source cannot be read, return a deterministic fallback; the normal
+    loader will then fail softly as it did before.
+    """
+    digest = hashlib.sha256()
+    try:
+        with open(stamp[0], "rb") as source:
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+    except OSError:
+        fallback = f"missing|{stamp[0]}|{stamp[1]}|{stamp[2]}"
+        return hashlib.sha256(
+            fallback.encode("utf-8", "replace")).hexdigest()
+
+
 def _hex_to_array(color: str):
     import numpy as np
     text = color.lstrip("#")
@@ -366,13 +392,14 @@ def icon_cache_dir() -> Path:
 
 
 def _cache_path(stamp, theme: str) -> Path:
-    """Cache filename for one (file, mtime, size) at one theme.
+    """Cache filename for one source-content digest at one theme.
 
-    The stamp carries mtime and size, so an edited or replaced icon gets a
-    different name and the old entry is simply never read again. No
-    invalidation logic, and none to get wrong.
+    The in-process stamp notices edits immediately. The disk key is based on
+    bytes, not mtime or install path, so unchanged artwork survives editable
+    checkouts, reinstalls and archive extraction while changed artwork still
+    gets a different entry automatically.
     """
-    key = f"{stamp[0]}|{stamp[1]}|{stamp[2]}|{theme}|v{ICON_CACHE_VERSION}"
+    key = f"{_source_digest(stamp)}|{theme}|v{ICON_CACHE_VERSION}"
     digest = hashlib.sha1(key.encode("utf-8", "replace")).hexdigest()[:20]
     return icon_cache_dir() / f"{Path(stamp[0]).stem}-{digest}.png"
 
