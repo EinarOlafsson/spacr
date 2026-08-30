@@ -1844,7 +1844,10 @@ def reset_mp():
             set_start_method('fork', force=True)
 
 def is_multiprocessing_process(process):
-    """Return ``True`` if ``process`` cmdline contains ``multiprocessing``."""
+    """Return ``True`` if ``process`` cmdline contains ``multiprocessing``.
+
+    :param process: process object exposing the :mod:`psutil` ``cmdline`` API.
+    """
     try:
         for cmd in process.cmdline():
             if 'multiprocessing' in cmd:
@@ -2257,7 +2260,10 @@ def _map_values(row, values, locs):
     return values[0] if values else None
 
 def is_list_of_lists(var):
-    """Return ``True`` if ``var`` is a list whose every element is also a list."""
+    """Return ``True`` if ``var`` is a list whose every element is also a list.
+
+    :param var: value to test, including an empty or nested list.
+    """
     if isinstance(var, list) and all(isinstance(i, list) for i in var):
         return True
     return False
@@ -3812,7 +3818,10 @@ class Cache:
         self.max_size = max_size
 
     def get(self, key):
-        """Return the cached value for ``key`` and mark it most-recently-used, or ``None``."""
+        """Return and refresh ``key``, or ``None`` when it is not cached.
+
+        :param key: cache key to look up.
+        """
         if key in self.cache:
             value = self.cache.pop(key)
             self.cache[key] = value
@@ -3820,7 +3829,11 @@ class Cache:
         return None
 
     def put(self, key, value):
-        """Insert ``value`` under ``key``, evicting the least-recently-used entry if full."""
+        """Insert ``value`` under ``key``, evicting the oldest entry if full.
+
+        :param key: cache key under which to store the value.
+        :param value: object to cache.
+        """
         if len(self.cache) >= self.max_size:
             self.cache.popitem(last=False)
         self.cache[key] = value
@@ -3863,7 +3876,10 @@ class SelfAttention(nn.Module):
         self.attention = ScaledDotProductAttention(d_k)
 
     def forward(self, x):
-        """Return self-attention over ``x`` of shape ``(B, in_channels)``."""
+        """Return self-attention over ``x`` of shape ``(B, in_channels)``.
+
+        :param x: batch of input feature vectors.
+        """
         Q = self.W_q(x)
         K = self.W_k(x)
         V = self.W_v(x)
@@ -3882,7 +3898,10 @@ class EarlyFusion(nn.Module):
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=1, stride=1)
 
     def forward(self, x):
-        """Return the 64-channel fused feature map."""
+        """Return the 64-channel fused feature map.
+
+        :param x: image-feature tensor accepted by the 1x1 convolution.
+        """
         x = self.conv1(x)
         return x
 
@@ -3899,7 +3918,10 @@ class SpatialAttention(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """Return the spatial attention map for ``x`` in ``[0, 1]``."""
+        """Return the spatial attention map for ``x`` in ``[0, 1]``.
+
+        :param x: feature map whose channel statistics define the attention.
+        """
         avg_out = torch.mean(x, dim=1, keepdim=True)
         max_out, _ = torch.max(x, dim=1, keepdim=True)
         x = torch.cat([avg_out, max_out], dim=1)
@@ -3920,13 +3942,19 @@ class MultiScaleBlockWithAttention(nn.Module):
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
 
     def custom_forward(self, x):
-        """Apply dilated conv + ReLU followed by the 1x1 spatial attention."""
+        """Apply dilated conv + ReLU followed by the 1x1 spatial attention.
+
+        :param x: input feature map for the convolutional block.
+        """
         x1 = F.relu(self.dilated_conv1(x), inplace=True)
         x = self.spatial_attention(x1)
         return x
 
     def forward(self, x):
-        """Forward pass; delegates to :meth:`custom_forward`."""
+        """Forward pass; delegates to :meth:`custom_forward`.
+
+        :param x: input feature map for the convolutional block.
+        """
         return self.custom_forward(x)
 
 # Final Classifier
@@ -3953,7 +3981,10 @@ class CustomCellClassifier(nn.Module):
             param.requires_grad = True
 
     def custom_forward(self, x):
-        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``."""
+        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``.
+
+        :param x: three-channel image batch to classify.
+        """
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)
@@ -3961,7 +3992,10 @@ class CustomCellClassifier(nn.Module):
         return x
 
     def forward(self, x):
-        """Forward pass, optionally through activation checkpointing."""
+        """Forward pass, optionally through activation checkpointing.
+
+        :param x: three-channel image batch to classify.
+        """
         if self.use_checkpoint:
             return _checkpoint_module(self, self.custom_forward, x)
         else:
@@ -4161,7 +4195,10 @@ class TorchModel(nn.Module):
         return out
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
+        """Return classification logits of shape ``(N, num_classes)``.
+
+        :param x: input image batch for the configured TorchVision backbone.
+        """
         feats = self._run_backbone(x)
         if self.use_dropout:
             feats = self.dropout(feats)
@@ -4281,7 +4318,10 @@ class TorchModel_v2(nn.Module):
         return self.base_model(x)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
+        """Return classification logits of shape ``(N, num_classes)``.
+
+        :param x: input image batch for the configured TorchVision backbone.
+        """
         feats = self._run_backbone(x)
         # Ensure 2D features (N, F)
         if feats.ndim > 2:
@@ -4313,7 +4353,11 @@ class FocalLossWithLogits(nn.Module):
         self.alpha = alpha
 
     def forward(self, logits, target):
-        """Return the focal loss value for the chosen ``reduction`` mode."""
+        """Return the focal loss value for the chosen ``reduction`` mode.
+
+        :param logits: unnormalized binary, multiclass, or multilabel scores.
+        :param target: labels shaped for the corresponding logits branch.
+        """
         # Binary / multilabel (BCE-style)
         if logits.ndim == 1 or logits.size(-1) == 1 or (
             logits.ndim == 2 and target.ndim == 2 and target.size(1) == logits.size(1)
@@ -4398,7 +4442,10 @@ class ResNet(nn.Module):
         self.fc2 = nn.Linear(500, 1)
 
     def forward(self, x):
-        """Return the flattened single-logit prediction for input batch ``x``."""
+        """Return the flattened single-logit prediction for input batch ``x``.
+
+        :param x: image batch for the configured ResNet backbone.
+        """
         if self.use_checkpoint:
             x = _checkpoint_module(self.resnet, self.resnet, x)
         else:
@@ -6892,7 +6939,11 @@ class SaliencyMapGenerator:
         self.model = model
 
     def compute_saliency_maps(self, X, y):
-        """Return absolute-gradient saliency maps for inputs ``X`` given labels ``y``."""
+        """Return absolute-gradient saliency maps for inputs ``X``.
+
+        :param X: differentiable input image batch to probe.
+        :param y: binary labels selecting the signed output scores.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -6909,7 +6960,10 @@ class SaliencyMapGenerator:
         return saliency
 
     def compute_saliency_and_predictions(self, X):
-        """Return ``(saliency, predictions)`` computed against the model's own predicted classes."""
+        """Return saliency maps and the model's own predicted classes.
+
+        :param X: differentiable input image batch to classify and probe.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -7013,7 +7067,10 @@ class SaliencyMapGenerator:
             return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
+
+        :param img: channels-last image array to normalize.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -7059,7 +7116,11 @@ class GradCAMGenerator:
         self.target_layer_module.register_full_backward_hook(backward_hook)
 
     def get_layer(self, model, target_layer):
-        """Resolve a dotted attribute path into the referenced submodule."""
+        """Resolve a dotted attribute path into the referenced submodule.
+
+        :param model: root model from which attribute traversal starts.
+        :param target_layer: dot-separated submodule attribute path.
+        """
         # Recursively find the layer specified in target_layer
         modules = target_layer.split('.')
         layer = model
@@ -7068,7 +7129,11 @@ class GradCAMGenerator:
         return layer
 
     def compute_gradcam_maps(self, X, y):
-        """Return the min-max normalized Grad-CAM map for a single-sample batch ``X`` and label ``y``."""
+        """Return a normalized Grad-CAM map for one sample.
+
+        :param X: single-sample differentiable input batch to probe.
+        :param y: binary label selecting the signed output score.
+        """
         X.requires_grad_()
 
         # Forward pass
@@ -7103,7 +7168,10 @@ class GradCAMGenerator:
         return gradcam
 
     def compute_gradcam_and_predictions(self, X):
-        """Return ``(gradcam_maps, predictions)`` for every sample in the batch ``X``."""
+        """Return Grad-CAM maps and predictions for every sample.
+
+        :param X: differentiable input image batch to classify and probe.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -7193,7 +7261,10 @@ class GradCAMGenerator:
             return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
+
+        :param img: channels-last image array to normalize.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -7360,7 +7431,10 @@ class GradCAM:
             self.model = model.cuda()
 
     def forward(self, input):
-        """Return the model output for ``input``."""
+        """Return the model output for ``input``.
+
+        :param input: tensor passed directly to the wrapped model.
+        """
         return self.model(input)
 
     def __call__(self, x, index=None):
@@ -7639,6 +7713,16 @@ def reduction_and_clustering(
     ``reducer_options`` carries only method-specific settings; irrelevant
     options are never forwarded. RAPIDS is opt-in and applies to UMAP, t-SNE
     and PCA, with the actual backend retained on the fitted reducer.
+
+    :param numeric_data: rows of numeric features to embed and cluster.
+    :param n_neighbors: reducer neighborhood size, or a row fraction as a
+        float; also supplies the default t-SNE perplexity.
+    :param min_dist: minimum embedding distance used by UMAP.
+    :param metric: distance metric used by the reducer and DBSCAN.
+    :param eps: DBSCAN neighborhood radius.
+    :param min_samples: DBSCAN minimum neighborhood size, or KMeans cluster
+        count when ``clustering='kmeans'``.
+    :param clustering: clustering algorithm, ``'dbscan'`` or ``'kmeans'``.
     """
     values = np.asarray(numeric_data)
     options = dict(reducer_options or {})
@@ -7898,7 +7982,11 @@ def generate_colors(num_clusters, black_background):
     return mpl.colormaps['viridis'](positions)
 
 def assign_colors(unique_labels, random_colors):
-    """Return a ``(colors, label_to_index)`` mapping keyed by ``unique_labels``."""
+    """Return colors and their positional mapping for the unique labels.
+
+    :param unique_labels: cluster labels in the order assigned palette indices.
+    :param random_colors: iterable of color values converted to tuples.
+    """
     colors = [tuple(color) for color in random_colors]
     label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
     return colors, label_to_color_index
@@ -8194,7 +8282,10 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     ax.add_artist(ab)
 
 def remove_canvas(img):
-    """Return ``img`` as an RGBA array whose alpha channel masks out zero pixels."""
+    """Return ``img`` as RGBA with zero-valued pixels made transparent.
+
+    :param img: PIL image in ``L``, ``I``, or ``RGB`` mode.
+    """
     if img.mode in ['L', 'I']:
         img_data = np.array(img)
         img_data = img_data / np.max(img_data)
@@ -8846,6 +8937,10 @@ def feature_columns(columns, selection):
     survives a request for either -- which is what makes "localization"
     reachable without a separate setting: ask for the channel and its
     relationships come with it.
+
+    :param columns: ordered column names available for selection.
+    :param selection: channel, morphology group, text filter, mixture, or
+        ``None`` as accepted by :func:`feature_selection`.
     """
     canonical = feature_selection(selection)
     if canonical is None:
@@ -9282,6 +9377,10 @@ def combine_results(rf_df, anova_df, kruskal_df):
     -- the signature of a frame with duplicated column names, or of two runs'
     results concatenated by mistake -- would multiply the importance rows and
     report the same feature several times as if independently ranked.
+
+    :param rf_df: random-forest results keyed uniquely by ``Feature``.
+    :param anova_df: ANOVA results keyed uniquely by ``Feature``.
+    :param kruskal_df: Kruskal-Wallis results keyed uniquely by ``Feature``.
     """
     combined_df = rf_df.merge(anova_df, on='Feature', how='left',
                               validate='one_to_one')
@@ -9811,6 +9910,9 @@ def feature_folder_name(channel_of_interest) -> str:
     order given; and a free-text filter is slugified, because a user may
     reasonably filter on ``mean_intensity`` and a column fragment can carry
     anything.
+
+    :param channel_of_interest: feature selection accepted by
+        :func:`feature_selection`.
     """
     selection = feature_selection(channel_of_interest)
     if selection is None:
@@ -9957,6 +10059,9 @@ def convert_and_relabel_masks(folder_path):
 
     Returns:
     - None
+
+    :param folder_path: directory containing ``.npy`` masks to inspect and
+        convert in place.
     """
     files = [f for f in os.listdir(folder_path) if f.endswith('.npy')]
     
@@ -10176,6 +10281,9 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     
     Returns:
     - cytoplasm_mask (np.array): Copy of cell_mask with nucleus pixels set to 0, keeping the cell labels elsewhere (pathogens are not considered).
+
+    :param nucleus_mask: nucleus mask whose nonzero pixels are excluded.
+    :param cell_mask: labeled cell mask copied into the cytoplasm result.
     """
     
     # Make sure the nucleus and cell masks are numpy arrays
@@ -10299,6 +10407,8 @@ def correct_metadata_column_names(df):
     Re-exported here because every existing caller imports it from `utils`,
     and moved there because importing this module costs torch, torchvision
     and cv2 -- 6.7 seconds -- for a function that needs none of them.
+
+    :param df: tabular frame whose legacy metadata names are canonicalized.
     """
     from .schema import correct_metadata_column_names as _moved
     return _moved(df)
@@ -10677,6 +10787,11 @@ def calculate_shortest_distance(df, object1, object2):
 
     Returns:
     - df: Pandas DataFrame with a new column for shortest edge-to-edge distance.
+
+    :param df: measurement frame containing centroid and Feret-diameter
+        columns for both objects.
+    :param object1: prefix of the first object's measurement columns.
+    :param object2: prefix of the second object's measurement columns.
     """
 
     # Compute centroid-to-centroid Euclidean distance
