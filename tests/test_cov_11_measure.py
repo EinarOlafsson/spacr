@@ -9,6 +9,7 @@ is a silent loss rather than a visible skip.
 """
 from __future__ import annotations
 
+import builtins
 import sys
 import types
 
@@ -17,6 +18,18 @@ import pandas as pd
 import pytest
 
 import spacr.measure as measure
+
+
+def _block_mahotas(monkeypatch):
+    """Exercise the optional-dependency branch even in the full CI profile."""
+    original = builtins.__import__
+
+    def guarded(name, *args, **kwargs):
+        if name == "mahotas" or name.startswith("mahotas."):
+            raise ModuleNotFoundError("blocked Mahotas for test")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded)
 
 
 # ---------------------------------------------------------------------------
@@ -48,8 +61,10 @@ def stub_mahotas(monkeypatch):
     return zernike_moments
 
 
-def test_without_the_optional_package_zernike_is_named_not_guessed():
+def test_without_the_optional_package_zernike_is_named_not_guessed(
+        monkeypatch):
     """The message has to say what to install, not just that it failed."""
+    _block_mahotas(monkeypatch)
     with pytest.raises(ImportError, match=r"spacr\[zernike\]"):
         measure._load_zernike_moments()
 
@@ -141,8 +156,9 @@ def test_zernike_columns_reach_every_object_frame(stub_mahotas):
         assert f"{prefix}_zernike_0" in frame.columns
 
 
-def test_without_the_package_no_object_frame_gains_the_columns():
+def test_without_the_package_no_object_frame_gains_the_columns(monkeypatch):
     """The control: absent everywhere rather than absent in some frames."""
+    _block_mahotas(monkeypatch)
     cell, nucleus, pathogen = _masks()
 
     frames = measure._morphological_measurements(
@@ -232,43 +248,39 @@ def test_a_distance_block_with_nothing_but_labels_is_not_merged(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Which organelle morphologies get spatial columns
+# Every organelle type keeps requested spatial columns
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(autouse=True)
-def _reset_assumption_latch(monkeypatch):
-    """The "assumed spots" notice prints once per process; unlatch it here."""
-    monkeypatch.setattr(measure, "_SPATIAL_ORGANELLE_ASSUMED", False,
-                        raising=False)
-
-
-def test_an_organelle_with_no_declared_shape_is_assumed_punctate(capsys):
-    """A measure-only run carries neither setting, and must still decide.
-
-    Assuming the shipped default keeps the columns rather than dropping
-    them silently, and the assumption is printed so it can be corrected.
-    """
+def test_the_compatibility_predicate_never_gates_a_measurement():
+    """Type contributes caveats, never a silent family-level switch."""
     assert measure._spatial_organelle_eligible({}) is True
-
-    printed = capsys.readouterr().out
-    assert "assumes the shipped default" in printed
-    assert "'spots'" in printed
-
-
-def test_the_assumption_is_printed_once_not_once_per_field(capsys):
-    """A per-field notice would be one line per field on a 384-well plate."""
-    measure._spatial_organelle_eligible({})
-    capsys.readouterr()
-
-    measure._spatial_organelle_eligible({})
-
-    assert capsys.readouterr().out == ""
-
-
-def test_a_network_organelle_is_not_eligible():
-    """A single connected mesh has no population of separable neighbours."""
     assert measure._spatial_organelle_eligible(
-        {"organelle_morphology": "network"}) is False
+        {"organelle_type": "reticular",
+         "organelle_morphology": "network"}) is True
+
+
+def test_a_network_organelle_still_writes_every_requested_spatial_column():
+    """The output frame proves the production path no longer consults Type."""
+    cell, nucleus, pathogen = _masks()
+    organelle = np.zeros_like(cell)
+    organelle[7:10, 7:10] = 1
+    organelle[25:28, 25:28] = 2
+    settings = _settings(
+        organelle_mask_dim=7,
+        spatial_measurements=True,
+        organelle_type="reticular",
+        organelle_morphology="network",
+    )
+
+    frames = measure._morphological_measurements(
+        cell, nucleus, pathogen, organelle, None, settings, zernike=False)
+
+    organelle_frame = frames[3]
+    expected = {
+        f"organelle_{name}" for name in measure.spatial_column_names(50)
+    }
+    assert expected <= set(organelle_frame.columns)
+    assert len(organelle_frame) == 2
 
 
 def test_no_organelle_type_named_defers_to_the_morphology_setting():

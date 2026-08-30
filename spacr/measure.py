@@ -68,8 +68,7 @@ from .measure_hooks import (
     unregister_region_filter_hook,
     warn_if_hooks_will_not_reach_workers,
 )
-from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
-                           organelle_settings_view)
+from .object_roles import ORGANELLE_ROLES, SEGMENTED_ROLES
 from .intensity_rescale import (
     PLAN_SETTINGS_KEY,
     build_plate_plan,
@@ -858,16 +857,6 @@ def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
 #: separable -- but it is a sentinel, not a distance, and must not be averaged.
 _SPATIAL_NO_NEIGHBOUR = -1.0
 
-#: Organelle families that are one connected network per cell rather than a
-#: population of separable objects. Neighbour statistics of a single connected
-#: network are not a measurement of anything, so the spatial block skips them.
-#: These are MORPHOLOGY values, not type names. An `organelle_type` is
-#: resolved to its morphology by `_morphology_of_organelle_type` before it
-#: is tested here -- 'filamentous' and 'tubular' both map to 'network', and
-#: comparing the type name directly missed both. 'reticular'/'cisternal'
-#: remain listed because a run may still carry them as a raw morphology.
-_SPATIAL_NETWORKED_ORGANELLES = frozenset({'network', 'reticular', 'cisternal'})
-
 #: ``expand_labels`` grew its ``spacing`` argument after scikit-image 0.22, and
 #: setup.py's floor is ``>=0.22.0``. Probed once rather than assumed: without it
 #: a 3-D run would silently measure an unscaled radius, which was measured wrong
@@ -877,10 +866,6 @@ try:
         'spacing' in inspect.signature(expand_labels).parameters)
 except (TypeError, ValueError):  # pragma: no cover - C-implemented signature
     _EXPAND_LABELS_TAKES_SPACING = False
-
-#: One-shot console note when the organelle spatial gate has to assume the
-#: shipped 'spots' default because neither key reached the measure stage.
-_SPATIAL_ORGANELLE_ASSUMED = False
 
 
 def spatial_column_names(radius):
@@ -1091,31 +1076,14 @@ def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
 
 
 def _spatial_organelle_eligible(settings):
-    """Return whether the organelle morphology supports spatial columns.
+    """Return ``True`` for every organelle settings mapping.
 
-    Resolve ``organelle_type`` through the mask-stage preset mapping before
-    checking morphology. ``'custom'`` and unrecognized types defer to
-    ``organelle_morphology``. If neither setting reaches a measure-only run,
-    assume the eligible ``'spots'`` default and print that assumption once.
-
-    Connected network morphologies are ineligible because neighbour
-    statistics do not describe distinct objects in one continuous mask.
+    Kept as a compatibility predicate for callers that imported the former
+    private gate.  Organelle Type is advisory: it records measurement caveats
+    but never switches off a requested family or removes its output columns.
     """
-    global _SPATIAL_ORGANELLE_ASSUMED
-
-    kind = _morphology_of_organelle_type(settings)
-    if kind is None:
-        kind = settings.get('organelle_morphology')
-    if kind is None:
-        kind = 'spots'
-        if not _SPATIAL_ORGANELLE_ASSUMED:
-            _SPATIAL_ORGANELLE_ASSUMED = True
-            print("[measure] spatial_measurements: neither organelle_type nor "
-                  "organelle_morphology reached the measure stage, so the "
-                  "organelle spatial block assumes the shipped default "
-                  "'spots' (punctate, eligible). Set organelle_morphology to "
-                  "'network' to skip it.")
-    return str(kind).strip().lower() not in _SPATIAL_NETWORKED_ORGANELLES
+    del settings
+    return True
 
 
 def _morphology_of_organelle_type(settings):
@@ -1171,9 +1139,10 @@ def _morphological_measurements(
     .. note::
 
        With ``spatial_measurements=True`` the cell, nucleus, pathogen and
-       (when the organelle is not a single connected network) organelle frames
-       gain :func:`spatial_column_names`. Cytoplasm never does -- its mask
-       carries the cell's own label, so it is one object per cell by
+       organelle frames gain :func:`spatial_column_names`. Organelle Type never
+       suppresses requested measurements; doubtful interpretations are
+       recorded as caveats instead. Cytoplasm never gains these columns -- its
+       mask carries the cell's own label, so it is one object per cell by
        construction. Default ``False``: an unchanged run does no extra work.
     """
     if zernike is None:
@@ -1360,13 +1329,11 @@ def _morphological_measurements(
     organelle_masks = {'organelle': organelle_mask}
     organelle_masks.update(dict(extra_organelle_masks or {}))
     for organelle_role, current_organelle_mask in organelle_masks.items():
-        role_settings = organelle_settings_view(settings, organelle_role)
         if settings.get(f'{organelle_role}_mask_dim') is not None:
             organelle_props = _props(current_organelle_mask)
-        # Gated, unlike cell/nucleus/pathogen: a single connected network per
-        # cell has no population of separable neighbours to count. See
-        # _spatial_organelle_eligible (and instruction 72's organelle_type).
-            if spatial_on and _spatial_organelle_eligible(role_settings):
+            # Type can warn that a family may be hard to interpret, but it
+            # never removes requested measurements or their output columns.
+            if spatial_on:
                 organelle_props = _with_spatial(
                     organelle_props, current_organelle_mask)
             if len(organelle_props) > 0 and zernike:

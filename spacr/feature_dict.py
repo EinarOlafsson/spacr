@@ -2140,10 +2140,9 @@ _set_scope(
            when="spatial_measurements=True (default False). Never written "
                 "for cytoplasm, which is cell-minus-its-contents and so is "
                 "one object per cell by construction -- its neighbours are "
-                "the cell's, restated. An organelle slot is written only "
-                "when its type resolves to a morphology of separable "
-                "objects: a connected network has no neighbours to count "
-                "(spacr.measure._spatial_organelle_eligible)."))
+                "the cell's, restated. Written for every configured organelle "
+                "mask when requested; organelle type may add an interpretation "
+                "caveat but never removes the output columns."))
 _set_scope(
     ("distance_to_nucleus", "distance_to_pathogen"),
     _scope(_CELL_ONLY, CHANNEL_SINGLE,
