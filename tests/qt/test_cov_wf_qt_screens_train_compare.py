@@ -15,10 +15,8 @@ bad day, and each of them can quietly say something false:
 * ``optimal_threshold`` is logged per epoch and has no better direction. The
   click read-out must report its last value and must *not* invent a "best",
   because "best optimal_threshold 0.5" is a fabrication;
-* a scan that fails half-way leaves the old curves on the canvas while the run
-  list has already moved on. Clicking one of those stale lines must not
-  attribute it to a run that is no longer listed, and must not print a metric
-  reading for a metric that curve never logged;
+* a scan that fails while clearing the canvas must not put the new run list
+  behind curves from the old tree;
 * the retirement sweep runs on *every* job thread's ``finished`` and must keep
   the jobs that are still running — a garbage-collected running QThread takes
   the process down with it.
@@ -253,19 +251,17 @@ def test_a_metric_with_no_direction_reports_last_but_never_best(screen,
     assert "dsB" in text, "the folder the curve came from is named"
 
 
-def test_a_stale_curve_is_not_attributed_to_a_run_that_is_gone(
-        screen, run_root, tmp_path):
-    """After a half-applied scan the canvas still shows the previous run.
+def test_a_failed_canvas_clear_does_not_apply_runs_behind_stale_curves(
+        screen, run_root, tmp_path, monkeypatch):
+    """The old plot is retired before the new tree mutates visible state.
 
-    ``_apply_runs`` replaces the run list first and clears the canvas last, and
-    the clear touches Qt — a canvas whose C++ half has gone raises RuntimeError
-    there, which is the failure mode ``bridge.thread_has_stopped`` exists for.
-    The screen then holds new runs behind old lines. Clicking one of those lines
-    must not print the *new* run's folder next to the *old* run's curve, and
-    must not quote a metric reading for a metric that curve never logged: both
-    would be a confident, wrong answer to "which run is this line?".
+    Clearing touches Qt, and a canvas whose C++ half has gone raises the
+    RuntimeError that ``bridge.thread_has_stopped`` exists for. Even then the
+    logical plot is empty and the previous run list remains in place; a new
+    metric and run tree can never sit behind the old curves.
     """
     assert screen.scan(run_root) is True
+    previous_ids = screen.run_ids()
     b = _id_for(screen, "dsB")
     assert screen.select_runs([b]) is True
     assert screen.overlay() is True
@@ -282,23 +278,19 @@ def test_a_stale_curve_is_not_attributed_to_a_run_that_is_gone(
     def _canvas_is_gone():
         raise RuntimeError("Internal C++ object (PanelCanvas) already deleted")
 
-    screen._clear_plot = _canvas_is_gone          # the canvas Qt took away
+    draw_idle = screen._canvas.draw_idle
+    monkeypatch.setattr(screen._canvas, "draw_idle", _canvas_is_gone)
     assert screen.scan(str(other)) is False, "the scan did not fully apply"
-    del screen._clear_plot                        # a fresh canvas, next scan
+    monkeypatch.setattr(screen._canvas, "draw_idle", draw_idle)
 
     assert "already deleted" in screen.last_error, "the failure is reported"
-    assert len(screen.run_ids()) == 1, "the new tree's one run took the list"
-    assert b not in screen.run_ids(), "the old run is no longer listed"
-    assert screen.selected_metric() == "dice"
-    assert label in screen.series_labels(), "the old curve is still drawn"
+    assert screen.run_ids() == previous_ids
+    assert screen.selected_metric() == "accuracy"
+    assert screen.series_labels() == []
+    assert screen.figure().axes == []
+    assert screen.picked_text() == ""
 
-    text = screen.identify_series(label)
-    assert text == f"{label} · epochs 1–25", (
-        "a stale curve names itself and nothing it can no longer vouch for")
-    assert "dsB" not in text, "the run behind it is gone, so no folder is named"
-    assert "dice" not in text, "that curve never logged the current metric"
-
-    # Re-scanning the tree the curve came from restores the full read-out.
+    # A working canvas can apply and draw the next scan normally.
     assert screen.scan(run_root) is True
     b_again = _id_for(screen, "dsB")
     assert screen.select_runs([b_again]) is True

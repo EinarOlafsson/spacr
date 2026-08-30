@@ -144,7 +144,9 @@ class TableMerge:
         -- and everything else is prefixed with the table it measures.
         """
         name = str(column)
-        if name in self.keys or name in _UNPREFIXED:
+        if name in self.keys:
+            return name
+        if name in _UNPREFIXED and name != OBJECT_COLUMN:
             return name
         if name.startswith(f"{self.table}_"):
             return name

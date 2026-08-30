@@ -8,7 +8,7 @@ whether a wrong number is noticed:
   in :attr:`spacr.plate_measurements.PlateMerge.tables`, so a panel that
   filters or re-orders those records still gets the anchor's numbers rather
   than the first table's or none at all;
-* a column that two child tables both lost is one loss to report, not two;
+* the same-named column lost by two child tables keeps both table prefixes;
 * :func:`~spacr.plate_measurements.describe_identifier_refusal` still produces
   a sentence when the detail it is handed carries no example;
 * a refused text identifier reaches the LOG even when the caller passed no
@@ -135,15 +135,14 @@ def test_a_pathogen_only_record_set_reports_no_anchor_rather_than_a_guess(
 
 
 # --------------------------------------------------------------------------- #
-#  One column lost by two tables is one loss to report
+#  Same-named columns lost by two child tables remain distinct
 # --------------------------------------------------------------------------- #
 
-def test_a_column_two_tables_both_lost_is_named_once(tmp_path):
+def test_each_child_table_names_its_own_lost_object_label(tmp_path):
     """`columns='common'` drops what is not in every database, and the panel
-    lists what it dropped. When two child tables lose the SAME column name the
-    list must carry it once: a user reading "3 measurement(s) were dropped"
-    over a list of two distinct names cannot tell whether the count or the
-    list is wrong, and either way stops trusting the disclosure."""
+    lists what it dropped. A child object's label is a measurement after that
+    child is rolled onto its parent, so the table prefix is what distinguishes
+    the pathogen label from the nucleus label and from the anchor's identity."""
     first = _database(tmp_path / "plate1", {
         "cell": _cells("plate1", extra="stain"),
         "pathogen": _children("plate1"),
@@ -162,13 +161,13 @@ def test_a_column_two_tables_both_lost_is_named_once(tmp_path):
     assert lost["nucleus"] == ("object_label",)
     # ...and once for the anchor, under a name of its own.
     assert lost["cell"] == ("stain",)
-    # NOTE: the child tables' loss is reported unprefixed while the frame
-    # would carry it as `pathogen_object_label`; see the defect reported with
-    # this file. What is pinned here is that it is listed ONCE.
-    assert merge.dropped_columns == ("cell_stain", "object_label")
+    assert merge.dropped_columns == (
+        "cell_stain", "nucleus_object_label", "pathogen_object_label")
     assert len(merge.dropped_columns) == len(set(merge.dropped_columns))
-    assert "2 measurement(s) present in only some databases were dropped" \
+    assert "3 measurement(s) present in only some databases were dropped" \
         in merge.describe()
+    assert "object_label" in merge.frame
+    assert "cell_object_label" not in merge.frame
     assert merge.frame.attrs["dropped_columns"] == merge.dropped_columns
 
 

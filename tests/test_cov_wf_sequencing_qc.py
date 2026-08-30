@@ -115,6 +115,34 @@ def test_a_plate_with_no_mapped_reads_reports_no_reads_at_risk():
     assert unmeasured.loc[0, "collision_rate"] == pytest.approx(2 / 3)
 
 
+def test_only_grna_collisions_are_priced_in_grna_counts():
+    """A missing measurement is not evidence that no reads are at risk.
+
+    The normalised count table prices guide abundance. It also names the row
+    carried by each read, but ``collision_summary`` has no contract for using
+    that column to price row or column barcodes. Reporting zero for them would
+    turn "not measured" into the reassuring and unsupported "none affected".
+    """
+    references = {
+        "grna": {"sg0": "AAAA", "sg1": "AAAT"},
+        "row": {"r1": "CCCC", "r2": "CCCT"},
+    }
+    counts = pd.DataFrame({
+        "rowID": ["r1", "r1"],
+        "grna": ["sg0", "sg1"],
+        "count": [2, 1],
+    })
+    collisions = QC.barcode_collisions(references)
+
+    summary = QC.collision_summary(references, collisions, counts)
+    by_reference = summary.set_index("reference")
+
+    assert by_reference.loc["grna", "reads_at_risk"] == pytest.approx(1.0)
+    assert pd.isna(by_reference.loc["row", "reads_at_risk"])
+    assert int(by_reference.loc["row", "n_colliding_pairs"]) == 1
+    assert by_reference.loc["row", "collision_rate"] == pytest.approx(1.0)
+
+
 # ---------------------------------------------------------------------------
 # recommend_threshold: the sentences a one-point sweep cannot support
 # ---------------------------------------------------------------------------
