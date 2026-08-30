@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import re
 
+import pytest
+
 
 def test_no_selection_is_named_all_features():
     """The documented default."""
@@ -84,17 +86,39 @@ def test_two_different_mixtures_do_not_share_a_folder():
         feature_folder_name([1, "intensity"])
 
 
-def test_every_channel_in_a_multi_channel_mixture_appears():
-    """A mixed selection's folder name must retain every component."""
+def test_a_channel_number_in_a_mixture_keeps_its_digits():
+    """An int member is used as written, not slugified.
+
+    ``re.sub`` on ``str(1)`` would answer "1" as well, so this branch looks
+    redundant -- and it is not, because the difference shows on the FOLDER
+    the run writes into and a naming change is a run that cannot find its own
+    features. Two channels in a mixture must still read as two channels.
+    """
     from spacr.utils import feature_folder_name
 
-    assert feature_folder_name([0, 1, 2, "morphology"]) == (
-        "channel_0_channel_1_channel_2_morphology"
-    )
+    assert feature_folder_name([1, 2]) == "channels_1_2"
+    assert feature_folder_name([1, "morphology"]) == "channel_1_morphology"
+
+
+def test_every_channel_in_a_multi_channel_mixture_appears():
+    """The name is what tells two runs apart, so nothing may be dropped."""
+    from spacr.utils import feature_folder_name
+
+    name = feature_folder_name([0, 1, 2, "morphology"])
+
+    for channel in ("0", "1", "2"):
+        assert channel in name, f"channel {channel} vanished from {name!r}"
+    assert "morphology" in name
 
 
 def test_a_filter_that_slugifies_to_nothing_still_names_a_folder():
-    """Punctuation-only input keeps the component's documented fallback."""
+    """``'x'`` is the fallback, and it has to exist.
+
+    A filter of punctuation alone -- a user pasting "---" into the box --
+    would otherwise produce an empty component, and the folder name would
+    collapse into a doubled separator or into the name of a different
+    selection entirely.
+    """
     from spacr.utils import feature_folder_name
 
     name = feature_folder_name([1, "---"])
