@@ -1,0 +1,185 @@
+================================================================================
+SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
+================================================================================
+
+Status:    OPEN, filed 2026-08-29.
+Owner:     spacr/qt (the preference and the sampler) and spacr (the accounting).
+Requested: 2026-08-29 -- "does spacr keep a log of how many resourses each of
+           its processes and threads takes?" and, on the answer, "write it up
+           and add to instructions list. ther i guess it should be controlled
+           by verbose logging or a new performance logging setting in
+           preferences."
+Relates:   305 measures peak RSS and GPU on the real user path for a release
+           gate. This item is the running, per-worker accounting a USER can
+           turn on when their own machine misbehaves. Land 305's budgets
+           first if they conflict; they should not.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured 2026-08-29. spaCR has whole-process accounting at four points and no
+per-process or per-thread accounting anywhere.
+
+  * spacr/fit_resources.py -- ``record_stage(settings, name)`` stores
+    ``{"stage", "rss", "gpu"}`` per pipeline stage; ``peak()`` returns the
+    high-water mark and the stage that set it; ``describe_resources()``
+    formats the table. Genuinely wired in: spacr/ml.py:7293 calls it, so a
+    regression fit does produce a stage-by-stage table.
+    ``host_rss()`` is ``psutil.Process().memory_info().rss`` (line 49).
+  * spacr/benchmark.py:87 -- ``resource.getrusage(RUSAGE_SELF).ru_maxrss``.
+  * spacr/qt/timing.py -- startup marks, per-import time with the importing
+    frame, event-loop stalls, and RSS at :668 and :675.
+  * spacr/qt/resource_cleanup.py:301 -- RSS for the cache headroom policy.
+
+THE THREE GAPS.
+
+1. CHILD PROCESSES ARE INVISIBLE, AND SPACR SPAWNS THEM. Every reading above
+   counts the CALLING process only. ``psutil.Process.children()`` appears
+   ZERO times in the tree. But spacr/sequencing.py:721 and :835 start a
+   ``saver_process``, and spacr/parameter_sweep.py runs each trial in a child.
+   So a parallel sweep's real footprint is systematically under-reported: the
+   parent looks small while the machine fills. The sweep's own guard
+   (parameter_sweep.py:490, :575) reads ``psutil.virtual_memory().available``
+   -- machine-wide free memory -- which is a floor check, not attribution. It
+   cannot tell spaCR's own children from another tenant on a shared box.
+
+2. NOTHING IS PER-THREAD. ``RUSAGE_THREAD`` appears nowhere.
+   spacr/measure.py:198 ``_thread_census`` counts and names live threads, but
+   only at the moment a fork Manager fails, and it records no figures.
+
+3. NOTHING SURVIVES THE RUN. ``record_stage`` writes into the settings dict
+   and ``describe_resources`` formats it for display. No resource log reaches
+   disk or the artifacts database, so a user who hits an out-of-memory kill
+   has nothing to send and nothing to look at afterwards -- which is exactly
+   when the numbers matter.
+
+NAMING TRAP, so nobody looks in the wrong place: spacr/profiler.py is NOT a
+performance profiler. It is a statistical model profiler -- predicted response
+curves and sensitivity for a fitted model.
+
+--------------------------------------------------------------------------------
+WHICH SETTING CONTROLS IT -- A NEW ONE, NOT VERBOSE LOGGING
+--------------------------------------------------------------------------------
+
+The question was asked as a choice between verbose logging and a new
+preference. It has to be a NEW preference, and the reason is not tidiness.
+
+Verbose logging installs a PROFILE HOOK: spacr/logging_util.py's
+``_trace_profile`` runs on function call and return. Item 297 measured its
+cost at 65.28 s to an interactive Home against 3.05 s with it off -- a factor
+of twenty, which is why it is not the default.
+
+So coupling the two would make the feature useless at the moment it is needed.
+A user reporting "spaCR ate my machine" would have to enable a tracer that
+changes the timing and allocation of everything it observes, and would then be
+measuring the traced program rather than the real one. Resource accounting
+must be available on an UNPERTURBED run.
+
+They also answer different questions and have different lifetimes. Verbose
+logging says WHAT THE CODE DID and is read once, by a developer, right after a
+failure. Resource accounting says WHAT IT COST and is read later, possibly by
+the user, possibly compared across runs and machines.
+
+RECOMMENDED SHAPE:
+
+  * A new preference ``prefs/performance_logging`` beside
+    ``prefs/verbose_logging`` (spacr/qt/preferences.py:158), with its own
+    Preferences row, independent of verbose in both directions.
+  * Three states rather than a checkbox, because the useful default is not
+    "off": ``off`` | ``summary`` (default) | ``detailed``.
+      - ``summary`` samples at about 1 Hz and keeps the whole-run totals and
+        peaks. This must be cheap enough to leave on: one psutil read per
+        second is far below the noise floor of anything spaCR does, and the
+        most valuable resource data comes from runs nobody expected to fail.
+      - ``detailed`` adds per-child and per-thread rows and a full time
+        series.
+  * It must be readable WITHOUT the GUI -- an environment variable
+    (``SPACR_PERFORMANCE_LOG``) for headless and CI runs, since the CLI entry
+    points have no Preferences dialog.
+
+Do not make this a fourth value of the existing PERFORMANCE_LEVELS
+("laptop", "extra_performance", "performance", "balanced"). Those choose how
+much machine to USE; this chooses how much to RECORD. Overloading them would
+mean a user cannot ask a laptop profile to explain itself.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+spaCR runs on laptops, workstations and shared servers, and its heaviest work
+happens in children it currently cannot see. When a sweep is killed by the
+OOM reaper there is no record of which trial was large, and the parent's own
+numbers look healthy right up to the kill. On a shared server the machine-wide
+free-memory check cannot distinguish spaCR's own consumption from a colleague's
+job, so the same guard either fires for no reason or fails to fire at all.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. COUNT THE CHILDREN. Extend spacr/fit_resources.py's ``host_rss`` (or add a
+   sibling) to report the process tree, using
+   ``psutil.Process().children(recursive=True)`` and summing USS or PSS where
+   the platform provides it rather than RSS, because RSS double-counts shared
+   pages across a fork and would overstate a sweep badly. State in the code
+   which measure was used; a number whose definition is unrecorded cannot be
+   compared between machines.
+   Handle races: a child may exit between enumeration and reading, so
+   ``NoSuchProcess`` is an expected outcome, not an error.
+
+2. ATTRIBUTE PER WORKER. A sweep trial and a sequencing saver should each
+   carry an identity in the record, so "which trial was large" is answerable.
+   The sweep already knows its trial ids; the child should stamp its own row.
+
+3. ADD PER-THREAD FIGURES UNDER ``detailed`` ONLY. ``psutil.Process.threads()``
+   gives per-thread CPU times on Linux and Windows; ``RUSAGE_THREAD`` is
+   Linux-only. Where a platform cannot supply it, record that it is
+   unavailable -- never a zero. A zero reads as "this thread was free".
+
+4. SAMPLE OFF THE GUI THREAD, and bound it. A daemon sampler thread with a
+   ring buffer, so a long run cannot grow the log without limit. It must not
+   keep the process alive, and it must survive a child dying mid-sample.
+
+5. PERSIST IT. Write the series beside the run's other artifacts and register
+   it, so it is attached to the run rather than lost with the process. A
+   summary line belongs in the existing log; the series belongs in a file.
+
+6. MAKE THE EXISTING GUARDS USE IT. parameter_sweep.py's memory floor should
+   be able to ask what SPACR is using, not only what the machine has free.
+   That is the difference between "the machine is busy" and "we are the
+   reason".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A sweep with N child trials produces a record naming each child, and the
+    summed footprint tracks the machine's own measurement of the process tree
+    within a stated tolerance. A test that spawns a child which allocates a
+    known amount asserts the record sees it -- the parent-only reading must
+    NOT see it, and both facts belong in the test.
+  * Turning the setting to ``off`` leaves no sampler thread running, asserted
+    by a thread census before and after a run.
+  * ``summary`` costs no measurable startup time: the interactive-Home time
+    with it on is within noise of the time with it off, on the same profile
+    item 305 uses. It must not repeat verbose logging's 20x.
+  * The record survives the process: after a run, the file exists, is
+    registered against the run, and names the measure used (USS/PSS/RSS).
+  * A killed child leaves a record ending at the kill rather than an empty or
+    corrupt file.
+  * Verbose logging and performance logging can be enabled independently, and
+    a test asserts performance logging installs NO profile hook.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not fold this into verbose logging, for the measurement reason above.
+
+Do not sample faster than about 1 Hz by default. A tighter loop buys detail
+nobody reads and starts to perturb the thing being measured, which is the very
+failure that rules verbose logging out.
+
+Do not report GPU memory per thread. CUDA context memory is per process, not
+per thread, and a per-thread figure would be fiction.
