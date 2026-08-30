@@ -484,10 +484,14 @@ def test_the_ai_key_toggles_the_switch_on_the_visible_screen(monkeypatch):
     assert hidden._ai_switch.isChecked() is False
 
 
-def test_the_ai_key_on_a_window_that_cannot_be_searched_is_ignored():
+def test_the_ai_key_on_a_window_that_cannot_be_searched_is_logged(caplog):
     """The sweep was attempted, and for the one type that carries the
     switch: a handler that searched some other class would find a screen
-    without `_ai_switch` and toggle nothing while raising nothing either."""
+    without `_ai_switch` and toggle nothing while raising nothing either.
+
+    The failure remains non-fatal, but its traceback must reach the debug log
+    so a broken advertised shortcut can be diagnosed from a user's log.
+    """
     from spacr.qt.screens.app_screen import AppScreen
 
     searched = []
@@ -497,8 +501,14 @@ def test_the_ai_key_on_a_window_that_cannot_be_searched_is_ignored():
             searched.append(kind)
             raise RuntimeError("window is gone")
 
-    sc._toggle_ai(Hostile())
+    with caplog.at_level(logging.DEBUG, logger="spacr.qt.shortcuts"):
+        sc._toggle_ai(Hostile())
+
     assert searched == [AppScreen]
+    record = next(record for record in caplog.records
+                  if record.getMessage() == "could not toggle the AI switch")
+    assert record.exc_info is not None
+    assert record.exc_info[0] is RuntimeError
 
 
 # --------------------------------------------------------------------------

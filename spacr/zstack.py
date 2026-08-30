@@ -3054,6 +3054,13 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
                 f"neither t_max_displacement_px nor t_max_displacement_um is "
                 f"set. Set one; spaCR will not pick a default gate."
             )
+        if spec.max_displacement_um is not None and spec.voxel_size_um is None:
+            raise TStackError(
+                "t_max_displacement_um is set but the voxel size is not known, "
+                "so pixels cannot be converted to micrometres. Set "
+                "voxel_size_z_um and voxel_size_xy_um, or express the gate in "
+                "pixels with t_max_displacement_px."
+            )
         if (spec.z_axis is not None and spec.z_mode != MODE_PROJECT
                 and spec.max_displacement_um is None):
             spec.require_anisotropy()
