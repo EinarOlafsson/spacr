@@ -423,8 +423,9 @@ class DesignSpec:
     :ivar n_replicates: simulated screens per grid point.
     :ivar detection_auroc: the AUROC a replicate must reach to count as a
         detection.
-    :ivar seed: master seed. Every number on the screen is reproducible
-        from this plus the fields above.
+    :ivar seed: master seed used to derive each grid-point replicate seed.
+        Reproduction also requires the complete design, the same sweep grid
+        and order, resolved backend, and software stack.
     :ivar backend: inference backend, passed straight to
         :func:`spacr.power_model.scan_parameters`.
     """
