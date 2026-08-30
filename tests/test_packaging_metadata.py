@@ -773,6 +773,74 @@ def test_ci_installs_and_runs_both_built_distribution_formats():
     assert '"$environment/bin/spacr-run" --list' in workflow
 
 
+def test_platform_matrix_consumes_both_exact_distribution_artifacts():
+    """Every supported cell tests downloads, never the editable checkout."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+    metadata_job = workflow.split("\n  metadata:\n", 1)[1].split(
+        "\n  current-python-installs:\n", 1
+    )[0]
+    install_job = workflow.split("\n  install:\n", 1)[1].split(
+        "\n  wheel-availability:\n", 1
+    )[0]
+
+    assert "distribution_artifact: ${{ steps.distribution_name.outputs.name }}" in metadata_job
+    assert "actions/upload-artifact@v7" in metadata_job
+    assert "dist/*.whl" in metadata_job
+    assert "dist/*.tar.gz" in metadata_job
+    assert "${{ github.run_id }}-${{ github.run_attempt }}" in metadata_job
+
+    assert "needs: metadata" in install_job
+    assert "actions/download-artifact@v8" in install_job
+    assert "name: ${{ needs.metadata.outputs.distribution_artifact }}" in install_job
+    assert "Install and smoke the exact wheel and sdist" in install_job
+    assert "packaging/smoke_distribution_artifacts.py" in install_job
+    assert '--dist-dir "${{ runner.temp }}/spacr-dist"' in install_job
+    assert '--extras "${{ matrix.extras }}"' in install_job
+    assert "python -m pip install -e" not in install_job
+    assert "pip install -e" not in install_job
+    assert "PYTHONPATH:" not in install_job
+
+    assert "Upload installed-artifact smoke evidence" in install_job
+    assert "${{ strategy.job-index }}" in install_job
+    assert "${{ github.run_id }}-${{ github.run_attempt }}" in install_job
+
+
+def test_distribution_smoke_is_isolated_cross_platform_and_functional():
+    """The handoff harness proves origin, CLI, core and Qt for both formats."""
+    helper = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    source = helper.read_text(encoding="utf-8")
+
+    # The harness itself runs in the declared floor cell.
+    ast.parse(source, filename=str(helper), feature_version=(3, 9))
+    assert 'dist_dir.glob("*.whl")' in source
+    assert 'dist_dir.glob("*.tar.gz")' in source
+    assert '(("wheel", wheel), ("sdist", sdist))' in source
+    assert 'name.endswith(".dist-info/METADATA")' in source
+    assert "expected_version = _wheel_version(wheel)" in source
+    assert 'distribution.read_text("direct_url.json")' in source
+    assert 'f"checkout masked the installed artifact: {installed}"' in source
+    assert 'environment.pop("PYTHONPATH", None)' in source
+    assert '"-I",' in source
+
+    assert '"--no-cache-dir"' in source
+    assert '"--no-deps"' in source
+    assert '"--force-reinstall"' in source
+    assert 'sysconfig.get_path("scripts")' in source
+    assert 'shutil.which("spacr-run", path=str(scripts))' in source
+    assert '[entrypoint, "--version"]' in source
+    assert '[entrypoint, "--list"]' in source
+    assert 'AppScreen("measure")' in source
+    assert '"spacr.timelapse"' in source
+
+    # Durations are preserved for comparison, but only a generous hang guard
+    # decides the job; hosted ARM and Windows runners are not microbenchmarks.
+    assert "SMOKE_TIMEOUT_SECONDS = 180" in source
+    assert '"install_seconds"' in source
+    assert '"elapsed_seconds"' in source
+    assert '"qt_seconds"' in source
+    assert '"sha256": _sha256(artifact)' in source
+
+
 def test_built_artifacts_are_audited_for_required_and_forbidden_files():
     """Runtime omissions and accidentally bundled review assets fail CI."""
     workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
