@@ -19,6 +19,7 @@ import ast
 import fnmatch
 import hashlib
 import importlib.util
+import inspect
 import pathlib
 import re
 import sys
@@ -49,11 +50,12 @@ AUTOAPI_IGNORE = (
     "*/qt/i18n_catalogs/*",
 )
 
-# These are callable contracts, but they are not rendered AutoAPI members.
-# Keeping that distinction in each record prevents a console target or a
-# compatibility shim from being used to inflate translated-API coverage.
+# Explicit overrides for modules whose leading-underscore spelling or launch
+# role defeats the default rule. ``spacr.__main__`` is present in rendered
+# AutoAPI; the Qt launch module and tutorial target are CLI-only, while the
+# v1/v2 bridge remains a compatibility surface rather than rendered prose.
 MODULE_EXPOSURES = {
-    "spacr.__main__": "cli_only",
+    "spacr.__main__": "autoapi",
     "spacr.qt.__main__": "cli_only",
     "spacr.qt.tutorial.__main__": "cli_only",
     "spacr._v1_v2_bridge": "compatibility",
@@ -82,6 +84,9 @@ class _PublicCallable:
     required_parameters: frozenset[str]
     docstring: str
     accepted_documented_parameters: frozenset[str]
+    variant_count: int
+    docless_variant_count: int
+    constructor_prose_variant_count: int
     exposure: str = "autoapi"
     accepts_arbitrary_keywords: bool = False
 
@@ -110,6 +115,12 @@ def _module_name(root: pathlib.Path, path: pathlib.Path) -> str:
     if parts[-1] == "__init__":
         parts.pop()
     return ".".join(("spacr", *parts))
+
+
+def _clean_doc(node: ast.AST) -> str:
+    """Match the cleaned source body used by the documentation extractor."""
+    value = ast.get_docstring(node, clean=False) or ""
+    return inspect.cleandoc(value).strip()
 
 
 def _autoapi_ignore_match(path: pathlib.Path) -> str | None:
@@ -948,6 +959,12 @@ def _merge_callable(
             previous.accepted_documented_parameters
             | current.accepted_documented_parameters
         ),
+        variant_count=previous.variant_count + current.variant_count,
+        docless_variant_count=(
+            previous.docless_variant_count + current.docless_variant_count),
+        constructor_prose_variant_count=(
+            previous.constructor_prose_variant_count
+            + current.constructor_prose_variant_count),
         exposure=current.exposure,
         accepts_arbitrary_keywords=(
             previous.accepts_arbitrary_keywords
@@ -1041,6 +1058,7 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                 if not visible(node.name):
                     continue
                 parameters, required = _node_parameters(node)
+                doc = _clean_doc(node)
                 exposure = (
                     "cli_only" if symbol in CLI_ONLY_SYMBOLS
                     else info["exposure"]
@@ -1050,8 +1068,11 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                     category="function",
                     parameters=parameters,
                     required_parameters=required,
-                    docstring=ast.get_docstring(node) or "",
+                    docstring=doc,
                     accepted_documented_parameters=parameters,
+                    variant_count=1,
+                    docless_variant_count=int(not doc),
+                    constructor_prose_variant_count=0,
                     exposure=exposure,
                 ))
                 continue
@@ -1064,13 +1085,17 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                 name, parameters, required = functional
                 if visible(name):
                     symbol = f"{module}.{name}"
+                    doc = info["assignment_docs"].get(id(node), "")
                     admit(_PublicCallable(
                         symbol=symbol,
                         category="namedtuple_constructor",
                         parameters=parameters,
                         required_parameters=required,
-                        docstring=info["assignment_docs"].get(id(node), ""),
+                        docstring=doc,
                         accepted_documented_parameters=parameters,
+                        variant_count=1,
+                        docless_variant_count=int(not doc),
+                        constructor_prose_variant_count=0,
                         exposure=info["exposure"],
                     ))
                 continue
@@ -1079,7 +1104,7 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                 continue
 
             class_symbol = f"{module}.{node.name}"
-            class_doc = ast.get_docstring(node) or ""
+            class_doc = _clean_doc(node)
             class_children = tuple(_module_scope_nodes(node.body))
             constructors = [
                 child for child in class_children
@@ -1094,6 +1119,7 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                 ]
 
             accepts_arbitrary_keywords = False
+            constructor_prose_variant_count = 0
             accepted: frozenset[str]
             if constructors:
                 parameter_names: set[str] = set()
@@ -1108,15 +1134,30 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                     required_names.update(required)
                     accepted_names.update(parameters | virtual)
                     accepts_arbitrary_keywords |= arbitrary
-                    constructor_doc = ast.get_docstring(constructor) or ""
+                    constructor_doc = _clean_doc(constructor)
                     if constructor_doc and constructor_doc not in constructor_docs:
                         constructor_docs.append(constructor_doc)
+                if not constructor_docs:
+                    for constructor in class_children:
+                        if not isinstance(
+                            constructor,
+                            (ast.FunctionDef, ast.AsyncFunctionDef),
+                        ) or constructor.name != "__new__":
+                            continue
+                        constructor_doc = _clean_doc(constructor)
+                        if constructor_doc \
+                                and constructor_doc not in constructor_docs:
+                            constructor_docs.append(constructor_doc)
                 parameters = frozenset(parameter_names)
                 required = frozenset(required_names)
                 accepted = frozenset(accepted_names)
                 category = "constructor"
-                doc = "\n".join(
-                    text for text in (class_doc, *constructor_docs) if text)
+                constructor_prose_variant_count = len(constructor_docs)
+                doc = class_doc
+                for constructor_doc in constructor_docs:
+                    # AutoAPI PythonClass.docstring uses one literal newline
+                    # for class_content='both', including the empty-class case.
+                    doc = f"{doc}\n{constructor_doc}"
             elif _dataclass_generates_init(node, info["dataclass_names"]):
                 parameters, required = _dataclass_constructor_parameters(
                     class_symbol, node, info, class_index)
@@ -1156,6 +1197,10 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                 required_parameters=required,
                 docstring=doc,
                 accepted_documented_parameters=accepted,
+                variant_count=1,
+                docless_variant_count=int(not doc),
+                constructor_prose_variant_count=(
+                    constructor_prose_variant_count),
                 exposure=info["exposure"],
                 accepts_arbitrary_keywords=accepts_arbitrary_keywords,
             ))
@@ -1169,13 +1214,17 @@ def _public_callable_inventory() -> tuple[_PublicCallable, ...]:
                     continue
                 parameters, required = _node_parameters(child)
                 method_symbol = f"{class_symbol}.{child.name}"
+                doc = _clean_doc(child)
                 admit(_PublicCallable(
                     symbol=method_symbol,
                     category="method",
                     parameters=parameters,
                     required_parameters=required,
-                    docstring=ast.get_docstring(child) or "",
+                    docstring=doc,
                     accepted_documented_parameters=parameters,
+                    variant_count=1,
+                    docless_variant_count=int(not doc),
+                    constructor_prose_variant_count=0,
                     exposure=info["exposure"],
                 ))
 
@@ -1285,6 +1334,23 @@ def _documentation_public_docstrings() -> dict[str, str]:
         sys.modules.pop(module_name, None)
         if inserted_path:
             sys.path.remove(str(tools))
+
+
+def _docstring_contract_differences(
+    expected: dict[str, str], actual: dict[str, str],
+) -> list[str]:
+    """Hash-addressed missing or content-stale source documents."""
+    differences: list[str] = []
+    for symbol, expected_text in expected.items():
+        expected_hash = hashlib.sha256(expected_text.encode()).hexdigest()
+        if symbol not in actual:
+            differences.append(f"{symbol}\0{expected_hash}\0MISSING")
+            continue
+        actual_hash = hashlib.sha256(actual[symbol].encode()).hexdigest()
+        if actual[symbol] != expected_text:
+            differences.append(
+                f"{symbol}\0{expected_hash}\0{actual_hash}")
+    return sorted(differences)
 
 
 def test_public_boundary_helpers_reject_static_parser_evasions():
@@ -1479,10 +1545,21 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 54,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 7_976,
-        "cli_only": 4,
+        "autoapi": 7_978,
+        "cli_only": 2,
         "compatibility": 3,
     }
+    assert sum(item.variant_count for item in callables) == 7_990
+    assert Counter(item.variant_count for item in callables) == {
+        1: 7_976,
+        2: 7,
+    }
+    assert sum(
+        item.constructor_prose_variant_count for item in callables
+    ) == 47
+    assert sum(
+        item.constructor_prose_variant_count > 0 for item in callables
+    ) == 47
     assert sum(len(item.parameters) for item in callables) == 15_873
     assert sum(len(item.required_parameters) for item in callables) == 7_964
     assert _sha256_lines(
@@ -1490,9 +1567,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{','.join(sorted(item.parameters))}\0"
         f"{','.join(sorted(item.required_parameters))}\0"
         f"{','.join(sorted(item.accepted_documented_parameters))}\0"
-        f"{int(item.accepts_arbitrary_keywords)}"
+        f"{int(item.accepts_arbitrary_keywords)}\0"
+        f"{item.variant_count}\0{item.docless_variant_count}\0"
+        f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "68b8dc989340a75ac2a1a7f7483ae7c5448ea4922719d271f0d67f6717f19451"
+    ) == "3e8f9b3b993c170f23cc5c3543cf092dd66ecc06725600330df9d5b2d4fe765c"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1534,6 +1613,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         docstring=round_result.docstring + "\n:param misspelled_field: typo",
         accepted_documented_parameters=(
             round_result.accepted_documented_parameters),
+        variant_count=round_result.variant_count,
+        docless_variant_count=round_result.docless_variant_count,
+        constructor_prose_variant_count=(
+            round_result.constructor_prose_variant_count),
     )
     assert _ghost_parameters(adversarial_round_doc) == {"misspelled_field"}
 
@@ -1554,6 +1637,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "spacr.qt.widgets.fractal_space.sample_space",
     ):
         assert symbol in by_symbol
+    for symbol in (
+        "spacr.qt.widgets.fractal_cascade.render_into",
+        "spacr.qt.widgets.fractal_space.render_space_frame",
+        "spacr.qt.widgets.fractal_space.sample_space",
+    ):
+        assert by_symbol[symbol].variant_count == 2
+        assert by_symbol[symbol].docless_variant_count == 1
 
     # A literal __all__ closes a module; nested functions, properties,
     # private Qt callbacks and non-constructor special methods are not
@@ -1572,7 +1662,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     ).read_text()
     assert "spacr-server=spacr.qt:run_without_setup" in setup_source
     assert "spacr-tutorial=spacr.qt.tutorial.__main__:main" in setup_source
-    assert by_symbol["spacr.__main__.main"].exposure == "cli_only"
+    assert by_symbol["spacr.__main__.main"].exposure == "autoapi"
     assert by_symbol["spacr.qt.run_without_setup"].exposure == "cli_only"
     assert by_symbol[
         "spacr.qt.tutorial.__main__.main"
@@ -1585,12 +1675,18 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
 
 
 def test_no_new_public_callable_lacks_a_docstring():
-    """Ratchet the exact docless debt independently of parameter fields."""
+    """Ratchet every docless executable variant, not merely each symbol."""
     docless = sorted(
-        item.symbol for item in _public_callables() if not item.docstring)
-    assert len(docless) == 675
+        f"{item.symbol}\0{item.docless_variant_count}\0{item.variant_count}"
+        for item in _public_callables()
+        if item.docless_variant_count
+    )
+    assert len(docless) == 678
+    assert sum(
+        item.docless_variant_count for item in _public_callables()
+    ) == 678
     assert _sha256_lines(docless) == (
-        "0bd2b50ef6f1677a6c6d266594609facf6a1282dee1d0fa31b56ed355de4d89d"
+        "635e21ba204457a80b0344526d713f4dc164a234f2109f524bc9b4cb0af74c6b"
     )
 
 
@@ -1635,7 +1731,7 @@ def test_no_new_public_callable_ghost_parameters():
 
 
 def test_callable_boundary_is_cross_checked_with_i18n_extractor():
-    """Make every scanner/extractor parser mismatch named, exact debt."""
+    """Require the extractor's keys and content to equal rendered source."""
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
     imported_package_modules = {
@@ -1645,26 +1741,22 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not imported_package_modules
 
     rendered_documented_callables = {
-        item.symbol for item in _public_callables()
+        item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    missing = sorted(rendered_documented_callables - docs.keys())
-    assert len(docs) == 8_899
-    assert len(rendered_documented_callables) == 7_301
-    assert len(missing) == 21
-    assert Counter(symbol.rsplit(".", 1)[0] for symbol in missing) == {
-        "spacr.flowview.items.EdgeItem": 3,
-        "spacr.flowview.items.NodeItem": 3,
-        "spacr.flowview.panel.FlowGraphicsView": 2,
-        "spacr.flowview.panel.FlowViewPanel": 4,
-        "spacr.flowview.items": 3,
-        "spacr.flowview.panel": 3,
-        "spacr.qt.widgets.fractal_cascade": 1,
-        "spacr.qt.widgets.fractal_space": 2,
-    }
-    assert _sha256_lines(missing) == (
-        "e3dd6993cb47e6861ee7c431cdcf17b5883c6f2e31ddd0d63ae94b7a1b5ff4d9"
-    )
+    assert len(docs) == 8_924
+    assert len(rendered_documented_callables) == 7_303
+    assert not _docstring_contract_differences(
+        rendered_documented_callables, docs)
+
+    # A key-only comparison would accept this exact evasion: the symbol is
+    # still present, but its rendered class/constructor body is source-stale.
+    synthetic_expected = {"spacr.Example": "class prose\nconstructor prose"}
+    synthetic_stale = {"spacr.Example": "class prose"}
+    differences = _docstring_contract_differences(
+        synthetic_expected, synthetic_stale)
+    assert len(differences) == 1
+    assert differences[0].startswith("spacr.Example\0")
 
 
 def test_no_new_undocumented_required_public_parameters():

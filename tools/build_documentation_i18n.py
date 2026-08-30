@@ -3952,6 +3952,68 @@ def _clean_doc(node: ast.AST) -> str:
     return inspect.cleandoc(value).strip()
 
 
+def _module_scope_nodes(statements):
+    """Yield definitions in every executable module/class-level branch."""
+    for node in statements:
+        yield node
+        if isinstance(node, ast.If):
+            yield from _module_scope_nodes(node.body)
+            yield from _module_scope_nodes(node.orelse)
+        elif isinstance(node, (ast.Try, getattr(ast, "TryStar", ast.Try))):
+            yield from _module_scope_nodes(node.body)
+            for handler in node.handlers:
+                yield from _module_scope_nodes(handler.body)
+            yield from _module_scope_nodes(node.orelse)
+            yield from _module_scope_nodes(node.finalbody)
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            yield from _module_scope_nodes(node.body)
+        elif hasattr(ast, "Match") and isinstance(node, ast.Match):
+            for case in node.cases:
+                yield from _module_scope_nodes(case.body)
+
+
+def _merge_source_doc(docs: dict[str, str], key: str, text: str) -> None:
+    """Merge mutually exclusive source definitions without losing either."""
+    if not text:
+        return
+    current = docs.get(key, "")
+    if not current:
+        docs[key] = text
+    elif text != current:
+        docs[key] = f"{current}\n{text}"
+
+
+def _autoapi_class_doc(node: ast.ClassDef) -> str:
+    """Class prose exactly as AutoAPI's ``class_content='both'`` emits it."""
+    doc = _clean_doc(node)
+    children = tuple(_module_scope_nodes(node.body))
+    constructors = [
+        child for child in children
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and child.name == "__init__"
+    ]
+    constructor_docs: list[str] = []
+    for constructor in constructors:
+        constructor_doc = _clean_doc(constructor)
+        if constructor_doc and constructor_doc not in constructor_docs:
+            constructor_docs.append(constructor_doc)
+    # PythonClass.constructor_docstring falls back to __new__ when __init__
+    # exists but carries no prose, not only when __init__ is absent.
+    if not constructor_docs:
+        for constructor in children:
+            if not isinstance(
+                constructor, (ast.FunctionDef, ast.AsyncFunctionDef),
+            ) or constructor.name != "__new__":
+                continue
+            constructor_doc = _clean_doc(constructor)
+            if constructor_doc and constructor_doc not in constructor_docs:
+                constructor_docs.append(constructor_doc)
+    for constructor_doc in constructor_docs:
+        # This is AutoAPI's exact separator in PythonClass.docstring.
+        doc = f"{doc}\n{constructor_doc}"
+    return doc
+
+
 def _is_visible_function_name(name: str, *, module_is_package: bool) -> bool:
     """Return whether AutoAPI emits this documented function/member name."""
     if not name.startswith("_"):
@@ -4045,7 +4107,7 @@ def public_docstrings() -> dict[str, str]:
         if module_doc:
             docs[module] = module_doc
         docs.update(_additional_assignment_docs(tree.body, module))
-        for node in tree.body:
+        for node in _module_scope_nodes(tree.body):
             if not isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -4057,12 +4119,13 @@ def public_docstrings() -> dict[str, str]:
             if not visible:
                 continue
             key = f"{module}.{node.name}"
-            doc = _clean_doc(node)
-            if doc:
-                docs[key] = doc
+            doc = _autoapi_class_doc(node) if isinstance(
+                node, ast.ClassDef,
+            ) else _clean_doc(node)
+            _merge_source_doc(docs, key, doc)
             if isinstance(node, ast.ClassDef):
                 docs.update(_additional_assignment_docs(node.body, key))
-                for child in node.body:
+                for child in _module_scope_nodes(node.body):
                     if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         continue
                     if not _is_visible_function_name(
@@ -4070,8 +4133,7 @@ def public_docstrings() -> dict[str, str]:
                     ):
                         continue
                     child_doc = _clean_doc(child)
-                    if child_doc:
-                        docs[f"{key}.{child.name}"] = child_doc
+                    _merge_source_doc(docs, f"{key}.{child.name}", child_doc)
     for alias, canonical in API_DOC_ALIASES.items():
         if alias in docs:
             raise ValueError(
