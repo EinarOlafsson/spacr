@@ -39,6 +39,8 @@ def circularity_warning(method: str, *,
                         score_in_features: bool = False) -> str:
     """Return a warning when control agreement is not independent.
 
+    :param method: annotation or cell-picking method being checked.
+
     An empty string means that neither the method name nor the supplied
     feature flag identifies a known circularity.
     """
@@ -169,6 +171,9 @@ def neighbour_purity(embedding: np.ndarray,
                      k: int = 25) -> np.ndarray:
     """Compute the positive-control share among each cell's neighbours.
 
+    :param embedding: embedding coordinates for controls and annotated cells.
+    :param control_labels: control label, or ``None``, aligned to each row.
+
     ``embedding`` contains controls and annotated cells together.
     ``control_labels`` uses :data:`POSITIVE`, :data:`NEGATIVE`, or ``None``
     for non-control cells. Each control cell is excluded from its own
@@ -207,6 +212,9 @@ def purity_by_guide(purity: np.ndarray,
                     minimum_cells: int = 10) -> Dict[str, Dict[str, float]]:
     """Summarize neighbour purity for each sufficiently represented guide.
 
+    :param purity: per-cell neighbour-purity values.
+    :param guides: guide name aligned to each purity value.
+
     The abstention label is excluded. Guides with fewer than
     ``minimum_cells`` finite values are omitted; retained rows report mean
     purity, standard deviation, and cell count.
@@ -235,6 +243,9 @@ def effect_agreement(purity: Mapping[str, Mapping[str, float]],
                      permutations: int = 999,
                      seed: int = 0) -> Dict[str, object]:
     """Test whether guide effects agree with positive-control proximity.
+
+    :param purity: guide summaries containing mean ``purity`` values.
+    :param effects: numeric effect estimate keyed by guide.
 
     The observed statistic is Spearman correlation between guide effect and
     mean neighbour purity. The permutation null shuffles effects between

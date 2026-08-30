@@ -124,7 +124,10 @@ def shape(layout: int = DEFAULT_LAYOUT) -> Tuple[int, int]:
 
 
 def row_label(row: int) -> str:
-    """Convert a one-based row number to a plate-map label."""
+    """Convert a one-based row number to a plate-map label.
+
+    :param row: one-based plate row number.
+    """
     if row <= 26:
         return string.ascii_uppercase[row - 1]
     # A 1536 has 32 rows, so the last six are AA..AF. Two letters is as far
@@ -133,7 +136,10 @@ def row_label(row: int) -> str:
 
 
 def row_number(label: str) -> int:
-    """Convert a plate-map row label to its one-based row number."""
+    """Convert a plate-map row label to its one-based row number.
+
+    :param label: alphabetic plate-map row label.
+    """
     text = str(label).strip().upper()
     if len(text) == 1:
         return string.ascii_uppercase.index(text) + 1
@@ -141,12 +147,18 @@ def row_number(label: str) -> int:
 
 
 def well_label(row: int, column: int) -> str:
-    """Return the plate-map label for a one-based row and column."""
+    """Return the plate-map label for a one-based row and column.
+
+    :param row: one-based plate row number.
+    :param column: one-based plate column number.
+    """
     return f"{row_label(row)}{column:02d}"
 
 
 def parse_one(text: str, layout: int = DEFAULT_LAYOUT) -> Set[Tuple[int, int]]:
     """Resolve one row, column, or well token to one-based coordinates.
+
+    :param text: single row, column, or well token to resolve.
 
     Raises
     ------
@@ -210,6 +222,8 @@ def _check(row: int, column: int, rows: int, columns: int, token: str,
 def parse(text, layout: int = DEFAULT_LAYOUT) -> Set[Tuple[int, int]]:
     """Resolve a mixed well specification to unique one-based coordinates.
 
+    :param text: delimited string or iterable of row, column, and well tokens.
+
     The value ``"r1, c1, A01"`` selects the union of the named row, column,
     and individual well.
     """
@@ -229,6 +243,8 @@ def parse(text, layout: int = DEFAULT_LAYOUT) -> Set[Tuple[int, int]]:
 def to_text(cells: Iterable[Tuple[int, int]],
             layout: int = DEFAULT_LAYOUT) -> str:
     """Serialize selected coordinates using compact supported tokens.
+
+    :param cells: iterable of one-based ``(row, column)`` coordinates.
 
     Complete rows and columns become ``rN`` and ``cN`` tokens. Remaining
     coordinates are written as individual well labels, ensuring the result
