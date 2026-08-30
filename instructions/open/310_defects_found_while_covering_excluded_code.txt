@@ -22,7 +22,7 @@ FIXED and pushed, and are recorded here only so they are not re-derived:
   * spacr/trial_metrics.py:145 -- compared a masked residual array's length
     against the unmasked fitted length, raising IndexError out of a function
     both callers wrap in one try. Cost every residual statistic, not just the
-    slope it guarded. Fixed in a7048150.
+    slope it guarded. Fixed in f406e936.
   * spacr/projects.py:760,769 -- an artifacts.db that is not valid SQLite
     raised sqlite3.DatabaseError past a too-narrow ``except
     _dm.DataManagerError`` and past an unguarded ``_registry_for()``, so one
@@ -67,7 +67,7 @@ transparent choices, saves the selected item, restores it in a newly opened
 dialog, and resets it to print. The call-site test then reads the choice
 through ``spacr.figure_style.figure_save_mode``; a valid environment override
 still wins. The focused preference/call-site cohort is 19/19 green.
-Implementation commit: ``b47caef2``.
+Implementation commit: ``a4b2bb62``.
 
 --------------------------------------------------------------------------------
 2. A BARE VEuPATHDB ACCESSION IS CLASSIFIED AS A GUIDE  (lane: spacr/hits.py)
@@ -251,14 +251,14 @@ uncommented.
     rebuilds the survivor list used for both the error and scratch-retention
     decisions, so a late clean exit leaves neither a false error nor a stale
     temporary database.
-  * [FIXED ``2b36b712``] spacr/crops.py ``_region_for`` -- the docstring
+  * [FIXED ``0bb1073a``] spacr/crops.py ``_region_for`` -- the docstring
     documented a ``None``
     return the code can no longer produce. The ``binary_dilation(iterations=0)``
     quirk that produced it was fixed by the ``if px > 0`` guard, so every path
     now returns an ndarray. Confirmed by brute force over 57,600 field/spec
     combinations: zero None regions. The stale return is gone and the public
     type contract now says the array-only truth.
-  * [RESOLVED ``cde2b73d``] tests/test_the_name_is_spaCR.py::
+  * [RESOLVED ``866f7d2b``] tests/test_the_name_is_spaCR.py::
     test_no_file_mis_cases_the_name started failing during the 2026-08-29
     session. The
     offenders spell the name "SpaCR" at docs/source/installer_guide.rst:101
@@ -274,7 +274,7 @@ uncommented.
     would couple mixed_gpu to fit_resources, so it stays local deliberately;
     a cosmetic helper merge is not worth adding an import dependency between
     independent resource-control modules.
-  * [FIXED ``591afe90``] spacr/pipeline_graph.py:485 listed
+  * [FIXED ``fbfeabab``] spacr/pipeline_graph.py:485 listed
     ``FileNotFoundError`` beside its superclass ``OSError``. The redundant
     subclass is gone; the race still returns the same readable graph note.
   * [FINAL CATALOG REBUILD IN PROGRESS] tests/test_api_i18n_extractor.py::
@@ -476,7 +476,7 @@ it fails QUIETLY in the other direction -- a report line that lands on a
 different STATEMENT rather than on a comment gives a test aimed at the wrong
 branch, which then passes.
 
-THE CHECK: compare the file, not the commit. ``git diff 4eccf7b8 HEAD -- <file>``
+THE CHECK: compare the file, not the commit. ``git diff eb4af2ef HEAD -- <file>``
 was EMPTY for crops.py and still the two files differed, because the difference
 was never committed at all.
 
@@ -772,7 +772,7 @@ found in a third place.
 Two complete full-suite runs now exist and their whole-library figures DISAGREE
 in the wrong direction:
 
-    2026-08-29, commit 4eccf7b8   95.00%   494 modules, 167 at 100%
+    2026-08-29, commit eb4af2ef   95.00%   494 modules, 167 at 100%
                                   46,918 passed / 453 failed / 1:49:41
                                   2 'node down' events
 
