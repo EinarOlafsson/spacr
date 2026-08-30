@@ -33,10 +33,15 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 
-def _screen(qtbot, app_key: str = "mask"):
+def _screen(qtbot, app_key: str = "mask", current=None):
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen(app_key)
+    before = AppScreen.values_the_next_screen_is_built_for
+    AppScreen.values_the_next_screen_is_built_for = current
+    try:
+        screen = AppScreen(app_key)
+    finally:
+        AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
     qtbot.wait(1)
     return screen, screen._settings_model
@@ -103,7 +108,7 @@ def test_the_panel_builds_one_caption_per_row_it_can_show(qtbot):
     # Which is the saving: two widgets and two style repolishes each for the
     # rows the run cannot show, on a panel where a style recalculation walks
     # every widget alive.
-    assert len(hosts) < len(model._widgets) // 2
+    assert len(hosts) < len(model._widgets)
 
 
 # ---------------------------------------------------------------------------
@@ -166,25 +171,16 @@ def test_reading_a_headings_rows_back_captions_them_all(qtbot):
 # What the rule reveals
 # ---------------------------------------------------------------------------
 
-def test_raising_the_count_captions_the_slots_it_reveals(qtbot):
-    """The row is given its caption in the same pass that shows it."""
+def test_a_shape_built_for_seven_captions_the_seven_slots(qtbot):
+    """A committed count rebuilds the optimized panel at its new shape."""
     from spacr.organelle_types import ALL_ORGANELLE_ROLES
 
-    screen, model = _screen(qtbot)
-    on_screen = [role for role in ALL_ORGANELLE_ROLES
-                 if screen.setting_row_is_visible(f"{role}_channel")]
-    assert len(on_screen) == 4, on_screen
-
-    combo = model._widgets["number_of_organelles"]
-    index = combo.findData(7)
-    assert index >= 0
-    combo.setCurrentIndex(index)
-    qtbot.wait(1)
-
-    after = [role for role in ALL_ORGANELLE_ROLES
+    screen, _model = _screen(
+        qtbot, current={"number_of_organelles": 7})
+    shown = [role for role in ALL_ORGANELLE_ROLES
              if screen.setting_row_is_visible(f"{role}_channel")]
-    assert len(after) == 7, after
-    for role in after:
+    assert len(shown) == 7, shown
+    for role in shown:
         key = f"{role}_channel"
         assert key in _captioned(screen), f"{key} was shown with no caption"
 
@@ -211,15 +207,18 @@ def test_a_revealed_row_carries_the_help_its_caption_holds(qtbot):
     """The caption is the hover target for a setting's documentation, so a
     row that got one late has to get the whole of it."""
     screen, model = _screen(qtbot)
-    combo = model._widgets["number_of_organelles"]
-    combo.setCurrentIndex(combo.findData(7))
+    key = "remove_background_nucleus"
+    assert key not in _captioned(screen)
+    model._widgets["nucleus_channel"].setText("1")
+    model.refresh_object_visibility()
     qtbot.wait(1)
 
     from PySide6.QtWidgets import QLabel
 
-    key = "organellee_channel"
-    host = _form_rows(screen)[id(model._widgets[key])][3]
+    section, _form, _index, host = _form_rows(screen)[id(model._widgets[key])]
     assert host is not None
+    assert not section.property("settingsSectionDiscarded")
+    assert section in screen.rendered_settings_sections()
     # The label sits in the host that right-aligns it against the field.
     caption = host if isinstance(host, QLabel) else host.findChild(QLabel)
     assert caption is not None
@@ -248,16 +247,20 @@ def test_a_late_caption_is_not_left_in_english(qtbot, monkeypatch):
     screen, model = _screen(qtbot)
     retranslate_widget_tree(screen)
 
-    combo = model._widgets["number_of_organelles"]
-    combo.setCurrentIndex(combo.findData(7))
+    key = "remove_background_nucleus"
+    model._widgets["nucleus_channel"].setText("1")
+    model.refresh_object_visibility()
     qtbot.wait(1)
 
-    host = _form_rows(screen)[id(model._widgets["organellee_channel"])][3]
+    host = _form_rows(screen)[id(model._widgets[key])][3]
     caption = host if isinstance(host, QLabel) else host.findChild(QLabel)
     assert caption is not None
-    english = model._label_for("organellee_channel")
-    if tr(english, "sv") != english:
-        assert caption.text() == tr(english, "sv"), caption.text()
+    # Setting captions have a direct key-level catalog entry; translating a
+    # prettified fallback word by word is weaker and can produce a different
+    # but still partly translated phrase.
+    translated = tr(key, "sv")
+    if translated != key:
+        assert caption.text() == translated, caption.text()
 
 
 def test_walking_the_caption_index_hands_over_every_caption(qtbot):

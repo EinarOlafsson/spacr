@@ -6,8 +6,9 @@ the repective settings visability are toggledd on."
 
 Three rules, and one promise that runs underneath all three:
 
-  * the CHANNEL is the switch for cell, nucleus and pathogen, and the mask
-    plane is the switch on a module that reads masks somebody else made;
+  * the CHANNEL is the switch for nucleus and pathogen, and the mask plane is
+    the switch on a module that reads masks somebody else made;
+  * cell is the deliberate exception: its settings always remain available;
   * an organelle SLOT is switched the same way, one slot at a time;
   * the slot's TYPE narrows it further -- a punctate organelle shows the
     punctate controls and not the network or ring ones;
@@ -32,15 +33,41 @@ pytestmark = pytest.mark.qt
 
 
 def _screen(qtbot, app_key: str):
+    """Build a visibility-rule harness containing the rows it will toggle.
+
+    Production screens now omit optional-object families and organelle slots
+    until a committed form-shaping value asks the window to rebuild them.
+    These tests exercise the row-visibility rule itself, so seed that rebuild
+    shape explicitly, then put the switches back to their unset state before
+    making assertions. The separate count/rebuild tests cover the optimized
+    production path.
+    """
     from spacr.qt.screens.app_screen import AppScreen
 
-    screen = AppScreen(app_key)
+    current = {"number_of_organelles": 1}
+    if app_key == "mask":
+        current.update({
+            "number_of_organelles": 4,
+            "nucleus_channel": 1,
+            "pathogen_channel": 2,
+        })
+    before = AppScreen.values_the_next_screen_is_built_for
+    AppScreen.values_the_next_screen_is_built_for = current
+    try:
+        screen = AppScreen(app_key)
+    finally:
+        AppScreen.values_the_next_screen_is_built_for = before
     qtbot.addWidget(screen)
+    model = screen._settings_model
+    if app_key == "mask":
+        model.set_value_for_key("nucleus_channel", None)
+        model.set_value_for_key("pathogen_channel", None)
+        model.refresh_object_visibility()
     # THE FIRST PASS IS SCHEDULED, not immediate: the rows do not exist until
     # the screen has laid them out, which happens after the settings model
     # has handed them over. See `SettingsWidgets.build_sections`.
     qtbot.wait(1)
-    return screen, screen._settings_model
+    return screen, model
 
 
 def _row_shown(screen, key: str) -> bool:
@@ -74,6 +101,19 @@ def _shown_suffixes(screen, role: str) -> set:
 def _set(model, key, value) -> None:
     """Put a value in a control and let the panel answer for it."""
     assert model.set_value_for_key(key, value), f"{key} has no control"
+    from spacr.organelle_types import organelle_role_of
+
+    role = organelle_role_of(key)
+    suffix = key[len(role) + 1:] if role else ""
+    if suffix in {"type", "morphology"}:
+        # The combo's own choice signal is the production user path.
+        return
+    if suffix == "diameter":
+        # A typed size is committed on Enter/focus-out, not per keystroke.
+        committed = getattr(model._widgets[key], "editingFinished", None)
+        if committed is not None:
+            committed.emit()
+            return
     model.refresh_object_visibility()
 
 
@@ -81,15 +121,16 @@ def _set(model, key, value) -> None:
 # The channel is the switch
 # ---------------------------------------------------------------------------
 
-def test_the_cell_settings_are_off_the_form_until_the_channel_names_one(qtbot):
+def test_cell_is_never_gated_by_its_channel(qtbot):
     screen, model = _screen(qtbot, "mask")
 
-    # Mask ships with every channel unset, so a fresh panel offers the
-    # channels and nothing that depends on one.
+    # Instruction 300 superseded the earlier all-object rule for cell: it is
+    # what every other object is measured against, so a fresh form must keep
+    # its family available even while its channel is empty.
     assert model.collect()["cell_channel"] is None
     assert _row_shown(screen, "cell_channel") is True
-    assert _row_shown(screen, "cell_diameter") is False
-    assert _row_shown(screen, "cell_CP_prob") is False
+    assert _row_shown(screen, "cell_diameter") is True
+    assert _row_shown(screen, "cell_CP_prob") is True
 
     _set(model, "cell_channel", 1)
     assert _row_shown(screen, "cell_diameter") is True
@@ -98,15 +139,16 @@ def test_the_cell_settings_are_off_the_form_until_the_channel_names_one(qtbot):
     assert _row_shown(screen, "nucleus_diameter") is False
 
 
-def test_each_of_the_three_objects_is_switched_by_its_own_channel(qtbot):
+def test_each_optional_object_is_switched_by_its_own_channel(qtbot):
     screen, model = _screen(qtbot, "mask")
 
-    for role in ("cell", "nucleus", "pathogen"):
+    for role in ("nucleus", "pathogen"):
         _set(model, f"{role}_channel", 2)
         assert _row_shown(screen, f"{role}_diameter") is True
-        others = [r for r in ("cell", "nucleus", "pathogen") if r != role]
+        others = [r for r in ("nucleus", "pathogen") if r != role]
         for other in others:
             assert _row_shown(screen, f"{other}_diameter") is False
+        assert _row_shown(screen, "cell_diameter") is True
         _set(model, f"{role}_channel", None)
         assert _row_shown(screen, f"{role}_diameter") is False
 
@@ -119,14 +161,14 @@ def test_the_switch_itself_is_never_hidden(qtbot):
         assert _row_shown(screen, f"{role}_channel") is True
 
 
-def test_the_screen_agrees_that_the_row_is_off_the_form(qtbot):
+def test_the_screen_agrees_that_cell_remains_on_the_form(qtbot):
     """Read back through the screen's own answer, not through the rule."""
     screen, model = _screen(qtbot, "mask")
     screen.show()
     qtbot.wait(1)
 
     assert screen.setting_row_is_visible("cell_channel") is True
-    assert screen.setting_row_is_visible("cell_diameter") is False
+    assert screen.setting_row_is_visible("cell_diameter") is True
     _set(model, "cell_channel", 0)
     assert screen.setting_row_is_visible("cell_diameter") is True
 
@@ -139,28 +181,28 @@ def test_a_hidden_setting_keeps_its_value_and_is_still_saved(qtbot):
     screen, model = _screen(qtbot, "mask")
     everything = set(model.collect())
 
-    _set(model, "cell_channel", 1)
-    _set(model, "cell_diameter", 77)
-    _set(model, "cell_channel", None)
+    _set(model, "nucleus_channel", 1)
+    _set(model, "nucleus_diameter", 77)
+    _set(model, "nucleus_channel", None)
 
-    assert _row_shown(screen, "cell_diameter") is False
+    assert _row_shown(screen, "nucleus_diameter") is False
     saved = model.collect()
     # A settings CSV must not lose a key because the panel was not showing it
     # when Save was pressed.
     assert set(saved) == everything
-    assert saved["cell_diameter"] == 77
+    assert saved["nucleus_diameter"] == 77
 
 
 def test_changing_the_channel_back_brings_the_old_answers_with_it(qtbot):
     screen, model = _screen(qtbot, "mask")
 
-    _set(model, "cell_channel", 1)
-    _set(model, "cell_diameter", 77)
-    _set(model, "cell_channel", None)
-    _set(model, "cell_channel", 3)
+    _set(model, "nucleus_channel", 1)
+    _set(model, "nucleus_diameter", 77)
+    _set(model, "nucleus_channel", None)
+    _set(model, "nucleus_channel", 3)
 
-    assert _row_shown(screen, "cell_diameter") is True
-    assert model.collect()["cell_diameter"] == 77
+    assert _row_shown(screen, "nucleus_diameter") is True
+    assert model.collect()["nucleus_diameter"] == 77
 
 
 def test_importing_a_settings_file_brings_its_objects_back(qtbot):
@@ -171,6 +213,133 @@ def test_importing_a_settings_file_brings_its_objects_back(qtbot):
     screen.apply_settings_dict({"pathogen_channel": 2})
 
     assert _row_shown(screen, "pathogen_diameter") is True
+
+
+def test_bulk_import_rebuilds_once_and_applies_every_slot_value(qapp, qtbot):
+    """A shape signal must not continue the import on the retired screen."""
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_nav_selected("mask")
+    qapp.processEvents()
+    original = window._screens["mask"]
+    loaded = {
+        "number_of_organelles": 1,
+        "organelle_channel": 2,
+        "organelle_type": "filamentous",
+        # An explicit advanced override wins over the type recommendation.
+        "organelle_morphology": "spots",
+        "organelle_min_size": 77,
+    }
+
+    assert original.apply_settings_dict(loaded) == len(loaded)
+    qapp.processEvents()
+
+    rebuilt = window._screens["mask"]
+    assert rebuilt is not original
+    values = rebuilt._settings_model.collect()
+    assert {key: values[key] for key in loaded} == loaded
+
+
+def test_a_legacy_slot_mapping_infers_the_count_before_it_builds(qapp, qtbot):
+    """A pre-count CSV keeps its meaning on today's count-zero panel."""
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_nav_selected("mask")
+    qapp.processEvents()
+    original = window._screens["mask"]
+    loaded = {
+        "organelleb_channel": 4,
+        "organelleb_type": "tubular",
+        "organelleb_min_size": 91,
+    }
+
+    original.apply_settings_dict(loaded)
+    qapp.processEvents()
+
+    rebuilt = window._screens["mask"]
+    values = rebuilt._settings_model.collect()
+    assert rebuilt is not original
+    assert values["number_of_organelles"] == 2
+    assert {key: values[key] for key in loaded} == loaded
+
+
+def test_a_bulk_type_import_deferred_by_a_run_keeps_preset_provenance(
+        qapp, qtbot):
+    """The post-run form still knows which preset values were omitted."""
+    from spacr.qt.app import MainWindow
+
+    class RunningThread:
+        running = True
+
+        def isRunning(self):
+            return self.running
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_nav_selected("mask")
+    qapp.processEvents()
+    original = window._screens["mask"]
+    thread = RunningThread()
+    original._thread = thread
+    original._worker = object()
+
+    original.apply_settings_dict({
+        "number_of_organelles": 1,
+        "organelle_channel": 2,
+        "organelle_type": "filamentous",
+    })
+    # A later, non-shaping next-run edit has no rebuild signal of its own.
+    # It still has to beat the older deferred snapshot.
+    original._settings_model._widgets["cell_channel"].setText("3")
+    qapp.processEvents()
+    assert window._screens["mask"] is original
+
+    thread.running = False
+    original._clear_thread_refs()
+    qtbot.waitUntil(lambda: window._screens["mask"] is not original)
+    values = window._screens["mask"]._settings_model.collect()
+    assert values["organelle_type"] == "filamentous"
+    assert values["organelle_morphology"] == "network"
+    assert values["organelle_method"] == "ridge"
+    assert values["cell_channel"] == 3
+
+
+def test_an_imported_type_waiting_for_a_channel_keeps_its_preset(qapp, qtbot):
+    """Off-form recommendations survive until the slot is activated."""
+    from spacr.qt.app import MainWindow
+
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    window._on_nav_selected("mask")
+    qapp.processEvents()
+    screen = window._screens["mask"]
+
+    screen.apply_settings_dict({
+        "number_of_organelles": 1,
+        "organelle_type": "filamentous",
+    })
+    qapp.processEvents()
+    screen = window._screens["mask"]
+    waiting = screen._settings_model.collect()
+    assert waiting["organelle_morphology"] == "network"
+    assert waiting["organelle_method"] == "ridge"
+
+    channel = screen._settings_model._widgets["organelle_channel"]
+    channel.setText("2")
+    channel.editingFinished.emit()
+    qapp.processEvents()
+    active = window._screens["mask"]._settings_model.collect()
+    assert active["organelle_type"] == "filamentous"
+    assert active["organelle_morphology"] == "network"
+    assert active["organelle_method"] == "ridge"
 
 
 # ---------------------------------------------------------------------------
@@ -251,6 +420,30 @@ def test_each_type_shows_its_own_morphologys_controls(qtbot, type_name,
 
     shown = _shown_suffixes(screen, "organelle")
     assert shown & _MORPHOLOGY_OWNED == expected
+    from spacr.organelle_types import preset_for
+    recommended = preset_for(type_name, model.collect()["organelle_diameter"])
+    assert model.collect()["organelle_morphology"] == recommended[
+        "organelle_morphology"]
+    assert model.collect()["organelle_method"] == recommended[
+        "organelle_method"]
+
+
+def test_an_explicit_morphology_wins_in_the_live_populated_form(qtbot):
+    """The rows and execution values agree after an advanced override."""
+    from spacr.qt.screens.settings_model import _MORPHOLOGY_OWNED
+
+    screen, model = _screen(qtbot, "mask")
+    _set(model, "organelle_channel", 3)
+    _set(model, "organelle_type", "punctate")
+    _set(model, "organelle_morphology", "network")
+    _set(model, "organelle_method", "ridge")
+
+    values = model.collect()
+    assert values["organelle_morphology"] == "network"
+    assert values["organelle_method"] == "ridge"
+    shown = _shown_suffixes(screen, "organelle") & _MORPHOLOGY_OWNED
+    assert "ridge_filter" in shown
+    assert "tophat_radius" not in shown
 
 
 def test_a_slot_left_on_custom_follows_its_own_morphology(qtbot):
@@ -338,23 +531,26 @@ def test_a_setting_whose_switch_is_elsewhere_is_left_alone():
     """Hiding one would leave a control the user cannot bring back."""
     from spacr.qt.screens.settings_model import keys_hidden_by_their_object
 
-    assert keys_hidden_by_their_object({"cell_diameter"}, {}) == set()
+    assert keys_hidden_by_their_object({"nucleus_diameter"}, {}) == set()
     assert keys_hidden_by_their_object(
-        {"cell_diameter", "cell_channel"}, {}) == {"cell_diameter"}
+        {"nucleus_diameter", "nucleus_channel"}, {}) == {
+            "nucleus_diameter"}
 
 
 def test_a_boolean_in_a_channel_does_not_name_a_plane():
     """`int(False)` is plane zero, which would switch an object on."""
     from spacr.qt.screens.settings_model import keys_hidden_by_their_object
 
-    panel = {"cell_channel", "cell_diameter"}
+    panel = {"nucleus_channel", "nucleus_diameter"}
     assert keys_hidden_by_their_object(
-        panel, {"cell_channel": False}) == {"cell_diameter"}
-    assert keys_hidden_by_their_object(panel, {"cell_channel": 0}) == set()
+        panel, {"nucleus_channel": False}) == {"nucleus_diameter"}
+    assert keys_hidden_by_their_object(
+        panel, {"nucleus_channel": 0}) == set()
     # And the string a text box hands back is read as the number it holds.
-    assert keys_hidden_by_their_object(panel, {"cell_channel": "2"}) == set()
     assert keys_hidden_by_their_object(
-        panel, {"cell_channel": ""}) == {"cell_diameter"}
+        panel, {"nucleus_channel": "2"}) == set()
+    assert keys_hidden_by_their_object(
+        panel, {"nucleus_channel": ""}) == {"nucleus_diameter"}
 
 
 def test_the_count_is_only_obeyed_where_it_can_be_changed():
@@ -371,8 +567,10 @@ def test_the_count_is_only_obeyed_where_it_can_be_changed():
 
 def test_every_control_the_morphology_table_claims_is_a_real_setting():
     """A table naming a key that does not exist hides nothing and says so."""
-    from spacr.qt.screens.settings_model import (_MORPHOLOGY_OWNED,
-                                                 resolve_default_settings)
+    from spacr.qt.screens.settings_model import (
+        _MORPHOLOGY_OWNED,
+        resolve_default_settings,
+    )
 
     defaults = resolve_default_settings("mask")
     missing = sorted(suffix for suffix in _MORPHOLOGY_OWNED

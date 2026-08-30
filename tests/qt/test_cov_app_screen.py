@@ -251,11 +251,16 @@ class TestWidgetConstruction:
     def test_tooltip_moves_from_field_to_label(self, qtbot):
         """Hover targets are the LABELS; fields keep no tooltip of their own."""
         scr = _make_screen(qtbot, "mask")
+        # Walking the hint index is its documented completeness seam: it
+        # captions the object-gated rows that were deliberately left lazy at
+        # first paint. Assert the whole-model contract only after asking for
+        # that whole-model view; before this, hidden fields correctly retain
+        # metadata that no rendered caption has taken yet.
+        assert len(scr._hint_map) == len(scr._settings_model._widgets)
         for w in scr._settings_model._widgets.values():
             assert w.toolTip() == ""
         # Every label registered in the hint map carries BOTH a plain hint
         # (for the bottom strip) and the HTML tip (for the sticky popup).
-        assert len(scr._hint_map) == len(scr._settings_model._widgets)
         assert set(scr._hint_map) == set(scr._html_tip_map)
         for lbl, hint in scr._hint_map.items():
             assert isinstance(lbl, QLabel)

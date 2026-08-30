@@ -31,6 +31,14 @@ pytestmark = pytest.mark.qt
 OBJECT_ROWS = ("cell_diameter", "nucleus_diameter", "pathogen_diameter",
                "organelle_diameter", "cell_CP_prob")
 
+FRESH_VISIBILITY = {
+    "cell_diameter": True,
+    "nucleus_diameter": False,
+    "pathogen_diameter": False,
+    "organelle_diameter": False,
+    "cell_CP_prob": True,
+}
+
 
 def _screen(qtbot, app_key: str):
     from spacr.qt.screens.app_screen import AppScreen
@@ -68,12 +76,12 @@ def test_all_settings_does_not_put_the_absent_objects_back(qtbot):
     assert all(value is None for value in
                (model.collect()[f"{role}_channel"]
                 for role in ("cell", "nucleus", "pathogen", "organelle")))
-    assert _shown(screen) == dict.fromkeys(OBJECT_ROWS, False)
+    assert _shown(screen) == FRESH_VISIBILITY
 
     bar = _strip(qtbot, screen)
     bar.set_level(ALL)
     qtbot.wait(1)
-    assert _shown(screen) == dict.fromkeys(OBJECT_ROWS, False)
+    assert _shown(screen) == FRESH_VISIBILITY
 
 
 def test_a_module_remembered_at_all_settings_still_opens_clean(qtbot):
@@ -86,7 +94,7 @@ def test_a_module_remembered_at_all_settings_still_opens_clean(qtbot):
     bar = _strip(qtbot, screen)
     assert bar.level() == ALL
     qtbot.wait(1)
-    assert _shown(screen) == dict.fromkeys(OBJECT_ROWS, False)
+    assert _shown(screen) == FRESH_VISIBILITY
 
 
 def test_releasing_a_search_query_does_not_put_them_back(qtbot):
@@ -100,7 +108,7 @@ def test_releasing_a_search_query_does_not_put_them_back(qtbot):
     qtbot.wait(1)
     bar.set_query("")
     qtbot.wait(1)
-    assert _shown(screen) == dict.fromkeys(OBJECT_ROWS, False)
+    assert _shown(screen) == FRESH_VISIBILITY
 
 
 def test_all_settings_does_not_put_the_absent_slots_headings_back(qtbot):
@@ -120,20 +128,19 @@ def test_all_settings_does_not_put_the_absent_slots_headings_back(qtbot):
                 numbers.add(int(rest))
         return sorted(numbers)
 
-    assert slot_headings() == [1, 2, 3, 4]
+    assert slot_headings() == []
     bar = _strip(qtbot, screen)
     bar.set_level(ALL)
     qtbot.wait(1)
-    assert slot_headings() == [1, 2, 3, 4]
+    assert slot_headings() == []
 
 
 # ---------------------------------------------------------------------------
 # And the rule still lets a run's own objects through
 # ---------------------------------------------------------------------------
 
-def test_an_object_the_run_has_is_shown_even_under_all_settings(qtbot):
-    """The guard puts back what the rule hid; it must not hide anything the
-    rule did not."""
+def test_cell_is_never_gated_even_under_all_settings(qtbot):
+    """Instruction 300 keeps the reference object available at all times."""
     from spacr.qt.settings_search import ALL
 
     screen, model = _screen(qtbot, "mask")
@@ -141,16 +148,14 @@ def test_an_object_the_run_has_is_shown_even_under_all_settings(qtbot):
     bar.set_level(ALL)
     qtbot.wait(1)
 
-    model._widgets["cell_channel"].setText("1")
-    qtbot.wait(1)
     assert screen.setting_row_is_visible("cell_diameter") is True
     assert screen.setting_row_is_visible("cell_CP_prob") is True
-    # ONE OBJECT AT A TIME, still.
+    # Optional objects are omitted until their own switch is committed.
     assert screen.setting_row_is_visible("nucleus_diameter") is False
 
     model._widgets["cell_channel"].clear()
     qtbot.wait(1)
-    assert screen.setting_row_is_visible("cell_diameter") is False
+    assert screen.setting_row_is_visible("cell_diameter") is True
 
 
 def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
@@ -158,9 +163,8 @@ def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
     screen, model = _screen(qtbot, "mask")
 
     hidden = set(model.keys_hidden_by_the_run())
-    assert "cell_diameter" in hidden
+    assert "cell_diameter" not in hidden
     assert "cell_channel" not in hidden, "the switch is never one of them"
-
-    model._widgets["cell_channel"].setText("1")
-    qtbot.wait(1)
-    assert "cell_diameter" not in set(model.keys_hidden_by_the_run())
+    assert {"remove_background_nucleus",
+            "remove_background_pathogen"} <= hidden
+    assert "nucleus_diameter" not in model._widgets

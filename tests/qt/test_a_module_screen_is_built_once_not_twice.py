@@ -286,7 +286,7 @@ class TestTheLanguageIsAskedOncePerBuild:
 
         scr = _make_screen(qtbot, "mask")
         rows = len(scr._settings_model._widgets)
-        assert rows > 1000, "expected the big screen; the guard below scales"
+        assert rows >= 90, "expected the complete mask settings panel"
         # It used to be more than twice the number of settings.
         assert len(reads) < rows, (
             f"{len(reads)} language reads for {rows} settings")
@@ -549,6 +549,14 @@ class TestTheApplicabilityRefreshStillLands:
         for role in roles:
             mine = sorted(key for key in shown
                           if key == role or key.startswith(f"{role}_"))
+            if role == "cell":
+                # Cell is the reference object every other family is
+                # configured against. Its controls stay reachable even when
+                # the channel is not chosen yet, so a fresh run can be
+                # configured without first rebuilding the form.
+                assert f"{role}_channel" in mine
+                assert f"{role}_diameter" in mine
+                continue
             assert mine in ([], [f"{role}_channel"]), (
                 f"{role} has no channel set, so the panel should show its "
                 f"channel row and nothing else; it shows {mine}")
@@ -557,9 +565,9 @@ class TestTheApplicabilityRefreshStillLands:
         # every object is hidden would pass vacuously above.
         offered = [role for role in roles
                    if f"{role}_channel" in shown]
-        assert len(offered) >= 4, (
-            f"only {offered} can be switched on; the objects a run might "
-            f"have are unreachable")
+        assert offered == list(sm.CHANNELLED_OBJECTS), (
+            f"the offered mask roles {offered} no longer match the canonical "
+            f"channelled roles {list(sm.CHANNELLED_OBJECTS)}")
 
     def test_no_object_detail_row_survives_a_channel_of_none(self, qtbot):
         """The failure mode the deferral must never reintroduce."""
@@ -571,6 +579,8 @@ class TestTheApplicabilityRefreshStillLands:
         assert shown, "the panel hid everything"
 
         for role in self._roles(model):
+            if role == "cell":
+                continue
             for suffix in ("diameter", "CP_prob", "FT", "background",
                            "Signal_to_noise"):
                 key = f"{role}_{suffix}"
