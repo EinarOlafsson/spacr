@@ -16,6 +16,8 @@ that blanket waiver was retired.
 """
 from __future__ import annotations
 
+import ast
+import hashlib
 import re
 
 import pytest
@@ -45,6 +47,11 @@ VERIFIED_TOOLTIP_FACTS = {
 }
 
 TYPE_PREFIX = re.compile(r"^\((?P<type>[^)]+)\)\s*-\s*(?P<body>.+)$", re.S)
+DEFAULT_LITERAL = re.compile(
+    r"(?i)\bDefault(?:\s+is|:)?\s+"
+    r"(?P<value>\[[^\]]*\]|\([^)]*\)|\{[^}]*\}|'[^']*'|\"[^\"]*\"|"
+    r"None|True|False|-?\d+(?:\.\d+)?|empty|blank)"
+)
 
 
 def _body(text: str) -> str:
@@ -189,6 +196,114 @@ def test_tooltips_say_what_changes_when_you_alter_the_value():
         "tooltips too short to say what changes when you alter them:\n  "
         + "\n  ".join(f"{k}: {b}" for k, b in thin)
     )
+
+
+def test_unit_named_settings_keep_their_units_in_the_tooltip():
+    """Names that encode a physical unit must explain that unit in prose."""
+    tips = _all_tooltips()
+    diameter_or_radius = [
+        key for key in tips
+        if key == "diameter"
+        or key.endswith("_diameter")
+        or key.endswith("_radius")
+    ]
+    missing = [
+        key for key in diameter_or_radius
+        if not re.search(
+            r"(?i)\b(pixel|pixels|units?|micromet(?:er|re)s?)\b", tips[key]
+        )
+    ]
+    missing.extend(
+        key for key in tips
+        if key.endswith("_px")
+        and not re.search(r"(?i)\bpixels?\b", tips[key])
+    )
+    missing.extend(
+        key for key in tips
+        if key.endswith("_um")
+        and not re.search(r"(?i)\bmicromet(?:er|re)s?\b", tips[key])
+    )
+    assert len(diameter_or_radius) == 110
+    assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
+
+
+def test_real_default_claims_have_no_unrecorded_drift():
+    """Compare parseable tooltip claims with every registered app default.
+
+    Most comparisons are exact. The digest records the 56 existing
+    module-specific variants whose shared tooltip states more than one
+    module's contract; one variant cannot replace another unnoticed.
+    """
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    def same_default(left, right):
+        if isinstance(left, bool) or isinstance(right, bool):
+            return type(left) is type(right) and left == right
+        if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+            return left == right
+        return type(left) is type(right) and left == right
+
+    comparisons = 0
+    variants = []
+    for entry in APPS:
+        app_key = entry[0]
+        defaults = resolve_default_settings(app_key)
+        for key, actual in defaults.items():
+            matches = list(DEFAULT_LITERAL.finditer(tooltips.get(key, "")))
+            parsed = []
+            for match in matches:
+                raw = match.group("value")
+                try:
+                    value = (
+                        "" if raw.lower() in {"empty", "blank"}
+                        else ast.literal_eval(raw)
+                    )
+                except (SyntaxError, ValueError):
+                    continue
+                parsed.append((raw, value))
+            if not parsed:
+                continue
+            comparisons += 1
+            raw, claimed = parsed[-1]
+            if not same_default(actual, claimed):
+                variants.append(f"{app_key}:{key}:{raw}->{actual!r}")
+
+    variants.sort()
+    digest = hashlib.sha256("\n".join(variants).encode()).hexdigest()
+    assert comparisons == 660
+    assert len(variants) == 56
+    assert digest == (
+        "dd5e6a4c361fb0dd64a8ce1853437fbbe1940f2bbf41c859f4f159335a96a646"
+    )
+
+
+def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
+    """Every inactive dependency encountered in a real app has a reason."""
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import resolve_default_settings
+    from spacr.settings import get_setting_dependencies
+
+    rules = get_setting_dependencies()
+    witnessed = []
+    failures = []
+    for entry in APPS:
+        app_key = entry[0]
+        defaults = resolve_default_settings(app_key)
+        for key, rule in rules.items():
+            sources = tuple(rule.get("sources", ()))
+            if key not in defaults or not any(s in defaults for s in sources):
+                continue
+            if rule["predicate"](defaults, {}):
+                continue
+            reason = str(rule["reason"](defaults, {}))
+            witnessed.append((app_key, key))
+            if not reason.strip() or not any(source in reason for source in sources):
+                failures.append((app_key, key, reason))
+
+    assert len(witnessed) == 47
+    assert len({key for _app, key in witnessed}) == 33
+    assert not failures
 
 
 @pytest.mark.parametrize("key", sorted(VERIFIED_TOOLTIP_FACTS))

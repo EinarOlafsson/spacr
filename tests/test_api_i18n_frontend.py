@@ -17,13 +17,14 @@ from urllib.parse import urlsplit
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
 CONF = ROOT / "docs" / "source" / "conf.py"
 ENGLISH_CATALOG = (
     ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
 )
+REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
+REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -146,6 +147,19 @@ def _browser_files(page: bytes, **catalogs):
     }
     for language, catalog in catalogs.items():
         files[f"/api/i18n/api/{language}.json"] = json.dumps(catalog).encode()
+    return files
+
+
+def _real_browser_files(page: bytes):
+    """Serve the complete checked-in catalogs, not reduced fixtures."""
+    files = {
+        "/api/page.html": page,
+        "/api/api_i18n.js": SCRIPT.read_bytes(),
+    }
+    for language in ("en", *REAL_LANGUAGES):
+        files[f"/api/i18n/api/{language}.json"] = (
+            REAL_CATALOG_ROOT / f"{language}.json"
+        ).read_bytes()
     return files
 
 
@@ -454,3 +468,54 @@ setTimeout(() => {
 
     assert 'data-result="pass"' in dom
     assert not any(path.endswith("zh_CN.json") for path, _query in requests)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_every_complete_real_catalog_renders_through_the_browser_selector():
+    """Load and render all nine real 8,899-symbol payloads in one browser."""
+    harness = """
+const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
+const seen = [];
+const select = document.querySelector('.spacr-api-language select');
+let position = 0;
+function chooseNext() {
+  if (position === languages.length) {
+    document.body.dataset.result = seen.join(',') === languages.join(',') ?
+      'pass' : 'fail';
+    return;
+  }
+  const language = languages[position];
+  select.value = language;
+  select.dispatchEvent(new Event('change'));
+  const poll = setInterval(() => {
+    const panels = [...document.querySelectorAll('.spacr-api-translation')];
+    const renderedLanguage = language.replace('_', '-');
+    if (select.value === language && panels.length === 2 &&
+        panels.every((panel) => panel.lang === renderedLanguage)) {
+      clearInterval(poll);
+      seen.push(language);
+      position += 1;
+      chooseNext();
+    }
+  }, 100);
+}
+chooseNext();
+"""
+    page = _page(harness).replace(
+        b"spacr.demo", b"spacr.qt.widgets.home"
+    ).replace(
+        b"spacr-demo", b"spacr-qt-widgets-home"
+    ).replace(
+        b"spacr.qt.widgets.home.run",
+        b"spacr.qt.widgets.home.SystemPanel",
+    )
+    files = _real_browser_files(page)
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html", budget=30_000)
+
+    assert 'data-result="pass"' in dom
+    requested = {path for path, _query in requests if path.endswith(".json")}
+    assert {
+        f"/api/i18n/api/{language}.json"
+        for language in ("en", *REAL_LANGUAGES)
+    } <= requested

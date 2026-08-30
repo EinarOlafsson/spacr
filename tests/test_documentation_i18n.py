@@ -2348,6 +2348,30 @@ def test_catalog_seed_requires_current_per_entry_source_hash(monkeypatch):
     assert source not in cache
 
 
+def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
+    tmp_path, monkeypatch, capsys,
+):
+    """Deleting one localized tooltip must make the release audit red."""
+    import build_i18n_catalogs as builder
+
+    catalog_dir = tmp_path / "catalogs"
+    catalog_dir.mkdir()
+    for language in ("en", "sv"):
+        source = builder.CATALOG_DIR / f"{language}.py"
+        target = catalog_dir / source.name
+        target.write_bytes(source.read_bytes())
+    swedish = catalog_dir / "sv.py"
+    swedish.write_text(
+        swedish.read_text(encoding="utf-8")
+        + '\nSETTING_TOOLTIPS.pop("cell_diameter")\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(builder, "CATALOG_DIR", catalog_dir)
+
+    assert builder.audit(builder.canonical_sources(), ["sv"]) == 1
+    assert "sv/SETTING_TOOLTIPS: 1 missing" in capsys.readouterr().err
+
+
 def test_incremental_api_generation_reuses_only_current_nonblank_entries(
     monkeypatch, tmp_path,
 ):

@@ -24,12 +24,28 @@ BUILT_DOCS = DOCS_ROOT / "_build" / "html"
 SITE = "https://einarolafsson.github.io/spacr/"
 
 
+def _missing_link_targets(links, built_docs):
+    """Return missing built pages, grouped by the settings linking to them."""
+    missing = {}
+    for app_key, key, url in links:
+        rel = urllib.parse.urlparse(url).path.lstrip("/")
+        if rel.startswith("spacr/"):
+            rel = rel[len("spacr/"):]
+        target = built_docs / rel
+        if not target.exists():
+            missing.setdefault(str(target.relative_to(built_docs)), set()).add(
+                f"{app_key}.{key}"
+            )
+    return missing
+
+
 def _tooltip_links():
     """(app_key, setting_key, url) for every setting of every module."""
-    from spacr.qt.screens.settings_model import (
-        resolve_default_settings, format_tooltip,
-    )
     from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import (
+        format_tooltip,
+        resolve_default_settings,
+    )
 
     seen = []
     for entry in APPS:
@@ -78,21 +94,23 @@ def test_every_link_resolves_to_a_page_that_exists(links):
     run always and catch the errors that do not need a built site -- a link
     off the documentation domain, or a setting with no link at all.
     """
-    missing = {}
-    for app_key, key, url in links:
-        rel = urllib.parse.urlparse(url).path.lstrip("/")
-        # The site serves this repository's `docs/` at /spacr/.
-        if rel.startswith("spacr/"):
-            rel = rel[len("spacr/"):]
-        target = BUILT_DOCS / rel
-        if not target.exists():
-            missing.setdefault(str(target.relative_to(BUILT_DOCS)), set()).add(
-                f"{app_key}.{key}")
+    missing = _missing_link_targets(links, BUILT_DOCS)
     assert not missing, (
         "tooltip links point at pages that do not exist:\n"
         + "\n".join(f"  {page}  <- {sorted(keys)[:3]}"
                     for page, keys in sorted(missing.items()))
     )
+
+
+def test_link_resolver_rejects_a_synthetic_broken_tooltip_link(tmp_path):
+    """The link gate itself must turn red when one tooltip URL is mutated."""
+    broken = SITE + "api/spacr/not_a_real_module/index.html"
+    missing = _missing_link_targets(
+        [("mask", "cell_diameter", broken)], tmp_path,
+    )
+    assert missing == {
+        "api/spacr/not_a_real_module/index.html": {"mask.cell_diameter"},
+    }
 
 
 def test_a_setting_with_no_documentation_still_gets_a_usable_link(links):

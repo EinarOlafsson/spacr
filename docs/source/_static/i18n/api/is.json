@@ -95884,13 +95884,13 @@
     "spacr.qt.widgets.home.SystemPanel": {
       "source_blocks_sha256": [
         "e544ae5c2f5d7f0be43b82fecce1460fd2261041ebde1c1e2754cae45703cbd8",
-        "3f5297c84e4ec92a5427fb458890b8eb26ed81ae77214a47c32e95de026b0e8c"
+        "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3"
       ],
-      "source_sha256": "42e53e78a150c7bc212adef7b9b4316b4ba1fd3420fc37674b14a206f646506f",
-      "text": "GPU / VRAM / Disk, lesa á byggingu og á hverjum Home revit.\n\nHver lesing þreyttar til stringa í stað þess að hætta – hvítur ræði lesa sem \"broken\", \"no CUDA\" lesa sem svarið.",
+      "source_sha256": "8cef8f481296cb2f6be4c1b78bf9ea2a19323209edd7700b91464f29901eb19a",
+      "text": "GPU / VRAM / diskur, lesið við smíði spjaldsins og í hvert sinn sem heimaskjárinn er opnaður aftur.\n\nÖllum aflestrum er breytt í streng í stað þess að þeir hverfi — auður reitur birtist sem \"broken\", en ``n/a`` segir afdráttarlaust að létta kerfiskönnunin hafi ekki getað mælt tæki. Heimaskjárinn má ekki flytja inn keyrsluumhverfi líkans eingöngu til að skreyta stjórnborðið.",
       "translation_source_blocks_sha256": [
         "e544ae5c2f5d7f0be43b82fecce1460fd2261041ebde1c1e2754cae45703cbd8",
-        "3f5297c84e4ec92a5427fb458890b8eb26ed81ae77214a47c32e95de026b0e8c"
+        "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3"
       ]
     },
     "spacr.qt.widgets.home.TotalsPanel": {
