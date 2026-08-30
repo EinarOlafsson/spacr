@@ -403,10 +403,16 @@ the artifact clock, and independently recomputes the global and per-result
 worst intervals, sample counts and budget verdicts.  The timestamp span, not a
 rounded ``late_ms`` field, decides the 500 ms boundary.
 
+Only the production event-loop watchdog on ``MainThread`` may contribute a raw
+gap.  Rows must be chronological, non-overlapping and at least the advertised
+50 ms record floor.  The producer, interval summaries and independent parent
+all derive duration from the same timestamp span, so rounding ``late_ms`` to
+the opposite side of 500 ms can neither create nor hide a failure.
+
 These incompatible guarantees are worker/combined artifact schema 2.  The
 hardware-report consumer rejects schema 1 instead of presenting it as current
 evidence.  Missing, malformed, shifted or contradictory trace evidence now
-fails closed.  Focused verification covered 34 driver contract tests, 32
+fails closed.  Focused verification covered 41 driver contract tests, 34
 production Qt readiness/controller tests and seven hardware-report consumer
 tests.
 

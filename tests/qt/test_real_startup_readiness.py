@@ -181,7 +181,7 @@ def test_parent_wall_clock_is_translated_to_the_child_monotonic_clock(
 def test_snapshot_exposes_the_release_budgets_and_peak_resources(
         enabled_timing, tmp_path):
     timing._STALLS.append({
-        "at": 0.2, "late_ms": 500.0,
+        "started_at": 0.0, "at": 0.5, "late_ms": 500.0,
         "source": "event-loop watchdog", "thread": "MainThread",
     })
     state = timing.snapshot()
@@ -212,6 +212,29 @@ def test_snapshot_exposes_the_release_budgets_and_peak_resources(
         "schema_version"] == timing.SCHEMA_VERSION == 2
 
 
+@pytest.mark.parametrize(("span_s", "late_ms", "budget_met"), [
+    (0.4999995, 500.0004, True),
+    (0.5000004, 499.9995, False),
+])
+def test_timestamp_span_is_the_canonical_global_and_interval_stall_duration(
+        enabled_timing, span_s, late_ms, budget_met):
+    timing._STALLS.append({
+        "started_at": 0.0,
+        "at": span_s,
+        "late_ms": late_ms,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    })
+
+    state = timing.snapshot()
+    interval = timing.stalls_between(0.0, 1.0, state["stalls"])
+
+    expected_ms = span_s * 1000.0
+    assert state["worst_event_loop_stall_ms"] == pytest.approx(expected_ms)
+    assert state["stall_budget_met"] is budget_met
+    assert interval[0]["late_ms"] == pytest.approx(expected_ms)
+
+
 def test_a_watchdog_gap_is_clipped_to_the_interaction_it_overlaps(
         enabled_timing):
     timing._STALLS.extend([
@@ -222,7 +245,7 @@ def test_a_watchdog_gap_is_clipped_to_the_interaction_it_overlaps(
     rows = timing.stalls_between(0.6, 1.0)
 
     assert [round(row["overlap_ms"]) for row in rows] == [200, 100]
-    assert [row["late_ms"] for row in rows] == [800.0, 300.0]
+    assert [row["late_ms"] for row in rows] == pytest.approx([800.0, 300.0])
 
 
 def test_benchmark_controller_uses_clicks_waits_for_paint_and_exits(

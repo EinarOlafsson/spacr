@@ -41,6 +41,7 @@ HOME_BUDGET_S = 5.0
 MODULE_BUDGET_S = 10.0
 PREFERENCES_BUDGET_S = 3.0
 STALL_BUDGET_MS = 500.0
+WATCHDOG_RECORD_FLOOR_MS = 50.0
 
 WORKER = """
 import os
@@ -236,11 +237,13 @@ def _finite_number(value: object, *, minimum: Optional[float] = None,
 
 
 def _raw_stall_trace(stalls: object, reject, *,
-                     artifact_elapsed_s: Optional[float]) -> list[dict[str, float]]:
+                     artifact_elapsed_s: Optional[float],
+                     record_floor_ms: float) -> list[dict[str, float]]:
     """Validate and normalize the worker's raw event-loop watchdog trace."""
     if not isinstance(stalls, list):
         return []
     normalized: list[dict[str, float]] = []
+    previous_end: Optional[float] = None
     for index, row in enumerate(stalls):
         path = f"stalls[{index}]"
         if not isinstance(row, dict):
@@ -251,10 +254,12 @@ def _raw_stall_trace(stalls: object, reject, *,
             if not _finite_number(row.get(field), minimum=0.0):
                 reject(f"{path}.{field} must be finite and non-negative")
                 valid = False
-        for field in ("source", "thread"):
-            if not isinstance(row.get(field), str) or not row[field]:
-                reject(f"{path}.{field} is missing or empty")
-                valid = False
+        if row.get("source") != "event-loop watchdog":
+            reject(f"{path}.source is not 'event-loop watchdog'")
+            valid = False
+        if row.get("thread") != "MainThread":
+            reject(f"{path}.thread is not MainThread")
+            valid = False
         if not valid:
             continue
         started_at = float(row["started_at"])
@@ -272,6 +277,16 @@ def _raw_stall_trace(stalls: object, reject, *,
                 late_ms, measured_ms, rel_tol=1e-9, abs_tol=0.001):
             reject(f"{path}.late_ms does not match its timestamps")
             continue
+        if measured_ms < record_floor_ms:
+            reject(
+                f"{path} is below the advertised {record_floor_ms:g} ms "
+                "watchdog record floor")
+            continue
+        if previous_end is not None and started_at < previous_end:
+            reject(
+                f"{path} overlaps or is out of chronological order with "
+                "the previous raw stall")
+            continue
         normalized.append({
             "started_at": started_at,
             "at": ended_at,
@@ -281,6 +296,7 @@ def _raw_stall_trace(stalls: object, reject, *,
             # one side of the 500 ms release boundary to the other.
             "late_ms": measured_ms,
         })
+        previous_end = ended_at
     return normalized
 
 
@@ -337,6 +353,7 @@ def _worker_schema_violations(
         "home_ready_s": HOME_BUDGET_S,
         "module_ready_s": MODULE_BUDGET_S,
         "max_event_loop_stall_ms": STALL_BUDGET_MS,
+        "watchdog_record_floor_ms": WATCHDOG_RECORD_FLOOR_MS,
     }
     if not isinstance(budgets, dict):
         reject("budgets is not a JSON object")
@@ -446,6 +463,7 @@ def _worker_schema_violations(
     raw_stalls = _raw_stall_trace(
         artifact.get("stalls"), reject,
         artifact_elapsed_s=(float(elapsed_value) if elapsed_valid else None),
+        record_floor_ms=WATCHDOG_RECORD_FLOOR_MS,
     )
     if not _finite_number(
             artifact.get("event_loop_started_at"), minimum=0.0):
