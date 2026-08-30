@@ -24,6 +24,8 @@ from __future__ import annotations
 import os
 import re
 import sys
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Dict, Iterable, Mapping, Optional
 
@@ -143,10 +145,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Erase": _row(
         "Suddgummi", "Radierer", "Goma de borrar", "橡皮擦", "Borracha",
         "इरेज़र", "지우개", "Strokleður", "Gomme"),
-    "Field Browser": _row(
-        "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
-        "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
-        "Reitavafri", "Explorateur de champs"),
     "Full screen": _row(
         "Helskärm", "Vollbild", "Pantalla completa", "全屏", "Tela cheia",
         "पूर्ण स्क्रीन", "전체 화면", "Heilskjár", "Plein écran"),
@@ -184,16 +182,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Abrir las preferencias", "打开首选项", "Abrir as preferências",
         "प्राथमिकताएँ खोलें", "환경설정 열기", "Opna stillingar",
         "Ouvrir les préférences"),
-    "Pause or resume the animated background": _row(
-        "Pausa eller återuppta den animerade bakgrunden",
-        "Animierten Hintergrund anhalten oder fortsetzen",
-        "Pausar o reanudar el fondo animado",
-        "暂停或继续动态背景",
-        "Pausar ou retomar o plano de fundo animado",
-        "एनिमेटेड पृष्ठभूमि रोकें या फिर से चलाएँ",
-        "애니메이션 배경 일시 중지 또는 재개",
-        "Gera hlé á hreyfanlega bakgrunninum eða halda honum áfram",
-        "Mettre en pause ou reprendre l’arrière-plan animé"),
+    "Pause or resume the background": _row(
+        "Pausa eller återuppta bakgrunden",
+        "Hintergrund anhalten oder fortsetzen",
+        "Pausar o reanudar el fondo",
+        "暂停或继续背景动画",
+        "Pausar ou retomar o plano de fundo",
+        "पृष्ठभूमि रोकें या जारी रखें",
+        "배경 일시 중지 또는 재개",
+        "Gera hlé á bakgrunninum eða halda honum áfram",
+        "Mettre en pause ou reprendre l’arrière-plan"),
     "Previous image": _row(
         "Föregående bild", "Vorheriges Bild", "Imagen anterior", "上一张图像",
         "Imagem anterior", "पिछली छवि", "이전 이미지", "Fyrri mynd",
@@ -234,16 +232,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Recetas de configuración", "设置方案", "Receitas de configuração",
         "सेटिंग रेसिपी", "설정 레시피", "Stillingauppskriftir",
         "Recettes de paramètres"),
-    "Show only the background full screen": _row(
-        "Visa endast bakgrunden i helskärm",
-        "Nur den Hintergrund im Vollbild anzeigen",
-        "Mostrar solo el fondo a pantalla completa",
-        "仅全屏显示背景",
-        "Mostrar somente o plano de fundo em tela cheia",
-        "केवल पृष्ठभूमि को पूर्ण स्क्रीन में दिखाएँ",
-        "배경만 전체 화면으로 표시",
-        "Sýna aðeins bakgrunninn á öllum skjánum",
-        "Afficher uniquement l’arrière-plan en plein écran"),
+    "Show the background full screen": _row(
+        "Visa bakgrunden i helskärm",
+        "Hintergrund im Vollbild anzeigen",
+        "Mostrar el fondo a pantalla completa",
+        "全屏显示背景",
+        "Mostrar o plano de fundo em tela cheia",
+        "पृष्ठभूमि को पूर्ण स्क्रीन में दिखाएँ",
+        "배경을 전체 화면으로 표시",
+        "Sýna bakgrunninn á öllum skjánum",
+        "Afficher l’arrière-plan en plein écran"),
     "Show the full app list": _row(
         "Visa hela listan över appar", "Vollständige App-Liste anzeigen",
         "Mostrar la lista completa de aplicaciones", "显示完整应用列表",
@@ -320,24 +318,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Ativar/desativar o Console de IA", "एआई कंसोल चालू या बंद करें",
         "AI 콘솔 켜기/끄기", "Virkja eða óvirkja Gervigreindarstjórnborð",
         "Activer ou désactiver la Console IA"),
-    "Toggle field quarantine": _row(
-        "Växla fältkarantän", "Feldquarantäne umschalten",
-        "Alternar la cuarentena del campo", "切换视野隔离状态",
-        "Alternar a quarentena do campo", "फ़ील्ड क्वारंटीन टॉगल करें",
-        "필드 격리 전환", "Víxla sóttkví reits",
-        "Activer ou désactiver la quarantaine du champ"),
-    "Quarantine or restore this field": _row(
-        "Sätt detta fält i karantän eller återställ det",
-        "Dieses Feld unter Quarantäne stellen oder wiederherstellen",
-        "Poner en cuarentena o restaurar este campo", "隔离或恢复此视野",
-        "Colocar este campo em quarentena ou restaurá-lo",
-        "इस फ़ील्ड को क्वारंटीन करें या पुनर्स्थापित करें",
-        "이 필드를 격리하거나 복원", "Setja þennan reit í sóttkví eða endurheimta hann",
-        "Mettre ce champ en quarantaine ou le restaurer"),
-    "Field browser": _row(
-        "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
-        "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
-        "Reitavafri", "Explorateur de champs"),
     "Toggle full screen": _row(
         "Växla helskärmsläge", "Vollbildmodus ein-/ausschalten",
         "Activar o desactivar el modo de pantalla completa", "切换全屏模式",
@@ -398,31 +378,11 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "어노테이션 및 마스크 만들기 화면",
         "skjáirnir Merking og Búa til grímur",
         "les écrans Annotation et Créer des masques"),
-    "the Annotate and Make Masks screens and the QC field browser": _row(
-        "skärmarna Annotering och Skapa masker samt QC-fältbläddraren",
-        "die Bildschirme Annotieren und Masken erstellen sowie der QC-Feldbrowser",
-        "las pantallas Anotación y Crear máscaras y el Explorador de campos de QC",
-        "标注和创建掩膜屏幕以及 QC 视野浏览器",
-        "as telas Anotação e Criar máscaras e o Navegador de campos de QC",
-        "एनोटेशन और मास्क बनाएँ स्क्रीन तथा QC फ़ील्ड ब्राउज़र",
-        "어노테이션 및 마스크 만들기 화면과 QC 필드 브라우저",
-        "skjáirnir Merking og Búa til grímur og QC-reitavafrinn",
-        "les écrans Annotation et Créer des masques et l’Explorateur de champs QC"),
     "the Annotate screen": _row(
         "skärmen Annotering", "der Bildschirm Annotieren",
         "la pantalla Anotación", "标注屏幕", "a tela Anotação",
         "एनोटेशन स्क्रीन", "어노테이션 화면", "skjárinn Merking",
         "l’écran Annotation"),
-    "the Field Browser": _row(
-        "Fältbläddraren", "der Feldbrowser", "el Explorador de campos",
-        "视野浏览器", "o Navegador de campos", "फ़ील्ड ब्राउज़र",
-        "필드 브라우저", "Reitavafrinn", "l’Explorateur de champs"),
-    "the QC field browser": _row(
-        "QC-fältbläddraren", "der QC-Feldbrowser",
-        "el Explorador de campos de QC", "QC 视野浏览器",
-        "o Navegador de campos de QC", "QC फ़ील्ड ब्राउज़र",
-        "QC 필드 브라우저", "QC-reitavafrinn",
-        "l’Explorateur de champs QC"),
     "the Make Masks screen": _row(
         "skärmen Skapa masker", "der Bildschirm Masken erstellen",
         "la pantalla Crear máscaras", "创建掩膜屏幕",
@@ -3550,16 +3510,48 @@ def normalize_language(code: object) -> str:
     return DEFAULT_LANGUAGE
 
 
+_RESOLVED_LANGUAGE: ContextVar[Optional[Dict[str, str]]] = ContextVar(
+    "spacr_resolved_ui_language", default=None)
+
+
+@contextmanager
+def language_resolved_once():
+    """Resolve the persisted UI language once in one synchronous operation.
+
+    Widget construction can call :func:`tr` hundreds of times. Reading
+    QSettings for each fragment is needless and made a large settings panel
+    scale with its row count. The cache is context-local (so background jobs
+    cannot borrow the GUI thread's answer), re-entrant, and discarded as soon
+    as the operation ends so a later language change is observed.
+    """
+    existing = _RESOLVED_LANGUAGE.get()
+    if existing is not None:
+        yield
+        return
+    token = _RESOLVED_LANGUAGE.set({})
+    try:
+        yield
+    finally:
+        _RESOLVED_LANGUAGE.reset(token)
+
+
 def current_language() -> str:
     """Return the active persisted language without creating an import cycle."""
+    scoped = _RESOLVED_LANGUAGE.get()
+    if scoped is not None and "code" in scoped:
+        return scoped["code"]
     env = os.environ.get(ENV_LANGUAGE)
     if env:
-        return normalize_language(env)
-    try:
-        from .preferences import get_language
-        return normalize_language(get_language())
-    except Exception:
-        return DEFAULT_LANGUAGE
+        code = normalize_language(env)
+    else:
+        try:
+            from .preferences import get_language
+            code = normalize_language(get_language())
+        except Exception:
+            code = DEFAULT_LANGUAGE
+    if scoped is not None:
+        scoped["code"] = code
+    return code
 
 
 def language_choices() -> tuple[tuple[str, str], ...]:
