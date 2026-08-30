@@ -264,3 +264,31 @@ environment it is measured in, because on this one eight modules cannot reach
 
     23-24% either way. The recommendation does not change, and neither does
     the reason for not acting on it unattended.
+
+A FULL DISK IS THE OTHER WAY A COVERAGE RUN LIES (2026-08-30)
+--------------------------------------------------------------
+Caught with 405 MB left on `/` while the second batched run was writing into
+it. The consumer was /tmp/pytest-of-olafsson: 19 GB across 101 abandoned
+per-run temp directories, from this session's runs and the other lane's
+together.
+
+pytest keeps the last three runs' `tmp_path` trees on purpose, so a developer
+can look at what a failing test wrote. It keeps them PER RUN, and a suite that
+is run a hundred times in a night is a hundred trees. Nothing removes them.
+
+Two things worth remembering.
+
+  * `fuser -m <dir>` does not answer "is this directory in use". The -m means
+    "the filesystem this path is on", so it reported all 101 as busy and the
+    first cleanup removed nothing. Matching on the run counter -- keep the
+    newest 25, drop the rest -- is what worked.
+
+  * A coverage run that dies on ENOSPC mid-batch loses that batch's data the
+    same way a lost xdist worker does, and reports a lower number without
+    saying why. The disk is therefore part of the measurement, not part of
+    the environment.
+
+Freed 19 GB; `/` went from 405 MB to 21 GB and the run continued. Worth a
+line in whatever ends up being the standing instruction for these runs: check
+the disk before starting one, and clear /tmp/pytest-of-olafsson down to the
+newest handful.
