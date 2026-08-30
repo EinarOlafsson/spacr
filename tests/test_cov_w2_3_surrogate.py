@@ -475,7 +475,9 @@ def test_a_list_of_the_wrong_rank_is_refused(monkeypatch, sample_frame):
 def test_a_class_first_cube_is_moved_so_features_stay_on_axis_one(
         monkeypatch, sample_frame):
     """``(classes, rows, features)`` is normalised, not mis-averaged."""
-    cube = np.stack([np.full((12, 3), 1.0), np.full((12, 3), 3.0)])
+    first = np.tile([1.0, 10.0, 100.0], (12, 1))
+    second = np.tile([3.0, 30.0, 300.0], (12, 1))
+    cube = np.stack([first, second])
     assert cube.shape == (2, 12, 3)
     _install(monkeypatch, _Explainer(cube))
     warnings = []
@@ -484,12 +486,14 @@ def test_a_class_first_cube_is_moved_so_features_stay_on_axis_one(
                                         return_details=True)
 
     importance, signed, used = result
-    assert list(importance) == [2.0, 2.0, 2.0]
+    assert list(importance) == [2.0, 20.0, 200.0]
     assert list(signed.columns) == ["a", "b", "c"]
+    assert list(used.columns) == ["a", "b", "c"]
     assert used.shape == sample_frame.shape
     # predict_proba picks class 1 for every row, so the signed values are the
     # second slice rather than the first.
-    assert (signed.to_numpy() == 3.0).all()
+    assert signed.iloc[0].tolist() == [3.0, 30.0, 300.0]
+    assert warnings == []
 
 
 def test_a_cube_that_matches_no_axis_is_refused(monkeypatch, sample_frame):
