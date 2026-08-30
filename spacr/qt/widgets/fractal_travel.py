@@ -1407,6 +1407,32 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                               exc_info=True)
             gloo.set_state(depth_test=False, blend=False)
             self._update_uniforms(0.0)
+            # LINK THE PROGRAM HERE, NOT AT THE FIRST FRAME. vispy compiles
+            # a program lazily on its first draw, and that draw happens
+            # inside a DrawEvent, where `_make_gpu_widget`'s caller can no
+            # longer reach it: shaders that will not compile raise into
+            # vispy's own event handler, which catches, logs and RETRIES,
+            # so the backdrop becomes an endless
+            #     ERROR: Invoking ... for DrawEvent
+            #     ERROR: Invoking ... repeat 2, 4, 8, 16 ...
+            # over a window that never draws a single frame. Failing during
+            # construction instead lets the caller fall back to the CPU
+            # renderer, which is what it already does for every other way
+            # building the GPU backdrop can fail.
+            #
+            # Wayland is the case that made this necessary. Qt hands vispy a
+            # GLES context there, vispy prepends `#version 120` -- desktop
+            # GLSL -- and the vertex shader dies with "unsupported version
+            # 120". The same session under `QT_QPA_PLATFORM=xcb` gets a GLX
+            # context and compiles cleanly, so this is a property of the
+            # platform plugin rather than of the machine or its driver.
+            try:
+                self.set_current()
+                self._program.draw("triangle_strip")
+            except Exception as error:                       # noqa: BLE001
+                raise GpuBackendError(
+                    f"the fractal shaders do not compile on this GL "
+                    f"context: {error}") from error
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
                                           connect=self._on_timer, start=True)
             # STOPPED WHEN QT FREES THE WIDGET, not only when someone calls
@@ -1798,9 +1824,23 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             gloo.set_viewport(0, 0, max(1, int(width)), max(1, int(height)))
 
         def on_draw(self, _event) -> None:
+            if self._dead:
+                return
             benchmark = time.perf_counter() - self._last_sample >= 2.0
             started = time.perf_counter()
-            self._program.draw("triangle_strip")
+            try:
+                self._program.draw("triangle_strip")
+            except Exception:                                # noqa: BLE001
+                # ONE COMPLAINT, NOT A STORM. Whatever a DrawEvent handler
+                # raises, vispy catches, logs and retries -- doubling the
+                # repeat count each time -- so a draw that cannot succeed
+                # once cannot succeed at all and only fills the terminal.
+                # The eager link in __init__ should mean nothing reaches
+                # here, but a context can also be lost mid-run.
+                self._dead = True
+                self.stop_timer()
+                LOG.warning("the GPU backdrop stopped drawing", exc_info=True)
+                return
             if not benchmark:
                 return
             try:
