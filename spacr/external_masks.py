@@ -81,14 +81,17 @@ class InputGroup:
         if not isinstance(value, Mapping):
             raise ConfigurationError(
                 "Each external-mask input must be an InputGroup or mapping.")
+        raw_object_type = (
+            str(value["object_type"]) if value.get("object_type") else None)
+        object_type = (
+            raw_object_type if raw_object_type in OBJECT_TYPES else None)
         return cls(
             key=str(value.get("key") or ""),
             root=os.path.abspath(str(value.get("root") or ".")),
             paths=[os.path.abspath(str(path))
                    for path in value.get("paths", [])],
             role=str(value.get("role") or "ignore"),
-            object_type=(str(value["object_type"])
-                         if value.get("object_type") else None),
+            object_type=object_type,
             confidence=float(value.get("confidence") or 0.0),
             reason=str(value.get("reason") or ""),
         )
