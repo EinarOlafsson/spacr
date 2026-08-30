@@ -856,3 +856,44 @@ arc, which is why they are reliable while the aggregate is not.
     Families so far: (1) defensive re-checks after a guarded call, (2) loop
     else-arcs where the loop cannot complete, (3) model-check dead branches,
     (4) this one.
+
+16. control_names.py:304 IS FAMILY 1, PROVEN BY SEARCH RATHER THAN BY ARGUMENT
+    ---------------------------------------------------------------------------
+    rows_for's retry, when the leading token turns out to be unused:
+
+        if tail and unused:                          # 302
+            shorter = resolve_control(tail, prefix=prefix)
+            if shorter is not None:                  # 304
+                ...
+        if not found and strict:                     # 310
+
+    Arc 304->310 cannot be taken. resolve_control returns None for exactly one
+    reason -- str(x).strip() is empty -- and `tail` comes from spec.typed,
+    which resolve_control itself already stripped. A truthy tail taken from a
+    stripped string always has a character strip() will not remove, so line
+    302 passing guarantees line 304 passing.
+
+    Worth recording HOW this was settled, because the first attempt was wrong.
+    The obvious input, "sgCtrl_   ", looks like it should reach the arc and
+    does not: the strip happens before the partition, so the tail is "" and
+    line 302 rejects it. A test was written, committed to the reasoning, and
+    the arc check said MISSING. The candidates were then enumerated directly:
+
+        '   ' '\t' '\n' '\xa0' ' '   truthy, strip to empty -> None
+        '​' '﻿'                 truthy, DO NOT strip   -> a spec
+        'a_​'  -> spec.typed 'a_​', tail '​', retry -> a spec
+
+    The two zero-width characters are the interesting ones: they are truthy
+    and `strip()` leaves them alone, so they are exactly the inputs that would
+    reach the arc if anything could -- and they resolve to a spec instead.
+
+    The tests written for it were kept, with their docstrings corrected to say
+    what they actually check: a name that is nothing but a trailing separator
+    matches zero rows without raising, and still raises under `strict`. Both
+    are worth having; neither covers the arc, and the docstring no longer
+    claims it does.
+
+    THE HABIT THIS IS AN ARGUMENT FOR. Reasoning produced a plausible input,
+    the test passed, and nothing was covered. Only the arc check caught it.
+    That is now three times in this instruction (5, 7, this) that a test
+    exercising nothing looked correct.
