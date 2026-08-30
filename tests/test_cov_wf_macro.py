@@ -108,6 +108,29 @@ def test_the_script_appears_whole_or_not_at_all(isolated_macros):
     assert leftovers == [], f"temporary file left behind: {leftovers}"
 
 
+def test_a_render_failure_never_creates_the_temporary(isolated_macros,
+                                                      monkeypatch):
+    """Rendering fails before the atomic-write temporary is opened.
+
+    A settings value that cannot be rendered must leave the last good macro
+    untouched and must not accumulate an empty ``.<pid>.tmp`` beside it.
+    """
+    chain = _demo_macro(src=str(isolated_macros))
+    target = isolated_macros / "macro.py"
+    target.write_text("last good macro", encoding="utf-8")
+
+    def _fail_render():
+        raise ValueError("settings cannot be rendered")
+
+    monkeypatch.setattr(chain, "source", _fail_render)
+
+    with pytest.raises(ValueError, match="settings cannot be rendered"):
+        chain.write(target)
+
+    assert target.read_text(encoding="utf-8") == "last good macro"
+    assert not (isolated_macros / f"macro.py.{os.getpid()}.tmp").exists()
+
+
 # ---------------------------------------------------------------------------
 # Finishing a recording that never started a log capture
 
