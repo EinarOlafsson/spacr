@@ -319,3 +319,31 @@ measured after it is measured against a smaller suite.
 
 WHOEVER LANDS THIS: say in the commit why each file went. Three of them name
 targets that are still in the tree.
+
+DO NOT UNION TWO COVERAGE RUNS TAKEN ON DIFFERENT COMMITS (2026-08-30)
+------------------------------------------------------------------------
+Tempting arithmetic, tried and discarded. Two batched runs exist, one of them
+missing a batch, so the obvious move is to take the better of the two per
+module and call the result a floor. It reads 98.68%, and it is wrong.
+
+The reason is section 7's trap wearing a different hat. An arc is a PAIR OF
+LINE NUMBERS. Between the two measured commits, 22 source files changed, so
+run 1's arcs for those files name lines that are now something else -- and
+counting them as covered credits the newer file for whatever the older one
+executed. The 0.74 points that separated the union from the measured figure
+were almost entirely that.
+
+Restricted to files IDENTICAL in both measured revisions, the union is 98.06%
+of 248,695 arcs, and the two runs differ by:
+
+    arcs run 1 had and run 2 did not     46
+    arcs run 2 had and run 1 did not     66
+
+112 arcs out of 248,695 -- 0.045%. THE MEASUREMENT IS REPRODUCIBLE. Two runs
+of the same suite on the same source agree to within a twentieth of a percent,
+which is worth knowing in both directions: a coverage change smaller than
+about 0.05% is noise, and a change larger than that is real and has a cause
+worth naming.
+
+So the rule is: quote one run, on one commit, and say which. Combine runs only
+across files whose bytes are identical, and say that is what you did.
