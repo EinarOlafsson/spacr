@@ -1340,7 +1340,7 @@ class GateEditorScreen(QWidget):
         png_path = target.with_suffix(".png")
         try:
             ok = render_figure_to_png(figure, str(png_path))
-        except Exception as exc:                      # pragma: no cover
+        except Exception as exc:
             LOG.info("saving the gate graph failed: %s", exc, exc_info=True)
             self.console.write(f"Could not save the graph: {exc}")
             return ""
