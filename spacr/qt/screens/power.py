@@ -650,26 +650,16 @@ class PowerScreen(QWidget):
         library = QGroupBox("Library")
         form = QFormLayout(library)
         self._genes = self._int_box(2, 100000, defaults.n_genes)
-        self._genes.setToolTip(
-            "Genes in the library. The real T. gondii screen this simulator "
-            "was fitted to had 452. Power falls roughly as the log of this.")
+        self._genes.setToolTip(_setting_tooltip("power_n_genes"))
         self._grnas = self._int_box(1, 100, defaults.n_grnas_per_gene)
-        self._grnas.setToolTip(
-            "Guides per gene. Only reaches the simulation when you score per "
-            "guide — see the caveats: there is no guide-efficiency layer.")
+        self._grnas.setToolTip(_setting_tooltip("power_n_grnas_per_gene"))
         self._score_per = QComboBox()
         self._score_per.addItems(["gene", "guide"])
-        self._score_per.setToolTip(
-            "'gene' pools a gene's guides before the model sees them, which "
-            "is what the real analysis and spaCRPower do. 'guide' gives every "
-            "construct its own coefficient and its own read count.")
+        self._score_per.setToolTip(_setting_tooltip("power_score_per"))
         self._constructs = self._float_box(0.1, 500.0, defaults.constructs_per_well,
                                            decimals=2, step=0.1)
         self._constructs.setToolTip(
-            "Mean library constructs spotted into each well — 'gRNAs per "
-            "well'. The knob that trades constructs-per-well against "
-            "wells-per-construct, and the sweep spaCRPower cared most about. "
-            "4.6 in the real screen.")
+            _setting_tooltip("power_constructs_per_well"))
         form.addRow("Genes", self._genes)
         form.addRow("gRNAs / gene", self._grnas)
         form.addRow("Score per", self._score_per)
@@ -685,8 +675,10 @@ class PowerScreen(QWidget):
         for fmt in PLATE_FORMATS:
             self._plate_format.addItem(str(fmt), fmt)
         self._plate_format.setCurrentText(str(defaults.wells_per_plate))
+        self._plate_format.setToolTip(
+            _setting_tooltip("power_wells_per_plate"))
         self._plates = self._int_box(1, 200, defaults.n_plates)
-        self._plates.setToolTip("Plates in the screen. 4 x 384 in the real screen.")
+        self._plates.setToolTip(_setting_tooltip("power_n_plates"))
         form.addRow("Wells / plate", self._plate_format)
         form.addRow("Plates", self._plates)
         self._wells_note = QLabel("")
@@ -698,27 +690,17 @@ class PowerScreen(QWidget):
         self._background = self._float_box(
             0.0001, 0.99, defaults.background_positive_rate, decimals=4, step=0.01)
         self._background.setToolTip(
-            "Probability a non-hit cell is called positive — the classifier's "
-            "false-positive rate. 0.12 in the real screen.")
+            _setting_tooltip("power_background_positive_rate"))
         # The floor is below 1 on purpose. A spin box that refuses the
         # keystroke teaches nothing; one that accepts a protective effect and
         # then says why the model cannot score it teaches the thing worth
         # knowing — see DesignSpec.validate.
         self._effect = self._float_box(0.05, 50.0, defaults.effect_fold,
                                        decimals=3, step=0.1)
-        self._effect.setToolTip(
-            "How many times more often a hit-genotype cell is called "
-            "positive. The effect size. The real screen's classifier sat at "
-            "0.80 against a background of 0.12, i.e. 6.67-fold. Below 1 means "
-            "a protective knockout, which this model does not score — it "
-            "ranks evidence in one direction only.")
+        self._effect.setToolTip(_setting_tooltip("power_effect_fold"))
         self._prevalence = self._float_box(0.0001, 1.0, defaults.hit_rate,
                                            decimals=4, step=0.005)
-        self._prevalence.setToolTip(
-            "Fraction of the library that is a true hit. 0.025 was inferred "
-            "from the real screen by inverting the well positivity rate "
-            "against the classifier operating point. The single number most "
-            "worth checking against your own pilot data.")
+        self._prevalence.setToolTip(_setting_tooltip("power_hit_rate"))
         form.addRow("Background positive rate", self._background)
         form.addRow("Effect size (fold)", self._effect)
         form.addRow("Hit prevalence", self._prevalence)
@@ -731,15 +713,9 @@ class PowerScreen(QWidget):
         form = QFormLayout(acquisition)
         self._cells = self._float_box(1.0, 100000.0, defaults.cells_per_well,
                                       decimals=1, step=10.0)
-        self._cells.setToolTip(
-            "Mean cells imaged per well — the parameter you buy with "
-            "microscope time, and the one the first curve sweeps. The real "
-            "screen averaged 123.")
+        self._cells.setToolTip(_setting_tooltip("power_cells_per_well"))
         self._reads = self._int_box(100, 10_000_000, int(defaults.reads_per_well))
-        self._reads.setToolTip(
-            "Mean sequencing reads per well. Unambiguously per well: "
-            "spaCRPower divided its read budget by the number of genes. "
-            "~30 000 in the real screen.")
+        self._reads.setToolTip(_setting_tooltip("power_reads_per_well"))
         form.addRow("Cells imaged / well", self._cells)
         form.addRow("Reads / well", self._reads)
         # Everything the simulator needs that the form does not ask for is
@@ -759,27 +735,17 @@ class PowerScreen(QWidget):
         run = QGroupBox("Run")
         form = QFormLayout(run)
         self._replicates = self._int_box(1, 50, defaults.n_replicates)
-        self._replicates.setToolTip(
-            "Simulated screens per grid point. One screen at one setting is a "
-            "single draw from a noisy process; three is the minimum that "
-            "reads as a probability at all.")
+        self._replicates.setToolTip(_setting_tooltip("power_n_replicates"))
         self._threshold = self._float_box(0.5, 1.0, defaults.detection_auroc,
                                           decimals=2, step=0.01)
         self._threshold.setToolTip(
-            "The AUROC a simulated screen has to reach to count as a "
-            "detection. There is no p-value here — the model ranks genes, so "
-            "the bar is a ranking quality, and you choose it.")
+            _setting_tooltip("power_detection_auroc"))
         self._seed = self._int_box(0, 2_000_000_000, defaults.seed)
-        self._seed.setToolTip(
-            "Master seed. Every number on this screen is reproducible from "
-            "this plus the parameters above.")
+        self._seed.setToolTip(_setting_tooltip("power_seed"))
         self._backend = QComboBox()
         self._backend.addItems(list(_BACKEND_CHOICES))
         self._backend.setCurrentText(defaults.backend)
-        self._backend.setToolTip(
-            "Inference backend. 'torch' is mean-field ADVI and is always "
-            "available; numpyro and pymc are exact NUTS if you installed "
-            "them. 'auto' prefers NUTS and reports which it used.")
+        self._backend.setToolTip(_setting_tooltip("power_backend"))
         form.addRow("Replicates / point", self._replicates)
         form.addRow("Detect at AUROC ≥", self._threshold)
         form.addRow("Seed", self._seed)
@@ -1342,7 +1308,7 @@ APP_TRANSLATIONS = _ROW.translations
 _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
     "power_n_genes": (
         452, int,
-        '(int) - Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the sweep measures the effect rather than assuming a fixed scaling law. Default 452.'),
+        '(int) - Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.'),
     "power_n_grnas_per_gene": (
         4, int,
         "(int) - Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4."),
@@ -1386,6 +1352,20 @@ _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
         "torch", str,
         "(str) - Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'."),
 }
+
+
+def _setting_tooltip(key: str) -> str:
+    """Return the one authored tooltip for a Power form setting.
+
+    The hand-built form and the generic settings registry are two renderers
+    of the same controls. Reading both from :data:`_SETTINGS` prevents the
+    visible labels from retaining an older scientific claim after the
+    registry tooltip is corrected.
+
+    :param key: a key declared in :data:`_SETTINGS`.
+    :returns: its tooltip text.
+    """
+    return _SETTINGS[key][2]
 
 
 def power_default_settings(settings: Optional[Dict[str, Any]] = None

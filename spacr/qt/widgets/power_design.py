@@ -183,18 +183,17 @@ CAVEATS: Tuple[Caveat, ...] = (
     Caveat(
         key="advi_not_nuts",
         headline=(
-            "The default backend is mean-field ADVI, not NUTS: the ranking "
-            "is trustworthy, the intervals are not."
+            "The default backend is mean-field ADVI, not NUTS: it can reach "
+            "a local optimum, and its intervals are not calibrated."
         ),
         detail=(
             "spaCRPower fits with brms + cmdstanr (full NUTS). There is no "
             "pip-installable equivalent, so the default here is variational "
-            "inference in torch. Mean-field VI underestimates posterior "
-            "variance, has no R-hat and can land in a local optimum. What it "
-            "does get right is the ORDER of the per-gene coefficients — and "
-            "AUROC and average precision depend on nothing else, which is "
-            "why it is defensible for a power analysis and not defensible "
-            "for quoting a per-gene credible interval. Install numpyro or "
+            "inference in torch. Mean-field VI has no R-hat, cannot represent "
+            "posterior correlations, can underestimate posterior variance, "
+            "and can land in a local optimum. AUROC and average precision use "
+            "coefficient ordering, but ADVI does not guarantee that ordering; "
+            "treat its result as a fast approximation. Install numpyro or "
             "pymc and pick that backend when the interval is the deliverable."
         ),
         changes_the_number=True,

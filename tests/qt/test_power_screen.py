@@ -760,6 +760,46 @@ def test_power_settings_declare_the_exact_defaults_and_types():
     }
 
 
+def test_rendered_power_form_uses_the_registered_tooltips(qapp):
+    """Every visible setting label reads the one `_SETTINGS` tooltip source.
+
+    Construction finishes by moving hover help from each editor to its form
+    label. Exercise that real offscreen path: the label must own the exact
+    registry wording and the editor must be quiet, including Wells / plate,
+    which previously had no tooltip at all.
+    """
+    screen = PowerScreen(threaded=False)
+    fields = {
+        "power_n_genes": screen._genes,
+        "power_n_grnas_per_gene": screen._grnas,
+        "power_score_per": screen._score_per,
+        "power_cells_per_well": screen._cells,
+        "power_wells_per_plate": screen._plate_format,
+        "power_n_plates": screen._plates,
+        "power_constructs_per_well": screen._constructs,
+        "power_background_positive_rate": screen._background,
+        "power_effect_fold": screen._effect,
+        "power_hit_rate": screen._prevalence,
+        "power_reads_per_well": screen._reads,
+        "power_n_replicates": screen._replicates,
+        "power_detection_auroc": screen._threshold,
+        "power_seed": screen._seed,
+        "power_backend": screen._backend,
+    }
+    try:
+        screen.show()
+        qapp.processEvents()
+        assert set(fields) == set(power_mod._SETTINGS)
+        for key, field in fields.items():
+            label = field.parentWidget().layout().labelForField(field)
+            assert label is not None, key
+            assert field.toolTip() == "", key
+            assert label.toolTip() == power_mod._SETTINGS[key][2], key
+    finally:
+        screen.close()
+        screen.deleteLater()
+
+
 def test_power_tooltips_state_the_simulator_and_fit_contracts():
     """Help text must distinguish model inputs from convenient metaphors.
 
@@ -783,6 +823,10 @@ def test_power_tooltips_state_the_simulator_and_fit_contracts():
     assert "no guide-efficiency or within-gene grouping layer" in score_per
     assert "pools a gene's guides" not in score_per
 
+    genes = tips["power_n_genes"]
+    assert "simulator evaluates the resulting design directly" in genes
+    assert "the sweep measures the effect" not in genes
+
     assert "Target mean distinct library units" in tips[
         "power_constructs_per_well"]
     assert "Probability clipping can make the realised mean lower" in tips[
@@ -804,6 +848,13 @@ def test_power_tooltips_state_the_simulator_and_fit_contracts():
     assert "exact NUTS" not in backend
     assert "always available" not in backend
     assert "gets the coefficient ORDER right" not in backend
+
+    advi = next(c for c in CAVEATS if c.key == "advi_not_nuts")
+    assert "can reach a local optimum" in advi.headline
+    assert "intervals are not calibrated" in advi.headline
+    assert "does not guarantee that ordering" in advi.detail
+    assert "ranking is trustworthy" not in advi.headline
+    assert "does get right is the ORDER" not in advi.detail
 
     seed = tips["power_seed"]
     for dependency in (
