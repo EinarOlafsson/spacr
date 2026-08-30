@@ -162,3 +162,35 @@ def test_closing_the_screen_abandons_the_read_in_flight(screen, qtbot,
     screen.load_path(measurement_csv)
     screen.close()
     assert screen.active_jobs() == 0
+
+
+def test_the_table_signal_before_a_file_is_loaded_does_nothing(screen):
+    """The combo is filled programmatically and fires while it is being filled.
+
+    ``addItems`` emits ``currentTextChanged``, so the handler runs before any
+    file has been chosen. Reloading on that would call ``load_path`` with an
+    empty path -- a read of "" reported to the user as a file that could not
+    be read, on a screen they have not touched.
+    """
+    screen._on_table_picked("well")
+
+    assert screen._frame is None
+    assert "could not read" not in screen._source.text()
+
+
+def test_an_empty_table_name_is_ignored_even_with_a_file_loaded(
+        screen, measurement_db):
+    """Clearing the combo emits the signal with "".
+
+    Reloading with an empty table name would ask the database for a table
+    called "" and report the failure, discarding the frame the user was
+    looking at.
+    """
+    screen.load_path(measurement_db)
+    before = screen._source.text()
+    assert screen._frame is not None
+
+    screen._on_table_picked("")
+
+    assert screen._frame is not None
+    assert screen._source.text() == before
