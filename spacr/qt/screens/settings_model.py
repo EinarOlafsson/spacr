@@ -7902,7 +7902,10 @@ class SettingsWidgets:
 
     def __init__(self, app_key: str, parent: Optional[QWidget] = None,
                  *, skip_keys=(), current=None):
-        """
+        """Load the app's defaults and prepare its empty widget map.
+
+        :param app_key: id of the app whose settings are being edited.
+        :param parent: optional Qt parent for created widgets.
         :param skip_keys: settings to build NO widget for.
 
             For a FOLD, which mounts one module's extra settings onto
@@ -7911,11 +7914,10 @@ class SettingsWidgets:
             kept the 14 that mask does not already have, discarding the rest
             because the host already owns them. Naming them here skips them
             instead, which is the same result for 4% of the work.
-        """
-        """Load the app's default settings dict and prepare an empty widget map.
-
-        :param app_key: id of the app whose settings are being edited.
-        :param parent: optional Qt parent for created widgets.
+        :param current: optional mapping from the form being rebuilt. Recognized
+            settings replace the app defaults; its organelle count, slot, and
+            object-channel values determine which controls the replacement
+            form builds.
         """
         self.app_key = app_key
         self._parent = parent
