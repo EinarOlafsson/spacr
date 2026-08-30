@@ -761,31 +761,17 @@ def test_power_settings_declare_the_exact_defaults_and_types():
 
 
 def test_rendered_power_form_uses_the_registered_tooltips(qapp):
-    """Every visible setting label reads the one `_SETTINGS` tooltip source.
+    """Every visible setting label reads the semantic `_SETTINGS` source.
 
     Construction finishes by moving hover help from each editor to its form
-    label. Exercise that real offscreen path: the label must own the exact
-    registry wording and the editor must be quiet, including Wells / plate,
-    which previously had no tooltip at all.
+    label. Exercise that real offscreen path: the label must own formatted,
+    source-bound help and its identity while the editor remains quiet,
+    including Wells / plate, which previously had no tooltip at all.
     """
+    from spacr.qt.screens.settings_model import format_tooltip
+
     screen = PowerScreen(threaded=False)
-    fields = {
-        "power_n_genes": screen._genes,
-        "power_n_grnas_per_gene": screen._grnas,
-        "power_score_per": screen._score_per,
-        "power_cells_per_well": screen._cells,
-        "power_wells_per_plate": screen._plate_format,
-        "power_n_plates": screen._plates,
-        "power_constructs_per_well": screen._constructs,
-        "power_background_positive_rate": screen._background,
-        "power_effect_fold": screen._effect,
-        "power_hit_rate": screen._prevalence,
-        "power_reads_per_well": screen._reads,
-        "power_n_replicates": screen._replicates,
-        "power_detection_auroc": screen._threshold,
-        "power_seed": screen._seed,
-        "power_backend": screen._backend,
-    }
+    fields = screen._setting_fields
     try:
         screen.show()
         qapp.processEvents()
@@ -794,7 +780,40 @@ def test_rendered_power_form_uses_the_registered_tooltips(qapp):
             label = field.parentWidget().layout().labelForField(field)
             assert label is not None, key
             assert field.toolTip() == "", key
-            assert label.toolTip() == power_mod._SETTINGS[key][2], key
+            source = power_mod._SETTINGS[key][2]
+            assert field.property("settingsAppKey") == APP_KEY, key
+            assert field.property("settingKey") == key, key
+            assert label.property("settingsAppKey") == APP_KEY, key
+            assert label.property("settingKey") == key, key
+            assert label.property("apiTooltipDescriptionSource") == source, key
+            assert label.toolTip() == format_tooltip(
+                source, APP_KEY, key, "en"), key
+    finally:
+        screen.close()
+        screen.deleteLater()
+
+
+def test_rendered_power_form_retranslates_semantic_tooltips(qapp):
+    """A language switch must reach custom Power help, not leave English."""
+    from html import escape
+
+    from spacr.qt import i18n as i18n_mod
+    from spacr.qt.i18n_catalogs import de
+
+    screen = PowerScreen(threaded=False)
+    try:
+        screen.show()
+        qapp.processEvents()
+        i18n_mod.retranslate_widget_tree(screen, "de")
+        for key, field in screen._setting_fields.items():
+            label = field.parentWidget().layout().labelForField(field)
+            assert label is not None, key
+            translated = de.SETTING_TOOLTIPS[key]
+            assert escape(translated) in label.toolTip(), key
+            english = " ".join(
+                power_mod._SETTINGS[key][2].split(" - ", 1)[-1].split())
+            assert english not in label.toolTip(), key
+            assert field.toolTip() == "", key
     finally:
         screen.close()
         screen.deleteLater()
