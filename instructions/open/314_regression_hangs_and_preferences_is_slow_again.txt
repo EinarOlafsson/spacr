@@ -1,0 +1,127 @@
+================================================================================
+THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
+================================================================================
+
+Status:    OPEN, filed 2026-08-29. A REGRESSION against a CLOSED instruction.
+Owner:     unassigned. Not the coverage lane (288/310) that filed it.
+Requested: 2026-08-29 -- "i tried to import regression modual and the program
+           hung twice, triggering the preferences took a verry long time.
+           please check if osmething is wrong it tookless time before, make
+           sure preferences, moduals and the applications itself start is
+           optimized"
+
+Relates to: 284 (two-second start and responsive modules, DONE), 262 (starting
+up takes too long, DONE), 282 (libraries load when called, DONE), 286 (one
+performance selector, DONE). This is filed SEPARATELY rather than reopening
+284 because 284's own recorded evidence shows the budgets were met when it
+closed. What is being reported is a LOSS of that, which is a different fact
+from "it was never fast", and the two must not be conflated in the record.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Instruction 284 closed on a recorded measurement, reproduced here from its own
+closing evidence:
+
+    start -> usable Home :  2.03 s   budget  5.00   OK
+    click -> mask        :  4.26 s   budget 10.00   OK
+    click -> measure     :  1.45 s   budget 10.00   OK
+    click -> regression  :  4.68 s   budget 10.00   OK
+    click -> classify    :  1.56 s   budget 10.00   OK
+    click -> sequencing  :  0.25 s   budget 10.00   OK
+    click -> annotate    :  0.15 s   budget 10.00   OK
+
+The maintainer now reports that regression HUNG -- twice, so not a one-off --
+and that opening Preferences took "a very long time". A hang is not a slow
+budget miss: 284's ratchet fails a module at 10 seconds, and a hang has no
+number at all. Whatever is happening is therefore outside the range the
+existing ratchet was tuned to catch.
+
+Two measurements taken at filing time, on the live tree:
+
+  * COLD IMPORT IS NOT THE PROBLEM. Fresh interpreters:
+    ``import spacr`` 0.05 s / 17 MB, ``import spacr.regression`` 0.05 s /
+    17 MB, ``import spacr.qt.preferences`` 0.10 s / 30 MB. The lazy loader
+    from 282 is doing its job; the cost is not at import.
+  * The cost must therefore be in what the SCREEN does when it is built --
+    the first real work behind the click -- not in module loading.
+
+A CONFOUND THAT MUST BE RULED OUT FIRST, AND WHICH IS PROBABLY THE ANSWER.
+The working tree at ``/mnt/firecuda2/codex/repo/spacr`` was found on
+2026-08-29 to be simultaneously (a) BEHIND origin/nightly -- 36 files present
+in HEAD are absent from disk, including the whole ``spacr/flowview/`` package
+committed that afternoon -- and (b) carrying 199 modified files whose content
+is in no commit in the repository's history. ``pip -e`` points at this tree
+(HANDOFF 3f), so ``spacr`` on PATH launches exactly this mixture. A tree that
+is part stale and part unsaved is a plausible cause of a hang all by itself,
+and no timing measured against it describes the shipped product.
+
+REPRODUCE ON A CLEAN TREE BEFORE DIAGNOSING ANYTHING. If the hang does not
+reproduce from a clean checkout of HEAD, the defect is the working tree and
+not the code, and this instruction closes with that finding recorded.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A hang is the worst failure shape spaCR has: there is no traceback, no error
+dialog, and no way for the user to tell a wedged process from a slow one. The
+maintainer's own report -- "it took less time before" -- is the only signal,
+and it arrives only because the same person used the older build. A user who
+meets this on their first run concludes the application is broken.
+
+It also silently invalidates 284's badge. An instruction that closed on a
+green ratchet, whose behaviour has since regressed without the ratchet firing,
+means the ratchet is not running on the path the user actually takes.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. RULE OUT THE TREE. Create a clean worktree at HEAD, install it, and drive
+   the real app there. If regression opens normally, stop and record that.
+
+2. MEASURE, DO NOT GUESS. ``tools/spacr_startup_benchmark.py`` already drives
+   the real entry point through every live Qt app, presses every sidebar
+   button, and fails on a 500 ms event-loop stall inside any measured
+   interval. Run it with ``--record-only`` and compare against 284's table
+   above. It needs the machine to itself; a timing number taken beside a test
+   run is not evidence.
+
+3. FIND THE STALL, NOT THE SLOWNESS. If regression wedges rather than
+   finishes, attach ``faulthandler.dump_traceback_later(30, repeat=True)`` and
+   take the stack while it is hung. Instruction 160 was diagnosed exactly this
+   way, and its cause -- ``plt.show()`` entering a Qt event loop off the GUI
+   thread -- was one no amount of reading would have found.
+
+4. PREFERENCES. Time the dialog's construction separately from the screen
+   behind it. 118 gave Preferences per-graph-type sections and 290 gave it a
+   tooltip strip; either can be built eagerly for every setting spaCR has
+   rather than for the page being shown.
+
+5. EXTEND THE RATCHET TO WHAT BROKE. Whatever is found, the benchmark must
+   fail on it next time. A hang needs a wall-clock ceiling that fails the run,
+   not a budget that is only checked once the operation returns.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * ``xvfb-run -a python tools/spacr_startup_benchmark.py`` exits zero on a
+    quiet machine, with every module inside its budget and Home inside 2.0 s;
+  * regression opens on ten consecutive cold starts with no hang -- the report
+    is of two hangs, so a single successful open proves nothing;
+  * Preferences opens within a stated budget, and that budget is in the
+    benchmark rather than in this file;
+  * the stall that caused the hang has a test that fails without its fix.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+  * 284 is NOT reopened. It closed on evidence that was true; reopening it
+    would overwrite that record with a later, different failure.
+  * No optimisation is attempted before the tree confound is ruled out.
+    Tuning code against a measurement taken on a half-stale checkout is how
+    an afternoon gets spent making the wrong thing faster.
