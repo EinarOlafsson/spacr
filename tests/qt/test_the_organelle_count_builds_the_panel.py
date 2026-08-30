@@ -247,3 +247,56 @@ def test_the_panel_is_widened_without_widening_the_object_key_vocabulary():
 
     assert PANEL_ORGANELLE_SLOTS == MAX_ORGANELLES
     assert len(schema.ORGANELLE_ROLES) == 4
+
+
+# ---------------------------------------------------------------------------
+# the slot-heading cache, before there is a panel to read
+# ---------------------------------------------------------------------------
+
+def test_a_model_with_no_panel_yet_reports_no_slot_headings():
+    """``_slot_headings`` runs on every keystroke in a channel box.
+
+    It can therefore be called before the panel it reads has been built --
+    a settings file applied during construction, a default written in before
+    the form exists. There are no headings yet, and the honest answer is an
+    empty map rather than a walk of a widget tree that is not there.
+    """
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets.__new__(SettingsWidgets)
+    model._parent = None
+    model._slot_heading_cache = None
+
+    assert model._slot_headings() == {}
+
+
+def test_an_empty_answer_is_not_cached_as_the_final_one():
+    """The comment above the cache says exactly this.
+
+    Caching "no headings" from a call made before the panel existed would
+    answer "no headings" for the life of the panel -- and every organelle
+    slot the run does not have would keep its heading, which is the wall
+    this whole mechanism exists to remove.
+    """
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets.__new__(SettingsWidgets)
+    model._parent = None
+    model._slot_heading_cache = None
+
+    model._slot_headings()
+
+    assert not getattr(model, "_slot_heading_cache", None), (
+        "an empty result was cached, so the real headings can never be found")
+
+
+def test_a_populated_cache_is_returned_without_walking_again():
+    """The whole point of the cache: this runs on every keystroke."""
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets.__new__(SettingsWidgets)
+    model._parent = None
+    sentinel = {1: (object(), ("nucleus_channel",))}
+    model._slot_heading_cache = sentinel
+
+    assert model._slot_headings() is sentinel
