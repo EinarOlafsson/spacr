@@ -12,9 +12,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "Abundancia relativa mínima, entre 0 y 1, que debe alcanzar un gRNA dentro del recuento total de lecturas de un pocillo para conservarse. Un valor mayor elimina gRNAs de baja abundancia y derivados de contaminación cruzada, y reduce el número medio de gRNAs por pocillo; si se establece demasiado alto, se eliminan todas las filas y la ejecución genera un error. Use None para seleccionar automáticamente el umbral que produce target_unique_count gRNAs por pocillo. Valor predeterminado: None."
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "Abundancia relativa mínima, entre 0 y 1, que debe alcanzar un gRNA dentro del recuento total de lecturas de un pocillo para conservarse. Un valor mayor elimina gRNAs de baja abundancia y derivados de contaminación cruzada, y reduce el número medio de gRNAs por pocillo; si se establece demasiado alto, se eliminan todas las filas y la ejecución genera un error. Use None para seleccionar automáticamente el umbral que produce target_unique_count gRNAs por pocillo. Valor predeterminado: None. La regresión comienza con el umbral fijo reproducible 0.02; introduzca None solo cuando se pretenda realizar el barrido automático."
     },
     {
       "table": "setting_tooltips",
@@ -26,9 +26,9 @@
     {
       "table": "setting_tooltips",
       "key": "control_wells",
-      "source_sha256": "d185be08b45fbcb0930bd9fa42b3574a77a7bd64d0f8d563918f8cbcb7b4833f",
-      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None.",
-      "translation": "Pocillos cuyos parásitos no tienen tinción previa a la permeabilización, que proporcionan la distribución negativa empírica utilizada para establecer el umbral. Especifique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa. Estos pocillos de control de tinción se excluyen de los cálculos de eficiencia porque no son condiciones experimentales. None utiliza el método automático por campo. La regresión de cribado utiliza esta clave con otro propósito, para el cual debe ser una lista que corresponda a filter_value. Valor predeterminado: None."
+      "source_sha256": "04f850464d06fc9082946d253fbbe5aebb36edc8d426adaf0e9e1e3046f8fb98",
+      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None. Regression initializes it from filter_value plus any declared control blocks; the shipped filter_value produces ['c1', 'c2', 'c3'].",
+      "translation": "Pocillos cuyos parásitos no tienen tinción previa a la permeabilización, que proporcionan la distribución negativa empírica utilizada para establecer el umbral. Especifique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa. Estos pocillos de control de tinción se excluyen de los cálculos de eficiencia porque no son condiciones experimentales. None utiliza el método automático por campo. La regresión de cribado utiliza esta clave con otro propósito, para el cual debe ser una lista que corresponda a filter_value. Valor predeterminado: None. La regresión lo inicializa a partir de filter_value y de cualquier bloque de control declarado; el filter_value incluido produce ['c1', 'c2', 'c3']."
     }
   ]
 }

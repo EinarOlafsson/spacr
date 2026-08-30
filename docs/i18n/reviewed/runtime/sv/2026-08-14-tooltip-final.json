@@ -40,9 +40,9 @@
     {
       "table": "setting_tooltips",
       "key": "coordinate_columns",
-      "source_sha256": "28f622e4aacb156006f9f5817333e6578e80204f4303daa995038999eabcd1e0",
-      "source": "Columns containing each object's position when generating crops on demand from a database instead of masks, for example ['centroid_x', 'centroid_y']. This method supports only bounding-box crops because coordinates do not define object boundaries. None uses the merged masks and is the default. Default None.",
-      "translation": "Kolumner som innehåller varje objekts position när bildutsnitt genereras på begäran från en databas i stället för masker, till exempel ['centroid_x', 'centroid_y']. Metoden stöder endast bildutsnitt med begränsningsruta eftersom koordinater inte definierar objektgränser. None använder de sammanfogade maskerna och är standard. Standard None."
+      "source_sha256": "0cc61317e6a9fe0d058bf09cb34ee85f03e6d98dd180f8027c22f2f10aaee75d",
+      "source": "Database columns used to locate an object for on-demand cropping. Two columns may give a centroid row and column; one column may identify a labeled object whose mask supplies its extent. Coordinate-backed routes support only bounding-box crops. None uses the configured mask plane instead. Default None. Merged Classifier derives one identifier from object_array, initially ['cell_id'], so the single-column form is valid rather than an incomplete coordinate pair.",
+      "translation": "Databaskolumner som används för att hitta ett objekt för bildutsnitt på begäran. Två kolumner kan ange centroidens rad och kolumn; en kolumn kan identifiera ett märkt objekt vars mask anger dess utsträckning. Koordinatbaserade vägar stöder endast bildutsnitt med begränsningsruta. None använder i stället det konfigurerade maskplanet. Standard None. Merged Classifier härleder en identifierare från object_array, inledningsvis ['cell_id'], så formen med en kolumn är giltig och inte ett ofullständigt koordinatpar."
     },
     {
       "table": "setting_tooltips",
@@ -124,9 +124,9 @@
     {
       "table": "setting_tooltips",
       "key": "treatments",
-      "source_sha256": "2baa763ce32774c1d67cd86e01bf22b573bbee022f8652df5d6666cccb47834b",
-      "source": "Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin'].",
-      "translation": "Namn på läkemedels- eller behandlingsvillkoren i experimentet, t.ex. ['dmso','lovastatin']. Varje namn skrivs i kolumnen treatment och infogas i den kombinerade tillståndsetikett som används för gruppering och diagram; det paras positionsvis med treatment_plate_metadata (eller treatment_loc), som listar brunnarna för respektive behandling. Standard ['cm','lovastatin']."
+      "source_sha256": "a13f1910bf847c50b438a43e85de7503d1d3ac6019d5529e182b48fa403e78a6",
+      "source": "Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin']. Invasion and Replication start at None, so they add no treatment condition until names and matching well groups are supplied.",
+      "translation": "Namn på läkemedels- eller behandlingsvillkoren i experimentet, t.ex. ['dmso','lovastatin']. Varje namn skrivs i kolumnen treatment och infogas i den kombinerade tillståndsetikett som används för gruppering och diagram; det paras positionsvis med treatment_plate_metadata (eller treatment_loc), som listar brunnarna för respektive behandling. Standard ['cm','lovastatin']. Invasion och Replication börjar med None, så ingen behandlingsbetingelse läggs till förrän namn och motsvarande brunngrupper har angetts."
     }
   ]
 }

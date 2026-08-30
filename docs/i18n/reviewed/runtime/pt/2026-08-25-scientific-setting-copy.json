@@ -12,9 +12,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "Abundância relativa mínima, 0-1, que um gRNA deve atingir no número total de leituras de um poço para ser retido. Um limiar mais restritivo remove gRNAs de baixa abundância e de contaminação cruzada e reduz o número médio de gRNAs por poço; se ultrapassar o intervalo adequado, todas as linhas são removidas e a execução gera um erro. Utilize None para selecionar automaticamente o limiar que produz target_unique_count gRNAs por poço. Predefinição None."
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "Abundância relativa mínima, 0-1, que um gRNA deve atingir no número total de leituras de um poço para ser retido. Um limiar mais restritivo remove gRNAs de baixa abundância e de contaminação cruzada e reduz o número médio de gRNAs por poço; se ultrapassar o intervalo adequado, todas as linhas são removidas e a execução gera um erro. Utilize None para selecionar automaticamente o limiar que produz target_unique_count gRNAs por poço. Predefinição None. A regressão começa no limiar fixo reprodutível 0.02; introduza None apenas quando pretender a varredura automática."
     },
     {
       "table": "setting_tooltips",

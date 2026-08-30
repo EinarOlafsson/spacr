@@ -12,9 +12,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "किसी gRNA को बनाए रखने के लिए वेल की कुल read count में आवश्यक न्यूनतम सापेक्ष प्रचुरता, 0-1। मान अधिक करने से कम प्रचुरता वाले और bleed-through gRNAs हटते हैं तथा प्रति वेल gRNAs की औसत संख्या घटती है; बहुत अधिक मान हर पंक्ति को हटा देता है और रन त्रुटि उत्पन्न करता है। प्रति वेल target_unique_count gRNAs देने वाली cutoff अपने आप चुनने के लिए None का उपयोग करें। डिफ़ॉल्ट None।"
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "किसी gRNA को बनाए रखने के लिए वेल की कुल read count में आवश्यक न्यूनतम सापेक्ष प्रचुरता, 0-1। मान अधिक करने से कम प्रचुरता वाले और bleed-through gRNAs हटते हैं तथा प्रति वेल gRNAs की औसत संख्या घटती है; बहुत अधिक मान हर पंक्ति को हटा देता है और रन त्रुटि उत्पन्न करता है। प्रति वेल target_unique_count gRNAs देने वाली cutoff अपने आप चुनने के लिए None का उपयोग करें। डिफ़ॉल्ट None। रिग्रेशन पुनरुत्पाद्य निश्चित कटऑफ 0.02 से शुरू होता है; स्वचालित स्वीप का इरादा होने पर ही None दर्ज करें।"
     },
     {
       "table": "setting_tooltips",
