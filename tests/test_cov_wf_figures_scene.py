@@ -392,6 +392,8 @@ def test_a_legend_entry_with_no_text_is_left_out(plot, look):
              if isinstance(child, pg.LegendItem)]
     assert len(drawn) == 1
     assert [label.text for _, label in drawn[0].items] == ["kept"]
+    sample, _label = drawn[0].items[0]
+    assert sample.item.opts["pen"].color().name().lower() == "#0000ff"
 
 
 class _RecordingLayout:
