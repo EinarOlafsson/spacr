@@ -1551,3 +1551,40 @@ tolerant path asserts the screen state it must preserve, and the raising path
 proves both that the real append was attempted and that no partial text was
 retained.  The adjacent working-console test pins the positive side.  The full
 15-test Mask example-data file and the assertion-free hygiene gate pass.
+
+--------------------------------------------------------------------------------
+41. FOUR READ-ONLY TESTS RAN THE SAME REGRESSION AND RETAINED 20 FIGURES
+--------------------------------------------------------------------------------
+
+The ``default_run`` fixture performed one full regression for each of four
+tests which only inspect the same settings and result.  Each run correctly
+registers five displayed result figures for its caller, so the fourth setup
+began with fifteen and its temporary volcano/diagnostic construction crossed
+Matplotlib's twenty-figure warning threshold.  Neither production helper was
+leaking a private figure; the fixture was repeatedly creating caller-owned
+output and never releasing it.
+
+The read-only fixture is now module-scoped.  It snapshots exact figure
+identities, asserts that its one run owns five, closes only those five at
+teardown, and proves every pre-existing caller figure survives.  It never uses
+``close('all')``.  The exact shard-10 batch passes 565 tests with one optional
+skip and no RuntimeWarning; the focused file is 4/4 green and runs in 8.9
+seconds instead of 19.8.
+
+--------------------------------------------------------------------------------
+42. NUMPY'S LINEAR SOLVER WAS BEING USED AS A NUMERICAL RANK TEST
+--------------------------------------------------------------------------------
+
+``_fit_absorbed_least_squares`` expected ``np.linalg.solve`` to raise for a
+rank-deficient normal-equation matrix.  In the live Fast CI environment, two
+duplicate reported columns differed by floating residue after demeaning and
+that runner's LAPACK build returned an arbitrary enormous solution instead.
+The contract test therefore failed with ``DID NOT RAISE`` even though the
+coefficients were not identified.
+
+The backend now checks the numerical rank of the normal-equation matrix before
+solving and refuses an unidentified design consistently across BLAS/LAPACK
+builds.  The regression test makes any call to ``solve`` for that singular
+input an immediate failure.  With the CI dependency ``pyfixest 0.60.0``, the
+backend file collected 20 tests: 18 passed and only its two unavailable-glum
+tests skipped.
