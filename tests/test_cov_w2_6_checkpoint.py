@@ -61,6 +61,18 @@ def test_an_object_whose_item_refuses_falls_back_to_its_text():
     assert cp.json_safe(HasAwkwardItem()) == "awkward"
 
 
+def test_a_noncallable_item_attribute_is_not_treated_as_a_scalar_converter():
+    """Metadata called ``item`` is ordinary data, not necessarily a method."""
+
+    class HasItemMetadata:
+        item = "inventory label"
+
+        def __str__(self):
+            return "labelled object"
+
+    assert cp.json_safe(HasItemMetadata()) == "labelled object"
+
+
 def test_mapping_keys_are_sorted_as_strings_so_the_digest_is_stable():
     assert list(cp.json_safe({2: "b", 10: "a", "1": "c"})) == ["1", "10", "2"]
 
