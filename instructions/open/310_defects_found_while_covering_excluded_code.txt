@@ -239,41 +239,58 @@ uncommented.
 4. SMALLER OBSERVATIONS
 --------------------------------------------------------------------------------
 
-  * spacr/database_concurrency.py ``_run_probe`` (739-742, 771) -- the final
+  * [FIXED ``bb9fc92e``] spacr/database_concurrency.py ``_run_probe``
+    (739-742, 771) -- the final
     ``if thread.is_alive()`` re-check can suppress the "did not finish within
     30 seconds" error, but the ``alive`` list it re-checks is not rebuilt, so
     ``if temporary_dir is not None and not alive`` still keeps the scratch
     database. A worker that finishes inside the join window therefore produces
     a clean result AND a leftover temporary directory. Harmless in effect, but
     the docstring says the survivor is "a worker that outlives the join
-    deadline", which is not what the code does. Current behaviour is pinned by
-    a test, so a deliberate fix will surface as a failing assertion rather
-    than silently.
-  * spacr/crops.py ``_region_for`` -- the docstring still documents a ``None``
+    deadline", which is not what the code does. The final liveness pass now
+    rebuilds the survivor list used for both the error and scratch-retention
+    decisions, so a late clean exit leaves neither a false error nor a stale
+    temporary database.
+  * [FIXED ``2b36b712``] spacr/crops.py ``_region_for`` -- the docstring
+    documented a ``None``
     return the code can no longer produce. The ``binary_dilation(iterations=0)``
     quirk that produced it was fixed by the ``if px > 0`` guard, so every path
     now returns an ndarray. Confirmed by brute force over 57,600 field/spec
-    combinations: zero None regions. The stale sentence should go.
-  * tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name STARTED
-    FAILING during the 2026-08-29 session -- it is NOT pre-existing. The
+    combinations: zero None regions. The stale return is gone and the public
+    type contract now says the array-only truth.
+  * [RESOLVED ``cde2b73d``] tests/test_the_name_is_spaCR.py::
+    test_no_file_mis_cases_the_name started failing during the 2026-08-29
+    session. The
     offenders spell the name "SpaCR" at docs/source/installer_guide.rst:101
-    and :107, and tests/test_readme_presentation.py:313-319. Both are outside
-    the coverage session's lane. Lane: docs.
-  * spacr/fit_resources.py ``readable`` and spacr/mixed_gpu.py ``_readable``
+    and :107, and tests/test_readme_presentation.py:313-319. Those are
+    case-sensitive directories created by released installers, not prose.
+    The gate now exempts only those literal legacy identifiers; an ordinary
+    mis-cased project name on the same line still fails. That gate caught a
+    later ``SPACR`` in the recovered resource-accounting module; ``e9b43e04``
+    corrected it to ``spaCR`` and the naming/resource cohort passed 68/68.
+  * [ACCEPTED] spacr/fit_resources.py ``readable`` and spacr/mixed_gpu.py
+    ``_readable``
     are byte-identical implementations in two modules. Deduplicating them
-    would couple mixed_gpu to fit_resources, so it was left alone; noted only
-    so the duplication is a decision rather than an accident.
-  * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
-    lists a subclass beside its base; ``OSError`` alone is equivalent.
-  * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
-    FAILS at present: public API surface 8613 vs reviewed 8612. THE EXTRA
+    would couple mixed_gpu to fit_resources, so it stays local deliberately;
+    a cosmetic helper merge is not worth adding an import dependency between
+    independent resource-control modules.
+  * [FIXED ``591afe90``] spacr/pipeline_graph.py:485 listed
+    ``FileNotFoundError`` beside its superclass ``OSError``. The redundant
+    subclass is gone; the race still returns the same readable graph note.
+  * [FINAL CATALOG REBUILD IN PROGRESS] tests/test_api_i18n_extractor.py::
+    test_public_docstrings_matches_reviewed_visible_coverage failed at the
+    historical snapshot: public API surface 8613 vs reviewed 8612. THE EXTRA
     SYMBOL IS ``spacr.qt.widgets.fast_plots.FastPlot.closeEvent`` -- a Qt
     addition from the concurrent packaging/GUI session, not from the coverage
     sweep. Proved by parsing HEAD's and the working copy's versions of the
     coverage session's own files and getting identical symbol sets and
     docstrings. tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current
-    fails for the same reason. Both need the ratchet bumped and
-    tools/build_documentation_i18n.py re-run. Lane: docs.
+    failed for the same reason. The current fixed point is 8,899 total / 8,780
+    non-alias / 119 alias entries after FlowView, and instruction 306's final
+    nine-locale generation owns the matching ratchet and catalogs.
+
+The reconciled known-bug, naming, concurrency, pipeline-graph and Qt graph
+cohort is 181/181 green on Python 3.12 / PySide 6.11.2.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
