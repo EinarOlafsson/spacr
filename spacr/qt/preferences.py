@@ -3865,6 +3865,7 @@ def apply_preferences_to_app(app=None) -> None:
         clear_widget_qss_overlays,
         set_widget_qss_context,
         stylesheet,
+        widget_qss_names,
     )
 
     app = app or QApplication.instance()
@@ -3895,12 +3896,6 @@ def apply_preferences_to_app(app=None) -> None:
     # from a paint. See :func:`spacr.qt.imagery.decode_count`.
     background = theme_background_path(theme)
 
-    # Record the exact inputs any screen-local late block must share with the
-    # application sheet. The local copies are absorbed into the complete
-    # global rebuild below once that sheet has been composed successfully.
-    set_widget_qss_context(app, theme, scale, pane_opacity)
-    apply_qpalette(app, theme=theme)
-
     # Fields before the stylesheet, not after: importing the module is what
     # registers its QSS block, and dropping the cached preference is what
     # lets that block agree with the painter about whether the effect is on.
@@ -3914,23 +3909,52 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:
         LOG.exception("Could not install the field fade")
 
-    sheet = stylesheet(
-        theme=theme, font_scale=scale, background=background,
-        surface_opacity=pane_opacity, load_widget_registrars=False)
-    # A local sheet outranks the application sheet. Remove old-theme copies
-    # only after the replacement exists, then install the complete sheet that
-    # now contains every block registered so far.
-    clear_widget_qss_overlays(app)
-    app.setStyleSheet(sheet)
+    # Setting one application stylesheet asks Qt to unpolish and repolish
+    # EVERY live widget. Preferences used to do that even when the user only
+    # changed a logging, cache or export option, and a mature session can own
+    # thousands of controls. The complete visual input is small and stable;
+    # remember it and pay the global rebuild only when one of those inputs --
+    # or the set of late widget-QSS registrars -- actually changed.
+    style_signature = (
+        str(theme),
+        float(scale),
+        pane_opacity,
+        str(background or ""),
+        bool(get_field_fade_enabled()),
+        widget_qss_names(),
+    )
+    style_changed = (
+        getattr(app, "_spacr_preferences_style_signature", None)
+        != style_signature
+        # A test/embedding host can deliberately clear the application sheet.
+        # The signature is an optimisation hint, never authority to leave a
+        # running interface unthemed.
+        or not app.styleSheet()
+    )
+    if style_changed:
+        # Record the exact inputs any screen-local late block must share with
+        # the application sheet. The local copies are absorbed into the
+        # complete global rebuild below once that sheet is composed.
+        set_widget_qss_context(app, theme, scale, pane_opacity)
+        apply_qpalette(app, theme=theme)
+        sheet = stylesheet(
+            theme=theme, font_scale=scale, background=background,
+            surface_opacity=pane_opacity, load_widget_registrars=False)
+        # A local sheet outranks the application sheet. Remove old-theme
+        # copies only after the replacement exists, then install the complete
+        # sheet that now contains every block registered so far.
+        clear_widget_qss_overlays(app)
+        app.setStyleSheet(sheet)
+        setattr(app, "_spacr_preferences_style_signature", style_signature)
 
-    # A field whose QSS did not change still has to redraw: turning the
-    # effect off while its block was already empty changes only what the
-    # paint hook does.
-    try:
-        from .widgets.field_fade import repaint_fields
-        repaint_fields(app)
-    except Exception:
-        pass
+        # A field whose QSS did not change still has to redraw when the paint
+        # hook is turned off. Field fade is part of the signature, so this is
+        # needed on visual changes and never on an unrelated save.
+        try:
+            from .widgets.field_fade import repaint_fields
+            repaint_fields(app)
+        except Exception:
+            pass
     # Run/Propagate and Stop/Close-style buttons are tagged centrally,
     # including QDialogButtonBox buttons created after startup.
     from .button_roles import install_button_roles
