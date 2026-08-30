@@ -1,5 +1,7 @@
 {% if obj.display %}
    {% if is_own_page %}
+:orphan:
+
 {{ obj.id }}
 {{ "=" * obj.id|length }}
 
