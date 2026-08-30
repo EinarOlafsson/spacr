@@ -1439,6 +1439,30 @@ def _find_layout_with(layout: Optional[QLayout],
     return None
 
 
+def _replace_layout_widget(layout: QLayout, field: QWidget,
+                           replacement: QWidget):
+    position = layout.indexOf(field)
+    old = layout.replaceWidget(field, replacement)
+    if old is not None or position < 0:
+        return old
+
+    # Python QLayout subclasses do not expose Qt's protected replaceAt(), so
+    # replaceWidget() cannot update them. Rebuild only the suffix around the
+    # occupied slot; retaining the QLayoutItems preserves their widgets and
+    # their reading order instead of appending the replacement at the end.
+    trailing = []
+    while layout.count() > position + 1:
+        item = layout.takeAt(position + 1)
+        if item is not None:
+            trailing.append(item)
+    old = layout.takeAt(position)
+    layout.addWidget(replacement)
+    for item in trailing:
+        layout.addItem(item)
+    layout.invalidate()
+    return old
+
+
 def attach_column_picker(field: QWidget, db_path_getter: Any,
                          table: Optional[str] = None, *,
                          text: str = "SQL", allow_new: bool = True,
@@ -1496,7 +1520,7 @@ def attach_column_picker(field: QWidget, db_path_getter: Any,
 
     wrapper = QWidget(parent)
     wrapper.setObjectName("ColumnPickerRow")
-    old = host.replaceWidget(field, wrapper)
+    old = _replace_layout_widget(host, field, wrapper)
     if old is not None:
         del old
     row = QHBoxLayout(wrapper)
