@@ -9,6 +9,7 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,14 +22,6 @@ ratchet = importlib.util.module_from_spec(_SPEC)
 sys.modules[_SPEC.name] = ratchet
 _SPEC.loader.exec_module(ratchet)
 
-_RUNNER_SPEC = importlib.util.spec_from_file_location(
-    "run_coverage_batches", RUNNER_SCRIPT,
-)
-assert _RUNNER_SPEC is not None and _RUNNER_SPEC.loader is not None
-coverage_runner = importlib.util.module_from_spec(_RUNNER_SPEC)
-sys.modules[_RUNNER_SPEC.name] = coverage_runner
-_RUNNER_SPEC.loader.exec_module(coverage_runner)
-
 RESOURCE_GENERATORS = {
     "spacr/resources/home/versions/_generators/common.py",
     "spacr/resources/home/versions/_generators/parts.py",
@@ -37,6 +30,29 @@ RESOURCE_GENERATORS = {
     "spacr/resources/icons/backup_icons/_generators/"
     "group_trellis_gate_feature_napari.py",
 }
+
+
+def _load_coverage_runner():
+    """Load the coverage-only helper when a test actually exercises it.
+
+    The hardware and marker-specific CI jobs intentionally omit coverage.py.
+    Pytest still imports every test module before marker deselection, so doing
+    this at module scope made those otherwise independent jobs fail during
+    collection.  The coverage shards install the dependency and remain the
+    required execution path for these two helper contracts.
+    """
+    pytest.importorskip(
+        "coverage",
+        reason="the coverage batch runner requires the coverage.py extra",
+    )
+    runner_spec = importlib.util.spec_from_file_location(
+        "run_coverage_batches", RUNNER_SCRIPT,
+    )
+    assert runner_spec is not None and runner_spec.loader is not None
+    runner = importlib.util.module_from_spec(runner_spec)
+    sys.modules[runner_spec.name] = runner
+    runner_spec.loader.exec_module(runner)
+    return runner
 
 
 def _project(tmp_path: Path) -> Path:
@@ -288,6 +304,7 @@ def test_branchless_coverage_input_is_rejected_even_when_counts_are_full(tmp_pat
 def test_coverage_batches_use_unique_data_files_and_argument_lists(
     tmp_path, monkeypatch,
 ):
+    coverage_runner = _load_coverage_runner()
     project = tmp_path / "project"
     tests = project / "tests"
     tests.mkdir(parents=True)
@@ -332,6 +349,7 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
 def test_coverage_batches_discard_an_incomplete_child_database(
     tmp_path, monkeypatch, capsys,
 ):
+    coverage_runner = _load_coverage_runner()
     project = tmp_path / "project"
     tests = project / "tests"
     tests.mkdir(parents=True)
