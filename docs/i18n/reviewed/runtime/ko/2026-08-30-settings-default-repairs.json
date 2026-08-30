@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "loss_type",
+      "source_sha256": "c2166eb0e164fb417972dedd6e52ab0e33cfab0552ebe4b059a0d4a648790aba",
+      "source": "Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'. Merged Classifier starts at 'auto', which resolves to cross_entropy for a multi-class head and binary_cross_entropy_with_logits for a single-logit head.",
+      "translation": "분류기 학습에 사용하는 손실 함수입니다. 클래스가 두 개 이상인 출력 헤드에는 'focal_loss' (쉬운 예제의 가중치를 낮춤), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (클래스 빈도의 역수로 가중), 'logit_adjust_ce', 'asl' 을 사용할 수 있습니다. 'binary_cross_entropy_with_logits' 는 단일 logit 출력 헤드에만 유효하며, 그 외의 경우에는 오류가 발생합니다. 클래스가 불균형하면 가중 손실이나 focal loss 를 사용하십시오. 기본값은 'focal_loss' 입니다. Merged Classifier 는 'auto' 로 시작하며, 다중 클래스 출력 헤드에서는 cross_entropy 로, 단일 logit 출력 헤드에서는 binary_cross_entropy_with_logits 로 결정됩니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize",
+      "source_sha256": "9bf5d68d106f829d89da717be486c850c3254a6d49102ef64feefa4d819de086",
+      "source": "Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools.",
+      "translation": "표시, 모델 입력 또는 이미지 크롭 내보내기 전에 백분위수 정규화를 제어합니다. 표시 및 활성화 맵 도구는 제2–98백분위수 구간을 늘리기 위해 True 를 사용합니다. Measure 와 External Masks 는 False 로 시작합니다. Measure 는 False 또는 두 숫자로 된 [low, high] 백분위수 쌍을 허용하며, 단독 True 는 경계를 제공하지 않으므로 거부합니다. 이 설정은 표시와 내보낸 이미지 크롭의 스케일링에 영향을 주지만 측정된 원본 강도에는 영향을 주지 않습니다. 표시 중심 도구의 기본값은 True 입니다."
+    }
+  ]
+}
