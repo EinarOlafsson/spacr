@@ -382,3 +382,28 @@ is corrected; all 75 packaged PNG records now agree with their bytes.
 This closes one static-resource evidence gap only.  Item 305 remains OPEN for
 the supported frozen-artifact matrix and the timing, profiling and hardware
 evidence named above; no 1.5.0.5 release action was taken.
+
+--------------------------------------------------------------------------------
+2026-08-30 — RAW FRAME-GAP SUMMARIES NOW PROVE THEIR SOURCE TRACE
+--------------------------------------------------------------------------------
+
+The benchmark's independent parent validator checked that global and per-state
+worst-gap fields were finite and below budget, but it still trusted those
+derived values.  A worker artifact could therefore contain a raw watchdog gap
+while claiming zero samples and a zero worst interval.  That contradiction was
+syntactically complete enough to pass the release ratchet.
+
+Home, Preferences and every registry-module result now record the exact start
+and end of the watchdog window used for its summary.  The parent validates each
+raw gap's timestamps and measured duration, then independently recomputes the
+global worst interval and budget verdict plus every result's clipped overlap,
+raw frame interval, sample count and budget verdict.  Missing, malformed or
+contradictory trace evidence now fails closed.  Focused verification covered 29
+driver contract tests and 31 production Qt readiness/controller tests.
+
+This is a deterministic item 6 trace-integrity ratchet, not new performance
+evidence.  No real-display timing was run while the machine was busy, and this
+instruction remains OPEN for the accepted lower-end cold/warm registry traces,
+RSS/GPU evidence, complete supported frozen-artifact matrix, and measured
+dispositions for every hotspot responsible for at least 10 percent of an
+accepted path.  No version, tag or release action was taken.

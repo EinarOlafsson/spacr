@@ -235,6 +235,65 @@ def _finite_number(value: object, *, minimum: Optional[float] = None,
     return True
 
 
+def _raw_stall_trace(stalls: object, reject) -> list[dict[str, float]]:
+    """Validate and normalize the worker's raw event-loop watchdog trace."""
+    if not isinstance(stalls, list):
+        return []
+    normalized: list[dict[str, float]] = []
+    for index, row in enumerate(stalls):
+        path = f"stalls[{index}]"
+        if not isinstance(row, dict):
+            reject(f"{path} is not a JSON object")
+            continue
+        valid = True
+        for field in ("started_at", "at", "late_ms"):
+            if not _finite_number(row.get(field), minimum=0.0):
+                reject(f"{path}.{field} must be finite and non-negative")
+                valid = False
+        for field in ("source", "thread"):
+            if not isinstance(row.get(field), str) or not row[field]:
+                reject(f"{path}.{field} is missing or empty")
+                valid = False
+        if not valid:
+            continue
+        started_at = float(row["started_at"])
+        ended_at = float(row["at"])
+        late_ms = float(row["late_ms"])
+        if ended_at < started_at:
+            reject(f"{path}.at is before started_at")
+            continue
+        measured_ms = (ended_at - started_at) * 1000.0
+        if not math.isclose(
+                late_ms, measured_ms, rel_tol=1e-9, abs_tol=0.001):
+            reject(f"{path}.late_ms does not match its timestamps")
+            continue
+        normalized.append({
+            "started_at": started_at,
+            "at": ended_at,
+            "late_ms": late_ms,
+        })
+    return normalized
+
+
+def _overlapping_stalls(stalls: Sequence[dict[str, float]],
+                        started_at: float,
+                        ended_at: float) -> list[tuple[float, float]]:
+    """Return ``(clipped_ms, raw_ms)`` for gaps touching one result window."""
+    if ended_at <= started_at:
+        return []
+    overlapping: list[tuple[float, float]] = []
+    for row in stalls:
+        overlap_ms = max(
+            0.0,
+            min(ended_at, row["at"])
+            - max(started_at, row["started_at"]),
+        ) * 1000.0
+        if overlap_ms <= 0.0:
+            continue
+        overlapping.append((min(row["late_ms"], overlap_ms), row["late_ms"]))
+    return overlapping
+
+
 def _worker_schema_violations(
         artifact: object, expected_label: str,
         package_root: Optional[Path] = None) -> list[str]:
@@ -373,14 +432,25 @@ def _worker_schema_violations(
     for field in ("spans", "imports", "stalls", "marks", "readiness"):
         if not isinstance(artifact.get(field), list):
             reject(f"{field} is not a JSON array")
+    raw_stalls = _raw_stall_trace(artifact.get("stalls"), reject)
     if not _finite_number(
             artifact.get("event_loop_started_at"), minimum=0.0):
         reject("event_loop_started_at was not recorded")
     worst_global = artifact.get("worst_event_loop_stall_ms")
+    measured_worst_global = max(
+        (row["late_ms"] for row in raw_stalls), default=0.0)
     if not _finite_number(worst_global, minimum=0.0):
         reject("worst_event_loop_stall_ms was not recorded")
-    elif float(worst_global) >= STALL_BUDGET_MS:
-        reject("worst_event_loop_stall_ms reached the 500 ms ceiling")
+    else:
+        if not math.isclose(
+                float(worst_global), measured_worst_global,
+                rel_tol=1e-9, abs_tol=0.001):
+            reject("worst_event_loop_stall_ms does not match raw stalls")
+        if measured_worst_global >= STALL_BUDGET_MS:
+            reject("worst_event_loop_stall_ms reached the 500 ms ceiling")
+    measured_global_budget_met = measured_worst_global < STALL_BUDGET_MS
+    if artifact.get("stall_budget_met") is not measured_global_budget_met:
+        reject("stall_budget_met does not match raw stalls")
     if artifact.get("stall_budget_met") is not True:
         reject("stall_budget_met is not true")
     if artifact.get("import_timing_enabled") is not False:
@@ -495,24 +565,73 @@ def _worker_schema_violations(
             reject(f"{row_path}.duration_s exceeds its declared budget")
         worst = row.get("worst_event_loop_stall_ms")
         raw_worst = row.get("worst_overlapping_frame_interval_ms")
+        window_start = row.get("stall_window_started_at")
+        window_end = row.get("stall_window_ended_at")
+        window_valid = True
+        if not _finite_number(window_start, minimum=0.0):
+            reject(f"{row_path}.stall_window_started_at was not recorded")
+            window_valid = False
+        if not _finite_number(window_end, minimum=0.0):
+            reject(f"{row_path}.stall_window_ended_at was not recorded")
+            window_valid = False
+        if (window_valid and float(window_end) < float(window_start)):
+            reject(f"{row_path}.stall window ends before it starts")
+            window_valid = False
+        if (window_valid
+                and _finite_number(artifact.get("elapsed_s"), minimum=0.0)
+                and float(window_end) > float(artifact["elapsed_s"])):
+            reject(f"{row_path}.stall window ends after the artifact")
+            window_valid = False
+        overlaps = (
+            _overlapping_stalls(
+                raw_stalls, float(window_start), float(window_end))
+            if window_valid else []
+        )
+        measured_worst = max(
+            (clipped for clipped, _raw in overlaps), default=0.0)
+        measured_raw_worst = max(
+            (raw for _clipped, raw in overlaps), default=0.0)
         if not _finite_number(worst, minimum=0.0):
             reject(f"{row_path}.worst_event_loop_stall_ms was not recorded")
-        elif float(worst) >= STALL_BUDGET_MS:
-            reject(f"{row_path} reached the 500 ms event-loop stall ceiling")
+        else:
+            if (window_valid and not math.isclose(
+                    float(worst), measured_worst,
+                    rel_tol=1e-9, abs_tol=0.001)):
+                reject(
+                    f"{row_path}.worst_event_loop_stall_ms does not match "
+                    "raw stalls")
+            if measured_worst >= STALL_BUDGET_MS:
+                reject(
+                    f"{row_path} reached the 500 ms event-loop stall ceiling")
         if not _finite_number(raw_worst, minimum=0.0):
             reject(
                 f"{row_path}.worst_overlapping_frame_interval_ms was not "
                 "recorded")
-        elif (_finite_number(worst, minimum=0.0)
-              and float(raw_worst) < float(worst)):
+        else:
+            if (window_valid and not math.isclose(
+                    float(raw_worst), measured_raw_worst,
+                    rel_tol=1e-9, abs_tol=0.001)):
+                reject(
+                    f"{row_path}.worst_overlapping_frame_interval_ms does "
+                    "not match raw stalls")
+            if (_finite_number(worst, minimum=0.0)
+                    and float(raw_worst) < float(worst)):
+                reject(
+                    f"{row_path}.worst_overlapping_frame_interval_ms is below "
+                    "the clipped stall")
+        measured_interval_budget_met = measured_worst < STALL_BUDGET_MS
+        if (row.get("event_loop_stall_budget_met")
+                is not measured_interval_budget_met):
             reject(
-                f"{row_path}.worst_overlapping_frame_interval_ms is below "
-                "the clipped stall")
+                f"{row_path}.event_loop_stall_budget_met does not match "
+                "raw stalls")
         if row.get("event_loop_stall_budget_met") is not True:
             reject(f"{row_path}.event_loop_stall_budget_met is not true")
         if (type(row.get("stall_samples")) is not int
                 or row.get("stall_samples", -1) < 0):
             reject(f"{row_path}.stall_samples was not recorded")
+        elif window_valid and row["stall_samples"] != len(overlaps):
+            reject(f"{row_path}.stall_samples does not match raw stalls")
         if row.get("error"):
             reject(f"{row_path} contains an error")
 

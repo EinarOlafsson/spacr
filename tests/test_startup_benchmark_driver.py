@@ -28,6 +28,8 @@ def _artifact(label: str, keys: list[str], violations=()):
         "usable_controls": 2,
         "controls": ["HomeButton"],
         "thread": "MainThread",
+        "stall_window_started_at": 0.0,
+        "stall_window_ended_at": 1.0,
         "worst_event_loop_stall_ms": 0.0,
         "worst_overlapping_frame_interval_ms": 0.0,
         "event_loop_stall_budget_met": True,
@@ -39,6 +41,8 @@ def _artifact(label: str, keys: list[str], violations=()):
         "detail": "__preferences__",
         "budget_s": driver.PREFERENCES_BUDGET_S,
         "within_budget": True,
+        "stall_window_started_at": 1.0,
+        "stall_window_ended_at": 1.1,
         "worst_event_loop_stall_ms": 0.0,
         "worst_overlapping_frame_interval_ms": 0.0,
         "event_loop_stall_budget_met": True,
@@ -56,6 +60,8 @@ def _artifact(label: str, keys: list[str], violations=()):
             "detail": key,
             "budget_s": driver.MODULE_BUDGET_S,
             "controls": [f"{key}Button"],
+            "stall_window_started_at": 1.0 + index,
+            "stall_window_ended_at": 2.0 + index,
         })
         modules.append(row)
     return {
@@ -284,6 +290,76 @@ def test_readiness_evidence_must_match_the_budgeted_result_copy():
         "readiness[0].controls does not match its benchmark result" in row
         for row in violations
     )
+
+
+def test_raw_frame_gaps_are_recomputed_instead_of_trusting_worker_summaries():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.6,
+        "at": 0.8,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(
+        "worst_event_loop_stall_ms does not match raw stalls" in row
+        for row in violations
+    )
+    assert any(
+        "benchmark.results[0].stall_samples does not match raw stalls" in row
+        for row in violations
+    )
+    assert any(
+        "benchmark.results[0].worst_overlapping_frame_interval_ms does not "
+        "match raw stalls" in row
+        for row in violations
+    )
+
+
+def test_a_raw_frame_gap_and_its_independently_derived_fields_can_agree():
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    artifact["stalls"] = [{
+        "started_at": 0.6,
+        "at": 0.8,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }]
+    artifact["worst_event_loop_stall_ms"] = 200.0
+    home = artifact["benchmark"]["results"][0]
+    home.update({
+        "worst_event_loop_stall_ms": 200.0,
+        "worst_overlapping_frame_interval_ms": 200.0,
+        "stall_samples": 1,
+    })
+
+    assert driver._combined_violations([artifact]) == []
+
+
+@pytest.mark.parametrize(("field", "replacement", "message"), [
+    ("started_at", None, "stalls[0].started_at must be finite"),
+    ("at", 0.5, "stalls[0].at is before started_at"),
+    ("late_ms", 1.0, "stalls[0].late_ms does not match its timestamps"),
+])
+def test_malformed_raw_frame_gaps_cannot_be_release_evidence(
+        field, replacement, message):
+    artifact = deepcopy(_artifact("cold-process", ["probe"]))
+    stall = {
+        "started_at": 0.6,
+        "at": 0.8,
+        "late_ms": 200.0,
+        "source": "event-loop watchdog",
+        "thread": "MainThread",
+    }
+    stall[field] = replacement
+    artifact["stalls"] = [stall]
+
+    violations = driver._combined_violations([artifact])
+
+    assert any(message in row for row in violations), violations
 
 
 def test_combined_artifacts_have_exactly_one_or_two_processes(tmp_path):

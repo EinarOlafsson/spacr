@@ -159,6 +159,13 @@ class BenchmarkController(QObject):
         start = float(entry.get("started_at", 0.0))
         end = float(state["elapsed_s"])
         interval_stalls = timing.stalls_between(start, end, state["stalls"])
+        # Preserve the exact window used for the derived stall fields.  The
+        # readiness timestamp precedes the two-frame settling interval above,
+        # so ``started_at``/``at`` alone cannot reproduce this calculation.
+        # The parent benchmark driver independently recomputes every value
+        # below from the raw watchdog trace and these two boundaries.
+        entry["stall_window_started_at"] = start
+        entry["stall_window_ended_at"] = end
         entry["worst_event_loop_stall_ms"] = max(
             (float(row["overlap_ms"]) for row in interval_stalls), default=0.0)
         entry["worst_overlapping_frame_interval_ms"] = max(
@@ -273,6 +280,8 @@ class BenchmarkController(QObject):
             "duration_s": duration,
             "budget_s": PREFERENCES_BUDGET_S,
             "within_budget": duration <= PREFERENCES_BUDGET_S,
+            "stall_window_started_at": self._preferences_started_elapsed,
+            "stall_window_ended_at": ended,
             "worst_event_loop_stall_ms": worst,
             "worst_overlapping_frame_interval_ms": raw_worst,
             "event_loop_stall_budget_met": worst < timing.STALL_BUDGET_MS,
@@ -354,6 +363,8 @@ class BenchmarkController(QObject):
                 else timing.MODULE_BUDGET_S
             ),
             "within_budget": False,
+            "stall_window_started_at": attempt_started_elapsed,
+            "stall_window_ended_at": float(state["elapsed_s"]),
             "worst_event_loop_stall_ms": worst_stall,
             "worst_overlapping_frame_interval_ms": raw_worst,
             "event_loop_stall_budget_met": worst_stall < timing.STALL_BUDGET_MS,

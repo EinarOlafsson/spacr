@@ -25,7 +25,8 @@ from PySide6.QtWidgets import (
 )
 
 import spacr.qt
-from spacr.qt import startup_benchmark as benchmark_module, timing
+from spacr.qt import startup_benchmark as benchmark_module
+from spacr.qt import timing
 from spacr.qt.startup_benchmark import BenchmarkController, maybe_start
 
 
@@ -269,6 +270,11 @@ def test_benchmark_controller_uses_clicks_waits_for_paint_and_exits(
     assert all(row["painted_usable_controls"] >= 1
                for row in benchmark["results"])
     assert all(
+        row["stall_window_started_at"] == pytest.approx(row["started_at"])
+        and row["stall_window_ended_at"] >= row["at"]
+        for row in benchmark["results"]
+    )
+    assert all(
         row["worst_overlapping_frame_interval_ms"]
         >= row["worst_event_loop_stall_ms"]
         for row in benchmark["results"]
@@ -367,6 +373,8 @@ def test_preferences_is_a_real_budgeted_state_in_the_startup_sweep(
     assert preferences["name"] == "interactive preferences"
     assert preferences["budget_s"] == benchmark_module.PREFERENCES_BUDGET_S
     assert preferences["within_budget"] is True
+    assert preferences["stall_window_ended_at"] >= preferences[
+        "stall_window_started_at"]
     assert benchmark["preferences_measured"] is True
     assert benchmark["violations"] == []
 
@@ -477,6 +485,9 @@ def test_readiness_arriving_after_a_timeout_cannot_skip_the_next_app(
         600.0)
     assert controller.results[0][
         "worst_overlapping_frame_interval_ms"] == 600.0
+    assert controller.results[0]["stall_window_started_at"] == pytest.approx(
+        interval_end - 0.6)
+    assert controller.results[0]["stall_window_ended_at"] >= interval_end
     assert controller.results[0]["event_loop_stall_budget_met"] is False
     assert probe not in timing._ACTIVE_PROBES
     controller._finished = True
