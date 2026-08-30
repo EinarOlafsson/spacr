@@ -26,15 +26,16 @@ gradient boosting 0.893.
 """
 from __future__ import annotations
 
+import multiprocessing
 import os
 import sqlite3
+import threading
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.surrogate import (MODEL_FAMILIES, SurrogateError,
-                             build_surrogate_frame)
+from spacr.surrogate import MODEL_FAMILIES, SurrogateError, build_surrogate_frame
 
 
 def _a_spacr_database(where, objects=120, seed=0):
@@ -210,6 +211,10 @@ class TestItActuallyExplains:
         from spacr.surrogate import explain_classifier
 
         path, names = screen
+        children_before = {
+            child.pid for child in multiprocessing.active_children()
+        }
+        threads_before = {id(thread) for thread in threading.enumerate()}
         result = explain_classifier(path, _predictions(names),
                                     path_column="path",
                                     prediction_column="label",
@@ -219,6 +224,22 @@ class TestItActuallyExplains:
         assert 0.0 <= result.baseline <= 1.0
         assert result.n_objects > 0
         assert isinstance(result.is_faithful, bool)
+        retained_processes = [
+            child for child in multiprocessing.active_children()
+            if child.pid not in children_before and child.is_alive()
+        ]
+        retained_threads = [
+            thread for thread in threading.enumerate()
+            if id(thread) not in threads_before and thread.is_alive()
+        ]
+        assert not [
+            child.name for child in retained_processes
+            if child.name.startswith("LokyProcess-")
+        ]
+        assert not [
+            thread.name for thread in retained_threads
+            if thread.name == "ExecutorManagerThread"
+        ]
 
     def test_a_surrogate_that_learned_nothing_says_so(self, screen):
         """Random labels: the surrogate cannot beat the majority class, and

@@ -1182,9 +1182,11 @@ def test_a_finished_mask_run_registers_its_outputs(tmp_path, monkeypatch):
     # settings/gen_mask_settings.csv
     assert {a.kind for a in recorded} == {ports.MERGED_ARRAYS,
                                           ports.OBJECT_COUNTS,
-                                          ports.SETTINGS_CSV}
+                                          ports.SETTINGS_CSV,
+                                          "resource-log"}
     assert registry.latest(ports.SETTINGS_CSV).path == str(
         root / "settings" / "gen_mask_settings.csv")
+    assert Path(registry.latest("resource-log").path).is_file()
     assert all(a.module == "mask" for a in recorded)
     assert all(a.spacr_version for a in recorded)
     # and the next step can now be planned off what was registered

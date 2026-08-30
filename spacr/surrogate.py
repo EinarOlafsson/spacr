@@ -535,9 +535,14 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     :returns: a :class:`SurrogateResult`.
     :raises SurrogateError: too few objects or classes to fit anything.
     """
+    from joblib import parallel_backend
     from sklearn.inspection import permutation_importance
-    from sklearn.metrics import (balanced_accuracy_score, confusion_matrix,
-                                 f1_score, precision_recall_fscore_support)
+    from sklearn.metrics import (
+        balanced_accuracy_score,
+        confusion_matrix,
+        f1_score,
+        precision_recall_fscore_support,
+    )
 
     if "cv_prediction" not in frame.columns:
         raise SurrogateError("frame has no cv_prediction column")
@@ -608,19 +613,26 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     if str(model_family).lower() == "xgboost":
         # The estimator was fitted on encoded classes, so its scorer must see
         # those same labels. Displayed predictions are decoded above.
-        encoded_test = pd.Series(
+        permutation_labels = pd.Series(
             model._spacr_label_encoder.transform(y_test), index=y_test.index)
-        with single_threaded_openmp("surrogate permutation importance"):
-            perm = permutation_importance(
-                model, x_test, encoded_test, n_repeats=n_repeats,
-                random_state=random_seed,
-                n_jobs=guarded_n_jobs(-1, "surrogate permutation importance"))
     else:
-        with single_threaded_openmp("surrogate permutation importance"):
+        permutation_labels = y_test
+
+    # joblib's default Loky backend keeps its reusable worker processes alive
+    # after ``permutation_importance`` returns.  A completed explanation then
+    # owns an ExecutorManagerThread and one process per CPU until interpreter
+    # shutdown (32 workers on the CI host).  Permutations share one fitted,
+    # read-only estimator, so threads avoid both that lifecycle leak and the
+    # cost of serialising the model into every process while retaining the
+    # feature-level parallelism.
+    permutation_jobs = guarded_n_jobs(
+        -1, "surrogate permutation importance")
+    with single_threaded_openmp("surrogate permutation importance"):
+        with parallel_backend("threading", n_jobs=permutation_jobs):
             perm = permutation_importance(
-                model, x_test, y_test, n_repeats=n_repeats,
+                model, x_test, permutation_labels, n_repeats=n_repeats,
                 random_state=random_seed,
-                n_jobs=guarded_n_jobs(-1, "surrogate permutation importance"))
+                n_jobs=permutation_jobs)
     importance["permutation"] = perm.importances_mean
 
     shap_output = _shap_importance(
