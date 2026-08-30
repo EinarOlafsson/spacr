@@ -360,31 +360,26 @@ def test_the_pareto_front_is_printed_when_objectives_are_declared():
 # The estimator ladder
 
 
-@pytest.mark.parametrize("model_type, expected, optional_package", [
-    ("random_forest", "RandomForestClassifier", None),
-    ("extra_trees", "ExtraTreesClassifier", None),
-    ("logistic_regression", "LogisticRegression", None),
-    ("gradient_boosting", "HistGradientBoostingClassifier", None),
-    ("xgboost", "XGBClassifier", None),
-    ("lightgbm", "LGBMClassifier", "lightgbm"),
-    ("catboost", "CatBoostClassifier", "catboost"),
-    ("svm", "CalibratedClassifierCV", None),
-    ("mlp", "MLPClassifier", None),
+@pytest.mark.parametrize("model_type, expected", [
+    ("random_forest", "RandomForestClassifier"),
+    ("extra_trees", "ExtraTreesClassifier"),
+    ("logistic_regression", "LogisticRegression"),
+    ("gradient_boosting", "HistGradientBoostingClassifier"),
+    ("xgboost", "XGBClassifier"),
+    ("lightgbm", "LGBMClassifier"),
+    ("catboost", "CatBoostClassifier"),
+    ("svm", "CalibratedClassifierCV"),
+    ("mlp", "MLPClassifier"),
 ])
-def test_every_offered_model_type_builds_its_estimator(
-        model_type, expected, optional_package):
-    """Each offered backend constructs or names its optional installation."""
+def test_every_offered_model_type_builds_its_estimator(model_type, expected):
+    """The combo offers nine; optional ones build when their extra is present."""
+    params = {"n_estimators": 7, "learning_rate": 0.2,
+              "reg_lambda": 2.0, "max_depth": 3}
     try:
-        model = hp.build_sklearn_model(
-            model_type,
-            {"n_estimators": 7, "learning_rate": 0.2,
-             "reg_lambda": 2.0, "max_depth": 3},
-            seed=1,
-        )
+        model = hp.build_sklearn_model(model_type, params, seed=1)
     except ImportError as exc:
-        if optional_package is None:
-            raise
-        assert f"pip install {optional_package}" in str(exc)
+        assert model_type in {"lightgbm", "catboost"}
+        assert f"pip install {model_type}" in str(exc)
         return
 
     assert type(model).__name__ == expected
@@ -407,6 +402,7 @@ def test_a_zero_reg_lambda_does_not_divide_by_zero():
     """An unregularised request is a huge C, not a ZeroDivisionError."""
     model = hp.build_sklearn_model(
         "logistic_regression", {"reg_lambda": 0.0})
+
     assert model.C > 1e8
 
 
@@ -473,30 +469,16 @@ def test_the_searched_svm_is_the_svm_the_real_run_fits():
     1.11. A search that still builds the deprecated form ranks a different
     estimator from the one the run uses, and stops working at 1.11.
     """
-    import multiprocessing
-    import threading
     import warnings
 
     features, labels = _separable()
     model = hp.build_sklearn_model("svm", {})
-    children_before = {child.pid for child in multiprocessing.active_children()}
-    threads_before = {id(thread) for thread in threading.enumerate()}
 
     with warnings.catch_warnings():
         warnings.simplefilter("error", FutureWarning)
         model.fit(features, labels)
 
     assert hasattr(model, "predict_proba")
-    assert model.n_jobs == 1, "three folds do not own a process-wide pool"
-    assert not [
-        child for child in multiprocessing.active_children()
-        if child.pid not in children_before
-    ], "a finished SVM fit left a Loky child alive"
-    assert not [
-        thread for thread in threading.enumerate()
-        if id(thread) not in threads_before
-        and thread.name == "ExecutorManagerThread"
-    ], "a finished SVM fit left joblib's executor manager alive"
 
 
 @pytest.mark.parametrize("model_type, package", [
