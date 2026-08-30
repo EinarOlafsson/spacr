@@ -359,3 +359,49 @@ def test_a_reader_that_yields_no_chunks_still_names_the_columns(
                                    migrate=False)
     assert len(frame) == 0
     assert list(frame.columns) == ["columnID", "rowID", "plateID", "value"]
+
+
+def test_a_column_spelled_without_the_id_suffix_arrives_canonicalised(tmp_path):
+    """The property several callers are written to depend on.
+
+    ``spacr.submodules.group_cv_score`` groups on ``columnID`` and used to
+    carry an ``elif 'column'`` fallback beneath it. Instruction 145 made
+    ``read_table`` canonicalise, which turned that fallback into unreachable
+    code -- so it was deleted, and this is what makes the deletion safe.
+
+    If canonicalisation ever stops renaming ``column``, this fails here rather
+    than as a silent empty grouping three modules away.
+    """
+    import pandas as pd
+
+    from spacr.tabular import read_table
+
+    source = tmp_path / "wells.csv"
+    pd.DataFrame({"plateID": ["p1", "p1"], "rowID": ["r1", "r2"],
+                  "column": ["c1", "c2"], "pred": [0.2, 0.8]}
+                 ).to_csv(source, index=False)
+
+    frame = read_table(str(source))
+
+    assert "columnID" in frame.columns
+    assert "column" not in frame.columns
+    assert list(frame["columnID"]) == ["c1", "c2"]
+
+
+def test_the_canonical_name_is_kept_when_it_is_already_canonical(tmp_path):
+    """A file written by spaCR itself must round-trip unchanged.
+
+    Renaming an already-canonical column would be a rename loop, and the
+    assertion above cannot see the difference on its own.
+    """
+    import pandas as pd
+
+    from spacr.tabular import read_table
+
+    source = tmp_path / "wells.csv"
+    pd.DataFrame({"plateID": ["p1"], "rowID": ["r1"], "columnID": ["c1"],
+                  "pred": [0.5]}).to_csv(source, index=False)
+
+    frame = read_table(str(source))
+
+    assert list(frame.columns) == ["plateID", "rowID", "columnID", "pred"]
