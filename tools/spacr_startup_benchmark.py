@@ -79,6 +79,12 @@ def _worker_environment(home: Path, output: Path, label: str,
         "SPACR_BENCHMARK_JSON": str(output),
         "SPACR_BENCHMARK_RUN": label,
         "SPACR_BENCHMARK_TIMEOUT_S": str(timeout_s),
+        # The in-process QTimer cannot fire while the GUI thread itself is
+        # wedged. A benchmark-only wall timer lives on a Python thread and
+        # terminates that worker after the same per-state deadline plus a
+        # short grace period, so a real hang fails in minutes rather than
+        # waiting for this driver's whole-sweep timeout.
+        "SPACR_BENCHMARK_HARD_TIMEOUT": "1",
         "SPACR_BENCHMARK_PACKAGE_ROOT": str(root),
     })
     if offscreen:

@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import json
 import os
+import sys
+import threading
 import time
 from typing import Callable, Iterable, Optional
 
@@ -23,6 +25,10 @@ RUN_LABEL_ENV = "SPACR_BENCHMARK_RUN"
 TIMEOUT_ENV = "SPACR_BENCHMARK_TIMEOUT_S"
 DEFAULT_TIMEOUT_S = 30.0
 SETTLE_MS = 32
+PREFERENCES_BUDGET_S = 3.0
+PREFERENCES_HANG_TIMEOUT_S = 10.0
+HARD_TIMEOUT_ENV = "SPACR_BENCHMARK_HARD_TIMEOUT"
+HARD_TIMEOUT_GRACE_S = 1.0
 
 
 def _timeout_seconds() -> float:
@@ -39,6 +45,8 @@ class BenchmarkController(QObject):
     def __init__(self, app, window, keys: Iterable[str], output: str, *,
                  timeout_s: Optional[float] = None,
                  live_keys: Optional[Callable[[], Iterable[str]]] = None,
+                 measure_preferences: Optional[bool] = None,
+                 preferences_factory: Optional[Callable[[], object]] = None,
                  ) -> None:
         super().__init__(app)
         self.app = app
@@ -56,6 +64,15 @@ class BenchmarkController(QObject):
         self._timeout_pending = False
         self._finished = False
         self._written = False
+        self._measure_preferences = (
+            bool(os.environ.get(OUTPUT_ENV, "").strip())
+            if measure_preferences is None else bool(measure_preferences)
+        )
+        self._preferences_factory = preferences_factory
+        self._preferences_dialog = None
+        self._preferences_started_elapsed = 0.0
+        self._hard_timeout = None
+        self._armed_timeout_s = self.timeout_s
         self._attempt_started = time.perf_counter()
         self._attempt_started_elapsed = timing.elapsed()
 
@@ -66,11 +83,52 @@ class BenchmarkController(QObject):
         app.aboutToQuit.connect(self._application_quit)
         self._arm_timeout()
 
-    def _arm_timeout(self) -> None:
+    def _arm_timeout(self, timeout_s: Optional[float] = None) -> None:
+        self._disarm_timeout()
         self._timeout_pending = False
         self._attempt_started = time.perf_counter()
         self._attempt_started_elapsed = timing.elapsed()
-        self.timeout.start(max(1, int(self.timeout_s * 1000.0)))
+        self._armed_timeout_s = (
+            self.timeout_s if timeout_s is None else float(timeout_s)
+        )
+        self.timeout.start(max(1, int(self._armed_timeout_s * 1000.0)))
+        if os.environ.get(HARD_TIMEOUT_ENV, "").strip() == "1":
+            wall = threading.Timer(
+                self._armed_timeout_s + HARD_TIMEOUT_GRACE_S,
+                self._hard_timed_out,
+            )
+            wall.daemon = True
+            self._hard_timeout = wall
+            wall.start()
+
+    def _disarm_timeout(self) -> None:
+        """Stop both the event-loop deadline and its wall-clock backstop."""
+        self.timeout.stop()
+        wall = self._hard_timeout
+        self._hard_timeout = None
+        if wall is not None:
+            wall.cancel()
+
+    def _hard_timed_out(self) -> None:
+        """Terminate a benchmark worker whose GUI thread cannot run QTimer.
+
+        This path is enabled only in the dedicated benchmark subprocess. It
+        deliberately uses ``os._exit``: a normal Qt shutdown needs the very
+        event loop that is wedged. The parent preserves the last checkpoint
+        and records exit status 124 as a ratchet failure.
+        """
+        try:
+            import faulthandler
+
+            print(
+                "spaCR benchmark hard timeout: GUI thread did not return "
+                f"within {self._armed_timeout_s:.1f} seconds",
+                file=sys.stderr,
+                flush=True,
+            )
+            faulthandler.dump_traceback(file=sys.stderr, all_threads=True)
+        finally:
+            os._exit(124)
 
     def _ready(self, entry: dict) -> None:
         if (self._finished or self._pending is not None
@@ -85,7 +143,7 @@ class BenchmarkController(QObject):
         )
         if entry.get("name") != expected_name:
             return
-        self.timeout.stop()
+        self._disarm_timeout()
         self._pending = dict(entry)
         # Let the 16 ms watchdog report a timer delayed by the click handler
         # before this interval is sealed.  The readiness timestamp remains
@@ -118,7 +176,9 @@ class BenchmarkController(QObject):
             flush=True,
         )
         if self.phase == "home":
-            self.phase = "module"
+            self.phase = (
+                "preferences" if self._measure_preferences else "module"
+            )
         else:
             self.index += 1
             self.current_key = None
@@ -141,6 +201,9 @@ class BenchmarkController(QObject):
 
     def _advance(self) -> None:
         if self._finished:
+            return
+        if self.phase == "preferences":
+            self._open_preferences()
             return
         if self.index >= len(self.keys):
             QTimer.singleShot(SETTLE_MS, self._finish)
@@ -167,14 +230,79 @@ class BenchmarkController(QObject):
         try:
             button.click()
         except BaseException as error:                      # noqa: BLE001
-            self.timeout.stop()
             self._record_error(
                 key, f"{type(error).__name__}: {error}", already_stopped=True)
+
+    def _open_preferences(self) -> None:
+        """Construct and paint the real Preferences dialog under a budget."""
+        self._preferences_started_elapsed = timing.elapsed()
+        self._arm_timeout(min(self.timeout_s, PREFERENCES_HANG_TIMEOUT_S))
+        try:
+            if self._preferences_factory is None:
+                from .preferences import PreferencesDialog
+
+                dialog = PreferencesDialog(self.window)
+            else:
+                dialog = self._preferences_factory()
+            self._preferences_dialog = dialog
+            dialog.show()
+        except BaseException as error:                       # noqa: BLE001
+            self._record_error(
+                "__preferences__",
+                f"{type(error).__name__}: {error}",
+            )
+            return
+        QTimer.singleShot(SETTLE_MS * 2, self._settle_preferences)
+
+    def _settle_preferences(self) -> None:
+        if self._finished or self.phase != "preferences":
+            return
+        self._disarm_timeout()
+        state = timing.snapshot()
+        ended = float(state["elapsed_s"])
+        stalls = timing.stalls_between(
+            self._preferences_started_elapsed, ended, state["stalls"])
+        duration = max(0.0, ended - self._preferences_started_elapsed)
+        worst = max(
+            (float(row["overlap_ms"]) for row in stalls), default=0.0)
+        raw_worst = max(
+            (float(row["late_ms"]) for row in stalls), default=0.0)
+        self.results.append({
+            "name": "interactive preferences",
+            "detail": "__preferences__",
+            "duration_s": duration,
+            "budget_s": PREFERENCES_BUDGET_S,
+            "within_budget": duration <= PREFERENCES_BUDGET_S,
+            "worst_event_loop_stall_ms": worst,
+            "worst_overlapping_frame_interval_ms": raw_worst,
+            "event_loop_stall_budget_met": worst < timing.STALL_BUDGET_MS,
+            "stall_samples": len(stalls),
+        })
+        self._close_preferences_dialog()
+        self.phase = "module"
+        self._checkpoint()
+        self._advance_after_watchdog()
+
+    def _close_preferences_dialog(self) -> None:
+        dialog = self._preferences_dialog
+        self._preferences_dialog = None
+        if dialog is None:
+            return
+        try:
+            dialog.close()
+            dialog.deleteLater()
+        except RuntimeError:
+            pass
 
     def _timed_out(self) -> None:
         if self._finished or self._timeout_pending:
             return
-        detail = "__home__" if self.phase == "home" else str(self.current_key)
+        if self.phase == "home":
+            detail = "__home__"
+        elif self.phase == "preferences":
+            detail = "__preferences__"
+        else:
+            detail = str(self.current_key)
         self._timeout_pending = True
         timing.cancel_interactive(detail=str(detail))
         # Let an overdue watchdog beat run before sealing the failed interval.
@@ -184,15 +312,18 @@ class BenchmarkController(QObject):
             SETTLE_MS,
             lambda: self._record_error(
                 detail,
-                f"no painted usable state within {self.timeout_s:.1f} seconds",
+                f"no painted usable state within {self._armed_timeout_s:.1f} seconds",
                 already_stopped=True,
             ),
         )
 
     def _record_error(self, detail: str, message: str, *,
                       already_stopped: bool = False) -> None:
-        if not already_stopped:
-            self.timeout.stop()
+        # ``already_stopped`` means the Qt single-shot has fired; its wall
+        # timer is independent and must still be cancelled before this method
+        # checkpoints or advances.
+        del already_stopped
+        self._disarm_timeout()
         self._timeout_pending = False
         timing.cancel_interactive(detail=str(detail))
         duration = (
@@ -210,12 +341,18 @@ class BenchmarkController(QObject):
         raw_worst = max(
             (float(row["late_ms"]) for row in interval_stalls), default=0.0)
         self.results.append({
-            "name": ("interactive Home" if self.phase == "home"
-                     else "interactive module"),
+            "name": (
+                "interactive Home" if self.phase == "home"
+                else "interactive preferences" if self.phase == "preferences"
+                else "interactive module"
+            ),
             "detail": str(detail),
             "duration_s": duration,
-            "budget_s": (timing.HOME_BUDGET_S if self.phase == "home"
-                         else timing.MODULE_BUDGET_S),
+            "budget_s": (
+                timing.HOME_BUDGET_S if self.phase == "home"
+                else PREFERENCES_BUDGET_S if self.phase == "preferences"
+                else timing.MODULE_BUDGET_S
+            ),
             "within_budget": False,
             "worst_event_loop_stall_ms": worst_stall,
             "worst_overlapping_frame_interval_ms": raw_worst,
@@ -229,6 +366,11 @@ class BenchmarkController(QObject):
             # Without a usable Home, no click path exists to benchmark.  Do
             # not disguise that by calling private factories instead.
             self._finish("Home never became interactive")
+            return
+        if self.phase == "preferences":
+            self._close_preferences_dialog()
+            self.phase = "module"
+            self._advance_after_watchdog()
             return
         self.index += 1
         # The screen can finish painting after its overdue timeout has been
@@ -251,13 +393,16 @@ class BenchmarkController(QObject):
                 "the live registry changed during the benchmark sweep")
         measured = [
             str(row.get("detail")) for row in self.results
-            if row.get("detail") != "__home__"
+            if row.get("detail") not in {"__home__", "__preferences__"}
         ]
         if measured != list(self.keys):
             violations.append(
                 "measured app sequence does not equal the live registry exactly")
         by_detail = {str(row.get("detail")): row for row in self.results}
-        expected = ("__home__", *self.keys)
+        expected = (
+            ("__home__", "__preferences__", *self.keys)
+            if self._measure_preferences else ("__home__", *self.keys)
+        )
         for detail in expected:
             row = by_detail.get(detail)
             if row is None:
@@ -279,7 +424,7 @@ class BenchmarkController(QObject):
         final_keys = self._current_registry_keys()
         measured = [
             str(row.get("detail")) for row in self.results
-            if row.get("detail") != "__home__"
+            if row.get("detail") not in {"__home__", "__preferences__"}
         ]
         artifact["benchmark"] = {
             "run": os.environ.get(RUN_LABEL_ENV, "benchmark"),
@@ -291,6 +436,8 @@ class BenchmarkController(QObject):
             "measured_keys": measured,
             "measured_count": len(measured),
             "registry_matches_measurements": measured == list(self.keys),
+            "preferences_measured": self._measure_preferences,
+            "preferences_budget_s": PREFERENCES_BUDGET_S,
             "results": list(self.results),
             "violations": self._violations(final_keys),
         }
@@ -332,7 +479,8 @@ class BenchmarkController(QObject):
         if self._finished:
             return
         self._finished = True
-        self.timeout.stop()
+        self._disarm_timeout()
+        self._close_preferences_dialog()
         timing.unsubscribe_readiness(self._ready)
         self._write(reason)
         self.app.quit()

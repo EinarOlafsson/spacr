@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 import spacr.qt
-from spacr.qt import timing
+from spacr.qt import startup_benchmark as benchmark_module, timing
 from spacr.qt.startup_benchmark import BenchmarkController, maybe_start
 
 
@@ -293,6 +293,82 @@ def test_benchmark_waits_for_a_post_checkpoint_watchdog_beat(
     assert observed == [True]
     controller._finished = True
     timing.unsubscribe_readiness(controller._ready)
+
+
+def test_the_benchmark_has_a_wall_clock_backstop_for_a_blocked_gui_thread(
+        qapp, enabled_timing, tmp_path, monkeypatch):
+    """A QTimer alone cannot interrupt the main thread it is waiting for."""
+    made = []
+
+    class FakeWallTimer:
+        def __init__(self, delay, callback):
+            self.delay = delay
+            self.callback = callback
+            self.daemon = False
+            self.started = False
+            self.cancelled = False
+            made.append(self)
+
+        def start(self):
+            self.started = True
+
+        def cancel(self):
+            self.cancelled = True
+
+    monkeypatch.setenv(benchmark_module.HARD_TIMEOUT_ENV, "1")
+    monkeypatch.setattr(benchmark_module.threading, "Timer", FakeWallTimer)
+    window = SimpleNamespace(_sidebar=SimpleNamespace(_items=[]))
+
+    controller = BenchmarkController(
+        qapp, window, (), str(tmp_path / "wall.json"), timeout_s=2.0,
+        measure_preferences=False)
+
+    assert len(made) == 1
+    assert made[0].delay == pytest.approx(
+        2.0 + benchmark_module.HARD_TIMEOUT_GRACE_S)
+    assert made[0].started is True
+    assert made[0].daemon is True
+    controller._disarm_timeout()
+    assert made[0].cancelled is True
+    controller._finished = True
+    timing.unsubscribe_readiness(controller._ready)
+
+
+def test_preferences_is_a_real_budgeted_state_in_the_startup_sweep(
+        qapp, qtbot, enabled_timing, tmp_path):
+    output = tmp_path / "preferences.json"
+    window = SimpleNamespace(_sidebar=SimpleNamespace(_items=[]))
+    controller = BenchmarkController(
+        qapp,
+        window,
+        (),
+        str(output),
+        timeout_s=2.0,
+        measure_preferences=True,
+        preferences_factory=QWidget,
+    )
+    controller._disarm_timeout()
+    controller.results.append({
+        "name": "interactive Home",
+        "detail": "__home__",
+        "within_budget": True,
+        "event_loop_stall_budget_met": True,
+    })
+    controller.phase = "preferences"
+
+    controller._advance()
+
+    qtbot.waitUntil(lambda: controller._finished, timeout=3000)
+    benchmark = json.loads(output.read_text(encoding="utf-8"))["benchmark"]
+    preferences = next(
+        row for row in benchmark["results"]
+        if row["detail"] == "__preferences__"
+    )
+    assert preferences["name"] == "interactive preferences"
+    assert preferences["budget_s"] == benchmark_module.PREFERENCES_BUDGET_S
+    assert preferences["within_budget"] is True
+    assert benchmark["preferences_measured"] is True
+    assert benchmark["violations"] == []
 
 
 def test_checkpoint_failure_is_contained_and_leaves_no_partial_artifact(
