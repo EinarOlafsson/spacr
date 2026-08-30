@@ -107,19 +107,17 @@ def test_the_model_box_explains_the_permutation_path_when_it_is_chosen(screen):
     _choose(screen._settings_model._widgets["inference"], "nonparametric")
     text = screen._section_explainers["Model & Inference"].toPlainText().lower()
 
-    assert "no model is fitted" in text
-    assert "marginal" in text and "permutation" in text
+    assert "does not fit a model" in text
+    assert "each guide on its own" in text and "permutation" in text
     assert "~" not in text, "there is no formula, so none may be shown"
 
 
 def test_the_permutation_box_says_what_the_test_does(screen):
-    """It carries the DETAIL; the model box above only says which path runs.
+    """The two boxes answer different questions without contradicting.
 
-    Compared under a parametric inference, where the model box is describing
-    a fit in full. Under nonparametric the model box is deliberately the
-    SHORTER of the two -- it names the path and defers here -- because
-    explaining the same test at length in both places makes the longer copy
-    the one nobody reads.
+    The model box explains why this path is chosen and what it does not fit;
+    the static Permutation Test box records the exact Freedman-Lane procedure
+    and its support controls.
     """
     _choose(screen._settings_model._widgets["inference"], "parametric")
     text = screen._section_explainers["Permutation Test"].toPlainText()
@@ -129,8 +127,12 @@ def test_the_permutation_box_says_what_the_test_does(screen):
         "the permutation box was asked for as a BRIEF explanation")
 
     _choose(screen._settings_model._widgets["inference"], "nonparametric")
-    assert len(screen._section_explainers["Model & Inference"].toPlainText()) \
-        < len(text), "the model box must defer rather than repeat"
+    model_text = screen._section_explainers[
+        "Model & Inference"].toPlainText()
+    assert "does not fit a model" in model_text
+    assert "Freedman-Lane" in text
+    assert "guide_min_wells" in text
+    assert model_text != text, "the two section boxes became duplicate copies"
 
 
 def test_the_permutation_box_does_not_chase_the_panel(screen):

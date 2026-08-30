@@ -589,20 +589,23 @@ def test_the_box_follows_the_panels_own_level_dropdown(qtbot, qt_theme_applied):
     box = screen._model_explainer
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
     level = screen._settings_model._widgets["level"]
-    assert [level.itemText(i) for i in range(level.count())] == list(
+    # The stored values remain the API vocabulary while the visible choices
+    # explain what each one actually fits.
+    assert [level.itemData(i) for i in range(level.count())] == list(
         REGRESSION_LEVELS)
+    assert all(" — " in level.itemText(i) for i in range(level.count()))
 
     guide, gene, _mixed = _formulas_the_panel_should_show(screen)
 
-    level.setCurrentText("grna")
+    level.setCurrentIndex(level.findData("grna"))
     text = _flat(box.toPlainText())
     assert guide in text and gene not in text
 
-    level.setCurrentText("gene")
+    level.setCurrentIndex(level.findData("gene"))
     text = _flat(box.toPlainText())
     assert gene in text and guide not in text
 
-    level.setCurrentText("both")
+    level.setCurrentIndex(level.findData("both"))
     text = _flat(box.toPlainText())
     assert guide in text and gene in text
 
