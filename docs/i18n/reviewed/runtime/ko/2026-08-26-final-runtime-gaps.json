@@ -12,9 +12,9 @@
     {
       "table": "setting_tooltips",
       "key": "coordinate_columns",
-      "source_sha256": "28f622e4aacb156006f9f5817333e6578e80204f4303daa995038999eabcd1e0",
-      "source": "Columns containing each object's position when generating crops on demand from a database instead of masks, for example ['centroid_x', 'centroid_y']. This method supports only bounding-box crops because coordinates do not define object boundaries. None uses the merged masks and is the default. Default None.",
-      "translation": "마스크 대신 데이터베이스에서 필요할 때 image crop 을 생성하는 경우 각 객체의 위치가 들어 있는 열입니다. 예: ['centroid_x', 'centroid_y']. 좌표는 객체 경계를 정의하지 않으므로 이 방법은 경계 상자 crop 만 지원합니다. None 은 병합된 마스크를 사용하며 기본 설정입니다. 기본값 None."
+      "source_sha256": "0cc61317e6a9fe0d058bf09cb34ee85f03e6d98dd180f8027c22f2f10aaee75d",
+      "source": "Database columns used to locate an object for on-demand cropping. Two columns may give a centroid row and column; one column may identify a labeled object whose mask supplies its extent. Coordinate-backed routes support only bounding-box crops. None uses the configured mask plane instead. Default None. Merged Classifier derives one identifier from object_array, initially ['cell_id'], so the single-column form is valid rather than an incomplete coordinate pair.",
+      "translation": "요청 시 크롭할 객체를 찾는 데 사용하는 데이터베이스 열입니다. 두 열은 중심점의 행과 열을 지정할 수 있고, 한 열은 마스크가 범위를 제공하는 레이블 객체를 식별할 수 있습니다. 좌표 기반 경로는 경계 상자 크롭만 지원합니다. None 은 대신 설정된 마스크 평면을 사용합니다. 기본값 None. Merged Classifier는 object_array 에서 식별자 하나를 파생하며 초기값은 ['cell_id']이므로, 단일 열 형식은 불완전한 좌표 쌍이 아니라 유효합니다."
     },
     {
       "table": "setting_tooltips",
@@ -33,9 +33,9 @@
     {
       "table": "setting_tooltips",
       "key": "fraction_threshold",
-      "source_sha256": "6a8155bb70a4c7d98ed9704d873f181c92d8dabf0613cdcdc08826d8f16bd294",
-      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None.",
-      "translation": "gRNA 가 유지되기 위해 웰의 전체 read count 에서 도달해야 하는 최소 상대 존재비이며 범위는 0-1입니다. 값을 크게 설정하면 존재비가 낮거나 bleed-through 에서 유래한 gRNAs 가 제거되고 웰당 평균 gRNAs 수가 감소합니다. 값이 지나치게 크면 모든 행이 제거되고 실행에서 오류가 발생합니다. 웰당 target_unique_count 개의 gRNAs 를 생성하는 cutoff 를 자동으로 선택하려면 None 을 사용하십시오. 기본값 None."
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "gRNA 가 유지되기 위해 웰의 전체 read count 에서 도달해야 하는 최소 상대 존재비이며 범위는 0-1입니다. 값을 크게 설정하면 존재비가 낮거나 bleed-through 에서 유래한 gRNAs 가 제거되고 웰당 평균 gRNAs 수가 감소합니다. 값이 지나치게 크면 모든 행이 제거되고 실행에서 오류가 발생합니다. 웰당 target_unique_count 개의 gRNAs 를 생성하는 cutoff 를 자동으로 선택하려면 None 을 사용하십시오. 기본값 None. 회귀는 재현 가능한 고정 임계값 0.02에서 시작하며, 자동 탐색을 의도한 경우에만 None 을 입력하십시오."
     },
     {
       "table": "setting_tooltips",

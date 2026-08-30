@@ -6,9 +6,9 @@
     {
       "table": "setting_tooltips",
       "key": "analysis_mode",
-   "source_sha256": "f206e0573064161bf3b0160c6f81d8a6d8176f8c290c5a1cd1d1b034b5b4e1be",
-   "source": "'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'.",
-   "translation": "'regression' 은 선택한 동시 모델을 적합합니다. 'guide_permutation' 은 차단된 Freedman--Lane 순열을 사용하여 각 가이드를 플레이트 효과가 보정된 주변 연관성으로 검정한 다음 요청한 검정 대상 집합에 다중검정 보정을 적용합니다. 이 설정은 일반적으로 inference 에서 결정되며, 해당 선택을 재정의할 때만 직접 설정하십시오. 기본값 'regression'."
+   "source_sha256": "7d9c3c8e3aa05e8e0ae9e97345f2089879296dc89d8e86aa2390c025c1e5838b",
+   "source": "'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
+   "translation": "'regression' 은 선택한 동시 모델을 적합합니다. 'guide_permutation' 은 차단된 Freedman--Lane 순열을 사용하여 각 가이드를 플레이트 효과가 보정된 주변 연관성으로 검정한 다음 요청한 검정 대상 집합에 다중검정 보정을 적용합니다. 이 설정은 일반적으로 inference 에서 결정되며, 해당 선택을 재정의할 때만 직접 설정하십시오. 기본값 'regression'. Regression 모듈은 inference='nonparametric'로 시작하므로, 초기 해석 모드는 'guide_permutation'입니다."
     },
     {
       "table": "setting_tooltips",
