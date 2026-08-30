@@ -2,7 +2,7 @@
 SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29.
+Status:    DONE, 2026-08-30.
 Owner:     spacr/qt (the preference and the sampler) and spacr (the accounting).
 Requested: 2026-08-29 -- "does spacr keep a log of how many resourses each of
            its processes and threads takes?" and, on the answer, "write it up
@@ -183,3 +183,56 @@ failure that rules verbose logging out.
 
 Do not report GPU memory per thread. CUDA context memory is per process, not
 per thread, and a per-thread figure would be fiction.
+
+--------------------------------------------------------------------------------
+CLOSED 2026-08-30 -- WHAT LANDED AND WHAT PROVES IT
+--------------------------------------------------------------------------------
+
+The preference is now a real three-state row beside Diagnostics:
+``off | summary (recommended) | detailed``. It persists independently of
+verbose logging, and ``SPACR_PERFORMANCE_LOG`` remains the headless override.
+Opening Preferences or reaching Home starts no sampler at all; the sampler is
+created only when ``run_context`` opens actual pipeline work. Consequently the
+summary default adds zero work to interactive-Home startup rather than merely
+trying to fit inside its noise. The preference test takes a thread census
+before and after the real dialog and also proves the Python profile hook is
+unchanged.
+
+Every logged run now writes ``<run-id>.resources.json`` atomically beside its
+ordinary JSONL log. Summary mode keeps totals and peaks without a time series;
+detailed mode retains a bounded 3,600-sample ring with per-process and
+per-thread CPU rows. Both sample at 1 Hz on a daemon thread. The closing sample
+and summary survive success or failure, the existing log receives a human
+summary, and a project-backed run registers a ``resource-log`` artifact with
+the SAME run id and complete/partial/failed status. ``read_run_resources`` is
+the query path.
+
+The process-tree reader prefers PSS, then USS, and records RSS fallback per
+process. It treats a child vanishing between enumeration and read as expected,
+records unavailable thread figures as unavailable rather than zero, and never
+invented per-thread GPU memory. Sweep pool workers, contained trials,
+sequencing saver processes and sequencing chunk workers carry PID plus process
+creation time and a run-specific identity. Private stamp fields are consumed
+before a sweep row or CSV is exposed. The sweep memory guard now records both
+machine availability and spaCR's latest process-tree footprint and can enforce
+an explicit spaCR tree ceiling, so its answer can be attributed.
+
+Measured tests on Python 3.12.4 / PySide6 6.11.2:
+
+  * 79/79 resource-log, process-tree and fit-stage accounting tests pass;
+  * 107/107 central run-context tests pass;
+  * 3/3 persisted-run lifecycle tests pass, including failed artifact status
+    and an ``off`` thread census;
+  * 5/5 worker-attribution tests pass, and 38/38 combined sweep/contained-child
+    tests pass;
+  * 131/131 sequencing lifecycle and chunk-processing tests pass;
+  * the allocated-child integration test gives a child 32 MiB, observes at
+    least half of it in the named child/tree, observes less than half in the
+    parent-only reading, then records the child's disappearance durably;
+  * the JSONL kill test proves a child killed between samples leaves all prior
+    samples readable and no corrupt record.
+
+Implementation commits on the integration branch are ``95e9f110`` (preference
+and independence test), ``2fe427dc`` (run lifecycle, persistence and artifact),
+and ``5920d3a4`` (worker attribution and attributable memory guard), on top of
+the process-tree sampler/core commits already present in the branch.
