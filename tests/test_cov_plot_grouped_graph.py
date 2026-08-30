@@ -1104,3 +1104,51 @@ def test_significance_marker_boundaries():
     assert _significance_marker(0.01) == "**"
     assert _significance_marker(0.05) == "*"
     assert _significance_marker(0.051) == "ns"
+
+
+def test_a_p_value_that_is_not_a_number_has_no_answer():
+    """A results row can carry a value no float can be made of.
+
+    A skipped test writes ``None``; a refused one can write a string, and a
+    column read back from CSV can hold anything the file did. ``None`` is the
+    honest answer for all of them, and it is what stops a significance bar
+    being drawn over a comparison that was never made.
+
+    The alternative is worse than it sounds: ``float("n/a")`` raises inside
+    the plotting call, so a single unparseable cell takes down the whole
+    figure rather than omitting one bracket.
+    """
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(None) is None
+    assert _finite_p_value("not a number") is None
+    assert _finite_p_value([0.01]) is None
+    assert _finite_p_value({}) is None
+
+
+def test_a_non_finite_p_value_has_no_answer_either():
+    """``nan`` is what a refused test writes, and it is not a small number.
+
+    ``nan < 0.05`` is False, so a NaN would silently read as "not
+    significant" rather than as "not tested" -- the same figure, with a
+    comparison quietly downgraded instead of omitted.
+    """
+    import numpy as np
+
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(float("nan")) is None
+    assert _finite_p_value(np.nan) is None
+    assert _finite_p_value(float("inf")) is None
+    assert _finite_p_value(float("-inf")) is None
+
+
+def test_a_real_p_value_comes_back_as_a_float():
+    """Otherwise the four refusals above would pass on a function that only
+    ever returns None."""
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(0.01) == pytest.approx(0.01)
+    assert _finite_p_value("0.04") == pytest.approx(0.04)
+    assert _finite_p_value(0) == pytest.approx(0.0)
+    assert isinstance(_finite_p_value(1), float)
