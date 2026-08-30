@@ -938,3 +938,71 @@ arc, which is why they are reliable while the aggregate is not.
     caught it and a type checker cannot see it. The only thing that does is a
     test that drives the degenerate case -- and the reason there wasn't one is
     that the branch looked defensive.
+
+18. SIXTEEN COPIES OF THE SAME DEAD GUARD: `if parent:` AFTER `abspath()`
+    -----------------------------------------------------------------------
+    Every writer in spaCR that creates its own destination folder had this:
+
+        target = os.path.abspath(...)
+        parent = os.path.dirname(target)
+        if parent:                       # can never be False
+            os.makedirs(parent, exist_ok=True)
+
+    `abspath` returns a rooted path, so its `dirname` is at least "/" -- and
+    at least "C:\" on Windows. The False arc is unreachable. Enumerated over
+    the inputs that look like they might produce nothing:
+
+        dirname(abspath(''))       -> the cwd          truthy
+        dirname(abspath('x.png'))  -> the cwd          truthy
+        dirname(abspath('/'))      -> '/'              truthy
+        dirname(abspath('/a'))     -> '/'              truthy
+        dirname(abspath('//'))     -> '//'             truthy
+        dirname(abspath('..'))     -> a real folder    truthy
+
+    None of them. The guard was presumably written for the BARE FILENAME case
+    -- "counts.csv", nothing else -- and for that input dirname answers the
+    working directory, not "".
+
+    Sixteen sites: align, convert, counting, curation (x2), figures/headless,
+    figures/scene, illumination, ml (x2), plate_qc, roi, style_base,
+    tabular (x2), volcano_style.
+
+    Thirteen removed, in the eleven files no other lane had open. align.py and
+    ml.py were modified in the shared tree at the time and keep theirs for
+    whoever lands those; they are two arcs.
+
+    tests/test_a_parent_directory_is_always_there_to_make.py asserts the
+    property over eleven path shapes, and then asserts the BEHAVIOUR through
+    two real writers -- a bare filename still lands in the working directory,
+    and a nested destination still has its folders made. The property alone
+    would not have caught deleting the makedirs along with the guard.
+
+    WHY THIS ONE IS WORTH THE CHURN. Sixteen uncoverable branches is sixteen
+    modules that cannot reach 100% however many tests are written, and 288
+    allows no pragma to hide them. The alternative was sixteen entries in this
+    document arguing the same thing sixteen times.
+
+19. response_distribution.py:293 -- `if handles:` AFTER TWO `hist` CALLS
+    ---------------------------------------------------------------------
+    The twin-axis branch of `plot_response_distribution`:
+
+        ax.hist(before, bins=40, ...)
+        twin.hist(after, bins=40, ...)
+        handles = [ax.patches[0]] if ax.patches else []
+        handles += [twin.patches[0]] if twin.patches else []
+        if handles:                      # 293
+            ax.legend(...)
+
+    Arc 293->306 cannot be taken. `Axes.hist` with a fixed `bins=40` adds
+    forty patches whatever the data -- measured, an EMPTY array still produces
+    forty zero-height bars -- and the only input that produces none is one
+    that makes `hist` RAISE (an all-NaN array: "autodetected range of
+    [nan, nan] is not finite"), which never reaches line 293 at all.
+
+    So `ax.patches` is non-empty by the time the guard runs, and `handles`
+    always holds at least one entry. Family 1 again: a defensive re-check
+    after a call that already guarantees the condition.
+
+    No test was written for it. The two `if ax.patches else []` guards on the
+    lines above are the same shape and are equally dead, which is three arcs
+    in four lines.
