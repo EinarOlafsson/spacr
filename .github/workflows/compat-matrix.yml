@@ -73,6 +73,11 @@ jobs:
     name: Packaging metadata
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      # A failed-job re-run can reuse a successful metadata job from an older
+      # run attempt. Passing the name as a job output makes that re-run fetch
+      # the artifact which actually exists, not reconstruct a newer name.
+      distribution_artifact: ${{ steps.distribution_name.outputs.name }}
 
     steps:
       - uses: actions/checkout@v7
@@ -164,6 +169,23 @@ jobs:
               assert not forbidden, f"{label} ships excluded files: {forbidden}"
               print(f"{label}: {len(required)} required runtime files present")
           PY
+
+      - name: Name this immutable distribution bundle
+        id: distribution_name
+        shell: bash
+        run: echo "name=spacr-distributions-${{ github.run_id }}-${{ github.run_attempt }}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the exact distributions for the platform grid
+        uses: actions/upload-artifact@v7
+        with:
+          # run_attempt prevents a re-run from colliding with the first
+          # attempt's immutable artifact; the matrix downloads this exact name.
+          name: ${{ steps.distribution_name.outputs.name }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Install and run the built wheel and sdist
         shell: bash
@@ -550,6 +572,7 @@ jobs:
   # -------------------------------------------------------------------------
   install:
     name: ${{ matrix.label }}
+    needs: metadata
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     continue-on-error: ${{ matrix.experimental }}
@@ -613,14 +636,12 @@ jobs:
           # and a requires-python that admits it, so if this cell is red the
           # claim is false and we want to know loudly.
           #
-          # It installs `.[qt,dev,zernike]` rather than `.[qt,dev]` on purpose.
-          # mahotas has no cp313 wheel and builds from sdist; this runner has
-          # a toolchain, so asking for the extra here is what keeps
-          # spacr.measure and the Zernike features under test on 3.13 instead
-          # of quietly untested. The promise that a 3.13 user needs no
-          # compiler is a promise about the CORE install, and the
-          # `current-python-installs` job above proves that separately with
-          # `--only-binary :all:`.
+          # It requests `qt,dev,zernike` so the optional-dependency marker is
+          # exercised too. mahotas has no cp313 wheel, so the zernike extra
+          # deliberately excludes it at 3.13; the installed-artifact smoke
+          # below proves core measurement still imports without that optional
+          # backend. The compiler-free CORE promise is proved separately by
+          # `current-python-installs` with `--only-binary :all:`.
           - label: "Linux x86-64 / py3.13"
             os: ubuntu-24.04
             python-version: "3.13"
@@ -702,6 +723,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
+      - name: Download the exact wheel and sdist built by metadata
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.metadata.outputs.distribution_artifact }}
+          path: ${{ runner.temp }}/spacr-dist
+
       - name: Install system libraries (Linux only)
         if: runner.os == 'Linux'
         shell: bash
@@ -749,17 +776,36 @@ jobs:
           # cell cannot be tested on hosted runners.)
           python -m pip install "torch>=2.0" "torchvision"
 
-      - name: Install spacr
-        # `zernike` is requested explicitly because mahotas is no longer a
-        # core dependency, and spacr/measure.py still imports
-        # `mahotas.features.zernike_moments` at module scope. Without the
-        # extra, `import spacr.measure` in the next step would fail on EVERY
-        # cell, which would say nothing about the platform. On 3.13 this
-        # compiles mahotas from sdist (no cp313 wheel exists); these runners
-        # have a toolchain, and the no-compiler promise for the core install
-        # is proved by the `current-python-installs` job instead.
+      - name: Install and smoke the exact wheel and sdist
+        # matrix.extras keeps each cell's existing feature profile: cells that
+        # admit mahotas exercise Zernike, while the newest-Python cells prove
+        # the lazy optional backend does not prevent core measurement import.
+        # The no-compiler promise for the core graph is still owned by the
+        # `current-python-installs` job above.
+        # The harness resolves dependencies once from the downloaded wheel,
+        # uninstalls spaCR, then makes each distribution the final project in
+        # turn.  Its child probes use ``python -I`` from a temporary directory,
+        # verify direct_url.json names the input archive, construct a real
+        # AppScreen, and exercise the installed spacr-run entry point.  Exact
+        # timings are evidence only; the 180-second guard catches a hang rather
+        # than trying to compare unlike hosted-runner hardware.
         shell: bash
-        run: python -m pip install -e ".[${{ matrix.extras }}]"
+        run: |
+          python -I packaging/smoke_distribution_artifacts.py \
+            --dist-dir "${{ runner.temp }}/spacr-dist" \
+            --extras "${{ matrix.extras }}" \
+            --report "${{ runner.temp }}/spacr-installed-smoke.json"
+
+      - name: Upload installed-artifact smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          # job-index makes every matrix upload unique even when two cells use
+          # the same Python. run_attempt keeps workflow re-runs immutable too.
+          name: spacr-installed-smoke-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/spacr-installed-smoke.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Show the pins that gate this cell
         shell: bash
@@ -768,7 +814,7 @@ jobs:
           python -m pip list --format=freeze | grep -Ei \
             '^(numpy|scipy|torch|torchvision|cellpose|mahotas|opencv-python-headless|pillow|psutil|lxml|PySide6|pandas|scikit-image)=' || true
 
-      - name: Import spacr
+      - name: Recheck the final sdist install in isolated Python
         # `import spacr` alone is a meaningful test on a new platform: it is
         # what fails when a module-scope `from mahotas.features import
         # zernike_moments` or `from pylibCZIrw import czi` has no wheel.
@@ -784,16 +830,15 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           MPLBACKEND: Agg
         run: |
-          python -c "import spacr; print('spacr', spacr.__version__)"
-          python -c "import spacr.io, spacr.measure, spacr.utils, spacr.timelapse; print('core modules import')"
-          python -c "import numpy; print('numpy', numpy.__version__)"
+          python -I -c "import spacr; print('spacr', spacr.__version__)"
+          python -I -c "import spacr.io, spacr.measure, spacr.utils, spacr.timelapse; print('core modules import')"
+          python -I -c "import numpy; print('numpy', numpy.__version__)"
 
       - name: Packaging + smoke subset (decides this cell)
         shell: bash
         env:
           QT_QPA_PLATFORM: offscreen
           MPLBACKEND: Agg
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           python -m pytest tests/test_packaging_metadata.py tests/test_smoke.py \
             -q --no-header -m "not slow and not heavy"
@@ -812,7 +857,6 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           MPLBACKEND: Agg
-          PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"
           MKL_NUM_THREADS: "1"
           OPENBLAS_NUM_THREADS: "1"
