@@ -241,3 +241,90 @@ allocate physical GPU memory.  Implementation commit: ``9afbe136``.
 Item 4 is closed.  This instruction remains OPEN for the installed-artifact
 matrix, final post-paint all-module traces and the operation-boundary/profile
 evidence in items 1–3 and 5–6.
+
+--------------------------------------------------------------------------------
+2026-08-30 — WHEEL/SDIST EXECUTE OUTSIDE THE TREE; LOCAL ITEMS 1/3 EVIDENCE
+--------------------------------------------------------------------------------
+
+A wheel and sdist were built from implementation commit ``3adc8160`` (the
+same product change integrated as ``86cfb9a8``), with no release, tag or
+version change.  The build took 11.73 seconds and 52,268 KB peak RSS, and
+``twine check`` passed both artifacts:
+
+  * ``spacr-1.5.0.4-py3-none-any.whl`` — 36,366,683 bytes,
+    SHA-256 ``9e0b804a35efa1c31abfc5cf956087186d44beabec338219c526d24a9fd8d898``;
+  * ``spacr-1.5.0.4.tar.gz`` — 42,898,992 bytes,
+    SHA-256 ``16bf8fcbaa8ba8645c2dc32892c882ac31797c57d646d847922efb2c9b566576``.
+
+The wheel has 777 archive members and the sdist 2,323 normalised members.
+The compatibility job's exact inventory algorithm found all 763 required
+runtime Python/resource files and no forbidden file in either.  After install,
+the two ``spacr`` trees contained the same 763 non-bytecode files with
+byte-identical contents.  Both installed resource trees passed a functional
+read: all 94 setting-animation hashes (12,932,182 bytes, 137 setting keys),
+eight fonts, 78 icon files, three theme masters and eight non-empty data CSVs.
+
+Four new environments were made outside the checkout.  The dependency-free
+wheel and sdist environments used ``pip install --no-deps`` and took 3.19 and
+8.48 seconds respectively.  Two new runtime environments installed the same
+artifacts with ``--no-deps`` while inheriting the workstation's already
+installed Qt/scientific dependencies; those installs took 4.61 and 10.45
+seconds.  Every probe used isolated-mode Python from a directory outside the
+checkout and asserted that ``spacr.__file__`` was below that environment's
+``site-packages``.  In both artifact forms, the public facade, version and
+distribution metadata agreed, ``__all__`` was exact, no scientific dependency
+was imported by the facade, ``spacr-run --version``/``--list`` worked, and all
+15 installed console targets loaded as callables.
+
+The packaged one-field Measure smoke completed against both artifacts,
+including the real ``measure_crop`` call and terminal database status: wheel
+8.84 seconds / 976,956 KB peak RSS; sdist 8.89 seconds / 978,248 KB.  The
+actual installed ``spacr.qt.run(["--no-setup"])`` path also reached an enabled,
+visible Home screen with 45 usable visible controls.  The scheduled
+post-event-loop observation was at 4.135 seconds / 296.9 MB for the wheel and
+4.060 seconds / 302.1 MB for the sdist.  Neither process had imported pandas,
+SciPy, scikit-learn, Torch, torchvision, Cellpose, OpenCV, IPython, pyplot or
+statsmodels.  This is a launch/execution smoke, not item 2's still-required
+first-paint clock and frame-gap trace.
+
+Fresh installed-wheel processes then kept configuration and operation phases
+separate.  Visible Classify, Mask and Regression configuration observations
+completed at 1.253 seconds / 340.0 MB, 1.222 seconds / 324.2 MB and 1.826
+seconds / 374.3 MB respectively, with each named training, segmentation or
+fitting stack absent.  At the production run boundary:
+
+  * Classify's resolver remained light; a real no-op CV entry invocation then
+    completed in 3.221 seconds and imported ``spacr.deep_spacr``, Torch,
+    torchvision and its plotting/analysis dependencies.
+  * Mask resolution imported ``spacr.core``, Torch and pyplot in 1.992
+    seconds.  Its real ``dry_run=True`` preflight returned in 0.029 seconds;
+    Cellpose/model machinery remained absent because validation deliberately
+    does not load a model.
+  * Regression resolution imported ``spacr.ml``, statsmodels and
+    scikit-learn in 2.575 seconds.  A real entry invocation reached its
+    input-table stage in 1.267 seconds and then raised the expected missing
+    input-pair ``ValueError``.
+
+The audit found one genuine phase violation before these final artifacts were
+built.  A visible app screen starts a read-only usage poll through
+``JobRunner``; the generic worker nevertheless preloaded pyplot and installed
+figure capture, so merely showing a configuration page crossed the plotting
+boundary.  Background jobs now request ``capture_figures=False`` and a
+fresh-process regression test shows the real Classify window before checking
+the import set.  The scientific pipeline worker path retains figure capture.
+
+Verification cohorts on that tree were 37 packaging-metadata checks, 683
+facade/launcher/startup/smoke tests, 96 memory/job/bridge/non-heavy performance
+tests, and all five performance guards.  In addition to the two installed
+Measure smokes above, an installed-wheel walk imported all 273 ``spacr.qt``
+modules in 1.312 seconds with no failed import and without importing
+``spacr.utils``, Torch, Cellpose, OpenCV, IPython or pyplot.
+
+These measurements are local Linux x86-64 / CPython 3.12.4 evidence from an
+AMD Ryzen 9 5950X with 125 GiB RAM, PySide6 6.10.0 and Torch 2.6.0+cu124;
+CUDA was hidden.  They do not substitute for the supported Python/Windows/
+macOS CI cells, a lower-end hardware profile, GPU allocation measurements, or
+item 2's exact-registry all-module post-paint traces and 500 ms frame-stall
+audit.  The final release SHA must repeat the artifact matrix.  Item 305 stays
+OPEN for those matrix/tracing results and the remaining profiling/ratchet work
+in items 2, 5 and 6.
