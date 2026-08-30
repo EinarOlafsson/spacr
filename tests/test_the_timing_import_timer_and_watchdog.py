@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import importlib
 import importlib.machinery
-import os
 import sys
 import time
 
@@ -22,10 +21,6 @@ import pytest
 @pytest.fixture
 def timing(monkeypatch):
     """``spacr.qt.timing`` re-imported with timing and import attribution on."""
-    previous_environment = {
-        name: os.environ.get(name)
-        for name in ("SPACR_TIMING", "SPACR_TIMING_IMPORTS")
-    }
     monkeypatch.setenv("SPACR_TIMING", "1")
     monkeypatch.setenv("SPACR_TIMING_IMPORTS", "1")
     saved = sys.modules.get("spacr.qt.timing")
@@ -34,11 +29,6 @@ def timing(monkeypatch):
     try:
         yield module
     finally:
-        for name, value in previous_environment.items():
-            if value is None:
-                os.environ.pop(name, None)
-            else:
-                os.environ[name] = value
         if saved is not None:
             sys.modules["spacr.qt.timing"] = saved
         importlib.reload(saved or module)
@@ -241,11 +231,24 @@ def test_a_readiness_subscriber_is_registered_once_and_removable(timing):
     assert listener not in timing._READY_CALLBACKS
 
 
-def test_unsubscribing_something_never_subscribed_is_not_an_error(timing):
-    """Teardown runs on paths where setup did not, and must not raise there."""
+def test_unsubscribing_something_never_subscribed_leaves_the_list_alone(
+        timing):
+    """Teardown runs on paths where setup did not, and must not raise there.
+
+    The list is compared across the call, because a tolerant remove that
+    dropped the WRONG entry would also not raise -- and the screen whose
+    readiness callback vanished would simply never be measured again.
+    """
+    def other(_entry):
+        pass
+
+    timing.subscribe_readiness(other)
     before = list(timing._READY_CALLBACKS)
+
     timing.unsubscribe_readiness(lambda _entry: None)
+
     assert timing._READY_CALLBACKS == before
+    timing.unsubscribe_readiness(other)
 
 
 def test_the_event_loop_start_is_recorded_once(timing):
