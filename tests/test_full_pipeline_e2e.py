@@ -40,7 +40,6 @@ training + repeated Cellpose passes. Skips cleanly when torch.cuda
 """
 from __future__ import annotations
 
-import logging
 import shutil
 import sqlite3
 import time
@@ -186,23 +185,28 @@ def _four_object_mask_settings(src: Path) -> dict:
     return s
 
 
+@pytest.fixture(scope="module")
+def _masked_workspace(_pipeline_workspace):
+    """Run stage 1 once and make later stages depend on its completion."""
+    from spacr.core import preprocess_generate_masks
+
+    plate = _pipeline_workspace["plate"]
+    t0 = time.time()
+    preprocess_generate_masks(_four_object_mask_settings(plate))
+    print(f"[e2e] stage 1 (masks x4) took {time.time() - t0:.1f}s")
+    return _pipeline_workspace
+
+
 # ---------------------------------------------------------------------------
 # Stage 1 — 4-object mask generation
 # ---------------------------------------------------------------------------
 
 @pytest.mark.slow
 @pytest.mark.gpu
-def test_stage_1_mask_all_four_object_types(_pipeline_workspace, caplog):
+def test_stage_1_mask_all_four_object_types(_masked_workspace):
     """preprocess_generate_masks should emit mask stacks for all four
     object types on a 4-channel plate."""
-    from spacr.core import preprocess_generate_masks
-    plate = _pipeline_workspace["plate"]
-    settings = _four_object_mask_settings(plate)
-
-    caplog.set_level(logging.INFO, logger="spacr")
-    t0 = time.time()
-    preprocess_generate_masks(settings)
-    print(f"[e2e] stage 1 (masks x4) took {time.time() - t0:.1f}s")
+    plate = _masked_workspace["plate"]
 
     masks_root = plate / "masks"
     assert masks_root.is_dir()
@@ -238,22 +242,26 @@ def _measure_settings(plate: Path, base: dict) -> dict:
     return s
 
 
-@pytest.mark.slow
-@pytest.mark.gpu
-def test_stage_2_measure_and_crop(_pipeline_workspace):
-    """measure_crop over the stage-1 masks should populate
-    measurements.db AND cell/nucleus/pathogen crop PNGs."""
+@pytest.fixture(scope="module")
+def _measured_workspace(_masked_workspace):
+    """Run stage 2 once, after the stage-1 masks are available."""
     from spacr.measure import measure_crop
-    plate = _pipeline_workspace["plate"]
-    settings = _measure_settings(plate,
-                                    _four_object_mask_settings(plate))
+
+    plate = _masked_workspace["plate"]
+    settings = _measure_settings(plate, _four_object_mask_settings(plate))
     t0 = time.time()
-    # Unguarded: stage 1 wrote these masks and _measure_settings is derived
-    # from the same settings dict, so "bailed on synthetic dataset" was the
-    # pipeline failing on its own output -- which is what an E2E is for.
     measure_crop(settings)
     print(f"[e2e] stage 2 (measure + crop) took "
-            f"{time.time() - t0:.1f}s")
+          f"{time.time() - t0:.1f}s")
+    return _masked_workspace
+
+
+@pytest.mark.slow
+@pytest.mark.gpu
+def test_stage_2_measure_and_crop(_measured_workspace):
+    """measure_crop over the stage-1 masks should populate
+    measurements.db AND cell/nucleus/pathogen crop PNGs."""
+    plate = _measured_workspace["plate"]
 
     # measurements DB exists
     dbs = list(plate.rglob("measurements.db"))
@@ -278,40 +286,44 @@ def test_stage_2_measure_and_crop(_pipeline_workspace):
 # Stage 3 — programmatic annotation
 # ---------------------------------------------------------------------------
 
-@pytest.mark.slow
-@pytest.mark.gpu
-def test_stage_3_programmatic_annotate(_pipeline_workspace):
-    """Simulate the manual annotation step by populating a "test"
-    column in png_list with class labels {1, 2}. The GUI's job is to
-    do exactly this — we can prove downstream stages work without
-    driving the interactive UI."""
-    plate = _pipeline_workspace["plate"]
+@pytest.fixture(scope="module")
+def _annotated_workspace(_measured_workspace):
+    """Populate the annotation column once, after Measure wrote png_list."""
+    plate = _measured_workspace["plate"]
     dbs = list(plate.rglob("measurements.db"))
     assert dbs, "measure_crop from stage 2 did not write measurements.db"
     db_path = dbs[0]
     with sqlite3.connect(str(db_path)) as conn:
-        # Add the test column if missing.
-        cols = [c[1] for c in conn.execute(
+        cols = [column[1] for column in conn.execute(
             "PRAGMA table_info(png_list)").fetchall()]
         if "test" not in cols:
             conn.execute("ALTER TABLE png_list ADD COLUMN test integer")
-        # Assign classes deterministically — half → 1, half → 2.
-        # png_list has a *column* named "rowID" (plate row like "r1"),
-        # and SQLite's identifier match is case-insensitive, so using
-        # the implicit ``rowid`` keyword accidentally targets the
-        # user column and every UPDATE hits every row. Use png_path
-        # (unique per crop) as the key instead.
         rows = list(conn.execute(
             "SELECT png_path FROM png_list ORDER BY png_path"))
         assert rows, "png_list is empty; measure_crop wrote no rows"
+        # ``rowID`` is a real plate-coordinate column and SQLite matches it
+        # case-insensitively to the implicit rowid.  Use the unique crop path
+        # so annotation never updates the whole table by accident.
         half = len(rows) // 2
-        for i, (path,) in enumerate(rows):
-            cls = 1 if i < half else 2
+        for index, (path,) in enumerate(rows):
+            label = 1 if index < half else 2
             conn.execute(
                 "UPDATE png_list SET test = ? WHERE png_path = ?",
-                (cls, path))
+                (label, path))
         conn.commit()
-    # Sanity-check: both classes present
+    return _measured_workspace
+
+
+@pytest.mark.slow
+@pytest.mark.gpu
+def test_stage_3_programmatic_annotate(_annotated_workspace):
+    """Simulate the manual annotation step by populating a "test"
+    column in png_list with class labels {1, 2}. The GUI's job is to
+    do exactly this — we can prove downstream stages work without
+    driving the interactive UI."""
+    plate = _annotated_workspace["plate"]
+    dbs = list(plate.rglob("measurements.db"))
+    db_path = dbs[0]
     with sqlite3.connect(str(db_path)) as conn:
         counts = dict(conn.execute(
             "SELECT test, COUNT(*) FROM png_list GROUP BY test"
@@ -326,16 +338,14 @@ def test_stage_3_programmatic_annotate(_pipeline_workspace):
 # Stage 4 — train ResNet 10 epochs
 # ---------------------------------------------------------------------------
 
-@pytest.mark.slow
-@pytest.mark.gpu
-def test_stage_4_train_resnet_10_epochs(_pipeline_workspace):
-    """Build a training dataset from the annotations and train a
-    ResNet for 10 epochs. Assert a model checkpoint was written."""
+@pytest.fixture(scope="module")
+def _trained_workspace(_annotated_workspace):
+    """Train once after annotation, independent of randomized test order."""
     from spacr.io import (
         training_dataset_from_annotation, generate_dataset_from_lists,
     )
     from spacr.deep_spacr import train_test_model
-    plate = _pipeline_workspace["plate"]
+    plate = _annotated_workspace["plate"]
     dbs = list(plate.rglob("measurements.db"))
     assert dbs
     db_path = dbs[0]
@@ -397,6 +407,17 @@ def test_stage_4_train_resnet_10_epochs(_pipeline_workspace):
         # Fall back to the plate-level model dir
         model_files = list(plate.rglob("*.pth"))
     assert model_files, "no .pth model checkpoint written"
+    trained = dict(_annotated_workspace)
+    trained["model_files"] = model_files
+    return trained
+
+
+@pytest.mark.slow
+@pytest.mark.gpu
+def test_stage_4_train_resnet_10_epochs(_trained_workspace):
+    """Build a training dataset from the annotations and train a
+    ResNet for 10 epochs. Assert a model checkpoint was written."""
+    assert _trained_workspace["model_files"]
 
 
 # ---------------------------------------------------------------------------
@@ -405,14 +426,12 @@ def test_stage_4_train_resnet_10_epochs(_pipeline_workspace):
 
 @pytest.mark.slow
 @pytest.mark.gpu
-def test_stage_5_apply_model_to_full_dataset(_pipeline_workspace):
+def test_stage_5_apply_model_to_full_dataset(_trained_workspace):
     """apply_model over all PNG crops from stage 2 using the
     checkpoint from stage 4. Assert predictions CSV was written."""
     from spacr.deep_spacr import apply_model
-    plate = _pipeline_workspace["plate"]
-    model_files = list(plate.rglob("*.pth"))
-    if not model_files:
-        pytest.skip("no trained model from stage 4 to apply")
+    plate = _trained_workspace["plate"]
+    model_files = _trained_workspace["model_files"]
     model_path = str(sorted(model_files,
                                 key=lambda p: p.stat().st_mtime)[-1])
     # apply_model's NoClassDataset expects a DIRECTORY (not a list
@@ -444,7 +463,7 @@ MEASUREMENT_CATEGORIES = ("cell", "nucleus", "pathogen", "organelle")
 
 @pytest.mark.slow
 @pytest.mark.gpu
-def test_stage_6_xgboost_per_measurement_category(_pipeline_workspace):
+def test_stage_6_xgboost_per_measurement_category(_measured_workspace):
     """For each measurement category (cell / nucleus / pathogen /
     organelle features), fit an XGBoost classifier on the numeric
     features and assert:
@@ -462,7 +481,7 @@ def test_stage_6_xgboost_per_measurement_category(_pipeline_workspace):
     import json
     import pandas as pd
     from xgboost import XGBClassifier
-    plate = _pipeline_workspace["plate"]
+    plate = _measured_workspace["plate"]
     dbs = list(plate.rglob("measurements.db"))
     assert dbs
     db_path = dbs[0]
