@@ -34,6 +34,24 @@ from spacr.fit_resources import (
     record_stage,
 )
 
+_UNOBSERVABLE_THREAD_PROFILE = object()
+
+
+def _thread_profile():
+    """Read the default thread profile hook on every supported CPython.
+
+    :func:`threading.getprofile` was added in Python 3.10, while spaCR still
+    supports 3.9.  On 3.9, ``threading.setprofile`` stores the same state in
+    ``_profile_hook``.  An opaque sentinel keeps the before/after contract
+    honest on an implementation exposing neither route.
+    """
+    getter = getattr(threading, "getprofile", None)
+    if getter is not None:
+        return getter()
+    return getattr(
+        threading, "_profile_hook", _UNOBSERVABLE_THREAD_PROFILE,
+    )
+
 
 def _wait_until(predicate, timeout=10.0):
     deadline = time.monotonic() + timeout
@@ -373,7 +391,7 @@ def test_off_mode_starts_no_thread_writes_no_file_and_installs_no_profile_hook(
         if thread.name.startswith("spacr-resource-sampler-")
     }
     sys_profile = sys.getprofile()
-    thread_profile = threading.getprofile()
+    thread_profile = _thread_profile()
 
     sampler = _ResourceSampler(output, mode="off", environ={})._start()
     assert sampler._thread is None
@@ -386,13 +404,13 @@ def test_off_mode_starts_no_thread_writes_no_file_and_installs_no_profile_hook(
     assert census_after == census_before
     assert not output.exists()
     assert sys.getprofile() is sys_profile
-    assert threading.getprofile() is thread_profile
+    assert _thread_profile() is thread_profile
 
 
 def test_summary_is_daemon_sampled_without_a_time_series_and_is_atomic(tmp_path):
     output = tmp_path / "resources.json"
     sys_profile = sys.getprofile()
-    thread_profile = threading.getprofile()
+    thread_profile = _thread_profile()
     sampler = _ResourceSampler(
         output,
         mode="summary",
@@ -417,7 +435,7 @@ def test_summary_is_daemon_sampled_without_a_time_series_and_is_atomic(tmp_path)
     assert document["configuration"]["sample_interval_seconds"] == 0.02
     assert document["configuration"]["profile_hook_installed"] is False
     assert sys.getprofile() is sys_profile
-    assert threading.getprofile() is thread_profile
+    assert _thread_profile() is thread_profile
     assert not list(tmp_path.glob(".resources.json.*.tmp"))
 
 
