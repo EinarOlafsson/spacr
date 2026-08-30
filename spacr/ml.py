@@ -3110,6 +3110,18 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
     Xw = X_d * w[:, None]
     xtx = X_d.T @ Xw
     xty = Xw.T @ y_d
+    # ``solve`` is not a rank test.  Which LAPACK build backs NumPy decides
+    # whether an exactly dependent cross-product raises here or returns an
+    # arbitrary, enormous solution after round-off in the decomposition.
+    # Refuse the design explicitly so backend choice cannot change whether an
+    # unidentified coefficient is reported.
+    if np.linalg.matrix_rank(xtx) < xtx.shape[0]:
+        raise ValueError(
+            "the absorbed design's normal equations are singular, so its "
+            f"{len(keep)} coefficients are not identified. That is a "
+            "rank-deficient design, not a backend failure: statsmodels "
+            "answers the same design with a pseudo-inverse, which picks one "
+            "arbitrary solution out of infinitely many.")
     try:
         beta = np.linalg.solve(xtx, xty)
     except np.linalg.LinAlgError as exc:
