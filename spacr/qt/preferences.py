@@ -69,6 +69,10 @@ Values:
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
   alternatives (viridis for continuous, Okabe-Ito for categorical).
+* ``performance_logging``: ``"off"`` | ``"summary"`` | ``"detailed"``
+  (default ``"summary"``). Records process-tree resource use independently
+  of verbose call tracing; see :func:`get_performance_logging` and
+  :mod:`spacr.resource_log`.
 * ``db_browser_editable``: bool, default ``False``. Permits the
   Database Browser to open a read-write connection at all; see
   :func:`get_db_browser_editable`.
@@ -156,6 +160,7 @@ _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
+_KEY_PERFORMANCE_LOG = "prefs/performance_logging"
 _KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
 # Stored as level names ("INFO,WARNING,ERROR") rather than numbers: QSettings
 # round-trips strings predictably across platforms, and a settings file a
@@ -3683,6 +3688,11 @@ def set_log_levels(file_levels, console_levels) -> tuple:
 #: the honest default is off.
 DEFAULT_VERBOSE_LOGGING = False
 
+#: Process-tree accounting is cheap enough to leave on.  Unlike verbose
+#: logging it samples once a second and installs no Python profile hook.
+PERFORMANCE_LOGGING_LEVELS = ("off", "summary", "detailed")
+DEFAULT_PERFORMANCE_LOGGING = "summary"
+
 
 def get_verbose_logging() -> bool:
     """Return True when the user has opted into the verbose diagnostic
@@ -3707,6 +3717,36 @@ def get_verbose_logging() -> bool:
 def set_verbose_logging(on: bool) -> None:
     """Persist whether package-wide diagnostic tracing is enabled."""
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
+
+
+def get_performance_logging() -> str:
+    """Return the independent process-tree resource logging level.
+
+    ``summary`` is the default: it records whole-run totals and peaks at
+    roughly one sample per second. ``detailed`` additionally retains the
+    bounded process/thread series. This setting never enables verbose
+    logging or installs a profile hook.
+
+    :returns: one of :data:`PERFORMANCE_LOGGING_LEVELS`.
+    """
+    raw = str(_settings().value(
+        _KEY_PERFORMANCE_LOG, DEFAULT_PERFORMANCE_LOGGING)).strip().lower()
+    return (raw if raw in PERFORMANCE_LOGGING_LEVELS
+            else DEFAULT_PERFORMANCE_LOGGING)
+
+
+def set_performance_logging(level: str) -> None:
+    """Persist the process-tree resource logging level.
+
+    :param level: ``off``, ``summary`` or ``detailed``.
+    :raises ValueError: when ``level`` names no supported mode.
+    """
+    named = str(level).strip().lower()
+    if named not in PERFORMANCE_LOGGING_LEVELS:
+        raise ValueError(
+            f"Unknown performance-logging level {level!r}. "
+            f"Choose from {PERFORMANCE_LOGGING_LEVELS}.")
+    _settings().setValue(_KEY_PERFORMANCE_LOG, named)
 
 
 #: On, and only safe to be. A report no longer carries log lines in its
@@ -4954,6 +4994,27 @@ class PreferencesDialog:
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
 
+        performance_log_combo = QComboBox()
+        performance_log_combo.setObjectName("PerformanceLogging")
+        for label, key in (
+            ("Off", "off"),
+            ("Summary (recommended)", "summary"),
+            ("Detailed", "detailed"),
+        ):
+            performance_log_combo.addItem(tr(label), key)
+        performance_index = performance_log_combo.findData(
+            get_performance_logging())
+        performance_log_combo.setCurrentIndex(
+            performance_index if performance_index >= 0 else 1)
+        performance_log_combo.setToolTip(tr(
+            "Records what spaCR's process tree costs without tracing every "
+            "function call. Summary samples about once a second and keeps "
+            "whole-run totals and peaks. Detailed also retains a bounded "
+            "per-process and per-thread time series. Off starts no sampler "
+            "thread. This setting is independent of verbose logging."
+        ))
+        modules.addRow(tr("Performance log"), performance_log_combo)
+
         share_diagnostics_check = Toggle(
             tr("Include redacted log excerpts in issue previews")
         )
@@ -5873,6 +5934,7 @@ class PreferencesDialog:
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
                 db_edit_check.setChecked(get_db_browser_editable())
@@ -5931,6 +5993,7 @@ class PreferencesDialog:
             set_save_workspace(workspace_combo.currentData())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             # set_log_levels re-clamps rather than trusting the dialog: the
             # console switch is disabled when its file switch is off, but a
