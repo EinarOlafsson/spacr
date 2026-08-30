@@ -175,9 +175,11 @@ class _StubScreen:
 class _Console:
     def __init__(self, explode=False):
         self.text = []
+        self.calls = []
         self.explode = explode
 
     def append_stdout(self, text):
+        self.calls.append(text)
         if self.explode:
             raise RuntimeError("the console widget has been deleted")
         self.text.append(text)
@@ -282,7 +284,11 @@ def test_a_screen_with_no_console_is_not_an_error():
     """The function is called from a button that may be on a bare screen."""
     from spacr.qt.screens.mask import _say
 
-    _say(_StubScreen(console=None), "anything")
+    screen = _StubScreen(console=None)
+    _say(screen, "anything")
+
+    assert screen._console is None
+    assert screen.applied == []
 
 
 def test_a_console_without_the_method_is_left_alone():
@@ -293,7 +299,12 @@ def test_a_console_without_the_method_is_left_alone():
     """
     from spacr.qt.screens.mask import _say
 
-    _say(_StubScreen(console=object()), "anything")
+    not_a_console = object()
+    screen = _StubScreen(console=not_a_console)
+    _say(screen, "anything")
+
+    assert screen._console is not_a_console
+    assert screen.applied == []
 
 
 def test_a_console_that_raises_does_not_lose_the_plate():
@@ -304,7 +315,13 @@ def test_a_console_that_raises_does_not_lose_the_plate():
     """
     from spacr.qt.screens.mask import _say
 
-    _say(_StubScreen(console=_Console(explode=True)), "anything")
+    console = _Console(explode=True)
+    screen = _StubScreen(console=console)
+    _say(screen, "anything")
+
+    assert console.calls == ["anything"]
+    assert console.text == []
+    assert screen.applied == []
 
 
 def test_a_working_console_really_is_written_to():
@@ -314,4 +331,5 @@ def test_a_working_console_really_is_written_to():
     console = _Console()
     _say(_StubScreen(console=console), "hello")
 
+    assert console.calls == ["hello"]
     assert console.text == ["hello"]
