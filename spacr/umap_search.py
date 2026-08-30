@@ -65,6 +65,10 @@ class UmapRecipe:
 
     @classmethod
     def from_dict(cls, payload: Dict[str, Any]) -> "UmapRecipe":
+        """Build a recipe from known fields in a stored mapping.
+
+        :param payload: serialized recipe mapping, possibly with newer fields.
+        """
         data = {k: v for k, v in dict(payload).items()
                 if k in cls.__dataclass_fields__}
         if "columns" in data:
@@ -84,6 +88,8 @@ class SearchRow:
     ``embedding`` retains the exact array used to calculate ``scores``.
     Recomputing an embedding when a row is selected could produce different
     coordinates with a non-deterministic backend.
+
+    :ivar recipe: complete embedding recipe evaluated by this trial.
     """
 
     recipe: UmapRecipe
@@ -120,6 +126,10 @@ class SearchTable:
         self._rows: List[SearchRow] = []
 
     def add(self, row: SearchRow) -> SearchRow:
+        """Append and return one search result row.
+
+        :param row: search result to retain in insertion order.
+        """
         self._rows.append(row)
         return row
 
@@ -170,6 +180,12 @@ class ClusterWalkRow:
     changes the partition, not the map.  Keeping that distinction explicit
     prevents a cluster button from quietly refitting UMAP and making the row
     the user selected cease to be the row they are looking at.
+
+    :ivar min_cluster_size: HDBSCAN minimum cluster size used for this trial.
+    :ivar labels: cluster label for every embedding row, with noise as ``-1``.
+    :ivar silhouette: silhouette score over assigned points when defined.
+    :ivar n_clusters: number of non-noise clusters found.
+    :ivar noise_fraction: fraction of embedding rows assigned to noise.
     """
 
     min_cluster_size: int
@@ -211,6 +227,9 @@ def cluster_embedding(
     dependency (spaCR requires a version new enough to provide HDBSCAN). No
     DBSCAN substitution is made: changing the algorithm while keeping the
     HDBSCAN label would make the cluster count beside a map false provenance.
+
+    :param embedding: finite coordinate array shaped ``(rows, 2)`` or
+        ``(rows, 3)``.
     """
     values = _embedding_array(embedding)
     size = int(min_cluster_size)
@@ -250,6 +269,9 @@ def walk_clusters(
     user chose.  Failed/oversized scales are skipped individually; if no scale
     is meaningful the result is empty rather than a fabricated one-cluster
     winner.
+
+    :param embedding: fixed finite 2-D or 3-D coordinates to cluster at each
+        candidate scale.
     """
     values = _embedding_array(embedding)
     candidates: List[int] = []

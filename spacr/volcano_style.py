@@ -259,11 +259,17 @@ class VolcanoStyle(FigureStyle):
 
         Forwards-compatible on purpose: a style saved by a newer spaCR still
         loads here, minus the settings that did not exist yet.
+
+        :param values: serialized style fields; unknown names are ignored.
         """
         known = {f.name for f in fields(cls)}
         return cls(**{k: v for k, v in (values or {}).items() if k in known})
 
     def save(self, path) -> str:
+        """Write this style as JSON and return its filesystem path.
+
+        :param path: path-like destination to create or replace.
+        """
         path = os.fspath(path)
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(self.to_dict(), handle, indent=2, sort_keys=True)
@@ -271,6 +277,10 @@ class VolcanoStyle(FigureStyle):
 
     @classmethod
     def load(cls, path) -> "VolcanoStyle":
+        """Load a JSON style from a filesystem path.
+
+        :param path: path-like JSON source previously written by :meth:`save`.
+        """
         with open(os.fspath(path), encoding="utf-8") as handle:
             return cls.from_dict(json.load(handle))
 
@@ -488,6 +498,8 @@ def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
     queries the bundled localization table first with the normalized accession
     and then, when applicable, with its terminal gene number.
 
+    :param results: result rows containing a usable gene or guide column.
+    :param style: style whose localization and label columns guide lookup.
     :returns: a numpy array of compartment names, or ``None`` when no column
         of ``results`` can name a gene and when no table is bundled -- a
         volcano is still a volcano without compartment colouring.
@@ -521,6 +533,9 @@ def localizations_present(results: pd.DataFrame, style: VolcanoStyle,
     choices that would colour nothing, and a choice that colours nothing is
     indistinguishable from a broken one -- the same threshold
     :func:`spacr.localisation.present` applies.
+
+    :param results: result rows whose genes or guides are localized.
+    :param style: style selecting the localization or fallback label column.
     """
     from .localisation import MIN_GENES
 
@@ -950,6 +965,10 @@ def point_details(results: pd.DataFrame, index: int, style: VolcanoStyle
 
     Returns every column of the row, plus the derived plotted coordinates, so
     the panel can show both what was plotted and what it came from.
+
+    :param results: result frame in the same row order as the plotted points.
+    :param index: positional row index of the selected point.
+    :param style: style selecting the plotted x and y columns and transform.
     """
     row = results.iloc[int(index)]
     detail: dict[str, Any] = {str(k): row[k] for k in results.columns}

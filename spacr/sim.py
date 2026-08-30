@@ -1213,11 +1213,21 @@ def run_multiple_simulations(settings):
                 print(traceback.format_exc())
             
 def generate_integers(start, stop, step):
-    """Return ``list(range(start, stop + 1, step))`` (inclusive upper bound)."""
+    """Return ``list(range(start, stop + 1, step))`` (inclusive upper bound).
+
+    :param start: first integer in the generated sequence.
+    :param stop: inclusive upper endpoint for the sequence.
+    :param step: integer spacing passed to :class:`range`.
+    """
     return list(range(start, stop + 1, step))
 
 def generate_floats(start, stop, step):
-    """Return an inclusive list of floats from ``start`` to ``stop`` with ``step`` spacing."""
+    """Return floats from ``start`` through ``stop`` with ``step`` spacing.
+
+    :param start: first numeric value in the generated sequence.
+    :param stop: inclusive endpoint when reached by the requested spacing.
+    :param step: numeric spacing and source of output decimal precision.
+    """
     # Determine the number of decimal places in 'step'
     num_decimals = str(step)[::-1].find('.')
     
@@ -1600,6 +1610,11 @@ def save_shap_plot(fig, src, variable, i):
 
     Through :func:`spacr.plot.save_figure` for the same reason
     :func:`save_plot` is: the format follows the preference, not a literal.
+
+    :param fig: Matplotlib figure to save.
+    :param src: base output directory.
+    :param variable: subdirectory name identifying the plotted variable.
+    :param i: identifier prefixed to the output filename.
     """
     import os
     os.makedirs(f'{src}/{variable}', exist_ok=True)
