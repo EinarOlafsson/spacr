@@ -35,6 +35,21 @@ import numpy as np
 import pandas as pd
 import pytest
 
+# A pytest process must never be able to mutate the public GitHub tracker.
+#
+# ``PYTEST_CURRENT_TEST`` is phase-local: pytest removes it between tests and
+# before session teardown.  It is therefore not a process-lifetime safety
+# boundary, and it does not reliably reach children launched outside a test
+# call phase.  This sentinel is installed while the root conftest is imported,
+# before collection, and is inherited by every ordinary subprocess.  Do not
+# remove it in a fixture -- fixture teardown was the hole that let real issue
+# comments escape in the first place.
+os.environ["SPACR_PYTEST_SESSION"] = "1"
+# Older tests used this process-wide escape hatch.  A child inherited it and
+# could use the developer's real ``gh`` credential, so it is intentionally
+# inert now and cleared before any test module is imported.
+os.environ.pop("SPACR_ALLOW_GITHUB_WRITES", None)
+
 # Make the in-tree spacr importable without an editable install.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:

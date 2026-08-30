@@ -65,7 +65,7 @@ def transport(monkeypatch):
             raise answer
         return _Response(answer)
 
-    monkeypatch.setattr(urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", urlopen)
     return type("Transport", (), {"sent": sent, "answers": answers})()
 
 
@@ -92,26 +92,20 @@ def test_the_environment_is_where_the_token_comes_from():
 
 
 # ---------------------------------------------------------------------------
-# The unused write guard
+# The process-lifetime write guard
 # ---------------------------------------------------------------------------
 
 def test_the_write_guard_refuses_inside_a_test_run(monkeypatch):
-    """It answers correctly; nothing in spaCR asks it. See ``bugs_found``.
-
-    ``issue_report.submit_report`` carries its own copy of this rule and is
-    the guard that actually runs, which is why this one has never been
-    exercised.
-    """
-    monkeypatch.delenv("SPACR_ALLOW_GITHUB_WRITES", raising=False)
+    """The old inherited escape hatch is deliberately inert."""
     reason = github_auth._refuse_writes_under_test()
-    assert reason and "refusing to write to GitHub" in reason
+    assert reason and "refusing GitHub network access" in reason
 
     monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
-    assert github_auth._refuse_writes_under_test() is None
+    assert github_auth._refuse_writes_under_test() == reason
 
 
 def test_outside_a_test_run_there_is_nothing_to_refuse(monkeypatch):
-    monkeypatch.delenv("SPACR_ALLOW_GITHUB_WRITES", raising=False)
+    monkeypatch.delenv("SPACR_PYTEST_SESSION", raising=False)
     monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
     assert github_auth._refuse_writes_under_test() is None
 
@@ -150,7 +144,7 @@ def test_a_search_that_could_not_run_says_so(transport):
 def test_without_a_token_there_is_no_search(monkeypatch):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
-    monkeypatch.setattr(urllib.request, "urlopen",
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN",
                         lambda *a, **k: pytest.fail("asked GitHub anonymously"))
     assert github_auth.find_issue_by_fingerprint("o/n", "abc") == (False, None)
 
@@ -186,7 +180,7 @@ def test_a_comment_that_reflects_the_token_back_is_scrubbed(transport):
 def test_no_token_means_no_comment(monkeypatch):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
-    monkeypatch.setattr(urllib.request, "urlopen",
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN",
                         lambda *a, **k: pytest.fail("posted anonymously"))
     ok, message = github_auth.comment_on_issue("owner/name", 12, "body")
     assert ok is False

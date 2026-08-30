@@ -12,6 +12,11 @@ on a developer machine the `gh` CLI supplies one, so any test reaching a
 write path without mocking files a real issue.
 """
 
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -20,18 +25,17 @@ from spacr.qt.ai import github_auth, issue_report
 
 
 @pytest.fixture
-def allow_writes(monkeypatch):
-    """`file_issue` refuses to post from a test run unless this is set.
+def offline_transport(monkeypatch):
+    """Admit the report flow only through an in-process dead transport.
 
-    That backstop exists because `[auto 54a0e8] [mask] Error: boom` (#75)
-    reached the PUBLIC tracker from a fixture's exception -- spaCR posts
-    whenever a token is resolvable and `gh` supplies one on a dev machine.
-
-    Every test in this file replaces `github_auth` wholesale, so nothing here
-    can reach the network; the flag says that deliberately rather than
-    leaving the guard to be discovered as five confusing failures.
+    Unlike the former environment escape hatch, this replacement cannot be
+    inherited by a subprocess.  If it survives until fixture teardown, it is
+    still a function that fails instead of a socket.
     """
-    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
+    def _no_network(*args, **kwargs):
+        pytest.fail("an offline issue-report test reached HTTP")
+
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", _no_network)
 
 
 
@@ -69,7 +73,7 @@ def test_a_different_exception_from_the_same_frame_hashes_differently():
 # ---------------------------------------------------------------------------
 
 def test_a_known_fingerprint_comments_rather_than_opening_a_new_issue(
-        monkeypatch, allow_writes):
+        monkeypatch, offline_transport):
     created, commented = [], []
 
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: True)
@@ -88,7 +92,8 @@ def test_a_known_fingerprint_comments_rather_than_opening_a_new_issue(
     assert url == "u/79", "the caller was not pointed at the existing issue"
 
 
-def test_an_unknown_fingerprint_still_opens_an_issue(monkeypatch, allow_writes):
+def test_an_unknown_fingerprint_still_opens_an_issue(
+        monkeypatch, offline_transport):
     created = []
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: True)
     monkeypatch.setattr(github_auth, "find_issue_by_fingerprint",
@@ -100,7 +105,8 @@ def test_an_unknown_fingerprint_still_opens_an_issue(monkeypatch, allow_writes):
     assert len(created) == 1
 
 
-def test_a_search_that_could_not_run_still_files(monkeypatch, allow_writes):
+def test_a_search_that_could_not_run_still_files(
+        monkeypatch, offline_transport):
     """Losing a crash report is worse than filing a duplicate, so a failed
     SEARCH must not be read as "no match"."""
     created = []
@@ -123,11 +129,14 @@ def test_file_issue_refuses_from_inside_a_test_run(monkeypatch):
     caller's job; this is the backstop for the callers that forget, because
     the cost of forgetting cannot be undone by fixing the test afterwards.
 
-    Deliberately WITHOUT the `allow_writes` fixture, and it asserts that
+    Deliberately WITHOUT the ``offline_transport`` fixture, and it asserts that
     nothing downstream was even reached -- an assertion on the message alone
     would pass while still posting.
     """
     reached = []
+    # The old hole was process-wide and inherited.  It must stay inert even if
+    # a stale test or subprocess still sets it.
+    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
     monkeypatch.setattr(github_auth, "is_authenticated",
                         lambda: reached.append("auth") or True)
     monkeypatch.setattr(github_auth, "create_issue",
@@ -139,12 +148,56 @@ def test_file_issue_refuses_from_inside_a_test_run(monkeypatch):
     assert not reached, f"the guard let execution through to {reached}"
 
 
-def test_the_escape_hatch_lets_a_mocked_test_through(monkeypatch,
-                                                     allow_writes):
-    """A test that HAS mocked everything can still exercise the path."""
+def test_a_fake_transport_lets_a_mocked_test_through(
+        monkeypatch, offline_transport):
+    """A test that has replaced transport can still exercise the path."""
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: True)
     monkeypatch.setattr(github_auth, "find_issue_by_fingerprint",
                         lambda repo, fp: (True, None))
     monkeypatch.setattr(github_auth, "create_issue",
                         lambda *a, **k: (True, "NEW"))
     assert issue_report.file_issue(TB) == "NEW"
+
+
+def test_the_guard_rearms_when_a_fake_transport_fixture_tears_down():
+    """Restoring the real opener must restore the refusal immediately."""
+    assert github_auth._transport_refusal()
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(github_auth, "_HTTP_OPEN", lambda *a, **k: None)
+        assert github_auth._transport_refusal() is None
+
+    assert github_auth._HTTP_OPEN is github_auth._REAL_HTTP_OPEN
+    assert github_auth._transport_refusal()
+
+
+def test_a_subprocess_inherits_the_session_lifetime_refusal(tmp_path):
+    """A child has no pytest phase variable and no parent monkeypatches.
+
+    It still inherits ``SPACR_PYTEST_SESSION``.  ``resolve_token`` is replaced
+    with a function that raises, proving the refusal happens before a child
+    can consult ``gh`` or construct a request.  No network call exists in the
+    probe even if the assertion regresses.
+    """
+    root = Path(__file__).resolve().parents[2]
+    env = os.environ.copy()
+    env.pop("PYTEST_CURRENT_TEST", None)
+    env["SPACR_ALLOW_GITHUB_WRITES"] = "1"
+    code = """
+from spacr.qt.ai import github_auth
+github_auth.resolve_token = lambda: (_ for _ in ()).throw(
+    AssertionError('credential resolution was reached'))
+ok, message = github_auth.comment_on_issue('owner/name', 114, 'Seen again.')
+assert not ok and 'test run' in message, (ok, message)
+print(message)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "refusing GitHub network access" in completed.stdout

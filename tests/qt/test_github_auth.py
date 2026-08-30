@@ -56,7 +56,7 @@ def test_create_issue_posts_and_returns_url(monkeypatch):
         return _Resp(json.dumps(
             {"html_url": "https://github.com/o/r/issues/7"}).encode())
 
-    monkeypatch.setattr(github_auth.urllib.request, "urlopen", _fake_urlopen)
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", _fake_urlopen)
     ok, url = github_auth.create_issue("o/r", "boom", "trace", labels=["auto-filed"])
     assert ok and url == "https://github.com/o/r/issues/7"
     assert captured["url"] == "https://api.github.com/repos/o/r/issues"
@@ -70,6 +70,11 @@ def test_create_issue_without_token_fails(monkeypatch):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)
     monkeypatch.setattr(github_auth, "_gh_cli_token", lambda: "")
+    monkeypatch.setattr(
+        github_auth,
+        "_HTTP_OPEN",
+        lambda *a, **k: pytest.fail("a tokenless request reached HTTP"),
+    )
     ok, err = github_auth.create_issue("o/r", "t", "b")
     assert not ok and "Not signed in" in err
 
@@ -77,15 +82,21 @@ def test_create_issue_without_token_fails(monkeypatch):
 def test_file_issue_uses_api_when_authenticated(monkeypatch):
     """The API path, with `create_issue` mocked.
 
-    This is precisely the path the in-test write guard blocks, and the guard
-    cannot tell a mocked `create_issue` from the real one -- that is why the
-    escape hatch exists. Set here, on the ONE test that drives the write
-    path deliberately, rather than file-wide: a blanket opt-out would also
-    re-arm every other test in this file against the live API.
+    The process-local transport seam admits this mocked flow without making a
+    real GitHub write possible.
     """
     from spacr.qt.ai import issue_report, github_auth
-    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
+    monkeypatch.setattr(
+        github_auth,
+        "_HTTP_OPEN",
+        lambda *a, **k: pytest.fail("a mocked report reached HTTP"),
+    )
     github_auth.set_stored_token("ghp_x")
+    monkeypatch.setattr(
+        github_auth,
+        "find_issue_by_fingerprint",
+        lambda repo, fingerprint: (True, None),
+    )
     monkeypatch.setattr(github_auth, "create_issue",
                         lambda *a, **k: (True, "https://github.com/o/r/issues/9"))
     opened = {"browser": False}
