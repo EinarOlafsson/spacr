@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import contextlib
 import fnmatch
+import html
 import json
 import shutil
 import subprocess
@@ -25,6 +26,7 @@ ENGLISH_CATALOG = (
 )
 REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
 REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+REAL_SYMBOL_COUNT = 8_817
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -93,6 +95,27 @@ window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
 <dl class="py function"><dt id="spacr.demo.run">run()</dt><dd>English body</dd></dl>
 </section></section>
 </article></main></body></html>""".encode()
+
+
+def _complete_catalog_page(
+    symbols: tuple[str, ...], harness: str, *, before_script: str = "",
+) -> bytes:
+    """One browser page whose AutoAPI-shaped definitions expose every key."""
+    definitions = "".join(
+        '<dl class="py"><dt id="{}"></dt><dd></dd></dl>'.format(
+            html.escape(symbol, quote=True),
+        )
+        for symbol in symbols
+    )
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>Complete API frontend fixture</title>
+<script>{before_script}</script>
+<script src="/api/api_i18n.js" data-api-catalog-version="unit-content-v1"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
+</script></head><body>
+<main><article role="main" id="furo-main-content">{definitions}</article></main>
+</body></html>""".encode()
 
 
 @contextlib.contextmanager
@@ -470,50 +493,94 @@ setTimeout(() => {
     assert not any(path.endswith("zh_CN.json") for path, _query in requests)
 
 
-@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Load and render all nine real 8,817-symbol payloads in one browser."""
-    harness = """
+    """Render the complete 8,817-symbol union for every real locale."""
+    assert CHROME, (
+        "Chrome/Chromium is required for the exhaustive API-catalog gate; "
+        "this required-CI assertion must not be skipped"
+    )
+    english = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
+    symbols = tuple(english["symbols"])
+    assert len(symbols) == REAL_SYMBOL_COUNT
+    assert len(set(symbols)) == REAL_SYMBOL_COUNT
+
+    harness = f"""
 const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
+const expectedCount = {REAL_SYMBOL_COUNT};
+const signatures = [...document.querySelectorAll('dl.py dt[id]')];
+const expectedKeys = new Set(signatures.map((signature) => signature.id));
 const seen = [];
 const select = document.querySelector('.spacr-api-language select');
 let position = 0;
-function chooseNext() {
-  if (position === languages.length) {
-    document.body.dataset.result = seen.join(',') === languages.join(',') ?
-      'pass' : 'fail';
+let polls = 0;
+
+function finish(result, reason = '') {{
+  document.body.dataset.result = result;
+  document.body.dataset.reason = reason;
+  document.body.dataset.rendered = seen.join(',');
+  document.querySelector('article[role="main"]').replaceChildren();
+}}
+
+function completePanels(language) {{
+  const panels = [...document.querySelectorAll('.spacr-api-translation')];
+  const renderedLanguage = language.replace('_', '-');
+  if (panels.length !== expectedCount ||
+      panels.some((panel) => panel.lang !== renderedLanguage)) return false;
+  const renderedKeys = new Set(panels.map((panel) => {{
+    const definition = panel.parentElement && panel.parentElement.previousElementSibling;
+    return definition ? definition.id : '';
+  }}));
+  return renderedKeys.size === expectedCount &&
+    [...expectedKeys].every((key) => renderedKeys.has(key));
+}}
+
+function chooseNext() {{
+  if (position === languages.length) {{
+    const wanted = languages.map((language) =>
+      `${{language}}:${{expectedCount}}`).join(',');
+    finish(seen.join(',') === wanted && window.unhandled === 0 ? 'pass' : 'fail',
+      window.unhandled === 0 ? '' : 'unhandled-rejection');
     return;
-  }
+  }}
   const language = languages[position];
   select.value = language;
   select.dispatchEvent(new Event('change'));
-  const poll = setInterval(() => {
-    const panels = [...document.querySelectorAll('.spacr-api-translation')];
-    const renderedLanguage = language.replace('_', '-');
-    if (select.value === language && panels.length === 2 &&
-        panels.every((panel) => panel.lang === renderedLanguage)) {
+  polls = 0;
+  const poll = setInterval(() => {{
+    polls += 1;
+    if (select.value === language && completePanels(language)) {{
       clearInterval(poll);
-      seen.push(language);
+      seen.push(`${{language}}:${{expectedCount}}`);
       position += 1;
       chooseNext();
-    }
-  }, 100);
-}
-chooseNext();
+    }} else if (select.value === 'en' || polls >= 600) {{
+      clearInterval(poll);
+      finish('fail', `${{language}}:${{select.value}}:${{polls}}`);
+    }}
+  }}, 100);
+}}
+if (signatures.length !== expectedCount || expectedKeys.size !== expectedCount) {{
+  finish('fail', `fixture:${{signatures.length}}:${{expectedKeys.size}}`);
+}} else {{
+  chooseNext();
+}}
 """
-    page = _page(harness).replace(
-        b"spacr.demo", b"spacr.qt.widgets.home"
-    ).replace(
-        b"spacr-demo", b"spacr-qt-widgets-home"
-    ).replace(
-        b"spacr.qt.widgets.home.run",
-        b"spacr.qt.widgets.home.SystemPanel",
-    )
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    page = _complete_catalog_page(symbols, harness, before_script=before)
     files = _real_browser_files(page)
     with _server(files) as (base, requests):
         dom = _dump_dom(f"{base}/api/page.html", budget=30_000)
 
     assert 'data-result="pass"' in dom
+    rendered = ",".join(
+        f"{language}:{REAL_SYMBOL_COUNT}" for language in REAL_LANGUAGES
+    )
+    assert f'data-rendered="{rendered}"' in dom
     requested = {path for path, _query in requests if path.endswith(".json")}
     assert {
         f"/api/i18n/api/{language}.json"
