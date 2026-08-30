@@ -33055,6 +33055,31 @@
       "source_sha256": "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132",
       "text": "Fill Explain CV's database or prediction input from one drop."
     },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "5c36b1f20aed26c7a0aef9c9315029d8033ed731a74d7c2bd230b7f2de6b5058",
+        "77b4196729e72f6598f0ab191b50dd544b06e8ce09d1b8237bc116c2ebeaa3f2",
+        "91ae125c2bebc666cd62444872c7c61b369f5baf3730049f7962db3b5a60ab36"
+      ],
+      "source_sha256": "c176b29cb7bfbd8233d813a8b871d98abd5f2eecad389d12e145301695d1e1e0",
+      "text": "Place ``path`` in Explain CV's database or prediction control.\n\n:param path: accepted database, project directory, or prediction CSV.\n:param screen: host screen exposing the ``explain`` input panel."
+    },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "f02cabad12657851210112db7444a0087ab0ff6512a9d7c0e8d32737991f81f3",
+        "f81f45b76e3894bab2331f7330ab79baa36ffdfaf486e04fc365282cf9c00141"
+      ],
+      "source_sha256": "a618c8ae0ecc95e2060730e6f2a694955406eb8689c109e77bf3c2f75df02a74",
+      "text": "Return whether ``path`` is an Explain CV database or CSV input.\n\n:param path: database, project directory, or prediction CSV to test."
+    },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "ea9e16a1bd336ef83ddda8deaa003231777d126f4bcc4ed2979c6ea0031c6727",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "e8c0976503f09763ae5558392dcc7640c12edee24ebd81f59a669551f0ea5ab1",
+      "text": "Explain why ``path`` is not an Explain CV input.\n\n:param path: rejected file or directory."
+    },
     "spacr.qt.dnd_handlers.ExternalMasksDropHandler": {
       "source_blocks_sha256": [
         "59e47b5cd04149450b07d31ea3362789f83dc4d09017d5429bfc5fac242696a8"
@@ -33171,6 +33196,31 @@
       "source_sha256": "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48",
       "text": "Fill Investigate Hit's provenance inputs without guessing a hit."
     },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "1c9893c86e430b1710ce988d6b1ed796272282de9a280d14462aa7bb110c7e67",
+        "3fe65eb9ae7231fcd460451a4c04e155516fe14b08df4c4621effcc3c7803260",
+        "3ec6ece4eb3b8e761754dcb58149dc13d9d5a08e1067effe5c070fee64369900"
+      ],
+      "source_sha256": "c8785e1cae58026271cf5eb4b0a2430a3d2e5a702107451fcdb195afcf3afee8",
+      "text": "Route ``path`` to the matching Investigate Hit control.\n\n:param path: accepted database, results directory, prediction CSV, or\n    guide-fraction CSV.\n:param screen: host screen exposing the ``investigate`` input panel."
+    },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "e87ef31b0931bae9f4b2e83055ed080d2d1846524f385ac21713fb32adc4b809",
+        "b66ca984bf18098c9e3c677791791d9cec31260b153a69eca51144653e82e47c"
+      ],
+      "source_sha256": "38c14f4ddee75030e0f135ae73b80e75d835035c166ca78b433fc391e2d2f5f7",
+      "text": "Return whether ``path`` can supply an Investigate Hit input.\n\n:param path: database, directory, prediction CSV, or fractions CSV to\n    test."
+    },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "68f4eb28dd372c8e8fcdf9ebc8a1df6aa9cbd3ab5858db0944a5061d79024593",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "1afd65a8071af4f37aee225f5e92e1ad9caca7efdb35ea552f07995d5fc28ec5",
+      "text": "Explain why ``path`` is not an Investigate Hit input.\n\n:param path: rejected file or directory."
+    },
     "spacr.qt.dnd_handlers.LabelMaskDropHandler": {
       "source_blocks_sha256": [
         "d472f66a7ebddd2889b62ae5e486cca08955bf414e3135fcba44e420b793bc62",
@@ -33262,10 +33312,11 @@
     },
     "spacr.qt.dnd_handlers.LayoutDropHandler.resolve": {
       "source_blocks_sha256": [
-        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131"
+        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
+        "2b018ef4000395e2e9ef2abbc917e8d7b74dfc46f8a89c0b2b808d7e2b328ea9"
       ],
-      "source_sha256": "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
-      "text": "Return the :class:`spacr.chaining.DropResolution` for ``path``."
+      "source_sha256": "55a65e3f3f54e3c5d431564649f4f162caf2112b4c672ec8346fab7d7a0f7245",
+      "text": "Return the :class:`spacr.chaining.DropResolution` for ``path``.\n\n:param path: dropped path to resolve against this handler's app and\n    artifact kinds."
     },
     "spacr.qt.dnd_handlers.LayoutDropHandler.suggest_alternatives": {
       "alias_of": "spacr.qt.dnd.DropHandler.suggest_alternatives",
@@ -33481,10 +33532,11 @@
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file": {
       "source_blocks_sha256": [
         "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
-        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd"
+        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd",
+        "6bfc4a60af343fb403743e0ae585c3c5e4a08318172cb70c1d2b07745dbda1bf"
       ],
-      "source_sha256": "075b8b19492d88bde6752791d8cce904ff7a43f53f3af26f174a94d532166065",
-      "text": "The database ``path`` names: itself, or the one under it.\n\nReturns ``None`` when there is no database file to be found, so a\ncaller can fall back rather than hand a folder to something that\nexpects to open a database."
+      "source_sha256": "cc0bfdf8a21c5d6830b48b59b82a0bc7e12faac9504a2f08a4d9d6d733005a84",
+      "text": "The database ``path`` names: itself, or the one under it.\n\nReturns ``None`` when there is no database file to be found, so a\ncaller can fall back rather than hand a folder to something that\nexpects to open a database.\n\n:param path: database file, measurements directory, or plate directory\n    to resolve."
     },
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.error_message": {
       "alias_of": "spacr.qt.dnd.DropHandler.error_message",
@@ -33657,6 +33709,31 @@
       ],
       "source_sha256": "a9a2a32254f6ae4d7cdcb070b2f92c4dc971a0aa36307cf0f5dabc3cbc2e7776",
       "text": "Regression's drop: a database to a plate row, CSVs to the sweep card.\n\nRegression takes its measurements one row per plate, which is what\n:class:`MeasurementsDropHandler` already does. It ALSO carries the\nparameter sweep as a card, and that card takes the sweep's two CSV lists\n-- per-object scores and gRNA counts -- which a measurements handler\nrejects outright because they are not ``measurements.db``.\n\nBoth halves have to answer at one drop target. The sweep no longer has a\ntile of its own, so the Regression screen is the ONLY place its inputs can\nbe dropped; without this, a dropped sweep bundle got \"needs a plate folder\nwith measurements/measurements.db\" and filled nothing.\n\nThe database shape is tried first: it is the screen's own input, and a\n``measurements.db`` is never one of the sweep's CSV lists, so the two\ncannot compete for the same path."
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.apply": {
+      "source_blocks_sha256": [
+        "2719579dfb308242ae61da8608877c4db93c488f2b9ed28a0a8a70bc7520088c",
+        "da8e60988c4e456e509acc8f9550648832fa275a35723d765e30d2ed08d365bd",
+        "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52"
+      ],
+      "source_sha256": "34b0ace6d154e4c217a09d79b11a97981835ba108649ffe3f23cab51aebe5331",
+      "text": "Attach ``path`` to a plate row or the embedded sweep card.\n\n:param path: accepted database, plate directory, sweep CSV, or sweep\n    directory.\n:param screen: Regression screen receiving the resolved input."
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "a6eff78d79275b0a029ef15867f51edb44c1088eba7eaba52ac40fb4fba3cfb7",
+        "dc8e56191a436e24c5fc7a7e933cde56469fd2b7efb9da2483b379393c550338"
+      ],
+      "source_sha256": "2d13b75b10dbb08a53687e8bd3508e939a8af1962374ff71f2e15bff7c0dbc40",
+      "text": "Return whether Regression can route ``path`` to either input area.\n\n:param path: database, plate directory, sweep CSV, or sweep directory\n    to classify."
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "b318de896f330dba1b0d9fa5054fc513bcf4d46d941a72cda554b918b6e6ed51",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "2092eadfac53e9c01e1aa0a3f51a017e67350f5f123567a9d093acc4afbaacb2",
+      "text": "Explain why ``path`` matches neither Regression input contract.\n\n:param path: rejected file or directory."
     },
     "spacr.qt.dnd_handlers.ReportDropHandler": {
       "source_blocks_sha256": [
@@ -33836,6 +33913,31 @@
       "source_sha256": "b0f1a114b593602ce549b688afedbabd5aaaf7d0193d0a881d2a38216d658406",
       "text": "Route dropped CSVs into Parameter Sweep's score and count lists.\n\nThe sweep takes the same two inputs the regression does, but holds them in\ntwo separate list widgets rather than one paired table, so the side has to\nbe decided before the file is added. It is decided the same way Regression\ndecides it -- from the CSV header, via\n:func:`spacr.qt.widgets.file_list.side_for_header` -- because a count table\nfiled as a score is not an error the user sees, it is a wrong sweep.\n\nA dropped FOLDER contributes the CSVs directly inside it, which is what\nmakes \"drop the plate folder\" work for a screen whose whole point is\nrunning many plates at once."
     },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "18af6180efff43df374ba4f3b841931f930b5377af66a4148ded58ab4ccaab17",
+        "85d608b05dea0e43ceaac08be358951936ac7df220f24d80990bbccf230c213a",
+        "054b2a0fe67bb73eccad27516cf74d2b1d9f7e53e98283720169ef58990ac422"
+      ],
+      "source_sha256": "9dfc9a1750b43f844e348d7ffa27cf5da547432a066e6d25cb599a8bab39eb43",
+      "text": "Route score and count CSVs from ``path`` to the sweep panel.\n\n:param path: accepted CSV file or directory of CSV files.\n:param screen: sweep panel or host screen carrying it on ``_sweep``."
+    },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "3813603aa7f9111c39669e53fac99d85da94fd6838d158a85fbdc37204c00ebd",
+        "cb5d46af85bcf33b7c816b04d4bb2486167d193df512d6e8536d92f264195aca"
+      ],
+      "source_sha256": "874f5a48d66b5d652a4578cf2910a6ddcdf0ffaa5b065ade51e5106e17412c77",
+      "text": "Return whether ``path`` contributes at least one sweep CSV.\n\n:param path: CSV file or directory whose immediate CSV children are\n    considered."
+    },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "6ede5bc087b43668920928ed7be12e922a49c88b7973fc37ff05a2399ed9e7fd",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "0d9100843dd602f6a6217391f7a9ea26db2b52d6d708b246b95e3079ba635b01",
+      "text": "Explain why ``path`` cannot populate the sweep inputs.\n\n:param path: rejected file or directory."
+    },
     "spacr.qt.dnd_handlers.TableDropHandler": {
       "source_blocks_sha256": [
         "e92b9d601102f452f0ab2ce4a1b1ffbfe704fe423f949b22d16bfe177dbbd4a9",
@@ -33888,52 +33990,58 @@
     },
     "spacr.qt.dnd_handlers.active_scan_jobs": {
       "source_blocks_sha256": [
-        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62"
+        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
+        "514945bd0625064a4b89fa8d191b5b2b28474ea1afbe69dd4edd0b9ecd3b1c3a"
       ],
-      "source_sha256": "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
-      "text": "How many folder-scan threads ``screen`` still owns."
+      "source_sha256": "eb38c16cd4c03b5545fb2d2a4834e6247a9f8aecf0d6f16f482bdfa221244021",
+      "text": "How many folder-scan threads ``screen`` still owns.\n\n:param screen: screen whose active drop-scan jobs are counted."
     },
     "spacr.qt.dnd_handlers.get_handler": {
       "source_blocks_sha256": [
         "1f8eae40b9d84cbabc08863b511498a911f4fb23158f8d8cc24c96ca738b7c58",
-        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284"
+        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284",
+        "533412d2efa300868215a0bb0661bc5e51ddea1fcf564b1a686df7da9715f1af"
       ],
-      "source_sha256": "8bff9ed9167d4967c24863c014c1ebf6d610d91e212eeae0cfc83f16521b6d75",
-      "text": "Return a fresh DropHandler for ``app_key``.\n\nFalls back to :class:`SourceDropHandler` so every conventional AppScreen\ncan at least receive its source folder."
+      "source_sha256": "15c6f8d736e81c6e93cece19043d5eae23b563d12e1116f4c3001736c10994a6",
+      "text": "Return a fresh DropHandler for ``app_key``.\n\nFalls back to :class:`SourceDropHandler` so every conventional AppScreen\ncan at least receive its source folder.\n\n:param app_key: registered built-in or plugin application key whose drop\n    policy is requested."
     },
     "spacr.qt.dnd_handlers.scan_folder_structure": {
       "source_blocks_sha256": [
         "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
         "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
         "421d1910302a626ceefd4424cce563462dadbc6a3d4b448bbf4d6bbc8a3864e1",
+        "fb2ff69e03d247a16d8b8480c534e3f9a70d848fbcf63e5d5bef42db3204d9ec",
         "47f2cd5acbdbffeb8c1830b95fe4bc4ac149ca479e97ec41afdbb8b3ff3bf308"
       ],
-      "source_sha256": "7fc9a1d9e8da13411595ce5bcc7b21d08eb815ed07d34141f5179ee1db8a7241",
-      "text": "Walk a dropped folder ONCE and return the folder-metadata report.\n\nWorker-safe: plain data in, plain data out, nothing Qt. The single walk\nis the point. This replaced three walks of the same tree —\n``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another\nand called ``detect_folder_metadata`` again for a third — all on the GUI\nthread, all inside the drop event.\n\nThe probe is pulled off the *same* lazy generator the planner then drains,\nso a folder whose layout is not recognisable costs 30 files, not a\ntraversal.\n\n:returns: ``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty\n    ``labels`` means no folder layout was recognised and there is nothing\n    to report."
+      "source_sha256": "cdf474ef61f41ad06ed128002b793975a24db7fdd0a5c05a6afd52187081d948",
+      "text": "Walk a dropped folder ONCE and return the folder-metadata report.\n\nWorker-safe: plain data in, plain data out, nothing Qt. The single walk\nis the point. This replaced three walks of the same tree —\n``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another\nand called ``detect_folder_metadata`` again for a third — all on the GUI\nthread, all inside the drop event.\n\nThe probe is pulled off the *same* lazy generator the planner then drains,\nso a folder whose layout is not recognisable costs 30 files, not a\ntraversal.\n\n:param path: dropped directory to inspect for a recognised image layout.\n:returns: ``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty\n    ``labels`` means no folder layout was recognised and there is nothing\n    to report."
     },
     "spacr.qt.dnd_handlers.scan_is_busy": {
       "source_blocks_sha256": [
-        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446"
+        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
+        "82ce9dd96e783d0b4224d0b432af1d1c93081212de27ab8ef9c934b2fb517901"
       ],
-      "source_sha256": "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
-      "text": "True while a dropped folder is still being walked for ``screen``."
+      "source_sha256": "3f63eba0d106ee90702a9c02b498f1719333e19d74797bcf312c697d9254ccec",
+      "text": "True while a dropped folder is still being walked for ``screen``.\n\n:param screen: screen that owns the drop scanner to query."
     },
     "spacr.qt.dnd_handlers.scan_mask_folder": {
       "source_blocks_sha256": [
         "08a963da5589e147217fc65fea3981cb54125ea1c237a2e6038f8cdcedae56d2",
-        "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd"
+        "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd",
+        "6f58a6be3c4d5180b9198398fec6d3ae6de4b350d62e02dfc9f1a1518cca5958"
       ],
-      "source_sha256": "ee16a1d64b179c05c3c55f879683cddfa1c358312b545db97c3d92e2031d039b",
-      "text": "List the top level of a dropped folder once. Worker-safe.\n\nReturns the filenames the regex preview samples plus the total image\ncount the report quotes. Both used to come from two separate listings of\nthe same directory, taken on the GUI thread."
+      "source_sha256": "07a83f816deac9b8d8bfe5187cb1640b001c9e635ee9dfbe56ac3db3928a3d50",
+      "text": "List the top level of a dropped folder once. Worker-safe.\n\nReturns the filenames the regex preview samples plus the total image\ncount the report quotes. Both used to come from two separate listings of\nthe same directory, taken on the GUI thread.\n\n:param path: dropped directory whose top-level files are inspected."
     },
     "spacr.qt.dnd_handlers.table_names": {
       "source_blocks_sha256": [
         "27fff98bed3f12b33e0e522e737a3d047041ba47c5f9ad92b98c2dad7288e755",
         "bc903bbc38ad17e7f3fa76466efe634320fcca1d103661e435e06a1e5ed59298",
-        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd"
+        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd",
+        "13b301d0b4fbdb6223f18f76496a7ab00b382733de1ee56c4331a6ff94d305ee"
       ],
-      "source_sha256": "1a2552a987c3a02d2df0f386cc64e58a6f74e30bf4f1020b182d022346e49f1d",
-      "text": "Return the tables in a SQLite file, or ``[]`` for anything else.\n\nOne ``sqlite_master`` query; the table screens make the same one when they\nload. Kept here so the drop can *ask* which table rather than let\n``load_path`` take the first one silently.\n\nOpened read-only, and through a *quoted* URI: a folder with a ``?`` or a\n``#`` in its name would otherwise have everything after it read as query\nparameters, and the open would fail on a database that is perfectly fine."
+      "source_sha256": "2402c164233101231ae49ae53a9c195426fcbf53df859feca13c8f8fd7661648",
+      "text": "Return the tables in a SQLite file, or ``[]`` for anything else.\n\nOne ``sqlite_master`` query; the table screens make the same one when they\nload. Kept here so the drop can *ask* which table rather than let\n``load_path`` take the first one silently.\n\nOpened read-only, and through a *quoted* URI: a folder with a ``?`` or a\n``#`` in its name would otherwise have everything after it read as query\nparameters, and the open would fail on a database that is perfectly fine.\n\n:param path: candidate SQLite database path to inspect read-only."
     },
     "spacr.qt.first_run": {
       "source_blocks_sha256": [
@@ -60769,10 +60877,15 @@
     "spacr.qt.widgets.gate_spec.ThresholdGate": {
       "source_blocks_sha256": [
         "c05b39fc2334ae8978b0e57fc8fa2db2f34c6659c01d9140bbc58ccf989e487b",
-        "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd"
+        "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd",
+        "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+        "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+        "eba9ef56f5abf92892c76aee2ba22ac976efa41ed6580a54f590031df002514c",
+        "c8467e621a07a4cd343a1b14b35b732429720837b42b944edd909d1ac34d06cf",
+        "f3dba538039ff05a02f59d2bdb486df5a7b83019d2fe91360518c9b827dae5ba"
       ],
-      "source_sha256": "51ba01fdc117f90165f1848f552fcf5a49f4965d2f36a5bed3822893ecd4ff84",
-      "text": "A cut on one column — the line dragged across a histogram.\n\n``None`` on a bound means unbounded on that side, which is what a threshold\ndragged to the edge should mean rather than \"exclude everything\". At least\none bound is required: a gate with neither is the whole population, and\nnaming that is a way to lose track of it."
+      "source_sha256": "755e306188e346c1ea5f22accdc3527b3080bbab5b2e11e947a0173626893b06",
+      "text": "A cut on one column — the line dragged across a histogram.\n\n``None`` on a bound means unbounded on that side, which is what a threshold\ndragged to the edge should mean rather than \"exclude everything\". At least\none bound is required: a gate with neither is the whole population, and\nnaming that is a way to lose track of it.\n\n:param name: unique name by which the hierarchy and filter identify this\n    gate.\n:param parent: name of the gate containing this one, or ``None`` for a\n    root gate.\n:param column: measurement column on which to apply the threshold.\n:param low: inclusive lower bound, or ``None`` when the gate is unbounded\n    below.\n:param high: inclusive upper bound, or ``None`` when the gate is unbounded\n    above."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.centre": {
       "alias_of": "spacr.qt.widgets.gate_spec.Gate.centre",
@@ -60786,10 +60899,21 @@
     "spacr.qt.widgets.gate_spec.ThresholdGate.handles": {
       "source_blocks_sha256": [
         "e9e4ac75806a2c176328dc44bd8df01a91a0ea476c391787f118e8897b5d2987",
-        "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5"
+        "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5",
+        "cf09b0f7ecfda02131c44d46ac500e916d34e99836a74789d234036905e344bd",
+        "8ea3174d36a18f03e471bbe1b6cce1c6c766452c30cf3a252f5ce9481db9d6f6"
       ],
-      "source_sha256": "88a336ce0857219d99c2245e4f335f6dee4ff07f9ae8dfe65ad483059dbd98d9",
-      "text": "One anchor per bound, at the middle of the view's height.\n\nAn unbounded side gets no handle. A threshold with no upper bound is\nopen to infinity, and an anchor at the edge of the view would look\nlike a bound the gate does not have -- the user would drag it and\ndiscover they had just invented one."
+      "source_sha256": "76dcb33b79f9b6e28ab205120bf982205c32610b3c04962c0b5267bed5df7a41",
+      "text": "One anchor per bound, at the middle of the view's height.\n\nAn unbounded side gets no handle. A threshold with no upper bound is\nopen to infinity, and an anchor at the edge of the view would look\nlike a bound the gate does not have -- the user would drag it and\ndiscover they had just invented one.\n\n:param view: visible ``(x_low, x_high, y_low, y_high)`` limits used to\n    place each bound handle vertically.\n:returns: one handle for every finite bound."
+    },
+    "spacr.qt.widgets.gate_spec.ThresholdGate.mask": {
+      "source_blocks_sha256": [
+        "1e89a0f6f119364299e3e3a69c5e176f00946d1fed43119603554e90f8291428",
+        "dfc78773eb37ff53509e23d3b259b70e98120f023b80e4c21c783d100b1b859c",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
+      ],
+      "source_sha256": "f873be48ccf7b96a5de85ef5f47c7b062e716b272fe2c6529f2f62db43848029",
+      "text": "Select finite values that lie within the inclusive bounds.\n\n:param frame: measurement table containing this gate's column.\n:returns: boolean mask aligned row-for-row with ``frame``."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.range_filters": {
       "alias_of": "spacr.qt.widgets.gate_spec.Gate.range_filters",
@@ -60813,10 +60937,12 @@
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.translated": {
       "source_blocks_sha256": [
-        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9"
+        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9",
+        "193eef38d318e3ff78dff268d1f200a6d52df84f9e54f7565a7e1c5e0aa572f1",
+        "61064fc2636e1a7aa59fa2a4091bac488d2b1543954dd3377b663e19d42241e8"
       ],
-      "source_sha256": "ccd1113ec8bc219e1471cf4733b1d55e72c4816fb261dd66abd8c71feec1859e",
-      "text": "``dy`` is ignored: a threshold is a cut on ONE column, so it has\nno second axis to move along."
+      "source_sha256": "abb8449479481ca9532535c9e1de05dd4b10e8dc4787ec924d9007f439c09071",
+      "text": "``dy`` is ignored: a threshold is a cut on ONE column, so it has\nno second axis to move along.\n\n:param dx: displacement to add to each finite threshold bound.\n:param dy: vertical displacement, ignored by this one-column gate."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle": {
       "alias_of": "spacr.qt.widgets.gate_spec.Gate.with_handle",
@@ -60830,6 +60956,16 @@
       ],
       "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
       "text": "Return this gate with the ``role`` anchor moved to ``(x, y)``.\n\n:param role: a role from :meth:`handles`.\n:param x: the new position along the gate's x measurement.\n:param y: along its y measurement.\n:returns: a new gate, or ``self`` when the drag would collapse the\n    shape. Refusing beats raising here: this runs on mouse-release,\n    and a gate that snaps back is a clear \"that is too small\" while\n    a traceback out of an event handler is not.\n:raises GateError: a role this gate does not have, which is a bug in\n    the caller rather than something the user did."
+    },
+    "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold": {
+      "source_blocks_sha256": [
+        "51599d23aa1a7bfec819c303965c4e546a6f60760151349e338b2e5e6eb46f22",
+        "fcc7c7c3a666891f9313e139a74983642cf1b88e3995489dd9366c4e9f5e3075",
+        "d74d4682f1e3f4707eb348a6ee15f02f697326a6627f4be3c5341e4b4d75458c",
+        "e22ed2416f6550ace2e002654c5baf9ff9cec02374a8cc0f737d2b5d52003669"
+      ],
+      "source_sha256": "20504d06a347f3e291d57070b47076b10c861f9537795e182fe0c3acd912336b",
+      "text": "Return this gate with replacement bounds on its column.\n\n:param column: measurement column whose bounds are being changed; a\n    different column is rejected because this gate cannot represent\n    it.\n:param low: inclusive lower bound, or ``None`` for an open lower end.\n:param high: inclusive upper bound, or ``None`` for an open upper end."
     },
     "spacr.qt.widgets.gate_spec.WandError": {
       "source_blocks_sha256": [

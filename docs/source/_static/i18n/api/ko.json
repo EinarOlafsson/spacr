@@ -53294,6 +53294,44 @@
         "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132"
       ]
     },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "5c36b1f20aed26c7a0aef9c9315029d8033ed731a74d7c2bd230b7f2de6b5058",
+        "77b4196729e72f6598f0ab191b50dd544b06e8ce09d1b8237bc116c2ebeaa3f2",
+        "91ae125c2bebc666cd62444872c7c61b369f5baf3730049f7962db3b5a60ab36"
+      ],
+      "source_sha256": "c176b29cb7bfbd8233d813a8b871d98abd5f2eecad389d12e145301695d1e1e0",
+      "text": "``path``를 Explain CV의 데이터베이스 또는 예측 컨트롤에 설정합니다.\n\n:param path: 허용되는 데이터베이스, 프로젝트 디렉터리 또는 예측 CSV 파일입니다.\n:param screen: ``explain`` 입력 패널을 표시하는 호스트 화면입니다.",
+      "translation_source_blocks_sha256": [
+        "5c36b1f20aed26c7a0aef9c9315029d8033ed731a74d7c2bd230b7f2de6b5058",
+        "77b4196729e72f6598f0ab191b50dd544b06e8ce09d1b8237bc116c2ebeaa3f2",
+        "91ae125c2bebc666cd62444872c7c61b369f5baf3730049f7962db3b5a60ab36"
+      ]
+    },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "f02cabad12657851210112db7444a0087ab0ff6512a9d7c0e8d32737991f81f3",
+        "f81f45b76e3894bab2331f7330ab79baa36ffdfaf486e04fc365282cf9c00141"
+      ],
+      "source_sha256": "a618c8ae0ecc95e2060730e6f2a694955406eb8689c109e77bf3c2f75df02a74",
+      "text": "``path``가 Explain CV 데이터베이스 또는 CSV 입력인지 반환합니다.\n\n:param path: 검사할 데이터베이스, 프로젝트 디렉터리 또는 예측 CSV 파일입니다.",
+      "translation_source_blocks_sha256": [
+        "f02cabad12657851210112db7444a0087ab0ff6512a9d7c0e8d32737991f81f3",
+        "f81f45b76e3894bab2331f7330ab79baa36ffdfaf486e04fc365282cf9c00141"
+      ]
+    },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "ea9e16a1bd336ef83ddda8deaa003231777d126f4bcc4ed2979c6ea0031c6727",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "e8c0976503f09763ae5558392dcc7640c12edee24ebd81f59a669551f0ea5ab1",
+      "text": "``path``가 Explain CV 입력이 아닌 이유를 설명합니다.\n\n:param path: 거부된 파일 또는 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "ea9e16a1bd336ef83ddda8deaa003231777d126f4bcc4ed2979c6ea0031c6727",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ]
+    },
     "spacr.qt.dnd_handlers.ExternalMasksDropHandler": {
       "source_blocks_sha256": [
         "59e47b5cd04149450b07d31ea3362789f83dc4d09017d5429bfc5fac242696a8"
@@ -53455,6 +53493,44 @@
         "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48"
       ]
     },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "1c9893c86e430b1710ce988d6b1ed796272282de9a280d14462aa7bb110c7e67",
+        "3fe65eb9ae7231fcd460451a4c04e155516fe14b08df4c4621effcc3c7803260",
+        "3ec6ece4eb3b8e761754dcb58149dc13d9d5a08e1067effe5c070fee64369900"
+      ],
+      "source_sha256": "c8785e1cae58026271cf5eb4b0a2430a3d2e5a702107451fcdb195afcf3afee8",
+      "text": "``path``를 일치하는 Investigate Hit 컨트롤로 라우팅합니다.\n\n:param path: 허용되는 데이터베이스, 결과 디렉터리, 예측 CSV 파일 또는 가이드 분율 CSV 파일입니다.\n:param screen: ``investigate`` 입력 패널을 표시하는 호스트 화면입니다.",
+      "translation_source_blocks_sha256": [
+        "1c9893c86e430b1710ce988d6b1ed796272282de9a280d14462aa7bb110c7e67",
+        "3fe65eb9ae7231fcd460451a4c04e155516fe14b08df4c4621effcc3c7803260",
+        "3ec6ece4eb3b8e761754dcb58149dc13d9d5a08e1067effe5c070fee64369900"
+      ]
+    },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "e87ef31b0931bae9f4b2e83055ed080d2d1846524f385ac21713fb32adc4b809",
+        "b66ca984bf18098c9e3c677791791d9cec31260b153a69eca51144653e82e47c"
+      ],
+      "source_sha256": "38c14f4ddee75030e0f135ae73b80e75d835035c166ca78b433fc391e2d2f5f7",
+      "text": "``path``가 Investigate Hit 입력을 제공할 수 있는지 반환합니다.\n\n:param path: 검사할 데이터베이스, 디렉터리, 예측 CSV 파일 또는 가이드 분율 CSV 파일입니다.",
+      "translation_source_blocks_sha256": [
+        "e87ef31b0931bae9f4b2e83055ed080d2d1846524f385ac21713fb32adc4b809",
+        "b66ca984bf18098c9e3c677791791d9cec31260b153a69eca51144653e82e47c"
+      ]
+    },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "68f4eb28dd372c8e8fcdf9ebc8a1df6aa9cbd3ab5858db0944a5061d79024593",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "1afd65a8071af4f37aee225f5e92e1ad9caca7efdb35ea552f07995d5fc28ec5",
+      "text": "``path``가 Investigate Hit 입력이 아닌 이유를 설명합니다.\n\n:param path: 거부된 파일 또는 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "68f4eb28dd372c8e8fcdf9ebc8a1df6aa9cbd3ab5858db0944a5061d79024593",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ]
+    },
     "spacr.qt.dnd_handlers.LabelMaskDropHandler": {
       "source_blocks_sha256": [
         "d472f66a7ebddd2889b62ae5e486cca08955bf414e3135fcba44e420b793bc62",
@@ -53589,12 +53665,14 @@
     },
     "spacr.qt.dnd_handlers.LayoutDropHandler.resolve": {
       "source_blocks_sha256": [
-        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131"
+        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
+        "2b018ef4000395e2e9ef2abbc917e8d7b74dfc46f8a89c0b2b808d7e2b328ea9"
       ],
-      "source_sha256": "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
-      "text": "다시 돌아오게 하소서 :class:`spacr.chaining.DropResolution` 에 대 한 ``path``.",
+      "source_sha256": "55a65e3f3f54e3c5d431564649f4f162caf2112b4c672ec8346fab7d7a0f7245",
+      "text": ":class:`spacr.chaining.DropResolution`을 반환합니다. 이 객체는 ``path``에 대한 해석 결과입니다.\n\n:param path: 이 핸들러가 지원하는 앱 및 아티팩트 종류에 따라 해석할 드롭된 경로입니다.",
       "translation_source_blocks_sha256": [
-        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131"
+        "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
+        "2b018ef4000395e2e9ef2abbc917e8d7b74dfc46f8a89c0b2b808d7e2b328ea9"
       ]
     },
     "spacr.qt.dnd_handlers.LayoutDropHandler.suggest_alternatives": {
@@ -53898,13 +53976,15 @@
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file": {
       "source_blocks_sha256": [
         "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
-        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd"
+        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd",
+        "6bfc4a60af343fb403743e0ae585c3c5e4a08318172cb70c1d2b07745dbda1bf"
       ],
-      "source_sha256": "075b8b19492d88bde6752791d8cce904ff7a43f53f3af26f174a94d532166065",
-      "text": "데이터베이스 ``path`` 이름 : 그 자체 또는 그 아래의 이름.\n\n찾을 수 있는 데이터베이스 파일이 없을 때 ``None``로 돌아가서, 대신 폴더를 열기를 기대하는 사람에게 전달하는 대신 호출자가 뒤로 떨어질 수 있습니다.",
+      "source_sha256": "cc0bfdf8a21c5d6830b48b59b82a0bc7e12faac9504a2f08a4d9d6d733005a84",
+      "text": "``path``가 가리키는 데이터베이스, 즉 경로 자체 또는 그 아래의 데이터베이스입니다.\n\n데이터베이스 파일을 찾을 수 없으면 ``None``을 반환합니다. 그러면 데이터베이스 파일을 열 것으로 예상하는 코드에 폴더를 넘기는 대신 호출자가 다른 방법을 선택할 수 있습니다.\n\n:param path: 해석할 데이터베이스 파일, 측정 디렉터리 또는 마이크로플레이트 디렉터리입니다.",
       "translation_source_blocks_sha256": [
         "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
-        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd"
+        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd",
+        "6bfc4a60af343fb403743e0ae585c3c5e4a08318172cb70c1d2b07745dbda1bf"
       ]
     },
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.error_message": {
@@ -54150,6 +54230,44 @@
         "7419d2c065bfa10f0d18a24919050ad34af2d31f6f50b34fde4368c73ecf4a6c",
         "d4ea27eb4a772496b39dac8d60f3b76c666831d0dbe3b6e256772b2befa48d39",
         "2ef322d9f34d248c3873786d8185fa9d9d9edefbe33aaa5a2cf263a78358641a"
+      ]
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.apply": {
+      "source_blocks_sha256": [
+        "2719579dfb308242ae61da8608877c4db93c488f2b9ed28a0a8a70bc7520088c",
+        "da8e60988c4e456e509acc8f9550648832fa275a35723d765e30d2ed08d365bd",
+        "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52"
+      ],
+      "source_sha256": "34b0ace6d154e4c217a09d79b11a97981835ba108649ffe3f23cab51aebe5331",
+      "text": "``path``를 마이크로플레이트에 해당하는 행 또는 내장된 파라미터 스윕 카드에 연결합니다.\n\n:param path: 허용되는 데이터베이스, 마이크로플레이트 디렉터리, 파라미터 스윕 CSV 파일 또는 파라미터 스윕 디렉터리입니다.\n:param screen: 해석된 입력을 받는 Regression 애플리케이션 화면입니다.",
+      "translation_source_blocks_sha256": [
+        "32874b9e2a37337283f98bd2bf2477daf43f4a46514407f6dbe616525d8ac497",
+        "da8e60988c4e456e509acc8f9550648832fa275a35723d765e30d2ed08d365bd",
+        "eaac6b7538f677e9dae6fba4cf567081e37c744ff65006a81be428f392c9fb9d"
+      ]
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "a6eff78d79275b0a029ef15867f51edb44c1088eba7eaba52ac40fb4fba3cfb7",
+        "dc8e56191a436e24c5fc7a7e933cde56469fd2b7efb9da2483b379393c550338"
+      ],
+      "source_sha256": "2d13b75b10dbb08a53687e8bd3508e939a8af1962374ff71f2e15bff7c0dbc40",
+      "text": "Regression이 ``path``를 두 입력 영역 중 하나로 라우팅할 수 있는지 반환합니다.\n\n:param path: 분류할 데이터베이스, 마이크로플레이트 디렉터리, 파라미터 스윕 CSV 파일 또는 파라미터 스윕 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "a6eff78d79275b0a029ef15867f51edb44c1088eba7eaba52ac40fb4fba3cfb7",
+        "dc8e56191a436e24c5fc7a7e933cde56469fd2b7efb9da2483b379393c550338"
+      ]
+    },
+    "spacr.qt.dnd_handlers.RegressionDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "b318de896f330dba1b0d9fa5054fc513bcf4d46d941a72cda554b918b6e6ed51",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "2092eadfac53e9c01e1aa0a3f51a017e67350f5f123567a9d093acc4afbaacb2",
+      "text": "``path``가 Regression의 어느 입력 규약과도 일치하지 않는 이유를 설명합니다.\n\n:param path: 거부된 파일 또는 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "b318de896f330dba1b0d9fa5054fc513bcf4d46d941a72cda554b918b6e6ed51",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
       ]
     },
     "spacr.qt.dnd_handlers.ReportDropHandler": {
@@ -54406,6 +54524,44 @@
         "c38e9176f4b2daf33859a667999f024a75cc5da2e4e29ad0c8630a8d038329b9"
       ]
     },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply": {
+      "source_blocks_sha256": [
+        "18af6180efff43df374ba4f3b841931f930b5377af66a4148ded58ab4ccaab17",
+        "85d608b05dea0e43ceaac08be358951936ac7df220f24d80990bbccf230c213a",
+        "054b2a0fe67bb73eccad27516cf74d2b1d9f7e53e98283720169ef58990ac422"
+      ],
+      "source_sha256": "9dfc9a1750b43f844e348d7ffa27cf5da547432a066e6d25cb599a8bab39eb43",
+      "text": "``path``에 있는 점수 및 카운트 CSV 파일을 파라미터 스윕 패널로 라우팅합니다.\n\n:param path: 허용되는 CSV 파일 또는 CSV 파일이 있는 디렉터리입니다.\n:param screen: 파라미터 스윕 패널 또는 ``_sweep`` 속성으로 이 패널을 보유한 호스트 화면입니다.",
+      "translation_source_blocks_sha256": [
+        "18af6180efff43df374ba4f3b841931f930b5377af66a4148ded58ab4ccaab17",
+        "85d608b05dea0e43ceaac08be358951936ac7df220f24d80990bbccf230c213a",
+        "054b2a0fe67bb73eccad27516cf74d2b1d9f7e53e98283720169ef58990ac422"
+      ]
+    },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept": {
+      "source_blocks_sha256": [
+        "3813603aa7f9111c39669e53fac99d85da94fd6838d158a85fbdc37204c00ebd",
+        "cb5d46af85bcf33b7c816b04d4bb2486167d193df512d6e8536d92f264195aca"
+      ],
+      "source_sha256": "874f5a48d66b5d652a4578cf2910a6ddcdf0ffaa5b065ade51e5106e17412c77",
+      "text": "``path``가 파라미터 스윕용 CSV 파일을 하나 이상 제공하는지 반환합니다.\n\n:param path: CSV 파일 또는 바로 아래에 있는 CSV 파일만 고려하는 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "3813603aa7f9111c39669e53fac99d85da94fd6838d158a85fbdc37204c00ebd",
+        "cb5d46af85bcf33b7c816b04d4bb2486167d193df512d6e8536d92f264195aca"
+      ]
+    },
+    "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message": {
+      "source_blocks_sha256": [
+        "6ede5bc087b43668920928ed7be12e922a49c88b7973fc37ff05a2399ed9e7fd",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ],
+      "source_sha256": "0d9100843dd602f6a6217391f7a9ea26db2b52d6d708b246b95e3079ba635b01",
+      "text": "``path``가 파라미터 스윕 입력을 채울 수 없는 이유를 설명합니다.\n\n:param path: 거부된 파일 또는 디렉터리입니다.",
+      "translation_source_blocks_sha256": [
+        "6ede5bc087b43668920928ed7be12e922a49c88b7973fc37ff05a2399ed9e7fd",
+        "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896"
+      ]
+    },
     "spacr.qt.dnd_handlers.TableDropHandler": {
       "source_blocks_sha256": [
         "e92b9d601102f452f0ab2ce4a1b1ffbfe704fe423f949b22d16bfe177dbbd4a9",
@@ -54480,24 +54636,28 @@
     },
     "spacr.qt.dnd_handlers.active_scan_jobs": {
       "source_blocks_sha256": [
-        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62"
+        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
+        "514945bd0625064a4b89fa8d191b5b2b28474ea1afbe69dd4edd0b9ecd3b1c3a"
       ],
-      "source_sha256": "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
-      "text": "폴더 스캔 트레일 ``screen``이 여전히 얼마나 소유하고 있는지.",
+      "source_sha256": "eb38c16cd4c03b5545fb2d2a4834e6247a9f8aecf0d6f16f482bdfa221244021",
+      "text": "``screen``이 아직 소유한 폴더 스캔 스레드 수입니다.\n\n:param screen: 활성 드롭 스캔 작업 수를 계산할 애플리케이션 화면입니다.",
       "translation_source_blocks_sha256": [
-        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62"
+        "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
+        "0a0855b8e5bd65ad3b8ef90e556753d31e7b7c493b1697a5b6d26dd247ff0504"
       ]
     },
     "spacr.qt.dnd_handlers.get_handler": {
       "source_blocks_sha256": [
         "1f8eae40b9d84cbabc08863b511498a911f4fb23158f8d8cc24c96ca738b7c58",
-        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284"
+        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284",
+        "533412d2efa300868215a0bb0661bc5e51ddea1fcf564b1a686df7da9715f1af"
       ],
-      "source_sha256": "8bff9ed9167d4967c24863c014c1ebf6d610d91e212eeae0cfc83f16521b6d75",
-      "text": "신선한 DropHandler를 ``app_key``로 반환합니다.\n\n:class:`SourceDropHandler`로 돌아가는 경우, 모든 일반 AppScreen은 적어도 그것의 소스 폴더를 받을 수 있습니다.",
+      "source_sha256": "15c6f8d736e81c6e93cece19043d5eae23b563d12e1116f4c3001736c10994a6",
+      "text": "``app_key``용 새 DropHandler를 반환합니다.\n\n일치하는 항목이 없으면 :class:`SourceDropHandler`로 대체하여 모든 일반적인 AppScreen이 최소한 자체 소스 폴더를 받을 수 있게 합니다.\n\n:param app_key: 드롭 정책을 요청할 등록된 내장 또는 플러그인 애플리케이션 키입니다.",
       "translation_source_blocks_sha256": [
         "1f8eae40b9d84cbabc08863b511498a911f4fb23158f8d8cc24c96ca738b7c58",
-        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284"
+        "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284",
+        "533412d2efa300868215a0bb0661bc5e51ddea1fcf564b1a686df7da9715f1af"
       ]
     },
     "spacr.qt.dnd_handlers.scan_folder_structure": {
@@ -54505,51 +54665,59 @@
         "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
         "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
         "421d1910302a626ceefd4424cce563462dadbc6a3d4b448bbf4d6bbc8a3864e1",
+        "fb2ff69e03d247a16d8b8480c534e3f9a70d848fbcf63e5d5bef42db3204d9ec",
         "47f2cd5acbdbffeb8c1830b95fe4bc4ac149ca479e97ec41afdbb8b3ff3bf308"
       ],
-      "source_sha256": "7fc9a1d9e8da13411595ce5bcc7b21d08eb815ed07d34141f5179ee1db8a7241",
-      "text": "떨어진 폴더를 한 번 걷고 폴더 메타 데이터 보고서를 반환합니다.\n\n노동자 안전: 똑바로 데이터를 입력하고, 깔끔한 데이터를 제거하고, 아무것도 Qt. 단일 걷는 것은 포인트입니다.이것은 동일한 나무의 3 개의 걷기를 대체했습니다. ``detect_folder_metadata``는 하나를 만들었고, ``plan_folder_extraction``는 다른 것을 만들었고 다시 ``detect_folder_metadata``를 호출했습니다. - 모두 주요 GUI 실행 경로, 모두 떨어지는 이벤트 내에서.\n\n탐색기는 *제너터에서 30 개의 입력을 소비합니다. planner*에 의해 섭취됩니다. 따라서 인식되지 않은 폴더는 완전한 크로스가 아닌 30 파일 만 비용을 지불합니다.\n\n:returns: ``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. 빈 ``labels``은 폴더 배열이 인식되지 않았으며 보고할 것이 없습니다.",
+      "source_sha256": "cdf474ef61f41ad06ed128002b793975a24db7fdd0a5c05a6afd52187081d948",
+      "text": "드롭된 폴더를 한 번만 순회하고 폴더 메타데이터 보고서를 반환합니다.\n\n작업자 스레드에서 안전합니다. 일반 데이터가 들어오고 일반 데이터가 나가며 Qt 객체를 다루지 않습니다. 한 번만 순회하는 것이 핵심입니다. 이는 같은 트리를 세 번 순회하던 방식을 대체했습니다 — ``detect_folder_metadata``가 한 번, ``plan_folder_extraction``이 또 한 번 순회한 뒤 ``detect_folder_metadata``를 다시 호출해 세 번째로 순회했습니다 — 모두 GUI 스레드의 드롭 이벤트 안에서 수행되었습니다.\n\n탐색은 플래너가 이어서 모두 소비하는 *동일한* 지연 생성기에서 가져옵니다. 따라서 폴더의 레이아웃을 인식할 수 없으면 전체를 순회하지 않고 파일 30개만 확인합니다.\n\n:param path: 인식 가능한 이미지 레이아웃인지 검사할 드롭된 디렉터리입니다.\n:returns: ``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``입니다. 빈 ``labels``는 인식된 폴더 레이아웃이 없어 보고할 내용도 없다는 뜻입니다.",
       "translation_source_blocks_sha256": [
         "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
         "735d566ab290c0d2b879102d0506e852bbaac3d3d68a87810f29c30d833875a1",
         "6b2ca2535c8f69f5e065b808a14c41fa71d2b8c6fa318f1e505837ffec2ef917",
+        "fb2ff69e03d247a16d8b8480c534e3f9a70d848fbcf63e5d5bef42db3204d9ec",
         "47f2cd5acbdbffeb8c1830b95fe4bc4ac149ca479e97ec41afdbb8b3ff3bf308"
       ]
     },
     "spacr.qt.dnd_handlers.scan_is_busy": {
       "source_blocks_sha256": [
-        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446"
+        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
+        "82ce9dd96e783d0b4224d0b432af1d1c93081212de27ab8ef9c934b2fb517901"
       ],
-      "source_sha256": "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
-      "text": "True 떨어진 폴더가 여전히 ``screen``로 이동하는 동안.",
+      "source_sha256": "3f63eba0d106ee90702a9c02b498f1719333e19d74797bcf312c697d9254ccec",
+      "text": "``screen``에 대해 드롭된 폴더를 아직 순회 중이면 True(참)를 반환합니다.\n\n:param screen: 조회할 드롭 스캐너를 소유한 애플리케이션 화면입니다.",
       "translation_source_blocks_sha256": [
-        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446"
+        "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
+        "a3d0e2ac0e49f9d8b44d888ed6fa24ea93be19922bed58cf5bb76a5799a88975"
       ]
     },
     "spacr.qt.dnd_handlers.scan_mask_folder": {
       "source_blocks_sha256": [
         "08a963da5589e147217fc65fea3981cb54125ea1c237a2e6038f8cdcedae56d2",
-        "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd"
+        "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd",
+        "6f58a6be3c4d5180b9198398fec6d3ae6de4b350d62e02dfc9f1a1518cca5958"
       ],
-      "source_sha256": "ee16a1d64b179c05c3c55f879683cddfa1c358312b545db97c3d92e2031d039b",
-      "text": "한 번 떨어진 폴더의 상단 수준을 나열합니다.\n\n파일 이름은 regex 프리뷰 샘플을 반환하고 전체 이미지는 보고서 인용문을 계산합니다.이 두 개는 같은 디렉토리의 두 개의 별도의 목록에서 나온 것으로 사용되며, 주요 GUI 실행 경로에서 가져옵니다.",
+      "source_sha256": "07a83f816deac9b8d8bfe5187cb1640b001c9e635ee9dfbe56ac3db3928a3d50",
+      "text": "드롭된 폴더의 최상위 항목을 한 번 나열합니다. 작업자 스레드에서 안전합니다.\n\n정규식 미리보기에서 샘플링하는 파일 이름과 보고서에 표시되는 전체 이미지 개수를 반환합니다. 둘 다 이전에는 GUI 스레드에서 동일한 디렉터리를 별도로 두 번 나열해 얻었습니다.\n\n:param path: 최상위 파일을 검사할 드롭된 디렉터리입니다.",
       "translation_source_blocks_sha256": [
         "08a963da5589e147217fc65fea3981cb54125ea1c237a2e6038f8cdcedae56d2",
-        "fb12ffc775e3ec8c4a25b0cd78e13c76dbc36c6661bbb277c9a78bb883d5c272"
+        "fb12ffc775e3ec8c4a25b0cd78e13c76dbc36c6661bbb277c9a78bb883d5c272",
+        "6f58a6be3c4d5180b9198398fec6d3ae6de4b350d62e02dfc9f1a1518cca5958"
       ]
     },
     "spacr.qt.dnd_handlers.table_names": {
       "source_blocks_sha256": [
         "27fff98bed3f12b33e0e522e737a3d047041ba47c5f9ad92b98c2dad7288e755",
         "bc903bbc38ad17e7f3fa76466efe634320fcca1d103661e435e06a1e5ed59298",
-        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd"
+        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd",
+        "13b301d0b4fbdb6223f18f76496a7ab00b382733de1ee56c4331a6ff94d305ee"
       ],
-      "source_sha256": "1a2552a987c3a02d2df0f386cc64e58a6f74e30bf4f1020b182d022346e49f1d",
-      "text": "SQLite 파일 또는 ``[]``에 테이블을 반환하여 다른 어떤 것도 제공합니다.\n\n한 ``sqlite_master`` 쿼리; 테이블 응용 프로그램 뷰는 그들이 충전 할 때 동일합니다. 여기서 *ask* 방울이 ``load_path`` 대신 첫 번째 방울을 조용히 가져올 수 있습니다.\n\n읽기만 열고 *quoted* URI를 통해 : 이름에 ``?`` 또는 ``#``이있는 폴더가 다른 경우에 쿼리 매개 변수로 읽은 후에 모든 것을 가지고 있으며, 열려있는 것은 완벽하게 잘 어울리는 데이터베이스에 실패합니다.",
+      "source_sha256": "2402c164233101231ae49ae53a9c195426fcbf53df859feca13c8f8fd7661648",
+      "text": "SQLite 파일의 테이블을 반환하며, 그 외에는 ``[]``를 반환합니다.\n\n``sqlite_master`` 쿼리는 한 번만 수행됩니다. 테이블 애플리케이션 화면도 로드할 때 같은 쿼리를 수행합니다. 드롭 처리 코드가 사용할 테이블을 *묻도록* 여기에 두었으며, ``load_path``가 조용히 첫 번째 테이블을 선택하게 하지 않습니다.\n\n데이터베이스를 읽기 전용으로 열며, *퍼센트 인코딩된* URI를 사용합니다. 폴더 이름에 ``?`` 또는 ``#``이 있으면 인코딩하지 않았을 때 그 뒤의 모든 내용이 쿼리 매개변수로 해석되어 정상적인 데이터베이스를 열지 못합니다.\n\n:param path: 읽기 전용으로 검사할 SQLite 데이터베이스 후보 경로입니다.",
       "translation_source_blocks_sha256": [
         "27fff98bed3f12b33e0e522e737a3d047041ba47c5f9ad92b98c2dad7288e755",
         "b3789d399dbf697684f2e5505162a40a9d310f43ba04e720d900859285885855",
-        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd"
+        "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd",
+        "13b301d0b4fbdb6223f18f76496a7ab00b382733de1ee56c4331a6ff94d305ee"
       ]
     },
     "spacr.qt.first_run": {
@@ -95616,13 +95784,23 @@
     "spacr.qt.widgets.gate_spec.ThresholdGate": {
       "source_blocks_sha256": [
         "c05b39fc2334ae8978b0e57fc8fa2db2f34c6659c01d9140bbc58ccf989e487b",
-        "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd"
+        "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd",
+        "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+        "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+        "eba9ef56f5abf92892c76aee2ba22ac976efa41ed6580a54f590031df002514c",
+        "c8467e621a07a4cd343a1b14b35b732429720837b42b944edd909d1ac34d06cf",
+        "f3dba538039ff05a02f59d2bdb486df5a7b83019d2fe91360518c9b827dae5ba"
       ],
-      "source_sha256": "51ba01fdc117f90165f1848f552fcf5a49f4965d2f36a5bed3822893ecd4ff84",
-      "text": "한 열에 절단 - 히스토그램을 통해 끌려가는 라인.\n\n``None``는 그 측면에서 무제한을 의미하며, 이것은 \"exclude everything\" 대신에 가장자리로 끌려가는 한계가 의미해야하는 것입니다. 적어도 하나의 경계가 필요합니다 : 데이터 선택의 한계는 전체 인구가 아니며, 이름은 그것의 흔적을 잃을 수있는 방법입니다.",
+      "source_sha256": "755e306188e346c1ea5f22accdc3527b3080bbab5b2e11e947a0173626893b06",
+      "text": "한 열을 자르는 선 — 히스토그램을 가로질러 드래그하는 선입니다.\n\n경계값이 ``None``이면 해당 쪽에 경계가 없다는 뜻입니다. 임계값을 가장자리로 드래그했을 때는 \"모두 제외\"가 아니라 이 의미여야 합니다. 경계값은 하나 이상 필요합니다. 어느 쪽 경계값도 없는 게이트는 전체 모집단이며, 그런 게이트에 이름을 붙이면 이를 놓치기 쉽습니다.\n\n:param name: 계층 구조와 필터가 이 게이트를 식별하는 고유 이름입니다.\n:param parent: 이 게이트를 포함하는 게이트의 이름이며, 루트 게이트인 경우 ``None``입니다.\n:param column: 임계값을 적용할 측정 열입니다.\n:param low: 포함되는 하한값이며, 게이트에 하한이 없을 때 ``None``입니다.\n:param high: 포함되는 상한값이며, 게이트에 상한이 없을 때 ``None``입니다.",
       "translation_source_blocks_sha256": [
         "c05b39fc2334ae8978b0e57fc8fa2db2f34c6659c01d9140bbc58ccf989e487b",
-        "324ec3e661e531f9a1a658e88080cdf4c92677464b83f59cf85194df3337656b"
+        "324ec3e661e531f9a1a658e88080cdf4c92677464b83f59cf85194df3337656b",
+        "d0d1fd6722b5afa358a43106d4fd4c9b7210847442fbd1868f44dec739cb3f98",
+        "72250241ce229716fdcce96a4b9606539fa52905543dfc00038c485f65b6e1f2",
+        "eba9ef56f5abf92892c76aee2ba22ac976efa41ed6580a54f590031df002514c",
+        "15f43ec96c1b54ac0387117af37e93ca55ba9da9233d581d183f1f27ba0d2ac3",
+        "81ab8a99f4b189df2096ce4daebcab0ee81c7100c906c41353cbaee944394d13"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.centre": {
@@ -95641,13 +95819,31 @@
     "spacr.qt.widgets.gate_spec.ThresholdGate.handles": {
       "source_blocks_sha256": [
         "e9e4ac75806a2c176328dc44bd8df01a91a0ea476c391787f118e8897b5d2987",
-        "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5"
+        "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5",
+        "cf09b0f7ecfda02131c44d46ac500e916d34e99836a74789d234036905e344bd",
+        "8ea3174d36a18f03e471bbe1b6cce1c6c766452c30cf3a252f5ce9481db9d6f6"
       ],
-      "source_sha256": "88a336ce0857219d99c2245e4f335f6dee4ff07f9ae8dfe65ad483059dbd98d9",
-      "text": "한 개의 앙커, 시야의 높이의 중간에.\n\n제한없는 측면은 손을 얻지 못합니다. 상단 제한이없는 한계는 무한성으로 열려 있으며, 시야의 가장자리에있는 앵커는 데이터 선택의 한계가 가지고 있지 않은 한계처럼 보일 것입니다 - 사용자는 그것을 끌고 그들이 단지 하나를 발명 한 것을 발견 할 것입니다.",
+      "source_sha256": "76dcb33b79f9b6e28ab205120bf982205c32610b3c04962c0b5267bed5df7a41",
+      "text": "경계값마다 앵커 하나가 뷰 높이의 중앙에 배치됩니다.\n\n경계가 없는 쪽에는 드래그 핸들이 없습니다. 상한이 없는 임계값은 무한대까지 열려 있습니다. 뷰 가장자리의 앵커는 게이트에 실제로 없는 경계값처럼 보입니다 -- 사용자는 이를 드래그한 뒤 방금 새 경계값을 만들었다는 사실을 알게 됩니다.\n\n:param view: 각 경계값의 드래그 핸들을 세로로 배치하는 데 사용하는 화면상의 ``(x_low, x_high, y_low, y_high)`` 범위입니다.\n:returns: 유한한 경계값마다 드래그 핸들 하나입니다.",
       "translation_source_blocks_sha256": [
         "e9e4ac75806a2c176328dc44bd8df01a91a0ea476c391787f118e8897b5d2987",
-        "54c874b5ac115f57b855b8b0f418f8c8bd81983ca36c29327f470e15a077486d"
+        "54c874b5ac115f57b855b8b0f418f8c8bd81983ca36c29327f470e15a077486d",
+        "cf09b0f7ecfda02131c44d46ac500e916d34e99836a74789d234036905e344bd",
+        "8ea3174d36a18f03e471bbe1b6cce1c6c766452c30cf3a252f5ce9481db9d6f6"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.ThresholdGate.mask": {
+      "source_blocks_sha256": [
+        "1e89a0f6f119364299e3e3a69c5e176f00946d1fed43119603554e90f8291428",
+        "dfc78773eb37ff53509e23d3b259b70e98120f023b80e4c21c783d100b1b859c",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
+      ],
+      "source_sha256": "f873be48ccf7b96a5de85ef5f47c7b062e716b272fe2c6529f2f62db43848029",
+      "text": "경계값을 포함하는 범위 안의 유한값을 선택합니다.\n\n:param frame: 이 게이트의 열을 포함하는 측정 테이블입니다.\n:returns: ``frame``과 행별로 맞춰진 불리언 마스크입니다.",
+      "translation_source_blocks_sha256": [
+        "1e89a0f6f119364299e3e3a69c5e176f00946d1fed43119603554e90f8291428",
+        "5b03279e63ec471f62aa519b79448318948d8b3eb13886cc32b64d993cc1e416",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.range_filters": {
@@ -95682,12 +95878,16 @@
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.translated": {
       "source_blocks_sha256": [
-        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9"
+        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9",
+        "193eef38d318e3ff78dff268d1f200a6d52df84f9e54f7565a7e1c5e0aa572f1",
+        "61064fc2636e1a7aa59fa2a4091bac488d2b1543954dd3377b663e19d42241e8"
       ],
-      "source_sha256": "ccd1113ec8bc219e1471cf4733b1d55e72c4816fb261dd66abd8c71feec1859e",
-      "text": "``dy``은 무시됩니다 : 한계는 ONE 열에 절단되어 두 번째 좌석이 움직일 수 없습니다.",
+      "source_sha256": "abb8449479481ca9532535c9e1de05dd4b10e8dc4787ec924d9007f439c09071",
+      "text": "``dy``는 무시됩니다. 임계값은 한 열을 자르는 선이므로 이동할 두 번째 축이 없습니다.\n\n:param dx: 임계값의 각 유한 경계값에 더할 변위입니다.\n:param dy: 이 단일 열 게이트에서 무시되는 수직 변위입니다.",
       "translation_source_blocks_sha256": [
-        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9"
+        "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9",
+        "193eef38d318e3ff78dff268d1f200a6d52df84f9e54f7565a7e1c5e0aa572f1",
+        "785f443627ad5b7aac3f34c5bf8e8f18a3cdde7b8b462019894057f7b358bbf3"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle": {
@@ -95709,6 +95909,22 @@
         "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
         "e6ab1aa0fb4d794bcc402a6393439b8a72ce7a71cfe35eb9570baa754944901c",
         "5501e71f5d266cee58f105d2d779e9b615123508673d9cfc4b36597555c665c7"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold": {
+      "source_blocks_sha256": [
+        "51599d23aa1a7bfec819c303965c4e546a6f60760151349e338b2e5e6eb46f22",
+        "fcc7c7c3a666891f9313e139a74983642cf1b88e3995489dd9366c4e9f5e3075",
+        "d74d4682f1e3f4707eb348a6ee15f02f697326a6627f4be3c5341e4b4d75458c",
+        "e22ed2416f6550ace2e002654c5baf9ff9cec02374a8cc0f737d2b5d52003669"
+      ],
+      "source_sha256": "20504d06a347f3e291d57070b47076b10c861f9537795e182fe0c3acd912336b",
+      "text": "열의 경계값을 교체한 이 게이트를 반환합니다.\n\n:param column: 경계값을 변경할 측정 열입니다. 다른 열은 이 게이트가 나타낼 수 없으므로 거부됩니다.\n:param low: 포함되는 하한값이며, 하단이 열려 있으면 ``None``입니다.\n:param high: 포함되는 상한값이며, 상단이 열려 있으면 ``None``입니다.",
+      "translation_source_blocks_sha256": [
+        "fb25d61d50cd7210312c9d0d66c9bea5310dbdabe1a10ddc1c4fdb982784ea94",
+        "bd19803333b9660b1117b6277de4152072fbad0e6e699f58b6b31e4bbdc73d94",
+        "d74d4682f1e3f4707eb348a6ee15f02f697326a6627f4be3c5341e4b4d75458c",
+        "e22ed2416f6550ace2e002654c5baf9ff9cec02374a8cc0f737d2b5d52003669"
       ]
     },
     "spacr.qt.widgets.gate_spec.WandError": {

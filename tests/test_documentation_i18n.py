@@ -1344,6 +1344,21 @@ def test_reviewed_quoted_human_phrases_are_prose_not_api_literals():
         'Compare "the run that worked" with the failed run.',
         'Compare "a execução que funcionou" com a execução que falhou.',
     )
+    assert _syntax_preserved(
+        'An edge threshold should not mean "exclude everything".',
+        'En kanttröskel ska inte betyda "uteslut allt".',
+    )
+
+
+def test_regression_screen_input_is_an_application_view_not_an_experiment():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _gui_screen_source
+
+    source = "Regression screen receiving the resolved input."
+    assert _gui_screen_source(source)
+    assert builder._api_translation_source(source) == (
+        "Regression application view receiving the resolved input."
+    )
 
 
 def test_inline_pip_install_command_is_a_protected_literal():
@@ -2995,18 +3010,30 @@ def test_ko_zh_additional_semantic_families_and_negative_controls():
         )
 
 
-def test_opencc_t2s_normalizes_only_unprotected_chinese_prose():
-    from build_i18n_catalogs import (
-        _has_traditional_chinese_prose,
-        _simplify_chinese_prose,
+def test_opencc_t2s_normalizes_only_unprotected_chinese_prose(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    original_find_library = builder.ctypes.util.find_library
+    probes: list[str] = []
+
+    def counted_find_library(name):
+        probes.append(name)
+        return original_find_library(name)
+
+    builder._opencc_runtime.cache_clear()
+    monkeypatch.setattr(
+        builder.ctypes.util,
+        "find_library",
+        counted_find_library,
     )
 
     source = "這個軟體讀取記憶體，保留 ``個為當`` 與 :func:`spacr.run`."
-    normalized = _simplify_chinese_prose(source)
+    normalized = builder._simplify_chinese_prose(source)
     assert normalized == "这个软体读取记忆体，保留 ``個為當`` 与 :func:`spacr.run`."
-    assert _simplify_chinese_prose(normalized) == normalized
-    assert not _has_traditional_chinese_prose(normalized)
-    assert _has_traditional_chinese_prose(source)
+    assert builder._simplify_chinese_prose(normalized) == normalized
+    assert not builder._has_traditional_chinese_prose(normalized)
+    assert builder._has_traditional_chinese_prose(source)
+    assert probes == ["opencc"]
 
 
 def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
@@ -3015,6 +3042,7 @@ def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
     import build_documentation_i18n as docs_builder
     import build_i18n_catalogs as builder
 
+    builder._opencc_runtime.cache_clear()
     monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
     with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
         builder._has_traditional_chinese_prose("简体中文")

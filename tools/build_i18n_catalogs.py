@@ -283,12 +283,12 @@ _SHORT_QUOTED_LITERAL_RE = re.compile(
     # those out of the literal contract explicitly rather than weakening the
     # general quoted-value protection.
     r'(?<!\w)"(?!(?:the user chose this|we put it there|it is lazy|'
-    r'not scored|exclude this debris|measure this colony|Edit mode|'
+    r'not scored|exclude this debris|exclude everything|measure this colony|Edit mode|'
     r'the run that worked)")'
     r'[A-Za-z][A-Za-z0-9_.:/…-]*'
     r'(?: [A-Za-z0-9_.:/…-]+){0,3}"|'
     r"(?<!\w)'(?!(?:the user chose this|we put it there|it is lazy|"
-    r"not scored|exclude this debris|measure this colony|Edit mode)')"
+    r"not scored|exclude this debris|exclude everything|measure this colony|Edit mode)')"
     r"[A-Za-z][A-Za-z0-9_.:/…-]*"
     r"(?: [A-Za-z0-9_.:/…-]+){0,3}'(?![A-Za-z0-9_])"
 )
@@ -886,12 +886,9 @@ _ZH_WEB_SOURCE_ESCAPE_RE = re.compile(
 )
 
 
-def _simplify_chinese_prose(value: str) -> str:
-    """Normalize generated zh_CN prose with Apache-2.0 OpenCC ``t2s``.
-
-    Generation and audit both fail loudly when the host dependency is absent.
-    Protected API/RST spans bypass OpenCC byte-for-byte.
-    """
+@lru_cache(maxsize=1)
+def _opencc_runtime() -> tuple[str, Path]:
+    """Cache the immutable OpenCC runtime resolution per audit process."""
     library_name = ctypes.util.find_library("opencc")
     config_path = Path("/usr/share/opencc/t2s.json")
     if not library_name or not config_path.is_file():
@@ -899,6 +896,16 @@ def _simplify_chinese_prose(value: str) -> str:
             "zh_CN generation requires OpenCC 1.1+ and "
             "/usr/share/opencc/t2s.json"
         )
+    return library_name, config_path
+
+
+def _simplify_chinese_prose(value: str) -> str:
+    """Normalize generated zh_CN prose with Apache-2.0 OpenCC ``t2s``.
+
+    Generation and audit both fail loudly when the host dependency is absent.
+    Protected API/RST spans bypass OpenCC byte-for-byte.
+    """
+    library_name, config_path = _opencc_runtime()
     library = ctypes.CDLL(library_name)
     library.opencc_open.argtypes = [ctypes.c_char_p]
     library.opencc_open.restype = ctypes.c_void_p
@@ -1186,6 +1193,9 @@ _SCIENTIFIC_SCREEN_SOURCE = (
 # GUI surfaces that lack enough surrounding vocabulary for the general sense
 # detector above; the five scientific-screen blocks are deliberately absent.
 _GUI_SCREEN_SOURCE_SHA256 = frozenset({
+    # ``Regression`` names the application surface here, but the scientific
+    # word is otherwise strong enough to make this short block ambiguous.
+    "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52",
     "6fd6bff9288e5324729f83b8238aa9152544f7f91845c2df5934b01c38b020be",
     "bc903bbc38ad17e7f3fa76466efe634320fcca1d103661e435e06a1e5ed59298",
     "f550be59d613467473065be728d1a8ef3d5c260450bf2ed35841289382f9aaed",

@@ -2,9 +2,9 @@
 THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
 ================================================================================
 
-Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalog
-           refresh is not yet a fixed point; exact residuals are recorded
-           below.
+Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalogs
+           are at a source-current mechanical fixed point; the remaining
+           semantic acceptance debt is recorded below.
 Owner:     public API prose, settings tooltips, documentation and i18n catalogs.
 Precedes:  253's final sweep and every 1.5.0.5 publication action.
 Requested: 2026-08-28 — "sweep the tool tips and API and make sure the API
@@ -332,15 +332,18 @@ until that strict source-to-catalog rebuild is green, item 306 remains OPEN and
 release-blocking.
 
 --------------------------------------------------------------------------------
-CURRENT FIXED POINT 2026-08-30 -- POST-SWEEP API CATALOGS CURRENT
+CURRENT FIXED POINT 2026-08-30 -- API CATALOGS AND 25-SYMBOL REVIEW CURRENT
 --------------------------------------------------------------------------------
 
 The required-parameter sweep is now propagated through all nine API catalogs.
-Each locale contains 8,824/8,824 current symbol documents with zero API
-orphans; the increase from 8,817 is seven newly documented public methods.
+Each locale contains 8,838/8,838 current symbol documents with zero API
+orphans: 8,719 canonical documents plus 119 rendered aliases.  The increase
+from 8,824 is 14 newly public methods.
 The strict API catalog audit and independent live-source coverage audit pass,
 as does a fresh 507-document ``sphinx-build -W -E --keep-going`` with zero
-warnings.
+warnings.  The exhaustive browser ratchet also loads every one of the 8,838
+symbol panels from each complete real locale catalog; that is exhaustive
+frontend coverage, not exhaustive semantic review.
 
 The rebuild revalidated 18 existing reviewed blocks whose indices shifted when
 structured parameter paragraphs were inserted; their source, context, hash and
@@ -351,9 +354,19 @@ Every replacement is bound to its exact source, contextual translation input
 and SHA-256 hash and passes the protected-syntax, semantic and target-script
 gates.
 
+The final semantic pass compared all 73 blocks of the same 25 changed
+drag-and-drop and threshold-gate symbols in every locale.  The nine
+``2026-08-30-dnd-gate-semantic-review.json`` files record 622 exact reviewed
+replacements and add 599 current source/target pairs to the reviewed maps.
+They repair product-name drift, GUI-screen false friends, dropped-path senses,
+numeric bounds and handles, SQLite URI quoting, and the sole Hindi
+exact-English residual.  Exact per-locale reviewed counts, percentages and
+arithmetic remainders are recorded in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
 This closes the stale-catalog condition in the preceding progress entry, not
-item 306.  The structured-description ratchet remains 2,730 omissions across
-1,976 public callables, digest
-``58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef``,
-and no exhaustive fluent-speaker review is recorded.  Item 306 remains OPEN and
-release-blocking.
+item 306.  The structured-description ratchet remains 2,698 omissions across
+1,951 public callables, digest
+``152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1``,
+and no exhaustive fluent-speaker semantic review is recorded.  Item 306
+remains OPEN and release-blocking.
