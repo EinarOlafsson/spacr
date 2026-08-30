@@ -329,6 +329,54 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
                for command, _data, check in calls)
 
 
+def test_coverage_batches_discard_an_incomplete_child_database(
+    tmp_path, monkeypatch, capsys,
+):
+    project = tmp_path / "project"
+    tests = project / "tests"
+    tests.mkdir(parents=True)
+    (tests / "test_one.py").write_text(
+        "def test_one(): pass\n", encoding="utf-8",
+    )
+    data_dir = tmp_path / "coverage-data"
+    written: dict[str, Path] = {}
+
+    def fake_run(command, *, env, check):
+        basename = Path(env["COVERAGE_FILE"])
+        readable = basename.with_name(f"{basename.name}.readable")
+        data = coverage_runner.CoverageData(basename=str(readable))
+        data.add_lines({"spacr/example.py": {1}})
+        data.write()
+        incomplete = basename.with_name(f"{basename.name}.incomplete")
+        incomplete.write_bytes(b"SQLite format 3\x00")
+        written.update(readable=readable, incomplete=incomplete)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.chdir(project)
+    monkeypatch.setattr(coverage_runner.subprocess, "run", fake_run)
+
+    status = coverage_runner.main([
+        "tests",
+        "--marker",
+        "not gui",
+        "--shard-index",
+        "0",
+        "--shard-count",
+        "1",
+        "--workers",
+        "1",
+        "--data-dir",
+        str(data_dir),
+    ])
+
+    assert status == 0
+    assert written["readable"].is_file()
+    assert not written["incomplete"].exists()
+    output = capsys.readouterr().out
+    assert "discarding unreadable coverage process data" in output
+    assert written["incomplete"].name in output
+
+
 def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     workflow_path = ROOT / ".github" / "workflows" / "tests.yml"
     workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
@@ -343,6 +391,12 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "${{ matrix.shard }}" in upload["with"]["name"]
     assert upload["with"]["include-hidden-files"] is True
+
+    shard_script = "\n".join(
+        step.get("run", "") for step in shards["steps"]
+    )
+    assert "tools/run_coverage_batches.py" in shard_script
+    assert '--data-dir "$SPACR_COVERAGE_DATA_DIR"' in shard_script
 
     combine_script = "\n".join(
         step.get("run", "") for step in combine["steps"]

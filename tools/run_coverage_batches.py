@@ -16,6 +16,9 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from coverage import CoverageData
+from coverage.exceptions import CoverageException
+
 NO_TESTS_COLLECTED = 5
 
 
@@ -44,6 +47,34 @@ def _shard(path: Path, root: Path, count: int) -> int:
 
 def _batches(items: Sequence[Path], size: int) -> list[list[Path]]:
     return [list(items[start:start + size]) for start in range(0, len(items), size)]
+
+
+def _discard_unreadable_process_data(data_dir: Path) -> list[Path]:
+    """Remove coverage files left incomplete by terminated child processes.
+
+    coverage.py normally combines every ``.coverage.*`` file it finds.  A
+    process killed while coverage is opening its database can leave behind a
+    valid SQLite shell with no coverage metadata, however.  ``coverage
+    combine`` warns about that shell but leaves it in the downloaded artifact.
+    Validate files after every batch run so only readable process data reaches
+    the combine job; the module ratchet still detects any measurements the
+    terminated process failed to record.
+    """
+    discarded: list[Path] = []
+    for path in sorted(data_dir.glob(".coverage.*")):
+        if not path.is_file():
+            continue
+        try:
+            CoverageData(basename=str(path)).read()
+        except CoverageException as exc:
+            print(
+                f"discarding unreadable coverage process data {path.name}: "
+                f"{exc}",
+                flush=True,
+            )
+            path.unlink()
+            discarded.append(path)
+    return discarded
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -124,6 +155,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = subprocess.run(command, env=environment, check=False)
         if result.returncode not in (0, NO_TESTS_COLLECTED):
             failures.append((number, int(result.returncode), batch))
+
+    _discard_unreadable_process_data(args.data_dir)
 
     if failures:
         for number, code, batch in failures:

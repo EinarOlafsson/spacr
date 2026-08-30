@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -98,6 +99,7 @@ def test_a_skipped_module_is_not_traced(tracing_on):
 
     assert logging_util._TRACE_SKIP_MODULES
     frame = _a_frame_from_module(logging_util._TRACE_SKIP_MODULES[0])
+    assert Path(frame.f_code.co_filename).is_file()
 
     logging_util._trace_one_event(frame, "call")
 
@@ -138,7 +140,8 @@ def _a_frame_from_module(module_name, *, inside_the_package=True):
     from spacr import logging_util
 
     source = "def f():\n    import sys\n    return sys._getframe()\n"
-    filename = (logging_util._TRACE_ROOT + module_name.split(".")[-1] + ".py"
+    parts = module_name.split(".")
+    filename = (str(Path(logging_util._TRACE_ROOT, *parts[1:]).with_suffix(".py"))
                 if inside_the_package else "<outside-the-package>")
     namespace = {"__name__": module_name}
     exec(compile(source, filename, "exec"), namespace)
