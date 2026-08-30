@@ -5162,6 +5162,10 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     and the guide as a random effect nested in the gene. Its guide output is
     BLUPs, which is why it cannot be split into two testing families.
 
+    :param df: regression input table passed unchanged to each level-specific
+        :func:`regression` fit.
+    :param csv_path: source count/score path or path collection used by each
+        fit for provenance and paired input resolution.
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
     :param dst: the run folder. With more than one fit each level's FIGURES go
         into ``<dst>/<level>/`` so they cannot overwrite each other; the
