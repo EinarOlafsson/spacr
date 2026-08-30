@@ -24,6 +24,7 @@ import sys
 import textwrap
 
 import pytest
+from tests.child_env import child_env
 
 pytest.importorskip("PySide6")
 
@@ -37,9 +38,8 @@ def _in_a_cold_process(body: str) -> str:
     result = subprocess.run(
         [sys.executable, "-c", textwrap.dedent(body)],
         capture_output=True, text=True, timeout=300,
-        env={"QT_QPA_PLATFORM": "offscreen", "PATH": "/usr/bin:/bin",
-             "HOME": "/tmp", "XDG_CONFIG_HOME": "/tmp/spacr-launch-probe",
-             "CUDA_VISIBLE_DEVICES": ""},
+        env=child_env(home="/tmp/spacr-launch-probe", qt=True,
+                      CUDA_VISIBLE_DEVICES=""),
     )
     assert result.returncode == 0, result.stderr[-2000:]
     return result.stdout

@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 import spacr.qt as qt
+from tests.child_env import child_env
 
 
 SPACR_PKG = Path(qt.__file__).resolve().parents[1]
@@ -220,9 +221,7 @@ def test_core_only_install_exits_cleanly_with_an_actionable_message(tmp_path):
     proc = subprocess.run(
         [sys.executable, str(script)],
         cwd=str(tmp_path),
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": str(tmp_path), "QT_QPA_PLATFORM": "offscreen",
-             "MPLBACKEND": "Agg"},
+        env=child_env(home=str(tmp_path), pythonpath=str(REPO_ROOT), qt=True),
         capture_output=True,
         text=True,
         timeout=300,
@@ -245,8 +244,7 @@ def test_version_still_answers_without_qt_installed(tmp_path):
     proc = subprocess.run(
         [sys.executable, str(script)],
         cwd=str(tmp_path),
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": str(tmp_path), "MPLBACKEND": "Agg"},
+        env=child_env(home=str(tmp_path), pythonpath=str(REPO_ROOT)),
         capture_output=True,
         text=True,
         timeout=300,

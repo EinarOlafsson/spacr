@@ -15,6 +15,7 @@ because of one destructor.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import textwrap
@@ -41,11 +42,19 @@ def _run(body: str) -> subprocess.CompletedProcess:
         {body}
         print("SURVIVED")
     """)
+    # Inherit the environment and override only what isolation needs. A dict
+    # built from scratch also drops the loader paths that make PySide6
+    # importable at all -- on a conda install the child then reports "could
+    # not find the Qt platform plugin 'offscreen' in \"\"" and the test fails
+    # for a reason that has nothing to do with the search strip. HOME and
+    # XDG_CONFIG_HOME are the part that has to be replaced: they are what
+    # would otherwise let the user's own settings decide what this asserts.
+    env = dict(os.environ)
+    env.update({"QT_QPA_PLATFORM": "offscreen",
+                "HOME": "/tmp", "XDG_CONFIG_HOME": "/tmp/spacr-search-strip"})
     return subprocess.run(
         [sys.executable, "-c", script],
-        capture_output=True, text=True, timeout=300,
-        env={"QT_QPA_PLATFORM": "offscreen", "PATH": "/usr/bin:/bin",
-             "HOME": "/tmp", "XDG_CONFIG_HOME": "/tmp/spacr-search-strip"},
+        capture_output=True, text=True, timeout=300, env=env,
     )
 
 
