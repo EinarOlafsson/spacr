@@ -2,11 +2,11 @@
   "language": "is",
   "records": [
     {
-      "context": "A daemon thread takes one reading every ``interval`` seconds into a ring buffer of ``capacity`` samples, so a run that lasts a week cannot grow the log without limit and still leaves the most recent hour when it dies.",
+      "context": "A daemon thread takes one reading every effective ``interval`` seconds into a ring buffer of ``capacity`` samples. The default settings retain the most recent hour in memory; custom settings retain approximately ``capacity * interval`` seconds. A processing session that lasts a week therefore cannot grow the in-memory series without limit.",
       "label": "spacr.resource_log.ResourceSampler#1",
-      "source": "A daemon thread takes one reading every ``interval`` seconds into a ring buffer of ``capacity`` samples, so a run that lasts a week cannot grow the log without limit and still leaves the most recent hour when it dies.",
-      "source_sha256": "516c62fff257b4ed6d66d6549283ec8b697d7a90f54d4c5246caa76a85c0e6cf",
-      "translation": "Bakgrunnsþráður tekur eina mælingu á ``interval`` sekúndna fresti og geymir hana í hringbiðminni sem rúmar ``capacity`` sýni. Þannig getur vikulöng keyrsla ekki látið annálinn vaxa án takmarkana, en þegar hún stöðvast varðveitast samt gögn síðustu klukkustundarinnar."
+      "source": "A daemon thread takes one reading every effective ``interval`` seconds into a ring buffer of ``capacity`` samples. The default settings retain the most recent hour in memory; custom settings retain approximately ``capacity * interval`` seconds. A run that lasts a week therefore cannot grow the in-memory series without limit.",
+      "source_sha256": "9a94a4651b9ca99eac253a30f34e6f9a54228be90b79506ba207700cd2ff1cca",
+      "translation": "Bakgrunnsþráður tekur eina mælingu á hverju virku ``interval`` sekúndna bili og geymir hana í hringbiðminni sem rúmar ``capacity`` sýni. Sjálfgefnar stillingar geyma nýjustu klukkustundina í minni; sérsniðnar stillingar geyma um það bil ``capacity * interval`` sekúndur. Þess vegna getur vikulöng vinnslulota ekki látið röðina í minni vaxa án takmarkana."
     }
   ],
   "schema": 1

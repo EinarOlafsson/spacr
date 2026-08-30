@@ -9,11 +9,11 @@
       "translation": "Supprimer les suffixes QSS tardifs propres à l’écran avant de reconstruire le thème global."
     },
     {
-      "context": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see.",
+      "context": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see. Prepare a sampler without starting it.",
       "label": "spacr.resource_log.ResourceSampler#4",
-      "source": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see.",
-      "source_sha256": "3769f489568c3fa558fa00b235e2e2e52c172140d42592f0caf80dd755503556",
-      "translation": "Au niveau ``\"off\"``, aucun thread n’est démarré et aucun fichier n’est ouvert ; c’est ce qu’un recensement des threads avant et après une exécution est en droit de constater."
+      "source": "At level ``\"off\"`` no thread is started and no file is opened, which is what a thread census before and after a run is entitled to see. Prepare a sampler without starting it.",
+      "source_sha256": "3255332cfd6f5066fbc8395c71d1982da98f9a4f4c0b7743116a644dcc9189f4",
+      "translation": "Au niveau ``\"off\"``, aucun thread n’est démarré et aucun fichier n’est ouvert ; c’est ce qu’un recensement des threads avant et après une exécution est en droit de constater. Préparer un échantillonneur sans le démarrer."
     },
     {
       "context": "Hidden does not mean absent: imported values live in ``_defaults`` and still reach ``collect()``.",
