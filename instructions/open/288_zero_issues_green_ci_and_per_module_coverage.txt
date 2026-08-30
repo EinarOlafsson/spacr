@@ -240,3 +240,27 @@ environment the suite runs in does not match what setup.py declares, and
 nothing in CI notices. And any per-module coverage target has to say which
 environment it is measured in, because on this one eight modules cannot reach
 100% however many tests are written.
+
+    REFINED, SAME CONCLUSION. The figure above was reached with a regex over
+    the source, which also matched prose inside docstrings -- it scored "a",
+    "the", "disk" and "everybody" as missing packages and briefly read 56%.
+    Re-run with an `ast` parse of the real import statements:
+
+        total missing arcs in spacr/                     5566
+        in modules importing an absent package     1279   (23%)
+
+          598  vispy       fractal_travel.py (595)     -- REQUIRED
+          288  catboost    ml.py (273)                 -- extra
+          179  anndata     anndata_export/ (179)       -- extra
+          130  trackastra  timelapse_preview.py (88)   -- extra
+           74  jax         power_model.py (74)         -- extra
+           10  (other)
+
+    So it is not only the eight required ones: optional extras gate another
+    ~680 arcs, and tests/test_anndata_export.py is skipped in its ENTIRETY --
+    every one of its assertions, on the largest single non-Qt module in this
+    list. That skip is legitimate; the point is that the suite's output says
+    "1 skipped" and a reader has no way to learn what that cost.
+
+    23-24% either way. The recommendation does not change, and neither does
+    the reason for not acting on it unattended.
