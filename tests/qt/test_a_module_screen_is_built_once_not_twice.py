@@ -109,6 +109,19 @@ class TestThePageColourIsNotAppliedAndThenWithdrawn:
         wanted = None if colour is None else colour.name()
         assert scr._page_applied == wanted
 
+    def test_a_palette_event_waits_until_the_backdrop_is_decided(
+            self, qtbot, monkeypatch):
+        """A nested settings-build event must not resolve a partial screen."""
+        scr = _make_screen(qtbot, "mask")
+        calls = []
+        monkeypatch.setattr(scr, "_sync_page_palette",
+                            lambda: calls.append("page"))
+
+        scr._ambient_install_ready = False
+        scr.changeEvent(QEvent(QEvent.PaletteChange))
+
+        assert calls == []
+
 
 # ---------------------------------------------------------------------------
 # The transparency sweep runs once

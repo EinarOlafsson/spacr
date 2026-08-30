@@ -1359,3 +1359,23 @@ The dead fallback is deleted rather than hidden from coverage. Reachable
 tests pin both sides of the property that makes this safe: a CSV's ``column``
 arrives as ``columnID``, while an already canonical ``columnID`` round-trips
 unchanged.
+
+--------------------------------------------------------------------------------
+33. A PALETTE EVENT RESOLVED THE PAGE BEFORE ITS BACKDROP EXISTED
+--------------------------------------------------------------------------------
+
+Importing the full Qt application changes when palette events are delivered
+while a module screen is being built. One can arrive from the settings
+builder's explicit event processing before the constructor has decided
+whether to install an ambient backdrop. ``changeEvent`` nevertheless called
+``_sync_page_palette`` immediately. It saw ``_ambient is None`` as "no
+backdrop", applied a flat page stylesheet to the half-built tree, and the
+normal constructor path then removed it after installing the backdrop.
+
+The palette handler now defers its entire backdrop/page refresh until the
+constructor's existing ``_ambient_install_ready`` boundary. The constructor
+already performs that refresh immediately after crossing the boundary, so no
+theme update is lost. A direct state-machine regression proves a palette event
+cannot resolve the page while readiness is false, and the previously failing
+Home-import order is green with branch coverage: 103 tutorial and module-build
+contracts pass under PySide6/Qt 6.11.2.
