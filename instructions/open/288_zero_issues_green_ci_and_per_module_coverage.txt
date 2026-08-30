@@ -292,3 +292,20 @@ Freed 19 GB; `/` went from 405 MB to 21 GB and the run continued. Worth a
 line in whatever ends up being the standing instruction for these runs: check
 the disk before starting one, and clear /tmp/pytest-of-olafsson down to the
 newest handful.
+
+THE ACTIONABLE GITHUB ISSUE QUEUE IS EMPTY (2026-08-30)
+--------------------------------------------------------
+The last open issue was #114, an automatically repeated ``ml_analyze`` report
+whose empty table reached scikit-learn's ``train_test_split`` and raised the
+generic ``n_samples=0`` error.  The current ``nightly`` history already held
+the direct fix in ``fc84ff25482abda69dd7381e2b9960184d7fe4b7``:
+``ml_analysis`` rejects a zero-row measurement table before splitting and
+also names the adjacent no-label and unmatched-control cases.
+
+The dedicated regression file was rerun on the integration head (7/7 passed),
+the fix commit was confirmed to be an ancestor of the pushed nightly head,
+and issue #114 was closed with that evidence.  A fresh
+``gh issue list --state open`` then returned an empty list.  This satisfies the
+issue-queue half of the contract at this point in time; the instruction stays
+OPEN because the same final SHA must still make every required CI job green
+and every shipped module reach the coverage ratchet.
