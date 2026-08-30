@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib
 import importlib.machinery
+import os
 import sys
 import time
 
@@ -21,6 +22,10 @@ import pytest
 @pytest.fixture
 def timing(monkeypatch):
     """``spacr.qt.timing`` re-imported with timing and import attribution on."""
+    previous_environment = {
+        name: os.environ.get(name)
+        for name in ("SPACR_TIMING", "SPACR_TIMING_IMPORTS")
+    }
     monkeypatch.setenv("SPACR_TIMING", "1")
     monkeypatch.setenv("SPACR_TIMING_IMPORTS", "1")
     saved = sys.modules.get("spacr.qt.timing")
@@ -29,6 +34,11 @@ def timing(monkeypatch):
     try:
         yield module
     finally:
+        for name, value in previous_environment.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
         if saved is not None:
             sys.modules["spacr.qt.timing"] = saved
         importlib.reload(saved or module)

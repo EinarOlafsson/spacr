@@ -36,6 +36,10 @@ def timing(monkeypatch):
     Import attribution is left OFF by default: installing the loader wrapper
     is a global change and the tests that want it ask for it explicitly.
     """
+    previous_environment = {
+        name: os.environ.get(name)
+        for name in ("SPACR_TIMING", "SPACR_TIMING_IMPORTS")
+    }
     monkeypatch.setenv("SPACR_TIMING", "1")
     monkeypatch.setenv("SPACR_TIMING_IMPORTS", "0")
     saved = sys.modules.get("spacr.qt.timing")
@@ -44,6 +48,15 @@ def timing(monkeypatch):
     try:
         yield module
     finally:
+        # This fixture is finalized before its ``monkeypatch`` dependency.
+        # Restore the two switches before reloading, or the module handed to
+        # the rest of the process remains enabled after the environment is
+        # restored a moment later.
+        for name, value in previous_environment.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
         if saved is not None:
             sys.modules["spacr.qt.timing"] = saved
         importlib.reload(saved or module)
