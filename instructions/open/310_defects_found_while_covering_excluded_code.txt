@@ -1808,3 +1808,46 @@ correctly to /mnt/firecuda2/codex/repo/spacr, which is where that bug
 was found and fixed. But `spaceout` run from base anaconda executes
 different code than the tree being worked on, which is the kind of thing
 that makes a fix look like it did not take.
+
+------------------------------------------------------------------------------
+27c, CONTINUED: THE INSTANCE THAT HAPPENED AN HOUR AFTER 27c WAS WRITTEN
+------------------------------------------------------------------------------
+
+Recorded because the abstract rule did not prevent the concrete mistake,
+which is the most useful thing to know about a rule.
+
+Round 3's first three files were measured against a baseline of the 34
+pre-existing test files for spacr.io and spacr.regression_annotation, and
+the marginal figure -- coverage those files add that the baseline does
+not already have -- came out as 939 lines+arcs. That number went into the
+commit message of 9295a875.
+
+Re-running the identical comparison later gave 1533, itemised as io.py
+715 and regression_annotation.py 818. Nothing about the test files had
+changed. What changed was `base.json`: it had been overwritten between
+the two computations, so the second run subtracted a different baseline
+from the same measurement.
+
+The commit message therefore states a number that cannot be reproduced.
+It does not change what was decided -- the files close real coverage
+either way, and the later keep-or-revert decision between the committed
+and the agent-revised versions (1533 vs 1549) was computed inside a
+single script against one baseline, so that comparison is sound.
+
+Two things follow, and the second is the point:
+
+  - A baseline artifact must be frozen before it is used. Copy it to a
+    timestamped path and `chmod 444`. A baseline that can be rewritten is
+    not a baseline; it is a variable that happens to be in a file.
+
+  - Comparisons whose operands were produced at different times are worth
+    less than comparisons computed together, even when both look equally
+    like arithmetic. Prefer to load both operands and print the answer in
+    one script, and prefer to re-derive a number over quoting an earlier
+    one -- a figure copied forward carries none of the context that would
+    reveal it had gone stale.
+
+The general defect in 27 is that coverage data is meaningless once its
+source has moved. This instance shows the same thing one level up: it is
+just as meaningless once its BASELINE has moved, and the baseline is the
+half nobody thinks to pin.
