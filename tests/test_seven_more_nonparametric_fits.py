@@ -290,3 +290,79 @@ def test_it_names_a_guide_the_two_rankings_disagree_about():
                      "coefficient"] = 9.0
     said = NP.report_agreement(coefficients, design, y)
     assert "gd7" in said or "No guide moved" in said
+
+
+# --- the note that says whether x was standardised -------------------------
+
+def test_an_unscaled_fit_does_not_claim_x_was_standardised():
+    """``scaled=False`` skips both the transform and the note about it.
+
+    The note is what a reader of the figure has to trust: a distance-based
+    smoother on an unscaled covariate makes one unit of x mean whatever its
+    range happens to be, so "x standardised before fitting" is a claim about
+    how the curve was produced. Printing it on a fit that skipped the
+    transform would describe the wrong analysis.
+    """
+    rng = np.random.default_rng(3)
+    x = rng.uniform(0, 100, 80)
+    y = 2.0 * x + rng.normal(0, 5, 80)
+
+    curve = NP.smooth(x, y, method="knn", scaled=False)
+
+    assert "standardised" not in (curve.note or "")
+
+
+def test_a_scaled_fit_says_so_and_says_why():
+    """The other half, so the assertion above is about the flag, not the text."""
+    rng = np.random.default_rng(3)
+    x = rng.uniform(0, 100, 80)
+    y = 2.0 * x + rng.normal(0, 5, 80)
+
+    curve = NP.smooth(x, y, method="knn", scaled=True)
+
+    assert "standardised" in curve.note
+    assert "distance" in curve.note
+
+
+def test_scaling_changes_the_curve_the_kernel_smoother_draws():
+    """Not merely the note: the flag has to change the fit itself.
+
+    A test that only checked the wording would pass on an implementation that
+    wrote the note and forgot the transform -- which is exactly the bug the
+    note would then be lying about.
+
+    ``kernel`` is the method that shows it, and which one that is turned out
+    to be worth measuring rather than assuming. With a SINGLE predictor,
+    standardising is a monotone rescale, so it does not reorder anything and
+    ``knn`` returns an identical curve; the Gaussian process fits its own
+    length scale and absorbs it too. Only the kernel smoother carries a
+    bandwidth in the covariate's original units, so only it moves. The note is
+    still right for all three -- x really was standardised -- but the visible
+    consequence is here.
+    """
+    rng = np.random.default_rng(11)
+    x = rng.uniform(0, 1000, 120)
+    y = np.sin(x / 200.0) + rng.normal(0, 0.05, 120)
+
+    scaled = NP.smooth(x, y, method="kernel", scaled=True)
+    unscaled = NP.smooth(x, y, method="kernel", scaled=False)
+
+    assert not np.allclose(scaled.y, unscaled.y), (
+        "scaled and unscaled produced the same curve, so the flag only "
+        "changed the note")
+
+
+def test_a_single_predictor_makes_scaling_invisible_to_the_neighbour_methods():
+    """The counterpart, stated rather than left as a surprise.
+
+    Standardising one covariate cannot change which points are nearest, so a
+    reader comparing two knn curves and seeing no difference is looking at
+    correct behaviour, not a broken flag. Pinning it stops someone "fixing"
+    the invariance later.
+    """
+    rng = np.random.default_rng(11)
+    x = rng.uniform(0, 1000, 120)
+    y = np.sin(x / 200.0) + rng.normal(0, 0.05, 120)
+
+    assert np.allclose(NP.smooth(x, y, method="knn", scaled=True).y,
+                       NP.smooth(x, y, method="knn", scaled=False).y)
