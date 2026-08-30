@@ -563,18 +563,54 @@ def recommended_workers(*, measured_gib=None, requested=None):
     return workers, reason
 
 
-def memory_is_low(floor_gib: float = 8.0) -> bool:
-    """True when free memory has fallen far enough to stop starting trials.
+_LAST_MEMORY_STATE: dict[str, Any] = {}
+
+
+def memory_is_low(floor_gib: float = 8.0,
+                  spacr_ceiling_gib: float | None = None) -> bool:
+    """True when the machine or spaCR's own process tree crossed its limit.
 
     Checked between submissions, not only at the start: the other things on
     the machine -- an editor, the spaCR GUI, another analysis -- grow while
     the sweep runs, and the sweep must yield to them rather than race them.
+
+    ``spacr_ceiling_gib`` is optional because the machine-wide free-memory
+    floor remains the default safety policy. When a caller supplies a run
+    budget, the active resource sampler's latest process-tree total makes the
+    guard attributable: it can distinguish "the machine is busy" from
+    "spaCR is the reason" instead of treating both as the same number.
     """
+    available = None
     try:
         import psutil
-        return psutil.virtual_memory().available / (1024 ** 3) < floor_gib
+        available = psutil.virtual_memory().available / (1024 ** 3)
     except Exception:
-        return False
+        pass
+
+    own = None
+    try:
+        from .runctx import current_run_context
+
+        context = current_run_context()
+        sampler = getattr(context, "_resource_sampler", None)
+        figure = (sampler._summary.get("last_tree_memory_bytes")
+                  if sampler is not None else None)
+        if figure is not None:
+            own = float(figure) / (1024 ** 3)
+    except Exception:                                           # noqa: BLE001
+        pass
+
+    machine_low = available is not None and available < float(floor_gib)
+    spacr_low = (spacr_ceiling_gib is not None and own is not None
+                 and own > float(spacr_ceiling_gib))
+    _LAST_MEMORY_STATE.clear()
+    _LAST_MEMORY_STATE.update({
+        "available_gib": available,
+        "spacr_tree_gib": own,
+        "machine_low": machine_low,
+        "spacr_low": spacr_low,
+    })
+    return bool(machine_low or spacr_low)
 
 
 #: Environment variables every numerical library reads for its thread pool.
@@ -825,9 +861,17 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
     if os.path.exists(out_path):
         try:
             with open(out_path) as handle:
-                return json.load(handle)
+                result = json.load(handle)
         except Exception:  # truncated by a kill
             pass
+        else:
+            # A pool worker must carry the stamp one hop farther to the real
+            # parent. A direct/main-process caller can register it now and
+            # must not expose a private transport column in its public row.
+            import multiprocessing
+            if multiprocessing.current_process().name == "MainProcess":
+                return _register_resource_workers(result)
+            return result
     # No result file: the child was killed before it could write one. The cap
     # is the likeliest reason and worth naming, because "killed" and "crashed"
     # want different responses from the user.
@@ -908,6 +952,16 @@ def _execute_trial(payload):
     be_polite()
     _pin_threads()
 
+    # Returned through the existing future rather than a new IPC channel.
+    # The parent sampler may already have seen this PID; registering the
+    # creation-time stamp retroactively attaches the trial name to that
+    # process and to its eventual disappearance event without a PID-reuse
+    # race.
+    from .fit_resources import _worker_stamp
+    resource_workers = [
+        _worker_stamp("parameter_sweep_pool", trial["trial_id"])
+    ]
+
     settings, folder = _trial_settings(base_settings, trial, destination,
                                        qc=qc)
     row = {"trial_id": trial["trial_id"], "folder": folder,
@@ -933,8 +987,12 @@ def _execute_trial(payload):
         # multiplier as well.
         child = run_trial_contained(settings, trial_id=trial["trial_id"],
                                     controls=controls)
+        child_stamp = child.pop("_resource_worker", None)
+        if isinstance(child_stamp, Mapping):
+            resource_workers.append(dict(child_stamp))
         row.update({k: v for k, v in child.items() if k != "trial_id"})
         row["seconds"] = child.get("seconds", round(time.time() - began, 2))
+        row["_resource_workers"] = resource_workers
         return row
 
     from .ml import perform_regression
@@ -968,6 +1026,29 @@ def _execute_trial(payload):
         except OSError:
             pass
     row["seconds"] = round(time.time() - began, 2)
+    row["_resource_workers"] = resource_workers
+    return row
+
+
+def _register_resource_workers(row: dict) -> dict:
+    """Attach private child stamps to the active run, then remove them."""
+    raw_stamps = row.pop("_resource_workers", [])
+    stamps = (list(raw_stamps)
+              if isinstance(raw_stamps, (list, tuple)) else [])
+    single = row.pop("_resource_worker", None)
+    if isinstance(single, Mapping):
+        stamps = [*stamps, single]
+    try:
+        from .runctx import current_run_context
+
+        context = current_run_context()
+        if context is not None:
+            for stamp in stamps:
+                if isinstance(stamp, Mapping):
+                    context.register_worker(stamp)
+    except Exception:                                           # noqa: BLE001
+        # Accounting must never change whether a trial is a result.
+        pass
     return row
 
 
@@ -1090,6 +1171,7 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     pending = list(payloads)
     done = 0
     paused_for_memory = 0
+    last_memory_state: dict[str, Any] = {}
     with ProcessPoolExecutor(max_workers=n_jobs, mp_context=context) as pool:
         futures = {}
 
@@ -1101,10 +1183,11 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
             n_jobs in flight is what lets the memory floor below actually
             stop the sweep growing while the user's editor is running.
             """
-            nonlocal paused_for_memory
+            nonlocal paused_for_memory, last_memory_state
             while pending and len(futures) < n_jobs:
                 if memory_is_low() and futures:
                     paused_for_memory += 1
+                    last_memory_state = dict(_LAST_MEMORY_STATE)
                     return
                 payload = pending.pop(0)
                 futures[pool.submit(_execute_trial, payload)] = \
@@ -1116,7 +1199,7 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                 trial_id = futures.pop(future)
                 done += 1
                 try:
-                    rows.append(future.result())
+                    rows.append(_register_resource_workers(future.result()))
                 except BaseException as error:  # noqa: BLE001 - dead worker
                     rows.append({"trial_id": trial_id, "status": "failed",
                                  "error_type": type(error).__name__,
@@ -1136,9 +1219,13 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                 break
 
     if paused_for_memory:
+        own = last_memory_state.get("spacr_tree_gib")
+        attribution = (f"; spaCR's process tree was {own:.1f} GiB"
+                       if own is not None else "")
         print(f"[sweep] held back {paused_for_memory} times because free "
               f"memory fell below the floor; the sweep yielded rather than "
-              f"competing with the rest of the machine.", flush=True)
+              f"competing with the rest of the machine{attribution}.",
+              flush=True)
     return pd.DataFrame(rows).sort_values("trial_id").reset_index(drop=True)
 
 
@@ -1280,6 +1367,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             # Contained: the child returns a finished ROW, not a model.
             child = run_trial_contained(settings, trial_id=trial["trial_id"],
                                         controls=controls)
+            _register_resource_workers(child)
             row.update({k: v for k, v in child.items()
                         if k not in ("trial_id",)})
             row["seconds"] = child.get("seconds", round(time.time() - began, 2))

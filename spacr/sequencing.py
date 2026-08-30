@@ -652,6 +652,25 @@ def _finish_saver(save_queue, save_process, timeout=60):
             "incomplete. See the worker traceback above.")
 
 
+def _label_resource_process(process, worker_kind, worker_id):
+    """Name a multiprocessing child in the active run's resource record."""
+    try:
+        from .runctx import current_run_context
+
+        context = current_run_context()
+        pid = getattr(process, "pid", None)
+        if context is not None and pid is not None:
+            context.register_worker(worker_kind, worker_id, pid=int(pid))
+    except Exception:                                           # noqa: BLE001
+        pass
+
+
+def _label_chunk_pool(pool):
+    """Name the stable worker processes a multiprocessing Pool created."""
+    for index, process in enumerate(getattr(pool, "_pool", ()) or (), start=1):
+        _label_resource_process(process, "sequencing_chunk", index)
+
+
 def _abort_chunk_workers(pool, save_queue, save_process):
     """Best-effort cleanup after a read-processing exception."""
     pool.terminate()
@@ -720,8 +739,10 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     # Start the saving process
     save_process = Process(target=saver_process, args=(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
     save_process.start()
+    _label_resource_process(save_process, "sequencing_saver", "paired")
 
     pool = Pool(n_jobs)
+    _label_chunk_pool(pool)
 
     print(f'Chunk size: {chunk_size}')
 
@@ -834,8 +855,10 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     # Start the saving process
     save_process = Process(target=saver_process, args=(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
     save_process.start()
+    _label_resource_process(save_process, "sequencing_saver", "single")
 
     pool = Pool(n_jobs)
+    _label_chunk_pool(pool)
 
     with gzip.open(r1_file, 'rt') as r1:
         while True:
