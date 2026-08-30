@@ -2581,10 +2581,12 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
             params={"c": m.group("c"), "parent": m.group("parent")},
             measurement_units=measurement_units,
         )
+    matched_role = None
     for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
         prefix = f'organelle_summary_{role}_'
         if not name.startswith(prefix):
             continue
+        matched_role = role
         canonical = 'organelle_summary_organelle_' + name[len(prefix):]
         info = KNOWN_PROPERTIES.get(canonical)
         if info is not None:
@@ -2598,7 +2600,7 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
                       measurement_units=measurement_units)
     return _unknown(
         name,
-        "organelle",
+        matched_role or "organelle",
         None,
         "Column carries the organelle_summary_ prefix written by "
         "spacr.measure._measure_crop_core, but the summary statistic is not in "
