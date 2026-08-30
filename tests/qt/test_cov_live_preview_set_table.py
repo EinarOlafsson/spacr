@@ -18,10 +18,10 @@ import tifffile
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import Qt                                   # noqa: E402
+from PySide6.QtCore import Qt  # noqa: E402
 
-from spacr.qt.widgets import live_preview as LP                  # noqa: E402
-from spacr.qt.widgets.live_preview import LivePreviewPanel       # noqa: E402
+from spacr.qt.widgets import live_preview as LP  # noqa: E402
+from spacr.qt.widgets.live_preview import LivePreviewPanel  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
