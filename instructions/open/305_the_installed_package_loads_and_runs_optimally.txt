@@ -328,3 +328,40 @@ item 2's exact-registry all-module post-paint traces and 500 ms frame-stall
 audit.  The final release SHA must repeat the artifact matrix.  Item 305 stays
 OPEN for those matrix/tracing results and the remaining profiling/ratchet work
 in items 2, 5 and 6.
+
+--------------------------------------------------------------------------------
+2026-08-30 — INSTALLED ARTIFACT CI NOW DRIVES THE PUBLIC HOME PATH
+--------------------------------------------------------------------------------
+
+The compatibility grid installed both exact distributions but its Qt proof
+stopped at constructing ``AppScreen("measure")``.  That proxy could pass when
+the public launcher, application registration, main window or first Home paint
+was broken.  Each wheel and sdist cell now starts a separate isolated-mode
+child outside the checkout, re-verifies the archive through its PEP 610 origin,
+and calls the installed ``spacr.qt.run(["--no-setup"])`` entry point.  The child
+exits only after production timing observes Home on the main thread, after the
+event loop, with a painted screen tree and named usable controls.  Missing or
+inconsistent timestamps, an unpainted tree, no usable control, a non-zero
+launcher result or no readiness event fails the cell.
+
+The observation is taken before application shutdown can import cleanup code.
+It also fails if Home has already imported pandas, SciPy, scikit-learn, Torch,
+torchvision, Cellpose, OpenCV, IPython, pyplot or statsmodels.  The older core
+module, Measure ``AppScreen`` and console-entry-point probe remains a second
+fresh child, so the stronger launch proof does not weaken that coverage.
+
+The uploaded smoke report now has a versioned schema and records the Python,
+implementation, executable, platform, machine, processor and logical CPU
+profile beside its timing evidence; the workflow summary includes measured
+Home readiness for both formats.  Hosted offscreen duration remains evidence,
+not a release performance verdict: unlike shared CI machines still cannot
+stand in for item 2's lower-end real-display budget.
+
+Verification in the isolated implementation lane: all 42 packaging metadata
+tests passed, including behavioral tests that make the readiness callback exit
+the fake public launcher and prove an eager heavy stack fails.  Python 3.9 AST
+parsing, byte compilation and focused Ruff checks also passed.  This closes a
+static installed-Home and lazy-boundary CI gap.  Item 305 remains OPEN until
+the supported artifact matrix is green on the frozen release SHA, the accepted
+real-display all-module traces and GPU/resource evidence exist, and every
+>=10-percent profile hotspot has a measured disposition.

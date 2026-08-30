@@ -789,10 +789,12 @@ jobs:
         # The harness resolves dependencies once from the downloaded wheel,
         # uninstalls spaCR, then makes each distribution the final project in
         # turn.  Its child probes use ``python -I`` from a temporary directory,
-        # verify direct_url.json names the input archive, construct a real
-        # AppScreen, and exercise the installed spacr-run entry point.  Exact
-        # timings are evidence only; the 180-second guard catches a hang rather
-        # than trying to compare unlike hosted-runner hardware.
+        # verify direct_url.json names the input archive, run the public Qt
+        # entry point until installed Home has painted a usable control, then
+        # construct a real AppScreen in a second fresh process and exercise the
+        # installed spacr-run entry point.  Exact timings are evidence only;
+        # the 180-second guard catches a hang rather than trying to compare
+        # unlike hosted-runner hardware.
         shell: bash
         run: |
           python -I packaging/smoke_distribution_artifacts.py \
