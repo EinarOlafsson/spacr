@@ -23,7 +23,6 @@ import os
 
 import pytest
 
-
 BARE_AND_ROOTED = ["x.png", "", ".", "/", "/a", "/a/b.png", "rel/x.png",
                    "..", "a/../b.csv", "//", "///a"]
 

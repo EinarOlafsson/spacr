@@ -984,7 +984,7 @@ exception-masking protection; a pragma is not an acceptable substitute.
     test that drives the degenerate case -- and the reason there wasn't one is
     that the branch looked defensive.
 
-18. SIXTEEN COPIES OF THE SAME DEAD GUARD: `if parent:` AFTER `abspath()`
+19. SIXTEEN COPIES OF THE SAME DEAD GUARD: `if parent:` AFTER `abspath()`
     -----------------------------------------------------------------------
     Every writer in spaCR that creates its own destination folder had this:
 
