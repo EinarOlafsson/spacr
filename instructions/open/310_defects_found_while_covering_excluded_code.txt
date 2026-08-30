@@ -1707,3 +1707,104 @@ modernization, which is a decision rather than an obstacle, and they
 become reachable the moment it lands. The only reason they looked
 permanent is that the first install attempt was made against the stack
 the modernization is meant to replace.
+
+==============================================================================
+29. THE GPU BACKDROP STORMED BECAUSE ITS FALLBACK GUARDED THE WRONG MOMENT
+==============================================================================
+
+Reported from a real session, not found by coverage: running `spaceout`
+on Wayland printed
+
+    ERROR: Invoking ... _Canvas.on_draw ... for DrawEvent
+    ERROR: Invoking ... repeat 2, 4, 8, 16, 32, 64, 128, 256 ...
+
+forever, over a window that never drew a frame.
+
+WHY THE EXISTING FALLBACK DID NOT FIRE
+
+`create_fractal_widget` already wraps `_make_gpu_widget` in `except
+Exception` and falls back to the CPU renderer, with a warning that was
+itself added after an earlier bug where GPU failures were swallowed
+silently. It did not fire here, and the reason is worth generalising:
+
+    the guard was around CONSTRUCTION, and the failure was at FIRST USE.
+
+vispy links a shader program lazily, on its first draw. Construction
+therefore succeeds on a context that cannot run the shaders at all. The
+first draw happens inside a DrawEvent, and vispy's dispatcher catches
+what a handler raises, logs it, and RETRIES with a doubling counter --
+so the one condition the fallback existed for arrived in the one place
+the fallback could not see, and the retry turned a single failure into
+an unbounded log.
+
+The fix is to make the failure happen where the guard already is: link
+the program in `_Canvas.__init__`, inside the try the caller already
+has. `on_draw` is also guarded now, and checks `_dead` on entry, because
+a context can be lost after a successful link and one lost context must
+not become a storm either.
+
+THE UNDERLYING INCOMPATIBILITY
+
+On Wayland, Qt gives vispy a GLES context. vispy prepends `#version 120`
+-- desktop GLSL -- to shaders that carry no version directive of their
+own, and the driver answers
+
+    on line 2: error C0201: unsupported version 120
+    on line 3: error C7532: global type vec2 requires "#version 100" or later
+
+The "requires #version 100 or later" phrasing is GLSL ES, which is what
+identifies the context as ES rather than desktop. The identical session
+under QT_QPA_PLATFORM=xcb gets a GLX context and runs on the GPU with no
+errors at all, so this is a property of the Qt platform plugin, not of
+the machine, the driver, or the card.
+
+Not fixed: making the shaders compile on a GLES context. That needs them
+written to a version GLES accepts, and the fragment shaders are the
+substantial ones. Until then Wayland gets the CPU renderer.
+
+THE GENERAL SHAPE, WHICH IS THE PART WORTH KEEPING
+
+A `try` around construction only covers what construction actually does.
+Any resource acquired lazily -- a shader program, a database handle, a
+model weight file, a compiled kernel -- moves its failure out of that try
+and into the first call that touches it. Where the caller's recovery is
+attached to construction, laziness silently disables the recovery. Force
+the acquisition inside the guard, or move the guard to where the
+acquisition happens.
+
+THE TESTS, AND WHY THEY DO NOT USE A REAL CONTEXT
+
+Both contracts are driven through an injected program that refuses to
+link, not through a GL context a test would have to hope is broken. The
+offscreen platform the suite runs on compiles these shaders fine, so a
+test that waited for a real failure would skip everywhere it mattered.
+The first version of the file did exactly that and the suite's own
+hygiene guard rejected it, correctly: `except Exception: pytest.skip(...)`
+would have reported a genuine break in the factory as a skip. It now
+skips only on `GpuBackendError`, which is precisely "no usable GL
+context here".
+
+==============================================================================
+30. TWO EDITABLE INSTALLS OF spaCR ARE ACTIVE IN THE SAME INTERPRETER
+==============================================================================
+
+Found while tracking down 29, and unrelated to it, but it will waste
+somebody's afternoon eventually. In the base anaconda environment:
+
+  spacr-1.5.0.4          -> /mnt/firecuda2/Claude/repo/spacr/spacr
+  spacr_nightly-1.1.5    -> /home/olafsson/repo/spacr-claude/spacr   (ABSENT)
+
+The nightly's finder points at a directory that no longer exists, and
+site-packages/spacr survives as a bare `resources` directory with no
+`__init__.py`, which makes `spacr` resolve as a NAMESPACE package there
+-- so `import spacr` succeeds and then individual submodules are missing,
+which reads like a corrupt install rather than a path problem.
+
+The base environment's `spaceout` console script also still points at
+`spacr.gui:gui_app`, while setup.py declares `spacr.qt.spaceout:main`.
+
+None of this affected 29: the `(spacr)` conda environment resolves
+correctly to /mnt/firecuda2/codex/repo/spacr, which is where that bug
+was found and fixed. But `spaceout` run from base anaconda executes
+different code than the tree being worked on, which is the kind of thing
+that makes a fix look like it did not take.
