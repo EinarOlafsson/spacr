@@ -14,9 +14,9 @@ if str(TOOLS) not in sys.path:
 
 from i18n_reviewed_ui import LANGUAGES, REVIEWED_UI_TRANSLATIONS  # noqa: E402
 
-REVIEWED_UI_SOURCE_COUNT = 84
-REVIEWED_UI_SOURCE_SHA256 = "72d0b07ead624763a8c9cc6822d96ff5a1e4296c4a32886a1772a415226fc9b7"
-REVIEWED_UI_CONTENT_SHA256 = "2577b39c1ca42567867dc76a99196734d0da9661488c0cb083a9cc49fe839d8c"
+REVIEWED_UI_SOURCE_COUNT = 86
+REVIEWED_UI_SOURCE_SHA256 = "b79810d3dabc30a5c660909d16f9ca9aaf05006dbbdc0347620dd85eb5747599"
+REVIEWED_UI_CONTENT_SHA256 = "7030fb63e231ebbaeff5248b7074811ad80e53eb781ab64b878e677e004420b1"
 
 
 def test_reviewed_ui_vocabulary_is_complete_and_pinned():
@@ -80,6 +80,12 @@ def test_reviewed_ui_vocabulary_rejects_the_known_false_sense_families():
     assert rows["Folds"]["fr"] == "Partitions"
     assert rows["power"]["ko"] == "통계적 검정력"
     assert rows["Gate"]["es"] == "Región de selección"
+    empty = rows[
+        "Nothing to plot — build a table with at least one non-empty cell first."
+    ]
+    assert "Tabelle" in empty["de"] and "Zelle" in empty["de"]
+    assert "表格" in empty["zh_CN"] and "单元格" in empty["zh_CN"]
+    assert "tableau" in empty["fr"] and "cellule" in empty["fr"]
 
     contamination = (
         "ordförande",

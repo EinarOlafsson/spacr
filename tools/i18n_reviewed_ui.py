@@ -462,6 +462,33 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         "Engar færibreytur til að leita",
         "Aucun paramètre à explorer",
     ),
+    # Empty-state plotting instructions need both the charting sense of
+    # "plot" and the data-grid senses of "table" and "cell".  Generic
+    # translation repeatedly produced furniture, biological cells, writing,
+    # inventing, or profit.  Keep the two live phrasings together so their
+    # terminology cannot drift.
+    "Nothing to plot yet — build a table with at least one non-empty cell.": _row(
+        "Inget att rita ännu — skapa en tabell med minst en cell som inte är tom.",
+        "Noch nichts zu plotten — erstellen Sie eine Tabelle mit mindestens einer nicht leeren Zelle.",
+        "Aún no hay nada que representar — cree una tabla con al menos una celda que no esté vacía.",
+        "还没有可绘制的内容——请创建一个至少包含一个非空单元格的表格。",
+        "Ainda não há nada para representar — crie uma tabela com pelo menos uma célula não vazia.",
+        "अभी प्लॉट करने के लिए कुछ नहीं है — कम-से-कम एक गैर-रिक्त सेल वाली तालिका बनाएँ।",
+        "아직 그릴 내용이 없습니다. 비어 있지 않은 셀이 하나 이상 있는 표를 만드세요.",
+        "Ekkert til að teikna enn — búðu til töflu með að minnsta kosti einum reit sem er ekki auður.",
+        "Rien à tracer pour l’instant — créez un tableau comportant au moins une cellule non vide.",
+    ),
+    "Nothing to plot — build a table with at least one non-empty cell first.": _row(
+        "Inget att rita — skapa först en tabell med minst en cell som inte är tom.",
+        "Nichts zu plotten — erstellen Sie zuerst eine Tabelle mit mindestens einer nicht leeren Zelle.",
+        "Nada que representar — cree primero una tabla con al menos una celda que no esté vacía.",
+        "没有可绘制的内容——请先创建一个至少包含一个非空单元格的表格。",
+        "Nada para representar — crie primeiro uma tabela com pelo menos uma célula não vazia.",
+        "प्लॉट करने के लिए कुछ नहीं है — पहले कम-से-कम एक गैर-रिक्त सेल वाली तालिका बनाएँ।",
+        "그릴 내용이 없습니다. 먼저 비어 있지 않은 셀이 하나 이상 있는 표를 만드세요.",
+        "Ekkert til að teikna — búðu fyrst til töflu með að minnsta kosti einum reit sem er ekki auður.",
+        "Rien à tracer — créez d’abord un tableau comportant au moins une cellule non vide.",
+    ),
     # Shortcut-map prose is source-bound here as well as in the compact
     # runtime catalog. "Field" means a microscopy field of view, and the
     # joint scope must retain the translated Annotate and Make Masks names.
