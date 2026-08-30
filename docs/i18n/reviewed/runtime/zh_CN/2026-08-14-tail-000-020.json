@@ -61,9 +61,9 @@
     {
       "table": "setting_tooltips",
       "key": "channels",
-      "source_sha256": "79bd22aad87e245307d5a029097098f857e3ca4479aa0b0b4c59164c23e3a905",
-      "source": "Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3].",
-      "translation": "保留在 merged/*.npy 中并由 measure_crop 测量的从零开始编号的图像数据通道；每个条目都会产生各自的 <object>_channel_<n>_* 强度列。列表长度决定掩模所在位置，因此更改它时必须相应移动 cell/nucleus/pathogen_mask_dim。若列表与检测到的图像数据通道文件夹数量不一致，预处理会静默地将其重置为 range(n)。默认值为 [0,1,2,3]。"
+      "source_sha256": "7beb99685c36298b4bb708f2fc66377324b093b8f0923080d1aa6566a6a65b62",
+      "source": "Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3]. External Masks starts with []; there an empty list means every detected intensity channel, not no channels.",
+      "translation": "保留在 merged/*.npy 中并由 measure_crop 测量的从零开始编号的图像数据通道；每个条目都会产生各自的 <object>_channel_<n>_* 强度列。列表长度决定掩模所在位置，因此更改它时必须相应移动 cell/nucleus/pathogen_mask_dim。若列表与检测到的图像数据通道文件夹数量不一致，预处理会静默地将其重置为 range(n)。默认值为 [0,1,2,3]。External Masks 以 [] 开始；在该模块中，空列表表示所有检测到的强度通道，而不是不使用任何通道。"
     },
     {
       "table": "setting_tooltips",

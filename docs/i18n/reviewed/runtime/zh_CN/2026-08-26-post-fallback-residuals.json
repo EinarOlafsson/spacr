@@ -152,9 +152,9 @@
     {
       "table": "setting_tooltips",
       "key": "control_wells",
-      "source_sha256": "d185be08b45fbcb0930bd9fa42b3574a77a7bd64d0f8d563918f8cbcb7b4833f",
-      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None.",
-      "translation": "寄生虫未携带预通透染色的孔，用于提供设置阈值所需的经验阴性分布。可指定列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键。这些染色对照孔不是实验条件，因此不参与效率计算。None 使用自动的逐视野方法。筛选回归会将此键用于另一个目的，此时它必须是与 filter_value 匹配的列表。默认值为 None。"
+      "source_sha256": "04f850464d06fc9082946d253fbbe5aebb36edc8d426adaf0e9e1e3046f8fb98",
+      "source": "Wells whose parasites carry no pre-permeabilisation stain, providing the empirical negative distribution used to set the threshold. Specify a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key. These staining-control wells are excluded from efficiency calculations because they are not experimental conditions. None uses the automatic per-field method. Screen regression uses this key for a separate purpose, where it must be a list matching filter_value. Default None. Regression initializes it from filter_value plus any declared control blocks; the shipped filter_value produces ['c1', 'c2', 'c3'].",
+      "translation": "寄生虫未携带预通透染色的孔，用于提供设置阈值所需的经验阴性分布。可指定列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键。这些染色对照孔不是实验条件，因此不参与效率计算。None 使用自动的逐视野方法。筛选回归会将此键用于另一个目的，此时它必须是与 filter_value 匹配的列表。默认值为 None。回归会根据 filter_value 以及任何已声明的对照区组初始化此值；随附的 filter_value 会生成 ['c1', 'c2', 'c3']。"
     },
     {
       "table": "setting_tooltips",
@@ -187,16 +187,16 @@
     {
       "table": "setting_tooltips",
       "key": "intensity_statistic",
-      "source_sha256": "4295940532e312187bc90b2457c5abfdf0a4ea068fc82e9eb4a539e9a08b398e",
-      "source": "Per-object statistic of the pre-permeabilisation channel used for thresholding. Because the stain is localized to the parasite surface, the object mean divides rim signal by the full area and can classify a larger parasite as dimmer than a smaller parasite with equivalent surface staining. A percentile of rim-pixel intensity reduces this size-dependent bias. Default 'mean'.",
-      "translation": "用于阈值处理的预通透通道逐对象统计量。由于染色位于寄生虫表面，对象平均值会用完整面积稀释边缘信号，因此表面染色相当时，较大的寄生虫可能被判为比较小的寄生虫更暗。使用边缘像素强度的百分位数可减小这种与大小相关的偏差。默认值为 'mean'。"
+      "source_sha256": "7653e31f15d5aba3751d4e564d7911d664307fd8a9199ebaba09b1a260109823",
+      "source": "Per-object statistic of the pre-permeabilisation channel used for thresholding. Because the stain is localized to the parasite surface, the object mean divides rim signal by the full area and can classify a larger parasite as dimmer than a smaller parasite with equivalent surface staining. A percentile of rim-pixel intensity reduces this size-dependent bias. Default 'mean'. Invasion starts at 'auto': it chooses periphery_95 when present, otherwise percentile_95, and uses mean only as a warned last resort.",
+      "translation": "用于阈值处理的预通透通道逐对象统计量。由于染色位于寄生虫表面，对象平均值会用完整面积稀释边缘信号，因此表面染色相当时，较大的寄生虫可能被判为比较小的寄生虫更暗。使用边缘像素强度的百分位数可减小这种与大小相关的偏差。默认值为 'mean'。Invasion 以 'auto' 开始：若存在 periphery_95 则选择它，否则选择 percentile_95；只有在前两者都不可用时才会在警告后使用 mean。"
     },
     {
       "table": "setting_tooltips",
       "key": "loss_type",
-      "source_sha256": "2ee3782136a831ca618e0b234a8d95426f3b41bbba5c91b05f05efaeb2b2cfe1",
-      "source": "Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'.",
-      "translation": "用于训练分类器的损失。对于包含两个或更多类别的输出头：'focal_loss'（降低简单样本的权重）、'cross_entropy'、'label_smoothing'（epsilon 0.1）、'ce_weighted'（按类别频率倒数加权）、'logit_adjust_ce' 和 'asl'。'binary_cross_entropy_with_logits' 仅适用于单 logit 输出头，否则会引发错误。类别不平衡时请使用加权损失或焦点损失。默认值为 'focal_loss'。"
+      "source_sha256": "c2166eb0e164fb417972dedd6e52ab0e33cfab0552ebe4b059a0d4a648790aba",
+      "source": "Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'. Merged Classifier starts at 'auto', which resolves to cross_entropy for a multi-class head and binary_cross_entropy_with_logits for a single-logit head.",
+      "translation": "用于训练分类器的损失。对于包含两个或更多类别的输出头：'focal_loss'（降低简单样本的权重）、'cross_entropy'、'label_smoothing'（epsilon 0.1）、'ce_weighted'（按类别频率倒数加权）、'logit_adjust_ce' 和 'asl'。'binary_cross_entropy_with_logits' 仅适用于单 logit 输出头，否则会引发错误。类别不平衡时请使用加权损失或焦点损失。默认值为 'focal_loss'。Merged Classifier 以 'auto' 开始；多分类输出头会将其解析为 cross_entropy，单 logit 输出头会将其解析为 binary_cross_entropy_with_logits。"
     },
     {
       "table": "setting_tooltips",
@@ -222,9 +222,9 @@
     {
       "table": "setting_tooltips",
       "key": "normalize",
-      "source_sha256": "b0bee7fe0352e579bb61ce3f47b8f8b1de7fd8324888bc63686279c1825ad669",
-      "source": "Percentile-normalize each image channel from the 2nd to 98th percentile, clipped to 0-1, before display or model input. In the activation-map tool this rescales the image beneath the CAM or saliency heatmap. Enable it when raw channels are too dim under the overlay. It affects display and input scaling, not stored pixels. Default True.",
-      "translation": "在显示或输入模型前，对每个图像通道按第 2 至 98 百分位数进行归一化，并裁剪到 0-1。在激活图工具中，此操作会重新缩放 CAM 或显著性热图下方的图像。当叠加图下的原始通道过暗时请启用。它影响显示和输入缩放，不改变存储的像素。默认值为 True。"
+      "source_sha256": "9bf5d68d106f829d89da717be486c850c3254a6d49102ef64feefa4d819de086",
+      "source": "Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools.",
+      "translation": "控制显示、模型输入或图像裁剪导出前的百分位归一化。显示和激活图工具使用 True，将图像拉伸到第 2–98 百分位。Measure 和 External Masks 以 False 开始；Measure 接受 False 或两个数值组成的 [low, high] 百分位区间，并拒绝单独的 True，因为它没有提供界限。此设置影响显示和导出图像裁剪的缩放，不影响测得的源强度。面向显示的工具默认值为 True。"
     },
     {
       "table": "setting_tooltips",
@@ -236,9 +236,9 @@
     {
       "table": "setting_tooltips",
       "key": "nuclei_limit",
-      "source_sha256": "f7d55f4b0325db301b65bedab6f3c6f38239911314ca7bf4d9c6a8c39ed62514",
-      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None.",
-      "translation": "合并逐对象表时应用的每个细胞的细胞核数量上限。None 禁用筛选，True 仅保留单核细胞，整数 N 保留细胞核数不超过 N 的细胞。超过上限的细胞会从合并表中完全删除。不要传入 False：它会被解释为 0 并删除所有细胞，产生空分析而不引发错误。默认值为 None。"
+      "source_sha256": "fd03c70d046963fa83c6fd8dd5a66d0e2d3907a9b81cd4c9f288f48eb71db222",
+      "source": "Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells.",
+      "translation": "合并逐对象表时应用的每个细胞的细胞核数量上限。None 禁用筛选，True 仅保留单核细胞，整数 N 保留细胞核数不超过 N 的细胞。超过上限的细胞会从合并表中完全删除。不要传入 False：它会被解释为 0 并删除所有细胞，产生空分析而不引发错误。默认值为 None。Merged Classifier 以 True 开始，Recruitment 以 1 开始，因此两者最初都只保留单核细胞。"
     },
     {
       "table": "setting_tooltips",
@@ -313,9 +313,9 @@
     {
       "table": "setting_tooltips",
       "key": "verbose",
-      "source_sha256": "d15e9bc7556913b860ad859dbb13edf286023c2cec8994763d8ae9cbd06ecc2b",
-      "source": "Print the resolved settings table, channel and model choices per object type, row counts per table, and object counts after each filter. It only adds console output; enable it to identify which stage produced an unexpected object count. The default is True for mask, UMAP, screen analysis, barcode mapping and Cellpose training, and False for measure, plotting helpers and regression.",
-      "translation": "输出解析后的设置表、每种对象类型的通道和模型选择、每个表的行数，以及每次筛选后的对象数。此项只增加控制台输出；可启用它来确定哪个阶段产生了异常的对象数。对于 mask、UMAP、筛选分析、条形码映射和 Cellpose 训练，默认值为 True；对于 measure、绘图辅助函数和回归，默认值为 False。"
+      "source_sha256": "3938583f6ab25894d9770ea935b0b8f23c55134946846c750224d663be69b37b",
+      "source": "Print the resolved settings table, channel and model choices per object type, row counts per table, and object counts after each filter. It only adds console output; enable it to identify which stage produced an unexpected object count. The default is True for mask, UMAP, screen analysis, barcode mapping and Cellpose training, and False for measure, plotting helpers and regression. Invasion and Replication also start with console detail disabled.",
+      "translation": "输出解析后的设置表、每种对象类型的通道和模型选择、每个表的行数，以及每次筛选后的对象数。此项只增加控制台输出；可启用它来确定哪个阶段产生了异常的对象数。对于 mask、UMAP、筛选分析、条形码映射和 Cellpose 训练，默认值为 True；对于 measure、绘图辅助函数和回归，默认值为 False。Invasion 和 Replication 也默认禁用详细控制台输出。"
     },
     {
       "table": "categories",

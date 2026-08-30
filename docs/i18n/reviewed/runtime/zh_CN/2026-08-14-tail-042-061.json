@@ -19,9 +19,9 @@
     {
       "table": "setting_tooltips",
       "key": "plot",
-      "source_sha256": "e6649baf82ce5d34b6fdfa62e1d0b76401de29e2e07d9aa76a883f3f6cc5f798",
-      "source": "Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False.",
-      "translation": "在流水线运行期间渲染并保存质量控制图，包括通道拼图、Cellpose 掩模叠加图、过滤对比图和 image crop 网格。生成图形会增加运行时间和内存使用量，处理完整微孔板时尤为明显。test_mode 会自动启用此设置。默认值为 False。"
+      "source_sha256": "6460b55ed0cb6bf29973177bf3fd08fae63d9134094c2f2fab7fe3f730a5349e",
+      "source": "Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False. Merged Classifier and Recruitment both start with plotting enabled so their diagnostic figures are produced on the first run.",
+      "translation": "在流水线运行期间渲染并保存质量控制图，包括通道拼图、Cellpose 掩模叠加图、过滤对比图和 image crop 网格。生成图形会增加运行时间和内存使用量，处理完整微孔板时尤为明显。test_mode 会自动启用此设置。默认值为 False。Merged Classifier 和 Recruitment 均默认启用绘图，因此首次运行就会生成诊断图。"
     },
     {
       "table": "setting_tooltips",
@@ -110,9 +110,9 @@
     {
       "table": "setting_tooltips",
       "key": "treatment_plate_metadata",
-      "source_sha256": "e353538ed6213f3f66e7fe26d7dc0484d2edd98f5333a2112987af093a894d11",
-      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None.",
-      "translation": "接受每种处理的微孔，每种处理对应一个内部列表且顺序一致，例如 [['r1','r2','r3'],['r4','r5','r6']]。条目必须以表示行的 'r' 或表示列的 'c' 开头；其他条目会被忽略且不会获得处理标签。未列出的微孔仍保留在输出中，其 condition 值仅包含可用的细胞、病原体或处理标签。默认值 None。"
+      "source_sha256": "1e7ed41533f616403bbc83f0b68a699c08538fba69c6bc3a58166fc72d01d6b7",
+      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
+      "translation": "接受每种处理的微孔，每种处理对应一个内部列表且顺序一致，例如 [['r1','r2','r3'],['r4','r5','r6']]。条目必须以表示行的 'r' 或表示列的 'c' 开头；其他条目会被忽略且不会获得处理标签。未列出的微孔仍保留在输出中，其 condition 值仅包含可用的细胞、病原体或处理标签。默认值 None。Recruitment 以 [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']] 开始，并按位置与其最初的两个处理名称配对。"
     },
     {
       "table": "setting_tooltips",
