@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "power",
+      "source_sha256": "ef33e991f4e77307fccb419e731005a2ce64be45f552a63482b7043a89b98669",
+      "source": "Statistical power",
+      "translation": "Potencia estadística"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_backend",
+      "source_sha256": "956fe017ecf6f765335cb7eecc4b69d231b2afb3996619a849d178b5c35b6c20",
+      "source": "Statistical power — inference backend",
+      "translation": "Potencia estadística — motor de inferencia"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_background_positive_rate",
+      "source_sha256": "6b9af66a77032c9d9ceb5cb739dafad74ca92376433570485bd6cf0e11822be9",
+      "source": "Statistical power — background positive-call rate",
+      "translation": "Potencia estadística — tasa de positivos de fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_cells_per_well",
+      "source_sha256": "cd3a8fb5932689617a8003ef54ca46d5288e17779c4d067f7779c6d2183d440a",
+      "source": "Statistical power — cells per well",
+      "translation": "Potencia estadística — células por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_constructs_per_well",
+      "source_sha256": "810302ea02c8747975f52490a892836fff5f73e92df75ef2ccd9207f80ea41de",
+      "source": "Statistical power — library units per well",
+      "translation": "Potencia estadística — unidades de biblioteca por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_detection_auroc",
+      "source_sha256": "752f7da1abf948204f98c587431ca38a244ed20ec1946993b4a6c31779a5ed94",
+      "source": "Statistical power — detection AUROC threshold",
+      "translation": "Potencia estadística — umbral AUROC de detección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_effect_fold",
+      "source_sha256": "c768002379e024486b62119b99d00b8a08855d6f7e39ab35ea0fd9b2adbe0584",
+      "source": "Statistical power — effect multiplier",
+      "translation": "Potencia estadística — factor de efecto"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_hit_rate",
+      "source_sha256": "60ad85bced0c29d038d744b82f5d7189aba6b04215c9166c8bb40b99f83e58fc",
+      "source": "Statistical power — hit probability",
+      "translation": "Potencia estadística — probabilidad de hit"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_genes",
+      "source_sha256": "9751ff9b35135df55ac3b0054eab46ae0ce6c0964fcfbb7f130c25721c65f993",
+      "source": "Statistical power — genes",
+      "translation": "Potencia estadística — número de genes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "e63938d08e73c1206419220a7cc63253512078e701a204f291ad1c5400de59f0",
+      "source": "Statistical power — gRNAs per gene",
+      "translation": "Potencia estadística — número de gRNAs por gen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_plates",
+      "source_sha256": "531737da998d745c3957c8c4c3562285db8ed13d5aa76d5eb8d50bf5e1d9469e",
+      "source": "Statistical power — plates",
+      "translation": "Potencia estadística — número de placas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_replicates",
+      "source_sha256": "f746c9c15dffa6eecc8e346f65252d2a303812b61f3c7b236a02d6ce81851ba6",
+      "source": "Statistical power — replicates",
+      "translation": "Potencia estadística — número de réplicas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_reads_per_well",
+      "source_sha256": "d8af7ccfa4459dcdd569e05606ab22892caee092db83fe55518d7363823d9372",
+      "source": "Statistical power — reads per well",
+      "translation": "Potencia estadística — lecturas por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_score_per",
+      "source_sha256": "9fd836e238d3404d89314cff57d51bb7f3868402a72b6312e014e1c46a427706",
+      "source": "Statistical power — scoring level",
+      "translation": "Potencia estadística — nivel de puntuación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_seed",
+      "source_sha256": "24fd5934685034aa0d62a8b76cd340ef1cfa705d5b00b777c572a8819ba76412",
+      "source": "Statistical power — random seed",
+      "translation": "Potencia estadística — semilla aleatoria"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_wells_per_plate",
+      "source_sha256": "83664967a29c97f69b623c1c0e9dc5f74697ea35dd10458191f162ab2c4bec24",
+      "source": "Statistical power — wells per plate",
+      "translation": "Potencia estadística — pocillos por placa"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power",
+      "source_sha256": "ef98157ed391ecf7d300b4abcfb288652779633592cd091085b3c05575684827",
+      "source": "Simulates experiments under the specified library, plate, classifier, and effect-size assumptions, then fits the selected analysis model. The parameter scan varies cells per well and the number of wells and reports the fraction of simulations in which the planted effects are recovered.",
+      "translation": "Simula experimentos bajo los supuestos especificados sobre la biblioteca, la placa, el clasificador y el tamaño del efecto, y después ajusta el modelo de análisis seleccionado. El barrido de parámetros varía las células por pocillo y el número de pocillos, e informa de la fracción de simulaciones en las que se recuperan los efectos verdaderos introducidos."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_backend",
+      "source_sha256": "47c91b7bafb730b559afc6d050dade096a8134573972a8f886394dae15993037",
+      "source": "Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'.",
+      "translation": "Motor de inferencia: 'torch' usa ADVI de campo medio; 'numpyro' y 'pymc' emplean NUTS mediante dependencias opcionales; 'auto' prefiere primero numpyro, después pymc y por último torch. Especificar un motor no disponible provoca un error. El AUROC usa la ordenación de los coeficientes, pero ADVI puede alcanzar un óptimo local y sus intervalos no están calibrados. Valor predeterminado: 'torch'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_background_positive_rate",
+      "source_sha256": "79977ab83e0308811779abe58cb25db6ec351b12f0533ed68c175b7569cda0a5",
+      "source": "Mean probability that a non-hit cell is called positive. Rates vary across library-unit/well observations according to the held class_neg_var. Default 0.12.",
+      "translation": "Probabilidad media de que una célula sin un hit verdadero se clasifique como positiva. Las tasas varían entre las observaciones de unidad de biblioteca/pocillo según el valor fijado de class_neg_var. Valor predeterminado: 0.12."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_cells_per_well",
+      "source_sha256": "57c03adc76fc9c35e87b1d9456e8f7cc194ff766d67adb5568d789a23b4852de",
+      "source": "Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.",
+      "translation": "Número medio de células adquiridas por microscopía en cada pocillo. En el cribado real, la media fue de 123. Este es el parámetro que se obtiene a costa de tiempo de microscopio y el que barre la primera curva. Valor predeterminado: 123.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_constructs_per_well",
+      "source_sha256": "828a03d422b0ce477db384b640e9851c6e5c227ef11534f5cf683cb1bb985242",
+      "source": "Target mean distinct library units present per well (genes in gene mode, guides in guide mode), passed as well_abundance_factor_mu. Probability clipping can make the realised mean lower. Default 4.6.",
+      "translation": "Media objetivo de unidades de biblioteca distintas presentes por pocillo (genes en modo 'gene', guías en modo 'guide'), que se pasa como well_abundance_factor_mu. El recorte de probabilidades puede hacer que la media realizada sea menor. Valor predeterminado: 4.6."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_detection_auroc",
+      "source_sha256": "7dd39575717ba97d9fc6a1eda812b4872d121995966b4f1ee9ba0feeda1a9b36",
+      "source": "The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.",
+      "translation": "AUROC que debe alcanzar un cribado simulado para contar como detección. Aquí no hay ningún valor p: el modelo ordena los genes, por lo que el umbral mide la calidad de la ordenación y lo elige el usuario. Valor predeterminado: 0.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_effect_fold",
+      "source_sha256": "ef86a530434ab3ff6e59b3814ad366e14109f5c6c51f4c2a8a9ff9127e4f61d5",
+      "source": "Requested fold multiplier on the mean background positive-call rate. The simulator uses min(0.999, background rate × fold); the screen rejects folds below 1 and classifier mean/variance combinations that cannot define a beta distribution. Default 6.667, yielding 0.80004 at the default background.",
+      "translation": "Multiplicador solicitado para la tasa media de clasificaciones positivas de fondo. El simulador usa min(0.999, tasa de fondo × multiplicador); la aplicación rechaza multiplicadores inferiores a 1 y combinaciones de media/varianza del clasificador que no pueden definir una distribución beta. Valor predeterminado: 6.667, que produce 0.80004 con el fondo predeterminado."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_hit_rate",
+      "source_sha256": "e84df178cb1f7faccb733fdaee2cdc9ceb875e606e4988028d78847300edf9ed",
+      "source": "Independent probability that each simulated library unit is a true hit; the realised hit fraction varies between replicates. In guide mode, guide units are assigned independently because no gene-grouping layer is modelled. Default 0.025.",
+      "translation": "Probabilidad independiente de que cada unidad de biblioteca simulada sea un hit verdadero; la fracción realizada de hits varía entre réplicas. En modo 'guide', las unidades guía se asignan de forma independiente porque no se modela ninguna capa de agrupación por gen. Valor predeterminado: 0.025."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_genes",
+      "source_sha256": "b7e50b343f7bc78213bc1c9595de83e4e21a7da0bb7cc945295b321adfd2d2ab",
+      "source": "Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.",
+      "translation": "Número de genes del diseño. En modo 'gene' es el número de unidades de biblioteca simuladas; en modo 'guide', el simulador usa genes × guías por gen como unidades independientes. Las bibliotecas mayores suelen dificultar la recuperación, pero el simulador evalúa directamente el diseño resultante en lugar de suponer una ley de escalado fija. Valor predeterminado: 452."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "6137f904a97c573142111a9561e5861937527f06a04fe517e04ead63c1205dd1",
+      "source": "Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4.",
+      "translation": "Guías por gen. Este valor solo llega a la simulación cuando power_score_per es 'guide'; la implementación adaptada no incluye una capa de eficiencia de guía, por lo que, al puntuar por gen, este valor no cambia ningún resultado. Valor predeterminado: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_plates",
+      "source_sha256": "4967793a1d8ee0afd61770a8ee317fe3d846be0b7ece7365db82da7f0b253567",
+      "source": "Number of plates used to calculate total simulated wells: wells-per-plate × plates. The simulator and fitted model receive only that total and do not model plate identity or plate-to-plate variance. Default 4.",
+      "translation": "Número de placas utilizado para calcular el total de pocillos simulados: pocillos por placa × placas. El simulador y el modelo ajustado solo reciben ese total; no modelan la identidad de cada placa ni la varianza entre placas. Valor predeterminado: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_replicates",
+      "source_sha256": "85b74b9e738944b3a2a66178dd595cae1918e2584b6475f954eae9ac0cc73cdb",
+      "source": "Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.",
+      "translation": "Número de cribados simulados por punto de la cuadrícula. Un cribado con una configuración determinada es una única realización de un proceso ruidoso. Valor predeterminado: 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_reads_per_well",
+      "source_sha256": "aaea2c308cd9acaa7450668b2fcd7dc0a2bff64092bafcfc6adcb3761daeee51",
+      "source": "Target mean sequencing depth per well. Per-well targets vary according to the held read_depth_cv, and realised reads cannot exceed the amplified barcode pool. Default 30000.",
+      "translation": "Media objetivo de profundidad de secuenciación por pocillo. Los objetivos de cada pocillo varían según el valor fijado de read_depth_cv, y las lecturas realizadas no pueden superar el pool de códigos de barras amplificados. Valor predeterminado: 30000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_score_per",
+      "source_sha256": "8b009ebb894f07cb6d9f52622e3cd4291e8ba1747340d2b4152aacb86c51a057",
+      "source": "'gene' simulates one aggregate library unit and coefficient per gene; 'guide' simulates genes × guides-per-gene independent guide-level units, each with its own coefficient and reads. The simulator has no guide-efficiency or within-gene grouping layer. Choices: 'gene' or 'guide'. Default 'gene'.",
+      "translation": "'gene' simula una unidad de biblioteca agregada y un coeficiente por gen; 'guide' simula genes × guías por gen como unidades independientes a nivel de guía, cada una con su propio coeficiente y sus propias lecturas. El simulador no incluye una capa de eficiencia de guía ni de agrupación dentro del gen. Opciones: 'gene' o 'guide'. Valor predeterminado: 'gene'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_seed",
+      "source_sha256": "b98669ad22dcff882967a48fb9edc04069ada5c0264d8a06ec0932005939db6d",
+      "source": "Master seed used to derive each grid-point replicate seed. Reproduction requires the complete DesignSpec, the same sweep grid and order, resolved backend, and software stack. Default 0.",
+      "translation": "Semilla maestra utilizada para derivar la semilla de cada réplica en cada punto de la cuadrícula. Para reproducir el resultado se requieren la DesignSpec completa, la misma cuadrícula de barrido en el mismo orden, el mismo motor efectivamente seleccionado tras la resolución automática y la misma pila de software. Valor predeterminado: 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_wells_per_plate",
+      "source_sha256": "54fd0866270dab68d2a043eafa374e41eaa0bab008efe7f738016fae245152ac",
+      "source": "Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not restricted to those formats. This is multiplied by power_n_plates and only the resulting total well count reaches the simulator; no plate identity is modelled. Default 384.",
+      "translation": "Pocillos por placa. La interfaz gráfica (GUI) ofrece 96, 384 y 1536; los diseños programáticos no se limitan a esos formatos. Este valor se multiplica por power_n_plates y solo el número total resultante de pocillos llega al simulador; no se modela la identidad de la placa. Valor predeterminado: 384."
+    }
+  ]
+}
