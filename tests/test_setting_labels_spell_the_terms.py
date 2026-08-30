@@ -87,6 +87,34 @@ class TestOrdinaryLabelsAreUnchanged:
             assert setting_label(key), key
 
 
+class TestStatisticalPowerLabelsAreUnambiguous:
+    """Power settings must not be mistaken for electricity in translation."""
+
+    @pytest.mark.parametrize("key,expected", [
+        ("power", "Statistical power"),
+        ("power_backend", "Statistical power — inference backend"),
+        ("power_background_positive_rate",
+         "Statistical power — background positive-call rate"),
+        ("power_cells_per_well", "Statistical power — cells per well"),
+        ("power_constructs_per_well",
+         "Statistical power — library units per well"),
+        ("power_detection_auroc",
+         "Statistical power — detection AUROC threshold"),
+        ("power_effect_fold", "Statistical power — effect multiplier"),
+        ("power_hit_rate", "Statistical power — hit probability"),
+        ("power_n_genes", "Statistical power — genes"),
+        ("power_n_grnas_per_gene", "Statistical power — gRNAs per gene"),
+        ("power_n_plates", "Statistical power — plates"),
+        ("power_n_replicates", "Statistical power — replicates"),
+        ("power_reads_per_well", "Statistical power — reads per well"),
+        ("power_score_per", "Statistical power — scoring level"),
+        ("power_seed", "Statistical power — random seed"),
+        ("power_wells_per_plate", "Statistical power — wells per plate"),
+    ])
+    def test_power_means_statistical_power(self, key, expected):
+        assert setting_label(key) == expected
+
+
 class TestItSitsUnderTheNegativeControl:
     """"exclude grnas should be under negative controll in controls and
     filters"."""

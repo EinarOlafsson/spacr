@@ -93,6 +93,34 @@ EXACT_LABELS = {
     # crops are drawn. The key stays `sample` -- every settings CSV in
     # existence uses it, and this renames the label, not the setting.
     "sample": "Sample size limit",
+    # These keys belong to the statistical-power simulator, not electrical
+    # power.  Leaving the ordinary underscore humaniser to infer their labels
+    # produced awkward English ("Power n genes") and led translation models
+    # to choose electrical/mechanical terminology in several languages.
+    # Qualify the whole family at its single label source so every settings
+    # surface and every source-hashed locale catalog carries the same meaning.
+    "power": "Statistical power",
+    "power_backend": "Statistical power — inference backend",
+    "power_background_positive_rate": (
+        "Statistical power — background positive-call rate"
+    ),
+    "power_cells_per_well": "Statistical power — cells per well",
+    "power_constructs_per_well": (
+        "Statistical power — library units per well"
+    ),
+    "power_detection_auroc": (
+        "Statistical power — detection AUROC threshold"
+    ),
+    "power_effect_fold": "Statistical power — effect multiplier",
+    "power_hit_rate": "Statistical power — hit probability",
+    "power_n_genes": "Statistical power — genes",
+    "power_n_grnas_per_gene": "Statistical power — gRNAs per gene",
+    "power_n_plates": "Statistical power — plates",
+    "power_n_replicates": "Statistical power — replicates",
+    "power_reads_per_well": "Statistical power — reads per well",
+    "power_score_per": "Statistical power — scoring level",
+    "power_seed": "Statistical power — random seed",
+    "power_wells_per_plate": "Statistical power — wells per plate",
 }
 
 CASED_TERMS = {
