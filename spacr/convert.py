@@ -870,6 +870,8 @@ class ConversionPlan:
 class ConversionResult:
     """What :func:`convert` actually did.
 
+    :ivar plan: reviewed conversion plan that the run executed.
+    :ivar dst: destination folder that received converted files.
     :ivar written: mappings whose TIFF was created by this run.
     :ivar existing: mappings whose target was already on disk and was
         therefore left alone — a re-run is a no-op, never a rewrite.
