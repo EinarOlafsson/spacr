@@ -277,6 +277,8 @@ def _legend_chrome(legend):
 def data_colours(fig):
     """Every colour in ``fig`` that carries the CLAIM rather than the frame.
 
+    :param fig: Matplotlib figure whose data artists are inspected.
+
     Used only to say when one of them stops working on paper (150 D), never to
     change one. A data line is identified the same way `_chrome` identifies a
     reference line, from the opposite side of the same test.
@@ -306,6 +308,9 @@ def data_colours(fig):
 
 def illegible_data_colours(fig, ground, floor=None):
     """The data colours a reader will not find on ``ground``, as hex.
+
+    :param fig: Matplotlib figure whose data colours are checked.
+    :param ground: background colour against which contrast is measured.
 
     The data deliberately does NOT flip, so a palette
     chosen against near-black can be illegible on paper -- and the honest
@@ -6744,6 +6749,11 @@ def _unit_column(level, prc_column):
 def proportions_per_unit(df, group_column, bin_column, unit_column):
     """Each unit's share of every bin, one row per unit.
 
+    :param df: object-level observations carrying group, bin, and unit fields.
+    :param group_column: column naming the conditions to compare.
+    :param bin_column: categorical outcome column whose shares are computed.
+    :param unit_column: column naming independent wells, plates, or other
+        replication units.
     :returns: a frame with ``group_column``, ``unit_column`` and one column
         per bin holding a proportion in [0, 1]. Units contributing no
         objects do not appear.
@@ -6806,6 +6816,11 @@ def _compare_groups(samples):
 def proportion_test_by_unit(df, group_column, bin_column, unit_column):
     """Compare conditions on their PER-UNIT proportions, one row per bin.
 
+    :param df: object-level observations carrying group, bin, and unit fields.
+    :param group_column: column naming the conditions to compare.
+    :param bin_column: categorical outcome column whose bins are tested.
+    :param unit_column: column naming independent replication units.
+
     The object-level chi-squared asks whether 20,000 objects came from one
     distribution. Objects in a well share a treatment, a transfection, an
     imaging session and a monolayer, so that is not the question anyone
@@ -6851,6 +6866,11 @@ def proportion_test_by_unit(df, group_column, bin_column, unit_column):
 
 def proportion_mixed_model(df, group_column, bin_column, unit_column):
     """A binomial GLM on the per-object outcome, standard errors clustered by unit.
+
+    :param df: object-level observations carrying group, bin, and unit fields.
+    :param group_column: column naming the conditions to compare.
+    :param bin_column: categorical outcome column modelled one bin at a time.
+    :param unit_column: column naming clusters used for robust standard errors.
 
     The proportions test throws away how many objects each well contributed;
     this keeps them while still charging the degrees of freedom the DESIGN

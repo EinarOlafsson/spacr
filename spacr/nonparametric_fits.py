@@ -115,13 +115,19 @@ GP_MAXIMUM_ROWS = 2000
 
 
 def methods_in(category: str) -> Tuple[str, ...]:
-    """Every method belonging to ``category``, in declaration order."""
+    """Every method belonging to ``category``, in declaration order.
+
+    :param category: one of the ``fit``, ``diagnostic``, or ``agreement``
+        method categories.
+    """
     return tuple(name for name, spec in METHODS.items()
                  if spec["category"] == category)
 
 
 def describe(name: str) -> str:
     """One sentence naming what a method is for and what it costs.
+
+    :param name: registered method name to describe.
 
     Said WHERE IT IS CHOSEN. The whole point of the three-way split is that
     a reader knows before picking, not after running.
@@ -135,6 +141,8 @@ def describe(name: str) -> str:
 def refuse(name: str, *, rows: int = 0, ordered: bool = True,
            predictors: int = 1) -> Optional[str]:
     """Why ``name`` cannot be run on data of this shape, or None.
+
+    :param name: registered method whose applicability is being checked.
 
     CHOOSING A METHOD ON DATA IT CANNOT FIT REFUSES WITH THE REASON, rather
     than returning a fit nobody should read. That is the rule this function
@@ -165,9 +173,13 @@ def refuse(name: str, *, rows: int = 0, ordered: bool = True,
 class Curve:
     """A fitted curve to draw over a scatter, and what it is.
 
-        NEVER A HIT LIST. `p_values` does not exist on this object on purpose:
-        a diagnostic that could be mistaken for an inferential test would be
-        more misleading than omitting the method.
+    NEVER A HIT LIST. `p_values` does not exist on this object on purpose:
+    a diagnostic that could be mistaken for an inferential test would be
+    more misleading than omitting the method.
+
+    :ivar method: registered diagnostic method that produced the curve.
+    :ivar x: ordered predictor coordinates at which the curve is evaluated.
+    :ivar y: fitted response values aligned one-to-one with ``x``.
     """
 
     method: str
@@ -270,10 +282,16 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
 class Agreement:
     """Two rankings of the same guides, and where they disagree.
 
-        THE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. It asks whether an
-        effect is supported by the data or induced by the model: agreement
-        strengthens the result, while disagreement is itself a finding to
-        inspect.
+    THE OUTPUT IS A COMPARISON, NOT A COEFFICIENT TABLE. It asks whether an
+    effect is supported by the data or induced by the model: agreement
+    strengthens the result, while disagreement is itself a finding to
+    inspect.
+
+    :ivar method: alternative ranking method compared with the linear fit.
+    :ivar guides: guide names shared by both rankings.
+    :ivar linear_rank: one-based rank of each guide's absolute linear effect.
+    :ivar other_rank: one-based rank assigned by the alternative method.
+    :ivar correlation: Spearman correlation between the two rankings.
     """
 
     method: str
@@ -385,6 +403,10 @@ def spline_design(frame, covariates: Sequence[str], *,
                   knots: int = SPLINE_KNOTS, degree: int = SPLINE_DEGREE):
     """Replace each named covariate with its spline basis. Returns a frame.
 
+    :param frame: design frame containing guide and nuisance columns.
+    :param covariates: nuisance columns to replace with spline bases when
+        their values support the requested degree.
+
     THE GUIDE COLUMNS ARE NOT TOUCHED, and that is what keeps this in
     category A. Each guide keeps exactly one column, so the fit still
     produces one coefficient and one P value per guide and the volcano and
@@ -418,6 +440,9 @@ def spline_design(frame, covariates: Sequence[str], *,
 
 def isotonic_fit(x, y, *, increasing: bool = True):
     """A monotone fit of ``y`` on one ordered ``x``. Returns (grid, fitted).
+
+    :param x: ordered-predictor values, one per observation.
+    :param y: response values aligned one-to-one with ``x``.
 
     ONE DIMENSION AND ONE DIRECTION, which is the whole of what isotonic
     regression claims. `refuse('isotonic', ordered=False)` is what says so

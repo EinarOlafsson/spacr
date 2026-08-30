@@ -31,7 +31,11 @@ IDENTITY_COLUMNS: Tuple[str, ...] = (
 
 
 class MetadataResolutionRequired(ValueError):
-    """A headless caller must provide an explicit metadata mapping."""
+    """A headless caller must provide an explicit metadata mapping.
+
+    :param missing: canonical metadata columns that could not be resolved.
+    :param available: source columns that were available for explicit mapping.
+    """
 
     def __init__(self, missing: Sequence[str], available: Sequence[str]):
         self.missing = tuple(missing)
@@ -48,7 +52,13 @@ class MetadataResolutionRequired(ValueError):
 
 @dataclass(frozen=True)
 class MetadataRequest:
-    """All unresolved targets and evidence shown to one prompt."""
+    """All unresolved targets and evidence shown to one prompt.
+
+    :ivar missing: canonical columns that still require a decision.
+    :ivar available: source columns available for mapping.
+    :ivar examples: representative string values for each source column.
+    :ivar guesses: best-effort source-column suggestion for each target.
+    """
 
     missing: Tuple[str, ...]
     available: Tuple[str, ...]
@@ -70,7 +80,15 @@ class MetadataDecision:
 
 @dataclass(frozen=True)
 class ResolutionResult:
-    """Resolved frame plus the auditable decisions that changed it."""
+    """Resolved frame plus the auditable decisions that changed it.
+
+    :ivar frame: normalized frame containing every required metadata column.
+    :ivar column_map: explicit canonical-target to source-column mappings used.
+    :ivar derived_from_well: well column used to derive row and column IDs, if
+        derivation was necessary.
+    :ivar pseudo_map: audited source identities and their generated pseudo
+        well coordinates.
+    """
 
     frame: pd.DataFrame
     column_map: Mapping[str, str]
@@ -96,7 +114,11 @@ def _examples(frame: pd.DataFrame, limit: int = 3) -> Dict[str, Tuple[str, ...]]
 
 def build_metadata_request(frame: pd.DataFrame,
                            required: Iterable[str]) -> MetadataRequest:
-    """Build the single request a GUI displays for every missing column."""
+    """Build the single request a GUI displays for every missing column.
+
+    :param frame: metadata frame whose current columns and examples are shown.
+    :param required: canonical columns that the calling workflow requires.
+    """
     missing = tuple(column for column in required if column not in frame.columns)
     available = tuple(str(column) for column in frame.columns)
 
@@ -263,6 +285,9 @@ def resolve_metadata_columns(
         cache_key: Optional[str] = None,
         save_path: Optional[str] = None) -> ResolutionResult:
     """Resolve every required metadata column in one deterministic pass.
+
+    :param frame: source metadata frame to normalize and resolve.
+    :param required: canonical columns that must be present in the result.
 
     ``column_map`` is ``{canonical_target: actual_source}``.  A prompt, when
     supplied, is called at most once and receives all unresolved columns.
