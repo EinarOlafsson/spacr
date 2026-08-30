@@ -56,7 +56,10 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry point; dispatch to the requested spacr subcommand.
 
     :param argv: Argument list to parse. When None, ``sys.argv[1:]`` is used.
-    :returns: Process exit code (0 on success, 2 on unknown command).
+    :returns: Process exit code, 0 on success.
+    :raises SystemExit: with code 2 for a command the parser accepts and the
+        dispatch below does not know -- `parser.error` never returns, so
+        there is no exit code to hand back for that case.
     """
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -79,8 +82,10 @@ def main(argv: list[str] | None = None) -> int:
         key = _APP_KEYS.get(args.command)
         return int(run([key] if key else []) or 0)
 
+    # `parser.error` is annotated NoReturn and raises SystemExit(2); a
+    # `return 2` after it is unreachable, and an unreachable line is a line
+    # no test can ever justify.
     parser.error(f"Unknown command: {args.command}")
-    return 2
 
 
 if __name__ == "__main__":
