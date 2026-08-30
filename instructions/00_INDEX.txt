@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-29 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-30 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-297 done / 11 open (96%).
+302 done / 10 open (96%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -29,12 +29,6 @@ OPEN
 
    05  THE VERSION BUMP AND GETTING ACTIONS GREEN
        05_version_bump_and_github_actions.txt
-
-   07  FOUND, CONFIRMED, DELIBERATELY LEFT
-       07_known_bugs_not_fixed.txt
-
-   08  FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
-       08_flowview_pipeline_visualisation.txt
 
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
        [LAST]
@@ -58,6 +52,9 @@ OPEN
   310  DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
        310_defects_found_while_covering_excluded_code.txt
 
+  314  THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
+       314_regression_hangs_and_preferences_is_slow_again.txt
+
 --------------------------------------------------------------------------------
 DONE
 --------------------------------------------------------------------------------
@@ -66,6 +63,8 @@ DONE
    03  FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
    04  THE TESTS MEASURE A FONT SCALE NO USER HAS
    06  MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
+   07  FOUND, CONFIRMED, DELIBERATELY LEFT
+   08  FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
    10  CROP CHANNEL MAPPING: png_dims BECOMES AN EXPLICIT {r,g,b} DICT
    11  ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
    12  ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
@@ -359,3 +358,6 @@ DONE
   307  SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
   308  SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
   309  SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
+  311  NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
+  312  SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
+  313  THE PYTHON CEILING ADMITS 3.15

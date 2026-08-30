@@ -99,7 +99,7 @@ for affected Linux and macOS installations.
 The published 1.5.0.4 wheel is not a complete Windows fix. Its ``find_uv``
 checks only ``<root>/bootstrap/uv``, while the published Windows bootstrap
 writes ``<root>/bootstrap/uv.exe`` and does not put that private directory on
-``PATH``. Commit ``10e53a3d`` added ``uv.exe`` discovery after the release;
+``PATH``. Commit ``8eefc701`` added ``uv.exe`` discovery after the release;
 that source fix therefore still has to ship in 1.5.0.5.
 
 The manual, no-sudo escape commands for Linux, macOS and Windows now live in
