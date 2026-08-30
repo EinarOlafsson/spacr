@@ -3,9 +3,8 @@
 Four behaviours live here, each of them the *quiet* half of a pair the rest
 of ``tests/qt/test_column_picker.py`` only exercises from its loud side:
 
-* a double-click that arrives with no row under it, and a double-click on a
-  row the dialog will not accept -- neither may close the dialog, because
-  closing it writes a name into the host field;
+* a double-click that arrives with no row under it must not close the dialog,
+  while a displayed column whose stored name has whitespace remains pickable;
 * :meth:`ColumnPickerDialog.select_columns` asked for names the table does
   not have -- it must come back empty rather than leave a stale highlight
   that ``chosen_columns`` would then hand to the run;
@@ -29,11 +28,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QVBoxLayout, QWidget
 
 from spacr.qt.widgets.column_picker import (
-    ACTION_INVALID,
     ACTION_USE,
     ColumnPickerButton,
     ColumnPickerDialog,
     attach_column_picker,
+    find_existing,
     set_field_text,
 )
 from spacr.qt.widgets.flow import FlowLayout
@@ -96,17 +95,14 @@ def test_a_double_click_on_no_row_neither_types_nor_closes(qtbot, measdb):
     assert dialog.result() == QDialog.Accepted
 
 
-def test_a_double_click_on_a_column_the_field_refuses_keeps_the_dialog_open(
+def test_a_double_click_on_a_spaced_stored_column_accepts_that_column(
         qtbot, measdb):
-    """A row the verdict refuses must fill the name box but not accept.
+    """A listed SQL name remains selectable even when its header has spaces.
 
     ``allow_new=False`` fields (the heatmap feature, the regression
-    dependent) take an existing column only, and the verdict -- not the
-    tree -- decides whether the typed name is one. A column whose stored
-    name carries a leading space is listed but judged "not a column", so
-    double-clicking it must leave OK disabled and the dialog open. Closing
-    on it would hand the caller a name the verdict had just refused, and the
-    run would fail later, in SQL, with no sentence attached.
+    dependent) take an existing column only. Imported CSV headers can retain
+    leading whitespace in SQLite; if the tree displays such a name, the
+    verdict must recognize it and return the exact stored spelling.
     """
     dialog = _dialog(qtbot, measdb, table="imported", allow_new=False)
     assert dialog.column_names() == [" area", "area_ok"]
@@ -115,19 +111,11 @@ def test_a_double_click_on_a_column_the_field_refuses_keeps_the_dialog_open(
     dialog._column_tree.itemDoubleClicked.emit(stray, 0)
 
     assert dialog.name_edit().text() == " area"
-    assert dialog.action() == ACTION_INVALID
-    assert dialog.is_accept_enabled() is False
-    assert dialog.result() != QDialog.Accepted
-    assert "is not a column of imported" in dialog.status_text()
-
-    # The sibling column, identical but for the space, is accepted -- so the
-    # refusal above is the verdict at work, not a dead double-click handler.
-    clean = dialog._column_tree.findItems("area_ok", Qt.MatchExactly, 0)[0]
-    dialog._column_tree.itemDoubleClicked.emit(clean, 0)
-
-    assert dialog.name_edit().text() == "area_ok"
     assert dialog.action() == ACTION_USE
     assert dialog.result() == QDialog.Accepted
+    assert find_existing(" area", dialog.column_names()) == " area"
+    assert find_existing("area", dialog.column_names()) == " area"
+    assert find_existing("area", [" area", "area"]) == "area"
 
 
 def test_asking_for_columns_the_table_lacks_selects_nothing(qtbot, measdb):
