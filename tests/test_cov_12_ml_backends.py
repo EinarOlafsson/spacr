@@ -113,7 +113,8 @@ def test_projections_that_do_not_converge_are_refused(monkeypatch):
                                        np.arange(float(len(design))))
 
 
-def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused():
+def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused(
+        monkeypatch):
     """Two identical reported columns are not identified, and it says why.
 
     statsmodels answers the same design with a pseudo-inverse, picking one
@@ -124,6 +125,13 @@ def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused():
     design = absorbable_design(extra=('fraction',))
     design['fraction_copy'] = design['fraction']
     y = np.arange(float(len(design)))
+
+    # Some LAPACK builds return a numerical answer for a singular solve
+    # instead of raising.  The backend must diagnose rank before asking the
+    # solver, so make a call to solve itself an observable test failure.
+    monkeypatch.setattr(
+        ml.np.linalg, 'solve',
+        lambda *_a, **_k: pytest.fail('a singular design reached solve'))
 
     with pytest.raises(ValueError, match='normal equations are singular'):
         ml._fit_absorbed_least_squares(design, y)
