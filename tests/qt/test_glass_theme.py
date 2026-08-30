@@ -136,21 +136,21 @@ def test_glass_home_pane_paints_no_box_behind_the_tiles():
     make the TILES subject to opacity instead — so the container paints
     nothing and the dialling lives on the tile fill, where it can be seen.
 
-    The rim stays: it is what the selected tab joins onto, and without it the
-    tab strip floats with nothing under it.
+    The selected tab keeps its own state-bearing edge; the transparent pane
+    does not need a second decorative rim around the grid.
     """
     from spacr.qt import theme
     from spacr.qt.widgets.home import _tab_qss
 
     palette = theme.palette_for("glass")
     for alpha in (0.0, theme.pane_alpha("glass", 1.0), 1.0):
-        pane = _rule(_tab_qss(palette, alpha, glass=True),
+        pane = _rule(_tab_qss(palette, alpha),
                      "QTabWidget#HomeTabs::pane {")
         assert "background: transparent" in pane, \
             "the pane painted a fill at alpha %r" % (alpha,)
         assert "qlineargradient" not in pane
-        assert "rgba(255, 255, 255, 0.270)" in pane
-        assert "border-radius: 14px" in pane
+        assert "border: none" in pane
+        assert "border-radius" not in pane
 
 
 def test_glass_preference_explains_material_strength(qtbot):

@@ -283,13 +283,13 @@ IMAGE_THEMES = ("cell", "glass")
 # each is derived from one that is already there.
 
 def rim_colour(theme: str = "dark") -> str:
-    """The hairline that outlines every tile — the theme's own ink.
+    """The meaningful hairline on outlined tiles — the theme's own ink.
 
     White in the dark themes, near-black in the light one, because that
-    is what ``fg`` already is. Asked for as "a thin white rim, black in
-    white mode"; deriving it from ``fg`` rather than writing ``#ffffff``
-    means Space and Cell get it for free and no theme can be added that
-    silently draws an invisible rim.
+    is what ``fg`` already is. Horizontal cards and interactive hover states
+    still use it; resting Home module tiles deliberately do not. Deriving it
+    from ``fg`` rather than writing ``#ffffff`` means every palette gets the
+    right ink without a raw colour drifting out of sync.
     """
     return palette_for(theme)["fg"]
 
@@ -3040,10 +3040,20 @@ QPushButton:hover {{
     background: {high};
     border: 1px solid {rim};
 }}
-QPushButton#Tile, QPushButton#HTile, QPushButton#AppTile {{
+QPushButton#Tile, QPushButton#HTile {{
     background: {tile};
     border: 1px solid {rim};
     border-radius: 16px;
+}}
+/* Module launchers sit directly on the Home pane. A resting glass rim made
+   each row read as a ruled table; only an interactive state earns an edge. */
+QPushButton#AppTile {{
+    background: {tile};
+    border: none;
+    border-radius: 16px;
+}}
+QPushButton#AppTile:focus {{
+    border: 1px solid {base["accent"]};
 }}
 QGroupBox {{
     border: 1px solid {rim_soft};
@@ -3617,10 +3627,10 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     DOCK_BG = (dock_colour(theme) if over_image else css_color(
         dock_colour(theme),
         panel_alpha(theme, "surface_alt", surface_opacity)))
-    # The hairline every tile carries, and the three maturity hues its
-    # hover switches to. `RIM` is the theme's ink; the hover fill is the
-    # stage colour at a low alpha so the tile lights UP rather than being
-    # replaced by a block of magenta.
+    # The theme ink used by outlined horizontal tiles, and the three maturity
+    # hues a module tile switches to on hover. Resting AppTiles are rimless;
+    # the hover fill is the stage colour at a low alpha so the tile lights UP
+    # rather than being replaced by a block of magenta.
     RIM = rim_colour(theme)
     SELECTION_INK = selection_ink(theme)
     STAGE_RULES = "\n".join(
@@ -3956,7 +3966,7 @@ QPushButton#HTile:pressed {{
 QPushButton#AppTile {{
     background-color: {TILE_BG};
     color: {P["fg"]};
-    border: 1px solid {css_color(RIM, 0.35)};
+    border: none;
     border-radius: {R["lg"]}px;
     padding: 0px;
     min-height: {TILE_MIN_H}px;
@@ -3978,6 +3988,11 @@ QPushButton#AppTile:pressed {{
    aside — a tile that lights magenta is a beta module, and the legend
    beside it is what says so. */
 {STAGE_RULES}
+/* A resting rim is decoration; a keyboard-focus ring carries state. Keep it
+   after the maturity rules so focus remains visible while a tile is hovered. */
+QPushButton#AppTile:focus {{
+    border: 1px solid {P["accent"]};
+}}
 QLabel#HTileName {{
     color: {P["fg"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;

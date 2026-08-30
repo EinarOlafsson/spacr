@@ -1,4 +1,4 @@
-"""#16j: maturity as a colour, a legend for it, a rim, and the dock.
+"""#16j: maturity as a colour, its legend, interaction edges, and the dock.
 
 Four claims, all of them things the user asked for in words and none of
 them checkable by reading widget structure alone:
@@ -11,8 +11,8 @@ them checkable by reading widget structure alone:
    structural assertion there is.
 2. **A legend under the right-hand tiles says what the colours mean**,
    in words as well as in swatches — colour alone fails WCAG 1.4.1.
-3. **Every tile carries a thin rim** in the theme's ink: white on the
-   dark themes, near-black on the light one.
+3. **Resting module tiles carry no decorative rim.** Hover and keyboard
+   focus still draw an edge because those states carry meaning.
 4. **The dock obeys the preference**: revealed on hover, locked open as
    a real column, or not there at all.
 
@@ -198,24 +198,6 @@ def _rim_pixel(page, tile) -> QColor:
     return image.pixelColor(origin.x(), y)
 
 
-def _rim_and_behind(page, tile):
-    """``(rim, behind)`` for one tile, from a SINGLE grab.
-
-    One grab because the backdrop is animated. Sampling the rim from one
-    frame and what it composites over from the next compares a rim
-    against a background that had already drifted -- the numbers came out
-    tens of points apart and moved every run.
-    """
-    image = QImage(page.size(), QImage.Format_ARGB32_Premultiplied)
-    image.fill(Qt.transparent)
-    page.render(image)
-    origin = tile.mapTo(page, QPoint(0, 0))
-    y = origin.y() + tile.height() // 2
-    rim = image.pixelColor(origin.x(), y)
-    behind = image.pixelColor(max(0, origin.x() - 3), y)
-    return rim, behind
-
-
 def _near(a: QColor, b: str, tol: int = 6) -> bool:
     other = QColor(b)
     return (abs(a.red() - other.red()) <= tol
@@ -313,65 +295,15 @@ def test_the_three_hover_colours_are_the_ones_that_were_asked_for():
 
 
 @pytest.mark.parametrize("theme_name", THEMES)
-def test_a_tile_that_is_not_hovered_shows_the_rim_instead(qtbot, monkeypatch,
-                                                          theme_name):
-    """"there should always be a thin white rim (black in white mode)".
-
-    Always: the un-hovered state is the one this is about. It used to be
-    ``border: 1px solid transparent``, i.e. nothing at all until you
-    hovered, which with the descriptions gone would leave the tiles as
-    floating icons with no edges.
-    """
+def test_a_resting_tile_has_no_decorative_rim(qtbot, monkeypatch,
+                                               theme_name):
+    """A module rests on the pane; only hover/focus earns an outline."""
     page = _themed_page(qtbot, monkeypatch, theme_name)
-    palette = theme.palette_for(theme_name)
-    # The rim IS the theme's ink — white on dark, near-black on light —
-    # painted at 35 %. Derived, never a literal: a theme added later
-    # gets a visible rim without anyone remembering to write one down.
-    assert theme.rim_colour(theme_name) == palette["fg"]
-    panel = QColor(palette["surface"])
-
     for tile in _visible_tiles(page)[:6]:
-        rim, behind = _rim_and_behind(page, tile)
-        # The ink at 35 % over WHATEVER IS BEHIND the tile, sampled rather
-        # than assumed. That used to be `surface`, and is not any more:
-        # the Home page shows the ambient backdrop between tiles, so the
-        # rim composites over a drifting blue-purple and lands at, say,
-        # #8a698d where `surface` would have given #626264. Sampling the
-        # backdrop keeps the assertion exact -- it still fails for a rim
-        # painted at the wrong alpha, or in some other colour.
-        ink = QColor(palette["fg"])
-        assert not _near(rim, panel.name(), tol=8), (
-            f"{theme_name}: {tile.text_label} has no visible rim "
-            f"({rim.name()} is the panel colour)")
-        if theme_name == "light":
-            assert rim.lightness() < panel.lightness(), (
-                f"a light-theme rim must be darker ink, got {rim.name()}")
-        else:
-            assert rim.lightness() > panel.lightness(), (
-                f"a dark-theme rim must be lighter ink, got {rim.name()}")
-        # …and it is a BLEND of the ink, not the ink itself and not the
-        # background. This used to assert the exact 35 % composite over
-        # `surface`, which no longer describes the pixel: the rim is
-        # translucent ink over a translucent tile over an animated
-        # backdrop, so the value moves with the animation and sits tens
-        # of points off any fixed expectation. Measured #786d7f against
-        # a "35 % over surface" of #626264, and neither number is wrong.
-        #
-        # What still holds, and is what the request was about, is that
-        # the rim is visibly the ink and visibly not the panel.
-        floor = min(behind.lightness(), panel.lightness())
-        ceiling = max(behind.lightness(), panel.lightness())
-        if theme_name == "light":
-            assert ink.lightness() < rim.lightness() < ceiling, (
-                f"light: rim {rim.name()} is not a blend between the ink "
-                f"{ink.name()} and the background")
-        else:
-            assert floor < rim.lightness() < ink.lightness(), (
-                f"{theme_name}: rim {rim.name()} is not a blend between the "
-                f"background and the ink {ink.name()}")
-        assert abs(rim.lightness() - panel.lightness()) >= 25, (
-            f"{theme_name}: rim {rim.name()} is too close to the panel "
-            f"{panel.name()} to be seen")
+        image = tile.grab().toImage()
+        y = tile.height() // 2
+        assert image.pixelColor(0, y) == image.pixelColor(1, y), (
+            f"{theme_name}: {tile.text_label} still paints a resting rim")
 
 
 # ===========================================================================
@@ -554,10 +486,11 @@ class TestPaneOpacity:
             page = make_home_page()
             qtbot.addWidget(page)
             qss = page._tabs.styleSheet()
-            # Only the pane rule: the selected tab paints the surface
-            # colour on purpose, so it blends into the pane's edge.
+            # Only the pane rule: the selected tab paints its own surface and
+            # indicator, but the transparent container has no decorative rim.
             pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
             assert "background: transparent" in pane
+            assert "border: none" in pane
             assert palette["surface"] not in pane
             assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
 
