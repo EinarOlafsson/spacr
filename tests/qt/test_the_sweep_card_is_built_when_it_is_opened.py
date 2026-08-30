@@ -131,3 +131,20 @@ def test_a_private_name_does_not_build_it(qtbot):
     with pytest.raises(AttributeError):
         screen._sweep._not_a_real_attribute
     assert screen._sweep.built() is False
+
+
+def test_the_translation_walk_does_not_build_the_hidden_sweep(qtbot):
+    """Optional-method probes are introspection, not a request for the panel.
+
+    The application translates each new screen before it is shown.  Its
+    walker asks every widget whether it has ``set_url`` and
+    ``retranslate_dynamic_content``.  A catch-all proxy used to turn either
+    harmless probe into :meth:`panel`, eagerly constructing the hidden second
+    regression screen and all of its plots.
+    """
+    from spacr.qt.i18n import retranslate_widget_tree
+
+    screen = _regression(qtbot)
+    assert screen._sweep.built() is False
+    retranslate_widget_tree(screen)
+    assert screen._sweep.built() is False
