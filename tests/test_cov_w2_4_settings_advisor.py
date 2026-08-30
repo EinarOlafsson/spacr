@@ -21,11 +21,18 @@ import pytest
 
 from spacr import settings_advisor as sa
 from spacr.settings_advisor import (
-    Advice, Choice, Reading, Undecided, advise, advise_that_runs,
-    advise_the_screen, read_the_counts, read_the_last_run, read_the_response,
+    Advice,
+    Choice,
+    Reading,
+    Undecided,
+    advise,
+    advise_that_runs,
+    advise_the_screen,
+    read_the_counts,
+    read_the_last_run,
+    read_the_response,
     refusals,
 )
-
 
 # ---------------------------------------------------------------------------
 # Tables on disk
@@ -154,6 +161,7 @@ def test_a_fraction_column_that_goes_missing_does_not_lose_the_rest(
     assert got["wells"] == 2
     assert got["guides"] == 2
     assert "fraction_median" not in got
+    assert got["trouble"] == []
 
 
 def test_a_real_count_table_is_measured_end_to_end(tmp_path):
