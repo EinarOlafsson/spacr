@@ -72,6 +72,7 @@ def test_type_hint_from_expected_types():
     # setting -- one nothing read -- so the hint correctly came back empty
     # and this asserted a type for a setting that no longer exists.
     assert _type_hint("dst") == "string"
+    assert _type_hint("custom_model") == "string (optional)"
     # union / optional types render readably
     h = _type_hint("cell_background")
     assert "integer" in h or "float" in h

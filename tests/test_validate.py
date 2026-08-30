@@ -562,6 +562,18 @@ def test_missing_custom_cellpose_model_is_an_error(tmp_path):
     assert settings_named(errors(validate_settings(settings, "cellpose_masks")), "custom_model")
 
 
+def test_cellpose_custom_model_rejects_the_retired_boolean_selector(tmp_path):
+    src = make_raw_plate(tmp_path, n_channels=3)
+    settings = valid_mask_settings(src)
+    settings["custom_model"] = False
+
+    problems = validate_settings(settings, "cellpose_masks")
+
+    issue = settings_named(warnings_of(problems), "custom_model")
+    assert issue
+    assert "str or None" in issue[0].message
+
+
 def test_organelle_unet_without_a_model_path_is_an_error(tmp_path):
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)

@@ -1123,9 +1123,7 @@ def test_every_qt_section_hint_names_a_real_category():
 #
 # "Other" is what Qt calls the trailing bucket for keys in no category, and
 # what utils.pretty_print_settings calls the same leftovers. It is not a
-# heading anyone chose -- it is the absence of one. Classify (CV) rendered it
-# holding exactly one setting, `custom_model`, because that key was filed
-# under "Cellpose" and Classify hides Cellpose.
+# heading anyone chose -- it is the absence of one.
 
 def _rendered_sections(app_key):
     """(title, keys) per section, exactly as SettingsWidgets.build_sections
@@ -1300,14 +1298,14 @@ def test_no_module_renders_an_other_section(app_key):
     )
 
 
-def test_the_model_a_module_runs_is_filed_under_model_training():
-    """`custom_model` and `model_name` answer the same question `model_type`
-    does. Under "Cellpose" they were invisible to Classify, which hides that
-    category, and mis-titled for Train Cellpose, which does not."""
-    assert "custom_model" in S.categories["Computer Vision Model"]
+def test_cellpose_and_classifier_custom_model_paths_are_distinct():
+    """The shared-looking names have different consumers and value types."""
+    assert "custom_model" not in S.categories["Computer Vision Model"]
     assert "model_name" in S.categories["Computer Vision Model"]
-    assert "custom_model" not in S.categories["Cellpose"]
+    assert "custom_model" in S.categories["Cellpose"]
     assert "model_name" not in S.categories["Cellpose"]
+    assert S.expected_types["custom_model"] == (str, type(None))
+    assert S.expected_types["custom_model_path"] is str
 
 
 def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():

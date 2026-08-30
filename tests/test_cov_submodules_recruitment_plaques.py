@@ -415,6 +415,27 @@ def test_analyze_recruitment_cell_size_filter_drops_rows(tmp_path,
     assert set(np.round(cells["cell_area"])) == {1002}
 
 
+def test_analyze_recruitment_default_keeps_zero_intensity_cells(
+        tmp_path, recruitment_env):
+    """An untouched run does not silently discard a valid zero signal."""
+    from spacr.submodules import analyze_recruitment
+
+    src = tmp_path / "plate"
+    src.mkdir()
+    recruitment_env["df"].iloc[
+        0,
+        recruitment_env["df"].columns.get_loc(
+            "cell_channel_0_mean_intensity"),
+    ] = 0.0
+    settings = _base_settings(src)
+
+    cells, _ = analyze_recruitment(settings)
+
+    assert settings["cell_intensity_range"] is None
+    assert len(cells) == 8
+    assert (cells["cell_channel_0_mean_intensity"] == 0.0).sum() == 1
+
+
 def test_analyze_recruitment_target_intensity_min_filter(tmp_path,
                                                          recruitment_env,
                                                          capsys):

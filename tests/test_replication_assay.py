@@ -1094,6 +1094,31 @@ def test_settings_module_defaults_take_over_when_registered(tmp_path,
     assert list(out["vacuoles"]["replication_bucket"].astype(str)) == [">4"]
 
 
+def test_default_host_label_is_emitted_with_canonical_capitalization(tmp_path):
+    from spacr.submodules import analyze_replication
+
+    root = tmp_path / "plate1"
+    src = write_db(
+        root, [{"row": "r1", "column": "c1", "cell": 1, "n": 4}])
+    settings = settings_for(src)
+    settings.pop("cell_types")
+    settings.pop("cell_plate_metadata")
+
+    out = analyze_replication(settings)
+
+    assert set(out["vacuoles"]["condition"]) == {"HeLa_dmso"}
+    assert set(out["wells"]["condition"]) == {"HeLa_dmso"}
+    assert set(out["summary"]["condition"]) == {"HeLa_dmso"}
+
+
+def test_local_fallback_uses_canonical_host_label_and_preserves_overrides():
+    from spacr.submodules import _set_analyze_replication_defaults
+
+    assert _set_analyze_replication_defaults({})["cell_types"] == ["HeLa"]
+    assert _set_analyze_replication_defaults(
+        {"cell_types": ["CHO"]})["cell_types"] == ["CHO"]
+
+
 def test_well_distribution_helper_handles_an_empty_vacuole_table():
     """Called directly with no vacuoles at all, every seeded well is reported
     with zeros rather than dividing by zero."""

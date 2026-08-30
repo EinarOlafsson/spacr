@@ -105,10 +105,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'png'", "'load_images'", ACCURATE_SHARED,
         "The tooltip already distinguishes viewer and training spellings.",
     ),
-    ("classify_merged", "custom_model"): DefaultVariant(
-        "None", "False", CONFIG_DEFECT,
-        "The audited factory/config mismatch remains outside tooltip scope.",
-    ),
     ("classify_merged", "loss_type"): DefaultVariant(
         "'focal_loss'", "'auto'", REPAIRED_TOOLTIP,
         "The merged classifier resolves auto from the output-head shape.",
@@ -160,10 +156,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
     ("external_masks", "verbose"): DefaultVariant(
         "True", "False", ACCURATE_SHARED,
         "The tooltip already places Measure-family tools on the quiet path.",
-    ),
-    ("invasion", "cell_types"): DefaultVariant(
-        "['HeLa']", "['Hela']", CONFIG_DEFECT,
-        "The audited capitalization mismatch belongs to defaults/config.",
     ),
     ("invasion", "cmap"): DefaultVariant(
         "'inferno'", "'viridis'", ACCURATE_SHARED,
@@ -221,10 +213,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "True", "False", ACCURATE_SHARED,
         "The tooltip already explicitly names Measure as quiet initially.",
     ),
-    ("recruitment", "cell_intensity_range"): DefaultVariant(
-        "None", "[0, 100000]", CONFIG_DEFECT,
-        "The audited range mismatch belongs to the factory/config contract.",
-    ),
     ("recruitment", "channel_of_interest"): DefaultVariant(
         "3", "2", ACCURATE_SHARED,
         "The tooltip already says non-ML modules may start at channel 2.",
@@ -265,10 +253,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
     ("regression", "verbose"): DefaultVariant(
         "True", "False", ACCURATE_SHARED,
         "The tooltip already explicitly names Regression as quiet initially.",
-    ),
-    ("replication", "cell_types"): DefaultVariant(
-        "['HeLa']", "['Hela']", CONFIG_DEFECT,
-        "The audited capitalization mismatch belongs to defaults/config.",
     ),
     ("replication", "cmap"): DefaultVariant(
         "'inferno'", "'viridis'", ACCURATE_SHARED,
@@ -611,7 +595,7 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
 def test_real_default_claims_have_no_unrecorded_drift():
     """Compare parseable tooltip claims with every registered app default.
 
-    Most comparisons are exact.  The 56 variants are compared with an
+    Most comparisons are exact.  The 52 variants are compared with an
     explicit app/setting/value contract above, including a reasoned
     classification, so a same-size substitution cannot hide behind a digest.
     """
@@ -649,8 +633,8 @@ def test_real_default_claims_have_no_unrecorded_drift():
         pair: (variant.claimed, variant.actual_repr)
         for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
     }
-    assert comparisons == 675
-    assert len(variants) == 56
+    assert comparisons == 674
+    assert len(variants) == 52
     assert variants == expected
     assert {
         classification: sum(
@@ -661,7 +645,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     } == {
         ACCURATE_SHARED: 21,
         REPAIRED_TOOLTIP: 31,
-        CONFIG_DEFECT: 4,
+        CONFIG_DEFECT: 0,
     }
     assert all(
         len(variant.reason.split()) >= 5
