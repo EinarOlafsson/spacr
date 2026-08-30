@@ -340,12 +340,18 @@ def _parse_well_label(label: Any) -> Optional[Tuple[int, int]]:
 
 
 def row_label(row_index: int) -> str:
-    """Return the letter label of a 1-based row index: ``3`` → ``'C'``."""
+    """Return the letter label of a 1-based row index: ``3`` → ``'C'``.
+
+    :param row_index: 1-based plate row index to convert.
+    """
     return _index_to_alpha(int(row_index))
 
 
 def well_id(row_index: int, column_index: int) -> str:
     """Return the canonical well name, e.g. ``(3, 7)`` → ``'C07'``.
+
+    :param row_index: 1-based plate row index.
+    :param column_index: 1-based plate column index.
 
     Agrees with :func:`spacr.schema.well_id` on every real well; it differs
     only in refusing to raise, because a layout table has to render every
@@ -413,7 +419,10 @@ def _connect(db_path: str) -> sqlite3.Connection:
 
 
 def tables(db_path: str) -> List[str]:
-    """Return the user tables + views of ``db_path``, alphabetically."""
+    """Return the user tables + views of ``db_path``, alphabetically.
+
+    :param db_path: path to the SQLite database to inspect read-only.
+    """
     con = _connect(db_path)
     try:
         rows = con.execute(
@@ -426,6 +435,9 @@ def tables(db_path: str) -> List[str]:
 
 def table_columns(db_path: str, table: str) -> List[str]:
     """Return the column names of ``table``, in declaration order.
+
+    :param db_path: path to the SQLite database to inspect read-only.
+    :param table: table or view whose declared columns are returned.
 
     :raises ValueError: when the database has no such table. The name is
         checked against ``sqlite_master`` before it is ever interpolated
@@ -634,6 +646,8 @@ def _identify_wells(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
 
 def plates_in(df: pd.DataFrame) -> List[str]:
     """Return the plate IDs present in ``df``, sorted.
+
+    :param df: raw long measurements or an existing plate layout.
 
     Accepts either a raw long frame or a layout from
     :func:`plate_layout`. Returns ``[]`` for anything unusable rather
@@ -1165,6 +1179,9 @@ class EdgeEffectReport:
     :attr:`cliffs_delta` — "the outer ring reads 31 % higher, δ = 0.78" —
     with :attr:`p_value` as supporting evidence rather than the verdict.
 
+    :ivar plate: plate identifier analysed, or None when none was selected.
+    :ivar value_col: measurement aggregated per well, or None for counts.
+    :ivar grouping: per-well aggregation used to build the layout.
     :ivar ok: False when the plate could not be tested at all (empty
         frame, one well, no interior); :attr:`notes` says why.
     :ivar edge_detected: the outer ring differs from the interior by more
@@ -1207,14 +1224,20 @@ class EdgeEffectReport:
     notes: List[str] = field(default_factory=list)
 
     def gradient(self, axis: str) -> Optional[GradientStats]:
-        """Return the :class:`GradientStats` for ``'row'`` or ``'column'``."""
+        """Return the :class:`GradientStats` for ``'row'`` or ``'column'``.
+
+        :param axis: gradient axis to retrieve.
+        """
         for g in self.gradients:
             if g.axis == axis:
                 return g
         return None
 
     def ring(self, index: int) -> Optional[RingStats]:
-        """Return the :class:`RingStats` for ring ``index``, if computed."""
+        """Return the :class:`RingStats` for ring ``index``, if computed.
+
+        :param index: zero-based ring depth, outermost first, to retrieve.
+        """
         for r in self.rings:
             if r.ring == index:
                 return r

@@ -65,6 +65,8 @@ MULTIPLE_TESTING_METHODS = _MULTIPLE_TESTING_METHODS
 def adjusted_value_label(method) -> str:
     """Axis/legend label for the adjusted value produced by ``method``.
 
+    :param method: multiple-testing correction name or accepted alias.
+
     An FDR method yields a q value, a family-wise method an adjusted P, and
     ``none`` leaves the raw P value. Labelling every correction "BH q" -- as
     this module did while it offered only four methods -- mislabels the axis
@@ -99,6 +101,9 @@ def prepare_long_guide_data(
     nuisance_columns: Sequence[str] | None = None,
 ):
     """Convert spaCR's long regression table into aligned well-level tables.
+
+    :param data: long regression table with one fraction per well-guide pair.
+    :param outcome_columns: phenotype column name or names to retain per well.
 
     The long table must have one fraction per well/guide pair.  Phenotype,
     block and nuisance values may repeat across the guide rows of a well, but
@@ -508,7 +513,13 @@ def guide_support_sensitivity(
     random_state: int = 0,
     **kwargs,
 ) -> pd.DataFrame:
-    """Run the same support-threshold analysis for one or more outcomes."""
+    """Run the same support-threshold analysis for one or more outcomes.
+
+    :param fractions: zero-filled well-by-guide fraction matrix.
+    :param outcomes: well-indexed phenotype and nuisance table aligned with
+        ``fractions``.
+    :param outcome_columns: phenotype column name or names to test.
+    """
     columns = [outcome_columns] if isinstance(outcome_columns, str) else list(outcome_columns)
     frames = []
     for index, outcome in enumerate(columns):
@@ -537,7 +548,11 @@ def analyse_long_guide_table(
     nuisance_columns: Sequence[str] | None = None,
     **kwargs,
 ) -> pd.DataFrame:
-    """Convenience wrapper for spaCR's saved ``regression_data.csv``."""
+    """Convenience wrapper for spaCR's saved ``regression_data.csv``.
+
+    :param data: long well-guide regression table to analyse.
+    :param outcome_columns: phenotype column name or names to test.
+    """
     fractions, outcomes, guide_metadata = prepare_long_guide_data(
         data,
         outcome_columns,
@@ -565,7 +580,12 @@ def save_guide_permutation_results(
     *,
     prefix: str = "guide_permutation",
 ) -> Mapping[str, Path]:
-    """Save the long result and one source-data CSV per support threshold."""
+    """Save the long result and one source-data CSV per support threshold.
+
+    :param results: long guide-permutation result table to write.
+    :param destination: output directory for the long and threshold-specific
+        CSV files.
+    """
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Path] = {}
@@ -826,6 +846,9 @@ def prepare_long_gene_data(
 ):
     """Well-by-GENE fractions, the well table, and how many guides each gene has.
 
+    :param data: long regression table containing well, guide, gene, fraction,
+        and phenotype columns.
+    :param outcome_columns: phenotype column name or names to retain per well.
     :returns: ``(gene_fractions, outcomes, gene_metadata)``, the gene-level
         counterpart of :func:`prepare_long_guide_data`.
     :raises ValueError: when ``gene_column`` is absent.
@@ -948,6 +971,9 @@ def analyse_long_gene_table(
     **kwargs,
 ) -> pd.DataFrame:
     """The gene pass over spaCR's saved ``regression_data.csv``.
+
+    :param data: long well-guide-gene regression table to analyse.
+    :param outcome_columns: phenotype column name or names to test.
 
     The counterpart of :func:`analyse_long_guide_table`. Its BH correction is
     computed over GENES ONLY: two families, never one. Pooling them would be
