@@ -175,11 +175,9 @@ class _StubScreen:
 class _Console:
     def __init__(self, explode=False):
         self.text = []
-        self.calls = []
         self.explode = explode
 
     def append_stdout(self, text):
-        self.calls.append(text)
         if self.explode:
             raise RuntimeError("the console widget has been deleted")
         self.text.append(text)
@@ -280,48 +278,64 @@ def test_settings_with_no_control_on_the_form_are_named_not_dropped(
 # _say
 # ---------------------------------------------------------------------------
 
-def test_a_screen_with_no_console_is_not_an_error():
-    """The function is called from a button that may be on a bare screen."""
-    from spacr.qt.screens.mask import _say
+def test_a_screen_with_no_console_is_left_exactly_as_it_was():
+    """The function is called from a button that may be on a bare screen.
 
-    screen = _StubScreen(console=None)
-    _say(screen, "anything")
-
-    assert screen._console is None
-    assert screen.applied == []
-
-
-def test_a_console_without_the_method_is_left_alone():
-    """Duck typing, checked rather than assumed.
-
-    ``_console`` is whatever the screen put there, and an object that is not a
-    console must not be called at.
+    Asserting the screen is UNCHANGED, not merely that nothing raised: a
+    helper that quietly attached a console of its own would also "not raise",
+    and the next call would write into something the screen does not own.
     """
     from spacr.qt.screens.mask import _say
 
-    not_a_console = object()
-    screen = _StubScreen(console=not_a_console)
+    screen = _StubScreen(console=None)
+    before = dict(vars(screen))
+
     _say(screen, "anything")
 
-    assert screen._console is not_a_console
-    assert screen.applied == []
+    assert vars(screen) == before
 
 
-def test_a_console_that_raises_does_not_lose_the_plate():
+def test_a_console_without_the_method_is_never_called_at():
+    """Duck typing, checked rather than assumed.
+
+    ``_console`` is whatever the screen put there. The stand-in records every
+    attribute anyone reaches for, so this asserts the helper looked for
+    ``append_stdout``, did not find it, and stopped -- rather than calling
+    something else that happened to be there.
+    """
+    from spacr.qt.screens.mask import _say
+
+    class _NotAConsole:
+        def __init__(self):
+            self.asked = []
+
+        def __getattr__(self, name):
+            self.asked.append(name)
+            raise AttributeError(name)
+
+    console = _NotAConsole()
+
+    _say(_StubScreen(console=console), "anything")
+
+    assert "append_stdout" in console.asked
+    assert console.asked == ["append_stdout"], (
+        f"the helper reached for more than it should: {console.asked}")
+
+
+def test_a_console_that_raises_swallows_the_text_and_not_the_plate():
     """The plate is already written by the time anything is said about it.
 
     A deleted console widget raising from append_stdout must not turn a
-    successful generation into a traceback.
+    successful generation into a traceback -- and the text must simply be
+    lost rather than half-written, which is what the empty list asserts.
     """
     from spacr.qt.screens.mask import _say
 
     console = _Console(explode=True)
-    screen = _StubScreen(console=console)
-    _say(screen, "anything")
 
-    assert console.calls == ["anything"]
+    _say(_StubScreen(console=console), "anything")
+
     assert console.text == []
-    assert screen.applied == []
 
 
 def test_a_working_console_really_is_written_to():
@@ -331,5 +345,4 @@ def test_a_working_console_really_is_written_to():
     console = _Console()
     _say(_StubScreen(console=console), "hello")
 
-    assert console.calls == ["hello"]
     assert console.text == ["hello"]
