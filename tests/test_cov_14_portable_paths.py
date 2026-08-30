@@ -110,3 +110,65 @@ def test_a_database_path_yields_the_folder_above_measurements(tmp_path):
 
     assert portable_paths.source_root_for_database(str(db)) == \
         str(tmp_path / "plate1")
+
+
+def test_a_database_file_is_read_as_the_folder_that_holds_it(tmp_path):
+    """Callers hold different things and should not each have to normalise.
+
+    Given ``measurements.db`` itself, the climb has to start at
+    ``measurements/`` -- the file is not a folder, and offering it as a root
+    would make every suffix match below it fail against a path component that
+    is a filename.
+
+    The file has to EXIST for this: the check is ``os.path.isfile``, so a
+    plausible-looking path that is not on disk is treated as a folder. That is
+    the right call -- guessing from the extension would misread a screen
+    folder called ``plate.db`` -- and it is why this test writes the file.
+    """
+    from spacr.portable_paths import candidate_roots
+
+    measurements = tmp_path / "screen" / "measurements"
+    measurements.mkdir(parents=True)
+    database = measurements / "measurements.db"
+    database.write_bytes(b"")
+
+    roots = candidate_roots(str(database))
+
+    assert roots[0] == str(measurements)
+    assert str(database) not in roots
+
+
+def test_the_climb_never_offers_the_same_folder_twice(tmp_path):
+    """Callers probe the filesystem once per root, so a repeat costs a stat.
+
+    ``candidate_roots`` climbs by replacing the folder with its own parent,
+    which is strictly shorter each step until it reaches "/" and stops. The
+    de-duplication guard in the loop can therefore never fire -- but the
+    PROPERTY it exists to protect is worth holding, because the day the climb
+    grows a second rule (a sibling of ``data/``, say, which the comment there
+    already anticipates) is the day it could start revisiting.
+    """
+    from spacr.portable_paths import candidate_roots
+
+    deep = tmp_path / "a" / "b" / "c" / "measurements"
+    deep.mkdir(parents=True)
+
+    roots = candidate_roots(str(deep))
+
+    assert len(roots) == len(set(roots)), f"a folder repeated: {roots}"
+    assert all(roots), "an empty folder was offered as a root"
+    assert roots[0] == str(deep), "the folder given is not the nearest root"
+
+
+def test_the_climb_stops_at_the_root_rather_than_spinning():
+    """"/" is its own parent, and the loop has to notice.
+
+    Without the fixed-point check this would append "/" until the climb limit
+    ran out, and every caller would stat the filesystem root a dozen times.
+    """
+    from spacr.portable_paths import candidate_roots
+
+    roots = candidate_roots("/a")
+
+    assert roots.count("/") <= 1
+    assert len(roots) == len(set(roots))
