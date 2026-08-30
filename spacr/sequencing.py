@@ -279,7 +279,16 @@ def create_consensus(seq1, qual1, seq2, qual2):
     :param seq2: second DNA sequence.
     :param qual2: quality string for ``seq2``.
     :returns: the consensus sequence as a string.
+    :raises ValueError: if either sequence and quality pair, or the two reads,
+        have different lengths. A partial consensus could assign a barcode to
+        the wrong well, so uneven reads are rejected rather than truncated.
     """
+    lengths = (len(seq1), len(qual1), len(seq2), len(qual2))
+    if len(set(lengths)) != 1:
+        raise ValueError(
+            "consensus reads and quality strings must have equal lengths; "
+            f"got seq1={lengths[0]}, qual1={lengths[1]}, "
+            f"seq2={lengths[2]}, qual2={lengths[3]}")
     consensus_seq = []
     for i in range(len(seq1)):
         bases = [(seq1[i], qual1[i]), (seq2[i], qual2[i])]

@@ -501,6 +501,13 @@ so a change that stops padding fails a test instead of a run. A fix would give
 create_consensus its own length check; that is a decision for the sequencing
 lane, not the coverage sweep.
 
+FIXED 2026-08-30. ``create_consensus`` now validates all four lengths before
+indexing. A shorter or longer mate and a sequence/quality mismatch each raise
+one ``ValueError`` that reports every length, rather than an internal
+``IndexError`` or a silently truncated barcode. The callers keep their padding
+because the fixed output window is still their contract. Four explicit uneven
+shapes plus the surrounding sequencing suite are 123/123 green.
+
 --------------------------------------------------------------------------------
 9. AN UNRECOGNISED metadata_type RAISED UnboundLocalError  (lane: spacr/utils.py)
 --------------------------------------------------------------------------------
