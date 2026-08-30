@@ -123,7 +123,8 @@ places where that is impossible without deleting working defensive code, and
 that decision belongs to a human.
 
 --------------------------------------------------------------------------------
-0. A TEST THAT SEGFAULTS, AND WHY NO FULL-SUITE COVERAGE RUN FINISHES
+0. A TEST THAT SEGFAULTED, AND WHY NO FULL-SUITE COVERAGE RUN FINISHED
+   [FIXED 2026-08-30]
 --------------------------------------------------------------------------------
 
 tests/test_regression_screen_layout.py::test_right_clicking_the_live_tile_offers_the_graphs_own_menu
@@ -144,8 +145,18 @@ offscreen, found independently by a wave-3 verifier on 2026-08-29.
 ``--timeout-method=thread`` does NOT rescue either of them, and it was tried:
 a segfault kills the process outright, so no thread survives to time out. The
 run wedges exactly as before -- workers idle in ``execnet.serve`` while
-pytest-timeout prints faulthandler dumps. EXCLUDING both files is currently
-the only thing that lets a full-suite coverage run finish.
+pytest-timeout prints faulthandler dumps. EXCLUDING both files was initially
+the only thing that let a full-suite coverage run finish.
+
+FIXED. The two destructor faults had different ownership causes. Commit
+``f3712818`` retires pyqtgraph's parentless context-menu trees when a FastPlot
+closes, so opening the pinned plot menu no longer leaves Qt wrappers alive past
+their owner. Commit ``7be7a99f`` creates the settings-search container without
+a parent and lets ``QSplitter.insertWidget`` parent it exactly once, preventing
+Shiboken's double release. The two formerly fatal files now run together to
+completion: 149 passed and 2 data-dependent skips on Python 3.12 / PySide
+6.11.2, including the live-tile right-click and layout-drop paths. They no
+longer need exclusion from a coverage run.
 
 Separately, do NOT set ``ulimit -v`` for such a run. A 12 GB virtual-address
 cap was tried and killed a worker mid-test, which xdist reports as an
@@ -153,13 +164,13 @@ INTERNALERROR and which loses the coverage JSON even though every test ran.
 torch and numba reserve far more address space than they commit; physical
 memory is the real constraint.
 
-This is a REAL defect, not just a test-harness annoyance: a right-click on a
-live figure tile is an ordinary user action, and it takes the interpreter down
-rather than raising. It is filed here because it was found by the coverage
-sweep, but it belongs to whoever owns the figure grid.
+This was a REAL defect, not just a test-harness annoyance: a right-click on a
+live figure tile is an ordinary user action, and it took the interpreter down
+rather than raising. It is recorded here because the coverage sweep found it.
 
 --------------------------------------------------------------------------------
 0b. A PERFORMANCE TEST THAT CANNOT SURVIVE INSTRUMENTATION
+    [FIXED 2026-08-30]
 --------------------------------------------------------------------------------
 
 tests/test_fast_plots.py::TestTheLastGraphIsNotSlowAnyMore::test_the_plain_volcano_is_immediate
@@ -168,6 +179,13 @@ uninstrumented. A wall-clock budget that tight cannot hold with a tracer
 installed, so the test makes coverage and performance measurement mutually
 exclusive. Either raise the budget under coverage, mark it to skip when a
 tracer is active, or measure it outside the coverage job.
+
+FIXED in ``e8de72ce``. The 30 ms assertion remains unchanged and passes in an
+uninstrumented process; only that wall-clock node skips when ``sys.gettrace()``
+reports active instrumentation. A focused ``pytest --cov`` replay confirms the
+node is skipped rather than comparing traced time to the production budget.
+The performance contract therefore stays strict in the slow/performance lane
+without making the coverage lane red for measuring a different workload.
 
 --------------------------------------------------------------------------------
 2b. TWO LATENT DEFECTS IN DEAD ATTRIBUTION CODE  (lane: spacr/guide_attribution.py)
