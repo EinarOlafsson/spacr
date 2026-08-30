@@ -203,12 +203,14 @@ jobs:
             --ignore=tests/qt/test_home_stage_and_dock.py \
             --ignore=tests/qt/test_figure_queue.py \
             --ignore=tests/qt/test_pca.py \
+            --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
             "${xdist_args[@]}" -v --tb=short
           if [ "${{ inputs.run_serial_tail }}" = "true" ]; then
             # These files measure process-local memory, event-loop latency,
-            # and real hover pixels. Running them beside three multi-GB Qt
-            # workers measures scheduler contention and races the offscreen
-            # platform's shared synthetic cursor, not the product contracts.
+            # CPU frame budgets, and real hover pixels. Running them beside
+            # three multi-GB Qt workers measures scheduler contention and
+            # races the offscreen platform's shared synthetic cursor, not the
+            # product contracts.
             # Keep the measurement suites serial after the parallel functional
             # workers have exited. Reset file sharding so every measurement
             # file runs exactly once on the designated shard.
@@ -221,5 +223,6 @@ jobs:
               tests/qt/test_home_stage_and_dock.py \
               tests/qt/test_figure_queue.py \
               tests/qt/test_pca.py \
+              tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
