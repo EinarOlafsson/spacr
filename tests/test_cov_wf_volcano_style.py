@@ -131,7 +131,7 @@ def test_a_label_lands_on_the_panel_whose_range_can_show_its_point():
     """
     frame = pd.DataFrame({
         "standardized_marginal_effect": [-1.0, 0.0, 1.0],
-        "y": [8.0, 3.5, 0.5],
+        "y": [8.0, 4.0, 0.5],
         "guide": ["hit", "gap", "low"],
     })
     style = VolcanoStyle(
@@ -144,15 +144,24 @@ def test_a_label_lands_on_the_panel_whose_range_can_show_its_point():
         assert len(panels) == 2
         upper = {text.get_text() for text in panels[0].texts}
         lower = {text.get_text() for text in panels[1].texts}
+        gap = next(text for text in panels[0].texts
+                   if text.get_text() == "GAP")
+        figure.canvas.draw()
+        gap_box = gap.get_window_extent(figure.canvas.get_renderer())
+        upper_box = panels[0].get_window_extent()
     finally:
         plt.close(figure)
 
     # y=8 is inside the upper panel, y=0.5 inside the lower one.
     assert "HIT" in upper and "HIT" not in lower
     assert "LOW" in lower and "LOW" not in upper
-    # y=3.5 is in the break, in neither range: it falls back to the first
-    # panel rather than vanishing.
+    # y=4 is in the break and nearest the upper panel. Its anchor is clamped to
+    # nearest visible edge and the label is offset into that panel, rather than
+    # merely existing in ``texts`` while clipping outside the rendered axes.
     assert "GAP" in upper
+    assert gap.xy[1] == pytest.approx(5.0)
+    assert gap_box.y0 >= upper_box.y0
+    assert gap_box.y1 <= upper_box.y1
     assert upper | lower == {"HIT", "GAP", "LOW"}
 
 
