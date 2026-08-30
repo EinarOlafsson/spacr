@@ -23,6 +23,17 @@ def _draws():
             float(torch.rand(1).item()))
 
 
+def _same_state(which, left, right):
+    """Compare one generator's opaque state without advancing it."""
+    if which == "numpy":
+        return (left[0] == right[0]
+                and np.array_equal(left[1], right[1])
+                and left[2:] == right[2:])
+    if which == "torch":
+        return bool(torch.equal(left, right))
+    return left == right
+
+
 def test_a_full_capture_restores_all_three_generators():
     """The baseline: the same sequence continues after a restore."""
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
@@ -46,21 +57,18 @@ def test_a_capture_carrying_one_generator_restores_only_that_one(keep):
     from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
     full = capture_rng_state()
-    partial = {keep: full[keep]}
+    _draws()
+    advanced = capture_rng_state()
 
-    restore_rng_state(partial)                 # must not raise
+    restore_rng_state({keep: full[keep]})
+    observed = capture_rng_state()
 
-    # The kept generator really was rewound.
-    if keep == "python":
-        assert random.random() == pytest.approx(
-            _restore_and_draw(full, "python"))
-
-
-def _restore_and_draw(full, which):
-    from spacr.torch_artifacts import restore_rng_state
-
-    restore_rng_state({which: full[which]})
-    return random.random()
+    # The named generator was rewound; neither absent generator moved.
+    assert all(
+        _same_state(name, observed[name],
+                    full[name] if name == keep else advanced[name])
+        for name in ("python", "numpy", "torch")
+    )
 
 
 def test_a_capture_with_none_for_a_generator_skips_it():
@@ -69,9 +77,14 @@ def test_a_capture_with_none_for_a_generator_skips_it():
     A payload round-tripped through JSON or a partially written checkpoint can
     carry the key with a null value, and ``random.setstate(None)`` raises.
     """
-    from spacr.torch_artifacts import restore_rng_state
+    from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
+    before = capture_rng_state()
     restore_rng_state({"python": None, "numpy": None, "torch": None})
+    after = capture_rng_state()
+
+    assert all(_same_state(name, before[name], after[name])
+               for name in ("python", "numpy", "torch"))
 
 
 @pytest.mark.parametrize("state", [None, {}])
@@ -81,9 +94,14 @@ def test_no_capture_at_all_is_a_no_op(state):
     Resuming such a checkpoint is legitimate -- the user asked not to carry
     generator state -- so this must be silence rather than a complaint.
     """
-    from spacr.torch_artifacts import restore_rng_state
+    from spacr.torch_artifacts import capture_rng_state, restore_rng_state
 
+    before = capture_rng_state()
     restore_rng_state(state)
+    after = capture_rng_state()
+
+    assert all(_same_state(name, before[name], after[name])
+               for name in ("python", "numpy", "torch"))
 
 
 # ---------------------------------------------------------------------------
