@@ -425,6 +425,16 @@ class ThresholdGate(Gate):
     dragged to the edge should mean rather than "exclude everything". At least
     one bound is required: a gate with neither is the whole population, and
     naming that is a way to lose track of it.
+
+    :param name: unique name by which the hierarchy and filter identify this
+        gate.
+    :param parent: name of the gate containing this one, or ``None`` for a
+        root gate.
+    :param column: measurement column on which to apply the threshold.
+    :param low: inclusive lower bound, or ``None`` when the gate is unbounded
+        below.
+    :param high: inclusive upper bound, or ``None`` when the gate is unbounded
+        above.
     """
 
     column: str = ""
@@ -455,6 +465,11 @@ class ThresholdGate(Gate):
         return (self.column,)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Select finite values that lie within the inclusive bounds.
+
+        :param frame: measurement table containing this gate's column.
+        :returns: boolean mask aligned row-for-row with ``frame``.
+        """
         values = _numeric(frame, self.column, f"gate {self.name!r}")
         keep = np.isfinite(values)
         if self.low is not None:
@@ -479,6 +494,14 @@ class ThresholdGate(Gate):
 
     def with_threshold(self, column: str, low: Optional[float],
                     high: Optional[float]) -> "ThresholdGate":
+        """Return this gate with replacement bounds on its column.
+
+        :param column: measurement column whose bounds are being changed; a
+            different column is rejected because this gate cannot represent
+            it.
+        :param low: inclusive lower bound, or ``None`` for an open lower end.
+        :param high: inclusive upper bound, or ``None`` for an open upper end.
+        """
         if column != self.column:
             return super().with_threshold(column, low, high)
         low, high = _ordered(low, high)
@@ -486,7 +509,11 @@ class ThresholdGate(Gate):
 
     def translated(self, dx: float, dy: float) -> "ThresholdGate":
         """``dy`` is ignored: a threshold is a cut on ONE column, so it has
-        no second axis to move along."""
+        no second axis to move along.
+
+        :param dx: displacement to add to each finite threshold bound.
+        :param dy: vertical displacement, ignored by this one-column gate.
+        """
         return replace(self, low=_shift_bound(self.low, dx),
                        high=_shift_bound(self.high, dx))
 
@@ -505,6 +532,10 @@ class ThresholdGate(Gate):
         open to infinity, and an anchor at the edge of the view would look
         like a bound the gate does not have -- the user would drag it and
         discover they had just invented one.
+
+        :param view: visible ``(x_low, x_high, y_low, y_high)`` limits used to
+            place each bound handle vertically.
+        :returns: one handle for every finite bound.
         """
         _x0, _x1, y0, y1 = view
         mid = (float(y0) + float(y1)) / 2.0

@@ -2284,8 +2284,8 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,730
-    omissions across 1,976 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,698
+    omissions across 1,951 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
     """
@@ -2299,24 +2299,24 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    assert len(omissions) == 2_730
-    assert sum(omitted_callables.values()) == 1_976
+    assert len(omissions) == 2_698
+    assert sum(omitted_callables.values()) == 1_951
     assert omitted_callables == {
-        "function": 704,
-        "method": 1_155,
+        "function": 698,
+        "method": 1_137,
         "constructor": 46,
-        "dataclass_constructor": 69,
+        "dataclass_constructor": 68,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_010,
-        "method": 1_406,
+        "function": 1_004,
+        "method": 1_381,
         "constructor": 68,
-        "dataclass_constructor": 234,
+        "dataclass_constructor": 233,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef"
+        "152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1"
     )
 
 
