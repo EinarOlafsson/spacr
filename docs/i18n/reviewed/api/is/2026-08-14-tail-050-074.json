@@ -150,7 +150,7 @@
       "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar)."
     },
     {
-      "label": "spacr.qt.widgets.gate_spec.points_in_polygon#2",
+      "label": "spacr.qt.widgets.gate_spec.points_in_polygon#4",
       "source_sha256": "f482d7e0d0d4d26c169a926ca091c5c602cc3a4d76c8c8305b0ee5970bee8a35",
       "source": "a boolean array. A point with a non-finite coordinate is **outside**, always.",
       "context": "a boolean array. A point with a non-finite coordinate is **outside**, always.",

@@ -38,7 +38,7 @@
     },
     {
       "context": "Measured on a synthetic infected/uninfected table with twelve pathogen columns, the median fill produced a centroid gap of 0.06 -- almost nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT, because a median fill puts the missing objects in the middle of the present ones rather than away from them. Both are reported, and ``severity`` is whichever is worse.",
-      "label": "spacr.merge_tables.missingness_leak#9",
+      "label": "spacr.merge_tables.missingness_leak#10",
       "source": "Measured on a synthetic infected/uninfected table with twelve pathogen columns, the median fill produced a centroid gap of 0.06 -- almost nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT, because a median fill puts the missing objects in the middle of the present ones rather than away from them. Both are reported, and ``severity`` is whichever is worse.",
       "source_sha256": "656bc177d9be0a838f6e76d6b4a0189960e5295a1000c4c6d9c9911e105ab28f",
       "translation": "Mæld á tilbúnum sýktum/ósýktum borði með tólf sýkla dálkum, framkallaði miðgildisfylling miðpunktabil upp á 0,06 -- næstum ekkert -- og dreifihlutfall upp á 0,11. EINSKILT CENTROID-TÖLVUNARMÆLIGIL MYNDI HAFNAÐ ÞVÍ, veitandi vegna þess að miðgildi fyllirinn setur vantar hlutina í miðjuna á milli þeirra sem eru til staðar frekar en frá þeim. Bæði eru skýrð, og ``severity`` er það sem er verra."

@@ -3,7 +3,7 @@
   "language": "ko",
   "records": [
     {
-      "label": "spacr.confusion.ConfusionCell.build#1",
+      "label": "spacr.confusion.ConfusionCell.build#4",
       "source_sha256": "99faed31fda84fcbb3c0d9f8af0f0c8ff004814b788a2acd1733ee2372fcdcdf",
       "source": "where \"sure\" starts. Defaults to :func:`confidence_threshold` of ``n_classes``, or of the number of distinct classes in ``predictions`` when that is not given.",
       "context": "where \"sure\" starts. Defaults to :func:`confidence_threshold` of ``n_classes``, or of the number of distinct classes in ``predictions`` when that is not given.",
