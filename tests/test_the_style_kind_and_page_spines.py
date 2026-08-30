@@ -69,22 +69,24 @@ def _style(**changes):
     return dataclasses.replace(FigureStyle(), **changes)
 
 
-def test_the_top_and_right_spines_are_kept_when_asked(monkeypatch):
-    """Arc 161 -> 164: the hiding loop is skipped.
+def test_the_top_and_right_spines_are_kept_when_asked():
+    """The opt-out restores spines hidden by ambient Matplotlib settings.
 
-    The default hides them, so this is the branch a caller takes deliberately
-    -- a boxed axis for a panel that sits inside a grid, where a missing frame
-    reads as a missing panel.
+    Applying a style that asks to keep the frame visible must show both spines
+    even when they were initially hidden by global ``rcParams``.
     """
     from spacr.style_base import apply_page
 
-    figure, axes = plt.subplots()
-    try:
-        apply_page(figure, axes, _style(hide_top_right_spines=False))
-        assert axes.spines["top"].get_visible()
-        assert axes.spines["right"].get_visible()
-    finally:
-        plt.close(figure)
+    with matplotlib.rc_context(
+        {"axes.spines.top": False, "axes.spines.right": False}
+    ):
+        figure, axes = plt.subplots()
+        try:
+            apply_page(figure, axes, _style(hide_top_right_spines=False))
+            assert axes.spines["top"].get_visible()
+            assert axes.spines["right"].get_visible()
+        finally:
+            plt.close(figure)
 
 
 def test_the_top_and_right_spines_are_hidden_by_default():
