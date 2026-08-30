@@ -1612,3 +1612,35 @@ seam before closure, and prove the registry returns to the sentinel alone.
 The real regression now returns with five caller-owned figures instead of
 twenty-two, and its focused warning contract and helper suites pass 28 tests
 without the more-than-twenty warning.
+
+--------------------------------------------------------------------------------
+44. A RESIZE TEST LEFT QTEST'S LEFT MOUSE BUTTON PRESSED
+--------------------------------------------------------------------------------
+
+``test_a_press_on_a_control_is_not_a_drag`` sent a real ``mousePress`` and
+``mouseMove`` but no matching ``mouseRelease``.  The process-global pressed
+button state survived the test and made four later close-mark hover tests
+report ``underMouse() is False`` or paint their resting ink instead of red.
+The close-mark file was 33/33 green alone; running the resizing file first
+reproduced all four failures exactly after 278 passes.
+
+The owner test now releases the button in ``finally``, processes the event,
+and asserts that ``QApplication.mouseButtons()`` is ``NoButton``.  The exact
+full resizing-file-to-four-hover reproducer is 282/282 green.  Fix commit:
+``91b409a5``.
+
+--------------------------------------------------------------------------------
+45. TWO LOADING-SCREEN PIXEL FAILURES WERE A HIGH-PRESSURE SYMPTOM
+--------------------------------------------------------------------------------
+
+The full four-worker Qt shard once failed the no-logo sentence and lit/unlit
+phase pixel checks after 6,946 passing tests.  Neither failure reproduced in
+the 21-test loading file across five clean runs, or after four disjoint groups
+of that worker's predecessor files containing 977, 474, 278 and 178 passing
+tests respectively.  No later commit changed the loading widget or these
+tests.
+
+This pair is classified as a nonreproducible high-pressure rendering symptom,
+not evidence of a loading-screen product defect.  No product or test change
+was made for it; a future recurrence needs fresh process-state evidence rather
+than a speculative pixel or timing allowance.
