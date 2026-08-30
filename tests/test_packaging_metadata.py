@@ -291,6 +291,22 @@ def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
     )
     assert "Any noncommercial purpose is a permitted purpose." in license_text
 
+    zenodo = json.loads(
+        (REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8")
+    )
+    assert zenodo["license"] == "polyform-noncommercial-1.0.0"
+    assert "source-available" in zenodo["description"]
+    assert "open-source" not in zenodo["description"]
+
+    citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    assert re.search(
+        r"^license:\s*PolyForm-Noncommercial-1\.0\.0\s*$",
+        citation,
+        re.MULTILINE,
+    )
+    assert "source-available" in citation
+    assert "open-source" not in citation
+
 
 # ---------------------------------------------------------------------------
 # 2. Every claimed Python version has a CI cell
