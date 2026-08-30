@@ -394,12 +394,21 @@ while claiming zero samples and a zero worst interval.  That contradiction was
 syntactically complete enough to pass the release ratchet.
 
 Home, Preferences and every registry-module result now record the exact start
-and end of the watchdog window used for its summary.  The parent validates each
-raw gap's timestamps and measured duration, then independently recomputes the
-global worst interval and budget verdict plus every result's clipped overlap,
-raw frame interval, sample count and budget verdict.  Missing, malformed or
-contradictory trace evidence now fails closed.  Focused verification covered 29
-driver contract tests and 31 production Qt readiness/controller tests.
+and end of the watchdog window used for its summary.  A passing result seals on
+the first observed watchdog beat after readiness, rather than on a wall-clock
+sample between beats; a later legitimate beat therefore cannot span backward
+into a closed window.  The parent requires that window to begin at the actual
+interaction timestamp and end no earlier than readiness, rejects raw gaps past
+the artifact clock, and independently recomputes the global and per-result
+worst intervals, sample counts and budget verdicts.  The timestamp span, not a
+rounded ``late_ms`` field, decides the 500 ms boundary.
+
+These incompatible guarantees are worker/combined artifact schema 2.  The
+hardware-report consumer rejects schema 1 instead of presenting it as current
+evidence.  Missing, malformed, shifted or contradictory trace evidence now
+fails closed.  Focused verification covered 34 driver contract tests, 32
+production Qt readiness/controller tests and seven hardware-report consumer
+tests.
 
 This is a deterministic item 6 trace-integrity ratchet, not new performance
 evidence.  No real-display timing was run while the machine was busy, and this

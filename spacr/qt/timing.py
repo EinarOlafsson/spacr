@@ -59,6 +59,7 @@ STALL_FLOOR_MS: float = 50.0
 HOME_BUDGET_S: float = 5.0
 MODULE_BUDGET_S: float = 10.0
 STALL_BUDGET_MS: float = 500.0
+SCHEMA_VERSION: int = 2
 
 _START = time.perf_counter()
 _LOCK = threading.Lock()
@@ -785,7 +786,7 @@ def snapshot() -> dict:
     package = sys.modules.get("spacr")
     qt_package = sys.modules.get("spacr.qt")
     return {
-        "schema_version": 1,
+        "schema_version": SCHEMA_VERSION,
         "elapsed_s": _now(),
         "budgets": {
             "home_ready_s": HOME_BUDGET_S,

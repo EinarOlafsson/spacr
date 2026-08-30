@@ -35,8 +35,8 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = 1
-WORKER_SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+WORKER_SCHEMA_VERSION = 2
 HOME_BUDGET_S = 5.0
 MODULE_BUDGET_S = 10.0
 PREFERENCES_BUDGET_S = 3.0
@@ -235,7 +235,8 @@ def _finite_number(value: object, *, minimum: Optional[float] = None,
     return True
 
 
-def _raw_stall_trace(stalls: object, reject) -> list[dict[str, float]]:
+def _raw_stall_trace(stalls: object, reject, *,
+                     artifact_elapsed_s: Optional[float]) -> list[dict[str, float]]:
     """Validate and normalize the worker's raw event-loop watchdog trace."""
     if not isinstance(stalls, list):
         return []
@@ -262,6 +263,10 @@ def _raw_stall_trace(stalls: object, reject) -> list[dict[str, float]]:
         if ended_at < started_at:
             reject(f"{path}.at is before started_at")
             continue
+        if (artifact_elapsed_s is not None
+                and ended_at > artifact_elapsed_s):
+            reject(f"{path}.at is after artifact elapsed_s")
+            continue
         measured_ms = (ended_at - started_at) * 1000.0
         if not math.isclose(
                 late_ms, measured_ms, rel_tol=1e-9, abs_tol=0.001):
@@ -270,7 +275,11 @@ def _raw_stall_trace(stalls: object, reject) -> list[dict[str, float]]:
         normalized.append({
             "started_at": started_at,
             "at": ended_at,
-            "late_ms": late_ms,
+            # Budget the duration proved by the two timestamps.  ``late_ms``
+            # is retained in the worker JSON as a diagnostic redundancy, but
+            # a sub-millisecond rounding difference may never move a gap from
+            # one side of the 500 ms release boundary to the other.
+            "late_ms": measured_ms,
         })
     return normalized
 
@@ -318,7 +327,9 @@ def _worker_schema_violations(
             or artifact.get("schema_version") != WORKER_SCHEMA_VERSION):
         reject(
             f"worker schema_version must be {WORKER_SCHEMA_VERSION}")
-    if not _finite_number(artifact.get("elapsed_s"), minimum=0.0):
+    elapsed_value = artifact.get("elapsed_s")
+    elapsed_valid = _finite_number(elapsed_value, minimum=0.0)
+    if not elapsed_valid:
         reject("elapsed_s is missing or is not a finite non-negative number")
 
     budgets = artifact.get("budgets")
@@ -432,7 +443,10 @@ def _worker_schema_violations(
     for field in ("spans", "imports", "stalls", "marks", "readiness"):
         if not isinstance(artifact.get(field), list):
             reject(f"{field} is not a JSON array")
-    raw_stalls = _raw_stall_trace(artifact.get("stalls"), reject)
+    raw_stalls = _raw_stall_trace(
+        artifact.get("stalls"), reject,
+        artifact_elapsed_s=(float(elapsed_value) if elapsed_valid else None),
+    )
     if not _finite_number(
             artifact.get("event_loop_started_at"), minimum=0.0):
         reject("event_loop_started_at was not recorded")
@@ -563,6 +577,22 @@ def _worker_schema_violations(
                 and _finite_number(budget, minimum=0.0)
                 and float(duration) > float(budget)):
             reject(f"{row_path}.duration_s exceeds its declared budget")
+        at = row.get("at")
+        started_at = row.get("started_at")
+        timestamps_valid = True
+        for field, value in (("at", at), ("started_at", started_at)):
+            if not _finite_number(value, minimum=0.0):
+                reject(f"{row_path}.{field} was not recorded")
+                timestamps_valid = False
+        if (timestamps_valid and float(started_at) > float(at)):
+            reject(f"{row_path}.started_at is after readiness")
+            timestamps_valid = False
+        if (timestamps_valid
+                and _finite_number(duration, minimum=0.0)
+                and not math.isclose(
+                    float(duration), float(at) - float(started_at),
+                    rel_tol=1e-9, abs_tol=1e-6)):
+            reject(f"{row_path}.duration_s does not match its timestamps")
         worst = row.get("worst_event_loop_stall_ms")
         raw_worst = row.get("worst_overlapping_frame_interval_ms")
         window_start = row.get("stall_window_started_at")
@@ -581,6 +611,18 @@ def _worker_schema_violations(
                 and _finite_number(artifact.get("elapsed_s"), minimum=0.0)
                 and float(window_end) > float(artifact["elapsed_s"])):
             reject(f"{row_path}.stall window ends after the artifact")
+            window_valid = False
+        if (window_valid and timestamps_valid
+                and not math.isclose(
+                    float(window_start), float(started_at),
+                    rel_tol=1e-9, abs_tol=1e-6)):
+            reject(
+                f"{row_path}.stall_window_started_at does not match "
+                "started_at")
+            window_valid = False
+        if (window_valid and timestamps_valid
+                and float(window_end) < float(at)):
+            reject(f"{row_path}.stall window ends before readiness")
             window_valid = False
         overlaps = (
             _overlapping_stalls(
@@ -639,27 +681,14 @@ def _worker_schema_violations(
         # registry app, however, may pass only with the stronger production
         # probe: an event-loop callback followed by a painted usable control.
         if expected_detail != "__preferences__":
-            for field in ("at", "started_at", "event_loop_started_at"):
-                if not _finite_number(row.get(field), minimum=0.0):
-                    reject(f"{row_path}.{field} was not recorded")
-            at = row.get("at")
-            started_at = row.get("started_at")
+            if not _finite_number(
+                    row.get("event_loop_started_at"), minimum=0.0):
+                reject(f"{row_path}.event_loop_started_at was not recorded")
             event_loop_at = row.get("event_loop_started_at")
-            if (_finite_number(at, minimum=0.0)
-                    and _finite_number(started_at, minimum=0.0)
-                    and float(started_at) > float(at)):
-                reject(f"{row_path}.started_at is after readiness")
             if (_finite_number(at, minimum=0.0)
                     and _finite_number(event_loop_at, minimum=0.0)
                     and float(event_loop_at) > float(at)):
                 reject(f"{row_path}.event_loop_started_at is after readiness")
-            if (_finite_number(at, minimum=0.0)
-                    and _finite_number(started_at, minimum=0.0)
-                    and _finite_number(duration, minimum=0.0)
-                    and not math.isclose(
-                        float(duration), float(at) - float(started_at),
-                        rel_tol=1e-9, abs_tol=1e-6)):
-                reject(f"{row_path}.duration_s does not match its timestamps")
             if not isinstance(row.get("root_painted"), bool):
                 reject(f"{row_path}.root_painted is missing")
             if row.get("screen_tree_painted") is not True:

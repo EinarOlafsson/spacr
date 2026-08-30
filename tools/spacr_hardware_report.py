@@ -30,6 +30,7 @@ import traceback
 
 #: Sections that take real time, skipped by --quick.
 SLOW = "SLOW"
+STARTUP_BENCHMARK_SCHEMA_VERSION = 2
 
 
 class Report:
@@ -504,7 +505,17 @@ def screens(say: Report, quick: bool) -> None:
                 return
             artifact = json.loads(output.read_text(encoding="utf-8"))
 
+        schema = artifact.get("schema_version")
+        if schema != STARTUP_BENCHMARK_SCHEMA_VERSION:
+            say.item(
+                "registry benchmark",
+                "FAILED (artifact schema "
+                f"{schema!r}, expected {STARTUP_BENCHMARK_SCHEMA_VERSION})",
+            )
+            return
+
         keys = artifact.get("registry_keys", [])
+        say.item("ratchet passed", artifact.get("passed") is True)
         say.item("live registry", f"{len(keys)} app(s)")
         run = (artifact.get("runs") or [{}])[0]
         benchmark = run.get("benchmark", {})
@@ -520,6 +531,8 @@ def screens(say: Report, quick: bool) -> None:
             say.timed(detail, seconds, f"worst event gap {stall_text}{error}")
         for violation in benchmark.get("violations", []):
             say(f"  BUDGET VIOLATION: {violation}")
+        for violation in artifact.get("violations", []):
+            say(f"  ARTIFACT VIOLATION: {violation}")
 
 
 def backdrop(say: Report) -> None:
