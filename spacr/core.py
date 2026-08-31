@@ -112,8 +112,11 @@ def preprocess_generate_masks(settings):
           ``organelle_channel`` — 0-based channel indices; ``None`` skips.
         - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``
           — Cellpose object diameters in pixels.
-        - ``pathogen_model`` — removed. Pathogens are segmented with cpsam
-          like every other object; the pre-SAM toxo checkpoints are gone.
+        - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment
+          pathogens with, instead of stock ``cpsam``. The pre-SAM
+          ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to
+          ``cpsam``; a PATH to a fine-tune is honoured, and a path that is
+          not there stops the run rather than silently using stock weights.
         - ``consolidate`` — copy nested images into ``src/consolidated``
           before processing.
         - ``preprocess`` / ``masks`` — toggle the two pipeline halves.
