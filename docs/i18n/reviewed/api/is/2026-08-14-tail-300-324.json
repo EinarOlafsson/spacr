@@ -116,10 +116,10 @@
     },
     {
       "label": "spacr.utils.plot_grid#2",
-      "source_sha256": "2267b9c98e580cad1dcb28645c94fd9636446750a71003debb60ddf4582173be",
-      "source": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer keys, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String keys use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
-      "context": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer structured-data names, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String structured-data names use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
-      "translation": "neyslt á tvo mismunandi vegu í sama myndinni. Ramminn í spjaldi notar ``colors[label]`` fyrir heilar tölugögn nafn, svo pallettan verður að ná stærstu merkinu, á meðan litakort goðsögunnar við hlið töflunnar eru tekin staðsetningalega -- með ekki-samliggjandi merkimiða eru tveir ósammála, og klasi ``3`` fær landamærin ``colors[3]`` við hönnun ``colors[1]``. Strengi með uppbyggðum gögnum nota staðsetningarvísinn báðum megin. Litasamsetning sem er styttri en kortlagningin vekur ``IndexError``, og færslur þurfa að innihalda að minnsta kosti þrjá hluta."
+      "source_sha256": "f9ad8005d94700c232a99f368b4436cd0f282c0a0fbfee1e50818f7c472be1c2",
+      "source": "palette used consistently for both panel borders and legend swatches. Integer labels index it by label (wrapping when necessary), while string labels use their position in ``cluster_images``. An empty palette falls back to neutral grey, and entries need at least three components.",
+      "context": "palette used consistently for both panel borders and legend swatches. Integer labels index it by label (wrapping when necessary), while string labels use their position in ``cluster_images``. An empty palette falls back to neutral grey, and entries need at least three components.",
+      "translation": "Litapallettan er notuð á samræmdan hátt fyrir bæði ramma spjaldanna og litareiti skýringarinnar. Heiltölumerki nota gildi merkisins sem vísi í pallettuna (með vafningu þegar þarf), en strengjamerki nota stöðu sína í ``cluster_images``. Tóm palletta notar hlutlausan gráan lit til vara og hver færsla þarf að hafa að minnsta kosti þrjá þætti."
     },
     {
       "label": "spacr.hyperparam.umap_objective_scores#6",
