@@ -5213,6 +5213,12 @@ class AppScreen(QWidget):
         row.addWidget(self._ai_switch)
 
         self._ai_menu_btn = QToolButton()
+        # A QToolButton does not inherit the application's QPushButton rules.
+        # Left anonymous, its native dark-theme primitive paints the Window
+        # role -- pure black -- as a square beside the transparent AI label.
+        # Give the provider chevron the dedicated rule in theme.stylesheet;
+        # setting autoRaise is not equivalent (Qt still paints black at rest).
+        self._ai_menu_btn.setObjectName("AiProviderMenuButton")
         self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
         self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
         self._ai_menu_btn.setToolTip("Pick provider · Providers…")
