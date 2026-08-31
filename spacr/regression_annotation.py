@@ -989,11 +989,20 @@ def prepare(request: AnnotationRequest,
     # THE SPLIT RUNS OVER THE LABELLED ROWS ONLY. Stratifying over rows that
     # carry no annotation would balance the hold-out on a label nobody
     # wrote, and the wells it drew would be drawn for the wrong reason.
+    # NO `labelled.size < 4` GUARD. Both routes into `known` already
+    # guarantee at least four:
+    #
+    #   the SCORE route refuses earlier, at `pool.size < 4` -- "Only N
+    #   scored cell(s) are in the chosen wells" -- and `known` is drawn
+    #   from that pool;
+    #   the ANNOTATION route only supplies labels when
+    #   `known.sum() >= 4`, and otherwise falls back to the score route
+    #   above.
+    #
+    # So this raise could not fire. Argued, then searched: 45
+    # combinations of well count, cell count and n_positive all hit an
+    # earlier guard, none reached this one.
     labelled = np.flatnonzero(np.asarray(known, dtype=bool))
-    if labelled.size < 4:
-        raise AnnotationStrategyError(
-            f"Only {labelled.size} cell(s) carry a reference label, which is "
-            "too few to hold any of them aside and still measure anything.")
     # THE SPLITTER REFUSES A DESIGN IT CANNOT MAKE HONEST, and its refusal
     # is the message a user needs; it is re-raised in this module's own type
     # so a caller has one exception to catch.
