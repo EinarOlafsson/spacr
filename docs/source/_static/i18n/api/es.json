@@ -50376,12 +50376,14 @@
     },
     "spacr.qt.app.MainWindow.resizeEvent": {
       "source_blocks_sha256": [
-        "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf"
+        "731330843118e819f6b2be7bd4d74d77aefbac5f0ee3d9c30baca760ce2f5dbc",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ],
-      "source_sha256": "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf",
-      "text": "Mantenga la vista de la aplicación de carga cubriendo toda la ventana mientras esté arriba.",
+      "source_sha256": "eda8414d6d1aea0f8ea897c98d3fac2f111dad456436536e97b16c9040bfd6dc",
+      "text": "Mantenga la vista de aplicación de carga que cubre toda la ventana y borre la antigua banda de la barra de menús.\n\nCADA RÉGIMEN, no sólo un cambio de estado. Arrastrando un borde mueve los botones de esquina sin cambiar el estado de la ventana, por lo que `changeEvent` nunca se dispara -- y las marcas se vuelven a dibujar en su nueva x sobre las antiguas. Es decir, el \"sometimes\" en el informe: no es intermitente, es cada redimensionamiento que no es una pantalla completa.",
       "translation_source_blocks_sha256": [
-        "31829ba1bece1029b6bda827031e8afc7931c0125638cdf7bae847d11cf24575"
+        "d67b1d0416f9eb8b4f400c3a6a12292544080d205bf39064e74bbf19f07cf16b",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ]
     },
     "spacr.qt.app.MainWindow.resume_after_restart": {

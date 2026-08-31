@@ -2056,6 +2056,17 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Balanced": _row(
         "Balanserat", "Ausgewogen", "Equilibrado", "均衡", "Equilibrado",
         "संतुलित", "균형", "Jafnvægi", "Équilibré"),
+    # THE OTHER TWO ENDS OF THE SAME SCALE. Laptop and Workstation reached
+    # the setup screen when it was pointed at PERFORMANCE_LEVELS instead of
+    # the three-value SPACR_MODES; the middle three already had rows, which
+    # is why only these two were missing.
+    "Laptop": _row(
+        "Bärbar dator", "Laptop", "Portátil", "笔记本电脑", "Notebook",
+        "लैपटॉप", "노트북", "Fartölva", "Ordinateur portable"),
+    "Workstation": _row(
+        "Arbetsstation", "Workstation", "Estación de trabajo", "工作站",
+        "Estação de trabalho", "वर्कस्टेशन", "워크스테이션", "Vinnustöð",
+        "Station de travail"),
     "Starfield": _row(
         "Stjärnfält", "Sternenfeld", "Campo estelar", "星空",
         "Campo estelar", "तारों का क्षेत्र", "별빛", "Stjörnusvið",
