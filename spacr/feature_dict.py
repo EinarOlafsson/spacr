@@ -3393,6 +3393,15 @@ def describe_database(db_path: str | Path, table: str | None = None,
     for col in _TUPLE_FRAME_COLUMNS:
         df[col] = [", ".join(v) if isinstance(v, (list, tuple)) else v
                    for v in df[col]]
+    # Pandas 3 infers ``str`` for text columns and exposes missing values from
+    # that dtype as ``nan``.  Keep the public contract for an unstamped unit:
+    # callers receive the Python ``None`` stored by ``FeatureEntry``.
+    df["measurement_units"] = pd.Series(
+        [None if pd.isna(value) else value
+         for value in df["measurement_units"]],
+        index=df.index,
+        dtype=object,
+    )
     # Keep channel indices as integers-or-missing rather than letting pandas
     # promote them to float and print "channel 0.0" in the exports.
     for col in ("channel", "channel_2"):
@@ -3517,10 +3526,9 @@ def _markdown(df: pd.DataFrame, db_path: Path,
     # Collapse every missing marker (None / NaN) onto a single None bucket, so
     # the "no object" section is emitted exactly once.
     missing = df["object_type"].isna()
-    seen: list[str | None] = []
-    for value in df["object_type"].where(~missing, None):
-        if value not in seen:
-            seen.append(value)
+    seen: list[str | None] = df.loc[~missing, "object_type"].unique().tolist()
+    if bool(missing.any()):
+        seen.append(None)
     objects = sorted(seen, key=lambda o: (o is None, order.get(o, len(order)),
                                           str(o)))
     fam_order = {name: i for i, name in enumerate(FEATURE_FAMILIES)}
