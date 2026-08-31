@@ -204,6 +204,7 @@ jobs:
             --ignore=tests/qt/test_figure_queue.py \
             --ignore=tests/qt/test_pca.py \
             --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+            --ignore=tests/qt/test_the_backdrop_survives_a_run.py \
             "${xdist_args[@]}" -v --tb=short
           if [ "${{ inputs.run_serial_tail }}" = "true" ]; then
             # These files measure process-local memory, event-loop latency,
@@ -224,5 +225,6 @@ jobs:
               tests/qt/test_figure_queue.py \
               tests/qt/test_pca.py \
               tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+              tests/qt/test_the_backdrop_survives_a_run.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi

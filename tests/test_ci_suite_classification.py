@@ -250,6 +250,11 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
         "tests/qt/test_figure_queue.py",
         "tests/qt/test_pca.py",
         "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
+        # The backdrop's per-frame cost is asserted against the frame
+        # budget while a Python worker runs. Beside three sibling xdist
+        # workers that measures the runner, and it did: the assertion
+        # passes alone and serially in its own batch, and fails under -n 4.
+        "tests/qt/test_the_backdrop_survives_a_run.py",
     ):
         assert f"--ignore={path}" in workflow
         assert workflow.count(path) >= 2

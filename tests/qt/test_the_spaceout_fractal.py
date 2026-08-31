@@ -134,9 +134,48 @@ def test_a_small_machine_still_gets_one():
     assert F.resolved_cpu_threads(F.Settings(), hardware) == 1
 
 
+def _numba_ceiling(logical_cpus):
+    """What the resolver is allowed to ask for on THIS process.
+
+    ``set_num_threads`` raises above ``NUMBA_NUM_THREADS``, which is read
+    once when numba is imported and is commonly set low in CI and in the
+    coverage runs. A test that ignored it would assert a number numba
+    would refuse.
+    """
+    ceiling = min(logical_cpus, 24)
+    if F.numba_config is not None:
+        try:
+            ceiling = min(ceiling, int(F.numba_config.NUMBA_NUM_THREADS))
+        except Exception:                                    # noqa: BLE001
+            pass
+    return max(1, ceiling)
+
+
 def test_an_explicit_thread_count_is_honoured():
+    """A number the user typed is used, not treated as a hint."""
     hardware = F.HardwareProfile(logical_cpus=32)
-    assert F.resolved_cpu_threads(F.Settings(cpu_threads=3), hardware) == 3
+    ceiling = _numba_ceiling(32)
+    wanted = min(3, ceiling)
+
+    assert F.resolved_cpu_threads(
+        F.Settings(cpu_threads=wanted), hardware) == wanted
+
+
+def test_an_explicit_count_above_what_numba_allows_is_clamped_to_it():
+    """And not honoured past the ceiling, because that is a crash.
+
+    ``set_num_threads(n)`` with n above ``NUMBA_NUM_THREADS`` raises, and
+    it raises inside the render loop -- a backdrop that dies on its first
+    frame because a preference was taken literally.
+    """
+    hardware = F.HardwareProfile(logical_cpus=32)
+    ceiling = _numba_ceiling(32)
+
+    assert F.resolved_cpu_threads(
+        F.Settings(cpu_threads=1000), hardware) == ceiling
+
+    assert F.resolved_cpu_threads(F.Settings(cpu_threads=0), hardware) == 1
+    assert F.resolved_cpu_threads(F.Settings(cpu_threads=-4), hardware) == 1
 
 
 # --- no second Qt binding --------------------------------------------------
