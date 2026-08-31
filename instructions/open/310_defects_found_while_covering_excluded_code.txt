@@ -2081,3 +2081,92 @@ now registers callbacks through the real Matplotlib registry and proves that
 canvas and toolbar callbacks leave while an unrelated callback survives; the
 old synthetic ``.func`` proxy that made the dead implementation appear to work
 is gone.
+
+
+35. THREE TESTS THAT ONLY FAILED BATCHED, AND WHAT THE THREE HAVE IN COMMON
+---------------------------------------------------------------------------
+
+All three passed alone and failed in the batched coverage run. None was
+flaky in the sense of "sometimes"; each was deterministic given what ran
+before it, which is worse, because it looks like noise and is not.
+
+35a. A PATCH THAT LANDED ON A SECOND MODULE OBJECT.
+`test_the_class_editor_is_handed_the_live_preview_frame` patched
+`ClassEditorWidget` on a freshly imported `spacr.qt.screens.settings_model`
+and restored it in a `finally`. That is the same object as the test
+module's `SM` right up until something drops the module from `sys.modules`
+and lets it be imported again. After that there are two module objects:
+the patch lands on the new one, `_widget_for` keeps reading the globals it
+was DEFINED against, and the `finally` restores the wrong copy too. The
+real widget then received the test's `object()` sentinel and raised
+`'object' object has no attribute 'columns'`.
+
+Reproduced directly -- delete from `sys.modules`, re-import, run both
+forms -- rather than inferred. `importlib.reload` does NOT cause it: it
+re-executes in place and the object stays identical, which is why
+grepping the batch for a reload found nothing.
+
+FIXED by targeting `type(widgets)._widget_for.__globals__`, the dict the
+function body genuinely resolves against, with `monkeypatch.setitem` so
+it is restored even when the assertion fails.
+
+THE RULE: to patch a name a function reads as a module global, patch the
+function's `__globals__`. `import x as m; m.NAME = ...` is the same thing
+only while nothing has re-imported `x`.
+
+35b. A MEASUREMENT TAKEN WHILE THE THING BEING MEASURED WAS STILL MOVING.
+`test_it_opens_at_the_size_it_always_did` compares a settings window's
+size with an event filter off and on. Qt warms font metrics and style
+sheets per widget class, so successive builds of the same dialog shrink
+slightly until the caches are full. An earlier fix here opened one
+throwaway first -- right argument, unfinished -- and the size was still
+moving on the THIRD build, which is the one the assertion reads:
+`annotate._SettingsDialog` 1,183 px against 1,191, `ExecutionProfileDialog`
+615 against 616. The residue was being charged to the filter.
+
+FIXED by building each side until two consecutive sizes agree, capped at
+six, with the filter reinstalled from a `finally`.
+
+THE RULE, and it is 27's rule in another costume: a warmup that moves a
+number without settling it converts a reproducible difference into a
+plausible one. Settle, then measure.
+
+35c. AN ASSERTION THAT CANNOT HOLD FROM THE TREE THE SUITE IS MEASURED IN.
+`test_this_checkout_is_recognised_as_editable` asserts the running tree
+IS the editable install. The coverage runs measure a frozen SNAPSHOT of
+the tree (see 27), so the running tree is a copy and the editable install
+still points at the original. False for a reason that says nothing about
+the guard.
+
+FIXED by splitting it: what the guard depends on -- a location is found,
+it is a directory, it contains a `spacr` package -- is asserted
+everywhere and more tightly than before, so a stale path now fails here
+instead of passing. The identity is skipped with both paths named, rather
+than passed over by a silent `if`; a conditional that quietly does
+nothing is exactly the failure mode this file exists to catch.
+
+WHAT THE THREE SHARE: each was a test that could not see the state it
+depended on. Two were made honest by making the dependency explicit (the
+globals dict, the settled size) and one by admitting the dependency
+cannot be satisfied from a copy. None was fixed by loosening a tolerance,
+and none should be.
+
+36. ENTRY 30 NOW BLOCKS ITEM 306's CAPTION REVIEW
+-------------------------------------------------
+
+Cross-reference, not a new defect. 30 records that two editable installs
+of spaCR are active in the same interpreter. That has so far shown up in
+tests; it now blocks TOOLING.
+
+Item 306's external caption inventory is 102 records ahead of its
+ratchet, and the identities are pinned as a digest rather than listed --
+so reviewing the additions means recomputing the previous set by running
+`tools/build_i18n_catalogs.canonical_sources()` against the tree at
+`d0c1a633c`. Doing that from a worktree at that commit dies in the
+import: the interpreter mixes the worktree's modules with the editable
+install's, and `spacr.qt.screens.app_screen` asks the old `theme` for a
+symbol only the new one has.
+
+The workaround, if 30 stays open: run the old builder in a SUBPROCESS
+whose `sys.path` cannot see the editable install at all, rather than
+trying to shadow it from inside a live interpreter.
