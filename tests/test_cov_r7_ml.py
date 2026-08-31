@@ -50,15 +50,24 @@ def _close_figures():
 # ---------------------------------------------------------------------------
 
 def test_a_design_holding_the_same_regressor_twice_is_refused_by_name():
-    """A rank-deficient absorbed design stops at the solve, and says why.
+    """A rank-deficient absorbed design is refused BEFORE the solve.
 
     ``fraction`` and a copy of it are collinear after the row/column factors
     are projected out, so the demeaned cross-product matrix is exactly
-    singular and ``np.linalg.solve`` refuses it. The refusal has to name the
-    DESIGN rather than the backend: statsmodels answers the very same design
-    with a pseudo-inverse, i.e. with one arbitrary member of an infinite
-    solution set, and a user who reads "pyfixest failed" would switch backends
-    and get a number instead of a diagnosis.
+    singular. The refusal has to name the DESIGN rather than the backend:
+    statsmodels answers the very same design with a pseudo-inverse, i.e.
+    with one arbitrary member of an infinite solution set, and a user who
+    reads "pyfixest failed" would switch backends and get a number instead
+    of a diagnosis.
+
+    IT NO LONGER WAITS FOR THE SOLVER TO COMPLAIN. This test used to assert
+    the ValueError was raised FROM a LinAlgError, which made the refusal
+    depend on LAPACK: builds disagree, and on some the solve returns one
+    arbitrary member of the solution set rather than raising, so the design
+    was accepted and a coefficient table came back that looked fine and was
+    not identified. ``matrix_rank`` decides first now, and the rank it found
+    is in the message -- so there is no cause to chain, and the refusal is
+    the same on every runner.
 
     Driven beside the identical design without the duplicate, which fits.
     """
@@ -81,7 +90,12 @@ def test_a_design_holding_the_same_regressor_twice_is_refused_by_name():
     assert "normal equations are singular" in message
     assert "its 2 coefficients are not identified" in message
     assert "pseudo-inverse" in message
-    assert isinstance(caught.value.__cause__, np.linalg.LinAlgError)
+    assert "rank 1 of 2" in message, (
+        "the refusal no longer names the rank it found, which is the part "
+        "that says WHICH design is deficient rather than that one is")
+    assert caught.value.__cause__ is None, (
+        "the refusal is chained from a solver error again, which makes it "
+        "depend on a LAPACK build that may not raise at all")
 
 
 def test_the_covariance_inverse_cannot_fail_where_the_solve_succeeded():
