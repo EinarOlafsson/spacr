@@ -1298,10 +1298,19 @@ A10. spacr/cell_montage.py:2572-2574 against spacr/crops.py:3564-3573
 A11. spacr/core.py:250-253 (preprocess_generate_masks, the `consolidate` block) via spacr/utils.py:10710 (generate_image_path_map)
     WHAT: The consolidate block assumes `settings['src']` is a single string, but it runs BEFORE the str->list normalisation at 255-256 and after line 180, which preserves a list. With the documented plural form (`src` = list of plate folders) plus `consolidate=True`, `generate_image_path_map(settings['src'])` calls `os.walk(<list>)` and the run dies with `TypeError: expected str, bytes or os.PathLike object, not list`. Reproduced directly: src=[p1, p2], consolidate=True, masks=False. `os.path.join(settings['src'], 'consolidated')` at 253 would fail the same way for the same reason.
     COST: Two documented settings that are each individually supported (the docstring says src is 'str or list of str' and consolidate 'copy nested images into src/consolidated') cannot be combined. The user gets an os.walk TypeError that names neither `src` nor `consolidate`, before any plate is processed, with no indication that dropping to one folder at a time is the workaround.
+    VERDICT 2026-08-31: STALE -- already fixed. The consolidate block now
+    normalises first (`sources = settings['src'] if isinstance(..., list) else
+    [settings['src']]`), loops, and writes back a list (core.py:250-258).
 
 A12. spacr/parameter_sweep.py:369-375 (_named_control_rows)
     WHAT: The control's effect/q/p are read from `frame.loc[hit].iloc[0]` -- the FIRST row in table order that matches the alias -- while `{alias}_rank` is computed from `position.idxmax()` on the effect-sorted table, i.e. the BEST-ranked match. When an alias matches more than one guide (the normal case: controls={'positive': 'gra14'} matches gra14_1, gra14_2, ...), the two halves of the same row describe different guides. Verified: DataFrame(grna=['gra14_1','other_1','gra14_2'], coefficient=[0.02,0.5,0.95], q_value=[0.99,0.02,0.005]) returns {'positive_rank': 1, 'positive_effect': 0.02, 'positive_q': 0.99}.
     COST: A sweep row reports the positive control at rank 1 with q=0.99 and effect 0.02. rank_trials/summarise_sweep then rank that setting top on a rank belonging to a guide whose effect and q the row does not show, so a user picks a configuration on evidence that is not in the row they are reading.
+    VERDICT 2026-08-31: STALE -- already fixed. `row` is reassigned from
+    `ranked.loc[position].iloc[0]`, so effect/q/p come from the same row the
+    rank names. Checked one step further, because `int(position.idxmax()) + 1`
+    reads like a label/position confusion: `ranked` is built with
+    `reset_index(drop=True)` (line 359), so idxmax IS the positional rank.
+    Correct as written.
 
 A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
     WHAT: The `error.txt` write in run_sweep's `except Exception` handler is unguarded, while the identical write on the parallel path (_execute_trial, lines 964-969) is wrapped in `try/except OSError: pass`. An OSError from that open (read-only or full destination) is raised from inside the handler, aborting the whole sweep.
@@ -1312,18 +1321,55 @@ A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
 A14. spacr/volcano_style.py:683-692, _annotate
     WHAT: When a labelled point's y value falls inside the break of a split axis (outside every panel's ylim), the `for panel in panels` loop falls through and the label is annotated onto `panels[0]` at data coordinates outside that panel's y range. Annotations are created with clip_on=True, so the text is clipped away entirely. Verified by drawing: with split_y_lims=((0,2),(5,10)) and a point at y=3.5, the annotation's window extent comes back at y 0-1 while the panel occupies y 596-845 -- the text is present in `panels[0].texts` but paints nothing.
     COST: A user who explicitly types a guide into the annotation list on a broken-axis volcano gets no label and no message; the label is silently swallowed rather than clamped to the nearest panel edge or reported as unplottable. Low severity (the point itself is also hidden by the break), but the `target = axis` fall-through is effectively a no-op that reads like a deliberate fallback.
+    VERDICT 2026-08-31: STILL LIVE. `target = panels[0]` before the `for panel
+    in panels` loop, so a y inside the break of a split axis is annotated onto
+    the first panel at coordinates outside its ylim. Not fixed here.
 
 A15. spacr/qt/widgets/figure_settings.py:1534 (derive_replot_recipe)
     WHAT: The guard `if frame[DERIVED_GROUP].nunique() < 1: return None` cannot fire for any real figure. The group column is built only from `_named()`, which returns either a non-empty stripped tick label or `f"{float(x):g}"` -- always a str, never NaN -- and line 1531 has already guaranteed at least 2 rows, so nunique() is >= 1 by construction. It is a dead guard of the kind tests/test_a_guard_no_input_could_reach_is_gone.py exists to catch.
     COST: No user-visible misbehaviour, but the branch is unreachable from any figure: I could only close it by monkeypatching `_pairs_from_axes` to return NaN group names. A reader maintaining this function is told nameless groups are a real case that must be handled, and any future change to `_named` that CAN return NaN would be silently relying on a guard nobody has ever exercised with real data.
+    VERDICT 2026-08-31: STILL LIVE, and cosmetic. The `nunique() < 1` guard is
+    still at figure_settings.py:1534 and still cannot fire. Dead-guard family;
+    deleting it needs the maintainer's standing no-deletion call, like A37.
 
 A16. spacr/regression_qc.py:2683-2735 `_panel_p_value_histogram` together with `diagnose_p_value_histogram` (line 833: `np.histogram(p, bins=n_bins, range=(0.0, 1.0))`)
     WHAT: Finite p-values outside [0, 1] are silently discarded by the fixed histogram range, and only the non-finite ones are guarded against (`if finite.size == 0: raise PanelUnavailable`). Feeding `coef_df` a `p_value` column of `[3.0, 7.0, 12.0]` gives `n == 0`, `verdict == 'too-few'`, message 'only 0 p-value(s)', `frac_below_0.05 == nan`, an empty histogram and no uniform reference line -- with no complaint anywhere that three values were supplied and all three were thrown away.
     COST: A caller who wires the wrong column into `coef_df` (a test statistic, a -log10 p, a chi2) gets the panel's 'too few coefficients to read a shape' limitation stamped on the report for a screen with thousands of coefficients. The report then states a coefficient count that contradicts the table it was built from, and the reader concludes the model is small rather than that the input is not p-values. The panel's own reason for existing -- catching a mis-specified null -- is silently unavailable.
+    VERDICT 2026-08-31: STILL LIVE. `p = p[np.isfinite(p)]` then
+    `np.histogram(p, range=(0.0, 1.0))` -- finite p outside [0,1] is dropped by
+    the range with no diagnostic, and only the non-finite case raises
+    PanelUnavailable. Not fixed here.
 
 A17. spacr/qt/mask_engine.py:733-753, magic_wand()
     WHAT: The max_pixels budget counts only pixels that CHANGE state (added is incremented at 743-746 only when a zero pixel is added or a nonzero pixel is erased), so a flood that changes nothing is completely unbounded. Erasing where the mask is already empty, or adding over ground the mask already owns, walks every in-tolerance pixel in the frame no matter how small max_pixels is.
     COST: A mis-click with the erase wand on background -- the most ordinary wrong click there is -- freezes the Make Masks screen for the whole BFS. Measured here: an 800x800 uniform field with max_pixels=100 took 4.8 s of pure-Python BFS over all 640,000 pixels (the same call on a mask where pixels do change returns in 0.001 s). Cost scales with frame area, so a 2048x2048 field is roughly half a minute of an unresponsive GUI with no way to cancel.
+    VERDICT 2026-08-31: LIVE, but the entry is WRONG TWICE and the correction
+    changes what should be done about it.
+
+    (i) NOT "completely unbounded". `visited` is a full-image boolean array
+    (mask_engine.py:746) and each pixel is dequeued once, so the flood is
+    bounded by H x W. The real defect is narrower: max_pixels does not bound
+    WORK, only changes.
+
+    (ii) THE GUI DOES NOT CALL THIS FUNCTION. make_masks.py:929 -- the only
+    caller in the tree -- calls `wand_rescue.magic_wand`, a separate
+    vectorised implementation that merely MATCHES these semantics. Measured,
+    no-op 'add' flood over an all-owned mask:
+
+        side      mask_engine   wand_rescue
+        512       0.712 s       0.327 s
+        1024      2.873 s       0.385 s
+        2048     11.723 s       1.207 s
+
+    So the 11.7 s is real but is not on any user's GUI thread; the path that
+    is runs in 1.2 s and scales sublinearly. Severity is far below the entry's
+    implication.
+
+    NOT FIXED, deliberately. `max_pixels` counting CHANGES rather than visits
+    is pinned on purpose -- tests/qt/test_cov_wf_qt_mask_engine.py:171,
+    "already-owned pixels cost nothing against max_pixels" -- so a work bound
+    has to be a SECOND budget, and choosing its constant needs a realistic
+    mask-size distribution rather than a guess. Left specified.
 
 A18. spacr/qt/widgets/measure_preview.py:823-830 (_on_max_sets_changed) together with ImageSetSampler.describe in spacr/qt/widgets/preview_controls.py:855-869
     WHAT: The guard `if self.sample_note():` is meant to stop an empty sample sentence from blanking the status line, but `describe()` never returns an empty string -- with nothing enumerated it returns "showing all 0 image sets". Verified live: a fresh panel with no array loaded, status line set to "2 object(s) . 1 category", then `_on_max_sets_changed(7)` leaves status == "Showing all 0 image sets".
