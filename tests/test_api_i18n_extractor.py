@@ -783,11 +783,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # -107 non-rendered entries: 16 from the ignored Qt tutorial, 85 from
     # ignored resource generators, one Qt launcher module, four compatibility
     # bridge entries, and the CLI-only ``qt.run_without_setup`` function.
-    # +1: ``spacr.qt.i18n.language_resolved_once``. `qt.screens.settings_model`
-    # already imported it at HEAD while the helper itself was unstaged, so the
-    # module could not be imported at all; committing the helper is what made
-    # the package load again, and it admits one public contract.
-    expected = 8720
+    expected = 8719
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -802,7 +798,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8839
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8838
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -833,11 +829,10 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,946: the same 21 newly
-    # documented methods entered both inventories, plus
-    # ``spacr.qt.i18n.language_resolved_once``, while 101 configured-ignore
+    # The audited pre-filter inventory is now 8,945: the same 21 newly
+    # documented methods entered both inventories, while 101 configured-ignore
     # keys plus the six explicit exposure exceptions above remain absent.
-    assert 8_946 - len(docs) == 107
+    assert 8_945 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

@@ -105,66 +105,18 @@ def install_the_spaceout_fractal(screen) -> bool:
             RuntimeControls, Settings, create_fractal_widget)
 
         values = get_fractal_settings()
-        # EVERY SETTING THE DIALOG OFFERS, not three of them. `pattern` was
-        # missing here, so `Settings` fell back to its default and the
-        # backdrop drew Mandelbrot whichever pattern the user picked --
-        # which is what "the spaceout themes do not work" looks like from
-        # the outside. The six RuntimeControls values below were dropped the
-        # same way: the pointer and zoom sliders moved and nothing changed.
         widget = create_fractal_widget(
-            Settings(pattern=values["pattern"], backend=values["backend"],
-                     quality=values["quality"], scale=values["scale"]),
+            Settings(backend=values["backend"], quality=values["quality"],
+                     scale=values["scale"]),
             RuntimeControls(speed=values["speed"], dream=values["dream"],
-                            variable_speed=values["variable_speed"],
-                            pointer_size=values["pointer_size"],
-                            pointer_strength=values["pointer_strength"],
-                            zoom_rate=values["zoom_rate"],
-                            speed_min=values["speed_min"],
-                            speed_max=values["speed_max"],
-                            speed_period=values["speed_period"]),
+                            variable_speed=values["variable_speed"]),
         )
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not build the spaceout fractal")
         return False
 
-    # NO BACKDROP AT ALL RATHER THAN A CPU ONE. When the GPU was wanted and
-    # refused -- an OpenGL ES context cannot compile shaders vispy emits as
-    # desktop GLSL 120 -- the fallback is the CPU renderer, and that is not a
-    # cheap substitute. It takes about 78% of the machine, the application
-    # builds one backdrop per screen, and the GUI thread never gets a turn:
-    # the window will not drag and the desktop reports the process as not
-    # responding.
-    #
-    # Stilling it after construction was not enough, because the first frame
-    # is already being rendered by then, at full window size.
-    #
-    # An explicit backend='cpu' is untouched and still animates.
-    if (getattr(widget, "backend_name", "") == "cpu"
-            and values["backend"] in ("auto", "gpu")):
-        LOG.warning("no GPU context can run the backdrop shaders here, and "
-                    "the CPU renderer costs more than the backdrop is "
-                    "worth; running without one")
-        for step in ("shutdown", "deleteLater"):
-            try:
-                getattr(widget, step)()
-            except Exception:                                # noqa: BLE001
-                pass
-        return False
-
     try:
-        from PySide6.QtCore import Qt as _Qt
-
         widget.setParent(screen)
-        # CLICK-THROUGH. `create_fractal_widget` already says the backdrop
-        # "must not accept events, or it would eat the clicks meant for the
-        # interface in front of it" -- but nothing ever set the attribute,
-        # so it did. Lowering it puts it behind the interface, and that is
-        # enough for the widgets that are actually there; it is not enough
-        # for the bare background, where the backdrop is the topmost widget
-        # under the cursor and swallows the press. That is why the main
-        # window could not be dragged.
-        widget.setAttribute(
-            _Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         widget.setGeometry(screen.rect())
         widget.lower()
         widget.show()
@@ -2354,8 +2306,10 @@ class MainWindow(QMainWindow):
         # a panel a keyboard user does not have -- and deleting the action
         # would take the shortcut with it.
         act_all = QAction("All apps", self)
-        # Ctrl+B belongs to the flat-background action. The drawer moved
-        # here so both actions remain reachable without a shortcut collision.
+        # MOVED OFF Ctrl+B, which was asked for as the blank-background key
+        # -- twice, and it was quietly given to Ctrl+Shift+B because this
+        # already held it. A shortcut somebody asks for by name and gets
+        # something else from is worse than an unfamiliar one.
         act_all.setShortcut(QKeySequence("Ctrl+Shift+A"))
         act_all.setStatusTip(
             "Show the full app list. Also revealed by moving the pointer "
@@ -2412,8 +2366,8 @@ class MainWindow(QMainWindow):
         # paints the ground flat, which is what "I am looking at images and
         # want nothing behind them" actually asks for.
         #
-        # Ctrl+B was requested for this action. The app drawer remains
-        # keyboard-accessible through Ctrl+Shift+A (see `act_all` above).
+        # Ctrl+B was explicitly requested for this action. The drawer moved
+        # to Ctrl+Shift+A, which keeps both window actions keyboard-reachable.
         act_flat = QAction("Blank the background", self)
         act_flat.setObjectName("BlankBackdrop")
         act_flat.setCheckable(True)
@@ -3303,9 +3257,9 @@ class MainWindow(QMainWindow):
             self._closing = False
             return
         # Closing a parent widget does not deliver a close event to its child
-        # widgets.  AppScreen.closeEvent owns cleanup that cannot be left to
+        # widgets. AppScreen.closeEvent owns cleanup that cannot be left to
         # Qt's child-destruction cascade, notably its parentless pyqtgraph
-        # menus and background job runners.  Ask each owned screen to close
+        # menus and background job runners. Ask each owned screen to close
         # while it is still intact, and honour a screen that defers shutdown
         # because one of its workers has not reached a safe boundary.
         from .screens.app_screen import AppScreen
@@ -3817,11 +3771,11 @@ class MainWindow(QMainWindow):
             try:
                 # ``deleteLater`` alone bypasses ``AppScreen.closeEvent``.
                 # Closing first retires workers, workspace providers, figure
-                # resources and parentless pyqtgraph menus.  The replacement
+                # resources and parentless pyqtgraph menus. The replacement
                 # was built first so the stack never flashes Home while the
                 # comparatively expensive form is constructed.
                 if old.close() is False:
-                    # A running worker may deliberately defer close.  Keep
+                    # A running worker may deliberately defer close. Keep
                     # that live screen instead of destroying work in flight,
                     # and retire the unused replacement cleanly.
                     self._stack.removeWidget(fresh)
@@ -3833,7 +3787,7 @@ class MainWindow(QMainWindow):
                     old.register_workspace()
                     return
                 # The old screen and the replacement own the same stable
-                # workspace keys.  Old's close withdrew them, so publish the
+                # workspace keys. Old's close withdrew them, so publish the
                 # replacement again after teardown.
                 fresh.register_workspace()
                 self._stack.removeWidget(old)
@@ -3980,13 +3934,20 @@ class MainWindow(QMainWindow):
         })
 
     def _theme_screen(self, screen: QWidget, key: str) -> None:
-        """Clear a screen's containers and give it the ambient backdrop.
+        """Apply late QSS, clear containers and add the ambient backdrop.
 
         Skipped for anything that already handles its own: ``AppScreen`` does
-        both in its constructor, and the sequencing screen has the DNA rain.
+        the latter two in its constructor, and the sequencing screen has the
+        DNA rain.  Late QSS is applied before that branch because every screen
+        passes here before it is inserted into the visible stack.
         """
         from .screens.app_screen import AppScreen, uses_ambient_background
-        from .theme import clear_container_surfaces
+        from .theme import clear_container_surfaces, ensure_widget_qss_applied
+
+        # A local stylesheet reaches this root and its descendants without
+        # making QApplication re-polish Home and every cached module.  The
+        # root is not in the stack yet, so these rules win the first paint.
+        ensure_widget_qss_applied(root=screen)
 
         if isinstance(screen, AppScreen):
             return
@@ -4736,12 +4697,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
             LOG.debug("could not open the setup screen", exc_info=True)
 
     _timing.mark("MainWindow")
-    # No batching scope here. The other lineage's `register_widget_qss`
-    # re-applied the whole application stylesheet on every registration, so
-    # building the window composed the sheet five times and threw four
-    # away; `batched_widget_qss` existed to collect those. This tree's
-    # `register_widget_qss` only stores the block and returns, so there is
-    # nothing to batch and the scope would be an empty wrapper.
     win = MainWindow(initial_app=initial_app)
     benchmark_controller = None
     if os.environ.get("SPACR_BENCHMARK_JSON", "").strip():

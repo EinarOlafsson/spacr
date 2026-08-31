@@ -51,8 +51,9 @@ Quality = Literal["auto", "balanced", "high"]
 BACKENDS: Final[tuple[str, ...]] = ("auto", "gpu", "cpu")
 QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 
-#: The published defaults, shared by both backends. ``auto`` picks the GPU
-#: when vispy is importable and the CPU otherwise.
+#: Reference defaults shared by both renderers. `auto` picks the GPU when
+#: vispy is importable and the CPU otherwise, which makes one set of numbers
+#: serve both.
 #: Which fractal. Two genuinely different families, not one with knobs:
 #: `orbit` is the orbit-fold of `fractal_travel.py` v2.1.0, whose CPU path
 #: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
@@ -229,6 +230,7 @@ class Settings:
     quality: str = DEFAULT_QUALITY
     scale: float = DEFAULT_SCALE
     fps: int = 60
+    cpu_threads: Optional[int] = None
 
     def validated(self) -> "Settings":
         """A copy with every field inside the range the renderers accept.
@@ -243,6 +245,8 @@ class Settings:
             quality=self.quality if self.quality in QUALITIES else DEFAULT_QUALITY,
             scale=clamp(float(self.scale), 0.25, 2.0),
             fps=int(clamp(float(self.fps), 15, 240)),
+            cpu_threads=(None if self.cpu_threads is None
+                         else max(1, int(self.cpu_threads))),
         )
 
 
@@ -361,6 +365,8 @@ def resolved_cpu_threads(settings: Settings,
         except Exception:                                    # noqa: BLE001
             pass
     available = max(1, min(hardware.logical_cpus, numba_limit, 24))
+    if settings.cpu_threads is not None:
+        return max(1, min(available, settings.cpu_threads))
     if available <= 2:
         return 1
     if available <= 6:
@@ -1382,23 +1388,6 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             #: Set once Qt has freed the C++ side. The timer checks it so a
             #: single late tick does not become an endless retry.
             self._dead = False
-            # REFUSE A GLES CONTEXT, BY ASKING, NOT BY DRAWING. vispy
-            # prepends `#version 120` -- desktop GLSL -- to shaders that
-            # carry no version of their own, and a GLES context rejects it:
-            # "unsupported version 120". Left to the first DrawEvent the
-            # failure lands where the caller's CPU fallback cannot reach it,
-            # and the backdrop sits blank.
-            try:
-                self.set_current()
-                language = str(gloo.gl.glGetParameter(
-                    gloo.gl.GL_SHADING_LANGUAGE_VERSION) or "")
-            except Exception:                                # noqa: BLE001
-                language = ""
-            if "ES" in language.upper():
-                raise GpuBackendError(
-                    f"this is an OpenGL ES context ({language.strip()}) and "
-                    f"vispy compiles these shaders as desktop GLSL 120, "
-                    f"which ES rejects")
             self._program = gloo.Program(VERTEX_SHADER, _FRAGMENT)
             self._program["a_position"] = np.asarray(
                 [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
@@ -1424,14 +1413,6 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                               exc_info=True)
             gloo.set_state(depth_test=False, blend=False)
             self._update_uniforms(0.0)
-            # NO EAGER LINK HERE. Forcing the shaders to compile in
-            # __init__ -- by drawing once -- moved the failure to where the
-            # caller's CPU fallback could catch it, but it draws into a
-            # canvas Qt has not realized yet, and on this driver that takes
-            # the process down: opening Mask or Measure died with
-            # "Segmentation fault (core dumped)", once per screen, because
-            # every screen builds a backdrop. The same fact is obtained by
-            # asking, in the probe above.
             self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
                                           connect=self._on_timer, start=True)
             # STOPPED WHEN QT FREES THE WIDGET, not only when someone calls
@@ -1823,23 +1804,9 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             gloo.set_viewport(0, 0, max(1, int(width)), max(1, int(height)))
 
         def on_draw(self, _event) -> None:
-            if self._dead:
-                return
             benchmark = time.perf_counter() - self._last_sample >= 2.0
             started = time.perf_counter()
-            try:
-                self._program.draw("triangle_strip")
-            except Exception:                                # noqa: BLE001
-                # ONE COMPLAINT, NOT A STORM. Whatever a DrawEvent handler
-                # raises, vispy catches, logs and retries -- doubling the
-                # repeat count each time -- so a draw that cannot succeed
-                # once cannot succeed at all and only fills the terminal.
-                # The eager link in __init__ should mean nothing reaches
-                # here, but a context can also be lost mid-run.
-                self._dead = True
-                self.stop_timer()
-                LOG.warning("the GPU backdrop stopped drawing", exc_info=True)
-                return
+            self._program.draw("triangle_strip")
             if not benchmark:
                 return
             try:
@@ -2167,8 +2134,7 @@ def create_fractal_widget(settings: Optional[Settings] = None,
 
     # `gpu_is_available` covers the explicit 'gpu' request as well: asking
     # for a renderer this platform would crash on is still a crash.
-    wanted_the_gpu = settings.backend in ("auto", "gpu")
-    if wanted_the_gpu and gpu_is_available():
+    if settings.backend in ("auto", "gpu") and gpu_is_available():
         try:
             return _make_gpu_widget(settings, controls, hardware)
         except Exception:                                    # noqa: BLE001
@@ -2187,24 +2153,4 @@ def create_fractal_widget(settings: Optional[Settings] = None,
         LOG.warning("the Mandelbrot pattern needs the GPU renderer; "
                     "drawing %s instead", FALLBACK_PATTERN)
         settings = replace(settings, pattern=FALLBACK_PATTERN)
-    widget = _make_cpu_widget(settings, controls, hardware)
-    if wanted_the_gpu:
-        # A FALLBACK MUST NOT COST MORE THAN THE THING IT REPLACES.
-        # `resolved_cpu_threads` deliberately takes about 78% of the
-        # machine -- 24 of 32 cores here -- which is a reasonable
-        # bargain for someone who CHOSE the CPU renderer and quite
-        # unreasonable for someone who asked for the GPU and got
-        # this instead. Measured at 800x600 it burned 82 s of CPU in
-        # 4 s of wall clock, which starves the GUI thread: the window
-        # will not drag, modules take forever to open, and the
-        # process can be killed outright.
-        #
-        # So an unasked-for CPU backdrop is drawn once and then
-        # stopped. A still fractal is a fine backdrop; an
-        # unusable application is not.
-        try:
-            widget.pause()
-        except Exception:                            # noqa: BLE001
-            LOG.debug('could not still the fallback backdrop',
-                      exc_info=True)
-    return widget
+    return _make_cpu_widget(settings, controls, hardware)

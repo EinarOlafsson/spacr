@@ -185,22 +185,6 @@ def sandbox(tmp_path, monkeypatch):
     return tmp_path
 
 
-
-def _ask_for_the_cpu_backdrop():
-    """Choose the CPU renderer, so a backdrop is installed at all.
-
-    `install_the_spaceout_fractal` declines to install a CPU backdrop that
-    was not asked for: on a machine whose GL context cannot compile the
-    shaders the fallback renderer takes about 78% of the machine, once per
-    screen, and the GUI thread never gets a turn. An explicit choice is
-    honoured, and these tests are about where the backdrop sits once it is
-    there.
-    """
-    from spacr.qt.preferences import set_fractal_settings
-
-    set_fractal_settings(backend="cpu")
-
-
 def test_the_stored_defaults_are_the_command_lines(sandbox):
     from spacr.qt.preferences import get_fractal_settings
 
@@ -486,7 +470,6 @@ def test_an_ordinary_launch_gets_no_fractal(qtbot, sandbox):
 def test_spaceout_installs_it(qtbot, sandbox, monkeypatch):
     """The assertion that was missing: everything else tested the widget
     directly, so nothing noticed that nothing built it."""
-    _ask_for_the_cpu_backdrop()
     from PySide6.QtWidgets import QWidget
 
     import spacr.qt.theme as theme
@@ -504,7 +487,6 @@ def test_spaceout_installs_it(qtbot, sandbox, monkeypatch):
 
 
 def test_it_sits_behind_the_screen_not_over_it(qtbot, sandbox, monkeypatch):
-    _ask_for_the_cpu_backdrop()
     from PySide6.QtWidgets import QWidget
 
     import spacr.qt.theme as theme
@@ -524,7 +506,6 @@ def test_it_sits_behind_the_screen_not_over_it(qtbot, sandbox, monkeypatch):
 def test_it_follows_the_window_being_resized(qtbot, sandbox, monkeypatch):
     """Without this it keeps its first size and a resized window shows bare
     ground beside it."""
-    _ask_for_the_cpu_backdrop()
     from PySide6.QtWidgets import QApplication, QWidget
 
     import spacr.qt.theme as theme

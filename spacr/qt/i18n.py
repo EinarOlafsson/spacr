@@ -3514,25 +3514,6 @@ _RESOLVED_LANGUAGE: ContextVar[Optional[Dict[str, str]]] = ContextVar(
     "spacr_resolved_ui_language", default=None)
 
 
-@contextmanager
-def language_resolved_once():
-    """Resolve the persisted UI language once in one synchronous operation.
-
-    Widget construction can call :func:`tr` hundreds of times. Reading
-    QSettings for each fragment is needless and made a large settings panel
-    scale with its row count. The cache is context-local (so background jobs
-    cannot borrow the GUI thread's answer), re-entrant, and discarded as soon
-    as the operation ends so a later language change is observed.
-    """
-    existing = _RESOLVED_LANGUAGE.get()
-    if existing is not None:
-        yield
-        return
-    token = _RESOLVED_LANGUAGE.set({})
-    try:
-        yield
-    finally:
-        _RESOLVED_LANGUAGE.reset(token)
 
 
 def current_language() -> str:
