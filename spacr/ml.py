@@ -5259,6 +5259,13 @@ def _show_well_distributions(frame, response_name, dst, plot=True):
                 pass
         if plot:
             plt.show()
+        # RELEASE THE MANAGER, KEEP THE FIGURE. `plt.show` is the bridge
+        # hand-off and the figure has to still be registered during it;
+        # after that, pyplot's registry is the only thing holding it, and a
+        # fit that draws two panels per run and never releases them is how
+        # a long session ends up with hundreds of live canvases. The Figure
+        # object survives `close` -- whatever the bridge kept still draws.
+        plt.close(figure)
         drawn += 1
     return drawn > 0
 
@@ -5294,6 +5301,7 @@ def _show_plates(frame, variable, dst):
         except Exception:
             pass
     plt.show()
+    plt.close(figure)               # same hand-off, same release
     return True
 
 
@@ -5334,6 +5342,7 @@ def _show_house_style_panels(coef_df, plot=True):
         figure._spacr_title = panel.title
         if plot:
             plt.show()
+        plt.close(figure)           # the hand-off is done; release the manager
         shown += 1
     if shown:
         print(f"Drew {shown} regression panels in the house style.")
