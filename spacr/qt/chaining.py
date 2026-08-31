@@ -778,6 +778,25 @@ def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
         bar = ChainingBar(screen, pins=pins)
         index = layout.indexOf(actions)
         layout.insertWidget(index if index >= 0 else layout.count(), bar)
+        # SWEEP THE STRIP'S OWN CONTAINERS. The screen was themed when it
+        # was built, and this arrives afterwards -- so the page-surface
+        # sweep that ran then never saw the rows inside it. An anonymous
+        # QWidget holding a layout inherits the blanket
+        # `QWidget { background-color: bg }` rule and paints the WINDOW
+        # colour, which is not a surface and which no opacity setting can
+        # reach. That is the black box the user reported behind the
+        # pinned-input row and its "Use it" button, directly above Run.
+        #
+        # The bar itself is a QFrame and is deliberately NOT swept: it is
+        # a component that paints on purpose. Only the scaffolding inside
+        # it is tagged, which is the same rule the screen sweep uses.
+        try:
+            from .theme import clear_container_surfaces
+
+            clear_container_surfaces(bar)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not clear the chaining strip's surfaces",
+                      exc_info=True)
         screen._chaining_bar = bar
         bar.refresh()
         return bar
