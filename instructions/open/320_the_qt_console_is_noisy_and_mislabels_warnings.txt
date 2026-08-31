@@ -53,13 +53,26 @@ THERE ARE THREE SEPARATE DEFECTS HERE. Do not fix them as one.
 
 ALREADY ESTABLISHED -- do not redo this
 ---------------------------------------
-* NOT REPRODUCIBLE on Linux with PySide6 6.11.2. Built `MainWindow`,
-  navigated to `mask`, `make_masks` and `measure` through
-  `_on_nav_selected` with a `qInstallMessageHandler` capturing every Qt
-  message: ZERO `addMetaMethod` warnings. Also built `MakeMasksScreen`
-  directly: zero.
+* NOT REPRODUCIBLE ON LINUX ON *EITHER* LOCAL PySide6 BUILD. Record the
+  ENV, not just the version -- there are two on this host and quoting a
+  bare version number reads as a contradiction between sessions:
+
+      conda env `spacr`     PySide6 6.11.2
+      conda env `spacr12`   PySide6 6.11.1
+      conda env `spacr13`   no PySide6
+
+  Under 6.11.2: built `MainWindow`, navigated to `mask`, `make_masks` and
+  `measure` through `_on_nav_selected` with a `qInstallMessageHandler`
+  capturing every Qt message -- ZERO `addMetaMethod` warnings; also built
+  `MakeMasksScreen` directly, zero. Under 6.11.1: connect to a bound
+  method, destroy the receiver, emit -- the emit survives, the connection
+  is cleanly gone, zero warnings.
+
+  TWO BUILDS, NEITHER REPRODUCES. That is a stronger negative than either
+  measurement alone, and it narrows what is left to PySide6 >= 6.12 or to
+  something genuinely macOS-only.
 * The warning strings ARE present in the local libpyside6 binary, so the
-  code path exists in 6.11.2 and simply is not being reached here.
+  code path exists in 6.11.x and simply is not being reached here.
 * setup.py pins `PySide6>=6.6,<7`, so a fresh Mac install from git gets
   the newest 6.x available -- very likely NEWER than 6.11.2. That version
   difference is the leading explanation for "only on Mac".
@@ -88,6 +101,15 @@ WHAT TO ANSWER FIRST
     a receiver, destroy the receiver, emit. If PySide has fallen back to
     an untracked connection this is a crash; if it has not, the warning
     is cosmetic and can be filtered with a comment saying exactly that.
+
+    (a) MUST COME FIRST, and these are not independent questions -- an
+    earlier draft of this entry wrongly implied they were. The experiment
+    above run on a build that does NOT warn measures the baseline and
+    nothing else: it shows what PySide does when it successfully
+    registered the tracking slot. Where the warning fires, PySide is
+    saying it COULD NOT register that slot, and whether the connection is
+    then untracked can only be measured on a build that produces the
+    warning. A green control on 6.11.x is not an answer to (b).
 
 DONE MEANS
 ----------
