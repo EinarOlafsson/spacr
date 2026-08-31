@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-30 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-31 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-302 done / 10 open (96%).
+302 done / 12 open (96%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -37,6 +37,9 @@ OPEN
   253  THE LAST ITEM: GO THROUGH THE WHOLE LIST AGAIN, THEN SHIP
        253_the_last_item.txt
 
+  288  288 COVERAGE STATE, MEASURED 2026-08-31
+       288_coverage_state_2026-08-31.txt
+
   288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
        288_zero_issues_green_ci_and_per_module_coverage.txt
 
@@ -54,6 +57,9 @@ OPEN
 
   314  THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
        314_regression_hangs_and_preferences_is_slow_again.txt
+
+  315  315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
+       315_the_gui_must_never_make_the_compositor_offer_to_force_quit.txt
 
 --------------------------------------------------------------------------------
 DONE
