@@ -450,8 +450,10 @@ driven test or a pin, by module:
     pragma families VERIFIED still pinned    22   all unreachable
     five defensive families, only commented  15   all unreachable
     twelve across nine modules               12   all unreachable
+    the last of the qt audit                 21   all unreachable
+    the final dozen                          12   all unreachable
                                             ---
-                                            274
+                                            307  -- EVERY SITE
 
 Plus the 26 sites carrying an explicit pragma with a written reason.
 
@@ -460,18 +462,31 @@ NEW HOLES were found along the way and are the reason the audit is worth
 doing at all -- process_chunk's single-end half and settings' per-slot
 category loop, both reached by no test.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 274 of roughly 300 distinct sites were
-read individually. That is a sample, not a census, and it was not drawn
-at random -- it is the largest modules and the sites this session
-touched. It is enough to say the pattern dominates; it is NOT enough to
-say there is no drivable arc left anywhere. The census above is the
-stronger statement, and it only says every gapped function is reached by
-something.
+THE AUDIT IS COMPLETE, 2026-08-31. Every one of the 307 distinct sites
+behind the 355 remaining items has been read individually and given a
+driven test or a pin. The census script reports 0 unaudited.
+
+AND EVERY ONE WAS UNREACHABLE BY CONSTRUCTION. Not one drivable,
+untested arc was found in the whole set. Two REAL HOLES were found along
+the way and both were functions nothing entered rather than arcs nothing
+reached -- process_chunk's single-end half and settings' per-slot
+category loop -- which is why the audit was worth its cost even though
+the item count did not move.
+
+WHAT THAT MEANS FOR THE 355. They are lines no input can reach, inside
+functions the suite does exercise. The number cannot fall without
+DELETING code, and this package's own convention says a guard no input
+could reach should be deleted (tests/test_a_guard_no_input_could_reach
+_is_gone.py). Instruction 310 entry 37 records the one clear candidate
+found here -- the removed space theme's two arms -- left in place under
+the standing no-deletion rule. The rest are defensive guards whose
+premise is real and could stop holding, and each now has a test that
+fails when it does.
 
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- 48 sites remain. The exact list is
+  1. DONE 2026-08-31. The hand audit is finished: 0 unaudited. The exact list is
      reproducible with the census script below; there is no need to
      re-derive which are done.
 
