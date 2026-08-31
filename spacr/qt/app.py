@@ -175,6 +175,44 @@ class _UpdateWorker(QThread):
 HEAVY_IMPORT_LOCK = threading.Lock()
 
 
+class _DragsTheWindowByTheMenuBar(QObject):
+    """Let a frameless window be moved by its menu bar.
+
+    The window is frameless, and the comment at its construction says "the
+    menu bar is what you drag it by" -- but nothing implemented that, so the
+    window could not be moved at all.
+
+    `startSystemMove()` hands the drag to the compositor, which is the only
+    thing that works under Wayland: tracking mouse deltas and calling
+    `move()` is ignored there, because a Wayland client does not get to
+    choose where its surface sits.
+
+    A press over a menu ACTION is left alone -- `actionAt` answers for that
+    -- so opening a menu still opens it, and only the empty strip drags.
+    """
+
+    def __init__(self, window):
+        super().__init__(window)
+        self._window = window
+
+    def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
+        if event.type() != QEvent.Type.MouseButtonPress:
+            return False
+        if event.button() != Qt.MouseButton.LeftButton:
+            return False
+        try:
+            if watched.actionAt(event.position().toPoint()) is not None:
+                return False                  # a menu, not the bare strip
+            handle = self._window.windowHandle()
+            if handle is None:
+                return False
+            handle.startSystemMove()
+            return True
+        except Exception:                     # noqa: BLE001
+            LOG.debug("could not start a window move", exc_info=True)
+            return False
+
+
 class _PipelinePreloader:
     """Import pipeline modules on a worker thread.
 
@@ -2246,6 +2284,10 @@ class MainWindow(QMainWindow):
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
         mb = self.menuBar()
+        # DRAGGABLE. The window is frameless, so without this it cannot be
+        # moved: there is no title bar for the compositor to offer.
+        self._menu_drag = _DragsTheWindowByTheMenuBar(self)
+        mb.installEventFilter(self._menu_drag)
 
         app_menu = mb.addMenu("&spaCR")
 

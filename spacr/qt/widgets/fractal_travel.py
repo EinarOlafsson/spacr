@@ -1804,9 +1804,28 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             gloo.set_viewport(0, 0, max(1, int(width)), max(1, int(height)))
 
         def on_draw(self, _event) -> None:
+            if self._dead:
+                return
             benchmark = time.perf_counter() - self._last_sample >= 2.0
             started = time.perf_counter()
-            self._program.draw("triangle_strip")
+            try:
+                self._program.draw("triangle_strip")
+            except Exception:                                # noqa: BLE001
+                # ONE COMPLAINT, NOT A STORM. vispy catches whatever a
+                # DrawEvent handler raises, logs it as an ERROR, and RETRIES
+                # -- doubling a repeat counter each time. A draw that cannot
+                # succeed once cannot succeed at all, so the retries only
+                # fill the terminal and, because these are logged at ERROR,
+                # raise a "spaCR ERROR" panel per retry while a module runs.
+                #
+                # This machine's context is OpenGL ES; vispy compiles these
+                # shaders as desktop GLSL 120, which ES rejects. Stopping is
+                # the honest response: the backdrop cannot draw here.
+                self._dead = True
+                self.stop_timer()
+                LOG.warning("the GPU backdrop cannot draw on this GL context "
+                            "and has been stopped", exc_info=True)
+                return
             if not benchmark:
                 return
             try:
