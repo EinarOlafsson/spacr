@@ -328,7 +328,7 @@ DECLARED_APPS = (
             'Review stored checks for segmentation, units, leakage, plate '
             'effects, and annotation agreement'
         ),
-        section='Tools',
+        section='Data',
         factory='make_qc_dashboard_screen',
         stage='alpha',
         title='QC',
@@ -436,7 +436,7 @@ DECLARED_APPS = (
             'Visualize images, masks, points, and regions of interest as '
             'synchronized layers'
         ),
-        section='Tools',
+        section='Data',
         factory='make_layer_viewer_screen',
         stage='alpha',
         intro=(
@@ -750,7 +750,7 @@ DECLARED_APPS = (
             'Detect robust univariate and multivariate outliers at object '
             'and well levels'
         ),
-        section='Tools',
+        section='Data',
         factory='make_outliers_screen',
         stage='alpha',
         intro=(
@@ -827,7 +827,7 @@ DECLARED_APPS = (
             'Monitor control measurements across plates and detect process '
             'drift'
         ),
-        section='Tools',
+        section='Data',
         factory='make_control_chart_screen',
         stage='alpha',
         intro=(
