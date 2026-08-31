@@ -1223,14 +1223,22 @@ away to keep the coverage number clean would be the wrong trade.
 A1. spacr/qt/crash_recovery.py:79 (note_that_a_launch_began) together with :100 (note_a_clean_shutdown)
     WHAT: The unclean-exit test is `os.path.exists(marker)`, which is True for a *directory* at `<logdir>/running.marker`, while `os.remove` at line 100 can never delete one (it raises IsADirectoryError and is swallowed at 103-104). A stale directory at that path — a botched restore, an rsync of a tree, a sync tool that materialises a name as a folder — is therefore permanently interpreted as "the last run died" on every single launch, and no clean shutdown can ever clear it.
     COST: On such a machine the very first launch already reports 1 unclean exit instead of 0, so the backdrop is dropped one real crash earlier than the documented "two in a row", and the misdiagnosis is self-perpetuating because the marker cannot be removed. The user loses the animated backdrop with no crash having occurred and no setting they can point at. `os.path.isfile(marker)` (and, on the removal side, noticing that the path is not a file) would confine the mechanism to markers it actually wrote. Reported only, not fixed.
+    VERDICT 2026-08-31: CONFIRMED and FIXED at 84e6b2bf1. exists() answered True
+    for a directory and os.remove could never clear it. Narrowed to isfile; an
+    obstruction now logs at WARNING because it does switch recovery off.
 
 A2. spacr/resources/home/versions/_generators/common.py:436-441 (_with_late_registrations)
     WHAT: The fallback band is matched by exact title string. When no band in `cats` carries that title the loop runs to exhaustion, `missing` is silently discarded and the function returns the table unrepaired -- there is no diagnostic, unlike the loud AssertionError raised a few lines above for retired keys.
     COST: A typo or a renamed band title turns the documented safety net off without a word. The newly registered app is then absent from the categorisation and `check_coverage` raises `keys not categorised: [...]` at module import of the variant generators, taking all thirty Home renders down -- exactly the failure the function exists to prevent, but now blamed on the wrong place. All four shipped tables currently name a title that exists, so no live breakage today; the risk is the next rename.
+    VERDICT 2026-08-31: CONFIRMED and FIXED at fe2271103. Raises now, naming the
+    band asked for and the bands that exist. This overrode a deliberate pin;
+    both sides are recorded in the dated section below.
 
 A3. spacr/resources/home/versions/_generators/common.py:63-68 (_prefer_checkout_package)
     WHAT: `package_root` is built from `os.path.normcase(os.path.realpath(root))` but each origin is compared with `os.path.realpath(origin)` only, without `normcase`. The two sides are normalised differently.
     COST: On a case-insensitive platform (Windows) an already-imported checkout `spacr` whose recorded origin differs in case is judged foreign, so every `spacr*` entry is purged from `sys.modules` and re-imported. Harmless on Linux (normcase is the identity) and self-correcting since the checkout is `sys.path[0]`, but it makes the guard's own test of localness unreliable off-Linux.
+    VERDICT 2026-08-31: STALE -- already fixed. Both sides of the comparison now
+    apply normcase (common.py:54,56). No action.
 
 A4. spacr/qt/screens/batch.py:841-855 (BatchScreen._load_log), constant at line 90
     WHAT: The log pane reads the HEAD of the log file, not the tail: `text = handle.read(_LOG_TAIL_BYTES)` opens the file and reads from byte 0 with no `seek(-_LOG_TAIL_BYTES, os.SEEK_END)`. The constant is named `_LOG_TAIL_BYTES` and the code immediately scrolls the pane to the bottom (`bar.setValue(bar.maximum())`), so both the name and the surrounding code state the intent is the tail.
@@ -1243,6 +1251,8 @@ A5. spacr/qt/screens/batch.py:352-369 (BatchScreen.add_job), docstring line 357 
 A6. spacr/qt/widgets/annotation_umap_tab.py:142-184 (AnnotationUmapTab.__init__) vs. 363-383 (guide_table) and 274/329/382 (_score)
     WHAT: __init__ sets self._frame and self._embedding but never self._controls or self._effects; those two attributes are created only by set_frame(). guide_table() is a public, documented method that reads self._effects, so calling it on a freshly constructed tab raises AttributeError: 'AnnotationUmapTab' object has no attribute '_effects' (verified live). _score() has the same hole on self._controls, reachable for any caller that assigns _frame directly rather than through set_frame().
     COST: A caller that rebuilds the per-guide table from a stored result -- e.g. restoring a previous run into a newly opened tab, or any code path that populates the frame without going through set_frame -- crashes the panel with an AttributeError instead of showing a table. The two guarded paths in run() (no frame / no cells) hide it today, so it will surface only when someone adds a second entry point.
+    VERDICT 2026-08-31: STALE -- already fixed. `_controls` and `_effects` are
+    both initialised in __init__ (annotation_umap_tab.py:154-155). No action.
 
 A7. spacr/qt/theme.py:1732 `_scrim_bounds(palette, role, colour_role, under)`
     WHAT: The `role` parameter is never read in the body: `base = _channels(palette[colour_role])` and `inks = ... _scrim_rules(colour_role)` use `colour_role` only. The two published solvers this function is documented to reproduce exactly (`legible_scrim_floor`, `present_scrim_ceiling`) use `palette[colour_role or role]` and `_scrim_rules(colour_role or role)`, i.e. they fall back to `role` when `colour_role` is None.
@@ -1251,14 +1261,26 @@ A7. spacr/qt/theme.py:1732 `_scrim_bounds(palette, role, colour_role, under)`
 A8. spacr/cell_montage.py:1543-1557 (the attribution pre-flight inside select_montage)
     WHAT: `fractions_by_well` is guide-keyed (built by `_well_guide_fractions`), but `preflight` is called with `name`, which for a gene-level montage is a GENE. `guide_attribution.preflight` therefore never finds it and returns the verdict `"<GENE>: no well carries it."`, which is appended to `notes` and reaches the caption. Reproduced: a gene-level montage with picking='multivariate' over wells r1_c1 (GENE_1=0.4) and r1_c2 (GENE_2=0.5) draws 5 cells from those two wells while plan.notes == ('GENE: no well carries it.',). A guide-level montage on the same data gets a correct verdict, so only gene-level coefficients are affected.
     COST: Every gene-level montage that uses an attribution picker prints a caption line stating the coefficient is present in no well, directly above the cells it just selected from wells that do carry it. The pre-flight exists to explain an empty montage; here it makes a false statement about a non-empty one, and a reader who believes it will conclude the count data is broken.
+    VERDICT 2026-08-31: STALE -- already fixed, and thoroughly. select_montage now
+    pre-flights the guides a gene covers (`targets = covered if resolved_level
+    == 'gene' else [name]`) with a comment naming this exact false verdict.
 
 A9. spacr/cell_montage.py:1716-1719 vs 1690-1693 and 1713-1715
     WHAT: When `picking='attributed'` (or 'assigned') meets a well holding exactly one guide, `len(here_fractions) > 1` is False and control falls straight through to 1743 with `picked_by` still 'rank' and no note recorded. The two sibling pickers both disclose their fallback: multivariate sets picked_by to "attributed (this well has one guide, or none of the swept measurements are on the objects)" and sudoku to "sudoku could not run on this screen; fell back to rank".
     COST: A user who chose attribution gets a well captioned with pure rank arithmetic ("round(1 x 6) = 6, where 1 is this guide's 1 normalised by 1") and nothing anywhere says the picker they selected did not run on that well. In a montage mixing single-guide and multi-guide wells, two wells are chosen by different rules and only one of them says so.
+    VERDICT 2026-08-31: CONFIRMED and FIXED here. The outer `if len(here_fractions)
+    > 1` had no else, so a single-guide well kept picked_by='rank' silently.
+    NOTE FOR THE NEXT READER: the obvious fix is wrong twice over. A non-'rank'
+    prefix makes `_by_rank` False, which REPLACES the round(share x n) line that
+    actually explains the chosen cells; a 'rank' prefix keeps it but that branch
+    never printed picked_by at all, so the disclosure vanished. The fallback
+    reason now rides WITH the arithmetic rather than instead of it.
 
 A10. spacr/cell_montage.py:2572-2574 against spacr/crops.py:3564-3573
     WHAT: `resolve_montage_crop_source` unwraps a bare list/tuple `src` to its first element, but `resolve_crop_source` unwraps only inside its Mapping branch. A bare list therefore reaches `_looks_like_experiment_root(str(src))` as the Python repr of the list. Verified: `resolve_montage_crop_source([root])` for a root holding merged/*.npy returns available=False with reason "no crop source available for /mnt/firecuda2/codex/repo/spacr/['/tmp/.../plate1']", while the same root as a plain string or as {'src': [root]} resolves to the merged source.
     COST: A caller that passes src as a list -- the shape the wrapper's own code at 2573 is written for -- gets "no crop source available" for a run whose crops are present, and the message quotes a path built from a list repr joined onto the current working directory, which points a user at a folder that does not exist and cannot exist.
+    VERDICT 2026-08-31: STALE -- already fixed. The bare list/tuple is unwrapped
+    outside the Mapping branch (cell_montage.py:2584-2585). No action.
 
 A11. spacr/core.py:250-253 (preprocess_generate_masks, the `consolidate` block) via spacr/utils.py:10710 (generate_image_path_map)
     WHAT: The consolidate block assumes `settings['src']` is a single string, but it runs BEFORE the str->list normalisation at 255-256 and after line 180, which preserves a list. With the documented plural form (`src` = list of plate folders) plus `consolidate=True`, `generate_image_path_map(settings['src'])` calls `os.walk(<list>)` and the run dies with `TypeError: expected str, bytes or os.PathLike object, not list`. Reproduced directly: src=[p1, p2], consolidate=True, masks=False. `os.path.join(settings['src'], 'consolidated')` at 253 would fail the same way for the same reason.
@@ -1271,6 +1293,8 @@ A12. spacr/parameter_sweep.py:369-375 (_named_control_rows)
 A13. spacr/parameter_sweep.py:1322-1324 (run_sweep, in-process failure path)
     WHAT: The `error.txt` write in run_sweep's `except Exception` handler is unguarded, while the identical write on the parallel path (_execute_trial, lines 964-969) is wrapped in `try/except OSError: pass`. An OSError from that open (read-only or full destination) is raised from inside the handler, aborting the whole sweep.
     COST: One trial failing on a destination that cannot be written turns a recorded failed row into a crash that ends the sweep and loses every row after it. Same family as the already-xfailed defect for run_sweep's every-trial CSV write (tests/test_cov_w2_5_parameter_sweep.py::test_a_csv_that_cannot_be_written_does_not_stop_the_sweep), but a separate unguarded write.
+    VERDICT 2026-08-31: STALE -- already fixed. BOTH error.txt writes are wrapped
+    in try/except OSError (parameter_sweep.py:1022-1027 and 1410-1415).
 
 A14. spacr/volcano_style.py:683-692, _annotate
     WHAT: When a labelled point's y value falls inside the break of a split axis (outside every panel's ylim), the `for panel in panels` loop falls through and the label is annotated onto `panels[0]` at data coordinates outside that panel's y range. Annotations are created with clip_on=True, so the text is clipped away entirely. Verified by drawing: with split_y_lims=((0,2),(5,10)) and a point at y=3.5, the annotation's window extent comes back at y 0-1 while the panel occupies y 596-845 -- the text is present in `panels[0].texts` but paints nothing.
@@ -1395,6 +1419,8 @@ A43. /mnt/firecuda2/codex/repo/spacr/spacr/zstack.py:3046-3059 (plan_4d_from_set
 A44. spacr/qt/shortcuts.py:429-430, _toggle_ai
     WHAT: The handler ends in a bare `except Exception: pass` with no logging, unlike every neighbouring optional-path handler in the same module (_open_palette, _open_preferences, _consoles all do LOG.debug(...) / exc_info=True).
     COST: If `from .screens.app_screen import AppScreen` fails, or the screen's `_ai_switch.setChecked` raises, Ctrl+/ silently does nothing and leaves no trace at any log level, so a broken AI toggle is undiagnosable from a user's log even with debug logging on.
+    VERDICT 2026-08-31: STALE -- already fixed. `_toggle_ai` ends in
+    LOG.debug(..., exc_info=True), like its neighbours. No action.
 
 A45. spacr/qt/widgets/umap_figure_settings.py:245-250 (redraw_umap_figure)
     WHAT: The label guard is incomplete. `labels = payload.get("plot_labels")`, falling back to `payload.get("labels")`, is passed straight to `np.asarray(labels)`; when neither key is present that yields a 0-d object array and the very next line, `if len(labels) != len(embedding)`, raises `TypeError: len() of unsized object`. Every other malformed-payload case in the same function (fig is None, payload not a dict, embedding not 2-d or empty, label count mismatch) returns False instead. Confirmed by direct call: `redraw_umap_figure(Figure(), {"embedding": emb}, {})` raises TypeError.
@@ -1415,6 +1441,9 @@ A48. spacr/qt/widgets/external_mask_inputs.py:186-187 (_rebuild) together with s
 A49. spacr/qt/verbose_logger.py:73-75 (_ATTACHED_LOGGERS) used by _ensure_file_handler (212-215) and _ensure_handler (330-333)
     WHAT: The same handler object is attached to a logger AND to its descendants ('spacr', 'spacr.qt', 'spacr.qt.hf_download', 'spacr.qt.plate_queue', ...). logging.callHandlers walks the whole ancestor chain and does not de-duplicate handlers, so one record is emitted through the same handler once per attached ancestor. Measured on this checkout: a single logging.getLogger('spacr.qt.hf_download').warning('DOWNLOAD FAILED') produced 3 identical lines in ~/.spacr/logs/spacr-YYYYMMDD.log and 3 identical deliveries to the registered ConsolePanel; a record on 'spacr.qt' produced 2 of each. Only records logged on 'spacr' itself appear once.
     COST: Every diagnostic from the Qt layer, the plate queue, the HF downloader and the function trace is duplicated 2-3x in both the in-app console and the rotating log file users attach to bug reports. The console scrolls 2-3x faster than it should when verbose logging is on, the log file rotates at 5 MB 2-3x sooner (discarding older history), and any count read off the log ('this failed twice') is wrong. Not fixed here per instructions; the fix is to attach the handler only to the root 'spacr' logger (descendants already propagate to it) or to skip a name whose ancestor is already in the list.
+    VERDICT 2026-08-31: STALE -- already fixed. The handler is now REMOVED from
+    every logger except the sink (verbose_logger.py:216-219, 340-343), so a
+    record is emitted once rather than 2-3x. No action.
 
 A50. spacr/layers.py, LabelsLayer.data setter (~lines 1970-1983), consumed by spacr/qt/ortho_view.py:507-518
     WHAT: The constructor refuses a non-integer array ("a labels layer needs integer labels"), but the data setter validates only shape, so `mask.data = float_array` is accepted. `LabelsLayer.labels()` then returns the raw float values (e.g. 17.5) while every consumer compares with `int(label)`: `OrthoView.on_linked_selection_changed` matches `field.object_key(int(17.5)) == 'plate1_A_1_1_17'`, sets `selected_label = 17`, and then `np.argwhere(data == 17)` finds nothing. `LabelsLayer.label_at_world` truncates the same way.
@@ -1424,9 +1453,24 @@ A51. spacr/guide_attribution.py:283-284, in attributable()
     WHAT: `rest = [(float(e), float(w)) for e, w in (others or ()) if float(w) > 0.0]` converts each weight TWICE -- once in the `if` and again in the stored tuple. A weight object whose conversion is not pure (a lazily fetched count, a mutable proxy, a value re-read from a stream) can therefore pass the positivity filter and be stored as a non-positive number. This is the ONLY way the guard on line 286 (`if total <= 0: return False, 0.0`) can fire, which is why that arc was uncovered.
     COST: Minor but real: the weight the filter approved is not the weight used, so a well can be reported as 'this guide can never be called' (False, 0.0) on data whose weights all looked positive when checked. Reading each weight once into a local would make the guard genuinely dead code instead. Not fixed -- reported only.
 
-A52. spacr/guide_attribution.py:283-284, in attributable()
-    WHAT: A competitor whose weight is NaN is silently dropped by `float(w) > 0.0`; if every competitor is dropped the code falls back to the single flat rival `(0.0, 1 - p)`. Verified: attributable(1.0, 1.0, 0.5, others=[(0.0, nan)]) returns (True, 0.989), identical to passing no competition at all.
-    COST: A well whose sequencing produced a NaN read fraction for a competing guide makes the candidate guide look MORE callable than it is, with no diagnostic. Behavioural, arguably intended (the docstring says an omitted `others` is 'the most permissive comparison'), so reported rather than treated as a bug.
+    MERGED WITH A52 on 2026-08-31 -- both entries name the SAME two lines, and
+    only one of them is a defect. Kept together so they are read together.
+
+    A52's claim (behavioural, NOT a defect): a competitor whose weight is NaN
+    is dropped by `float(w) > 0.0`, and if every competitor is dropped the code
+    falls back to the single flat rival. That is the documented behaviour of an
+    omitted `others` -- "the most permissive comparison" -- so a NaN weight
+    lands on a defined path rather than an undefined one. Worth a diagnostic,
+    not a fix.
+
+    A51's claim (THE DEFECT, still live as of 2026-08-31): each weight is
+    converted TWICE -- once in the `if float(w) > 0.0` and again in the stored
+    tuple -- so a weight whose conversion is not pure can pass the positivity
+    filter and be stored non-positive. Reading each weight once into a local
+    fixes it and makes the downstream guard genuinely dead.
+
+    So: fix A51's double conversion; do not "fix" A52.
+
 
 A53. spacr/qt/widgets/refit_dialog.py:192-198 (_refresh), with spacr/refit.py:243-262 (destination)
     WHAT: When destination() cannot derive an output folder it returns None, and _refresh then drops the "Writes to ..." line silently. If there are also no notes, the notice falls through to "Nothing to change: re-fitting these settings would repeat the run you are looking at." while the Re-fit button stays ENABLED. Reachable with settings whose count_data is a list with a falsy first entry (e.g. [""]), which refit_settings accepts because the list itself is truthy (refit.py:143) but destination rejects at refit.py:251-254.

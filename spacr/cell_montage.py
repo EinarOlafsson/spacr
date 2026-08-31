@@ -1745,6 +1745,23 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     mask = np.array([c.guide == name for c in calls])
                     top = ranked[mask]
                     picked_by = "attributed"
+            else:
+                # A WELL WITH ONE GUIDE CANNOT BE ATTRIBUTED, and until now it
+                # did not say so. Attribution is a comparison; with a single
+                # guide there is nothing to compare against, so control fell
+                # through to rank with `picked_by` still "rank" and no note.
+                # Both sibling pickers disclose their fallback -- multivariate
+                # above, sudoku below -- so in a montage mixing single-guide
+                # and multi-guide wells, two wells were chosen by different
+                # rules and only one of them said which.
+                # The prefix is "rank" ON PURPOSE. `_by_rank` below keys off
+                # it, and rank arithmetic is genuinely what chose these cells,
+                # so the caption must still show the round(share x n) line that
+                # explains them. Saying "fell back to rank" instead would both
+                # suppress the true explanation and read "...fell back to rank
+                # chose 6 of 20 classified cell(s)".
+                picked_by = (f"rank ({wanted} needs more than one guide in a "
+                             f"well; this one holds a single guide)")
         direction = "lowest" if coefficient.effect < 0 else "highest"
         # THE NOTE MUST DESCRIBE THE PICKER THAT RAN. The fraction
         # arithmetic below is how `rank` decides; every other picker decides
@@ -1758,6 +1775,13 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         # picker actually chose, because the gap between them is the
         # interesting part.
         _by_rank = str(picked_by).startswith("rank")
+        # A RANK FALLBACK STILL OWES THE REASON IT FELL BACK, and the two are
+        # not alternatives. `_by_rank` decides whether the round(share x n)
+        # arithmetic is shown, and for a fallback that arithmetic IS what chose
+        # the cells -- so it has to stay. But the branch that shows it never
+        # printed `picked_by`, so a qualifier attached there vanished. It rides
+        # with the arithmetic instead of replacing it.
+        _fallback = str(picked_by)[len("rank"):].strip() if _by_rank else ""
         if not _by_rank:
             chosen_here = int(len(top))
             arithmetic = (
@@ -1780,6 +1804,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                           f"where {share:.4g} is this guide's RAW fraction "
                           f"(un-normalised; the well's kept fractions sum to "
                           f"{total_here:.4g})")
+        if _fallback:
+            arithmetic += f"; {_fallback}"
         if show_all:
             # EVERY CELL IN THE WELL, with the chosen ones marked rather than
             # the rest removed. "show all the images from each well and
