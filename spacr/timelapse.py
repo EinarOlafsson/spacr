@@ -29,7 +29,6 @@ INFECTED_COLOUR = ROLES['highlight']
 UNINFECTED_COLOUR = Palette.GREY_DARK
 from .openmp_guard import single_threaded_openmp  # duplicate libomp is fatal — see that module
 from IPython.display import Image as ipyimage
-import trackpy as tp
 from skimage.measure import regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
@@ -45,7 +44,14 @@ except ImportError:                     # numpy < 2.0
     
 from spacr import schema
 from spacr.image_colors import read_image_rgb, rgb_to_cv2
-from spacr.utils import debug
+from spacr.utils import _LazyModule, debug
+
+# Trackpy imports Numba at module import time.  Besides making every caller
+# pay for a tracking backend it may never use, that import can fail when a
+# checkout-local ``tools/coverage`` package shadows coverage.py's public
+# module.  Keep the existing ``tp.link_df`` / ``tp.filter_stubs`` call sites,
+# but load the optional backend only when the Trackpy path is actually used.
+tp = _LazyModule("trackpy")
 
 
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
