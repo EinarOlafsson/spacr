@@ -115,34 +115,6 @@ def install_the_spaceout_fractal(screen) -> bool:
         LOG.exception("Could not build the spaceout fractal")
         return False
 
-    # NO BACKDROP AT ALL RATHER THAN A CPU ONE. When the GPU was wanted and
-    # refused -- this machine's context is OpenGL ES, which cannot compile
-    # the shaders -- the fallback is the CPU renderer, and that renderer is
-    # not a cheap substitute. It takes about 78% of the machine, the
-    # application builds one backdrop per screen, and the result is a GUI
-    # thread that never gets a turn: the window will not drag and the
-    # desktop reports the process as not responding.
-    #
-    # Stilling it after construction was not enough, because the first frame
-    # is already being rendered by then, at full window size.
-    #
-    # So an unasked-for CPU backdrop is not installed. A missing decoration
-    # is a small loss; an application that cannot be moved is not.
-    if (getattr(widget, "backend_name", "") == "cpu"
-            and values["backend"] in ("auto", "gpu")):
-        LOG.warning("no GPU context can run the backdrop shaders here, and "
-                    "the CPU renderer costs more than the backdrop is "
-                    "worth; running without one")
-        try:
-            widget.shutdown()
-        except Exception:                                    # noqa: BLE001
-            pass
-        try:
-            widget.deleteLater()
-        except Exception:                                    # noqa: BLE001
-            pass
-        return False
-
     try:
         widget.setParent(screen)
         widget.setGeometry(screen.rect())
