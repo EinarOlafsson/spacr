@@ -2934,6 +2934,10 @@ class AppScreen(QWidget):
         # left of inference alligned with the text box to the left in
         # model & inference".
         widget = self._with_a_settings_advisor(widget, setting_key)
+        # AND THE MODEL ZOO BESIDE A CHECKPOINT FIELD. Same wrapper shape as
+        # the two above, and the same rule: the inner field is what the panel
+        # collects from, so typing a path by hand is unchanged.
+        widget = self._with_a_model_zoo_button(widget, setting_key)
         if widget is not field:
             # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
             # `Section._row_widgets` records what it is handed, and
@@ -3301,6 +3305,72 @@ class AppScreen(QWidget):
         """
         key = self._key_of_field(widget)
         return "" if key is None else str(key)
+
+    #: Settings whose value is a path to a Cellpose checkpoint, and which
+    #: therefore get the model-zoo button. Named explicitly rather than
+    #: matched on a suffix: `custom_model_path` in Classify holds a torch
+    #: classifier, not a Cellpose model, and offering cpsam checkpoints there
+    #: would offer something that screen cannot load.
+    _MODEL_ZOO_KEYS = ("pathogen_model", "custom_model", "plaque_model")
+
+    def _with_a_model_zoo_button(self, widget, key):
+        """Add the model-zoo button beside a Cellpose-checkpoint field.
+
+        Other settings are returned unchanged.
+
+        A model setting takes a filesystem path, which is exact and unhelpful:
+        the user has to already know a model exists, find where it lives, and
+        type it. The button is the other way in -- browse what spaCR knows
+        about, download one, and have its path written into this field.
+
+        THE FIELD IS STILL WHAT THE PANEL COLLECTS FROM, the same rule the
+        plate map and the advisor follow: a wrapper that made the value
+        unreadable would be worse than no button. Typing a path by hand keeps
+        working exactly as before; this only adds a second way in.
+        """
+        if str(key) not in self._MODEL_ZOO_KEYS:
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(widget, 1)
+        button = QPushButton("Model zoo…", holder)
+        button.setToolTip(
+            "Browse the models spaCR knows about, see what each was trained "
+            "on, download one and fill in this field. You can still type a "
+            "path yourself. "
+            "API: spacr.qt.widgets.model_zoo_picker.choose_model.")
+        button.clicked.connect(
+            lambda *_, f=widget: self._choose_a_model_for(f))
+        row.addWidget(button)
+        holder._spacr_field = widget
+        return holder
+
+    def _choose_a_model_for(self, field) -> None:
+        """Open the picker and write the chosen path into ``field``.
+
+        ``kinds`` is restricted to Cellpose checkpoints: the zoo also carries
+        the YOLO well detector, and offering that here would offer something
+        ``CellposeModel`` cannot load -- a choice that fails at segmentation
+        time, long after the click that caused it.
+        """
+        from ..widgets.model_zoo_picker import choose_model
+
+        path = choose_model(self, kinds=("cellpose",))
+        if not path:
+            return
+        # setText for a line edit, set_value for spaCR's own path widgets --
+        # the panel builds more than one shape of field for a path.
+        if hasattr(field, "set_value"):
+            field.set_value(path)
+        elif hasattr(field, "setText"):
+            field.setText(path)
+        else:
+            LOG.warning("no way to write a model path into %s",
+                        type(field).__name__)
 
     def _with_a_settings_advisor(self, widget, key):
         """Add the regression settings-advisor button beside ``inference``.
