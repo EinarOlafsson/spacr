@@ -72,8 +72,11 @@ well identifiers live in one SQLite project, so a number in a result can be
 traced back to the object it came from.
 
 Run spaCR as a desktop application or headlessly on a workstation, server or
-cluster. Both drive the same modules, and CUDA is used automatically where a
-module supports it.
+cluster. Both drive the same modules, and a GPU is used automatically where a
+module supports it — NVIDIA (CUDA), AMD (ROCm on Linux, Metal on macOS),
+Apple Silicon (Metal) and Intel Arc/Xe (XPU). spaCR picks the device for you
+and falls back to the CPU when there is none; the setup screen and
+``spacr-doctor`` name what was found and say which steps it will be used for.
 
 
 Workflow at a glance
@@ -289,8 +292,10 @@ Python 3.12 has the widest choice of optional scientific packages:
    spacr
 
 spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which
-torchvision excludes. Linux is recommended for CUDA workflows; macOS and
-Windows are also supported.
+torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm
+workflows; macOS and Windows are also supported, and both use their GPUs —
+macOS through Metal, which covers Apple Silicon and the AMD cards in Intel
+Macs, and Windows through CUDA or DirectML.
 
 For a server, cluster or CI runner, omit Qt:
 
