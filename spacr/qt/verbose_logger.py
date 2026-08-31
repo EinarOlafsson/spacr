@@ -321,6 +321,42 @@ class _ConsoleForwarder(logging.Handler):
             pass
 
 
+class _NotAlreadyShownByTheRootSink(logging.Filter):
+    """Drop records the always-on console sink is going to render anyway.
+
+    THE SAME ARGUMENT AS :func:`_ensure_handler`'S, ONE LEVEL UP. That
+    docstring already says attaching a handler to both a child and its
+    ancestors delivers one record repeatedly as logging walks upward. Nobody
+    applied it ACROSS modules: this forwarder sits on ``spacr`` while
+    ``spacr.qt.logging_util`` puts its ``QtLogHandler`` on the ROOT, and every
+    ``ConsolePanel`` subscribes to both. A record from ``spacr.qt`` therefore
+    walked spacr -> root and was rendered twice, in two different formats:
+
+        [13:48:12] spacr.qt WARNING  Qt warning: ...     <- this forwarder
+        13:48:12 [WARNING] spacr.qt: Qt warning: ...     <- QtLogHandler
+
+    which is exactly what instruction 320 reports from macOS. Neither copy is
+    the raw stderr print in ``_install_quiet_qt_logging``; both are formatted
+    records, which is why looking at that print explained nothing.
+
+    Verbose mode exists to ADD the detail the ordinary sink filters out -- the
+    DEBUG and trace records below its level -- not to restate what it already
+    showed. So the rule is: render a record only when the root sink will not.
+    When there is no Qt sink (a headless or non-Qt process) this passes
+    everything, which is the behaviour verbose logging had before.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+        try:
+            from .logging_util import get_signal_handler
+            root_sink = get_signal_handler()
+        except Exception:                                    # noqa: BLE001
+            return True
+        if root_sink not in logging.getLogger().handlers:
+            return True
+        return record.levelno < root_sink.level
+
+
 def _ensure_handler() -> _ConsoleForwarder:
     """Attach the console sink once at ``spacr``'s package logger.
 
@@ -334,6 +370,7 @@ def _ensure_handler() -> _ConsoleForwarder:
             fmt="[%(asctime)s] %(name)s %(levelname)s  %(message)s",
             datefmt="%H:%M:%S",
         ))
+        _handler.addFilter(_NotAlreadyShownByTheRootSink())
     sink = logging.getLogger(_SINK_LOGGER)
     if _handler not in sink.handlers:
         sink.addHandler(_handler)

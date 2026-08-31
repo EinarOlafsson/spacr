@@ -104,3 +104,77 @@ spacr/logging_util.py, spacr/qt/logging_util.py, the console panel's
 stream classification. NOT app.py, screens/, setup_slides.py,
 hf_download.py, command_palette.py or setup.py -- another session is in
 those.
+
+
+==============================================================================
+2026-08-31 — (1) AND (2) FOUND AND FIXED; (3) BLOCKED ON THE MAC'S VERSION
+==============================================================================
+
+(1) THE SECOND EMISSION PATH, FOUND. It is not on stderr at all.
+
+There are TWO application-wide console sinks, and every ConsolePanel
+subscribes to both:
+
+    verbose_logger._ConsoleForwarder   on the `spacr` logger
+        fmt "[%(asctime)s] %(name)s %(levelname)s  %(message)s"
+    qt.logging_util.QtLogHandler       on the ROOT logger
+        fmt "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+
+A record logged to `spacr.qt` walks spacr -> root and is rendered by each.
+Reproduced here, byte for byte against the report including its double space:
+
+    [13:48:12] spacr.qt WARNING  Qt warning: libpyside: addMetaMethod: ...
+    13:48:12 [WARNING] spacr.qt: Qt warning: libpyside: addMetaMethod: ...
+
+THIS IS NOT MAC-SPECIFIC. It reproduces on Linux whenever verbose logging is
+on, which is the condition the report was taken under. Only defect (3) is
+Mac-specific, and conflating the two is what makes this look like one bug.
+
+`_ensure_handler`'s own docstring already argues the case -- "attaching the
+same handler to both a child and its ancestors delivers one record repeatedly
+as logging walks upward" -- and applies it strictly WITHIN its module. Nobody
+applied it across modules to the root sink. Fixed by giving the forwarder a
+filter that renders a record only when the root sink will not, so verbose mode
+still adds the sub-threshold detail it exists for and restates nothing.
+
+(2) THE MISLABEL, AND THE REPORT'S GUESS WAS WRONG.
+
+It is NOT "anything on stderr is an error". `ConsolePanel._on_log_record`
+routed every record at or above WARNING to `append_error`, and said so in its
+own docstring: "WARNING/ERROR/CRITICAL records go through append_error so
+they're visually distinct". A deliberate two-band split, not a heuristic.
+
+Three bands now: >= ERROR keeps the red "spaCR ERROR" banner, WARNING renders
+in the theme's existing `warning` role under the output banner, below that is
+ordinary stdout.
+
+DELIBERATELY NOT ITS OWN BANNER. "spaCR warning" would need a new row in
+`i18n._ROWS` with nine translations, which moves the COMPACT caption ratchet
+that the concurrent session owns and has just moved to 207. Amber under the
+existing translated heading meets this instruction's DONE without reaching
+into that. A dedicated banner is the nicer end state; it is a one-row change
+for whoever owns that ratchet.
+
+(3) STILL OPEN, AND IT NEEDS THE MAC.
+
+(b) is answered for the CONTROL only. On this machine -- PySide6 6.11.1, not
+the 6.11.2 recorded above; worth correcting -- a bound-method connection is
+tracked: connect, destroy the receiver, emit, and the emit survives with the
+connection gone. Zero addMetaMethod warnings across the whole experiment.
+
+That is the behaviour when PySide does NOT warn, so it establishes the
+baseline and cannot settle the Mac. Where the warning fires PySide is saying
+it could not register the tracking slot, and whether the connection is then
+untracked can only be measured on a build that produces the warning. (a) has
+to be answered before (b) can be.
+
+RULED OUT while looking, so nobody re-derives it: a single
+`qt_log.setup_logging()` leaves SIX RotatingFileHandlers on the root logger,
+which looks exactly like the duplication being hunted. It is not. They write
+to six DISTINCT files -- spacr.log plus spacr-{debug,info,warning,error,
+critical}.log -- each behind its own LevelSetFilter. By design.
+
+Guard: tests/qt/test_a_qt_warning_reaches_the_console_once.py, 3 tests -- one
+that fails if a Qt warning is rendered twice, one that fails if the
+de-duplication also swallows verbose-only detail, and one that fails if any
+level lands in the wrong band.
