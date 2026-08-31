@@ -256,7 +256,10 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
     for values, present in zip(maps, counts):
         grid = values.reindex(index=row_ids, columns=column_ids)
         seen = present.reindex(index=row_ids, columns=column_ids)
-        block = grid.to_numpy(dtype="float64")
+        # Pandas 3 copy-on-write may expose a read-only array here.  The
+        # missing-well mask below is an intentional in-place refinement, so
+        # request an owned writable buffer explicitly.
+        block = grid.to_numpy(dtype="float64", copy=True)
         # A count of zero -- or a well the reindex invented -- is a well that
         # was not measured. It is not a measurement of zero and must not be
         # painted as one, nor counted when the colour scale is chosen.
