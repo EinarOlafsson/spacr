@@ -67,15 +67,30 @@ class TestThePcaRankGuards:
                 f"a {rows}x{columns} matrix with a positive largest singular "
                 f"value came out rank 0, so the second guard is live")
 
-    def test_both_refusals_say_what_the_matrix_was(self):
+    def test_both_refusals_are_gone_and_the_earlier_one_remains(self):
+        """The two guards this class pinned were REMOVED on 2026-08-31.
+
+        The class's own reasoning is why: the two tests above establish
+        that a matrix reaching the decomposition has variance, and that
+        the constants are removed EARLIER. That makes both guards
+        unreachable rather than merely improbable, and instruction 288
+        counted the two lines.
+
+        `_drop_constant` refuses first and refuses BETTER, because it can
+        name the offending features -- "every selected feature is
+        constant over the analysed objects" -- where a guard after the
+        decomposition could only say the matrix was flat, naming nothing
+        the user chose. That message is asserted here so the removal
+        cannot leave the refusal silent.
+        """
         from spacr.qt.widgets import pca_model as P
 
         source = _source(P)
-        assert "no variance left to decompose" in source
-        assert "has rank 0" in source
-        assert source.index("if largest <= 0:") < source.index("if rank < 1:"), (
-            "the rank check now runs first, so its 'implied by largest > 0' "
-            "reason no longer holds")
+        assert "no variance left to decompose" not in source
+        assert "has rank 0" not in source
+        assert "is constant over the analysed objects" in source, (
+            "the earlier refusal is gone too, so a flat matrix now "
+            "reaches the decomposition with nothing to catch it")
 
 
 class TestTheOutlierScanFrames:

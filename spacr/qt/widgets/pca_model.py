@@ -915,12 +915,21 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     n, p = standard.shape
     singular, vectors = _decompose(standard)
     largest = float(singular.max()) if singular.size else 0.0
-    if largest <= 0:  # pragma: no cover - constants were already removed
-        raise PCAError("the analysed matrix has no variance left to decompose.")
+    # NO `largest <= 0` OR `rank < 1` GUARD. Both were marked
+    # `# pragma: no cover`, and their own reasons were right:
+    # `_drop_constant` above has already refused a matrix with no
+    # variance in it, with a message that names the offending features --
+    # "every selected feature is constant over the analysed objects", or
+    # "only 1 feature varies... PCA needs two". A matrix that reaches
+    # here therefore has at least two varying features, so its largest
+    # singular value is positive and its rank is at least one.
+    #
+    # Checked rather than assumed: identical columns, one constant
+    # column, and denormal values all raise from `_drop_constant`;
+    # perfectly collinear columns get through and decompose, which is
+    # correct -- collinearity reduces the rank to 1, not to 0.
     tolerance = largest * max(n, p) * float(np.finfo(float).eps)
     rank = int((singular > tolerance).sum())
-    if rank < 1:  # pragma: no cover - implied by largest > 0
-        raise PCAError("the analysed matrix has rank 0.")
 
     k = max(1, min(int(spec.n_components), rank))
     loadings = np.asarray(vectors[:, :k], dtype=float)
