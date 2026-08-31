@@ -36,9 +36,9 @@ ROOT = Path(__file__).resolve().parents[2]
 # that say where Q and the arrows work.  Retired: "the Annotate and Make Masks
 # screens", which the longer scope replaces -- the arrows drive the field
 # browser too, and the shorter wording had stopped being true.
-COMPACT_CAPTION_COUNT = 205
+COMPACT_CAPTION_COUNT = 207
 COMPACT_CAPTION_SHA256 = (
-    "9ada5b49f7286c502267c4a0cc091dde025e366efb518c72c9a37c027a2d93a8"
+    "f628f56bc86c01e282e8827167d65b1b09288c3c60090a9ed8224c174219e8d9"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are

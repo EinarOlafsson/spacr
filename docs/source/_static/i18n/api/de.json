@@ -50376,12 +50376,14 @@
     },
     "spacr.qt.app.MainWindow.resizeEvent": {
       "source_blocks_sha256": [
-        "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf"
+        "731330843118e819f6b2be7bd4d74d77aefbac5f0ee3d9c30baca760ce2f5dbc",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ],
-      "source_sha256": "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf",
-      "text": "Halten Sie die Lade-Anwendungsansicht, die das gesamte Fenster bedeckt, während es oben ist.",
+      "source_sha256": "eda8414d6d1aea0f8ea897c98d3fac2f111dad456436536e97b16c9040bfd6dc",
+      "text": "Halten Sie die ladende Anwendungsansicht, die das gesamte Fenster bedeckt, und löschen Sie die alte Band der Menüleiste.\n\nJEDES RESIZE, nicht nur eine Zustandsänderung. Das Ziehen einer Kante bewegt die Ecktasten, ohne den Fensterzustand zu ändern, also feuert `changeEvent` niemals -- und die Markierungen werden an ihrem neuen x über die alten zurückgezogen. Das ist die \"sometimes\" im Bericht: es ist nicht intermittierend, es ist jede Größe, die nicht ein Vollbild-Klinken ist.",
       "translation_source_blocks_sha256": [
-        "31829ba1bece1029b6bda827031e8afc7931c0125638cdf7bae847d11cf24575"
+        "d67b1d0416f9eb8b4f400c3a6a12292544080d205bf39064e74bbf19f07cf16b",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ]
     },
     "spacr.qt.app.MainWindow.resume_after_restart": {
