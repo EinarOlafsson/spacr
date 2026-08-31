@@ -208,6 +208,70 @@ def span(name: str, detail: str = ""):
             })
 
 
+#: The spaCR package directory and the interpreter's own library
+#: directories, both resolved once by `_the_spacr_frame`.
+_SPACR_ROOT = None
+_LIBRARY_DIRS = ()
+
+def _the_spacr_frame(path: str) -> str:
+    """``path`` as a package-relative name, or "" if it is not spaCR's.
+
+    TWO WAYS TO BE SPACR'S, and one way not to be.
+
+    The old test was `"/spacr/" in path`, and it is wrong for a real and
+    common installation: this project's own conda environment is named
+    `spacr`, so every file in it -- the standard library, site-packages,
+    pytest itself -- lives under `.../envs/spacr/lib/python3.12/...` and
+    matched. The import timer then attributed "3 s of torch" to whichever
+    stdlib frame the walk reached first, which is worse than not
+    attributing it at all: it names an innocent file with a
+    plausible-looking line number. Anyone whose home directory, checkout
+    or virtualenv contains the word had the same wrong answer.
+
+    So a frame is spaCR's if it is under the installed package
+    directory -- the exact answer -- or if it merely contains the
+    segment AND is not inside the interpreter's own library directories,
+    which is what keeps a source tree at an unusual path (and a test's
+    synthetic frame) recognised without letting an environment NAME
+    stand in for the package.
+
+    Resolved once and cached: this runs inside `find_spec`, on every
+    import the process makes, so it must not stat anything.
+    """
+    if not path or "timing.py" in path:
+        return ""
+    global _SPACR_ROOT, _LIBRARY_DIRS
+    if _SPACR_ROOT is None:
+        import os
+        import sysconfig
+
+        try:
+            import spacr
+
+            root = os.path.dirname(os.path.abspath(spacr.__file__))
+        except Exception:                                    # noqa: BLE001
+            root = ""
+        _SPACR_ROOT = root + os.sep if root else ""
+        dirs = []
+        for key in ("stdlib", "platstdlib", "purelib", "platlib"):
+            try:
+                got = sysconfig.get_paths().get(key)
+            except Exception:                                # noqa: BLE001
+                got = None
+            if got and (not _SPACR_ROOT
+                        or not _SPACR_ROOT.startswith(got + os.sep)):
+                dirs.append(got + os.sep)
+        _LIBRARY_DIRS = tuple(dirs)
+    if _SPACR_ROOT and path.startswith(_SPACR_ROOT):
+        return path[len(_SPACR_ROOT):]
+    if "/spacr/" not in path:
+        return ""
+    if _LIBRARY_DIRS and path.startswith(_LIBRARY_DIRS):
+        # The environment is merely NAMED spacr.
+        return ""
+    return path.split("/spacr/")[-1]
+
+
 class _ImportTimer:
     """A `sys.meta_path` finder that times every import it sees.
 
@@ -233,9 +297,9 @@ class _ImportTimer:
                 if frame is None:
                     break
                 name = frame.f_code.co_filename
-                if "/spacr/" in name and "timing.py" not in name:
-                    caller = (f"{name.split('/spacr/')[-1]}"
-                              f":{frame.f_lineno}")
+                relative = _the_spacr_frame(name)
+                if relative:
+                    caller = f"{relative}:{frame.f_lineno}"
                     break
                 frame = frame.f_back
         except Exception:                                    # noqa: BLE001
@@ -282,10 +346,9 @@ def _install_import_timer() -> None:
                             if frame is None:
                                 break
                             path = frame.f_code.co_filename
-                            if ("/spacr/" in path
-                                    and "timing.py" not in path):
-                                caller = (path.split("/spacr/")[-1]
-                                          + f":{frame.f_lineno}")
+                            relative = _the_spacr_frame(path)
+                            if relative:
+                                caller = f"{relative}:{frame.f_lineno}"
                                 break
                             frame = frame.f_back
                     except Exception:                        # noqa: BLE001
