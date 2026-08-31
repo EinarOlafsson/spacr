@@ -72,6 +72,21 @@ def test_condition_is_offered(qtbot):
     assert any("condition" in o for o in _options(_panel(qtbot, _frame())))
 
 
+def test_pandas_string_dtype_is_offered_but_numeric_is_not(qtbot):
+    """pandas 3 infers text as ``StringDtype`` instead of ``object``."""
+    frame = _frame(lopit=False)
+    frame["condition"] = frame["condition"].astype("string")
+    frame["numeric_group"] = pd.Series(
+        np.resize([1, 2, 3], len(frame)), index=frame.index, dtype="Int64")
+
+    panel = _panel(qtbot, frame)
+    offered = [panel._colour_by.itemData(i)
+               for i in range(panel._colour_by.count())]
+
+    assert "condition" in offered
+    assert "numeric_group" not in offered
+
+
 def test_condition_is_the_default_colouring(qtbot):
     """It is what a screen labels its controls with, so it is the colouring
     a reader wants first."""

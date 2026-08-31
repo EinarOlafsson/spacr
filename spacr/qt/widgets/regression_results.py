@@ -2286,7 +2286,13 @@ class RegressionResultsPanel(QWidget):
         skipped = []
         cap = max(40, len(frame) // 20)
         for name in frame.columns:
-            if frame[name].dtype == object or str(frame[name].dtype) == "category":
+            dtype = frame[name].dtype
+            text_or_category = (
+                pd.api.types.is_object_dtype(dtype)
+                or pd.api.types.is_string_dtype(dtype)
+                or isinstance(dtype, pd.CategoricalDtype)
+            )
+            if text_or_category:
                 distinct = frame[name].nunique(dropna=True)
                 if 1 < distinct <= cap:
                     self._colour_by.addItem(f"{name} ({distinct})", name)
