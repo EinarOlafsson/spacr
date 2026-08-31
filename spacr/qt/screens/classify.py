@@ -29,7 +29,7 @@ from ..theme import ensure_widget_qss_applied, register_widget_qss
 from ..widgets.collapsible_section import CollapsibleSection
 from ..widgets.fold_strip import FoldStrip
 from . import activation
-from .map_barcodes import install_fold_strip
+from .map_barcodes import build_registered_screen, install_fold_strip
 
 LOG = logging.getLogger(__name__)
 
@@ -78,7 +78,8 @@ register_widget_qss(FLOWVIEW_SECTION_NAME, _flowview_section_qss)
 #: draws them: judge the model first, then ask which measured features it
 #: is keying on, then where in the image it looked.
 FOLDED_APPS: Tuple[str, ...] = ("classifier_evaluation", "explain_cv",
-                                activation.APP_KEY)
+                                activation.APP_KEY, "train_compare",
+                                "feature_explorer")
 
 
 #: What the tiles these folds replaced said, kept so the buttons on this
@@ -143,10 +144,39 @@ def _build_activation(host_window: Optional[QWidget]) -> QWidget:
 
 #: One builder per folded module — see
 #: :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
+def _build_train_compare(host_window: Optional[QWidget] = None) -> QWidget:
+    """Training Runs, as the window builds it.
+
+    CLASSIFIERS, NOT CELLPOSE. The module reads the per-epoch `train.csv`
+    an image-classifier run writes and diffs the two runs' settings; it
+    has no notion of a segmentation model. That is what makes Classify
+    its host rather than Make Masks -- "why is run B better than run A"
+    is a question you only have after training something here.
+    """
+    return build_registered_screen("train_compare", host_window)
+
+
+def _build_feature_explorer(host_window: Optional[QWidget] = None) -> QWidget:
+    """Feature Explorer, as the window builds it.
+
+    Ranks measured features by how well they separate classes, so it is
+    the step BEFORE choosing what to train on -- and useless without the
+    class column Classify is already pointed at.
+    """
+    return build_registered_screen("feature_explorer", host_window)
+
+
 BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
     "classifier_evaluation": _build_classifier_evaluation,
     "explain_cv": _build_explain_cv,
     activation.APP_KEY: _build_activation,
+    # `train_compare` still holds a registry row; `feature_explorer` never
+    # had one and is declared in `app_catalog`. Neither needs a
+    # `FOLD_FALLBACK` entry: `fold_description` reads the registry first
+    # and the declared catalogue second, so both buttons get their real
+    # name, sentence and maturity colour without a third copy here.
+    "train_compare": _build_train_compare,
+    "feature_explorer": _build_feature_explorer,
 }
 
 

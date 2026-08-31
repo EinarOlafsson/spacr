@@ -65,7 +65,8 @@ from typing import Callable, Dict, Optional, Tuple
 from PySide6.QtWidgets import QWidget
 
 from ..widgets.fold_strip import FoldStrip
-from .map_barcodes import FoldOpener, restate_fold_button
+from .map_barcodes import (FoldOpener, build_registered_screen,
+                           restate_fold_button)
 
 LOG = logging.getLogger(__name__)
 
@@ -76,7 +77,8 @@ HOST_KEY = "regression"
 #: draws them: the figure, then the list, then the write-up -- which is
 #: the order the three are wanted in after a run finishes.
 FOLDED_APPS: Tuple[str, ...] = ("volcano_explorer", "hit_list",
-                                "methods_export")
+                                "methods_export", "investigate_hit",
+                                "profiler")
 
 # NONE OF THE THREE HAS A REGISTRY ROW. What each said as a TILE -- the
 # name, the sentence and the maturity colour a button has to go on carrying
@@ -438,9 +440,39 @@ def open_publication_figure(host_window: Optional[QWidget] = None,
 #: button raises that tab rather than opening anything -- see
 #: :class:`HitsOpener`, which falls back to a window on a screen that has no
 #: panel to hold a tab.
+def _build_investigate_hit(host_window: Optional[QWidget] = None,
+                           screen: Optional[QWidget] = None
+                           ) -> Optional[QWidget]:
+    """Investigate Hit, as the window builds it.
+
+    Folded here because a hit is the thing a regression produces: the
+    module answers "which cells are behind this row", which is a question
+    you can only have once a regression has run. It had a Home tile,
+    where it read as a place to start.
+    """
+    return build_registered_screen("investigate_hit", host_window)
+
+
+def _build_profiler(host_window: Optional[QWidget] = None,
+                    screen: Optional[QWidget] = None) -> Optional[QWidget]:
+    """Prediction Profiler, as the window builds it.
+
+    Same reasoning: it profiles a FITTED model's response, so it belongs
+    behind the module that fits one rather than beside it on Home.
+    """
+    return build_registered_screen("profiler", host_window)
+
+
 BUILDERS: Dict[str, Callable[..., Optional[QWidget]]] = {
     "volcano_explorer": open_publication_figure,
     "methods_export": build_methods_export,
+    # BOTH STILL HOLD REGISTRY ROWS, unlike the three above. They keep
+    # their name, sentence and maturity colour from the registry, so
+    # neither needs a `FOLD_FALLBACK` entry -- and both stay reachable
+    # from the command palette, which is the route that must cover every
+    # module whether or not it has a tile.
+    "investigate_hit": _build_investigate_hit,
+    "profiler": _build_profiler,
 }
 
 

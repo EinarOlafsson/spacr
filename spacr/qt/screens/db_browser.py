@@ -3134,3 +3134,47 @@ class DbBrowserScreen(LinkedView, QWidget):
             except RuntimeError:
                 pass
         super().closeEvent(event)
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+HOST_KEY = "db_browser"
+
+#: Registry keys of the modules folded into Database Browser, in strip
+#: order. Both are READS OF THE SAME TABLES the browser is already
+#: pointed at -- lineage walks the containment columns, tabulate pivots
+#: and counts them -- so each is a second view of the open database
+#: rather than a separate errand.
+FOLDED_APPS: Tuple[str, ...] = ('lineage', 'tabulate')
+
+
+def _build_lineage(host_window: Optional[QWidget] = None) -> QWidget:
+    """Lineage, as the window builds it."""
+    return build_registered_screen("lineage", host_window)
+
+
+def _build_tabulate(host_window: Optional[QWidget] = None) -> QWidget:
+    """Tabulate, as the window builds it."""
+    return build_registered_screen("tabulate", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "lineage": _build_lineage,
+    "tabulate": _build_tabulate,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put db_browser's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
