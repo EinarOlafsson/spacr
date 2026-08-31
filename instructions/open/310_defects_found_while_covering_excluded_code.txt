@@ -216,34 +216,45 @@ uncommented.
     database. A worker that finishes inside the join window therefore produces
     a clean result AND a leftover temporary directory. Harmless in effect, but
     the docstring says the survivor is "a worker that outlives the join
-    deadline", which is not what the code does. Current behaviour is pinned by
-    a test, so a deliberate fix will surface as a failing assertion rather
-    than silently.
-  * spacr/crops.py ``_region_for`` -- the docstring still documents a ``None``
-    return the code can no longer produce. The ``binary_dilation(iterations=0)``
-    quirk that produced it was fixed by the ``if px > 0`` guard, so every path
-    now returns an ndarray. Confirmed by brute force over 57,600 field/spec
-    combinations: zero None regions. The stale sentence should go.
-  * tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name STARTED
-    FAILING during the 2026-08-29 session -- it is NOT pre-existing. The
-    offenders spell the name "SpaCR" at docs/source/installer_guide.rst:101
-    and :107, and tests/test_readme_presentation.py:313-319. Both are outside
-    the coverage session's lane. Lane: docs.
+    deadline", which is not what the code does.
+
+    FIXED 2026-08-29 in 430c0ade. The final liveness check now rebuilds the
+    actual survivor list used by both error reporting and scratch retention.
+    A worker that exits in the last join window leaves neither a false stall
+    error nor a disposable database behind; a genuinely live worker is still
+    retained for inspection. The deterministic delayed-``is_alive``
+    regression now asserts that the scratch path is removed. Rechecked on
+    current nightly on 2026-08-30: passed.
+  * spacr/crops.py ``_region_for`` -- FIXED 2026-08-29 in 2b36b712. Its
+    docstring now states the actual ndarray-only return contract, the stale
+    ``region_mask_or_None`` description and dilation-to-stability story are
+    gone, and the zero-radius guard remains documented. Rechecked with the
+    known-bug contracts on 2026-08-30: 5 passed.
+  * tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name --
+    RESOLVED 2026-08-29 in cde2b73d. The original 1.5.0.x installers really
+    created case-sensitive ``SpaCR`` directories, so changing those recovery
+    paths would break existing installs. The casing test now removes only the
+    exact legacy path/settings identifiers before checking the rest of each
+    line; ordinary prose still has no exemption. Rechecked on current nightly
+    on 2026-08-30: passed.
   * spacr/fit_resources.py ``readable`` and spacr/mixed_gpu.py ``_readable``
-    are byte-identical implementations in two modules. Deduplicating them
-    would couple mixed_gpu to fit_resources, so it was left alone; noted only
-    so the duplication is a decision rather than an accident.
+    still share the same byte-formatting loop. They are no longer literally
+    byte-identical: the public ``fit_resources.readable`` also accepts
+    ``None`` and returns ``"not measured"``. Deduplicating the common loop
+    would still couple mixed_gpu to fit_resources, so it remains deliberately
+    local to each module.
   * spacr/pipeline_graph.py:485 -- ``except (FileNotFoundError, OSError)``
-    lists a subclass beside its base; ``OSError`` alone is equivalent.
+    listed a subclass beside its base. FIXED 2026-08-29 in 591afe90: the race
+    guard now catches ``OSError`` alone. The focused pipeline-graph suites
+    were rechecked on 2026-08-30: 33 passed.
   * tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
-    FAILS at present: public API surface 8613 vs reviewed 8612. THE EXTRA
-    SYMBOL IS ``spacr.qt.widgets.fast_plots.FastPlot.closeEvent`` -- a Qt
-    addition from the concurrent packaging/GUI session, not from the coverage
-    sweep. Proved by parsing HEAD's and the working copy's versions of the
-    coverage session's own files and getting identical symbol sets and
-    docstrings. tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current
-    fails for the same reason. Both need the ratchet bumped and
-    tools/build_documentation_i18n.py re-run. Lane: docs.
+    no longer fails on ``spacr.qt.widgets.fast_plots.FastPlot.closeEvent``.
+    The symbol entered the generated catalogs in 2e3f0ca0, and the current
+    reviewed public-surface ratchet is 8,719 canonical / 8,838 with aliases;
+    its exact test passed on 2026-08-30. The documentation catalog hash test
+    also no longer names FastPlot. At this recheck it instead named ten newer
+    ``spacr.ml`` source/hash contracts, already owned by the active API-catalog
+    lane; that is a separate current change, not this recorded defect.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
