@@ -92,6 +92,22 @@ def test_declared_object_feature_must_be_numeric():
         schema.model_feature_columns(frame)
 
 
+def test_string_dtype_uses_stable_text_diagnostic_without_hiding_category():
+    """pandas 3 calls ordinary text ``str``; users still have the same fault."""
+    frame = pd.DataFrame({
+        "cell_area": pd.Series(["large", "small"], dtype="string"),
+        "nucleus_perimeter": pd.Series(
+            ["rough", "smooth"], dtype="category"),
+    })
+
+    with pytest.raises(schema.ModelFeatureSchemaError) as excinfo:
+        schema.model_feature_columns(frame)
+
+    message = str(excinfo.value)
+    assert "cell_area (object)" in message
+    assert "nucleus_perimeter (category)" in message
+
+
 def test_every_unusable_feature_is_named_in_one_error():
     """One run, one error, every offending column and its dtype in it.
 
