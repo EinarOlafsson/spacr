@@ -100,17 +100,38 @@ def test_without_the_canonical_directory_node_the_run_stops_and_says_why(
         tmp_path):
     """The same arguments, with the canonical-node invariant switched off.
 
-    Supported pytest 8.x releases resolve fixtures by ``baseid``, so the
-    direct duplicate-node check stops the mutation before it can become a raw
-    missing-fixture cascade.
+    What must hold on every pytest: the run STOPS, and it names the
+    duplicated directory rather than emitting one raw missing-fixture
+    error per test. Which of the two guards trips first depends on the
+    fixture-matching model, and that is asserted per model rather than
+    assumed:
+
+    * pytest 9 resolves fixtures against the collected node, so the
+      duplicate hides them and the collection guard reports it;
+    * pytest 8.x matches by stable baseid, so the fixtures survive and it
+      is the duplicate-node test that fails instead.
+
+    Either way the cascade -- "fixture 'qt_theme_applied' not found",
+    once per test -- must not be what a reader sees.
     """
     _skip_in_the_child()
+    from tests.conftest import DUPLICATE_NODE_HIDES_FIXTURES
+
     done = _interleaved_run(tmp_path, disable_canonicaliser=True)
     output = done.stdout + done.stderr
+
     assert done.returncode != 0, output[-3000:]
-    assert "tests/qt has two collection nodes" in output, output[-3000:]
-    assert "COLLECTION ORDERING fault" not in output, output[-3000:]
     assert "fixture 'qt_theme_applied' not found" not in output, output[-3000:]
+
+    if DUPLICATE_NODE_HIDES_FIXTURES:
+        assert "conftest fixture(s) are not visible" in output, output[-3000:]
+        assert "Collected twice: tests/qt" in output, output[-3000:]
+        assert "COLLECTION ORDERING fault" in output, output[-3000:]
+        assert "EVICTED" not in output, (
+            "the run blamed an eviction for a duplicated directory")
+    else:
+        assert "tests/qt has two collection nodes" in output, output[-3000:]
+        assert "COLLECTION ORDERING fault" not in output, output[-3000:]
 
 
 def test_a_directory_answers_with_one_collection_node(request):

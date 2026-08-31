@@ -1068,13 +1068,33 @@ def directories_collected_twice(items, parse_nodes=None):
     return twice
 
 
+#: Whether the running pytest hides a directory conftest's fixtures when
+#: that directory is collected twice.
+#:
+#: THE TWO MODELS DIFFER AND THE MESSAGE HAS TO SAY WHICH ONE IT IS IN.
+#: pytest 8.x matches ``FixtureDef.baseid`` against ancestor nodeids, so the
+#: duplicate node is a violated invariant that does NOT by itself hide
+#: anything. pytest 9 resolves against the collected node, so the duplicate
+#: IS the disappearance. Telling a reader the wrong one sends them looking
+#: for a second fault that is not there -- or past the only one that is.
+DUPLICATE_NODE_HIDES_FIXTURES = pytest.version_tuple[0] >= 9
+
+_ORDERING_MODEL = (
+    "On this pytest ({version}) a duplicated directory node IS the cause: "
+    "fixtures are resolved against the collected node, so the copy that "
+    "carries them is not the copy the tests hang under. Repairing the "
+    "duplicate restores them."
+    if DUPLICATE_NODE_HIDES_FIXTURES else
+    "On this pytest ({version}) fixtures match by stable baseid, so the "
+    "duplicate node alone does not explain their disappearance; it is "
+    "nevertheless a second violated invariant that must be repaired or "
+    "ruled out before diagnosing plugin state."
+).format(version=pytest.__version__)
+
 _ORDERING_CAUSE = (
     "This run has a COLLECTION ORDERING fault alongside the missing "
     "fixture: a directory whose conftest defines fixtures was collected "
-    "twice. Supported pytest 8.x matches those fixtures by stable baseid, "
-    "so the duplicate node alone does not explain their disappearance; it "
-    "is nevertheless a second violated invariant that must be repaired or "
-    "ruled out before diagnosing plugin state. The duplicate is triggered "
+    f"twice. {_ORDERING_MODEL} The duplicate is triggered "
     "by interleaving files from different directories, e.g. "
     "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
     "\n"

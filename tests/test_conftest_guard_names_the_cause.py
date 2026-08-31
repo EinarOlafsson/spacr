@@ -299,16 +299,32 @@ def test_the_real_interleaving_follows_pytests_fixture_matching_model(
         tmp_path):
     """The disabled canonicaliser exposes the matching model pytest uses.
 
-    Supported pytest 8.x releases match ``FixtureDef.baseid`` against
-    ancestor nodeids, so fixtures remain visible despite the duplicate
-    collection node.
+    The two models give opposite answers and the test asserts the one it
+    is running under rather than the one the fault was first found on:
+
+    * pytest 8.x matches ``FixtureDef.baseid`` against ancestor nodeids,
+      so the fixtures remain visible despite the duplicate node and the
+      collection completes;
+    * pytest 9 resolves against the collected node, so the duplicate
+      hides them and collection stops with the ordering cause named.
+
+    What is asserted in BOTH: the raw cascade is never what a reader
+    sees, and an eviction is never blamed for a duplicated directory.
     """
+    from tests.conftest import DUPLICATE_NODE_HIDES_FIXTURES
+
     done, output = _collect_interleaved(tmp_path, disable_canonicaliser=True)
 
-    assert done.returncode == 0, output[-3000:]
-    assert "COLLECTION ORDERING fault" not in output, output[-3000:]
     assert "fixture 'qt_theme_applied' not found" not in output, output[-3000:]
     assert "EVICTED" not in output, output[-3000:]
+
+    if DUPLICATE_NODE_HIDES_FIXTURES:
+        assert done.returncode != 0, output[-3000:]
+        assert "Collected twice: tests/qt" in output, output[-3000:]
+        assert "COLLECTION ORDERING fault" in output, output[-3000:]
+    else:
+        assert done.returncode == 0, output[-3000:]
+        assert "COLLECTION ORDERING fault" not in output, output[-3000:]
 
 
 def test_the_duplicate_nodes_are_not_a_conftest_that_went_missing(tmp_path):
