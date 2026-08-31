@@ -107,6 +107,16 @@ def color_error() -> str:
     return active_palette()["error"]
 
 
+def color_warning() -> str:
+    """Warning colour for the theme on screen right now.
+
+    Distinct from :func:`color_error` on purpose -- see
+    :meth:`ConsolePanel.append_warning`. Every theme already defines the
+    ``warning`` role; nothing here needed inventing.
+    """
+    return active_palette()["warning"]
+
+
 def __getattr__(name: str) -> str:
     """Serve ``COLOR_OUTPUT`` / ``COLOR_USER`` / ``COLOR_ERROR`` live.
 
@@ -1461,13 +1471,50 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self.append_stdout(leading + tr(core, **mapping) + trailing)
 
     def _on_log_record(self, text: str, level: int) -> None:
-        """Slot for QtLogHandler.record_ready. WARNING/ERROR/CRITICAL
-        records go through append_error so they're visually distinct."""
+        """Slot for QtLogHandler.record_ready, routed by level.
+
+        A WARNING IS NOT AN ERROR. This used to send everything at or above
+        WARNING through :meth:`append_error`, which draws the red "spaCR
+        ERROR" banner -- so a routine Qt warning ("libpyside: addMetaMethod
+        ...", instruction 320) was presented to the user as a failure, a dozen
+        times, on merely opening a module. The cost is not the wrong colour:
+        it is that a pane which cries error over routine noise is a pane
+        people stop reading, and the next line in it might be the one that
+        matters.
+
+        Three bands now, not two.
+        """
         import logging as _logging
-        if level >= _logging.WARNING:
+        if level >= _logging.ERROR:
             self.append_error(text)
+        elif level >= _logging.WARNING:
+            self.append_warning(text)
         else:
             self.append_stdout(text)
+
+    def append_warning(self, text: str) -> None:
+        """Append warning text in the theme's amber, under the output banner.
+
+        DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one
+        rather than a design one: a "spaCR warning" heading would need a new
+        row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the
+        COMPACT caption ratchet another session owns. Amber under the existing
+        translated "spaCR output" heading already satisfies what instruction
+        320 asks for -- warnings out of the ERROR pane, errors still in it --
+        without reaching into that machinery. A dedicated banner is the nicer
+        end state and is recorded in 320 as the follow-up.
+
+        :param text: the formatted record; empty strings are ignored.
+        """
+        if not text:
+            return
+        with console_write():
+            amber = color_warning()
+            self.begin_topic(self._output_banner("spaCR output"), accent=amber)
+            block = _StdoutBlock(text, text_color=amber)
+            block.setProperty("consoleContextKind", "warning")
+            self._insert_entry(block)
+            self._last_entry_kind = "stdout"
 
     def append_error(self, tb: str) -> None:
         """Append red error text under a 'spaCR ERROR — <module> — <function>'
