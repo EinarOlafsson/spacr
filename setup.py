@@ -1020,7 +1020,12 @@ setup(
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
+            # Piper itself has an abi3 Intel-macOS wheel, but its onnxruntime
+            # dependency has no cp314 Intel wheel. Keep the renderer available
+            # everywhere else and let 3.14 Intel Macs use the non-narrated
+            # tutorial path rather than fail the aggregate install.
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
         ],
         # The AI Console shells out to vendor coding-agent CLIs
         # (`claude`, `codex`, `gemini`) so authentication piggy-backs
@@ -1053,10 +1058,11 @@ setup(
         #     constrain no platform and no Python version; these extras are
         #     organisational, not load-bearing.
         # ------------------------------------------------------------------
-        'czi': ['pylibCZIrw>=5.0.0,<7.0', 'czifile'],
+        'czi': ['pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
+                'czifile'],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
-        'zernike': ['mahotas>=1.4.13,<2.0'],
+        'zernike': ['mahotas>=1.4.13,<2.0; python_version < "3.13"'],
         # btrack loads a native tracker library. Keeping it behind a lazy
         # feature boundary lets the rest of timelapse run on new Python
         # versions while upstream wheels catch up.
@@ -1213,7 +1219,8 @@ setup(
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
             'trackastra>=0.5,<1.0; python_version >= "3.10" and '
             '(sys_platform != "darwin" or platform_machine != "x86_64" '
             'or python_version < "3.13")',
@@ -1222,11 +1229,11 @@ setup(
             'platform_machine != "x86_64" or python_version < "3.13")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
-            'pylibCZIrw>=5.0.0,<7.0',
+            'pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
             'czifile',
             'nd2reader>=3.3.0,<4.0',
             'readlif',
-            'mahotas>=1.4.13,<2.0',
+            'mahotas>=1.4.13,<2.0; python_version < "3.13"',
             'btrack>=0.7.0,<1.0',
             'anndata>=0.10,<0.13',
         ],

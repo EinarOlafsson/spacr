@@ -156,14 +156,20 @@ def _run_cli(
     )
 
 
-def test_current_packaging_denominator_is_505_not_asset_generators():
+def test_current_packaging_denominator_is_506_not_asset_generators():
+    """+1: ``spacr/qt/widgets/popup_state.py``.
+
+    Added for the menu and tooltip flicker -- the backdrop has to hold
+    still while a popup composites over the native GL surface, and the
+    question "is a popup on screen" needed one place to live.
+    """
     shipped = set(ratchet.discover_shipped_python_files(ROOT))
     every_spacr_python = {
         path.relative_to(ROOT).as_posix()
         for path in (ROOT / "spacr").rglob("*.py")
     }
 
-    assert len(shipped) == 505
+    assert len(shipped) == 506
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 
