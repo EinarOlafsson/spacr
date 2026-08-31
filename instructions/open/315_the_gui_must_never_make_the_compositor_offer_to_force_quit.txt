@@ -1,0 +1,158 @@
+315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
+============================================================
+
+Raised on 2026-08-30, in the user's words, across one evening:
+
+  "it takes more than 60 sec to start the programe - this alone makes
+   the program useless."
+  "i cant drag the window anywhere, and the application laggs like i am
+   running it on a computer from the 1990s."
+  "everytime i open settings or a modual i get io.github.olafssonlab.spacr
+   is not responding ... fix that"
+  "fix the module loader so i never get that woaning!"
+  "if verbose logging fucks the application up so much then it is broken
+   and needs to be fixed."
+
+STANDING RULES THAT CAME WITH THEM
+----------------------------------
+
+* Commits carry the user's name and address ONLY. No co-author trailer
+  is ever added, and any that exist are to be removed.
+* Nothing is deleted -- not a branch, not a worktree, not a stash --
+  until the user says so. Work is superseded by being replayed, never by
+  being dropped.
+* Where two lineages disagree and the better one is not obvious, the
+  local (this session's) version is treated as correct.
+* Code that exists only for the removed tkinter GUI is deleted on sight.
+* All work belongs on `nightly`, in /mnt/firecuda2/codex/repo/spacr, and
+  that tree must stay `git pull`-able.
+
+
+1. WHAT ACTUALLY CAUSED EACH SYMPTOM
+------------------------------------
+
+Every one of these was measured, not guessed, and four of the five were
+NOT what they looked like.
+
+1a. THE 60-SECOND START WAS VERBOSE LOGGING. `logging_util` installs a
+    profile hook with `threading.setprofile_all_threads`, so every call
+    on every thread went through Python. Startup 60 s -> 2.4 s with it
+    off. No code changed. The feature is still shipped and still does
+    this: it is a diagnostic that costs an order of magnitude, and the
+    user is right that a switch which makes the application unusable is
+    broken rather than expensive.
+
+1b. THE WINDOW WOULD NOT DRAG because nothing implemented it. The
+    frameless window carried a comment saying the menu bar is what you
+    drag it by, and no code anywhere honoured it. `startSystemMove()` on
+    the window handle is the only mechanism the compositor accepts; a
+    press on a menu still opens the menu, only the bare strip drags.
+
+1c. THE MISSING BACKDROP AND THE BLACK CORNERS WERE THE SESSION TYPE.
+    A native Wayland session gives Qt an OpenGL ES context; vispy
+    compiles the fractal shaders as desktop GLSL 120 and ES answers
+    "unsupported version 120", so the backdrop never drew a frame. The
+    same compositor rounds an opaque surface, which is where the black
+    corners outside the rounded edges came from. Both are gone under
+    `xcb`. NOTHING IN SPACR CHANGED -- and four separate "fixes" were
+    attempted against the wrong cause before anyone asked what the
+    session was. Two of them (an eager shader link, a CPU fallback) took
+    the application down or ate twenty cores.
+
+1d. THE "NOT RESPONDING" ON OPENING A MODULE WAS THE BACKDROP WAITING
+    FOR A LOCK. `_PipelinePreloader` holds HEAVY_IMPORT_LOCK for a whole
+    module import; a screen build takes the same lock to construct its
+    GL backdrop. Clicking a module while the preloader was still running
+    cost a 3148 ms block of the GUI thread, of which 83% was the
+    backdrop's constructor waiting. The backdrop is decoration and the
+    module is not, so the decoration is what waits now: the install
+    peeks at the lock without blocking and comes back on a timer.
+    Longest block 3062-4054 ms -> 1380-1424 ms; the backdrop arrives
+    0.27 s after the screen instead of holding it up.
+
+1e. THE HOME REFRESH WAS 30,832 STAT CALLS. `recent_runs` and
+    `journal_totals` between them made four `iterdir()` passes with an
+    `is_dir()` on every entry, over a journal that had grown to 10,192
+    run folders. One `os.scandir` gives the same answers for 173 stat
+    calls: 23.8 ms and 9.1 ms, byte-identical results. `journal_totals`
+    was ALREADY incremental -- that cache saved the manifest reads, and
+    never saved the directory walk that found them.
+
+
+2. THERE ARE THREE SPACR INSTALLS ON THIS MACHINE
+-------------------------------------------------
+
+This wasted an hour and produced a flat contradiction with the user,
+who was right:
+
+    spacr      -> ~/.local/share/spacr/venv/.../site-packages/spacr
+    spaceout   -> whichever env is active; the `spacr` env points at
+                  /mnt/firecuda2/codex/repo/spacr
+    anaconda3/bin/spaceout -> a STALE script that still imports
+                  `spacr.gui:gui_app`, the removed tkinter GUI
+
+A fix committed to the repo does not reach `spacr`, because `spacr` does
+not run the repo. ALWAYS resolve what the command actually imports --
+`python -c "import spacr; print(spacr.__file__)"` with THAT
+interpreter -- before claiming a GUI fix is in the user's hands.
+
+The platform preference therefore lives in `spacr.qt` and is called from
+`run()`, `run_without_setup()` and spaceout's `main()`, so no entry point
+can be missed again. An explicit QT_QPA_PLATFORM always wins, including
+the `offscreen` the test suite sets.
+
+
+3. STILL OPEN
+-------------
+
+3a. THE DOCK AND THE TITLE BAR FLICKER when the spaCR menu opens in the
+    top-left corner, and again whenever a tooltip appears. Both are
+    popups over a live GL surface, and both began when the session moved
+    to xcb -- which is also when the backdrop started drawing at all.
+    The suspicion is the GL canvas repainting under a popup; the ambient
+    widget already has `pause()`/`resume()`, so pausing it while a popup
+    is up is the first thing to try. NOT YET DIAGNOSED, and it must be
+    measured rather than assumed: the four wrong backdrop fixes above
+    are what guessing at this layer costs.
+
+3b. A BLACK BOX IN REGRESSION, above the Run button and below the
+    inputs, on the same row as the adjacent button. Reported twice.
+    Not yet found.
+
+3c. VERBOSE LOGGING still installs the interpreter-wide profile hook
+    (1a). It needs to stop being able to make the application unusable.
+
+3d. THE MODULE BUILD STILL HOLDS THE THREAD FOR ~1.4 s. What remains is
+    diffuse -- imports, `settings_search.install`, widget construction --
+    with no single offender. Breathing inside `Section.add_row` on the
+    same 25 ms deadline `_build_sections` uses was tried and REVERTED:
+    it did not shrink the longest block and it made opens slower.
+
+3e. TWELVE CODEX COMMITS from 2026-08-30 do not replay onto the
+    reconciled lineage. Neither `cherry-pick` nor a three-way apply
+    lands them, and every file they touch exists, so these are content
+    conflicts from the lineage split and need merging by hand. One
+    ("Repair batch input and annotation tab defaults") is already
+    upstream. The branches are intact and nothing is lost.
+
+
+4. HOW TO MEASURE THIS CLASS OF BUG
+-----------------------------------
+
+The lesson of the evening is that wall-clock on a module open told us
+almost nothing -- the same open measured 0.47 s and 22.59 s. What the
+compositor actually reacts to is the LONGEST UNINTERRUPTED BLOCK of the
+GUI thread, so measure that directly:
+
+* a QTimer heartbeat at 20 ms; the largest gap between two ticks is how
+  long the thread went without answering anything;
+* a sampling thread reading `sys._current_frames()[main]` every 5 ms,
+  correlated to that gap, to say what it sat in.
+
+That pair found 1d in one run after several hours of wall-clock timings
+had pointed at four different innocent subsystems. cProfile is NOT
+usable here: on a tree of several thousand widgets it distorts the thing
+it is measuring, exactly as the verbose-logging hook in 1a does.
+
+Never measure while a `git cherry` over 4,000 commits is running in
+another terminal. Several "findings" this evening were that.
