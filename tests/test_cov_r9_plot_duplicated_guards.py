@@ -108,12 +108,32 @@ class TestTheTransformNameIsCheckedTwice:
         assert "mode" in copies[0]
 
     def test_threshold_conversion_relies_on_the_validated_vocabulary(self):
-        source = inspect.getsource(P.volcano_plot)
+        transform = _nested(P.volcano_plot, "_transform_x")
+        threshold = _nested(P.volcano_plot, "_threshold_x_in_plot_units")
 
         for name in ("log2", "log10"):
-            assert source.count(f'== "{name}"') >= 2
-        assert source.count('in ("ln", "log")') == 1
-        assert "the only remaining accepted forms are the natural-log aliases" in source
+            assert f'== "{name}"' in transform
+            assert f'== "{name}"' in threshold
+        assert 'in ("ln", "log")' in transform
+        assert 'in ("ln", "log")' not in threshold
+        assert "the only remaining accepted forms are the natural-log aliases" in threshold
+
+    def test_a_natural_log_threshold_is_converted_in_plot_units(self):
+        """The fallback is natural log because validation already reduced
+        the remaining vocabulary to ``ln`` and ``log``."""
+        import pandas as pd
+
+        frame = pd.DataFrame({"fc": [0.5, 1.0, 2.0],
+                              "p": [0.01, 0.2, 0.04]})
+        figure, axes, _ = P.volcano_plot(
+            frame, fold_change_col="fc", p_value_col="p",
+            x_transform="ln", fold_change_threshold=np.e, show=False)
+        verticals = sorted({round(float(line.get_xdata()[0]), 6)
+                            for line in axes.lines
+                            if len(set(line.get_xdata())) == 1})
+        P.plt.close(figure)
+
+        assert verticals == [-1.0, 0.0, 1.0]
 
 
 class TestGrayscaleContours:

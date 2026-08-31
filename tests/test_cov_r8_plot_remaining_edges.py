@@ -69,27 +69,18 @@ class TestLorenzCurves:
         assert axes.get_xlim() == pytest.approx((0.0, 1.0))
         assert axes.get_ylim() == pytest.approx((0.0, 1.0))
 
-    def test_the_two_limit_guards_cannot_fire(self):
-        """THE PIN.
-
-        ``if x_lim is not None`` and its y twin sit at the bottom of the
-        function, and both are always true: the None default was already
-        replaced with the unit square at the top. This is the shape
-        round 5's report named -- a None default replaced on entry and
-        re-checked on use.
-
-        Keeping the checks is cheap and correct for a future caller that
-        threads a real None through; the pin fails if the replacement
-        above them is removed, which is what would make them live.
-        """
+    def test_limits_are_resolved_once_then_applied(self):
+        """The public defaults are resolved at entry and the settled values
+        are applied unconditionally; there is no duplicated second guard."""
         source = inspect.getsource(P.plot_lorenz_curves)
         for name, default in (("x_lim", "[0.0, 1]"), ("y_lim", "[0, 1]")):
             replace = source.index(f"if {name} is None:")
-            check = source.index(f"if {name} is not None:")
-            assert replace < check, (
-                f"{name} is no longer defaulted before it is checked")
+            apply = source.index(f"ax.set_{name[0]}lim({name})")
+            assert replace < apply, (
+                f"{name} is no longer defaulted before it is applied")
             assert default in source[replace:replace + 120], (
                 f"{name}'s default is no longer {default}")
+            assert f"if {name} is not None:" not in source
 
     def test_limits_that_are_given_are_applied(self, tmp_path):
         path = _counts(tmp_path, "a", [1, 2, 3, 4, 5, 6, 7, 8])
@@ -146,6 +137,11 @@ class TestOrderingTheGroupingColumn:
         assert "self.order = order or sorted(df[self.grouping_column]" in source
         assert "group_cols, observed=False)[self.data_column].agg(" in source
         assert ".reset_index()" in source
+
+        ordering = source[source.index("# 4) Handle ordering"):]
+        ordering = ordering[:ordering.index("return df")]
+        assert "elif self.grouping_column in df.columns:" not in ordering
+        assert "\n        else:\n" in ordering
 
         with pytest.raises(KeyError):
             P.spacrGraph(_frame().drop(columns=["grp"]), "grp", "val",
