@@ -164,12 +164,18 @@ the `offscreen` the test suite sets.
     same 25 ms deadline `_build_sections` uses was tried and REVERTED:
     it did not shrink the longest block and it made opens slower.
 
-3e. TWELVE CODEX COMMITS from 2026-08-30 do not replay onto the
-    reconciled lineage. Neither `cherry-pick` nor a three-way apply
-    lands them, and every file they touch exists, so these are content
-    conflicts from the lineage split and need merging by hand. One
-    ("Repair batch input and annotation tab defaults") is already
-    upstream. The branches are intact and nothing is lost.
+3e. THE NINE RETAINED CODEX FIX BRANCHES NEED NO REPLAY. A 2026-08-31
+    patch-equivalence audit mapped every branch-tip patch onto the reconciled
+    lineage: f812bf471->302815e4f, 7ec0db386->604407eef,
+    5633ab1a8->4d153c1b3, ab9ef943b->e7c286dd3,
+    fb291e070->3192b75f6, 4c88fcfec->da9b0d5bf,
+    23420f65c->6399f8349, 414e537dd->ac57569a8 and
+    e3eb57477->efc9a78cd. Their retained regression tests passed on current
+    nightly (26 passed, 502 deselected). Later parameter documentation and
+    shortcut refinements explain the few current file differences; none is a
+    missing fix. Replaying these branches would be redundant and would risk
+    overwriting those later changes, so their remaining integration diff is
+    exactly zero.
 
 
 4. HOW TO MEASURE THIS CLASS OF BUG
