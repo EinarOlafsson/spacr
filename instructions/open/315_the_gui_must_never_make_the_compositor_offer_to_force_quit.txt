@@ -198,3 +198,63 @@ it is measuring, exactly as the verbose-logging hook in 1a does.
 
 Never measure while a `git cherry` over 4,000 commits is running in
 another terminal. Several "findings" this evening were that.
+
+
+1f. THE ONE THAT WAS LEFT: `spaceout` FROZE WHERE `spacr` DID NOT
+-----------------------------------------------------------------
+
+Reported 2026-08-31: "spaceout still has a wait-for-quit popup when I
+open regression, spacr does not."
+
+THE ASYMMETRY IS THE DIAGNOSIS, and it is the fastest one in this file
+because the maintainer handed over both halves of a controlled
+experiment. Same machine, same module, same click. The only difference
+between the two launchers is `enable_spaceout()`, and the only thing that
+turns on which touches a lock is the fractal backdrop.
+
+1d fixed `AppScreen._install_ambient` -- it peeks at HEAVY_IMPORT_LOCK and
+comes back on a timer rather than installing into a held lock. What it did
+not fix is what happens AFTER the peek says yes:
+
+    GpuFractalWidget.__init__:      with lock:  self._canvas = _Canvas()
+
+A plain blocking acquire, on the GUI thread, against a lock the preloader
+holds for a whole module import. A priority inversion: a background task
+with no deadline holding up the one thread that has one.
+
+The peek cannot close it. It is a check, not a reservation -- its own
+docstring says so -- and `_PipelinePreloader._work` releases the lock
+between two imports and takes it again immediately. A click landing in
+that gap is not the unlucky case, it is the ordinary case for the first
+few seconds of a session.
+
+`spacr` never froze because `AmbientWidget` has no GL context and takes no
+lock. The freeze needed BOTH halves: the fractal to want the lock, and the
+preloader to be holding it.
+
+MEASURED, xvfb + llvmpipe, against a 2,000 ms hold:
+
+    before   2,130 ms blocked GUI thread, backdrop built
+    after      142 ms, refused; the retry builds it in 43 ms
+
+FIXED 2026-08-31. The acquire is bounded at 100 ms and a refusal raises
+`HeavyImportInProgress`, which is deliberately not a `GpuBackendError`:
+`create_fractal_widget` answers those with the CPU renderer -- 1c's
+twenty-core fallback -- so a busy lock falling through there would trade a
+third of a second for that renderer on every module opened during startup.
+
+"Not yet" is not "never", so all three callers come back: AppScreen
+forgets the attempt it had already recorded in `_ambient_applied`, Home
+gains the peek and the retry it never had (and it is built at startup,
+which is when the preloader runs), and the screens that are not
+AppScreens get the backdrop install split out of `_theme_screen` so a
+retry does not re-apply the stylesheet to the whole tree every 120 ms.
+
+THE SHAPE, which is the reusable part: a bounded wait plus a retry is the
+only honest way for the GUI thread to take a lock a background task can
+hold for seconds. Peeking first is worth keeping -- it stops the retry
+timer paying the bound on every tick during a long import -- but a peek
+alone is a check-then-act race and cannot be the whole answer.
+
+Guard: tests/qt/test_the_backdrop_never_waits_out_a_heavy_import.py, 19
+tests. The three that carry the argument were mutation-checked.
