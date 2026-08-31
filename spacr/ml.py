@@ -3117,9 +3117,23 @@ def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
     Xw = X_d * w[:, None]
     xtx = X_d.T @ Xw
     xty = Xw.T @ y_d
+    # RANK BEFORE SOLVE, not the solver's exception. LAPACK builds disagree
+    # about a singular system: some raise, and some return one arbitrary
+    # member of an infinite solution set. Diagnosing rank first makes the
+    # refusal the same everywhere, which matters because the alternative is
+    # a coefficient table that looks fine and is not identified.
+    _rank = int(np.linalg.matrix_rank(xtx))
+    if _rank < xtx.shape[0]:
+        raise ValueError(
+            f"the absorbed design's normal equations are singular "
+            f"(rank {_rank} of {xtx.shape[0]}), so its {len(keep)} "
+            f"coefficients are not identified. That is a rank-deficient "
+            f"design, not a backend failure: statsmodels answers the same "
+            f"design with a pseudo-inverse, which picks one arbitrary "
+            f"solution out of infinitely many.")
     try:
         beta = np.linalg.solve(xtx, xty)
-    except np.linalg.LinAlgError as exc:
+    except np.linalg.LinAlgError as exc:      # pragma: no cover - rank first
         raise ValueError(
             f"the absorbed design's normal equations are singular ({exc}), "
             f"so its {len(keep)} coefficients are not identified. That is a "
