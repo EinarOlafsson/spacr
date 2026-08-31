@@ -50376,12 +50376,14 @@
     },
     "spacr.qt.app.MainWindow.resizeEvent": {
       "source_blocks_sha256": [
-        "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf"
+        "731330843118e819f6b2be7bd4d74d77aefbac5f0ee3d9c30baca760ce2f5dbc",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ],
-      "source_sha256": "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf",
-      "text": "충전 응용 프로그램 전망이 전체 창을 커버하는 동안 그것을 유지합니다.",
+      "source_sha256": "eda8414d6d1aea0f8ea897c98d3fac2f111dad456436536e97b16c9040bfd6dc",
+      "text": "전체 창을 커버하는 충전 응용 프로그램 보기를 유지하고 메뉴 바의 오래된 밴드를 삭제합니다.\n\n모든 회복, 단지 상태 변화가 아닙니다. 한쪽 경계를 끌어 들이는 것은 창의 상태를 바꾸지 않고 각도 버튼을 움직이므로 `changeEvent`는 결코 불타지 않는다 - 그리고 표지판은 오래된 것보다 새로운 x에 붉어집니다.이것은 보고서의 \"sometimes\"입니다 : 그것은 중단되지 않습니다.",
       "translation_source_blocks_sha256": [
-        "31829ba1bece1029b6bda827031e8afc7931c0125638cdf7bae847d11cf24575"
+        "d67b1d0416f9eb8b4f400c3a6a12292544080d205bf39064e74bbf19f07cf16b",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ]
     },
     "spacr.qt.app.MainWindow.resume_after_restart": {
