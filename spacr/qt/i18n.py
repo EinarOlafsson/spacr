@@ -339,31 +339,31 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "skärmarna Annotering och Skapa masker samt QC-fältbläddraren",
         "die Bildschirme Annotieren und Masken erstellen sowie der "
         "QC-Feldbrowser",
-        "las pantallas Anotación y Crear máscaras y el explorador de campos "
-        "de CC",
-        "标注和创建掩膜屏幕以及质控视野浏览器",
-        "as telas Anotação e Criar máscaras e o navegador de campos de CQ",
+        "las pantallas Anotación y Crear máscaras y el Explorador de campos "
+        "de QC",
+        "标注和创建掩膜屏幕以及 QC 视野浏览器",
+        "as telas Anotação e Criar máscaras e o Navegador de campos de QC",
         "एनोटेशन और मास्क बनाएँ स्क्रीन तथा QC फ़ील्ड ब्राउज़र",
         "어노테이션 및 마스크 만들기 화면과 QC 필드 브라우저",
-        "skjáirnir Merking og Búa til grímur ásamt QC-reitaflettaranum",
-        "les écrans Annotation et Créer des masques ainsi que "
-        "l'explorateur de champs CQ"),
+        "skjáirnir Merking og Búa til grímur og QC-reitavafrinn",
+        "les écrans Annotation et Créer des masques et "
+        "l’Explorateur de champs QC"),
     "the QC field browser": _row(
         "QC-fältbläddraren", "der QC-Feldbrowser",
-        "el explorador de campos de CC", "质控视野浏览器",
-        "o navegador de campos de CQ", "QC फ़ील्ड ब्राउज़र",
-        "QC 필드 브라우저", "QC-reitaflettarinn",
-        "l'explorateur de champs CQ"),
+        "el Explorador de campos de QC", "QC 视野浏览器",
+        "o Navegador de campos de QC", "QC फ़ील्ड ब्राउज़र",
+        "QC 필드 브라우저", "QC-reitavafrinn",
+        "l’Explorateur de champs QC"),
     "Field browser": _row(
         "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
         "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
-        "Reitaflettari", "Explorateur de champs"),
+        "Reitavafri", "Explorateur de champs"),
     "Quarantine or restore this field": _row(
-        "Karantänsätt eller återställ detta fält",
-        "Dieses Feld in Quarantäne stellen oder wiederherstellen",
+        "Sätt detta fält i karantän eller återställ det",
+        "Dieses Feld unter Quarantäne stellen oder wiederherstellen",
         "Poner en cuarentena o restaurar este campo",
         "隔离或恢复此视野",
-        "Colocar em quarentena ou restaurar este campo",
+        "Colocar este campo em quarentena ou restaurá-lo",
         "इस फ़ील्ड को क्वारंटीन करें या पुनर्स्थापित करें",
         "이 필드를 격리하거나 복원",
         "Setja þennan reit í sóttkví eða endurheimta hann",
