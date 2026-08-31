@@ -1228,6 +1228,10 @@ def _resolve_well_detector(settings):
     return str(model_zoo.fetch(entry, dest))
 
 
+class ModelZooMissing(FileNotFoundError):
+    """A named model is not where it should be."""
+
+
 def _resolve_plaque_model(settings):
     """The Cellpose checkpoint the plaque analysis should segment with.
 
@@ -1262,11 +1266,29 @@ def _resolve_plaque_model(settings):
         return requested
 
     if requested == 'bundled':
-        download_models()
-        package_dir = os.path.dirname(os.path.join(os.path.dirname(__file__),
-                                                   '__init__.py'))
-        return os.path.join(package_dir, 'resources', 'models', 'cp',
-                            'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+        # NO 'cp' SUBFOLDER. This path carried one for as long as the plaque
+        # module has existed, and nothing lives there: `download_models`
+        # writes to `resources/models` and returns that, and no `cp` directory
+        # is created anywhere. So the DEFAULT plaque model resolved to a file
+        # that does not exist.
+        #
+        # It went unnoticed because the tests around it assert the suffix
+        # (`.endswith('.CP_model')`) rather than that the file is there -- a
+        # path is a string until something opens it, and the thing that opens
+        # it is Cellpose, several steps later.
+        local_dir = download_models()
+        package_dir = os.path.dirname(__file__)
+        for candidate in (
+                os.path.join(str(local_dir or ''),
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'),
+                os.path.join(package_dir, 'resources', 'models',
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')):
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        raise ModelZooMissing(
+            "the bundled plaque model is not on this machine. It ships inside "
+            "the package at spacr/resources/models/; if it is missing, choose "
+            "a model_zoo key such as 'toxoplasma_plaque_v1' instead.")
 
     from . import model_zoo
     entry = next((e for e in model_zoo.catalogue(remote=True)
