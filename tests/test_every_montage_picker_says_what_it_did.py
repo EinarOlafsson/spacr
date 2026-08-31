@@ -200,6 +200,45 @@ class TestEachModeAccountsForItself:
                 or "abstain" in caption
                 or "annotated none" in caption), caption
 
+    @pytest.mark.parametrize("picking", ("attributed", "assigned"))
+    def test_a_well_with_one_guide_says_attribution_could_not_run(self, picking):
+        """310 A9: the fallback nobody disclosed.
+
+        Attribution is a COMPARISON. A well holding a single guide gives it
+        nothing to compare against, so `len(here_fractions) > 1` is False and
+        control falls through to rank. Until this was fixed, `picked_by` was
+        still the bare string "rank" and no note was recorded -- while both
+        sibling pickers disclose their own fallback (multivariate above,
+        sudoku below). In a montage mixing single-guide and multi-guide wells,
+        two wells were therefore chosen by different rules and only one of
+        them said so.
+
+        The caption must still carry the rank arithmetic, because rank is what
+        genuinely chose these cells; naming the fallback must not cost the
+        explanation of the number.
+        """
+        from spacr.cell_montage import select_montage
+
+        rows = [{
+            "prc": "plate1_r1_c1", "plateID": "plate1",
+            "rowID": "r1", "columnID": "c1",
+            "grna": "GRA14_1", "gene": "GRA14", "fraction": 1.0,
+            "count": PER_WELL, "cell_count": PER_WELL,
+        }]
+        lone = pd.DataFrame(rows)
+
+        plan = select_montage(_objects(wells=("r1_c1",)), lone, "GRA14", 0.4,
+                              picking=picking, threshold=0.55,
+                              score_column="pred",
+                              effects={"GRA14_1": 0.4})
+        caption = str(plan.caption())
+        assert picking in caption, (
+            "the picker the user chose must be named even when it did not run")
+        assert "one guide" in caption, (
+            f"the reason it could not run must be stated: {caption}")
+        assert "round(" in caption, (
+            "rank chose these cells, so its arithmetic must still be shown")
+
     def test_multivariate_says_when_it_had_no_grid_to_read(self):
         """It falls back to the single-score attribution -- correctly, and
         the fallback is only honest because it is NAMED. It was unreachable
