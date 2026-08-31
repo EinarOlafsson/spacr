@@ -15,6 +15,7 @@ back afterwards.
 """
 from __future__ import annotations
 
+import pytest
 import importlib.util
 import os
 import sys
@@ -287,21 +288,31 @@ def test_a_fallback_band_that_no_table_carries_leaves_the_app_unplaced(
         common, monkeypatch):
     """A renamed band silently stops catching new apps, so it must be caught.
 
-    The fallback is named by string. Rename the band in the table and forget
-    the ``fallback=`` argument and the loop finds nothing to extend: the new
-    app is dropped, and the failure surfaces later as ``check_coverage``
-    refusing the table -- which is the message a maintainer needs to see, and
-    what this pins.
+    UPDATED for 310 A2, and the change is a disagreement worth stating. This
+    test used to pin the LATE failure -- the unrepaired table returned quietly,
+    then ``check_coverage`` refusing it -- and called that "the message a
+    maintainer needs to see". It is caught either way; what differs is where
+    and what it says. "keys not categorised: ['brand_new']" points at the app
+    and the registry, which are both correct; the mistake is a band title three
+    arguments away, and it takes all thirty Home renders down at import to say
+    so. The earlier raise names the actual cause at the only line that can see
+    both the title asked for and the titles that exist.
+
+    ``check_coverage`` keeps its own half below: it is still the net for a key
+    that is genuinely uncategorised rather than misdirected.
     """
     monkeypatch.setattr(common, "all_keys", lambda: ["mask", "brand_new"])
 
-    stale = common._with_late_registrations([("Prepare", ["mask"])],
-                                            fallback="Screens & reports")
-
-    assert stale == [("Prepare", ["mask"])], (
-        "no band answers to that title, so nothing can be extended")
     with pytest.raises(AssertionError) as excinfo:
-        common.check_coverage(stale)
+        common._with_late_registrations([("Prepare", ["mask"])],
+                                        fallback="Screens & reports")
+    assert "Screens & reports" in str(excinfo.value), "name the band asked for"
+    assert "Prepare" in str(excinfo.value), "and the ones that exist"
+    assert "brand_new" in str(excinfo.value), "and what could not be placed"
+
+    # The second net, unchanged: a table that simply omits a key still fails.
+    with pytest.raises(AssertionError) as excinfo:
+        common.check_coverage([("Prepare", ["mask"])])
     assert "brand_new" in str(excinfo.value)
     assert "not categorised" in str(excinfo.value)
 
@@ -383,3 +394,39 @@ def test_every_registered_app_has_a_use_count_and_sorts_by_it(common):
     assert order[0] == "mask", "the most-used app leads the frequency variants"
     counts = [common.USE_COUNTS[key] for key in order]
     assert counts == sorted(counts, reverse=True)
+
+
+def test_a_fallback_band_that_does_not_exist_is_reported_not_ignored():
+    """310 A2: the safety net must say when a rename has switched it off.
+
+    ``_with_late_registrations`` places every uncategorised app into the band
+    whose title equals ``fallback``. That match is an exact STRING, so a typo
+    or a renamed band silently turns the mechanism off -- and silence here
+    does not avoid the failure, it moves it. The unplaced keys go on to
+    ``check_coverage``, which raises "keys not categorised" at module import
+    of the variant generators and takes all thirty Home renders down, blaming
+    the registry for a mistake in the band title.
+
+    All four shipped tables currently name a title that exists, so this is
+    about the next rename rather than a live break.
+    """
+    from spacr.resources.home.versions._generators import common
+
+    with pytest.raises(AssertionError) as caught:
+        common._with_late_registrations(
+            [("Prepare", []), ("Analyse", [])], "Prepear")
+
+    message = str(caught.value)
+    assert "Prepear" in message, "the missing band must be named"
+    assert "Prepare" in message, "the bands that DO exist must be shown"
+
+
+def test_a_fallback_band_that_exists_still_absorbs_the_unplaced():
+    """The guard above must not break the mechanism it protects."""
+    from spacr.resources.home.versions._generators import common
+
+    result = common._with_late_registrations(
+        [("Prepare", []), ("Analyse", [])], "Prepare")
+    placed = {key for _title, keys in result for key in keys}
+    assert placed == set(common.all_keys()), (
+        "every registry key still has to land somewhere")

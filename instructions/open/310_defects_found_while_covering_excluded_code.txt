@@ -2342,3 +2342,61 @@ each test is the other, and it is not visible in the source. Any change to a
 filter on this path is an A/B measurement, not an argument.
 
 The ordering that is there now is deliberate. Leave it.
+
+
+==============================================================================
+APPENDIX A, RE-TRIAGED 2026-08-31: A THIRD OF THE FIRST BATCH IS ALREADY FIXED
+==============================================================================
+
+Appendix A is a 2026-08-30 snapshot and roughly 900 commits have landed since.
+Its own preamble says to treat each entry as a lead with an address rather than
+a finding; the addresses have ALSO drifted, so a line number in it locates
+nothing and several entries describe code that no longer exists.
+
+VERDICTS from the first pass. "FIXED ALREADY" means the current source carries
+the repair the entry asks for, checked by reading the code, not the line:
+
+  A1   CONFIRMED, FIXED HERE. See the dated entry above.
+  A2   CONFIRMED, FIXED HERE. Detail below -- it overrides a deliberate pin.
+  A3   FIXED ALREADY. Both sides of the comparison now normcase.
+  A6   FIXED ALREADY. `_controls` and `_effects` are initialised in __init__.
+  A8   FIXED ALREADY, and thoroughly: cell_montage now pre-flights the guides a
+       gene covers, with a comment naming the exact false verdict A8 reports.
+  A44  FIXED ALREADY. `_toggle_ai` logs at debug with exc_info.
+  A49  FIXED ALREADY. The handler is now REMOVED from every non-sink logger, so
+       one record is emitted once rather than 2-3x.
+  A51  Still open, and A52 IS THE SAME ADDRESS -- two entries, one site. Whoever
+       takes it should read them together; they are different claims about the
+       same two lines and only one of them is a defect.
+
+So of nine leads examined, five needed nothing. ANYONE CONTINUING THIS APPENDIX
+SHOULD RE-VERIFY BEFORE PLANNING, and should budget for the verification rather
+than for the fix: reading the current code took far less time than the fix
+would have, and five of nine fixes would have been written against code that
+had already moved.
+
+A2 IN DETAIL, BECAUSE IT OVERRIDES A DELIBERATE DECISION
+--------------------------------------------------------
+
+`_with_late_registrations` matches its fallback band by exact title. When no
+band answers, the loop ran to exhaustion and returned the table unrepaired,
+silently. `tests/test_cov_wf_resources_home_versions__generators_common.py`
+PINNED that, and reasoned about it: the failure still surfaces, as
+`check_coverage` refusing the table, "which is the message a maintainer needs
+to see".
+
+Both positions agree it fails loudly. They disagree about where. The late
+message is `keys not categorised: ['brand_new']`, which points at the app and
+the registry -- both of which are correct -- while the mistake is a band title
+three arguments away, and it arrives at module import of the variant
+generators and takes all thirty Home renders with it. The earlier raise names
+the title asked for, the titles that exist, and the keys that could not be
+placed, at the only line that can see all three.
+
+`check_coverage` keeps its own half: it is still the net for a key that is
+genuinely uncategorised rather than misdirected, and the test asserts both.
+All four shipped tables name a title that exists, so nothing live changes.
+
+Recorded at this length because reversing it should be cheap for whoever
+disagrees: the position being overridden was written down, which is the only
+reason it could be weighed at all.
