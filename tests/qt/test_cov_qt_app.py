@@ -61,6 +61,7 @@ from spacr.qt.app import (
     home_bands,
     make_home_page,
     section_members,
+    tiled_apps,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
 
@@ -802,7 +803,8 @@ def home_page(qapp, qt_theme_applied):
 
 
 def test_home_renders_one_tile_per_app_under_every_section_heading(home_page):
-    assert set(_tiles(home_page)) == {n for _k, n, *_r in APPS}
+    # TILED apps -- a folded module draws no tile by design.
+    assert set(_tiles(home_page)) == {n for _k, n, *_r in tiled_apps()}
     headings = {lbl.text() for lbl in home_page.findChildren(QLabel)}
     for section in SECTIONS:
         assert section.upper() in headings

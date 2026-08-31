@@ -47,14 +47,24 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "distinguishable without colour vision. Both take effect as you pick "
      "them, so you can see what you are choosing.",
      ("theme", "colour_blind")),
+    # FIVE LEVELS, NOT THREE. This text described the old three-value
+    # posture -- Extra Performance, Performance, Balanced -- and stayed
+    # behind when the screen was pointed at PERFORMANCE_LEVELS, so it
+    # explained a control the reader was not looking at.
+    #
+    # ORDERED AS THE CONTROL IS, least of the machine kept to most, so
+    # reading the sentence and reading the list agree.
     ("How it runs",
-     "The mode decides how much of this machine spaCR keeps for itself: how "
-     "many background processes it starts and holds, and whether it hands "
-     "back its caches and GPU memory between runs. Balanced keeps them, "
-     "which is fastest; the other two give them up so the rest of your "
-     "machine has more to work with. The reproducibility hash records what "
-     "went into a run, so a result can be traced back to the exact inputs "
-     "that produced it.",
+     "The level decides how much of this machine spaCR keeps for itself: "
+     "how many background processes it starts and holds, and whether it "
+     "hands back its caches and GPU memory between runs. Laptop keeps the "
+     "least — for 8 GB or less, or on battery. Extra Performance and "
+     "Performance give back progressively less. Balanced keeps its caches, "
+     "which is fastest for one run at a time. Workstation keeps the most, "
+     "for a machine with memory to spare. The science is identical at "
+     "every level; only scheduling, caching and how much decoration is "
+     "drawn change. The reproducibility hash records what went into a run, "
+     "so a result can be traced back to the exact inputs that produced it.",
      ("spacr_mode", "hash_inputs")),
     ("The assistant",
      "spaCR can explain an error or a result through a coding assistant you "
