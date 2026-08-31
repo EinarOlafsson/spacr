@@ -1243,10 +1243,17 @@ A3. spacr/resources/home/versions/_generators/common.py:63-68 (_prefer_checkout_
 A4. spacr/qt/screens/batch.py:841-855 (BatchScreen._load_log), constant at line 90
     WHAT: The log pane reads the HEAD of the log file, not the tail: `text = handle.read(_LOG_TAIL_BYTES)` opens the file and reads from byte 0 with no `seek(-_LOG_TAIL_BYTES, os.SEEK_END)`. The constant is named `_LOG_TAIL_BYTES` and the code immediately scrolls the pane to the bottom (`bar.setValue(bar.maximum())`), so both the name and the surrounding code state the intent is the tail.
     COST: For any job whose log exceeds 200 KB - routine for a cellpose mask run - the user is shown the first 200 KB and the pane scrolls to the bottom of that HEAD. The traceback or exit message that explains why the job failed is at the end of the file and is never displayed, and the pane also stops updating (the first 200 KB never change again) so a live job appears frozen. This is exactly the diagnosis path the Batch Runner exists to serve at 3 a.m.
+    VERDICT 2026-08-31: STALE -- already fixed. `_load_log` now seeks to
+    SEEK_END, measures the file and reads the last _LOG_TAIL_BYTES
+    (batch.py:849-853). It is the tail, as the constant always claimed. The
+    concurrent session was about to take this; it needs nothing.
 
 A5. spacr/qt/screens/batch.py:352-369 (BatchScreen.add_job), docstring line 357 vs code line 365
     WHAT: The docstring says `:param settings: settings file path; the settings box when empty`, but the body passes `settings=settings` straight through with no fallback to `self._settings_edit.text()`. Only `module` has the documented fallback (`module or self._module_combo.currentData()`).
     COST: A caller that relies on the documented contract - `screen.add_job(module='mask')` after the user has typed a path into the settings box, e.g. from a future keyboard shortcut or a drag-and-drop handler - builds a Job with an empty settings path. `Queue.add` then refuses it with a validation error about a missing settings file rather than queueing the file the user typed, and the user is told their visible input does not exist. Today only `_on_add_clicked` calls it, and that one passes the box text explicitly, so the mismatch is latent.
+    VERDICT 2026-08-31: NOT VERIFIED HERE -- screens/ belongs to the concurrent
+    session and the claim is latent (only _on_add_clicked calls add_job, and it
+    passes the box text explicitly). Left for that lane.
 
 A6. spacr/qt/widgets/annotation_umap_tab.py:142-184 (AnnotationUmapTab.__init__) vs. 363-383 (guide_table) and 274/329/382 (_score)
     WHAT: __init__ sets self._frame and self._embedding but never self._controls or self._effects; those two attributes are created only by set_frame(). guide_table() is a public, documented method that reads self._effects, so calling it on a freshly constructed tab raises AttributeError: 'AnnotationUmapTab' object has no attribute '_effects' (verified live). _score() has the same hole on self._controls, reachable for any caller that assigns _frame directly rather than through set_frame().
@@ -1257,6 +1264,12 @@ A6. spacr/qt/widgets/annotation_umap_tab.py:142-184 (AnnotationUmapTab.__init__)
 A7. spacr/qt/theme.py:1732 `_scrim_bounds(palette, role, colour_role, under)`
     WHAT: The `role` parameter is never read in the body: `base = _channels(palette[colour_role])` and `inks = ... _scrim_rules(colour_role)` use `colour_role` only. The two published solvers this function is documented to reproduce exactly (`legible_scrim_floor`, `present_scrim_ceiling`) use `palette[colour_role or role]` and `_scrim_rules(colour_role or role)`, i.e. they fall back to `role` when `colour_role` is None.
     COST: No live miscomputation today: the only caller (line 1807) draws `colour_role` from `SCRIM_ROLES`, whose values are all non-None strings. But the equivalence the docstring insists on ('it has to stay exactly them') is not actually replicated: a future caller passing `colour_role=None` -- the documented, supported argument for the public solvers -- would get `KeyError: None` out of the drift solver at import instead of the role's own bounds, and the dead parameter hides that from a reader comparing the three implementations.
+    VERDICT 2026-08-31: CONFIRMED and FIXED here. `role` was accepted and never
+    read -- only `colour_role`, twice -- so the function was not the published
+    solvers it says it has to stay exactly. Both now read `colour_role or
+    role`. Latent, not live: every SCRIM_ROLES value is a non-None string, so
+    no shipped caller reached the KeyError. Pinned in
+    tests/qt/test_spaceout_looks_alive.py.
 
 A8. spacr/cell_montage.py:1543-1557 (the attribution pre-flight inside select_montage)
     WHAT: `fractions_by_well` is guide-keyed (built by `_well_guide_fractions`), but `preflight` is called with `name`, which for a gene-level montage is a GENE. `guide_attribution.preflight` therefore never finds it and returns the verdict `"<GENE>: no well carries it."`, which is appended to `notes` and reaches the caption. Reproduced: a gene-level montage with picking='multivariate' over wells r1_c1 (GENE_1=0.4) and r1_c2 (GENE_2=0.5) draws 5 cells from those two wells while plan.notes == ('GENE: no well carries it.',). A guide-level montage on the same data gets a correct verdict, so only gene-level coefficients are affected.

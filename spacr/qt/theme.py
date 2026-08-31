@@ -1752,10 +1752,20 @@ def _scrim_bounds(palette: dict, role: str, colour_role: str,
     but 8-bit rounding makes it wobble by two or three thousandths, and a
     bisection lands on the wrong side of the wobble.
     """
-    base = _channels(palette[colour_role])
+    # `colour_role or role`, matching the two published solvers exactly --
+    # which this docstring insists on and, until 310 A7, did not do. Both
+    # `picture_contrast` and `present_scrim_ceiling` take `colour_role` as
+    # Optional and fall back to `role`; here `role` was accepted and never
+    # read, so a caller passing the documented `colour_role=None` got
+    # `KeyError: None` out of the drift solver at import rather than that
+    # role's own bounds. Not reachable today -- every SCRIM_ROLES value is a
+    # non-None string -- but the dead parameter also hid the divergence from
+    # anyone comparing the three implementations, which is the comparison the
+    # docstring asks them to make.
+    base = _channels(palette[colour_role or role])
     inks = tuple((_rgb_luminance(_channels(palette[fg])),
                   required * SCRIM_HEADROOM)
-                 for fg, required in _scrim_rules(colour_role))
+                 for fg, required in _scrim_rules(colour_role or role))
 
     def over(alpha: float, beneath: Tuple[int, int, int]) -> float:
         rest = 1.0 - alpha
