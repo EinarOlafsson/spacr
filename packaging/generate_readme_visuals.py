@@ -32,6 +32,7 @@ WORKFLOW_DIR = ICON_DIR / "workflow"
 APP_WORKFLOW_DIR = WORKFLOW_DIR / "apps"
 FONT_DIR = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
 DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
+DOC_FOLDS = ROOT / "docs" / "source" / "_generated" / "folded_modules.rst"
 DOC_WORKFLOW_DIR = ROOT / "docs" / "source" / "_static" / "workflow"
 README_PATHS = (
     ROOT / "README.rst",
@@ -487,6 +488,107 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
     return grouped
 
 
+#: The module whose Help menu opens `feature_dict`, which registers its
+#: own entry from `spacr/qt/widgets/feature_dictionary.py` rather than from
+#: app.py's central table. Named here so the reachability report is
+#: complete; without it the Feature Dictionary looks stranded when it is
+#: simply registered somewhere else.
+_HELP_FROM_ITS_OWN_WIDGET = ("feature_dict",)
+
+
+def _fold_hosts() -> "dict[str, str]":
+    """``{folded key: host key}`` for every module opened from a masthead.
+
+    Walked from the same table the application walks --
+    `map_barcodes.FOLD_HOST_MODULES` plus each host module's
+    `FOLDED_APPS` -- so the documentation cannot claim a fold the GUI does
+    not install, or miss one it does.
+    """
+    from importlib import import_module
+
+    from spacr.qt.screens.map_barcodes import FOLD_HOST_MODULES
+
+    hosts = {}
+    for host_key, module_name in FOLD_HOST_MODULES.items():
+        module = import_module(f"spacr.qt.screens.{module_name}")
+        for key in getattr(module, "FOLDED_APPS", ()):
+            hosts[key] = host_key
+    return hosts
+
+
+def _documentation_folds() -> str:
+    """The API page's "reached from" reference.
+
+    EVERY MODULE KEEPS ITS API PAGE, including the folded ones: a folded
+    module still has a screen, a settings model and a headless entry
+    point, and its page is what a scripting user reads. What changes is
+    how it is DESCRIBED -- a button on its host, not a place to start.
+
+    The workflow grid above it draws only the twenty-one tiled modules, so
+    without this table a reader could not reach the other twenty-three
+    from the API index at all.
+    """
+    from spacr.qt.app import APPS, _HELP_MODULES
+
+    names = {key: label for key, label, _desc, _section in APPS}
+    urls = _api_urls()
+    hosts = _fold_hosts()
+    help_keys = {key for key, *_rest in _HELP_MODULES}
+
+    # THE SAME RESOLVER THE BUTTONS USE. `fold_description` reads the
+    # registry first and the declared catalogue second, so a module with
+    # no registry row still gets its real name -- title-casing the key
+    # gives "Explain Cv" and "Pca", which are not what anything calls
+    # them.
+    from spacr.qt.screens.map_barcodes import fold_description
+
+    def _link(key: str) -> str:
+        label = names.get(key) or fold_description(key)[0]
+        if not label:
+            label = key.replace("_", " ").title()
+        target = urls.get(key)
+        return f"`{label} <{target}>`_" if target else label
+
+    lines = [
+        "Modules reached from another screen",
+        "-----------------------------------",
+        "",
+        "These do not have a tile on the home screen. Each one answers a",
+        "question about a run its host produced rather than starting a run",
+        "of its own, so it opens as a page beside that host's settings,",
+        "already pointed at the same project.",
+        "",
+        "They are not second-class: each is shipped, translated and",
+        "documented like any other module, and the ones that are pipelines",
+        "still run headlessly under ``spacr-run``. Every module below can",
+        "also be reached from the command palette, which is the only route",
+        "that covers all of them.",
+        "",
+        "Opened from a host's masthead",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "",
+    ]
+    by_host: "dict[str, list[str]]" = {}
+    for key, host in sorted(hosts.items()):
+        by_host.setdefault(host, []).append(key)
+    for host in sorted(by_host, key=lambda h: names.get(h, h)):
+        opened = ", ".join(_link(k) for k in sorted(by_host[host]))
+        lines.append(f"* **{names.get(host, host)}** opens {opened}")
+    lines.extend([
+        "",
+        "Opened from the Help menu",
+        "~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "",
+        "These inspect or administer work that already exists, rather than",
+        "belonging behind any one module.",
+        "",
+    ])
+    for key in sorted(help_keys | set(_HELP_FROM_ITS_OWN_WIDGET)):
+        lines.append(f"* {_link(key)}")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _app_column(key: str) -> int:
     """Return the zero-based column occupied by an application tile."""
     for items in _grouped_apps().values():
@@ -770,6 +872,9 @@ def main() -> int:
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW.write_text(_documentation_workflow(), encoding="utf-8")
+    print(DOC_WORKFLOW.relative_to(ROOT))
+    DOC_FOLDS.write_text(_documentation_folds(), encoding="utf-8")
+    print(DOC_FOLDS.relative_to(ROOT))
     print(DOC_WORKFLOW.relative_to(ROOT))
     return 0
 
