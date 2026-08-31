@@ -443,6 +443,20 @@ def _with_late_registrations(
             if title == fallback:
                 keys.extend(missing)
                 break
+        else:
+            # THE SAFETY NET HAS TO SAY WHEN IT IS NOT THERE. The fallback is
+            # matched by exact title, so a rename or a typo in the caller's
+            # table turns this whole mechanism off. Silently returning the
+            # unrepaired table does not avoid the failure, it MOVES it: the
+            # uncategorised keys then hit `check_coverage`, which raises
+            # "keys not categorised: [...]" at module import of the variant
+            # generators and takes all thirty Home renders down -- blaming the
+            # registry for a mistake in the band title. Raising here names the
+            # actual cause, at the line that can see it.
+            raise AssertionError(
+                f"the fallback band {fallback!r} is not one of "
+                f"{[title for title, _ in result]!r}, so {len(missing)} "
+                f"uncategorised app(s) could not be placed: {sorted(missing)}")
     return result
 
 
