@@ -52,19 +52,22 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     # behind when the screen was pointed at PERFORMANCE_LEVELS, so it
     # explained a control the reader was not looking at.
     #
+    # SHORT ON PURPOSE, AND THIS IS THE CEILING. The first version of this
+    # ran to 667 characters and named all five levels with a clause each.
+    # Nobody reads a 667-character caption in any language, and every one
+    # of these strings is translated into nine -- so length here is a cost
+    # paid nine times over, in text no reviewer can check against the
+    # English at a glance. The five levels are listed in the control right
+    # beside this sentence; the caption says what the control DOES and what
+    # it does not affect, which is the part the list cannot say.
+    #
     # ORDERED AS THE CONTROL IS, least of the machine kept to most, so
     # reading the sentence and reading the list agree.
     ("How it runs",
-     "The level decides how much of this machine spaCR keeps for itself: "
-     "how many background processes it starts and holds, and whether it "
-     "hands back its caches and GPU memory between runs. Laptop keeps the "
-     "least — for 8 GB or less, or on battery. Extra Performance and "
-     "Performance give back progressively less. Balanced keeps its caches, "
-     "which is fastest for one run at a time. Workstation keeps the most, "
-     "for a machine with memory to spare. The science is identical at "
-     "every level; only scheduling, caching and how much decoration is "
-     "drawn change. The reproducibility hash records what went into a run, "
-     "so a result can be traced back to the exact inputs that produced it.",
+     "How much of this machine spaCR keeps between runs: processes, "
+     "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
+     "battery; Workstation the most. The science is identical at every "
+     "level, and the reproducibility hash records what each run used.",
      ("spacr_mode", "hash_inputs")),
     ("The assistant",
      "spaCR can explain an error or a result through a coding assistant you "

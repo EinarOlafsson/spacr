@@ -72,3 +72,85 @@ HOW TO KNOW IT WORKED
     strings and signed the evidence file for it;
   * the five named defects are gone;
   * the README's claim matches what was actually done.
+
+
+================================================================================
+ADDENDUM 2026-08-31 — CAPTIONS AWAITING THE MAINTAINER'S TRANSLATION PASS
+================================================================================
+
+Einar will do ONE translation pass, last, covering both the five defects
+above and the strings listed here. Nothing below is machine-drafted, on
+purpose: this file's own finding is that a machine-drafted translation
+passes every gate this repository has while being wrong, and adding more
+of them to clear a ratchet would be adding to the problem the file exists
+to record.
+
+CONSEQUENCE, STATED PLAINLY: `tests/qt/test_i18n_caption_ratchet.py` is
+RED until that pass lands, and it is red ON PURPOSE. It is not rot and it
+is not a broken gate. Do not "fix" it by pinning the new counts or by
+filling the rows with the English text -- either would make the suite
+green while leaving the UI untranslated, which is worse than the failure,
+because the failure is the only thing still asking for the work.
+
+ALREADY DONE, so the pass does not need to revisit them:
+
+    "Import"   the module (Format Converter and External Masks fold in)
+    "Tools"    the Home band
+
+Both are single words with a settled equivalent in all nine languages.
+They are in `spacr/qt/i18n.py::_ROWS`.
+
+NEEDS NINE TRANSLATIONS EACH -- exact English source, verbatim:
+
+1. Home's grouping caption, `spacr/qt/widgets/home.py`:
+
+   "Primary modules are grouped here into Core, Data, Tools and Assays;
+   related workflows are reached from their host module. Click any name to
+   open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar
+   order."
+
+   WATCH: "Core", "Data", "Tools" and "Assays" are the four band names and
+   MUST match whatever `_ROWS` gives those four words, or the caption will
+   name bands the screen does not show. "Ctrl+1" and "Ctrl+9" are key
+   names and stay as they are.
+
+2. The performance-level caption, `spacr/qt/widgets/setup_slides.py`:
+
+   "How much of this machine spaCR keeps between runs: processes, caches
+   and GPU memory. Laptop keeps the least — for 8 GB or on battery;
+   Workstation the most. The science is identical at every level, and the
+   reproducibility hash records what each run used."
+
+   WATCH: "Laptop" and "Workstation" are LEVEL NAMES shown in the control
+   beside this text, not descriptions -- they must match their `_ROWS`
+   entries, and both are declared deliberately untranslated in German.
+   "The science is identical at every level" is the load-bearing clause:
+   it is what tells a user the setting cannot change their results, and a
+   translation that softens it into "similar" or "comparable" is a
+   correctness bug, not a style one.
+
+   This one was 667 CHARACTERS until 2026-08-31 and named all five levels
+   with a clause each. It was cut to 253 before being offered for
+   translation, because nobody reads a 667-character caption in any
+   language and the length would have been paid nine times over in text
+   no reviewer could check at a glance. If a caption here ever grows past
+   roughly 250 characters again, shorten it before translating it.
+
+ALSO NEEDED, in `spacr/qt/i18n_catalogs/en.py::UI_SOURCES` (English
+manifest only -- these are not `_ROWS` rows):
+
+    "Delete every journalled run on this machine. The runs' own output
+    folders inside your projects are not touched."
+
+    "The journal folders are removed permanently. Outputs written into
+    your projects are not touched."
+
+Both are from Run History's delete affordance. Both make a promise about
+what is NOT deleted, so a translation that loses the distinction between
+the run journal and the user's own project outputs is the dangerous kind
+of wrong -- it would read as "this deletes your results".
+
+RATCHET COUNTS after the pass: SETTING_LABELS 1018 -> 1024, UI 2695 ->
+2698. Re-pin against a capture taken AFTER the translations land and
+verified green before pinning, not before -- pinning a digest nobody has
+seen pass is how a ratchet becomes decoration.
