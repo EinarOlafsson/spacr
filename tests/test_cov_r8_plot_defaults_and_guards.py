@@ -180,6 +180,40 @@ class TestTheDefaultsThatNoCallerCanReach:
                 "'nucleus', 'pathogen', 'cytoplasm'])") in source, (
             "the annotation join is no longer given an explicit table list")
 
+    def test_the_annotation_join_receives_all_four_object_tables(
+            self, monkeypatch):
+        """Exercise the call boundary as well as pinning its source shape."""
+        import spacr.io as io
+
+        captured = {}
+        measurements = pd.DataFrame({
+            "prcfo": ["p1_r1_c1_f1_o1", "p1_r1_c2_f1_o1"],
+            "annotation": ["control", "treated"],
+            "value": [1.0, 2.0],
+            "plateID": ["p1", "p1"],
+            "rowID": ["r1", "r1"],
+            "columnID": ["c1", "c2"],
+        })
+
+        def fake_read_and_merge_data(_locations, tables, **_kwargs):
+            captured["tables"] = list(tables)
+            return measurements.copy(), None
+
+        def fake_read_db(_location, tables):
+            assert tables == ["png_list"]
+            return [measurements[["prcfo"]].copy()]
+
+        monkeypatch.setattr(io, "_read_and_merge_data",
+                            fake_read_and_merge_data)
+        monkeypatch.setattr(io, "_read_db", fake_read_db)
+
+        balanced = P.jitterplot_by_annotation(
+            "/experiment", "annotation", "value")
+
+        assert captured["tables"] == [
+            "cell", "nucleus", "pathogen", "cytoplasm"]
+        assert set(balanced["annotation"]) == {"control", "treated"}
+
     def test_the_contour_helper_only_ever_sees_a_2d_image(self):
         """`original_image` is `stack` or `stack[..., 0]` -- both 2D.
 
