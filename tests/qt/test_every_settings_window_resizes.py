@@ -1071,12 +1071,26 @@ class TestEverySettingsWindow:
 
     def test_it_opens_at_the_size_it_always_did(self, resizer, qtbot, name,
                                                build):
-        """The same dialog, opened with the filter off and then on."""
+        """The same dialog, opened with the filter off and then on.
+
+        A THROWAWAY IS OPENED FIRST, and it is not ceremony. The two
+        measurements are of two different instances, so anything that
+        differs between a dialog's first construction in a process and
+        its second lands on the filter's account: Qt caches font metrics
+        and style sheets per widget class on first use, and two of these
+        dialogs came out 1 px and 8 px shorter on their second build
+        with the filter making no difference at all. Warming the cache
+        before either measurement leaves only the filter between them.
+        """
         from PySide6.QtWidgets import QApplication
 
         from spacr.qt import dialogs
 
         app = QApplication.instance()
+        warmup = _open(qtbot, build())
+        warmup.close()
+        QApplication.processEvents()
+
         app.removeEventFilter(dialogs._DETACHER)
         without = _size(_open(qtbot, build()))
         app.installEventFilter(dialogs._DETACHER)
