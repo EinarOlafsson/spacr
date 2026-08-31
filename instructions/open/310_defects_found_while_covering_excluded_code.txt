@@ -1534,10 +1534,17 @@ A41. spacr/qt/comparison_grid.py:429-438 (_refresh_status), reached from add_pan
 A42. coverage harness — /mnt/firecuda2/codex/repo/spacr/.coverage (shared by every parallel wf subagent)
     WHAT: pytest-cov defaults its data file to <rootdir>/.coverage. Several of these coverage subagents run pytest in the same repo directory at the same time, so they clobber one another's SQLite data file mid-run. My first run produced a JSON claiming spacr/train_compare.py was 14% covered with `from __future__ import annotations` (line 105) unexecuted, and check_arcs.py printed MISSING for all six targets; the report step also emitted dozens of `Couldn't use data file '.../.coverage': no such table: arc` warnings. Re-running the identical command with COVERAGE_FILE pointed at a private scratch path gave 64% and REACHED for all six.
     COST: Any subagent that trusts its first arc check will report arcs as MISSING that are in fact REACHED, then write redundant tests to 'close' them — or, in the opposite direction, a clobbered file could mark an arc REACHED that is not. Every wf coverage run in this batch should set COVERAGE_FILE to a per-agent path.
+    VERDICT 2026-08-31: STALE -- already fixed. `.coveragerc` sets
+    `parallel = True`, which suffixes each process's data file, so concurrent
+    runs in one rootdir cannot clobber one another.
 
 A43. /mnt/firecuda2/codex/repo/spacr/spacr/zstack.py:3046-3059 (plan_4d_from_settings, the block commented "Fail here rather than after the model has been loaded and the first timepoint read")
     WHAT: The plan-time validation never checks that a micrometre gate has a voxel size. `plan_4d_from_settings({'t_stack': True, 't_axis_order': 'TYX', 't_track_backend': 'centroid', 't_max_displacement_um': 5})` returns a spec with max_displacement_um=5 and voxel_size_um=None without complaint; the refusal only fires later inside _displacement_scale (line 2380) when track_4d runs. The neighbouring checks in the same block (missing gate -> UnknownDisplacementError, volumetric mode without anisotropy -> UnknownAnisotropyError) are exactly the checks this one is missing.
     COST: A run configured in micrometres but missing voxel_size_z_um / voxel_size_xy_um passes settings validation, loads the model and segments every timepoint, then dies with TStackError at the linking step -- the precise late failure the plan-time block exists to prevent. On a long movie that is hours of GPU time thrown away for a settings error that was knowable before the first file was read. Reported, not fixed (spacr/ is off-limits for this task); no test was added for it because pinning either the current acceptance or a future refusal would enshrine one side of the defect.
+    VERDICT 2026-08-31: STALE -- already fixed, exactly as asked. The plan-time
+    block now carries `if spec.max_displacement_um is not None and
+    spec.voxel_size_um is None: raise TStackError(...)` naming both settings
+    and the pixel alternative (zstack.py:3057-3063).
 
 A44. spacr/qt/shortcuts.py:429-430, _toggle_ai
     WHAT: The handler ends in a bare `except Exception: pass` with no logging, unlike every neighbouring optional-path handler in the same module (_open_palette, _open_preferences, _consoles all do LOG.debug(...) / exc_info=True).
@@ -1548,18 +1555,42 @@ A44. spacr/qt/shortcuts.py:429-430, _toggle_ai
 A45. spacr/qt/widgets/umap_figure_settings.py:245-250 (redraw_umap_figure)
     WHAT: The label guard is incomplete. `labels = payload.get("plot_labels")`, falling back to `payload.get("labels")`, is passed straight to `np.asarray(labels)`; when neither key is present that yields a 0-d object array and the very next line, `if len(labels) != len(embedding)`, raises `TypeError: len() of unsized object`. Every other malformed-payload case in the same function (fig is None, payload not a dict, embedding not 2-d or empty, label count mismatch) returns False instead. Confirmed by direct call: `redraw_umap_figure(Figure(), {"embedding": emb}, {})` raises TypeError.
     COST: A redraw-tier edit (image count, figure size, draw-images, ...) on a figure whose stashed `_spacr_umap_payload` carries an embedding but no labels crashes instead of quietly declining. Both callers -- `figure_settings.FigureSettings._on_umap_changed` (spacr/qt/widgets/figure_settings.py:268-273) and `figure_queue._on_umap_changed` (spacr/qt/widgets/figure_queue.py:2502-2505) -- call `apply_to_figure` with no try/except, and `apply_to_figure` line 320 does not guard either, so the TypeError escapes a Qt slot: the user moving a spin box in the Image UMAP settings window gets an unhandled exception rather than a figure that simply does not redraw. Not fixed, per instructions.
+    VERDICT 2026-08-31: STALE -- already fixed. `if labels is None: return False`
+    precedes the np.asarray (umap_figure_settings.py:246-250).
 
 A46. spacr/qt/widgets/column_picker.py:412 find_existing (with validate_column_name at :377 and the allow_new=False branch at :930-937)
     WHAT: find_existing strips/lowercases the TYPED name but compares it against the stored column names unstripped (`str(col).lower() == target`). A column whose stored name carries a leading or trailing space -- exactly what pandas.to_sql writes from a CSV header that read ' area' -- is listed in the column tree but never matches. With allow_new=False the dialog then prints "'area' is not a column of imported" directly under a tree that lists ' area'; with allow_new=True validate_column_name refuses it for the leading space instead.
     COST: A column the picker itself is displaying can never be picked, in either mode, and the sentence the dialog shows contradicts the list right above it. The user's only route is to type the name with the space by hand, which the verdict also refuses.
+    VERDICT 2026-08-31: STALE -- already fixed. Two passes: exact
+    `str(col).lower() == raw.lower()`, then `str(col).strip().lower() ==
+    target` (column_picker.py:416-421), so a stored name carrying whitespace
+    is matched rather than duplicated.
 
 A47. spacr/qt/widgets/column_picker.py:1495-1498 attach_column_picker (host layout = spacr.qt.widgets.flow.FlowLayout)
     WHAT: attach_column_picker swaps the field for a wrapper with `host.replaceWidget(field, wrapper)`. FlowLayout is a Python QLayout subclass with no replaceAt, so QLayout::replaceWidget finds the widget, fails at QLayoutPrivate::replaceAt and returns None having replaced nothing -- while the following `row.addWidget(field, 1)` still re-parents the field into the wrapper, and QLayout::addChildWidget removes it from the flow. Measured: flow.count() goes 1 -> 0, flow.indexOf(field) and flow.indexOf(wrapper) are both -1.
     COST: Attaching an SQL picker to a column field that sits in one of spaCR's wrapping rows empties that row: the field and its new button become unmanaged children of the host with no geometry from any layout, so the control the user was typing into is mispositioned or invisible. No exception is raised, so nothing reports it. (Today's call sites all pass box/form layouts, so this is latent rather than live.)
+    VERDICT 2026-08-31: STALE -- already fixed. `_replace_layout_widget` detects
+    the failed replaceWidget and rebuilds the suffix around the occupied slot,
+    with a comment naming the protected-replaceAt cause (column_picker.py:1442+).
 
 A48. spacr/qt/widgets/external_mask_inputs.py:186-187 (_rebuild) together with spacr/external_masks.py InputGroup.from_value
     WHAT: A saved answer restored through set_value() may carry an object_type that is not in OBJECT_TYPES (InputGroup.from_value accepts any truthy string). _rebuild then does object_box.findData(group.object_type) -> -1 and setCurrentIndex(max(-1, 0)) -> 0, so the editable box displays 'Choose...' with data None, while the read-only 'Detected as' cell displays 'mask - mitochondrion' and get_value() still returns object_type='mitochondrion'. The widget's own guard set_group_object_type() refuses exactly that value, so the table accepts through restore what it refuses through the UI.
     COST: A user reopening a saved External Masks project sees an object-type dropdown that reads 'Choose...' (i.e. nothing assigned) and a row that claims a plane it cannot show. Changing nothing and pressing run hands the invalid object_type downstream, where it either raises later or writes masks/<bogus>_mask_stack that Measure will not read. Verified live: set_value([{...,'object_type':'mitochondrion'}]) gives currentText()='Choose...', currentData()=None, item(0,1).text()='mask - mitochondrion', get_value()[0]['object_type']='mitochondrion'.
+    VERDICT 2026-08-31: STALE, and it took a mutation check to see it. The
+    described state is unreachable: `InputGroup.from_value` normalises an
+    unrecognised object_type to None BEFORE the widget sees it, so the group
+    and the "Choose…" box agree by construction and get_value() returns None.
+
+    Recorded at length because the near-miss is the useful part. A guard was
+    added in `_rebuild` for exactly the reported case, and two tests written
+    for it PASSED IDENTICALLY WITH THE GUARD REVERTED -- they asserted a
+    property that was already true, which is the vacuous-test shape 288's
+    arc-check rule exists to catch. Both the guard (dead code by this
+    package's own convention) and the tests were withdrawn; the tests were
+    rewritten to pin `from_value`, which is where the normalisation lives.
+
+    THE METHOD POINT: verifying a lead by writing a test that passes is not
+    verification. The test has to be shown to fail without the change.
 
 A49. spacr/qt/verbose_logger.py:73-75 (_ATTACHED_LOGGERS) used by _ensure_file_handler (212-215) and _ensure_handler (330-333)
     WHAT: The same handler object is attached to a logger AND to its descendants ('spacr', 'spacr.qt', 'spacr.qt.hf_download', 'spacr.qt.plate_queue', ...). logging.callHandlers walks the whole ancestor chain and does not de-duplicate handlers, so one record is emitted through the same handler once per attached ancestor. Measured on this checkout: a single logging.getLogger('spacr.qt.hf_download').warning('DOWNLOAD FAILED') produced 3 identical lines in ~/.spacr/logs/spacr-YYYYMMDD.log and 3 identical deliveries to the registered ConsolePanel; a record on 'spacr.qt' produced 2 of each. Only records logged on 'spacr' itself appear once.
@@ -1571,6 +1602,9 @@ A49. spacr/qt/verbose_logger.py:73-75 (_ATTACHED_LOGGERS) used by _ensure_file_h
 A50. spacr/layers.py, LabelsLayer.data setter (~lines 1970-1983), consumed by spacr/qt/ortho_view.py:507-518
     WHAT: The constructor refuses a non-integer array ("a labels layer needs integer labels"), but the data setter validates only shape, so `mask.data = float_array` is accepted. `LabelsLayer.labels()` then returns the raw float values (e.g. 17.5) while every consumer compares with `int(label)`: `OrthoView.on_linked_selection_changed` matches `field.object_key(int(17.5)) == 'plate1_A_1_1_17'`, sets `selected_label = 17`, and then `np.argwhere(data == 17)` finds nothing. `LabelsLayer.label_at_world` truncates the same way.
     COST: A labels layer that passes through the setter is silently self-inconsistent: it reports labels that its own array does not contain. Here the `if len(where):` guard absorbs it (the crosshair just does not move, so a linked selection from the UMAP silently does nothing); without that guard `where.mean(axis=0)` would be nan and `_snap`'s `int(round(nan))` would raise ValueError out of the selection-bus signal handler. The setter should apply the constructor's dtype check.
+    VERDICT 2026-08-31: STALE -- already fixed. The integer-dtype refusal appears
+    twice in layers.py (2148 and 2173), i.e. in the setter as well as the
+    constructor.
 
 A51. spacr/guide_attribution.py:283-284, in attributable()
     WHAT: `rest = [(float(e), float(w)) for e, w in (others or ()) if float(w) > 0.0]` converts each weight TWICE -- once in the `if` and again in the stored tuple. A weight object whose conversion is not pure (a lazily fetched count, a mutable proxy, a value re-read from a stream) can therefore pass the positivity filter and be stored as a non-positive number. This is the ONLY way the guard on line 286 (`if total <= 0: return False, 0.0`) can fire, which is why that arc was uncovered.

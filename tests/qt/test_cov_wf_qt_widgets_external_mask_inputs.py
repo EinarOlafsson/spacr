@@ -480,3 +480,43 @@ def test_an_object_type_arriving_for_a_row_past_the_end_changes_nothing(
     assert widget.groups()[0].object_type == "nucleus"
     assert announced == [1]
     assert "nucleus" in OBJECT_TYPES
+
+
+def test_an_unknown_object_type_is_normalised_before_it_reaches_the_widget(qapp):
+    """310 A48, and the entry is STALE -- pinned so it stays that way.
+
+    A48 reports that a saved project carrying an ``object_type`` outside
+    ``OBJECT_TYPES`` survives restore: ``_rebuild`` resolves it with
+    ``findData`` -> -1 and ``setCurrentIndex(max(-1, 0))``, landing on
+    "Choose…" whose data is None, while the group keeps the original string --
+    so the row reads "Choose…" and ``get_value()`` still returns
+    ``'mitochondrion'``.
+
+    That cannot happen: ``InputGroup.from_value`` already normalises an
+    unrecognised type to ``None`` before the widget ever sees it, so the two
+    agree by construction. Adding a guard in ``_rebuild`` would have been dead
+    code -- which is what this test was written to prove, and did, by passing
+    identically with and without it.
+
+    Pinned at ``from_value``, which is where the normalisation actually lives.
+    """
+    from spacr.external_masks import InputGroup
+
+    group = InputGroup.from_value({
+        "paths": ["/tmp/a_mask.tif"], "role": "mask",
+        "object_type": "mitochondrion",     # not in OBJECT_TYPES
+    })
+    assert group.object_type is None, (
+        "an unrecognised object_type must not reach the widget, because the "
+        "combo cannot display it and the row would then disagree with itself")
+
+
+def test_a_recognised_object_type_survives_the_same_path(qapp):
+    """The normalisation must not throw away a legitimate saved answer."""
+    from spacr.external_masks import OBJECT_TYPES, InputGroup
+
+    good = OBJECT_TYPES[0]
+    group = InputGroup.from_value({
+        "paths": ["/tmp/a_mask.tif"], "role": "mask", "object_type": good,
+    })
+    assert group.object_type == good
