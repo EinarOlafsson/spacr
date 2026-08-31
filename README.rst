@@ -26,7 +26,7 @@
    :alt: GitHub issues
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial license
+   :alt: BSD 3-Clause license
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -627,12 +627,20 @@ performance problems.
 Licensing
 ~~~~~~~~~
 
-The current development branch is source-available under the
-`PolyForm Noncommercial License 1.0.0
-<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial use
-requires a separate license from the copyright holder. Released versions
-through spaCR 1.4.9.9 remain available under the MIT License that accompanied
-those releases.
+spaCR is open source under the `BSD 3-Clause License
+<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ — the same
+licence as CellProfiler, napari, Cellpose, scikit-image and the rest of the
+scientific Python stack. Use it for anything, including commercially; keep
+the copyright notice and the disclaimer with any copy you distribute, and do
+not use the authors' names to endorse a derived product without asking.
+
+Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm Noncommercial
+License 1.0.0, and versions through 1.4.9.9 carried the MIT License. Those
+releases remain available under the licence that accompanied them; this one
+and everything after it are BSD 3-Clause.
+
+If spaCR contributed to published work, a citation is appreciated and is not
+a condition of the licence — see `Citing spaCR`_ below.
 
 Tutorials
 ~~~~~~~~~

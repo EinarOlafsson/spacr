@@ -19,14 +19,33 @@ from typing import Dict, Tuple
 #: 2.0 is the first version that states how the developers may use what a
 #: profile sends them, so a profile that accepted 1.0 accepted a document
 #: that did not say it and is asked again.
-TERMS_VERSION = "3.0"
+#:
+#: 4.0 is the version that RELICENSES spaCR from PolyForm Noncommercial to
+#: BSD 3-Clause. That is a widening -- everything a profile could do under
+#: 3.0 it may still do -- but it is not a wording change: the licence a
+#: profile accepted is a different licence, the noncommercial restriction
+#: is gone, and the warranty and liability terms are now the licence's own
+#: rather than this document's. A profile that accepted 3.0 is asked again.
+TERMS_VERSION = "4.0"
 
 #: What the licence is called, and where the whole of it can be read.
-LICENSE_NAME = "PolyForm Noncommercial License 1.0.0"
-LICENSE_URL = "https://polyformproject.org/licenses/noncommercial/1.0.0"
+#:
+#: BSD 3-CLAUSE, the licence CellProfiler, napari, Cellpose, scikit-image,
+#: numpy and scipy all use. spaCR is a methods tool for the scientific
+#: community, and every one of its own dependencies is permissive -- a
+#: noncommercial layer on top of a BSD stack made spaCR the one component a
+#: core facility, a company reproducing a published analysis, or a distro
+#: packager could not use.
+LICENSE_NAME = "BSD 3-Clause License"
+LICENSE_URL = "https://opensource.org/licenses/BSD-3-Clause"
 
 #: The notice the licence itself requires be carried with the software.
-REQUIRED_NOTICE = "Copyright 2025-2026 Einar Birnir Olafsson."
+#:
+#: BSD's first two clauses require this notice, the conditions and the
+#: disclaimer to travel with every copy, in source and in binary. It is
+#: the whole of what a redistributor owes.
+REQUIRED_NOTICE = ("Copyright (c) 2025-2026, Einar Birnir Olafsson and the "
+                   "spaCR contributors. All rights reserved.")
 
 #: The agreement, in the words it is accepted in.
 #:
@@ -40,10 +59,16 @@ REQUIRED_NOTICE = "Copyright 2025-2026 Einar Birnir Olafsson."
 #: data, warranty and liability in the capitals those two sections are
 #: always set in, then term, changes and general provisions.
 #:
-#: Section 2 summarises the PolyForm Noncommercial License 1.0.0 and says
-#: so: the licence itself governs, and its own section names -- Acceptance,
-#: Copyright License, Noncommercial Purposes, Violations, No Liability --
-#: are what Sections 2, 3 and 8 are written against.
+#: Section 2 summarises the BSD 3-Clause License and says so: the licence
+#: itself governs, and its three numbered conditions are what Section 3 is
+#: written against.
+#:
+#: THE LICENCE IS PERMISSIVE AND THE AGREEMENT IS STILL LONG, which looks
+#: like a contradiction and is not. What survives relicensing is everything
+#: BSD does NOT speak to: what leaves the machine, what may be done with a
+#: bug report or an uploaded model, what there is no promise about, and how
+#: to say no. Those were always the clauses worth reading, and they are
+#: unchanged.
 #:
 #: LONG ENOUGH TO BE TERMS. A four-sentence summary is a thing a reader
 #: takes in without noticing they agreed to anything, and the clauses that
@@ -83,32 +108,33 @@ TERMS: Tuple[str, ...] = (
     "material.",
 
     "2. LICENCE GRANT",
-    "2.1 The Software is licensed, not sold. Subject to Your compliance "
-    "with this Agreement, the Licensor grants You a worldwide, "
-    "royalty-free, non-exclusive licence to use, copy, modify and "
-    "distribute the Software for any Noncommercial Purpose.",
-    "2.2 This licence is granted under the terms of the PolyForm "
-    "Noncommercial License 1.0.0, the full text of which is linked below "
-    "and which governs in the event of any conflict with this summary.",
-    "2.3 \u201cNoncommercial Purpose\u201d means any purpose other than "
-    "commercial advantage or monetary compensation. Use by a university, a "
-    "public research organisation, a charity, a hospital, a health or "
-    "environmental body, or a government institution is a Noncommercial "
-    "Purpose regardless of the source of its funding, including funding "
-    "received from a commercial entity.",
-    "2.4 Selling the Software, selling a service built upon it, or using it "
-    "in the internal business operations of a commercial entity requires a "
-    "separate licence from the Licensor.",
+    "2.1 The Software is open source. It is made available under the BSD "
+    "3-Clause License, the full text of which ships with the Software as "
+    "the file LICENSE and is linked below. That licence governs Your use "
+    "of the Software and prevails over anything in this Agreement that "
+    "conflicts with it.",
+    "2.2 You may use, copy, modify, merge, publish, distribute, "
+    "sublicense and sell the Software and works derived from it, FOR ANY "
+    "PURPOSE, commercial or otherwise. No separate permission is needed "
+    "and no fee is payable.",
+    "2.3 There is no noncommercial restriction. Earlier versions of spaCR "
+    "were licensed under the BSD 3-Clause License; that "
+    "restriction has been removed and does not apply to this version.",
 
-    "3. RESTRICTIONS",
-    "3.1 You shall retain all copyright and licence notices in any copy of "
-    "the Software You distribute, and shall supply this Agreement with it.",
-    "3.2 You shall not use the Software for any Noncommercial Purpose "
-    "exception not granted in Section 2, nor sublicense it on terms "
-    "inconsistent with this Agreement.",
-    "3.3 If You breach this Agreement, Your licence terminates. It is "
-    "reinstated if You cure the breach within thirty-two (32) days of "
-    "becoming aware of it.",
+    "3. WHAT THE LICENCE ASKS IN RETURN",
+    "3.1 Redistributions in source form must retain the copyright notice "
+    "at the end of this Agreement, the licence conditions, and the "
+    "disclaimer of warranties.",
+    "3.2 Redistributions in binary form must reproduce the same three "
+    "things in the documentation or other materials supplied with the "
+    "distribution.",
+    "3.3 Neither the name of the copyright holder nor the names of "
+    "contributors may be used to endorse or promote a derived product "
+    "without prior written permission. This is a rule about endorsement "
+    "only: it does not restrict what You may build or sell.",
+    "3.4 If You publish work that relied on the Software, a citation is "
+    "asked for and is not a condition of the licence. See CITATION.cff in "
+    "the Software for the form it should take.",
 
     "4. OWNERSHIP OF YOUR CONTENT",
     "4.1 As between You and the Licensor, You retain all right, title and "
@@ -190,7 +216,7 @@ TERMS: Tuple[str, ...] = (
     "terminated.",
     "9.2 You may terminate it at any time by ceasing all use of the "
     "Software and destroying Your copies of it.",
-    "9.3 Sections 4, 5, 7, 8 and 10 survive termination.",
+    "9.3 Sections 3, 4, 5, 7, 8 and 10 survive termination.",
 
     "10. CHANGES TO THIS AGREEMENT",
     "10.1 The Licensor may revise this Agreement. A revised Agreement "
@@ -204,9 +230,10 @@ TERMS: Tuple[str, ...] = (
     "11.1 If any provision of this Agreement is held unenforceable, the "
     "remaining provisions continue in full force.",
     "11.2 A failure to enforce any provision is not a waiver of it.",
-    "11.3 This Agreement, together with the licence referenced in Section "
-    "2.2, is the entire agreement between You and the Licensor concerning "
-    "the Software.",
+    "11.3 This Agreement, together with the BSD 3-Clause License "
+    "referenced in Section 2.1, is the entire agreement between You and "
+    "the Licensor concerning the Software. Where the two differ, the "
+    "licence governs.",
 )
 
 #: The line shown on the agreement control itself.
@@ -334,32 +361,32 @@ TRANSLATIONS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
         "Notkunarskilmálar", "Conditions d’utilisation")),
     ("Review the terms of use and scroll to the end to enable acceptance. "
-     "Use the license link to read the full PolyForm Noncommercial License "
-     "1.0.0.", (
+     "Use the license link to read the full BSD 3-Clause "
+     "License.", (
         "Läs igenom användningsvillkoren och rulla till slutet för att "
         "aktivera godkännandet. Använd licenslänken för att läsa hela "
-        "PolyForm Noncommercial License 1.0.0.",
+        "BSD 3-Clause License.",
         "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
         "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
-        "vollständige PolyForm Noncommercial License 1.0.0 lesen.",
+        "vollständige BSD 3-Clause License lesen.",
         "Revise las condiciones de uso y desplácese hasta el final para "
         "habilitar la aceptación. Utilice el enlace de la licencia para leer "
-        "la PolyForm Noncommercial License 1.0.0 completa.",
+        "la BSD 3-Clause License completa.",
         "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
-        "PolyForm Noncommercial License 1.0.0。",
+        "BSD 3-Clause License。",
         "Revise os termos de uso e role até o final para habilitar a "
-        "aceitação. Use o link da licença para ler a PolyForm Noncommercial "
-        "License 1.0.0 completa.",
+        "aceitação. Use o link da licença para ler a BSD 3-Clause "
+        "License completa.",
         "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
-        "पूर्ण PolyForm Noncommercial License 1.0.0 पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
+        "पूर्ण BSD 3-Clause License पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
         "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
-        "라이선스 링크에서 전체 PolyForm Noncommercial License 1.0.0을 확인할 수 있습니다.",
+        "라이선스 링크에서 전체 BSD 3-Clause License을 확인할 수 있습니다.",
         "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
-        "virkja samþykki. Notaðu leyfistengilinn til að lesa PolyForm "
-        "Noncommercial License 1.0.0 í heild.",
+        "virkja samþykki. Notaðu leyfistengilinn til að lesa BSD "
+        "3-Clause License í heild.",
         "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
         "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
-        "l’intégralité de la PolyForm Noncommercial License 1.0.0.")),
+        "l’intégralité de la BSD 3-Clause License.")),
     (AGREE_LABEL, (
         "Jag har läst och godkänner dessa villkor",
         "Ich habe diese Bedingungen gelesen und stimme ihnen zu",

@@ -26,7 +26,7 @@
    :alt: GitHub समस्याएँ
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm गैर-व्यावसायिक लाइसेंस
+   :alt: BSD 3-Clause लाइसेंस
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -534,7 +534,7 @@ spaCR कोशिका, केंद्रक और रोगजनक ऑब
 लाइसेंस
 ~~~~~~~~~
 
-वर्तमान विकास शाखा का स्रोत `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत उपलब्ध है। व्यावसायिक उपयोग के लिए कॉपीराइट धारक से अलग लाइसेंस आवश्यक है। spaCR 1.4.9.9 तक जारी किए गए संस्करण उनके साथ जारी MIT License के अंतर्गत उपलब्ध रहेंगे।
+spaCR `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत ओपन सोर्स है — वही लाइसेंस जो CellProfiler, napari और Cellpose उपयोग करते हैं। इसे किसी भी उद्देश्य के लिए, व्यावसायिक रूप से भी, उपयोग किया जा सकता है। संस्करण 1.5.0.0 से 1.5.0.4 तक PolyForm Noncommercial License 1.0.0 के अंतर्गत और 1.4.9.9 तक के संस्करण MIT License के अंतर्गत जारी हुए थे; वे संस्करण उनके साथ जारी लाइसेंस के अंतर्गत उपलब्ध रहेंगे।
 
 ट्यूटोरियल
 ~~~~~~~~~

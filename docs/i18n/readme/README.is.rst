@@ -26,7 +26,7 @@
    :alt: GitHub-mál
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial-leyfi
+   :alt: BSD 3-Clause-leyfi
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -534,7 +534,7 @@ Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-m�
 Leyfi
 ~~~~~~~~~
 
-Frumkóði núverandi þróunargreinar er aðgengilegur samkvæmt `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Notkun í atvinnuskyni krefst sérstaks leyfis frá höfundarréttarhafa. Útgefnar útgáfur til og með spaCR 1.4.9.9 eru áfram tiltækar samkvæmt MIT-leyfinu sem fylgdi þeim útgáfum.
+spaCR er opinn hugbúnaður samkvæmt `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, sama leyfi og CellProfiler, napari og Cellpose nota. Nota má hann í hvaða tilgangi sem er, þar með talið í atvinnuskyni. Útgáfur 1.5.0.0 til 1.5.0.4 báru PolyForm Noncommercial License 1.0.0 og útgáfur til og með 1.4.9.9 báru MIT-leyfið; þær útgáfur eru áfram tiltækar samkvæmt því leyfi sem fylgdi þeim.
 
 Kennsluefni
 ~~~~~~~~~~~
