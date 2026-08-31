@@ -1423,30 +1423,51 @@ A24. spacr/qt/ai/providers.py:152-158 (terminate_all_streams)
 A25. spacr/report.py:812-816, _collect_run_status (the `if isinstance(failure, dict)` guard)
     WHAT: A run-status stamp whose `failures` list holds bare strings instead of {item, stage, error} records (a hand-written sidecar, or one from an older writer) has those entries silently dropped: the count line says "2 of 3 item(s) failed" but only the dict-shaped failure gets a bullet, and the string's text appears nowhere in the HTML or the text/PDF rendering.
     COST: A reader of the shared report sees a failure count with fewer -- possibly zero -- explanations than there were failures, and has no way to tell that the reasons were withheld. The module's stated rule is that failure goes at the top; here part of the failure evidence is read off disk and then thrown away without a note.
+    VERDICT 2026-08-31: STALE -- already fixed. A non-dict failure now takes an
+    `else` branch through `_failure_record_text` (report.py:847-849), so a bare
+    string is rendered rather than dropped.
 
 A26. spacr/report.py:1657-1699, _collect_appendix (the `elif families:` fall-through at 1663)
     WHAT: When a measurements database exists but describes nothing -- e.g. a run killed before Measure wrote a table, so describe_database returns an empty frame -- _feature_dictionary returns no families and no error, and the appendix emits nothing at all about that database: no "Measured features" heading, no note, no mention of the file by name (verified: section.notes == [] and 'Measured features' not in body).
     COST: The appendix looks identical to one built for a folder that has no database, contradicting the module's own rule that "a missing section is stated, never omitted". A reader cannot distinguish "the database holds no measurements" from "there is no database", which is exactly the partial-run-forwarded-as-complete failure the report exists to prevent.
+    VERDICT 2026-08-31: STALE -- already fixed. The `elif families:` now has an
+    `else` that states the empty database and sets have_something, so 'no
+    measurements' is distinguishable from 'no database'.
 
 A27. spacr/qt/widgets/fast_plots.py:2344-2370, FastPlot._gap_for_split
     WHAT: The height of the axis break is summed over EVERY drawn item instead of being measured once over the range that is kept: `span += ...` accumulates each entry's below-band and above-band spread, so the gap grows with the number of items on the plot rather than with the data. Measured: one scatter spanning y=1..3 with a split at (10, 100) gives _split_gap == 0.12; three identical scatters over the same y=1..3 give 0.36.
     COST: A volcano draws several scatter layers (hits, non-hits, controls) over the same y range, so the break is painted three or more times taller than the documented 6% of what is kept -- it eats the vertical space the split exists to give back, and the same data redrawn as one layer instead of three produces a visibly different figure.
+    VERDICT 2026-08-31: STALE -- already fixed. `_gap_for_split` tracks running
+    below_min/below_max/above_min/above_max across entries
+    (fast_plots.py:2354-2378); the per-entry `span +=` accumulation is gone.
 
 A28. spacr/sequencing.py:1054-1064, generate_barecode_mapping sample loop
     WHAT: With mode='single', only the exact strings 'R1' and 'R2' bind R1/R2 (lines 1057-1062). Any other spelling -- e.g. the lower-case 'r2' a user types into the settings -- falls straight through to the call at 1064 with R1 and R2 unbound, raising `NameError: name 'R1' is not defined`. There is no validation of single_direction anywhere: set_default_generate_barecode_mapping only does settings.setdefault('single_direction', 'R1').
     COST: A one-character settings typo kills the sample with an exception that names neither the setting nor the sample, after os.makedirs at line 1045 has already created <src>/<sample>_single_<direction>/ -- so the user is left with an empty sample folder and a NameError about a local variable. Under an on_error policy that continues past a failed sample, every sample fails identically and the run finishes with an empty output folder and nothing pointing at single_direction.
+    VERDICT 2026-08-31: STALE -- already fixed, and better than the entry asked.
+    `single_direction` is now VALIDATED against {'R1','R2'} and raises with a
+    message naming the accepted spellings (sequencing.py:1038-1041), so a
+    lower-case 'r2' is refused loudly instead of falling through silently.
 
 A29. spacr/surrogate.py:784-788 (_shap_importance)
     WHAT: Dead guard. `if importance.shape[0] != x_test.shape[1]` can never be true: every branch that reaches it derived `importance` by averaging over an array whose shape was already matched against `sample.shape`, and `sample` only ever differs from `x_test` in ROWS (x_test.sample(max_samples)). The warning it appends ('SHAP returned N values for M features; column omitted') can never be emitted.
     COST: No user-visible misbehaviour, but it reads as a live safeguard against a SHAP/feature-count mismatch that is in fact structurally impossible, and this repo's own convention (tests/test_a_guard_no_input_could_reach_is_gone.py) treats such a guard as something to delete rather than to keep. Reported, not fixed -- spacr/ was not edited.
+    VERDICT 2026-08-31: STALE -- the dead guard is gone; `importance.shape` no
+    longer appears in surrogate.py at all.
 
 A30. spacr/spacrops.py:3005-3012, stitch_cycle_wells, the "organize into per-well folders" loop
     WHAT: When the plate is re-organized in place (dst_root == src, tiles already at <dst_root>/<well>/<name>) with collision="overwrite", `_resolve_collision` returns the destination unchanged, so sp == dp == rp. The code then runs `os.remove(dp)` - which deletes the SOURCE file, because it is the same file - and afterwards skips `shutil.move` since `if sp != rp` is False, while still doing `moved += 1` and appending the (now missing) path to the well's tile list.
     COST: A second run of the organizer over an already organized plate with collision="overwrite" permanently deletes the raw microscope frames. The returned summary reports them as moved and lists paths that no longer exist, so the loss is silent until a downstream step opens one. Pinned (as the current behaviour, with a DEFECT comment) by tests/test_cov_wf_spacrops.py::test_reorganising_a_plate_onto_itself_with_overwrite_destroys_the_tiles; the collision="rename" half of that test shows the same layout is handled without data loss.
+    VERDICT 2026-08-31: STALE -- already fixed. An `already_in_place` test
+    compares normcase(realpath(sp)) with the resolved destination and skips the
+    copy (spacrops.py:3008-3012).
 
 A31. spacr/seg_qc.py:1706-1707 (_flag_findings)
     WHAT: The `elif fields:` guard is dead code that does not do what it was written for. `fields` is a tuple with one entry per member field, so it is truthy even when every member's name is the empty string; `_name_list` then drops those empty names and returns "". The headline is built as `where += f", fields {_name_list(...)}"` regardless.
     COST: A card whose field column is blank produces a finding headlined `1 cell field(s) on this project, fields : no object at all in the field` -- a dangling "fields :" with nothing after it, which is exactly the case the guard was meant to suppress. Reproduced with _flag_findings([FieldQC(field="", object_type="cell", n_objects=0, flags=[FLAG_EMPTY], severity="fail")], 3). Low severity in practice: field names come from .npy stems and are never empty on the normal path, which is also why the false arc is uncoverable.
+    VERDICT 2026-08-31: STALE -- already fixed. The guard is now `elif
+    named_fields:` -- the RENDERED string, not the tuple (seg_qc.py:1707-1708) --
+    so an all-empty field set is falsy and the dangling 'fields :' cannot occur.
 
 A32. pytest.ini:24 -- `error::pandas.errors.SettingWithCopyWarning` in filterwarnings
     WHAT: The pandas installed in this environment changed to 3.0.5 partway through this session (numpy to 2.5.2 with it), and pandas 3 removed `pandas.errors.SettingWithCopyWarning`. pytest resolves ini warning categories during startup, so it now raises `AttributeError: module 'pandas.errors' has no attribute 'SettingWithCopyWarning'` before a single test is collected.
