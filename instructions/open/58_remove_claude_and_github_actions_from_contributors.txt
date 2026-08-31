@@ -406,3 +406,54 @@ This new nightly cleanup is separate from github-actions[bot] in the homepage
 widget. No current owner-writable author or committer identity maps to that
 bot; GitHub Support ticket #4711257 remains the only available action for the
 server-owned pull refs/sidebar cache.
+
+
+2026-08-31 -- the rewrite is DONE locally; only the push is left
+------------------------------------------------------------------
+
+`git filter-branch --msg-filter` was run over `400e85f19^..nightly`
+(2,663 commits) with a filter that removes only lines matching
+`^[ \t]*Co-Authored-By:[ \t]*Claude`, and returns any message without
+one BYTE-FOR-BYTE -- so a commit with no trailer keeps its hash and the
+rewrite touches exactly what it is meant to.
+
+  before   ee27ac69f52441a0a9ac9f945dfbac49a85b60bd
+  after    a701ba5248069687c9e95b0db3cfefdf25e74917
+
+Verified after the rewrite:
+
+  * trailers reachable from nightly:  0   (was 30)
+  * tip tree:  80daedfc3c58e7473882900f7d086ac838d95fb4, IDENTICAL
+  * commit count:  5,214 -> 5,214, unchanged
+  * commits whose hash changed:  203, i.e. the 30 trailer commits and
+    their descendants; every earlier commit kept its hash
+  * author and committer on all 203:  Einar Olafsson only
+  * one apparent match remains, in 400e85f19's own body -- it is the
+    commit that DESCRIBES the problem and quotes the trailer inside
+    backticks mid-line, so the anchored filter correctly left it alone
+
+Three backups all at the pre-rewrite tip:
+
+  tag     backup/pre-trailer-strip-20260831-073155
+  branch  backup/nightly-pre-trailer-strip-20260831-073155
+  ref     refs/original/refs/heads/nightly     (filter-branch's own)
+
+No other branch needs rewriting.  Every remote ref was checked and
+`origin/nightly` is the ONLY one carrying a trailer, so pushing nightly
+alone clears the contributor listing; the ~20 unmerged `codex/*`
+branches carry none of their own.
+
+WHAT IS LEFT, and it is one command:
+
+    git push --force-with-lease=nightly:ee27ac69f52441a0a9ac9f945dfbac49a85b60bd \
+        origin nightly
+
+It is blocked by the agent's permission classifier, not by anything in
+the repository.  `--force-with-lease` pinned to the old tip is the right
+form here: it refuses if origin/nightly moved since this was prepared,
+which is the only way this push could lose work.
+
+After the push, GitHub recomputes contributors lazily -- the listing can
+take a few minutes to drop Claude, and a clone made before the push will
+need `git fetch --all && git reset --hard origin/nightly` rather than a
+plain pull, because 203 commits were replaced.
