@@ -2171,11 +2171,18 @@ def composite(top: str, alpha: float, under: str = WORST_CASE_UNDER) -> str:
     return "#%02x%02x%02x" % out
 
 
-#: How opaque the menu bar is. Not 1.0, so the bar does not read as a
-#: slab pasted over the backdrop; nowhere near 0, because this bar is the
-#: frameless window's title bar and its two labels have to stay legible
-#: over whatever the backdrop is doing underneath.
-MENU_BAR_ALPHA = 0.94
+#: FULLY OPAQUE. Tried at 0.94 first, on the reasoning that a solid bar
+#: would read as a slab pasted over the backdrop. Seen on a real screen
+#: that was still wrong -- "remove the transparency for the bar and it
+#: will be perfect" -- because this bar is the frameless window's TITLE
+#: bar: the backdrop moving behind its two labels is motion under text
+#: the eye is trying to read, and no amount of it is an improvement.
+#:
+#: Kept as a named constant rather than inlined, because the corner
+#: chrome and the bar must agree and this is the single thing they agree
+#: on. At 1.0 `css_color` returns plain hex, which is also what the flat
+#: themes are required to emit.
+MENU_BAR_ALPHA = 1.0
 
 
 def menu_bar_background(theme: Optional[str] = None) -> str:

@@ -258,121 +258,59 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
-    # Tabulate was finished and tested but deliberately unregistered while
-    # Explore sat at the old cap; `baa704fc` switched it on once it did
-    # not, and this ledger was the last thing still describing it as
-    # absent. PCA arrived beside it and has since been folded onto Image
-    # UMAP -- a section is a property of a tile, so the key that no longer
-    # has one drops out of this ledger with its row.
-    "tabulate":        SECTION_EXPLORE,
-    "mask":            SECTION_CORE,
-    # MOVED 2026-08-23. Core is the pipeline you run, in the order you
-    # run it; a plaque assay and a recruitment readout are assays.
+    # REWRITTEN 2026-08-31, when Home was cut from seven categories to
+    # four. The user wrote out the tiles they wanted, in the order they
+    # wanted them, and this ledger is the record of where every app
+    # landed -- including the ones that no longer draw a tile at all.
     #
-    # Timelapse and the Motility Assay were filed here until they were
-    # folded -- tracking became a switch on Mask Generation and the assay
-    # became a button on Measure -- and a section is a property of a tile.
-    "measure":         SECTION_CORE,
-    "annotate":        SECTION_CORE,
-    "classify_merged": SECTION_CORE,
-    "map_barcodes":    SECTION_CORE,
-    "regression":      SECTION_CORE,
-    # `curate` stood here, filed under Segmentation models because fixing a
-    # mask by hand is a segmentation-model job. It is a button on the Make
-    # Masks masthead now -- the same argument taken one step further, into
-    # the screen that writes masks -- and this ledger records tiles.
-    "align":           SECTION_DATA,
-    "convert":         SECTION_DATA,
-    "foreign":         SECTION_DATA,
-    "external_masks":  SECTION_DATA,
-    "queue":           SECTION_DATA,
-    "batch":           SECTION_DATA,
-    "distributed_jobs": SECTION_DATA,
-    "db_browser":      SECTION_DATA,
-    # MOVED to Data. Make Masks does not train, choose or run a
-    # segmentation model: it is hand correction of masks that already
-    # exist, which is what the other tools under Data do. It was the last
-    # occupant of Segmentation models, so that section now has no apps and
-    # stops being drawn -- sections are derived, so it returns the day
-    # something registers there again.
-    "make_masks":      SECTION_DATA,
-    # Activation, the Hit List and Methods & Results are NOT here any more.
-    # Each folded onto a host and lost its registry row, and a section is a
-    # property of a tile -- a key with no tile has no section to record.
-    # NO ROWS WHERE THERE WERE THREE. Train Cellpose and Cellpose Masks were
-    # first merged into one "Cellpose Workbench" tile under `train_cellpose`,
-    # and that tile then folded into Make Masks along with Model Compare and
-    # Model Zoo: segment, look, correct, train, segment again is one loop and
-    # it is one screen now. All three keys are still real -- `spacr-run
-    # train_cellpose` runs, `spacr-run model_compare` says where the module
-    # went, a settings file for either still loads -- and what none of them
-    # has is a tile, which is what this ledger records.
-    # Illumination correction is done TO the images on the way in, like
-    # stitching and conversion -- not a reading of what came out.
-    "data_manager":    SECTION_DATA,
-    "plate_view":      SECTION_RESULTS,
-    "umap":            SECTION_RESULTS,
-    "train_compare":   SECTION_RESULTS,
-    "run_history":     SECTION_RESULTS,
-    "report":          SECTION_RESULTS,
-    # Two runs of the same project read against each other is a reading of
-    # what a finished run produced, which is what this section is.
-    "run_compare":     SECTION_RESULTS,
-    # The "hand it on" pair, and Results & QC rather than Explore because
-    # neither asks the data anything new: the Hit List is the ranked table
-    # a screen produced, and Methods & Results is that run written up. Both
-    # read a finished run rather than interrogating it.
-    # Explanations read completed model/regression outputs. Explain CV has a
-    # dedicated fidelity-first workbench; Investigate Hit is settings-driven
-    # because its reproducible file inputs are also its headless API.
-    "investigate_hit": SECTION_RESULTS,
-    # The Volcano Explorer and the Parameter Sweep were both filed here and
-    # neither has a registry row any more. The sweep is the Regression
-    # screen's sweep card and the explorer is "Publication figure…" on that
-    # screen's volcano -- each seeded from the frame or the form beside it,
-    # which a home tile has nothing to seed from -- so there is no section
-    # for either to be filed under.
-    # Explore's first two. The section was declared and empty until they
-    # registered -- "page through image layers" is the example in its own
-    # definition, and the Graph Builder family is what it was named for.
-    "layer_viewer":    SECTION_EXPLORE,
-    "graph_builder":   SECTION_EXPLORE,
-    # Explore's third, and it is Explore rather than Results & QC for the
-    # same reason as the other two: handing measurements.db to scanpy or
-    # scvi-tools is asking the numbers something spaCR did not plan for.
-    # Explore's fourth was Image Scatter, a scatter you can hover to see the
-    # cell a point stands for. It is folded onto Image UMAP now -- the same
-    # objects, the same click, a second projection -- so it has no tile to
-    # file.
-    # Explore's fifth: what is inside what. The cell_id links have been in
-    # the database since the first Measure run and had no view.
-    "lineage":         SECTION_EXPLORE,
-    # Explore's sixth and seventh, and both are Explore for the section's
-    # own reason -- they ask a question of what a run left behind rather
-    # than reporting it. Pipeline Graph asks "does this output still follow
-    # from its inputs"; the Prediction Profiler moves one input of a fitted
-    # model and watches the prediction move. Neither has a report to show
-    # you if you do not ask.
-    "pipeline_graph":  SECTION_EXPLORE,
-    "profiler":        SECTION_EXPLORE,
-    # Explore's eighth. Five verdicts on one screen, none of them
-    # recomputed -- it reads what the QC steps already decided and asks
-    # whether they agree, which is a question about a run rather than a
-    # report of one.
-    "qc_dashboard":    SECTION_EXPLORE,
-    "analyze_plaques": SECTION_ASSAYS,
-    "recruitment":     SECTION_ASSAYS,
-    "invasion":        SECTION_ASSAYS,
-    "replication":     SECTION_ASSAYS,
-    # Design's first app. The section had been declared and empty since the
-    # sections were named; its note ("Plan the experiment before it runs:
-    # power, sample size, plate layout, controls and replicates") was
-    # written for this.
-    "power":           SECTION_DESIGN,
-    # And its second, which claims the rest of that same note: the plate
-    # layout, the controls and the replicates, decided before an image
-    # exists.
-    "experiment_design": SECTION_DESIGN,
+    # Explore, Results & QC, Design and Segmentation models are gone as
+    # PLACES. Every app that lived in one was re-filed:
+    #
+    #   Explore        -> Tools (Graph Builder, Gate Editor, QC) or Data
+    #                     (Lineage, Tabulate, Pipeline Graph)
+    #   Results & QC   -> Tools (Image UMAP, Plate Viewer) or Data
+    #                     (Report, Run History) or Core (Training Runs,
+    #                     Investigate Hit)
+    #   Design         -> Data (Experiment Design, Power, Dose-Response)
+    #
+    # A folded module keeps a section even with no tile: the section is
+    # what says which host it belongs behind.
+    'align': 'Tools',
+    'analyze_plaques': 'Assays',
+    'annotate': 'Core',
+    'batch': 'Data',
+    'classify_merged': 'Core',
+    'convert': 'Data',
+    'data_manager': 'Data',
+    'db_browser': 'Data',
+    'distributed_jobs': 'Data',
+    'experiment_design': 'Data',
+    'external_masks': 'Data',
+    'foreign': 'Data',
+    'graph_builder': 'Tools',
+    'invasion': 'Assays',
+    'investigate_hit': 'Core',
+    'layer_viewer': 'Tools',
+    'lineage': 'Data',
+    'make_masks': 'Tools',
+    'map_barcodes': 'Core',
+    'mask': 'Core',
+    'measure': 'Core',
+    'pipeline_graph': 'Data',
+    'plate_view': 'Tools',
+    'power': 'Data',
+    'profiler': 'Core',
+    'qc_dashboard': 'Tools',
+    'queue': 'Data',
+    'recruitment': 'Assays',
+    'regression': 'Core',
+    'replication': 'Assays',
+    'report': 'Data',
+    'run_compare': 'Data',
+    'run_history': 'Data',
+    'tabulate': 'Data',
+    'train_compare': 'Core',
+    'umap': 'Tools',
 }
 
 #: How finished every app is, as a second ledger on the same app keys.

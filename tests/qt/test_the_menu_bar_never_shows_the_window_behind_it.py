@@ -64,19 +64,24 @@ def test_no_menu_bar_rule_paints_nothing(theme, pattern):
 
 
 @pytest.mark.parametrize("theme", ["dark", "light"])
-def test_the_bar_is_translucent_but_nowhere_near_transparent(theme):
-    """"just make it a little transparent" -- so neither extreme passes.
+def test_the_bar_is_completely_opaque(theme):
+    """Nothing shows through it at all.
 
-    A fully opaque bar reads as a slab pasted over the backdrop; a nearly
-    transparent one is the reported unreadable gradient. The bound is
-    asserted on the ALPHA rather than on the rendered string, because
-    that is the number the request was about.
+    This asked for "a little transparent" first, and 0.94 was tried.
+    Seen on a real screen it was still wrong: "remove the transparency
+    for the bar and it will be perfect". The bar is the frameless
+    window's title bar, so anything behind it is motion underneath text,
+    and a little motion under text is not better than none.
+
+    Asserted on the ALPHA and on the rendered colour together, because
+    the rendered colour is what the flat themes are separately required
+    to keep as plain hex.
     """
-    assert 0.85 <= MENU_BAR_ALPHA < 1.0, (
-        f"{MENU_BAR_ALPHA} is not 'a little transparent'")
+    assert MENU_BAR_ALPHA == 1.0, (
+        f"{MENU_BAR_ALPHA} lets the backdrop through the title bar")
     colour = menu_bar_background(theme)
-    assert colour.startswith("rgba("), (
-        f"{colour} is opaque; the bar was asked to be slightly see-through")
+    assert not colour.startswith("rgba("), (
+        f"{colour} is translucent; the bar was asked to be solid")
     assert colour in _block(stylesheet(theme), HOVER_RULES[0])
 
 

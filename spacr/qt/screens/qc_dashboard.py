@@ -466,7 +466,8 @@ HOST_KEY = "qc_dashboard"
 #:
 #: `control_chart` is declared in `app_catalog` rather than registered,
 #: so its button takes its name from there -- see `fold_description`.
-FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart')
+FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart',
+                                'outliers')
 
 
 def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
@@ -479,12 +480,22 @@ def _build_control_chart(host_window: Optional[QWidget] = None) -> QWidget:
     return build_registered_screen("control_chart", host_window)
 
 
+def _build_outliers(host_window: Optional[QWidget] = None) -> QWidget:
+    """Outliers, as the window builds it.
+
+    A QC question -- "which wells or objects do not look like the
+    others" -- so it belongs behind QC rather than beside it on Home.
+    """
+    return build_registered_screen("outliers", host_window)
+
+
 #: One builder per folded module. :func:`install_folds` walks
 #: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
 #: and the strip's contents cannot disagree.
 BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
     "layer_viewer": _build_layer_viewer,
     "control_chart": _build_control_chart,
+    "outliers": _build_outliers,
 }
 
 

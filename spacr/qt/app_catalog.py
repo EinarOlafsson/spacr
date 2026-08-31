@@ -246,7 +246,7 @@ DECLARED_APPS = (
             'Visualize data-product dependencies and identify missing or '
             'stale outputs'
         ),
-        section='Explore',
+        section='Data',
         factory='make_pipeline_graph_screen',
         stage='alpha',
         title='Pipeline Graph',
@@ -284,7 +284,7 @@ DECLARED_APPS = (
             "Evaluate how a fitted model's prediction changes across one "
             'input variable'
         ),
-        section='Explore',
+        section='Core',
         factory='make_profiler_screen',
         stage='alpha',
         title='Prediction Profiler',
@@ -328,7 +328,7 @@ DECLARED_APPS = (
             'Review stored checks for segmentation, units, leakage, plate '
             'effects, and annotation agreement'
         ),
-        section='Explore',
+        section='Tools',
         factory='make_qc_dashboard_screen',
         stage='alpha',
         title='QC',
@@ -363,7 +363,7 @@ DECLARED_APPS = (
             'Inspect cell-containment relationships for nuclei, pathogens, '
             'and organelles'
         ),
-        section='Explore',
+        section='Data',
         factory='make_lineage_screen',
         stage='alpha',
         intro=(
@@ -399,7 +399,7 @@ DECLARED_APPS = (
             'Design plate layouts for conditions, controls, and replicates '
             'and export a pipeline-ready map'
         ),
-        section='Design',
+        section='Data',
         factory='make_experiment_design_screen',
         stage='alpha',
         title='Experiment Design',
@@ -436,7 +436,7 @@ DECLARED_APPS = (
             'Visualize images, masks, points, and regions of interest as '
             'synchronized layers'
         ),
-        section='Explore',
+        section='Tools',
         factory='make_layer_viewer_screen',
         stage='alpha',
         intro=(
@@ -471,7 +471,7 @@ DECLARED_APPS = (
             'Create plots by assigning variables to axes, colour, size, and '
             'facets'
         ),
-        section='Explore',
+        section='Tools',
         factory='make_graph_builder_screen',
         stage='alpha',
         intro=(
@@ -506,7 +506,7 @@ DECLARED_APPS = (
             'Estimate the cells and wells required to detect a specified '
             'effect size'
         ),
-        section='Design',
+        section='Data',
         factory='make_power_screen',
         stage='alpha',
         title='Power / Design',
@@ -540,7 +540,7 @@ DECLARED_APPS = (
         key='run_compare',
         name='Run Compare',
         desc='Compare settings, object counts, and ranked hits between runs',
-        section='Results & QC',
+        section='Data',
         factory='make_run_compare_screen',
         stage='alpha',
         title='Run Compare',
@@ -577,7 +577,7 @@ DECLARED_APPS = (
             'Aggregate measurement data into pivot tables with groupwise '
             'sample sizes'
         ),
-        section='Explore',
+        section='Data',
         factory='make_tabulate_screen',
         stage='alpha',
         intro=(
@@ -612,7 +612,7 @@ DECLARED_APPS = (
             'Link a regression hit to cross-fitted candidate cells and '
             'well-level quantitative evidence'
         ),
-        section='Results & QC',
+        section='Core',
         factory='_make_screen',
         stage='alpha',
         title='Investigate Hit',
@@ -645,7 +645,7 @@ DECLARED_APPS = (
         key='trellis',
         name='Small Multiples',
         desc='Create one plot per group with shared or independent axes',
-        section='Explore',
+        section='Tools',
         factory='make_trellis_screen',
         stage='alpha',
         intro=(
@@ -678,7 +678,7 @@ DECLARED_APPS = (
         key='gate_editor',
         name='Gate Editor',
         desc='Define threshold and polygon gates as reusable data filters',
-        section='Explore',
+        section='Tools',
         factory='make_gate_editor_screen',
         stage='alpha',
         intro=(
@@ -712,7 +712,7 @@ DECLARED_APPS = (
         key='feature_explorer',
         name='Feature Explorer',
         desc='Rank measured features by their ability to distinguish classes',
-        section='Explore',
+        section='Core',
         factory='make_feature_explorer_screen',
         stage='alpha',
         intro=(
@@ -750,7 +750,7 @@ DECLARED_APPS = (
             'Detect robust univariate and multivariate outliers at object '
             'and well levels'
         ),
-        section='Explore',
+        section='Tools',
         factory='make_outliers_screen',
         stage='alpha',
         intro=(
@@ -788,7 +788,7 @@ DECLARED_APPS = (
             'Fit four-parameter logistic curves and estimate EC50 with '
             'profile-likelihood intervals'
         ),
-        section='Design',
+        section='Data',
         factory='make_dose_response_screen',
         stage='alpha',
         intro=(
@@ -827,7 +827,7 @@ DECLARED_APPS = (
             'Monitor control measurements across plates and detect process '
             'drift'
         ),
-        section='Results & QC',
+        section='Tools',
         factory='make_control_chart_screen',
         stage='alpha',
         intro=(

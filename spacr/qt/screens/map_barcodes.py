@@ -718,6 +718,9 @@ FOLD_HOST_MODULES: Dict[str, str] = {
     "graph_builder": "graph_builder",
     "db_browser": "db_browser",
     "qc_dashboard": "qc_dashboard",
+    # Import: Format Converter and External Masks, folded onto the screen
+    # that was Import Project.
+    "foreign": "foreign",
 }
 
 

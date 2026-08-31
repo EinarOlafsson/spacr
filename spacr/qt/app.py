@@ -390,6 +390,11 @@ SECTION_EXPLORE = "Explore"
 #: plate layout, controls and replicates. The only section whose apps
 #: consume no images, which is exactly why it is not Data.
 SECTION_DESIGN = "Design"
+#: The instruments: the things you point AT a project rather than steps
+#: the pipeline runs on its own. Editing masks by hand, stitching tiles,
+#: reading an embedding, drawing a gate, building a plot, checking
+#: quality. Introduced 2026-08-31 when Home was cut to four categories.
+SECTION_TOOLS = "Tools"
 
 #: Every section an app may be filed under, in workflow order: the
 #: end-to-end pipeline first, then getting data in and running it at
@@ -399,9 +404,13 @@ SECTION_DESIGN = "Design"
 #:
 #: This is the DECLARATION. :data:`SECTIONS` is the subset that has apps
 #: — see :func:`_refresh_sections`.
-SECTION_ORDER = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
-                 SECTION_RESULTS, SECTION_EXPLORE, SECTION_ASSAYS,
-                 SECTION_DESIGN)
+#: FOUR CATEGORIES, in this order. Cut down from seven on 2026-08-31 --
+#: the user wrote out the tiles they wanted and these are they. The other
+#: three constants above are kept because screens, tests and saved state
+#: still name them, and because a section with no apps simply does not
+#: draw: :data:`SECTIONS` is the subset that has any, so removing the
+#: names would break imports without changing a single pixel.
+SECTION_ORDER = (SECTION_CORE, SECTION_DATA, SECTION_TOOLS, SECTION_ASSAYS)
 
 #: One line per section, drawn under its heading on that category's tab.
 #: A category with two apps in it looks broken until it says why.
@@ -424,6 +433,9 @@ _SECTION_NOTE_LIBRARY = {
                       "prepare results for reporting or export."),
     SECTION_EXPLORE: ("Explore measurements using visualization, tabulation, "
                       "gating and feature-analysis tools."),
+    SECTION_TOOLS: ("Point these at a project: edit masks by hand, stitch "
+                    "tiles, read an embedding, draw a gate, build a plot, "
+                    "check quality."),
     SECTION_ASSAYS: "Quantitative readouts for biological assays.",
     SECTION_DESIGN: ("Plan statistical power, sample size, plate layouts, "
                      "controls and replicates."),
@@ -442,6 +454,7 @@ _PLUGIN_SECTION_MAP = {
     # catches per-registry, not per-plugin.
     "explore": SECTION_EXPLORE,
     "design": SECTION_DESIGN,
+    "tools": SECTION_TOOLS,
 }
 
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
@@ -913,16 +926,28 @@ _BUILTIN_APPS = [
     ("classify_merged", "Classify",      "Train classifiers on image crops with PyTorch or on measured features with gradient boosting", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
-    # -- Data & batch runs: get images and tables into a spaCR project,
-    #    run many plates unattended, get the numbers back out.
-    ("align",          "Align & Stitch", "Register and stitch image tiles into an incrementally written mosaic with bounded memory use", SECTION_DATA),
+    ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_CORE),
     ("convert",        "Format Converter", "Convert ND2, CZI, LIF and OME-TIFF images to Yokogawa TIFF layout and record source mappings", SECTION_DATA),
-    ("foreign",        "Import Project", "Import external images, masks and a measurement table as a spaCR project, mapping source columns to spaCR fields", SECTION_DATA),
+    ("foreign",        "Import",         "Bring images, masks and measurement tables into a spaCR project -- converting microscope formats, mapping source columns, or adopting masks made elsewhere", SECTION_DATA),
     ("external_masks", "External Masks", "Import images and externally generated label masks as a measured spaCR project ready for annotation", SECTION_DATA),
     ("queue",          "Plate Queue",    "Execute the same processing pipeline across multiple plates", SECTION_DATA),
     ("batch",          "Batch Runner",   "Queue modules, plates and settings for unattended sequential execution", SECTION_DATA),
     ("distributed_jobs", "Distributed Jobs", "Submit and monitor spaCR runs on SSH workstations, Slurm or cloud/HPC commands", SECTION_DATA),
     ("db_browser",     "Database Browser", "Browse, filter and export tables from measurements.db", SECTION_DATA),
+    # CLASSIFIER EVALUATION, EXPLAIN CV MODEL AND ACTIVATION ARE BUTTONS ON
+    # CLASSIFY.
+    # A classifier is trained on one screen and argued about on two
+    # others, so both fold onto the Classify masthead
+    # (`spacr.qt.screens.classify`) and open their own screen as a page
+    # beside the training settings. Neither has a row here any more; what
+    # each tile said is `map_barcodes.FOLD_FALLBACK`, and every table a
+    # row used to feed -- the drop handler, the API link, the header, the
+    # translated name -- names them directly instead.
+    ("run_history",    "Run History",    "Search run settings, outputs, warnings, failures and performance metrics", SECTION_DATA),
+    ("report",         "Report",         "Generate shareable HTML or PDF reports containing QC results, figures, statistics, settings and software versions", SECTION_DATA),
+    # -- Data & batch runs: get images and tables into a spaCR project,
+    #    run many plates unattended, get the numbers back out.
+    ("align",          "Align & Stitch", "Register and stitch image tiles into an incrementally written mosaic with bounded memory use", SECTION_TOOLS),
     # -- Segmentation models: build, train, pick and check the Cellpose
     #    models the Mask step runs.
     # Not a training screen despite where it sits: MakeMasksScreen is the
@@ -932,7 +957,7 @@ _BUILTIN_APPS = [
     # DATA, NOT MODELS. Make Masks does not train, choose or run a
     # segmentation model: it is hand curation of masks that already exist,
     # which is the same kind of work as the other tools filed under Data.
-    ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_DATA),
+    ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_TOOLS),
     # THE SEGMENTATION WORKBENCH HAS NO SATELLITE TILES. Training a model,
     # comparing two of them, browsing the zoo and curating a mask by hand are
     # all one loop -- segment, look, correct, train, segment again -- and they
@@ -948,25 +973,13 @@ _BUILTIN_APPS = [
     # now that no row carries a `cli_note=`. What went is the tile.
     # -- Results & QC: look at what came out, decide whether to believe it,
     #    and hand it to someone else.
-    ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_RESULTS),
+    ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_TOOLS),
     # ANNOTATOR AGREEMENT HAS NO ROW. Scoring how well two annotation
     # passes agree is the sentence after annotating them, so it is a
     # button on the Annotate masthead that opens its own screen, whole
     # (`spacr.qt.screens.annotate`). `cli.INTERACTIVE_ONLY` still names
     # it, so `spacr-run agreement` still says where to find it.
-    ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_RESULTS),
-    ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_RESULTS),
-    # CLASSIFIER EVALUATION, EXPLAIN CV MODEL AND ACTIVATION ARE BUTTONS ON
-    # CLASSIFY.
-    # A classifier is trained on one screen and argued about on two
-    # others, so both fold onto the Classify masthead
-    # (`spacr.qt.screens.classify`) and open their own screen as a page
-    # beside the training settings. Neither has a row here any more; what
-    # each tile said is `map_barcodes.FOLD_FALLBACK`, and every table a
-    # row used to feed -- the drop handler, the API link, the header, the
-    # translated name -- names them directly instead.
-    ("run_history",    "Run History",    "Search run settings, outputs, warnings, failures and performance metrics", SECTION_RESULTS),
-    ("report",         "Report",         "Generate shareable HTML or PDF reports containing QC results, figures, statistics, settings and software versions", SECTION_RESULTS),
+    ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_TOOLS),
     # -- Toxoplasma assays: parasite-specific readouts.
     #
     # TIMELAPSE AND MOTILITY HAVE NO ROW. Timelapse is the mask pipeline
@@ -1249,6 +1262,19 @@ TILELESS_APPS = frozenset({
     "tabulate",            # Database Browser
     "layer_viewer",        # QC
     "control_chart",       # QC
+    "outliers",            # QC
+    # Folded into Import: one module for getting data in, three ways.
+    "convert",             # Import -- Format Converter
+    "external_masks",      # Import -- External Masks
+    # Help menu entries rather than tiles. None of the six is a place to
+    # START: each one inspects or administers work that already exists,
+    # which is what a menu is for and what a tile is not.
+    "report",
+    "data_manager",
+    "db_browser",
+    "queue",
+    "batch",
+    "distributed_jobs",
 })
 
 
@@ -1273,6 +1299,22 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
      "it can run."),
     ("project_browser", "Project browser",
      "Every spaCR project this machine knows about, and what is in it."),
+    ("db_browser", "Database browser",
+     "Browse, filter and export tables from measurements.db."),
+    ("report", "Report",
+     "Generate a shareable HTML or PDF report of QC results, figures, "
+     "statistics, settings and software versions."),
+    ("data_manager", "Data manager",
+     "Inspect project disk usage and remove derived data while keeping "
+     "the source images."),
+    ("queue", "Plate queue",
+     "Run the same processing pipeline across several plates."),
+    ("batch", "Batch runner",
+     "Queue modules, plates and settings for unattended sequential "
+     "execution."),
+    ("distributed_jobs", "Distributed jobs",
+     "Submit and monitor spaCR runs on SSH workstations, Slurm, or "
+     "cloud and HPC commands."),
 )
 
 
@@ -1316,6 +1358,53 @@ def home_stages() -> dict:
     return {row[0]: app_stage(row[0]) for row in APPS}
 
 
+#: The tile order, per section, exactly as asked for on 2026-08-31.
+#:
+#: WRITTEN DOWN BECAUSE REGISTRATION ORDER CANNOT SAY IT. A tile's
+#: position used to be the order its module happened to register in, and
+#: that order is split across three mechanisms -- the literal rows in
+#: this file, `_SELF_REGISTERING_APPS`, and `spacr.qt`'s own module list
+#: -- so "Make Masks before Align & Stitch" was not something anyone
+#: could state, only something that happened to be true or not. The user
+#: wrote out the tiles they wanted in the order they wanted them; this is
+#: that list.
+#:
+#: A key absent from a section's tuple keeps registry order and sorts
+#: after every listed one, so registering a new app is still a one-line
+#: change that shows up immediately -- at the end of its band, where a
+#: new thing belongs until somebody decides where it goes.
+SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
+    SECTION_CORE: ("mask", "measure", "annotate", "classify_merged",
+                   "map_barcodes", "regression"),
+    SECTION_DATA: ("foreign", "run_compare", "experiment_design", "power",
+                   "dose_response"),
+    SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
+                    "graph_builder", "qc_dashboard"),
+    SECTION_ASSAYS: ("analyze_plaques", "recruitment", "invasion",
+                     "replication"),
+}
+
+
+def tile_sort_key(row: Tuple[str, str, str, str]) -> Tuple[int, int]:
+    """Sort key placing ``row`` where :data:`SECTION_TILE_ORDER` says.
+
+    :param row: an ``APPS`` row.
+    :returns: ``(section index, position in that section)``. An unlisted
+        key sorts after every listed one, keeping registry order among
+        the unlisted by virtue of Python's stable sort.
+    """
+    order = SECTION_TILE_ORDER.get(row[3], ())
+    try:
+        within = order.index(row[0])
+    except ValueError:
+        within = len(order)
+    try:
+        section = SECTION_ORDER.index(row[3])
+    except ValueError:
+        section = len(SECTION_ORDER)
+    return (section, within)
+
+
 def tiled_apps(
     apps: Optional[List[Tuple[str, str, str, str]]] = None,
 ) -> List[Tuple[str, str, str, str]]:
@@ -1335,7 +1424,8 @@ def tiled_apps(
     folded module must still answer yes to all three.
     """
     source = APPS if apps is None else apps
-    return [row for row in source if row[0] not in TILELESS_APPS]
+    return sorted((row for row in source if row[0] not in TILELESS_APPS),
+                  key=tile_sort_key)
 
 
 def section_members(

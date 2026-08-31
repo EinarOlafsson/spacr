@@ -98,7 +98,7 @@ APP_NAME = "Training Runs"
 #: is a separate axis and lives in ``spacr.qt.app.APP_STAGE`` — it is
 #: alpha, and the Home tile says so in colour rather than by filing it
 #: somewhere else.
-APP_SECTION = "Results & QC"
+APP_SECTION = "Core"
 APP_INTRO = (
     "Compare loss and accuracy curves from multiple training runs on shared "
     "axes. The adjacent settings comparison separates model and training "
