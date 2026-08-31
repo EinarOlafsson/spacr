@@ -107,7 +107,7 @@ about:
     spaCR is an end-to-end toolkit for microscopy segmentation,
     measurement, timelapse analysis, computer vision, image embeddings,
     barcode mapping, and integrated perturbation-screen analysis.
-  license: PolyForm-Noncommercial-1.0.0
+  license: BSD-3-Clause
   license_file: LICENSE
   documentation: https://einarolafsson.github.io/spacr/
   repository: https://github.com/EinarOlafsson/spacr

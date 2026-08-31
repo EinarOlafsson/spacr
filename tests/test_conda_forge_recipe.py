@@ -116,7 +116,7 @@ def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata()
 def test_conda_recipe_preserves_the_license_of_its_pypi_source():
     recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
     assert recipe["context"]["version"] == "1.5.0.4"
-    assert recipe["about"]["license"] == "PolyForm-Noncommercial-1.0.0"
+    assert recipe["about"]["license"] == "BSD-3-Clause"
     assert recipe["about"]["license_file"] == "LICENSE"
 
 
