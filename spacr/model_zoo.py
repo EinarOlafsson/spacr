@@ -150,6 +150,9 @@ __all__ = [
     "BUNDLED_REMOTE_MODELS",
     "BenchmarkResult",
     "CATALOGUE_ENV_VAR",
+    "REMOTE_CATALOGUE_URI",
+    "shared_catalogue",
+    "publish_model",
     "CLASSIFIER_SUFFIXES",
     "CELLPOSE_SUFFIXES",
     "ChecksumMismatch",
@@ -251,6 +254,28 @@ HF_MODELS_REPO = "einarolafsson/models"
 #: Environment variable naming a JSON catalogue of remote models. See
 #: :func:`load_catalogue_file` for the format.
 CATALOGUE_ENV_VAR = "SPACR_MODEL_CATALOGUE"
+
+#: The SHARED catalogue, fetched at runtime rather than shipped.
+#:
+#: WHY THIS IS REMOTE. Until this existed, a model reached other spaCR users
+#: only by someone editing :data:`BUNDLED_REMOTE_MODELS` in this file and
+#: cutting a release -- so contributing a model meant contributing to spaCR,
+#: waiting for a version, and every user upgrading. That is a high price for a
+#: row of metadata, and it is why the zoo had exactly one entry.
+#:
+#: A contributor now uploads to THEIR OWN Hugging Face account -- they keep
+#: ownership, and nobody has to hand out write access to anyone else's -- and
+#: adds one row here. See :func:`publish_model`, which does the upload and
+#: prints the row.
+REMOTE_CATALOGUE_URI = (
+    "https://huggingface.co/datasets/einarolafsson/models/resolve/main/"
+    "catalogue.json"
+)
+
+#: How long a fetched shared catalogue is reused before being re-fetched.
+#: Long enough that opening a module repeatedly is not a repeated request,
+#: short enough that a newly contributed model appears the same day.
+CATALOGUE_CACHE_SECONDS = 3600
 
 #: Remote entries spaCR knows about out of the box.
 #:
@@ -1210,6 +1235,131 @@ def _entry_from_mapping(data: Mapping[str, Any],
     )
 
 
+_SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
+
+
+def shared_catalogue(uri: Optional[str] = None, *,
+                     timeout: float = DEFAULT_TIMEOUT,
+                     force: bool = False) -> Tuple["ModelEntry", ...]:
+    """The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.
+
+    :param uri: override the catalogue location.
+    :param timeout: seconds to wait for the request.
+    :param force: ignore the cache and re-fetch.
+    :returns: the entries, or ``()`` when the catalogue cannot be read.
+
+    NEVER RAISES, and that is deliberate. This runs when a user opens a module
+    that offers a model list, and the list is useful without it: the bundled
+    entries and any local models are still there. A laptop on a train, a lab
+    behind a proxy and a Hugging Face outage all produce the same thing -- a
+    shorter list and a log line -- rather than a module that will not open.
+
+    The failure that WOULD be silent and harmful is a corrupt or hostile
+    catalogue, so entries that do not parse are dropped individually, and an
+    entry without a ``sha256`` still cannot be installed by :func:`fetch`
+    without an explicit override. A catalogue row is a claim about where a file
+    lives; the checksum is what makes it a claim about which file.
+    """
+    import time
+
+    target = uri or REMOTE_CATALOGUE_URI
+    now = time.time()
+    if (not force and _SHARED_CATALOGUE_CACHE["entries"]
+            and now - float(_SHARED_CATALOGUE_CACHE["fetched_at"])
+            < CATALOGUE_CACHE_SECONDS):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    try:
+        import urllib.request
+
+        with urllib.request.urlopen(target, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:                                # noqa: BLE001
+        LOG.info("shared model catalogue unavailable (%s): %s",
+                 type(exc).__name__, exc)
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    records = payload.get("models") if isinstance(payload, Mapping) else payload
+    entries: List[ModelEntry] = []
+    for record in (records or ()):
+        try:
+            entries.append(_entry_from_mapping(record, source="shared"))
+        except Exception as exc:                            # noqa: BLE001
+            LOG.warning("skipping a shared catalogue entry: %s", exc)
+    _SHARED_CATALOGUE_CACHE.update(fetched_at=now, entries=tuple(entries))
+    return tuple(entries)
+
+
+def publish_model(local_path: Any, repo_id: str, *,
+                  key: str,
+                  kind: str = "cellpose",
+                  trained_on: str = UNKNOWN,
+                  trained_by: str = UNKNOWN,
+                  private: bool = False,
+                  notes: Sequence[str] = ()) -> Dict[str, Any]:
+    """Upload a model to Hugging Face and return its catalogue row.
+
+    :param local_path: the checkpoint to upload.
+    :param repo_id: ``<user>/<repo>`` -- YOUR OWN account.
+    :param key: the short name spaCR will offer the model under.
+    :param kind: one of :data:`KINDS`.
+    :param trained_on: what the model was trained on. Say it properly: this is
+        the only thing another lab has to decide whether it applies to them.
+    :param trained_by: who trained it, and roughly when.
+    :param private: keep the repo private. A private model cannot be fetched by
+        other spaCR users, so it is off by default.
+    :param notes: caveats worth carrying next to the model.
+    :returns: the catalogue row, with the sha256 filled in.
+    :raises ImportError: when ``huggingface_hub`` is not installed.
+
+    THE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded,
+    which is the whole reason this exists as a function rather than as
+    instructions in a README. :func:`fetch` refuses an entry it cannot verify,
+    so a row written by hand without a hash produces a model nobody can install
+    without disabling the check -- which is what the one pre-existing bundled
+    entry does, and it is a hole rather than a precedent.
+
+    Publishing does NOT distribute the model on its own: add the returned row
+    to the shared catalogue (:data:`REMOTE_CATALOGUE_URI`) and every spaCR user
+    sees it within :data:`CATALOGUE_CACHE_SECONDS`.
+    """
+    try:
+        from huggingface_hub import HfApi
+    except ImportError as exc:                              # pragma: no cover
+        raise ImportError(
+            "Publishing a model needs the 'huggingface_hub' package:\n"
+            "  pip install huggingface_hub\n"
+            "then log in with `huggingface-cli login`.") from exc
+
+    path = Path(str(local_path))
+    if not path.is_file():
+        raise ModelZooError(f"{path} is not a file")
+    if kind not in KINDS:
+        raise ValueError(f"kind must be one of {KINDS}, got {kind!r}")
+
+    api = HfApi()
+    api.create_repo(repo_id, repo_type="model", private=bool(private),
+                    exist_ok=True)
+    api.upload_file(path_or_fileobj=str(path), path_in_repo=path.name,
+                    repo_id=repo_id, repo_type="model")
+
+    row = {
+        "key": key,
+        "name": path.name,
+        "kind": kind,
+        "repo_id": repo_id,
+        "repo_type": "model",
+        "sha256": sha256_file(path),
+        "size_bytes": path.stat().st_size,
+        "trained_on": trained_on,
+        "trained_by": trained_by,
+        "notes": tuple(notes),
+    }
+    LOG.info("published %s to %s; add this row to the shared catalogue",
+             path.name, repo_id)
+    return row
+
+
 def load_catalogue_file(path: Any) -> List[ModelEntry]:
     """Read a JSON catalogue of remote models.
 
@@ -1302,6 +1452,15 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
                 if (entry.key, entry.name) not in have:
                     entries.append(entry)
                     have.add((entry.key, entry.name))
+        # The community catalogue, LAST, so a key declared here or by a local
+        # file always wins over the shared one. That ordering is the safety
+        # property: a shared catalogue is edited by people other than the user
+        # running the code, and it must not be able to redefine a model spaCR
+        # ships or one the lab pinned in its own file. It can only ADD.
+        for entry in shared_catalogue():
+            if (entry.key, entry.name) not in have:
+                entries.append(entry)
+                have.add((entry.key, entry.name))
     if include_plugins:
         try:
             from .plugins import (
