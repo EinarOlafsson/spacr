@@ -1,0 +1,74 @@
+================================================================================
+THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
+================================================================================
+
+Status:    OPEN, filed 2026-08-31. RELEASE-BLOCKING for any claim that
+           spaCR is translated, though NOT for the release itself -- an
+           English fallback is readable and a wrong translation is not.
+Owner:     the nine runtime catalogs.
+Requested: not asked for; found on 2026-08-31 while enumerating 306's
+           caption review.
+Splits from: 306, which is about the catalogs being COMPLETE and
+           CURRENT. They now are. This is about them being RIGHT, which
+           no gate in 306 can measure.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Every runtime catalog is at 4983/4983 with current source hashes. That
+is the mechanical fixed point 306 was driving at, and it has been
+reached.
+
+It is not evidence of correctness. Five defects found by READING, all of
+which pass every gate this repository has -- present, source-hash-
+current, normal length:
+
+  Icelandic   "1.5 er óþekkt"      = "1.5 is unknown"    (English: default)
+  Icelandic   "Allir notendur"     = "all users"         (English: all apps)
+  Spanish     "se ciernen para revelar" = "they loom in order to reveal"
+              -- the bird-of-prey sense of "hover", conjugated to agree
+              with "aplicaciones"
+  Hindi       drops the hover instruction entirely
+  Chinese     leaves "hover to reveal" in English
+
+Icelandic is the worst of the nine and is the one the maintainer can
+check fastest without help.
+
+--------------------------------------------------------------------------------
+THREE MECHANICAL PROXIES THAT DO NOT WORK, SO NOBODY REBUILDS THEM
+--------------------------------------------------------------------------------
+
+Tried across all 134 x 9 candidates. Every one is dominated by false
+positives:
+
+  LENGTH RATIO          flagged 64. Chinese legitimately runs at 0.36 of
+                        the English length -- measured from the catalogs
+                        themselves, not assumed.
+  UNTRANSLATED FRAGMENT flagged 41. Nearly all are legitimate identifiers
+                        that must stay English: `mean-field ADVI`,
+                        `well_abundance_factor_mu`, and the settings keys.
+  TRANSLATION == SOURCE flagged "FlowView", which is a product name.
+
+The five real defects were found by reading, not by any of these. That
+is the finding: a mechanical fixed point is not a correctness claim, and
+the remaining criterion needs a reader per locale.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  1. Fix the five above. They are known, named, and each is one string.
+  2. Decide what "translated" may be claimed in the README, the paper and
+     the Zenodo record. "Nine languages, machine-drafted and
+     technically reviewed" is defensible today; "translated into nine
+     languages" is not, until a reader per locale has passed over them.
+  3. If a per-locale reader is not available, say so in the record rather
+     than leaving the claim unqualified.
+
+HOW TO KNOW IT WORKED
+
+  * a native or fluent reader has passed over each locale's runtime
+    strings and signed the evidence file for it;
+  * the five named defects are gone;
+  * the README's claim matches what was actually done.
