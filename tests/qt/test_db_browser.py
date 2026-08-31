@@ -1298,6 +1298,13 @@ def test_filter_on_an_unknown_column_reports_inline(screen, measdb):
     assert "Unknown column" in screen.status_text()
 
 
+def test_filter_on_an_unknown_operator_reports_inline(screen, measdb):
+    screen.set_database(measdb.path)
+    assert screen.set_filter("well", "approximately", "A01") is False
+    assert "Unknown operator" in screen.status_text()
+    assert screen.where_clause() is None
+
+
 def test_empty_structured_value_is_treated_as_no_filter(screen, measdb):
     screen.set_database(measdb.path)
     assert screen.set_filter("well", "=", "") is True
