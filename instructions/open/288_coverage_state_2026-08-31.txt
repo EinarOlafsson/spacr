@@ -252,3 +252,81 @@ dated record of what a person read, its per-language counts have drifted
 (Swedish now matches 115 runtime strings where the record says 111), and
 editing those numbers to make a test green would claim a review that did
 not happen. Instruction 306 holds the question.
+
+
+BATCHED11, MEASURED 2026-08-31 09:12 -- 355 ITEMS
+==================================================
+
+Against the frozen snapshot at ``ee27ac69f``, 41 batches of 60 files.
+This is the newest COMPLETE full-suite measurement.
+
+    files                510
+    statements       204,778
+    missing lines        118
+    partial branches     237
+    line coverage      99.87%
+    modules with a gap   108 of 510
+    ITEMS                355
+
+The trend, all from batchedN/batched.json:
+
+    batched6    1,002 items   185 modules   (its percentage is unusable:
+                                             a bad combine doubled the
+                                             statement denominator to 407k)
+    batched8      634 items   132 modules
+    batched9      371 items   115 modules
+    batched10     366 items   111 modules   at 63c7346d9
+    batched11     355 items   108 modules   at ee27ac69f
+
+WHERE THE 11 WENT, batched10 -> batched11. Eight modules moved and no
+more, so the ~40 round-8 test files that landed between the two were
+mostly closing PINS rather than arcs -- which is the expected shape at
+this end of the curve and not a sign of wasted work:
+
+     8 -> 4   spacr/qt/widgets/fast_plots.py
+     4 -> 2   spacr/qt/widgets/console_panel.py
+     2 -> 0   spacr/report.py
+     5 -> 4   spacr/qt/screens/settings_model.py
+     1 -> 0   spacr/qt/widgets/drawer.py
+     2 -> 1   spacr/qt/theme.py
+     1 -> 0   spacr/qt/widgets/setup_slides.py
+     2 -> 3   spacr/qt/widgets/data_filter_panel.py   <-- WENT UP
+
+`data_filter_panel` gaining one is worth a look before the next run: an
+item appearing with no source change to that module usually means a test
+that used to reach it stopped, which is the quiet half of a ratchet.
+
+THE LARGEST REMAINING, unchanged from batched10 and now the whole list
+worth working from:
+
+    25  spacr/ml.py
+    24  spacr/io.py
+    23  spacr/plot.py
+    19  spacr/timelapse.py
+    13  spacr/qt/preferences.py
+    10  spacr/qt/screens/app_screen.py
+     9  spacr/sequencing.py
+     8  spacr/measure.py
+     8  spacr/guide_attribution.py
+     7  spacr/utils.py
+     7  spacr/regression_annotation.py
+     6  spacr/spacrops.py
+     6  spacr/qt/widgets/cell_montage_view.py
+     6  spacr/hyperparam.py
+     6  spacr/deep_spacr.py
+
+TWO THINGS ABOUT THIS NUMBER, so it is not read as more than it is:
+
+  * It measures ``ee27ac69f``, which PREDATES the same day's backdrop
+    work and its 36 tests, and the three test-isolation fixes in
+    instruction 310 entry 35. The live tree is a little better than 355.
+  * The combine step logged "No data to combine". That is benign here --
+    the batches append into one `.coverage` rather than leaving shards --
+    and the statement count matching batched10 exactly at 204,778 across
+    the same 510 files is what says no batch was silently lost. Check
+    that pair, not the log line, on every future run.
+
+`deep_spacr`'s remaining 6 are the training-loop and CAM arcs. They need
+a model, a data loader and a real epoch: an integration test, not a unit
+one, and it is the one block on this list that will not yield to the
+method the other fourteen will.
