@@ -2005,26 +2005,20 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def _refresh_mip_toggle(self) -> None:
         """Enable the MIP switch only where there is a stack to project.
 
-        Says what it found rather than leaving the user to guess: how many
-        planes a field has, and — when a time axis is present too — that only
-        z is being projected. The 4-D axis order is never inferred here; that
-        is ``t_axis_order``'s job in the pipeline, and it deliberately has no
-        default because (T,Z,Y,X) and (Z,T,Y,X) cannot be told apart.
+        Says how many planes a field has. This discovery surface has no time
+        metadata, so it deliberately makes no claim about a time axis; 4-D
+        axis order belongs to the pipeline's explicit ``t_axis_order``.
         """
         toggle = getattr(self, "_mip_toggle", None)
         if toggle is None:
             return
         sets = list(getattr(self._sampler, "sets", None) or ())
         planes = max((s.z_count for s in sets), default=1)
-        timed = any(len(s.key) > 2 and s.key[2] for s in sets) and planes > 1
         if planes > 1:
             toggle.setEnabled(True)
             note = (f"Max-intensity projection over {planes} z-planes per "
                     f"field and channel — the same projection the ingest "
                     f"applies before masking.")
-            if timed:
-                note += (" Projects within a timepoint only; the time axis is "
-                         "left alone.")
             toggle.setToolTip(note)
         else:
             if toggle.isChecked():
