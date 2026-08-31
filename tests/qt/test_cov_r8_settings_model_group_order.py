@@ -126,15 +126,29 @@ class TestWalkingUpToARowToHideIt:
         return root, form, holder
 
     def test_a_field_one_step_below_the_form_is_hidden_as_a_row(self, qtbot):
+        """The ROW goes, not just the field.
+
+        The screen keeps the label side in a wrapper it does not hand
+        back, so hiding the field alone strands its name on an empty
+        row. ``setRowVisible`` reaches both halves, and what this
+        asserts is that the form was asked at all -- the holder is the
+        widget the form knows, and it is the one the walk has to find.
+        """
         widgets = self._widgets()
         key = next(iter(widgets._widgets))
         field = widgets._widgets[key]
         _root, form, holder = self._nest(qtbot, field, depth=0)
 
-        widgets._set_row_visible(key, False)
+        row, _role = form.getWidgetPosition(holder)
+        assert row >= 0, "the holder is not the widget the form knows"
 
-        assert form.getWidgetPosition(holder)[0] >= 0
-        assert not holder.isVisibleTo(holder.parentWidget()) or True
+        widgets._set_row_visible(key, False)
+        assert form.isRowVisible(row) is False, (
+            "the field was hidden without its label, which strands the name "
+            "on an empty row")
+
+        widgets._set_row_visible(key, True)
+        assert form.isRowVisible(row) is True
 
     def test_a_field_nested_deeper_than_three_falls_through_the_walk(
             self, qtbot):
