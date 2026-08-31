@@ -67,3 +67,115 @@ still appear in it):
      10 missing   93.87%  spacr/qt/__init__.py
       9 missing   99.46%  spacr/qt/widgets/figure_queue.py
       9 missing   98.91%  spacr/parameter_sweep.py
+
+================================================================================
+ROUND 8, SECOND HALF -- 2026-08-31 morning
+================================================================================
+
+THE AUTHORITATIVE NUMBER. A full batched run against a frozen snapshot at
+9fc3e7689 (41 batches, 2,404 test files, ~1h45):
+
+    99.86% -- 124 uncovered lines and 247 partial branches
+    115 modules with any gap, 371 items in total
+
+The previous full run (batched6, 2026-08-30 19:44) reported 185 modules and
+1,002 items. Both figures are with .coveragerc's exclude_lines and
+partial_branches EMPTY, so the 102 `# pragma: no cover` markers in the source
+are inert and nothing is hidden from the denominator.
+
+DO NOT MINE A STALE REPORT. batched6's per-module line numbers no longer
+line up with the tree -- several entries I chased against it pointed at
+lines that had moved, and two (db_browser 2860->2859, motility_preview
+1025->-1020) name arcs that cannot exist at those lines. Read the newest
+batched.json, or probe the module directly.
+
+THE PROBE. covscratch has a per-module probe: run one module against only
+the test files that MENTION it. A 100% result is conclusive -- nothing left
+to write. A gap is a candidate only, because a test elsewhere may cover it.
+That asymmetry is the whole value: it clears modules cheaply and never
+falsely condemns one. It cleared model_zoo, methods_export, hit_list and
+timelapse_preview outright.
+
+SUITE FAILURES FOUND AND FIXED. The run surfaced 14 unique failures. Twelve
+are fixed; each has its own commit with the reasoning.
+
+  ml.py, TWO REAL DEFECTS, both asserted by tests that were already there:
+
+    _fit_absorbed_least_squares refused a rank-deficient design only by
+    catching LinAlgError from np.linalg.solve. LAPACK builds disagree: some
+    raise, some return one arbitrary member of an infinite solution set. On
+    this machine the second happens, so two identical reported columns
+    produced a coefficient table that looked fine and was not identified.
+    matrix_rank decides first now.
+
+    Three display helpers built figures, handed them to the bridge and never
+    released pyplot's registration. With plot=False nothing was shown and
+    nothing was closed, so every panel leaked. plt.close removes the manager
+    and leaves the Figure alone, so whatever the bridge kept still draws.
+
+  pytest 9.1.1, not 8.x. The conftest's collection guard and its two
+  meta-tests were written for 8.x's baseid fixture matching. pytest 9
+  resolves against the collected node, so a directory collected twice DOES
+  hide its conftest's fixtures -- the opposite answer. The message now says
+  which model it is in, by version, and the tests assert per model.
+
+  packaging. The pandas-3 commit 807fdd627 took three more platform markers
+  with it, the same way it took the flowview extra: pylibCZIrw < 3.14,
+  mahotas < 3.13, and piper-tts off 3.14 Intel macOS. A sweep of every
+  requirement against 807fdd627^ says those were the last.
+
+  two wall-clock tests were measuring the runner. The spaceout thread-count
+  test ignored the NUMBA_NUM_THREADS ceiling the resolver correctly caps at;
+  the backdrop frame-budget test was in the parallel pass and belongs in the
+  serial tail, where this repo already puts its five other measurement files.
+
+  ratchets: the docstring inventory (+1 callable, -11 docless, -114
+  parameters), the API i18n surface (+13, enumerated by computing
+  public_docstrings() in a worktree at the reviewed commit and subtracting),
+  the packaging denominator (506), and the instruction index.
+
+STILL FAILING, DELIBERATELY. Two i18n tests. The nine TARGET catalogs are
+behind by the thirteen new symbols and the external caption inventory is 70
+UI strings ahead of its ratchet. Regenerating those is a translation run,
+and instruction 306 records the open question in front of it: a reviewed
+Hindi record certifies English that was later rewritten, so the audit
+refuses. Machine-translating over a pending human review is not a decision
+to take quietly.
+
+ONE FAILURE NOT CHASED. tests/test_cov_ml_simulation.py::
+test_minimum_cell_simulation_min_cell_count_overrides_marker passes alone
+and fails in a parallel batch. Ordering-sensitive; not yet diagnosed.
+
+WHAT THE REMAINING 371 ITEMS LOOK LIKE. Three shapes, in rough proportion:
+
+  1. Nested-function defaults with no live caller. plot.py has several:
+     find_files(folders, extensions=None) inside plot_images_and_arrays is
+     only ever called with the outer function's already-resolved list, and
+     plot_from_file_dict(save=False) is only ever called without it. These
+     are pins, not tests.
+
+  2. Deep branches inside 200-400 line plotting and pipeline functions that
+     need a measurement database, a crop tree or a real image stack to
+     reach. io.py's dataset-mode refusal is one: getting to the `else`
+     means building most of a training run to observe one raise.
+
+  3. deep_spacr's five training-loop and CAM arcs, which need a model, a
+     data loader and a real epoch. An integration test, not a unit one.
+     Unchanged from the earlier note.
+
+TWO TEST-QUALITY TRAPS I HIT AGAIN TODAY, both caught by checking coverage
+rather than by the tests failing:
+
+  Asserting against the LIBRARY instead of against spaCR. Three times: a
+  QComboBox test that never touched layer_viewer, an np.argwhere test that
+  never touched ortho_view, and a matplotlib violinplot test whose target
+  module was reported "not measured" because it was never imported.
+
+  Recompiling a nested function out of the module's source with exec and
+  driving that. It covers nothing -- a coverage report follows the module's
+  own code object, not a recompiled copy of its text -- and it is
+  reimplementation dressed as a test either way.
+
+The rule that catches both: after writing a test for a named arc, measure
+that arc. A test that passes and leaves its target uncovered is worse than
+no test, because it reads as coverage.
