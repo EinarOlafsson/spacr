@@ -1552,15 +1552,16 @@ def test_a_successful_download_starts_the_chain(win, modals, pick_dir,
         callback(_Result(), None)
 
     monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    # Yes to the demo, then No at the first pipeline stage.
-    modals.answers = [QMessageBox.Yes, QMessageBox.No]
+    # ONE question: whether to download at all. There is no second prompt
+    # since 2026-08-31 -- the import opens Mask Generation with the
+    # settings filled and stops, so there is no stage to consent to.
+    modals.answers = [QMessageBox.Yes]
     pick_dir[0] = str(tmp_path)
     win._on_e2e_demo()
 
-    assert [t for t, _x in modals.questions] == ["End-to-end demo",
-                                                 "Mask generation"]
-    assert win.statusBar().currentMessage() == (
-        "E2E chain stopped at 'mask' stage.")
+    assert [t for t, _x in modals.questions] == ["End-to-end demo"]
+    assert "Live Preview" in win.statusBar().currentMessage(), (
+        "the status bar does not tell the user what to press next")
 
 
 def test_the_chain_runs_mask_then_measure_then_opens_annotate(

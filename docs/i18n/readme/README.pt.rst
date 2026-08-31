@@ -122,77 +122,77 @@ Visão geral do fluxo de trabalho
    :width: 16.583%
    :alt: Abrir a API de Import
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
-   :align: left
+   :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 16.583%
    :alt: Abrir a API de Run Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
-   :align: left
+   :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
    :width: 16.583%
    :alt: Abrir a API de Experiment Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
-   :align: left
+   :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
    :width: 16.583%
    :alt: Abrir a API de Power / Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
-   :align: left
+   :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
    :width: 16.583%
    :alt: Abrir a API de Dose–Response
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
-   :align: left
+   :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
    :width: 16.583%
    :alt: Abrir a API de QC
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
-   :align: left
+   :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
    :width: 16.583%
    :alt: Abrir a API de Make Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
-   :align: left
+   :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
    :width: 16.583%
    :alt: Abrir a API de Align & Stitch
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
-   :align: left
+   :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
    :width: 16.583%
    :alt: Abrir a API de Image UMAP
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-   :align: left
+   :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
    :width: 16.583%
    :alt: Abrir a API de Gate Editor
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
-   :align: left
+   :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
    :width: 16.583%
    :alt: Abrir a API de Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
-   :align: left
+   :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
    :width: 16.583%
    :alt: Abrir a API de Plaque Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: left
+   :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
    :width: 16.583%
    :alt: Abrir a API de Recruitment
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: left
+   :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
    :width: 16.583%
    :alt: Abrir a API de Invasion Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: left
+   :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
    :width: 16.583%
    :alt: Abrir a API de Replication Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-   :align: left
+   :align: middle
 
 .. spacr-workflow-end
 

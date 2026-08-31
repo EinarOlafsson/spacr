@@ -254,57 +254,66 @@ class TestE2EDemoMenu:
         assert captured["dest"] == str(tmp_path)
         assert captured["parent"] is mw
 
-    def test_e2e_chain_prompts_and_navigates(
+    def test_importing_the_demo_opens_mask_with_its_settings(
             self, mw, monkeypatch, tmp_path):
-        """After a fake successful download, the chain should prompt
-        the user before each stage; if they answer Yes to all three,
-        we should end up having navigated to mask, measure, and
-        annotate in turn."""
-        settings_dir = tmp_path / "settings"
-        settings_dir.mkdir()
-        for stage in ("mask", "measure", "annotate"):
-            (settings_dir / f"{stage}_settings.csv").write_text("plot,false\n")
-        dataset_dir = tmp_path / "plate1"
-        dataset_dir.mkdir()
+        """One screen, filled in, and nothing started.
 
-        prompts = []
-        def _yes(*a, **k):
-            prompts.append(a)
-            return QMessageBox.Yes
-        monkeypatch.setattr(QMessageBox, "question", _yes)
-        # Stub the pipeline run so we don't actually start Cellpose
-        monkeypatch.setattr(
-            "spacr.qt.screens.app_screen.AppScreen._on_run",
-            lambda self: None)
-
-        mw._run_e2e_chain(dataset_dir, settings_dir)
-
-        # Three prompts — one per stage
-        assert len(prompts) == 3
-        assert "annotate" in mw._screens
-        assert "mask" in mw._screens
-        assert "measure" in mw._screens
-
-    def test_e2e_chain_stops_when_user_says_no(
-            self, mw, monkeypatch, tmp_path):
-        """Answering No at the first prompt should abort the chain
-        without touching downstream screens."""
+        This asserted three prompts and three screens until 2026-08-31,
+        when the import stopped being a Mask -> Measure -> Annotate chain
+        that ran each pipeline itself. Asked for as "the user should be
+        able to hit import and then live preview or run": a demo dataset
+        exists to be looked at, and the first thing anyone wants is Live
+        Preview on one field.
+        """
         settings_dir = tmp_path / "settings"
         settings_dir.mkdir()
         (settings_dir / "mask_settings.csv").write_text("plot,false\n")
         dataset_dir = tmp_path / "plate1"
         dataset_dir.mkdir()
 
+        prompts = []
         monkeypatch.setattr(QMessageBox, "question",
-                             lambda *a, **k: QMessageBox.No)
-        called = {"run": 0}
-        def _bump(self):
-            called["run"] += 1
+                            lambda *a, **k: prompts.append(a))
+        runs = {"n": 0}
         monkeypatch.setattr(
-            "spacr.qt.screens.app_screen.AppScreen._on_run", _bump)
+            "spacr.qt.screens.app_screen.AppScreen._on_run",
+            lambda self: runs.__setitem__("n", runs["n"] + 1))
 
         mw._run_e2e_chain(dataset_dir, settings_dir)
-        assert called["run"] == 0
-        # Also — measure/annotate should not have been navigated to.
+
+        assert "mask" in mw._screens, "Mask Generation did not open"
+        assert runs["n"] == 0, "importing the demo started a pipeline"
+        assert prompts == [], (
+            "the import asked a question; a Continue prompt before work "
+            "nobody asked to start has No as its safe answer")
+        # Measure and Annotate are reached from Mask once masks exist.
+        # Opening them against a dataset with none would open two screens
+        # that can only report there is nothing to do.
         assert "measure" not in mw._screens
         assert "annotate" not in mw._screens
+
+    def test_the_dataset_folder_wins_over_the_packs_own_src(
+            self, mw, monkeypatch, tmp_path):
+        """The pack names a path on the machine that produced it.
+
+        Driven through the real chain rather than the loader alone,
+        because the argument that carries it is the one easy to drop when
+        wiring the two together.
+        """
+        settings_dir = tmp_path / "settings"
+        settings_dir.mkdir()
+        (settings_dir / "mask_settings.csv").write_text(
+            "src,/somebody/elses/disk\n")
+        dataset_dir = tmp_path / "plate1"
+        dataset_dir.mkdir()
+
+        applied = {}
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict",
+            lambda self, settings: applied.update(settings))
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen.AppScreen._on_run",
+            lambda self: None)
+
+        mw._run_e2e_chain(dataset_dir, settings_dir)
+        assert applied.get("src") == str(dataset_dir)
