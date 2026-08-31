@@ -6882,11 +6882,14 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type, restore_type=restore_type)
 
-    return cp_models.CellposeModel(
-        gpu=torch.cuda.is_available(),
-        device=device,
-        pretrained_model=pretrained,
-    )
+    from .accelerator import cellpose_kwargs
+
+    # device= from the caller still wins; only the flags it cannot know
+    # about (gpu, and the dtype the device can hold) come from here.
+    kwargs = cellpose_kwargs()
+    if device is not None:
+        kwargs["device"] = device
+    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 class SelectChannels:
     """Callable transform that zeroes out image channels not present in ``channels``.
@@ -7346,7 +7349,11 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
     # written against; these checkpoints are whole nn.Module pickles.
     model = torch.load(model_path, weights_only=False)
     
-    dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+    # A CUDA tensor TYPE, which only CUDA has. Every other backend
+    # takes a plain float tensor and is moved with .to(device).
+    from .accelerator import is_cuda
+
+    dtype = torch.cuda.FloatTensor if is_cuda() else torch.FloatTensor
     len_chans = len(channels)
     model.type(dtype)
 

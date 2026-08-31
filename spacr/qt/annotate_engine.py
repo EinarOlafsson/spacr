@@ -315,13 +315,21 @@ def _get_cellpose_outline_model(should_stop=None):
         _check_stop(should_stop)
         if _cellpose_outline_model is None:
             from cellpose import models as cp_models
+            # Any accelerator, not only CUDA -- see instruction 319.
+            # device=None leaves cellpose to resolve it, which it does
+            # correctly once `gpu` tells it there is one to look for.
             try:
-                import torch
-                gpu = torch.cuda.is_available()
+                from ..accelerator import cellpose_kwargs
+
+                kwargs = cellpose_kwargs()
             except Exception:
-                gpu = False
+                kwargs = {"gpu": False}
+            # device is deliberately left to cellpose here; the flags it
+            # cannot infer -- gpu, and the dtype the device can hold --
+            # still have to come from the resolver.
+            kwargs.pop("device", None)
             _cellpose_outline_model = cp_models.CellposeModel(
-                gpu=gpu, pretrained_model="cpsam", device=None)
+                pretrained_model="cpsam", device=None, **kwargs)
         _cellpose_outline_last_used = time.time()
         return _cellpose_outline_model
 

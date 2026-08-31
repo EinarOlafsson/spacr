@@ -27,6 +27,7 @@ from __future__ import annotations
 import math
 import re
 import os
+import sys
 import time
 import logging
 from dataclasses import dataclass, replace
@@ -396,11 +397,25 @@ def platform_can_do_opengl() -> bool:
     if platform.startswith(("offscreen", "minimal", "vnc")):
         return False
     if platform in ("", "xcb", "wayland", "cocoa", "windows"):
-        # An empty value means Qt will choose, which it only does when there
-        # is a display to choose for.
+        if platform in ("cocoa", "windows"):
+            return True
+        # AN EMPTY VALUE MEANS QT WILL CHOOSE, and what it chooses decides
+        # whether DISPLAY is the right question. On X11 and Wayland it is:
+        # no DISPLAY, no GL. On macOS and Windows it is not -- neither sets
+        # DISPLAY, both always have a window server, and Qt picks cocoa or
+        # windows without being told.
+        #
+        # THIS TEST USED TO ASK DISPLAY REGARDLESS, so on every Mac -- where
+        # QT_QPA_PLATFORM is normally unset -- it answered no and the
+        # spaceout fractal ran its Numba CPU renderer instead of its shader.
+        # Measured on the reporting iMac: VisPy opens a context on that
+        # machine reporting GL_RENDERER "AMD Radeon Pro 5300 OpenGL Engine",
+        # so the card was there and working the whole time and the
+        # environment heuristic was what said otherwise.
+        if not platform and sys.platform in ("darwin", "win32"):
+            return True
         return bool(os.environ.get("DISPLAY")
-                    or os.environ.get("WAYLAND_DISPLAY")
-                    or platform in ("cocoa", "windows"))
+                    or os.environ.get("WAYLAND_DISPLAY"))
     return True
 
 

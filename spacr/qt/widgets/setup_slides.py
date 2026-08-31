@@ -218,8 +218,13 @@ GPU_NOTE_BAND = 0.78
 #: measurements, the regression, every figure -- so this says which two
 #: steps are the ones that will be slow or impossible, and leaves the
 #: decision to the reader.
+#: NOT "AN NVIDIA GPU" ANY MORE, and the old wording was not merely
+#: imprecise -- it was wrong on the machine that reported it. spaCR now
+#: dispatches to CUDA, ROCm, Apple Metal (which drives Apple Silicon AND
+#: AMD cards in Intel Macs) and Intel XPU. See instruction 319.
 GPU_REQUIREMENT = (
-    "Segmentation and object classification need an NVIDIA GPU. "
+    "Segmentation and object classification are much faster on a GPU. "
+    "spaCR uses NVIDIA, AMD, Apple and Intel GPUs. "
     "Everything else runs without one.")
 
 #: The colours the verdict is drawn in.
@@ -272,6 +277,24 @@ def graphics_card() -> Tuple[bool, str]:
     """
     name = ""
     usable = False
+    try:
+        from ...accelerator import resolve
+
+        found = resolve()
+        # ANY VENDOR, NOT ONLY NVIDIA. This used to ask
+        # `torch.cuda.is_available()`, so an AMD card driven perfectly well
+        # through Metal reported as "No compatible GPU" -- the machine this
+        # was fixed on segments 139x faster on the card the slide was
+        # denying. See instruction 319.
+        if found.is_gpu:
+            return True, found.label
+        if found.detected and not found.usable:
+            # Found and not usable is its own answer, and the label
+            # carries which accelerator it was.
+            return False, found.label
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the accelerator resolver could not be asked",
+                  exc_info=True)
     try:
         import torch
 
@@ -1802,7 +1825,48 @@ class SetupSlides(QDialog):
                 f'<div style="color:{ink}; font-weight:600;">{line}</div>']
         if hint:
             html.append(f'<div>{hint}</div>')
+        html.extend(self._what_this_machine_can_do())
         self._gpu_note.setText("".join(html))
+
+    @staticmethod
+    def _what_this_machine_can_do() -> list:
+        """Per-task lines, because one verdict cannot be honest here.
+
+        A single green tick would claim the cuML reductions are
+        accelerated on a Mac, and they are not -- RAPIDS is built for CUDA
+        only. Naming an accelerator spaCR will not dispatch to for a given
+        task is exactly the failure instruction 319 warns about: the user
+        blames their hardware for a speed the software chose.
+
+        Failures here are swallowed. This is decoration on a setup slide,
+        and a machine with a strange accelerator must still reach the
+        button at the bottom of it.
+        """
+        try:
+            from ...accelerator import capabilities, neural_engines
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("capabilities unavailable", exc_info=True)
+            return []
+        rows = []
+        try:
+            for task, accelerated, detail in capabilities():
+                ink = GPU_YES_INK if accelerated else GPU_NO_INK
+                mark = "✓" if accelerated else "•"
+                rows.append(
+                    f'<div style="color:{ink};">{mark} {_say(task)} '
+                    f'<span style="opacity:0.75;">— {_say(detail)}</span>'
+                    f'</div>')
+            for engine in neural_engines():
+                # FOUND AND NOT USED, said in as many words. There is no
+                # portable torch device for a neural engine, so silence
+                # here would read as "spaCR did not look".
+                rows.append(
+                    f'<div style="opacity:0.75;">• {engine} — '
+                    f'{_say("detected, not used by spaCR")}</div>')
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not render the capability list", exc_info=True)
+            return []
+        return rows
 
     def _apply_language(self, *_args) -> None:
         """Put the chosen language into effect and redraw this screen in it.

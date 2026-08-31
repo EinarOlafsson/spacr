@@ -1957,16 +1957,21 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Ce qui peut quitter cette machine, et sous quel nom. Rien n’est jamais envoyé sans que vous l’ayez d’abord vu et appuyé vous-même sur envoyer."),
 
     # ---- What the machine can run, on the first slide ----------------
-    "Segmentation and object classification need an NVIDIA GPU. Everything else runs without one.": _row(
-        "Segmentering och objektklassificering kräver en NVIDIA-GPU. Allt annat fungerar utan en.",
-        "Segmentierung und Objektklassifizierung brauchen eine NVIDIA-GPU. Alles andere läuft auch ohne.",
-        "La segmentación y la clasificación de objetos necesitan una GPU NVIDIA. Todo lo demás funciona sin ella.",
-        "分割和对象分类需要 NVIDIA GPU。其余功能没有它也能运行。",
-        "A segmentação e a classificação de objetos precisam de uma GPU NVIDIA. Todo o resto funciona sem ela.",
-        "सेगमेंटेशन और ऑब्जेक्ट वर्गीकरण के लिए NVIDIA GPU चाहिए। बाकी सब उसके बिना भी चलता है।",
-        "분할과 객체 분류에는 NVIDIA GPU 가 필요합니다. 나머지는 없어도 실행됩니다.",
-        "Hlutun og flokkun hluta krefjast NVIDIA-skjákorts. Allt annað keyrir án þess.",
-        "La segmentation et la classification d’objets nécessitent un GPU NVIDIA. Tout le reste fonctionne sans."),
+    # REPLACED, NOT ADDED, so the row count this catalog is ratcheted on
+    # does not move. The sentence said "need an NVIDIA GPU", which stopped
+    # being true when spaCR learned to dispatch to ROCm, Apple Metal and
+    # Intel XPU -- and it was wrong in the worst direction, telling people
+    # with a perfectly good AMD card that they had no GPU. Instruction 319.
+    "Segmentation and object classification are much faster on a GPU. spaCR uses NVIDIA, AMD, Apple and Intel GPUs. Everything else runs without one.": _row(
+        "Segmentering och objektklassificering går mycket snabbare på en GPU. spaCR använder GPU:er från NVIDIA, AMD, Apple och Intel. Allt annat fungerar utan en.",
+        "Segmentierung und Objektklassifizierung sind auf einer GPU deutlich schneller. spaCR nutzt GPUs von NVIDIA, AMD, Apple und Intel. Alles andere läuft auch ohne.",
+        "La segmentación y la clasificación de objetos son mucho más rápidas en una GPU. spaCR usa GPU de NVIDIA, AMD, Apple e Intel. Todo lo demás funciona sin ella.",
+        "分割和对象分类在 GPU 上快得多。spaCR 支持 NVIDIA、AMD、Apple 和 Intel 的 GPU。其余功能没有它也能运行。",
+        "A segmentação e a classificação de objetos são muito mais rápidas numa GPU. O spaCR usa GPUs da NVIDIA, AMD, Apple e Intel. Todo o resto funciona sem ela.",
+        "सेगमेंटेशन और ऑब्जेक्ट वर्गीकरण GPU पर बहुत तेज़ होते हैं। spaCR, NVIDIA, AMD, Apple और Intel के GPU का उपयोग करता है। बाकी सब उसके बिना भी चलता है।",
+        "분할과 객체 분류는 GPU에서 훨씬 빠릅니다. spaCR는 NVIDIA, AMD, Apple, Intel GPU를 사용합니다. 나머지는 없어도 실행됩니다.",
+        "Hlutun og flokkun hluta eru mun hraðari á skjákorti. spaCR notar skjákort frá NVIDIA, AMD, Apple og Intel. Allt annað keyrir án þess.",
+        "La segmentation et la classification d’objets sont bien plus rapides sur un GPU. spaCR utilise les GPU NVIDIA, AMD, Apple et Intel. Tout le reste fonctionne sans."),
     "The card is there but torch cannot use it. Run spacr-doctor to find out which part of CUDA is missing.": _row(
         "Kortet finns men torch kan inte använda det. Kör spacr-doctor för att ta reda på vilken del av CUDA som saknas.",
         "Die Karte ist vorhanden, aber torch kann sie nicht nutzen. Führen Sie spacr-doctor aus, um herauszufinden, welcher Teil von CUDA fehlt.",

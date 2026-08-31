@@ -231,8 +231,20 @@ def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
     :returns: ``(torch.device, note)``. ``note`` is empty unless low free GPU
         memory causes a CPU fallback.
     """
-    if not torch.cuda.is_available():
+    from .accelerator import resolve
+
+    found = resolve()
+    if not found.is_gpu:
         return torch.device("cpu"), ""
+    if not found.is_cuda:
+        # ANY OTHER ACCELERATOR IS TAKEN AT FACE VALUE. The free-memory
+        # check below is `torch.cuda.mem_get_info`, which exists only on
+        # CUDA -- Metal shares memory with the system and has no
+        # equivalent, and asking ROCm costs a context for a number spaCR
+        # would only use to print. A real OOM stays a real failure, which
+        # is the same bargain the missing-mem_get_info branch already
+        # strikes for old CUDA drivers.
+        return found.torch_device, ""
     try:
         free, total = torch.cuda.mem_get_info()
     except Exception:                                        # noqa: BLE001

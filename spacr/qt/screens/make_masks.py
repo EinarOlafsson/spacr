@@ -1276,10 +1276,13 @@ def load_cellpose_model(model_name: str):
     from ...utils import _resolve_cellpose_pretrained
 
     pretrained = _resolve_cellpose_pretrained(model_name)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    return cp_models.CellposeModel(gpu=torch.cuda.is_available(),
-                                    pretrained_model=pretrained,
-                                    device=device)
+    # gpu= AND device= from the one resolver. Mask Generation is the
+    # module people open first, so leaving it CUDA-only while every other
+    # entry point took any accelerator was the confusing half-state.
+    from ...accelerator import cellpose_kwargs
+
+    return cp_models.CellposeModel(pretrained_model=pretrained,
+                                    **cellpose_kwargs())
 
 
 def cellpose_detect(image: np.ndarray, model, *,

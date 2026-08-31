@@ -2876,7 +2876,9 @@ def load_activation_data(settings: Mapping[str, Any],
             f"No trained model to explain: model_path={model_path!r} is not a "
             f"file. Point it at a model saved by Classify before searching "
             f"attribution settings.")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    from .accelerator import torch_device
+
+    device = torch_device()
     model = torch.load(str(model_path), map_location=device,
                        weights_only=False)
     model.to(device)

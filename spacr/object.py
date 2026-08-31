@@ -1,6 +1,9 @@
 """Object segmentation, filtering, mask generation, and post-processing."""
 
 import os, gc, torch, time
+
+# CUDA, ROCm, Metal or XPU from one resolver -- see instruction 319.
+from . import accelerator
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count
@@ -758,7 +761,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     if settings['verbose']:
         print(channels)
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = accelerator.torch_device()
 
     # pretrained_model used to be the literal 'cpsam' here, so a checkpoint
     # from spaCR's own Train Cellpose module was discarded and the stock
@@ -1198,7 +1201,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     channels = cellpose_channels[object_type]
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = accelerator.torch_device()
     
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
         model_name = settings['pathogen_model']
@@ -1560,7 +1563,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     if method == 'cellpose':
         from .utils import _choose_model
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = accelerator.torch_device()
         dl_model = _choose_model(
             settings['organelle_model_name'],
             device,
@@ -1863,7 +1866,7 @@ def _load_unet_model(settings):
             f"organelle_unet_model_path must point to a valid .pt/.pth file, "
             f"got '{model_path}'"
         )
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = accelerator.torch_device()
     model = torch.load(model_path, map_location=device, weights_only=False)
     model.eval()
     return model

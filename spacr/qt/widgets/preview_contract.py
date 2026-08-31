@@ -163,16 +163,18 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
 
     from spacr.utils import _resolve_cellpose_pretrained
 
-    if gpu is None:
-        try:
-            import torch
-            gpu = bool(torch.cuda.is_available())
-        except Exception:
-            gpu = False
+    try:
+        from spacr.accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    except Exception:
+        kwargs = {"gpu": False}
+    kwargs.pop("device", None)
+    if gpu is not None:                     # an explicit caller still wins
+        kwargs["gpu"] = bool(gpu)
     return cp_models.CellposeModel(
-        gpu=bool(gpu),
         pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
-        device=None)
+        device=None, **kwargs)
 
 
 class LivePreviewContract:
