@@ -277,8 +277,10 @@ def smooth_and_filter_tracks(points, max_displacement: float):
     for _key, g in points.sort_values(TRACK_KEYS + ["frame"]).groupby(
             TRACK_KEYS, sort=False):
         g = g.copy()
-        x = g["x"].to_numpy(dtype=float)
-        y = g["y"].to_numpy(dtype=float)
+        # Interpolation edits these arrays; pandas 3 may expose the group
+        # columns as read-only views.
+        x = g["x"].to_numpy(dtype=float, copy=True)
+        y = g["y"].to_numpy(dtype=float, copy=True)
         n = x.size
         glitch_at = set()
         for i in range(1, n - 1):
