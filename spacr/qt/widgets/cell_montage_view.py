@@ -684,15 +684,6 @@ def load(request: MontageRequest) -> MontageLoad:
                 "folder holding regression_data.csv, and no count CSV is "
                 "attached to the input table. Either one is enough."),
             unavailable=True)
-    try:
-        pass
-    except MontageError as error:
-        return MontageLoad(request=request, error=str(error), unavailable=True)
-    except Exception as error:                                  # noqa: BLE001
-        return MontageLoad(
-            request=request,
-            error=f"Could not read the per-well guide fractions: {error}")
-
     frames = []
     troubles: List[str] = []
     for db_path in request.databases:
