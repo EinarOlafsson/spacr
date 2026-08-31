@@ -198,7 +198,25 @@ def _unverified_row(picker):
     for row, entry in enumerate(picker._entries):
         if not getattr(entry, "sha256", "") and picker._local_path(entry) is None:
             return row
-    pytest.skip("no unverifiable model is missing locally")
+    # SYNTHETIC, not skipped. The only unverifiable entry was the retired
+    # toxo_plaque_cyto, so after the retirement these three tests skipped --
+    # and a skipped test is a guard that has quietly stopped guarding. The
+    # confirmation path is still live for any future entry published without a
+    # hash, which is exactly when it will matter and exactly when nobody will
+    # remember it exists. So the case is constructed rather than found.
+    from copy import copy
+
+    donor = copy(picker._entries[0])
+    object.__setattr__(donor, "sha256", "")
+    object.__setattr__(donor, "path", "")
+    object.__setattr__(donor, "name", "a_model_with_no_checksum.CP_model")
+    picker._entries.append(donor)
+    picker.table.setRowCount(len(picker._entries))
+    from PySide6.QtWidgets import QTableWidgetItem
+    for column, text in enumerate((donor.name, donor.kind, "", "not downloaded")):
+        picker.table.setItem(len(picker._entries) - 1, column,
+                             QTableWidgetItem(str(text)))
+    return len(picker._entries) - 1
 
 
 def test_an_unverifiable_model_says_so_before_the_click(picker):

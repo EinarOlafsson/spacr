@@ -120,3 +120,44 @@ def test_publish_model_refuses_a_kind_the_registry_would_reject(tmp_path):
 def test_publish_model_refuses_a_path_that_is_not_a_file(tmp_path):
     with pytest.raises(mz.ModelZooError, match="is not a file"):
         mz.publish_model(tmp_path / "absent", "someone/repo", key="k")
+
+
+def test_the_retired_plaque_model_is_not_offered():
+    """310-style retirement: filtered from the listing, kept on disk.
+
+    ``toxo_plaque_cyto`` recalls 0.631 on the literature set -- it misses about
+    a third of the plaques -- and published no checksum, so its row in the
+    picker carried a Download button that could never succeed: fetch refuses an
+    entry it cannot verify.
+    """
+    names = {e.name for e in mz.catalogue(remote=True)}
+    assert not any(n in mz.RETIRED_MODEL_NAMES for n in names), (
+        "a retired model is still offered")
+
+
+def test_retirement_survives_the_model_still_being_on_disk():
+    """The filter has to beat LOCAL DISCOVERY, not only the remote list.
+
+    The checkpoint ships inside the package, so discover_local finds it as a
+    real file on this machine. Dropping only the remote entry left it in the
+    listing anyway -- which is what happened on the first attempt.
+    """
+    entries = mz.catalogue(remote=True, include_bundled=True)
+    assert all(e.name not in mz.RETIRED_MODEL_NAMES for e in entries)
+
+
+def test_the_retired_model_is_still_reachable_for_reproducibility():
+    """Retired from the menu, not deleted from disk.
+
+    A run recorded against it has to stay reproducible: removing the weights
+    would silently change what re-running an old analysis produces, which is
+    worse than a model nobody should newly pick. plaque_model='bundled' is the
+    documented way back to it.
+    """
+    import os
+
+    from spacr.submodules import _resolve_plaque_model
+
+    path = _resolve_plaque_model({"plaque_model": "bundled"})
+    assert path.endswith(".CP_model")
+    assert os.path.isfile(path), "the retired checkpoint must still be there"

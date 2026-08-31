@@ -115,7 +115,7 @@ Example::
     entries = zoo.catalogue() + zoo.discover_local('/data/screen1')
     print(zoo.format_zoo(entries))
 
-    entry = zoo.resolve('toxo_plaque_cyto_e25000_X1120_Y1120.CP_model', entries)
+    entry = zoo.resolve('cpsam_plaque_r3', entries)
     result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)
     print(zoo.format_benchmarks([result]))
 
@@ -150,6 +150,7 @@ __all__ = [
     "BUNDLED_REMOTE_MODELS",
     "BenchmarkResult",
     "CATALOGUE_ENV_VAR",
+    "RETIRED_MODEL_NAMES",
     "REMOTE_CATALOGUE_URI",
     "shared_catalogue",
     "publish_model",
@@ -279,30 +280,14 @@ CATALOGUE_CACHE_SECONDS = 3600
 
 #: Remote entries spaCR knows about out of the box.
 #:
-#: ``sha256`` is empty because this pack publishes no checksum, and an empty
-#: hash here is a *statement*, not an oversight: :func:`fetch` refuses to
-#: install an entry it cannot verify unless the caller passes
-#: ``require_checksum=False``. The honest fix is a catalogue file
-#: (:func:`load_catalogue_file`) carrying hashes for the copies your lab
-#: actually blessed.
+#: EVERY ENTRY HERE CARRIES A REAL sha256, and that is now the rule rather
+#: than an aspiration. The retired ``toxo_plaque_cyto`` entry published none,
+#: so :func:`fetch` refused to install it -- correctly, since a truncated or
+#: substituted checkpoint could not be told from the real one -- which meant
+#: it appeared in the model zoo as a row whose Download button could never
+#: succeed. An entry without a hash is not a conservative entry; it is one
+#: nobody can install.
 BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
-    {
-        "key": "toxo_plaque_cyto",
-        "name": "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
-        "kind": "cellpose",
-        "uri": None,        # filled in from HF_MODELS_REPO below
-        "sha256": "",
-        "trained_on": (
-            "Toxoplasma plaque assay, /nas_mnt/carruthers/patrick/"
-            "Plaque_assay_training/train — 1120x1120 crops, diameter 30, "
-            "25000 epochs, greyscale"
-        ),
-        "trained_by": "einarolafsson (spaCR bundled model pack)",
-        "notes": (
-            "publishes no checksum; fetch refuses it unless you pass "
-            "require_checksum=False or supply expected_sha256=",
-        ),
-    },
     # THE THREE BELOW PUBLISH REAL CHECKSUMS, and live in MODEL repos rather
     # than the dataset repo above -- hence `repo_type`. Being verifiable is
     # the difference between an entry `fetch` installs and one it refuses, so
@@ -379,6 +364,25 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
 )
+
+#: Models that are no longer OFFERED, by filename.
+#:
+#: Retired 2026-08-31 at the maintainer's instruction. ``toxo_plaque_cyto``
+#: recalls 0.631 on the literature set -- it misses about a third of the
+#: plaques -- against 0.811 for ``toxoplasma_plaque_v1``, and it published no
+#: checksum, so its row in the picker had a Download button that could never
+#: succeed.
+#:
+#: FILTERED FROM THE LISTING, NOT DELETED FROM DISK. The checkpoint still
+#: ships, and ``plaque_model='bundled'`` still resolves to it, because a run
+#: recorded against it has to stay reproducible: removing the weights would
+#: silently change what re-running an old analysis produces, which is worse
+#: than offering a model nobody should pick. It is simply no longer something
+#: the zoo suggests.
+RETIRED_MODEL_NAMES: frozenset = frozenset({
+    "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+})
+
 
 #: Keys :func:`rank` will sort on, with the direction and what the number is.
 #:
@@ -1461,6 +1465,10 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
             if (entry.key, entry.name) not in have:
                 entries.append(entry)
                 have.add((entry.key, entry.name))
+    # Retired models are dropped LAST, after every source has contributed, so
+    # a retirement holds however the entry arrived -- bundled, local discovery
+    # of the shipped file, a lab catalogue, or a plugin.
+    entries = [e for e in entries if e.name not in RETIRED_MODEL_NAMES]
     if include_plugins:
         try:
             from .plugins import (
