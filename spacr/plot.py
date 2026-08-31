@@ -729,25 +729,24 @@ def plot_image_mask_overlay(
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
                 elif current_channel in channels_with_outlines:
-                    outline_info = channel_to_outline.get(current_channel, None)
+                    # Membership is tested against this mapping's own key set,
+                    # and every value is built from a concrete stack plane.
+                    outline_info = channel_to_outline[current_channel]
+                    outline = outline_info['mask']
+                    color = outline_info['color']
+                    cmap_seed = outline_info.get('cmap_seed', current_channel + 1000)
 
-                    if outline_info is not None:
-                        outline = outline_info['mask']
-                        color = outline_info['color']
-                        cmap_seed = outline_info.get('cmap_seed', current_channel + 1000)
-
-                        if outline is not None:
-                            if mode == 'outlines':
-                                channel_image_rgb = _apply_contours(
-                                    channel_image_rgb, outline, color, thickness
-                                )
-                            else:
-                                cmap = random_color_cmap(
-                                    int(outline.max() + 1),
-                                    seed=cmap_seed
-                                )
-                                mask = _generate_colored_mask(outline, cmap)
-                                channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+                    if mode == 'outlines':
+                        channel_image_rgb = _apply_contours(
+                            channel_image_rgb, outline, color, thickness
+                        )
+                    else:
+                        cmap = random_color_cmap(
+                            int(outline.max() + 1),
+                            seed=cmap_seed
+                        )
+                        mask = _generate_colored_mask(outline, cmap)
+                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
                 else:
                     if all_outlines:
@@ -1017,7 +1016,7 @@ def plot_image_mask_overlay_magenta_outlines(
     :returns: The generated matplotlib ``Figure``.
     """
 
-    def random_color_cmap(n_labels, seed=None):
+    def random_color_cmap(n_labels, seed):
         """Generates a random color map for a given number of labels.
 
         :param n_labels: How many object colours to draw. Index 0 is
@@ -1036,8 +1035,7 @@ def plot_image_mask_overlay_magenta_outlines(
             ``None`` leaves the global state alone.
         :returns: A ``ListedColormap``.
         """
-        if seed is not None:
-            np.random.seed(seed)
+        np.random.seed(seed)
         rand_colors = np.random.rand(n_labels, 3)
         rand_colors = np.vstack([[0, 0, 0], rand_colors])  # Ensure background is black
         cmap = ListedColormap(rand_colors)
@@ -1110,14 +1108,17 @@ def plot_image_mask_overlay_magenta_outlines(
             num_channels = image.shape[-1]
             fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
 
-            # Identify channels without associated outlines
-            channels_with_outlines = []
-            if cell_channel is not None:
-                channels_with_outlines.append(cell_channel)
-            if nucleus_channel is not None:
-                channels_with_outlines.append(nucleus_channel)
+            # The caller constructs every non-None role channel together
+            # with its extracted stack plane. Insert in reverse priority so
+            # a shared channel retains the old cell > nucleus > pathogen
+            # dispatch order.
+            outlines_by_channel = {}
             if pathogen_channel is not None:
-                channels_with_outlines.append(pathogen_channel)
+                outlines_by_channel[pathogen_channel] = pathogen_outlines
+            if nucleus_channel is not None:
+                outlines_by_channel[nucleus_channel] = nucleus_outlines
+            if cell_channel is not None:
+                outlines_by_channel[cell_channel] = cell_outlines
 
             for v in range(num_channels):
                 channel_image = image[..., v]
@@ -1137,28 +1138,18 @@ def plot_image_mask_overlay_magenta_outlines(
                             cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
                             mask = _generate_colored_mask(outline, cmap)
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-                elif current_channel in channels_with_outlines:
+                elif current_channel in outlines_by_channel:
                     # Apply only the relevant outline to each channel
-                    outline = None
-                    color = None
-
-                    if current_channel == cell_channel and cell_outlines is not None:
-                        outline = cell_outlines
-                    elif current_channel == nucleus_channel and nucleus_outlines is not None:
-                        outline = nucleus_outlines
-                    elif current_channel == pathogen_channel and pathogen_outlines is not None:
-                        outline = pathogen_outlines
-
-                    if outline is not None:
-                        if mode == 'outlines':
-                            # Use magenta color when all_on_all=False
-                            channel_image_rgb = _apply_contours(
-                                channel_image_rgb, outline, '#FF00FF', thickness
-                            )
-                        else:
-                            cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
-                            mask = _generate_colored_mask(outline, cmap)
-                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+                    outline = outlines_by_channel[current_channel]
+                    if mode == 'outlines':
+                        # Use magenta color when all_on_all=False
+                        channel_image_rgb = _apply_contours(
+                            channel_image_rgb, outline, '#FF00FF', thickness
+                        )
+                    else:
+                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                        mask = _generate_colored_mask(outline, cmap)
+                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
                 else:
                     # Channel without associated outlines
                     if all_outlines:
@@ -1707,7 +1698,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         p2, p98 = np.percentile(image, (lower, upper))
         return np.clip((image - p2) / (p98 - p2), 0, 1)
 
-    def find_files(folders, extensions=None):
+    def find_files(folders, extensions):
         """Return a dict keyed by base filename mapping to files with the requested extensions.
 
         :param folders: Folder paths, each walked recursively. Grouping is
@@ -1717,11 +1708,8 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
             basename under one folder keep only the last one walked.
         :param extensions: Extensions to accept, matched with
             ``str.endswith`` so they must include the dot and match case.
-            ``None`` means ``['.npy', '.tif', '.tiff', '.png']``.
         :returns: ``{basename: {folder: path}}`` for complete groups only.
         """
-        if extensions is None:
-            extensions = ['.npy', '.tif', '.tiff', '.png']
         file_dict = {}
 
         for folder in folders:
@@ -1738,7 +1726,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         filtered_dict = {k: v for k, v in file_dict.items() if len(v) == len(folders)}
         return filtered_dict
 
-    def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99, overlay=False, save=False):
+    def plot_from_file_dict(file_dict, threshold=1000, lower_percentile=1, upper_percentile=99, overlay=False):
         """Show image/mask pairs collected in ``file_dict`` side-by-side.
 
         :param file_dict: ``{filename: {folder: path}}`` produced by
@@ -1749,8 +1737,6 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         :param upper_percentile: Upper percentile clip. Default ``99``.
         :param overlay: If True, overlay mask outlines on the image.
             Default ``False``.
-        :param save: If True, save each figure alongside the source
-            file. Default ``False``.
         :returns: None
         """
 
@@ -1806,10 +1792,6 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                     plt.tight_layout()
                     plt.show()
 
-                if save:
-                    save_path = os.path.join(folder, f"{filename}.png")
-                    save_path = save_figure(plt.gcf(), save_path)
-
     if overlay:
         print(f'Overlay will only work on the first two folders in the list')
 
@@ -1821,7 +1803,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
         items = items[:int(max_nr)]
     file_dict = dict(items)
 
-    plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile, overlay, save=False)
+    plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile, overlay)
     return
 
 def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, nuclei_limit, pathogen_limit):
@@ -3354,12 +3336,9 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
             contour solid instead of outlining it. Default ``2``.
         :returns: A new RGB array; the input ``image`` is not modified.
         """
-        # Ensure the image is in RGB format
-        if image.ndim == 2:  # Grayscale to RGB
-            image = normalize_to_uint8(image)  # Convert to uint8 if needed
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        else:
-            image_rgb = image.copy()
+        # The sole caller reduces every accepted stack to a 2-D base plane.
+        image = normalize_to_uint8(image)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
         # Generate and draw contours
         contours = generate_contours(mask)
@@ -3902,11 +3881,8 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                 color=ROLES['highlight'])
         entries.append((combined_label, ROLES['highlight']))
 
-        if x_lim is not None:
-            ax.set_xlim(x_lim)
-
-        if y_lim is not None:
-            ax.set_ylim(y_lim)
+        ax.set_xlim(x_lim)
+        ax.set_ylim(y_lim)
 
         descriptor(ax, 'Lorenz Curves')
         ax.set_xlabel('Cumulative Share of Individuals')
@@ -4074,8 +4050,7 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
             descriptor(ax, f'Average {y_axis.capitalize()} per Model')
             rotate_ticks(ax)
             fig.tight_layout()
-            if y_lim is not None:
-                ax.set_ylim(y_lim)
+            ax.set_ylim(y_lim)
             plt.show()
     else:
         print("No CSV files found in the specified directory.")
@@ -4098,16 +4073,14 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     :raises KeyError: if required plate/row/col columns are missing.
     """
 
-    def join_measurments_and_annotation(src, tables = None):
+    def join_measurments_and_annotation(src, tables):
         """Join per-object measurement tables with the ``png_list`` annotation table.
 
         :param src: spaCR experiment directory; the database is read from
             ``<src>/measurements/measurements.db`` and no other layout is
             supported — pass the experiment folder, not the ``.db`` file.
-        :param tables: Object tables to merge, joined on ``prcfo``.
-            ``None`` means ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``,
-            and every name listed must exist in the database. Listing fewer
-            tables is how you plot a run that measured fewer object types.
+        :param tables: Object tables to merge, joined on ``prcfo``. Every
+            name listed must exist in the database.
         :returns: One row per object, with the ``png_list`` crop path
             attached by a left join.
         :raises pandas.errors.MergeError: if ``png_list`` holds more than
@@ -4115,8 +4088,6 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
             precisely so duplicated crops cannot silently multiply the
             measurement rows and inflate the jitter plot.
         """
-        if tables is None:
-            tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
         from .io import _read_and_merge_data, _read_db
         db_loc = [src+'/measurements/measurements.db']
         loc = src+'/measurements/measurements.db'
@@ -4547,8 +4518,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         # nothing, and `plt.gcf()` below handed back an EMPTY figure. Two of
         # the seven entries in the right-click Graph type menu blanked the
         # plot and reported no error.
-        elif graph_type not in ('bar', 'violin', 'jitter', 'box',
-                                'jitter_box'):
+        else:
             raise ValueError(
                 f"graph_type={graph_type!r} is not one of bar, violin, "
                 f"jitter, box, jitter_box, jitter_bar, line")
@@ -4825,8 +4795,9 @@ class spacrGraph:
                 categories=self.order,
                 ordered=True
             )
-        elif (self.grouping_column in df.columns):
-            # Default to sorting unique values
+        else:
+            # The initial dropna and every aggregation require this column,
+            # so it is still present when no explicit order was supplied.
             df[self.grouping_column] = pd.Categorical(
                 df[self.grouping_column],
                 categories=sorted(df[self.grouping_column].unique()),
@@ -5292,7 +5263,9 @@ class spacrGraph:
             elif self.graph_type == 'jitter': 
                 x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
             
-            elif self.graph_type in ['line', 'line_std']:
+            else:
+                # The drawing dispatch rejects unknown graph types before
+                # positions are read; the only remaining pair is line/line_std.
                 x_positions = []
             
             return x_positions
@@ -5336,8 +5309,7 @@ class spacrGraph:
         # Now, and only now, trim what gets drawn.
         if self.remove_outliers:
             self.df = self.remove_outliers_from_plot()
-            if not self.results_df.empty:
-                self.results_df['outliers_removed_from_plot_only'] = True
+            self.results_df['outliers_removed_from_plot_only'] = True
             trimmed = len(stats_df) - len(self.df)
             if trimmed > 0:
                 print(f"remove_outliers: {trimmed} of {len(stats_df)} points "
@@ -7301,9 +7273,9 @@ def volcano_plot(
             return abs(np.log2(t))
         if x_transform.lower() == "log10":
             return abs(np.log10(t))
-        if x_transform.lower() in ("ln", "log"):
-            return abs(np.log(t))
-        raise ValueError(f"Unknown x_transform: {x_transform}")
+        # _transform_x validates the vocabulary before this helper runs, so
+        # the only remaining accepted forms are the natural-log aliases.
+        return abs(np.log(t))
 
     def _threshold_y_in_plot_units(pthresh: float) -> float:
         pt = float(pthresh)

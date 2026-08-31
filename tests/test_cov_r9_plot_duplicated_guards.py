@@ -28,24 +28,17 @@ def _nested(outer, name):
 
 class TestTheFileExtensionDefault:
 
-    def test_the_two_default_lists_are_the_same(self):
-        """THE PIN, for ``if extensions is None`` inside ``find_files``.
-
-        ``plot_images_and_arrays`` resolves the default before it calls
-        the helper, so the helper's own resolution never runs. What can
-        go wrong is DRIFT: adding ``.jpg`` to one and not the other
-        changes what a direct caller sees and nothing else, which is a
-        difference nobody would look for.
-        """
+    def test_there_is_one_default_list(self):
+        """The public function owns the default; its nested helper requires
+        the already-resolved list, so two copies cannot drift apart."""
         outer = inspect.getsource(P.plot_images_and_arrays)
         defaults = [line for line in outer.splitlines()
                     if "extensions = ['.npy'" in line]
 
-        assert len(defaults) == 2, (
-            f"expected the default list in both the outer function and "
-            f"find_files; found {len(defaults)}")
-        assert defaults[0].strip() == defaults[1].strip(), (
-            "the two default extension lists have drifted apart")
+        assert len(defaults) == 1
+        helper = _nested(P.plot_images_and_arrays, "find_files")
+        assert "extensions=None" not in helper
+        assert "if extensions is None:" not in helper
 
     def test_the_outer_resolves_it_before_calling(self):
         outer = inspect.getsource(P.plot_images_and_arrays)
@@ -67,33 +60,19 @@ class TestTheFileExtensionDefault:
 
 class TestTheSaveFlag:
 
-    def test_the_only_caller_passes_it_false(self):
-        """THE PIN, for ``if save:`` inside ``plot_from_file_dict``.
-
-        The parameter exists and is never set: the one call site passes
-        ``save=False`` literally, and the public function has no ``save``
-        of its own to forward. So the branch cannot run, and the
-        parameter is a knob with nothing attached to it.
-        """
+    def test_the_nested_plotter_has_no_unreachable_save_knob(self):
         outer = inspect.getsource(P.plot_images_and_arrays)
-
-        assert "save=False)" in outer, (
-            "plot_from_file_dict is no longer called with save=False, so "
-            "the saving branch is live")
-        assert "save" not in inspect.signature(
-            P.plot_images_and_arrays).parameters, (
-            "plot_images_and_arrays grew a save parameter; if it forwards "
-            "one, the branch inside plot_from_file_dict is now reachable")
-
-    def test_the_helper_still_declares_it(self):
-        """Recorded rather than assumed: the branch is dead because of
-        the CALL, not because the code was removed. Deleting the
-        parameter is the repair, and this says so where the next reader
-        will look."""
         helper = _nested(P.plot_images_and_arrays, "plot_from_file_dict")
 
-        assert "save=False" in helper
-        assert "if save:" in helper
+        assert "save=False" not in helper
+        assert "if save:" not in helper
+        assert "save_figure(" not in helper
+        assert "save" not in inspect.signature(
+            P.plot_images_and_arrays).parameters
+
+        call = outer.index("plot_from_file_dict(file_dict")
+        assert "save=" not in outer[call:call + 180]
+
 
 
 class TestTheTransformNameIsCheckedTwice:
@@ -120,26 +99,21 @@ class TestTheTransformNameIsCheckedTwice:
         assert "Unknown x_transform" in str(caught.value)
         assert "sqrt" in str(caught.value)
 
-    def test_both_copies_name_the_same_thing(self):
-        """If they ever disagree, the message a user sees depends on
-        which path ran, which is the worst kind of error text."""
+    def test_the_data_transform_is_the_single_vocabulary_check(self):
         source = inspect.getsource(P.volcano_plot)
         copies = [line.strip() for line in source.splitlines()
                   if "Unknown x_transform" in line]
 
-        assert len(copies) == 2
-        assert copies[0].replace("mode", "x_transform") == copies[1], (
-            f"the two refusals disagree: {copies}")
+        assert len(copies) == 1
+        assert "mode" in copies[0]
 
-    def test_the_accepted_names_are_the_same_in_both(self):
-        """The half that actually breaks: one copy learning a new
-        transform and the other refusing it."""
+    def test_threshold_conversion_relies_on_the_validated_vocabulary(self):
         source = inspect.getsource(P.volcano_plot)
 
         for name in ("log2", "log10"):
-            assert source.count(f'== "{name}"') >= 2, (
-                f"{name} is no longer handled in both places")
-        assert source.count('in ("ln", "log")') >= 2
+            assert source.count(f'== "{name}"') >= 2
+        assert source.count('in ("ln", "log")') == 1
+        assert "the only remaining accepted forms are the natural-log aliases" in source
 
 
 class TestGrayscaleContours:
@@ -159,19 +133,9 @@ class TestGrayscaleContours:
         assert widened.shape == (8, 8, 3)
         assert widened.dtype == image.dtype
 
-    def test_an_rgb_image_is_copied_rather_than_drawn_on(self):
-        """The other arm, and the reason it is a copy: the caller's array
-        is shown beside the outlined one, so drawing in place would put
-        contours on both."""
-        image = np.zeros((8, 8, 3), dtype=np.uint8)
-
-        copied = image.copy()
-        copied[0, 0] = 255
-
-        assert image[0, 0].tolist() == [0, 0, 0]
-
-    def test_the_helper_still_makes_that_choice(self):
+    def test_the_helper_only_accepts_the_callers_grayscale_plane(self):
         helper = _nested(P.print_mask_and_flows, "apply_contours_on_image")
 
-        assert "if image.ndim == 2:" in helper
-        assert "image.copy()" in helper
+        assert "if image.ndim == 2:" not in helper
+        assert "image.copy()" not in helper
+        assert "cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)" in helper
