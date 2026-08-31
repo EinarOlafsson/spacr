@@ -83,8 +83,8 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # 18 distributions had zero imports, zero string references and zero dynamic
 # references, and are gone: transformers, monai, segmentation_models_pytorch,
 # torch-geometric, PyWavelets, rapidfuzz, wandb, gdown, pytz, ipykernel,
-# ttkthemes, ttf_opensans (spaCR bundles its own Open Sans under
-# spacr/resources/font/), brokenaxes, gpustat, customtkinter, openai, keyring
+# ttf_opensans (spaCR bundles its own Open Sans under
+# spacr/resources/font/), brokenaxes, gpustat, openai, keyring
 # and importlib-metadata. Three of those had a *prose* hit and no code hit —
 # "transformers" in a GUI blurb, "@openai/codex" in an npm one-liner, "OS
 # keyring" in a stale docstring — which is precisely the difference a raw grep
@@ -420,15 +420,14 @@ dependencies = [
     'cycler>=0.10,<1',
 
     # -----------------------------------------------------------------------
-    # THE Qt GUI IS NOT OPTIONAL. Asked for on 2026-08-17: "lets stop hiding
-    # the qt behind a qt. allways install qt as well as the tkinter stuff".
+    # THE Qt GUI IS NOT OPTIONAL. Asked for on 2026-08-17: stop hiding the
+    # GUI behind an optional extra and always install it.
     #
     # `spacr-qt` is a console entry point declared UNCONDITIONALLY below, so a
     # plain `pip install spacr` was installing a command that could not run --
     # the same shape as the pyqtgraph report earlier that day, one level up.
-    # tkinter needs no declaration (it ships with CPython), so the Tk GUI has
-    # always worked out of the box and the Qt one, which is the primary GUI,
-    # did not.
+    # PySide6 IS the interface: there is no second one to fall back to, so a
+    # missing binding is not a degraded install, it is no application.
     #
     # SAFE ACROSS THE BLOCKING SUPPORT MATRIX, checked rather than assumed --
     # `requires-python` is >=3.9,<3.16, with 3.15 deliberately forward-
@@ -540,13 +539,19 @@ dependencies = [
     # There was no 0.5.10 release; 0.5.11 is the first published compatible
     # version and supports every spaCR interpreter, including Python 3.9.
     'umap-learn>=0.5.11,<1.0',
-    # `ttkthemes` REMOVED: zero imports. The Tk GUI is plain tkinter/ttk and
-    # the default GUI is PySide6, which has its own theming.
+    # `ttkthemes` REMOVED: zero imports. PySide6 is the interface and it
+    # carries its own theming.
+    #
     # Ceiling RAISED. XGBoost 3.0 removed DeviceQuantileDMatrix, `feval`,
     # datatable support and legacy model *saving*; spaCR uses XGBClassifier
-    # (spacr/ml.py:2474, hyperparam.py:1844, gui_elements.py:5461) plus
-    # booster-level `xgb.DMatrix`/`xgb.train` (spacr/timelapse.py:7030-7050),
-    # all of which survive. The resolver handles the interpreter split by
+    # (spacr/hyperparam.py:3540, spacr/regression_annotation.py:1080) plus
+    # booster-level `xgb.DMatrix`/`xgb.train`, all of which survive.
+    #
+    # CITATIONS RE-CHECKED 2026-08-31 and three of the four were stale --
+    # they pointed at ml.py and hyperparam.py lines that have since become
+    # unrelated code, and at a module that no longer exists at all. A
+    # version ceiling is only as good as the evidence for it, and evidence
+    # nobody can follow is a ceiling nobody can safely raise. The resolver handles the interpreter split by
     # itself: xgboost 3.3 needs Python >=3.12, so a 3.9-3.11 install lands on
     # an older compatible line without help.
     'xgboost>=2.0.3,<4',
@@ -557,7 +562,6 @@ dependencies = [
     # ships its own Open Sans under spacr/resources/font/ and loads it from
     # there, which is why the font works today on machines that never had this
     # package.
-    # `customtkinter` REMOVED: zero imports. Same reason as ttkthemes.
     'biopython>=1.80,<2.0',
     # Ceiling REMOVED. spaCR imports lxml in zero files; it is here only as
     # the preferred backend for the single `pd.read_html` call at
@@ -738,12 +742,11 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            # THE FIVE TK LAUNCHERS ARE GONE with the interface they
-            # opened: `mask`, `measure`, `make_masks`, `annotate` and
-            # `classify` each started a Tkinter window that the Qt
-            # application replaced screen for screen. Every one of them is
-            # a tab in `spacr` now, and `spacr-run <module>` is the
-            # headless route.
+            # FIVE PER-MODULE LAUNCHERS ARE GONE: `mask`, `measure`,
+            # `make_masks`, `annotate` and `classify` each opened a window
+            # of their own. Every one of them is a tab in `spacr` now, and
+            # `spacr-run <module>` is the headless route, so neither the
+            # commands nor the top-level names they occupied are needed.
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
@@ -774,7 +777,7 @@ setup(
             # the question is usually asked about somebody else's run.
             'spacr-workspace=spacr.cli_workspace:main',
             # spacr-run <module> --settings f — headless pipeline runner for
-            # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
+            # clusters: no Qt, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
             'spacr-run=spacr.cli:main',
             # Persistent SSH / Slurm / cloud job submission and monitoring.

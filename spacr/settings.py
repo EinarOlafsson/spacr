@@ -2909,10 +2909,11 @@ def get_identify_masks_finetune_default_settings(settings):
 q = None
 #: Module blurbs, keyed by app key.
 #:
-#: RESTORED. This table sat between two Tkinter widget builders that
-#: were deleted with the rest of that interface, and went with them --
-#: `register_defaults` reads it whenever a module registers with a
-#: description, so losing it broke registration itself.
+#: RESTORED. This table sat between two widget builders from the previous
+#: interface and was deleted along with them, which broke registration
+#: itself -- `register_defaults` reads it whenever a module registers with
+#: a description. Kept here, with nothing above or below it that could
+#: take it down again by association.
 descriptions = {
     'mask': (
         "Generate labeled masks for cells, nuclei, pathogens and organelles "
