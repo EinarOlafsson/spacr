@@ -223,37 +223,67 @@ class TestFillingUnmappedBarcodesWithTheirSequence:
 class TestWhereTheThresholdFigureGoes:
 
     def _settings(self, tmp_path, dst):
+        """A count table wide enough for the sweep to have somewhere to go.
+
+        ``filter_column`` names the column the control wells are dropped
+        by, and it is required: without it the function refuses rather
+        than silently keeping controls in the fractions.
+        """
         counts = tmp_path / "counts.csv"
         rng = np.random.default_rng(4)
-        pd.DataFrame({
-            "rowID": ["r1"] * 40,
-            "columnID": [f"c{i % 4 + 1}" for i in range(40)],
-            "grna_name": [f"g{i % 8}" for i in range(40)],
-            "count": rng.integers(1, 200, 40),
-        }).to_csv(counts, index=False)
+        rows = []
+        for row in range(8):
+            for column in range(12):
+                for guide in range(6):
+                    rows.append({
+                        "plateID": "p1",
+                        "rowID": f"r{row + 1}",
+                        "columnID": f"c{column + 1}",
+                        "grna": f"g{guide}",
+                        "count": int(rng.integers(1, 300)),
+                    })
+        pd.DataFrame(rows).to_csv(counts, index=False)
         return {"count_data": [str(counts)], "dst": dst,
-                "min_count": 0, "target_unique_count": 5,
-                "filter_column": None}
+                "min_count": 0, "target_unique_count": 3,
+                "filter_column": "columnID", "control_wells": ["c1"],
+                "log_x": False, "log_y": False}
 
-    def test_a_run_with_a_destination_writes_the_figure(self, tmp_path):
-        destination = tmp_path / "out"
-        destination.mkdir()
+    def test_the_figure_lands_beside_the_count_data(self, tmp_path):
+        """Not where ``settings['dst']`` says.
 
-        try:
-            SEQ.graph_sequencing_stats(self._settings(tmp_path,
-                                                      str(destination)))
-        except Exception as error:            # noqa: BLE001
-            pytest.skip(f"the stats graph needs more than a stub: {error}")
+        The destination is derived from the first count file's own
+        directory, so the figure lands beside the table it describes
+        whatever ``dst`` holds. Worth knowing rather than guessing: a
+        caller that set ``dst`` and looked there would not find it.
+        """
+        elsewhere = tmp_path / "out"
+        elsewhere.mkdir()
 
-        assert (destination / "results" / "fraction_threshold.pdf").exists()
+        SEQ.graph_sequencing_stats(self._settings(tmp_path, str(elsewhere)))
 
-    def test_the_destination_guard_is_the_only_thing_writing_a_file(self):
+        beside = tmp_path / "results" / "fraction_threshold.pdf"
+        assert beside.exists(), (
+            "the threshold figure was not written beside the count data")
+        assert not (elsewhere / "results" / "fraction_threshold.pdf").exists()
+
+    def test_it_answers_a_threshold(self, tmp_path):
+        threshold = SEQ.graph_sequencing_stats(
+            self._settings(tmp_path, None))
+
+        assert threshold is None or isinstance(threshold, float)
+
+    def test_the_destination_guard_cannot_fire(self):
         """THE PIN: ``dst is None``.
 
-        Every caller in the package passes a destination, so the None
-        arm is for a notebook asking for the threshold without wanting a
-        file. ``os.path.join(None, 'results')`` is a TypeError, which is
-        why it is guarded rather than left to fail.
+        The only caller builds ``dst`` from
+        ``os.path.dirname(settings['count_data'][0])``, which is a real
+        directory for any file that was read -- so the None arm of the
+        nested plotter is unreachable through it.
+
+        Keeping it is right, because the plotter carries ``dst=None`` in
+        its own signature and ``os.path.join(None, 'results')`` is a
+        TypeError. The pin is on the derivation, which is what would have
+        to change for the arm to become live.
         """
         import inspect
 
@@ -262,3 +292,6 @@ class TestWhereTheThresholdFigureGoes:
         write = source.index("os.makedirs(fig_path, exist_ok=True)")
         guard = source.index("if dst is not None:")
         assert guard < write, "the destination is used before it is checked"
+        assert "dst = os.path.dirname(settings['count_data'][0])" in source, (
+            "the destination is no longer derived from the count file, so "
+            "the None arm of the plotter may now be reachable")
