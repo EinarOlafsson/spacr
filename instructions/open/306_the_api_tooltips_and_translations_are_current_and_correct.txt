@@ -496,7 +496,6 @@ moving the exact ratchet to 2,522/1,822 with digest
 all nine locale groups review the replacement blocks rather than certifying the
 retired internal prose.
 
-
 PROGRESS 2026-08-31, LATER -- TWO OF THE FOUR WERE NOT THIS ITEM
 -----------------------------------------------------------------
 
@@ -568,3 +567,22 @@ THE ROUTE THROUGH, in order:
 A retained probe worktree at ``/tmp/claude-1000/capref`` (detached at
 d0c1a633c) is registered in `git worktree list`. Nothing was deleted;
 remove it when step 1 makes it unnecessary.
+
+PROGRESS 2026-08-31, FLOWVIEW API SLICE
+----------------------------------------
+
+The FlowView follow-up completes the required-parameter documentation slice in
+``classify_blueprint``, ``theme`` and ``trace``: six omissions across four
+functions are closed without changing executable signatures or behavior.  The
+three backdrop retry helpers remain private implementation details, so this
+pass does not admit them to the public API or carry obsolete translation-review
+evidence for them.  Decoder-disabled rematerialization and the strict
+all-language audit prove that all nine catalogs contain 8,861/8,861 current
+symbols with zero orphans.
+
+This finishes the FlowView batch, not item 306.  The exact reverse-direction
+ratchet is now 2,516 required-parameter omissions across 1,818 public callables,
+digest
+``16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf``.
+The remaining debt and the exhaustive semantic-review criterion keep this item
+OPEN and release-blocking.

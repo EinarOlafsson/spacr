@@ -2298,8 +2298,8 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,522
-    omissions across 1,822 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,516
+    omissions across 1,818 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
     """
@@ -2314,26 +2314,28 @@ def test_no_new_undocumented_required_public_parameters():
     )
 
     # The layers sweep closes 114 omissions across 89 callables, and the
-    # event-filter cleanup closes two more, without changing executable
-    # signatures or hiding aliases from this denominator.
-    assert len(omissions) == 2_522
-    assert sum(omitted_callables.values()) == 1_822
+    # event-filter cleanup closes two more. The complete FlowView
+    # classify/theme/trace slice closes six more across four functions,
+    # without changing executable signatures or hiding aliases from this
+    # denominator.
+    assert len(omissions) == 2_516
+    assert sum(omitted_callables.values()) == 1_818
     assert omitted_callables == {
-        "function": 698,
+        "function": 694,
         "method": 1_013,
         "constructor": 43,
         "dataclass_constructor": 66,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_004,
+        "function": 998,
         "method": 1_214,
         "constructor": 64,
         "dataclass_constructor": 228,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782"
+        "16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf"
     )
 
 

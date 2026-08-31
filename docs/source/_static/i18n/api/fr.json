@@ -20785,13 +20785,23 @@
     "spacr.flowview.classify_blueprint.classify_graph": {
       "source_blocks_sha256": [
         "ac16c549df0730d3252914cb7aa4d2b387e6785c222da6f1b3949eb51ae36789",
-        "98275cf7818a5913b9399a5dfc4e1d8014a71cdefc92a4aee6cf060f2c220aad"
+        "98275cf7818a5913b9399a5dfc4e1d8014a71cdefc92a4aee6cf060f2c220aad",
+        "033fc9aebcba52f22ac3bb70fcd915116366695d8fa3c6f5bcdf8ef2ff0d0a7d",
+        "c52074420b3b80bd27625002f31dff54b7f652ffd3c51fcd7d3c92daff200940",
+        "a41b0c1bb21ac555db8e66addf61e8c0a7e8ed3c023fad17b10b9d66bead5af4",
+        "7349118541bfc08cd49b50153396bf2490ffb9bb4c7ffd324c7498de0bfed62e",
+        "f25260cbf41e72f034cbae6f9a358d9b082041f24934e05dbe421b22b6400099"
       ],
-      "source_sha256": "eeb759b7195af6a9e0003ecd19520f9889f19c6ab6f2c165c999a95d22c827d4",
-      "text": "Construire le graphique en scène pour une famille active de classifier.\n\nLe graphique montre seulement la famille que la session de traitement exécutera. Il ne dessine délibérément pas une branche CV/ML dormante: classify les paramètres conservent et grisent déjà la famille inactive, tandis que FlowView rapporte ce que cette session de processus a fait.",
+      "source_sha256": "23e199c85b6768f07e371abf345d60f58de60326bec69fe6a48bc5856cc04c44",
+      "text": "Construire le graphique en scène pour une famille active de classifier.\n\nLe graphique montre seulement la famille que la session de traitement exécutera. Il ne dessine délibérément pas une branche CV/ML dormante: classify les paramètres conservent et grisent déjà la famille inactive, tandis que FlowView rapporte ce que cette session de processus a fait.\n\n:param settings: Classer les paramètres utilisés pour résoudre la famille active, la source, la base de données et les métadonnées d'étape.\n:param run_id: Identificateur attribué au graphique d'exécution résultant.\n:param started_at: En option, l'horodatage Unix pour le début de la session de traitement. L'heure actuelle est utilisée lorsque cela est omis.\n:param spacr_version: Version spaCR enregistrée avec la provenance du graphique.\n:returns: Graphique à huit étapes pour la famille de modèles de classification de l'apprentissage automatique sélectionnée.",
       "translation_source_blocks_sha256": [
         "ac16c549df0730d3252914cb7aa4d2b387e6785c222da6f1b3949eb51ae36789",
-        "8ea6904db02e940c04dc1bda19f35480a1bc959b8f8e248b42d67f32505b2182"
+        "8ea6904db02e940c04dc1bda19f35480a1bc959b8f8e248b42d67f32505b2182",
+        "033fc9aebcba52f22ac3bb70fcd915116366695d8fa3c6f5bcdf8ef2ff0d0a7d",
+        "c52074420b3b80bd27625002f31dff54b7f652ffd3c51fcd7d3c92daff200940",
+        "3ac33ccd6f8c68e257827670536ff70aa5dfbc873a5055a9c13db5913feef825",
+        "7349118541bfc08cd49b50153396bf2490ffb9bb4c7ffd324c7498de0bfed62e",
+        "3416b95dd0e131653c9f63043ca62cfb98124c772b8da951b2e7d7447f2f101c"
       ]
     },
     "spacr.flowview.collector": {
@@ -21568,22 +21578,32 @@
     },
     "spacr.flowview.theme.node_accent": {
       "source_blocks_sha256": [
-        "97af547a65cb989f56f2a32db3cb6b132de23093adc4a14d263358d24063bf09"
+        "97af547a65cb989f56f2a32db3cb6b132de23093adc4a14d263358d24063bf09",
+        "84513e56a0dd75d6c9dc5aa7965ce14ee24dbc20af0a8c4fcd5baa3c21a08158",
+        "25f1f94d9921d67dc88134e6946bb79523db005d08f90670235fdfedb1d95865",
+        "74b007fbd1562790394feffd734b219b1031d4cd9823a071a046a9836311cf43"
       ],
-      "source_sha256": "97af547a65cb989f56f2a32db3cb6b132de23093adc4a14d263358d24063bf09",
-      "text": "Remettez l'accent gentil, réservant l'alarme rouge pour les nœuds échoués.",
+      "source_sha256": "d8a065e8b15d48d034de41921c983420292377abb588fe4ba22702e678a4c7c1",
+      "text": "Remettez l'accent gentil, réservant l'alarme rouge pour les nœuds échoués.\n\n:param kind: Rôle d'entrée, de processus ou de sortie du noeud.\n:param state: État d'exécution actuel du noeud.\n:returns: Alarme rouge pour un noeud défaillant, sinon l'accent pour ``kind``.",
       "translation_source_blocks_sha256": [
-        "97af547a65cb989f56f2a32db3cb6b132de23093adc4a14d263358d24063bf09"
+        "97af547a65cb989f56f2a32db3cb6b132de23093adc4a14d263358d24063bf09",
+        "84513e56a0dd75d6c9dc5aa7965ce14ee24dbc20af0a8c4fcd5baa3c21a08158",
+        "25f1f94d9921d67dc88134e6946bb79523db005d08f90670235fdfedb1d95865",
+        "74b007fbd1562790394feffd734b219b1031d4cd9823a071a046a9836311cf43"
       ]
     },
     "spacr.flowview.theme.state_label": {
       "source_blocks_sha256": [
-        "3dbec951cd5664d851e553e98f090b9b67510e01a9eee671ccd907a7d0a1d599"
+        "3dbec951cd5664d851e553e98f090b9b67510e01a9eee671ccd907a7d0a1d599",
+        "25f1f94d9921d67dc88134e6946bb79523db005d08f90670235fdfedb1d95865",
+        "7a4773f56a9a081e83fda6f94aaa4d172a025ff3eba58d5cf6d521b437b5c9b1"
       ],
-      "source_sha256": "3dbec951cd5664d851e553e98f090b9b67510e01a9eee671ccd907a7d0a1d599",
-      "text": "Retournez le marqueur non coloré imprimé sur chaque carte de nœud.",
+      "source_sha256": "5b559078722d4853fa637d407e586f7a5a897e8681846f2d966b994f2f34d91b",
+      "text": "Retournez le marqueur non coloré imprimé sur chaque carte de nœud.\n\n:param state: État d'exécution actuel du noeud.\n:returns: Étiquette de l'état de la zone supérieure affichée sur la carte de nœud.",
       "translation_source_blocks_sha256": [
-        "3dbec951cd5664d851e553e98f090b9b67510e01a9eee671ccd907a7d0a1d599"
+        "3dbec951cd5664d851e553e98f090b9b67510e01a9eee671ccd907a7d0a1d599",
+        "25f1f94d9921d67dc88134e6946bb79523db005d08f90670235fdfedb1d95865",
+        "7a4773f56a9a081e83fda6f94aaa4d172a025ff3eba58d5cf6d521b437b5c9b1"
       ]
     },
     "spacr.flowview.thumbs": {
@@ -21740,12 +21760,26 @@
     },
     "spacr.flowview.trace.stage": {
       "source_blocks_sha256": [
-        "f27085f1e10a6a7989d1b6f2ea555c3f3c075af3a2a1b7c8bafc0f1bf52518e0"
+        "f27085f1e10a6a7989d1b6f2ea555c3f3c075af3a2a1b7c8bafc0f1bf52518e0",
+        "340db0d879e32c93341da5716c89ee7a5b2b7c1300fd03a673cf2e1644a368ca",
+        "6708e488eb0a41aeea3668843a405dba493a3951394b2376e84847c6bcd138d0",
+        "7ff7d3cf965410c2572f5785805aa2c27fa9e9343ac47777371a1be0e5993978",
+        "5385d4ceee910cee79e2e21a2a893b2ad379cf72933c34feaa1035f3940fb864",
+        "b2870dd7080d99ca26e480ebd5e87af95b168220bd9062b7717dd5de2431f611",
+        "b32251f80f52906f1a0ccdd43dcadb2d324885bd7e107be7030f8811f4c2f479",
+        "7b4234b7473c7921f00df4db07dc2b93c0cb967e4d64730adbd88a3053dd4611"
       ],
-      "source_sha256": "f27085f1e10a6a7989d1b6f2ea555c3f3c075af3a2a1b7c8bafc0f1bf52518e0",
-      "text": "Décrivez une étape à utiliser comme décorateur ou gestionnaire de contexte.",
+      "source_sha256": "7adca2541d60ae2c96d13fd248d89c38bdd2053a3303503220dc5b3bfff12fff",
+      "text": "Décrivez une étape à utiliser comme décorateur ou gestionnaire de contexte.\n\n:param label: Étiquette de scène facile à lire utilisée dans les événements de trace.\n:param kind: Rôle d'entrée, de processus ou de sortie du noeud d'étape.\n:param consumes: Étiquettes des artefacts d'entrée consommés par l'étape.\n:param produces: Étiquettes des artefacts de sortie produits par la scène.\n:param params: Métadonnées d'étape optionnelles à conserver dans le graphique de trace.\n:param node_id: L'identificateur de nœud stable en option est dérivé de ``label`` lorsque celui-ci est omis.\n:returns: La spécification active de l'étape, ou une étape de non-op pendant que le traçage est désactivé.",
       "translation_source_blocks_sha256": [
-        "f27085f1e10a6a7989d1b6f2ea555c3f3c075af3a2a1b7c8bafc0f1bf52518e0"
+        "f27085f1e10a6a7989d1b6f2ea555c3f3c075af3a2a1b7c8bafc0f1bf52518e0",
+        "a0c3ae26f65e37a06e7d670cb8fb74a1fd3757e89ef52314a00f5d1b3f7f2979",
+        "6708e488eb0a41aeea3668843a405dba493a3951394b2376e84847c6bcd138d0",
+        "7ff7d3cf965410c2572f5785805aa2c27fa9e9343ac47777371a1be0e5993978",
+        "5385d4ceee910cee79e2e21a2a893b2ad379cf72933c34feaa1035f3940fb864",
+        "b2870dd7080d99ca26e480ebd5e87af95b168220bd9062b7717dd5de2431f611",
+        "b32251f80f52906f1a0ccdd43dcadb2d324885bd7e107be7030f8811f4c2f479",
+        "7b4234b7473c7921f00df4db07dc2b93c0cb967e4d64730adbd88a3053dd4611"
       ]
     },
     "spacr.foreign": {

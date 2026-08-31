@@ -53,7 +53,12 @@ STATE_LABELS = MappingProxyType(
 
 
 def node_accent(kind: NodeKind | str, state: NodeState | str) -> str:
-    """Return the kind accent, reserving alarm red for failed nodes."""
+    """Return the kind accent, reserving alarm red for failed nodes.
+
+    :param kind: Input, process, or output role of the node.
+    :param state: Current execution state of the node.
+    :returns: Alarm red for a failed node, otherwise the accent for ``kind``.
+    """
 
     normalised_state = NodeState(state)
     if normalised_state is NodeState.FAILED:
@@ -62,7 +67,11 @@ def node_accent(kind: NodeKind | str, state: NodeState | str) -> str:
 
 
 def state_label(state: NodeState | str) -> str:
-    """Return the non-colour state marker printed on every node card."""
+    """Return the non-colour state marker printed on every node card.
+
+    :param state: Current execution state of the node.
+    :returns: Uppercase state label displayed on the node card.
+    """
 
     return STATE_LABELS[NodeState(state)]
 

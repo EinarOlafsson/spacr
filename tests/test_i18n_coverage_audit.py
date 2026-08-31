@@ -179,10 +179,10 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     assert "84 x 9 = 756 reviewed source/target pairs" in report
     assert "not a certificate that every sentence was read" in report
     assert "exhaustive frontend coverage, not exhaustive semantic review" in report
-    assert "2,522 required parameters" in report
-    assert "1,822 public callables" in report
+    assert "2,516 required parameters" in report
+    assert "1,818 public callables" in report
     assert (
-        "1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782"
+        "16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf"
         in report
     )
     assert "must not be closed" in report
