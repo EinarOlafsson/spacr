@@ -1590,14 +1590,21 @@ def test_the_chain_runs_mask_then_measure_then_opens_annotate(
     ])
     _write_settings_pack(pack, "measure", [["save_measurements", "true"]])
 
-    modals.answers = [QMessageBox.Yes, QMessageBox.Yes, QMessageBox.Yes]
+    _write_settings_pack(pack, "mask", [
+        ["gone_in_this_version", "7"],
+    ] + [list(row) for row in (
+        ["  nucleus_channel  ", "2"], ["cell_diameter", "37.5"],
+        ["save", "TRUE"], ["verbose", "false"],
+        ["custom_model", "/models/cyto3"],
+        ["# a comment row", "ignored"], ["orphan_row_with_one_column"],
+    )])
     win._run_e2e_chain(data, pack)
 
-    assert [t for t, _x in modals.questions] == [
-        "Mask generation", "Measurement", "Annotation"]
-    # mask + measure auto-run; annotate is interactive and must not.
-    assert no_pipeline_runs == ["mask", "measure"]
-    assert set(win._screens) >= {"mask", "measure", "annotate"}
+    # NOTHING IS ASKED AND NOTHING IS RUN. The import opens one screen
+    # with its settings filled; the user presses Live Preview or Run.
+    assert modals.questions == []
+    assert no_pipeline_runs == []
+    assert set(win._screens) == {"mask"}
 
     mask_settings = dict(applied)["mask"]
     assert mask_settings["src"] == str(data)
@@ -1605,13 +1612,20 @@ def test_the_chain_runs_mask_then_measure_then_opens_annotate(
     assert mask_settings["cell_diameter"] == 37.5
     assert mask_settings["save"] is True
     assert mask_settings["verbose"] is False
-    assert mask_settings["custom_model"] == "/models/cyto3"
+    # DROPPED, and this assertion used to be its opposite.
+    # `custom_model` is not a Mask setting in this build -- the old
+    # loader wrote every row of the pack straight over the defaults, so
+    # it arrived in the settings dict and travelled into the pipeline to
+    # be ignored there. The test pinned that. Migration drops it.
+    assert "custom_model" not in mask_settings
     assert "# a comment row" not in mask_settings
     assert "orphan_row_with_one_column" not in mask_settings
+    # MIGRATED, not merged: a key this build has no setting for is
+    # dropped rather than carried into the pipeline to be ignored there.
+    assert "gone_in_this_version" not in mask_settings
     # Defaults survive alongside the overrides
     assert len(mask_settings) > 8
-    assert dict(applied)["measure"]["save_measurements"] is True
-    assert win.statusBar().currentMessage().startswith("E2E chain launched")
+    assert "Live Preview" in win.statusBar().currentMessage()
 
 
 def test_the_chain_without_a_settings_pack_uses_plain_defaults(
@@ -1622,7 +1636,6 @@ def test_the_chain_without_a_settings_pack_uses_plain_defaults(
     monkeypatch.setattr(AppScreen, "apply_settings_dict",
                         lambda self, s: applied.append((self.app_key, dict(s))))
 
-    modals.answers = [QMessageBox.Yes, QMessageBox.No]
     win._run_e2e_chain(tmp_path / "imgs", tmp_path / "missing-pack")
 
     key, settings = applied[0]
@@ -1639,9 +1652,14 @@ def test_the_chain_reports_a_screen_that_will_not_open(win, modals,
             return None if key == "mask" else super().get(key, default)
 
     win._screens = _NoMask(win._screens)
-    modals.answers = [QMessageBox.Yes]
     win._run_e2e_chain(tmp_path, tmp_path)
-    assert modals.warning == [("E2E", "Couldn't open the 'mask' screen.")]
+    assert len(modals.warning) == 1
+    title, body = modals.warning[0]
+    assert title == "Demo dataset"
+    # NAMES THE FOLDER. The dataset downloaded successfully; the only
+    # thing that failed is opening a screen, so the useful thing to say
+    # is where the data is so the user can point at it themselves.
+    assert str(tmp_path) in body
 
 
 def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
@@ -1652,11 +1670,18 @@ def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
         raise RuntimeError("settings rejected")
 
     monkeypatch.setattr(AppScreen, "apply_settings_dict", _boom)
-    modals.answers = [QMessageBox.Yes, QMessageBox.Yes]
     win._run_e2e_chain(tmp_path, tmp_path)
-    assert modals.warning == [("E2E: mask failed", "settings rejected")]
-    # It stopped: the measure stage was never offered.
-    assert [t for t, _x in modals.questions] == ["Mask generation"]
+
+    assert len(modals.warning) == 1
+    title, body = modals.warning[0]
+    assert title == "Demo settings"
+    # SAYS THE SCREEN IS STILL OPEN. The dataset downloaded and Mask
+    # Generation opened; only filling the form failed, so the user can
+    # still fill it themselves -- and a warning that does not say so
+    # reads as though the whole import failed.
+    assert "Mask Generation is open" in body
+    assert "settings rejected" in body
+    assert modals.questions == []
 
 
 # ===========================================================================
