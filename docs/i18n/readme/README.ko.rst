@@ -26,7 +26,7 @@
    :alt: GitHub 이슈
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm 비상업용 라이선스
+   :alt: BSD 3-Clause 라이선스
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -534,7 +534,7 @@ spaCR는 세포, 핵 및 병원체 객체, 이 객체들의 마스크에서 파�
 라이선스
 ~~~~~~~~~
 
-현재 개발 브랜치의 소스는 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_\ 에 따라 공개됩니다. 상업적 사용에는 저작권자의 별도 라이선스가 필요합니다. spaCR 1.4.9.9까지의 릴리스는 해당 릴리스와 함께 제공된 MIT License에 따라 계속 사용할 수 있습니다.
+spaCR는 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 에 따른 오픈 소스이며, CellProfiler·napari·Cellpose와 같은 라이선스입니다. 상업적 용도를 포함해 어떤 목적으로도 사용할 수 있습니다. 1.5.0.0부터 1.5.0.4까지의 릴리스는 PolyForm Noncommercial License 1.0.0을, 1.4.9.9까지의 버전은 MIT License를 따랐으며, 해당 릴리스는 함께 제공된 라이선스에 따라 계속 사용할 수 있습니다.
 
 튜토리얼
 ~~~~~~~~~

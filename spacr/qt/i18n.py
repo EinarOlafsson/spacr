@@ -396,32 +396,32 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
         "Notkunarskilmálar", "Conditions d’utilisation"),
     "Review the terms of use and scroll to the end to enable acceptance. "
-    "Use the license link to read the full PolyForm Noncommercial License "
+    "Use the license link to read the full BSD 3-Clause License "
     "1.0.0.": _row(
         "Läs igenom användningsvillkoren och rulla till slutet för att "
         "aktivera godkännandet. Använd licenslänken för att läsa hela "
-        "PolyForm Noncommercial License 1.0.0.",
+        "BSD 3-Clause License.",
         "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
         "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
-        "vollständige PolyForm Noncommercial License 1.0.0 lesen.",
+        "vollständige BSD 3-Clause License lesen.",
         "Revise las condiciones de uso y desplácese hasta el final para "
         "habilitar la aceptación. Utilice el enlace de la licencia para leer "
-        "la PolyForm Noncommercial License 1.0.0 completa.",
+        "la BSD 3-Clause License completa.",
         "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
-        "PolyForm Noncommercial License 1.0.0。",
+        "BSD 3-Clause License。",
         "Revise os termos de uso e role até o final para habilitar a "
-        "aceitação. Use o link da licença para ler a PolyForm Noncommercial "
-        "License 1.0.0 completa.",
+        "aceitação. Use o link da licença para ler a BSD 3-Clause "
+        "License completa.",
         "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
-        "पूर्ण PolyForm Noncommercial License 1.0.0 पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
+        "पूर्ण BSD 3-Clause License पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
         "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
-        "라이선스 링크에서 전체 PolyForm Noncommercial License 1.0.0을 확인할 수 있습니다.",
+        "라이선스 링크에서 전체 BSD 3-Clause License을 확인할 수 있습니다.",
         "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
-        "virkja samþykki. Notaðu leyfistengilinn til að lesa PolyForm "
-        "Noncommercial License 1.0.0 í heild.",
+        "virkja samþykki. Notaðu leyfistengilinn til að lesa BSD "
+        "3-Clause License í heild.",
         "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
         "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
-        "l’intégralité de la PolyForm Noncommercial License 1.0.0."),
+        "l’intégralité de la BSD 3-Clause License."),
     "I have read and agree to these terms": _row(
         "Jag har läst och godkänner dessa villkor",
         "Ich habe diese Bedingungen gelesen und stimme ihnen zu",

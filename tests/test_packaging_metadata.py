@@ -266,8 +266,20 @@ def test_operating_system_classifiers_are_named_explicitly():
         assert expected in cls, f"missing OS classifier: {expected}"
 
 
-def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
-    """A commercial-use restriction must not be advertised as open source."""
+def test_the_licence_is_bsd_three_clause_everywhere_it_is_declared():
+    """One licence, named the same way in all five places that declare it.
+
+    spaCR was relicensed from PolyForm Noncommercial 1.0.0 to BSD
+    3-Clause -- the licence CellProfiler, napari, Cellpose and the rest
+    of the scientific Python stack use. A noncommercial layer on top of
+    an all-BSD dependency set made spaCR the one component a core
+    facility, a company reproducing a published analysis, or a distro
+    packager could not use.
+
+    The declarations are checked TOGETHER because they are read by
+    different tools -- pip, Zenodo, GitHub's licence detector, CFF
+    parsers -- and one left behind is a package that claims two licences.
+    """
     data = _toml_loads(_pyproject_text())
     if data is not None:
         assert data["project"]["license"] == {"file": "LICENSE"}
@@ -278,35 +290,61 @@ def test_noncommercial_license_metadata_is_explicit_and_not_osi_claimed():
             re.MULTILINE,
         )
 
+    # OSI-APPROVED, AND SAID SO. The old classifier was
+    # `License :: Other/Proprietary License`, which is what kept spaCR out
+    # of channels that filter on the OSI list.
     classifiers = _classifiers()
-    assert "License :: Other/Proprietary License" in classifiers
-    assert not any(
-        classifier.startswith("License :: OSI Approved")
-        for classifier in classifiers
-    )
+    assert "License :: OSI Approved :: BSD License" in classifiers
+    assert "License :: Other/Proprietary License" not in classifiers
 
     license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
-    assert license_text.startswith("# PolyForm Noncommercial License 1.0.0")
-    assert "Required Notice: Copyright 2025-2026 Einar Birnir Olafsson." in (
-        license_text
-    )
-    assert "Any noncommercial purpose is a permitted purpose." in license_text
+    assert license_text.startswith("BSD 3-Clause License")
+    assert "Einar Birnir Olafsson" in license_text
+    # The three conditions, which are the whole of what a redistributor
+    # owes. A BSD file missing one of them is a different licence.
+    assert "Redistributions of source code must retain" in license_text
+    assert "Redistributions in binary form must reproduce" in license_text
+    assert "Neither the name of the copyright holder" in license_text
+    assert "AS IS" in license_text and "NO EVENT SHALL" in license_text
+    assert "Noncommercial" not in license_text
 
     zenodo = json.loads(
         (REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8")
     )
-    assert zenodo["license"] == "polyform-noncommercial-1.0.0"
-    assert "source-available" in zenodo["description"]
-    assert "open-source" not in zenodo["description"]
+    assert zenodo["license"] == "bsd-3-clause"
 
     citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
-    assert re.search(
-        r"^license:\s*PolyForm-Noncommercial-1\.0\.0\s*$",
-        citation,
-        re.MULTILINE,
-    )
-    assert "source-available" in citation
-    assert "open-source" not in citation
+    assert re.search(r"^license:\s*BSD-3-Clause\s*$", citation, re.MULTILINE)
+
+
+def test_nothing_still_describes_spacr_as_source_available():
+    """"Source-available" was the honest word under PolyForm and is the
+    wrong one now: BSD 3-Clause IS open source, and hedging reads as a
+    restriction that is no longer there."""
+    for name in (".zenodo.json", "CITATION.cff", "README.rst"):
+        text = (REPO_ROOT / name).read_text(encoding="utf-8")
+        assert "source-available" not in text, (
+            f"{name} still calls spaCR source-available")
+
+
+def test_the_in_app_terms_name_the_same_licence():
+    """The setup screen asks the user to accept terms that name a
+    licence. If it names a different one from the package metadata, the
+    thing they agreed to is not the thing that ships."""
+    from spacr.qt import terms
+
+    assert terms.LICENSE_NAME == "BSD 3-Clause License"
+    assert terms.LICENSE_URL == "https://opensource.org/licenses/BSD-3-Clause"
+    assert "Noncommercial Purpose" not in "\n".join(terms.TERMS)
+
+
+def test_the_terms_version_was_bumped_for_the_relicence():
+    """A relicence is a new agreement, not a wording change: the
+    restriction a profile accepted under 3.0 is gone, so a profile that
+    accepted 3.0 is asked again."""
+    from spacr.qt import terms
+
+    assert terms.TERMS_VERSION == "4.0"
 
 
 # ---------------------------------------------------------------------------

@@ -71,8 +71,8 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
     # has to be answered before the screen can finish.
     ("Terms of use",
      "Review the terms of use and scroll to the end to enable acceptance. "
-     "Use the license link to read the full PolyForm Noncommercial License "
-     "1.0.0.",
+     "Use the license link to read the full BSD 3-Clause "
+     "License.",
      ()),
     # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
     # the six questions; "Welcome to spaCR" is what the screen is for. The

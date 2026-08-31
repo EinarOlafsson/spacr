@@ -350,7 +350,7 @@ def test_about_opens_when_the_logo_path_itself_cannot_be_built(
     mark = shown[0].findChildren(QLabel)[0]
     assert mark.pixmap().isNull(), "no mark could be loaded"
     body = "\n".join(w.text() for w in shown[0].findChildren(QLabel))
-    assert "Version" in body and "PolyForm" in body
+    assert "Version" in body and "BSD 3-Clause" in body
 
 
 def test_home_is_rebuilt_even_when_the_outgoing_page_will_not_close(

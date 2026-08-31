@@ -2981,9 +2981,10 @@ class MainWindow(QMainWindow):
         small print — because that is a shape people already know how to read.
 
         The licence is named exactly and links to the canonical text rather
-        than being paraphrased. PolyForm Noncommercial is not one a reader can
-        guess the terms of, and "© Olafsson Lab" alone says nothing about what
-        they may actually do with the software.
+        than being paraphrased, and the sentence beside it says the thing a
+        reader actually wants to know -- that they may use it for anything.
+        "© Olafsson Lab" alone says nothing about what they may do with the
+        software.
         """
         from PySide6.QtCore import QSize
         from PySide6.QtWidgets import QDialog, QVBoxLayout
@@ -3056,11 +3057,11 @@ class MainWindow(QMainWindow):
         # sentence around it does not. Kept as one placeholder so a language
         # that puts the name elsewhere in the clause can move it.
         license_link = (
-            '<a href="https://polyformproject.org/licenses/noncommercial/1.0.0">'
-            'PolyForm Noncommercial License 1.0.0</a>')
+            '<a href="https://opensource.org/licenses/BSD-3-Clause">'
+            'BSD 3-Clause License</a>')
         _line(
             tr("Licensed under the {name}.", name=license_link) + "<br>"
-            + tr("Free for research and other noncommercial use."),
+            + tr("Open source. Free for any use, including commercial."),
             11, muted=True, gap=10)
         _line("© Olafsson Lab", 11, muted=True)
 

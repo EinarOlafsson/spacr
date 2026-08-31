@@ -3176,12 +3176,13 @@ _CORE_MODULE_SOURCES = (
     "model families suited to continuous, fractional and count responses.",
 )
 _LICENSE_SOURCE = (
-    "The current development branch is source-available under the `PolyForm "
-    "Noncommercial License 1.0.0 "
-    "<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Commercial "
-    "use requires a separate license from the copyright holder. Released "
-    "versions through spaCR 1.4.9.9 remain available under the MIT License "
-    "that accompanied those releases."
+    "spaCR is open source under the `BSD 3-Clause License "
+    "<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same "
+    "licence as CellProfiler, napari and Cellpose. Use it for any purpose, "
+    "including commercially. Releases from 1.5.0.0 through 1.5.0.4 carried "
+    "the PolyForm Noncommercial License 1.0.0 and versions through 1.4.9.9 "
+    "carried the MIT License; those releases remain available under the "
+    "licence that accompanied them."
 )
 _TUTORIAL_LIBRARY_SOURCE = (
     "The `interactive spaCR tutorial library "
@@ -3303,15 +3304,15 @@ REVIEWED_README_BLOCKS.update({
         "fr": "**Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.",
     },
     _LICENSE_SOURCE: {
-        "sv": "Den aktuella utvecklingsgrenen är källkodstillgänglig under `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Kommersiell användning kräver en separat licens från upphovsrättsinnehavaren. Utgivna versioner till och med spaCR 1.4.9.9 är fortsatt tillgängliga under den MIT-licens som medföljde dessa versioner.",
-        "de": "Der aktuelle Entwicklungszweig ist unter der `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ quelloffen einsehbar. Für die kommerzielle Nutzung ist eine separate Lizenz des Urheberrechtsinhabers erforderlich. Veröffentlichte Versionen bis einschließlich spaCR 1.4.9.9 bleiben unter der jeweils mitgelieferten MIT-Lizenz verfügbar.",
-        "es": "El código fuente de la rama de desarrollo actual está disponible bajo la `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. El uso comercial requiere una licencia independiente del titular de los derechos de autor. Las versiones publicadas hasta spaCR 1.4.9.9 siguen disponibles bajo la licencia MIT que acompañaba a esas versiones.",
-        "zh_CN": "当前开发分支以源码可见方式依据 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布。商业使用需另行获得版权所有者许可。spaCR 1.4.9.9 及更早的已发布版本仍适用其发布时附带的 MIT License。",
-        "pt": "O código-fonte da ramificação de desenvolvimento atual está disponível sob a `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. O uso comercial exige uma licença separada do titular dos direitos autorais. As versões publicadas até o spaCR 1.4.9.9 continuam disponíveis sob a licença MIT que acompanhava essas versões.",
-        "hi": "वर्तमान विकास शाखा का स्रोत `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत उपलब्ध है। व्यावसायिक उपयोग के लिए कॉपीराइट धारक से अलग लाइसेंस आवश्यक है। spaCR 1.4.9.9 तक जारी किए गए संस्करण उनके साथ जारी MIT License के अंतर्गत उपलब्ध रहेंगे।",
-        "ko": "현재 개발 브랜치의 소스는 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_\\ 에 따라 공개됩니다. 상업적 사용에는 저작권자의 별도 라이선스가 필요합니다. spaCR 1.4.9.9까지의 릴리스는 해당 릴리스와 함께 제공된 MIT License에 따라 계속 사용할 수 있습니다.",
-        "is": "Frumkóði núverandi þróunargreinar er aðgengilegur samkvæmt `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Notkun í atvinnuskyni krefst sérstaks leyfis frá höfundarréttarhafa. Útgefnar útgáfur til og með spaCR 1.4.9.9 eru áfram tiltækar samkvæmt MIT-leyfinu sem fylgdi þeim útgáfum.",
-        "fr": "Le code source de la branche de développement actuelle est consultable sous la `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Toute utilisation commerciale nécessite une licence distincte du détenteur des droits d’auteur. Les versions publiées jusqu’à spaCR 1.4.9.9 restent disponibles sous la licence MIT qui accompagnait ces versions.",
+        "sv": "spaCR är öppen källkod under `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, samma licens som CellProfiler, napari och Cellpose. Använd programmet för valfritt ändamål, även kommersiellt. Utgåvorna 1.5.0.0 till och med 1.5.0.4 hade PolyForm Noncommercial License 1.0.0 och versioner till och med 1.4.9.9 hade MIT-licensen; de utgåvorna är fortsatt tillgängliga under den licens som medföljde dem.",
+        "de": "spaCR ist Open Source unter der `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, derselben Lizenz wie CellProfiler, napari und Cellpose. Die Nutzung ist für jeden Zweck erlaubt, auch kommerziell. Die Releases 1.5.0.0 bis 1.5.0.4 standen unter der PolyForm Noncommercial License 1.0.0 und Versionen bis 1.4.9.9 unter der MIT-Lizenz; diese Releases bleiben unter der jeweils mitgelieferten Lizenz verfügbar.",
+        "es": "spaCR es de código abierto bajo la `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, la misma licencia que CellProfiler, napari y Cellpose. Puede usarse con cualquier finalidad, incluida la comercial. Las versiones 1.5.0.0 a 1.5.0.4 se publicaron bajo la PolyForm Noncommercial License 1.0.0 y las versiones hasta 1.4.9.9 bajo la licencia MIT; esas versiones siguen disponibles bajo la licencia que las acompañaba.",
+        "zh_CN": "spaCR 是依据 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布的开源软件，与 CellProfiler、napari 和 Cellpose 使用相同的许可证。可用于任何用途，包括商业用途。1.5.0.0 至 1.5.0.4 的发行版曾采用 PolyForm Noncommercial License 1.0.0，1.4.9.9 及更早版本采用 MIT License；这些发行版仍适用其发布时附带的许可证。",
+        "pt": "O spaCR é de código aberto sob a `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, a mesma licença do CellProfiler, do napari e do Cellpose. Pode ser usado para qualquer finalidade, inclusive comercial. As versões 1.5.0.0 a 1.5.0.4 usaram a PolyForm Noncommercial License 1.0.0 e as versões até 1.4.9.9 usaram a licença MIT; essas versões continuam disponíveis sob a licença que as acompanhava.",
+        "hi": "spaCR `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत ओपन सोर्स है — वही लाइसेंस जो CellProfiler, napari और Cellpose उपयोग करते हैं। इसे किसी भी उद्देश्य के लिए, व्यावसायिक रूप से भी, उपयोग किया जा सकता है। संस्करण 1.5.0.0 से 1.5.0.4 तक PolyForm Noncommercial License 1.0.0 के अंतर्गत और 1.4.9.9 तक के संस्करण MIT License के अंतर्गत जारी हुए थे; वे संस्करण उनके साथ जारी लाइसेंस के अंतर्गत उपलब्ध रहेंगे।",
+        "ko": "spaCR는 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 에 따른 오픈 소스이며, CellProfiler·napari·Cellpose와 같은 라이선스입니다. 상업적 용도를 포함해 어떤 목적으로도 사용할 수 있습니다. 1.5.0.0부터 1.5.0.4까지의 릴리스는 PolyForm Noncommercial License 1.0.0을, 1.4.9.9까지의 버전은 MIT License를 따랐으며, 해당 릴리스는 함께 제공된 라이선스에 따라 계속 사용할 수 있습니다.",
+        "is": "spaCR er opinn hugbúnaður samkvæmt `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, sama leyfi og CellProfiler, napari og Cellpose nota. Nota má hann í hvaða tilgangi sem er, þar með talið í atvinnuskyni. Útgáfur 1.5.0.0 til 1.5.0.4 báru PolyForm Noncommercial License 1.0.0 og útgáfur til og með 1.4.9.9 báru MIT-leyfið; þær útgáfur eru áfram tiltækar samkvæmt því leyfi sem fylgdi þeim.",
+        "fr": "spaCR est un logiciel libre sous `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, la même licence que CellProfiler, napari et Cellpose. Il peut être utilisé à toutes fins, y compris commerciales. Les versions 1.5.0.0 à 1.5.0.4 étaient publiées sous la PolyForm Noncommercial License 1.0.0 et les versions jusqu’à 1.4.9.9 sous la licence MIT ; ces versions restent disponibles sous la licence qui les accompagnait.",
     },
     _TUTORIAL_LIBRARY_SOURCE: {
         "sv": "Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättade och textade genomgångar av installationen och varje programflöde: 73 lektioner med 50 röster på åtta språk.",

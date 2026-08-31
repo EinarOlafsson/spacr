@@ -26,7 +26,7 @@
    :alt: GitHub 问题
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm 非商业许可证
+   :alt: BSD 3-Clause 许可证
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -534,7 +534,7 @@ spaCR 支持细胞、细胞核和病原体对象、由这些对象的掩膜推�
 许可
 ~~~~~~~~~
 
-当前开发分支以源码可见方式依据 `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布。商业使用需另行获得版权所有者许可。spaCR 1.4.9.9 及更早的已发布版本仍适用其发布时附带的 MIT License。
+spaCR 是依据 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布的开源软件，与 CellProfiler、napari 和 Cellpose 使用相同的许可证。可用于任何用途，包括商业用途。1.5.0.0 至 1.5.0.4 的发行版曾采用 PolyForm Noncommercial License 1.0.0，1.4.9.9 及更早版本采用 MIT License；这些发行版仍适用其发布时附带的许可证。
 
 教程
 ~~~~~~~~~

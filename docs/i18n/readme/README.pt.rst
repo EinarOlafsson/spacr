@@ -26,7 +26,7 @@
    :alt: Problemas no GitHub
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: Licença PolyForm Noncommercial
+   :alt: Licença BSD 3-Clause
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: DOI do Zenodo
@@ -534,7 +534,7 @@ Envie relatos de erros e solicitações de recursos bem delimitadas pelo `GitHub
 Licença
 ~~~~~~~~~
 
-O código-fonte da ramificação de desenvolvimento atual está disponível sob a `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. O uso comercial exige uma licença separada do titular dos direitos autorais. As versões publicadas até o spaCR 1.4.9.9 continuam disponíveis sob a licença MIT que acompanhava essas versões.
+O spaCR é de código aberto sob a `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, a mesma licença do CellProfiler, do napari e do Cellpose. Pode ser usado para qualquer finalidade, inclusive comercial. As versões 1.5.0.0 a 1.5.0.4 usaram a PolyForm Noncommercial License 1.0.0 e as versões até 1.4.9.9 usaram a licença MIT; essas versões continuam disponíveis sob a licença que as acompanhava.
 
 Tutoriais
 ~~~~~~~~~
