@@ -141,6 +141,68 @@ def main() -> int:
     print("  and this part did not, the failing registration is specific to")
     print("  how those widgets are built, not to connecting in general.")
 
+    # ---- Part 3: is it connecting from inside __init__ -------------------
+    print()
+    print("=" * 72)
+    print("PART 3  Does connecting from inside __init__ cause it")
+    print("=" * 72)
+    print("  Every warning reported so far names a slot connected from")
+    print("  inside a widget's own __init__ -- the ambient backdrop's")
+    print("  timer, ChainingBar's buttons, DiameterPanel's, MeasureQC's.")
+    print("  If Shiboken has not registered the wrapper until __init__")
+    print("  RETURNS, that one fact explains all of them, and moving the")
+    print("  connect one step later is the whole fix.\n")
+
+    class ConnectsInInit(QWidget):
+        def __init__(self) -> None:
+            super().__init__()
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self._on_tick)   # <- inside __init__
+
+        def _on_tick(self) -> None:
+            pass
+
+    class ConnectsAfterInit(QWidget):
+        def __init__(self) -> None:
+            super().__init__()
+            self.timer = QTimer(self)
+
+        def wire(self) -> None:
+            self.timer.timeout.connect(self._on_tick)   # <- after __init__
+
+        def _on_tick(self) -> None:
+            pass
+
+    before = len(caught)
+    inside = ConnectsInInit()
+    during_init = len(caught) - before
+    print(f"  connect INSIDE __init__ : {during_init} warning(s)"
+          f"   {'<-- REPRODUCED' if during_init else 'clean'}")
+
+    before = len(caught)
+    outside = ConnectsAfterInit()
+    outside.wire()
+    after_init = len(caught) - before
+    print(f"  connect AFTER  __init__ : {after_init} warning(s)"
+          f"   {'still warns' if after_init else '<-- CLEAN'}")
+
+    print()
+    if during_init and not after_init:
+        print("  VERDICT: CONFIRMED. The wrapper does not exist until")
+        print("  __init__ returns, and every reported warning is a connect")
+        print("  made before that. The fix is to wire signals one step")
+        print("  later -- from the factory that builds the widget, or from")
+        print("  showEvent -- not to silence the warning.")
+    elif during_init and after_init:
+        print("  VERDICT: NOT the whole story. Both shapes warn, so the")
+        print("  timing of __init__ is not what decides it. Do not move the")
+        print("  connects; that would be churn for nothing.")
+    elif not during_init:
+        print("  VERDICT: neither shape warns HERE, yet Part 1 did. So it")
+        print("  is not connect-in-__init__ on its own -- something about")
+        print("  how those particular widgets are built matters too.")
+        print("  Compare against what Part 1 found before concluding.")
+
     QTimer.singleShot(0, app.quit)
     return 0
 
