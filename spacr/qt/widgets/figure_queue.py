@@ -1663,10 +1663,20 @@ class FigureQueue(QWidget):
             # back makes its later disconnect raise KeyError instead.
             try:
                 doomed = {id(canvas), id(toolbar)}
-                for signal, entries in list(canvas.callbacks.callbacks.items()):
+                for _signal, entries in list(canvas.callbacks.callbacks.items()):
                     for cid, proxy in list(entries.items()):
-                        owner = getattr(getattr(proxy, "func", None),
-                                        "__self__", None)
+                        # CallbackRegistry stores bound methods as
+                        # ``weakref.WeakMethod`` and other callbacks in
+                        # Matplotlib's ``_StrongRef`` wrapper. Neither has
+                        # the ``.func`` attribute older versions exposed.
+                        # Do not call an unknown proxy: a future registry may
+                        # store the callback itself, and teardown must never
+                        # execute user code.
+                        if isinstance(proxy, weakref.ReferenceType):
+                            target = proxy()
+                        else:
+                            target = getattr(proxy, "_obj", None)
+                        owner = getattr(target, "__self__", None)
                         if owner is not None and id(owner) in doomed:
                             canvas.mpl_disconnect(cid)
             except Exception:

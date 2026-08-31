@@ -593,34 +593,38 @@ def test_teardown_disconnects_callbacks_that_point_at_the_dying_widgets(
     survive: matplotlib keeps its own entries in that registry and the
     figure goes on being used after the canvas has gone.
 
-    The proxies are installed by hand because ``CallbackRegistry`` in the
-    matplotlib pinned here (3.8.4) stores ``WeakMethod`` / ``_StrongRef``
-    objects, neither of which exposes the ``.func`` attribute this sweep
-    reads -- see the note in the report; the shape below is the one the
-    sweep is written against.
+    Connect through Matplotlib itself so the test exercises the real
+    ``WeakMethod`` / ``_StrongRef`` proxy shapes rather than a hand-built
+    stand-in that can drift away from the dependency.
     """
     queue = _queue(qtbot, live=True)
     figure = _fig(0)
     assert queue.show_live_canvas(figure) is True
     canvas, toolbar = queue._canvas, queue._canvas_toolbar
+    signal = "button_press_event"
+
+    class _Survivor:
+        def __call__(self, _event):
+            return None
+
+    survivor = _Survivor()
+    canvas_cid = canvas.mpl_connect(signal, canvas.draw_idle)
+    toolbar_cid = canvas.mpl_connect(signal, toolbar.set_message)
+    survivor_cid = canvas.mpl_connect(signal, survivor)
+
     registry = canvas.callbacks.callbacks
-    signal = next(iter(registry))
-
-    class _Proxy:
-        def __init__(self, owner):
-            self.func = types.SimpleNamespace(__self__=owner)
-
-    survivor = object()
-    registry[signal][9001] = _Proxy(canvas)
-    registry[signal][9002] = _Proxy(toolbar)
-    registry[signal][9003] = _Proxy(survivor)
+    assert registry[signal][canvas_cid].__class__.__name__ == "WeakMethod"
+    assert registry[signal][toolbar_cid].__class__.__name__ == "WeakMethod"
+    assert registry[signal][survivor_cid].__class__.__name__ == "_StrongRef"
 
     queue.set_live_canvas_enabled(False)          # tears the canvas down
 
     remaining = registry.get(signal, {})
-    assert 9001 not in remaining, "a canvas-bound callback outlived the canvas"
-    assert 9002 not in remaining, "a toolbar-bound callback outlived it too"
-    assert remaining.get(9003) is not None, (
+    assert canvas_cid not in remaining, (
+        "a canvas-bound callback outlived the canvas")
+    assert toolbar_cid not in remaining, (
+        "a toolbar-bound callback outlived it too")
+    assert remaining.get(survivor_cid) is not None, (
         "a callback belonging to something else was disconnected as well")
     assert queue._canvas is None and queue._canvas_toolbar is None
 
