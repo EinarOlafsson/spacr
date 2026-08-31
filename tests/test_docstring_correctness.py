@@ -1786,9 +1786,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
-    assert len(callables) == len(by_symbol) == 7_983
+    assert len(callables) == len(by_symbol) == 7_984
     assert Counter(item.category for item in callables) == {
-        "function": 3_464,
+        "function": 3_465,
         "method": 3_533,
         "constructor": 371,
         "dataclass_constructor": 420,
@@ -1797,13 +1797,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 54,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 7_978,
+        "autoapi": 7_979,
         "cli_only": 2,
         "compatibility": 3,
     }
-    assert sum(item.variant_count for item in callables) == 7_990
+    assert sum(item.variant_count for item in callables) == 7_991
     assert Counter(item.variant_count for item in callables) == {
-        1: 7_976,
+        1: 7_977,
         2: 7,
     }
     assert sum(
@@ -1826,7 +1826,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "af49cc486a633346bc38330242dae5297d23d09f19357be86fe6cd15ee640076"
+    ) == "4d8a600d863afef00c599074c3d780c73e3afdd728edaf9d75af0e4847f8f3ef"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1835,10 +1835,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert by_symbol["spacr.align.format_plan"].required_parameters == {"plan"}
     assert not PARAM_FIELD.findall(
         by_symbol["spacr.align.format_plan"].docstring)
-    assert not by_symbol["spacr.layers.LayerStack.add_image"].docstring
+    # WAS ``LayerStack.add_image``, which has since been documented. The
+    # example has to be a callable that is STILL docless, or this assertion
+    # stops standing for the class of defect it was written for.
+    assert not by_symbol["spacr.qt.bridge.RunRegistry.register"].docstring
     assert by_symbol[
-        "spacr.layers.LayerStack.add_image"
-    ].required_parameters == {"data"}
+        "spacr.qt.bridge.RunRegistry.register"
+    ].required_parameters == {"handle"}
+    assert by_symbol["spacr.layers.LayerStack.add_image"].docstring, (
+        "add_image lost its docstring again; it is no longer the documented "
+        "half of this pair")
     assert by_symbol["spacr.api.MaskConfig"].category == "dataclass_constructor"
     assert by_symbol["spacr.api.MaskConfig"].required_parameters == {"src"}
 
@@ -1937,12 +1943,12 @@ def test_no_new_public_callable_lacks_a_docstring():
         for item in _public_callables()
         if item.docless_variant_count
     )
-    assert len(docless) == 641
+    assert len(docless) == 630
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 641
+    ) == 630
     assert _sha256_lines(docless) == (
-        "c063200b05d044bebe1e723cba3ef96f36774bd390df71ea3d025d65d24be4ec"
+        "261234a2e9516e7af041ce0cff6858d61ee374f256bb25f2c832b28f80247658"
     )
 
 
@@ -2101,8 +2107,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     # 8,955 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_848
-    assert len(rendered_documented_callables) == 7_340
+    assert len(docs) == 8_861
+    assert len(rendered_documented_callables) == 7_352
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2304,24 +2310,24 @@ def test_no_new_undocumented_required_public_parameters():
 
     # The database-browser and gate sweep closes 60 net omissions across 39
     # callables after the six retired aliases are removed from deduplication.
-    assert len(omissions) == 2_638
-    assert sum(omitted_callables.values()) == 1_912
+    assert len(omissions) == 2_524
+    assert sum(omitted_callables.values()) == 1_823
     assert omitted_callables == {
-        "function": 701,
-        "method": 1_096,
-        "constructor": 46,
-        "dataclass_constructor": 67,
+        "function": 698,
+        "method": 1_014,
+        "constructor": 43,
+        "dataclass_constructor": 66,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_007,
-        "method": 1_319,
-        "constructor": 68,
-        "dataclass_constructor": 232,
+        "function": 1_004,
+        "method": 1_216,
+        "constructor": 64,
+        "dataclass_constructor": 228,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6"
+        "f4287401503def54ecc4bdbad6a507acd11e5bc2ec4c00afd77237b4627d01ea"
     )
 
 
