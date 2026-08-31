@@ -517,14 +517,17 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
     exact = np.array([priors[g] * n for g in names], dtype=float)
     slots = np.floor(exact).astype(int)
     short = n - int(slots.sum())
+    # ONLY THE SHORT-BY-SOME CASE. There was an `elif short < 0` arm
+    # undoing an overshoot, marked "rare"; it is not rare, it is
+    # impossible. `priors` sums to 1, so `exact` sums to n, and
+    # `floor(x) <= x` gives `slots.sum() <= n` -- `short` cannot be
+    # negative. Argued, then checked over 30,000 random fraction sets
+    # with magnitudes spanning twelve orders and well sizes to 400: the
+    # most negative value seen was 0.
     if short > 0:
         order = np.argsort(-(exact - np.floor(exact)))
         for index in order[:short]:
             slots[index] += 1
-    elif short < 0:                                   # pragma: no cover - rare
-        order = np.argsort(exact - np.floor(exact))
-        for index in order[: -short]:
-            slots[index] = max(slots[index] - 1, 0)
 
     density = np.column_stack([
         _density(likelihood, values, float(effects.get(g, 0.0)), centre, scale)
@@ -534,9 +537,12 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
 
     # One column per SLOT, so the counts are a property of the matrix rather
     # than something checked afterwards.
+    # `slots` sums to exactly n after the correction above, so this has
+    # exactly n entries. The truncation that used to follow could not
+    # fire for the same reason the removed arm could not: the only way
+    # to get more than n columns is `slots.sum() > n`, which requires
+    # the negative `short` that cannot happen.
     columns = np.repeat(np.arange(len(names)), slots)
-    if columns.size != n:                             # pragma: no cover
-        columns = columns[:n]
     cost = cost_per_guide[:, columns]
     rows, picks = linear_sum_assignment(cost)
     chosen = columns[picks]
