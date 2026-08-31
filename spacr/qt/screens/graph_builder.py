@@ -355,3 +355,53 @@ def register() -> bool:
         not raise on the duplicate key.
     """
     return register_declared(__name__) is not None
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+HOST_KEY = "graph_builder"
+
+#: Registry keys of the modules folded into Graph Builder, in strip
+#: order. Both ANSWER A PLOTTING QUESTION with a fixed layout, which is
+#: exactly what Graph Builder does freehand -- a plate heatmap is a plot
+#: whose axes are already decided, and small multiples is one plot
+#: repeated over a grouping. Neither is a place to start a session, which
+#: is what a Home tile says.
+#:
+#: `plate_view` still holds a registry row; `trellis` is declared in
+#: `app_catalog` and never had one. `fold_description` reads the registry
+#: first and the catalogue second, so both buttons state their own name,
+#: sentence and maturity without a table here repeating them.
+FOLDED_APPS: Tuple[str, ...] = ('plate_view', 'trellis')
+
+
+def _build_plate_view(host_window: Optional[QWidget] = None) -> QWidget:
+    """Plate View, as the window builds it."""
+    return build_registered_screen("plate_view", host_window)
+
+
+def _build_trellis(host_window: Optional[QWidget] = None) -> QWidget:
+    """Trellis, as the window builds it."""
+    return build_registered_screen("trellis", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "plate_view": _build_plate_view,
+    "trellis": _build_trellis,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put graph_builder's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

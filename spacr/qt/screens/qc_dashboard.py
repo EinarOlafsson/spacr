@@ -443,3 +443,50 @@ def register() -> bool:
 
 
 register()
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+HOST_KEY = "qc_dashboard"
+
+#: Registry keys of the modules folded into QC, in strip order. Asked
+#: for as "make one QC module": the dashboard reports stored checks,
+#: layer viewer is how you LOOK at the images behind a failing one, and
+#: control charts are the same checks over time. Three tiles for one
+#: activity is three places to look for it.
+#:
+#: `control_chart` is declared in `app_catalog` rather than registered,
+#: so its button takes its name from there -- see `fold_description`.
+FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart')
+
+
+def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
+    """Layer Viewer, as the window builds it."""
+    return build_registered_screen("layer_viewer", host_window)
+
+
+def _build_control_chart(host_window: Optional[QWidget] = None) -> QWidget:
+    """Control Chart, as the window builds it."""
+    return build_registered_screen("control_chart", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "layer_viewer": _build_layer_viewer,
+    "control_chart": _build_control_chart,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put qc_dashboard's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

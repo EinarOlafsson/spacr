@@ -155,6 +155,28 @@ def fold_description(key: str) -> Tuple[str, str, str]:
                 break
     except Exception:
         LOG.debug("Could not read the app registry", exc_info=True)
+    if not name:
+        # THE DECLARED CATALOGUE, before any hand-written table. Several
+        # folded modules never had a registry row at all -- they are
+        # declared in `app_catalog` and built from it -- and that
+        # declaration already carries the name, the sentence and the
+        # maturity this button needs. Copying those three strings into a
+        # per-host `FOLD_FALLBACK` is the same knowledge written twice,
+        # and the copy is the one that goes stale.
+        #
+        # Only consulted when the registry had nothing: a module that is
+        # BOTH registered and declared must present as the registry says,
+        # because that is what its tile and its menu entry say.
+        try:
+            from ..app_catalog import DECLARED_APPS
+            for declared in DECLARED_APPS:
+                if declared.key == key:
+                    name = declared.name or ""
+                    description = declared.desc or ""
+                    stage = declared.stage or ""
+                    break
+        except Exception:                               # noqa: BLE001
+            LOG.debug("Could not read the declared catalogue", exc_info=True)
     fallback = FOLD_FALLBACK.get(key)
     if fallback is None:
         # NOT EVERY FOLD LANDS HERE. This table holds what the modules
@@ -272,6 +294,39 @@ def build_settings_screen(key: str,
     except Exception:
         LOG.debug("No chaining strip for the folded %s", key, exc_info=True)
     return screen
+
+
+def build_registered_screen(key: str,
+                            host_window: Optional[QWidget] = None) -> QWidget:
+    """The screen NAVIGATION builds for ``key``, for a fold button to open.
+
+    Folded modules that still hold a registry row are reached two ways --
+    the button on their host's masthead and the command palette -- and
+    the two must land on the same screen. Asking the window to build it
+    is what guarantees that: `_build_screen` is the one place that knows
+    which keys have a dedicated screen class, which are catalogue-driven
+    `AppScreen`s, and which come from a plugin.
+
+    The alternative was a table here mapping ten keys to ten classes,
+    which is the same knowledge written a second time and free to drift
+    from the first.
+
+    Falls back to :func:`build_settings_screen` when there is no window
+    to ask -- the headless and unit-test path, where a settings screen is
+    what the catalogue-driven modules would have produced anyway.
+
+    :param key: the folded module's registry key.
+    :param host_window: the main window, when there is one.
+    :returns: the screen.
+    """
+    build = getattr(host_window, "_build_screen", None)
+    if callable(build):
+        try:
+            return build(key)
+        except Exception:
+            LOG.debug("The window could not build %s; falling back to its "
+                      "settings screen", key, exc_info=True)
+    return build_settings_screen(key, host_window)
 
 
 def show_as_window(screen: QWidget, owner: Optional[QWidget],
@@ -656,6 +711,13 @@ FOLD_HOST_MODULES: Dict[str, str] = {
     "mask": "mask",
     "regression": "regression",
     "umap": "image_umap",
+    # Instruction 318's folds. Each of these hosts gained two buttons for
+    # modules that used to hold a Home tile of their own -- a tile says
+    # "start here", and none of the six is a job anyone sets out to do:
+    # they are second views of something the host is already showing.
+    "graph_builder": "graph_builder",
+    "db_browser": "db_browser",
+    "qc_dashboard": "qc_dashboard",
 }
 
 
