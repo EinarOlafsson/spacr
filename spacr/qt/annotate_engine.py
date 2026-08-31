@@ -938,9 +938,13 @@ def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
     if not text:
         return "", []
 
+    # NO `if not tokens` GUARD. `_tokenise_image_type` matches `(`, `)`
+    # or any run of non-space non-paren characters, so it returns at
+    # least one token for ANY text -- and whitespace-only text has
+    # already returned above. There is no input that reaches an empty
+    # token list, which is why the guard was marked `# pragma: no cover`
+    # and why deleting it is better than pretending it can be tested.
     tokens = _tokenise_image_type(text)
-    if not tokens:
-        return "", []
     sql, params, rest = _parse_or(tokens)
     if rest:
         raise ValueError(
@@ -1138,8 +1142,12 @@ def fetch_filtered_paths(
     df = df.dropna(subset=["png_path"])
     if image_type:
         df = df[df["png_path"].str.contains(image_type)]
-    if annotation_column not in df.columns:
-        return []
+    # NO `annotation_column not in df.columns` GUARD. Line 1106 above
+    # CREATES that column when the table lacks it -- `df[column] = None`
+    # -- so by here it is always present and the guard could not fire.
+    # It was marked `# pragma: no cover` and counted as an uncoverable
+    # item; driving it returned a row instead of the empty list it
+    # promised, which is how the contradiction surfaced.
     return df[["png_path", annotation_column]].values.tolist()
 
 
