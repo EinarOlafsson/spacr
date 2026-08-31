@@ -301,6 +301,8 @@ _THEME_NOTES = {
 # Palettes
 # ---------------------------------------------------------------------------
 
+from .popup_state import a_popup_is_on_screen
+
 class PaletteSpec(NamedTuple):
     """One named colour set: what to call it and what it is made of."""
 
@@ -5024,6 +5026,11 @@ class AmbientWidget(QWidget):
         shading passes, which is what keeps a frame a pure function of the
         clock even though two threads are involved.
         """
+        # Hold still while a menu or a tooltip is up: see
+        # `popup_state`. The repaint burst a popup causes over a
+        # moving backdrop is what the dock flickering was.
+        if a_popup_is_on_screen():
+            return
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
         self._pending_dt += step
