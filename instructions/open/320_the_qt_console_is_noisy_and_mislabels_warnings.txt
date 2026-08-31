@@ -61,6 +61,19 @@ ALREADY ESTABLISHED -- do not redo this
       conda env `spacr12`   PySide6 6.11.2   (Python 3.12.14)
       conda env `spacr13`   PySide6 6.11.2   (Python 3.13.15)
 
+  CORRECTED AGAIN 2026-08-31, AND THE FIRST CORRECTION WAS ALSO INCOMPLETE.
+  These two sessions run on DIFFERENT HOSTS. `/mnt/firecuda2` -- which this
+  repository's instructions reference throughout, including the coverage
+  tooling's hard-coded paths -- does not exist on the machine the table above
+  was measured on. So "conda env `spacr`" names two different environments,
+  and BOTH readings were right for their own machine; the disagreement was
+  never about which env, it was about which computer.
+
+  Record HOST and ENV together. An env name alone is a fact with a missing
+  argument in exactly the way a bare version number was, one level up. The
+  table above is `carruthers` (the Linux workstation without /mnt/firecuda2).
+
+  The superseded first correction read:
   CORRECTED 2026-08-31 by measurement -- the first version of this table had
   `spacr` and `spacr12` the wrong way round and said `spacr13` had no PySide6
   at all. Read twice from each interpreter, `PySide6.__version__` and
