@@ -18475,10 +18475,11 @@
     "spacr.layers.Blending.check": {
       "source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ],
-      "source_sha256": "21bb1e2a0c770536dd1f525c7dfdbbc83cb543b21435da282b6a21748b92b490",
-      "text": "Normalise and validate a blending name.\n\n:raises LayerError: on an unknown mode — a typo that silently fell\n    back to translucent would be a compositing bug nobody could see."
+      "source_sha256": "96ce0cbec8e88a264f3e24405c72a9e5d927ea871c82f2189283c3d3b1ede2d0",
+      "text": "Normalise and validate a blending name.\n\n:param mode: Blending-mode name. Leading and trailing whitespace and\n    letter case are normalised before validation against\n    :attr:`Blending.ALL`.\n:raises LayerError: on an unknown mode — a typo that silently fell\n    back to translucent would be a compositing bug nobody could see."
     },
     "spacr.layers.Canvas": {
       "source_blocks_sha256": [
@@ -18531,26 +18532,31 @@
     },
     "spacr.layers.Canvas.panned": {
       "source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ],
-      "source_sha256": "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
-      "text": "A canvas moved by ``(d_row, d_column)`` canvas pixels."
+      "source_sha256": "9c0f1688eb9ed5fb65c6da5c8217e54b644062cb27400d3249984ff5ac9e94ca",
+      "text": "A canvas moved by ``(d_row, d_column)`` canvas pixels.\n\n:param d_row: Signed displacement in canvas-row pixels.\n:param d_column: Signed displacement in canvas-column pixels."
     },
     "spacr.layers.Canvas.pixel_at": {
       "source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746"
       ],
-      "source_sha256": "246f4a13bddc9f55d861fd4a2a41de798fd900b5be933aaa2b0f068a3e9dc3f0",
-      "text": "The (fractional) canvas pixel a world point falls on.\n\nThe inverse of :meth:`world_at`, and the reason a points layer and a\nlabels layer at the same world coordinate land on the same pixel: they\nare both put through this, not through their own array indices."
+      "source_sha256": "056971ed788048626de9f4d77c17da1e63ec7bede4a9bbe0ebcb3947ca9a5b59",
+      "text": "The (fractional) canvas pixel a world point falls on.\n\nThe inverse of :meth:`world_at`, and the reason a points layer and a\nlabels layer at the same world coordinate land on the same pixel: they\nare both put through this, not through their own array indices.\n\n:param world: Mapping containing world coordinates for both axes of\n    this canvas plane."
     },
     "spacr.layers.Canvas.resized": {
       "source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ],
-      "source_sha256": "520cf1b8fd5c19fb4d41cb8db1d459d63f87714e9e60c34dea83b47e1b9fabd1",
-      "text": "The same world window at a different pixel size.\n\nThe world *span* is held, not the step, so a widget resize shows the\nsame field of view rather than more of the sample."
+      "source_sha256": "882d3cee83c907dcef6e91a1a3294a3a4e19127afc78180ca19651c65c19c281",
+      "text": "The same world window at a different pixel size.\n\nThe world *span* is held, not the step, so a widget resize shows the\nsame field of view rather than more of the sample.\n\n:param height: New canvas height in pixels, coerced to at least one.\n:param width: New canvas width in pixels, coerced to at least one."
     },
     "spacr.layers.Canvas.row_world": {
       "source_blocks_sha256": [
@@ -18562,18 +18568,21 @@
     "spacr.layers.Canvas.world_at": {
       "source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ],
-      "source_sha256": "157241154cd79e1cf4f1ff7c3c7515858eb75e8c7523407fc7ab6d8348f0144c",
-      "text": "The world point under canvas pixel ``(row, column)``.\n\nIncludes the pinned :attr:`depth` axes, so the result is a complete\nworld position a layer can be asked about."
+      "source_sha256": "dea1842446c4c99bede31498b1dcfcca4a6edce250c638b7f8ffc5857508d13f",
+      "text": "The world point under canvas pixel ``(row, column)``.\n\nIncludes the pinned :attr:`depth` axes, so the result is a complete\nworld position a layer can be asked about.\n\n:param row: Fractional canvas-row coordinate.\n:param column: Fractional canvas-column coordinate."
     },
     "spacr.layers.Canvas.zoomed": {
       "source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ],
-      "source_sha256": "c01d143a6c3fc93939658022c9dd37ee5eeb75862cf2babaf158e49f231ad512",
-      "text": "A canvas ``factor``× closer, about ``centre`` (canvas pixels).\n\n``factor > 1`` zooms in. The default centre is the middle of the view,\nwhich is what a keyboard zoom means; a wheel zoom passes the cursor."
+      "source_sha256": "d2717209129b3c2f5aa40aa3166873044e524aeab0a8d75b71e3bc0a4ad240c8",
+      "text": "A canvas ``factor``× closer, about ``centre`` (canvas pixels).\n\n``factor > 1`` zooms in. The default centre is the middle of the view,\nwhich is what a keyboard zoom means; a wheel zoom passes the cursor.\n\n:param factor: Positive finite magnification factor; values above one\n    zoom in and values below one zoom out."
     },
     "spacr.layers.CanvasLink": {
       "source_blocks_sha256": [
@@ -18588,10 +18597,12 @@
     "spacr.layers.CanvasLink.add": {
       "source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6"
+        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe"
       ],
-      "source_sha256": "65ab76ffd3c1e7cef582977e6dd8a57f48c59c2dce32cc9322379d9872ca766f",
-      "text": "Put a panel in the link, adopting the shared window if there is one.\n\nA panel added to a link that has already been panned starts where the\nothers are, not where it was built — otherwise adding a fifth channel\nto a grid the user has zoomed into shows the whole field in one cell."
+      "source_sha256": "9efe1e7455abe876a4617d8cc1e63a8180fa2b413ab607feaac748e38bb36574",
+      "text": "Put a panel in the link, adopting the shared window if there is one.\n\nA panel added to a link that has already been panned starts where the\nothers are, not where it was built — otherwise adding a fifth channel\nto a grid the user has zoomed into shows the whole field in one cell.\n\n:param key: Unique panel identifier, coerced to a string.\n:param canvas: Canvas that defines this panel's plane, size and world\n    window."
     },
     "spacr.layers.CanvasLink.at_depth": {
       "source_blocks_sha256": [
@@ -18616,10 +18627,11 @@
     },
     "spacr.layers.CanvasLink.is_locked": {
       "source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
-      "text": "Whether a panel follows the others."
+      "source_sha256": "d8056f77b21988ca7c42428992bf2726a0cdf680ba4a2ee9acc1edbfe3e6d614",
+      "text": "Whether a panel follows the others.\n\n:param key: Identifier of an existing panel."
     },
     "spacr.layers.CanvasLink.keys": {
       "source_blocks_sha256": [
@@ -18630,85 +18642,101 @@
     },
     "spacr.layers.CanvasLink.lock": {
       "source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ],
-      "source_sha256": "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
-      "text": "Make a panel follow the others again, moving it there now."
+      "source_sha256": "72e1aa9b842118d9bcee0b7ef3b4c5f978da28fd283e737a92892b469149ec7a",
+      "text": "Make a panel follow the others again, moving it there now.\n\n:param key: Identifier of the panel to align and lock."
     },
     "spacr.layers.CanvasLink.pan": {
       "source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ],
-      "source_sha256": "1c919e5cc9723f656dbc14478305553e728735393ed4b296f7e0a092d0d55912",
-      "text": "Pan by a number of the DRIVING panel's pixels.\n\nConverted to world before it is handed to the others, so a grid whose\npanels are at different zooms (one unlocked, then relocked) still moves\nby the same distance across the sample rather than the same number of\npixels."
+      "source_sha256": "1d1305b76ef0aae72d2492aa5aefef650ea5662fa9e0f5361767cad6dc346c2e",
+      "text": "Pan by a number of the DRIVING panel's pixels.\n\nConverted to world before it is handed to the others, so a grid whose\npanels are at different zooms (one unlocked, then relocked) still moves\nby the same distance across the sample rather than the same number of\npixels.\n\n:param d_row: Signed row displacement in pixels of the driving panel.\n:param d_column: Signed column displacement in pixels of the driving\n    panel."
     },
     "spacr.layers.CanvasLink.remove": {
       "source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
-      "text": "Take a panel out and return its canvas."
+      "source_sha256": "1087cb1b1660a230eb2cc207bcd156f1f2d5c2323bd6eddba1a3a041bc1fb4bd",
+      "text": "Take a panel out and return its canvas.\n\n:param key: Identifier of an existing panel."
     },
     "spacr.layers.CanvasLink.reset": {
       "source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ],
-      "source_sha256": "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
-      "text": "Fit every locked panel to ``source`` again, keeping its pixel size."
+      "source_sha256": "52aa9ff1bc60c447de70a4807e6baaa6970b787e0c1e3891b1926bd59da2d2d8",
+      "text": "Fit every locked panel to ``source`` again, keeping its pixel size.\n\n:param source: Layer stack, layer or extent mapping accepted by\n    :meth:`Canvas.covering`."
     },
     "spacr.layers.CanvasLink.resize": {
       "source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ],
-      "source_sha256": "e6c1826e76b9a6730dc1b726e41113792bedf8c40475eb9a611b774d62013589",
-      "text": "A panel's widget changed size. Only that panel's shape changes.\n\nThe STEP is held, not the span — the opposite of\n:meth:`Canvas.resized`, and deliberately. In a linked grid the shared\nquantity is the magnification: a cell that is 10 px narrower than its\nneighbour must show 10 px less of the sample at the same scale, or the\ntwo pictures are at different magnifications and the comparison the\ngrid exists for is not one."
+      "source_sha256": "97bcf37a4b2690ef7f10d1f05af16d0d4f569677f0de4c2231e17d36238048b2",
+      "text": "A panel's widget changed size. Only that panel's shape changes.\n\nThe STEP is held, not the span — the opposite of\n:meth:`Canvas.resized`, and deliberately. In a linked grid the shared\nquantity is the magnification: a cell that is 10 px narrower than its\nneighbour must show 10 px less of the sample at the same scale, or the\ntwo pictures are at different magnifications and the comparison the\ngrid exists for is not one.\n\n:param key: Identifier of the existing panel whose widget resized.\n:param height: New panel height in pixels, coerced to at least one.\n:param width: New panel width in pixels, coerced to at least one."
     },
     "spacr.layers.CanvasLink.set": {
       "source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ],
-      "source_sha256": "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
-      "text": "Replace one panel's canvas, and bring the locked ones with it."
+      "source_sha256": "65d2d87b70be8821f92446a44154769819e6fd651bdd301028c433444b3ed10f",
+      "text": "Replace one panel's canvas, and bring the locked ones with it.\n\n:param key: Identifier of the existing panel to replace.\n:param canvas: Replacement canvas whose world window locked peers\n    adopt."
     },
     "spacr.layers.CanvasLink.subscribe": {
       "source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ],
-      "source_sha256": "4c374f21c4c8190c458492bcd5c6fd3f18eb1faf71456340be32830dd42fad5e",
-      "text": "Be told, with the key that moved, whenever a panel changes.\n\nHeld by strong reference, exactly like :meth:`LayerStack.subscribe`: a\nview that subscribes must :meth:`unsubscribe` when it closes."
+      "source_sha256": "37d325816b0696373b9a1709485ca94d39b289b2724a056e46caeaef9f8e1ae6",
+      "text": "Be told, with the key that moved, whenever a panel changes.\n\nHeld by strong reference, exactly like :meth:`LayerStack.subscribe`: a\nview that subscribes must :meth:`unsubscribe` when it closes.\n\n:param listener: Callable receiving the identifier of the panel that\n    changed; it is retained by strong reference."
     },
     "spacr.layers.CanvasLink.unlock": {
       "source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ],
-      "source_sha256": "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
-      "text": "Let a panel be moved on its own."
+      "source_sha256": "328c58deb9ecf0c69cb99d7bebad538fd82582aa4914263e15f759e07b63fa8d",
+      "text": "Let a panel be moved on its own.\n\n:param key: Identifier of the panel to detach from linked movement."
     },
     "spacr.layers.CanvasLink.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Stop being told. ``True`` if this call is what removed it."
+      "source_sha256": "fb4854ff518e71eb68e7b621ca3224fad4c6929c2ed93c89276be76447c5d9d9",
+      "text": "Stop being told. ``True`` if this call is what removed it.\n\n:param listener: Previously subscribed callback to remove."
     },
     "spacr.layers.CanvasLink.zoom": {
       "source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ],
-      "source_sha256": "b103353a3b3bd199e684f4396c1df5868cf3b989c209fba80e19b1bcd8108d0b",
-      "text": "Zoom ``key`` (or every panel) by ``factor``, about ``centre``.\n\nThe world point under ``centre`` in the panel being driven is what the\nother panels are zoomed about too — not their own middles, or a wheel\nover one cell would slide the rest of the grid sideways."
+      "source_sha256": "1afdfcd0c37b4ae96649d993bfa1c632e2f153e0c38f9688bfbb732c228bf6b6",
+      "text": "Zoom ``key`` (or every panel) by ``factor``, about ``centre``.\n\nThe world point under ``centre`` in the panel being driven is what the\nother panels are zoomed about too — not their own middles, or a wheel\nover one cell would slide the rest of the grid sideways.\n\n:param factor: Positive finite magnification factor passed to each\n    affected canvas."
     },
     "spacr.layers.Colormap": {
       "source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9"
+        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ],
-      "source_sha256": "a96c154e7e58d40b4dc699c8e5b5f41ba1f749484ae2d34d83e158ad95c25965",
-      "text": "A named ramp from a value in 0–1 to a colour.\n\nLinear interpolation between ``colors`` at ``stops``. Two stops covers\nevery microscopy channel LUT there is (black → the channel's colour), and\nmore stops covers the perceptual maps without pulling matplotlib into a\nmodule that has to stay importable in a worker."
+      "source_sha256": "14d72ed96d88d88a519e0c582fb93152f5adfede906113714844ea9a2b9ef321",
+      "text": "A named ramp from a value in 0–1 to a colour.\n\nLinear interpolation between ``colors`` at ``stops``. Two stops covers\nevery microscopy channel LUT there is (black → the channel's colour), and\nmore stops covers the perceptual maps without pulling matplotlib into a\nmodule that has to stay importable in a worker.\n\n:param name: Display and lookup name stored with the colour ramp; it is\n    coerced to a string.\n:param colors: Ordered sequence of at least two colour specifications\n    accepted by :func:`to_rgba`; the ramp interpolates them in order."
     },
     "spacr.layers.Colormap.colors": {
       "source_blocks_sha256": [
@@ -18719,10 +18747,11 @@
     },
     "spacr.layers.Colormap.map": {
       "source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ],
-      "source_sha256": "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
-      "text": "Map ``values`` (any shape, 0–1, clipped) to ``(..., 3)`` float32."
+      "source_sha256": "d44bc6930eff4ab861525b12ae9b7bb119c13b4c03261a4972081d459c210d72",
+      "text": "Map ``values`` (any shape, 0–1, clipped) to ``(..., 3)`` float32.\n\n:param values: Numeric scalar or array-like values to interpolate;\n    values outside 0–1 are clipped to the nearest end of the ramp."
     },
     "spacr.layers.Colormap.stops": {
       "source_blocks_sha256": [
@@ -18751,32 +18780,36 @@
     },
     "spacr.layers.FieldKey.frame": {
       "source_blocks_sha256": [
-        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5"
+        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
+        "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a"
       ],
-      "source_sha256": "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
-      "text": "A one-column-per-key-column frame for ``labels``, in their order."
+      "source_sha256": "40cb79e68a34eef070ac79e767a2a20ad3b0ea339fb51507cd830861b02a1545",
+      "text": "A one-column-per-key-column frame for ``labels``, in their order.\n\n:param labels: Iterable of integer-like object labels to attach to this\n    field identity."
     },
     "spacr.layers.FieldKey.from_row": {
       "source_blocks_sha256": [
         "6cd8c0d449bf06de8080354ae8f7e759d68ec379bc2f066627de5cf1d8cda20d",
-        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802"
+        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ],
-      "source_sha256": "dc3043bd6b23a275feb200864d525833b9372277c796db03ba1a796218dc906f",
-      "text": "Take the key columns out of a measurement row (or any mapping).\n\nAnything else on the row is dropped — a field key is an identity, and\ncarrying a measurement along with it would make two keys for the same\nfield compare unequal."
+      "source_sha256": "5009c670395a31711e65f9482b60110422c8dd91aff93bf55ada69eae28f0695",
+      "text": "Take the key columns out of a measurement row (or any mapping).\n\nAnything else on the row is dropped — a field key is an identity, and\ncarrying a measurement along with it would make two keys for the same\nfield compare unequal.\n\n:param row: Measurement-row mapping from which the required identity\n    columns are extracted."
     },
     "spacr.layers.FieldKey.object_key": {
       "source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12"
       ],
-      "source_sha256": "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
-      "text": "The one object key for ``label``."
+      "source_sha256": "9c0ffb61704a39ffd2308e7bd131ba754dcf2b5caf578cea363a1dcf07523bc9",
+      "text": "The one object key for ``label``.\n\n:param label: Integer-like object label to encode for this field."
     },
     "spacr.layers.FieldKey.object_keys": {
       "source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ],
-      "source_sha256": "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
-      "text": ":class:`pandas.Index` of object keys for ``labels``, in order."
+      "source_sha256": "8aeaa33840efac26e90a789b6909c6e7a0a6c929253a60f69fd7784fbea893a8",
+      "text": ":class:`pandas.Index` of object keys for ``labels``, in order.\n\n:param labels: Iterable of integer-like object labels to encode."
     },
     "spacr.layers.ImageLayer": {
       "source_blocks_sha256": [
@@ -18800,10 +18833,19 @@
     },
     "spacr.layers.ImageLayer.channel_data": {
       "source_blocks_sha256": [
-        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b"
+        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ],
-      "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "text": "The spatial array for one channel (a view, not a copy)."
+      "source_sha256": "15de51c78f3d0361193a224fff41be5f626235806342ddaadd54c29239268d52",
+      "text": "The spatial array for one channel (a view, not a copy).\n\n:param channel: Zero-based channel index accepted by normal sequence\n    indexing."
+    },
+    "spacr.layers.ImageLayer.channel_is_visible": {
+      "source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ],
+      "source_sha256": "d8e695a52522e5e5457c5945555946345282682afb868b70699f25ef2e05601c",
+      "text": "Whether one channel participates in rendering.\n\n:param channel: Zero-based channel index accepted by normal sequence\n    indexing."
     },
     "spacr.layers.ImageLayer.colormap": {
       "source_blocks_sha256": [
@@ -18827,20 +18869,32 @@
       "source_sha256": "af3320fcd4373de12c3c56554534b7704b1c62e20835a0f9548731ee070822e0",
       "text": "How many spatial axes this layer has."
     },
+    "spacr.layers.ImageLayer.set_channel_visible": {
+      "source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ],
+      "source_sha256": "e1a8be22f1960a50e5eb3f6173e8c0228092d0630738144fd727e11b9b08c055",
+      "text": "Set whether one channel participates in rendering.\n\n:param channel: Zero-based channel index accepted by normal sequence\n    indexing.\n:param visible: Truth value for the channel's new visibility state."
+    },
     "spacr.layers.ImageLayer.set_colormap": {
       "source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ],
-      "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "text": "Give one channel a new LUT."
+      "source_sha256": "a65a79a6a74fec31bfa36fc24c6bbafc045a1ced9c6e85ed52b17e6efda99cf4",
+      "text": "Give one channel a new LUT.\n\n:param value: Colormap or colour specification accepted by\n    :func:`colormap`."
     },
     "spacr.layers.ImageLayer.set_contrast_limits": {
       "source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+        "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ],
-      "source_sha256": "f8c007ce8415d95d9833f128e8e4ae98763c820511b8f376c3e5b2e16f4247e5",
-      "text": "Set one channel's limits.\n\n:raises LayerError: if they do not increase — an inverted pair renders\n    a black image, which reads as \"no signal\" rather than as a bad\n    setting."
+      "source_sha256": "67991223e0e1401f9a83adbeeca279685329443027954cdacd55f4a295b00e40",
+      "text": "Set one channel's limits.\n\n:param low: Lower intensity bound in the channel's data units.\n:param high: Upper intensity bound in the channel's data units; it\n    must be greater than ``low``.\n:raises LayerError: if they do not increase — an inverted pair renders\n    a black image, which reads as \"no signal\" rather than as a bad\n    setting."
     },
     "spacr.layers.ImageLayer.shape": {
       "alias_of": "spacr.layers.Layer.shape",
@@ -18862,27 +18916,30 @@
       "source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ],
-      "source_sha256": "7a4e53da8be2116ee8ce70e78922594a4988175d7f9582491543cef395f17578",
-      "text": "An integer segmentation mask. 0 is background and draws as nothing.\n\nColours come from :func:`label_color`, so an object keeps its colour\nbetween sessions and between this viewer and the live preview.\n\n:param field: the :class:`FieldKey` this mask segments. Optional, but\n    without it a click can only say \"label 17\" — with it, the click can\n    publish ``plate1_A_1_1_17`` to every other view."
+      "source_sha256": "12854f7027909f636182b3838e1df4f568b7287c604915e4fa51acf3e9ad0400",
+      "text": "An integer segmentation mask. 0 is background and draws as nothing.\n\nColours come from :func:`label_color`, so an object keeps its colour\nbetween sessions and between this viewer and the live preview.\n\n:param data: Two- or three-dimensional array-like segmentation labels;\n    values must be integers or exactly integral numbers.\n:param field: the :class:`FieldKey` this mask segments. Optional, but\n    without it a click can only say \"label 17\" — with it, the click can\n    publish ``plate1_A_1_1_17`` to every other view."
     },
     "spacr.layers.LabelsLayer.brush_index": {
       "source_blocks_sha256": [
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "ef10abde172c944037ac91cd1df4dc457505cf9a68dfa7dc3c36f95884939a7c"
       ],
-      "source_sha256": "43cf6677f673f3d5cf1ad8bb1b5e92d9f25d0ebacd690c44858e5235687eaecc",
-      "text": "The elements a world-space ball brush covers, as index arrays.\n\nThe brush is a ball in WORLD space, so on an anisotropic stack it\ncovers fewer z-slices than y-rows — which is what the user means by a\n5 µm brush. A brush measured in array elements would be a 5-slice\ncylinder, i.e. 10 µm deep and 3.25 µm wide on an ordinary spaCR stack.\n\nSplit out of :meth:`paint` so a caller that has to *record* what it\nchanged — :class:`spacr.curation.MaskCuration`, which keeps an undo\nhistory and an audit trail — asks the layer for the geometry instead\nof re-deriving the anisotropy rule and getting it subtly different.\nThere is one ball, and it is defined here.\n\n:returns: one integer array per axis, ready to index :attr:`data`\n    with. Empty arrays when the brush falls entirely off the grid,\n    which indexes to nothing rather than raising."
+      "source_sha256": "fdf4c2cda21386361c12e28138b98cb1fa7ac9955847f3c48294f1caeba3e78e",
+      "text": "The elements a world-space ball brush covers, as index arrays.\n\nThe brush is a ball in WORLD space, so on an anisotropic stack it\ncovers fewer z-slices than y-rows — which is what the user means by a\n5 µm brush. A brush measured in array elements would be a 5-slice\ncylinder, i.e. 10 µm deep and 3.25 µm wide on an ordinary spaCR stack.\n\nSplit out of :meth:`paint` so a caller that has to *record* what it\nchanged — :class:`spacr.curation.MaskCuration`, which keeps an undo\nhistory and an audit trail — asks the layer for the geometry instead\nof re-deriving the anisotropy rule and getting it subtly different.\nThere is one ball, and it is defined here.\n\n:param world: Mapping from axis names to the brush centre in world\n    coordinates; omitted spacing axes are evaluated at zero.\n:returns: one integer array per axis, ready to index :attr:`data`\n    with. Empty arrays when the brush falls entirely off the grid,\n    which indexes to nothing rather than raising."
     },
     "spacr.layers.LabelsLayer.label_at_world": {
       "source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ],
-      "source_sha256": "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
-      "text": "The label under a world point, or 0 for background / outside."
+      "source_sha256": "fcbca66bbfadfd442c3f75be94a15baf8d2757596873994a0fe6155ad002d03c",
+      "text": "The label under a world point, or 0 for background / outside.\n\n:param world: Mapping from axis names to a point in world coordinates."
     },
     "spacr.layers.LabelsLayer.labels": {
       "source_blocks_sha256": [
@@ -18902,10 +18959,11 @@
     "spacr.layers.LabelsLayer.object_key_at_world": {
       "source_blocks_sha256": [
         "2888b920fd6956b3f6e04d746585f4c83a11948a1cc8cd56b4542a34cd758fce",
-        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72"
+        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ],
-      "source_sha256": "99e56ad84d2620d6e72ee69ea199ef77fec0bb0bab9aecbf02fb51b583348e72",
-      "text": "The measurement-table key of the object under a world point.\n\n``None`` for background, or when this layer was not told which field\nit segments. This is the whole reason a labels layer carries a\n:class:`FieldKey`: the string this returns is the same string the\nUMAP, the plate view and the annotation grid use, so publishing it\nthrough :mod:`spacr.qt.linked_selection` highlights the same cell\neverywhere."
+      "source_sha256": "5f58c8e407661db6c30f1a9acaf1188141ee5aafe63ae9fa8e202386082cd334",
+      "text": "The measurement-table key of the object under a world point.\n\n``None`` for background, or when this layer was not told which field\nit segments. This is the whole reason a labels layer carries a\n:class:`FieldKey`: the string this returns is the same string the\nUMAP, the plate view and the annotation grid use, so publishing it\nthrough :mod:`spacr.qt.linked_selection` highlights the same cell\neverywhere.\n\n:param world: Mapping from axis names to the world point to identify."
     },
     "spacr.layers.LabelsLayer.object_keys": {
       "source_blocks_sha256": [
@@ -18918,10 +18976,12 @@
       "source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ],
-      "source_sha256": "8a9f7db9bf93c003bd26b54d940d58a9e09b6421c9a6e351242612219eb95b92",
-      "text": "Set every element within ``radius`` world units of a point.\n\n:meth:`brush_index` owns the ball; this is that plus the write.\n\n:returns: how many elements changed."
+      "source_sha256": "4826c2d76d13a5e9b76d0bc8a2f2099a1d6eb699c17ba6a7a44a62c114fdf48b",
+      "text": "Set every element within ``radius`` world units of a point.\n\n:meth:`brush_index` owns the ball; this is that plus the write.\n\n:param world: Mapping from axis names to the brush centre in world\n    coordinates.\n:param label: Integer-like label to paint.\n:returns: how many elements changed."
     },
     "spacr.layers.LabelsLayer.selected_label": {
       "source_blocks_sha256": [
@@ -18933,10 +18993,12 @@
     "spacr.layers.LabelsLayer.set_labels_at": {
       "source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ],
-      "source_sha256": "4b51f05f5b36b84aef9aadcff8334a00b17ff1eac193ad3b1e17e18b4038b7bb",
-      "text": "Set the elements ``index`` names to ``label``; how many changed.\n\nThe write half of :meth:`brush_index`, and the ONE place a labels\nlayer's data is edited element-wise — so exactly one call notifies.\nA caller doing its own arithmetic on :attr:`data` would mutate the\narray without telling the canvas, and the picture would come right\nonly at the next unrelated repaint."
+      "source_sha256": "1abf895c5080ad211ca94bb5ff03f93c50724b8a87a65630308906543c555767",
+      "text": "Set the elements ``index`` names to ``label``; how many changed.\n\nThe write half of :meth:`brush_index`, and the ONE place a labels\nlayer's data is edited element-wise — so exactly one call notifies.\nA caller doing its own arithmetic on :attr:`data` would mutate the\narray without telling the canvas, and the picture would come right\nonly at the next unrelated repaint.\n\n:param index: One integer index array per data axis, suitable for\n    NumPy advanced indexing.\n:param label: Integer-like label to write at the selected elements."
     },
     "spacr.layers.LabelsLayer.shape": {
       "alias_of": "spacr.layers.Layer.shape",
@@ -18958,10 +19020,11 @@
       "source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ],
-      "source_sha256": "d9bf540e5df502fb1259165c71211aad3d5b283456e1a09ecad2a91dacad0e8e",
-      "text": "One thing in the stack: a name, a place in the world, and how to draw it.\n\nSubclasses implement :meth:`_draw`; everything shared — visibility,\nopacity, blending, spacing, notification — lives here.\n\nDisplay properties are plain attributes with setters that notify the\nstack, so a view repaints because the model changed rather than because\nthe widget that changed it remembered to ask."
+      "source_sha256": "00ae1646166976c37b3971d157a42c453ea3828f10371a9e2f504447306b03d2",
+      "text": "One thing in the stack: a name, a place in the world, and how to draw it.\n\nSubclasses implement :meth:`_draw`; everything shared — visibility,\nopacity, blending, spacing, notification — lives here.\n\nDisplay properties are plain attributes with setters that notify the\nstack, so a view repaints because the model changed rather than because\nthe widget that changed it remembered to ask.\n\n:param name: Non-blank layer identifier; names are uniquified when the\n    layer enters a :class:`LayerStack`."
     },
     "spacr.layers.Layer.describe": {
       "source_blocks_sha256": [
@@ -18980,10 +19043,11 @@
     "spacr.layers.Layer.render": {
       "source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ],
-      "source_sha256": "6a69174507dcd6941d3e37953e3d4375f3afcdff90f51f7eb47c94bf2f6bf77a",
-      "text": "Draw onto ``canvas``; returns ``(rgb, coverage)``.\n\n``rgb`` is ``(H, W, 3)`` float32 in 0–1 and ``coverage`` is ``(H, W)``\nfloat32 in 0–1 saying where this layer has anything to say. Opacity and\nblending are NOT applied here — the stack applies them, so a layer's\nown render is the same whatever it is composited with."
+      "source_sha256": "041a29bcd5eb327d63f54158ec2e06819a2804d242f09ce3b6633f43facb47b8",
+      "text": "Draw onto ``canvas``; returns ``(rgb, coverage)``.\n\n``rgb`` is ``(H, W, 3)`` float32 in 0–1 and ``coverage`` is ``(H, W)``\nfloat32 in 0–1 saying where this layer has anything to say. Opacity and\nblending are NOT applied here — the stack applies them, so a layer's\nown render is the same whatever it is composited with.\n\n:param canvas: World window and output grid on which to draw the layer."
     },
     "spacr.layers.Layer.shape": {
       "source_blocks_sha256": [
@@ -19001,17 +19065,19 @@
     },
     "spacr.layers.Layer.to_data": {
       "source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ],
-      "source_sha256": "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
-      "text": "``{axis: world}`` → fractional data index."
+      "source_sha256": "1e3345eda89cb5de4ca629fff4184928f324444e3cfe6d73079e8bf9cfdaa78c",
+      "text": "``{axis: world}`` → fractional data index.\n\n:param world: Mapping from world-axis names to coordinates; omitted\n    spacing axes are evaluated at world coordinate zero."
     },
     "spacr.layers.Layer.to_world": {
       "source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ],
-      "source_sha256": "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
-      "text": "Data index → ``{axis: world}``."
+      "source_sha256": "26735f18d934b2c7f3e0e8645475aca52ab5011ffc91614884d6dbbc7b76d282",
+      "text": "Data index → ``{axis: world}``.\n\n:param index: Fractional data coordinate in this layer's spacing-axis\n    order."
     },
     "spacr.layers.Layer.world_extent": {
       "source_blocks_sha256": [
@@ -19050,12 +19116,29 @@
       "source_sha256": "2ad165f8836e42fe0b9fb9fb92391e923d24e6435571be9bfd11cb9750c76fe8",
       "text": "An ordered list of layers sharing one world.\n\n``stack[0]`` is the bottom and is drawn first. Everything a viewer does to\nthe list — add, remove, reorder, rename, select — happens here and is\nannounced through :meth:`subscribe`, so the widget is a view over this\nrather than the other way round.\n\nThe stack owns two invariants the layers cannot enforce alone:\n\n* **Names are unique.** A duplicate name means \"hide the mask\" hides the\n  wrong one. Colliding names are suffixed rather than refused, because a\n  user adding a second mask should get one, not an error dialog.\n* **Units agree.** A layer measured in µm and a layer measured in pixels\n  cannot be composited: the numbers would line up and the picture would\n  not. Mixing them raises rather than drawing something plausible."
     },
+    "spacr.layers.LayerStack.add_image": {
+      "source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ],
+      "source_sha256": "d763809cb6736d1325da4effb708e3a9eb378b08036775cfe67a5a185b3b7677",
+      "text": "Construct and append an image layer.\n\n:param data: Array-like intensity data passed to :class:`ImageLayer`."
+    },
+    "spacr.layers.LayerStack.add_labels": {
+      "source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ],
+      "source_sha256": "a0aaaecabc526aeccd0261c59e4092b9bae0224cdd83104f63dfe9a68f93758b",
+      "text": "Construct and append a labels layer.\n\n:param data: Array-like segmentation labels passed to\n    :class:`LabelsLayer`."
+    },
     "spacr.layers.LayerStack.append": {
       "source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
-      "text": "Put ``layer`` on top."
+      "source_sha256": "e8ffcf4ef88d408c04bde53496a66c9da50eaa0bee446324b9379c46b163e733",
+      "text": "Put ``layer`` on top.\n\n:param layer: Layer instance to attach to this stack."
     },
     "spacr.layers.LayerStack.canvas": {
       "source_blocks_sha256": [
@@ -19080,40 +19163,47 @@
     },
     "spacr.layers.LayerStack.get": {
       "source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ],
-      "source_sha256": "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
-      "text": "The layer named by an object, a name or an index."
+      "source_sha256": "f0b308ec65c968a7c63063e083a1d517495af8e79a3c10b3477b8acb554501ba",
+      "text": "The layer named by an object, a name or an index.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to resolve."
     },
     "spacr.layers.LayerStack.index": {
       "source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ],
-      "source_sha256": "fce075446257bcb107abcae907b588e44e92a8c0a191db02ea3761b70186f78d",
-      "text": "Where ``layer`` sits, by object, name or index.\n\n:raises LayerError: if it is not in this stack. ``-1`` would be a\n    valid index from the top and would silently affect the wrong layer."
+      "source_sha256": "b9f1a82e69c109470a037e5dbb9339af4d9e4e7bef6735bccc16878c639aabf1",
+      "text": "Where ``layer`` sits, by object, name or index.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to resolve.\n:raises LayerError: if it is not in this stack. ``-1`` would be a\n    valid index from the top and would silently affect the wrong layer."
     },
     "spacr.layers.LayerStack.insert": {
       "source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
-      "text": "Put ``layer`` at ``index`` (0 is the bottom)."
+      "source_sha256": "de6ede5822f1b49b01cbf558ecb4ea1c142274743c204e0ca40fb7080d1d97d4",
+      "text": "Put ``layer`` at ``index`` (0 is the bottom).\n\n:param index: Requested insertion position, clamped between zero and\n    the current stack length.\n:param layer: Layer instance to attach to this stack."
     },
     "spacr.layers.LayerStack.lower_layer": {
       "source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ],
-      "source_sha256": "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
-      "text": "One step towards the back."
+      "source_sha256": "2042e5a08104144b57ffbbe3cc0fa1ed914881b5bbd24e6d1787af90263e2542",
+      "text": "One step towards the back.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to lower."
     },
     "spacr.layers.LayerStack.move": {
       "source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ],
-      "source_sha256": "5be37c8323202e92afacd3368b433d3248015a1b32f84f546389a98acab94606",
-      "text": "Move a layer to ``destination``; returns where it ended up.\n\nThe z-order control. ``destination`` is clamped, so \"move to the top\"\ncan be spelled with any large number."
+      "source_sha256": "cf6605e56f490303bd3300077bd6d207a33e970524f37c835fde803e3843bd76",
+      "text": "Move a layer to ``destination``; returns where it ended up.\n\nThe z-order control. ``destination`` is clamped, so \"move to the top\"\ncan be spelled with any large number.\n\n:param source: Layer object, unique layer name or integer stack index\n    to move.\n:param destination: Requested destination index, clamped to the stack\n    after the source has been removed."
     },
     "spacr.layers.LayerStack.names": {
       "source_blocks_sha256": [
@@ -19125,60 +19215,71 @@
     "spacr.layers.LayerStack.pick": {
       "source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ],
-      "source_sha256": "7a87bd473703e187dbc6926399a02bb0314584d2bd2db2052fc20b6b3ff592d7",
-      "text": "What is under a canvas pixel: ``(layer, world, value)``.\n\nWalks from the TOP down and stops at the first visible layer with\nsomething there, which is what a click means — the thing you can see.\n``value`` is the label for a labels layer, the point index for a points\nlayer, the shape index for a shapes layer, and ``None`` otherwise."
+      "source_sha256": "e6deb023970c48d1b50d0be27ae6c93929cbbb42be91616ad3063e61a410f489",
+      "text": "What is under a canvas pixel: ``(layer, world, value)``.\n\nWalks from the TOP down and stops at the first visible layer with\nsomething there, which is what a click means — the thing you can see.\n``value`` is the label for a labels layer, the point index for a points\nlayer, the shape index for a shapes layer, and ``None`` otherwise.\n\n:param canvas: Canvas whose displayed stack is being queried.\n:param row: Fractional canvas-row coordinate of the query pixel.\n:param column: Fractional canvas-column coordinate of the query pixel."
     },
     "spacr.layers.LayerStack.raise_layer": {
       "source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ],
-      "source_sha256": "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
-      "text": "One step towards the front."
+      "source_sha256": "14e58cf30dc8ff73ab9ee247e9070ca41c985b1af42eb587db47512480d9a6a1",
+      "text": "One step towards the front.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to raise."
     },
     "spacr.layers.LayerStack.remove": {
       "source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ],
-      "source_sha256": "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
-      "text": "Take a layer out and return it."
+      "source_sha256": "1227ba3055b381e8adee5534e1fa424faf0a9d9ab871fd486d466005039441a2",
+      "text": "Take a layer out and return it.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to remove."
     },
     "spacr.layers.LayerStack.rename": {
       "source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ],
-      "source_sha256": "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
-      "text": "Rename a layer, uniquifying if needed; returns the name it got."
+      "source_sha256": "cc42f737075a19f21b32353e139736f7eebc2bf94d221135189aa507a96b0d5a",
+      "text": "Rename a layer, uniquifying if needed; returns the name it got.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to rename.\n:param name: Requested non-blank name; a numeric suffix is added if it\n    collides with another layer."
     },
     "spacr.layers.LayerStack.render": {
       "source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
-      "text": "Composite every visible layer; ``(H, W, 3)`` float32 in 0–1."
+      "source_sha256": "706df46e91c0f2d4d8bcce5d8328ed32c63a27244faa7c5dda30ae45b7229d0f",
+      "text": "Composite every visible layer; ``(H, W, 3)`` float32 in 0–1.\n\n:param canvas: World window and output grid on which to composite the\n    stack."
     },
     "spacr.layers.LayerStack.render_rgba": {
       "source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "97936d0c7625321036ed948f50eae43ffb5b967dda28602b306c1b34ae93c382",
-      "text": ":meth:`render` plus the composite's own coverage, ``(H, W, 4)``.\n\nThe alpha channel is accumulated source-over whatever the layers'\nblending modes were: it records where the stack drew *anything*, which\nis what a caller compositing this onto a page background needs."
+      "source_sha256": "ceb49044e299ac918477ab9f59aeddb369712efa87c78629f3232136c688b313",
+      "text": ":meth:`render` plus the composite's own coverage, ``(H, W, 4)``.\n\nThe alpha channel is accumulated source-over whatever the layers'\nblending modes were: it records where the stack drew *anything*, which\nis what a caller compositing this onto a page background needs.\n\n:param canvas: World window and output grid on which to composite the\n    stack."
     },
     "spacr.layers.LayerStack.render_uint8": {
       "source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
-      "text": ":meth:`render` as ``(H, W, 3)`` uint8 — what a QImage wants."
+      "source_sha256": "647e96602de114a2eabc49017bcba8ccce0c5a6728ebfd92a93c48ebad7ab059",
+      "text": ":meth:`render` as ``(H, W, 3)`` uint8 — what a QImage wants.\n\n:param canvas: World window and output grid on which to composite the\n    stack."
     },
     "spacr.layers.LayerStack.select": {
       "source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ],
-      "source_sha256": "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
-      "text": "Select a layer (or ``None``); returns it."
+      "source_sha256": "ea1e6d3da45023b1240bbdfcace66315b40a56ce20b5e39f2fabd1f38ee0992e",
+      "text": "Select a layer (or ``None``); returns it.\n\n:param layer: Layer object, unique layer name, integer stack index or\n    ``None`` to clear selection."
     },
     "spacr.layers.LayerStack.selected": {
       "source_blocks_sha256": [
@@ -19197,10 +19298,27 @@
     "spacr.layers.LayerStack.subscribe": {
       "source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
       ],
-      "source_sha256": "943a56c50d0d9e46e2283d3f0405a514395aea062ca6eb3f783dbd3f2baff04c",
-      "text": "Be told when anything changes. Returns ``listener``, for unsubscribing.\n\nListeners are held by strong reference and are NOT weak: a view that\nsubscribes must :meth:`unsubscribe` when it closes, exactly as\n:class:`spacr.qt.linked_selection.LinkedView` must unlink."
+      "source_sha256": "719511e2e892343f955dd3aeb4a586939a96ccc827ec1317d3ca4763ebc97dc7",
+      "text": "Be told when anything changes. Returns ``listener``, for unsubscribing.\n\nListeners are held by strong reference and are NOT weak: a view that\nsubscribes must :meth:`unsubscribe` when it closes, exactly as\n:class:`spacr.qt.linked_selection.LinkedView` must unlink.\n\n:param listener: Callable receiving each :class:`LayerEvent`; it is\n    retained by strong reference."
+    },
+    "spacr.layers.LayerStack.to_bottom": {
+      "source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "2c4e5a81230c6aa517ba256075cfb7916b2522771553763d477b5adb6cfa3a4d",
+      "text": "Move one layer to the back of the stack.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to move."
+    },
+    "spacr.layers.LayerStack.to_top": {
+      "source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "7648f3524e9c0407039ab77348af494dc0607d388ba15123e8b38ff4f891707d",
+      "text": "Move one layer to the front of the stack.\n\n:param layer: Layer object, unique layer name or integer stack index\n    to move."
     },
     "spacr.layers.LayerStack.units": {
       "source_blocks_sha256": [
@@ -19211,10 +19329,11 @@
     },
     "spacr.layers.LayerStack.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Stop being told. ``True`` if this call is what removed it."
+      "source_sha256": "8e090f82185bff494bdee81622acc5fb8451afeec73d42e0d3cc3fc6e9d41bb6",
+      "text": "Stop being told. ``True`` if this call is what removed it.\n\n:param listener: Previously subscribed event callback to remove."
     },
     "spacr.layers.LayerStack.world_extent": {
       "source_blocks_sha256": [
@@ -19232,10 +19351,14 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ],
-      "source_sha256": "2b75a74eb22ab14e902efb40ce88c60343cc91338bb24242160717ecd70ab793",
-      "text": "The three planes of one volume, laid out so that they line up.\n\nA z-stack seen only from above hides the thing a z-stack is acquired for.\nThe three canvases here are the top view and the two side views through a\ncrosshair, arranged the way ImageJ's orthogonal views are:\n\n* :attr:`xy` — the top view, rows ``y`` and columns ``x``, at depth ``z``;\n* :attr:`zx` — BELOW it, rows ``z`` and columns ``x``, so it shares its\n  columns with the top view;\n* :attr:`yz` — BESIDE it, rows ``y`` and columns ``z``, so it shares its\n  rows with the top view.\n\n**Every panel uses one world-units-per-pixel scale.** That is the whole\ndifficulty, and it is why this is a class rather than three\n:meth:`Canvas.covering` calls. Confocal stacks in this codebase are\nroutinely 0.65 µm in xy and 2 µm in z; a side view drawn one pixel per\nslice is three times too thin, and it does not look wrong — it looks like\na slightly flat cell. Nuclear sphericity, colocalisation depth and every\n3-D shape feature read off such a picture are wrong by a factor nobody\nsees. Here the side views are :math:`z_{span}/step` pixels tall, so a\n10-slice 2 µm stack is 31 px of a 0.65 µm/px view, not 10.\n\nBuild one with :meth:`covering` and move the crosshair with :meth:`at`."
+      "source_sha256": "37e013953329b5c1d534589475c650a0827d965212edaf5d0b41d6c82451c43c",
+      "text": "The three planes of one volume, laid out so that they line up.\n\nA z-stack seen only from above hides the thing a z-stack is acquired for.\nThe three canvases here are the top view and the two side views through a\ncrosshair, arranged the way ImageJ's orthogonal views are:\n\n* :attr:`xy` — the top view, rows ``y`` and columns ``x``, at depth ``z``;\n* :attr:`zx` — BELOW it, rows ``z`` and columns ``x``, so it shares its\n  columns with the top view;\n* :attr:`yz` — BESIDE it, rows ``y`` and columns ``z``, so it shares its\n  rows with the top view.\n\n**Every panel uses one world-units-per-pixel scale.** That is the whole\ndifficulty, and it is why this is a class rather than three\n:meth:`Canvas.covering` calls. Confocal stacks in this codebase are\nroutinely 0.65 µm in xy and 2 µm in z; a side view drawn one pixel per\nslice is three times too thin, and it does not look wrong — it looks like\na slightly flat cell. Nuclear sphericity, colocalisation depth and every\n3-D shape feature read off such a picture are wrong by a factor nobody\nsees. Here the side views are :math:`z_{span}/step` pixels tall, so a\n10-slice 2 µm stack is 31 px of a 0.65 µm/px view, not 10.\n\nBuild one with :meth:`covering` and move the crosshair with :meth:`at`.\n\n:param xy: Top-view canvas whose rows and columns span the second and\n    third volume axes.\n:param zx: Lower side-view canvas whose rows span depth and whose columns\n    align with :attr:`xy`.\n:param yz: Side-view canvas whose rows align with :attr:`xy` and whose\n    columns span depth.\n:param point: Mapping from world-axis names to the shared crosshair\n    coordinates."
     },
     "spacr.layers.OrthoViews.at": {
       "source_blocks_sha256": [
@@ -19248,10 +19371,13 @@
     "spacr.layers.OrthoViews.at_pixel": {
       "source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ],
-      "source_sha256": "e22e20e6e83c86de844acb9d76f0171313052eec1acb3058bd1400f9e30b6af2",
-      "text": "Move the crosshair to the world point under a pixel of one panel.\n\nClicking the side view to move the top view's slice, which is the\ninteraction an orthogonal view is for."
+      "source_sha256": "e4015cbe1fb3d9b38e38184ff9186468e95cbfd1046880f1169eb0dbed990fde",
+      "text": "Move the crosshair to the world point under a pixel of one panel.\n\nClicking the side view to move the top view's slice, which is the\ninteraction an orthogonal view is for.\n\n:param panel: Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.\n:param row: Fractional row coordinate within the selected panel.\n:param column: Fractional column coordinate within the selected panel."
     },
     "spacr.layers.OrthoViews.axes": {
       "source_blocks_sha256": [
@@ -19297,24 +19423,27 @@
     },
     "spacr.layers.OrthoViews.n_slices": {
       "source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ],
-      "source_sha256": "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
-      "text": "How many slices the slider on ``axis`` has."
+      "source_sha256": "6afd266348961d5dcdeca9e963e657393c8b4d8c8e969bff7e5d46d5212dd767",
+      "text": "How many slices the slider on ``axis`` has.\n\n:param axis: World axis whose extent and voxel step define the count."
     },
     "spacr.layers.OrthoViews.render": {
       "source_blocks_sha256": [
-        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e"
+        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ],
-      "source_sha256": "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
-      "text": "``{panel: (H, W, 3)}`` — the same stack drawn on all three planes."
+      "source_sha256": "7ef8064f1fd4169b359ed7d33952bf6022b2168bb8034380896b68437ab026b8",
+      "text": "``{panel: (H, W, 3)}`` — the same stack drawn on all three planes.\n\n:param stack: Layer stack to render through each orthogonal canvas."
     },
     "spacr.layers.OrthoViews.resized": {
       "source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ],
-      "source_sha256": "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
-      "text": "The same crosshair at a different pixel width, panels still aligned."
+      "source_sha256": "2e6c7485d0b98803414fe4d85aea541725d253833239b01be25d9b651806c322",
+      "text": "The same crosshair at a different pixel width, panels still aligned.\n\n:param width: New top-panel width in pixels; derived panel dimensions\n    remain aligned to the same world scale."
     },
     "spacr.layers.OrthoViews.scale": {
       "source_blocks_sha256": [
@@ -19326,18 +19455,20 @@
     "spacr.layers.OrthoViews.slider": {
       "source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ],
-      "source_sha256": "a07551dcd2dbd286df7b9dcecb8323e5a2eee618de9446a3708ee6188c1ccc8c",
-      "text": "``(low, high, step)`` in WORLD units for a slice slider.\n\nThe step is the source's own voxel size along that axis, so dragging\nthe slider moves one slice at a time rather than an arbitrary\nfraction of the volume — and a µm-calibrated stack's slider is\nlabelled in µm, which is the number a user can check against the\nacquisition settings."
+      "source_sha256": "42401bb79d74e5cbd94edfc285d1da23dfdb445f1e89e6d6d6130220bb997b83",
+      "text": "``(low, high, step)`` in WORLD units for a slice slider.\n\nThe step is the source's own voxel size along that axis, so dragging\nthe slider moves one slice at a time rather than an arbitrary\nfraction of the volume — and a µm-calibrated stack's slider is\nlabelled in µm, which is the number a user can check against the\nacquisition settings.\n\n:param axis: World axis for which to return bounds and voxel step."
     },
     "spacr.layers.OrthoViews.zoomed": {
       "source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ],
-      "source_sha256": "acd215310f8dc4d25dd6a1f3ca2d57c75d632e57db76fa2d2ead807786dbc5c8",
-      "text": "Every panel ``factor`` times closer, about the crosshair.\n\nAll three together, and about the crosshair rather than about each\npanel's own middle, so the panels still line up afterwards."
+      "source_sha256": "f218382523598225c5a996d0db5aa48a14139f91128b3e7cae848d48ad25c799",
+      "text": "Every panel ``factor`` times closer, about the crosshair.\n\nAll three together, and about the crosshair rather than about each\npanel's own middle, so the panels still line up afterwards.\n\n:param factor: Positive finite magnification factor applied to every\n    panel; values above one zoom in."
     },
     "spacr.layers.PointsLayer": {
       "source_blocks_sha256": [
@@ -19352,17 +19483,19 @@
     },
     "spacr.layers.PointsLayer.add": {
       "source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ],
-      "source_sha256": "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
-      "text": "Append one point in DATA coordinates; returns its index."
+      "source_sha256": "3d69d2809dcae8483972d4751ab95f07f7972c18d0b4d194103887a92b4bd04f",
+      "text": "Append one point in DATA coordinates; returns its index.\n\n:param point: Data-coordinate sequence with one value per layer axis."
     },
     "spacr.layers.PointsLayer.add_world": {
       "source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ],
-      "source_sha256": "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
-      "text": "Append one point given as ``{axis: world}``."
+      "source_sha256": "c783505993a85d7b3948d3b1a155d3e2ba2030679e2a9b996dbe425196bdc4f4",
+      "text": "Append one point given as ``{axis: world}``.\n\n:param world: Mapping from axis names to world coordinates; omitted\n    layer axes are evaluated at world coordinate zero."
     },
     "spacr.layers.PointsLayer.border_width": {
       "source_blocks_sha256": [
@@ -19388,24 +19521,27 @@
     },
     "spacr.layers.PointsLayer.nearest": {
       "source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ],
-      "source_sha256": "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
-      "text": "Index of the point whose disc contains ``world``, nearest first."
+      "source_sha256": "d5874f95281f3675072c764349c10fe51e027ac35bb30a7072371841482c1d57",
+      "text": "Index of the point whose disc contains ``world``, nearest first.\n\n:param world: Mapping from axis names to the query point in world\n    coordinates; omitted layer axes are evaluated at zero."
     },
     "spacr.layers.PointsLayer.remove": {
       "source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ],
-      "source_sha256": "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
-      "text": "Drop one point."
+      "source_sha256": "d6d4506e32187c8fe006bb6a67a77abe0071c04c9482bee504fb1d2e402995ae",
+      "text": "Drop one point.\n\n:param index: Zero-based index of the point to remove; negative\n    indices are rejected."
     },
     "spacr.layers.PointsLayer.set_size": {
       "source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ],
-      "source_sha256": "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
-      "text": "Set every point's diameter, or one per point."
+      "source_sha256": "b8b9809e4fda9d1e845bca224edb21f35c740f5771e9f0167a930eb2e8c157be",
+      "text": "Set every point's diameter, or one per point.\n\n:param value: Scalar diameter applied to every point, or an array-like\n    sequence with one world-unit diameter per point."
     },
     "spacr.layers.PointsLayer.size": {
       "source_blocks_sha256": [
@@ -19450,20 +19586,56 @@
     },
     "spacr.layers.ShapesLayer.add": {
       "source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
       ],
-      "source_sha256": "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
-      "text": "Append a shape; returns its index."
+      "source_sha256": "2bfeec03044fbbe8bf926596b631b8b37c682b995a98a561a278b3b42de377fe",
+      "text": "Append a shape; returns its index.\n\n:param shape: :class:`Shape` with the same dimensionality as this\n    layer."
+    },
+    "spacr.layers.ShapesLayer.add_ellipse": {
+      "source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ],
+      "source_sha256": "f1d9f3a788d5883f722c2f1f79446c81832bec8d86a4d4d2abe76110df18c3e2",
+      "text": "Append an axis-aligned ellipse inside an opposite-corner box.\n\n:param corner_a: First bounding-box corner in data coordinates, one\n    value per axis.\n:param corner_b: Opposite bounding-box corner in data coordinates, one\n    value per axis."
+    },
+    "spacr.layers.ShapesLayer.add_path": {
+      "source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ],
+      "source_sha256": "f65a3e822260e8f9029620daf67fcf6b69083229deb18bd386ba172b21bd94ff",
+      "text": "Append an open path.\n\n:param vertices: Array-like vertices in data coordinates, shaped\n    ``(M, ndim)`` with at least two rows."
+    },
+    "spacr.layers.ShapesLayer.add_polygon": {
+      "source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ],
+      "source_sha256": "694adfc8f8ccfe61f0552bf1adb5fd6b67089f8fce7ef898b80607dca1270aed",
+      "text": "Append a closed polygon.\n\n:param vertices: Array-like vertices in data coordinates, shaped\n    ``(M, ndim)`` with at least three rows."
+    },
+    "spacr.layers.ShapesLayer.add_rectangle": {
+      "source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
+      ],
+      "source_sha256": "e9d5686e0baf47cb1a32e97597676e325bd3e6124898765b6d3c49644c164ac7",
+      "text": "Append an axis-aligned rectangle from opposite corners.\n\n:param corner_a: First corner in data coordinates, one value per axis.\n:param corner_b: Opposite corner in data coordinates, one value per\n    axis."
     },
     "spacr.layers.ShapesLayer.mask": {
       "source_blocks_sha256": [
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4"
       ],
-      "source_sha256": "245ac0f9839a35e7a1b7bdc1a807c619a8415fe2e6607c831b221b9d9e5ae54f",
-      "text": "Rasterise the enclosed shapes onto ``canvas``; ``(H, W)`` bool.\n\nThe conversion Measure needs: hand it\n``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` and the ROI\ncomes back on that layer's own grid, whatever grid it was drawn on.\n\nBoundaries are HALF-OPEN: a pixel centre exactly on the low edge of a\nrectangle is inside it and one exactly on the high edge is not. That is\nthe even-odd rule's own convention, and it is the one that matters —\ntwo ROIs sharing an edge partition the pixels between them instead of\nboth claiming the seam, so an object on the boundary is counted once.\n\nOpen shapes (lines, paths) enclose nothing and contribute nothing."
+      "source_sha256": "40ebc5e7b20343d4bdf7f3039c746dca512ad548b9c0e439d3d53179fad4664f",
+      "text": "Rasterise the enclosed shapes onto ``canvas``; ``(H, W)`` bool.\n\nThe conversion Measure needs: hand it\n``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` and the ROI\ncomes back on that layer's own grid, whatever grid it was drawn on.\n\nBoundaries are HALF-OPEN: a pixel centre exactly on the low edge of a\nrectangle is inside it and one exactly on the high edge is not. That is\nthe even-odd rule's own convention, and it is the one that matters —\ntwo ROIs sharing an edge partition the pixels between them instead of\nboth claiming the seam, so an object on the boundary is counted once.\n\nOpen shapes (lines, paths) enclose nothing and contribute nothing.\n\n:param canvas: World plane and pixel grid on which to rasterise the\n    closed shapes."
     },
     "spacr.layers.ShapesLayer.ndim": {
       "alias_of": "spacr.layers.Layer.ndim",
@@ -19475,10 +19647,11 @@
     },
     "spacr.layers.ShapesLayer.remove": {
       "source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ],
-      "source_sha256": "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
-      "text": "Drop a shape and return it."
+      "source_sha256": "498b9d49d3ed3c1d9af0f1531f8c3c144f980ae5e1aa3e9b74f6335936302b69",
+      "text": "Drop a shape and return it.\n\n:param index: Integer index of the shape to remove; normal Python\n    negative indexing is accepted."
     },
     "spacr.layers.ShapesLayer.world_extent": {
       "alias_of": "spacr.layers.Layer.world_extent",
@@ -19504,18 +19677,20 @@
     "spacr.layers.Spacing.axis_index": {
       "source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ],
-      "source_sha256": "7afb83103e2afa15ad8d9d626983ece2b96f0590d6baa5cb191768709d467fc8",
-      "text": "Position of ``axis`` in this spacing.\n\n:raises LayerError: if this spacing has no such axis."
+      "source_sha256": "27fd6a76be317613b41443b99f9a897931182a143d993567924e0f495bf4f81e",
+      "text": "Position of ``axis`` in this spacing.\n\n:param axis: Axis name to locate in :attr:`axes`.\n:raises LayerError: if this spacing has no such axis."
     },
     "spacr.layers.Spacing.data_from_map": {
       "source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ],
-      "source_sha256": "296763bc6cc9dc4ff02d88d91c454ee0132496092eef5ff5a45b71b9bc6afea5",
-      "text": "Fractional data index from a ``{axis: world}`` mapping.\n\nAxes the mapping does not mention are taken to be 0 in world units,\nwhich is what a 2-D click on a 3-D layer means once the viewer has\nsupplied the slice it is showing."
+      "source_sha256": "62e34087483880aae4ba9c8e5f98abddccfd561cd62a810e92cf45c12b1ee8b6",
+      "text": "Fractional data index from a ``{axis: world}`` mapping.\n\nAxes the mapping does not mention are taken to be 0 in world units,\nwhich is what a 2-D click on a 3-D layer means once the viewer has\nsupplied the slice it is showing.\n\n:param world: Mapping from axis names to world coordinates. Unnamed\n    spacing axes are evaluated at world coordinate zero."
     },
     "spacr.layers.Spacing.describe": {
       "source_blocks_sha256": [
@@ -19527,18 +19702,28 @@
     "spacr.layers.Spacing.extent": {
       "source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ],
-      "source_sha256": "36c184514f8d4a8f09c4090674a146bd3448ea964e62891d63bf9646bc8b6ce5",
-      "text": "World bounding box of an array of ``shape``, keyed by axis.\n\nMeasured to the OUTER EDGE of the end elements (half a voxel beyond\nthe first and last centres), because that is the region the data\nactually covers — a canvas fitted to element centres clips half a\nvoxel off every side, which at 2 µm z-steps is a visible slab."
+      "source_sha256": "dd53f648c3b8d249d00fcc6bbb4cdf066b0eb770c8e48b881e1d720f361a611c",
+      "text": "World bounding box of an array of ``shape``, keyed by axis.\n\nMeasured to the OUTER EDGE of the end elements (half a voxel beyond\nthe first and last centres), because that is the region the data\nactually covers — a canvas fitted to element centres clips half a\nvoxel off every side, which at 2 µm z-steps is a visible slab.\n\n:param shape: Array shape in :attr:`axes` order, with one size per\n    spacing axis."
     },
     "spacr.layers.Spacing.from_map": {
       "source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c"
+        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
       ],
-      "source_sha256": "79321e8be4b91d6a9eb15039791904144fff79526c5e7b5bb2d10d8214ebad02",
-      "text": "Build from ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nOrder is the mapping's own, which for a dict literal is the order it\nwas written — the same order the array's axes are in. Naming the axes\nat the call site is the point: ``(2.0, 0.65, 0.65)`` on its own has\nbeen read backwards before."
+      "source_sha256": "c3f4d833de0cc8dd226a2105dcc11d0dbc65c68ecb7864cb3c0f4eae89929e72",
+      "text": "Build from ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nOrder is the mapping's own, which for a dict literal is the order it\nwas written — the same order the array's axes are in. Naming the axes\nat the call site is the point: ``(2.0, 0.65, 0.65)`` on its own has\nbeen read backwards before.\n\n:param sizes: Mapping from axis name to non-zero finite voxel size;\n    mapping iteration order becomes the array-axis order."
+    },
+    "spacr.layers.Spacing.has_axis": {
+      "source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
+      ],
+      "source_sha256": "61fcd66c2efe3bf5e40cf76dde754d3f0e24bed1258ce2fc4e597d2a318a2758",
+      "text": "Whether this spacing contains ``axis``.\n\n:param axis: Axis name to test after coercion to a string."
     },
     "spacr.layers.Spacing.isotropic": {
       "source_blocks_sha256": [
@@ -19556,17 +19741,19 @@
     },
     "spacr.layers.Spacing.to_data": {
       "source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ],
-      "source_sha256": "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
-      "text": "World coordinate → (fractional) data index, per axis."
+      "source_sha256": "7247239dbc50ab4d4769f4891dce4e76b8af6474dcaaeae019e821b86f511f7b",
+      "text": "World coordinate → (fractional) data index, per axis.\n\n:param world: World coordinate in :attr:`axes` order, with one entry\n    per spacing axis."
     },
     "spacr.layers.Spacing.to_world": {
       "source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ],
-      "source_sha256": "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
-      "text": "Data index → world coordinate, per axis."
+      "source_sha256": "9f126591f87d9055df66f6d259f3ae9cc7185ea088453f1c545c44e1537312d4",
+      "text": "Data index → world coordinate, per axis.\n\n:param index: Fractional data coordinate in :attr:`axes` order, with\n    one entry per spacing axis."
     },
     "spacr.layers.Spacing.translated": {
       "source_blocks_sha256": [
@@ -19577,37 +19764,41 @@
     },
     "spacr.layers.Spacing.world_map": {
       "source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ],
-      "source_sha256": "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
-      "text": ":meth:`to_world` keyed by axis name."
+      "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
+      "text": ":meth:`to_world` keyed by axis name.\n\n:param index: Fractional data coordinate in :attr:`axes` order."
     },
     "spacr.layers.colormap": {
       "source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ],
-      "source_sha256": "09829fae1667dfd1d47de9aa74496240f9805e32fdf9e14ee2c43adb8d084335",
-      "text": "Resolve ``spec`` to a :class:`Colormap`.\n\nTakes a :class:`Colormap` (returned unchanged), a name in\n:data:`COLORMAPS`, a colour (any :func:`to_rgba` form) which becomes a\nblack→colour ramp, or — as a last resort — a matplotlib colormap name.\n\nMatplotlib is tried last and lazily. This module must stay importable\nwhere matplotlib is not installed and cheap to import in a worker, so it\nis never a hard dependency; but if a user types ``\"viridis\"`` and\nmatplotlib is there, refusing would be pedantry.\n\n:raises LayerError: if ``spec`` names nothing."
+      "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
+      "text": "Resolve ``spec`` to a :class:`Colormap`.\n\nTakes a :class:`Colormap` (returned unchanged), a name in\n:data:`COLORMAPS`, a colour (any :func:`to_rgba` form) which becomes a\nblack→colour ramp, or — as a last resort — a matplotlib colormap name.\n\nMatplotlib is tried last and lazily. This module must stay importable\nwhere matplotlib is not installed and cheap to import in a worker, so it\nis never a hard dependency; but if a user types ``\"viridis\"`` and\nmatplotlib is there, refusing would be pedantry.\n\n:param spec: Existing :class:`Colormap`, built-in or matplotlib colormap\n    name, or a colour specification from which to build a black-to-colour\n    ramp.\n:raises LayerError: if ``spec`` names nothing."
     },
     "spacr.layers.label_color": {
       "source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ],
-      "source_sha256": "d70a1cd5ad3faca333aceb4c87ddc70789d0f27995f446007e29520fb9c87820",
-      "text": "A stable, vivid colour for integer ``label``.\n\nGolden-ratio hue spacing with a deterministic saturation/value jitter, so\nadjacent labels are far apart in hue and the same object keeps its colour\nacross zooms, re-renders and sessions. Label 0 is background and is black\n(callers draw it transparent).\n\nThe construction is deliberately the same one\n:func:`spacr.qt.widgets.live_preview._random_outline_palette` uses for\noutlines, so a mask has the same object colours in both viewers. It is\nreimplemented rather than imported because that module imports PySide6 and\nthis one must not — see the module docstring."
+      "source_sha256": "fb3ac6337fe21dc9e4e45a73452f5672c76ca40c0e4282cb5c1203860d5e3873",
+      "text": "A stable, vivid colour for integer ``label``.\n\nGolden-ratio hue spacing with a deterministic saturation/value jitter, so\nadjacent labels are far apart in hue and the same object keeps its colour\nacross zooms, re-renders and sessions. Label 0 is background and is black\n(callers draw it transparent).\n\nThe construction is deliberately the same one\n:func:`spacr.qt.widgets.live_preview._random_outline_palette` uses for\noutlines, so a mask has the same object colours in both viewers. It is\nreimplemented rather than imported because that module imports PySide6 and\nthis one must not — see the module docstring.\n\n:param label: Integer-like object label. Label 0 is reserved for the black\n    background colour."
     },
     "spacr.layers.label_colors": {
       "source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ],
-      "source_sha256": "eb2f8980cec8017542fd9dd67ab763b32a76bc1119422ed8575e08a05a6b4d29",
-      "text": ":func:`label_color` over an array, returning ``(..., 3)`` float32.\n\nBuilt by looking up the unique labels once rather than per pixel: a\n2048×2048 mask holds a few hundred objects and tens of millions of pixels."
+      "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
+      "text": ":func:`label_color` over an array, returning ``(..., 3)`` float32.\n\nBuilt by looking up the unique labels once rather than per pixel: a\n2048×2048 mask holds a few hundred objects and tens of millions of pixels.\n\n:param labels: Array-like integer labels; the output preserves their shape\n    and appends one RGB axis."
     },
     "spacr.layers.to_rgba": {
       "source_blocks_sha256": [
@@ -21731,12 +21922,12 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
+        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "c49f73eba18330bb69083ee18e993802bfdd236fa3dd185c0286ca7993450a95",
-      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, or if\n    ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
+      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
+      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
     },
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
@@ -30835,10 +31026,11 @@
     "spacr.qt.app.MainWindow.eventFilter": {
       "source_blocks_sha256": [
         "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "43ef367c50e395bd0761d4a8149810227e9500f086b60c32fd21c2af9bb6a4ae",
+        "94b402a26b5d6ad7153ee9fa6eaeec8a44c6beccc908869a94292fe899d9a8b7"
       ],
-      "source_sha256": "aa02a7e221ca124cc7e424f497be745e0b8021f7381773edcf4e7649f1c0198d",
-      "text": "Drag the frameless window by its menu bar, and maximise on a\ndouble-click there -- the two gestures the title bar used to carry.\n\n`getattr`, not `self.menuBar()`: Qt goes on delivering events to a\nfilter during teardown, after Python has cleared the object's\nattributes."
+      "source_sha256": "52f4bb870fe428fb813b12a256dad86de187cc07162bb0a9ca50e5c1b7fd3ba7",
+      "text": "Drag the frameless window by its menu bar, and maximise on a\ndouble-click there -- the two gestures the title bar used to carry.\n\nNOTHING HERE MAY RAISE. Qt goes on delivering events to a filter\nduring teardown, after Python has cleared the object's attributes\nand after the C++ half of the menu bar has gone -- and an\nexception out of an event filter does not propagate to a caller\nwho could handle it. PySide prints \"Error calling Python override\nof QMainWindow::eventFilter()\" and carries on delivering, so a\nsingle broken teardown becomes one traceback per mouse move.\n\nThe docstring above this line used to say to ask with `getattr`\nrather than `self.menuBar()`, and the line below it called\n`self.menuBar()` anyway. The window state change that arrives\nwhile the bar is being torn down is exactly the case it named."
     },
     "spacr.qt.app.MainWindow.keyPressEvent": {
       "source_blocks_sha256": [
@@ -34398,14 +34590,6 @@
       ],
       "source_sha256": "da0f84bdb1b8a18442a58c7e62fe443c0ac23bac7a670807f91b8fc1a4edb959",
       "text": "Return ``(display label, code)`` choices for Preferences."
-    },
-    "spacr.qt.i18n.language_resolved_once": {
-      "source_blocks_sha256": [
-        "4b870b5ced3ee7b4e030b2e203ff381aa0e4963baec86be04574fd8a724410f6",
-        "6f82634fc3efdba8973612ee98af9ffee865635e7a76bb19e7bb4a642f8fb8da"
-      ],
-      "source_sha256": "002739c162069deb137fd914fe15ad6c0fe52468d2a8603998927cb8a6797e52",
-      "text": "Resolve the persisted UI language once in one synchronous operation.\n\nWidget construction can call :func:`tr` hundreds of times. Reading\nQSettings for each fragment is needless and made a large settings panel\nscale with its row count. The cache is context-local (so background jobs\ncannot borrow the GUI thread's answer), re-entrant, and discarded as soon\nas the operation ends so a later language change is observed."
     },
     "spacr.qt.i18n.normalize_language": {
       "source_blocks_sha256": [
@@ -46730,12 +46914,15 @@
     "spacr.qt.screens.settings_model.SettingsWidgets": {
       "source_blocks_sha256": [
         "0341519b84a33232792e54bbd0d831bc852ce878ee3f4cc375bfc1440251a0b0",
-        "7ec8fe50670b01867d06960b7c53742bbbe920ed6b19788f58e68b248172876a",
+        "7a70392ac4011e6ead918bdf0c4f35d3537a017deb7318537b93344c8706157f",
+        "9747feb2023d1553079f7b747e9fed44952d7d48496c4296d1d8914b242e37af",
+        "6a4554e2573efc6f08b9c5c352e0ebde29dd58250ca7a0f8b6028973cd079b0f",
         "9abf3bd9e81212146d7cff33268a1d78f7a3fec8cbd4b3cd71a8eaa401006bf2",
-        "ce09415d4df6b12587d6650db27d0cecf9cc2285e832a89647760cb82b2c600c"
+        "ce09415d4df6b12587d6650db27d0cecf9cc2285e832a89647760cb82b2c600c",
+        "eba0ca2adbd6777856c5df15c6a0cce97e1c09b03576f5412feddcf107a2cc0b"
       ],
-      "source_sha256": "739beeb343f1ee12702d8873c983ce40f29c98e83cf8ca5e3d2b71180596e5eb",
-      "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits.\n:param skip_keys: settings to build NO widget for.\n\n    For a FOLD, which mounts one module's extra settings onto\n    another's panel. The timelapse fold on the mask screen built all\n    364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and\n    kept the 14 that mask does not already have, discarding the rest\n    because the host already owns them. Naming them here skips them\n    instead, which is the same result for 4% of the work."
+      "source_sha256": "69d30624c01b709e3b52c27cf1ff7ccf6ddb694004106bc7226724232a99fe07",
+      "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits.\nLoad the app's defaults and prepare its empty widget map.\n\n:param app_key: id of the app whose settings are being edited.\n:param parent: optional Qt parent for created widgets.\n:param skip_keys: settings to build NO widget for.\n\n    For a FOLD, which mounts one module's extra settings onto\n    another's panel. The timelapse fold on the mask screen built all\n    364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and\n    kept the 14 that mask does not already have, discarding the rest\n    because the host already owns them. Naming them here skips them\n    instead, which is the same result for 4% of the work.\n:param current: optional mapping from the form being rebuilt. Recognized\n    settings replace the app defaults; its organelle count, slot, and\n    object-channel values determine which controls the replacement\n    form builds."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
       "source_blocks_sha256": [
@@ -46863,10 +47050,12 @@
     "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
       "source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
-        "fe9dd2f835918bb0e69c8c7665473c20e26693d25a731f857a295f8db85034f0"
+        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
+        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
+        "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d"
       ],
-      "source_sha256": "937037c294e7a8654aab293c2ce373f03282d64203a5e4d8ea60484a18f757f3",
-      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape. Hidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``. A slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected."
+      "source_sha256": "775742ee793c892fe792874807a705b3438be146e65d564d1c89e93a07fabb32",
+      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -65855,6 +66044,26 @@
       ],
       "source_sha256": "d87b7a732e31872056116cc799e6b89da730f315693078d4c27a5094a7ac6da7",
       "text": "The well under a GLOBAL point, or ``None``.\n\nGlobal, because the pointer is over a sibling of the widget that is\nreceiving the events -- the pressed one keeps the grab."
+    },
+    "spacr.qt.widgets.popup_state": {
+      "source_blocks_sha256": [
+        "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ],
+      "source_sha256": "5b86e1879457fd36bbf13cd58dc6eec3e842a816051967999b1302f059d3e059",
+      "text": "Whether a menu or a tooltip is currently on screen.\n\nWHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget\nrepaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile\n-- and a tooltip did the same. That burst is the compositor re-composing\na popup over a native GL child, and it is what the user sees as the dock\nand the header flickering.\n\nThe backdrop cannot stop the popup from compositing, but it can stop\nbeing a moving target while it happens. Holding the animation still for\nthe moment a popup is up takes the menu from 238 painted widgets to 5,\nand a tooltip from 90 to 0.\n\nWHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is\nan application-wide event filter watching for Show and Hide on popup\nwindows. That was written, measured, and thrown away: it ran Python for\nevery event in the application -- 13,646 calls per second while a module\nopens -- and it cost 130 ms on the very GUI-thread block that opening a\nmodule had just been fixed to shorten (1380-1424 ms became 1473-1606).\n\nQt already knows the answer and will give it for two C++ calls, so the\nanimation asks once per frame instead. At sixty frames a second that is\n120 calls, against thirteen thousand."
+    },
+    "spacr.qt.widgets.popup_state.a_popup_is_on_screen": {
+      "source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a"
+      ],
+      "source_sha256": "750f82290ec8bb2a050875e1bc8a8fed6318af7364c0ec6d65b5ffd5d3fa68dd",
+      "text": "True while a menu or a tooltip is showing, anywhere in the app.\n\nBoth are asked for, because they are different things to Qt: a menu\nis an ``activePopupWidget`` (window type ``Qt::Popup``), and a\ntooltip is not -- it is its own ``Qt::ToolTip`` window that\n:class:`~PySide6.QtWidgets.QToolTip` tracks separately. Watching only\nthe first would have left the tooltip flicker exactly as it was, and\nthat was reported alongside the menu.\n\nNever raises. This is called from an animation tick, so a failure\nhere must cost a frame's decision at worst, not the backdrop: an\nunanswerable question is answered \"no popup\", which is the behaviour\nthe application had before this existed."
     },
     "spacr.qt.widgets.power_design": {
       "source_blocks_sha256": [
