@@ -99,6 +99,7 @@ class TestTheTypeCheckingImports:
 
     @pytest.mark.parametrize("module_name", [
         "spacr.classify_classes", "spacr.feature_dict",
+        "spacr.qt.widgets.class_editor",
     ])
     def test_the_typing_import_never_runs(self, module_name):
         """THE PIN, and it is the point of the idiom.
@@ -115,23 +116,45 @@ class TestTheTypeCheckingImports:
         import importlib
         import typing
 
+        if module_name.startswith("spacr.qt"):
+            pytest.importorskip("PySide6")
         assert typing.TYPE_CHECKING is False
 
         module = importlib.import_module(module_name)
         source = inspect.getsource(module)
         guard = source.index("if TYPE_CHECKING:")
-        block = source[guard:guard + 200]
+        # The block runs to the first line that is not indented under the
+        # guard; the comment above the import is long in one of the three.
+        lines = source[guard:].splitlines()[1:]
+        body = []
+        for line in lines:
+            if line.strip() and not line.startswith((" ", "\t")):
+                break
+            body.append(line)
+        block = "\n".join(body)
         assert "import pandas" in block, (
             f"{module_name} no longer guards its pandas import, so it is "
             f"paid for at import time")
+        # The word appears in prose above; what must not appear is an
+        # unguarded IMPORT of it.
+        for line in source[:guard].splitlines():
+            stripped = line.strip()
+            assert not (stripped.startswith("import pandas")
+                        or stripped.startswith("from pandas")), (
+                f"{module_name} imports pandas outside the guard as well "
+                f"({stripped!r}), so the guard buys nothing")
 
     @pytest.mark.parametrize("module_name", [
         "spacr.classify_classes", "spacr.feature_dict",
+        "spacr.qt.widgets.class_editor",
     ])
     def test_the_module_imports_without_pandas_being_named(self,
                                                             module_name):
         import importlib
         import sys
+
+        if module_name.startswith("spacr.qt"):
+            pytest.importorskip("PySide6")
 
         module = importlib.import_module(module_name)
         assert module is not None
