@@ -1325,10 +1325,10 @@ class AppScreen(QWidget):
         behaves exactly as it did before.
         """
         try:
-            from ..widgets.ambient import the_heavy_import_lock_is_free
+            from ..widgets.ambient import _the_heavy_import_lock_is_free
         except Exception:                                    # noqa: BLE001
             return True
-        return the_heavy_import_lock_is_free()
+        return _the_heavy_import_lock_is_free()
 
     def _install_ambient(self) -> None:
         """Build the ambient backdrop for this screen, if it is wanted.
@@ -1433,10 +1433,10 @@ class AppScreen(QWidget):
             # absorb, so asking that module to classify the failure has to
             # tolerate its being the thing that is missing.
             try:
-                from ..widgets.ambient import the_backdrop_wants_a_retry
+                from ..widgets.ambient import _the_backdrop_wants_a_retry
             except Exception:                                # noqa: BLE001
                 return
-            if the_backdrop_wants_a_retry(error):
+            if _the_backdrop_wants_a_retry(error):
                 self._ambient_applied = None
                 from PySide6.QtCore import QTimer
 

@@ -4038,8 +4038,8 @@ class MainWindow(QMainWindow):
             # care since instruction 315; the screens that build their own
             # had not, so under `spaceout` they froze where `spacr` did not.
             from .widgets.ambient import (install_ambient,
-                                          the_heavy_import_lock_is_free)
-            if not the_heavy_import_lock_is_free():
+                                          _the_heavy_import_lock_is_free)
+            if not _the_heavy_import_lock_is_free():
                 self._retry_screen_backdrop(screen, key)
                 return
             # The spaceout fractal is installed by `install_ambient` itself
@@ -4057,11 +4057,11 @@ class MainWindow(QMainWindow):
             # logging it as an exception would put a traceback in the console
             # for an ordinary click made during startup.
             try:
-                from .widgets.ambient import the_backdrop_wants_a_retry
+                from .widgets.ambient import _the_backdrop_wants_a_retry
             except Exception:                                # noqa: BLE001
-                the_backdrop_wants_a_retry = None
-            if (the_backdrop_wants_a_retry is not None
-                    and the_backdrop_wants_a_retry(error)):
+                _the_backdrop_wants_a_retry = None
+            if (_the_backdrop_wants_a_retry is not None
+                    and _the_backdrop_wants_a_retry(error)):
                 self._retry_screen_backdrop(screen, key)
                 return
             LOG.exception("Could not install the backdrop for %s", key)
