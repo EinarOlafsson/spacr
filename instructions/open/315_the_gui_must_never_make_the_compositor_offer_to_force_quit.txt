@@ -107,13 +107,34 @@ the `offscreen` the test suite sets.
 
 3a. THE DOCK AND THE TITLE BAR FLICKER when the spaCR menu opens in the
     top-left corner, and again whenever a tooltip appears. Both are
-    popups over a live GL surface, and both began when the session moved
-    to xcb -- which is also when the backdrop started drawing at all.
-    The suspicion is the GL canvas repainting under a popup; the ambient
-    widget already has `pause()`/`resume()`, so pausing it while a popup
-    is up is the first thing to try. NOT YET DIAGNOSED, and it must be
-    measured rather than assumed: the four wrong backdrop fixes above
-    are what guessing at this layer costs.
+    popups, and both began when the session moved to xcb -- which is
+    also when the backdrop started drawing at all.
+
+    MEASURED, and the two obvious explanations are both WRONG:
+
+    * It is not the backdrop. Opening the menu costs 105 widget repaints
+      (QLabel 68, QWidget 25, AppTile 12) on top of the backdrop's own
+      90 frames. Pausing the backdrop removes its 90 and leaves the 105
+      exactly as they were. So pausing the ambient widget under a popup
+      -- the first thing that came to mind, and what this file used to
+      recommend -- would not have fixed it.
+
+    * It is not a restyle from our own code. Instrumenting
+      `setStyleSheet`, `QStyle.unpolish` and `setProperty` across the
+      whole widget tree while the menu opens records ZERO calls.
+
+    What is left is Qt repainting the region the popup covers, once, and
+    that being VISIBLE -- which points at the surface underneath being
+    translucent rather than at the repaint being wrong. The page-surface
+    sweep (`_clear_page_surfaces`) deliberately makes those containers
+    transparent so the backdrop shows through, so that is where to look
+    next.
+
+    Note the user also describes 'the bar on top of the window with
+    maximize, minimize, close'. The main window is frameless by design
+    (`FramelessWindowHint`, set because they asked for it on 2026-08-23),
+    so establish which window that actually is before changing anything:
+    it may be a dialog rather than the main window.
 
 3b. A BLACK BOX IN REGRESSION, above the Run button and below the
     inputs, on the same row as the adjacent button. Reported twice.
