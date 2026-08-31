@@ -1,5 +1,6 @@
 """Classical machine-learning and regression analysis pipelines."""
 
+import functools
 import logging
 import os, sys, re
 import pandas as pd
@@ -73,6 +74,66 @@ from .openmp_guard import single_threaded_openmp, guarded_n_jobs  # see spacr/op
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 LOG = logging.getLogger("spacr.ml")
+
+_FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
+
+
+def _flowview_event(action, *args):
+    """Reach optional Classify tracing without importing it when disabled."""
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in _FLOWVIEW_TRUE_VALUES:
+            return False
+        try:
+            from .flowview import trace as trace_module
+        except BaseException:
+            return False
+    try:
+        if not trace_module.is_enabled():
+            return False
+        from .flowview import _classify_stages
+
+        return bool(getattr(_classify_stages, f"_{action}")(*args))
+    except BaseException:
+        return False
+
+
+def _flowview_pipeline(family):
+    """Finish or fail the active graph without changing scientific output."""
+
+    def decorate(function):
+        @functools.wraps(function)
+        def observed(*args, **kwargs):
+            settings = args[0] if args else kwargs.get("settings")
+            active = _flowview_event("begin", settings, family)
+            try:
+                result = function(*args, **kwargs)
+            except BaseException as scientific_error:
+                if active:
+                    _flowview_event("fail", scientific_error)
+                raise
+            if active:
+                _flowview_event("finish")
+            return result
+
+        return observed
+
+    return decorate
+
+
+def _flowview_advance(node_id):
+    """Record one real operation boundary, or do nothing when disabled."""
+
+    _flowview_event("advance", node_id)
+
+
+def _flowview_metric(name, value):
+    """Record one scalar on the active stage, or do nothing when disabled."""
+
+    _flowview_event("metric", name, value)
+
 
 from scipy.stats import kstest, normaltest
 
@@ -9651,6 +9712,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
 
 @single_threaded_openmp('classical ML training')
+@_flowview_pipeline("ml")
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
@@ -9690,8 +9752,9 @@ def generate_ml_scores(settings):
         figure. The CSVs and figures are written to ``results/`` as a
         side effect; their paths are not returned.
     :raises ValueError: if ``annotation_column`` is set but the
-        ``png_list`` table lacks ``prcfo`` / that column, or if
-        ``heatmap_feature`` is not among the trained features.
+        ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
+        not join to the measurements, it contains fewer than two observed
+        classes, or if ``heatmap_feature`` is not among the trained features.
 
     Example:
         .. code-block:: python
@@ -9719,6 +9782,7 @@ def generate_ml_scores(settings):
 
     settings = set_default_analyze_screen(settings)
     save_settings(settings, name='generate_ml_scores', show=True)
+    _flowview_advance("tables")
 
     srcs = settings['src']
     
@@ -9740,6 +9804,10 @@ def generate_ml_scores(settings):
                                     nuclei_limit=settings['nuclei_limit'],
                                     pathogen_limit=settings['pathogen_limit'])
         df = pd.concat([df, dft])
+
+    _flowview_metric("objects", len(df))
+    _flowview_metric("databases", len(srcs))
+    _flowview_metric("tables", len(tables) * len(srcs))
     
     try:
         df = calculate_shortest_distance(df, 'pathogen', 'nucleus')
@@ -9800,37 +9868,51 @@ def generate_ml_scores(settings):
         # plate id and the same object identity now describes two different
         # objects. That has to stop here rather than double every measurement
         # row and quietly double the training set.
+        measurement_rows = len(df)
+        annotation_rows = len(annotated_df)
         df = annotated_df.merge(df, left_index=True, right_index=True,
                                 validate='many_to_one')
+        if df.empty:
+            raise ValueError(
+                f"annotation_column={settings['annotation_column']!r} joined "
+                f"to 0 measured objects by 'prcfo' ({annotation_rows} "
+                f"annotation rows; {measurement_rows} measurement rows), so "
+                f"there is no training data. Verify that png_list and the "
+                f"measurement tables come from the same source and use the "
+                f"same object identities.")
         unique_values = df[settings['annotation_column']].dropna().unique()
         print(f"Unique values in annotation column: {unique_values}")
-        
-        if len(unique_values) == 1:
-            unannotated_rows = df[df[settings['annotation_column']].isna()].index
-            existing_value = unique_values[0]
-            next_value = existing_value + 1 
 
-            settings['positive_control'] = str(existing_value)
-            settings['negative_control'] = str(next_value)
-
-            existing_count = df[df[settings['annotation_column']] == existing_value].shape[0]
-            num_to_select = min(existing_count, len(unannotated_rows))
-            selected_rows = np.random.choice(unannotated_rows, size=num_to_select, replace=False)
-            df.loc[selected_rows, settings['annotation_column']] = next_value
-
-            # Print the counts for existing_value and next_value
-            existing_count_final = df[df[settings['annotation_column']] == existing_value].shape[0]
-            next_count_final = df[df[settings['annotation_column']] == next_value].shape[0]
-
-            print(f"Number of rows with value {existing_value}: {existing_count_final}")
-            print(f"Number of rows with value {next_value}: {next_count_final}")
-            df[settings['annotation_column']] = df[settings['annotation_column']].apply(str)
+        # A BINARY CLASSIFIER NEEDS TWO OBSERVED CLASSES. The former one-class
+        # fallback randomly labelled unannotated objects as a made-up second
+        # class. That made the split run, but it changed unknown samples into
+        # ground truth and made every downstream metric scientifically false.
+        # Unannotated rows remain available for scoring after a real two-class
+        # model is trained; they are never promoted into training examples.
+        if len(unique_values) < 2:
+            labelled_rows = int(
+                df[settings['annotation_column']].notna().sum())
+            if not len(unique_values):
+                state = (f"has 0 non-empty labels across {len(df)} joined "
+                         f"object rows")
+            else:
+                state = (f"has only one observed class across "
+                         f"{labelled_rows} labelled object rows")
+            raise ValueError(
+                f"annotation_column={settings['annotation_column']!r} "
+                f"{state}; binary ML training requires two real annotated "
+                f"classes. Annotate objects in a second class, or choose the "
+                f"annotation column that already contains both classes. "
+                f"Unannotated objects will be scored after training; spaCR "
+                f"will not assign them a training label.")
             
         if settings['positive_control'] is None and settings['negative_control'] is None:
             settings['positive_control'] = str(unique_values[0])
-            settings['negative_control'] = str(unique_values[1]) if len(unique_values) > 1 else str(int(unique_values[0]) + 1)
+            settings['negative_control'] = str(unique_values[1])
             print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
     
+    _flowview_advance("dataset")
+
     # RECRUITMENT NEEDS EXACTLY ONE CHANNEL, and the setting can now name
     # several, or a shape group, or nothing. `feature_selection` returns a
     # bare int only for the one-channel case -- which is the only case in
@@ -9914,6 +9996,9 @@ def generate_ml_scores(settings):
     df, permutation_df, feature_importance_df, _, _, _, _, _, metrics_df, _ = output
 
     #settings_df.to_csv(settings_csv, index=False)
+    _flowview_metric("objects", len(output[0]))
+    _flowview_metric("test_objects", len(output[5]))
+    _flowview_advance("scores")
     df.to_csv(data_path, mode='w', encoding='utf-8')
     permutation_df.to_csv(permutation_path, mode='w', encoding='utf-8')
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
@@ -9969,9 +10054,21 @@ def generate_ml_scores(settings):
     settings['table_name'] = 'png_list'
     settings['update_column'] = ML_CLASS_COLUMN
     settings['match_column'] = 'prcfo'
+    matched_objects = 0
+    unmatched_objects = 0
     for src in srcs:
-        merge_ml_predictions(df, os.path.join(src, 'measurements', 'measurements.db'),
-                             table=settings['table_name'])
+        report = merge_ml_predictions(
+            df,
+            os.path.join(src, 'measurements', 'measurements.db'),
+            table=settings['table_name'],
+        )
+        if report is not None:
+            matched_objects += report.matched_rows
+            unmatched_objects += report.unmatched_db_rows
+    _flowview_metric("objects", len(df))
+    _flowview_metric("matched_objects", matched_objects)
+    _flowview_metric("unmatched_objects", unmatched_objects)
+    _flowview_metric("databases", len(srcs))
 
     return [output, plate_heatmap]
 
@@ -10140,6 +10237,8 @@ def ml_analysis(
         :func:`generate_ml_scores` — wraps this call with DB I/O.
     """
     
+    _flowview_advance("dataset")
+
     def _match_control_values(series, control):
         """
         Return a boolean mask selecting rows in `series` that match `control`.
@@ -10455,6 +10554,11 @@ def ml_analysis(
         after_pruning = len(X.columns)
         print(f"Removed {before_pruning - after_pruning} features using SelectKBest")
 
+    _flowview_metric("objects", len(df))
+    _flowview_metric("training_objects", len(combined_df))
+    _flowview_metric("features", len(features))
+    _flowview_advance("split")
+
     # Split on an actual experimental unit. The index is the canonical prcfo
     # in merged measurement frames, even when filtering removed its component
     # metadata columns from X.
@@ -10495,6 +10599,11 @@ def ml_analysis(
     df['split_cell_fraction'] = split_report.cell_fraction
     df['split_group_fraction'] = split_report.group_fraction
     
+    _flowview_metric("objects", len(X))
+    _flowview_metric("train_objects", len(X_train))
+    _flowview_metric("test_objects", len(X_test))
+    _flowview_advance("model")
+
     # Initialize the model based on model_type
     if model_type == 'random_forest':
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
@@ -10550,6 +10659,9 @@ def ml_analysis(
     # report on the object makes grouping provenance travel with such a model
     # rather than existing only in stdout or the scored CSV.
     model.spacr_split_report_ = split_report.to_dict()
+
+    _flowview_metric("features", len(X.columns))
+    _flowview_advance("training")
 
     # Perform k-fold cross-validation
     if cross_validation:
@@ -10660,6 +10772,10 @@ def ml_analysis(
         report_dict = classification_report(
             y_test, predictions_test, output_dict=True, zero_division=0)
         metrics_df = pd.DataFrame(report_dict).transpose()
+
+    _flowview_metric("objects", len(X))
+    _flowview_metric("features", len(features))
+    _flowview_advance("evaluation")
 
     # ``model_metrics.csv`` is the classical model's durable card. Repeat the
     # scalar provenance on its rows so it survives CSV and remains filterable.
