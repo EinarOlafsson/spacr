@@ -74,3 +74,57 @@ DONE MEANS
   exception. A machine with a half-installed ROCm must still start.
 * No behaviour change on an NVIDIA machine -- assert that explicitly,
   because that is the configuration every current user has.
+
+
+================================================================================
+ADDENDUM 2026-08-31 — THE README AND THE API MUST SAY SO TOO
+================================================================================
+
+Asked for: "the readme should reflect that spacr can be run with a NVIDIA,
+RADEON, etcetera card. all this should be reflected in the readme and API".
+
+DOCUMENTATION IS PART OF THIS ITEM, not a follow-up. A user chooses
+hardware from the README. If it says CUDA and nothing else, somebody buys
+an NVIDIA card they did not need, or concludes spaCR will not run on the
+machine they have.
+
+WHAT IS THERE NOW, and both lines become wrong the moment the resolver
+lands:
+
+  README.rst:75   "CUDA is used automatically where a ..."
+  README.rst:292  "Linux is recommended for CUDA workflows; macOS and ..."
+
+WRITE IT WHEN THE CODE LANDS, NOT BEFORE. This addendum was filed at the
+moment it was asked for, and the README was deliberately NOT edited then,
+because `spacr/accelerator.py` did not exist yet. A README that advertises
+ROCm before anything dispatches to ROCm is worse than one that says
+nothing: the first sends somebody to buy a card, and the second only
+fails to mention an option.
+
+So the sequencing is: resolver, then dispatch, then the two surfaces
+below -- and the wording comes from what the resolver actually does, not
+from this list.
+
+  README: the hardware sentence names every backend that DISPATCHES, and
+  says what happens on a machine with none (CPU, correct results,
+  slower). Keep the DETECTED-versus-USABLE split from the body of this
+  instruction: if a backend is recognised but not dispatched to, the
+  README must not imply otherwise. And say which platform each backend
+  is available on -- ROCm is Linux in practice, MPS is Apple Silicon,
+  DirectML is Windows -- because "supported" without a platform is the
+  half-answer that wastes an afternoon.
+
+  API: `spacr/accelerator.py` gets a page like any other module, and the
+  resolver is the documented entry point for "which device will this
+  use". Anything scripting spaCR against a GPU needs to be able to ask
+  that question without reading the dispatch sites.
+
+  spacr-doctor: already in this instruction's file list, and it is the
+  third surface -- the one a user reaches when the other two have not
+  answered them. Its line must name what was found and whether spaCR
+  will use it.
+
+DONE MEANS, additionally: no sentence in README.rst, the nine translated
+READMEs, or the API index names CUDA as the only way to get a GPU; and
+the README's claims are checked against the resolver's own list rather
+than typed, in the way the module grid now is -- see instruction 321.
