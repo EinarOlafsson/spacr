@@ -1,0 +1,146 @@
+================================================================================
+FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
+================================================================================
+
+Status:    OPEN, filed 2026-08-31.
+Owner:     the module registry in `spacr/qt/app.py`, the Help menu, and
+           the eleven screens named below.
+Requested: 2026-08-31, in the maintainer's words. Reproduced verbatim at
+           the end of this file, because the list IS the specification.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Home screen shows a tile per module. Several of those modules are not
+things a user sets out to do -- they are things they reach for WHILE doing
+something else, and a tile for each puts them at the same level as Mask
+and Regression.
+
+Three destinations are asked for, and they are not interchangeable:
+
+  A TILE      the user starts here. It is a job.
+  A BUTTON    the user is already in the module this belongs to, and this
+              opens beside it -- usually as a new tab, so the thing they
+              came for stays on screen.
+  A HELP ITEM the user wants to look something up. It opens the module
+              exactly as it is today; only the way in changes.
+
+--------------------------------------------------------------------------------
+THE THIRTEEN CHANGES
+--------------------------------------------------------------------------------
+
+REMOVE THE TILE, REACH IT FROM HELP -- the module itself is unchanged:
+
+  feature_dict      already in the Help menu, "which is enough"
+  run_history       plus the two additions below
+  pipeline_graph
+  project_browser
+
+REMOVE THE TILE, REACH IT AS A BUTTON IN THE MODULE IT BELONGS TO:
+
+  investigate_hit   -> Regression, top-right button, opens a NEW TAB
+  profiler          -> Regression, button, spawns a new tab
+                       (the maintainer calls it "prediction profiler")
+  train_compare     -> Classify, button
+  feature_explorer  -> Classify, button
+  plate_view        -> Graph Builder, top-right button
+  trellis           -> Graph Builder, button ("small multiples")
+  lineage           -> Database Browser, button
+  tabulate          -> Database Browser, button
+
+ONE QC MODULE:
+
+  qc_dashboard is the host and is RENAMED to "QC".
+  layer_viewer  -> a button on it
+  control_chart -> a button on it
+
+RUN HISTORY GAINS TWO THINGS, asked for in the same breath:
+
+  * a "Clear all" button beside Refresh;
+  * multi-select, with a right-click menu offering Delete and Open.
+
+--------------------------------------------------------------------------------
+ONE QUESTION FOR THE MAINTAINER, ASKED IN THE REPORT
+--------------------------------------------------------------------------------
+
+  "add training runs as a button to classify (im pretty sure it only
+   compares classefication models right? now cellpose models?)"
+
+ANSWERED, from the screen itself: `train_compare` reads the epoch curves
+and settings written under a model folder, and its own docstring's
+example lists `maxvit_t` and `resnet50` -- the torch classifier
+architectures. It has no Cellpose path: Cellpose training writes neither
+the per-epoch curve files nor the settings CSV this screen diffs.
+
+So Classify is the right host, and the button belongs there rather than
+on Mask. If Cellpose training runs should ever be comparable the same
+way, that is a separate item and a separate reader.
+
+--------------------------------------------------------------------------------
+WHAT MUST NOT BREAK
+--------------------------------------------------------------------------------
+
+APP KEYS ARE LOAD-BEARING and this item does not rename any of them.
+`bridge.resolve_pipeline_entry`, `cli.INTERACTIVE_ONLY`,
+`validate.APP_FUNCTIONS`, `dnd_handlers`,
+`settings_model.resolve_default_settings` and every saved user state key
+off them. A tile can be removed and a key kept: removing the tile is a
+change to what Home OFFERS, not to what exists.
+
+The same goes for the CLI. A module reachable only from a button is
+still reachable from `spacr <key>` if it was before, and a user's script
+must not stop working because a tile moved.
+
+`qc_dashboard` is RENAMED IN THE DISPLAY NAME ONLY. Its key stays
+`qc_dashboard`.
+
+HOW TO KNOW IT WORKED
+
+  * Home shows the tiles for the jobs and none of the eight satellites;
+  * every removed tile's module opens from its new place, and opens the
+    SAME screen it opened before;
+  * every key that worked from the CLI before still works;
+  * Run History clears all, selects many, and deletes or opens from a
+    right-click;
+  * the QC module is called QC and carries the layer viewer and the
+    control charts.
+
+--------------------------------------------------------------------------------
+THE REPORT, VERBATIM
+--------------------------------------------------------------------------------
+
+feature dictionary does not need to be a module it is in the help menue
+which is enough.
+
+investigate hits should be folded into the regression modual as a new
+buton in the top right that leads to the opening of a new tab.
+
+run history should be made into a help menu item that opens the module as
+it is now, but remove run history from the module tiles. also add the
+abliity to remove runs (a claer all buton beside refresh) and the
+abliity to select more than one run and right click and delete or open.
+
+add training runs as a button to classify (im pretty sure it only
+compares classefication models right? now cellpose models?) and remove
+the module tile.
+
+pipeline graph should become a help menu item that opens the same module.
+and remove pipeline graph from the modual tiles.
+
+add plate viewer to graph builder as a button in the top right
+
+add prediction profiler as a button to the regression module and have it
+spawn anew tab.
+
+add lineage, tabulate to database browser as new buttons
+
+add small multiples to graph builder
+
+add feature explorer to classify
+
+make one QC module. use qc dashboard as the main module, change its name
+to QC. then add layer viewer as a button, control charts as a button
+
+project browser should be an item in the help dropdown that opens the
+same module. remove it as a module tile.
