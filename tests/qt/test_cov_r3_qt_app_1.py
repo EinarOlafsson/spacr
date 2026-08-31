@@ -308,7 +308,11 @@ def test_a_menu_bar_that_cannot_be_re_laid_does_not_break_full_screen(
 
     monkeypatch.setattr(win, "menuBar", _boom)
     win.changeEvent(state)
-    assert "could not re-lay the menu bar" in app_log.text()
+    # TWO FAILURES, TWO MESSAGES. The re-lay was split when the ghosting
+    # fix landed: asking for the bar and re-laying it can each fail on
+    # their own, and one message for both sent the reader to the wrong
+    # half. This is the first -- the bar could not be asked for at all.
+    assert "the menu bar could not be asked for" in app_log.text()
     assert len(bar.actions()) > 1, "the bar itself is untouched"
 
 
