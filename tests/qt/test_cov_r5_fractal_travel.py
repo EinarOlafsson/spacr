@@ -1119,6 +1119,28 @@ def test_a_resize_moves_the_viewport_to_the_new_physical_size(gpu_backdrop,
     assert stand_in_vispy.viewports[-1] == (0, 0, 640, 480)
 
 
+def test_a_draw_that_fails_stops_the_canvas_instead_of_storming(gpu_backdrop,
+                                                                caplog):
+    """vispy catches whatever a DrawEvent handler raises, logs it and RETRIES
+    -- doubling the repeat count -- so one impossible draw fills the
+    terminal for ever."""
+    canvas = gpu_backdrop("orbit")._canvas
+    canvas.on_draw(None)
+    assert canvas._program.draws >= 1
+    assert canvas._dead is False
+
+    canvas._program.draw_error = RuntimeError("the GL context was lost")
+    with caplog.at_level("WARNING", logger=F.LOG.name):
+        canvas.on_draw(None)
+    assert canvas._dead is True
+    assert canvas._timer.running is False
+    # By substance, not by sentence: what matters is that the backdrop
+    # said it had stopped, once, at WARNING -- not the exact wording.
+    assert "stopped" in caplog.text and "backdrop" in caplog.text
+
+    before = canvas._program.draws
+    canvas.on_draw(None)
+    assert canvas._program.draws == before
 
 
 def test_the_detail_follows_the_time_the_gpu_actually_took(gpu_backdrop):
