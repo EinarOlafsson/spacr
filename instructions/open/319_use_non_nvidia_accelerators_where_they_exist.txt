@@ -1,0 +1,76 @@
+319 — USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
+======================================================================
+
+ASKED FOR (2026-08-31, verbatim)
+--------------------------------
+"for the CUDA accelerated tasks in spacr. if these have radeon/ intel
+counterparts that can be implemented in the cases of other graphics cards
+being detected or neural network acceleration chips being detected that can
+be used please implement code that allows these non NVIDIA massive parallel
+processing hardware components to be used by spacr if possible. in spacr
+setup try to detect these other acelerators. and state if they are
+detected."
+
+TWO DELIVERABLES, AND THEY ARE NOT THE SAME SIZE
+------------------------------------------------
+1. DETECT AND REPORT, in the setup screen. Small, self-contained, and
+   useful on its own: the first setup slide already draws a CUDA line in
+   green or red (item from 2026-08-30). Whatever else is present should be
+   named on that same line rather than silently reading "no GPU" on a
+   machine with a perfectly good one.
+
+2. ACTUALLY RUN ON THEM. Large, and gated on what each backend really
+   supports. Do not let (1) imply (2): a setup screen that announces an
+   accelerator spaCR will never dispatch to is worse than one that says
+   nothing, because the user then blames their hardware for the speed.
+   Report DETECTED and USABLE as two separate facts.
+
+THE BACKENDS THAT ARE REAL
+--------------------------
+* Apple Silicon — `torch.backends.mps.is_available()`. The most valuable
+  one: every M-series Mac has it, spaCR already runs on those machines,
+  and torch supports it directly with `device="mps"`. Caveats that must be
+  handled rather than discovered by a user: float64 is unsupported, and
+  some ops silently fall back to CPU unless
+  `PYTORCH_ENABLE_MPS_FALLBACK=1`.
+* AMD Radeon — ROCm. `torch.version.hip` is not None, and ROCm builds
+  still report `torch.cuda.is_available()` True with `device="cuda"`. So
+  the CUDA path may already work; what is missing is saying "ROCm"
+  instead of "CUDA" and not claiming an NVIDIA card that is not there.
+  Linux only in practice.
+* Intel Arc / Xe — `torch.xpu.is_available()` on a torch built with XPU,
+  else the `intel_extension_for_pytorch` path. `device="xpu"`.
+* DirectML (Windows, any vendor) — `torch_directml`. Widest reach on
+  Windows, thinnest op coverage.
+* NPUs — treat as detect-and-report only for now. There is no portable
+  torch device for the Apple Neural Engine (CoreML only), Intel AI Boost
+  (OpenVINO only), or Qualcomm Hexagon. Naming one as a spaCR compute
+  device would be a promise nothing behind it can keep.
+
+WHERE THE WORK LANDS
+--------------------
+The CUDA checks are NOT in one place, which is the main cost of this item.
+Find them all before writing anything -- `torch.cuda.is_available()`,
+`.cuda()`, `device="cuda"`, `torch.device("cuda")` and `cuda:` strings
+appear across `deep_spacr`, `ml`, `core`, `measure`, `utils`, the cellpose
+call sites and the Qt setup slide. The right shape is ONE resolver
+("what device should this run on, and what is it called") that every site
+asks, not a second vendor branch at each site -- a per-site branch is how
+the third backend costs as much as the second.
+
+Cellpose has its own device handling and its own `gpu=` argument; it must
+be routed through the same resolver or the two will disagree on the same
+machine.
+
+DONE MEANS
+----------
+* One resolver, with a test per backend that FAKES the backend's probe
+  and asserts the device string -- these cannot be tested on this machine
+  for real, so the fake is the test, and it must fail when the branch is
+  removed.
+* The setup slide names what was found, and distinguishes "found" from
+  "spaCR will use it".
+* An unknown or broken accelerator falls back to CPU without an
+  exception. A machine with a half-installed ROCm must still start.
+* No behaviour change on an NVIDIA machine -- assert that explicitly,
+  because that is the configuration every current user has.

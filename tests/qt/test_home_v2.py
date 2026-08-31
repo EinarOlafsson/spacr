@@ -33,11 +33,41 @@ from spacr.qt.app import (
     _ICON_OVERRIDES,
     APPS,
     SECTIONS,
+    TILELESS_APPS,
     make_home_page,
     section_members,
 )
 from spacr.qt.widgets.home import PAUSE_UNAVAILABLE, AppTile, HomePage
 
+
+
+def _tiled_apps():
+    """The registry rows Home actually draws.
+
+    NOT every row in APPS. Instruction 318 gave several modules a door of
+    their own -- a button in the module they belong to, or an entry in
+    Help -- and took their tile away, because a tile says "start here"
+    and none of them is a job a user sets out to do.
+
+    They are still REGISTERED: the CLI, the bridge, drag-and-drop,
+    settings resolution and saved session state all key off those
+    strings. What changed is what Home offers.
+    """
+    return [row for row in APPS if row[0] not in TILELESS_APPS]
+
+
+# WHICH SET A TEST WANTS depends on what it is asking:
+#
+#   `_tiled_apps()`  what Home DRAWS. Tab membership, tile counts, the
+#                    "(n)" on the Home tab, drawer reachability.
+#   `APPS`           what EXISTS. Artwork and maturity stage are needed by
+#                    every registered app, tileless or not: a module
+#                    reached from a button still shows its icon on that
+#                    button, and still has a stage the drawer filters on.
+#
+# Getting this backwards is silent: using `_tiled_apps()` for artwork
+# stops checking the icons of the eight modules that moved, which is
+# exactly when their icons would be noticed missing.
 
 @pytest.fixture(autouse=True)
 def _pinned_zoom():
@@ -307,13 +337,20 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
         blob = bytes(icon.pixmap(48, 48).toImage().constBits())
         by_pixels.setdefault(blob, []).append(name)
     shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
-    # Only the borrowings whose BOTH tiles are still on Home. A module
-    # folded into a host stops having a tile, and its pair stops being
-    # drawn twice -- that is the fold working, not a borrowing that
-    # "stopped happening". The borrowing itself survives on the fold
-    # button, which reads the same `_ICON_OVERRIDES` entry.
-    drawn = {name for _key, name, *_rest in APPS}
-    expected = {pair for pair in DELIBERATE_SHARED_ARTWORK if pair <= drawn}
+    # Every REGISTERED app, not just the tiled ones. A module folded into
+    # a host keeps its icon -- the fold button draws it -- so the
+    # borrowing still happens and is still worth documenting. Narrowing
+    # this to `_tiled_apps()` would leave such a pair inside `shared` but
+    # outside `expected`, and the allowance below would then call a
+    # documented borrowing undocumented.
+    #
+    # Still filtered by what is REGISTERED, though: the table above names
+    # pairs for apps that have since left `APPS` entirely (Model Compare,
+    # Train Cellpose, Annotator Agreement). A borrowing between two apps
+    # that no longer exist cannot happen and must not be demanded.
+    registered = {name for _key, name, *_rest in APPS}
+    expected = {pair for pair in DELIBERATE_SHARED_ARTWORK
+                if pair <= registered}
     assert expected <= shared, (
         f"a documented borrowing stopped happening: {expected - shared}")
     # Every app now has its own artwork, so the allowance below covers
@@ -665,10 +702,10 @@ def test_home_is_the_first_tab_and_holds_everything(home):
     empty": a handful of tiles and a blank half-page, with no view that
     showed what spaCR can do."""
     assert home._tabs.count() == len(SECTIONS) + 1
-    assert home._tabs.tabText(0) == f"Home  ({len(APPS)})"
+    assert home._tabs.tabText(0) == f"Home  ({len(_tiled_apps())})"
     assert home._tabs.currentIndex() == 0
     drawn = {t.text_label for t in home._tabs.widget(0).findChildren(AppTile)}
-    assert drawn == {name for _k, name, *_r in APPS}
+    assert drawn == {name for _k, name, *_r in _tiled_apps()}
 
 
 def test_the_category_tabs_follow_the_workflow_order(home):
@@ -736,8 +773,8 @@ def test_the_home_tab_bands_are_the_categories_themselves(home):
 
     # …and every app really does land in exactly one band on screen.
     tiles = page.findChildren(AppTile)
-    assert len(tiles) == len(APPS)
-    assert len({t.text_label for t in tiles}) == len(APPS)
+    assert len(tiles) == len(_tiled_apps())
+    assert len({t.text_label for t in tiles}) == len(_tiled_apps())
 
 
 def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
@@ -752,7 +789,7 @@ def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
     for index in range(1, home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             placement.setdefault(tile.text_label, []).append(index)
-    expected = {name for _k, name, *_r in APPS}
+    expected = {name for _k, name, *_r in _tiled_apps()}
     assert set(placement) == expected, (
         f"missing: {expected - set(placement)}; "
         f"unexpected: {set(placement) - expected}")
@@ -1464,7 +1501,7 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     with it."""
     home_tab = window._startup._tabs.widget(0)
     assert {t.text_label for t in home_tab.findChildren(AppTile)} == {
-        name for _k, name, *_r in APPS}
+        name for _k, name, *_r in _tiled_apps()}
     # Collected through the section submenus the apps sit in.
     menu_labels = set()
 
@@ -1482,7 +1519,26 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
             continue
         collect(top.menu())
         break
-    assert {name for _k, name, *_r in APPS} <= menu_labels
+    assert {name for _k, name, *_r in _tiled_apps()} <= menu_labels
+    # AND THE FOLDED MODULES ARE REACHABLE TOO -- just not from the tile
+    # grid or the module menu, which is the whole point of folding them.
+    # Their door is the command palette, plus a button on their host or
+    # an entry in Help. The palette is asserted here because it is the
+    # one route that must cover EVERY module: it is the keyboard user's
+    # navigation, and a module missing from it is a module they cannot
+    # reach at all.
+    #
+    # This caught a real regression. Filtering the folded keys inside
+    # `app_is_visible` -- which reads like the right place until you see
+    # what else calls it -- took nine modules out of Ctrl+K, so the fold
+    # deleted a door instead of moving one.
+    from spacr.qt.command_palette import CommandPalette
+
+    palette = CommandPalette(window)
+    palette_labels = {c.label for c in palette._commands}
+    for _key, name, *_rest in APPS:
+        assert f"Go to  {name}" in palette_labels, (
+            f"{name} cannot be reached from the command palette")
     assert "All apps" not in menu_labels, (
         "the drawer toggle was put back in the menu — see ff28b7eb")
     drawer_action = next(

@@ -108,3 +108,61 @@ def test_the_dropped_posture_tuple_is_still_three_and_still_used():
                                  "balanced")
     assert set(prefs.spacr_mode_for_level(level)
                for level in prefs.PERFORMANCE_LEVELS) <= set(prefs.SPACR_MODES)
+
+
+class TestTheHelpTextExplainsTheLevels:
+    """The slide's prose must describe the control beside it.
+
+    It described the old three-value posture and stayed behind when the
+    screen was pointed at the five levels, so it explained a control the
+    reader was not looking at.
+    """
+
+    def _blurb(self):
+        from spacr.qt.widgets.setup_slides import SLIDES
+
+        for title, blurb, keys in SLIDES:
+            if "spacr_mode" in keys:
+                return blurb
+        raise AssertionError("no slide asks about spaCR mode")
+
+    def test_every_level_is_named_in_the_prose(self):
+        blurb = self._blurb()
+
+        for label in prefs.PERFORMANCE_LABELS.values():
+            assert label in blurb, (
+                f"{label!r} is offered by the control and not explained by "
+                f"the text beside it")
+
+    def test_the_two_ends_say_what_machine_they_are_for(self):
+        """A level named with no hardware beside it is a choice the reader
+        has to guess at, which is the whole reason this slide exists."""
+        blurb = self._blurb()
+
+        assert "8 GB" in blurb, "Laptop does not say what machine it is for"
+        assert "memory to spare" in blurb, (
+            "Workstation does not say what machine it is for")
+
+    def test_it_says_the_science_does_not_change(self):
+        """The one thing a reader must not have to wonder about: picking a
+        level to be kind to their machine cannot change a result."""
+        blurb = self._blurb()
+
+        assert "science is identical at every level" in blurb
+
+    def test_it_no_longer_describes_three(self):
+        blurb = self._blurb()
+
+        assert "the other two" not in blurb, (
+            "the prose still counts the old three postures")
+
+    def test_the_levels_are_named_in_the_order_the_control_offers_them(self):
+        """Reading the sentence and reading the list must agree, or the
+        reader has to map one onto the other."""
+        blurb = self._blurb()
+        seen = [blurb.index(prefs.PERFORMANCE_LABELS[level])
+                for level in prefs.PERFORMANCE_LEVELS]
+
+        assert seen == sorted(seen), (
+            "the prose names the levels in a different order from the "
+            "control")

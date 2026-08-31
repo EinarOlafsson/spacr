@@ -1216,12 +1216,83 @@ def app_stage(key: str) -> str:
     return APP_STAGE.get(key, STAGE_STABLE)
 
 
+#: Apps that are REGISTERED but get no tile and no sidebar row.
+#:
+#: A tile says "start here". These are not things a user sets out to do:
+#: they are things reached for WHILE doing something else, and a tile for
+#: each put them at the same level as Mask and Regression. Instruction 318
+#: has the maintainer's list and which of the two doors each one gets --
+#: a button inside the module it belongs to, or an entry in Help.
+#:
+#: THE KEY IS NOT REMOVED, and that distinction is the whole of why this
+#: is a set rather than a deletion. `bridge.resolve_pipeline_entry`,
+#: `cli.INTERACTIVE_ONLY`, `validate.APP_FUNCTIONS`, `dnd_handlers`,
+#: `settings_model.resolve_default_settings` and every saved user state
+#: key off these strings. `spacr run_history` from a shell still runs, a
+#: saved session that had one of these open still restores it, and a
+#: pipeline that names one still resolves it. What changed is what Home
+#: OFFERS, not what exists.
+TILELESS_APPS = frozenset({
+    # Reached from Help -- a user looking something up.
+    "feature_dict",
+    "run_history",
+    "pipeline_graph",
+    "project_browser",
+    # Reached from a button in the module they belong to.
+    "investigate_hit",     # Regression, new tab
+    "profiler",            # Regression, new tab
+    "train_compare",       # Classify
+    "feature_explorer",    # Classify
+    "plate_view",          # Graph Builder
+    "trellis",             # Graph Builder -- "small multiples"
+    "lineage",             # Database Browser
+    "tabulate",            # Database Browser
+    "layer_viewer",        # QC
+    "control_chart",       # QC
+})
+
+
+#: The four tileless apps that get a Help entry, with the label and the
+#: status tip each one carries there.
+#:
+#: SEPARATE FROM `TILELESS_APPS` because they answer different questions:
+#: that set says "no tile", this table says "and here is the door
+#: instead". An app in the set and not in this table has its door
+#: somewhere else -- a button in the module it belongs to.
+#: NOT `feature_dict`. It already has a Help entry of its own --
+#: `widgets/feature_dictionary.py` installs "Feature Dictionary…" -- which
+#: is exactly what the maintainer meant by "it is in the help menue which
+#: is enough". Only its TILE was asked for. A second entry here would put
+#: the same screen in the same menu twice.
+_HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
+    ("run_history", "Run history",
+     "Search every recorded job -- its settings, hashed inputs and "
+     "outputs, warnings, failures, versions and seeds."),
+    ("pipeline_graph", "Pipeline graph",
+     "How the modules feed one another, and what each one needs before "
+     "it can run."),
+    ("project_browser", "Project browser",
+     "Every spaCR project this machine knows about, and what is in it."),
+)
+
+
 def app_is_visible(key: str) -> bool:
     """Whether ``key`` should appear in module navigation.
 
     Preferences are imported lazily so this registry remains safe for
     packaging and headless callers. If preferences cannot be read, preserve
     the historical all-modules-visible behaviour.
+
+    NOT A TILE CHECK. This answers "is the user allowed to reach this
+    module", which is the maturity preference and nothing else. A folded
+    module is still reachable -- from its host's button, from Help, and
+    from the command palette -- so it is still VISIBLE; it just has no
+    tile. Use :func:`tiled_apps` for the tile question.
+
+    This function did briefly answer both, and the command palette is
+    what caught it: filtering :data:`TILELESS_APPS` out here took nine
+    modules out of Ctrl+K, so the folds removed a door instead of moving
+    one. Two questions, two functions.
     """
     try:
         from .preferences import maturity_is_visible
@@ -1245,13 +1316,44 @@ def home_stages() -> dict:
     return {row[0]: app_stage(row[0]) for row in APPS}
 
 
+def tiled_apps(
+    apps: Optional[List[Tuple[str, str, str, str]]] = None,
+) -> List[Tuple[str, str, str, str]]:
+    """The ``APPS`` rows that get a TILE, in registry order.
+
+    ``APPS`` is what EXISTS; this is what Home DRAWS. The two stopped
+    being the same thing when modules began folding into hosts -- a
+    folded module keeps its registry row (it still has a screen, an
+    icon, a section and a key to navigate to) and loses only its tile,
+    because it is now reached from a button on its host or from the Help
+    menu.
+
+    Anything asking "what does the user see on Home", "how many tiles
+    are in this band", or "does this tile's label fit" wants this.
+    Anything asking "can this key be navigated to", "does this app have
+    artwork", or "does every app have a screen" wants ``APPS`` -- a
+    folded module must still answer yes to all three.
+    """
+    source = APPS if apps is None else apps
+    return [row for row in source if row[0] not in TILELESS_APPS]
+
+
 def section_members(
     section: str,
     apps: Optional[List[Tuple[str, str, str, str]]] = None,
 ) -> List[Tuple[str, str, str, str]]:
-    """The ``APPS`` rows a category's tab shows, in registry order."""
-    source = APPS if apps is None else apps
-    return [row for row in source if row[3] == section]
+    """The ``APPS`` rows a category's tab shows, in registry order.
+
+    TILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what
+    its label COUNTS, so a module with no tile must be out of both --
+    otherwise the label reads "Results & QC (7)" over three tiles, which
+    is a count of something the user cannot see.
+
+    An explicit ``apps`` list is filtered too. A caller passing its own
+    rows is asking "which of these belong to this section", and a
+    tileless one does not belong to any tab whichever list it arrives in.
+    """
+    return [row for row in tiled_apps(apps) if row[3] == section]
 
 
 def home_categories(
@@ -1298,7 +1400,13 @@ def make_home_page(parent=None):
     the suite.
     """
     from .widgets.home import HomePage
-    apps = visible_apps()
+    # BOTH filters, and they are different questions. `visible_apps` drops
+    # what the maturity preference hides; `tiled_apps` drops what has been
+    # folded into a host and reached by a button instead. Home is the one
+    # surface that wants both -- the command palette and the spaCR menu
+    # want only the first, which is why the tile filter does not live in
+    # `app_is_visible`.
+    apps = tiled_apps(visible_apps())
     return HomePage(
         apps, _icon_for_app, parent,
         section_notes=SECTION_NOTES,
@@ -2353,6 +2461,27 @@ class MainWindow(QMainWindow):
     # -- menu -------------------------------------------------------------
     def _build_menu_bar(self):
         mb = self.menuBar()
+        # NOT THE NATIVE macOS MENU BAR. Qt defaults this to True on darwin,
+        # which moves the whole bar up into the system strip -- and that one
+        # default is the cause of THREE separate macOS bugs at once:
+        #
+        #   1. A native menu bar DRAWS NO CORNER WIDGET. The minimise, full
+        #      screen and close marks live in this bar's top-right corner
+        #      (see `_install_fullscreen_button`), so on macOS they simply
+        #      were not there. The window is frameless on every platform, so
+        #      that left a Mac with no window buttons at all.
+        #   2. It splits the spaCR menu in two. macOS hoists Preferences,
+        #      About and Quit into the application menu -- titled "Python"
+        #      for an unbundled launch -- leaving a second, half-empty
+        #      "spaCR" menu beside it.
+        #   3. Nothing is left in the window to DRAG. The bar is this
+        #      window's title bar; in the system strip it cannot move it.
+        #
+        # The comment that used to sit below this said the relocation "cannot
+        # be overridden". It can -- this is how -- and turning it off gives
+        # macOS the same one-menu, three-button, draggable bar as Linux.
+        if sys.platform == "darwin":
+            mb.setNativeMenuBar(False)
         # DRAGGABLE. The window is frameless, so without this it cannot be
         # moved: there is no title bar for the compositor to offer.
         self._menu_drag = _DragsTheWindowByTheMenuBar(self)
@@ -2360,10 +2489,10 @@ class MainWindow(QMainWindow):
 
         app_menu = mb.addMenu("&spaCR")
 
-        # Preferences and Quit FIRST, as asked. On macOS Qt relocates both to
-        # the application menu whatever their position here -- that is the
-        # platform convention and cannot be overridden -- so this ordering is
-        # what Linux and Windows users see, and it costs macOS nothing.
+        # Preferences and Quit FIRST, as asked. This ordering is now what
+        # EVERY platform sees: the native menu bar is off on macOS (above),
+        # so Qt no longer hoists Preferences and Quit into a separate
+        # application menu and the order written here is the order shown.
         act_home = QAction("Home", self)
         act_home.setShortcut(QKeySequence("Ctrl+H"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
@@ -2376,6 +2505,16 @@ class MainWindow(QMainWindow):
         act_quit.setShortcut(QKeySequence.Quit)
         act_quit.triggered.connect(self.close)
         app_menu.addAction(act_quit)
+        # MINIMISE AND MAXIMISE GO IN ABOVE QUIT -- but not from here. The
+        # Window submenu builds those two actions further down this method,
+        # and the SAME objects are inserted here once it has
+        # (`_lift_the_window_actions_into_the_spacr_menu`). Two QActions for
+        # one behaviour is what this file already warns about for F11: Qt
+        # resolves a duplicated shortcut by firing neither, and even without
+        # a shortcut a second object is a second enabled state to keep in
+        # step. Remembered rather than searched for, because Quit's label is
+        # translated and matching on it would break in every other language.
+        self._act_quit = act_quit
         app_menu.addSeparator()
 
         # ONE SUBMENU PER CATEGORY. Fifty-six modules in one flat list is a
@@ -2564,6 +2703,22 @@ class MainWindow(QMainWindow):
         act_setup.triggered.connect(self._show_setup)
         help_menu.addAction(act_setup)
         help_menu.addSeparator()
+
+        # THE FOUR LOOK-IT-UP MODULES (318). Each opens exactly the screen
+        # it opened from its tile; only the door changed. They are here
+        # rather than on Home because none of them is a job a user sets out
+        # to do -- they are things you consult, which is what this menu is
+        # for.
+        #
+        # `_on_nav_selected` is the same entry point a tile click uses, so
+        # there is one path into a module and not two that can drift.
+        for key, label, tip in _HELP_MODULES:
+            action = QAction(label, self)
+            action.setStatusTip(tip)
+            action.triggered.connect(
+                lambda _checked=False, k=key: self._on_nav_selected(k))
+            help_menu.addAction(action)
+        help_menu.addSeparator()
         # NO ICON AND NO "(web)". The icon was
         # `SP_MessageBoxInformation`, the platform's blue circled i, which
         # is the glyph a dialog uses to mean "here is a notice" -- next to
@@ -2605,6 +2760,7 @@ class MainWindow(QMainWindow):
 
         help_menu.addSeparator()
         help_menu.addMenu(self._build_window_menu(mb))
+        self._lift_the_window_actions_into_the_spacr_menu(app_menu)
 
         # Every menu action gets an EXPLICIT macOS role, and everything that
         # is not genuinely Preferences/Quit/About gets NoRole. Left to Qt,
@@ -2621,6 +2777,36 @@ class MainWindow(QMainWindow):
         self._act_quit = act_quit
         self._act_about = act_about
         self.pin_all_menu_roles()
+
+    def _lift_the_window_actions_into_the_spacr_menu(self, app_menu) -> None:
+        """Put Minimise and Maximise in the spaCR menu, just above Quit.
+
+        THE SAME TWO QActions the Window submenu holds, added to a second
+        menu rather than rebuilt. Qt is happy to show one action in two
+        places and keeps their label, enabled state and tick in step for
+        free; two objects for one behaviour drift, and if either ever
+        gains a shortcut Qt resolves the duplicate by firing NEITHER --
+        the trap this file already documents for F11.
+
+        Why they belong here at all: the Window submenu hangs off Help,
+        which is not where anyone looks for "make this window smaller".
+        On macOS it was worse than obscure -- the native menu bar drew no
+        corner widget, so the minimise and full screen marks did not
+        exist, and the submenu was the only route to either.
+
+        Called after `_build_window_menu`, which is what creates the
+        actions. Inserting rather than appending because the spaCR menu
+        continues past Quit into the category submenus, so appending would
+        land them at the bottom of the whole list.
+        """
+        minimise = getattr(self, "_act_minimise", None)
+        maximise = getattr(self, "_act_maximise", None)
+        quit_action = getattr(self, "_act_quit", None)
+        if minimise is None or maximise is None or quit_action is None:
+            return
+        app_menu.insertAction(quit_action, minimise)
+        app_menu.insertAction(quit_action, maximise)
+        app_menu.insertSeparator(quit_action)
 
     def _build_window_menu(self, bar):
         """Build Help ▸ Window: the route that does not move, and the frame
@@ -2662,6 +2848,7 @@ class MainWindow(QMainWindow):
             "menu bar's top-right corner.")
         act_min.triggered.connect(self.showMinimized)
         menu.addAction(act_min)
+        self._act_minimise = act_min
 
         act_max = QAction("Maximise", self)
         act_max.setStatusTip(
@@ -2669,6 +2856,7 @@ class MainWindow(QMainWindow):
             "already maximised.")
         act_max.triggered.connect(self._toggle_maximised)
         menu.addAction(act_max)
+        self._act_maximise = act_max
 
         # THE SAME ACTION THE WINDOW ITSELF CARRIES, not a second one with
         # the same shortcut. Two distinct QActions bound to F11 on one

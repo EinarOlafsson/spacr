@@ -27,6 +27,7 @@ from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt.app import (
     APPS,
+    tiled_apps,
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTIONS,
@@ -173,15 +174,24 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
 
     spacr.qt.register_self_registering_modules()
     keys = [a[0] for a in APPS]
+    # TILED keys for the two partition claims. Both are about where a
+    # TILE is drawn, and a folded module has none -- it is reached from
+    # its host's button or from Help. Against `APPS` these read "an app
+    # is on no category tab" for fourteen modules that deliberately are
+    # not, which is the fold working rather than a partition breaking.
+    drawn = [a[0] for a in tiled_apps()]
 
     subject = [k for s in SECTIONS for k, *_ in section_members(s)]
-    assert sorted(subject) == sorted(keys), (
+    assert sorted(subject) == sorted(drawn), (
         "an app is on no category tab, or on two")
 
     banded = [k for _s, rows in home_bands() for k, *_ in rows]
-    assert sorted(banded) == sorted(keys), (
+    assert sorted(banded) == sorted(drawn), (
         "an app is missing from Home, or drawn on it twice")
 
+    # STAGE IS COUNTED OVER EVERY REGISTERED APP, not just the drawn
+    # ones. How finished a module is does not change because it is
+    # reached from a button, and the drawer still filters on it.
     staged = [k for k in keys if app_stage(k) != "stable"]
     # This count is over the fully registered list shown after launch. It is
     # intentionally ratcheted: signing an app off removes its alpha/beta
@@ -262,8 +272,12 @@ def test_every_app_resolves_to_a_screen(qtbot, qt_theme_applied):
 # Part A — nothing is clipped
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("key,name,desc,section", APPS,
-                         ids=[a[0] for a in APPS])
+# TILED apps, not every registered one. This asks whether a TILE clips its
+# label, so an app with no tile has no question to answer -- parametrising
+# over `APPS` asked it of nine folded modules and failed nine times for a
+# tile that is deliberately absent.
+@pytest.mark.parametrize("key,name,desc,section", tiled_apps(),
+                         ids=[a[0] for a in tiled_apps()])
 def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
     """The name fits the label drawing it — or elides WITH a tooltip.
 
@@ -457,7 +471,9 @@ def test_home_renders_every_app_under_every_band_heading(home):
     """
     _theme, page, _bar = home
     rendered = set(_tiles_by_name(page))
-    assert rendered == {a[1] for a in APPS}
+    # The TILED names. A folded module draws no tile on Home, so demanding
+    # one here demands the thing instruction 318 removed.
+    assert rendered == {a[1] for a in tiled_apps()}
 
     headings = {lbl.text() for lbl in page.findChildren(QLabel)}
     for section, _rows in home_bands():

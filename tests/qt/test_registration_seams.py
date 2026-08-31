@@ -286,7 +286,9 @@ def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
     qtbot.addWidget(page)
     tiles = {t.text_label: t for t in page.findChildren(AppTile)}
     assert "Seam Probe" in tiles
-    assert len(tiles) == len(app_mod.APPS)
+    # TILED apps. A folded module is registered but draws no tile, so
+    # `len(APPS)` over-counts Home by exactly the number folded.
+    assert len(tiles) == len(app_mod.tiled_apps())
 
     bar = app_mod.Sidebar()
     qtbot.addWidget(bar)
@@ -1042,6 +1044,17 @@ def test_the_waiting_feature_is_in_the_registry_under_a_live_section(key):
         f"{key} is filed under {section!r}, which has no tab")
     assert app_mod.section_members(section), f"{section} draws an empty tab"
     # ...and it is reachable from the two derived views the UI draws from.
+    #
+    # UNLESS IT IS FOLDED. A module in `TILELESS_APPS` keeps its registry
+    # row -- the section it is filed under still decides which host it
+    # belongs to, and the checks above are exactly as binding -- but it
+    # draws no tile, so it is deliberately absent from the tab and the
+    # band. Asserted as an explicit ABSENCE rather than skipped, because a
+    # skip here would stop noticing if a folded module quietly grew a tile
+    # back.
+    if key in app_mod.TILELESS_APPS:
+        assert key not in dict(app_mod.home_categories())[section]
+        return
     assert key in dict(app_mod.home_categories())[section]
     bands = {s: [r[0] for r in rows_] for s, rows_ in app_mod.home_bands()}
     assert key in bands[section]
