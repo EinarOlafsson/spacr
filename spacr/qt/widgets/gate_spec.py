@@ -547,6 +547,13 @@ class ThresholdGate(Gate):
         return tuple(out)
 
     def with_handle(self, role: str, x: float, y: float) -> "ThresholdGate":
+        """Return the threshold after dragging one of its bound handles.
+
+        :param role: ``"low"`` or ``"high"`` for the bound being moved.
+        :param x: new bound value in the threshold column's data units.
+        :param y: vertical handle coordinate, ignored by this one-column gate.
+        :raises GateError: when ``role`` names no threshold handle.
+        """
         if role not in ("low", "high"):
             raise GateError(f"threshold gate has no handle {role!r}")
         low, high = self.low, self.high
@@ -563,6 +570,15 @@ class ThresholdGate(Gate):
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "ThresholdGate":
+        """Return this threshold resized about a horizontal anchor.
+
+        :param factor: positive scale factor; values above one move every
+            finite bound away from the anchor.
+        :param about: point whose first coordinate stays fixed, or ``None`` to
+            use the threshold's finite centre. A half-open threshold has no
+            finite centre and is returned unchanged when this is ``None``.
+        :raises GateError: when ``factor`` is not positive.
+        """
         _check_factor(factor)
         anchor = about[0] if about is not None else self.centre()[0]
         if anchor is None:
@@ -581,6 +597,17 @@ class RectGate(Gate):
     Kept as its own shape rather than as a four-vertex polygon so it can hand
     back real :class:`~spacr.selection.RangeFilter` clauses, which a rectangle
     genuinely is and a polygon genuinely is not.
+
+    :param name: unique name by which the hierarchy and filter identify this
+        gate.
+    :param parent: name of the gate containing this one, or ``None`` for a
+        root gate.
+    :param x_column: measurement shown on the horizontal axis.
+    :param y_column: distinct measurement shown on the vertical axis.
+    :param x_low: inclusive horizontal lower bound, or ``None`` when open.
+    :param x_high: inclusive horizontal upper bound, or ``None`` when open.
+    :param y_low: inclusive vertical lower bound, or ``None`` when open.
+    :param y_high: inclusive vertical upper bound, or ``None`` when open.
     """
 
     x_column: str = ""
@@ -623,6 +650,11 @@ class RectGate(Gate):
         return (self.x_column, self.y_column)
 
     def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Select finite rows inside every bounded side of the rectangle.
+
+        :param frame: measurement table containing both axis columns.
+        :returns: boolean mask aligned row-for-row with ``frame``.
+        """
         what = f"gate {self.name!r}"
         x = _numeric(frame, self.x_column, what)
         y = _numeric(frame, self.y_column, what)
@@ -662,6 +694,13 @@ class RectGate(Gate):
 
     def with_threshold(self, column: str, low: Optional[float],
                     high: Optional[float]) -> "RectGate":
+        """Return this gate with replacement bounds on one axis.
+
+        :param column: horizontal or vertical measurement column to change.
+        :param low: inclusive lower bound, or ``None`` for an open lower side.
+        :param high: inclusive upper bound, or ``None`` for an open upper side.
+        :raises GateError: when ``column`` is not one of this rectangle's axes.
+        """
         field_of = {self.x_column: ("x_low", "x_high"),
                     self.y_column: ("y_low", "y_high")}
         if column not in field_of:
@@ -671,6 +710,11 @@ class RectGate(Gate):
         return replace(self, **{low_name: low, high_name: high})
 
     def translated(self, dx: float, dy: float) -> "RectGate":
+        """Return a copy shifted along both measurement axes.
+
+        :param dx: displacement in horizontal-axis data units.
+        :param dy: displacement in vertical-axis data units.
+        """
         return replace(self,
                        x_low=_shift_bound(self.x_low, dx),
                        x_high=_shift_bound(self.x_high, dx),
@@ -691,6 +735,9 @@ class RectGate(Gate):
         drawn to the edge of the axes. That edge is where its handle goes,
         and pulling it there gives the gate a bound it did not have -- which
         is the only way to close an open side without redrawing the gate.
+
+        :param view: visible ``(x_low, x_high, y_low, y_high)`` axis limits.
+        :returns: finite rectangle corners in the same four-value order.
         """
         vx0, vx1, vy0, vy1 = (float(v) for v in view)
         x0 = vx0 if self.x_low is None else float(self.x_low)
@@ -700,7 +747,11 @@ class RectGate(Gate):
         return x0, x1, y0, y1
 
     def handles(self, view: "View") -> Tuple["Handle", ...]:
-        """Four corners and four side midpoints."""
+        """Return four corner handles and four side midpoints.
+
+        :param view: visible axis limits used for every unbounded side.
+        :returns: eight handles whose roles identify the sides they move.
+        """
         x0, x1, y0, y1 = self.bounds_in(view)
         xm, ym = (x0 + x1) / 2.0, (y0 + y1) / 2.0
         return (
@@ -715,10 +766,24 @@ class RectGate(Gate):
         )
 
     def with_handle(self, role: str, x: float, y: float) -> "RectGate":
-        parts = [p for p in str(role).split(",") if p]
-        if not parts or any(p not in ("x_low", "x_high", "y_low", "y_high")
-                            for p in parts):
+        """Return the rectangle after dragging one side or corner handle.
+
+        :param role: one of the four side names emitted by :meth:`handles`, or
+            one horizontal and one vertical side joined by a comma for a
+            corner.
+        :param x: new horizontal coordinate used by any horizontal role.
+        :param y: new vertical coordinate used by any vertical role.
+        :raises GateError: when ``role`` names no rectangle handle.
+        """
+        role = str(role)
+        allowed = {
+            "x_low", "x_high", "y_low", "y_high",
+            "x_low,y_low", "x_high,y_low",
+            "x_low,y_high", "x_high,y_high",
+        }
+        if role not in allowed:
             raise GateError(f"rectangle gate has no handle {role!r}")
+        parts = role.split(",")
         values = dict(x_low=self.x_low, x_high=self.x_high,
                       y_low=self.y_low, y_high=self.y_high)
         for part in parts:
@@ -734,6 +799,14 @@ class RectGate(Gate):
 
     def scaled(self, factor: float, *,
                about: Optional[Tuple[float, float]] = None) -> "RectGate":
+        """Return this rectangle resized about a fixed data-space point.
+
+        :param factor: positive scale factor; values above one grow the gate.
+        :param about: point held fixed, or ``None`` to use the rectangle's
+            finite centre independently on each axis. Without an explicit
+            point, an axis lacking two finite bounds stays unchanged.
+        :raises GateError: when ``factor`` is not positive.
+        """
         _check_factor(factor)
         own = self.centre()
         ax = about[0] if about is not None else own[0]

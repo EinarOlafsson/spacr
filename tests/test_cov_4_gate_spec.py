@@ -193,6 +193,19 @@ def test_a_rectangle_has_no_handle_it_did_not_offer():
     assert "radius" in str(excinfo.value)
 
 
+@pytest.mark.parametrize("role", [
+    "x_low,x_high",
+    "y_low,y_high",
+    "x_low,x_low",
+    "x_low,y_low,y_high",
+])
+def test_a_rectangle_refuses_side_combinations_it_did_not_offer(role):
+    """Only the four sides and four emitted corners are draggable."""
+    with pytest.raises(GateError) as excinfo:
+        _rect().with_handle(role, 1.0, 2.0)
+    assert role in str(excinfo.value)
+
+
 # ---------------------------------------------------------------------------
 # PolygonGate
 # ---------------------------------------------------------------------------

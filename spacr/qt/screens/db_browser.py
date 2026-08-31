@@ -100,13 +100,7 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
-from spacr.database_concurrency import (
-    connect as connect_database,
-    transaction,
-)
-
 import pandas as pd
-
 from PySide6.QtCore import (
     QAbstractTableModel,
     QItemSelection,
@@ -134,15 +128,22 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from ..widgets.toggle import Toggle
 
-from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
-                          with_object_type)
+from spacr.database_concurrency import connect as connect_database
+from spacr.database_concurrency import transaction
+
+from ...selection import (
+    OBJECT_KEY_COLUMNS,
+    DataFilter,
+    Selection,
+    with_object_type,
+)
 from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.toggle import Toggle
 
 __all__ = [
     "DB_FILENAME",
@@ -234,6 +235,9 @@ def quote_ident(name: str) -> str:
     Only ever called with a name that has already been matched against
     the live schema; the quoting is belt-and-braces for identifiers that
     are legal but awkward (``cell_channel_1 (raw)``).
+
+    :param name: schema-validated table or column identifier.
+    :returns: identifier surrounded by SQL double quotes.
     """
     return '"' + str(name).replace('"', '""') + '"'
 
@@ -329,6 +333,11 @@ def validate_raw_predicate(text: str) -> str:
     AND well LIKE 'A%'``). We refuse statement separators, comments and
     DDL/DML keywords so it stays a *predicate*; the read-only connection
     plus ``PRAGMA query_only`` guarantee the rest.
+
+    :param text: raw WHERE-clause fragment entered by the user.
+    :returns: stripped predicate after the safety checks.
+    :raises ValueError: when the fragment is empty or contains statement
+        syntax, comments, or a forbidden SQL keyword.
     """
     t = "" if text is None else str(text).strip()
     if not t:
@@ -368,6 +377,10 @@ def column_affinity(decl_type: Optional[str]) -> str:
     REAL, otherwise NUMERIC. Knowing the affinity is what lets
     :func:`coerce_for_column` refuse a value SQLite would otherwise
     store with the wrong type.
+
+    :param decl_type: declared SQLite column type, or ``None``/an empty string
+        when untyped.
+    :returns: ``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``.
     """
     t = str(decl_type or "").upper()
     if "INT" in t:
@@ -399,6 +412,9 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
       else ``str`` (which is exactly what SQLite itself would store).
     * anything declared BLOB → refused; binary is not editable as text.
 
+    :param text: editor value to convert before binding it to SQLite.
+    :param decl_type: declared type of the destination column.
+    :param column: destination column name used in actionable error messages.
     :raises ValueError: when ``text`` cannot be represented in the
         column's type.
     """
@@ -444,6 +460,10 @@ def build_update(table: str, column: str,
     the exact SQL before it runs, and so tests can assert on it without
     a database.
 
+    :param table: schema-validated table to update.
+    :param column: schema-validated column whose value will be replaced.
+    :param key_columns: rowid alias or primary-key columns identifying one row.
+    :returns: parameterized single-cell UPDATE statement.
     :raises EditRefused: when there is no row address at all. An UPDATE
         without a unique key would match on values and could rewrite
         thousands of rows.
@@ -507,7 +527,10 @@ class ReadOnlyDb:
     # -- schema ------------------------------------------------------------
 
     def tables(self, refresh: bool = False) -> List[str]:
-        """Return the user tables + views, alphabetically."""
+        """Return the user tables and views alphabetically.
+
+        :param refresh: bypass the cached schema inventory when true.
+        """
         if self._tables is None or refresh:
             with self._con() as con:
                 rows = self._execute(con,
@@ -522,13 +545,20 @@ class ReadOnlyDb:
 
         This is the gate that keeps identifiers out of the "user input"
         category: a name that isn't in ``sqlite_master`` never reaches SQL.
+
+        :param table: candidate user-table or view name.
+        :returns: ``table`` unchanged after validation.
+        :raises ValueError: when the live schema has no such table or view.
         """
         if table not in self.tables():
             raise ValueError(f"No table named {table!r} in {os.path.basename(self.path)}.")
         return table
 
     def table_info(self, table: str) -> List[tuple]:
-        """Raw ``PRAGMA table_info`` rows for ``table``."""
+        """Return raw ``PRAGMA table_info`` rows for ``table``.
+
+        :param table: validated user-table or view name.
+        """
         self.check_table(table)
         with self._con() as con:
             # PRAGMA takes no bound parameters; `table` is schema-validated
@@ -537,7 +567,10 @@ class ReadOnlyDb:
                 con, f"PRAGMA table_info({quote_ident(table)})").fetchall()
 
     def columns(self, table: str) -> List[str]:
-        """Return the column names of ``table`` in declaration order."""
+        """Return the column names of ``table`` in declaration order.
+
+        :param table: validated user-table or view name.
+        """
         return [r[1] for r in self.table_info(table)]
 
     def column_types(self, table: str) -> Dict[str, str]:
@@ -545,6 +578,8 @@ class ReadOnlyDb:
 
         Cached: the edit path asks for this on every keystroke-committed
         cell, and the schema cannot change under a read-only connection.
+
+        :param table: validated user-table or view name.
         """
         if table not in self._types:
             self._types[table] = {r[1]: str(r[2] or "")
@@ -554,7 +589,13 @@ class ReadOnlyDb:
     def check_columns(self, table: str, columns: Optional[Sequence[str]]) -> List[str]:
         """Return the requested columns, validated against the schema.
 
-        ``None`` means "all of them".
+        ``None`` or an empty sequence means "all of them".
+
+        :param table: validated user-table or view name.
+        :param columns: requested names, or ``None``/an empty sequence for the
+            complete schema.
+        :returns: validated names in requested or declaration order.
+        :raises ValueError: when any requested name is absent.
         """
         real = self.columns(table)
         if columns is None:
@@ -577,6 +618,8 @@ class ReadOnlyDb:
 
         Two things hang off this: paging (keyset needs an ordered key)
         and editing (an UPDATE without a unique address is refused).
+
+        :param table: validated table or view whose identity is inspected.
         """
         if table in self._row_keys:
             return self._row_keys[table]
@@ -624,7 +667,13 @@ class ReadOnlyDb:
 
     def select_sql(self, table: str, columns: Sequence[str],
                    where: Optional[str] = None) -> str:
-        """Build the unbounded SELECT used by the CSV export."""
+        """Build the unbounded SELECT used by the CSV export.
+
+        :param table: schema-validated source table or view.
+        :param columns: schema-validated columns to export.
+        :param where: optional validated predicate without the ``WHERE`` word.
+        :returns: SELECT statement containing no user-formatted values.
+        """
         col_sql = ", ".join(quote_ident(c) for c in columns)
         sql = f"SELECT {col_sql} FROM {quote_ident(table)}"
         if where:
@@ -666,6 +715,16 @@ class ReadOnlyDb:
           progressively slower, which is a real cost and the reason it is
           not the default; it is bounded here because a sort is an explicit
           act on a table the user is looking at.
+
+        :param table: schema-validated source table or view.
+        :param columns: visible data columns to select after the key columns.
+        :param key_columns: stable row-address columns prepended to each row.
+        :param where: optional validated predicate without ``WHERE``.
+        :param after: whether to add the next-page key comparison.
+        :param use_offset: use OFFSET paging when no single key is available.
+        :param order_by: optional ``(column, descending)`` whole-table order.
+        :returns: parameterized SELECT containing a bounded ``LIMIT`` and,
+            when required, ``OFFSET``.
         """
         col_sql = ", ".join(quote_ident(c)
                             for c in list(key_columns) + list(columns))
@@ -706,8 +765,16 @@ class ReadOnlyDb:
 
         :param table: validated user-table name to page through. Its schema
             determines both the returned columns and each row's stable key.
+        :param columns: requested schema columns, or ``None``/an empty
+            sequence for every column.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by predicate placeholders.
+        :param limit: maximum number of rows requested for this chunk.
+        :param after: stable key tuple of the last row already loaded, or
+            ``None`` for the first chunk.
         :param loaded: only used by the ``OFFSET`` fallback for tables
             with no single-column key.
+        :param order_by: optional ``(column, descending)`` whole-table order.
         """
         self.check_table(table)
         cols = self.check_columns(table, columns)
@@ -746,6 +813,8 @@ class ReadOnlyDb:
         gaps — so every caller must label it as one.
 
         ``None`` when the table has no rowid, or is empty.
+
+        :param table: validated table or view to estimate.
         """
         self.check_table(table)
         key_kind, key_cols = self.row_key(table)
@@ -768,6 +837,9 @@ class ReadOnlyDb:
         touches a single row — so a typo costs a parse, not a full scan
         of a 400 000-row measurement table.
 
+        :param table: schema-validated table or view used for name resolution.
+        :param where: predicate fragment for SQLite to parse.
+        :param params: bound values consumed by the predicate placeholders.
         :raises sqlite3.Error: with SQLite's own message (``no such
             column: cell_are``, ``near ">": syntax error``, …).
         """
@@ -782,6 +854,10 @@ class ReadOnlyDb:
 
         This one *is* a full scan — never call it on the path that
         paints the first chunk.
+
+        :param table: schema-validated table or view to count.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by the predicate placeholders.
         """
         self.check_table(table)
         sql = f"SELECT COUNT(*) FROM {quote_ident(table)}"
@@ -801,6 +877,12 @@ class ReadOnlyDb:
         out, so exporting a 400 k-row table costs a constant amount of
         memory.
 
+        :param out_path: destination CSV path; missing parent folders are made.
+        :param table: schema-validated table or view to export.
+        :param columns: selected columns, or ``None`` for every column.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by predicate placeholders.
+        :param chunk: cursor batch size used while streaming rows.
         :returns: number of data rows written (header excluded).
         """
         self.check_table(table)
@@ -869,6 +951,12 @@ class WritableDb:
         4. the UPDATE itself must report ``rowcount == 1``, or the
            transaction is rolled back.
 
+        :param table: real schema table receiving the change.
+        :param column: existing table column whose value will be replaced.
+        :param value: already-coerced value to bind to the UPDATE.
+        :param key_columns: rowid alias or primary-key columns addressing it.
+        :param key_values: bound address values paired with ``key_columns``.
+        :returns: exact parameterized SQL statement that ran.
         :raises EditRefused: when any guard fires — nothing was written.
         :raises sqlite3.Error: when SQLite refuses the write itself
             (constraint violation, read-only file, locked database).
@@ -975,6 +1063,8 @@ class PreviewModel(QAbstractTableModel):
     changes which of them are mapped into the view. Typing in the search
     box therefore never re-queries the database — which is what makes it
     usable on a table with 500 feature columns.
+
+    :param parent: optional Qt owner responsible for the model's lifetime.
     """
 
     def __init__(self, parent=None):
@@ -995,7 +1085,13 @@ class PreviewModel(QAbstractTableModel):
     def set_page(self, columns: Sequence[str], rows: Sequence[Sequence[Any]],
                  row_offset: int = 0,
                  keys: Optional[Sequence[Optional[tuple]]] = None) -> None:
-        """Replace the model contents, keeping the current column search."""
+        """Replace the model contents, keeping the current column search.
+
+        :param columns: schema-order column names represented by every row.
+        :param rows: complete values for the newly loaded page.
+        :param row_offset: zero-based database offset used for row headings.
+        :param keys: stable row addresses, or ``None`` for uneditable rows.
+        """
         self.beginResetModel()
         self._columns = list(columns)
         self._rows = [tuple(r) for r in rows]
@@ -1007,7 +1103,12 @@ class PreviewModel(QAbstractTableModel):
 
     def append_rows(self, rows: Sequence[Sequence[Any]],
                     keys: Optional[Sequence[Optional[tuple]]] = None) -> int:
-        """Add a fetched chunk to the end. Returns how many rows landed."""
+        """Add a fetched chunk to the end and return how many rows landed.
+
+        :param rows: complete schema-order rows to append.
+        :param keys: stable row addresses paired with ``rows``; ``None``
+            supplies an uneditable ``None`` key for every appended row.
+        """
         new = [tuple(r) for r in rows]
         if not new:
             return 0
@@ -1030,19 +1131,32 @@ class PreviewModel(QAbstractTableModel):
         return list(self._rows)
 
     def row_key(self, row: int) -> Optional[tuple]:
-        """The key tuple addressing ``row``, or ``None`` when it has none."""
+        """Return the key tuple addressing ``row``, or ``None``.
+
+        :param row: zero-based model row index.
+        """
         if 0 <= row < len(self._keys):
             return self._keys[row]
         return None
 
     def value(self, row: int, column: str) -> Any:
-        """The stored (unformatted) value at ``row`` / ``column``."""
+        """Return the stored, unformatted value at ``row`` / ``column``.
+
+        :param row: zero-based model row index.
+        :param column: schema column name.
+        """
         if not (0 <= row < len(self._rows)) or column not in self._columns:
             return None
         return self._rows[row][self._columns.index(column)]
 
     def set_value(self, row: int, column: str, value: Any) -> bool:
-        """Write a value back into the in-memory page after a real UPDATE."""
+        """Write a value into the in-memory page after a real UPDATE.
+
+        :param row: zero-based model row index.
+        :param column: schema column whose displayed value changed.
+        :param value: already-coerced value written to the database.
+        :returns: whether the addressed cell exists and was updated.
+        """
         if not (0 <= row < len(self._rows)) or column not in self._columns:
             return False
         col = self._columns.index(column)
@@ -1064,6 +1178,8 @@ class PreviewModel(QAbstractTableModel):
         """Show only columns whose name contains ``text`` (case-insensitive).
 
         An empty string restores every column.
+
+        :param text: case-insensitive substring required in visible names.
         """
         self._filter = "" if text is None else str(text)
         self.beginResetModel()
@@ -1081,17 +1197,31 @@ class PreviewModel(QAbstractTableModel):
     # -- incremental fetching -----------------------------------------------
 
     def set_fetch_hook(self, hook: Optional[Callable[[], Any]]) -> None:
-        """Set what :meth:`fetchMore` calls to ask for the next chunk."""
+        """Set what :meth:`fetchMore` calls to ask for the next chunk.
+
+        :param hook: zero-argument fetch request, or ``None`` to disconnect it.
+        """
         self._fetch_hook = hook
 
     def set_more(self, more: bool) -> None:
-        """Say whether another chunk can be fetched right now."""
+        """Say whether another chunk can be fetched right now.
+
+        :param more: true only while an unfetched chunk remains available.
+        """
         self._more = bool(more)
 
-    def canFetchMore(self, parent=QModelIndex()) -> bool:  # noqa: N802
+    def canFetchMore(self, parent=QModelIndex()) -> bool:  # noqa: N802, B008
+        """Return whether the root model can request another chunk.
+
+        :param parent: Qt parent index; valid child indexes cannot fetch.
+        """
         return (not parent.isValid()) and self._more
 
-    def fetchMore(self, parent=QModelIndex()) -> None:  # noqa: N802
+    def fetchMore(self, parent=QModelIndex()) -> None:  # noqa: N802, B008
+        """Request the next chunk through the configured fetch hook.
+
+        :param parent: Qt parent index; valid child indexes are ignored.
+        """
         if parent.isValid() or not self._more or self._fetch_hook is None:
             return
         self._fetch_hook()
@@ -1100,11 +1230,17 @@ class PreviewModel(QAbstractTableModel):
 
     def set_commit_hook(self,
                         hook: Optional[Callable[[int, str, Any], bool]]) -> None:
-        """Set what :meth:`setData` calls to actually write a cell."""
+        """Set what :meth:`setData` calls to actually write a cell.
+
+        :param hook: ``(row, column, value)`` writer, or ``None`` to disable it.
+        """
         self._commit_hook = hook
 
     def set_editable(self, editable: bool) -> None:
-        """Turn cell editing on or off (and tell the view to repaint flags)."""
+        """Turn cell editing on or off and repaint the item flags.
+
+        :param editable: whether valid cells advertise Qt's editable flag.
+        """
         editable = bool(editable)
         if editable == self._editable:
             return
@@ -1117,19 +1253,36 @@ class PreviewModel(QAbstractTableModel):
 
     # -- QAbstractTableModel ------------------------------------------------
 
-    def rowCount(self, parent=QModelIndex()) -> int:  # noqa: N802
+    def rowCount(self, parent=QModelIndex()) -> int:  # noqa: N802, B008
+        """Return loaded rows for the root model and zero for children.
+
+        :param parent: Qt parent index whose child-row count is requested.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
-    def columnCount(self, parent=QModelIndex()) -> int:  # noqa: N802
+    def columnCount(self, parent=QModelIndex()) -> int:  # noqa: N802, B008
+        """Return visible columns for the root model and zero for children.
+
+        :param parent: Qt parent index whose child-column count is requested.
+        """
         return 0 if parent.isValid() else len(self._visible)
 
     def flags(self, index):
+        """Return Qt item flags for ``index``, including armed editability.
+
+        :param index: model index whose interaction flags are requested.
+        """
         base = super().flags(index)
         if index.isValid() and self._editable:
             base |= Qt.ItemIsEditable
         return base
 
     def data(self, index, role=Qt.DisplayRole):
+        """Return the display, tooltip, or exact editor value for a cell.
+
+        :param index: model index identifying the requested cell.
+        :param role: Qt data role; unsupported roles return ``None``.
+        """
         if not index.isValid() or role not in (Qt.DisplayRole, Qt.ToolTipRole,
                                                Qt.EditRole):
             return None
@@ -1151,6 +1304,13 @@ class PreviewModel(QAbstractTableModel):
         return str(value)
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:  # noqa: N802
+        """Commit an editor value through the guarded screen callback.
+
+        :param index: valid editable model index.
+        :param value: raw editor value passed to the commit hook.
+        :param role: Qt role, which must be :attr:`Qt.EditRole`.
+        :returns: whether the commit hook accepted and wrote the change.
+        """
         if (role != Qt.EditRole or not index.isValid() or not self._editable
                 or self._commit_hook is None):
             return False
@@ -1161,6 +1321,12 @@ class PreviewModel(QAbstractTableModel):
         return bool(self._commit_hook(index.row(), column, value))
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):  # noqa: N802
+        """Return a column name or one-based absolute row number.
+
+        :param section: zero-based visible column or row-header section.
+        :param orientation: horizontal for names, vertical for row numbers.
+        :param role: Qt data role; only :attr:`Qt.DisplayRole` is served.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -1176,6 +1342,10 @@ class PreviewModel(QAbstractTableModel):
         loaded, so this never sorts a partial result and calls it the
         table's order. Keys travel with their rows, so an edit after a
         sort still addresses the row it looks like it addresses.
+
+        :param column: zero-based visible column to sort by.
+        :param order: Qt sort order, defaulting to
+            :attr:`Qt.AscendingOrder`.
         """
         if not (0 <= column < len(self._visible)) or not self._rows:
             return
@@ -1207,6 +1377,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     shared filter is a lens over the page in memory, and the row-count label
     keeps saying how much of the table that page is.
 
+    :param parent: optional Qt owner responsible for the screen's lifetime.
     :param threaded: run queries on a worker thread (the default). Tests
         pass ``False`` to get deterministic, synchronous behaviour.
     :ivar last_error: text of the most recent failure, ``""`` when the
@@ -1685,7 +1856,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         self.select_table(current.text())
 
     def select_table(self, name: str) -> bool:
-        """Make ``name`` the previewed table; resets the load and the filter."""
+        """Make ``name`` the previewed table and reset load and filter state.
+
+        :param name: live table or view name from the open database.
+        :returns: whether the schema was read and the table load was started.
+        """
         if self._db is None:
             self._set_status("No database open.", error=True)
             return False
@@ -1729,6 +1904,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         Purely a view operation — no re-query — so it stays instant on a
         table with hundreds of feature columns. An empty string restores
         every column.
+
+        :param text: case-insensitive substring required in visible names.
         """
         if self._col_search.text() != (text or ""):
             self._col_search.setText(text or "")
@@ -2163,6 +2340,11 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._report_table_status()
 
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Apply a newly published shared filter to the loaded rows.
+
+        :param data_filter: current process-wide filter; the linked-view state
+            already owns it, so this callback only refreshes row visibility.
+        """
         self._apply_linked_filter()
 
     def hidden_rows(self) -> List[int]:
@@ -2182,6 +2364,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         Empty — not an error — for a table with no object identity in it
         (``png_list`` keyed on a path, a summary, a view). A shared selection
         does not identify those rows.
+
+        :param selection: shared object identity selection to match.
         """
         if not selection.is_active or not self._model.rowCount():
             return []
@@ -2201,6 +2385,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def select_rows(self, rows: Sequence[int]) -> List[int]:
         """Select ``rows`` as a user would, publishing them to every view.
 
+        :param rows: zero-based model row indices requested by the caller.
         :returns: the rows that were in range and got selected.
         """
         model = self._view.selectionModel()
@@ -2252,6 +2437,8 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Nothing is hidden: rows the selection does not name stay exactly
         where they are. Only the shared *filter* removes rows from view.
+
+        :param selection: process-wide object selection published elsewhere.
         """
         model = self._view.selectionModel()
         if model is None or not self._model.columnCount():
@@ -2321,7 +2508,13 @@ class DbBrowserScreen(LinkedView, QWidget):
         return where, params, label
 
     def set_filter(self, column: str, op: str, value: Any = "") -> bool:
-        """Programmatic equivalent of filling in the filter row + Apply."""
+        """Programmatic equivalent of filling in the filter row and applying.
+
+        :param column: live schema column to filter.
+        :param op: structured operator label from :data:`OPERATORS`.
+        :param value: raw filter value; operators such as ``is null`` ignore it.
+        :returns: whether validation succeeded and the reload was started.
+        """
         self._raw_toggle.setChecked(False)
         idx = self._filter_col.findText(column)
         if idx < 0:
@@ -2331,13 +2524,20 @@ class DbBrowserScreen(LinkedView, QWidget):
             return False
         self._filter_col.setCurrentIndex(idx)
         op_idx = self._filter_op.findText(op)
-        if op_idx >= 0:
-            self._filter_op.setCurrentIndex(op_idx)
+        if op_idx < 0:
+            self._set_status(
+                f"Filter error: Unknown operator {op!r}.", error=True)
+            return False
+        self._filter_op.setCurrentIndex(op_idx)
         self._filter_value.setText("" if value is None else str(value))
         return self.apply_filter()
 
     def set_raw_filter(self, predicate: str) -> bool:
-        """Programmatic equivalent of the raw-SQL box + Apply."""
+        """Programmatic equivalent of the raw-SQL box and Apply.
+
+        :param predicate: lone read-only WHERE-clause fragment.
+        :returns: whether validation succeeded and the reload was started.
+        """
         self._raw_toggle.setChecked(True)
         self._raw_edit.setText(predicate or "")
         return self.apply_filter()
@@ -2455,7 +2655,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def disable_edit_mode(self, quiet: bool = False) -> None:
-        """Drop back to read-only. Safe to call when already read-only."""
+        """Drop back to read-only. Safe to call when already read-only.
+
+        :param quiet: suppress the read-only status message when true.
+        """
         was_on = self._edit_mode
         self._edit_mode = False
         self._edit_path = ""
@@ -2472,6 +2675,12 @@ class DbBrowserScreen(LinkedView, QWidget):
         This is the only path in the screen that can write, and it is
         also what :meth:`PreviewModel.setData` calls when a cell editor
         closes.
+
+        :param row: zero-based loaded model row to address.
+        :param column: schema column whose value the user edited.
+        :param text: raw editor value to coerce against the declared type.
+        :returns: whether exactly one database row was updated or already held
+            the requested value.
         """
         if not self._edit_mode:
             self._set_status(
@@ -2602,6 +2811,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         Runs off the GUI thread and streams the result, so a
         400 000-row export neither freezes the window nor loads the table
         into memory. Reports inline on failure and returns ``False``.
+
+        :param out_path: destination CSV path selected by the user.
+        :returns: whether the export job was accepted for execution.
         """
         if self._db is None or not self._table:
             self._set_status("Open a database and pick a table first.",
@@ -2903,6 +3115,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         are dropped — nothing has been spawned for them.
 
         The shared link outlives this screen, so let go of it too.
+
+        :param event: Qt close event forwarded after worker cleanup.
         """
         try:
             self.unlink_selection()

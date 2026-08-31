@@ -356,8 +356,6 @@ API_DOC_ALIASES: Mapping[str, str] = {
         "spacr.qt.dnd.DropHandler.can_accept",
     "spacr.qt.dnd_handlers.TrainingRunsDropHandler.error_message":
         "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed":
-        "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
     "spacr.qt.widgets.gate_spec.PolygonGate.scaled":
         "spacr.qt.widgets.gate_spec.Gate.scaled",
     "spacr.qt.widgets.gate_spec.PolygonGate.translated":
@@ -368,20 +366,10 @@ API_DOC_ALIASES: Mapping[str, str] = {
         "spacr.qt.widgets.gate_spec.Gate.centre",
     "spacr.qt.widgets.gate_spec.RectGate.range_filters":
         "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.gate_spec.RectGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.RectGate.translated":
-        "spacr.qt.widgets.gate_spec.Gate.translated",
-    "spacr.qt.widgets.gate_spec.RectGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
     "spacr.qt.widgets.gate_spec.ThresholdGate.centre":
         "spacr.qt.widgets.gate_spec.Gate.centre",
     "spacr.qt.widgets.gate_spec.ThresholdGate.range_filters":
         "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
     "spacr.qt.widgets.pca_view.PCAScoresCanvas.render_now":
         "spacr.qt.widgets.graph_builder.GraphCanvas.render_now",
     "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_filter_changed":
