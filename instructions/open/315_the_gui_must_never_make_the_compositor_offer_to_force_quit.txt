@@ -105,36 +105,41 @@ the `offscreen` the test suite sets.
 3. STILL OPEN
 -------------
 
-3a. THE DOCK AND THE TITLE BAR FLICKER when the spaCR menu opens in the
-    top-left corner, and again whenever a tooltip appears. Both are
-    popups, and both began when the session moved to xcb -- which is
-    also when the backdrop started drawing at all.
+3a. THE DOCK AND THE HEADER FLICKER -- FIXED, and the first diagnosis
+    in this file was WRONG. It said "it is not the backdrop", on the
+    strength of a test that paused the backdrop and saw the repaints
+    stay. That test was broken: `pause()` sets a flag the draw path
+    checks, it does not stop the timer, so the canvas kept ticking and
+    nothing was actually paused. `set_animating(False)` stops it, and
+    with the animation genuinely still the burst goes from 238 painted
+    widgets to 5 for a menu, and 90 to 0 for a tooltip.
 
-    MEASURED, and the two obvious explanations are both WRONG:
+    A popup composited over the native GL child makes the widgets around
+    it repaint once. That burst is harmless over a STILL surface -- it
+    redraws identical pixels -- and visible over a moving one. So the
+    backdrop holds still while a popup is up.
 
-    * It is not the backdrop. Opening the menu costs 105 widget repaints
-      (QLabel 68, QWidget 25, AppTile 12) on top of the backdrop's own
-      90 frames. Pausing the backdrop removes its 90 and leaves the 105
-      exactly as they were. So pausing the ambient widget under a popup
-      -- the first thing that came to mind, and what this file used to
-      recommend -- would not have fixed it.
+    HOW IT ASKS MATTERS AS MUCH AS THAT IT ASKS. The first
+    implementation was an application-wide event filter watching Show
+    and Hide. It worked, and it was thrown away: measured at 13,646
+    Python calls per second while a module opens, and it put 130 ms back
+    onto the GUI-thread block that 1d had just removed (1380-1424 ms
+    became 1473-1606). It also broke a timing-sensitive fractal test by
+    leaking across tests in one worker, since a filter on the
+    application outlives the window that installed it.
 
-    * It is not a restyle from our own code. Instrumenting
-      `setStyleSheet`, `QStyle.unpolish` and `setProperty` across the
-      whole widget tree while the menu opens records ZERO calls.
+    `spacr/qt/widgets/popup_state.py` replaces it with two C++ calls
+    asked once per animation frame -- 120 a second against thirteen
+    thousand. Both halves are needed: a menu is an `activePopupWidget`,
+    a tooltip is NOT (it is its own Qt::ToolTip window) and only
+    `QToolTip.isVisible()` reports it. Asking only the first would have
+    left the tooltip flicker, which was reported alongside the menu.
+    The module is at 100% branch coverage.
 
-    What is left is Qt repainting the region the popup covers, once, and
-    that being VISIBLE -- which points at the surface underneath being
-    translucent rather than at the repaint being wrong. The page-surface
-    sweep (`_clear_page_surfaces`) deliberately makes those containers
-    transparent so the backdrop shows through, so that is where to look
-    next.
-
-    Note the user also describes 'the bar on top of the window with
-    maximize, minimize, close'. The main window is frameless by design
-    (`FramelessWindowHint`, set because they asked for it on 2026-08-23),
-    so establish which window that actually is before changing anything:
-    it may be a dialog rather than the main window.
+    Still worth knowing: the user also describes 'the bar on top of the
+    window with maximize, minimize, close'. The main window is frameless
+    by design, so that bar is probably a dialog rather than the main
+    window; establish which before changing anything there.
 
 3b. A BLACK BOX IN REGRESSION, above the Run button and below the
     inputs, on the same row as the adjacent button. Reported twice.

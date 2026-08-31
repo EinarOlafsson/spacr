@@ -105,6 +105,8 @@ DEFAULT_SPEED_PERIOD: Final[float] = 41.0
 _VARIABLE_SPEED_PERIOD: Final[float] = DEFAULT_SPEED_PERIOD
 
 
+from .popup_state import a_popup_is_on_screen
+
 class Pointer:
     """Where the pointer is, and whether it is pushing.
 
@@ -1845,6 +1847,12 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
         def _on_timer(self, _event) -> None:
             if self._paused or self._dead:
+                return
+            # HOLD STILL UNDER A POPUP. A menu or a tooltip composited over
+            # this native GL surface makes the widgets around it repaint,
+            # which is the flicker of the dock and the header. The last
+            # frame stays up; only the clock stops moving.
+            if a_popup_is_on_screen():
                 return
             try:
                 self._update_uniforms(time.perf_counter() - self._started)
