@@ -682,6 +682,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Motilitetsanalys", "Motilitätsassay", "Ensayo de motilidad",
         "运动性分析", "Ensaio de motilidade", "गतिशीलता परीक्षण",
         "운동성 분석", "Hreyfanleikapróf", "Test de motilité"),
+    # The Import module (Format Converter and External Masks fold into it)
+    # and the Tools band. Both are single words with a settled equivalent
+    # in every one of the nine, which is why they are translated here
+    # rather than left for the review pass with the longer captions.
+    "Import": _row(
+        "Importera", "Importieren", "Importar", "导入", "Importar",
+        "आयात", "가져오기", "Flytja inn", "Importer"),
+    "Tools": _row(
+        "Verktyg", "Werkzeuge", "Herramientas", "工具", "Ferramentas",
+        "उपकरण", "도구", "Verkfæri", "Outils"),
     "Measure": _row(
         "Mätning", "Messen", "Medición", "测量", "Medição",
         "मापन", "측정", "Mæling", "Mesure"),
