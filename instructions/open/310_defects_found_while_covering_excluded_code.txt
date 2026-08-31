@@ -2278,3 +2278,28 @@ Guard: tests/test_i18n_reference_sources.py, 7 tests. The three that carry the
 argument -- the isolation proof, the child's own sys.path scrub, and the
 internally-inconsistent verdict -- were mutation-checked; the first version of
 the scrub test passed with the scrub disabled and was replaced.
+
+
+ENTRY 30, RESOLVED FOR THE `spacr` ENVIRONMENT 2026-08-31
+------------------------------------------------------------------------------
+
+Half of this entry is now closed by repair rather than by argument.
+
+  * The `spacr` env's editable install was reinstalled against
+    /home/carruthers/Documents/repo/spacr, and the duplicate checkout it had
+    been pointing at (/media/carruthers/mnt3/claude/repo/spacr) was deleted on
+    the maintainer's instruction after being shown to carry zero commits that
+    were not already on origin/nightly. Its one uncommitted edit was preserved
+    -- see instruction 314's dated entry. `doctor` now reports 0 hazards, and
+    `import spacr` from a neutral cwd resolves to the one tree.
+
+  * STILL OPEN, and it is an environment repair rather than a code change: the
+    base anaconda env (py3.9) still has site-packages/spacr holding only
+    `resources/` with no __init__.py, so `spacr` resolves there as a NAMESPACE
+    package and every submodule appears missing. Nothing in this repository can
+    fix that; it needs the directory removed from that environment. Until then,
+    do not run spaCR tooling from base.
+
+The lesson the deletion confirms rather than the fix: the duplicate had zero
+unique commits, so the lineage that had been silently answering imports for an
+unknown length of time was contributing nothing but the ambiguity.
