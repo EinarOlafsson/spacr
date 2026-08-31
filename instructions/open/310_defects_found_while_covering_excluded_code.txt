@@ -2088,3 +2088,11 @@ loudly when the library changes underneath it. The agent that found this
 did exactly that: its test installs a proxy of the shape the sweep is
 written against, so the contract is now pinned even though the sweep does
 not yet meet it.
+
+FIXED 2026-08-30. The sweep now resolves ``weakref.WeakMethod`` and
+Matplotlib ``_StrongRef`` wrappers without executing unknown callable objects,
+then disconnects only callbacks bound to the dying canvas or toolbar. Its test
+now registers callbacks through the real Matplotlib registry and proves that
+canvas and toolbar callbacks leave while an unrelated callback survives; the
+old synthetic ``.func`` proxy that made the dead implementation appear to work
+is gone.
