@@ -1,0 +1,881 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "label": "spacr.layers.Blending.check#1",
+      "source": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "source_sha256": "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
+      "translation": "混合模式名称。在依据 :attr:`Blending.ALL` 验证之前，会规范化首尾空白和字母大小写。"
+    },
+    {
+      "context": "Signed displacement in canvas-row pixels.",
+      "label": "spacr.layers.Canvas.panned#1",
+      "source": "Signed displacement in canvas-row pixels.",
+      "source_sha256": "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+      "translation": "以画布行像素为单位的有符号位移。"
+    },
+    {
+      "context": "Signed displacement in canvas-column pixels.",
+      "label": "spacr.layers.Canvas.panned#2",
+      "source": "Signed displacement in canvas-column pixels.",
+      "source_sha256": "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023",
+      "translation": "以画布列像素为单位的有符号位移。"
+    },
+    {
+      "context": "Mapping containing world coordinates for both axes of this canvas image layer.",
+      "label": "spacr.layers.Canvas.pixel_at#2",
+      "source": "Mapping containing world coordinates for both axes of this canvas plane.",
+      "source_sha256": "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746",
+      "translation": "包含此画布平面两个轴的世界坐标的映射。"
+    },
+    {
+      "context": "New canvas height in pixels, coerced to at least one.",
+      "label": "spacr.layers.Canvas.resized#2",
+      "source": "New canvas height in pixels, coerced to at least one.",
+      "source_sha256": "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+      "translation": "以像素为单位的新画布高度；最小强制为 1。"
+    },
+    {
+      "context": "New canvas width in pixels, coerced to at least one.",
+      "label": "spacr.layers.Canvas.resized#3",
+      "source": "New canvas width in pixels, coerced to at least one.",
+      "source_sha256": "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e",
+      "translation": "以像素为单位的新画布宽度；最小强制为 1。"
+    },
+    {
+      "context": "Fractional canvas-row coordinate.",
+      "label": "spacr.layers.Canvas.world_at#2",
+      "source": "Fractional canvas-row coordinate.",
+      "source_sha256": "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+      "translation": "可为小数的画布行坐标。"
+    },
+    {
+      "context": "Fractional canvas-column coordinate.",
+      "label": "spacr.layers.Canvas.world_at#3",
+      "source": "Fractional canvas-column coordinate.",
+      "source_sha256": "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39",
+      "translation": "可为小数的画布列坐标。"
+    },
+    {
+      "context": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "label": "spacr.layers.Canvas.zoomed#2",
+      "source": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "source_sha256": "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485",
+      "translation": "有限正放大倍数；大于 1 的值放大，小于 1 的值缩小。"
+    },
+    {
+      "context": "Unique panel identifier, coerced to a string.",
+      "label": "spacr.layers.CanvasLink.add#2",
+      "source": "Unique panel identifier, coerced to a string.",
+      "source_sha256": "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+      "translation": "唯一的面板标识符，将被转换为字符串。"
+    },
+    {
+      "context": "Canvas that defines this panel's image layer, size and world window.",
+      "label": "spacr.layers.CanvasLink.add#3",
+      "source": "Canvas that defines this panel's plane, size and world window.",
+      "source_sha256": "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe",
+      "translation": "定义此面板的平面、尺寸和世界坐标窗口的画布。"
+    },
+    {
+      "context": "Identifier of an existing panel.",
+      "label": "spacr.layers.CanvasLink.is_locked#1",
+      "source": "Identifier of an existing panel.",
+      "source_sha256": "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321",
+      "translation": "现有面板的标识符。"
+    },
+    {
+      "context": "Identifier of the panel to align and lock.",
+      "label": "spacr.layers.CanvasLink.lock#1",
+      "source": "Identifier of the panel to align and lock.",
+      "source_sha256": "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a",
+      "translation": "要对齐并锁定的面板标识符。"
+    },
+    {
+      "context": "Signed row displacement in pixels of the driving panel.",
+      "label": "spacr.layers.CanvasLink.pan#2",
+      "source": "Signed row displacement in pixels of the driving panel.",
+      "source_sha256": "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+      "translation": "驱动面板以像素为单位的有符号行位移。"
+    },
+    {
+      "context": "Signed column displacement in pixels of the driving panel.",
+      "label": "spacr.layers.CanvasLink.pan#3",
+      "source": "Signed column displacement in pixels of the driving panel.",
+      "source_sha256": "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4",
+      "translation": "驱动面板以像素为单位的有符号列位移。"
+    },
+    {
+      "context": "Identifier of an existing panel.",
+      "label": "spacr.layers.CanvasLink.remove#1",
+      "source": "Identifier of an existing panel.",
+      "source_sha256": "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321",
+      "translation": "现有面板的标识符。"
+    },
+    {
+      "context": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "label": "spacr.layers.CanvasLink.reset#1",
+      "source": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "source_sha256": "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f",
+      "translation": ":meth:`Canvas.covering` 接受的图层栈、图层或范围映射。"
+    },
+    {
+      "context": "Identifier of the existing panel whose widget resized.",
+      "label": "spacr.layers.CanvasLink.resize#2",
+      "source": "Identifier of the existing panel whose widget resized.",
+      "source_sha256": "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+      "translation": "控件尺寸已发生变化的现有面板标识符。"
+    },
+    {
+      "context": "New panel height in pixels, coerced to at least one.",
+      "label": "spacr.layers.CanvasLink.resize#3",
+      "source": "New panel height in pixels, coerced to at least one.",
+      "source_sha256": "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+      "translation": "以像素为单位的新面板高度；最小强制为 1。"
+    },
+    {
+      "context": "New panel width in pixels, coerced to at least one.",
+      "label": "spacr.layers.CanvasLink.resize#4",
+      "source": "New panel width in pixels, coerced to at least one.",
+      "source_sha256": "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0",
+      "translation": "以像素为单位的新面板宽度；最小强制为 1。"
+    },
+    {
+      "context": "Identifier of the existing panel to replace.",
+      "label": "spacr.layers.CanvasLink.set#1",
+      "source": "Identifier of the existing panel to replace.",
+      "source_sha256": "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+      "translation": "要替换的现有面板标识符。"
+    },
+    {
+      "context": "Replacement canvas whose world window locked peers adopt.",
+      "label": "spacr.layers.CanvasLink.set#2",
+      "source": "Replacement canvas whose world window locked peers adopt.",
+      "source_sha256": "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04",
+      "translation": "用于替换的画布；已锁定的同级面板会采用其世界坐标窗口。"
+    },
+    {
+      "context": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "label": "spacr.layers.CanvasLink.subscribe#2",
+      "source": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "source_sha256": "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4",
+      "translation": "接收已更改面板标识符的可调用对象；以强引用保留。"
+    },
+    {
+      "context": "Identifier of the panel to detach from linked movement.",
+      "label": "spacr.layers.CanvasLink.unlock#1",
+      "source": "Identifier of the panel to detach from linked movement.",
+      "source_sha256": "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d",
+      "translation": "要从联动中分离的面板标识符。"
+    },
+    {
+      "context": "Previously subscribed callback to remove.",
+      "label": "spacr.layers.CanvasLink.unsubscribe#1",
+      "source": "Previously subscribed callback to remove.",
+      "source_sha256": "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013",
+      "translation": "要移除的、先前已订阅的回调。"
+    },
+    {
+      "context": "Positive finite magnification factor passed to each affected canvas.",
+      "label": "spacr.layers.CanvasLink.zoom#2",
+      "source": "Positive finite magnification factor passed to each affected canvas.",
+      "source_sha256": "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345",
+      "translation": "传递给每个受影响画布的有限正放大倍数。"
+    },
+    {
+      "context": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "label": "spacr.layers.Colormap#2",
+      "source": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "source_sha256": "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+      "translation": "与颜色渐变一起存储的显示和查找名称；将被转换为字符串。"
+    },
+    {
+      "context": "Ordered sequence of at least two colour specifications accepted by :func:`to_rgba`; the ramp interpolates them in order.",
+      "label": "spacr.layers.Colormap#3",
+      "source": "Ordered sequence of at least two colour specifications accepted by :func:`to_rgba`; the ramp interpolates them in order.",
+      "source_sha256": "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260",
+      "translation": ":func:`to_rgba` 接受的至少两个颜色规范的有序序列；渐变按顺序在这些颜色之间插值。"
+    },
+    {
+      "context": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "label": "spacr.layers.Colormap.map#1",
+      "source": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "source_sha256": "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9",
+      "translation": "要进行插值的数值标量或类数组值；0–1 范围外的值会被裁剪到渐变最近的端点。"
+    },
+    {
+      "context": "Iterable of integer-like object labels to attach to this microscope field of view identity.",
+      "label": "spacr.layers.FieldKey.frame#1",
+      "source": "Iterable of integer-like object labels to attach to this field identity.",
+      "source_sha256": "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a",
+      "translation": "要附加到此显微镜视野标识中的类整数对象标签的可迭代对象。"
+    },
+    {
+      "context": "Measurement-row mapping from which the required identity columns are extracted.",
+      "label": "spacr.layers.FieldKey.from_row#2",
+      "source": "Measurement-row mapping from which the required identity columns are extracted.",
+      "source_sha256": "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e",
+      "translation": "从中提取必需标识列的测量行映射。"
+    },
+    {
+      "context": "Integer-like object label to encode for this microscope field of view.",
+      "label": "spacr.layers.FieldKey.object_key#1",
+      "source": "Integer-like object label to encode for this field.",
+      "source_sha256": "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12",
+      "translation": "要为此显微镜视野编码的类整数对象标签。"
+    },
+    {
+      "context": "Iterable of integer-like object labels to encode.",
+      "label": "spacr.layers.FieldKey.object_keys#1",
+      "source": "Iterable of integer-like object labels to encode.",
+      "source_sha256": "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07",
+      "translation": "要编码的类整数对象标签的可迭代对象。"
+    },
+    {
+      "context": "Zero-based channel index accepted by normal sequence indexing.",
+      "label": "spacr.layers.ImageLayer.channel_data#1",
+      "source": "Zero-based channel index accepted by normal sequence indexing.",
+      "source_sha256": "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+      "translation": "遵循常规序列索引规则的从零开始的通道索引。"
+    },
+    {
+      "context": "Whether one channel participates in rendering.",
+      "label": "spacr.layers.ImageLayer.channel_is_visible#0",
+      "source": "Whether one channel participates in rendering.",
+      "source_sha256": "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+      "translation": "一个通道是否参与渲染。"
+    },
+    {
+      "context": "Zero-based channel index accepted by normal sequence indexing.",
+      "label": "spacr.layers.ImageLayer.channel_is_visible#1",
+      "source": "Zero-based channel index accepted by normal sequence indexing.",
+      "source_sha256": "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+      "translation": "遵循常规序列索引规则的从零开始的通道索引。"
+    },
+    {
+      "context": "Set whether one channel participates in rendering.",
+      "label": "spacr.layers.ImageLayer.set_channel_visible#0",
+      "source": "Set whether one channel participates in rendering.",
+      "source_sha256": "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+      "translation": "设置一个通道是否参与渲染。"
+    },
+    {
+      "context": "Zero-based channel index accepted by normal sequence indexing.",
+      "label": "spacr.layers.ImageLayer.set_channel_visible#1",
+      "source": "Zero-based channel index accepted by normal sequence indexing.",
+      "source_sha256": "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+      "translation": "遵循常规序列索引规则的从零开始的通道索引。"
+    },
+    {
+      "context": "Truth value for the channel's new visibility state.",
+      "label": "spacr.layers.ImageLayer.set_channel_visible#2",
+      "source": "Truth value for the channel's new visibility state.",
+      "source_sha256": "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c",
+      "translation": "通道新可见状态的布尔值。"
+    },
+    {
+      "context": "Colormap or colour specification accepted by :func:`colormap`.",
+      "label": "spacr.layers.ImageLayer.set_colormap#1",
+      "source": "Colormap or colour specification accepted by :func:`colormap`.",
+      "source_sha256": "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918",
+      "translation": ":func:`colormap` 接受的颜色映射或颜色规范。"
+    },
+    {
+      "context": "Lower intensity bound in the image data channel's data units.",
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#1",
+      "source": "Lower intensity bound in the channel's data units.",
+      "source_sha256": "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+      "translation": "以该图像通道数据单位表示的强度下限。"
+    },
+    {
+      "context": "Upper intensity bound in the image data channel's data units; it must be greater than ``low``.",
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#2",
+      "source": "Upper intensity bound in the channel's data units; it must be greater than ``low``.",
+      "source_sha256": "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
+      "translation": "以该图像通道数据单位表示的强度上限；必须大于 ``low``。"
+    },
+    {
+      "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "label": "spacr.layers.LabelsLayer#2",
+      "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
+      "translation": "二维或三维类数组分割标签；值必须是整数或精确的整数值。"
+    },
+    {
+      "context": "Mapping from axis names to the brush centre in world coordinates; omitted spacing axes are evaluated at zero.",
+      "label": "spacr.layers.LabelsLayer.brush_index#3",
+      "source": "Mapping from axis names to the brush centre in world coordinates; omitted spacing axes are evaluated at zero.",
+      "source_sha256": "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
+      "translation": "从轴名称到世界坐标中画笔中心的映射；省略的间距轴按零计算。"
+    },
+    {
+      "context": "Mapping from axis names to a point in world coordinates.",
+      "label": "spacr.layers.LabelsLayer.label_at_world#1",
+      "source": "Mapping from axis names to a point in world coordinates.",
+      "source_sha256": "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc",
+      "translation": "从轴名称到世界坐标点的映射。"
+    },
+    {
+      "context": "Mapping from axis names to the world point to identify.",
+      "label": "spacr.layers.LabelsLayer.object_key_at_world#2",
+      "source": "Mapping from axis names to the world point to identify.",
+      "source_sha256": "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5",
+      "translation": "从轴名称到待识别世界坐标点的映射。"
+    },
+    {
+      "context": "Mapping from axis names to the brush centre in world coordinates.",
+      "label": "spacr.layers.LabelsLayer.paint#2",
+      "source": "Mapping from axis names to the brush centre in world coordinates.",
+      "source_sha256": "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+      "translation": "从轴名称到世界坐标中画笔中心的映射。"
+    },
+    {
+      "context": "Integer-like label to paint.",
+      "label": "spacr.layers.LabelsLayer.paint#3",
+      "source": "Integer-like label to paint.",
+      "source_sha256": "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
+      "translation": "要绘制的类整数标签。"
+    },
+    {
+      "context": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "label": "spacr.layers.LabelsLayer.set_labels_at#2",
+      "source": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "source_sha256": "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+      "translation": "每个数据轴对应一个整数索引数组，适用于 NumPy 高级索引。"
+    },
+    {
+      "context": "Integer-like label to write at the selected elements.",
+      "label": "spacr.layers.LabelsLayer.set_labels_at#3",
+      "source": "Integer-like label to write at the selected elements.",
+      "source_sha256": "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09",
+      "translation": "要写入所选元素的类整数标签。"
+    },
+    {
+      "context": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "label": "spacr.layers.Layer#3",
+      "source": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "source_sha256": "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29",
+      "translation": "非空图层标识符；图层进入 :class:`LayerStack` 时，名称会被处理为唯一名称。"
+    },
+    {
+      "context": "World window and output grid on which to draw the layer.",
+      "label": "spacr.layers.Layer.render#2",
+      "source": "World window and output grid on which to draw the layer.",
+      "source_sha256": "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181",
+      "translation": "用于绘制图层的世界坐标窗口和输出网格。"
+    },
+    {
+      "context": "Mapping from world-axis names to coordinates; omitted spacing axes are evaluated at world coordinate zero.",
+      "label": "spacr.layers.Layer.to_data#1",
+      "source": "Mapping from world-axis names to coordinates; omitted spacing axes are evaluated at world coordinate zero.",
+      "source_sha256": "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e",
+      "translation": "从世界轴名称到坐标的映射；省略的间距轴按世界坐标零计算。"
+    },
+    {
+      "context": "Fractional data coordinate in this layer's spacing-axis order.",
+      "label": "spacr.layers.Layer.to_world#1",
+      "source": "Fractional data coordinate in this layer's spacing-axis order.",
+      "source_sha256": "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd",
+      "translation": "按此图层间距轴顺序排列的可为小数的数据坐标。"
+    },
+    {
+      "context": "Construct and append an image layer.",
+      "label": "spacr.layers.LayerStack.add_image#0",
+      "source": "Construct and append an image layer.",
+      "source_sha256": "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+      "translation": "构造并追加一个图像图层。"
+    },
+    {
+      "context": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "label": "spacr.layers.LayerStack.add_image#1",
+      "source": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "source_sha256": "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca",
+      "translation": "传递给 :class:`ImageLayer` 的类数组强度数据。"
+    },
+    {
+      "context": "Construct and append a labels layer.",
+      "label": "spacr.layers.LayerStack.add_labels#0",
+      "source": "Construct and append a labels layer.",
+      "source_sha256": "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+      "translation": "构造并追加一个标签图层。"
+    },
+    {
+      "context": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "label": "spacr.layers.LayerStack.add_labels#1",
+      "source": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "source_sha256": "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d",
+      "translation": "传递给 :class:`LabelsLayer` 的类数组分割标签。"
+    },
+    {
+      "context": "Layer instance to attach to this stack.",
+      "label": "spacr.layers.LayerStack.append#1",
+      "source": "Layer instance to attach to this stack.",
+      "source_sha256": "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645",
+      "translation": "要附加到此图层栈的图层实例。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to resolve.",
+      "label": "spacr.layers.LayerStack.get#1",
+      "source": "Layer object, unique layer name or integer stack index to resolve.",
+      "source_sha256": "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
+      "translation": "要解析的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to resolve.",
+      "label": "spacr.layers.LayerStack.index#1",
+      "source": "Layer object, unique layer name or integer stack index to resolve.",
+      "source_sha256": "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
+      "translation": "要解析的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Requested insertion position, clamped between zero and the current stack length.",
+      "label": "spacr.layers.LayerStack.insert#1",
+      "source": "Requested insertion position, clamped between zero and the current stack length.",
+      "source_sha256": "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+      "translation": "请求的插入位置，限制在零到当前图层栈长度之间。"
+    },
+    {
+      "context": "Layer instance to attach to this stack.",
+      "label": "spacr.layers.LayerStack.insert#2",
+      "source": "Layer instance to attach to this stack.",
+      "source_sha256": "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645",
+      "translation": "要附加到此图层栈的图层实例。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to lower.",
+      "label": "spacr.layers.LayerStack.lower_layer#1",
+      "source": "Layer object, unique layer name or integer stack index to lower.",
+      "source_sha256": "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a",
+      "translation": "要下移的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to move.",
+      "label": "spacr.layers.LayerStack.move#2",
+      "source": "Layer object, unique layer name or integer stack index to move.",
+      "source_sha256": "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+      "translation": "要移动的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Requested destination index, clamped to the stack after the source has been removed.",
+      "label": "spacr.layers.LayerStack.move#3",
+      "source": "Requested destination index, clamped to the stack after the source has been removed.",
+      "source_sha256": "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2",
+      "translation": "请求的目标索引；移除源图层后，将其限制在图层栈的有效范围内。"
+    },
+    {
+      "context": "Canvas whose displayed stack is being queried.",
+      "label": "spacr.layers.LayerStack.pick#2",
+      "source": "Canvas whose displayed stack is being queried.",
+      "source_sha256": "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+      "translation": "要查询其显示图层栈的画布。"
+    },
+    {
+      "context": "Fractional canvas-row coordinate of the query pixel.",
+      "label": "spacr.layers.LayerStack.pick#3",
+      "source": "Fractional canvas-row coordinate of the query pixel.",
+      "source_sha256": "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+      "translation": "查询像素的可为小数的画布行坐标。"
+    },
+    {
+      "context": "Fractional canvas-column coordinate of the query pixel.",
+      "label": "spacr.layers.LayerStack.pick#4",
+      "source": "Fractional canvas-column coordinate of the query pixel.",
+      "source_sha256": "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c",
+      "translation": "查询像素的可为小数的画布列坐标。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to raise.",
+      "label": "spacr.layers.LayerStack.raise_layer#1",
+      "source": "Layer object, unique layer name or integer stack index to raise.",
+      "source_sha256": "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a",
+      "translation": "要上移的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to remove.",
+      "label": "spacr.layers.LayerStack.remove#1",
+      "source": "Layer object, unique layer name or integer stack index to remove.",
+      "source_sha256": "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f",
+      "translation": "要移除的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to rename.",
+      "label": "spacr.layers.LayerStack.rename#1",
+      "source": "Layer object, unique layer name or integer stack index to rename.",
+      "source_sha256": "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+      "translation": "要重命名的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Requested non-blank name; a numeric suffix is added if it collides with another layer.",
+      "label": "spacr.layers.LayerStack.rename#2",
+      "source": "Requested non-blank name; a numeric suffix is added if it collides with another layer.",
+      "source_sha256": "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b",
+      "translation": "请求的非空名称；若与其他图层重名，则添加数字后缀。"
+    },
+    {
+      "context": "World window and output grid on which to composite the stack.",
+      "label": "spacr.layers.LayerStack.render#1",
+      "source": "World window and output grid on which to composite the stack.",
+      "source_sha256": "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218",
+      "translation": "用于合成图层栈的世界坐标窗口和输出网格。"
+    },
+    {
+      "context": "World window and output grid on which to composite the stack.",
+      "label": "spacr.layers.LayerStack.render_rgba#2",
+      "source": "World window and output grid on which to composite the stack.",
+      "source_sha256": "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218",
+      "translation": "用于合成图层栈的世界坐标窗口和输出网格。"
+    },
+    {
+      "context": "World window and output grid on which to composite the stack.",
+      "label": "spacr.layers.LayerStack.render_uint8#1",
+      "source": "World window and output grid on which to composite the stack.",
+      "source_sha256": "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218",
+      "translation": "用于合成图层栈的世界坐标窗口和输出网格。"
+    },
+    {
+      "context": "Layer object, unique layer name, integer stack index or ``None`` to clear selection.",
+      "label": "spacr.layers.LayerStack.select#1",
+      "source": "Layer object, unique layer name, integer stack index or ``None`` to clear selection.",
+      "source_sha256": "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7",
+      "translation": "用于清除选择的图层对象、唯一图层名称、整数图层栈索引或 ``None``。"
+    },
+    {
+      "context": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "label": "spacr.layers.LayerStack.subscribe#2",
+      "source": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "source_sha256": "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157",
+      "translation": "接收每个 :class:`LayerEvent` 的可调用对象；以强引用保留。"
+    },
+    {
+      "context": "Move one layer to the back of the stack.",
+      "label": "spacr.layers.LayerStack.to_bottom#0",
+      "source": "Move one layer to the back of the stack.",
+      "source_sha256": "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+      "translation": "将一个图层移到图层栈的后端。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to move.",
+      "label": "spacr.layers.LayerStack.to_bottom#1",
+      "source": "Layer object, unique layer name or integer stack index to move.",
+      "source_sha256": "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+      "translation": "要移动的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Move one layer to the front of the stack.",
+      "label": "spacr.layers.LayerStack.to_top#0",
+      "source": "Move one layer to the front of the stack.",
+      "source_sha256": "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+      "translation": "将一个图层移到图层栈的前端。"
+    },
+    {
+      "context": "Layer object, unique layer name or integer stack index to move.",
+      "label": "spacr.layers.LayerStack.to_top#1",
+      "source": "Layer object, unique layer name or integer stack index to move.",
+      "source_sha256": "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+      "translation": "要移动的图层对象、唯一图层名称或整数图层栈索引。"
+    },
+    {
+      "context": "Previously subscribed event callback to remove.",
+      "label": "spacr.layers.LayerStack.unsubscribe#1",
+      "source": "Previously subscribed event callback to remove.",
+      "source_sha256": "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900",
+      "translation": "要移除的、先前已订阅的事件回调。"
+    },
+    {
+      "context": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "label": "spacr.layers.OrthoViews#7",
+      "source": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "source_sha256": "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+      "translation": "俯视画布，其行和列分别跨越体数据的第二轴和第三轴。"
+    },
+    {
+      "context": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "label": "spacr.layers.OrthoViews#8",
+      "source": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "source_sha256": "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+      "translation": "下方侧视画布，其行跨越深度，列与 :attr:`xy` 对齐。"
+    },
+    {
+      "context": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "label": "spacr.layers.OrthoViews#9",
+      "source": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "source_sha256": "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+      "translation": "侧视画布，其行与 :attr:`xy` 对齐，列跨越深度。"
+    },
+    {
+      "context": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "label": "spacr.layers.OrthoViews#10",
+      "source": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "source_sha256": "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08",
+      "translation": "从世界轴名称到共享十字准线坐标的映射。"
+    },
+    {
+      "context": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "label": "spacr.layers.OrthoViews.at_pixel#2",
+      "source": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "source_sha256": "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+      "translation": "面板键：``\"xy\"``、``\"zx\"`` 或 ``\"yz\"``。"
+    },
+    {
+      "context": "Fractional row coordinate within the selected panel.",
+      "label": "spacr.layers.OrthoViews.at_pixel#3",
+      "source": "Fractional row coordinate within the selected panel.",
+      "source_sha256": "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+      "translation": "所选面板内可为小数的行坐标。"
+    },
+    {
+      "context": "Fractional column coordinate within the selected panel.",
+      "label": "spacr.layers.OrthoViews.at_pixel#4",
+      "source": "Fractional column coordinate within the selected panel.",
+      "source_sha256": "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2",
+      "translation": "所选面板内可为小数的列坐标。"
+    },
+    {
+      "context": "World axis whose extent and voxel step define the count.",
+      "label": "spacr.layers.OrthoViews.n_slices#1",
+      "source": "World axis whose extent and voxel step define the count.",
+      "source_sha256": "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b",
+      "translation": "其范围和体素步长共同确定切片数的世界轴。"
+    },
+    {
+      "context": "Layer stack to render through each orthogonal canvas.",
+      "label": "spacr.layers.OrthoViews.render#1",
+      "source": "Layer stack to render through each orthogonal canvas.",
+      "source_sha256": "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1",
+      "translation": "要通过每个正交画布渲染的图层栈。"
+    },
+    {
+      "context": "New top-panel width in pixels; derived panel dimensions remain aligned to the same world scale.",
+      "label": "spacr.layers.OrthoViews.resized#1",
+      "source": "New top-panel width in pixels; derived panel dimensions remain aligned to the same world scale.",
+      "source_sha256": "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7",
+      "translation": "以像素为单位的新顶部面板宽度；派生面板的尺寸仍与相同世界坐标比例对齐。"
+    },
+    {
+      "context": "World axis for which to return bounds and voxel step.",
+      "label": "spacr.layers.OrthoViews.slider#2",
+      "source": "World axis for which to return bounds and voxel step.",
+      "source_sha256": "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9",
+      "translation": "要返回其边界和体素步长的世界轴。"
+    },
+    {
+      "context": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "label": "spacr.layers.OrthoViews.zoomed#2",
+      "source": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "source_sha256": "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa",
+      "translation": "应用于每个面板的有限正放大倍数；大于 1 的值会放大。"
+    },
+    {
+      "context": "Data-coordinate sequence with one value per layer axis.",
+      "label": "spacr.layers.PointsLayer.add#1",
+      "source": "Data-coordinate sequence with one value per layer axis.",
+      "source_sha256": "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353",
+      "translation": "按每个图层轴各含一个值排列的数据坐标序列。"
+    },
+    {
+      "context": "Mapping from axis names to world coordinates; omitted layer axes are evaluated at world coordinate zero.",
+      "label": "spacr.layers.PointsLayer.add_world#1",
+      "source": "Mapping from axis names to world coordinates; omitted layer axes are evaluated at world coordinate zero.",
+      "source_sha256": "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85",
+      "translation": "从轴名称到世界坐标的映射；省略的图层轴按世界坐标零计算。"
+    },
+    {
+      "context": "Mapping from axis names to the query point in world coordinates; omitted layer axes are evaluated at zero.",
+      "label": "spacr.layers.PointsLayer.nearest#1",
+      "source": "Mapping from axis names to the query point in world coordinates; omitted layer axes are evaluated at zero.",
+      "source_sha256": "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339",
+      "translation": "从轴名称到世界坐标查询点的映射；省略的图层轴按零计算。"
+    },
+    {
+      "context": "Zero-based index of the point to remove; negative indices are rejected.",
+      "label": "spacr.layers.PointsLayer.remove#1",
+      "source": "Zero-based index of the point to remove; negative indices are rejected.",
+      "source_sha256": "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8",
+      "translation": "要移除点的从零开始的索引；不接受负索引。"
+    },
+    {
+      "context": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "label": "spacr.layers.PointsLayer.set_size#1",
+      "source": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "source_sha256": "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9",
+      "translation": "应用于所有点的标量直径，或每个点各含一个世界单位直径的类数组序列。"
+    },
+    {
+      "context": ":class:`Shape` with the same dimensionality as this layer.",
+      "label": "spacr.layers.ShapesLayer.add#1",
+      "source": ":class:`Shape` with the same dimensionality as this layer.",
+      "source_sha256": "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862",
+      "translation": "与此图层维数相同的 :class:`Shape`。"
+    },
+    {
+      "context": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "label": "spacr.layers.ShapesLayer.add_ellipse#0",
+      "source": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "source_sha256": "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+      "translation": "在由两个对角定义的框内追加一个轴对齐椭圆。"
+    },
+    {
+      "context": "First bounding-box corner in data coordinates, one value per axis.",
+      "label": "spacr.layers.ShapesLayer.add_ellipse#1",
+      "source": "First bounding-box corner in data coordinates, one value per axis.",
+      "source_sha256": "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+      "translation": "数据坐标中的第一个边界框角点，每个轴一个值。"
+    },
+    {
+      "context": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "label": "spacr.layers.ShapesLayer.add_ellipse#2",
+      "source": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "source_sha256": "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c",
+      "translation": "数据坐标中的另一个对角边界框角点，每个轴一个值。"
+    },
+    {
+      "context": "Append an open path.",
+      "label": "spacr.layers.ShapesLayer.add_path#0",
+      "source": "Append an open path.",
+      "source_sha256": "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+      "translation": "追加一条开放路径。"
+    },
+    {
+      "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least two rows.",
+      "label": "spacr.layers.ShapesLayer.add_path#1",
+      "source": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least two rows.",
+      "source_sha256": "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb",
+      "translation": "数据坐标中的类数组顶点，形状为 ``(M, ndim)``，且至少有两行。"
+    },
+    {
+      "context": "Append a closed polygon.",
+      "label": "spacr.layers.ShapesLayer.add_polygon#0",
+      "source": "Append a closed polygon.",
+      "source_sha256": "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+      "translation": "追加一个闭合多边形。"
+    },
+    {
+      "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least three rows.",
+      "label": "spacr.layers.ShapesLayer.add_polygon#1",
+      "source": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least three rows.",
+      "source_sha256": "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206",
+      "translation": "数据坐标中的类数组顶点，形状为 ``(M, ndim)``，且至少有三行。"
+    },
+    {
+      "context": "Append an axis-aligned rectangle from opposite corners.",
+      "label": "spacr.layers.ShapesLayer.add_rectangle#0",
+      "source": "Append an axis-aligned rectangle from opposite corners.",
+      "source_sha256": "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+      "translation": "根据两个对角追加一个轴对齐矩形。"
+    },
+    {
+      "context": "First corner in data coordinates, one value per axis.",
+      "label": "spacr.layers.ShapesLayer.add_rectangle#1",
+      "source": "First corner in data coordinates, one value per axis.",
+      "source_sha256": "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+      "translation": "数据坐标中的第一个角点，每个轴一个值。"
+    },
+    {
+      "context": "Opposite corner in data coordinates, one value per axis.",
+      "label": "spacr.layers.ShapesLayer.add_rectangle#2",
+      "source": "Opposite corner in data coordinates, one value per axis.",
+      "source_sha256": "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af",
+      "translation": "数据坐标中的另一个对角点，每个轴一个值。"
+    },
+    {
+      "context": "World image layer and pixel grid on which to rasterise the closed shapes.",
+      "label": "spacr.layers.ShapesLayer.mask#4",
+      "source": "World plane and pixel grid on which to rasterise the closed shapes.",
+      "source_sha256": "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4",
+      "translation": "用于将闭合形状栅格化的世界坐标平面和像素网格。"
+    },
+    {
+      "context": "Integer index of the shape to remove; normal Python negative indexing is accepted.",
+      "label": "spacr.layers.ShapesLayer.remove#1",
+      "source": "Integer index of the shape to remove; normal Python negative indexing is accepted.",
+      "source_sha256": "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83",
+      "translation": "要移除形状的整数索引；接受常规 Python 负索引。"
+    },
+    {
+      "context": "Axis name to locate in :attr:`axes`.",
+      "label": "spacr.layers.Spacing.axis_index#1",
+      "source": "Axis name to locate in :attr:`axes`.",
+      "source_sha256": "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
+      "translation": "要在 :attr:`axes` 中查找的轴名称。"
+    },
+    {
+      "context": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "label": "spacr.layers.Spacing.data_from_map#2",
+      "source": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "source_sha256": "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136",
+      "translation": "从轴名称到世界坐标的映射。未命名的间距轴按世界坐标零计算。"
+    },
+    {
+      "context": "Array shape in :attr:`axes` order, with one size per spacing axis.",
+      "label": "spacr.layers.Spacing.extent#2",
+      "source": "Array shape in :attr:`axes` order, with one size per spacing axis.",
+      "source_sha256": "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e",
+      "translation": "按 :attr:`axes` 顺序排列的数组形状，每个间距轴对应一个尺寸。"
+    },
+    {
+      "context": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "label": "spacr.layers.Spacing.from_map#2",
+      "source": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "source_sha256": "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427",
+      "translation": "从轴名称到非零有限体素大小的映射；映射的迭代顺序将成为数组轴顺序。"
+    },
+    {
+      "context": "Whether this spacing contains ``axis``.",
+      "label": "spacr.layers.Spacing.has_axis#0",
+      "source": "Whether this spacing contains ``axis``.",
+      "source_sha256": "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+      "translation": "此间距是否包含 ``axis``。"
+    },
+    {
+      "context": "Axis name to test after coercion to a string.",
+      "label": "spacr.layers.Spacing.has_axis#1",
+      "source": "Axis name to test after coercion to a string.",
+      "source_sha256": "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac",
+      "translation": "转换为字符串后要测试的轴名称。"
+    },
+    {
+      "context": "World coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "label": "spacr.layers.Spacing.to_data#1",
+      "source": "World coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "source_sha256": "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0",
+      "translation": "按 :attr:`axes` 顺序排列的世界坐标，每个间距轴一个条目。"
+    },
+    {
+      "context": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "label": "spacr.layers.Spacing.to_world#1",
+      "source": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "source_sha256": "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9",
+      "translation": "按 :attr:`axes` 顺序排列的可为小数的数据坐标，每个间距轴一个条目。"
+    },
+    {
+      "context": "Fractional data coordinate in :attr:`axes` order.",
+      "label": "spacr.layers.Spacing.world_map#1",
+      "source": "Fractional data coordinate in :attr:`axes` order.",
+      "source_sha256": "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783",
+      "translation": "按 :attr:`axes` 顺序排列的可为小数的数据坐标。"
+    },
+    {
+      "context": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "label": "spacr.layers.colormap#3",
+      "source": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "source_sha256": "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
+      "translation": "现有 :class:`Colormap`、内置颜色映射名称或 matplotlib 颜色映射名称，或者用于构建从黑色到指定颜色渐变的颜色规范。"
+    },
+    {
+      "context": "Integer-like object label. Label 0 is reserved for the black background colour.",
+      "label": "spacr.layers.label_color#3",
+      "source": "Integer-like object label. Label 0 is reserved for the black background colour.",
+      "source_sha256": "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208",
+      "translation": "类整数对象标签。标签 0 保留用于黑色背景。"
+    },
+    {
+      "context": "Array-like integer labels; the output preserves their shape and appends one RGB axis.",
+      "label": "spacr.layers.label_colors#2",
+      "source": "Array-like integer labels; the output preserves their shape and appends one RGB axis.",
+      "source_sha256": "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e",
+      "translation": "类数组整数标签；输出保留其形状，并追加一个 RGB 轴。"
+    }
+  ],
+  "schema": 1
+}

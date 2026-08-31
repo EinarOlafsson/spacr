@@ -1,0 +1,461 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.layers.Blending.check#1",
+      "source_sha256": "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
+      "source": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "context": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "translation": "Nombre del modo de mezcla. Los espacios iniciales y finales y el uso de mayúsculas y minúsculas se normalizan antes de validar contra :attr:`Blending.ALL`."
+    },
+    {
+      "label": "spacr.layers.Canvas.panned#1",
+      "source_sha256": "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+      "source": "Signed displacement in canvas-row pixels.",
+      "context": "Signed displacement in canvas-row pixels.",
+      "translation": "Desplazamiento con signo en píxeles a lo largo de las filas del lienzo."
+    },
+    {
+      "label": "spacr.layers.Canvas.panned#2",
+      "source_sha256": "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023",
+      "source": "Signed displacement in canvas-column pixels.",
+      "context": "Signed displacement in canvas-column pixels.",
+      "translation": "Desplazamiento con signo en píxeles a lo largo de las columnas del lienzo."
+    },
+    {
+      "label": "spacr.layers.Canvas.pixel_at#2",
+      "source_sha256": "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746",
+      "source": "Mapping containing world coordinates for both axes of this canvas plane.",
+      "context": "Mapping containing world coordinates for both axes of this canvas image layer.",
+      "translation": "Mapeo que contiene las coordenadas mundiales de ambos ejes de este plano del lienzo."
+    },
+    {
+      "label": "spacr.layers.Canvas.world_at#2",
+      "source_sha256": "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+      "source": "Fractional canvas-row coordinate.",
+      "context": "Fractional canvas-row coordinate.",
+      "translation": "Coordenada fraccionaria a lo largo de las filas del lienzo."
+    },
+    {
+      "label": "spacr.layers.Canvas.world_at#3",
+      "source_sha256": "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39",
+      "source": "Fractional canvas-column coordinate.",
+      "context": "Fractional canvas-column coordinate.",
+      "translation": "Coordenada fraccionaria a lo largo de las columnas del lienzo."
+    },
+    {
+      "label": "spacr.layers.Canvas.zoomed#2",
+      "source_sha256": "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485",
+      "source": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "context": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "translation": "Factor de aumento positivo y finito; los valores mayores que uno acercan la imagen y los menores que uno la alejan."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.add#3",
+      "source_sha256": "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe",
+      "source": "Canvas that defines this panel's plane, size and world window.",
+      "context": "Canvas that defines this panel's image layer, size and world window.",
+      "translation": "Lienzo que define el plano, el tamaño y la ventana de coordenadas mundiales de este panel."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.pan#2",
+      "source_sha256": "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+      "source": "Signed row displacement in pixels of the driving panel.",
+      "context": "Signed row displacement in pixels of the driving panel.",
+      "translation": "Desplazamiento de fila con signo, medido en píxeles del panel controlador."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.pan#3",
+      "source_sha256": "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4",
+      "source": "Signed column displacement in pixels of the driving panel.",
+      "context": "Signed column displacement in pixels of the driving panel.",
+      "translation": "Desplazamiento de columna con signo, medido en píxeles del panel controlador."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.reset#1",
+      "source_sha256": "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f",
+      "source": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "context": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "translation": "Pila de capas, capa o mapeo de extensión aceptado por :meth:`Canvas.covering`."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.resize#2",
+      "source_sha256": "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+      "source": "Identifier of the existing panel whose widget resized.",
+      "context": "Identifier of the existing panel whose widget resized.",
+      "translation": "Identificador del panel existente cuyo componente cambió de tamaño."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.set#2",
+      "source_sha256": "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04",
+      "source": "Replacement canvas whose world window locked peers adopt.",
+      "context": "Replacement canvas whose world window locked peers adopt.",
+      "translation": "Lienzo de reemplazo cuya ventana de coordenadas mundiales adoptan los paneles bloqueados."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.subscribe#2",
+      "source_sha256": "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4",
+      "source": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "context": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "translation": "Función invocable que recibe el identificador del panel que cambió; se conserva mediante una referencia fuerte."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.unsubscribe#1",
+      "source_sha256": "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013",
+      "source": "Previously subscribed callback to remove.",
+      "context": "Previously subscribed callback to remove.",
+      "translation": "Función de retorno previamente suscrita que se va a eliminar."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.zoom#2",
+      "source_sha256": "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345",
+      "source": "Positive finite magnification factor passed to each affected canvas.",
+      "context": "Positive finite magnification factor passed to each affected canvas.",
+      "translation": "Factor de aumento positivo y finito que se pasa a cada lienzo afectado."
+    },
+    {
+      "label": "spacr.layers.Colormap#2",
+      "source_sha256": "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+      "source": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "context": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "translation": "Nombre de visualización y búsqueda almacenado con la rampa de color; se convierte en una cadena."
+    },
+    {
+      "label": "spacr.layers.Colormap.map#1",
+      "source_sha256": "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9",
+      "source": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "context": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "translation": "Escalar numérico o valores similares a una matriz que se interpolarán; los valores fuera de 0–1 se limitan al extremo más cercano de la rampa."
+    },
+    {
+      "label": "spacr.layers.FieldKey.frame#1",
+      "source_sha256": "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a",
+      "source": "Iterable of integer-like object labels to attach to this field identity.",
+      "context": "Iterable of integer-like object labels to attach to this microscope field of view identity.",
+      "translation": "Iterable de etiquetas de objeto similares a enteros que se asociarán a esta identidad de campo."
+    },
+    {
+      "label": "spacr.layers.FieldKey.from_row#2",
+      "source_sha256": "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e",
+      "source": "Measurement-row mapping from which the required identity columns are extracted.",
+      "context": "Measurement-row mapping from which the required identity columns are extracted.",
+      "translation": "Mapeo de una fila de medición del que se extraen las columnas de identidad requeridas."
+    },
+    {
+      "label": "spacr.layers.FieldKey.object_key#1",
+      "source_sha256": "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12",
+      "source": "Integer-like object label to encode for this field.",
+      "context": "Integer-like object label to encode for this microscope field of view.",
+      "translation": "Etiqueta de objeto similar a un entero que se codificará para este campo."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_channel_visible#0",
+      "source_sha256": "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+      "source": "Set whether one channel participates in rendering.",
+      "context": "Set whether one channel participates in rendering.",
+      "translation": "Establece si un canal participa en la renderización."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#1",
+      "source_sha256": "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+      "source": "Lower intensity bound in the channel's data units.",
+      "context": "Lower intensity bound in the image data channel's data units.",
+      "translation": "Límite inferior de intensidad en las unidades de datos del canal."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#2",
+      "source_sha256": "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
+      "source": "Upper intensity bound in the channel's data units; it must be greater than ``low``.",
+      "context": "Upper intensity bound in the image data channel's data units; it must be greater than ``low``.",
+      "translation": "Límite superior de intensidad en las unidades de datos del canal; debe ser mayor que ``low``."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer#2",
+      "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
+      "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "translation": "Etiquetas de segmentación bidimensionales o tridimensionales similares a matrices; los valores deben ser enteros o representar exactamente números enteros."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.object_key_at_world#2",
+      "source_sha256": "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5",
+      "source": "Mapping from axis names to the world point to identify.",
+      "context": "Mapping from axis names to the world point to identify.",
+      "translation": "Mapeo de nombres de ejes al punto de coordenadas mundiales que se va a identificar."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.set_labels_at#2",
+      "source_sha256": "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+      "source": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "context": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "translation": "Una matriz de índices enteros por eje de datos, adecuada para la indexación avanzada de NumPy."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.set_labels_at#3",
+      "source_sha256": "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09",
+      "source": "Integer-like label to write at the selected elements.",
+      "context": "Integer-like label to write at the selected elements.",
+      "translation": "Etiqueta similar a un entero que se escribirá en los elementos seleccionados."
+    },
+    {
+      "label": "spacr.layers.Layer#3",
+      "source_sha256": "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29",
+      "source": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "context": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "translation": "Identificador de capa no vacío; los nombres se hacen únicos cuando la capa se añade a una :class:`LayerStack`."
+    },
+    {
+      "label": "spacr.layers.Layer.to_world#1",
+      "source_sha256": "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd",
+      "source": "Fractional data coordinate in this layer's spacing-axis order.",
+      "context": "Fractional data coordinate in this layer's spacing-axis order.",
+      "translation": "Coordenada de datos fraccionaria según el orden de los ejes de espaciado de esta capa."
+    },
+    {
+      "label": "spacr.layers.LayerStack.add_image#1",
+      "source_sha256": "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca",
+      "source": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "context": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "translation": "Datos de intensidad similares a una matriz que se pasan a :class:`ImageLayer`."
+    },
+    {
+      "label": "spacr.layers.LayerStack.add_labels#1",
+      "source_sha256": "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d",
+      "source": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "context": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "translation": "Etiquetas de segmentación similares a una matriz que se pasan a :class:`LabelsLayer`."
+    },
+    {
+      "label": "spacr.layers.LayerStack.append#1",
+      "source_sha256": "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645",
+      "source": "Layer instance to attach to this stack.",
+      "context": "Layer instance to attach to this stack.",
+      "translation": "Instancia de capa que se añadirá a esta pila."
+    },
+    {
+      "label": "spacr.layers.LayerStack.lower_layer#1",
+      "source_sha256": "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a",
+      "source": "Layer object, unique layer name or integer stack index to lower.",
+      "context": "Layer object, unique layer name or integer stack index to lower.",
+      "translation": "Objeto de capa, nombre de capa único o índice entero de la pila correspondiente a la capa que se va a bajar."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#2",
+      "source_sha256": "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+      "source": "Canvas whose displayed stack is being queried.",
+      "context": "Canvas whose displayed stack is being queried.",
+      "translation": "Lienzo cuya pila mostrada se consulta."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#3",
+      "source_sha256": "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+      "source": "Fractional canvas-row coordinate of the query pixel.",
+      "context": "Fractional canvas-row coordinate of the query pixel.",
+      "translation": "Coordenada fraccionaria de la fila del lienzo correspondiente al píxel de consulta."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#4",
+      "source_sha256": "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c",
+      "source": "Fractional canvas-column coordinate of the query pixel.",
+      "context": "Fractional canvas-column coordinate of the query pixel.",
+      "translation": "Coordenada fraccionaria de la columna del lienzo correspondiente al píxel de consulta."
+    },
+    {
+      "label": "spacr.layers.LayerStack.render#1",
+      "source_sha256": "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218",
+      "source": "World window and output grid on which to composite the stack.",
+      "context": "World window and output grid on which to composite the stack.",
+      "translation": "Ventana de coordenadas mundiales y cuadrícula de salida en las que se compone la pila."
+    },
+    {
+      "label": "spacr.layers.LayerStack.subscribe#2",
+      "source_sha256": "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157",
+      "source": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "context": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "translation": "Función invocable que recibe cada :class:`LayerEvent`; se conserva mediante una referencia fuerte."
+    },
+    {
+      "label": "spacr.layers.LayerStack.to_bottom#0",
+      "source_sha256": "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+      "source": "Move one layer to the back of the stack.",
+      "context": "Move one layer to the back of the stack.",
+      "translation": "Mueve una capa al fondo de la pila."
+    },
+    {
+      "label": "spacr.layers.LayerStack.unsubscribe#1",
+      "source_sha256": "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900",
+      "source": "Previously subscribed event callback to remove.",
+      "context": "Previously subscribed event callback to remove.",
+      "translation": "Función de retorno de eventos previamente suscrita que se va a eliminar."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#7",
+      "source_sha256": "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+      "source": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "context": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "translation": "Lienzo de la vista superior cuyas filas y columnas abarcan los ejes segundo y tercero del volumen."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#8",
+      "source_sha256": "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+      "source": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "context": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "translation": "Lienzo de la vista lateral inferior cuyas filas abarcan la profundidad y cuyas columnas se alinean con :attr:`xy`."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#9",
+      "source_sha256": "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+      "source": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "context": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "translation": "Lienzo de la vista lateral cuyas filas se alinean con :attr:`xy` y cuyas columnas abarcan la profundidad."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#10",
+      "source_sha256": "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08",
+      "source": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "context": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "translation": "Mapeo de los nombres de los ejes mundiales a las coordenadas de la retícula compartida."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#2",
+      "source_sha256": "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+      "source": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "context": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "translation": "Clave del panel: ``\"xy\"``, ``\"zx\"`` o ``\"yz\"``."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#3",
+      "source_sha256": "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+      "source": "Fractional row coordinate within the selected panel.",
+      "context": "Fractional row coordinate within the selected panel.",
+      "translation": "Coordenada fraccionaria de fila dentro del panel seleccionado."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#4",
+      "source_sha256": "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2",
+      "source": "Fractional column coordinate within the selected panel.",
+      "context": "Fractional column coordinate within the selected panel.",
+      "translation": "Coordenada fraccionaria de columna dentro del panel seleccionado."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.render#1",
+      "source_sha256": "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1",
+      "source": "Layer stack to render through each orthogonal canvas.",
+      "context": "Layer stack to render through each orthogonal canvas.",
+      "translation": "Pila de capas que se renderizará en cada lienzo ortogonal."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.slider#2",
+      "source_sha256": "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9",
+      "source": "World axis for which to return bounds and voxel step.",
+      "context": "World axis for which to return bounds and voxel step.",
+      "translation": "Eje mundial para el cual se devuelven los límites y el paso de vóxel."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.zoomed#2",
+      "source_sha256": "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa",
+      "source": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "context": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "translation": "Factor de aumento positivo y finito que se aplica a cada panel; los valores mayores que uno acercan la imagen."
+    },
+    {
+      "label": "spacr.layers.PointsLayer.set_size#1",
+      "source_sha256": "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9",
+      "source": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "context": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "translation": "Diámetro escalar que se aplica a cada punto, o una secuencia similar a una matriz con un diámetro en unidades mundiales por punto."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#0",
+      "source_sha256": "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+      "source": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "context": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "translation": "Añade una elipse alineada con los ejes dentro de un cuadro definido por esquinas opuestas."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#1",
+      "source_sha256": "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+      "source": "First bounding-box corner in data coordinates, one value per axis.",
+      "context": "First bounding-box corner in data coordinates, one value per axis.",
+      "translation": "Primera esquina del cuadro delimitador en coordenadas de datos, un valor por eje."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#2",
+      "source_sha256": "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c",
+      "source": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "context": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "translation": "Esquina opuesta del cuadro delimitador en coordenadas de datos, un valor por eje."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_path#0",
+      "source_sha256": "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+      "source": "Append an open path.",
+      "context": "Append an open path.",
+      "translation": "Añade una trayectoria abierta."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.mask#4",
+      "source_sha256": "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4",
+      "source": "World plane and pixel grid on which to rasterise the closed shapes.",
+      "context": "World image layer and pixel grid on which to rasterise the closed shapes.",
+      "translation": "Plano de coordenadas mundiales y cuadrícula de píxeles sobre los que se rasterizan las formas cerradas."
+    },
+    {
+      "label": "spacr.layers.Spacing.data_from_map#2",
+      "source_sha256": "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136",
+      "source": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "context": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "translation": "Mapeo de nombres de ejes a coordenadas mundiales. Los ejes de espaciado que no se especifiquen se evalúan en la coordenada mundial cero."
+    },
+    {
+      "label": "spacr.layers.Spacing.from_map#2",
+      "source_sha256": "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427",
+      "source": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "context": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "translation": "Mapeo del nombre del eje a un tamaño de vóxel finito distinto de cero; el orden de iteración del mapeo se convierte en el orden de los ejes de la matriz."
+    },
+    {
+      "label": "spacr.layers.Spacing.has_axis#1",
+      "source_sha256": "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac",
+      "source": "Axis name to test after coercion to a string.",
+      "context": "Axis name to test after coercion to a string.",
+      "translation": "Nombre del eje que se probará después de convertirlo en una cadena."
+    },
+    {
+      "label": "spacr.layers.Spacing.to_world#1",
+      "source_sha256": "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9",
+      "source": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "context": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "translation": "Coordenada de datos fraccionaria en el orden de :attr:`axes`, con una entrada por eje de espaciado."
+    },
+    {
+      "label": "spacr.layers.Spacing.world_map#1",
+      "source_sha256": "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783",
+      "source": "Fractional data coordinate in :attr:`axes` order.",
+      "context": "Fractional data coordinate in :attr:`axes` order.",
+      "translation": "Coordenada de datos fraccionaria en el orden de :attr:`axes`."
+    },
+    {
+      "label": "spacr.layers.colormap#3",
+      "source_sha256": "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
+      "source": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "context": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "translation": ":class:`Colormap` existente, nombre de un mapa de colores integrado o de matplotlib, o especificación de color a partir de la cual se crea una rampa de negro al color."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.unlock#1",
+      "source_sha256": "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d",
+      "source": "Identifier of the panel to detach from linked movement.",
+      "context": "Identifier of the panel to detach from linked movement.",
+      "translation": "Identificador del panel que se separará del movimiento vinculado."
+    },
+    {
+      "label": "spacr.layers.label_color#3",
+      "source_sha256": "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208",
+      "source": "Integer-like object label. Label 0 is reserved for the black background colour.",
+      "context": "Integer-like object label. Label 0 is reserved for the black background colour.",
+      "translation": "Etiqueta de objeto similar a un entero. La etiqueta 0 está reservada para el color de fondo negro."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.qt.app.MainWindow.eventFilter#0",
+      "source": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "context": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "source_sha256": "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+      "translation": "Trata os gestos de arrastar e clicar duas vezes na barra de menus de uma janela sem moldura."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.eventFilter#1",
+      "source": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "context": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "source_sha256": "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+      "translation": "Durante o encerramento, a barra de menus do Qt pode ser invalidada enquanto ainda há eventos na fila. Este filtro retorna ``False`` em vez de permitir que essa condição escape pelo limite de retorno de chamada do PySide."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.eventFilter#2",
+      "source": "Qt object receiving the event.",
+      "context": "Qt object receiving the event.",
+      "source_sha256": "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+      "translation": "Objeto Qt que recebe o evento."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.eventFilter#3",
+      "source": "Qt event delivered to the main window's filter.",
+      "context": "Qt event delivered to the main window's filter.",
+      "source_sha256": "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+      "translation": "Evento Qt entregue ao filtro da janela principal."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.eventFilter#4",
+      "source": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "context": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "source_sha256": "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a",
+      "translation": "``True`` quando um gesto do mouse na barra de menus é consumido; caso contrário, ``False``."
+    }
+  ]
+}

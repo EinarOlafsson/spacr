@@ -29853,12 +29853,14 @@
     "spacr.layers.Blending.check": {
       "source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ],
-      "source_sha256": "21bb1e2a0c770536dd1f525c7dfdbbc83cb543b21435da282b6a21748b92b490",
-      "text": "믹스 이름을 정상화하고 확인합니다.\n\n:raises LayerError: 알려지지 않은 모드에서 - 침묵으로 다시 흐르는 타이포는 아무도 볼 수없는 조합 버그가 될 것입니다.",
+      "source_sha256": "96ce0cbec8e88a264f3e24405c72a9e5d927ea871c82f2189283c3d3b1ede2d0",
+      "text": "믹스 이름을 정상화하고 확인합니다.\n\n:param mode: 혼합 모드 이름입니다. :attr:`Blending.ALL`을 기준으로 검증하기 전에 앞뒤 공백과 대소문자를 정규화합니다.\n:raises LayerError: 알려지지 않은 모드에서 - 침묵으로 다시 흐르는 타이포는 아무도 볼 수없는 조합 버그가 될 것입니다.",
       "translation_source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ]
     },
@@ -29942,36 +29944,46 @@
     },
     "spacr.layers.Canvas.panned": {
       "source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ],
-      "source_sha256": "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
-      "text": "캔버스는 ``(d_row, d_column)`` 캔버스 픽셀로 이동합니다.",
+      "source_sha256": "9c0f1688eb9ed5fb65c6da5c8217e54b644062cb27400d3249984ff5ac9e94ca",
+      "text": "캔버스는 ``(d_row, d_column)`` 캔버스 픽셀로 이동합니다.\n\n:param d_row: 캔버스 행 픽셀 단위의 부호 있는 변위입니다.\n:param d_column: 캔버스 열 픽셀 단위의 부호 있는 변위입니다.",
       "translation_source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ]
     },
     "spacr.layers.Canvas.pixel_at": {
       "source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746"
       ],
-      "source_sha256": "246f4a13bddc9f55d861fd4a2a41de798fd900b5be933aaa2b0f068a3e9dc3f0",
-      "text": "(분열) 캔버스 픽셀 세계 포인트가 떨어집니다.\n\n:meth:`world_at`의 반대, 그리고 이유는 같은 세계에있는 점층과 라벨 레이어가 같은 픽셀에 땅을 조정합니다 : 그들은 모두 이것을 통해 배치되며, 자신의 라인 지표를 통해 배치되지 않습니다.",
+      "source_sha256": "056971ed788048626de9f4d77c17da1e63ec7bede4a9bbe0ebcb3947ca9a5b59",
+      "text": "(분열) 캔버스 픽셀 세계 포인트가 떨어집니다.\n\n:meth:`world_at`의 반대, 그리고 이유는 같은 세계에있는 점층과 라벨 레이어가 같은 픽셀에 땅을 조정합니다 : 그들은 모두 이것을 통해 배치되며, 자신의 라인 지표를 통해 배치되지 않습니다.\n\n:param world: 이 캔버스 평면의 두 축에 대한 세계 좌표가 들어 있는 매핑입니다.",
       "translation_source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "50bbcaa2a89abab895d930d232b8fca2b663fba0a31f8663ea1f620412d12a15"
       ]
     },
     "spacr.layers.Canvas.resized": {
       "source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ],
-      "source_sha256": "520cf1b8fd5c19fb4d41cb8db1d459d63f87714e9e60c34dea83b47e1b9fabd1",
-      "text": "같은 세계 창은 다른 픽셀 크기.\n\n세계 *span*는 단계가 아닌, 그래서 위젯 리시즈는 샘플보다 같은 시야를 보여줍니다.",
+      "source_sha256": "882d3cee83c907dcef6e91a1a3294a3a4e19127afc78180ca19651c65c19c281",
+      "text": "같은 세계 창은 다른 픽셀 크기.\n\n세계 *span*는 단계가 아닌, 그래서 위젯 리시즈는 샘플보다 같은 시야를 보여줍니다.\n\n:param height: 픽셀 단위의 새 캔버스 높이이며, 최솟값 1로 강제 변환됩니다.\n:param width: 픽셀 단위의 새 캔버스 너비이며, 최솟값 1로 강제 변환됩니다.",
       "translation_source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ]
     },
     "spacr.layers.Canvas.row_world": {
@@ -29987,25 +29999,31 @@
     "spacr.layers.Canvas.world_at": {
       "source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ],
-      "source_sha256": "157241154cd79e1cf4f1ff7c3c7515858eb75e8c7523407fc7ab6d8348f0144c",
-      "text": "캔버스 픽셀 아래의 세계 점 ``(row, column)``.\n\n:attr:`depth` 좌석을 포함하여 결과는 전체 세계 위치에 대한 층이 질문 될 수 있습니다.",
+      "source_sha256": "dea1842446c4c99bede31498b1dcfcca4a6edce250c638b7f8ffc5857508d13f",
+      "text": "캔버스 픽셀 아래의 세계 점 ``(row, column)``.\n\n:attr:`depth` 좌석을 포함하여 결과는 전체 세계 위치에 대한 층이 질문 될 수 있습니다.\n\n:param row: 소수일 수 있는 캔버스 행 좌표입니다.\n:param column: 소수일 수 있는 캔버스 열 좌표입니다.",
       "translation_source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ]
     },
     "spacr.layers.Canvas.zoomed": {
       "source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ],
-      "source_sha256": "c01d143a6c3fc93939658022c9dd37ee5eeb75862cf2babaf158e49f231ad512",
-      "text": "``factor``× 캔버스가 가까워지면 ``centre`` (캔버스 픽셀)에 가까워집니다.\n\n``factor > 1`` zooms in. 기본 중심은 시각의 중간이며, 이는 키보드 zoom이 의미하는 것입니다; 바퀴 zoom은 코서를 통과합니다.",
+      "source_sha256": "d2717209129b3c2f5aa40aa3166873044e524aeab0a8d75b71e3bc0a4ad240c8",
+      "text": "``factor``× 캔버스가 가까워지면 ``centre`` (캔버스 픽셀)에 가까워집니다.\n\n``factor > 1`` zooms in. 기본 중심은 시각의 중간이며, 이는 키보드 zoom이 의미하는 것입니다; 바퀴 zoom은 코서를 통과합니다.\n\n:param factor: 유한한 양의 확대 배율입니다. 1보다 크면 확대되고 1보다 작으면 축소됩니다.",
       "translation_source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ]
     },
     "spacr.layers.CanvasLink": {
@@ -30027,13 +30045,17 @@
     "spacr.layers.CanvasLink.add": {
       "source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6"
+        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe"
       ],
-      "source_sha256": "65ab76ffd3c1e7cef582977e6dd8a57f48c59c2dce32cc9322379d9872ca766f",
-      "text": "링크에 패널을 넣고 공유 창을 채택하면 하나가 있습니다.\n\n이미 묶여있는 링크에 추가 된 패널은 다른 사람들이있는 곳에서 시작되며, 건설 된 곳이 아닙니다 - 그렇지 않으면 사용자가 zoom 한 네트워크에 다섯 번째 채널을 추가하면 전체 마이크로스코프 시각 필드가 하나의 세포에 표시됩니다.",
+      "source_sha256": "9efe1e7455abe876a4617d8cc1e63a8180fa2b413ab607feaac748e38bb36574",
+      "text": "링크에 패널을 넣고 공유 창을 채택하면 하나가 있습니다.\n\n이미 묶여있는 링크에 추가 된 패널은 다른 사람들이있는 곳에서 시작되며, 건설 된 곳이 아닙니다 - 그렇지 않으면 사용자가 zoom 한 네트워크에 다섯 번째 채널을 추가하면 전체 마이크로스코프 시각 필드가 하나의 세포에 표시됩니다.\n\n:param key: 문자열로 변환되는 고유한 패널 식별자입니다.\n:param canvas: 이 패널의 평면, 크기 및 세계 좌표 창을 정의하는 캔버스입니다.",
       "translation_source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42"
+        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "f74632e0a841c9f85a7549a127e010327382f2b091ea190358290b9899c40405"
       ]
     },
     "spacr.layers.CanvasLink.at_depth": {
@@ -30068,12 +30090,14 @@
     },
     "spacr.layers.CanvasLink.is_locked": {
       "source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
-      "text": "한 패널이 다른 패널을 따르고 있다.",
+      "source_sha256": "d8056f77b21988ca7c42428992bf2726a0cdf680ba4a2ee9acc1edbfe3e6d614",
+      "text": "한 패널이 다른 패널을 따르고 있다.\n\n:param key: 기존 패널의 식별자입니다.",
       "translation_source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.keys": {
@@ -30088,122 +30112,154 @@
     },
     "spacr.layers.CanvasLink.lock": {
       "source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ],
-      "source_sha256": "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
-      "text": "또 다른 사람들을 따라 한 패널을 만들고 지금 그곳으로 이동하십시오.",
+      "source_sha256": "72e1aa9b842118d9bcee0b7ef3b4c5f978da28fd283e737a92892b469149ec7a",
+      "text": "또 다른 사람들을 따라 한 패널을 만들고 지금 그곳으로 이동하십시오.\n\n:param key: 정렬하고 잠글 패널의 식별자입니다.",
       "translation_source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ]
     },
     "spacr.layers.CanvasLink.pan": {
       "source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ],
-      "source_sha256": "1c919e5cc9723f656dbc14478305553e728735393ed4b296f7e0a092d0d55912",
-      "text": "다이빙 패널의 픽셀의 숫자로 표시됩니다.\n\n그것이 다른 사람들에게 전달되기 전에 세계로 변환, 그래서 다른 주름에있는 패널 (한 개를 닫고, 그 다음 옮겨)이있는 네트워크는 여전히 같은 숫자보다 샘플을 통해 동일한 거리로 이동합니다.",
+      "source_sha256": "1d1305b76ef0aae72d2492aa5aefef650ea5662fa9e0f5361767cad6dc346c2e",
+      "text": "다이빙 패널의 픽셀의 숫자로 표시됩니다.\n\n그것이 다른 사람들에게 전달되기 전에 세계로 변환, 그래서 다른 주름에있는 패널 (한 개를 닫고, 그 다음 옮겨)이있는 네트워크는 여전히 같은 숫자보다 샘플을 통해 동일한 거리로 이동합니다.\n\n:param d_row: 구동 패널의 픽셀 단위 부호 있는 행 변위입니다.\n:param d_column: 구동 패널의 픽셀 단위 부호 있는 열 변위입니다.",
       "translation_source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ]
     },
     "spacr.layers.CanvasLink.remove": {
       "source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
-      "text": "패널을 꺼내서 캔버스를 돌려보내십시오.",
+      "source_sha256": "1087cb1b1660a230eb2cc207bcd156f1f2d5c2323bd6eddba1a3a041bc1fb4bd",
+      "text": "패널을 꺼내서 캔버스를 돌려보내십시오.\n\n:param key: 기존 패널의 식별자입니다.",
       "translation_source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.reset": {
       "source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ],
-      "source_sha256": "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
-      "text": "각 잠금 패널을 다시 ``source``로 맞추고, 픽셀 크기를 유지합니다.",
+      "source_sha256": "52aa9ff1bc60c447de70a4807e6baaa6970b787e0c1e3891b1926bd59da2d2d8",
+      "text": "각 잠금 패널을 다시 ``source``로 맞추고, 픽셀 크기를 유지합니다.\n\n:param source: :meth:`Canvas.covering`이 허용하는 레이어 스택, 레이어 또는 범위 매핑입니다.",
       "translation_source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ]
     },
     "spacr.layers.CanvasLink.resize": {
       "source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ],
-      "source_sha256": "e6c1826e76b9a6730dc1b726e41113792bedf8c40475eb9a611b774d62013589",
-      "text": "패널의 위젯 크기가 변경되었습니다.이 패널의 모양만 변경됩니다.\n\n단계는 유지되고, 범위는 :meth:`Canvas.resized`의 반대가 아닙니다, 그리고 의도적으로. 연결된 네트워크에서 공유량은 확대입니다 : 이웃보다 10 팩 더 좁은 세포는 같은 규모에서 샘플의 10 팩 더 적은 것을 보여야합니다, 또는 두 그림은 다른 확대에 있으며, 네트워크가 존재하는 비교는 하나가 아닙니다.",
+      "source_sha256": "97bcf37a4b2690ef7f10d1f05af16d0d4f569677f0de4c2231e17d36238048b2",
+      "text": "패널의 위젯 크기가 변경되었습니다.이 패널의 모양만 변경됩니다.\n\n단계는 유지되고, 범위는 :meth:`Canvas.resized`의 반대가 아닙니다, 그리고 의도적으로. 연결된 네트워크에서 공유량은 확대입니다 : 이웃보다 10 팩 더 좁은 세포는 같은 규모에서 샘플의 10 팩 더 적은 것을 보여야합니다, 또는 두 그림은 다른 확대에 있으며, 네트워크가 존재하는 비교는 하나가 아닙니다.\n\n:param key: 위젯 크기가 변경된 기존 패널의 식별자입니다.\n:param height: 픽셀 단위의 새 패널 높이이며, 최솟값 1로 강제 변환됩니다.\n:param width: 픽셀 단위의 새 패널 너비이며, 최솟값 1로 강제 변환됩니다.",
       "translation_source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ]
     },
     "spacr.layers.CanvasLink.set": {
       "source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ],
-      "source_sha256": "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
-      "text": "한 패널의 캔버스를 교체하고 잠겨있는 캔버스를 가져옵니다.",
+      "source_sha256": "65d2d87b70be8821f92446a44154769819e6fd651bdd301028c433444b3ed10f",
+      "text": "한 패널의 캔버스를 교체하고 잠겨있는 캔버스를 가져옵니다.\n\n:param key: 교체할 기존 패널의 식별자입니다.\n:param canvas: 잠긴 동료 패널들이 세계 좌표 창을 이어받을 대체 캔버스입니다.",
       "translation_source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ]
     },
     "spacr.layers.CanvasLink.subscribe": {
       "source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ],
-      "source_sha256": "4c374f21c4c8190c458492bcd5c6fd3f18eb1faf71456340be32830dd42fad5e",
-      "text": "움직이는 키와 함께, 패널이 변경 될 때마다 알려져야합니다.\n\n강력한 참조로 유지, 정확히 :meth:`LayerStack.subscribe`과 같습니다 : 구독하는 시각은 :meth:`unsubscribe`가 닫을 때 있어야합니다.",
+      "source_sha256": "37d325816b0696373b9a1709485ca94d39b289b2724a056e46caeaef9f8e1ae6",
+      "text": "움직이는 키와 함께, 패널이 변경 될 때마다 알려져야합니다.\n\n강력한 참조로 유지, 정확히 :meth:`LayerStack.subscribe`과 같습니다 : 구독하는 시각은 :meth:`unsubscribe`가 닫을 때 있어야합니다.\n\n:param listener: 변경된 패널의 식별자를 받는 호출 가능 객체이며, 강한 참조로 유지됩니다.",
       "translation_source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ]
     },
     "spacr.layers.CanvasLink.unlock": {
       "source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ],
-      "source_sha256": "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
-      "text": "패널이 스스로 움직일 수 있도록 하자.",
+      "source_sha256": "328c58deb9ecf0c69cb99d7bebad538fd82582aa4914263e15f759e07b63fa8d",
+      "text": "패널이 스스로 움직일 수 있도록 하자.\n\n:param key: 연동된 이동에서 분리할 패널의 식별자입니다.",
       "translation_source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ]
     },
     "spacr.layers.CanvasLink.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "``True``이 전화가 그것을 제거하는 경우에 알려지지 마십시오.",
+      "source_sha256": "fb4854ff518e71eb68e7b621ca3224fad4c6929c2ed93c89276be76447c5d9d9",
+      "text": "``True``이 전화가 그것을 제거하는 경우에 알려지지 마십시오.\n\n:param listener: 제거할, 이전에 구독한 콜백입니다.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ]
     },
     "spacr.layers.CanvasLink.zoom": {
       "source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ],
-      "source_sha256": "b103353a3b3bd199e684f4396c1df5868cf3b989c209fba80e19b1bcd8108d0b",
-      "text": "``key`` (또는 각 패널) ``factor``, 약 ``centre``로 조화.\n\n``centre`` 아래의 세계 포인트는 다른 패널이 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주",
+      "source_sha256": "1afdfcd0c37b4ae96649d993bfa1c632e2f153e0c38f9688bfbb732c228bf6b6",
+      "text": "``key`` (또는 각 패널) ``factor``, 약 ``centre``로 조화.\n\n``centre`` 아래의 세계 포인트는 다른 패널이 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주로 주\n\n:param factor: 영향을 받는 각 캔버스에 전달되는 유한한 양의 확대 배율입니다.",
       "translation_source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ]
     },
     "spacr.layers.Colormap": {
       "source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9"
+        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ],
-      "source_sha256": "a96c154e7e58d40b4dc699c8e5b5f41ba1f749484ae2d34d83e158ad95c25965",
-      "text": "이름의 램프는 0-1에서 색상으로 가치에서.\n\nLinear interpolation 사이의 방해 ``colors`` 에 대 한 ``stops``두 개의 멈추는 각 미크로스코피 이미지 데이터 채널 LUT (블랙 → 이미지 데이터채널의 색상)을 커버하고, 더 많은 중지는 끌지 않고 인식 지도를 커버합니다. matplotlib 노동자 안에서 수입 가능한 상태로 남아 있어야 하는 모듈에 들어가야 한다.",
+      "source_sha256": "14d72ed96d88d88a519e0c582fb93152f5adfede906113714844ea9a2b9ef321",
+      "text": "이름의 램프는 0-1에서 색상으로 가치에서.\n\nLinear interpolation 사이의 방해 ``colors`` 에 대 한 ``stops``두 개의 멈추는 각 미크로스코피 이미지 데이터 채널 LUT (블랙 → 이미지 데이터채널의 색상)을 커버하고, 더 많은 중지는 끌지 않고 인식 지도를 커버합니다. matplotlib 노동자 안에서 수입 가능한 상태로 남아 있어야 하는 모듈에 들어가야 한다.\n\n:param name: 색상 그라데이션과 함께 저장되는 표시 및 조회 이름이며, 문자열로 변환됩니다.\n:param colors: :func:`to_rgba`가 허용하는 두 개 이상의 색상 사양으로 이루어진 순서 있는 시퀀스입니다. 그라데이션은 이 순서대로 색상을 보간합니다.",
       "translation_source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47"
+        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ]
     },
     "spacr.layers.Colormap.colors": {
@@ -30218,12 +30274,14 @@
     },
     "spacr.layers.Colormap.map": {
       "source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ],
-      "source_sha256": "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
-      "text": "지도 ``values`` (모든 형식, 0-1, 클립)에서 ``(..., 3)`` 플로트32로 이동합니다.",
+      "source_sha256": "d44bc6930eff4ab861525b12ae9b7bb119c13b4c03261a4972081d459c210d72",
+      "text": "지도 ``values`` (모든 형식, 0-1, 클립)에서 ``(..., 3)`` 플로트32로 이동합니다.\n\n:param values: 보간할 숫자 스칼라 또는 배열형 값입니다. 0–1 범위 밖의 값은 그라데이션의 가장 가까운 끝값으로 잘립니다.",
       "translation_source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ]
     },
     "spacr.layers.Colormap.stops": {
@@ -30266,44 +30324,52 @@
     },
     "spacr.layers.FieldKey.frame": {
       "source_blocks_sha256": [
-        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5"
+        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
+        "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a"
       ],
-      "source_sha256": "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
-      "text": "각 식별자 열 ``labels``에 하나의 출력 열을 가진 프레임, 그 순서를 유지합니다.",
+      "source_sha256": "40cb79e68a34eef070ac79e767a2a20ad3b0ea339fb51507cd830861b02a1545",
+      "text": "각 식별자 열 ``labels``에 하나의 출력 열을 가진 프레임, 그 순서를 유지합니다.\n\n:param labels: 이 현미경 시야 식별 정보에 연결할 정수형 객체 레이블의 이터러블입니다.",
       "translation_source_blocks_sha256": [
-        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb"
+        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb",
+        "c2fe737b390de6510efd90175f213b911a37f8d148c93af33fe16a8525823efb"
       ]
     },
     "spacr.layers.FieldKey.from_row": {
       "source_blocks_sha256": [
         "6cd8c0d449bf06de8080354ae8f7e759d68ec379bc2f066627de5cf1d8cda20d",
-        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802"
+        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ],
-      "source_sha256": "dc3043bd6b23a275feb200864d525833b9372277c796db03ba1a796218dc906f",
-      "text": "측정 라인 (또는 어떤 지도)에서 식별자 열을 꺼내십시오.\n\n라인에있는 다른 모든 것이 떨어집니다 - 구조화 된 데이터 이름 필드는 정체성이며, 그것과 함께 측정을 수행하면 같은 필드에 대한 두 개의 구조화된 데이터 이름을 비교하는 것은 불평등합니다.",
+      "source_sha256": "5009c670395a31711e65f9482b60110422c8dd91aff93bf55ada69eae28f0695",
+      "text": "측정 라인 (또는 어떤 지도)에서 식별자 열을 꺼내십시오.\n\n라인에있는 다른 모든 것이 떨어집니다 - 구조화 된 데이터 이름 필드는 정체성이며, 그것과 함께 측정을 수행하면 같은 필드에 대한 두 개의 구조화된 데이터 이름을 비교하는 것은 불평등합니다.\n\n:param row: 필수 식별 열을 추출할 측정 행 매핑입니다.",
       "translation_source_blocks_sha256": [
         "4fa407403eab95095b6b298465b075829b6d6718819e773a0099527588ebdfe3",
-        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8"
+        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ]
     },
     "spacr.layers.FieldKey.object_key": {
       "source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12"
       ],
-      "source_sha256": "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
-      "text": "``label``에 대한 하나의 개체 키.",
+      "source_sha256": "9c0ffb61704a39ffd2308e7bd131ba754dcf2b5caf578cea363a1dcf07523bc9",
+      "text": "``label``에 대한 하나의 개체 키.\n\n:param label: 이 현미경 시야에 대해 인코딩할 정수형 객체 레이블입니다.",
       "translation_source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "b4b790d2e119d8ec65a3ac0f15b4f6f0011a4753feb44e7fde4010a0cce252a4"
       ]
     },
     "spacr.layers.FieldKey.object_keys": {
       "source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ],
-      "source_sha256": "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
-      "text": ":class:`pandas.Index`의 개체 키는 ``labels``, 순서로.",
+      "source_sha256": "8aeaa33840efac26e90a789b6909c6e7a0a6c929253a60f69fd7784fbea893a8",
+      "text": ":class:`pandas.Index`의 개체 키는 ``labels``, 순서로.\n\n:param labels: 인코딩할 정수형 객체 레이블의 이터러블입니다.",
       "translation_source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ]
     },
     "spacr.layers.ImageLayer": {
@@ -30340,12 +30406,26 @@
     },
     "spacr.layers.ImageLayer.channel_data": {
       "source_blocks_sha256": [
-        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b"
+        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ],
-      "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "text": "하나의 이미지 데이터 채널 (보기, 복사본이 아닌)에 대한 공간 레이어.",
+      "source_sha256": "15de51c78f3d0361193a224fff41be5f626235806342ddaadd54c29239268d52",
+      "text": "하나의 이미지 데이터 채널 (보기, 복사본이 아닌)에 대한 공간 레이어.\n\n:param channel: 일반 시퀀스 인덱싱 규칙을 따르는 0부터 시작하는 채널 인덱스입니다.",
       "translation_source_blocks_sha256": [
-        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509"
+        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ]
+    },
+    "spacr.layers.ImageLayer.channel_is_visible": {
+      "source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ],
+      "source_sha256": "d8e695a52522e5e5457c5945555946345282682afb868b70699f25ef2e05601c",
+      "text": "한 채널이 렌더링에 참여하는지 여부입니다.\n\n:param channel: 일반 시퀀스 인덱싱 규칙을 따르는 0부터 시작하는 채널 인덱스입니다.",
+      "translation_source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ]
     },
     "spacr.layers.ImageLayer.colormap": {
@@ -30379,25 +30459,45 @@
         "af3320fcd4373de12c3c56554534b7704b1c62e20835a0f9548731ee070822e0"
       ]
     },
+    "spacr.layers.ImageLayer.set_channel_visible": {
+      "source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ],
+      "source_sha256": "e1a8be22f1960a50e5eb3f6173e8c0228092d0630738144fd727e11b9b08c055",
+      "text": "한 채널이 렌더링에 참여할지 설정합니다.\n\n:param channel: 일반 시퀀스 인덱싱 규칙을 따르는 0부터 시작하는 채널 인덱스입니다.\n:param visible: 채널의 새 가시성 상태를 나타내는 불리언 값입니다.",
+      "translation_source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ]
+    },
     "spacr.layers.ImageLayer.set_colormap": {
       "source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ],
-      "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "text": "한 채널을 새로 만들고",
+      "source_sha256": "a65a79a6a74fec31bfa36fc24c6bbafc045a1ced9c6e85ed52b17e6efda99cf4",
+      "text": "한 채널을 새로 만들고\n\n:param value: :func:`colormap`이 허용하는 컬러맵 또는 색상 사양입니다.",
       "translation_source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ]
     },
     "spacr.layers.ImageLayer.set_contrast_limits": {
       "source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+        "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ],
-      "source_sha256": "f8c007ce8415d95d9833f128e8e4ae98763c820511b8f376c3e5b2e16f4247e5",
-      "text": "한 채널의 한계를 설정합니다.\n\n:raises LayerError: 그들이 증가하지 않는 경우 - 반환 된 쌍은 \"no signal\" 대신 나쁜 설정으로 읽는 검은 이미지를 반환합니다.",
+      "source_sha256": "67991223e0e1401f9a83adbeeca279685329443027954cdacd55f4a295b00e40",
+      "text": "한 채널의 한계를 설정합니다.\n\n:param low: 해당 이미지 채널의 데이터 단위로 표현된 강도 하한입니다.\n:param high: 해당 이미지 채널의 데이터 단위로 표현된 강도 상한이며, ``low``보다 커야 합니다.\n:raises LayerError: 그들이 증가하지 않는 경우 - 반환 된 쌍은 \"no signal\" 대신 나쁜 설정으로 읽는 검은 이미지를 반환합니다.",
       "translation_source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "e0b961b66f0bb8a66b1a7f65084598cad3de63525f72c27f13d12387c18aa5a5",
+        "50129cb6dd8ed758ec82f61e82119b5e51c69e8d1c10a84961da1c83b61011b8",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ]
     },
@@ -30427,13 +30527,15 @@
       "source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ],
-      "source_sha256": "7a4e53da8be2116ee8ce70e78922594a4988175d7f9582491543cef395f17578",
-      "text": "전체 분류 마스크. 0은 배경이며 아무것도 아닌 것으로 끌어 들이고 있습니다.\n\n색상은 :func:`label_color`에서 나온다, 그래서 개체는 세션 사이와이 시청자와 라이브 프리비전 사이에 색상을 유지합니다.\n\n:param field: :class:`FieldKey` 이 마스크 세그먼트는 선택적이지만, 그 없이는 클릭만 \"label 17\"을 말할 수 있습니다. - 그와 함께, 클릭은 다른 모든 보기에 ``plate1_A_1_1_17``을 게시할 수 있다.",
+      "source_sha256": "12854f7027909f636182b3838e1df4f568b7287c604915e4fa51acf3e9ad0400",
+      "text": "전체 분류 마스크. 0은 배경이며 아무것도 아닌 것으로 끌어 들이고 있습니다.\n\n색상은 :func:`label_color`에서 나온다, 그래서 개체는 세션 사이와이 시청자와 라이브 프리비전 사이에 색상을 유지합니다.\n\n:param data: 2차원 또는 3차원 배열형 분할 레이블입니다. 값은 정수이거나 정확히 정수인 수여야 합니다.\n:param field: :class:`FieldKey` 이 마스크 세그먼트는 선택적이지만, 그 없이는 클릭만 \"label 17\"을 말할 수 있습니다. - 그와 함께, 클릭은 다른 모든 보기에 ``plate1_A_1_1_17``을 게시할 수 있다.",
       "translation_source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ]
     },
@@ -30442,25 +30544,29 @@
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "ef10abde172c944037ac91cd1df4dc457505cf9a68dfa7dc3c36f95884939a7c"
       ],
-      "source_sha256": "43cf6677f673f3d5cf1ad8bb1b5e92d9f25d0ebacd690c44858e5235687eaecc",
-      "text": "요소는 세계 공간 공 브러쉬가 인덱스가 흐르는 것처럼 커버합니다.\n\n브러쉬는 WORLD 공간에있는 공이므로 anisotropic 스택에서 그것은 y 라인보다 Z 슬라이드를 덜 커버합니다.이것은 사용자가 5 µm 브러시로 의미하는 것입니다. 배열 요소로 측정 된 브러쉬는 5 스푼 실린더, 즉. 10 µm 깊고 3.25 µm 넓은 평범한 spaCR 스택.\n\n:meth:`paint`에서 분리하여 *기록* 무엇이 변경되었는지 - :class:`spacr.curation.MaskCuration`는 undo 역사를 유지하고 검토 경로를 유지하는 - anisotropy의 규칙을 다시 추출하고 그것을 미묘하게 다른 대신에 지질학을위한 레이어를 요청합니다.\n\n:returns: :attr:`data`을 인덱스 할 준비가되어있는 한 개의 전체 라인. 빈 라인은 브러쉬가 네트워크에서 완전히 떨어질 때, 그것은 던지기보다는 아무것도 인덱스를합니다.",
+      "source_sha256": "fdf4c2cda21386361c12e28138b98cb1fa7ac9955847f3c48294f1caeba3e78e",
+      "text": "요소는 세계 공간 공 브러쉬가 인덱스가 흐르는 것처럼 커버합니다.\n\n브러쉬는 WORLD 공간에있는 공이므로 anisotropic 스택에서 그것은 y 라인보다 Z 슬라이드를 덜 커버합니다.이것은 사용자가 5 µm 브러시로 의미하는 것입니다. 배열 요소로 측정 된 브러쉬는 5 스푼 실린더, 즉. 10 µm 깊고 3.25 µm 넓은 평범한 spaCR 스택.\n\n:meth:`paint`에서 분리하여 *기록* 무엇이 변경되었는지 - :class:`spacr.curation.MaskCuration`는 undo 역사를 유지하고 검토 경로를 유지하는 - anisotropy의 규칙을 다시 추출하고 그것을 미묘하게 다른 대신에 지질학을위한 레이어를 요청합니다.\n\n:param world: 축 이름에서 세계 좌표의 브러시 중심으로 가는 매핑입니다. 생략된 간격 축은 0으로 계산됩니다.\n:returns: :attr:`data`을 인덱스 할 준비가되어있는 한 개의 전체 라인. 빈 라인은 브러쉬가 네트워크에서 완전히 떨어질 때, 그것은 던지기보다는 아무것도 인덱스를합니다.",
       "translation_source_blocks_sha256": [
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "3ae0cae7c74005239749168d3c233396333acaa07054d119c714a851f197938f"
       ]
     },
     "spacr.layers.LabelsLayer.label_at_world": {
       "source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ],
-      "source_sha256": "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
-      "text": "표지판은 세계 지점 아래, 또는 0 배경 / 외부.",
+      "source_sha256": "fcbca66bbfadfd442c3f75be94a15baf8d2757596873994a0fe6155ad002d03c",
+      "text": "표지판은 세계 지점 아래, 또는 0 배경 / 외부.\n\n:param world: 축 이름에서 세계 좌표의 한 점으로 가는 매핑입니다.",
       "translation_source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ]
     },
     "spacr.layers.LabelsLayer.labels": {
@@ -30487,13 +30593,15 @@
     "spacr.layers.LabelsLayer.object_key_at_world": {
       "source_blocks_sha256": [
         "2888b920fd6956b3f6e04d746585f4c83a11948a1cc8cd56b4542a34cd758fce",
-        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72"
+        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ],
-      "source_sha256": "99e56ad84d2620d6e72ee69ea199ef77fec0bb0bab9aecbf02fb51b583348e72",
-      "text": "측정 테이블은 세계 지점 아래의 개체의 구조화된 데이터 이름입니다.\n\n``None`` 배경을 위해, 또는이 레이어가 어떤 마이크로스코프 필드를 볼 수 있는지 알려지지 않았을 때.이 전체 이유 라벨 레이어는 :class:`FieldKey`: 이 반환 라인은 동일한 라인입니다 UMAP, 실험실 마이크로 플레이트 비전 및 메모 네트워크 사용, 그래서 그것을 게시함으로써 :mod:`spacr.qt.linked_selection` 모든 곳에서 동일한 세포를 강조합니다.",
+      "source_sha256": "5f58c8e407661db6c30f1a9acaf1188141ee5aafe63ae9fa8e202386082cd334",
+      "text": "측정 테이블은 세계 지점 아래의 개체의 구조화된 데이터 이름입니다.\n\n``None`` 배경을 위해, 또는이 레이어가 어떤 마이크로스코프 필드를 볼 수 있는지 알려지지 않았을 때.이 전체 이유 라벨 레이어는 :class:`FieldKey`: 이 반환 라인은 동일한 라인입니다 UMAP, 실험실 마이크로 플레이트 비전 및 메모 네트워크 사용, 그래서 그것을 게시함으로써 :mod:`spacr.qt.linked_selection` 모든 곳에서 동일한 세포를 강조합니다.\n\n:param world: 축 이름에서 식별할 세계 좌표점으로 가는 매핑입니다.",
       "translation_source_blocks_sha256": [
         "160302220e41d10a573d3ae6c448bc4902b3975356b159aa5ce4a15216d782d6",
-        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69"
+        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ]
     },
     "spacr.layers.LabelsLayer.object_keys": {
@@ -30510,13 +30618,17 @@
       "source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ],
-      "source_sha256": "8a9f7db9bf93c003bd26b54d940d58a9e09b6421c9a6e351242612219eb95b92",
-      "text": "각 요소를 ``radius`` 세계 단위의 포인트 내에 설정합니다.\n\n:meth:`brush_index`은 공을 소유하고 있으며, 이것이 글을 쓰는 것과 같습니다.\n\n:returns: 얼마나 많은 요소가 바뀌었는지.",
+      "source_sha256": "4826c2d76d13a5e9b76d0bc8a2f2099a1d6eb699c17ba6a7a44a62c114fdf48b",
+      "text": "각 요소를 ``radius`` 세계 단위의 포인트 내에 설정합니다.\n\n:meth:`brush_index`은 공을 소유하고 있으며, 이것이 글을 쓰는 것과 같습니다.\n\n:param world: 축 이름에서 세계 좌표의 브러시 중심으로 가는 매핑입니다.\n:param label: 칠할 정수형 레이블입니다.\n:returns: 얼마나 많은 요소가 바뀌었는지.",
       "translation_source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ]
     },
@@ -30533,13 +30645,17 @@
     "spacr.layers.LabelsLayer.set_labels_at": {
       "source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ],
-      "source_sha256": "4b51f05f5b36b84aef9aadcff8334a00b17ff1eac193ad3b1e17e18b4038b7bb",
-      "text": "``index`` 항목 이름을 ``label``로 설정; 변경된 숫자.\n\n:meth:`brush_index`의 절반을 쓰고, ONE 레이블 레이어의 데이터는 엘리트-이렇게 편집됩니다 - 그래서 정확히 하나의 전화 통보. :attr:`data`에 자신의 아리트메틱을하는 호출자는 캔버스를 말하지 않고 순서를 변환하고, 그림은 다음과 관련이없는 재그림에서만 올 것입니다.",
+      "source_sha256": "1abf895c5080ad211ca94bb5ff03f93c50724b8a87a65630308906543c555767",
+      "text": "``index`` 항목 이름을 ``label``로 설정; 변경된 숫자.\n\n:meth:`brush_index`의 절반을 쓰고, ONE 레이블 레이어의 데이터는 엘리트-이렇게 편집됩니다 - 그래서 정확히 하나의 전화 통보. :attr:`data`에 자신의 아리트메틱을하는 호출자는 캔버스를 말하지 않고 순서를 변환하고, 그림은 다음과 관련이없는 재그림에서만 올 것입니다.\n\n:param index: 각 데이터 축마다 하나씩 있는 정수 인덱스 배열로, NumPy 고급 인덱싱에 적합합니다.\n:param label: 선택한 요소에 쓸 정수형 레이블입니다.",
       "translation_source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ]
     },
     "spacr.layers.LabelsLayer.shape": {
@@ -30568,14 +30684,16 @@
       "source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ],
-      "source_sha256": "d9bf540e5df502fb1259165c71211aad3d5b283456e1a09ecad2a91dacad0e8e",
-      "text": "벽돌에 하나의 것 : 이름, 세계의 장소, 그리고 그것을 끌어내는 방법.\n\n하위 클래스는 :meth:`_draw`를 실행; 모든 공유 - 시야, 불안, 혼합, 공간, 통지 - 여기에 살고 있습니다.\n\n디스플레이 속성은 스택을 알리는 세트를 가진 평평한 속성, 그래서 모델이 변경되었기 때문에 시각이 다시 그림을 그리기 때문에 대신 변경 된 비게트는 그것을 요청하는 것을 기억합니다.",
+      "source_sha256": "00ae1646166976c37b3971d157a42c453ea3828f10371a9e2f504447306b03d2",
+      "text": "벽돌에 하나의 것 : 이름, 세계의 장소, 그리고 그것을 끌어내는 방법.\n\n하위 클래스는 :meth:`_draw`를 실행; 모든 공유 - 시야, 불안, 혼합, 공간, 통지 - 여기에 살고 있습니다.\n\n디스플레이 속성은 스택을 알리는 세트를 가진 평평한 속성, 그래서 모델이 변경되었기 때문에 시각이 다시 그림을 그리기 때문에 대신 변경 된 비게트는 그것을 요청하는 것을 기억합니다.\n\n:param name: 비어 있지 않은 레이어 식별자입니다. 레이어가 :class:`LayerStack`에 들어갈 때 이름이 고유해집니다.",
       "translation_source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ]
     },
     "spacr.layers.Layer.describe": {
@@ -30601,13 +30719,15 @@
     "spacr.layers.Layer.render": {
       "source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ],
-      "source_sha256": "6a69174507dcd6941d3e37953e3d4375f3afcdff90f51f7eb47c94bf2f6bf77a",
-      "text": "``canvas``로 끌어 올리며 ``(rgb, coverage)``로 돌아갑니다.\n\n``rgb``는 ``(H, W, 3)`` float32에서 0-1이며 ``coverage``는 ``(H, W)`` float32에서 0-1에서 말하는 이 층이 말할 것이 어디 있습니까.",
+      "source_sha256": "041a29bcd5eb327d63f54158ec2e06819a2804d242f09ce3b6633f43facb47b8",
+      "text": "``canvas``로 끌어 올리며 ``(rgb, coverage)``로 돌아갑니다.\n\n``rgb``는 ``(H, W, 3)`` float32에서 0-1이며 ``coverage``는 ``(H, W)`` float32에서 0-1에서 말하는 이 층이 말할 것이 어디 있습니까.\n\n:param canvas: 레이어를 그릴 세계 좌표 창과 출력 그리드입니다.",
       "translation_source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ]
     },
     "spacr.layers.Layer.shape": {
@@ -30632,22 +30752,26 @@
     },
     "spacr.layers.Layer.to_data": {
       "source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ],
-      "source_sha256": "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
-      "text": "``{axis: world}`` → 부분 데이터 인덱스",
+      "source_sha256": "1e3345eda89cb5de4ca629fff4184928f324444e3cfe6d73079e8bf9cfdaa78c",
+      "text": "``{axis: world}`` → 부분 데이터 인덱스\n\n:param world: 세계 축 이름에서 좌표로 가는 매핑입니다. 생략된 간격 축은 세계 좌표 0으로 계산됩니다.",
       "translation_source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ]
     },
     "spacr.layers.Layer.to_world": {
       "source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ],
-      "source_sha256": "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
-      "text": "데이터 인덱스 → ``{axis: world}``",
+      "source_sha256": "26735f18d934b2c7f3e0e8645475aca52ab5011ffc91614884d6dbbc7b76d282",
+      "text": "데이터 인덱스 → ``{axis: world}``\n\n:param index: 이 레이어의 간격 축 순서로 된, 소수일 수 있는 데이터 좌표입니다.",
       "translation_source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ]
     },
     "spacr.layers.Layer.world_extent": {
@@ -30708,14 +30832,40 @@
         "281fc7123610fd43406cdaf51b4d1a0d1589061eaa7d666c63c7ee7ff0b3fc32"
       ]
     },
+    "spacr.layers.LayerStack.add_image": {
+      "source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ],
+      "source_sha256": "d763809cb6736d1325da4effb708e3a9eb378b08036775cfe67a5a185b3b7677",
+      "text": "이미지 레이어를 생성하여 추가합니다.\n\n:param data: :class:`ImageLayer`에 전달할 배열형 강도 데이터입니다.",
+      "translation_source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ]
+    },
+    "spacr.layers.LayerStack.add_labels": {
+      "source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ],
+      "source_sha256": "a0aaaecabc526aeccd0261c59e4092b9bae0224cdd83104f63dfe9a68f93758b",
+      "text": "레이블 레이어를 생성하여 추가합니다.\n\n:param data: :class:`LabelsLayer`에 전달할 배열형 분할 레이블입니다.",
+      "translation_source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ]
+    },
     "spacr.layers.LayerStack.append": {
       "source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
-      "text": "``layer``를 위에 넣으십시오.",
+      "source_sha256": "e8ffcf4ef88d408c04bde53496a66c9da50eaa0bee446324b9379c46b163e733",
+      "text": "``layer``를 위에 넣으십시오.\n\n:param layer: 이 레이어 스택에 연결할 레이어 인스턴스입니다.",
       "translation_source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.canvas": {
@@ -30750,56 +30900,70 @@
     },
     "spacr.layers.LayerStack.get": {
       "source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ],
-      "source_sha256": "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
-      "text": "개체, 이름 또는 인덱스에 의해 이름을 지정하는 레이어.",
+      "source_sha256": "f0b308ec65c968a7c63063e083a1d517495af8e79a3c10b3477b8acb554501ba",
+      "text": "개체, 이름 또는 인덱스에 의해 이름을 지정하는 레이어.\n\n:param layer: 해석할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
       "translation_source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ]
     },
     "spacr.layers.LayerStack.index": {
       "source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ],
-      "source_sha256": "fce075446257bcb107abcae907b588e44e92a8c0a191db02ea3761b70186f78d",
-      "text": "``layer``가 위치한 곳, 개체, 이름 또는 인덱스에 따라.\n\n:raises LayerError: ``-1``은 위에서 유효한 인덱스가 될 것이며, 잘못된 레이어에 조용히 영향을 미칠 것입니다.",
+      "source_sha256": "b9f1a82e69c109470a037e5dbb9339af4d9e4e7bef6735bccc16878c639aabf1",
+      "text": "``layer``가 위치한 곳, 개체, 이름 또는 인덱스에 따라.\n\n:param layer: 해석할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.\n:raises LayerError: ``-1``은 위에서 유효한 인덱스가 될 것이며, 잘못된 레이어에 조용히 영향을 미칠 것입니다.",
       "translation_source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ]
     },
     "spacr.layers.LayerStack.insert": {
       "source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
-      "text": "``layer``을 ``index`` (0은 아래쪽입니다)로 삽입합니다.",
+      "source_sha256": "de6ede5822f1b49b01cbf558ecb4ea1c142274743c204e0ca40fb7080d1d97d4",
+      "text": "``layer``을 ``index`` (0은 아래쪽입니다)로 삽입합니다.\n\n:param index: 요청한 삽입 위치이며, 0과 현재 레이어 스택 길이 사이로 제한됩니다.\n:param layer: 이 레이어 스택에 연결할 레이어 인스턴스입니다.",
       "translation_source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.lower_layer": {
       "source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ],
-      "source_sha256": "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
-      "text": "뒤쪽으로 한 걸음 걸어가고 있다.",
+      "source_sha256": "2042e5a08104144b57ffbbe3cc0fa1ed914881b5bbd24e6d1787af90263e2542",
+      "text": "뒤쪽으로 한 걸음 걸어가고 있다.\n\n:param layer: 아래로 내릴 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
       "translation_source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ]
     },
     "spacr.layers.LayerStack.move": {
       "source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ],
-      "source_sha256": "5be37c8323202e92afacd3368b433d3248015a1b32f84f546389a98acab94606",
-      "text": "층을 ``destination``로 이동; 끝난 곳으로 돌아갑니다.\n\n``destination``이 붙어 있으므로 \"move to the top\"은 큰 숫자로 녹일 수 있습니다.",
+      "source_sha256": "cf6605e56f490303bd3300077bd6d207a33e970524f37c835fde803e3843bd76",
+      "text": "층을 ``destination``로 이동; 끝난 곳으로 돌아갑니다.\n\n``destination``이 붙어 있으므로 \"move to the top\"은 큰 숫자로 녹일 수 있습니다.\n\n:param source: 이동할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.\n:param destination: 요청한 대상 인덱스이며, 원본 레이어를 제거한 뒤 레이어 스택의 유효 범위로 제한됩니다.",
       "translation_source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ]
     },
     "spacr.layers.LayerStack.names": {
@@ -30815,85 +30979,107 @@
     "spacr.layers.LayerStack.pick": {
       "source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ],
-      "source_sha256": "7a87bd473703e187dbc6926399a02bb0314584d2bd2db2052fc20b6b3ff592d7",
-      "text": "캔버스 픽셀 아래에 있는 것 : ``(layer, world, value)``.\n\nTOP에서 내려가서 첫 번째 눈에 띄는 층에 멈추고, 클릭이 의미하는 것은 무엇인가. ``value``은 라벨 층의 레이블, 포인트 층의 포인트 인덱스, 모양 층의 모양 인덱스, 그리고 ``None``이 다른 것입니다.",
+      "source_sha256": "e6deb023970c48d1b50d0be27ae6c93929cbbb42be91616ad3063e61a410f489",
+      "text": "캔버스 픽셀 아래에 있는 것 : ``(layer, world, value)``.\n\nTOP에서 내려가서 첫 번째 눈에 띄는 층에 멈추고, 클릭이 의미하는 것은 무엇인가. ``value``은 라벨 층의 레이블, 포인트 층의 포인트 인덱스, 모양 층의 모양 인덱스, 그리고 ``None``이 다른 것입니다.\n\n:param canvas: 표시된 레이어 스택을 조회할 캔버스입니다.\n:param row: 조회 픽셀의 소수일 수 있는 캔버스 행 좌표입니다.\n:param column: 조회 픽셀의 소수일 수 있는 캔버스 열 좌표입니다.",
       "translation_source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ]
     },
     "spacr.layers.LayerStack.raise_layer": {
       "source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ],
-      "source_sha256": "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
-      "text": "한 걸음 앞쪽으로 나아가야 한다.",
+      "source_sha256": "14e58cf30dc8ff73ab9ee247e9070ca41c985b1af42eb587db47512480d9a6a1",
+      "text": "한 걸음 앞쪽으로 나아가야 한다.\n\n:param layer: 위로 올릴 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
       "translation_source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ]
     },
     "spacr.layers.LayerStack.remove": {
       "source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ],
-      "source_sha256": "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
-      "text": "한 층을 꺼내서 돌려보내십시오.",
+      "source_sha256": "1227ba3055b381e8adee5534e1fa424faf0a9d9ab871fd486d466005039441a2",
+      "text": "한 층을 꺼내서 돌려보내십시오.\n\n:param layer: 제거할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
       "translation_source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ]
     },
     "spacr.layers.LayerStack.rename": {
       "source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ],
-      "source_sha256": "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
-      "text": "층을 다시 이름으로, 필요하다면 유니키화; 그것이 얻은 이름을 반환합니다.",
+      "source_sha256": "cc42f737075a19f21b32353e139736f7eebc2bf94d221135189aa507a96b0d5a",
+      "text": "층을 다시 이름으로, 필요하다면 유니키화; 그것이 얻은 이름을 반환합니다.\n\n:param layer: 이름을 바꿀 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.\n:param name: 요청한 비어 있지 않은 이름입니다. 다른 레이어와 충돌하면 숫자 접미사가 추가됩니다.",
       "translation_source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ]
     },
     "spacr.layers.LayerStack.render": {
       "source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
-      "text": "각각의 눈에 띄는 층을 구성하십시오; ``(H, W, 3)`` float32 0-1로.",
+      "source_sha256": "706df46e91c0f2d4d8bcce5d8328ed32c63a27244faa7c5dda30ae45b7229d0f",
+      "text": "각각의 눈에 띄는 층을 구성하십시오; ``(H, W, 3)`` float32 0-1로.\n\n:param canvas: 레이어 스택을 합성할 세계 좌표 창과 출력 그리드입니다.",
       "translation_source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_rgba": {
       "source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "97936d0c7625321036ed948f50eae43ffb5b967dda28602b306c1b34ae93c382",
-      "text": ":meth:`render` 플러스 컴포지트 자체 커버, ``(H, W, 4)``.\n\n알파 채널은 레이어의 혼합 모드가 무엇이든 상대적으로 축적됩니다 : 그것은 스택이 *모든*를 끌어 들이는 곳을 기록합니다.",
+      "source_sha256": "ceb49044e299ac918477ab9f59aeddb369712efa87c78629f3232136c688b313",
+      "text": ":meth:`render` 플러스 컴포지트 자체 커버, ``(H, W, 4)``.\n\n알파 채널은 레이어의 혼합 모드가 무엇이든 상대적으로 축적됩니다 : 그것은 스택이 *모든*를 끌어 들이는 곳을 기록합니다.\n\n:param canvas: 레이어 스택을 합성할 세계 좌표 창과 출력 그리드입니다.",
       "translation_source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_uint8": {
       "source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
-      "text": ":meth:`render` ``(H, W, 3)`` uint8 - QImage가 원하는 것.",
+      "source_sha256": "647e96602de114a2eabc49017bcba8ccce0c5a6728ebfd92a93c48ebad7ab059",
+      "text": ":meth:`render` ``(H, W, 3)`` uint8 - QImage가 원하는 것.\n\n:param canvas: 레이어 스택을 합성할 세계 좌표 창과 출력 그리드입니다.",
       "translation_source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.select": {
       "source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ],
-      "source_sha256": "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
-      "text": "레이어를 선택하십시오 (또는 ``None``); 그것을 반환합니다.",
+      "source_sha256": "ea1e6d3da45023b1240bbdfcace66315b40a56ce20b5e39f2fabd1f38ee0992e",
+      "text": "레이어를 선택하십시오 (또는 ``None``); 그것을 반환합니다.\n\n:param layer: 선택을 해제하려면 사용할 레이어 객체, 고유한 레이어 이름, 정수 레이어 스택 인덱스 또는 ``None``입니다.",
       "translation_source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ]
     },
     "spacr.layers.LayerStack.selected": {
@@ -30919,13 +31105,39 @@
     "spacr.layers.LayerStack.subscribe": {
       "source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
       ],
-      "source_sha256": "943a56c50d0d9e46e2283d3f0405a514395aea062ca6eb3f783dbd3f2baff04c",
-      "text": "변경 사항이 있는 경우 알려주십시오. ``listener``로 돌아가서, 가입하지 않으려면.\n\n청취자는 강한 참조를 유지하고 약하지 않습니다 : 구독자가 :meth:`unsubscribe`를 닫을 때 표시해야합니다, 정확히 :class:`spacr.qt.linked_selection.LinkedView`가 링크를 끄는 것처럼.",
+      "source_sha256": "719511e2e892343f955dd3aeb4a586939a96ccc827ec1317d3ca4763ebc97dc7",
+      "text": "변경 사항이 있는 경우 알려주십시오. ``listener``로 돌아가서, 가입하지 않으려면.\n\n청취자는 강한 참조를 유지하고 약하지 않습니다 : 구독자가 :meth:`unsubscribe`를 닫을 때 표시해야합니다, 정확히 :class:`spacr.qt.linked_selection.LinkedView`가 링크를 끄는 것처럼.\n\n:param listener: 각 :class:`LayerEvent`를 받는 호출 가능 객체이며, 강한 참조로 유지됩니다.",
       "translation_source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
+      ]
+    },
+    "spacr.layers.LayerStack.to_bottom": {
+      "source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "2c4e5a81230c6aa517ba256075cfb7916b2522771553763d477b5adb6cfa3a4d",
+      "text": "레이어 하나를 레이어 스택의 뒤쪽으로 이동합니다.\n\n:param layer: 이동할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
+      "translation_source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ]
+    },
+    "spacr.layers.LayerStack.to_top": {
+      "source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "7648f3524e9c0407039ab77348af494dc0607d388ba15123e8b38ff4f891707d",
+      "text": "레이어 하나를 레이어 스택의 앞쪽으로 이동합니다.\n\n:param layer: 이동할 레이어 객체, 고유한 레이어 이름 또는 정수 레이어 스택 인덱스입니다.",
+      "translation_source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
       ]
     },
     "spacr.layers.LayerStack.units": {
@@ -30940,12 +31152,14 @@
     },
     "spacr.layers.LayerStack.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "``True``이 전화가 그것을 제거하는 경우에 알려지지 마십시오.",
+      "source_sha256": "8e090f82185bff494bdee81622acc5fb8451afeec73d42e0d3cc3fc6e9d41bb6",
+      "text": "``True``이 전화가 그것을 제거하는 경우에 알려지지 마십시오.\n\n:param listener: 제거할, 이전에 구독한 이벤트 콜백입니다.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ]
     },
     "spacr.layers.LayerStack.world_extent": {
@@ -30968,10 +31182,14 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ],
-      "source_sha256": "2b75a74eb22ab14e902efb40ce88c60343cc91338bb24242160717ecd70ab793",
-      "text": "세 개의 이미지 층은 하나의 볼륨으로, 그들이 정렬 될 수 있도록 배치됩니다.\n\n위에서만 볼 수 있는 z-stack은 z-stack이 얻은 것을 숨기고 있습니다.이 세 개의 캔버스는 상단 전망과 두 측면 전망을 통해 십자가를 통해, ImageJ의 정형 전망이 다음과 같이 정리됩니다.\n\n* :attr:`xy` - 상단 보기, ``y`` 라인 및 ``x`` 열, ``z``의 깊이;\n* :attr:`zx` - 그것을 밑으로, ``z`` 라인과 ``x`` 열, 그래서 그것은 그것의 열을 상단 보기와 공유;\n* :attr:`yz` - 그것을 필요로, ``y`` 라인과 ``z`` 열, 그래서 그것은 그것의 라인을 상단 보기와 공유합니다.\n\n**모든 패널은 1개의 세계 단위/픽셀 스케일을 사용합니다.** 이것이 전체 어려움이며, 이것이 3개의 :meth:`Canvas.covering` 전화를 대신 클래스입니다. 이 코드베이스의 혼합 스택은 정기적으로 0.65 µm xy 및 2 µm z입니다. 슬라이드 당 1 픽셀을 끌어가는 측면 전망은 3 배 너무 얇고 잘못 보이지 않습니다 - 약간 평평한 세포처럼 보입니다. 핵 구체성, 위치 깊이 및 그러한 그림을 읽는 모든 3D 형식 기능은 아무도 볼 수없는 요소에 의해 잘못됩니다. 여기에서 측면 전망은 :math:`z_{span}/step` 픽셀 높이, 그래서 10 슬라이드 2 µm 스택은 0.65 µm/px 전망의 31 px, 10이 아닌.\n\n:meth:`covering`로 하나를 만들고 :meth:`at`로 교차를 이동합니다.",
+      "source_sha256": "37e013953329b5c1d534589475c650a0827d965212edaf5d0b41d6c82451c43c",
+      "text": "세 개의 이미지 층은 하나의 볼륨으로, 그들이 정렬 될 수 있도록 배치됩니다.\n\n위에서만 볼 수 있는 z-stack은 z-stack이 얻은 것을 숨기고 있습니다.이 세 개의 캔버스는 상단 전망과 두 측면 전망을 통해 십자가를 통해, ImageJ의 정형 전망이 다음과 같이 정리됩니다.\n\n* :attr:`xy` - 상단 보기, ``y`` 라인 및 ``x`` 열, ``z``의 깊이;\n* :attr:`zx` - 그것을 밑으로, ``z`` 라인과 ``x`` 열, 그래서 그것은 그것의 열을 상단 보기와 공유;\n* :attr:`yz` - 그것을 필요로, ``y`` 라인과 ``z`` 열, 그래서 그것은 그것의 라인을 상단 보기와 공유합니다.\n\n**모든 패널은 1개의 세계 단위/픽셀 스케일을 사용합니다.** 이것이 전체 어려움이며, 이것이 3개의 :meth:`Canvas.covering` 전화를 대신 클래스입니다. 이 코드베이스의 혼합 스택은 정기적으로 0.65 µm xy 및 2 µm z입니다. 슬라이드 당 1 픽셀을 끌어가는 측면 전망은 3 배 너무 얇고 잘못 보이지 않습니다 - 약간 평평한 세포처럼 보입니다. 핵 구체성, 위치 깊이 및 그러한 그림을 읽는 모든 3D 형식 기능은 아무도 볼 수없는 요소에 의해 잘못됩니다. 여기에서 측면 전망은 :math:`z_{span}/step` 픽셀 높이, 그래서 10 슬라이드 2 µm 스택은 0.65 µm/px 전망의 31 px, 10이 아닌.\n\n:meth:`covering`로 하나를 만들고 :meth:`at`로 교차를 이동합니다.\n\n:param xy: 행과 열이 각각 볼륨의 두 번째 축과 세 번째 축에 걸쳐 있는 상단 뷰 캔버스입니다.\n:param zx: 행은 깊이에 걸쳐 있고 열은 :attr:`xy`와 정렬되는 아래쪽 측면 뷰 캔버스입니다.\n:param yz: 행은 :attr:`xy`와 정렬되고 열은 깊이에 걸쳐 있는 측면 뷰 캔버스입니다.\n:param point: 세계 축 이름에서 공유 십자선 좌표로 가는 매핑입니다.",
       "translation_source_blocks_sha256": [
         "b72972c43719e6b9dd2c816ea35f67471dea9c18f7335146511e036f724738d0",
         "4c72efac983619abe219f91e9767b8e1c7937d976a34c5d75466a1ef5137b08f",
@@ -30979,7 +31197,11 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ]
     },
     "spacr.layers.OrthoViews.at": {
@@ -30997,13 +31219,19 @@
     "spacr.layers.OrthoViews.at_pixel": {
       "source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ],
-      "source_sha256": "e22e20e6e83c86de844acb9d76f0171313052eec1acb3058bd1400f9e30b6af2",
-      "text": "십자가를 하나의 패널의 픽셀 아래 세계 지점으로 이동합니다.\n\n측면 전망을 클릭하여 상단 전망의 슬라이드를 이동, 이는 상호 작용에 대한 정형 전망입니다.",
+      "source_sha256": "e4015cbe1fb3d9b38e38184ff9186468e95cbfd1046880f1169eb0dbed990fde",
+      "text": "십자가를 하나의 패널의 픽셀 아래 세계 지점으로 이동합니다.\n\n측면 전망을 클릭하여 상단 전망의 슬라이드를 이동, 이는 상호 작용에 대한 정형 전망입니다.\n\n:param panel: 패널 키: ``\"xy\"``, ``\"zx\"`` 또는 ``\"yz\"``입니다.\n:param row: 선택한 패널 안의 소수일 수 있는 행 좌표입니다.\n:param column: 선택한 패널 안의 소수일 수 있는 열 좌표입니다.",
       "translation_source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ]
     },
     "spacr.layers.OrthoViews.axes": {
@@ -31072,32 +31300,38 @@
     },
     "spacr.layers.OrthoViews.n_slices": {
       "source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ],
-      "source_sha256": "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
-      "text": "``axis``에 있는 슬라이더가 얼마나 많은 슬라이더가 있는지.",
+      "source_sha256": "6afd266348961d5dcdeca9e963e657393c8b4d8c8e969bff7e5d46d5212dd767",
+      "text": "``axis``에 있는 슬라이더가 얼마나 많은 슬라이더가 있는지.\n\n:param axis: 범위와 복셀 간격이 슬라이스 수를 정의하는 세계 축입니다.",
       "translation_source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ]
     },
     "spacr.layers.OrthoViews.render": {
       "source_blocks_sha256": [
-        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e"
+        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ],
-      "source_sha256": "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
-      "text": "``{panel: (H, W, 3)}`` - 세 개의 이미지 층 모두에서 촬영 된 동일한 스택.",
+      "source_sha256": "7ef8064f1fd4169b359ed7d33952bf6022b2168bb8034380896b68437ab026b8",
+      "text": "``{panel: (H, W, 3)}`` - 세 개의 이미지 층 모두에서 촬영 된 동일한 스택.\n\n:param stack: 각 직교 캔버스를 통해 렌더링할 레이어 스택입니다.",
       "translation_source_blocks_sha256": [
-        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb"
+        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ]
     },
     "spacr.layers.OrthoViews.resized": {
       "source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ],
-      "source_sha256": "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
-      "text": "다른 픽셀 폭에 동일한 교차장, 패널은 여전히 일치.",
+      "source_sha256": "2e6c7485d0b98803414fe4d85aea541725d253833239b01be25d9b651806c322",
+      "text": "다른 픽셀 폭에 동일한 교차장, 패널은 여전히 일치.\n\n:param width: 픽셀 단위의 새 상단 패널 너비입니다. 파생 패널 크기는 계속 같은 세계 좌표 배율에 맞춰집니다.",
       "translation_source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ]
     },
     "spacr.layers.OrthoViews.scale": {
@@ -31113,25 +31347,29 @@
     "spacr.layers.OrthoViews.slider": {
       "source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ],
-      "source_sha256": "a07551dcd2dbd286df7b9dcecb8323e5a2eee618de9446a3708ee6188c1ccc8c",
-      "text": "``(low, high, step)`` 슬라이더를 위한 WORLD 단위.\n\n단계는 그 좌석을 따라 소스 자체의 볼륨 크기입니다, 그래서 슬라이더를 끌어 동시에 하나의 슬라이드를 움직이는 대신 자발적인 볼륨의 부분 - 그리고 µm-calibrated stack의 슬라이더가 표시되어 있습니다. µm 사용자가 구매 설정에 대해 확인할 수 있는 숫자입니다.",
+      "source_sha256": "42401bb79d74e5cbd94edfc285d1da23dfdb445f1e89e6d6d6130220bb997b83",
+      "text": "``(low, high, step)`` 슬라이더를 위한 WORLD 단위.\n\n단계는 그 좌석을 따라 소스 자체의 볼륨 크기입니다, 그래서 슬라이더를 끌어 동시에 하나의 슬라이드를 움직이는 대신 자발적인 볼륨의 부분 - 그리고 µm-calibrated stack의 슬라이더가 표시되어 있습니다. µm 사용자가 구매 설정에 대해 확인할 수 있는 숫자입니다.\n\n:param axis: 경계와 복셀 간격을 반환할 세계 축입니다.",
       "translation_source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ]
     },
     "spacr.layers.OrthoViews.zoomed": {
       "source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ],
-      "source_sha256": "acd215310f8dc4d25dd6a1f3ca2d57c75d632e57db76fa2d2ead807786dbc5c8",
-      "text": "각 패널 ``factor`` 시간, 십자가에 가까이.\n\n세 가지 모두 함께, 그리고 각 패널의 자신의 중간에 대신 십자가에 대 한, 그래서 패널은 여전히 나중에 정렬.",
+      "source_sha256": "f218382523598225c5a996d0db5aa48a14139f91128b3e7cae848d48ad25c799",
+      "text": "각 패널 ``factor`` 시간, 십자가에 가까이.\n\n세 가지 모두 함께, 그리고 각 패널의 자신의 중간에 대신 십자가에 대 한, 그래서 패널은 여전히 나중에 정렬.\n\n:param factor: 모든 패널에 적용되는 유한한 양의 확대 배율입니다. 1보다 큰 값은 확대합니다.",
       "translation_source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ]
     },
     "spacr.layers.PointsLayer": {
@@ -31154,22 +31392,26 @@
     },
     "spacr.layers.PointsLayer.add": {
       "source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ],
-      "source_sha256": "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
-      "text": "데이터 코디네이트에 하나의 포인트를 추가; 그것의 인덱스를 반환합니다.",
+      "source_sha256": "3d69d2809dcae8483972d4751ab95f07f7972c18d0b4d194103887a92b4bd04f",
+      "text": "데이터 코디네이트에 하나의 포인트를 추가; 그것의 인덱스를 반환합니다.\n\n:param point: 각 레이어 축마다 값 하나를 갖는 데이터 좌표 시퀀스입니다.",
       "translation_source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ]
     },
     "spacr.layers.PointsLayer.add_world": {
       "source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ],
-      "source_sha256": "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
-      "text": "``{axis: world}``로 주어진 한 점을 추가합니다.",
+      "source_sha256": "c783505993a85d7b3948d3b1a155d3e2ba2030679e2a9b996dbe425196bdc4f4",
+      "text": "``{axis: world}``로 주어진 한 점을 추가합니다.\n\n:param world: 축 이름에서 세계 좌표로 가는 매핑입니다. 생략된 레이어 축은 세계 좌표 0으로 계산됩니다.",
       "translation_source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ]
     },
     "spacr.layers.PointsLayer.border_width": {
@@ -31205,32 +31447,38 @@
     },
     "spacr.layers.PointsLayer.nearest": {
       "source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ],
-      "source_sha256": "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
-      "text": "디스크가 ``world``을 포함하는 지점의 지표, 가장 가까운 첫 번째.",
+      "source_sha256": "d5874f95281f3675072c764349c10fe51e027ac35bb30a7072371841482c1d57",
+      "text": "디스크가 ``world``을 포함하는 지점의 지표, 가장 가까운 첫 번째.\n\n:param world: 축 이름에서 세계 좌표의 조회점으로 가는 매핑입니다. 생략된 레이어 축은 0으로 계산됩니다.",
       "translation_source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ]
     },
     "spacr.layers.PointsLayer.remove": {
       "source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ],
-      "source_sha256": "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
-      "text": "한 점을 던져 버리라.",
+      "source_sha256": "d6d4506e32187c8fe006bb6a67a77abe0071c04c9482bee504fb1d2e402995ae",
+      "text": "한 점을 던져 버리라.\n\n:param index: 제거할 점의 0부터 시작하는 인덱스입니다. 음수 인덱스는 허용되지 않습니다.",
       "translation_source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ]
     },
     "spacr.layers.PointsLayer.set_size": {
       "source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ],
-      "source_sha256": "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
-      "text": "각 지점의 직경을 설정하거나 각 지점에 하나를 설정합니다.",
+      "source_sha256": "b8b9809e4fda9d1e845bca224edb21f35c740f5771e9f0167a930eb2e8c157be",
+      "text": "각 지점의 직경을 설정하거나 각 지점에 하나를 설정합니다.\n\n:param value: 모든 점에 적용할 스칼라 지름 또는 점마다 세계 단위 지름 하나를 갖는 배열형 시퀀스입니다.",
       "translation_source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ]
     },
     "spacr.layers.PointsLayer.size": {
@@ -31296,12 +31544,66 @@
     },
     "spacr.layers.ShapesLayer.add": {
       "source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
       ],
-      "source_sha256": "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
-      "text": "숫자를 추가하고, 그 인덱스를 반환합니다.",
+      "source_sha256": "2bfeec03044fbbe8bf926596b631b8b37c682b995a98a561a278b3b42de377fe",
+      "text": "숫자를 추가하고, 그 인덱스를 반환합니다.\n\n:param shape: 이 레이어와 차원 수가 같은 :class:`Shape`입니다.",
       "translation_source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_ellipse": {
+      "source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ],
+      "source_sha256": "f1d9f3a788d5883f722c2f1f79446c81832bec8d86a4d4d2abe76110df18c3e2",
+      "text": "두 대각 모서리로 정의된 상자 안에 축 정렬 타원을 추가합니다.\n\n:param corner_a: 데이터 좌표의 첫 번째 경계 상자 모서리이며, 축마다 값 하나를 가집니다.\n:param corner_b: 데이터 좌표의 반대쪽 경계 상자 모서리이며, 축마다 값 하나를 가집니다.",
+      "translation_source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_path": {
+      "source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ],
+      "source_sha256": "f65a3e822260e8f9029620daf67fcf6b69083229deb18bd386ba172b21bd94ff",
+      "text": "열린 경로를 추가합니다.\n\n:param vertices: 데이터 좌표의 배열형 꼭짓점이며, 모양은 ``(M, ndim)``이고 행이 두 개 이상이어야 합니다.",
+      "translation_source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_polygon": {
+      "source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ],
+      "source_sha256": "694adfc8f8ccfe61f0552bf1adb5fd6b67089f8fce7ef898b80607dca1270aed",
+      "text": "닫힌 다각형을 추가합니다.\n\n:param vertices: 데이터 좌표의 배열형 꼭짓점이며, 모양은 ``(M, ndim)``이고 행이 세 개 이상이어야 합니다.",
+      "translation_source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_rectangle": {
+      "source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
+      ],
+      "source_sha256": "e9d5686e0baf47cb1a32e97597676e325bd3e6124898765b6d3c49644c164ac7",
+      "text": "두 대각 모서리로 축 정렬 직사각형을 추가합니다.\n\n:param corner_a: 데이터 좌표의 첫 번째 모서리이며, 축마다 값 하나를 가집니다.\n:param corner_b: 데이터 좌표의 반대쪽 모서리이며, 축마다 값 하나를 가집니다.",
+      "translation_source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
       ]
     },
     "spacr.layers.ShapesLayer.mask": {
@@ -31309,15 +31611,17 @@
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4"
       ],
-      "source_sha256": "245ac0f9839a35e7a1b7bdc1a807c619a8415fe2e6607c831b221b9d9e5ae54f",
-      "text": "닫힌 모양을 ``canvas``; ``(H, W)`` 볼로 니다.\n\n변환 측정이 필요합니다 : 그것을 핸드 ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` 그리고 The ROI 그것은 그 층의 자신의 네트워크로 돌아갑니다, 그것이 끌려 갔던 네트워킹이 무엇이든.\n\n경계는 절반 개방 : 직경의 낮은 가장자리에 있는 픽셀 센터가 그 안에 있고, 높은 가장자리에 있는 바로 하나가 없습니다. ROIs 그들 사이의 픽셀을 측면 분할을 공유하는 대신 두 개의 주장을 주장, 그래서 한계에있는 개체는 한 번 계산됩니다.\n\n열린 형태 (선, 경로)는 아무것도 포함하지 않고 아무것도 기여하지 않습니다.",
+      "source_sha256": "40ebc5e7b20343d4bdf7f3039c746dca512ad548b9c0e439d3d53179fad4664f",
+      "text": "닫힌 모양을 ``canvas``; ``(H, W)`` 볼로 니다.\n\n변환 측정이 필요합니다 : 그것을 핸드 ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` 그리고 The ROI 그것은 그 층의 자신의 네트워크로 돌아갑니다, 그것이 끌려 갔던 네트워킹이 무엇이든.\n\n경계는 절반 개방 : 직경의 낮은 가장자리에 있는 픽셀 센터가 그 안에 있고, 높은 가장자리에 있는 바로 하나가 없습니다. ROIs 그들 사이의 픽셀을 측면 분할을 공유하는 대신 두 개의 주장을 주장, 그래서 한계에있는 개체는 한 번 계산됩니다.\n\n열린 형태 (선, 경로)는 아무것도 포함하지 않고 아무것도 기여하지 않습니다.\n\n:param canvas: 닫힌 도형을 래스터화할 세계 좌표 평면과 픽셀 그리드입니다.",
       "translation_source_blocks_sha256": [
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "d51f3daf5ec1b3e392613fb5d87fa96b2cd2a7b57cec000af658067feb9ebafd"
       ]
     },
     "spacr.layers.ShapesLayer.ndim": {
@@ -31333,12 +31637,14 @@
     },
     "spacr.layers.ShapesLayer.remove": {
       "source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ],
-      "source_sha256": "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
-      "text": "형태를 던지고 다시 돌려주십시오.",
+      "source_sha256": "498b9d49d3ed3c1d9af0f1531f8c3c144f980ae5e1aa3e9b74f6335936302b69",
+      "text": "형태를 던지고 다시 돌려주십시오.\n\n:param index: 제거할 도형의 정수 인덱스입니다. 일반적인 Python 음수 인덱싱을 허용합니다.",
       "translation_source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ]
     },
     "spacr.layers.ShapesLayer.world_extent": {
@@ -31377,25 +31683,29 @@
     "spacr.layers.Spacing.axis_index": {
       "source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ],
-      "source_sha256": "7afb83103e2afa15ad8d9d626983ece2b96f0590d6baa5cb191768709d467fc8",
-      "text": "이 공간에서 ``axis``의 위치.\n\n:raises LayerError: 이 좌석이 그런 좌표가 없다면",
+      "source_sha256": "27fd6a76be317613b41443b99f9a897931182a143d993567924e0f495bf4f81e",
+      "text": "이 공간에서 ``axis``의 위치.\n\n:param axis: :attr:`axes`에서 찾을 축 이름입니다.\n:raises LayerError: 이 좌석이 그런 좌표가 없다면",
       "translation_source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ]
     },
     "spacr.layers.Spacing.data_from_map": {
       "source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ],
-      "source_sha256": "296763bc6cc9dc4ff02d88d91c454ee0132496092eef5ff5a45b71b9bc6afea5",
-      "text": "``{axis: world}`` 지도에서 분할 데이터 인덱스.\n\n지도가 언급하지 않는 좌석은 세계 단위에서 0으로 간주되며, 이는 시청자가 표시되는 슬라이드를 제공 한 후 3D 레이어에 2D 클릭이 의미하는 것입니다.",
+      "source_sha256": "62e34087483880aae4ba9c8e5f98abddccfd561cd62a810e92cf45c12b1ee8b6",
+      "text": "``{axis: world}`` 지도에서 분할 데이터 인덱스.\n\n지도가 언급하지 않는 좌석은 세계 단위에서 0으로 간주되며, 이는 시청자가 표시되는 슬라이드를 제공 한 후 3D 레이어에 2D 클릭이 의미하는 것입니다.\n\n:param world: 축 이름에서 세계 좌표로 가는 매핑입니다. 이름 없는 간격 축은 세계 좌표 0으로 계산됩니다.",
       "translation_source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ]
     },
     "spacr.layers.Spacing.describe": {
@@ -31411,25 +31721,41 @@
     "spacr.layers.Spacing.extent": {
       "source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ],
-      "source_sha256": "36c184514f8d4a8f09c4090674a146bd3448ea964e62891d63bf9646bc8b6ce5",
-      "text": "``shape``의 순서의 세계 경계 상자, 좌석에 의해 키.\n\n최종 요소의 OUTER EDGE (첫 번째 및 마지막 센터를 넘어 반의 조각)로 측정되기 때문에 실제로 데이터를 커버하는 지역이기 때문에 - 요소 센터에 맞게 고정된 캔버스는 각 측면에서 반의 보각을 떨어 뜨리고, 이는 2 µm z 단계에서 눈에 띄는 막대기입니다.",
+      "source_sha256": "dd53f648c3b8d249d00fcc6bbb4cdf066b0eb770c8e48b881e1d720f361a611c",
+      "text": "``shape``의 순서의 세계 경계 상자, 좌석에 의해 키.\n\n최종 요소의 OUTER EDGE (첫 번째 및 마지막 센터를 넘어 반의 조각)로 측정되기 때문에 실제로 데이터를 커버하는 지역이기 때문에 - 요소 센터에 맞게 고정된 캔버스는 각 측면에서 반의 보각을 떨어 뜨리고, 이는 2 µm z 단계에서 눈에 띄는 막대기입니다.\n\n:param shape: :attr:`axes` 순서로 된 배열 모양이며, 각 간격 축마다 크기 하나를 가집니다.",
       "translation_source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ]
     },
     "spacr.layers.Spacing.from_map": {
       "source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c"
+        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
       ],
-      "source_sha256": "79321e8be4b91d6a9eb15039791904144fff79526c5e7b5bb2d10d8214ebad02",
-      "text": "``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``에서 만들어진\n\n명령은 맵링의 자체이며, 핵심 가치 맵핑을 위해 문자 그대로 그것이 쓰여진 명령입니다. - 같은 순서로 라인의 좌석이 있습니다. ``(2.0, 0.65, 0.65)`` 그 자체로 이전에 뒤로 읽어 왔습니다.",
+      "source_sha256": "c3f4d833de0cc8dd226a2105dcc11d0dbc65c68ecb7864cb3c0f4eae89929e72",
+      "text": "``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``에서 만들어진\n\n명령은 맵링의 자체이며, 핵심 가치 맵핑을 위해 문자 그대로 그것이 쓰여진 명령입니다. - 같은 순서로 라인의 좌석이 있습니다. ``(2.0, 0.65, 0.65)`` 그 자체로 이전에 뒤로 읽어 왔습니다.\n\n:param sizes: 축 이름에서 0이 아닌 유한한 복셀 크기로 가는 매핑입니다. 매핑의 반복 순서가 배열 축 순서가 됩니다.",
       "translation_source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525"
+        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
+      ]
+    },
+    "spacr.layers.Spacing.has_axis": {
+      "source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
+      ],
+      "source_sha256": "61fcd66c2efe3bf5e40cf76dde754d3f0e24bed1258ce2fc4e597d2a318a2758",
+      "text": "이 간격에 ``axis``가 포함되는지 여부입니다.\n\n:param axis: 문자열로 변환한 뒤 검사할 축 이름입니다.",
+      "translation_source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
       ]
     },
     "spacr.layers.Spacing.isotropic": {
@@ -31454,22 +31780,26 @@
     },
     "spacr.layers.Spacing.to_data": {
       "source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ],
-      "source_sha256": "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
-      "text": "세계 코디네이트 → (분열) 데이터 인덱스, 각 좌석.",
+      "source_sha256": "7247239dbc50ab4d4769f4891dce4e76b8af6474dcaaeae019e821b86f511f7b",
+      "text": "세계 코디네이트 → (분열) 데이터 인덱스, 각 좌석.\n\n:param world: :attr:`axes` 순서로 된 세계 좌표이며, 각 간격 축마다 항목 하나를 가집니다.",
       "translation_source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ]
     },
     "spacr.layers.Spacing.to_world": {
       "source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ],
-      "source_sha256": "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
-      "text": "데이터 인덱스 → 세계 조율, 각 좌석.",
+      "source_sha256": "9f126591f87d9055df66f6d259f3ae9cc7185ea088453f1c545c44e1537312d4",
+      "text": "데이터 인덱스 → 세계 조율, 각 좌석.\n\n:param index: :attr:`axes` 순서로 된, 소수일 수 있는 데이터 좌표이며 각 간격 축마다 항목 하나를 가집니다.",
       "translation_source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ]
     },
     "spacr.layers.Spacing.translated": {
@@ -31484,12 +31814,14 @@
     },
     "spacr.layers.Spacing.world_map": {
       "source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ],
-      "source_sha256": "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
-      "text": ":meth:`to_world` 좌석 이름으로 키를 둔다.",
+      "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
+      "text": ":meth:`to_world` 좌석 이름으로 키를 둔다.\n\n:param index: :attr:`axes` 순서로 된, 소수일 수 있는 데이터 좌표입니다.",
       "translation_source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ]
     },
     "spacr.layers.colormap": {
@@ -31497,14 +31829,16 @@
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ],
-      "source_sha256": "09829fae1667dfd1d47de9aa74496240f9805e32fdf9e14ee2c43adb8d084335",
-      "text": "``spec``을 :class:`Colormap`로 해결합니다.\n\n:class:`Colormap` (변화되지 않은 반환), :data:`COLORMAPS`의 이름, 색상 (모든 :func:`to_rgba` 형식)이 검은 → 색상 램프가되거나, 마지막으로 matplotlib 색표 이름을 가져옵니다.\n\nMatplotlib는 마지막으로 시도되며 쾌적합니다.이 모듈은 수입 가능하게 유지되어야합니다. matplotlib 설치되지 않고 노동자에 수입하기에 저렴한, 그래서 그것은 결코 어려운 의존; 그러나 사용자 유형의 경우 ``\"viridis\"`` 그리고 matplotlib 그렇다면 거절은 피드백이 될 것이다.\n\n:raises LayerError: ``spec`` 이름이 아무것도 없으면.",
+      "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
+      "text": "``spec``을 :class:`Colormap`로 해결합니다.\n\n:class:`Colormap` (변화되지 않은 반환), :data:`COLORMAPS`의 이름, 색상 (모든 :func:`to_rgba` 형식)이 검은 → 색상 램프가되거나, 마지막으로 matplotlib 색표 이름을 가져옵니다.\n\nMatplotlib는 마지막으로 시도되며 쾌적합니다.이 모듈은 수입 가능하게 유지되어야합니다. matplotlib 설치되지 않고 노동자에 수입하기에 저렴한, 그래서 그것은 결코 어려운 의존; 그러나 사용자 유형의 경우 ``\"viridis\"`` 그리고 matplotlib 그렇다면 거절은 피드백이 될 것이다.\n\n:param spec: 기존 :class:`Colormap`, 내장 컬러맵 이름이나 matplotlib 컬러맵 이름, 또는 검정색에서 지정 색상으로 이어지는 그라데이션을 만들 색상 사양입니다.\n:raises LayerError: ``spec`` 이름이 아무것도 없으면.",
       "translation_source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ]
     },
@@ -31512,26 +31846,30 @@
       "source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ],
-      "source_sha256": "d70a1cd5ad3faca333aceb4c87ddc70789d0f27995f446007e29520fb9c87820",
-      "text": "안정적이고 활기찬 색상 전체 ``label``.\n\n골든 비율 은 결정적 인 만족 / 가치 을 가지고, 그래서 근처 라벨은 에서 멀리 떨어져 있으며 같은 개체는 , 재 렌더 및 세션을 통해 색깔을 유지합니다. 라벨 0은 배경이며 검은 색입니다 (소리자는 투명하게 그려줍니다).\n\n건설은 의도적으로 동일합니다. :func:`spacr.qt.widgets.live_preview._random_outline_palette` 출력에 사용, 그래서 마스크는 두 시청자에서 동일한 개체 색상을 가지고 있습니다.그것은 그 모듈이 수입하기 때문에 수입 대신 재현 PySide6 그리고 이것이 필요하지 않습니다 - 모듈 docstring을 참조하십시오.",
+      "source_sha256": "fb3ac6337fe21dc9e4e45a73452f5672c76ca40c0e4282cb5c1203860d5e3873",
+      "text": "안정적이고 활기찬 색상 전체 ``label``.\n\n골든 비율 은 결정적 인 만족 / 가치 을 가지고, 그래서 근처 라벨은 에서 멀리 떨어져 있으며 같은 개체는 , 재 렌더 및 세션을 통해 색깔을 유지합니다. 라벨 0은 배경이며 검은 색입니다 (소리자는 투명하게 그려줍니다).\n\n건설은 의도적으로 동일합니다. :func:`spacr.qt.widgets.live_preview._random_outline_palette` 출력에 사용, 그래서 마스크는 두 시청자에서 동일한 개체 색상을 가지고 있습니다.그것은 그 모듈이 수입하기 때문에 수입 대신 재현 PySide6 그리고 이것이 필요하지 않습니다 - 모듈 docstring을 참조하십시오.\n\n:param label: 정수형 객체 레이블입니다. 레이블 0은 검정 배경색으로 예약됩니다.",
       "translation_source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ]
     },
     "spacr.layers.label_colors": {
       "source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ],
-      "source_sha256": "eb2f8980cec8017542fd9dd67ab763b32a76bc1119422ed8575e08a05a6b4d29",
-      "text": ":func:`label_color` 라인 위로, ``(..., 3)`` float32로 돌아갑니다.\n\n픽셀 대신 한 번에 독특한 라벨을 바라보며 구축된 2048×2048 마스크는 수백 개의 개체와 수천만 개의 픽셀을 보유하고 있습니다.",
+      "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
+      "text": ":func:`label_color` 라인 위로, ``(..., 3)`` float32로 돌아갑니다.\n\n픽셀 대신 한 번에 독특한 라벨을 바라보며 구축된 2048×2048 마스크는 수백 개의 개체와 수천만 개의 픽셀을 보유하고 있습니다.\n\n:param labels: 배열형 정수 레이블입니다. 출력은 입력 모양을 보존하고 RGB 축 하나를 추가합니다.",
       "translation_source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ]
     },
     "spacr.layers.to_rgba": {
@@ -49906,14 +50244,20 @@
     },
     "spacr.qt.app.MainWindow.eventFilter": {
       "source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ],
-      "source_sha256": "aa02a7e221ca124cc7e424f497be745e0b8021f7381773edcf4e7649f1c0198d",
-      "text": "그것의 메뉴 바를 통해 프레임없는 창을 끌고, 거기에 두 번 클릭으로 최대화 - 두 개의 움직임은 타이틀 바를 착용하는 데 사용되었다.\n\n`getattr`아니요, 아니요 `self.menuBar()`: Qt 일단 필터에 이벤트를 전달하는 데 진행되며, 그 후에 Python 그것은 개체의 특성을 분명히합니다.",
+      "source_sha256": "7593037df2981dfe4776d8272cb83b810ac86583dfd0dca0cfcdb46a447743a7",
+      "text": "프레임 없는 창에서 메뉴 모음 끌기와 두 번 클릭 제스처를 처리합니다.\n\n종료 정리 중에는 이벤트가 여전히 대기열에 있는 동안 Qt 메뉴 모음이 무효화될 수 있습니다. 이 필터는 해당 상태가 PySide 콜백 경계를 넘어 예외로 빠져나가게 하지 않고 ``False``를 반환합니다.\n\n:param watched: 이벤트를 받는 Qt 객체입니다.\n:param event: 메인 창의 필터로 전달되는 Qt 이벤트입니다.\n:returns: 메뉴 모음 마우스 제스처를 처리했으면 ``True``이고, 그렇지 않으면 ``False``입니다.",
       "translation_source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ]
     },
     "spacr.qt.app.MainWindow.keyPressEvent": {

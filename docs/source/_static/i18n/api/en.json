@@ -31025,12 +31025,14 @@
     },
     "spacr.qt.app.MainWindow.eventFilter": {
       "source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "43ef367c50e395bd0761d4a8149810227e9500f086b60c32fd21c2af9bb6a4ae",
-        "94b402a26b5d6ad7153ee9fa6eaeec8a44c6beccc908869a94292fe899d9a8b7"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ],
-      "source_sha256": "52f4bb870fe428fb813b12a256dad86de187cc07162bb0a9ca50e5c1b7fd3ba7",
-      "text": "Drag the frameless window by its menu bar, and maximise on a\ndouble-click there -- the two gestures the title bar used to carry.\n\nNOTHING HERE MAY RAISE. Qt goes on delivering events to a filter\nduring teardown, after Python has cleared the object's attributes\nand after the C++ half of the menu bar has gone -- and an\nexception out of an event filter does not propagate to a caller\nwho could handle it. PySide prints \"Error calling Python override\nof QMainWindow::eventFilter()\" and carries on delivering, so a\nsingle broken teardown becomes one traceback per mouse move.\n\nThe docstring above this line used to say to ask with `getattr`\nrather than `self.menuBar()`, and the line below it called\n`self.menuBar()` anyway. The window state change that arrives\nwhile the bar is being torn down is exactly the case it named."
+      "source_sha256": "7593037df2981dfe4776d8272cb83b810ac86583dfd0dca0cfcdb46a447743a7",
+      "text": "Handle frameless-window menu-bar drag and double-click gestures.\n\nTeardown can invalidate the Qt menu bar while events are still queued.\nThis filter returns ``False`` instead of allowing that condition to\nescape through PySide's callback boundary.\n\n:param watched: Qt object receiving the event.\n:param event: Qt event delivered to the main window's filter.\n:returns: ``True`` when a menu-bar mouse gesture is consumed;\n    otherwise ``False``."
     },
     "spacr.qt.app.MainWindow.keyPressEvent": {
       "source_blocks_sha256": [
