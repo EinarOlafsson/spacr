@@ -370,3 +370,74 @@ item 306.  The structured-description ratchet remains 2,698 omissions across
 ``152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1``,
 and no exhaustive fluent-speaker semantic review is recorded.  Item 306
 remains OPEN and release-blocking.
+
+
+PROGRESS 2026-08-31 -- THE CATALOGS ARE ELEVEN SYMBOLS BEHIND, AND THE
+AUDIT CANNOT RUN AT ALL
+-----------------------------------------------------------------------
+
+Found while clearing test failures, not while working on i18n. Four
+tests fail on this, and had been failing before 2026-08-31:
+
+    tests/qt/test_external_i18n_catalogs.py
+        ::test_api_doc_catalog_is_symbol_keyed_and_source_hashed
+    tests/qt/test_i18n_caption_ratchet.py
+        ::test_external_caption_layer_is_complete_exclusive_and_pinned
+    tests/test_api_i18n_extractor.py
+        ::test_public_docstrings_matches_reviewed_visible_coverage
+        ::test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+
+1. ELEVEN SYMBOLS ARE IN THE MANIFEST AND IN NO CATALOG. The English
+   manifest carries 8,849 symbols; every one of the nine locales carries
+   8,838. The same eleven are missing from all nine, so this is a
+   generation gap and not a per-language one:
+
+       spacr.qt.i18n.language_resolved_once
+       spacr.qt.screens.db_browser.PreviewModel.canFetchMore
+       spacr.qt.screens.db_browser.PreviewModel.columnCount
+       spacr.qt.screens.db_browser.PreviewModel.data
+       spacr.qt.screens.db_browser.PreviewModel.fetchMore
+       spacr.qt.screens.db_browser.PreviewModel.flags
+       spacr.qt.screens.db_browser.PreviewModel.headerData
+       spacr.qt.screens.db_browser.PreviewModel.rowCount
+       spacr.qt.screens.db_browser.PreviewModel.setData
+       spacr.qt.widgets.gate_spec.RectGate.mask
+       spacr.qt.widgets.gate_spec.RectGate.with_threshold
+
+   Nine of the eleven are PreviewModel's Qt model overrides, which
+   gained docstrings; the other two are RectGate methods that did.
+
+2. `tools/build_documentation_i18n.py --audit` DOES NOT RUN. It raises
+   before it reports anything:
+
+       ValueError: stale reviewed API source
+       'spacr.qt.widgets.gate_spec.RectGate.translated#0':
+       docs/i18n/reviewed/api/hi/2026-08-14-tail-030-044.json
+
+   That is the tool working correctly. A reviewed record stores the
+   exact English it was checked against, and this one no longer matches:
+
+       reviewed: "Return this gate moved by ``(dx, dy)`` in DATA units."
+       current:  "Return a copy shifted along both measurement axes."
+                 plus new :param dx: and :param dy: entries
+
+   The English was rewritten, not reformatted, so the reviewed Hindi is
+   a faithful translation of a sentence that has been deleted. It cannot
+   be carried forward by refreshing its hash -- that would silently
+   re-certify a translation nobody has read against the new text.
+
+WHAT IS NOT DONE, AND WHY. The stale record is human-review evidence,
+and retiring it is a decision about someone's review rather than a
+mechanical repair, so it has been left exactly as it is. The remedy is
+one of:
+
+  a. retire that single record from the hi evidence file, and let
+     `--repair-api-blocks` translate the new text afresh; or
+  b. have a Hindi reader translate the new docstring and replace the
+     record, which keeps the reviewed count honest.
+
+Either way the eleven missing symbols need a generation pass afterwards.
+The nine opus models the tool wants are present at the default
+--model-root, so the pipeline can run once the evidence question is
+settled. NOTE the disk: /mnt/firecuda2 is at 100% with under 10 GB free,
+which a translation pass should be checked against before it starts.
