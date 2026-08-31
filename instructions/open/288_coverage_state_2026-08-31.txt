@@ -418,7 +418,30 @@ input can reach, in functions the suite does exercise, and the useful
 work on them is a pin that fails when the premise moves -- not a driven
 test, which cannot exist.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 39 of roughly 300 distinct sites were
+AUDIT PROGRESS, updated as it goes. Sites read individually and given a
+driven test or a pin, by module:
+
+    TYPE_CHECKING guards (3 modules)          6   all unreachable
+    qt/preferences  theme token               5   all unreachable (310/37)
+    settings        organelle slot loop       1   unreachable
+    sequencing      single-end path           9   3 unreachable, path driven
+    plot            duplicated guards         8   all unreachable
+    io              migration + splits        6   all unreachable
+    timelapse       movie + smoothing         5   all unreachable, 1 arm driven
+    guide_attribution / regression_qc         2   both unreachable
+    errors / portable_paths                   2   both unreachable
+    utils, schema (verified already pinned)  10   all unreachable
+                                            ---
+                                             54
+
+Plus the 26 sites carrying an explicit pragma with a written reason.
+
+EVERY ONE of the 54 turned out to be unreachable by construction. Two
+NEW HOLES were found along the way and are the reason the audit is worth
+doing at all -- process_chunk's single-end half and settings' per-slot
+category loop, both reached by no test.
+
+BE HONEST ABOUT THE LIMIT OF THIS: 54 of roughly 300 distinct sites were
 read individually. That is a sample, not a census, and it was not drawn
 at random -- it is the largest modules and the sites this session
 touched. It is enough to say the pattern dominates; it is NOT enough to
@@ -429,8 +452,8 @@ something.
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- roughly 260 sites, at the rate above about
-     two sessions -- classifying each as unreachable-with-a-pin or
+  1. finish the hand audit -- roughly 245 sites remain, at the rate above
+     about two sessions, classifying each as unreachable-with-a-pin or
      drivable-and-untested, and writing the test either way;
   2. `deep_spacr`'s 6, which need a model, a data loader and a real
      epoch. An integration test, and the one block that will not yield
