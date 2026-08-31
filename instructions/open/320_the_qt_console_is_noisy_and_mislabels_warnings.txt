@@ -200,3 +200,52 @@ Guard: tests/qt/test_a_qt_warning_reaches_the_console_once.py, 3 tests -- one
 that fails if a Qt warning is rendered twice, one that fails if the
 de-duplication also swallows verbose-only detail, and one that fails if any
 level lands in the wrong band.
+
+
+------------------------------------------------------------------------------
+2026-08-31, LATER — THE VERSION FIGURES ARE NOT A CONTRADICTION: RECORD THE ENV
+------------------------------------------------------------------------------
+
+Two different PySide6 builds are installed on this host, in different conda
+envs, which is why "6.11.2" and "6.11.1" both appeared above. Neither number
+was wrong; the bare number was. MEASURED, not assumed -- and the measurement
+does not match what either of us remembered:
+
+    env       PySide6   Python
+    spacr     6.11.1    3.13.14
+    spacr12   6.11.2    3.12.14
+    spacr13   6.11.2    3.13.15
+
+`spacr13` was believed to have no PySide6 at all; it has 6.11.2. So the env
+goes next to the version everywhere in this entry, because "which interpreter"
+is the thing that disambiguates and it is the thing both of us got wrong.
+
+BOTH LOCAL BUILDS WERE THEN DRIVEN, and neither reproduces:
+
+    6.11.1  addMetaMethod warnings 0   emit-after-destroy SURVIVED
+    6.11.2  addMetaMethod warnings 0   emit-after-destroy SURVIVED  (x2 envs)
+
+That is a stronger negative than either run alone. The remaining space is
+PySide6 >= 6.12, or something genuinely macOS-only.
+
+(a) MUST BE ANSWERED BEFORE (b), and they were filed as independent questions.
+They are not. The control above measures a build that does NOT warn, so it
+establishes the baseline and NOTHING MORE. Where the warning fires, PySide is
+saying it could not register the tracking slot; whether the connection is then
+untracked can only be measured on a build that produces the warning. DO NOT
+read the SURVIVED results above as an answer to (b).
+
+WHAT (2) ACTUALLY WAS, and the lesson is not the one the symptom suggested.
+The report guessed "anything on stderr is an error". Reading `_on_log_record`
+shows the two-band split was a DELIBERATE DESIGN DECISION, stated in its own
+docstring, that had simply aged: it was written when WARNING-level records in
+this console were rare enough that lumping them with errors made them findable
+rather than alarming. A design decision that has aged needs a different fix and
+a different justification than a miscoded branch -- and writing this up as
+"someone routed stderr wrong" would have produced a correct-looking fix built
+on a false story, which is the kind that gets reverted later by someone who
+reads the original reasoning and thinks the fix missed it.
+
+The generalisation worth keeping: read the code that classifies, not the output
+that was classified. The symptom is downstream of the decision and cannot
+distinguish a bug from a choice.
