@@ -82,3 +82,49 @@ def test_the_source_install_is_copy_pasteable(phrase):
     has to translate before using.
     """
     assert phrase in README.read_text(encoding="utf-8")
+
+
+def _rst_errors(path) -> list:
+    """Every docutils error raised parsing ``path``."""
+    import contextlib
+    import io
+
+    import docutils.core
+    import docutils.utils
+
+    captured = io.StringIO()
+    with contextlib.redirect_stderr(captured):
+        docutils.core.publish_doctree(
+            path.read_text(encoding="utf-8"),
+            settings_overrides={"report_level": 2, "halt_level": 5},
+        )
+    return [line for line in captured.getvalue().splitlines()
+            if "ERROR" in line or "SEVERE" in line]
+
+
+@pytest.mark.parametrize("path", [README] + sorted(
+    (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst")),
+    ids=lambda p: p.name)
+def test_the_readme_has_no_rst_errors(path):
+    """A broken directive turns the module grid into a column of links.
+
+    This is not a style check. An image directive that fails to parse
+    leaves its substitution UNDEFINED, and a reference to an undefined
+    substitution renders on GitHub as the reference's own text -- so the
+    twenty-one buttons become twenty-one blue links, and nothing says
+    why.
+
+    That happened on 2026-08-31: the tiles were given ``:align: left``,
+    which is a block-image value. Inside a substitution definition
+    docutils accepts only top, middle and bottom, so every one of them
+    errored at once. The page still "rendered", which is what made it
+    worth a test rather than a comment.
+
+    All ten READMEs are checked, because the nine translated ones are
+    generated from the same pass and would break together.
+    """
+    errors = _rst_errors(path)
+    assert not errors, (
+        f"{path.name} has {len(errors)} RST errors; a failed image "
+        f"directive renders as a link, not a button:\n  "
+        + "\n  ".join(errors[:5]))

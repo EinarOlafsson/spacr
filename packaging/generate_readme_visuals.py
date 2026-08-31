@@ -544,10 +544,21 @@ def _readme_workflow(
                 f"   :width: {APP_DISPLAY_WIDTH}",
                 f"   :alt: {alt_template.format(module=label)}",
                 f"   :target: {urls[key]}",
-                # LEFT, not middle. A short row -- and three of the four
-                # bands are short -- would otherwise float away from the
-                # left edge that the core strip above it starts at.
-                "   :align: left",
+                # MIDDLE, and it MUST be. These are SUBSTITUTION
+                # definitions used inline in a paragraph, and docutils
+                # accepts only top/middle/bottom there -- "left" is a
+                # block-image value and raises "not a valid value for the
+                # align option within a substitution definition".
+                #
+                # The failure mode is why this comment is long: the
+                # directive errors, the substitution is never defined,
+                # and GitHub renders the reference as its alt text. The
+                # whole grid turns into a column of blue links, which is
+                # what happened when this was set to "left" on
+                # 2026-08-31. Left-alignment comes from the rows being
+                # left-anchored paragraphs and every tile sharing one
+                # offset -- not from this option.
+                "   :align: middle",
             ])
     return "\n".join([*lines, *definitions]).rstrip()
 

@@ -3200,15 +3200,23 @@ class MainWindow(QMainWindow):
         download_toxo_mito_demo(self, dst, _on_download_done)
 
     def _run_e2e_chain(self, dataset_path, settings_path) -> None:
-        """Run Mask → Measure → Annotate against the freshly-downloaded
-        dataset, prompting before each stage.
+        """Open Mask Generation on the downloaded dataset, ready to run.
 
-        The user gets a Continue/Stop popup before each stage kicks off
-        so they can inspect the previous run's output before letting
-        the next one loose. Non-interactive stages (mask, measure) run
-        their pipeline immediately after Continue; the annotate stage
-        just opens the annotation UI at the dataset root so the user
-        can start labelling.
+        IT DOES NOT RUN ANYTHING. Asked for on 2026-08-31: "the user
+        should be able to hit import and then live preview or run".
+
+        This used to be a Mask -> Measure -> Annotate chain that started
+        each pipeline itself, behind a Continue/Stop prompt per stage.
+        Two things were wrong with that. A demo dataset exists to be
+        LOOKED at -- the first thing anyone wants is Live Preview on one
+        field, to see what the settings do, and the chain went straight
+        past that to a full run. And a Continue prompt before work the
+        user did not ask to start is a dialog whose safe answer is No,
+        which is a strange thing to greet somebody with.
+
+        So: the settings land in the form, the screen opens, and the
+        user presses Live Preview or Run. Measure and Annotate are one
+        click away on the same screen when the masks exist.
         """
         from pathlib import Path
 
@@ -3217,71 +3225,47 @@ class MainWindow(QMainWindow):
         dataset_path  = Path(dataset_path)
         settings_path = Path(settings_path)
 
-        # Helper — load the app's default settings, then override with
-        # whatever CSV pack we downloaded for that app.
+        # MIGRATED, NOT MERGED. `settings_from_pack` reads the pack
+        # against this build's settings and reports what it could not
+        # place -- see spacr/qt/settings_pack.py for why reading a CSV
+        # straight over the defaults was the bug rather than the shortcut.
+        from .settings_pack import settings_from_pack
+
         def _settings_for(app_key: str) -> dict:
-            from .screens.settings_model import resolve_default_settings
-            settings = dict(resolve_default_settings(app_key))
-            csv = settings_path / f"{app_key}_settings.csv"
-            if csv.is_file():
-                import csv as _csv
-                with csv.open() as fh:
-                    for row in _csv.reader(fh):
-                        if not row or row[0].startswith("#") or len(row) < 2:
-                            continue
-                        k, v = row[0].strip(), row[1]
-                        if v.lower() in ("true", "false"):
-                            v = v.lower() == "true"
-                        else:
-                            try:
-                                v = int(v)
-                            except ValueError:
-                                try:
-                                    v = float(v)
-                                except ValueError:
-                                    pass
-                        settings[k] = v
-            settings["src"] = str(dataset_path)
+            settings, report = settings_from_pack(
+                app_key, settings_path, src=dataset_path)
+            if report.dropped or report.renamed or report.malformed:
+                LOG.info("settings pack for %s: %s", app_key, report.summary())
             return settings
 
-        stages = (
-            ("mask",     "Mask generation",
-             "Ready to start mask generation with the downloaded settings?"),
-            ("measure",  "Measurement",
-             "Mask stage finished. Ready to start measurement?"),
-            ("annotate", "Annotation",
-             "Measurement stage finished. Ready to open the annotation UI?"),
-        )
-        for stage, title, prompt in stages:
-            answer = QMessageBox.question(
-                self, title, prompt,
-                QMessageBox.Yes | QMessageBox.No,
-            )
-            if answer != QMessageBox.Yes:
-                self.statusBar().showMessage(
-                    f"E2E chain stopped at '{stage}' stage.", 6000)
-                return
-            settings = _settings_for(stage)
-            self._on_nav_selected(stage)
-            widget = self._screens.get(stage)
-            if widget is None:
-                QMessageBox.warning(self, "E2E",
-                    f"Couldn't open the '{stage}' screen.")
-                return
-            try:
-                if hasattr(widget, "apply_settings_dict"):
-                    widget.apply_settings_dict(settings)
-                # Kick off the pipeline automatically for mask + measure;
-                # annotate is interactive and opens directly at the
-                # loaded dataset so the user can start labelling.
-                if stage != "annotate" and hasattr(widget, "_on_run"):
-                    widget._on_run()
-            except Exception as e:
-                QMessageBox.warning(self, f"E2E: {stage} failed", str(e))
-                return
+        # ONE STAGE. Measure and Annotate are reached from Mask
+        # Generation once there are masks to measure; opening them now,
+        # against a dataset with no masks in it, would open two screens
+        # that can only report that there is nothing to do.
+        settings = _settings_for("mask")
+        self._on_nav_selected("mask")
+        widget = self._screens.get("mask")
+        if widget is None:
+            QMessageBox.warning(
+                self, "Demo dataset",
+                "The dataset downloaded, but Mask Generation would not "
+                "open. Point it at the folder yourself:\n"
+                f"{dataset_path}")
+            return
+        try:
+            if hasattr(widget, "apply_settings_dict"):
+                widget.apply_settings_dict(settings)
+        except Exception as error:                          # noqa: BLE001
+            LOG.exception("Could not apply the demo settings")
+            QMessageBox.warning(
+                self, "Demo settings",
+                "The dataset downloaded and Mask Generation is open, but "
+                "its settings could not be filled in automatically:\n"
+                f"{type(error).__name__}: {error}")
+            return
         self.statusBar().showMessage(
-            "E2E chain launched — check each app's console for progress.",
-            8000)
+            "Demo dataset loaded with its settings. Press Live Preview to "
+            "see one field, or Run to process the plate.", 12000)
 
     def _run_demo_generator(self, demo_key: str, dst: str):
         """Isolated for tests — invoke the named generator function
