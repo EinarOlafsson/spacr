@@ -440,8 +440,9 @@ driven test or a pin, by module:
     twelve settled widget guards             12   all unreachable
     fourteen small modules, one site each    14   all unreachable
     ml.py, six single decisions               6   all unreachable
+    io.py, nine more single decisions          9   all unreachable
                                             ---
-                                            127
+                                            136
 
 Plus the 26 sites carrying an explicit pragma with a written reason.
 
@@ -450,7 +451,7 @@ NEW HOLES were found along the way and are the reason the audit is worth
 doing at all -- process_chunk's single-end half and settings' per-slot
 category loop, both reached by no test.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 127 of roughly 300 distinct sites were
+BE HONEST ABOUT THE LIMIT OF THIS: 136 of roughly 300 distinct sites were
 read individually. That is a sample, not a census, and it was not drawn
 at random -- it is the largest modules and the sites this session
 touched. It is enough to say the pattern dominates; it is NOT enough to
@@ -461,7 +462,7 @@ something.
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- roughly 170 sites remain, at the rate above
+  1. finish the hand audit -- roughly 160 sites remain, at the rate above
      about two sessions, classifying each as unreachable-with-a-pin or
      drivable-and-untested, and writing the test either way;
   2. DONE 2026-08-31. `deep_spacr`'s 6 now have the integration test
