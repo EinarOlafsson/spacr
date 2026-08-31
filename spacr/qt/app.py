@@ -1377,9 +1377,9 @@ SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
     SECTION_CORE: ("mask", "measure", "annotate", "classify_merged",
                    "map_barcodes", "regression"),
     SECTION_DATA: ("foreign", "run_compare", "experiment_design", "power",
-                   "dose_response"),
+                   "dose_response", "qc_dashboard"),
     SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
-                    "graph_builder", "qc_dashboard"),
+                    "graph_builder"),
     SECTION_ASSAYS: ("analyze_plaques", "recruitment", "invasion",
                      "replication"),
 }

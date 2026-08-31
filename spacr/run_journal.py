@@ -113,6 +113,72 @@ def runs_root() -> Path:
     return p
 
 
+def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
+    """Delete journalled run folders. Returns ``(deleted, refused)``.
+
+    THIS REMOVES FILES, so every guard below is load-bearing rather than
+    defensive habit:
+
+    * A path is deleted only if, once resolved, it is strictly INSIDE
+      :func:`runs_root`. A record's ``dir`` is read from a manifest on
+      disk, and a manifest is a file a user can edit; ``../../..`` in one
+      must not reach anything. Resolving first is what makes the check
+      real -- comparing unresolved strings passes for a symlink that
+      points anywhere.
+    * ``runs_root()`` ITSELF is refused. "Delete everything" is a loop
+      over children, never a removal of the root, so a caller that
+      computes an empty selection cannot take the journal with it.
+    * The run OPEN ON THIS THREAD is refused: deleting the folder a run
+      is still writing into leaves it failing on its next write with an
+      error that names nothing.
+    * A path that is not a directory is refused rather than unlinked.
+
+    Refusals are RETURNED, not raised. Deleting fifty runs where one is
+    live should delete forty-nine and say which one it kept -- an
+    exception at that point has already deleted an unknown number and
+    tells the caller nothing about which.
+
+    :param directories: run folder paths, as in a record's ``"dir"``.
+    :returns: how many were removed, and a message per refusal.
+    """
+    import shutil
+
+    root = runs_root().resolve()
+    live = ""
+    try:
+        run = current_run()
+        if run is not None and getattr(run, "dir", None):
+            live = str(Path(run.dir).resolve())
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("Could not identify the running run", exc_info=True)
+
+    deleted, refused = 0, []
+    for raw in directories:
+        try:
+            target = Path(str(raw)).resolve()
+        except Exception:                                   # noqa: BLE001
+            refused.append(f"{raw}: not a usable path")
+            continue
+        if target == root:
+            refused.append(f"{target}: that is the run journal itself")
+            continue
+        if root not in target.parents:
+            refused.append(f"{target}: outside {root}")
+            continue
+        if not target.is_dir():
+            refused.append(f"{target}: not a run folder")
+            continue
+        if live and str(target) == live:
+            refused.append(f"{target.name}: still running")
+            continue
+        try:
+            shutil.rmtree(target)
+            deleted += 1
+        except Exception as error:                          # noqa: BLE001
+            refused.append(f"{target.name}: {type(error).__name__}: {error}")
+    return deleted, refused
+
+
 def _new_run_dir(app_key: str) -> Path:
     """Return a fresh ``<UTC-timestamp>_<short-uuid>__<app>`` folder."""
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")
