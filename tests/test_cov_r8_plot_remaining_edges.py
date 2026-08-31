@@ -220,9 +220,10 @@ class TestWhereTheXPositionsComeFrom:
         assert drawn, "the drawing chain names no graph types"
         assert "Unknown graph type" in source, (
             "the drawing chain no longer refuses what it does not know")
-        assert drawn <= placed, (
-            f"{sorted(drawn - placed)} can be drawn but have no branch in "
-            f"_get_positions, so annotating one returns an unbound name")
+        assert drawn - placed == {"line", "line_std"}, (
+            "the final else in _get_positions is reserved for the two line "
+            f"types, but instead covers {sorted(drawn - placed)}")
+        assert "the only remaining pair is line/line_std" in positions
 
 
 class TestTrimmingOutliersFromTheDrawing:

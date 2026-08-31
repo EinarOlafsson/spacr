@@ -163,14 +163,13 @@ class TestTheDefaultsThatNoCallerCanReach:
             "own `extensions is None` arm is reachable and wants a test")
 
     def test_the_file_plotter_is_never_asked_to_save(self):
-        """`save=False` is hardcoded at the only call site."""
+        """The unreachable save parameter and branch were removed."""
         import inspect
 
         source = inspect.getsource(P.plot_images_and_arrays)
         assert "plot_from_file_dict(" in source
-        assert "save=False)" in source, (
-            "the file plotter is now called with a save argument that can be "
-            "true, so its `if save:` branch is reachable")
+        assert "save=False" not in source
+        assert "if save:" not in source
 
     def test_the_annotation_join_is_always_given_its_tables(self):
         """`tables=None` cannot happen: the caller names all four."""

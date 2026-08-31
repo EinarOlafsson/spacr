@@ -49,28 +49,14 @@ class TestTheOutlineForAChannel:
         assert 5 not in channels_with_outlines
         assert channel_to_outline.get(5) is None
 
-    def test_an_entry_whose_mask_is_none_is_skipped(self):
-        """THE ARC below it: the entry exists and its mask does not.
+    def test_membership_is_followed_by_direct_lookup(self):
+        block = _between("elif current_channel in channels_with_outlines:",
+                         "else:\n                    if all_outlines:")
 
-        A channel can be registered for outlines and have nothing
-        segmented on it -- an empty mask array, or a role the run did not
-        produce -- and drawing contours from None is a TypeError inside a
-        figure that had otherwise rendered.
-        """
-        entry = {"mask": None, "color": "#fff"}
-
-        assert entry is not None
-        assert entry["mask"] is None
-
-    def test_both_lookups_are_guarded_in_order(self):
-        block = _between("if outline_info is not None:",
-                         "if outline is not None:")
-        info = block.index("if outline_info is not None:")
-        mask = block.index("if outline is not None:", info)
-
-        assert info < mask, (
-            "the mask is read before the entry is checked, so a channel "
-            "with no outline entry raises a TypeError on subscript")
+        assert "channel_to_outline[current_channel]" in block
+        assert "channel_to_outline.get" not in block
+        assert "if outline_info is not None:" not in block
+        assert "if outline is not None:" not in block
 
 
 class TestTheThreeRoleOutlines:
@@ -89,27 +75,12 @@ class TestTheThreeRoleOutlines:
                 outline = pathogen_outlines
             assert outline == expected
 
-    def test_a_channel_that_is_no_role_draws_no_contour(self):
-        """THE ARC: ``outline`` is still None after the chain.
+    def test_role_channels_are_mapped_to_concrete_outlines(self):
+        source = inspect.getsource(P.plot_image_mask_overlay_magenta_outlines)
 
-        A merged stack can carry an intensity channel that is nobody's
-        mask -- a stain with no segmentation -- and it is shown plain
-        rather than contoured with whatever the last role had.
-        """
-        outline = None
-
-        assert outline is None
-
-    def test_the_role_chain_still_ends_in_a_none_check(self):
-        block = _between("elif current_channel == pathogen_channel",
-                         "'#FF00FF'")
-        chain = block.index("elif current_channel == pathogen_channel")
-        check = block.index("if outline is not None:", chain)
-
-        assert chain < check
-        assert "'#FF00FF'" in block[check:], (
-            "the single-role contour is no longer magenta, which is what "
-            "distinguishes it from the all-on-all colouring")
+        assert "outlines_by_channel[current_channel]" in source
+        assert "if outline is not None:" not in source
+        assert "'#FF00FF'" in source
 
 
 class TestTheAxisLimits:
@@ -135,14 +106,18 @@ class TestTheAxisLimits:
             assert (limit is not None) is True
         assert bool(()) is False and () is not None
 
-    def test_every_limit_check_is_an_identity_test(self):
+    def test_defaults_are_resolved_before_unconditional_limit_application(self):
         source = inspect.getsource(P)
 
-        assert "if x_lim is not None:" in source
-        assert "if y_lim is not None:" in source
-        assert "if x_lim:" not in source, (
-            "an axis limit is being tested for truth, so the pair (0, 0) is "
-            "silently ignored")
+        lorenz = inspect.getsource(P.plot_lorenz_curves)
+        assert lorenz.index("if x_lim is None:") < lorenz.index("ax.set_xlim(x_lim)")
+        assert lorenz.index("if y_lim is None:") < lorenz.index("ax.set_ylim(y_lim)")
+        assert "if x_lim is not None:" not in lorenz
+        assert "if y_lim is not None:" not in lorenz
+
+        vision = inspect.getsource(P.read_and_plot__vision_results)
+        assert vision.index("if y_lim is None:") < vision.index("ax.set_ylim(y_lim)")
+        assert "if y_lim is not None:" not in vision
 
 
 class TestTheGraphTypeDispatch:
@@ -163,8 +138,7 @@ class TestTheGraphTypeDispatch:
         """
         source = inspect.getsource(P.create_grouped_plot)
 
-        assert "elif graph_type not in ('bar', 'violin', 'jitter', 'box'," \
-            in source
+        assert "else:" in source
         assert "raise ValueError(" in source
         # The sentence wraps across two comment lines, so match a half.
         assert "blanked the" in source and "reported no error" in source, (
@@ -206,10 +180,11 @@ class TestTheGroupingOrder:
 
         assert list(ordered.categories) == ["a", "b", "c"]
 
-    def test_a_missing_grouping_column_is_left_alone(self):
-        frame = pd.DataFrame({"other": [1]})
+    def test_missing_grouping_columns_are_refused_before_ordering(self):
+        frame = pd.DataFrame({"other": [1], "val": [2.0]})
 
-        assert "g" not in frame.columns
+        with pytest.raises(KeyError):
+            P.spacrGraph(frame, "g", "val")
 
 
 class TestTheJitterPositions:
@@ -225,12 +200,13 @@ class TestTheJitterPositions:
 
         assert x_positions == []
 
-    def test_the_dispatch_still_names_both_line_types(self):
+    def test_the_dispatch_uses_the_validated_final_else(self):
         source = inspect.getsource(P)
 
-        assert "elif self.graph_type in ['line', 'line_std']:" in source, (
-            "line_std no longer shares the line branch, so it falls through "
-            "to a marker read it has no offsets for")
+        positions = source[source.index("def _get_positions(self, ax):"):]
+        positions = positions[:positions.index("return x_positions")]
+        assert "elif self.graph_type in ['line', 'line_std']:" not in positions
+        assert "the only remaining pair is line/line_std" in positions
 
 
 class TestMarkingTheTrimmedResults:
@@ -245,16 +221,15 @@ class TestMarkingTheTrimmedResults:
         results["outliers_removed_from_plot_only"] = True
         assert bool(results["outliers_removed_from_plot_only"].iloc[0])
 
-    def test_an_empty_results_frame_is_not_given_a_column(self):
-        """THE ARC: nothing was fitted.
+    def test_a_real_graph_always_has_a_result_row_to_stamp(self):
+        frame = pd.DataFrame({"grp": ["a", "a", "b", "b"],
+                              "val": [1.0, 1.1, 2.0, 2.1]})
+        graph = P.spacrGraph(frame, "grp", "val", graph_type="box",
+                             remove_outliers=True)
+        graph.create_plot()
 
-        Assigning to an empty frame creates a column with no rows, which
-        then appears in the CSV as a header for data that is not there.
-        """
-        results = pd.DataFrame([])
-
-        assert results.empty
-        assert list(results.columns) == []
+        assert not graph.results_df.empty
+        assert graph.results_df["outliers_removed_from_plot_only"].all()
 
     def test_the_trim_is_reported_with_both_numbers(self):
         source = inspect.getsource(P)
