@@ -1744,8 +1744,23 @@ class SetupSlides(QDialog):
         margin = 28
         width = max(1, card.width() - 2 * margin)
         note.setFixedWidth(width)
-        note.setGeometry(margin, int(card.height() * GPU_NOTE_BAND),
-                         width, note.sizeHint().height())
+        # HEIGHT FOR THIS WIDTH, not the bare size hint. A word-wrapped
+        # QLabel's `sizeHint()` is the height it would like if it could
+        # choose its own width, which for two sentences of prose is far
+        # taller than the wrapped text -- 323 px against a 700 px card.
+        # The box was then centred inside that, which put the words below
+        # the card's bottom edge: the verdict was written, coloured and
+        # placed, and simply not on screen.
+        height = note.heightForWidth(width)
+        if height <= 0:
+            height = note.sizeHint().height()
+        top = int(card.height() * GPU_NOTE_BAND)
+        # AND IT CANNOT HANG OFF THE BOTTOM. A card short enough that the
+        # band plus the wrapped height overflows lifts the note instead of
+        # losing it -- the note is the answer to "can this machine run
+        # spaCR", so a small window must not be the reason it is missed.
+        top = max(0, min(top, card.height() - margin - height))
+        note.setGeometry(margin, top, width, height)
         note.raise_()
 
     def _say_what_the_gpu_is(self) -> None:
