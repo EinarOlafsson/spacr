@@ -36,24 +36,42 @@ class TestTheMulticlassMetrics:
         assert isinstance(metrics, dict)
         assert metrics, "a real prediction set produced no metrics"
 
-    def test_no_labels_at_all_is_scored_without_indexing_nothing(self):
-        """THE UNCOVERED ARC: ``len(y_true)`` is zero.
+    def test_no_labels_at_all_is_answered_at_the_top(self):
+        """An evaluation over zero rows is a real state.
 
-        The one-hot matrix is built by index assignment, and
-        ``y_true_oh[np.arange(0), y_true] = 1`` on an empty array is
-        fine -- but only because the guard makes it unnecessary. What
-        the guard really buys is the SHAPE: an empty y_true whose dtype
-        is float, which is what an empty pandas column gives you, is not
-        a legal index at all.
-
-        An evaluation over zero rows is a real state: a fold whose
-        validation split selected nothing, or a class filter that
-        removed every row.
+        A fold whose validation split selected nothing, or a class
+        filter that removed every row. scikit-learn 1.7 rejects empty
+        arrays in ``confusion_matrix``, so the function answers before
+        it gets there: the metrics are undefined, the class schema is
+        known, and no sample is fabricated to fill the gap.
         """
         empty = np.array([], dtype=int)
         metrics = D._multiclass_metrics(empty, np.zeros((0, 3), dtype=float))
 
         assert isinstance(metrics, dict)
+
+    def test_the_one_hot_guard_further_down_cannot_fire(self):
+        """THE PIN, for ``if len(y_true):`` before the one-hot fill.
+
+        It is a second check of the same question, and the first one
+        already returned: an empty ``y_true`` never reaches it. Keeping
+        it is cheap and it guards a real hazard --
+        ``y_true_oh[np.arange(0), y_true] = 1`` with a FLOAT-typed empty
+        array, which is what an empty pandas column gives you, is not a
+        legal index -- but the early return is what makes it moot.
+
+        This fails if that early return goes, which is exactly when the
+        one-hot guard becomes the only thing standing there.
+        """
+        source = inspect.getsource(D._multiclass_metrics)
+        early = source.index("if len(y_true) == 0:")
+        one_hot = source.index("if len(y_true):")
+        assert early < one_hot, (
+            "the empty case is no longer answered before the one-hot fill")
+
+        empty = pd.Series([], dtype=float).to_numpy()
+        with pytest.raises((IndexError, TypeError)):
+            np.zeros((0, 3), dtype=int)[np.arange(0), empty] = 1
 
     def test_a_float_typed_empty_label_array_is_also_survivable(self):
         """What the guard is actually for: an empty column is float64."""
