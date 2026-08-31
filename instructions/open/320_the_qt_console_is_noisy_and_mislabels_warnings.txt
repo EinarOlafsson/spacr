@@ -278,3 +278,129 @@ reads the original reasoning and thinks the fix missed it.
 The generalisation worth keeping: read the code that classifies, not the output
 that was classified. The symptom is downstream of the decision and cannot
 distinguish a bug from a choice.
+
+
+==============================================================================
+2026-08-31, ON THE MAC — (3) SOLVED. IT IS NOT THE WIDGET, IT IS THE PARENT
+==============================================================================
+
+ENV: conda env `spacr` on darwin, Python 3.12.11, PySide6 6.11.2,
+shiboken6 6.11.2. Same version the Linux machines run, per the table above.
+
+THE CAUSE
+---------
+`QEvent.ChildAdded` is delivered SYNCHRONOUSLY from inside the child's C++
+constructor -- before Shiboken has registered the wrapper for the Python
+class being built. A `ChildAdded` event filter that calls `event.child()`
+at that instant forces Shiboken to mint a BARE QWidget wrapper and register
+THAT under the child's pointer. Shiboken's `assignWrapper` never overwrites
+an existing key, so the real wrapper is never registered; when the bare one
+is later collected it erases the entry it does own. The pointer is then
+mapped to NOTHING for the rest of the process.
+
+That single fact produces every symptom, including the two that looked like
+separate clues:
+
+  * "No Wrapper found" is `BindingManager::retrieveWrapper` returning null.
+  * The receiver being reported as `QWidget` is the SAME failure: the
+    wrapper's `metaObject()` override falls back to `QWidget::metaObject()`
+    when the lookup misses. Not a second clue, as the entry already
+    suspected -- but it is the one that led here, so it was worth chasing.
+
+`AppScreen._watch_for_late_captions` (app_screen.py:5354) installs exactly
+such a filter, `_LateCaptionTranslator` (app_screen.py:732), on three hosts
+including the screen itself. It is called from `__init__` at line 1162;
+`_install_ambient` is called at line 1247. The backdrop is parented into the
+screen 85 lines after the filter goes live, which is why the backdrop is
+what warns and why it repeats once per screen built.
+
+app_screen.py ALREADY DESCRIBED THIS EFFECT, at `_on_arrival` (:771-776):
+"what it hands out is a bare QWidget wrapper of a widget whose real class
+does not exist yet -- and that wrapper stays a QWidget for the rest of the
+process". It was read as a quirk of `event.child()` to work around locally
+with `inherits` instead of `isinstance`. It is this warning's cause.
+
+MEASURED, three lines, no spaCR code involved
+---------------------------------------------
+Diagnostic Part 5. A QWidget host, a child that connects a timer to a bound
+method, and one event filter:
+
+    no filter at all              : 0 warnings
+    filter CALLS event.child()    : 2 warnings   <-- REPRODUCED
+    filter IGNORES event.child()  : 0 warnings   (it saw 1 ChildAdded)
+
+So it is the call, not the filter and not the event. It reproduces on a
+plain QWidget subclass; nothing about `AmbientWidget` is involved.
+
+NOTHING WAS WRONG WITH AmbientWidget. Four hypotheses about the CHILD died
+first -- version, connect-in-__init__, parenting, dangling connection -- and
+the fifth question this instruction set ("what is different about
+AmbientWidget?") has the answer NOTHING. Parts 1-4 are kept because they are
+what ruled the child out. The trace that broke it open was reading
+`metaObject().className()` on each line of `AmbientWidget.__init__`: it is
+already 'QWidget' on the line AFTER `super().__init__(parent)`, so no code
+in that constructor could be responsible.
+
+(b) FROM THE ORIGINAL ENTRY IS NOW ANSWERED, ON A BUILD THAT WARNS
+-------------------------------------------------------------------
+The connection is NOT dangerous, and it is NOT merely cosmetic either.
+
+  * It still fires. A/B against a healthy control, same widget, same timer:
+    58 ticks to 58. The backdrop animates; every affected module works.
+    That half of the old note was right.
+  * But the child loses its whole DYNAMIC METAOBJECT, not just the tracking
+    slot. Measured on an identical pair of widgets declaring `poked(int)`:
+
+        unwatched host        : className 'Ticker', indexOfSignal 33,
+                                findChildren 1, emit delivered [7]
+        touched by the filter : className 'QWidget', indexOfSignal -1,
+                                findChildren 0, emit delivered []
+
+    A signal declared on an affected widget is absent from its metaobject,
+    so emitting it is a SILENT NO-OP, and `findChildren()` by type cannot
+    see the widget at all. `parent.children()` hands back a bare QWidget.
+
+So "a lifetime optimisation, not the behaviour" understated it. Today's only
+affected widget (`AmbientWidget`) declares no signals, so the live cost is
+noise -- but this is a trap armed for the next widget parented into a screen
+that does declare one, and it would fail silently.
+
+"macOS-SPECIFIC, SAME VERSION" LOOKS WRONG
+------------------------------------------
+The mechanism has nothing platform-specific in it, and Part 5 reproduces it
+from QWidget and an event filter alone. NOT PROVEN ON LINUX from here -- one
+command settles it, and a Linux session should run it before this line is
+believed either way:
+
+    python tools/diagnose_pyside_slot_warning.py
+
+Likeliest reason the Linux captures saw zero: `_install_ambient` returns
+early and reschedules through `QTimer.singleShot(120, ...)` when the
+heavy-import lock is busy, so a screen can be built with no backdrop at all.
+On this Mac, three screens produced two warnings for that reason. A capture
+that navigates and calls `processEvents()` never waits out that 120 ms.
+
+THE FIX, AND WHO OWNS IT
+------------------------
+In the filter, not in any child. `_LateCaptionTranslator.eventFilter` should
+capture `watched` -- which is fully wrapped already -- and look at its
+children one turn later, instead of calling `event.child()` while the child
+is still being constructed. Verified here on the synthetic pair: 0 warnings,
+className restored, `findChildren` 1, emit delivered.
+
+Deferring that way also hands back the child's REAL class, which removes the
+reason `_on_arrival` has to ask Qt with `inherits` rather than Python with
+`isinstance` -- so the workaround at :771-776 can go with it.
+
+NOT DONE HERE: `spacr/qt/screens/app_screen.py` belongs to another session
+and this one was told to stay out of it. The `_QT_NOISE` entry in
+spacr/qt/__init__.py is therefore LEFT IN PLACE, with its reasoning
+rewritten to record the cause and to say that the entry must be deleted as
+soon as the filter stops calling `event.child()`. Removing it now would
+restore the noise without repairing anything.
+
+UNRELATED, SEEN IN PASSING, NOT INVESTIGATED: constructing
+`AmbientWidget(QWidget())` with a temporary parent segfaults, because the
+parent is collected immediately and takes the child with it. Self-inflicted
+by that probe rather than a shape any spaCR code uses, so it is recorded
+here and not chased.
