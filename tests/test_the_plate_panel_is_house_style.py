@@ -169,6 +169,28 @@ def test_an_unmeasured_well_is_masked_rather_than_drawn_as_zero():
     assert int(np.isfinite(block).sum()) == 3
 
 
+def test_well_matrices_owns_the_array_it_masks(monkeypatch):
+    """Pandas 3 may return a read-only view unless ``copy=True`` is explicit."""
+    original = pd.DataFrame.to_numpy
+
+    def read_only_view_by_default(frame, *args, **kwargs):
+        array = original(frame, *args, **kwargs)
+        if not kwargs.get("copy", False):
+            array.setflags(write=False)
+        return array
+
+    monkeypatch.setattr(pd.DataFrame, "to_numpy", read_only_view_by_default)
+    frame = pd.DataFrame({
+        "prc": ["p1_r1_c1", "p1_r2_c2"],
+        "value": [4.0, 7.0],
+    })
+
+    _names, matrices, _grid = well_matrices(frame, "value")
+
+    assert matrices[0][0, 0] == 4.0
+    assert np.isnan(matrices[0][0, 1])
+
+
 def test_the_invented_zeros_do_not_set_the_colour_scale():
     """The failure this reproduces, on the real screen: the drawn range was
     0.000-0.243 where the range of the wells that exist is 0.060-0.273."""
