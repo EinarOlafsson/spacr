@@ -267,3 +267,40 @@ The guard is tests/qt/test_the_window_comes_before_the_dialog_filters.py
 the blocks registered while the window is built ALONGSIDE the restyles,
 because a restyle per registering module and one restyle for all of them are
 indistinguishable if you only count restyles.
+
+
+--------------------------------------------------------------------------------
+2026-08-31 — A RECOVERED LEAD: 323,014 IMPORT STATEMENTS PER REGRESSION BUILD
+--------------------------------------------------------------------------------
+
+Found as an UNCOMMITTED edit in the duplicate checkout at
+/media/carruthers/mnt3/claude/repo/spacr, which had zero unique commits and was
+deleted on the maintainer's instruction once this was preserved. It is recorded
+here rather than applied because spacr/qt/widgets/ is held by a concurrent
+session.
+
+`feature_dictionary._still_alive` does `from shiboken6 import isValid` INSIDE
+the function. `FeatureHelpFilter` is installed on the QApplication and must
+check liveness before it may touch `event.type()`, so `_still_alive` runs twice
+for every event in the application -- 323,014 times while ONE Regression screen
+is built. That is 323,014 executions of an import statement.
+
+    import inside the function   625 ms per Regression screen build
+    resolved once at module level 33 ms
+
+Measured, not assumed. The patch hoists the import to a module-level
+`_SHIBOKEN_IS_VALID`, keeping the fallback as a module-level `None` so the
+"cannot ask the question" branch behaves exactly as before.
+
+    instructions/data/314_feature_dictionary_shiboken_import.patch
+
+WHY IT MATTERS TO THIS ITEM. 592 ms on a Regression build is not the
+multi-second hang either, and must not be reported as its cause -- this file
+has already recorded one inefficiency being mistaken for the explanation. But
+Regression is the screen the maintainer named, and this is the largest single
+measured cost found in its build so far. Apply it, re-measure the build, and
+see what is left.
+
+NOT APPLIED HERE. Whoever holds spacr/qt/widgets/ should apply it, add a guard
+that fails if the import returns inside the function, and re-run the cold
+Regression gate.
