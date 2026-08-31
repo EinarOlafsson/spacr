@@ -111,16 +111,40 @@ class TestThePageColourIsNotAppliedAndThenWithdrawn:
 
     def test_a_palette_event_waits_until_the_backdrop_is_decided(
             self, qtbot, monkeypatch):
-        """A nested settings-build event must not resolve a partial screen."""
+        """A nested settings-build event must not resolve a partial screen.
+
+        The flag is `_backdrops_ready`. This test set
+        `_ambient_install_ready`, which the screen has never had under
+        that name, so it created an unused attribute, the real guard
+        stayed True, and the test failed on the behaviour it was written
+        to protect. Setting a flag that does not exist is silent in
+        Python, which is why this went unnoticed.
+        """
         scr = _make_screen(qtbot, "mask")
         calls = []
         monkeypatch.setattr(scr, "_sync_page_palette",
                             lambda: calls.append("page"))
 
-        scr._ambient_install_ready = False
+        assert hasattr(scr, "_backdrops_ready"), (
+            "the guard has been renamed again; this test is asserting "
+            "nothing until it is pointed at the new name")
+        scr._backdrops_ready = False
         scr.changeEvent(QEvent(QEvent.PaletteChange))
 
         assert calls == []
+
+    def test_a_palette_event_is_honoured_once_the_backdrop_is_decided(
+            self, qtbot, monkeypatch):
+        """The other side, so the guard cannot pass by never firing."""
+        scr = _make_screen(qtbot, "mask")
+        calls = []
+        monkeypatch.setattr(scr, "_sync_page_palette",
+                            lambda: calls.append("page"))
+
+        scr._backdrops_ready = True
+        scr.changeEvent(QEvent(QEvent.PaletteChange))
+
+        assert calls == ["page"]
 
 
 # ---------------------------------------------------------------------------
