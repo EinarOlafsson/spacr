@@ -103,6 +103,14 @@ class GraphBuilderScreen(QWidget):
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         super().__init__(parent)
         self.setObjectName("GraphBuilderScreen")
+        # ITS OWN REGISTRY KEY. Screens that build themselves rather
+        # than being the generic `AppScreen` had no `app_key`, and
+        # `install_folds_on` dispatches on exactly that -- so this screen
+        # could declare folds (it does, below) and never be handed them.
+        # Every other consumer of `app_key` reads it the same way the
+        # generic screen sets it, so naming it here is the screen
+        # answering a question it always could.
+        self.app_key = "graph_builder"
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         # Every table read goes through here, so it never runs on the GUI

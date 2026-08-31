@@ -317,7 +317,13 @@ DECLARED_APPS = (
     DeclaredApp(
         module='spacr.qt.screens.qc_dashboard',
         key='qc_dashboard',
-        name='QC Dashboard',
+        # "QC", NOT "QC Dashboard". Asked for on 2026-08-31 as part of
+        # making ONE QC module: Layer Viewer and Control Charts folded in
+        # as buttons, and the module that hosts them is now just QC. The
+        # key is unchanged -- it is in saved sessions, run records and
+        # settings files, and renaming a display name must not rename
+        # anything that has been written to disk.
+        name='QC',
         desc=(
             'Review stored checks for segmentation, units, leakage, plate '
             'effects, and annotation agreement'
@@ -325,7 +331,7 @@ DECLARED_APPS = (
         section='Explore',
         factory='make_qc_dashboard_screen',
         stage='alpha',
-        title='QC Dashboard',
+        title='QC',
         intro=(
             'Summarizes quality-control results stored by completed runs; '
             'opening this screen does not recompute masks or measurements. '
@@ -339,16 +345,24 @@ DECLARED_APPS = (
             'format_dashboard() to read and format the same stored results.'
         ),
         api_module='qt/screens/qc_dashboard',
+        # "QC" IS THE SAME INITIALISM IN EIGHT OF THE NINE. The old
+        # names each translated the word "dashboard" -- QC-panel,
+        # QC-Übersicht, Tableau de bord QC -- and that word is gone, so
+        # every one of them had to change or they would name a screen
+        # that no longer exists. Chinese keeps a translated form because
+        # a bare Latin initialism is not read as a word there; Icelandic
+        # keeps its own because `gæði` is the ordinary word for quality
+        # and `Gæðaeftirlit` is what the field is actually called.
         translations=(
-            'QC-panel',
-            'QC-Übersicht',
-            'Panel de control de QC',
-            '质控面板',
-            'Painel de QC',
-            'QC डैशबोर्ड',
-            'QC 대시보드',
-            'Gæðayfirlit',
-            'Tableau de bord QC',
+            'QC',
+            'QC',
+            'QC',
+            '质控',
+            'QC',
+            'QC',
+            'QC',
+            'Gæðaeftirlit',
+            'QC',
         ),
     ),
     DeclaredApp(

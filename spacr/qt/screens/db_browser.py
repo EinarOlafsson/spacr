@@ -144,6 +144,7 @@ from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.toggle import Toggle
+from .app_screen import ModuleHeader
 
 __all__ = [
     "DB_FILENAME",
@@ -1411,6 +1412,13 @@ class DbBrowserScreen(LinkedView, QWidget):
 
     def __init__(self, parent=None, threaded: bool = True):
         super().__init__(parent)
+        # ITS OWN REGISTRY KEY. `install_folds_on` dispatches on this, so
+        # without it the folds declared at the foot of this module could
+        # never be handed to the screen that declares them. Passing
+        # `app_key` to `ModuleHeader` is not the same thing -- that tells
+        # the HEADER which module it titles; this tells the SCREEN what it
+        # is.
+        self.app_key = "db_browser"
         self._threaded = bool(threaded)
         self._db: Optional[ReadOnlyDb] = None
         self._table: str = ""
@@ -1518,9 +1526,20 @@ class DbBrowserScreen(LinkedView, QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel("Database Browser")
-        title.setObjectName("DisplayHeading")
-        outer.addWidget(title)
+        # A ModuleHeader RATHER THAN A BARE LABEL. It draws the same
+        # `DisplayHeading` this used to build by hand, and it is what
+        # every other module page wears -- but the reason for the change
+        # is `add_trailing`: the fold strip declared at the foot of this
+        # module is hung on a masthead, and a plain QLabel is not one, so
+        # Lineage and Tabulate had nowhere to appear.
+        header = ModuleHeader(
+            "Database Browser",
+            description="Browse, filter and export tables from "
+                        "measurements.db",
+            app_key="db_browser",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         subtitle = QLabel(
             "Read-only by default. spaCR opens the file with mode=ro and "
