@@ -2224,3 +2224,57 @@ WORTH NOTING for the sweep generally: five items that looked drivable
 were not, and the way to find that out was to try to drive them and read
 why the assertion failed. A "reachable-looking" branch is not evidence
 that it is reachable.
+
+
+==============================================================================
+30 AND 36, CORRECTED 2026-08-31: THE HAZARD IS REAL, THE DIAGNOSIS WAS NOT
+==============================================================================
+
+Entry 30's hazard is confirmed on this machine, with different paths than it
+recorded, and it is worse than "two editable installs" -- the surviving one
+points somewhere nobody would guess:
+
+  env `spacr` (py3.13)   __editable___spacr_1_5_0_4_finder.MAPPING
+                         spacr -> /media/carruthers/mnt3/claude/repo/spacr/spacr
+                         which is the OTHER lineage, not this checkout.
+  env `base`  (py3.9)    site-packages/spacr/ holds only `resources/` and has
+                         no __init__.py, so `spacr` resolves as a NAMESPACE
+                         package and every submodule appears missing.
+
+The finder sits on `sys.meta_path` AFTER `PathFinder`, so it answers only when
+sys.path misses -- which means it wins silently whenever the intended tree is
+not on the path, and stays invisible whenever it is. That is the whole trap:
+the same command reads two different lineages depending on the cwd.
+
+BUT ENTRY 36'S DIAGNOSIS IS WRONG, and it sent the review down the wrong road.
+It says the caption builder fails at d0c1a633c because "the interpreter mixes
+the worktree's modules with the editable install's". It does not. Both sides
+of that ImportError are inside the worktree:
+
+    app_screen.py:48  from ..theme import (..., preserve_widget_qss_overlay)
+    theme.py          does not define it -- nor _LOCAL_WIDGET_QSS_ATTRIBUTE
+
+d0c1a633c DOES NOT IMPORT ON ITS OWN. No foreign module takes part, and no
+amount of sys.path isolation would have helped. `a3c18f779` added both the
+definition and its use; the lane that produced d0c1a633c kept the use and lost
+the definition. app_screen calls it at 1714 and 1735, so this is not a stray
+import -- that revision's app screen would fail at runtime too.
+
+THE GENERAL POINT, which is the reusable half: "cannot import name X from Y"
+looks identical whether Y is the wrong copy or the right copy missing X. The
+question that separates them is where Y actually lives, and it is one line to
+ask. Entry 36 assumed the first without asking, because entry 30 had made the
+first salient.
+
+WHAT WAS BUILT: tools/i18n_reference_sources.py reads canonical_sources() from
+any revision in a subprocess whose sys.meta_path and sys.path cannot reach an
+editable install -- and then PROVES it by checking every loaded spacr* module
+resolves inside the target tree. It reports the two faults separately, which is
+what this entry got wrong. `doctor` reports the hazards above for whichever
+interpreter runs it; both are still present and are environment repairs, not
+code changes, so neither is done here.
+
+Guard: tests/test_i18n_reference_sources.py, 7 tests. The three that carry the
+argument -- the isolation proof, the child's own sys.path scrub, and the
+internally-inconsistent verdict -- were mutation-checked; the first version of
+the scrub test passed with the scrub disabled and was replaced.

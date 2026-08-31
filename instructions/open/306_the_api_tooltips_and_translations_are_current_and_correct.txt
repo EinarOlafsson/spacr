@@ -586,3 +586,64 @@ digest
 ``16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf``.
 The remaining debt and the exhaustive semantic-review criterion keep this item
 OPEN and release-blocking.
+
+
+PROGRESS 2026-08-31 -- THE CAPTION REVIEW IS UNBLOCKED, AND THE REFERENCE
+REVISION WAS THE WRONG ONE
+--------------------------------------------------------------------------
+
+The route recorded above -- recompute the previous identity set by running
+`canonical_sources()` against d0c1a633c -- could not have worked, for a reason
+that is not the one instruction 310 entry 36 gave. d0c1a633c does not import:
+its `app_screen.py` imports and calls `preserve_widget_qss_overlay`, and its
+own `theme.py` defines neither that nor `_LOCAL_WIDGET_QSS_ATTRIBUTE`. Both
+files are inside the tree, so no editable install is involved. See 310's
+dated correction.
+
+`tools/i18n_reference_sources.py` now reads canonical_sources() from any
+revision in a proven-isolated subprocess. Measured with it:
+
+    3c224e468   4,880   db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd
+    71a328baa   4,960   bd9b5d04497cc9d9c2910d296e5cb85d978551678c1a5cb9c36ace81167f9bab
+    d0c1a633c   4,978   302923574e2077d8f06559f022f07ee9daea0454c75afa81a39e20de83ce5902
+                        (only after restoring the two missing theme symbols in
+                        a scratch worktree; unpatched it does not import)
+    HEAD        4,982   a9f5f60abbc16c59cc3702d2e339759e4b8145692bc0dd948b2838207a222664
+
+THE PINNED CONSTANT BELONGS TO 3c224e468, not to d0c1a633c. `git log -S` shows
+the digest written in three commits; only the first computes it. d0c1a633c
+moved `EXTERNAL_SOURCE_KEY_SHA256` while its own ratchet test could not run --
+the test calls canonical_sources(), which raises there -- so it recorded a
+fingerprint it had no way to verify, and the value it wrote was already 98
+records stale. 71a328baa did the same. This is the failure the ratchet exists
+to prevent, arriving through the ratchet's own maintenance.
+
+THE REVIEW SET IS NOT 102 RECORDS. It is 133 added and 31 removed, netting the
+102 that was being reported as if it were the additions alone:
+
+    SETTING_LABELS      +16    -0
+    SETTING_TOOLTIPS    +16    -0
+    UI                 +101   -31
+    CATEGORY_HELP        +0    -0
+    MODULE_SUMMARIES     +0    -0
+
+The 31 removals matter more than their count suggests: they are reworded UI
+strings, not deleted ones -- the power-simulator tooltips, the preferences
+chrome, several spaceout captions. A reworded caption is one removal plus one
+addition, and its nine existing translations are stale rather than absent, so
+a review of additions alone would have passed nine locales of text that no
+longer describes what it labels.
+
+Exact lists: instructions/data/306_caption_identities_since_3c224e468.json
+
+REPRODUCE:
+
+    python tools/i18n_reference_sources.py capture --rev 3c224e468 --out ref.json
+    python tools/i18n_reference_sources.py capture --tree .          --out head.json
+    python tools/i18n_reference_sources.py diff ref.json head.json
+
+NOT DONE, and deliberately: the ratchet has NOT been moved. Moving it is what
+the two commits above did without the review, and the review of these 164
+records -- with the nine-locale consequences of the 31 rewordings -- is this
+item's actual work rather than its preliminary. The disk-space blocker recorded
+earlier has cleared (407 G free).

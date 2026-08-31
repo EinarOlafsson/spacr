@@ -1,0 +1,672 @@
+{
+  "purpose": "Item 306: the external caption identities admitted and dropped since the pinned ratchet.",
+  "reference_rev": "3c224e468",
+  "reference_digest": "db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd",
+  "reference_total": 4880,
+  "head_digest": "a9f5f60abbc16c59cc3702d2e339759e4b8145692bc0dd948b2838207a222664",
+  "head_total": 4982,
+  "note": "3c224e468 is the newest revision whose capture reproduces EXTERNAL_SOURCE_KEY_SHA256. d0c1a633c, which instruction 306 named, does not import and its capture is 4978 -- it moved the constant without being able to compute it.",
+  "added_count": 133,
+  "removed_count": 31,
+  "net": 102,
+  "added": [
+    [
+      "SETTING_LABELS",
+      "power"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_backend"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_background_positive_rate"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_cells_per_well"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_constructs_per_well"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_detection_auroc"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_effect_fold"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_hit_rate"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_n_genes"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_n_grnas_per_gene"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_n_plates"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_n_replicates"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_reads_per_well"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_score_per"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_seed"
+    ],
+    [
+      "SETTING_LABELS",
+      "power_wells_per_plate"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_backend"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_background_positive_rate"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_cells_per_well"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_constructs_per_well"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_detection_auroc"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_effect_fold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_hit_rate"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_n_genes"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_n_grnas_per_gene"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_n_plates"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_n_replicates"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_reads_per_well"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_score_per"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_seed"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "power_wells_per_plate"
+    ],
+    [
+      "UI",
+      "A level is a set of numbers, not an adjective: choosing one fills in supersampling, render scale, the iteration budget and the scale below. Every one of them stays a field you can then change \u2014 a level is a starting point, not a lock.\n\nAuto asks the machine instead, per backend, so it keeps following the hardware rather than freezing an answer."
+    ],
+    [
+      "UI",
+      "Active merged copy"
+    ],
+    [
+      "UI",
+      "All apps \u2014 hover to reveal (Ctrl+Shift+A)"
+    ],
+    [
+      "UI",
+      "Automatic: this machine will use the {renderer} renderer."
+    ],
+    [
+      "UI",
+      "Backdrop restarted"
+    ],
+    [
+      "UI",
+      "Both merged and merged_quarantined contain this field. Nothing will be overwritten."
+    ],
+    [
+      "UI",
+      "Browse all {count} implicated fields\u2026"
+    ],
+    [
+      "UI",
+      "Cache ceiling"
+    ],
+    [
+      "UI",
+      "Channel {index}: {name}"
+    ],
+    [
+      "UI",
+      "Choose a single merged intensity channel or the first three channels as an RGB composite."
+    ],
+    [
+      "UI",
+      "Composite (channels 1\u20133)"
+    ],
+    [
+      "UI",
+      "Could not change quarantine: {error}"
+    ],
+    [
+      "UI",
+      "Could not load this field: {error}"
+    ],
+    [
+      "UI",
+      "Could not read the {object_type} mask: {error}"
+    ],
+    [
+      "UI",
+      "Could not read {field}: {error}"
+    ],
+    [
+      "UI",
+      "Could not render this field: {error}"
+    ],
+    [
+      "UI",
+      "Depth (decades)"
+    ],
+    [
+      "UI",
+      "Draw this kind first for every graph of this shape. Right-click still changes any individual graph."
+    ],
+    [
+      "UI",
+      "Drop unused after"
+    ],
+    [
+      "UI",
+      "Expected a merged (height, width, channels) array for {field}; found shape {shape}."
+    ],
+    [
+      "UI",
+      "Figure save mode"
+    ],
+    [
+      "UI",
+      "Fine-tune a Cellpose model on your own labelled fields, then segment a folder of images with it or with a stock model"
+    ],
+    [
+      "UI",
+      "First graph \u2014 {shape}"
+    ],
+    [
+      "UI",
+      "FlowView"
+    ],
+    [
+      "UI",
+      "Fold FlowView away, or open it again"
+    ],
+    [
+      "UI",
+      "Full-screen background"
+    ],
+    [
+      "UI",
+      "How long something spaCR is holding \u2014 a merged frame, a loaded image, a model's weights \u2014 may sit unused before it is dropped. Zero drops it as soon as nothing needs it, which costs time when you go back to it.\n\nThis does NOT unload a library: a Python C extension cannot be unloaded, and nothing here pretends otherwise. What it governs is what spaCR chose to keep.\n\nSuggested:\n{levels}"
+    ],
+    [
+      "UI",
+      "How many factors of ten the zoom descends before it starts again. At the default speed each decade takes 24 seconds, so 21 is about eight and a half minutes \u2014 and slower Speed makes it longer.\n\nIt stops rather than running for ever because the reference orbit is carried as three 32-bit floats, which reproduce it to about 4.2e-24: past roughly 23 decades the perturbation is measuring its own error and the picture turns to mush. Going deeper needs more precision, not a larger number here \u2014 which is why this one refuses to go above it."
+    ],
+    [
+      "UI",
+      "How much memory must stay free for everything else on this machine. When free memory falls below it, spaCR drops what it is holding rather than competing for the last of it.\n\nSuggested:\n{levels}"
+    ],
+    [
+      "UI",
+      "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise."
+    ],
+    [
+      "UI",
+      "How much the view wanders while it descends. 0 goes straight down; 1 keeps looking for somewhere more interesting.\n\nIt sets how far each move reaches, how often one happens and how long it takes, together \u2014 a move never takes more than half the gap before the next, at any setting, so it always settles rather than being caught mid-course."
+    ],
+    [
+      "UI",
+      "How saved figures handle their background, text and lines. Print uses a light page with dark figure elements; Screen keeps the colours shown in spaCR; Transparent removes the page and chooses figure-element colours for the current theme. SPACR_FIGURE_SAVE_MODE can temporarily override this setting for command-line and notebook runs."
+    ],
+    [
+      "UI",
+      "Image:"
+    ],
+    [
+      "UI",
+      "Inspect fields:"
+    ],
+    [
+      "UI",
+      "Keep free"
+    ],
+    [
+      "UI",
+      "Let the backdrop follow the pointer: it drifts toward the cursor and is shoved away by a click. The backdrop never receives the click itself \u2014 it reads where the mouse is rather than taking events, so nothing on top of it loses a press."
+    ],
+    [
+      "UI",
+      "Loading merged image and masks\u2026"
+    ],
+    [
+      "UI",
+      "Measure is running. Stop or finish that run before changing which fields it can see."
+    ],
+    [
+      "UI",
+      "Mouse gravity"
+    ],
+    [
+      "UI",
+      "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press Q to quarantine or restore."
+    ],
+    [
+      "UI",
+      "Next flagged field (Right arrow)"
+    ],
+    [
+      "UI",
+      "Next flagged field \u2192"
+    ],
+    [
+      "UI",
+      "No flagged fields"
+    ],
+    [
+      "UI",
+      "No usable display/OpenGL context is available in this session, so the CPU renderer runs instead. Installing VisPy cannot enable GPU rendering in a headless session."
+    ],
+    [
+      "UI",
+      "No {object_type} mask exists for this field."
+    ],
+    [
+      "UI",
+      "Open the merged image, mask overlays, and this field's QC flags."
+    ],
+    [
+      "UI",
+      "Ordinary least squares in which each continuous nuisance covariate may bend through a B-spline basis. spline_knots controls how many knots each basis receives and spline_degree controls its polynomial degree; indicators and low-cardinality covariates remain linear. Guide and gene columns are never expanded, so each perturbation keeps one coefficient and its usual OLS p-value."
+    ],
+    [
+      "UI",
+      "Path"
+    ],
+    [
+      "UI",
+      "Performance log"
+    ],
+    [
+      "UI",
+      "Plane-layout metadata could not be read: {error}"
+    ],
+    [
+      "UI",
+      "Planes displayed in the montage. Enter the colour letters used by Annotate \u2014 r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' \u2014 and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
+    ],
+    [
+      "UI",
+      "Plate-level finding: {finding}"
+    ],
+    [
+      "UI",
+      "Pointer"
+    ],
+    [
+      "UI",
+      "Preparing {name}\u2026"
+    ],
+    [
+      "UI",
+      "Previous flagged field (Left arrow)"
+    ],
+    [
+      "UI",
+      "Print (light page)"
+    ],
+    [
+      "UI",
+      "Quarantine field (Q)"
+    ],
+    [
+      "UI",
+      "Quarantine is reversible. Masks stay where they are; only the merged .npy moves."
+    ],
+    [
+      "UI",
+      "Quarantined copy"
+    ],
+    [
+      "UI",
+      "Quarantined {field} at {path}. Later Measure runs will skip it."
+    ],
+    [
+      "UI",
+      "Recommended \u2014 {name}"
+    ],
+    [
+      "UI",
+      "Records every spaCR function entered and left, plus INFO-level chatter from cellpose, torch, PIL and matplotlib, and echoes every record into the active app's Console. It is what makes a bug report worth reading.\n\nIT IS EXPENSIVE, measured rather than estimated: starting spaCR took 3 seconds with this off and 65 seconds with it on, because startup is where the most function calls happen. Each traced call writes about 156 bytes.\n\nSo turn it on to reproduce a specific problem, and off again afterwards. The animated background is never traced whatever this says: it draws sixty frames a second and tracing it wrote megabytes a minute."
+    ],
+    [
+      "UI",
+      "Records what spaCR's process tree costs without tracing every function call. Summary samples about once a second and keeps whole-run totals and peaks. Detailed also retains a bounded per-process and per-thread time series. Off starts no sampler thread. This setting is independent of verbose logging."
+    ],
+    [
+      "UI",
+      "Resolve duplicate copies"
+    ],
+    [
+      "UI",
+      "Restore field (Q)"
+    ],
+    [
+      "UI",
+      "Restored {field} to {path}."
+    ],
+    [
+      "UI",
+      "Restoring puts this field back into later Measure runs."
+    ],
+    [
+      "UI",
+      "Samples per pixel along each axis. 1 is none, 2 is four samples a pixel and is what the published defaults use, 3 is nine. The cost is the square of this number, so it is the first thing to turn down on a slow machine and the first to turn up on a fast one."
+    ],
+    [
+      "UI",
+      "Screen (as shown)"
+    ],
+    [
+      "UI",
+      "Segmentation QC field browser"
+    ],
+    [
+      "UI",
+      "Send the animation back to the beginning. The spaceout deep zoom restarts its descent; Up and Down change how fast it descends, the wheel does the same, and dragging with the mouse steers it."
+    ],
+    [
+      "UI",
+      "Show only the animated background, full screen, like a screensaver. Any key or click brings the window back."
+    ],
+    [
+      "UI",
+      "Show or hide the {object_type} mask outline."
+    ],
+    [
+      "UI",
+      "Some numbers cannot be used"
+    ],
+    [
+      "UI",
+      "Steering"
+    ],
+    [
+      "UI",
+      "Straight down descends to one point on the boundary and stays pointed at it \u2014 the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much."
+    ],
+    [
+      "UI",
+      "Supersampling"
+    ],
+    [
+      "UI",
+      "The most spaCR will hold in caches at once. Over it, the least recently used goes first \u2014 the one least likely to be wanted next \u2014 until what remains fits.\n\nSuggested:\n{levels}"
+    ],
+    [
+      "UI",
+      "The {renderer} renderer."
+    ],
+    [
+      "UI",
+      "These were saved as the nearest value that works:"
+    ],
+    [
+      "UI",
+      "This QC digest does not identify a field to browse."
+    ],
+    [
+      "UI",
+      "This field is already gone. The scorecard may be out of date."
+    ],
+    [
+      "UI",
+      "This field is already gone: no active or quarantined merged array exists for {field}."
+    ],
+    [
+      "UI",
+      "This field is implicated by the plate-level QC finding."
+    ],
+    [
+      "UI",
+      "Transparent (no page)"
+    ],
+    [
+      "UI",
+      "VisPy is not installed, so the CPU renderer runs instead. Install the GPU renderer with pip install \"spacr[fractal]\"."
+    ],
+    [
+      "UI",
+      "Wait for this field to finish loading before moving it."
+    ],
+    [
+      "UI",
+      "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit."
+    ],
+    [
+      "UI",
+      "Which graph is drawn first for {shape}. Right-click any graph to change that one; this chooses where they all start. Leave it on Recommended to follow spaCR's own choice, which moves as the package does."
+    ],
+    [
+      "UI",
+      "Zoom rate {rate:.2f}\u00d7"
+    ],
+    [
+      "UI",
+      "[{severity}] {object_type}: {flags}"
+    ],
+    [
+      "UI",
+      "least squares with spline-adjusted covariates"
+    ],
+    [
+      "UI",
+      "no flags"
+    ],
+    [
+      "UI",
+      "object"
+    ],
+    [
+      "UI",
+      "print"
+    ],
+    [
+      "UI",
+      "screen"
+    ],
+    [
+      "UI",
+      "transparent"
+    ],
+    [
+      "UI",
+      "{field}  \u00b7  flagged field {index} of {total}"
+    ],
+    [
+      "UI",
+      "{location}: {path}"
+    ],
+    [
+      "UI",
+      "{object_type} mask"
+    ],
+    [
+      "UI",
+      "\u2190 Previous flagged field"
+    ]
+  ],
+  "removed": [
+    [
+      "UI",
+      "'gene' pools a gene's guides before the model sees them, which is what the real analysis and spaCRPower do. 'guide' gives every construct its own coefficient and its own read count."
+    ],
+    [
+      "UI",
+      "<span style='color:gray;'>Theme, font scale and the animated background apply instantly on Save. Colour-blind mode affects plot colours the next time a figure is generated.</span>"
+    ],
+    [
+      "UI",
+      "All apps \u2014 hover to reveal (Ctrl+B)"
+    ],
+    [
+      "UI",
+      "Background"
+    ],
+    [
+      "UI",
+      "Blank the background"
+    ],
+    [
+      "UI",
+      "Fastest"
+    ],
+    [
+      "UI",
+      "Fine-tune a Cellpose model on labelled fields, then apply the trained model or a stock model to an image folder."
+    ],
+    [
+      "UI",
+      "Fraction of the library that is a true hit. 0.025 was inferred from the real screen by inverting the well positivity rate against the classifier operating point. The single number most worth checking against your own pilot data."
+    ],
+    [
+      "UI",
+      "Genes in the library. The real T. gondii screen this simulator was fitted to had 452. Power falls roughly as the log of this."
+    ],
+    [
+      "UI",
+      "Guides per gene. Only reaches the simulation when you score per guide \u2014 see the caveats: there is no guide-efficiency layer."
+    ],
+    [
+      "UI",
+      "How long one full sweep takes, slowest to fastest and back. This is how GRADUAL the change is, not how fast the fractal goes: a larger number means the speed drifts more slowly between the two bounds. Below about ten seconds it stops reading as drift and starts reading as a pulse."
+    ],
+    [
+      "UI",
+      "How many times more often a hit-genotype cell is called positive. The effect size. The real screen's classifier sat at 0.80 against a background of 0.12, i.e. 6.67-fold. Below 1 means a protective knockout, which this model does not score \u2014 it ranks evidence in one direction only."
+    ],
+    [
+      "UI",
+      "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the maximum and is the default. It costs nothing extra to raise."
+    ],
+    [
+      "UI",
+      "Inference backend. 'torch' is mean-field ADVI and is always available; numpyro and pymc are exact NUTS if you installed them. 'auto' prefers NUTS and reports which it used."
+    ],
+    [
+      "UI",
+      "Laptop mode"
+    ],
+    [
+      "UI",
+      "Master seed. Every number on this screen is reproducible from this plus the parameters above."
+    ],
+    [
+      "UI",
+      "Mean cells imaged per well \u2014 the parameter you buy with microscope time, and the one the first curve sweeps. The real screen averaged 123."
+    ],
+    [
+      "UI",
+      "Mean library constructs spotted into each well \u2014 'gRNAs per well'. The knob that trades constructs-per-well against wells-per-construct, and the sweep spaCRPower cared most about. 4.6 in the real screen."
+    ],
+    [
+      "UI",
+      "Mean sequencing reads per well. Unambiguously per well: spaCRPower divided its read budget by the number of genes. ~30 000 in the real screen."
+    ],
+    [
+      "UI",
+      "Planes displayed in the montage. Enter the color letters used by Annotate \u2014 r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' \u2014 and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
+    ],
+    [
+      "UI",
+      "Plates in the screen. 4 x 384 in the real screen."
+    ],
+    [
+      "UI",
+      "Probability a non-hit cell is called positive \u2014 the classifier's false-positive rate. 0.12 in the real screen."
+    ],
+    [
+      "UI",
+      "Simulated screens per grid point. One screen at one setting is a single draw from a noisy process; three is the minimum that reads as a probability at all."
+    ],
+    [
+      "UI",
+      "Slowest"
+    ],
+    [
+      "UI",
+      "Sweep time"
+    ],
+    [
+      "UI",
+      "The AUROC a simulated screen has to reach to count as a detection. There is no p-value here \u2014 the model ranks genes, so the bar is a ranking quality, and you choose it."
+    ],
+    [
+      "UI",
+      "The fastest the travel goes when variable speed is on. Ignored when it is off."
+    ],
+    [
+      "UI",
+      "The slowest the travel goes when variable speed is on. Ignored when it is off. If this is above Fastest the two are simply used the other way round -- a swapped pair is not an empty range."
+    ],
+    [
+      "UI",
+      "Turns the ambient animation and the backdrop blur down on a small machine. Automatic decides from the cores and memory it finds. Only drawing is affected: a run computes the same answer either way."
+    ],
+    [
+      "UI",
+      "When on, every spaCR log record \u2014 plus INFO-level chatter from cellpose, torch, PIL and matplotlib \u2014 echoes into the active app's Console. Very chatty; leave off unless you're triaging a bug."
+    ],
+    [
+      "UI",
+      "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design."
+    ]
+  ]
+}
