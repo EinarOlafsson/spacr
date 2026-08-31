@@ -74,11 +74,20 @@ def folded():
 
 class TestTheReadmeGrid:
     def test_the_registry_count_is_deliberately_pinned(self, registry):
+        """Two counts, and they are deliberately different.
+
+        44 modules EXIST; 21 draw a tile. Instruction 318 separated the
+        two on 2026-08-31 -- a folded module keeps its registry row, its
+        screen and its API page, and loses only its place on Home. Both
+        numbers are pinned because a change to either should have to
+        argue with this line first.
+        """
         apps, sections = registry
+        from spacr.qt.app import tiled_apps
+
         assert len(apps) == 44
-        assert sections == [
-            "Core", "Data", "Results & QC", "Explore", "Assays", "Design"
-        ]
+        assert len(tiled_apps()) == 21
+        assert sections == ["Core", "Data", "Tools", "Assays"]
 
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):
         drawn = tiles(README.read_text(encoding="utf-8"))
@@ -87,12 +96,25 @@ class TestTheReadmeGrid:
             "the README offers these as separate tools, but each is reached "
             f"from a host's masthead and has no registry row: {offered}")
 
-    def test_every_module_with_a_row_has_a_tile(self, registry):
-        apps, _ = registry
-        expected = {key for key, _n, _d, section in apps if section != "Core"}
+    def test_every_module_with_a_tile_on_home_has_one_here(self):
+        """TILED modules, not every registered one.
+
+        The README grid advertises places to START. A module folded onto
+        a host's masthead is not one, and drawing it here would put back
+        exactly what instruction 318 removed -- which is what the
+        companion `test_no_folded_module_is_offered_as_a_separate_tool`
+        forbids from the other side. Together they pin the set exactly.
+
+        Core is excluded because it is drawn as the workflow strip above
+        the grid, not as tiles.
+        """
+        from spacr.qt.app import tiled_apps
+
+        expected = {key for key, _n, _d, section in tiled_apps()
+                    if section != "Core"}
         drawn = tiles(README.read_text(encoding="utf-8"))
         assert expected <= drawn, (
-            "these modules are in the registry but have no README tile: "
+            "these modules have a tile on Home but none in the README: "
             f"{sorted(expected - drawn)}")
 
     def test_it_draws_nothing_the_registry_does_not_have(self, registry):
@@ -102,17 +124,35 @@ class TestTheReadmeGrid:
         assert drawn <= known, (
             f"the README draws tiles for unknown keys: {sorted(drawn - known)}")
 
-    def test_the_core_row_is_the_core_section(self, registry):
-        apps, _ = registry
-        core = {key for key, _n, _d, section in apps if section == "Core"}
+    def test_the_core_row_is_the_core_section(self):
+        """The workflow strip is Core's TILED members, in order.
+
+        Not every module filed under Core: several are folded onto
+        Regression and Classify, which are themselves in Core, and a
+        pipeline arrow between six boxes is a claim about the sequence a
+        user runs -- not about which modules happen to share a section.
+        """
+        from spacr.qt.app import tiled_apps
+
+        core = {key for key, _n, _d, section in tiled_apps()
+                if section == "Core"}
         drawn = tiles(README.read_text(encoding="utf-8"), prefix="Workflow")
         assert drawn - {"arrow"} == core
 
 
 class TestTheGeneratedDocsGrid:
-    def test_it_agrees_with_the_readme(self, registry):
-        apps, _ = registry
-        expected = {key for key, _n, _d, section in apps if section != "Core"}
+    def test_it_agrees_with_the_readme(self):
+        """Both grids draw the TILED apps, so both must draw the same set.
+
+        The two files are written by one pass of
+        `packaging/generate_readme_visuals.py`, so a disagreement here
+        means the generator was not re-run after the registry changed --
+        which is the failure this whole module exists to catch.
+        """
+        from spacr.qt.app import tiled_apps
+
+        expected = {key for key, _n, _d, section in tiled_apps()
+                    if section != "Core"}
         drawn = tiles(DOCS_GRID.read_text(encoding="utf-8"), prefix="DocApp")
         assert drawn == expected, (
             "the docs grid and the registry disagree: "

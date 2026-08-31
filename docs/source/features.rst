@@ -85,16 +85,32 @@ integrations read or write OME-Zarr, connect to OMERO and send masks to napari.
 How a module is reached
 -----------------------
 
-The home screen groups modules into six categories -- Core, Data,
-Results & QC, Explore, Assays and Design -- and most modules have a tile in
-one of them. Make Masks is filed under **Data**.
+The home screen groups modules into four categories -- **Core**, **Data**,
+**Tools** and **Assays** -- and twenty-one modules have a tile in one of
+them. Core is the pipeline you run in order; Data is what goes in and what
+comes out of it; Tools are the instruments you point at a project rather
+than steps the pipeline takes on its own; Assays are the quantitative
+readouts. Make Masks is filed under **Tools**.
 
-A tile is not the only way in. Twenty modules answer a question about the run
-their host produces rather than starting a run of their own, so they open from
-a button on that host's masthead, as a page beside its settings and already
-pointed at the same project. They are shipped, translated and documented like
-any other module, and the ones that are pipelines still run headlessly under
-``spacr-run``.
+A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says
+"start here", and a module that answers a question about a run somebody else
+started is not a place to start. Those open instead from:
+
+- **a button on their host's masthead** -- as a page beside that host's
+  settings, already pointed at the same project. Investigate Hit and
+  Prediction Profiler open from Regression; Format Converter and External
+  Masks from Import; Layer Viewer, Control Charts and Outliers from QC.
+- **the Help menu**, for the ones that inspect or administer work that
+  already exists rather than belonging behind any one module -- Run History,
+  Pipeline Graph, Project Browser, Database Browser, Report, Data Manager,
+  Plate Queue, Batch Runner and Distributed Jobs.
+- **the command palette** (Ctrl+K), which reaches EVERY module, tiled or
+  not. It is the one route with no exceptions, and the keyboard user's
+  navigation.
+
+None of them is second-class: they are shipped, translated and documented
+like any other module, and the ones that are pipelines still run headlessly
+under ``spacr-run``.
 
 ============= ==========================================================
 Host          Opens from its masthead
