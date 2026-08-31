@@ -481,6 +481,129 @@ It also identifies processor-architecture emulation, such as an x86_64 Python
 build on Apple Silicon, and the BLAS implementation used by NumPy. Either can
 substantially affect performance.
 
+Install from source
+-------------------
+
+Clone the repository and install it in editable mode, so your working copy
+*is* the installed package and edits take effect without reinstalling::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+The default branch is ``nightly``. For a specific release::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+To pull later changes, from inside the clone::
+
+    git pull
+    pip install -e .
+
+The second line is only needed when dependencies or entry points changed;
+Python code is picked up without it. If a command still runs old code after
+pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
+which is the usual cause.
+
+
+Command-line reference
+----------------------
+
+Every command below is installed by ``pip install spacr``. All of them accept
+``--help``.
+
+Launching the application
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spaceout           # the same application, different dressing
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` exists because the setup screen is modal and opens before
+the main window, so a job with nobody in front of it would block on it.
+
+``spacr-qt`` and ``spacr-nightly`` are aliases of ``spacr`` and start the
+same application. They exist so that a script written against either name
+keeps working.
+
+When spaCR will not start
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` prints one line per check, and for every line that is not
+``PASS`` a command you can copy and run. It also answers the question that
+wastes the most time: *which* ``spacr`` is actually running, when an old
+editable install is shadowing the one you just edited.
+
+``safespacr`` is for when a saved preference is what breaks the launch. It
+reads every preference as its default and forces the backdrop, animations,
+verbose logging and preloading off, so you can get in and re-save the value
+that broke it. It changes nothing permanently by itself.
+
+Running modules headlessly
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+No Qt, no display — for clusters, servers and CI.
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+Validate first. It reads the same settings the run would and reports what is
+missing, contradictory or pointing at nothing — which costs a second, against
+a run that may not.
+
+``spacr-run --list`` shows only modules with a headless entry point.
+Annotation, curation and exploration are interactive by nature and are
+omitted.
+
+Inspecting a run afterwards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every run is journalled to ``~/.spacr/runs`` with its settings, hashed
+inputs, outputs, warnings, versions and seeds.
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+Auditing data and installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+Environment
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+Rotating logs are written to ``~/.spacr/logs/spacr.log``. Attach that file to
+a bug report rather than a screenshot of a terminal — the terminal is usually
+gone by the time the crash is noticed.
+
+
 Contributing and support
 ------------------------
 
