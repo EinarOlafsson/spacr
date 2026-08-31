@@ -380,3 +380,29 @@ that the message was successfully submitted; the ticket is open at:
 ONLY REMAINING ACCEPTANCE ACTION: have GitHub invalidate/rebuild the repository
 Contributors sidebar cache. Close this item only when the public homepage
 widget itself reports two contributors.
+
+--------------------------------------------------------------------------------
+2026-08-30 -- PULSE PINPOINTS NEW NIGHTLY TRAILERS
+--------------------------------------------------------------------------------
+
+The maintainer found Claude only under Contributors -> Pulse -> top committers,
+while the contributor graph itself showed the two humans. A fresh trailer-parser
+audit explains that exact split:
+
+    origin/main      Claude Co-Authored-By values       0
+    origin/nightly   Claude Co-Authored-By values      30
+    both refs        forbidden author/committer rows    0
+
+The REST contributors endpoint still returns only EinarOlafsson and jak18015.
+Therefore Pulse is not merely displaying the older four-name sidebar cache:
+the active coverage lineage reintroduced 30 Claude trailers on `nightly` after
+the complete rewrite. The repository commit-msg guard now blocks another such
+commit. Once the concurrent coverage session has landed and stopped, rewrite
+`nightly` once more, verify the parser count is zero, and force-push with an
+exact old-tip lease. Rewriting during that session would strand its old-base
+work and permit its next push to recreate the same attribution.
+
+This new nightly cleanup is separate from github-actions[bot] in the homepage
+widget. No current owner-writable author or committer identity maps to that
+bot; GitHub Support ticket #4711257 remains the only available action for the
+server-owned pull refs/sidebar cache.
