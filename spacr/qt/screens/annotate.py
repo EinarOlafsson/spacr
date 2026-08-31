@@ -2352,6 +2352,10 @@ class AnnotateScreen(QWidget):
         bottom_row.addWidget(self._ai_switch)
 
         self._ai_menu_btn = QToolButton(self)
+        # The generic AppScreen builds this same provider chevron. Share its
+        # narrow theme selector so this copy does not fall back to Qt's
+        # native pure-black tool-button plate.
+        self._ai_menu_btn.setObjectName("AiProviderMenuButton")
         self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
         self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
         self._ai_menu_btn.setFocusPolicy(Qt.NoFocus)
