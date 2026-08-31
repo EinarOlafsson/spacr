@@ -179,3 +179,71 @@ rather than by the tests failing:
 The rule that catches both: after writing a test for a named arc, measure
 that arc. A test that passes and leaves its target uncovered is worse than
 no test, because it reads as coverage.
+
+================================================================================
+ROUND 8, THIRD PASS -- closing the tail
+================================================================================
+
+WHAT WAS DONE. Every module the 2026-08-31 full run listed with an
+uncovered decision now has either a test that drives it or a PIN that
+names the code keeping it shut. That is 104 round-8 files and 1,118
+tests, none skipped.
+
+The work split roughly three ways:
+
+  DRIVEN. A branch a real input can reach, reached with one. The paired
+  half of process_chunk, OrbitEngine's whole four-frame ring, the Lorenz
+  curves, the multi-dimensional TIFF splitter, workspace_state's failed
+  collect, _set_row_visible's deep walk, and about forty more.
+
+  PINNED. A branch nothing can reach, with a test asserting the LINE
+  ABOVE it -- the padding, the floor, the early return, the closed
+  vocabulary. The pin fails when that line changes, which is the moment
+  the guard becomes live and needs a real test.
+
+  DELETED FROM THE QUESTION. Two branches were already covered by an
+  earlier round's pin (cell_montage_view's mirrored-control chain, the
+  retired space theme), and a second pin on the same fact is one more
+  thing to update rather than one more thing checked.
+
+FOUR PINS WERE MUTATION-TESTED, because a pin that cannot fail is worse
+than no pin:
+
+  a sixth unit appended to a byte formatter without extending its
+  unconditional clause -- fails.
+  the test-mode file listing stopping filtering by the regex -- fails.
+  assign_well's priors no longer normalised -- fails.
+  a tenth annotate key token with no branch in handle_key -- fails.
+
+The first attempt at the fourth one PASSED, and the reason is worth
+keeping: my sed had not matched, so the mutation never landed. A
+negative mutation result has to be checked for whether the mutation
+actually applied.
+
+THE PINS ARE SOURCE-TEXT ASSERTIONS, and that is a deliberate trade.
+They are brittle to reformatting -- a line rewrapped will fail one --
+and that is the cost of having them fail LOUDLY when the premise moves
+rather than silently leaving a newly-live guard untested. Where the
+premise is arithmetic (a floor, a padding, a rank tolerance) the
+arithmetic is RUN instead, which is not brittle at all; where it is a
+library guarantee (QSplitter.handle, pandas' agg return shape,
+QDialogButtonBox.button) the guarantee is exercised against the library.
+
+SUITE FAILURES: 12 of 14 fixed in the second pass; two more found and
+fixed in this one.
+
+  test_cov_r7_ml asserted the singular-design refusal was CHAINED from a
+  LinAlgError. It is not any more and should not be -- chaining made the
+  refusal depend on a LAPACK build, and on this one the solve returns an
+  arbitrary member of the solution set rather than raising.
+
+  test_every_settings_window_resizes and test_logging were both measuring
+  the run they were in rather than the product; see their own commits.
+
+STILL RED, DELIBERATELY. Two i18n tests. The API ratchet and the live
+coverage report are updated -- both are statements about the current
+state and were safe to move. The WRITTEN REVIEW SCOPE is not: it is a
+dated record of what a person read, its per-language counts have drifted
+(Swedish now matches 115 runtime strings where the record says 111), and
+editing those numbers to make a test green would claim a review that did
+not happen. Instruction 306 holds the question.
