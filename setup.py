@@ -934,6 +934,29 @@ setup(
             'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
             'cupy-cuda12x>=13.0; python_version >= "3.11" and python_version < "3.13"',
         ],
+        # `pip install spacr[intel-gpu]` — Intel Arc / Xe through torch's XPU
+        # device. NOT CORE, and not because it is large: IPEX pins a narrow
+        # torch range, so making it core would let an Intel-GPU extra dictate
+        # the torch version on the NVIDIA machines that are every current
+        # user. `spacr.accelerator` probes `torch.xpu` and simply does not
+        # select the backend when this is absent, which is the same bargain
+        # `rapids` above strikes. Instruction 319.
+        #
+        # Linux and Windows only: there is no Intel discrete GPU on macOS,
+        # where an Intel Mac's AMD card is reached through Metal instead --
+        # and Metal needs no extra at all, because torch ships it in the
+        # stock macOS wheel.
+        'intel-gpu': [
+            'intel-extension-for-pytorch>=2.1; platform_system != "Darwin"',
+        ],
+        # `pip install spacr[directml]` — any vendor's GPU on Windows, via
+        # DirectML. The widest reach on that platform and the thinnest
+        # operator coverage, so it is the last backend the resolver picks.
+        # Windows-only by construction; the marker keeps it from being
+        # resolved anywhere it cannot install.
+        'directml': [
+            'torch-directml>=0.2; platform_system == "Windows"',
+        ],
         # `pip install spacr[boosting]` — the two gradient-boosting backends
         # reachable through `model_type='lightgbm'` and `model_type='catboost'`
         # (spacr/ml.py:2477,2483 and spacr/hyperparam.py:1855,1866). Both are

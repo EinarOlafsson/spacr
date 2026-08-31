@@ -95,7 +95,15 @@ class TestWhatItSays:
 
         text = slides._gpu_note.text()
         assert S.GPU_YES_INK in text
-        assert S.GPU_NO_INK not in text
+        # THE VERDICT LINE, NOT THE WHOLE NOTE. The note gained a per-task
+        # capability list, and cuML ships for CUDA only -- so that row is
+        # legitimately red beside a card that works perfectly well for
+        # segmentation and training. One colour for five different answers
+        # is exactly what instruction 319 says not to do.
+        verdict = [line for line in text.split("</div>")
+                   if S.GPU_YES_INK in line]
+        assert verdict, "no green verdict line"
+        assert S.GPU_NO_INK not in verdict[0]
         assert "Compatible GPU" in text
 
     def test_the_card_is_named_either_way(self, slides):
