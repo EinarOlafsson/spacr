@@ -568,7 +568,35 @@ Two changes:
     producing data (35 parallel-mode files within the first minute), which is
     the check the original lacked.
 
-TWO MORE STALE ENVIRONMENT FACTS, corrected the way the umap one above was:
+AMENDED: THESE ARE NOT STALE FACTS, THEY ARE FACTS ABOUT A DIFFERENT MACHINE.
+
+The two sessions working this repository run on DIFFERENT HOSTS.
+`/mnt/firecuda2`, which this file's tooling paths and several instructions
+reference, does not exist on the host measured below. So "conda env `spacr`"
+names two different environments and both readings are correct. Nothing above
+needs correcting; it needs an ADDRESS. Record HOST and ENV with every package
+fact, the way 320 ended up recording env with every version number -- and for
+the same reason, having now cost both sessions a wrong inference twice.
+
+    measured on host `carruthers`, conda env `spacr`, Python 3.13.14:
+        lightgbm MISSING   trackastra MISSING   ultrack MISSING
+        adjustText 1.4.0   numpy 2.4.6
+        pytest-cov MISSING   pytest-timeout MISSING   pytest-xdist 3.8.0
+
+    reported for the other host, conda env `spacr`:
+        lightgbm 4.7.0     trackastra MISSING   ultrack MISSING
+        adjustText 1.4.0   numpy 2.5.2
+        pytest-cov 7.1.0   pytest-timeout 2.4.0
+
+COVERAGE NUMBERS FROM THE TWO HOSTS ARE NOT COMPARABLE, and that is the part
+that matters for the 355. lightgbm is installed on one and not the other, so
+the arms around it execute differently, and any per-module figure measured
+here is against a different installed set than the baseline. Say which host a
+figure came from or it cannot be diffed against another.
+
+The original note read:
+
+TWO MORE ENVIRONMENT FACTS, measured on host `carruthers`:
 
   * numpy here is 2.4.6, not the 2.5.2 this file records.
   * OPTIONAL DEPENDENCIES, measured rather than assumed:
@@ -587,3 +615,70 @@ TWO MORE STALE ENVIRONMENT FACTS, corrected the way the umap one above was:
     arm is always drivable, installed or not, by making the import fail. It is
     never "unreachable by construction". Any such arm still counted among the
     355 is a testable item rather than a pin.
+
+
+IMPORT-GUARD ARMS ARE NOT PINS: THE TECHNIQUE, AND THE CENSUS (2026-08-31)
+==========================================================================
+
+This file concluded that all 307 audited sites are unreachable by construction
+and that the count "cannot fall without DELETING code". Import-guard arms were
+misfiled into that set. They are conditional on the ENVIRONMENT rather than on
+the source, which makes them look unreachable wherever the dependency happens
+to be installed -- but a test can always make the import fail, so they are
+testable items. Confirmed independently on both hosts, including on one where
+the package IS installed.
+
+THE TECHNIQUE, which is the general answer for the whole class:
+
+    real = builtins.__import__
+    def fake(module, globals=None, locals=None, fromlist=(), level=0):
+        if module == name or module.startswith(name + "."):
+            raise ImportError(f"blocked for the test: {name}")
+        return real(module, globals, locals, fromlist, level)
+    builtins.__import__ = fake        # drive the call, then restore
+
+No uninstall, no venv, and no `sys.modules` surgery a later import can undo.
+It works whether or not the package is present, which is the point: otherwise
+the test passes for one reason here and another reason there.
+
+THE CENSUS, by AST over shipped `spacr/**/*.py` (excluding i18n_catalogs):
+
+    try/except blocks whose body imports              832  in 195 modules
+      of which the handler names ImportError
+      or ModuleNotFoundError explicitly                55  in  33 modules
+      the remaining 777 catch bare `Exception`, which is a wider claim and
+      needs reading case by case rather than counting
+
+    in the five non-Qt targets:
+      ml.py 5 (4289, 8504, 8795, 10653, 10659)   io.py 1 (220)
+      plot.py 1 (7435)   timelapse.py 5 (42, 674, 915, 1135, 7077)
+      sequencing.py 0
+
+HOW MANY OF THOSE 55 ARE AMONG THE 355 is not yet answerable: it needs the
+full-suite measurement, which is running. The population is the number that
+can be stated now, and it is an upper bound on the correction.
+
+WORKED EXAMPLE, arc-checked: tests/test_import_guard_arms_are_drivable.py
+drives plot.py:7435 with adjustText INSTALLED. Lines 7434-7436 confirmed
+REACHED with tools/coverage/check_arcs.py.
+
+TWO TRAPS FOUND WHILE DOING IT, both of which look exactly like "nothing ran":
+
+  1. `.coveragerc` sets `parallel = True`, so `coverage run` writes
+     `.coverage.<host>.<pid>.<rand>` and NOT the file COVERAGE_FILE names.
+     Reporting without `coverage combine` first gives a JSON in which every
+     file is listed with ZERO executed lines. That is indistinguishable from a
+     run that traced nothing, and it is what the first arc-check here reported
+     -- MISSING on a line the test provably executed. Always combine first.
+
+  2. `try -> except` IS NOT A BRANCH ARC. coverage does not record exception
+     edges as branches, so `check_arcs.py "plot.py:7434-7435"` reports MISSING
+     for an arm that ran. Arc-check an import guard by its LINES, not by the
+     arc into the handler.
+
+  And the first version of the worked example asserted the arm fired while
+  driving nothing: `volcano_plot(..., annotate=True)` with no thresholds and
+  no `annotate_max` zeroes `eligible` at plot.py:7426 and never reaches the
+  import. It failed with DID NOT RAISE rather than passing vacuously, which is
+  luck rather than method -- the assertion happened to be positive. The same
+  test written to assert an absence would have passed.
