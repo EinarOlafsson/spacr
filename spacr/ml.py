@@ -7405,6 +7405,107 @@ def _stage(settings, name):
     return reading
 
 
+#: Panels that need a fitted object exposing residuals, and the models that
+#: cannot supply one. RRA is a rank statistic -- it never fits a linear
+#: predictor, so "residual" has no meaning for it rather than being
+#: unavailable. Naming them here rather than catching AttributeError keeps the
+#: REASON, which is the whole point of instruction 322: a missing QQ plot and
+#: an inapplicable one look identical to a reader, and only one is fine.
+RESIDUAL_FREE_MODELS: dict = {
+    "rra": ("Robust Rank Aggregation is a rank statistic: it ranks guides "
+            "within each well and aggregates those ranks, so it never forms a "
+            "linear predictor and there is no residual to plot."),
+    "horseshoe": ("The horseshoe fit is sampled rather than solved, so it has "
+                  "a posterior rather than one set of fitted values."),
+}
+
+
+def _diagnostic_inputs(model):
+    """``(observed, fitted, design)`` from a fitted model, or ``(None,)*3``.
+
+    Duck-typed on purpose. statsmodels results expose ``fittedvalues``,
+    ``resid`` and ``model.exog``; the backends spaCR wraps do not share a base
+    class, so asking what an object HAS is the only question that works across
+    all of them.
+    """
+    fitted = getattr(model, "fittedvalues", None)
+    resid = getattr(model, "resid", None)
+    if fitted is None or resid is None:
+        return None, None, None
+    try:
+        observed = np.asarray(fitted, dtype=float) + np.asarray(resid,
+                                                                dtype=float)
+    except Exception:                                        # noqa: BLE001
+        return None, None, None
+    design = getattr(getattr(model, "model", None), "exog", None)
+    return observed, np.asarray(fitted, dtype=float), design
+
+
+def _write_regression_diagnostics(res_folder, fractions, fits, settings):
+    """Write the diagnostic suite for a completed fit.
+
+    THE DESIGN REPORT IS UNCONDITIONAL. It needs no fit at all -- only the
+    well-by-guide matrix -- so it is available for every model including RRA,
+    and it is the one that would have caught the failure
+    :mod:`spacr.regression_diagnostics` was written for: 824 guides in 587
+    wells returning a confident P value for every guide out of a rank-deficient
+    matrix.
+
+    RESIDUAL PANELS SAY WHY WHEN THEY CANNOT BE DRAWN. `write_diagnostic_suite`
+    skips a block whose inputs are absent, silently, which is right for a
+    library and wrong here: the user asked for these plots "whenever possible",
+    and the interesting case is precisely when it is not possible. So a model
+    that cannot support residuals writes a note naming the reason beside the
+    panels that did run.
+
+    Never raises. A diagnostic that took the analysis down with it would be
+    worse than no diagnostic -- the numbers the user came for are already
+    computed by the time this runs.
+    """
+    from . import regression_diagnostics as rd
+
+    if not res_folder:
+        return {}
+    destination = os.path.join(res_folder, "diagnostics")
+    written: dict = {}
+    try:
+        model, _coef, model_type = next(iter(fits.values()))
+    except Exception:                                        # noqa: BLE001
+        model, model_type = None, str(settings.get("regression_type") or "")
+
+    observed, fitted, design = _diagnostic_inputs(model)
+    reason = RESIDUAL_FREE_MODELS.get(str(model_type).lower())
+    if observed is None and reason is None:
+        reason = (f"The {model_type or 'selected'} backend did not expose "
+                  "fitted values and residuals, so the residual panels could "
+                  "not be computed for this run.")
+
+    try:
+        written = dict(rd.write_diagnostic_suite(
+            destination, fractions=fractions,
+            observed=observed, fitted=fitted, design=design,
+            label=str(model_type or "")))
+    except Exception as error:                               # noqa: BLE001
+        print(f"Diagnostics could not be written: "
+              f"{type(error).__name__}: {error}")
+        return {}
+
+    if observed is None and reason:
+        # THE NOTE IS A FILE, not a print. A run is read from its folder
+        # afterwards, usually by someone who did not watch it run, and a
+        # console line is gone by then -- which is exactly how an inapplicable
+        # panel becomes indistinguishable from a missing one.
+        note_path = os.path.join(destination, "residual_panels_not_available.txt")
+        try:
+            with open(note_path, "w", encoding="utf-8") as handle:
+                handle.write(reason + "\n")
+            written["residuals_unavailable"] = note_path
+        except OSError:
+            pass
+        print(f"Residual diagnostics were not computed: {reason}")
+    return written
+
+
 def perform_regression(settings):
     """Run the regression and report actionable details if it fails.
 
@@ -8621,6 +8722,15 @@ def _perform_regression(settings):
         intercept_value=float(settings.get('intercept_value') or 0.0),
     )
     regression_type = next(iter(fits.values()))[2]
+
+    # THE DIAGNOSTICS, WRITTEN HERE BECAUSE THIS IS WHERE THE INPUTS ARE.
+    # `spacr.regression_diagnostics` has computed all of these since it was
+    # written -- after a fit that returned a confident P value for every one of
+    # 824 guides in 587 wells out of a rank-deficient matrix -- and until now
+    # nothing called it, so the checks that would have caught that failure were
+    # unreachable by a user. Instruction 322.
+    settings['_regression_diagnostics'] = _write_regression_diagnostics(
+        res_folder, merged_df, fits, settings)
 
     level_tables = {
         one: _annotate_level_coefficients(one_coef, n_grna, n_gene)
