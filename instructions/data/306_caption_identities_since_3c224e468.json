@@ -3,12 +3,12 @@
   "reference_rev": "3c224e468",
   "reference_digest": "db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd",
   "reference_total": 4880,
-  "head_digest": "a9f5f60abbc16c59cc3702d2e339759e4b8145692bc0dd948b2838207a222664",
-  "head_total": 4982,
+  "head_digest": "64cc78df62056cdfadd0b1b9f2861e47745708cdb02f7976fb7dd5e4e2857ea2",
+  "head_total": 4983,
   "note": "3c224e468 is the newest revision whose capture reproduces EXTERNAL_SOURCE_KEY_SHA256. d0c1a633c, which instruction 306 named, does not import and its capture is 4978 -- it moved the constant without being able to compute it.",
-  "added_count": 133,
+  "added_count": 134,
   "removed_count": 31,
-  "net": 102,
+  "net": 103,
   "added": [
     [
       "SETTING_LABELS",
@@ -140,7 +140,7 @@
     ],
     [
       "UI",
-      "A level is a set of numbers, not an adjective: choosing one fills in supersampling, render scale, the iteration budget and the scale below. Every one of them stays a field you can then change \u2014 a level is a starting point, not a lock.\n\nAuto asks the machine instead, per backend, so it keeps following the hardware rather than freezing an answer."
+      "A level is a set of numbers, not an adjective: choosing one fills in supersampling, render scale, the iteration budget and the scale below. Every one of them stays a field you can then change — a level is a starting point, not a lock.\n\nAuto asks the machine instead, per backend, so it keeps following the hardware rather than freezing an answer."
     ],
     [
       "UI",
@@ -148,7 +148,7 @@
     ],
     [
       "UI",
-      "All apps \u2014 hover to reveal (Ctrl+Shift+A)"
+      "All apps — hover to reveal (Ctrl+Shift+A)"
     ],
     [
       "UI",
@@ -164,7 +164,7 @@
     ],
     [
       "UI",
-      "Browse all {count} implicated fields\u2026"
+      "Browse all {count} implicated fields…"
     ],
     [
       "UI",
@@ -180,7 +180,7 @@
     ],
     [
       "UI",
-      "Composite (channels 1\u20133)"
+      "Composite (channels 1–3)"
     ],
     [
       "UI",
@@ -228,7 +228,7 @@
     ],
     [
       "UI",
-      "First graph \u2014 {shape}"
+      "First graph — {shape}"
     ],
     [
       "UI",
@@ -244,11 +244,11 @@
     ],
     [
       "UI",
-      "How long something spaCR is holding \u2014 a merged frame, a loaded image, a model's weights \u2014 may sit unused before it is dropped. Zero drops it as soon as nothing needs it, which costs time when you go back to it.\n\nThis does NOT unload a library: a Python C extension cannot be unloaded, and nothing here pretends otherwise. What it governs is what spaCR chose to keep.\n\nSuggested:\n{levels}"
+      "How long something spaCR is holding — a merged frame, a loaded image, a model's weights — may sit unused before it is dropped. Zero drops it as soon as nothing needs it, which costs time when you go back to it.\n\nThis does NOT unload a library: a Python C extension cannot be unloaded, and nothing here pretends otherwise. What it governs is what spaCR chose to keep.\n\nSuggested:\n{levels}"
     ],
     [
       "UI",
-      "How many factors of ten the zoom descends before it starts again. At the default speed each decade takes 24 seconds, so 21 is about eight and a half minutes \u2014 and slower Speed makes it longer.\n\nIt stops rather than running for ever because the reference orbit is carried as three 32-bit floats, which reproduce it to about 4.2e-24: past roughly 23 decades the perturbation is measuring its own error and the picture turns to mush. Going deeper needs more precision, not a larger number here \u2014 which is why this one refuses to go above it."
+      "How many factors of ten the zoom descends before it starts again. At the default speed each decade takes 24 seconds, so 21 is about eight and a half minutes — and slower Speed makes it longer.\n\nIt stops rather than running for ever because the reference orbit is carried as three 32-bit floats, which reproduce it to about 4.2e-24: past roughly 23 decades the perturbation is measuring its own error and the picture turns to mush. Going deeper needs more precision, not a larger number here — which is why this one refuses to go above it."
     ],
     [
       "UI",
@@ -260,7 +260,7 @@
     ],
     [
       "UI",
-      "How much the view wanders while it descends. 0 goes straight down; 1 keeps looking for somewhere more interesting.\n\nIt sets how far each move reaches, how often one happens and how long it takes, together \u2014 a move never takes more than half the gap before the next, at any setting, so it always settles rather than being caught mid-course."
+      "How much the view wanders while it descends. 0 goes straight down; 1 keeps looking for somewhere more interesting.\n\nIt sets how far each move reaches, how often one happens and how long it takes, together — a move never takes more than half the gap before the next, at any setting, so it always settles rather than being caught mid-course."
     ],
     [
       "UI",
@@ -280,11 +280,11 @@
     ],
     [
       "UI",
-      "Let the backdrop follow the pointer: it drifts toward the cursor and is shoved away by a click. The backdrop never receives the click itself \u2014 it reads where the mouse is rather than taking events, so nothing on top of it loses a press."
+      "Let the backdrop follow the pointer: it drifts toward the cursor and is shoved away by a click. The backdrop never receives the click itself — it reads where the mouse is rather than taking events, so nothing on top of it loses a press."
     ],
     [
       "UI",
-      "Loading merged image and masks\u2026"
+      "Loading merged image and masks…"
     ],
     [
       "UI",
@@ -304,7 +304,7 @@
     ],
     [
       "UI",
-      "Next flagged field \u2192"
+      "Next flagged field →"
     ],
     [
       "UI",
@@ -317,6 +317,10 @@
     [
       "UI",
       "No {object_type} mask exists for this field."
+    ],
+    [
+      "UI",
+      "Open source. Free for any use, including commercial."
     ],
     [
       "UI",
@@ -340,7 +344,7 @@
     ],
     [
       "UI",
-      "Planes displayed in the montage. Enter the colour letters used by Annotate \u2014 r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' \u2014 and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
+      "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
     ],
     [
       "UI",
@@ -352,7 +356,7 @@
     ],
     [
       "UI",
-      "Preparing {name}\u2026"
+      "Preparing {name}…"
     ],
     [
       "UI",
@@ -380,7 +384,7 @@
     ],
     [
       "UI",
-      "Recommended \u2014 {name}"
+      "Recommended — {name}"
     ],
     [
       "UI",
@@ -440,7 +444,7 @@
     ],
     [
       "UI",
-      "Straight down descends to one point on the boundary and stays pointed at it \u2014 the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much."
+      "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much."
     ],
     [
       "UI",
@@ -448,7 +452,7 @@
     ],
     [
       "UI",
-      "The most spaCR will hold in caches at once. Over it, the least recently used goes first \u2014 the one least likely to be wanted next \u2014 until what remains fits.\n\nSuggested:\n{levels}"
+      "The most spaCR will hold in caches at once. Over it, the least recently used goes first — the one least likely to be wanted next — until what remains fits.\n\nSuggested:\n{levels}"
     ],
     [
       "UI",
@@ -496,7 +500,7 @@
     ],
     [
       "UI",
-      "Zoom rate {rate:.2f}\u00d7"
+      "Zoom rate {rate:.2f}×"
     ],
     [
       "UI",
@@ -528,7 +532,7 @@
     ],
     [
       "UI",
-      "{field}  \u00b7  flagged field {index} of {total}"
+      "{field}  ·  flagged field {index} of {total}"
     ],
     [
       "UI",
@@ -540,7 +544,7 @@
     ],
     [
       "UI",
-      "\u2190 Previous flagged field"
+      "← Previous flagged field"
     ]
   ],
   "removed": [
@@ -554,7 +558,7 @@
     ],
     [
       "UI",
-      "All apps \u2014 hover to reveal (Ctrl+B)"
+      "All apps — hover to reveal (Ctrl+B)"
     ],
     [
       "UI",
@@ -582,7 +586,7 @@
     ],
     [
       "UI",
-      "Guides per gene. Only reaches the simulation when you score per guide \u2014 see the caveats: there is no guide-efficiency layer."
+      "Guides per gene. Only reaches the simulation when you score per guide — see the caveats: there is no guide-efficiency layer."
     ],
     [
       "UI",
@@ -590,7 +594,7 @@
     ],
     [
       "UI",
-      "How many times more often a hit-genotype cell is called positive. The effect size. The real screen's classifier sat at 0.80 against a background of 0.12, i.e. 6.67-fold. Below 1 means a protective knockout, which this model does not score \u2014 it ranks evidence in one direction only."
+      "How many times more often a hit-genotype cell is called positive. The effect size. The real screen's classifier sat at 0.80 against a background of 0.12, i.e. 6.67-fold. Below 1 means a protective knockout, which this model does not score — it ranks evidence in one direction only."
     ],
     [
       "UI",
@@ -610,11 +614,11 @@
     ],
     [
       "UI",
-      "Mean cells imaged per well \u2014 the parameter you buy with microscope time, and the one the first curve sweeps. The real screen averaged 123."
+      "Mean cells imaged per well — the parameter you buy with microscope time, and the one the first curve sweeps. The real screen averaged 123."
     ],
     [
       "UI",
-      "Mean library constructs spotted into each well \u2014 'gRNAs per well'. The knob that trades constructs-per-well against wells-per-construct, and the sweep spaCRPower cared most about. 4.6 in the real screen."
+      "Mean library constructs spotted into each well — 'gRNAs per well'. The knob that trades constructs-per-well against wells-per-construct, and the sweep spaCRPower cared most about. 4.6 in the real screen."
     ],
     [
       "UI",
@@ -622,7 +626,7 @@
     ],
     [
       "UI",
-      "Planes displayed in the montage. Enter the color letters used by Annotate \u2014 r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' \u2014 and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
+      "Planes displayed in the montage. Enter the color letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote."
     ],
     [
       "UI",
@@ -630,7 +634,7 @@
     ],
     [
       "UI",
-      "Probability a non-hit cell is called positive \u2014 the classifier's false-positive rate. 0.12 in the real screen."
+      "Probability a non-hit cell is called positive — the classifier's false-positive rate. 0.12 in the real screen."
     ],
     [
       "UI",
@@ -646,7 +650,7 @@
     ],
     [
       "UI",
-      "The AUROC a simulated screen has to reach to count as a detection. There is no p-value here \u2014 the model ranks genes, so the bar is a ranking quality, and you choose it."
+      "The AUROC a simulated screen has to reach to count as a detection. There is no p-value here — the model ranks genes, so the bar is a ranking quality, and you choose it."
     ],
     [
       "UI",
@@ -662,11 +666,37 @@
     ],
     [
       "UI",
-      "When on, every spaCR log record \u2014 plus INFO-level chatter from cellpose, torch, PIL and matplotlib \u2014 echoes into the active app's Console. Very chatty; leave off unless you're triaging a bug."
+      "When on, every spaCR log record — plus INFO-level chatter from cellpose, torch, PIL and matplotlib — echoes into the active app's Console. Very chatty; leave off unless you're triaging a bug."
     ],
     [
       "UI",
       "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design."
     ]
+  ],
+  "head_rev": "2d16e469c",
+  "confirmed_defects": {
+    "missing_all_nine_locales": [
+      "Open source. Free for any use, including commercial."
+    ],
+    "semantic_wrong_sense": {
+      "is": [
+        "1.5 er óþekkt (= unknown, English says default)",
+        "Allir notendur (= all users, English says all apps)"
+      ],
+      "es": [
+        "se ciernen para revelar (= they loom, wrong sense of hover)"
+      ],
+      "hi": [
+        "hover-to-reveal instruction dropped"
+      ],
+      "zh_CN": [
+        "'hover to reveal' left in English"
+      ]
+    }
+  },
+  "not_defects_false_positives": [
+    "CJK length ratio (zh_CN median 0.36, ko 0.55)",
+    "FlowView untranslated (product name)",
+    "English technical identifiers retained (mean-field ADVI, well_abundance_factor_mu, 'gene' mode)"
   ]
 }
