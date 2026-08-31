@@ -449,8 +449,9 @@ driven test or a pin, by module:
     methods_export digest_numbers             2   the one they had missed
     pragma families VERIFIED still pinned    22   all unreachable
     five defensive families, only commented  15   all unreachable
+    twelve across nine modules               12   all unreachable
                                             ---
-                                            262
+                                            274
 
 Plus the 26 sites carrying an explicit pragma with a written reason.
 
@@ -459,7 +460,7 @@ NEW HOLES were found along the way and are the reason the audit is worth
 doing at all -- process_chunk's single-end half and settings' per-slot
 category loop, both reached by no test.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 262 of roughly 300 distinct sites were
+BE HONEST ABOUT THE LIMIT OF THIS: 274 of roughly 300 distinct sites were
 read individually. That is a sample, not a census, and it was not drawn
 at random -- it is the largest modules and the sites this session
 touched. It is enough to say the pattern dominates; it is NOT enough to
@@ -470,7 +471,7 @@ something.
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- 60 sites remain. The exact list is
+  1. finish the hand audit -- 48 sites remain. The exact list is
      reproducible with the census script below; there is no need to
      re-derive which are done.
 
@@ -501,3 +502,23 @@ The census script is worth keeping: parse each module, map every missing
 line and branch to its enclosing scope, grep the test corpus for that
 name. It is what turned "355 items" into "14 places nobody had looked",
 which is a list one can act on.
+
+
+A STALE ENVIRONMENT FACT, CORRECTED 2026-08-31
+==============================================
+
+This file and the coverage memory both recorded that umap-learn is
+DELIBERATELY absent here, because it pulls numba and numba pins numpy
+against the user's working stack. That is no longer true:
+
+    umap 0.5.12, numba 0.67.0, numpy 2.5.2, scipy 1.18.0
+
+So `timelapse._search_umap`'s `if umap is None` cannot fire in this
+environment either, and it is a pin rather than the path a user meets.
+
+THE GENERAL POINT, which is why this is written down rather than just
+fixed: an "unreachable because the dependency is missing" verdict is the
+ONE kind in this audit that depends on the machine rather than on the
+code. Every other verdict here is an argument about the source and stays
+true anywhere. Re-check the dependency ones with an import before
+relying on them.
