@@ -34680,14 +34680,12 @@
     },
     "spacr.ml.QuasiBinomial.variance": {
       "source_blocks_sha256": [
-        "e8f4bc5ac75a6042942c0758c70acce3eb15090a7f1cdce4b2562a5047c2bb0b",
-        "867ee8a68d236163d22f153b41e4218eb7ee4b938507287bc1f70a276fe636e9"
+        "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e"
       ],
-      "source_sha256": "1675e58689362f3bcae4bb240279df0c5ba8d908c2896c056a417e87635830c4",
-      "text": "Justera binomialvariansen genom den inställda dispersionen.\n\n:param mu: inställt svar: vid vilken varians utvärderas.",
+      "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
+      "text": "Justera variansen med dispersionsparametern.",
       "translation_source_blocks_sha256": [
-        "e8f4bc5ac75a6042942c0758c70acce3eb15090a7f1cdce4b2562a5047c2bb0b",
-        "867ee8a68d236163d22f153b41e4218eb7ee4b938507287bc1f70a276fe636e9"
+        "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e"
       ]
     },
     "spacr.ml.apply_transformation": {
@@ -34709,15 +34707,13 @@
     "spacr.ml.beta_logit": {
       "source_blocks_sha256": [
         "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
-        "741cc68d2c60010b9965db95b70be0ab02d2a40e6125abc290115dfafb05c0bf",
         "9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1",
         "79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27"
       ],
-      "source_sha256": "5cdb2febd4f446a95c8ec7b7b5b8c43a6a9fe7574de6927349b6e4eb5a48e5ce",
-      "text": "En andel på logitskalan, med inträngda endpoints.\n\n:param values: Numeriska proportioner att omvandla; icke-finita poster bevaras.\n\n``transform='beta'`` är avsett för proportionella svar såsom klassificeringspoäng och deras brunnsaggregat, om en logaritm inte är lämplig.\n\nDetta skiljer sig från ``regression_type='beta'``, som väljer en beta-GLM. Den ena omvandlar svaret, den andra väljer modellfamiljen.",
+      "source_sha256": "34fc3a925b3627cd136893ba04e06573ab70b5abc3833e6fe88e9c9baa3288c4",
+      "text": "En andel på logitskalan, med ändpunkterna hoptryckta inåt.\n\n``transform='beta'`` är avsett för proportionella svar, såsom klassificeringspoäng och deras brunnsaggregat, när en logaritm inte är lämplig.\n\nDetta skiljer sig från ``regression_type='beta'``, som väljer en beta-GLM. Den ena omvandlar svaret, den andra väljer modellfamiljen.",
       "translation_source_blocks_sha256": [
         "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
-        "741cc68d2c60010b9965db95b70be0ab02d2a40e6125abc290115dfafb05c0bf",
         "9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1",
         "79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27"
       ]
@@ -34834,16 +34830,12 @@
     },
     "spacr.ml.check_normality": {
       "source_blocks_sha256": [
-        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
-        "cff9a81c86f4ec249d153810c91044fea7511491916a3817751223e61bfadef0",
-        "6288c19aad79f3c704b6261599ee05e14ab7041061b50ed0874eeaae2f3fb5e8"
+        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c"
       ],
-      "source_sha256": "1506976fc2a8b36b9548d8d362141b7d14caf2b8d0618806fc134611ac80ed0d",
-      "text": "Kontrollera om uppgifterna normalt distribueras med hjälp av Shapiro-Wilk-testet.\n\n:param data: Numeriska observationer; icke-finita värden ignoreras.\n:param variable_name: Etikett som används i valfri diagnostisk utgång.",
+      "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
+      "text": "Kontrollera om data är normalfördelade med Shapiro-Wilk-testet.",
       "translation_source_blocks_sha256": [
-        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
-        "cff9a81c86f4ec249d153810c91044fea7511491916a3817751223e61bfadef0",
-        "6288c19aad79f3c704b6261599ee05e14ab7041061b50ed0874eeaae2f3fb5e8"
+        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c"
       ]
     },
     "spacr.ml.clean_controls": {
@@ -34984,7 +34976,7 @@
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
       "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "Träna en klassisk ML maskininlärning klassificering modell (XGBoost / logistisk / RF) på per-objekt funktioner och poäng varje mikroplatta provposition på en screening.\n\nLäser de ``measurements.db`` som produceras av :func:`spacr.measure.measure_crop`, sammansmälter cell/ nukleus/ pathogen/ cytoplasmafunktionstabeller, använder mikroplattornas provpositioner markerade med ``positive_control`` / ``negative_control`` (eller en notationskolumn) som utbildningsetiketter, delegater som passar till :func:`ml_analysis` och skriver perobjekts förutsägelser, permutations- och funktionsvikttabeller plus en laboratorievärmekarta för mikroplattor till ``results/`` bredvid källan DB.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.set_default_analyze_screen`. Strukturerade dataposter:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` – 0-baserad kanal för rekryteringsförhållandet; kör även bordsval.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` – reglage för överkoppling med en PNG-nivåanmärkningskolumn.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` – kännetecken som är inritade på plattvärmekartan.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Förteckning över två element ``[output, plate_heatmap]``, där ``output`` är 10-elements resultatlista över :func:`ml_analysis` och ``plate_heatmap`` är plattans värmekarta ``matplotlib`` figur. CSVs och figurer skrivs till ``results/`` som en bieffekt; deras stigar återvänds inte.\n:raises ValueError: Om ``annotation_column`` är inställd men ``png_list`` tabellen saknar ``prcfo`` / den kolumnen, går objekt-ID inte med på mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte är bland de utbildade funktionerna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` – den underliggande rutinen för passform/bedömning. :func:`perform_regression` – blandade effekter regression på provläge för varje mikroplatta ML-poäng.",
+      "text": "Träna en klassisk ML-klassificerare (XGBoost / logistic / RF) på egenskaper per objekt och poängsätt varje brunn i en screening.\n\nLäser ``measurements.db`` som skapats av :func:`spacr.measure.measure_crop`, slår samman egenskapstabeller för cell/kärna/patogen/cytoplasma, använder brunnarna märkta ``positive_control`` / ``negative_control`` (eller en annoteringskolumn) som träningsetiketter, delegerar anpassningen till :func:`ml_analysis` och skriver prediktioner per objekt, permutations- och egenskapsviktstabeller samt en värmekarta över plattan till ``results/`` bredvid källans DB.\n\n:param settings: Inställningsmappning, kanoniserad via :func:`spacr.settings.set_default_analyze_screen`. Viktiga poster:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — egenskap som visas i plattans värmekarta.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.\n:raises ValueError: om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -35073,14 +35065,12 @@
     "spacr.ml.load_regression_input_pairs": {
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
-        "d23c2f048aa617ae95fa1f26b01056ca78e6fc7c3576f92a3a110e9a9961173e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad"
       ],
-      "source_sha256": "5df0bb6adef9637eec3b60d1325fc437fc084a0d36e1af7ad0988461a38f3054",
-      "text": "Läs parade ingångar och lösa plattan identitet utan filnamn gissningar.\n\n:param pairs: Normaliserade ingångsrader för poäng/antal, som tillval medför en explicit mikroplatta i laboratoriet.\n\nUpplösningsorder är egen kolumn, partnerkolumn, sedan parradsordning. Konfliktdeklarationer vägras. Returer ``(count_frame, score_frame, audit_rows)``.",
+      "source_sha256": "1e2165931399d40d2243d218b4236968810cee261a1f25d7f174b864fd425022",
+      "text": "Läs parade indata och fastställ plattidentiteten utan gissningar utifrån filnamn.\n\nOrdningen för upplösning är den egna kolumnen, partnerns kolumn och därefter parradens ordning. Motstridiga deklarationer avvisas. Returnerar ``(count_frame, score_frame, audit_rows)``.",
       "translation_source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
-        "cd11eea89f51d8c884fbc7bfb31ba890807479fef3ea3af6a7582fc498ab9f11",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad"
       ]
     },
@@ -35213,14 +35203,12 @@
     "spacr.ml.normalize_regression_input_pairs": {
       "source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
-        "7d5ddf0ef8fa6a2fe8ad766ef3274ebf8dae2592f905335b2349f9350d0b830a",
         "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed"
       ],
-      "source_sha256": "70efb7b1c0953b5e78d2900e4e4a2f5e5d985a775d6a24b1b5b8f5d093b6766a",
-      "text": "Returnera explicit ``score``/ ``count`` rader, migrera äldre listor.\n\n:param settings: Modifierade regressionsinställningar som innehåller parade eller äldre indatadeklarationer; normaliserade prognoser skrivs tillbaka på plats.\n\nNya inställningar lagrar ``paired_data``. Äldre filer förblir giltiga: deras platta listor är zippade läge, exakt motsvarar det tidigare beteendet, och migrationen rapporteras så att det osynliga äldre antagandet är synligt.",
+      "source_sha256": "eb91fa38f5836eda830ed3645f0176898962b94604878a4eec2ae9b92216ae9f",
+      "text": "Returnera explicita ``score``/``count``-rader och migrera äldre listor.\n\nNya inställningar lagrar ``paired_data``. Äldre filer förblir giltiga: deras platta listor paras ihop positionsvis, exakt i enlighet med det tidigare beteendet, och migreringen rapporteras så att det tidigare dolda antagandet blir synligt.",
       "translation_source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
-        "7d5ddf0ef8fa6a2fe8ad766ef3274ebf8dae2592f905335b2349f9350d0b830a",
         "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed"
       ]
     },
@@ -35490,16 +35478,14 @@
         "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
         "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
         "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-        "21557ce547c90d538433885bdc7dac62634e859793b56da618d9980bca1bf9f5",
-        "9a8682e486d67beaa34de7c0ef35996a506cc9a912426c9131cea2e269e34ecf",
         "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
         "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
         "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
         "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
         "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342"
       ],
-      "source_sha256": "54d04df16e5cf99e3f3bc9ccb1d1c4d174fd6164fd6b5b3f05bd60140e9afb0c",
-      "text": "Anpassa varje nivå som körningen bad om, SEPARATELY, och returnera en per nivå.\n\nDETTA ÄR TVÅ FIT INTRESSPUNKTEN, och anledningen till att den existerar är att den enda designen spaCR som används för att passa inte alls kan monteras. ``gene_fraction`` är SUM av genens gRNA fraktioner, så\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nsätter ett block av kolumner och deras egna summor i en design. Mätt på referensskärmen TSG101: 1248 parametrar vid rang 862 -- en 386-dimensionell EXACT null space -- och passformen statsmodels returnerades hade en restsumma av rutor bit-identiska till den du får genom att lägga sju gånger en null vektor till den. Se :data:`COLLINEAR_FORMULA_FRAGMENT`.\n\nTvå passar, två tabeller, TVÅ KORREKTIONER. Varje passform är sin egen familj med flera tester och korrigeras inom sig själv. Att slå ihop dem skulle vara fel två gånger om: de är inte oberoende -- samma mikroplattor provpositioner, och genen regressorer är summan av guide regressorerna -- och fördubbla familjens storlek kostar kraft för inget skydd. :func:`perform_regression` tillämpar korrigeringen per nivå och skriver ``results_grna.csv`` och ``results_gene.csv``.\n\n``regression_type='mixed'`` passar ONCE och returnerar en post, ``'gene'``: den modellen har båda nivåerna inne redan, genen som en fast effekt och guiden som en slumpmässig effekt inbäddad i genen. Dess guideutmatning är BLUP, vilket är anledningen till att den inte kan delas upp i två testfamiljer.\n\n:param df: Tabellen för regressionsinmatning passerade oförändrad till varje nivåspecifik :func:`regression` passform.\n:param csv_path: Uppräkning av källkod/poängsökväg eller sökvägssamling som används av var och en som passar för härkomst och parad indataupplösning.\n:param level: ``'both'`` (standard), ``'grna'`` eller ``'gene'``\n:param dst: Process-session-mappen. Med mer än en passar varje nivås FIGURES gå in i ``<dst>/<level>/`` så att de inte kan skriva över varandra; tabellerna stannar i ``<dst>``, där varje konsument letar efter dem.\n:param kwargs: gick rakt igenom till :func:`regression`.\n:returns: ``dict`` kartläggningsnivå till ``(model, coef_df, regression_type)``, i lämplig ordning.\n:raises ValueError: för en nivå som inte är en av :data:`LEVEL_CHOICES`.",
+      "source_sha256": "0efd652a5e78d2b81f240ef2b3b6d4ffdbc9d55ecff66ce35c8663d70a45a203",
+      "text": "Anpassa SEPARAT varje nivå som körningen begärde och returnera en post per nivå.\n\nDETTA ÄR INGÅNGSPUNKTEN FÖR TVÅ ANPASSNINGAR, och den finns eftersom den enda design som spaCR tidigare försökte anpassa inte alls kan anpassas. ``gene_fraction`` är SUM av genens gRNA-fraktioner, så\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nlägger ett block av kolumner och deras egna summor i samma design. Mätt på referensscreeningen TSG101: 1248 parametrar med rang 862 -- ett 386-dimensionellt EXAKT nollrum -- och anpassningen som statsmodels returnerade hade en residualkvadratsumma som var bitidentisk med den man får genom att addera sju gånger en nollvektor. Se :data:`COLLINEAR_FORMULA_FRAGMENT`.\n\nTvå anpassningar, två tabeller, TVÅ KORREKTIONER. Varje anpassning är sin egen flertestfamilj och korrigeras inom sig. Att slå ihop dem skulle vara dubbelt fel: de är inte oberoende -- samma brunnar, och genregressorn ÄR summan av guideregressorerna -- och en fördubbling av familjestorleken minskar den statistiska styrkan utan att ge skydd. :func:`perform_regression` tillämpar korrigeringen per nivå och skriver ``results_grna.csv`` och ``results_gene.csv``.\n\n``regression_type='mixed'`` anpassar EN GÅNG och returnerar en post, ``'gene'``: modellen innehåller redan båda nivåerna, med genen som en fast effekt och guiden som en slumpmässig effekt nästlad i genen. Dess guideutdata är BLUPs, vilket är anledningen till att de inte kan delas upp i två testfamiljer.\n\n:param level: ``'both'`` (standard), ``'grna'`` eller ``'gene'``.\n:param dst: körningens mapp. Vid fler än en anpassning placeras varje nivås FIGURER i ``<dst>/<level>/`` så att de inte kan skriva över varandra; tabellerna ligger kvar i ``<dst>``, där alla konsumenter letar efter dem.\n:param kwargs: skickas direkt vidare till :func:`regression`.\n:returns: ``dict`` som mappar nivå till ``(model, coef_df, regression_type)``, i anpassningsordning.\n:raises ValueError: för en nivå som inte ingår i :data:`LEVEL_CHOICES`.",
       "translation_source_blocks_sha256": [
         "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
         "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
@@ -35507,8 +35493,6 @@
         "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
         "0c645285dea0ee3c597dcb2cc6c50e849164a08df05ae93385c80425af305dab",
         "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-        "21557ce547c90d538433885bdc7dac62634e859793b56da618d9980bca1bf9f5",
-        "9a8682e486d67beaa34de7c0ef35996a506cc9a912426c9131cea2e269e34ecf",
         "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
         "83252387607d4e2ddcb93c7dc8ff13339527e51f7985e57c0559c1e37fc207d4",
         "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
@@ -35609,20 +35593,16 @@
     "spacr.ml.resolve_auto_inference": {
       "source_blocks_sha256": [
         "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
-        "9160c659d7494ed83040c7bf3e93f8eff08223b669ed169cfe483e4f2647a16c",
-        "2edb50b789c98343aebb7507d7b5292b0c88d281ed99d8072c627037bdc4ff82",
         "5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c",
         "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
         "a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3",
         "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
         "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92"
       ],
-      "source_sha256": "0ddd43bf5a041180aca652f76c26fae03116808786939861b8c292fc0365718c",
-      "text": "Välj ``analysis_mode`` för ``inference='auto'`` från konstruktionen.\n\n:param data: Analysram som används för att räkna mikroplattors provpositioner, guider och blocknivåer.\n:param settings: regressionsinställningar vars slutledningsval är löst.\n\nDen samtidiga modellen uppskattar en koefficient per guide från mikroplattans provpositioner, så den behöver fler mikroplattors provpositioner än guider -- med en snapper och eventuella laboratoriemikroplatta fasta effekter på toppen -- innan dessa koefficienter kan identifieras alls. Nedan att designmatrisen är rankbrist: statsmodels returnerar fortfarande ett nummer för varje guide, men siffrorna är en godtycklig lösning av oändligt många, och deras P-värden beskriver ingenting.\n\nDet är inte hypotetiskt. Skärmen detta skrevs för har 824 guider i 587 analyserade mikroplattor provpositioner; den publicerade passformen hade 825 parametrar, rang 579 och 8 återstående grader av frihet, och ommontering det inte reproducerade sina egna koefficienter.\n\n``auto`` väljer därför permutationstestet när den samtidiga passformen skulle vara oidentifierbara, och säger så. Det är medvetet konservativt: det behöver en verklig marginal (``_IDENTIFIABILITY_MARGIN`` mikroplattor provpositioner per guide) snarare än en bar majoritet, eftersom en design som bara passar är en tappade väl bort från att inte passa.\n\nAllt annat än ``inference='auto'`` returneras orört, så ett uttryckligt val är aldrig övertaget.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` är en mening som anger antalet, lämplig för log och metodavsnittet.",
+      "source_sha256": "bb4f4e4d52258633eb6e03bb5ec39ebd37e2849274bb35bb897504da7ca6c3c3",
+      "text": "Välj ``analysis_mode`` för ``inference='auto'`` utifrån designen.\n\nDen samtidiga modellen skattar en koefficient per guide från brunnarna, så den behöver fler brunnar än guider -- utöver ett intercept och eventuella fasta platteffekter -- innan koefficienterna alls kan identifieras. Under den gränsen har designmatrisen rangbrist: statsmodels returnerar fortfarande ett tal för varje guide, men talen är en godtycklig lösning bland oändligt många, och deras P-värden beskriver ingenting.\n\nDetta är inte hypotetiskt. Screeningen som detta skrevs för har 824 guider i 587 analyserade brunnar; den publicerade anpassningen hade 825 parametrar, rang 579 och 8 residualfrihetsgrader, och en ny anpassning återskapade inte dess egna koefficienter.\n\n``auto`` väljer därför permutationstestet när den samtidiga anpassningen inte skulle vara identifierbar och meddelar detta. Valet är avsiktligt konservativt: det kräver en verklig marginal (``_IDENTIFIABILITY_MARGIN`` brunnar per guide) snarare än en knapp majoritet, eftersom en design som precis går att anpassa bara är en bortfallen brunn från att inte göra det.\n\nAllt annat än ``inference='auto'`` returneras oförändrat, så ett uttryckligt val åsidosätts aldrig.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` är en mening som anger antalen och är lämplig för loggen och metodavsnittet.",
       "translation_source_blocks_sha256": [
         "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
-        "791898cd95cd3f7acc84a60ae8d75382443117397df2783e9e59014b5c739ea7",
-        "2edb50b789c98343aebb7507d7b5292b0c88d281ed99d8072c627037bdc4ff82",
         "f02f0eade9987699a616574fdc7d09ba561709022b6f1437794c6388ecc0e81f",
         "40235d3f32ee7fed4cc6467f2314b088a9e79af45a3ecd9d0c011d8ff9bdb930",
         "ae78faf35b9da50ad56ea4051392ec31da6c60d1b4c6651ea7fcc47eccebef40",
@@ -35663,7 +35643,7 @@
         "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342"
       ],
       "source_sha256": "162e554be63c42f265036473b98fe7dd37539b364b43e753407a1abc83411cff",
-      "text": "Vilken nivå(er) en processsession passar, med tanke på gränssnittet och inställningen ``level``.\n\n``mixed`` passar en modell som redan innehåller båda nivåerna -- genen som en fast effekt och guiden som en slumpmässig effekt inbäddad i den -- så den ignorerar ``level`` helt och svarar ``('gene',)``. Det är därför GUI gråar avhoppet istället för att dölja det: inställningen existerar, men den här modellen läser den inte.\n\nVarje annat gränssnitt är endast fast effekt och kan inte bo, så det passar en nivå i taget och ``level`` väljer vilken. ``'both'`` är TVÅ FITS.\n\n:param regression_type: Gränssnittets namn, eller ``None`` (ännu ej valt).\n:param level: ``'both'`` (standard), ``'grna'`` eller ``'gene'``\n:returns: en tuple av nivåer för att passa, i den ordning de är monterade.\n:raises ValueError: för en nivå som inte är en av :data:`LEVEL_CHOICES`.",
+      "text": "Vilken nivå(er) en processsession passar, med tanke på gränssnittet och inställningen ``level``.\n\n``mixed`` passar en modell som redan innehåller båda nivåerna -- genen som en fast effekt och guiden som en slumpmässig effekt inbäddad i den -- så den ignorerar ``level`` helt och svarar ``('gene',)``. Det är därför GUI gråar avhoppet istället för att dölja det: inställningen existerar, men den här modellen läser den inte.\n\nVarje annat gränssnitt är endast fast effekt och kan inte bo, så det passar en nivå i taget och ``level`` väljer vilken. ``'both'`` är TVÅ FITS.\n\n:param regression_type: Gränssnittets namn, eller ``None`` (ännu ej valt).\n:param level: ``'both'`` (standard), ``'grna'`` eller ``'gene'``.\n:returns: en tuple av nivåer för att passa, i den ordning de är monterade.\n:raises ValueError: för en nivå som inte ingår i :data:`LEVEL_CHOICES`.",
       "translation_source_blocks_sha256": [
         "034b4b1b7d17b4f5ce99eb96bdfe7898b174fb771ca75f43b2ded0d5d6b05f51",
         "476f86f5f81d6489345eff2b383b6a48cb1abb52370ddc4c5e45d062ac459c40",
@@ -35695,15 +35675,13 @@
     "spacr.ml.results_folder_kind": {
       "source_blocks_sha256": [
         "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-        "d5c6ee98c2f5b771b29d94fc0f1d97032d390073eafcaca6fce7ecdc3c21b263",
         "9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9",
         "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8"
       ],
-      "source_sha256": "f0d3dbbe3a5ca04948d6e61a07000e3cd2876566dc4978f61d13aa8e4591d909",
-      "text": "Vad en behandling session resultatmapp är NameD efter.\n\n:param settings: regressionsinställningar som innehåller analysläge och typval av modell.\n\nSlutsatssmetoden när den bestämmer svaret, och regressionstypen annars. Under `analysis_mode='guide_permutation'` läses regressionens typ aldrig - ols och blandade ger byte-identiska resultat - så en katalog som heter `ridge` skulle nämna något som behandlingssessionen inte gjorde.\n\nPUBLIKT, OCH DEN ENDA KOPIEN. Ett test som på nytt härledde denna regel gick snett när regeln ändrades och rapporterade 39 saknade CSVs medan varje behandlingssession som skrev dem var bra, vilket är misslyckandet som `results_dir` hjälparen i tester/ test_cov_ml_perform_regression.py redan skrevs för att förhindra en gång. En svit som pekar på fel fil är värre än en tyst.",
+      "source_sha256": "4a5dd44c860f87e446392acdc7c54957389351a828f986d8be3c77c9b1b23c58",
+      "text": "Vad en körnings resultatmapp är UPPKALLAD efter.\n\nInferensmetoden när den avgör svaret, annars regressionstypen. Under `analysis_mode='guide_permutation'` läses regressionstypen aldrig -- ols och mixed ger byteidentiska resultat -- så en mapp som heter `ridge` skulle namnge något som körningen inte gjorde.\n\nPUBLIKT OCH DEN ENDA KOPIAN. Ett test som härledde regeln på nytt blev inaktuellt när regeln ändrades och rapporterade 39 saknade CSV-filer trots att varje körning som skrev dem fungerade. Detta är felet som hjälpfunktionen `results_dir` i tests/test_cov_ml_perform_regression.py redan hade skrivits för att förhindra. En testsvit som pekar på fel fil är värre än en tyst testsvit.",
       "translation_source_blocks_sha256": [
         "ed71985dc3b0378fc468137d95ba2091b6d66d24bf54c22dede61d2ff4058884",
-        "d5c6ee98c2f5b771b29d94fc0f1d97032d390073eafcaca6fce7ecdc3c21b263",
         "c56dd58e15e55e97b2fe509c6d595c25cf87b90f1dc37ad51c045ff21a97c6cc",
         "95a7ef886f5490334b58b67d4a8ead6441cdf30e41a10b900066785bf87f8ff2"
       ]
@@ -35751,15 +35729,13 @@
     "spacr.ml.screen_is_blockable": {
       "source_blocks_sha256": [
         "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
-        "0b416f276274ef44dfe8cd00eb7699dbd440c03640e6285e121cbe72e916a879",
         "614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f",
         "85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf"
       ],
-      "source_sha256": "5328efdb9ae9a7822bd8d940deb7f1ed6c5cd67b19e87e100a16baecc28a2264",
-      "text": "Om ``screenID`` kan vara en term i denna rams design.\n\n:param df: kandidatutformningsram, eller ``None``.\n\nTrue endast när kolumnen finns och har mer än ett tydligt värde. Ett enskärmsprojekt är det normala fallet och får inte påverkas av konstruktionen: det har inget screenID alls, eller ett värde, och hur som helst skulle termen vara en konstant kolumn.\n\nSamma regel :func:`spacr.measurement_scan._dummy_block` gäller, som anges en gång för formelvägen så att en ram inte kan blockeras av den ena och inte av den andra.",
+      "source_sha256": "e8dfb61882e4088595123ab29f11d58c34a54aaeaf20eca8869fee5614fa845a",
+      "text": "Huruvida ``screenID`` kan vara en term i denna datarams design.\n\nTrue endast när kolumnen finns och innehåller mer än ett distinkt värde. Ett projekt med en enda screening är det normala fallet och får inte påverkas av designen: det har antingen inget screenID alls eller ett enda värde; i båda fallen skulle termen vara en konstant kolumn.\n\nSamma regel som :func:`spacr.measurement_scan._dummy_block` tillämpar, angiven en gång för formelvägen, så att en dataram inte kan blockeras av den ena men inte den andra.",
       "translation_source_blocks_sha256": [
         "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
-        "0b416f276274ef44dfe8cd00eb7699dbd440c03640e6285e121cbe72e916a879",
         "614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f",
         "85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf"
       ]
@@ -63659,13 +63635,13 @@
     "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
       "source_blocks_sha256": [
         "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
-        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+        "e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a"
       ],
-      "source_sha256": "c259cf7d3f0dc92e7433feda51ca5f6eb4b77fa47a777e794cf8c66b277330d8",
-      "text": "Avsnittet widgets monteras faktiskt i inställningspanelen.\n\n``_settings_sections`` innehåller avsiktligt också vilande former för objekt-försedda inställningar. Visuella konsumenter -- mognad och kategori tips i synnerhet -- måste använda denna delmängd istället.",
+      "source_sha256": "edf7f3bbee5862e57cc6f1115fcd1b65ad0e375c79128ec67fe06d21979d0dc1",
+      "text": "Sektionswidgetarna som faktiskt är monterade i inställningspanelen.\n\n``_settings_sections`` innehåller avsiktligt även inaktiva formulär för objektstyrda inställningar. Visuella konsumenter -- särskilt mognads- och kategoritips -- måste i stället använda denna delmängd.",
       "translation_source_blocks_sha256": [
         "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
-        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+        "e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a"
       ]
     },
     "spacr.qt.screens.app_screen.AppScreen.restore_run_workspace": {
@@ -65370,13 +65346,14 @@
         "9f2243e685b760d19efee58abc2e1105d30cd6798f0b339d5945acc73fc548d5",
         "022cfeefbf73303d3f04af61775457a71900c4184b9877b4cb2a20cf6448fc75",
         "e76a7b246033920c37d47361e0ef1d12a1f37917c27c4131ca33b80cb377561d",
+        "8e89e061eb082cda25d7a6c3d6fa6be8717666aae02302127508313c98a32b5b",
         "e7098bddb545409bd5ed5efbf29cbea7d250d18183e24299083c3d3fa02fd2b6",
         "2cd847cccfdb807953ee747620d18234bf557bee4912e6f1da0c755b285ce1be",
         "7f6d849b7300810ef99fa586350d4ce0c9867af1969266318ff14d820d014c82",
         "deda5af5a02fafdb72b3fbad954c808adba767009ea7b8e8560bc033c6f937cd"
       ],
-      "source_sha256": "134e307e2497baca8b798a632de74a74e5afdba049f8271fca1683695ecc01d8",
-      "text": "Webbläsare för en spaCR mätdatabas – skrivskyddad som standard.\n\nSammanfogat till det delade urvalet som ``\"db_browser\"``, i båda riktningarna:\n\n* välja rader publicera dem, så en rad plockas ut här lyser upp på laboratoriet mikroplatta värmekarta och i UMAP,\n* Ett urval som publicerats på annat håll väljer och rullar till samma rader.\n* ett filter som publiceras någon annanstans HIDES rader, vilket ett urval aldrig gör.\n\nAlla tre agerar på raderna redan hämtad. Ingenting här åter-kräver: det delade filtret är en lins över sidan i minne, och radräkningsetiketten säger hela tiden hur mycket av tabellen som sidan är.\n\n:param threaded: kör frågor om en enhet för bakgrundsutförande (förvalt). Tester passerar ``False`` för att få deterministiskt, synkront beteende.\n:ivar last_error: Texten på det senaste felet, ``\"\"`` när den senaste åtgärden lyckades. Fel rapporteras bara *bara* här och i statusnamnet inline – aldrig i en modal dialogruta.\n:ivar confirm_edit_mode: inkallbar med bekräftelsetexten och returnerar en bool. Ersätt den till armredigeringsläge utan dialogruta (varje test gör). Standarden öppnar den enda QMessageBox skärmen äger.\n:ivar auto_count: När True (standarden) följer den exakta ``COUNT(*)`` den första biten på sitt eget jobb. Ställ in False för att bläddra i ett mycket stort bord på bara ``max(rowid)`` uppskattningen.",
+      "source_sha256": "ef6980ce06d9fd08e60d9b12844677261e70d1a12bb52a50577b8dbde3a8f105",
+      "text": "Webbläsare för en spaCR mätdatabas – skrivskyddad som standard.\n\nSammanfogat till det delade urvalet som ``\"db_browser\"``, i båda riktningarna:\n\n* välja rader publicera dem, så en rad plockas ut här lyser upp på laboratoriet mikroplatta värmekarta och i UMAP,\n* Ett urval som publicerats någon annanstans väljer och rullar till samma rader.\n* ett filter som publiceras någon annanstans HIDES rader, vilket ett urval aldrig gör.\n\nAlla tre agerar på raderna som redan har hämtats. Ingenting här återkräver: det delade filtret är en lins över sidan i minnet, och radräkningsetiketten säger hela tiden hur mycket av tabellen den sidan är.\n\n:param parent: valfritt Qt ägare som ansvarar för programvyns livslängd.\n:param threaded: kör frågor om en enhet för bakgrundsutförande (förvalt). Tester passerar ``False`` för att få deterministiskt, synkront beteende.\n:ivar last_error: Texten på det senaste felet, ``\"\"`` när den senaste åtgärden lyckades. Fel rapporteras bara *bara* här och i statusnamnet inline – aldrig i en modal dialogruta.\n:ivar confirm_edit_mode: anropbart med bekräftelsetexten och returnerar en bool. Ersätt den till armredigeringsläge utan dialogruta (varje test gör det). Standarden öppnar en QMessageBox som skärmen äger.\n:ivar auto_count: När True (förvalt) följer den exakta ``COUNT(*)`` den första biten på sitt eget jobb. Ställ in False för att bläddra i en mycket stor tabell enbart på ``max(rowid)`` uppskattningen.",
       "translation_source_blocks_sha256": [
         "f1bdedf98d54d1c281e03158c3444b8ea9d0b41da8158313b297da9bd01558bf",
         "80c65a307d95c82612bc32c10a17fad6b3b77239ac4d1c24a7e0d8e1b88de1fa",
@@ -65384,6 +65361,7 @@
         "9f2243e685b760d19efee58abc2e1105d30cd6798f0b339d5945acc73fc548d5",
         "022cfeefbf73303d3f04af61775457a71900c4184b9877b4cb2a20cf6448fc75",
         "e76a7b246033920c37d47361e0ef1d12a1f37917c27c4131ca33b80cb377561d",
+        "6b958fe6133960ca7c323b8f687363f82466f24469e927defd9477099773f9ca",
         "054dc2da1c6700d5d0ff7903f9f2a1f5805aeb5f37fd60ac953d790be8c601ef",
         "2cd847cccfdb807953ee747620d18234bf557bee4912e6f1da0c755b285ce1be",
         "7f6d849b7300810ef99fa586350d4ce0c9867af1969266318ff14d820d014c82",
@@ -65440,14 +65418,16 @@
       "source_blocks_sha256": [
         "8937adc11fdf96e3637d0504561a1c17800d01f90edc74a96ee4f586c4bb1278",
         "11871faca7f5eee407b709bc94e0e081c317f76f0d477f5a6cc166ec8b00bb3e",
-        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769"
+        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769",
+        "beb8759e3bab78e97661b8b4754030652063eb88f332ca66f60bf33564510ad4"
       ],
-      "source_sha256": "30ab6e533cf6882963c672b948bea18a93ec3d3c68b92fd56bb323b566d8f871",
-      "text": "Låt varje in-flight fråga oberoende körning sökväg avsluta innan widgeten dör.\n\nAtt förstöra ett QThread som fortfarande utför avbryter processen, så vi väntar (briefly) istället för att hoppas. Jobb som inte har startat ännu läggs ner – ingenting har lekts upp för dem.\n\nDen delade länken överlever den här skärmen, så släpp den också.",
+      "source_sha256": "ec2975138d9b48aae0200aca9fbcb252a4532703168a434cd32cd550cfdba170",
+      "text": "Låt varje in-flight fråga oberoende körning sökväg avsluta innan widgeten dör.\n\nAtt förstöra ett QThread som fortfarande utför avbryter processen, så vi väntar (briefly) istället för att hoppas. Jobb som inte har startat ännu läggs ner – ingenting har lekts upp för dem.\n\nDen delade länken överlever den här skärmen, så släpp den också.\n\n:param event: Qt nära händelsen vidarebefordrad efter att arbetstagaren städat upp.",
       "translation_source_blocks_sha256": [
         "386314bc40d8e072d8f7b70ac6fc16fa1eed31b972cd88468bd38f208a326748",
         "5710f69ce5aabedad9d07450e605580a53ee10f28a6c61bb526578c5a53599b0",
-        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769"
+        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769",
+        "beb8759e3bab78e97661b8b4754030652063eb88f332ca66f60bf33564510ad4"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.database_path": {
@@ -65462,24 +65442,34 @@
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.disable_edit_mode": {
       "source_blocks_sha256": [
-        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856"
+        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
+        "026b7d17256fb423d57c73029a351497be25fba9eb0f5027b730bae839c30d42"
       ],
-      "source_sha256": "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
-      "text": "Det är säkert att ringa när det är läsbart.",
+      "source_sha256": "0fc66241e70a5aa70dd98d877cec6b93d0bf4cc5068583a40d3e88bf0eea33a2",
+      "text": "Gå tillbaka till skrivskyddad, säker att ringa när den redan är lässkyddad.\n\n:param quiet: undertryck statusmeddelandet skrivskyddat när det är sant.",
       "translation_source_blocks_sha256": [
-        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856"
+        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
+        "026b7d17256fb423d57c73029a351497be25fba9eb0f5027b730bae839c30d42"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.edit_cell": {
       "source_blocks_sha256": [
         "a3c859e3dce3ba784f0ba81d9c0fa2e9f1325056f56219855298152afb9a1e48",
-        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45"
+        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45",
+        "f9fb9b84634d26f6be98e1bf81a267806db221a2809c0743930d59f20e00d414",
+        "e7e45adcf64b415b7b1a3cf7519ca6d1810443451c5227366627fa4b39aef5d2",
+        "81e8b358241613aeb794f8e52543f8666c807e2f293390cd6a65834df2184efb",
+        "eb5c9e9aa3a18482cf32ccbbaf23fdba94dfe0056626f29f32e2f819965158c5"
       ],
-      "source_sha256": "4a8e18c1de0509d6c64eb69b393bd5d069a5aaa51571d3b0946a62e5a7843760",
-      "text": "Skriv en cell på en rad. Returnerar False, med en anledning, om den vägras.\n\nDetta är den enda sökvägen i skärmen som kan skriva, och det är också vad :meth:`PreviewModel.setData` kallar när en celleditor stänger.",
+      "source_sha256": "b8b2d871adc1226e1eecfe662eb9af8b8208709102321a90ab2ade523847b2f8",
+      "text": "Skriv en cell på en rad. Returnerar False, med en anledning, om den vägras.\n\nDetta är den enda sökvägen i skärmen som kan skriva, och det är också vad :meth:`PreviewModel.setData` kallar när en celleditor stänger.\n\n:param row: Noll-baserad laddad modellrad till adress.\n:param column: Schemakolumn vars värde användaren redigerat.\n:param text: rå editorvärde att tvinga mot den deklarerade typen.\n:returns: om exakt en databasrad uppdaterades eller redan innehöll det begärda värdet.",
       "translation_source_blocks_sha256": [
         "a3c859e3dce3ba784f0ba81d9c0fa2e9f1325056f56219855298152afb9a1e48",
-        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45"
+        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45",
+        "f9fb9b84634d26f6be98e1bf81a267806db221a2809c0743930d59f20e00d414",
+        "e7e45adcf64b415b7b1a3cf7519ca6d1810443451c5227366627fa4b39aef5d2",
+        "81e8b358241613aeb794f8e52543f8666c807e2f293390cd6a65834df2184efb",
+        "eb5c9e9aa3a18482cf32ccbbaf23fdba94dfe0056626f29f32e2f819965158c5"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.edit_mode_enabled": {
@@ -65517,13 +65507,17 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.export_csv": {
       "source_blocks_sha256": [
         "7328f932b3d4135a55441e63f339753c812d8f497ac715d31b4fb3b2ea400555",
-        "2b1d67a59af7a33923f09dd742accc1398902c3afb9439cb817b76e62f63e28c"
+        "2b1d67a59af7a33923f09dd742accc1398902c3afb9439cb817b76e62f63e28c",
+        "e850efa3c891a024c585ee9ec6c1c69501197aba030e87c92f3b46cb9d0bc30c",
+        "21e70b0cee89c83db53ea786b8715828ea082ffe0be5aa594399eae88c45694f"
       ],
-      "source_sha256": "e186386ea23ee1f5ed5739d7f9032432e5c49ce10e8b79602bb70d66d3b7be16",
-      "text": "Skriv den aktuella tabellen + filter + synliga kolumner till ``out_path``.\n\nKör av huvudvägen GUI och strömmar resultatet, så en 400 000-radsexport varken fryser fönstret eller laddar bordet i minne. Rapporter inline vid fel och returnerar ``False``.",
+      "source_sha256": "1cc75790d005cb1b5b427c438a9c10ab4c16a67b128634e4390c82d0cf21847d",
+      "text": "Skriv den aktuella tabellen + filter + synliga kolumner till ``out_path``.\n\nKör av huvudvägen GUI och strömmar resultatet, så en 400 000-radsexport varken fryser fönstret eller laddar bordet i minne. Rapporter inline vid fel och returnerar ``False``.\n\n:param out_path: Sökväg CSV vald av användaren.\n:returns: Om exportjobbet accepterades för utförande.",
       "translation_source_blocks_sha256": [
         "7328f932b3d4135a55441e63f339753c812d8f497ac715d31b4fb3b2ea400555",
-        "52c5d02f1ea81b9504f6709bdfe375ecabdbeaa0acae45ec907a068389781e3a"
+        "52c5d02f1ea81b9504f6709bdfe375ecabdbeaa0acae45ec907a068389781e3a",
+        "e850efa3c891a024c585ee9ec6c1c69501197aba030e87c92f3b46cb9d0bc30c",
+        "21e70b0cee89c83db53ea786b8715828ea082ffe0be5aa594399eae88c45694f"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.fetch_more": {
@@ -65579,28 +65573,29 @@
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed": {
-      "alias_of": "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
       "source_blocks_sha256": [
-        "c5e76557a3b69353b89e04a5517174b8466585c3961d5a61c2a63300fa3fb8bf",
-        "d79d9d436b8d860657f46455dc62bf6a688d37417c4ef143da0d86aafe53d50f"
+        "64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df",
+        "3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a"
       ],
-      "source_sha256": "8bf5b60969a049358b12c282c6906535d0285bdf65ea439a69cfb9913b4aedda",
-      "text": "Den delade befolkningen flyttade: återförfrågan och återutläggningen.\n\nFörval: ingenting, så en vy kan prenumerera enbart på markeringar.",
+      "source_sha256": "3785f8a24581cbb646020decbfd636530f3dd8d03a0a4ec93c6e5c7053a79a70",
+      "text": "Applicera ett nyligen publicerat delat filter på de laddade raderna.\n\n:param data_filter: aktuellt processomfattande filter; tillståndet för den länkade vyn äger det redan, så detta återanrop uppdaterar bara radernas synlighet.",
       "translation_source_blocks_sha256": [
-        "c5e76557a3b69353b89e04a5517174b8466585c3961d5a61c2a63300fa3fb8bf",
-        "d79d9d436b8d860657f46455dc62bf6a688d37417c4ef143da0d86aafe53d50f"
+        "64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df",
+        "3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_selection_changed": {
       "source_blocks_sha256": [
         "8298f5b995f5cc1b51736ff8a00c4a3b2132ea27f10725e2b440a9fc11926953",
-        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3"
+        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3",
+        "42b261bccfe7d6a4b53d9322af05402fb242ae93779bc57ab18182aba59c38ba"
       ],
-      "source_sha256": "9edc798b5b98a664561553dc82eed65db480a1f7183bad32ae9519a602c9953e",
-      "text": "Välj och bläddra till raderna som någon annan valde.\n\nIngenting är dolt: raderna som markeringen inte heter stannar exakt där de är. Endast de delade *filter* tar bort rader från vyn.",
+      "source_sha256": "df880e64796b4310666b5fa640d2ed752c2f40f999e40c0e1b0a6fc64df32bca",
+      "text": "Välj och bläddra till raderna som någon annan valde.\n\nIngenting är dolt: raderna heter inte exakt var de är. Endast det delade *filter* tar bort rader från vyn.\n\n:param selection: Process-omfattande objektval publiceras på annat håll.",
       "translation_source_blocks_sha256": [
         "8298f5b995f5cc1b51736ff8a00c4a3b2132ea27f10725e2b440a9fc11926953",
-        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3"
+        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3",
+        "42b261bccfe7d6a4b53d9322af05402fb242ae93779bc57ab18182aba59c38ba"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.page_size": {
@@ -65698,35 +65693,43 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.rows_for_selection": {
       "source_blocks_sha256": [
         "72820abc7b7e94df31b5cba281c5e1a8c5d13ae60c1ce23eda704feab5b8dcd0",
-        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f"
+        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f",
+        "21484796e24fa20b191b4f0e5812da12cd09cc5ce07e29d5ae3b3decec750266"
       ],
-      "source_sha256": "d9e0d5d311c2e6d913f30ee2f2070c622d746db7c879568a609ee525f39e7602",
-      "text": "De laddade raderna ``selection`` namn, stigande.\n\nTöm – inte ett fel – för en tabell utan objektidentitet i den (``png_list`` knappad på en sökväg, en sammanfattning, en vy). Ett delat urval identifierar inte dessa rader.",
+      "source_sha256": "baa7951f34521c99e96b9a31dc0fc680ce076826b2adecc9dd043f327ff9fa6f",
+      "text": "De laddade raderna ``selection`` namn, stigande.\n\nTöm – inte ett fel – för en tabell utan objektidentitet i den (``png_list`` knappad på en sökväg, en sammanfattning, en vy). Ett delat urval identifierar inte dessa rader.\n\n:param selection: val av delad objektidentitet för att matcha.",
       "translation_source_blocks_sha256": [
         "72820abc7b7e94df31b5cba281c5e1a8c5d13ae60c1ce23eda704feab5b8dcd0",
-        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f"
+        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f",
+        "21484796e24fa20b191b4f0e5812da12cd09cc5ce07e29d5ae3b3decec750266"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.select_rows": {
       "source_blocks_sha256": [
         "1496e4fe610b8c73108dbd157b57a66156285cc5ec694e28782b17f777e81da2",
+        "99cd513ac68f2cd00ed3c45c5be1baad49c1801ecb5947ae58563222e1001dc8",
         "0dd94e23c41c2cddcdef4a3f8eaf69c766fffb8f146db2a9180b130b9f671e73"
       ],
-      "source_sha256": "aa05e6f01d6d9498df9bfcc399de50e0c996e94e4e33d847f39452ef9ec8c71f",
-      "text": "Välj ``rows`` som en användare skulle, publicera dem till varje vy.\n\n:returns: raderna som var i räckvidd och blev utvalda.",
+      "source_sha256": "88c67d296bb71fd7e74bea95dc9bc641756f508cc58772e07362d1f6170d1241",
+      "text": "Välj ``rows`` som en användare skulle, publicera dem till varje vy.\n\n:param rows: Nollbaserade modellradindex som begärs av anroparen.\n:returns: de rader som var inom räckhåll och blev utvalda.",
       "translation_source_blocks_sha256": [
         "1496e4fe610b8c73108dbd157b57a66156285cc5ec694e28782b17f777e81da2",
+        "99cd513ac68f2cd00ed3c45c5be1baad49c1801ecb5947ae58563222e1001dc8",
         "0dd94e23c41c2cddcdef4a3f8eaf69c766fffb8f146db2a9180b130b9f671e73"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.select_table": {
       "source_blocks_sha256": [
-        "589df4bcfc970627f5c4077208d526b083d6e472b4c323b533dced9a0c1fd5eb"
+        "a6d54b1ca1b6c1c3ec8dbd46cdc968454e81f4144f4750bb194c796480ce4b24",
+        "e4d7ec556c0a270fc8f53dafc6600672c106c4e5a6f299822d7a00e3aeed32bb",
+        "11e5c80898643696196aadfe850f6fa544c41a051360028747d9e92de5fe70b0"
       ],
-      "source_sha256": "589df4bcfc970627f5c4077208d526b083d6e472b4c323b533dced9a0c1fd5eb",
-      "text": "Gör det förhandsgranskade tabellen ``name``; återställer belastningen och filtret.",
+      "source_sha256": "e19878b61543435b15124c6f1380e6798aec0de06ccafaa6d45b8d6f28408735",
+      "text": "Gör ``name`` den förhandsgranskade tabellen och återställ belastning och filtertillstånd.\n\n:param name: live tabell eller visa namn från den öppna databasen.\n:returns: om schemat lästes och bordslasten startades.",
       "translation_source_blocks_sha256": [
-        "589df4bcfc970627f5c4077208d526b083d6e472b4c323b533dced9a0c1fd5eb"
+        "a6d54b1ca1b6c1c3ec8dbd46cdc968454e81f4144f4750bb194c796480ce4b24",
+        "e4d7ec556c0a270fc8f53dafc6600672c106c4e5a6f299822d7a00e3aeed32bb",
+        "11e5c80898643696196aadfe850f6fa544c41a051360028747d9e92de5fe70b0"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.selected_rows": {
@@ -65742,13 +65745,15 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_column_filter": {
       "source_blocks_sha256": [
         "0e1dff24ca1feee5ac9b9c660b329a7f79adf3eb79b890322176841127daf5a2",
-        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66"
+        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ],
-      "source_sha256": "f70fe4fa3738f1e895293b0119d0f473bb10b64bf1ef3559a25176a86b9c2b97",
-      "text": "Begränsa de visade kolumnerna till kolumnerna som innehåller ``text``.\n\nRensat en vy operation – ingen åter-query – så det stannar direkt på ett bord med hundratals funktion kolumner. En tom sträng återställer varje kolumn.",
+      "source_sha256": "0d57a4dd9ea64e86b2e76fd4708f88d9dac90901ce838f6506220223b29d320a",
+      "text": "Begränsa de visade kolumnerna till de som innehåller ``text``.\n\nEnbart en vyoperation – ingen återquery – så den stannar direkt på ett bord med hundratals funktionskolumner. En tom sträng återställer varje kolumn.\n\n:param text: Skiljetecken som inte är känsliga och som krävs i synliga namn.",
       "translation_source_blocks_sha256": [
         "0e1dff24ca1feee5ac9b9c660b329a7f79adf3eb79b890322176841127daf5a2",
-        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66"
+        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_database": {
@@ -65773,22 +65778,34 @@
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_filter": {
       "source_blocks_sha256": [
-        "505644a60c47e39ae4140baee290070156a1dd00102744c51337a96084640ee9"
+        "d01647251c8650639b55493d21960676aaa5853f99ac37a7df7ed2c26930d452",
+        "65480f85f39743bdcc4c9e725d7c4ed3025a5e6749c6f267d5d4b2a19d100c0f",
+        "5c66520f1625fdf56509ebab65cc6a627e8b033516553265a2327ae46c183455",
+        "37efea7ceefa6ebca673447f170f0759733dbb30d73070075221c6675e7940c3",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ],
-      "source_sha256": "505644a60c47e39ae4140baee290070156a1dd00102744c51337a96084640ee9",
-      "text": "Programmatisk motsvarighet till att fylla i filterraden + Applicera.",
+      "source_sha256": "40bc54291d5083b10445d234d024a76083352d53bb2fe2a4b4e461f1a600d39a",
+      "text": "Programmatisk ekvivalent för att fylla i filterraden och tillämpa.\n\n:param column: Live schemakolonn att filtrera.\n:param op: Strukturerad operatörsetikett från :data:`OPERATORS`.\n:param value: Råfiltervärde; operatörer som ``is null`` ignorerar det.\n:returns: Om valideringen lyckades och omladdningen påbörjades.",
       "translation_source_blocks_sha256": [
-        "505644a60c47e39ae4140baee290070156a1dd00102744c51337a96084640ee9"
+        "d01647251c8650639b55493d21960676aaa5853f99ac37a7df7ed2c26930d452",
+        "65480f85f39743bdcc4c9e725d7c4ed3025a5e6749c6f267d5d4b2a19d100c0f",
+        "5c66520f1625fdf56509ebab65cc6a627e8b033516553265a2327ae46c183455",
+        "37efea7ceefa6ebca673447f170f0759733dbb30d73070075221c6675e7940c3",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_raw_filter": {
       "source_blocks_sha256": [
-        "c22678425f7ba747d87be1036c50b16685fce5c05ee8361172ab60d021804f56"
+        "79b17c3ae3c72f484188565f13136ff6c071026d628f2799cf750f240b8fef0b",
+        "f5f816fd42a8ddc85d8cf00ffe5ad61af0e7e9be288abcf062af2e68d76ed3ed",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ],
-      "source_sha256": "c22678425f7ba747d87be1036c50b16685fce5c05ee8361172ab60d021804f56",
-      "text": "Programmatisk motsvarighet till den rå-SQL-boxen + Verkställ.",
+      "source_sha256": "76d63cca5d51f49c134f6b5a008b38d6892479caee81f0162bd190ea929aca49",
+      "text": "Programmatisk motsvarighet till raw-SQL-boxen och Verkställ.\n\n:param predicate: Ensam skrivskyddad WHERE-klausulfragment.\n:returns: Om valideringen lyckades och omladdningen påbörjades.",
       "translation_source_blocks_sha256": [
-        "c22678425f7ba747d87be1036c50b16685fce5c05ee8361172ab60d021804f56"
+        "79b17c3ae3c72f484188565f13136ff6c071026d628f2799cf750f240b8fef0b",
+        "f5f816fd42a8ddc85d8cf00ffe5ad61af0e7e9be288abcf062af2e68d76ed3ed",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.sql_text": {
@@ -65869,36 +65886,134 @@
         "a3d5413538ad2f33b46824528f517196de50974b83a7f637f417649742c676b4",
         "64db2e416f96230a12f5ce9e7fcccf43375624a0d960847493492ee903c20cd7",
         "73ac4bac8fb5959d9d4e2fa0a62808d7d76b7778d49759eb5b3583d82c81caa1",
-        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f"
+        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f",
+        "db94f25aef2836018c6535721198a6a64f4d4fc7505a330a7c4fde77c7e9abb8"
       ],
-      "source_sha256": "02d1fd820f13269eee56b1c594e99f3d20199a35433209b2d6bd913dd28a5401",
-      "text": "Håller raderna hämtade hittills plus kolumnsynlighet masken.\n\nTvå jobb utöver det självklara:\n\n* **Inkrementell hämtare.** ``canFetchMore``/``fetchMore`` är Qt-sättet att säga \"det finns mer där det kom ifrån\", vyn kallar dem när användaren rullar till botten och modellen frågar programvyn för en annan bit. Medan en bit är i flight ``canFetchMore`` är False, så en scroll kan inte schemalägga tio av dem.\n* **Row identitet.** Varje rad bär det strukturerade datanamnet tuple den hämtades med (``rowid``, eller det primära strukturerade-datanamnet). Det är det som gör en redigering adressabel – och dess frånvaro är det faktum att en redigering är vedertagen.\n\nChunks hämtas med *varje* kolumn, och kolumnsökningen ändrar bara vilken av dem som är mappad i vyn. Skriva i sökrutan därför aldrig igen-kräver databasen – vilket är vad som gör den användbar på en tabell med 500 funktion kolumner.",
+      "source_sha256": "7442f0b5dfc960574215fa9b45fb5340e4d0ae8e35245e0a6df1b4dfde7b30b4",
+      "text": "Håller raderna hämtade hittills plus kolumnsynlighet masken.\n\nTvå jobb utöver det självklara:\n\n* **Inkrementell hämtare.** ``canFetchMore``/``fetchMore`` är Qt-sättet att säga \"det finns mer där det kom ifrån\", vyn kallar dem när användaren rullar till botten och modellen frågar programvyn för en annan bit. Medan en bit är i flight ``canFetchMore`` är False, så en scroll kan inte schemalägga tio av dem.\n* **Row identitet.** Varje rad bär det strukturerade datanamnet tuple den hämtades med (``rowid``, eller det primära strukturerade-datanamnet). Det är det som gör en redigering adressabel – och dess frånvaro är det faktum att en redigering är vedertagen.\n\nChunks hämtas med *varje* kolumn, och kolumnsökningen ändrar bara vilken av dem som är mappad i vyn. Skriva i sökrutan återkräver därför aldrig databasen – vilket är vad som gör den användbar på en tabell med 500 funktionskolumner.\n\n:param parent: valfritt Qt ägare som ansvarar för modellens livslängd.",
       "translation_source_blocks_sha256": [
         "ff6f7446d44502c687966545ab4963141320d4aeb3b463c7dde55e4fe0181164",
         "a3d5413538ad2f33b46824528f517196de50974b83a7f637f417649742c676b4",
         "5a85b753ca4b815beb5d147d99d3e3271e0c20ced06c0d51867de67cb1218dcd",
         "e3afb2f3650f412ad6ad54707e3182171c48329f7bfecb7a5cb816fe769701ce",
-        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f"
+        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f",
+        "db94f25aef2836018c6535721198a6a64f4d4fc7505a330a7c4fde77c7e9abb8"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.append_rows": {
       "source_blocks_sha256": [
-        "d768949e094c01c1e03a809b6125dacdcd6c0399dde74874500078af700d6531"
+        "44e8a8ff08bdd5e0d9a970f6123e3fd6974e63bc43d3646a6d6390d162063c66",
+        "f65b16eca19f581bb9cebe05f4a04a0618abac6fcf62b452a1cd2b918ecbbd6f",
+        "d2aa835083a1f3f9919331aa9d9cf73cce74f816f13299c8d9143fe6b2464d19"
       ],
-      "source_sha256": "d768949e094c01c1e03a809b6125dacdcd6c0399dde74874500078af700d6531",
-      "text": "Lägg till en hämtad bit till slutet. Returnerar hur många rader som landade.",
+      "source_sha256": "d80543c38bcc357ee1e5eb6bb7b72063fd6f390936b94036512da04049a39ec0",
+      "text": "Lägg till en hämtad bit till slutet och returnera hur många rader landade.\n\n:param rows: komplett schema ordning rader att lägga till.\n:param keys: Stabila radadresser parade med ``rows``; ``None`` tillhandahåller ett oredigerbart ``None`` strukturerat datanamn för varje bifogad rad.",
       "translation_source_blocks_sha256": [
-        "d768949e094c01c1e03a809b6125dacdcd6c0399dde74874500078af700d6531"
+        "44e8a8ff08bdd5e0d9a970f6123e3fd6974e63bc43d3646a6d6390d162063c66",
+        "f65b16eca19f581bb9cebe05f4a04a0618abac6fcf62b452a1cd2b918ecbbd6f",
+        "86ddd6995f52b7f68b4040d343cc9882d2f7ef7b75b4dbd47482315ed1cb4a68"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.canFetchMore": {
+      "source_blocks_sha256": [
+        "a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6",
+        "bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379"
+      ],
+      "source_sha256": "0dcc6cf2d59f20396818b90657ff26d864220024cec7b2e4315e320853ad479b",
+      "text": "Returnera om rotmodellen kan begära ytterligare ett datablock.\n\n:param parent: Qt-föräldraindex; giltiga barnindex kan inte hämta fler data.",
+      "translation_source_blocks_sha256": [
+        "a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6",
+        "bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.columnCount": {
+      "source_blocks_sha256": [
+        "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
+        "46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b"
+      ],
+      "source_sha256": "eda578c7ee92a8596cb4ae1d6284d05bcc8415668f98c0385b7cfc32c6c916b2",
+      "text": "Returnera antalet synliga kolumner för rotmodellen och noll för barnmodeller.\n\n:param parent: Qt-föräldraindexet vars antal barnkolumner begärs.",
+      "translation_source_blocks_sha256": [
+        "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
+        "46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.data": {
+      "source_blocks_sha256": [
+        "8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36",
+        "9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53",
+        "dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221"
+      ],
+      "source_sha256": "bd47e8dc1a6fd28ad74f7a800b311a763accadc680f54181223b27b9aed06d8d",
+      "text": "Returnera visningsvärdet, verktygstipset eller det exakta redigeringsvärdet för en cell.\n\n:param index: Modellindex som identifierar den begärda cellen.\n:param role: Qt dataroll; roller som inte stöds returnerar ``None``.",
+      "translation_source_blocks_sha256": [
+        "8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36",
+        "9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53",
+        "dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.fetchMore": {
+      "source_blocks_sha256": [
+        "36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69",
+        "0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16"
+      ],
+      "source_sha256": "246f4ba73d221495e186450e4e2609fd0218dbebb503af0362e03bb52056bc9e",
+      "text": "Begär nästa datablock via den konfigurerade hämtkroken.\n\n:param parent: Qt föräldraindex; giltiga barnindex ignoreras.",
+      "translation_source_blocks_sha256": [
+        "36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69",
+        "0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.flags": {
+      "source_blocks_sha256": [
+        "6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c",
+        "f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8"
+      ],
+      "source_sha256": "6119752d4c99b323c47c6a555a7e8e90a4d289250e806b80845f70be2ed71a4b",
+      "text": "Returnera Qt-objektflaggor för ``index``, inklusive aktiverad redigerbarhet.\n\n:param index: modellindex vars interaktionsflaggor begärs.",
+      "translation_source_blocks_sha256": [
+        "6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c",
+        "f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.headerData": {
+      "source_blocks_sha256": [
+        "413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351",
+        "7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67",
+        "b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4",
+        "91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1"
+      ],
+      "source_sha256": "b3a0ba46ec4812f41eda8201c1bb94bb61bc922465434afe416fba678a68550a",
+      "text": "Returnera ett kolumnnamn eller ett ettbaserat absolut radnummer.\n\n:param section: 0-baserad synlig kolumn eller radhuvudsektion.\n:param orientation: horisontellt för namn, vertikalt för radnummer.\n:param role: Qt-dataroll; endast :attr:`Qt.DisplayRole` tillhandahålls.",
+      "translation_source_blocks_sha256": [
+        "413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351",
+        "7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67",
+        "b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4",
+        "91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1"
+      ]
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.rowCount": {
+      "source_blocks_sha256": [
+        "e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2",
+        "39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee"
+      ],
+      "source_sha256": "7a7c9fb68fe9c87b99b2726b9d5b28fa9b6d5bd270a0491e0b08304a01a18593",
+      "text": "Returnera antalet inlästa rader för rotmodellen och noll för barnmodeller.\n\n:param parent: Qt föräldraindex vars antal barnrader begärs.",
+      "translation_source_blocks_sha256": [
+        "e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2",
+        "39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.row_key": {
       "source_blocks_sha256": [
-        "f48b3e166e2bc516c723cc2aee2d0c4c84d6349c6b45d5be53b87080397b1ec7"
+        "96818b8a7bdc268911093da840b33d06fe8d860913275b17c3bbcfcf2b43bd95",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12"
       ],
-      "source_sha256": "f48b3e166e2bc516c723cc2aee2d0c4c84d6349c6b45d5be53b87080397b1ec7",
-      "text": "Nyckeltuben som adresseras ``row`` eller ``None`` när den inte har någon.",
+      "source_sha256": "f9da4751526e43db27046bda9401ff16cb878e78fb37196189529a2a136a4068",
+      "text": "Returnera nyckeln tuple adress ``row``, eller ``None``.\n\n:param row: Nollbaserat modellradsindex.",
       "translation_source_blocks_sha256": [
-        "f48b3e166e2bc516c723cc2aee2d0c4c84d6349c6b45d5be53b87080397b1ec7"
+        "96818b8a7bdc268911093da840b33d06fe8d860913275b17c3bbcfcf2b43bd95",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.rows": {
@@ -65911,98 +66026,150 @@
         "e6b3f05b0b1085bc424e1d8b61a4522284245f3f544b60b2cb99ec7cb95f1cb7"
       ]
     },
+    "spacr.qt.screens.db_browser.PreviewModel.setData": {
+      "source_blocks_sha256": [
+        "ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38",
+        "667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64",
+        "e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b",
+        "6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03",
+        "4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b"
+      ],
+      "source_sha256": "f390186a39990c2f9b7b3b1858171b1499f89f0f5bd35b34ba2af6e73b8e6d6e",
+      "text": "Bekräfta ett redigeringsvärde via skärmens skyddade återanrop.\n\n:param index: Giltigt redigerbart modellindex.\n:param value: rått redigeringsvärde som skickas till commit-kroken.\n:param role: Qt-roll, som måste vara :attr:`Qt.EditRole`.\n:returns: om commit-kroken godkände och skrev ändringen.",
+      "translation_source_blocks_sha256": [
+        "ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38",
+        "667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64",
+        "e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b",
+        "6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03",
+        "4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b"
+      ]
+    },
     "spacr.qt.screens.db_browser.PreviewModel.set_column_filter": {
       "source_blocks_sha256": [
         "0031dc11e6ed89989f07d5287e85ee47c0ac4b32199edd23fd2ccf8156a44acc",
-        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52"
+        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ],
-      "source_sha256": "e7910252f309e36017edbf408938e9fb6e823d47f4cae2ab559c6471eaf7cfe7",
-      "text": "Visa bara kolumner vars namn innehåller ``text`` (fallokänslig).\n\nEn tom sträng återställer varje kolumn.",
+      "source_sha256": "ef81b06180b835ec6096c16993c9e7d33855a3579abca030b92a4654a38f37ee",
+      "text": "Visa bara kolumner vars namn innehåller ``text`` (fallokänslig).\n\nEn tom sträng återställer varje kolumn.\n\n:param text: Skiljetecken som inte är känsliga och som krävs i synliga namn.",
       "translation_source_blocks_sha256": [
         "0031dc11e6ed89989f07d5287e85ee47c0ac4b32199edd23fd2ccf8156a44acc",
-        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52"
+        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_commit_hook": {
       "source_blocks_sha256": [
-        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1"
+        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1",
+        "3ac14b07f2c48dabb797d61b02d263d73c2f580fae4e1c6f4e67114370a2cb01"
       ],
-      "source_sha256": "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1",
-      "text": "Ställ in vad :meth:`setData` kallar för att faktiskt skriva en cell.",
+      "source_sha256": "40c3bce8b0bbf6d4ee3d3532bcbb169f7ebcc81f3845d9fc127af8ca912a8a3a",
+      "text": "Ställ in vad :meth:`setData` kallar för att faktiskt skriva en cell.\n\n:param hook: ``(row, column, value)`` författare, eller ``None`` för att inaktivera den.",
       "translation_source_blocks_sha256": [
-        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1"
+        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1",
+        "3ac14b07f2c48dabb797d61b02d263d73c2f580fae4e1c6f4e67114370a2cb01"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_editable": {
       "source_blocks_sha256": [
-        "c0924b64b3fb3f11831bf1855fc247f53ae4b7604797b9199554185f06ca8c93"
+        "6e0f3efd741de97956965a120e18c499f8fdc5a3ac6d9233b06b1ee2b15e45d1",
+        "44d3301f76159c652d9d27e18efe819c758401bd3c72816f8bcd1f4c79fc9faa"
       ],
-      "source_sha256": "c0924b64b3fb3f11831bf1855fc247f53ae4b7604797b9199554185f06ca8c93",
-      "text": "Sätt på eller stäng av cellredigering (och berätta för vyn att måla om flaggor).",
+      "source_sha256": "1c43203d9a1078bbeca8459af264281e8e7b18b92af523c96842b01e43fa841b",
+      "text": "Sätt på eller stäng av cellredigering och måla om objektflaggorna.\n\n:param editable: Om giltiga celler annonserar Qt:s redigerbara flagga.",
       "translation_source_blocks_sha256": [
-        "c0924b64b3fb3f11831bf1855fc247f53ae4b7604797b9199554185f06ca8c93"
+        "6e0f3efd741de97956965a120e18c499f8fdc5a3ac6d9233b06b1ee2b15e45d1",
+        "44d3301f76159c652d9d27e18efe819c758401bd3c72816f8bcd1f4c79fc9faa"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_fetch_hook": {
       "source_blocks_sha256": [
-        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9"
+        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9",
+        "72c35dc630e129731ac4ba2be725dd52b377f6c3ff31236dfa82870b73f27b56"
       ],
-      "source_sha256": "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9",
-      "text": "Ställ in det som :meth:`fetchMore` kallar att be om nästa bit.",
+      "source_sha256": "1dadcaaf53a5a4c81ac687c25652dfcf8ea202b31ef328c8ea9e50a4ce770458",
+      "text": "Ställ in vad :meth:`fetchMore` kallar för att be om nästa bit.\n\n:param hook: Noll-argument hämta begäran, eller ``None`` för att koppla bort den.",
       "translation_source_blocks_sha256": [
-        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9"
+        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9",
+        "72c35dc630e129731ac4ba2be725dd52b377f6c3ff31236dfa82870b73f27b56"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_more": {
       "source_blocks_sha256": [
-        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378"
+        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378",
+        "92d07b8f0711a05844460b379793b34b8d40662b04dc22102a66cafdc1f534fe"
       ],
-      "source_sha256": "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378",
-      "text": "Säg om en bit till kan hämtas just nu.",
+      "source_sha256": "ac0a2388bfc28df2a1337b058a9572cfc87d97757f778f4dff8950f8b52cf3dc",
+      "text": "Säg om en bit till kan hämtas just nu.\n\n:param more: Det är bara sant när en ofetad bit fortfarande finns tillgänglig.",
       "translation_source_blocks_sha256": [
-        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378"
+        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378",
+        "92d07b8f0711a05844460b379793b34b8d40662b04dc22102a66cafdc1f534fe"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_page": {
       "source_blocks_sha256": [
-        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79"
+        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79",
+        "6f45aac0aa224763173902a2f924786c3d9879b548970e03154624cf06c38fa7",
+        "916307a5d4611338ed805385d060da8f537bf22abd5754cd66b4bb21bb348afd",
+        "fe213521e761f2457f394038343197e2bec760f675fb69f4ecfd105a30e9963c",
+        "a9c003d6c369cfecb2d694bcb718fd152d1677ed9d3f411319e25a12d9d266e2"
       ],
-      "source_sha256": "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79",
-      "text": "Ersätt modellens innehåll, och behåll aktuell kolumnsökning.",
+      "source_sha256": "49aa8bc6709cd50bb23ad011a019bf262a2a7bf87b4480b15f46a16ca0af325e",
+      "text": "Ersätt modellens innehåll och behåll aktuell kolumnsökning.\n\n:param columns: kolumnnamn enligt schemaordning som representeras av varje rad.\n:param rows: Fullständiga värden för den nyladdade sidan.\n:param row_offset: Nollbaserad databasutjämning som används för radrubriker.\n:param keys: Stabila radadresser eller ``None`` för oredigerbara rader.",
       "translation_source_blocks_sha256": [
-        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79"
+        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79",
+        "6f45aac0aa224763173902a2f924786c3d9879b548970e03154624cf06c38fa7",
+        "916307a5d4611338ed805385d060da8f537bf22abd5754cd66b4bb21bb348afd",
+        "fe213521e761f2457f394038343197e2bec760f675fb69f4ecfd105a30e9963c",
+        "a9c003d6c369cfecb2d694bcb718fd152d1677ed9d3f411319e25a12d9d266e2"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_value": {
       "source_blocks_sha256": [
-        "3a96528e65a803216b775b688d14c542cbd50af2aaf528e15199c1a8ed08b5c0"
+        "87a3195ef2b539b38485869ebf317733ae0e7bcc1fd9942e0a7f6483a40ec1ec",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "8d26a3b9ba7d72d641a8c8a2e70c7a1de68398ff80b6894bacd20ffb51b6d020",
+        "4ea69e7de8cf797e3631a3ecf2f038a5b303e983ed65caadf077d45ab36adf0a",
+        "7c760fae1b7d69119d1de9adf5f1ffc64d9a63e5d8049d5a8bbabd80e3158858"
       ],
-      "source_sha256": "3a96528e65a803216b775b688d14c542cbd50af2aaf528e15199c1a8ed08b5c0",
-      "text": "Skriv tillbaka ett värde till minnessidan efter en riktig UPPDATERING.",
+      "source_sha256": "1195374eb992faf75f84631e04f2c822890c10c6008c1ff9eb5f2d9bd4308929",
+      "text": "Skriv ett värde i minnessidan efter en riktig UPPDATERING.\n\n:param row: Nollbaserat modellradsindex.\n:param column: kolumn schema vars visade värde ändrades.\n:param value: redan styrt värde skrivet till databasen.\n:returns: om den adresserade cellen finns och uppdaterades.",
       "translation_source_blocks_sha256": [
-        "3a96528e65a803216b775b688d14c542cbd50af2aaf528e15199c1a8ed08b5c0"
+        "87a3195ef2b539b38485869ebf317733ae0e7bcc1fd9942e0a7f6483a40ec1ec",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "8d26a3b9ba7d72d641a8c8a2e70c7a1de68398ff80b6894bacd20ffb51b6d020",
+        "4ea69e7de8cf797e3631a3ecf2f038a5b303e983ed65caadf077d45ab36adf0a",
+        "7c760fae1b7d69119d1de9adf5f1ffc64d9a63e5d8049d5a8bbabd80e3158858"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.sort": {
       "source_blocks_sha256": [
         "71cb5bbc5dc93f3a91b405d91c9087d57048312f1745786822ec571f4cc52e2e",
-        "2001c5f7e87a33325d6b4e1a4aa92d4bd1172ee52e142be5af736a2c18b7b2c6"
+        "2001c5f7e87a33325d6b4e1a4aa92d4bd1172ee52e142be5af736a2c18b7b2c6",
+        "6359264eb8dd05dffc7910c47afabd2114a38fb1e6df1a40493b0107dfefed4f",
+        "23e9ff9e6a625aa275489e729dfccf8511c09ab19860b409240eabe29cf6ec75"
       ],
-      "source_sha256": "78b3d8b861795326587c3a92629194635253521028ada9335845170eb1ebbf56",
-      "text": "Sortera de laddade raderna i minnet.\n\nSkärmen gör det bara möjligt att visa sortering när tabellen *hela* är laddad, så det här sorterar aldrig ett partiellt resultat och kallar den tabellens ordning. Strukturerade datanamn reser med sina rader, så en redigering efter ett slag adresserar fortfarande raden som den ser ut att adressera.",
+      "source_sha256": "17df3c02fbf487a5bb5ee8e89be5fcb85f1354356694a99ae7fdd098764a24f9",
+      "text": "Sortera de laddade raderna i minnet.\n\nSkärmen gör det bara möjligt att visa sortering när tabellen *hela* är laddad, så det här sorterar aldrig ett partiellt resultat och kallar den tabellens ordning. Strukturerade datanamn reser med sina rader, så en redigering efter ett slag adresserar fortfarande raden som den ser ut att adressera.\n\n:param column: Noll-baserad synlig kolumn att sortera efter.\n:param order: Ordning Qt, förvald till :attr:`Qt.AscendingOrder`.",
       "translation_source_blocks_sha256": [
         "71cb5bbc5dc93f3a91b405d91c9087d57048312f1745786822ec571f4cc52e2e",
-        "0c3dee4b66d7c99564553971fcd45b632a48d88c3fe98a126aa769d65c133727"
+        "0c3dee4b66d7c99564553971fcd45b632a48d88c3fe98a126aa769d65c133727",
+        "6359264eb8dd05dffc7910c47afabd2114a38fb1e6df1a40493b0107dfefed4f",
+        "23e9ff9e6a625aa275489e729dfccf8511c09ab19860b409240eabe29cf6ec75"
       ]
     },
     "spacr.qt.screens.db_browser.PreviewModel.value": {
       "source_blocks_sha256": [
-        "d1c0187a1095e60ce07499e16db46e480de46451139a90688c2dddd4a92a6139"
+        "e7f14604f6c1d745f40af42ca707b2e24d5a813f4397dcda68b2a9fe4e4a8f56",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "60f43a9be287d06da7f19842aa7f28c609260fec8f2342202268e8c74bc93aca"
       ],
-      "source_sha256": "d1c0187a1095e60ce07499e16db46e480de46451139a90688c2dddd4a92a6139",
-      "text": "Det lagrade (oformaterade) värdet ``row`` / ``column``.",
+      "source_sha256": "570ded283d19b0307a592acbbb6e79b8a8d2b14633d1116b18c8e67c4aa7879f",
+      "text": "Returnera det lagrade, oformaterade värdet ``row`` / ``column``.\n\n:param row: Nollbaserat modellradsindex.\n:param column: Kolumnnamn för schema.",
       "translation_source_blocks_sha256": [
-        "d1c0187a1095e60ce07499e16db46e480de46451139a90688c2dddd4a92a6139"
+        "e7f14604f6c1d745f40af42ca707b2e24d5a813f4397dcda68b2a9fe4e4a8f56",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "60f43a9be287d06da7f19842aa7f28c609260fec8f2342202268e8c74bc93aca"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb": {
@@ -66024,25 +66191,39 @@
     "spacr.qt.screens.db_browser.ReadOnlyDb.check_columns": {
       "source_blocks_sha256": [
         "52c814f0091b334552b9781c0aef43c8df0ed5af985c1565f542ebb8ffd93238",
-        "59a66176cecc387ed88e3a69444b7104c316bac327921f131c5851f5555e3b7a"
+        "e77dd4915f5b0a29de43cd797a4ac0ba5866c7a9e067ae35bd6e3e61ff63add9",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868",
+        "a3572bd46a74ec48eba1ec7041fdc052ecb1c794e5e0ce60e538c8f7828e3831",
+        "97cf298783c6232160be30027fa353062d3eac0e3b15fd2af9bba56835e22a6b",
+        "0136a7389b0d04295ec83215f45fd0abfa07650d50f0aed58e430875276d160f"
       ],
-      "source_sha256": "be815b5b41e98504f58853f7614512a3fc38abd0c3b309181b05a6a9659947b7",
-      "text": "Returnera de begärda kolumnerna, validerade mot schemat.\n\n``None`` betyder \"all of them\".",
+      "source_sha256": "4e47bd1e722b7db9db4655dc99038999f3af7e4cc3d87f5fde810e2a21604df0",
+      "text": "Returnera de begärda kolumnerna, validerade mot schemat.\n\n``None`` eller en tom sekvens betyder \"all of them\".\n\n:param table: Validerat användarbord eller visningsnamn.\n:param columns: Efterfrågade namn, eller ``None``/en tom sekvens för det fullständiga schemat.\n:returns: Validerade namn i begäran eller deklarationsorder.\n:raises ValueError: När ett begärt namn saknas.",
       "translation_source_blocks_sha256": [
         "52c814f0091b334552b9781c0aef43c8df0ed5af985c1565f542ebb8ffd93238",
-        "59a66176cecc387ed88e3a69444b7104c316bac327921f131c5851f5555e3b7a"
+        "e77dd4915f5b0a29de43cd797a4ac0ba5866c7a9e067ae35bd6e3e61ff63add9",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868",
+        "a3572bd46a74ec48eba1ec7041fdc052ecb1c794e5e0ce60e538c8f7828e3831",
+        "97cf298783c6232160be30027fa353062d3eac0e3b15fd2af9bba56835e22a6b",
+        "0136a7389b0d04295ec83215f45fd0abfa07650d50f0aed58e430875276d160f"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.check_table": {
       "source_blocks_sha256": [
         "ce402187304c209f3ff14fe5196a429d4f0653a71f10068a3f0daf372e0f4c06",
-        "dc7f71938637e94041ac3e8e1cebe4a20b28c3d601c162dbf6ffa260c15e7c46"
+        "dc7f71938637e94041ac3e8e1cebe4a20b28c3d601c162dbf6ffa260c15e7c46",
+        "2f1a58afcb67a0caa186eeef0d9c1fddfcd2084bd67708c72ef7494de9d4e467",
+        "3473c82a33a4eaa2de3021773a2bdf05d44fb2afa2c419981125cf86eae27c5e",
+        "bbbbcbb3e0f2a32849e16c73a7b2aeef548f9fbee158121cf444759842f5d564"
       ],
-      "source_sha256": "131a4c65a68cad3756f608776d3b6f270c065d92f3ff3f9711433f3c20121fd9",
-      "text": "Återgå ``table`` om schemat verkligen har det, annars höja.\n\nDetta är den datavalsgräns som håller identifierare utanför kategorin \"user input\": ett namn som inte finns i ``sqlite_master`` når aldrig SQL.",
+      "source_sha256": "537a0165bef2523b8d762847a2c0f4989fa94f36bccd6118bc3dae76c2ede7fc",
+      "text": "Returnera ``table`` om schemat verkligen har det, annars höja.\n\nDetta är den datavalsgräns som håller identifierare utanför kategorin \"user input\": ett namn som inte finns i ``sqlite_master`` når aldrig SQL.\n\n:param table: kandidatens användartabell eller visningsnamn.\n:returns: ``table`` oförändrat efter validering.\n:raises ValueError: när det levande schemat inte har någon sådan tabell eller utsikt.",
       "translation_source_blocks_sha256": [
         "ce402187304c209f3ff14fe5196a429d4f0653a71f10068a3f0daf372e0f4c06",
-        "ac1b62b2dc79ac8bc2c69a5729a0ce468467da9a42d135e00c7339c55999bd3b"
+        "ac1b62b2dc79ac8bc2c69a5729a0ce468467da9a42d135e00c7339c55999bd3b",
+        "2f1a58afcb67a0caa186eeef0d9c1fddfcd2084bd67708c72ef7494de9d4e467",
+        "3473c82a33a4eaa2de3021773a2bdf05d44fb2afa2c419981125cf86eae27c5e",
+        "bbbbcbb3e0f2a32849e16c73a7b2aeef548f9fbee158121cf444759842f5d564"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.chunk": {
@@ -66050,15 +66231,27 @@
         "540faf598d0d68177699e9bab94b27150a453edb8f667c0ceea33f0fb5dbc6bb",
         "3d094b28799e48d404d1d9990d5b090e9af8abee39786a110358f5c3b4d8c61a",
         "7fc5d8ec0abca2aa943d10b46330578488e357a919e5a653bdab30553b623fc0",
-        "800a44b4129206211bc3ed612bf62179b7b740ce73140e0ac9a01264980e593c"
+        "6f60c60d46ade09a6f3b68ce962de32bc0b0ff7580ab01f8dcd7419185c80b6a",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "a7b8e3fa4a1ba7daebe10e8241f45488c8b3a66df827afa06075536b484228e2",
+        "9d764fa4baf14f983d922d139759ce3902a4d67d1f105786e0b6e0363f04fc89",
+        "800a44b4129206211bc3ed612bf62179b7b740ce73140e0ac9a01264980e593c",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd"
       ],
-      "source_sha256": "617c99519cce4daf82e154b0292ac5846cc9d656290c0691b1a2477e351f505e",
-      "text": "Return ``(columns, rows, keys)`` för nästa ``limit`` rader.\n\n``after`` är det strukturerade datanamnet tuple på den sista raden som redan laddats; ``None`` frågar efter den första delen. ``keys[i]`` adresser ``rows[i]`` unikt (eller är ``None`` när tabellen inte har något strukturerat datanamn, i vilket fall anroparen måste vägra att redigera det).\n\n:param table: Validerat användarbordsnamn till sida genom. Dess schema bestämmer både de returnerade kolumnerna och varje rads stabila strukturerade datanamn.\n:param loaded: endast används av ``OFFSET`` reserv för tabeller utan ett strukturerat namn på enkolumn.",
+      "source_sha256": "d706a33904bf8cca0ecce52ccdf90d553b0b8293acfce9fea63563be32649735",
+      "text": "Return ``(columns, rows, keys)`` för nästa ``limit`` rader.\n\n``after`` är det strukturerade datanamnet tuple på den sista raden som redan laddats; ``None`` frågar efter den första delen. ``keys[i]`` adresser ``rows[i]`` unikt (eller är ``None`` när tabellen inte har något strukturerat datanamn, i vilket fall anroparen måste vägra att redigera det).\n\n:param table: Validerat användarbordsnamn till sida genom. Dess schema bestämmer både de returnerade kolumnerna och varje rads stabila strukturerade datanamn.\n:param columns: Begärde schemakolumner, eller ``None``/en tom sekvens för varje kolumn.\n:param where: valfritt validerat predikat utan ``WHERE``.\n:param params: Begränsade värden som förbrukas av predikerade platshållare.\n:param limit: Maximalt antal rader som begärs för denna del.\n:param after: Stabilt strukturerat datanamn tuple på den sista raden som redan laddats, eller ``None`` för den första delen.\n:param loaded: endast används av ``OFFSET`` reserv för tabeller utan ett strukturerat namn på enkolumn.\n:param order_by: valfritt ``(column, descending)`` helbordsordning.",
       "translation_source_blocks_sha256": [
         "540faf598d0d68177699e9bab94b27150a453edb8f667c0ceea33f0fb5dbc6bb",
         "6eb17d117d880a84e9d60633f17e1c207e5ffe55033d0736b75ba38c612b9912",
         "d26fc00911dfbb4554a9b780e3df2c84ecb25670f55ea99e96a51360430371e3",
-        "73e4d89c84a9fed09fa0dfaf86668ac0414d63adc760667439eb4a1df1609a83"
+        "6f60c60d46ade09a6f3b68ce962de32bc0b0ff7580ab01f8dcd7419185c80b6a",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "a7b8e3fa4a1ba7daebe10e8241f45488c8b3a66df827afa06075536b484228e2",
+        "51a6e20a3f8ec62ab78e7c37c0acd610bc5eecef76be6c6c84f2b462ed39d804",
+        "73e4d89c84a9fed09fa0dfaf86668ac0414d63adc760667439eb4a1df1609a83",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.chunk_sql": {
@@ -66068,39 +66261,59 @@
         "6657dd38c81d93f72046763dc1d5226f169823895b9981f36f9105fb22466b25",
         "45560f37ce58f5b28b52a2da9385f17c443f9a1bd081a46bc562dd5ec14452aa",
         "9dfc1d5bc01b0d1037d9df2900839a5f67643c73624aa8a878855eb3614a9c51",
-        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7"
+        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "c22750ced3d9230ae8ca2174ba4ea7593d93938c68e80ac7f1f125a7582b9a8a",
+        "d2d2165d337bdb4604b3785c8b81a2e48da3c918d537efc2881d28223ffabf9e",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "80fa99446f0eedef669253e9faf65f90b73b9cd4d8539be41dbaed7fbaa0a98f",
+        "94fda8940c96411589094aae26fb7958084922b9bed5d7e2784cdf8ece11ae28",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd",
+        "228528066e9ea86d1d42d4d1dbe40a415bc8245aa35d00b7d41309674f5a800b"
       ],
-      "source_sha256": "058732fb8acd19c3a530f5988163ed7733f5f5fbdb94b5ac3e6d206d8d8d99f2",
-      "text": "Bygg den sidsökta biten SELECT. Utvisas så att tester kan läsa den.\n\n``after`` säger om en klausul ``key > ?`` önskas (dvs. detta är inte den första biten). ``use_offset`` är reserv för tabeller som inte har något struktur-datanamn för enkelkolumn.\n\n``order_by`` är ``(column, descending)`` när användaren har klickat på ett kolumnhuvud. Det sorterar **in SQL, över hela tabellen**, vilket är det enda sättet att sortera ett bord som vyn bara delvis har laddat -- sortera rader som hittills hämtats och presentera att eftersom tabellens ordning är det enda alternativet värre än att inte sortera alls.\n\nTvå uppgifter som inte är frivilliga:\n\n* Identeringskolumnen är bifogad som en **tiebreak**. Utan den kommer rader som delar ett värde tillbaka i vilken ordning SQLite råkar producera, och den ordningen är fri att skilja mellan två bitar av samma skriftrulle -- så att en rad kan visas två gånger och en annan inte alls.\n* sökning faller tillbaka till ``OFFSET``. Tangentuppsättningssökning behöver beställningskolumnen för att vara den som jämförs, och ``(value, rowid) > (?, ?)`` över en godtycklig användarväljande kolumn är en annorlunda och mycket mer känslig fråga. OFFSET gör djup rullning av en sorterad vy gradvis långsammare, vilket är en verklig kostnad och anledningen till att det inte är standard; det begränsas här eftersom en typ är en uttrycklig handling på ett bord som användaren tittar på.",
+      "source_sha256": "cc4e1beeeced485d501dba5f595355c54bc58ea980f687e252f464f229748ebc",
+      "text": "Bygg den sidsökta biten SELECT. Exposed så att testerna kan läsa den.\n\n``after`` säger om en klausul ``key > ?`` önskas (dvs. detta är inte den första biten). ``use_offset`` är reserv för tabeller som inte har något struktur-datanamn för enkelkolumn.\n\n``order_by`` är ``(column, descending)`` när användaren har klickat på en kolumnrubrik. Den sorterar **i SQL, över hela tabellen**, vilket är det enda sättet att sortera en tabell som vyn bara delvis har laddat -- sortera rader som hämtats hittills och presentera att som tabellens ordning är det ett alternativ värre än att inte sortera alls.\n\nTvå uppgifter som inte är frivilliga:\n\n* Identeringskolumnen är bifogad som en **tiebreak**. Utan den kommer rader som delar ett värde tillbaka i vilken ordning SQLite råkar producera, och den ordningen är fri att skilja mellan två bitar av samma skriftrulle -- så att en rad kan visas två gånger och en annan inte alls.\n* plexing faller tillbaka till ``OFFSET``. Tangentuppsättningssökning behöver beställningskolumnen för att vara den som jämförs, och ``(value, rowid) > (?, ?)`` över en godtycklig användarvalskolumn är en annan och mycket mer känslig fråga. OFFSET gör djup rullning av en sorterad vy gradvis långsammare, vilket är en verklig kostnad och anledningen till att det inte är standard; det begränsas här eftersom en typ är en explicit handling på ett bord som användaren tittar på.\n\n:param table: Schemabekräftad källtabell eller vy.\n:param columns: Synliga datakolumner som ska väljas efter identifieringskolumnerna.\n:param key_columns: Stabila kolumner för radadresser som är förberedda på varje rad.\n:param where: valfritt validerat predikat utan ``WHERE``.\n:param after: om man ska lägga till nästa sidas nyckeljämförelse.\n:param use_offset: använda OFFSET personsökning när ingen enskild nyckel är tillgänglig.\n:param order_by: valfritt ``(column, descending)`` helbordsordning.\n:returns: Parameteriserad SELECT som innehåller ett avgränsat ``LIMIT`` och, vid behov, ``OFFSET``.",
       "translation_source_blocks_sha256": [
         "13ec1dfc054be316c6e2504f1102f3c584109c210204ccf528548eb684aacd82",
         "eff9a20ab77ae6e2817e987e7c5bfefeeee1055625203f66d46377580302ee74",
         "6657dd38c81d93f72046763dc1d5226f169823895b9981f36f9105fb22466b25",
         "45560f37ce58f5b28b52a2da9385f17c443f9a1bd081a46bc562dd5ec14452aa",
         "32d0de2c291c1902a338db5418cef481295cc4c3ccf46b90079562f63dc7fac0",
-        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7"
+        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "082fd281295c274a4c6397e10a95b9e3ab91687cfcf2530e69c719de10a9d319",
+        "d2d2165d337bdb4604b3785c8b81a2e48da3c918d537efc2881d28223ffabf9e",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "80fa99446f0eedef669253e9faf65f90b73b9cd4d8539be41dbaed7fbaa0a98f",
+        "94fda8940c96411589094aae26fb7958084922b9bed5d7e2784cdf8ece11ae28",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd",
+        "228528066e9ea86d1d42d4d1dbe40a415bc8245aa35d00b7d41309674f5a800b"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.column_types": {
       "source_blocks_sha256": [
         "d76f2e74aa5691153110326f2c34e1991511402f974b348a2524528a43e3cce6",
-        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261"
+        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "4471b121b4b4e77d2b6c2dab35eeddd35da9a954828f739a0569772594073360",
-      "text": "Return ``{column: declared type}`` – ``''`` för oskrivna kolumner.\n\nCached: redigeringssökvägen frågar efter detta på varje knapptrycks-kompatibel cell, och schemat kan inte ändras under en skrivskyddad anslutning.",
+      "source_sha256": "cbf9bed336ddbf917d0da75ed20739c39a1338c9768df9f77b9a8893e49c415b",
+      "text": "Avkastning ``{column: declared type}`` – ``''`` för otypade kolumner.\n\nCached: redigeringssökvägen frågar efter detta på varje knapptrycks-komponerad cell, och schemat kan inte ändras under en skrivskyddad anslutning.\n\n:param table: Validerat användarbord eller visningsnamn.",
       "translation_source_blocks_sha256": [
         "d76f2e74aa5691153110326f2c34e1991511402f974b348a2524528a43e3cce6",
-        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261"
+        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.columns": {
       "source_blocks_sha256": [
-        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1"
+        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1",
-      "text": "Återsänd kolumnnamnen ``table`` i deklarationsordning.",
+      "source_sha256": "45523a9429aca25060bd91e2e77d5216197d2b51580446b34c9aaac8dbc61fd6",
+      "text": "Returnera kolumnnamnen ``table`` i deklarationsordning.\n\n:param table: Validerat användarbord eller visningsnamn.",
       "translation_source_blocks_sha256": [
-        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1"
+        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.connect": {
@@ -66116,40 +66329,60 @@
     "spacr.qt.screens.db_browser.ReadOnlyDb.count": {
       "source_blocks_sha256": [
         "4ba2410e9e3f6cefad2ad8fb91d8b9d997e27ac097ce93b11c952e240a35f21d",
-        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81"
+        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81",
+        "17e70e2b02f13bc612cb0308c8612f40039f5fa2da4098a99d30b279bc9430b3",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3"
       ],
-      "source_sha256": "45e8b76935c1acb6889127fde55627e0d4ce2b16a6516d4f7ee400418e50484a",
-      "text": "Returnera det exakta ``COUNT(*)`` under det aktuella filtret.\n\nDen här *är* en fullskalig scanning – kalla den aldrig för den väg som målar den första biten.",
+      "source_sha256": "b10bf3f9fed406f13a41373021ce869a19b388b3ef57f6acb1a4d3652bf38102",
+      "text": "Returnera det exakta ``COUNT(*)`` under det aktuella filtret.\n\nDen här *är* en fullskalig scanning – kalla den aldrig för den väg som målar den första biten.\n\n:param table: Schema-validerad tabell eller vy att räkna.\n:param where: valfritt validerat predikat utan ``WHERE``.\n:param params: Begränsade värden som förbrukas av predikatets platshållare.",
       "translation_source_blocks_sha256": [
         "4ba2410e9e3f6cefad2ad8fb91d8b9d997e27ac097ce93b11c952e240a35f21d",
-        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81"
+        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81",
+        "17e70e2b02f13bc612cb0308c8612f40039f5fa2da4098a99d30b279bc9430b3",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.estimate_count": {
       "source_blocks_sha256": [
         "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
         "9e44b31a38abeba2fae325bab335bbdd4b008495484fc9215d5d3e65e67d9c17",
-        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5"
+        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5",
+        "6cd31ab18a0cb0afa9c58e635ea76bc5d96e0f8b8fb14779406ab9a66f53369d"
       ],
-      "source_sha256": "b1c7d984f68c6dabc50dc594b2d4b37c9e9c9b4d1f2449e32684cd30ea47d939",
-      "text": "Returnera en O(1) *uppskattning* av radräkningen eller ``None``.\n\n``max(rowid)`` besvaras från högra kanten av bordets b-träd utan skanning, vilket är hela punkten: en riktig ``COUNT(*)`` på en 400 k-rads mätbord tar tillräckligt lång tid för att bli kännt. Det är bara en uppskattning – raderade rader lämnar luckor – så varje anropare måste märka den som en.\n\n``None`` när tabellen inte har någon roudid eller är tom.",
+      "source_sha256": "8d9ca7b87c06909967ab0538bb39a13ae96473a5cf10b4ce994cbd30f4d5707c",
+      "text": "Returnera en O(1) *uppskattning* av radräkningen eller ``None``.\n\n``max(rowid)`` besvaras från högra kanten av bordets b-träd utan skanning, vilket är hela punkten: en riktig ``COUNT(*)`` på en 400 k-rads mätbord tar tillräckligt lång tid för att kännas. Det är bara en uppskattning – raderade rader lämnar luckor – så varje anropare måste märka den som en.\n\n``None`` när tabellen inte har någon radid eller är tom.\n\n:param table: validerad tabell eller vy att uppskatta.",
       "translation_source_blocks_sha256": [
         "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
         "9e44b31a38abeba2fae325bab335bbdd4b008495484fc9215d5d3e65e67d9c17",
-        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5"
+        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5",
+        "6cd31ab18a0cb0afa9c58e635ea76bc5d96e0f8b8fb14779406ab9a66f53369d"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.export_csv": {
       "source_blocks_sha256": [
         "fd9c030eb9962de6e4bfc85947f7b6ef13c02f31856f2b958a877d23f05f02f2",
         "f93244f47871d8b0dd50b6c8a8bde52d50821d17b829965ae2e299e0f6c92286",
+        "d0032bf1e01f1fc101da197222b131769106476aec2dfe7a1c0f9561006808d4",
+        "06c781efb67ce1e6fffd07314c8fd9c49c3cf09ac8b26f0f1b712ed26135157a",
+        "af1aa0bd8e099dc2cc59db578e87eb26ea616fc9587f75385a78f33b30965a46",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "06d5388e6f235f12efd546a24b740bc12f000c38f474d0898599ebfa512e6edd",
         "a2e248a46d498da24d6450d1f8637ea04fd4e7c814d2c8995779d3d8e2038a9c"
       ],
-      "source_sha256": "6d129d30f7e3fcdfa77e1d87be7700272374eae4138e699cad4881baa35ea9e5",
-      "text": "Strömma det filtrerade resultatet till ``out_path`` som CSV.\n\nRader dras i ``chunk``-stora partier och skrivs rakt ut, så export av en 400 k-rad bord kostar en konstant mängd minne.\n\n:returns: Antal skrivna datarader (huvudet är uteslutet).",
+      "source_sha256": "2e0d6bc423d92ce52a82bae15def4c602efa9dbff3d9ce3d8c22223cba9fae95",
+      "text": "Strömma det filtrerade resultatet till ``out_path`` som CSV.\n\nRader dras i ``chunk``-stora partier och skrivs rakt ut, så att exportera en 400 k-rad bord kostar en konstant mängd minne.\n\n:param out_path: Sökväg till mål CSV; saknade överliggande kataloger görs.\n:param table: Schemagiltig tabell eller utsikt över export.\n:param columns: markerade kolumner eller ``None`` för varje kolumn.\n:param where: valfritt validerat predikat utan ``WHERE``.\n:param params: Begränsade värden som förbrukas av predikerade platshållare.\n:param chunk: markör partistorlek som används när rader strömmas.\n:returns: Antal skrivna datarader (huvudet är uteslutet).",
       "translation_source_blocks_sha256": [
         "fd9c030eb9962de6e4bfc85947f7b6ef13c02f31856f2b958a877d23f05f02f2",
         "f93244f47871d8b0dd50b6c8a8bde52d50821d17b829965ae2e299e0f6c92286",
+        "d0032bf1e01f1fc101da197222b131769106476aec2dfe7a1c0f9561006808d4",
+        "06c781efb67ce1e6fffd07314c8fd9c49c3cf09ac8b26f0f1b712ed26135157a",
+        "af1aa0bd8e099dc2cc59db578e87eb26ea616fc9587f75385a78f33b30965a46",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "06d5388e6f235f12efd546a24b740bc12f000c38f474d0898599ebfa512e6edd",
         "a2e248a46d498da24d6450d1f8637ea04fd4e7c814d2c8995779d3d8e2038a9c"
       ]
     },
@@ -66157,57 +66390,77 @@
       "source_blocks_sha256": [
         "4c077100589a4e5a6afe7696e6e2b3eb03aee8742e83149e0b13987c2acee2df",
         "fec2cdbc4026a81bd2f18744957f4ccceb2cb133090c03b5f50dbf400ae87caf",
-        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e"
+        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e",
+        "1f186e512a19624ba21158d794d85a20ed0667cfe14a697e5d8c400c609b6aca"
       ],
-      "source_sha256": "97b5a25f70d0677bc4999aff5b90769a8103d2fe73c3e9f8ccd989e2e45b5eab",
-      "text": "Ange hur en rad ``table`` kan behandlas på ett unikt sätt.\n\n``(\"rowid\", [\"rowid\"])`` för en vanlig tabell, ``(\"pk\", [...])`` för tabellen ``WITHOUT ROWID`` (dess deklarerade primära strukturerade datanamn), och ``(\"\", [])`` för något annat än – en vy eller en tabell som skapats ``WITHOUT ROWID`` utan ett primärt strukturerat datanamn.\n\nTvå saker hänger på detta: personsökning (tangenter behöver en beställd nyckel) och redigering (en UPDATE utan en unik adress vägras).",
+      "source_sha256": "3030801ec57e5a2fc9886ecec4efe79200cb9e248fe4062f43e4d3e3cc958f60",
+      "text": "Returnera hur en rad ``table`` kan behandlas på ett unikt sätt.\n\n``(\"rowid\", [\"rowid\"])`` för en vanlig tabell, ``(\"pk\", [...])`` för tabellen ``WITHOUT ROWID`` (dess deklarerade primära strukturerade datanamn), och ``(\"\", [])`` för något annat än – en vy eller en tabell som skapats ``WITHOUT ROWID`` utan ett primärt strukturerat datanamn.\n\nTvå saker hänger på detta: personsökning (tangenter behöver en beställd nyckel) och redigering (en UPDATE utan en unik adress vägras).\n\n:param table: Validerad tabell eller vy vars identitet kontrolleras.",
       "translation_source_blocks_sha256": [
         "4c077100589a4e5a6afe7696e6e2b3eb03aee8742e83149e0b13987c2acee2df",
         "c7ac831deb916592fab166d2fc442c5220e7d8e45f9ea5fb240e319f2985bd8f",
-        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e"
+        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e",
+        "1f186e512a19624ba21158d794d85a20ed0667cfe14a697e5d8c400c609b6aca"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.select_sql": {
       "source_blocks_sha256": [
-        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9"
+        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "7cb76a4787072af43546d3d3b1e588da0f66e7e3e58bffc6a13704b47b8cbeb9",
+        "bf99d330ca9bf20279164f583a4683043fb51b794fd2d7fc598e0a4c796d3b2d",
+        "ca3ba32c5c93b807188fd96b7034877006677f52167cb6a172c432d52ff7e9d9"
       ],
-      "source_sha256": "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9",
-      "text": "Bygg den obundna SELECT som används vid exporten CSV.",
+      "source_sha256": "9ef14042b4410e765e56612974ebfb9315d67b01c38c20abe065eb81fb81ed4f",
+      "text": "Bygg den obundna SELECT som används av exporten CSV.\n\n:param table: Schemabekräftad källtabell eller vy.\n:param columns: Schemagodkända kolumner för export.\n:param where: valfritt validerat predikat utan ordet ``WHERE``.\n:returns: SELECT uttalande som inte innehåller några användarformaterade värden.",
       "translation_source_blocks_sha256": [
-        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9"
+        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "7cb76a4787072af43546d3d3b1e588da0f66e7e3e58bffc6a13704b47b8cbeb9",
+        "bf99d330ca9bf20279164f583a4683043fb51b794fd2d7fc598e0a4c796d3b2d",
+        "ca3ba32c5c93b807188fd96b7034877006677f52167cb6a172c432d52ff7e9d9"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.table_info": {
       "source_blocks_sha256": [
-        "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a"
+        "cb3dbf9648ea759d8864e4355fa6f08a260f885afe7acd2e5ea35b618510fe15",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a",
-      "text": "Råa ``PRAGMA table_info`` rader för ``table``.",
+      "source_sha256": "1330bc49af1d2610396794bedc4cfb4e59b53277b520351ffca6fbcb7864c1f3",
+      "text": "Avkastning rå ``PRAGMA table_info`` rader för ``table``.\n\n:param table: Validerat användarbord eller visningsnamn.",
       "translation_source_blocks_sha256": [
-        "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a"
+        "cb3dbf9648ea759d8864e4355fa6f08a260f885afe7acd2e5ea35b618510fe15",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.tables": {
       "source_blocks_sha256": [
-        "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781"
+        "be2d70747e0e68afc74e48e3610bac8fdeb15d3ad8a00c4f5746389d15c8ee21",
+        "d26f2cb3e981dbd567686e651e0eb03612e27daaa4a684f81b86817890d8b662"
       ],
-      "source_sha256": "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781",
-      "text": "Returnera användartabellerna + vyer, alfabetiskt.",
+      "source_sha256": "1c259ce1efecbb9ac61a9bac16e7d2c9f71c48be4d9c65827485acbfc25f79af",
+      "text": "Returnera användartabellerna och vyerna alfabetiskt.\n\n:param refresh: förbigå den cachad schema inventering när sant.",
       "translation_source_blocks_sha256": [
-        "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781"
+        "be2d70747e0e68afc74e48e3610bac8fdeb15d3ad8a00c4f5746389d15c8ee21",
+        "d26f2cb3e981dbd567686e651e0eb03612e27daaa4a684f81b86817890d8b662"
       ]
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.validate_where": {
       "source_blocks_sha256": [
         "6c754eecb3e8bf48d28d48860f81eab3f8ea1ba26d2a119b515e958d54a9edaa",
         "e6004200c052eb2cf436b2375be2197f9f7b6734492690d61fa50a8934f7d825",
+        "c56e59fbab8815439e575848a3960f06b8e5d73ada1a1d340b537e9a7c64d949",
+        "2a0a66170983384289829f3efcc5d6f9d830788eed38ba8010724989323bf56f",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3",
         "e5aec381ac480708d8fd683fd1d4054cef379feb5092e1af0d2efd6894c3fa18"
       ],
-      "source_sha256": "13cfc5fd0632245629e3b8d8f0c40e0e09409065a404c0d5b2faa97fa1eb6614",
-      "text": "Låt SQLite tolka ``where`` och kasta ett undantag om det är missbildat.\n\nBeredd med ``LIMIT 0``, som SQLite kortslutning innan den rör vid en enda rad – så en typo kostar en pars, inte en fullständig scanning av en 400 000-rads mättabell.\n\n:raises sqlite3.Error: med SQLite eget meddelande (``no such column: cell_are``, ``near \">\": syntax error``, ...).",
+      "source_sha256": "3cd920d2a6ee597e31099b5a239dae6e50d636aa317ebb7791a8c2d5c08b150d",
+      "text": "Låt SQLite tolka ``where`` och kasta ett undantag om det är missbildat.\n\nBeredd med ``LIMIT 0``, som SQLite kortslutning innan den når en enda rad – så en typo kostar en pars, inte en fullständig scanning av en 400 000-rads mättabell.\n\n:param table: Schemagiltig tabell eller vy som används för namnupplösning.\n:param where: predicera fragment för SQLite att tolka.\n:param params: Begränsade värden som förbrukas av predikatets platshållare.\n:raises sqlite3.Error: med SQLite eget meddelande (``no such column: cell_are``, ``near \">\": syntax error``, ...).",
       "translation_source_blocks_sha256": [
         "f840614c81d1143df6dffbb327767adf5e1883f207a39ec0f3e1432ed2a85a3c",
         "e6004200c052eb2cf436b2375be2197f9f7b6734492690d61fa50a8934f7d825",
+        "c56e59fbab8815439e575848a3960f06b8e5d73ada1a1d340b537e9a7c64d949",
+        "2a0a66170983384289829f3efcc5d6f9d830788eed38ba8010724989323bf56f",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3",
         "e5aec381ac480708d8fd683fd1d4054cef379feb5092e1af0d2efd6894c3fa18"
       ]
     },
@@ -66242,15 +66495,27 @@
         "3b5c8b5e8302b9cfb3cede271b16fc3f6ff43dc1f3bf88a723621c613dbd5a3c",
         "f3d540d7fec204c01d6beff9a99119a023e3ff60abb3f0108bf64fcbe9f89c88",
         "45bad7d8251efcaf79cf474f81084f0dcb9a7aa9cf34b85d634626045e6271a4",
+        "14ef1850f0be466bd57f556ee3c7c7cc8fb5fd1576f7fcf002a593c6f70c41e4",
+        "8abdb3e27585a54d348c116f3072f84e19151e7cecba252760de02a2f54a2757",
+        "115bd3b7db0b392b64a96ef3c54541dd24af7138e1527201e5d75499a149c9e8",
+        "b2aa39b1b47ceff5d777717e093e8cd2ebdc63dfc3bd56f1cd49b07b8571cebd",
+        "a9185860a3a5f7c61ec3bfa2b120ef6408556fa255bd031fa11dc17de985d97b",
+        "d0544d2f1b06965f787c1550aa71613ec4a41df9c110779dc1c494ae094ca883",
         "05e65aec50bae4fae7f411b0bc6e748423aa90a4cef1a72e8d8b1d8c6646ca46",
         "2ab5031500d79ea355be94dd7995fb8f04c531fa449520fab9acc6c11c5a00d0"
       ],
-      "source_sha256": "efd26753505f02df069d80ed11662bdd19fcda58c7234a9e9dfcdf6600ecf46d",
-      "text": "Ställ in en kolumn på en rad. Returnerar SQL som körde.\n\nVakterna, för att:\n\n1. ``table`` måste vara en verklig tabell i ``sqlite_master`` – en vy har ingen rad att uppdatera. 2. ``column`` och varje identifierare kolumn måste finnas i sitt schema. 3. radadressen måste matcha **exakt en** rad (utjämna med ``COUNT(*)`` innan något skrivs); 4. UPDATE själv måste rapportera ``rowcount == 1``, eller transaktionen rullas tillbaka.\n\n:raises EditRefused: när någon vakt skjuter — ingenting skrevs.\n:raises sqlite3.Error: när SQLite vägrar skriva sig själv (konstraint överträdelse, skrivskyddad fil, låst databas).",
+      "source_sha256": "dca5b41c5e28f43f8a7553913d24669cc0a58b3c62a6c3ce987651d4694b89de",
+      "text": "Ställ in en kolumn på en rad. Returnerar SQL som kördes.\n\nVakterna, i ordning:\n\n1. ``table`` måste vara en verklig tabell i ``sqlite_master`` – en vy har ingen rad att uppdatera. 2. ``column`` och varje identifierare kolumn måste finnas i sitt schema. 3. radadressen måste matcha **exakt en** rad (utjämna med ``COUNT(*)`` innan något skrivs); 4. UPDATE själv måste rapportera ``rowcount == 1``, eller transaktionen rullas tillbaka.\n\n:param table: riktigt schema bord som tar emot förändringen.\n:param column: befintlig tabellkolumn vars värde kommer att ersättas.\n:param value: Det redan framtvingade värdet för att binda till UPDATE.\n:param key_columns: Radiska alias eller kolumner för primäridentifiering som adresserar den.\n:param key_values: Begränsade adressvärden parade med ``key_columns``.\n:returns: Exakt parameteriserad SQL-deklaration som kördes.\n:raises EditRefused: när några vakteldar — ingenting skrevs.\n:raises sqlite3.Error: när SQLite vägrar skriva sig själv (konstraint överträdelse, skrivskyddad fil, låst databas).",
       "translation_source_blocks_sha256": [
         "3b5c8b5e8302b9cfb3cede271b16fc3f6ff43dc1f3bf88a723621c613dbd5a3c",
         "f3d540d7fec204c01d6beff9a99119a023e3ff60abb3f0108bf64fcbe9f89c88",
         "1a42e76e65ed3689a2e27c2cc293dfde70d9b4ec8ea5df2d82e4fc53f6905ddd",
+        "14ef1850f0be466bd57f556ee3c7c7cc8fb5fd1576f7fcf002a593c6f70c41e4",
+        "8abdb3e27585a54d348c116f3072f84e19151e7cecba252760de02a2f54a2757",
+        "115bd3b7db0b392b64a96ef3c54541dd24af7138e1527201e5d75499a149c9e8",
+        "30e3d9db6bb79e8a56db83152fad7be18c0ed8427c5f3d002fef6f8cba9c8e55",
+        "a9185860a3a5f7c61ec3bfa2b120ef6408556fa255bd031fa11dc17de985d97b",
+        "d0544d2f1b06965f787c1550aa71613ec4a41df9c110779dc1c494ae094ca883",
         "05e65aec50bae4fae7f411b0bc6e748423aa90a4cef1a72e8d8b1d8c6646ca46",
         "2ab5031500d79ea355be94dd7995fb8f04c531fa449520fab9acc6c11c5a00d0"
       ]
@@ -66259,13 +66524,21 @@
       "source_blocks_sha256": [
         "7bc3f82ac653f2bd76388fb992eadd2189245176cbe4808bec939315fd7a8312",
         "2c38e153bb8b7c274ff8063481bb924cf2bf1426fc06f3069c57a01a75153d96",
+        "4935e4d46d650ca1ae37c0c30f53f2366d3db8bee601f76f0d89d23945c07c68",
+        "e241bc9b51e38e9ac547c631fbba1feac8ab8c93570f48fca0cf57a1bcec530d",
+        "b0595c1888719db4444f9e2100ab9e568a481dc4d1a74e3ef5d343e505f45a54",
+        "d87285c1a6eb01d5a7949e6cea3cbee59fbbfdee900822e4416cc52da16b2a61",
         "9b7b884d94164f2217e8346f08cbd9409cecb07e031214b1217fd41118bae72a"
       ],
-      "source_sha256": "9d6d63fe42c38b3d6341ac417179dbd68565f372351c13a6304c3afb1e3df32d",
-      "text": "Återlämna ett uttalande denna ansökan vyn är någonsin villig att köra.\n\n``UPDATE \"t\" SET \"c\" = ? WHERE \"rowid\" = ?`` – en kolumn, en radadress, allt bundet. Visas så att skärmen kan visa användaren exakt SQL innan den körs, och så att tester kan hävda på den utan en databas.\n\n:raises EditRefused: När det inte finns någon radadress alls. En UPDATE utan en unik strukturerad datanamn skulle matcha på värden och kunde skriva om tusentals rader.",
+      "source_sha256": "f46e41b06c9ddf571b68587343e6885bac11e78d9178322a72faba810a77bef7",
+      "text": "Återlämna ett uttalande denna ansökan vyn är någonsin villig att köra.\n\n``UPDATE \"t\" SET \"c\" = ? WHERE \"rowid\" = ?`` – en kolumn, en radadress, allt bundet. Visad så att skärmen kan visa användaren den exakta SQL innan den körs, och så tester kan hävda på den utan en databas.\n\n:param table: Schema-validerad tabell att uppdatera.\n:param column: Schemagiltig kolumn vars värde kommer att ersättas.\n:param key_columns: Radiala alias eller kolumner för primäridentifiering som anger en rad.\n:returns: Parameteriserad UPDATE-deklaration med en enda cell.\n:raises EditRefused: När det inte finns någon radadress alls. En UPDATE utan en unik strukturerad datanamn skulle matcha på värden och kunde skriva om tusentals rader.",
       "translation_source_blocks_sha256": [
         "b96e7fb42b729ac4dc8a07c392c635199230787a121d87a0403b24dcd145bd8c",
         "2c38e153bb8b7c274ff8063481bb924cf2bf1426fc06f3069c57a01a75153d96",
+        "4935e4d46d650ca1ae37c0c30f53f2366d3db8bee601f76f0d89d23945c07c68",
+        "e241bc9b51e38e9ac547c631fbba1feac8ab8c93570f48fca0cf57a1bcec530d",
+        "efd5584d3df6da4cc4aaf6c0ad9da8f04982def15313985cf1dae2a6479133ab",
+        "d87285c1a6eb01d5a7949e6cea3cbee59fbbfdee900822e4416cc52da16b2a61",
         "c21251a8bbd9e2305cf404a77d8397b23484b9b62b04781d73b5a69cd02e8ec5"
       ]
     },
@@ -66299,10 +66572,13 @@
         "95887c9d5d51232671b0b214c34f9242728552a14ef5ec88dab6e539d41bd27b",
         "6cd8212bb1b93d1250758fcb9a4927ca106eb590c8bfc3a831d439bf18fa1ba9",
         "8247cd2500be933f6036e99d9f4526e0c0954cc490fd89652f5a9d7abd9c5beb",
+        "2da25b2f6bf6f59de1bf5fb7c1eae131bb382fed17bfd60a00d93a8cb8f2c44e",
+        "df12b827b83744bd8a819ac1bb6d8a2948e9aa2e1c7aa429774771122747cf9c",
+        "e60f0cd6f1e2b8d016a57ab834a4b2fbf13dca010c220432df75c249b993244c",
         "8693d2a83482825f2c19978a5f451d5b6506419e798b8943b933027d55a7bc3d"
       ],
-      "source_sha256": "8d40bef24a18ad5d5621fdee6cfa37f680a638ea844410a1a7a1ab980306e240",
-      "text": "Returnera värdet till bindning för ``text`` i en kolumn ``decl_type``.\n\nSQLite har ingen statisk typning: binder strängen ``\"abc\"`` till en INTEGER-kolumn lagrar *text* \"abc\" där, och varje nedströms ``pandas.read_sql`` får sedan en objektkolumn där den förväntade sig ett tal. Denna funktion vägrar istället.\n\n* tom text → ``None`` (SQL NULL). En INTE NULL kolumn sedan höjer från SQLite sig och skriften rullas tillbaka.\n* INTEGER-affinitet → ``int`` eller :class:`ValueError`.\n* VERKLIG affinitet → ``float`` eller :class:`ValueError`.\n* TEXT-affinitet → ``str`` alltid.\n* NUMERIC affinitet / ingen deklarerad typ → ``int``, annars ``float``, annars ``str`` (vilket är exakt vad SQLite själv skulle lagra).\n* allt deklarerat BLOB → vägras; binär är inte redigerbar som text.\n\n:raises ValueError: När ``text`` inte kan anges i kolumnens typ.",
+      "source_sha256": "d1c67d070886b334477f09973c48571c3528bee52bcf12f68736bd401e589cca",
+      "text": "Returnera värdet till bindning för ``text`` i en kolumn ``decl_type``.\n\nSQLite har ingen statisk typning: att binda strängen ``\"abc\"`` till en INTEGER-kolumn lagrar *text* \"abc\" där, och varje nedströms ``pandas.read_sql`` får sedan en objektkolonn där den förväntade sig ett tal. Denna funktion vägrar istället.\n\n* tom text → ``None`` (SQL NULL). EN INTE NULL-kolumn höjer sedan från SQLite sig själv och skriften rullas tillbaka.\n* INTEGER-affinitet → ``int`` eller :class:`ValueError`.\n* VERKLIG affinitet → ``float`` eller :class:`ValueError`\n* TEXT-affinitet → ``str`` alltid.\n* NUMERIC affinitet / ingen deklarerad typ → ``int``, annars ``float``, annat ``str`` (vilket är exakt vad SQLite själv skulle lagra).\n* allt deklarerat BLOB → vägrat; binärt kan inte redigeras som text.\n\n:param text: editorvärdet ska konverteras innan det binds till SQLite.\n:param decl_type: deklarerad typ av destinationskolumn.\n:param column: Kodnamn för målkolumnen som används i felmeddelanden som kan användas.\n:raises ValueError: När ``text`` inte kan representeras i kolumnens typ.",
       "translation_source_blocks_sha256": [
         "caf656afdbed290252e239f5a76dc9807d6b3d4734e7a71f92a1484a1af57ca9",
         "1922f3dab2d66651ef52b013c35cf6da3057b38e70ce0f925b19dc650c282878",
@@ -66312,31 +66588,42 @@
         "95887c9d5d51232671b0b214c34f9242728552a14ef5ec88dab6e539d41bd27b",
         "6cd8212bb1b93d1250758fcb9a4927ca106eb590c8bfc3a831d439bf18fa1ba9",
         "8247cd2500be933f6036e99d9f4526e0c0954cc490fd89652f5a9d7abd9c5beb",
+        "2da25b2f6bf6f59de1bf5fb7c1eae131bb382fed17bfd60a00d93a8cb8f2c44e",
+        "df12b827b83744bd8a819ac1bb6d8a2948e9aa2e1c7aa429774771122747cf9c",
+        "e60f0cd6f1e2b8d016a57ab834a4b2fbf13dca010c220432df75c249b993244c",
         "8693d2a83482825f2c19978a5f451d5b6506419e798b8943b933027d55a7bc3d"
       ]
     },
     "spacr.qt.screens.db_browser.column_affinity": {
       "source_blocks_sha256": [
         "5284289c72d71bd9e09faf8e979bf9971ba1bcbb62724477ecb843d52929124f",
-        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61"
+        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61",
+        "0c0567e77415593669840238ceaa430cac2ab160f2447eb80c795006fdd171d4",
+        "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56"
       ],
-      "source_sha256": "e945d772fc1225f1f88938e0250cb5add6ee8168e26f276266bc935c064b2030",
-      "text": "Returnera SQLite typaffinitet för en deklarerad kolumntyp.\n\nDe fem reglerna är de i SQLite filformat spec, i ordning: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` eller ingen typ alls → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, annars NUMERIC. Att känna till affiniteten är vad låter :func:`coerce_for_column` vägra ett värde SQLite annars skulle lagra med fel typ.",
+      "source_sha256": "aea848c104e6e35e76aabb00dad768a2da5fb2a2869a515893b0d6cf0f7adcbf",
+      "text": "Returnera SQLite typaffinitet för en deklarerad kolumntyp.\n\nDe fem reglerna är de i SQLite filformat spec, i ordning: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` eller ingen typ alls → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, annars NUMERIC. Att känna till affiniteten är vad låter :func:`coerce_for_column` vägra ett värde SQLite annars skulle lagra med fel typ.\n\n:param decl_type: deklarerad SQLite kolumntyp, eller ``None``/en tom sträng när den inte är inskriven.\n:returns: ``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``.",
       "translation_source_blocks_sha256": [
         "5284289c72d71bd9e09faf8e979bf9971ba1bcbb62724477ecb843d52929124f",
-        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61"
+        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61",
+        "0c0567e77415593669840238ceaa430cac2ab160f2447eb80c795006fdd171d4",
+        "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56"
       ]
     },
     "spacr.qt.screens.db_browser.quote_ident": {
       "source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
-        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2"
+        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2",
+        "7e2aef67888ebefcf3e1f7c98c64ca971803dea012d6ee8a52eed91c3e3f6b8a",
+        "ca8e1d418352c68d54bf8bc4c6ceb01e80ac820567bbeec473c413ecb9895559"
       ],
-      "source_sha256": "155a00756759af09e0410fd996d1c52bec9fb66c3bb2fa79396617e8835a33ce",
-      "text": "Dubbelcitat en SQL-identifierare, undkomma inbäddade citat.\n\nBara någonsin kallat med ett namn som redan har matchats mot levande schema; citatet är bälte-och-bromsar för identifierare som är lagliga men besvärliga (``cell_channel_1 (raw)``).",
+      "source_sha256": "61c421d657c57e4ac33806f03abbfc00d41c875600a51971e4757b7f57c48f6d",
+      "text": "Dubbelcitera en SQL-identifierare och undkomma inbäddade citat.\n\nBara någonsin kallat med ett namn som redan har matchats mot levande schema; citatet är bälte-och-bromsar för identifierare som är lagliga men besvärliga (``cell_channel_1 (raw)``).\n\n:param name: Beräknad tabell eller kolumnbeteckning.\n:returns: ID-kod omgiven av SQL dubbla citationstecken.",
       "translation_source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
-        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2"
+        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2",
+        "7e2aef67888ebefcf3e1f7c98c64ca971803dea012d6ee8a52eed91c3e3f6b8a",
+        "ca8e1d418352c68d54bf8bc4c6ceb01e80ac820567bbeec473c413ecb9895559"
       ]
     },
     "spacr.qt.screens.db_browser.resolve_db_path": {
@@ -66362,13 +66649,19 @@
     "spacr.qt.screens.db_browser.validate_raw_predicate": {
       "source_blocks_sha256": [
         "81123f5eddbd1ac94eeb07bd159a511680b538531fbee761cc04b8b67a22a263",
-        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19"
+        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19",
+        "4c66160b24aeeb82e2a3a1e94e666339bf22d01819d96061db14f506f44afec2",
+        "2f17102d02c8c5e86cc43b4b449f1205fdd28380582579f8f64344d7574745c3",
+        "23302bcccb0c44eae22850b16828b7259004b1cd710f97bedf8f5b306e9740b4"
       ],
-      "source_sha256": "c9f2054b4c0284e5e022a6ac2706bb121c51d6f98d6505b27d29df29fde4df7f",
-      "text": "Return ``text`` borttagen, eller kasta ett undantag om det inte är en ensam predikat.\n\nDen råa rutan är en explicit utrymningslucka för strömanvändare (``cell_area > 1000 AND well LIKE 'A%'``). Vi vägrar att lämna utskänkningar, kommentarer och DDL/DML-nyckelord så att det förblir en *predikat*; den läsbara anslutningen plus ``PRAGMA query_only`` garanterar resten.",
+      "source_sha256": "a2c07d85febe258be295c1d4252f8f2b6ef3af1237baadc6bff9bf4b93581eee",
+      "text": "Return ``text`` borttagen, eller kasta ett undantag om det inte är en ensam predikat.\n\nDen råa rutan är en explicit utrymningslucka för strömanvändare (``cell_area > 1000 AND well LIKE 'A%'``). Vi avvisar utsagasavskiljare, kommentarer och DDL/DML-nyckelord så det förblir ett *predikat*; den läsbara anslutningen plus ``PRAGMA query_only`` garanterar resten.\n\n:param text: råa WHERE-klausulfragment som användaren anger.\n:returns: Avlägsna predikat efter säkerhetskontrollerna.\n:raises ValueError: när fragmentet är tomt eller innehåller uttalande syntax, kommentarer eller ett förbjudet SQL nyckelord.",
       "translation_source_blocks_sha256": [
         "c8cd05d01e38f627017ce25588f3576b3b3f55f7ed65a5c3c8a49a8cb8a736fb",
-        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19"
+        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19",
+        "4c66160b24aeeb82e2a3a1e94e666339bf22d01819d96061db14f506f44afec2",
+        "2f17102d02c8c5e86cc43b4b449f1205fdd28380582579f8f64344d7574745c3",
+        "23302bcccb0c44eae22850b16828b7259004b1cd710f97bedf8f5b306e9740b4"
       ]
     },
     "spacr.qt.screens.distributed_jobs": {
@@ -75899,11 +76192,11 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "ccabc909941e3afe2105347182a893385388e4b12ec06203e711e10f5c44c215",
+        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "dfb645dee7b68ac6ed60a36c7db81f71bbff7ec786df070d970f393b81db5e2c",
-      "text": "Tangentbord-första genvägar för spaCR Qt GUI.\n\nRegistrerar globala :class:`QShortcut` bindningar på huvudfönstret så att hela appen kan användas utan mus:\n\n    Ctrl+H        Åk hem.\n    Ctrl+1..9     Byt till Nth-appen i sidofältet\n    Ctrl+K        Öppna kommandopaletten\n    F1  / ?       Visa genvägar fuskark\n    Ctrl+,        Öppna inställningar\n    Ctrl+/        Öppna AI-konsolen\n    Ctrl+Shift+A Öppna hela applistan Ctrl+B Blankera den animerade bakgrunden Ctrl+End Hoppa till den senaste konsolraden F11 Växla fullständig programvy Esc Stäng alla öppna dialogrutor / popup-fönster\n\n:func:`install` kallas en gång från ``MainWindow.__init__``. Varje bindning dokumenteras i :data:`SHORTCUTS` så att dialogrutan för fuskark förblir i synk med vad som faktiskt är kopplat upp.",
+      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
+      "text": "Tangentbordscentrerade genvägar för spaCR:s Qt-GUI.\n\nRegistrerar globala :class:`QShortcut`-bindningar i huvudfönstret så att hela appen kan användas utan mus:\n\n    Ctrl+H        Gå till startsidan\n    Ctrl+1..9     Byt till Nth-appen i sidofältet\n    Ctrl+K        Öppna kommandopaletten\n    F1  / ?       Visa snabbguiden för genvägar\n    Ctrl+,        Öppna inställningar\n    Ctrl+/        Öppna AI-konsolen\n    Ctrl+End Hoppa till den senaste konsolraden F11 Växla helskärmsläge Esc Stäng alla öppna dialogrutor / popup-fönster\n\n:func:`install` anropas en gång från ``MainWindow.__init__``. Varje bindning dokumenteras i :data:`SHORTCUTS` så att dialogrutan med snabbguiden hålls synkroniserad med det som faktiskt är inkopplat.",
       "translation_source_blocks_sha256": [
         "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
         "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
@@ -75913,7 +76206,7 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "5fc6269cba0646f24582e0e2fc44d52966b21db7196624b9d8cb42e334bb2779",
+        "d65a0add9677b70d6bd84a21fb592d982bfa33f878074d8b872aa36a41bf050e",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ]
     },
@@ -95659,25 +95952,45 @@
     "spacr.qt.widgets.gate_spec.RectGate": {
       "source_blocks_sha256": [
         "bc0de71f15a2a06aa72938a3d2b24b16c6d731177e4ad4c769106e22f17cb9f9",
-        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6"
+        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6",
+        "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+        "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+        "648dc8a125070796c47117c6b61372a67b1afda034dec6334b1c75ec1384c356",
+        "d58faf3be0a11a3768f346f2a1baa0cc3d9736823ba06986f07f4eedd2970fff",
+        "f332725a8fa0f3f780d3eeb29680da29044e72c77a443abeb72d94e86cca1887",
+        "18d2df7595e690eaaca843a5a187e2d49233815455f638e718f9d3fb657a9d4f",
+        "849f58f7e2f752ebaffb2704e8da6f12f71071754ab23a0bb262ade56127485b",
+        "1955677b86993f48f1dee22c8caff4801356c65c3f3195d2c4aff2586d23416f"
       ],
-      "source_sha256": "fddc8a9f6162bf715cdb1e8aaa8d7c08319440a099b5e1f7fa85921da6195d0f",
-      "text": "En rektangel på en två-parameters scatter – kvadrantens data-valgräns.\n\nBehålls som sin egen form snarare än som en fyrvertex polygon så att den kan lämna tillbaka verkliga :class:`~spacr.selection.RangeFilter` klausuler, som en rektangel verkligen är och en polygon verkligen inte är.",
+      "source_sha256": "3e05ba73067a92e8d743a822fda9797fde031a07fa0f4b2d02e4d58f03a6b307",
+      "text": "En rektangel på en två-parameters scatter – kvadrantens data-valgräns.\n\nBehålls som sin egen form snarare än som en fyr-vertex polygon så att den kan lämna tillbaka verkliga :class:`~spacr.selection.RangeFilter` klausuler, som en rektangel verkligen är och en polygon verkligen inte är.\n\n:param name: unikt namn som hierarkin och filtret använder för att identifiera denna datavalsgräns.\n:param parent: namnet på datavalsgränsen som innehåller denna, eller ``None`` för en datavalsgräns på rotnivå.\n:param x_column: Mätning som visas på den horisontella axeln.\n:param y_column: En distinkt mätning som visas på den vertikala axeln.\n:param x_low: inklusive horisontell nedre gräns, eller ``None`` när den är öppen.\n:param x_high: inklusive horisontell övre gräns, eller ``None`` när den är öppen.\n:param y_low: inklusive vertikal nedre gräns, eller ``None`` när den är öppen.\n:param y_high: inklusive vertikal övre gräns, eller ``None`` när den är öppen.",
       "translation_source_blocks_sha256": [
         "e4e383bf5ec893a04468ae5e7022a98fb5a7732a6bc25de56fe786f472857967",
-        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6"
+        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6",
+        "d0d1fd6722b5afa358a43106d4fd4c9b7210847442fbd1868f44dec739cb3f98",
+        "72250241ce229716fdcce96a4b9606539fa52905543dfc00038c485f65b6e1f2",
+        "648dc8a125070796c47117c6b61372a67b1afda034dec6334b1c75ec1384c356",
+        "d58faf3be0a11a3768f346f2a1baa0cc3d9736823ba06986f07f4eedd2970fff",
+        "f332725a8fa0f3f780d3eeb29680da29044e72c77a443abeb72d94e86cca1887",
+        "18d2df7595e690eaaca843a5a187e2d49233815455f638e718f9d3fb657a9d4f",
+        "849f58f7e2f752ebaffb2704e8da6f12f71071754ab23a0bb262ade56127485b",
+        "1955677b86993f48f1dee22c8caff4801356c65c3f3195d2c4aff2586d23416f"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.bounds_in": {
       "source_blocks_sha256": [
         "cb09b1c3c097feb81fef4e8dc49c9f43135c2a7051e7ae7420cc15575ca5d283",
-        "3255f94e13de353265be2c0f2d7971416193d048584b65f3d95ed2f65bace338"
+        "3255f94e13de353265be2c0f2d7971416193d048584b65f3d95ed2f65bace338",
+        "d758973098beb86a95b01c4a88a5a36984a48e0e29f1e37f25e4854a909945c8",
+        "d3c058f6156a910082cf789b72514dd5a4abc4169265404263e1b68ac6c05afa"
       ],
-      "source_sha256": "11f907cbea9daf5fa8efeb2a054e0915f25e4c6810d1c4015e7822c42d510c18",
-      "text": "De hörn som dras: obundna sidor faller tillbaka till utsiktskanten.\n\nEn rektangel öppen på ena sidan sträcker sig verkligen för alltid, så den dras till kanten av axlarna. Den kanten är där dess handtag går, och dra det där ger data-urvalet gränsen en gräns som den inte hade - vilket är det enda sättet att stänga en öppen sida utan att rita om data-selection gränsen.",
+      "source_sha256": "63b4f78f4181e1adba595ba52b7d3630d7e9043c3eb01bb85d3d33d8a459c9e0",
+      "text": "De hörn som dras: obundna sidor faller tillbaka till vyn kanten.\n\nEn rektangel öppen på ena sidan sträcker sig verkligen för alltid, så den dras till kanten av axlarna. Den kanten är där dess handtag går, och dra det där ger data-urvalet gränsen en gräns som den inte hade - vilket är det enda sättet att stänga en öppen sida utan att rita om data-selection gränsen.\n\n:param view: synliga ``(x_low, x_high, y_low, y_high)`` axelgränser.\n:returns: ändliga rektangel hörn i samma fyra-värdesordning.",
       "translation_source_blocks_sha256": [
         "cb09b1c3c097feb81fef4e8dc49c9f43135c2a7051e7ae7420cc15575ca5d283",
-        "a2d59571b07f498d6263f64593da7e351b5ed810ba415d6f55c50150919fff32"
+        "a2d59571b07f498d6263f64593da7e351b5ed810ba415d6f55c50150919fff32",
+        "d758973098beb86a95b01c4a88a5a36984a48e0e29f1e37f25e4854a909945c8",
+        "d3c058f6156a910082cf789b72514dd5a4abc4169265404263e1b68ac6c05afa"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.centre": {
@@ -95695,12 +96008,30 @@
     },
     "spacr.qt.widgets.gate_spec.RectGate.handles": {
       "source_blocks_sha256": [
-        "9856cd705f63933e4397a76e250361328780ce9609cf1678e335758551644f15"
+        "2d6aabc7fbfb63b310f0557b18c9a5e13acb14ed4aca991d9f234f9d5789a59e",
+        "5b6cba5cdae939b3505f74a7d00551690be6fddeea2c5cde545619e69420f6d2",
+        "523b192474114c0c53572b693c644dc08c60526166f451f7a18c4ef5314d6042"
       ],
-      "source_sha256": "9856cd705f63933e4397a76e250361328780ce9609cf1678e335758551644f15",
-      "text": "Fyra hörn och fyra sido midpoints.",
+      "source_sha256": "0169ed3d399580049720f90f7b270988ed8f16e7701e9381d711035322304b35",
+      "text": "Returnera fyra hörn handtag och fyra sidor midpoints.\n\n:param view: synbara axelgränser som används för varje obunden sida.\n:returns: åtta handtag vars roller identifierar de sidor de rör sig.",
       "translation_source_blocks_sha256": [
-        "9856cd705f63933e4397a76e250361328780ce9609cf1678e335758551644f15"
+        "2d6aabc7fbfb63b310f0557b18c9a5e13acb14ed4aca991d9f234f9d5789a59e",
+        "5b6cba5cdae939b3505f74a7d00551690be6fddeea2c5cde545619e69420f6d2",
+        "523b192474114c0c53572b693c644dc08c60526166f451f7a18c4ef5314d6042"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.RectGate.mask": {
+      "source_blocks_sha256": [
+        "a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73",
+        "acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
+      ],
+      "source_sha256": "4041769e580b8c1ceb2b00be0241b520f7077539673ef9bb98e6bb94945ae25f",
+      "text": "Välj rader med ändliga värden innanför rektangelns alla begränsade sidor.\n\n:param frame: Mättabell som innehåller båda axelkolumnerna.\n:returns: boolesk mask som är radvis justerad mot ``frame``.",
+      "translation_source_blocks_sha256": [
+        "a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73",
+        "acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.range_filters": {
@@ -95717,20 +96048,19 @@
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.scaled": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.scaled",
       "source_blocks_sha256": [
-        "ee055d6771441827dc5a56c6b09213c16b1c598000b74be2ccaf74a52647f169",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "d719ac0588a2399fa52c681469121c681bda3a53989b30da29b1218f03fd1ce5",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d",
+        "b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110",
+        "265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ],
-      "source_sha256": "2627d7b15413786425eef66d4ad86e32c9e1a18c90091388be9a6652d69b3b8c",
-      "text": "Returnera denna data-selection gräns som vuxit eller krympt ungefär en fast punkt.\n\n:param factor: >1 växer, <1 krymper.\n:param about: Den punkt som hålls fast; datavalsgränsens egna centrum som standard, vilket är vad \"pull to expand\" innebär när användaren inte har tagit en viss kant.\n:raises GateError: en icke-positiv faktor som skulle vända eller kollapsa formen snarare än ändra storlek på den.",
+      "source_sha256": "8e1bc7ede9d491bd2f78d3740ee61aedd2cd1f99ff22bcb84a202614c3c463a5",
+      "text": "Returnera denna rektangel skalad kring en fast punkt i datarymden.\n\n:param factor: positiv skalfaktor; värden över ett förstorar urvalsregionen.\n:param about: Punkt som hålls fast, eller ``None`` för att använda rektangelns ändliga mittpunkt separat på varje axel. Utan en explicit punkt förblir en axel som saknar två ändliga gränser oförändrad.\n:raises GateError: när ``factor`` inte är positivt.",
       "translation_source_blocks_sha256": [
-        "fd81fb83f328da067a0e91351ea5e05c89559ce99c2a313d7e650dc35afb4e3d",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "7af7a6a3f95971c372bd8461676e2843a2f306089a65bb5b1a8053dfc1537d29",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d",
+        "9c962bfb709c99bfbc9372f5b32ed722688bdb9465e33686e514f02328cea422",
+        "265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.thresholds": {
@@ -95744,41 +96074,53 @@
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.translated": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.translated",
       "source_blocks_sha256": [
-        "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
-        "78a7551547138451c3b630ae9924c602314fedf279b3dab7e3fd17ae906801b1",
-        "727ecc411bab95efb6569e73b87d4722bc84d6b3f4b67a55f096f34984c24dc3",
-        "5ec1847c56b863280510fdd86eb9c5641aeb37382d30f22bb655518a71e779fc"
+        "32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b",
+        "30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0",
+        "01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888"
       ],
-      "source_sha256": "9c05bf2c165b9b9c1b6509681c370769a4d2e79223c8a5ccaf8b587ba3e62009",
-      "text": "Returnera denna datavalsgräns som flyttas med ``(dx, dy)`` i DATA-enheter.\n\nDataenheter, inte bildpunkter: en datavalsgräns är en förklaring om mätningar, och att flytta den med bildpunkter skulle innebära att den drevs när axlarna omskalades.\n\n:param dx: Förskjutning längs data-selektionsgränsens x-mätning.\n:param dy: skifta längs sin y-mätning. Ignorerad av en enkolumnig data-valgräns, som inte har någon y.",
+      "source_sha256": "0c5bfd8a242ae49885984a538868a2183951ed70349447133592aead4e412e01",
+      "text": "Returnera en kopia förskjuten längs båda mätaxlarna.\n\n:param dx: förskjutning i horisontella axlars dataenheter.\n:param dy: förskjutning i den vertikala axelns dataenheter.",
       "translation_source_blocks_sha256": [
-        "799c586b1b425b561120378e135f95dc6adbdb5c8828f31ffaa2cf514b27c918",
-        "826fed540f9bd3cccf24b1fc9256d5dc8940dde7b115cd4267b596a3ba374d6f",
-        "f4d6e1ec55fae9b074d90ce7c12136f128a248219db21437b0ca6d1ad5ad10e1",
-        "150c6c621e0495dd41b9d69e48d72c05003aa06d8b2d2781abefac3c7fbba49e"
+        "32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b",
+        "30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0",
+        "01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.with_handle": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.with_handle",
       "source_blocks_sha256": [
-        "e0567547c6c0ce0c9b3d38594cd27819533dbab52025f4dcfa343ae1b58f42fc",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "45736c9098122231b857fd654f8c41761c09cb753a0ef08cfc7e158bdc82bac1",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "250186ca88b2324e95f7c020d0f54beccf58ff8330cee0c31c2c7e8932d5e2e5",
-        "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
+        "d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f",
+        "aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d",
+        "c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491",
+        "bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329",
+        "45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c"
       ],
-      "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "Returnera denna datavalsgräns med ankaret ``role`` flyttat till ``(x, y)``.\n\n:param role: en roll från :meth:`handles`.\n:param x: Den nya positionen längs datavalsgränsens x-mätning.\n:param y: längs dess y-mätning.\n:returns: En ny data-selection gräns, eller ``self`` när dra skulle kollapsa formen. Vägra slår höja här: detta körs på mus-release, och en data-urval gräns som snapper tillbaka är en tydlig \"that is too small\" medan en traceback ut ur en händelsehanterare inte är.\n:raises GateError: en roll som denna data-valgräns inte har, vilket är ett fel i anroparen snarare än något användaren gjorde.",
+      "source_sha256": "8dab3468a6ce0e361a02340784c78b3ce071b05b2974d0db2bd16a3252760b8a",
+      "text": "Returnera rektangeln efter att ett sido- eller hörnhandtag har dragits.\n\n:param role: ett av de fyra sidonamnen som returneras av :meth:`handles`, eller en horisontell och en vertikal sida sammanfogade med ett komma för ett hörn.\n:param x: ny horisontell koordinat som används av någon horisontell roll.\n:param y: ny vertikal koordinat som används av någon vertikal roll.\n:raises GateError: när ``role`` inte namnger något rektangelhandtag.",
       "translation_source_blocks_sha256": [
-        "d490218644b4df108fcad4c26edcef02efaea02164b22077d30bcb438bff812e",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "72fc5f61b8ece28c1648dabf32ef0993b4fde2cb64cf3b8544a67e7a44e3c8ab",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "e6ab1aa0fb4d794bcc402a6393439b8a72ce7a71cfe35eb9570baa754944901c",
-        "5501e71f5d266cee58f105d2d779e9b615123508673d9cfc4b36597555c665c7"
+        "d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f",
+        "aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d",
+        "c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491",
+        "bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329",
+        "45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.RectGate.with_threshold": {
+      "source_blocks_sha256": [
+        "d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102",
+        "50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022",
+        "c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c",
+        "6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22",
+        "1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731"
+      ],
+      "source_sha256": "a7f154fe583c0395a07ac72f16345b3cf07cf1d607467bd5694d0942cfaf148c",
+      "text": "Returnera denna urvalsregion med nya gränser på en axel.\n\n:param column: horisontell eller vertikal mätkolumn som ska ändras.\n:param low: inklusive nedre gräns, eller ``None`` för en öppen nedre sida.\n:param high: inklusive övre gräns, eller ``None`` för en öppen övre sida.\n:raises GateError: när ``column`` inte är en av rektangelns axlar.",
+      "translation_source_blocks_sha256": [
+        "a65858e2c9fbe369647c8f053dd9075e1d0bafde1fb0ae6ecb8239fd664b3337",
+        "50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022",
+        "c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c",
+        "6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22",
+        "1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate": {
@@ -95860,20 +96202,19 @@
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.scaled": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.scaled",
       "source_blocks_sha256": [
-        "ee055d6771441827dc5a56c6b09213c16b1c598000b74be2ccaf74a52647f169",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "d719ac0588a2399fa52c681469121c681bda3a53989b30da29b1218f03fd1ce5",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16",
+        "4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18",
+        "bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ],
-      "source_sha256": "2627d7b15413786425eef66d4ad86e32c9e1a18c90091388be9a6652d69b3b8c",
-      "text": "Returnera denna data-selection gräns som vuxit eller krympt ungefär en fast punkt.\n\n:param factor: >1 växer, <1 krymper.\n:param about: Den punkt som hålls fast; datavalsgränsens egna centrum som standard, vilket är vad \"pull to expand\" innebär när användaren inte har tagit en viss kant.\n:raises GateError: en icke-positiv faktor som skulle vända eller kollapsa formen snarare än ändra storlek på den.",
+      "source_sha256": "9fbad0dcb6eff866a659792f3f41e3a3d9c8183f9b2f08303953be9f10304c81",
+      "text": "Returnera detta tröskelvärde skalat kring ett horisontellt ankare.\n\n:param factor: positiv skalfaktor; värden över ett flyttar varje ändlig gräns bort från ankaret.\n:param about: punkt vars första koordinat hålls fast, eller ``None`` för att använda tröskelvärdets ändliga mittpunkt. Ett halvöppet tröskelvärde har ingen ändlig mittpunkt och returneras oförändrat när detta är ``None``.\n:raises GateError: när ``factor`` inte är positivt.",
       "translation_source_blocks_sha256": [
-        "fd81fb83f328da067a0e91351ea5e05c89559ce99c2a313d7e650dc35afb4e3d",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "7af7a6a3f95971c372bd8461676e2843a2f306089a65bb5b1a8053dfc1537d29",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16",
+        "4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18",
+        "bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.translated": {
@@ -95891,24 +96232,21 @@
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.with_handle",
       "source_blocks_sha256": [
-        "e0567547c6c0ce0c9b3d38594cd27819533dbab52025f4dcfa343ae1b58f42fc",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "45736c9098122231b857fd654f8c41761c09cb753a0ef08cfc7e158bdc82bac1",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "250186ca88b2324e95f7c020d0f54beccf58ff8330cee0c31c2c7e8932d5e2e5",
-        "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
+        "7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1",
+        "d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d",
+        "5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b",
+        "5bbc40dbe744b14bf3b3168a6e9b839709042ce72bd811ffbc9a2bae8f28ec09",
+        "777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8"
       ],
-      "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "Returnera denna datavalsgräns med ankaret ``role`` flyttat till ``(x, y)``.\n\n:param role: en roll från :meth:`handles`.\n:param x: Den nya positionen längs datavalsgränsens x-mätning.\n:param y: längs dess y-mätning.\n:returns: En ny data-selection gräns, eller ``self`` när dra skulle kollapsa formen. Vägra slår höja här: detta körs på mus-release, och en data-urval gräns som snapper tillbaka är en tydlig \"that is too small\" medan en traceback ut ur en händelsehanterare inte är.\n:raises GateError: en roll som denna data-valgräns inte har, vilket är ett fel i anroparen snarare än något användaren gjorde.",
+      "source_sha256": "bdef5b494be3f1ddbb9612d9be826ff98ef694e4c1116a1b64a8c21c99422c60",
+      "text": "Returnera tröskelvärdet efter att ett av dess gränshandtag har dragits.\n\n:param role: ``\"low\"`` eller ``\"high\"`` för den gräns som flyttas.\n:param x: nytt gränsvärde i tröskelkolumnens dataenheter.\n:param y: vertikal koordinat för handtaget, som ignoreras av denna urvalsregion med en kolumn.\n:raises GateError: när ``role`` inte namnger något tröskelhandtag.",
       "translation_source_blocks_sha256": [
-        "d490218644b4df108fcad4c26edcef02efaea02164b22077d30bcb438bff812e",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "72fc5f61b8ece28c1648dabf32ef0993b4fde2cb64cf3b8544a67e7a44e3c8ab",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "e6ab1aa0fb4d794bcc402a6393439b8a72ce7a71cfe35eb9570baa754944901c",
-        "5501e71f5d266cee58f105d2d779e9b615123508673d9cfc4b36597555c665c7"
+        "7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1",
+        "d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d",
+        "5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b",
+        "b52a7c034d41579f6d4d43be8438f3f95b1168bdca00297e61273fc308b70e89",
+        "777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8"
       ]
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold": {
@@ -119922,7 +120260,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "be27622884c137eb21107cb506108df6ac29df6d9600278c62fbe6f2e99db101",
-      "text": "Returnera standardinställningarna för :func:`barcode_qc`.\n\n:param settings: Valfri kartläggning av nyckelvärden för att fylla i på plats; en ny görs när den utelämnas.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Returnera standardinställningarna för :func:`barcode_qc`.\n\n:param settings: Valfri kartläggning av nyckelvärden för att fylla i på plats; en ny görs när den utelämnas.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "0fe1f435ed1d391130e92b7a1f8a56fc217cb6b28e016adc29fabfe47e84a3a4",
         "df5e37727de756bfe7e06cad16e954ab72b0cc2eb43a770299bb8b9b19767d23",
@@ -120653,7 +120991,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "9abba63dc733159695db3df80b5de00c3beb203cb6883b1d4983ec95bd568af4",
-      "text": "Populera standardinställningar för träningsarbetsflödet \"end-to-end\" deep_spacr.\n\nOmfattar generering av datauppsättning, modellutbildning/testning och tillämpning av den utbildade modellen på datauppsättningen i en enda uppsättning av nyckelvärden.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för träningsarbetsflödet \"end-to-end\" deep_spacr.\n\nOmfattar generering av datauppsättning, modellutbildning/testning och tillämpning av den utbildade modellen på datauppsättningen i en enda uppsättning av nyckelvärden.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "bb989cf8fa5699d86fad9c1d6538fc0ed93366ded44f8f375e7f3c153ad88b36",
         "b6b1052da6fd0bb229eee7211a0266c36b7a53ce485049d45dad341ea9ca5b12",
@@ -120668,7 +121006,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "ef2eb7aa0ccc272e719a2893590aa9a55c9fedc2856c9bcd692f811431ba208c",
-      "text": "Populera standardinställningarna för analys av provpositionerna \"percent positive\" per mikroplatta.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningarna för analys av provpositionerna \"percent positive\" per mikroplatta.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "53d0485ead0448e6385c830309224be5367af672f9b48d443bffb1af17915abc",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120718,7 +121056,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "35e3557321987df4ed5c47c2d8bb461a6b4beb8c0ef199e7a86dc0ff6f4118c4",
-      "text": "Populera standardinställningar för plackanalys.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för plackanalys.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "3df3f4508141eeffaabb180904e7ad3d4730e91adf627d17fc6dcfabdff41217",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120732,7 +121070,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "38dbfaa9dc624991df62ae1f4eeb424deff0e4dcd416f4f259368d70ec6a13da",
-      "text": "Populera standardinställningar för analys av FASTQ läs streckkoder.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för analys av FASTQ läs streckkoder.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "691fc08e3b6ab4ffdbe3d91e99bda5f3cad84d60c237ac7050626a6f848d0e80",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120746,7 +121084,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "67c1abdfe205c7837f36fbf95aafcd8f7756b1d98876e74e6401d4061e4a4ab9",
-      "text": "Populera standardinställningar för arbetsflödet för rekryteringsanalys.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för arbetsflödet för rekryteringsanalys.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "f36db7998b81c783ce9e4c3e5197b531fdbbc11437dbdbfe789469cd39a47e11",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120761,7 +121099,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "5ecca74342457ed4a845ae3b89712b33915731c3e06ba8913408ac065a6f54b8",
-      "text": "Returnera standardinställningar för arbetsflödet för automatiserad motilitetsanalys.\n\nKombinerar matris/filterparametrar, XGBoost klassificeringsmodellinställningar för infektionsmaskininlärning och PCA/ UMAP/t-SNE inbäddning av alternativ i en enda uppsättning nyckelvärdeskartläggning.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Returnera standardinställningar för arbetsflödet för automatiserad motilitetsanalys.\n\nKombinerar matris/filterparametrar, XGBoost klassificeringsmodellinställningar för infektionsmaskininlärning och PCA/ UMAP/t-SNE inbäddning av alternativ i en enda uppsättning nyckelvärdeskartläggning.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "de24a9357f509ce144dedf0911da601ddfe70ac1aa8ceddd830a2cbbacb8135e",
         "72cbf5b2bd73026353dfda0a1bae8e19804a86c6c880330f0aba38061b969a33",
@@ -120776,7 +121114,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "2b86408c1f60ed71e31ea3f01aa8108f660ced188dd107b6e22bed41921752cd",
-      "text": "Populera standardinställningar för verktyget \"check Cellpose models\".\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för verktyget \"check Cellpose models\".\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "cd788b2c1e19c4e0ae4ab15dd6a238451894180737824d3079520bb837b1040a",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120790,7 +121128,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "0bdde92ece93c2641b83a79690a8d6cacc1a978f8ecc16d71f706c6ca1c8bdcb",
-      "text": "Använd standardinställningar för att tillämpa en Cellpose modell på en datauppsättning.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Använd standardinställningar för att tillämpa en Cellpose modell på en datauppsättning.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "ef4c4eab417d7771721ce4ac73058eb939680b64c9fd6df946f3f9f784884e0a",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120804,7 +121142,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "033d7102c13e1415628377cc11e2829adbe021cd25805e0b3fed9b39badb7bb3",
-      "text": "Populera standardinställningar för att generera modellaktivering/CAM-kartor.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för att generera modellaktivering/CAM-kartor.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "a55d758908f4dcb00d96ebc43dfb019847cbb7cffaa833187d5e2fae59bb2fc5",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120818,7 +121156,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "cc575a78444830d699a5b9b4a2fda8319a629e4638d112493fe6948598bd8a8e",
-      "text": "Populera standardinställningar för att testa en Cellpose modell på en datauppsättning.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för att testa en Cellpose modell på en datauppsättning.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "fdcf1b4f1cf013e7afc969b20c7b9da83a7a5666d81e7f63b4ecf73960ff45e6",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120832,7 +121170,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "94014167965c67c0146656451b1a8982c6206b6659d17387fb1356cbbd5774eb",
-      "text": "Populera standardinställningar för finjusterande maskidentifiering.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för finjusterande maskidentifiering.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "95871a0ba8f6827a4b81a7cc6776ea937bcf0b70a49a783a01a783efb6eb1ec0",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120846,7 +121184,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "24ffc1f59393d5fd3b38352341d0f041301ff1387f85f7672bdf5dfe7c4780f9",
-      "text": "Populera standardinställningar för att avbilda streckkoder till gRNAs och laboratoriemikroplattor.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för att avbilda streckkoder till gRNAs och laboratoriemikroplattor.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "226787849b69a084b331b91830f21a57754560a14a3d19bc3738789b1177ab8d",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120861,7 +121199,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "966154e7f0f1a2223b2f49a363d4fcc0ec05ffff997423c20cebc5c3357de524",
-      "text": "Returnera standardinställningarna för arbetsflödet mätning-och-bild-region-extrahering.\n\nAktiverar testläge/plottning automatiskt när ``test_mode`` är True.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Returnera standardinställningarna för arbetsflödet mätning-och-bild-region-extrahering.\n\nAktiverar testläge/plottning automatiskt när ``test_mode`` är True.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "5c99afa8ff44e5b11e036980b19b0764849559b93cff4f3e2f6cfa46cc7648e3",
         "161eb3b974d4d8b0675fbb1aa18305cf1fa7d78a67a81992077f9e9767268284",
@@ -120873,16 +121211,16 @@
       "source_blocks_sha256": [
         "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
         "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-        "4087389bd661e1b0109080e4fe4a7557c5066c2d03c81b7bb54f62781b2f9fe9",
+        "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
         "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
-      "source_sha256": "5e0c5caac18d0f2f4050a28268263ae8aa6588da0fe67242954729624fc89229",
-      "text": "Populera standardinställningar för regressionsanalys gRNA/score.\n\nByte ``agg_type`` till None automatiskt när kvantil regression väljs, så ``alpha`` behandlas som kvantil.\n\nVarje strukturerat datanamn :func:`spacr.ml.perform_regression` läser med ``settings[...]`` fylls här. Sex var inte, och eftersom alla tre avsändare (den Tk panelen via ``gui_core.setup_settings_panel``, Qt-panelen via ``qt.screens.settings_model.resolve_default_settings`` och ``spacr-run regression`` via ``cli.module_defaults``) bygger upp mappningen av nyckelvärdet från denna funktion. regression kunde inte startas från någon ingångspunkt: den dog på ``KeyError: 'verbose'`` vid ml.py:1409, efter att båda indata CSVs hade lästs och ``settings/regression.csv`` hade skrivits, Så misslyckandet såg ut som en behandling session som hade börjat rent.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "source_sha256": "4caf40df26a44bf3ee347e7b89587c13aa8ed8d7be8565caaa72b1aff68bf181",
+      "text": "Fyll i standardinställningar för regressionsanalys av gRNA/poäng.\n\nÄndrar automatiskt ``agg_type`` till None när kvantilregression har valts, så att ``alpha`` behandlas som kvantilen.\n\nVarje nyckel som :func:`spacr.ml.perform_regression` läser med ``settings[...]`` fylls i här. Sex saknades tidigare, och eftersom båda startvägarna (Qt-panelen via ``qt.screens.settings_model.resolve_default_settings`` och ``spacr-run regression`` via ``cli.module_defaults``) bygger mappningen från denna enda funktion kunde regressionen inte startas från någon ingångspunkt: den avbröts med ``KeyError: 'verbose'`` på ml.py:1409 efter att båda indata-CSV-filerna hade lästs och ``settings/regression.csv`` hade skrivits, så felet såg ut som en körning som hade startat korrekt.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
         "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-        "9d8c057279c24e9baae1736e09811b300b1fd416d6ecf6422709dc23ebd7d0b1",
+        "51e3595a2e9b0d1fb87842f1a8a22d61a5e73220a76ec30aced40ec9e4a45f99",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
@@ -120894,7 +121232,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "47ad067328ac73ff58cd65660be133202d79f4eb50c4dd0b508160d7b12991a2",
-      "text": "Populera standardinställningar för plottning av data som dras från en CSV fil.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för plottning av data som dras från en CSV fil.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "a49f6fce2a3345d0b128b5c431099dee02454e94b294af0a597c1710b7a9524e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120936,7 +121274,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "b1923bf7eb592f54783e914ace1173cf52873075290e7e242534a5c02db72608",
-      "text": "Populera standardinställningar för utbildning av en Cellpose modell.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för utbildning av en Cellpose modell.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "4ebe80b71b70ddc9aa54e6f25fc3b5d1eea42e5c8f3b782f07705e113253c357",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -120950,7 +121288,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "43625f3d217371f34cfd4d733b1310a0695d17955f01f11612160038fc6e5302",
-      "text": "Populera standardinställningar för klassificeringen tåg/test maskininlärning modellinställningar nyckelvärde kartläggning.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för klassificeringen tåg/test maskininlärning modellinställningar nyckelvärde kartläggning.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "22cc5c8de3a2d48214de634c6cd5804f24e3f1d8177ed1a71382a47450b3ea9c",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121106,7 +121444,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "6fe40dc9ca3c18bd1f1c87d8b44a63c037c191cc5da4e3f2610f40c8d8e22a94",
-      "text": "Populera standardinställningar för klass-proportionalitetsanalys över olika förhållanden.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för klass-proportionalitetsanalys över olika förhållanden.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "02d094d9cbf53921dde515e6f10438d1c7cecfcefed76b9a8e900d9b9a258862",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121120,7 +121458,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "dd26a602fbe9470e42a3835dd68992ab002f3583e59dd893b974414ed6edf267",
-      "text": "Populera standardinställningar för analys av endodyogeni (parasite division).\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för analys av endodyogeni (parasite division).\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "8e2215d9a41b63e7448312460d3d503046befd41641d61b5d26c187ac2969e71",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121134,7 +121472,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "a935047343b865e211c275908f740939b0e60696357f1894bed989a16635b5f0",
-      "text": "Populera standardinställningar för tvåfärgs- (röd/grön) invasionstest.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för tvåfärgs- (röd/grön) invasionstest.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "a8d05d551868756f334cfce1d2e9a45c8ca39bf229a8840b305539a1beb652ee",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121148,7 +121486,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "c4afeca9dec184c715987116729ba21eca288ebb55b5b03122bf20e76aed24a6",
-      "text": "Populera förvaltningar för parasiter-per-vakuol replikeringstest.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera förvaltningar för parasiter-per-vakuol replikeringstest.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "d3c0e8cc1ab7dabb8c537dca0b2b2028f2af8471e3c857269659b755166fb099",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121162,7 +121500,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "43eb7daee23c641a5ac13dd8a41bcf7461df1d7b25cc2322dcd8eaad23616227",
-      "text": "Populera standardinställningar för bildanteckningen UI.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för bildanteckningen UI.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "31ac35f6ad929b0b4c6b965467c17c99a84de0ff62dad444f8885eb20c2e7d63",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121176,7 +121514,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "99c58d26c79084a6fd647141493d9976af568e734ba8669985023e5748318011",
-      "text": "Populera standardinställningar för skärmanalys (ML-baserad poängsättning).\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för skärmanalys (ML-baserad poängsättning).\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "b30015ef777b13a6737ed164b751b73044b28871d845efd849a60d77b8d1e60b",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121192,7 +121530,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "1d25243f2f08fc514dec4a2ca60f0e32ee9062fa6059d0c964e8e88c206f5d4c",
-      "text": "Förvalt värde för den sammanslagna klassify-modulen.\n\nSammanslutningen av Classify (CV) och Classify (ML), plus ``classifier_family`` för att säga vilken av de två en behandling session använder. Byggd genom att ringa båda fabriker snarare än genom att kopiera sina strukturerade datanamn: en lista här skulle gå gammal första gången antingen modulen fick en inställning, och symptomet skulle vara en kontroll saknas från den sammanslagna skärmen bara.\n\nCV tillämpas tvåa och vinner på de sex tangenterna som de två aktierna, eftersom den sammanslagna modulens standardfamilj är CV.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Förvalt värde för den sammanslagna klassify-modulen.\n\nSammanslutningen av Classify (CV) och Classify (ML), plus ``classifier_family`` för att säga vilken av de två en behandling session använder. Byggd genom att ringa båda fabriker snarare än genom att kopiera sina strukturerade datanamn: en lista här skulle gå gammal första gången antingen modulen fick en inställning, och symptomet skulle vara en kontroll saknas från den sammanslagna skärmen bara.\n\nCV tillämpas tvåa och vinner på de sex tangenterna som de två aktierna, eftersom den sammanslagna modulens standardfamilj är CV.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "ceb53b29b643a2492eea5bc6c4323676b61255180e22b73ce8d14c4f3ce21cb6",
         "ed1c49b599d053df47d10fe52dd37c8f54130fe944238f3f0de6c09ef7cc619d",
@@ -121222,7 +121560,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "7d90668439627b4a936bc705d4817dd672960e7ccde41be8d1fdf088e5f678a2",
-      "text": "Returnera standardinställningar för arbetsflödet för streckkodsmappning.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Returnera standardinställningar för arbetsflödet för streckkodsmappning.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "d4f9b4e2499aa27a6f295638782dd87fa73e65d0c9bdef317afb609e7e7653bd",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
@@ -121250,7 +121588,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "03ad0d0cd8f914f2869c467f40cde51f43a03d97421d3d64a8ac2f673aed4d85",
-      "text": "Populera standardinställningar för plottning av data som dragits från en mätning DB.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för plottning av data som dragits från en mätning DB.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "6bbaa9a939706799e61635d646fd7ace13a80df13a6a8a2eacaef9a74bd934bc",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121277,7 +121615,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "cd8797286ac37cecdc35312ac7c4c0d97db613773362dda39b2ef5ebcdc8b07f",
-      "text": "Populera standardinställningar för arbetsflödet preprocess/generate-masks.\n\nFyller bilddatakanal, Cellpose, diagram, tidsförskjutning, organeller och parametrar för efterbehandling som används av ``preprocess_generate_masks``.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för arbetsflödet preprocess/generate-masks.\n\nFyller bilddatakanal, Cellpose, diagram, tidsförskjutning, organeller och parametrar för efterbehandling som används av ``preprocess_generate_masks``.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "bdaa00e0d143b80dbdce44fc753b99cc1b6cac581a5e5754e12c09f36ff6b136",
         "ca0b73baa4fdc2d1c0de06e4810c1486bfc4748d054bd28d33b8b710f73c7a1c",
@@ -121292,7 +121630,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "cf56d3a425b795ac8888d81068d61f3a45cf67d6e80d1c206399079d9145728e",
-      "text": "Förvald inställning av bildförbehandlingssteget ska fyllas i.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Förvald inställning av bildförbehandlingssteget ska fyllas i.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "9cc625a363581014c69757b93655ca0f05e2bc39631c528837cc2d108b9a519e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121322,7 +121660,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "142f1d16cf95cfe58773dd0b935171da668e3733ddd40f2ecf9962da28427f5f",
-      "text": "Populera standardinställningar för klassningsarbetsflödet för tåg-/testmaskininlärningsmodell.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för klassningsarbetsflödet för tåg-/testmaskininlärningsmodell.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "a664d783a44ff67e7ea2010d13fc00378c40adea1f1ee2f7d0813bee3bac97af",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121336,7 +121674,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "2b8cff10a7db683c375659686ba02ee98f12f65e98122a7109c303a38b558027",
-      "text": "Returnera standardinställningarna för UMAP/tSNE-bildbäddar.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Returnera standardinställningarna för UMAP/tSNE-bildbäddar.\n\n:param settings: Valfri mappning av nyckelvärden för att fylla i på plats; en ny mappning med nyckelvärde skapas om None.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "a8d13cd56ae8efc421b235fd3e46ee812bee679c3aeabaf0a0b547631b12d3a4",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
@@ -121350,7 +121688,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "cf269093cd20ae22041fc320d29fcd2944f1a460a406a20828fedd8df2f6de45",
-      "text": "Populera standardinställningar för det allmänna steget för datauppsättningsgenerering.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för det allmänna steget för datauppsättningsgenerering.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "bc2a558d350f4232b29fb102a56adb61a0854d2f98af4ae8d44f2a0dfb81d07a",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121364,7 +121702,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "72f621b558d63f35addf9f5d0164801b194623adba1821662fc1f2971664499b",
-      "text": "Populera standardinställningar för att generera en märkt träningsdatauppsättning.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för att generera en märkt träningsdatauppsättning.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "c17762ad9a7b0e36765efca5ed48af28bc4e42a180a4570fc022843c2fe8a75e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121378,7 +121716,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "cb6cc38a18f2f6ffbe84d8a08d9199de3d851ae7216353dc97156a15be69ded7",
-      "text": "Fyll i standardinställningarna för verktyget \"graph importance\" plot.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Fyll i standardinställningarna för verktyget \"graph importance\" plot.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "611b8c8b449ee260ee684463b7b06290024899fe121cbf08eb418439621fd850",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
@@ -121393,7 +121731,7 @@
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
       "source_sha256": "10ac04215def98f21d4790412aee01a0a09fc2e719ab0f2f141605814d894cb0",
-      "text": "Populera standardinställningar för tolkning av visionsmodellers förutsägelser.\n\nTäcker funktionsvikt, permutationsvikt och SHAP förklaringsalternativ över cell-/nukleus-/patogen/cytoplasmatabellerna.\n\n:param settings: Kartläggning av nyckelvärde för att fylla på plats.\n:returns: Inställningarna mappning av nyckelvärde med tillämpade standardvärden.",
+      "text": "Populera standardinställningar för tolkning av visionsmodellers förutsägelser.\n\nTäcker funktionsvikt, permutationsvikt och SHAP förklaringsalternativ över cell-/nukleus-/patogen/cytoplasmatabellerna.\n\n:param settings: mappning att fylla på plats.\n:returns: inställningsmappningen med tillämpade standardvärden.",
       "translation_source_blocks_sha256": [
         "0626708f2ab97b5bec4d6f6f6b14cab96e2002e5f1c1a74db8d7075831f8bacf",
         "a45b8d0fe309094a9fb60edbdb388735a151ea4f6a9ce8a822046085b5b439a5",

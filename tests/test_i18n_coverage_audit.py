@@ -14,12 +14,12 @@ if str(TOOLS) not in sys.path:
 import audit_i18n_coverage as coverage  # noqa: E402
 
 REVIEWED_RUNTIME_COUNTS = {
-    "sv": 111, "de": 81, "es": 88, "zh_CN": 235, "pt": 92,
-    "hi": 100, "ko": 218, "is": 106, "fr": 89,
+    "sv": 115, "de": 85, "es": 92, "zh_CN": 239, "pt": 96,
+    "hi": 104, "ko": 222, "is": 110, "fr": 93,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 252, "de": 206, "es": 84, "zh_CN": 236, "pt": 191,
-    "hi": 160, "ko": 186, "is": 681, "fr": 188,
+    "sv": 367, "de": 323, "es": 201, "zh_CN": 352, "pt": 307,
+    "hi": 276, "ko": 302, "is": 797, "fr": 304,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -141,9 +141,9 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-08-30.md").read_text(
         encoding="utf-8",
     )
-    assert len(docs) == 8_838
-    assert len(api_builder.API_DOC_ALIASES) == 119
-    assert len(docs) - len(api_builder.API_DOC_ALIASES) == 8_719
+    assert len(docs) == 8_848
+    assert len(api_builder.API_DOC_ALIASES) == 113
+    assert len(docs) - len(api_builder.API_DOC_ALIASES) == 8_735
     for language, runtime_expected in REVIEWED_RUNTIME_COUNTS.items():
         api_expected = REVIEWED_API_BLOCK_COUNTS[language]
         reviewed_api = api_builder.reviewed_api_block_translations(
@@ -170,19 +170,19 @@ def test_written_review_scope_matches_current_source_bound_evidence():
             ]
         row = (
             f"| {DISPLAY_NAMES[language]} | {runtime_expected:,} | "
-            f"{runtime_expected / 4_978:.2%} | {4_978 - runtime_expected:,} | "
-            f"{api_expected:,} | {api_expected / 8_838:.2%} | "
-            f"{8_838 - api_expected:,} |"
+            f"{runtime_expected / 4_982:.2%} | {4_982 - runtime_expected:,} | "
+            f"{api_expected:,} | {api_expected / 8_848:.2%} | "
+            f"{8_848 - api_expected:,} |"
         )
         assert row in report
 
     assert "84 x 9 = 756 reviewed source/target pairs" in report
     assert "not a certificate that every sentence was read" in report
     assert "exhaustive frontend coverage, not exhaustive semantic review" in report
-    assert "2,698 required parameters" in report
-    assert "1,951 public callables" in report
+    assert "2,638 required parameters" in report
+    assert "1,912 public callables" in report
     assert (
-        "152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1"
+        "8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6"
         in report
     )
     assert "must not be closed" in report

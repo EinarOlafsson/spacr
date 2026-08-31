@@ -8,10 +8,10 @@ basis of these numbers alone.
 
 ## Inventory and evidence scope
 
-The live runtime inventory contains 4,978 entries: 1,018 setting labels, 1,013
-setting tooltips, 192 category explanations, 2,691 UI strings, and 64 module
-summaries.  The live API inventory contains 8,838 symbol documents: 8,719
-canonical documents plus 119 rendered aliases.  The nine supported non-English
+The live runtime inventory contains 4,982 entries: 1,018 setting labels, 1,013
+setting tooltips, 192 category explanations, 2,695 UI strings, and 64 module
+summaries.  The live API inventory contains 8,848 symbol documents: 8,735
+canonical documents plus 113 rendered aliases.  The nine supported non-English
 locales are Swedish
 (`sv`), German (`de`), Spanish (`es`), Simplified Chinese (`zh_CN`), Portuguese
 (`pt`), Hindi (`hi`), Korean (`ko`), Icelandic (`is`), and French (`fr`).
@@ -19,23 +19,23 @@ locales are Swedish
 The table counts unique, current source strings admitted through
 `docs/i18n/reviewed/runtime/<locale>/` and unique, current translatable blocks
 admitted through `docs/i18n/reviewed/api/<locale>/`.  Percentages and remainders
-use the requested release denominators (4,978 runtime entries and 8,838 API
+use the requested release denominators (4,982 runtime entries and 8,848 API
 symbol documents).  API evidence is block-keyed, not document-keyed, so its
 percentage is an intentionally conservative normalization, not the proportion
 of whole API documents read.  Repeated source strings likewise mean that the
 runtime percentage is not a unique-string percentage.
 
-| Language | Reviewed runtime sources | Of 4,978 | Arithmetic remainder | Reviewed API blocks | Of 8,838 | Arithmetic remainder |
+| Language | Reviewed runtime sources | Of 4,982 | Arithmetic remainder | Reviewed API blocks | Of 8,848 | Arithmetic remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 111 | 2.23% | 4,867 | 252 | 2.85% | 8,586 |
-| German | 81 | 1.63% | 4,897 | 206 | 2.33% | 8,632 |
-| Spanish | 88 | 1.77% | 4,890 | 84 | 0.95% | 8,754 |
-| Simplified Chinese | 235 | 4.72% | 4,743 | 236 | 2.67% | 8,602 |
-| Portuguese | 92 | 1.85% | 4,886 | 191 | 2.16% | 8,647 |
-| Hindi | 100 | 2.01% | 4,878 | 160 | 1.81% | 8,678 |
-| Korean | 218 | 4.38% | 4,760 | 186 | 2.10% | 8,652 |
-| Icelandic | 106 | 2.13% | 4,872 | 681 | 7.71% | 8,157 |
-| French | 89 | 1.79% | 4,889 | 188 | 2.13% | 8,650 |
+| Swedish | 115 | 2.31% | 4,867 | 367 | 4.15% | 8,481 |
+| German | 85 | 1.71% | 4,897 | 323 | 3.65% | 8,525 |
+| Spanish | 92 | 1.85% | 4,890 | 201 | 2.27% | 8,647 |
+| Simplified Chinese | 239 | 4.80% | 4,743 | 352 | 3.98% | 8,496 |
+| Portuguese | 96 | 1.93% | 4,886 | 307 | 3.47% | 8,541 |
+| Hindi | 104 | 2.09% | 4,878 | 276 | 3.12% | 8,572 |
+| Korean | 222 | 4.46% | 4,760 | 302 | 3.41% | 8,546 |
+| Icelandic | 110 | 2.21% | 4,872 | 797 | 9.01% | 8,051 |
+| French | 93 | 1.87% | 4,889 | 304 | 3.44% | 8,544 |
 
 In addition, `tools/i18n_reviewed_ui.py` pins 84 context-sensitive UI sources
 in every locale: 84 x 9 = 756 reviewed source/target pairs.  Those rows overlap
@@ -109,6 +109,23 @@ the nine reviewed maps.  The review corrected product names, GUI-screen versus
 scientific-screen senses, dropped-versus-deleted paths, numeric bounds and
 handles, SQLite URI quoting, and the sole Hindi exact-English residual.
 
+The renderer-status pass adds four source-bound runtime records in every
+locale for the automatic renderer, the selected renderer, missing VisPy, and
+headless/OpenGL fallback messages.  Every target preserves ``{renderer}``,
+CPU/GPU/OpenGL/VisPy, and the exact
+``pip install "spacr[fractal]"`` command.  It also reconciles the compact
+shortcut catalog with its existing reviewed captions, including the Swedish
+quarantine instruction and QC field-browser terminology.
+
+The final database-browser, gate, and upstream-API pass compared the same 118
+blocks in 29 symbols across every locale.  It covers 16 newly documented
+``DbBrowserScreen``, ``PreviewModel``, ``RectGate``, and ``ThresholdGate``
+methods plus 13 related public contracts whose block positions changed in the
+integrated source.  Source-bound evidence adds 1,045 unique current
+source/target mappings across the nine reviewed maps.  Materialization was
+then repeated with model decoding disabled; every locale reused only current
+catalog or reviewed evidence and the strict 8,848-symbol audit passed.
+
 ## Explicit English identities and fallbacks
 
 The runtime catalogs preserve this complete 84-item reviewed technical-identity
@@ -181,9 +198,9 @@ exercise rendering, selector persistence, malformed/stale payload fallback, and
 request races with two-symbol synthetic catalogs.  The exhaustive browser
 ratchet constructs one AutoAPI-shaped document containing every exact English
 symbol ID, then loads all nine complete real catalogs and requires exactly
-8,838 translated panels whose IDs equal that full symbol union for each locale.
+8,848 translated panels whose IDs equal that full symbol union for each locale.
 It therefore drives every catalog document through the frontend without the
-cost and weaker state isolation of 8,838 separate Chrome launches.  This is
+cost and weaker state isolation of 8,848 separate Chrome launches.  This is
 exhaustive frontend coverage, not exhaustive semantic review.  Dedicated
 mutations delete a Swedish tooltip translation and inject a broken tooltip API
 URL; the runtime audit and link resolver respectively turn red.  Synthetic
@@ -209,11 +226,11 @@ rendered `:ivar:` description; ordinary callables cannot use that rule.
 Curated AutoAPI aliases count at their canonical target only after signatures
 and rendered prose match exactly, while canonical debt remains counted once.
 After those narrow boundary rules, the reverse-direction ratchet records
-2,698 required parameters without a structured description across
-1,951 public callables.  Its count and digest fail on additions or
+2,638 required parameters without a structured description across
+1,912 public callables.  Its count and digest fail on additions or
 substitutions; the debt
 is still nonzero.  Its current digest is
-``152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1``.
+``8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6``.
 The 2026-08-30 source-docstring sweep removed 1,015 exact omissions from the
 preceding 3,713/2,541 baseline while preserving executable ASTs and zero scoped
 ghost fields.
@@ -223,6 +240,6 @@ ghost fields.
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 2,698 required-parameter omissions are resolved, the
+move to done only after the 2,638 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.

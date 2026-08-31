@@ -81,24 +81,31 @@
     },
     {
       "label": "spacr.qt.widgets.gate_spec.RectGate.translated#0",
-      "source_sha256": "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
-      "source": "Return this gate moved by ``(dx, dy)`` in DATA units.",
-      "context": "Return this data-selection boundary moved by ``(dx, dy)`` in DATA units.",
-      "translation": "इस डेटा-चयन सीमा को DATA units में ``(dx, dy)`` से खिसकाकर लौटाएँ।"
+      "source_sha256": "32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b",
+      "source": "Return a copy shifted along both measurement axes.",
+      "context": "Return a copy shifted along both measurement axes.",
+      "translation": "दोनों मापन अक्षों के अनुदिश खिसकाई गई प्रति लौटाएँ।"
     },
     {
-      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#5",
-      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
-      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
-      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
-      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+      "label": "spacr.qt.widgets.gate_spec.RectGate.with_handle#4",
+      "source_sha256": "45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c",
+      "source": "when ``role`` names no rectangle handle.",
+      "context": "when ``role`` names no rectangle handle.",
+      "translation": "जब ``role`` आयत के किसी नियंत्रण बिंदु को नामित न करे।"
     },
     {
-      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#5",
-      "source_sha256": "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf",
-      "source": "a role this gate does not have, which is a bug in the caller rather than something the user did.",
-      "context": "a role this data-selection boundary does not have, which is a bug in the caller rather than something the user did.",
-      "translation": "ऐसी भूमिका जो इस डेटा-चयन सीमा में नहीं है; यह उपयोगकर्ता की गलती नहीं, caller की bug है।"
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#3",
+      "source_sha256": "5bbc40dbe744b14bf3b3168a6e9b839709042ce72bd811ffbc9a2bae8f28ec09",
+      "source": "vertical handle coordinate, ignored by this one-column gate.",
+      "context": "vertical handle coordinate, ignored by this one-column data-selection boundary.",
+      "translation": "ऊर्ध्वाधर नियंत्रण-बिंदु निर्देशांक, जिसे यह एक-स्तंभ डेटा-चयन सीमा अनदेखा करती है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle#4",
+      "source_sha256": "777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8",
+      "source": "when ``role`` names no threshold handle.",
+      "context": "when ``role`` names no threshold handle.",
+      "translation": "जब ``role`` थ्रेशोल्ड के किसी नियंत्रण बिंदु को नामित न करे।"
     },
     {
       "label": "spacr.qt.widgets.gate_spec.gate_from_dict#1",

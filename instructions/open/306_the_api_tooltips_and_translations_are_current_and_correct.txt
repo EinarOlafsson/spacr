@@ -371,7 +371,6 @@ item 306.  The structured-description ratchet remains 2,698 omissions across
 and no exhaustive fluent-speaker semantic review is recorded.  Item 306
 remains OPEN and release-blocking.
 
-
 PROGRESS 2026-08-31 -- THE CATALOGS ARE ELEVEN SYMBOLS BEHIND, AND THE
 AUDIT CANNOT RUN AT ALL
 -----------------------------------------------------------------------
@@ -441,3 +440,30 @@ The nine opus models the tool wants are present at the default
 --model-root, so the pipeline can run once the evidence question is
 settled. NOTE the disk: /mnt/firecuda2 is at 100% with under 10 GB free,
 which a translation pass should be checked against before it starts.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- DATABASE/GATE API AND RENDERER COPY CURRENT
+--------------------------------------------------------------------------------
+
+The database-browser and gate pass documents 16 canonical public methods and
+retires six aliases whose targets now have their own source contracts.  The
+live API inventory is therefore 8,848 documents: 8,735 canonical documents
+plus 113 validated rendered aliases.  All nine catalogs contain 8,848/8,848
+current records with zero orphans, and their strict audit passes.
+
+The same 118 blocks in 29 database-browser, gate and related upstream symbols
+were reviewed in every locale.  Source-bound evidence adds 1,045 unique
+current source/target mappings across the nine reviewed maps; rematerializing
+with model decoding disabled reused only current catalog or reviewed evidence.
+The runtime renderer pass separately adds four reviewed status messages in
+every locale and moves the runtime fixed point to 4,982/4,982 with zero
+orphans.  Placeholders, CPU/GPU/OpenGL/VisPy names and the exact fractal-extra
+installation command are preserved.  The strict nine-language runtime audit
+and 65 focused runtime/Preferences tests pass.
+
+This is a measured semantic and mechanical advance, not closure.  The exact
+reverse-direction ratchet is now 2,638 required-parameter omissions across
+1,912 public callables, digest
+``8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6``.
+No exhaustive fluent-speaker disposition of every remaining runtime or API
+sentence is recorded, so item 306 remains OPEN and release-blocking.

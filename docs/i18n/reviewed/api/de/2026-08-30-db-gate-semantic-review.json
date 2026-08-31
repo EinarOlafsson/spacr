@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.screens.db_browser.DbBrowserScreen#8",
+      "source_sha256": "2cd847cccfdb807953ee747620d18234bf557bee4912e6f1da0c755b285ce1be",
+      "source": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* ever reported here and in the inline status label — never in a modal dialog.",
+      "context": "text of the most recent failure, ``\"\"`` when the last operation succeeded. Errors are *only* ever reported here and in the inline status label — never in a modal dialog.",
+      "translation": "Text des letzten Fehlers; ``\"\"`` bedeutet, dass der letzte Vorgang erfolgreich war. Fehler werden *ausschließlich* hier und in der eingebetteten Statusanzeige gemeldet — niemals in einem modalen Dialog."
+    }
+  ]
+}
