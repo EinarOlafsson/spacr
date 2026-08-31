@@ -1311,6 +1311,32 @@ class AppScreen(QWidget):
     # ------------------------------------------------------------------
     # Ambient backdrop
     # ------------------------------------------------------------------
+    def _heavy_lock_is_free(self) -> bool:
+        """Whether the heavy-import lock could be taken right now.
+
+        Asked without blocking and released immediately: this is a peek,
+        not a reservation. The backdrop's own constructor still takes the
+        lock properly, so the guarantee that a GL context is never built
+        while the preloader is bringing CUDA up is unchanged -- all this
+        decides is whether to try at all on this event-loop turn.
+
+        A tree with no lock to ask (the widget module is absent, or its
+        import failed) answers yes, so a machine without the backdrop
+        behaves exactly as it did before.
+        """
+        try:
+            from ..widgets.fractal_travel import _heavy_import_lock
+
+            lock = _heavy_import_lock()
+        except Exception:                                    # noqa: BLE001
+            return True
+        if lock is None:
+            return True
+        if not lock.acquire(blocking=False):
+            return False
+        lock.release()
+        return True
+
     def _install_ambient(self) -> None:
         """Build the ambient backdrop for this screen, if it is wanted.
 
@@ -1343,6 +1369,21 @@ class AppScreen(QWidget):
         change moves the pair and the attempt happens again.
         """
         if not self._backdrops_ready or self._ambient is not None:
+            return
+        # NOT WHILE SOMEBODY IS HOLDING THE HEAVY LOCK. The GPU backdrop
+        # takes HEAVY_IMPORT_LOCK to build its GL context, and the startup
+        # preloader holds that lock for a whole module import. Installing
+        # here regardless is what made opening a module soon after launch
+        # freeze the GUI thread: 83% of a measured 3148 ms block was the
+        # backdrop's constructor waiting for a lock the preloader held.
+        #
+        # The backdrop is decoration and the module is not, so the
+        # decoration is what waits. If the lock is busy this comes back on
+        # a timer and the screen opens now, undecorated for a moment.
+        if not self._heavy_lock_is_free():
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(120, self._install_ambient)
             return
         widget = None
         try:
