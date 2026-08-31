@@ -39,23 +39,24 @@ class TestTheWholeNumberSpinBox:
         assert box.minimum() <= -2_000_000_000
         assert box.maximum() >= 2_000_000_000
 
-    def test_the_suffix_is_offered_and_never_asked_for(self):
-        """THE PIN, for ``if suffix:``.
+    def test_the_suffix_parameter_is_gone(self):
+        """It was offered and never asked for; now it is not offered.
 
-        ``_whole`` takes a suffix and its ONE caller --
-        FractalSupersampling -- passes none, because "samples per pixel
-        along each axis" has no unit that fits after the number. So the
-        branch cannot run.
+        This used to pin that `_whole` took a `suffix` and that its ONE
+        caller passed none -- "keeping the parameter is reasonable;
+        keeping it UNTESTED is what this notices".
 
-        Keeping the parameter is reasonable; keeping it UNTESTED is what
-        this notices. If a second caller appears with a unit, this fails
-        and the suffix gets a test of its own.
+        On 2026-08-31 the judgement went the other way. A parameter with
+        no caller is not extensibility: it is a branch that cannot be
+        tested, two items in the coverage census that nothing can close,
+        and a reader wondering what uses it. If a second caller ever
+        appears with a unit, adding the parameter back is two lines and
+        it arrives WITH a test, which is the state this was reaching for
+        anyway.
         """
         source = inspect.getsource(P)
-        helper = source[source.index("def _whole(name, value, suffix=\"\"):"):]
-        helper = helper[:helper.index("return box") + len("return box")]
-        assert "if suffix:" in helper
-        assert "box.setSuffix(suffix)" in helper
+        assert "def _whole(name, value, suffix" not in source
+        assert "box.setSuffix(" not in source
 
         calls = [line for line in source.splitlines()
                  if "_whole(" in line and "def _whole" not in line]
