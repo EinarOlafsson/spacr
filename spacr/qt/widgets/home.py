@@ -1311,6 +1311,13 @@ class HomePage(QWidget):
         that second call for why the old "stay opaque on failure" rule was
         the black-slab bug rather than a safety net.
         """
+        if self._ambient is not None:
+            # A RETRY THAT IS NO LONGER NEEDED. The handler below comes
+            # back on a timer while the backdrop is waiting for a heavy
+            # import, and Home is also rebuilt on a theme change -- so two
+            # installs can be in flight, and the second would leave the
+            # first parented, ticking and invisible behind it.
+            return
         widget = None
         try:
             from ..preferences import (get_ambient_enabled,
@@ -1318,7 +1325,20 @@ class HomePage(QWidget):
                                        get_ambient_theme)
             if not get_ambient_enabled():
                 return
-            from .ambient import install_ambient
+            from .ambient import (install_ambient,
+                                  the_heavy_import_lock_is_free)
+            # NOT WHILE A HEAVY IMPORT IS RUNNING. Home is built at
+            # startup, which is exactly when the pipeline preloader is
+            # importing torch under the lock the spaceout backdrop's GL
+            # context needs. Trying anyway costs the bounded wait on the
+            # GUI thread and then fails; asking first costs a
+            # non-blocking acquire. The screen is what matters and the
+            # backdrop is decoration, so the decoration is what waits.
+            if not the_heavy_import_lock_is_free():
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
+                return
             widget = install_ambient(
                 self, None,
                 theme=get_ambient_theme(),
@@ -1326,9 +1346,26 @@ class HomePage(QWidget):
                 backdrop=self._ambient_backdrop())
             self._clear_page_surfaces()
             self._ambient = widget
-        except Exception:
+        except Exception as error:
             self._ambient = None
             self._discard_ambient(widget)
+            # The peek above is a check, not a reservation: the preloader
+            # re-takes the lock between two imports, so a refusal can
+            # still arrive here. It means "not yet", and Home has no
+            # second chance of its own -- it is built once and rebuilt
+            # only on a theme change -- so without this a spaceout launch
+            # would lose Home's backdrop for the session.
+            # DEFENSIVELY: a missing ambient module is one of the things
+            # this handler exists to absorb, so it cannot be the thing
+            # asked to classify the failure without a guard of its own.
+            try:
+                from .ambient import the_backdrop_wants_a_retry
+            except Exception:                                # noqa: BLE001
+                return
+            if the_backdrop_wants_a_retry(error):
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
 
     @staticmethod
     def _ambient_backdrop():
