@@ -347,3 +347,96 @@ TWO THINGS ABOUT THIS NUMBER, so it is not read as more than it is:
 a model, a data loader and a real epoch: an integration test, not a unit
 one, and it is the one block on this list that will not yield to the
 method the other fourteen will.
+
+
+WHAT THE REMAINING 355 ACTUALLY ARE
+====================================
+
+The item count stopped being a useful measure of this item some time
+ago, and today's work is the evidence. Six test files were added and the
+count will barely move, because what they cover is unreachable code that
+can be PINNED and never EXECUTED.
+
+TWO MEASUREMENTS, one census and one sample.
+
+THE CENSUS -- every gap site's enclosing function, against the test
+corpus. Parse each module, find the function or class containing each
+missing line and branch, and ask whether any test file names it:
+
+    gap sites whose enclosing scope no test names ....  14  (before)
+                                                        0  (now)
+
+All fourteen were closed today. Twelve were module-level blocks -- three
+TYPE_CHECKING guards, two QSS registrations, schema's role-validation
+loop, settings' organelle-slot loop. Two were real holes:
+
+  * `single_find_sequence_in_chunk_reads`, the SINGLE-END half of
+    `process_chunk`, entered by no test. Sixteen tests now drive it,
+    including the orientation hint in all four states. It is the branch
+    where read quality never influences a base call, so a mistake there
+    is silent.
+  * settings.py's per-slot category loop, whose guard is silent in the
+    direction that matters: an undeclared slot key does not raise, it
+    just never appears in the dialog.
+
+So the sweep has now REACHED every function that has a gap. What is left
+is not unvisited code.
+
+THE SAMPLE -- 39 sites read by hand, across utils (7), schema (3),
+sequencing (9), qt/preferences (5), settings (1), plot (8) and the three
+TYPE_CHECKING blocks (6). EVERY ONE was unreachable by construction, and
+every one already had a pin or got one today:
+
+    filter-then-recheck    utils 6677: the list comprehension above
+                           already applied the same regex
+    unique-then-compare    utils 9513/9532: np.unique cannot return a
+                           duplicate, so the != can never be false
+    pad-then-measure       sequencing 445/470/530: the padding three
+                           lines up brings every window to exactly
+                           expected_end
+    abspath-then-test      ml 5572, ml 11076: dirname(abspath(x)) is
+                           never empty
+    resolve-then-default   plot 1723: the caller resolved the default
+                           before calling the helper that re-resolves it
+    validate-then-revalidate  plot 7306, sequencing 589/591/593
+    removed feature        qt/preferences 1493/1506: the space theme is
+                           gone, both routes to those arms are shut
+                           (instruction 310 entry 37)
+    typing only            three TYPE_CHECKING blocks
+    declared invariant     schema 285, settings 5579
+
+A further 26 sites carry an explicit `# pragma: no cover` with a written
+reason, which `.coveragerc` deliberately does not honour -- the markers
+are inert here, so nothing is hidden from the denominator, and they show
+up in this count precisely so they cannot be forgotten.
+
+WHAT THIS MEANS FOR THE ITEM 288 CONTRACT. The maintainer's own
+definition is the one to judge against: "100% doesn't mean 100%, it
+means whatever can and should have tests does have tests." On the
+evidence above, the remaining 355 items are overwhelmingly lines no
+input can reach, in functions the suite does exercise, and the useful
+work on them is a pin that fails when the premise moves -- not a driven
+test, which cannot exist.
+
+BE HONEST ABOUT THE LIMIT OF THIS: 39 of roughly 300 distinct sites were
+read individually. That is a sample, not a census, and it was not drawn
+at random -- it is the largest modules and the sites this session
+touched. It is enough to say the pattern dominates; it is NOT enough to
+say there is no drivable arc left anywhere. The census above is the
+stronger statement, and it only says every gapped function is reached by
+something.
+
+THE REMAINING WORK, stated so it can be finished rather than measured
+forever:
+
+  1. finish the hand audit -- roughly 260 sites, at the rate above about
+     two sessions -- classifying each as unreachable-with-a-pin or
+     drivable-and-untested, and writing the test either way;
+  2. `deep_spacr`'s 6, which need a model, a data loader and a real
+     epoch. An integration test, and the one block that will not yield
+     to the method the rest do.
+
+The census script is worth keeping: parse each module, map every missing
+line and branch to its enclosing scope, grep the test corpus for that
+name. It is what turned "355 items" into "14 places nobody had looked",
+which is a list one can act on.
