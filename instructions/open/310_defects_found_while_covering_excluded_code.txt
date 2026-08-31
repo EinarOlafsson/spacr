@@ -2170,3 +2170,57 @@ symbol only the new one has.
 The workaround, if 30 stays open: run the old builder in a SUBPROCESS
 whose `sys.path` cannot see the editable install at all, rather than
 trying to shadow it from inside a live interpreter.
+
+
+37. THE COMPOSITE THEME TOKEN STILL HANDLES A THEME THAT WAS REMOVED
+--------------------------------------------------------------------
+
+Found by trying to drive five uncovered items in `spacr/qt/preferences.py`
+and discovering there is no input that reaches them.
+
+`get_theme_choice` and `set_theme_choice` collapse the theme and its
+image variant into one token for the Theme combo box. Both carry a
+`space:` arm:
+
+    preferences.py:1493   if theme == "space":
+    preferences.py:1494       return f"space:{get_space_variant()}"
+
+    preferences.py:1506   if choice.startswith("space:"):
+    preferences.py:1507       set_space_variant(choice.split(":", 1)[1])
+    preferences.py:1508       set_theme("space")
+
+BOTH ARE DEAD, and by two independent routes:
+
+  * `theme_choices()` says so itself -- "Space is gone; its variants are
+    no longer offered" -- so no `space:` token exists. `set_theme_choice`
+    refuses anything not in that set three lines above, so its arm cannot
+    be entered. If it somehow were, `set_theme("space")` on line 1508
+    would raise, because VALID_THEMES is ('dark','light','cell','glass',
+    'system').
+  * `get_theme()` returns `raw if raw in VALID_THEMES else DEFAULT_THEME`,
+    so it cannot answer "space" -- not even from a settings file written
+    before the removal, which is the one case an arm like this exists for.
+    That case is DRIVEN in the test: writing "space" straight into the
+    store, past `set_theme`'s validation, reads back as the default.
+
+NOT the same as the space WALLPAPER machinery, which is live:
+`get_space_variant`, `space_variants` and `SPACE_PHOTO_VARIANTS` are
+still used by the background-path helper at preferences.py:1587, which
+`spaceout` needs. Only the two THEME-TOKEN arms are orphaned. Anyone
+acting on this should not follow the symbol names outward.
+
+NOT FIXED. Deleting five lines is the obvious repair and this package's
+own convention (`tests/test_a_guard_no_input_could_reach_is_gone.py`),
+but the standing rule is that nothing is deleted until the maintainer
+says so. Pinned instead, with the pins written so they FAIL if either
+route reopens -- if "space" returns to VALID_THEMES, or if `get_theme`
+stops filtering what it reads, or if `theme_choices` offers a space
+token again. See tests/qt/test_cov_r9_preferences_space_theme.py, which
+also covers the live `cell:` and plain arms and adds a round-trip over
+every offered token, since the two functions are far enough apart in the
+file that one can grow a case the other does not.
+
+WORTH NOTING for the sweep generally: five items that looked drivable
+were not, and the way to find that out was to try to drive them and read
+why the assertion failed. A "reachable-looking" branch is not evidence
+that it is reachable.
