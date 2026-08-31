@@ -447,8 +447,10 @@ driven test or a pin, by module:
     app_screen / montage / annotate / crops   14   all unreachable
     round-8 families VERIFIED still pinned    40   all unreachable
     methods_export digest_numbers             2   the one they had missed
+    pragma families VERIFIED still pinned    22   all unreachable
+    five defensive families, only commented  15   all unreachable
                                             ---
-                                            225
+                                            262
 
 Plus the 26 sites carrying an explicit pragma with a written reason.
 
@@ -457,7 +459,7 @@ NEW HOLES were found along the way and are the reason the audit is worth
 doing at all -- process_chunk's single-end half and settings' per-slot
 category loop, both reached by no test.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 225 of roughly 300 distinct sites were
+BE HONEST ABOUT THE LIMIT OF THIS: 262 of roughly 300 distinct sites were
 read individually. That is a sample, not a census, and it was not drawn
 at random -- it is the largest modules and the sites this session
 touched. It is enough to say the pattern dominates; it is NOT enough to
@@ -468,7 +470,7 @@ something.
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- 98 sites remain. The exact list is
+  1. finish the hand audit -- 60 sites remain. The exact list is
      reproducible with the census script below; there is no need to
      re-derive which are done.
 
