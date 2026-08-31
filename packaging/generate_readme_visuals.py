@@ -75,18 +75,31 @@ README_LOGO_MARK = 340
 # moves the last tile onto a new line.
 PIPELINE_DISPLAY_PERCENT = 14.5
 ARROW_DISPLAY_PERCENT = 2.5
-# Five secondary-module canvases span the same 99.5% width as the core row.
-# The visible buttons stay smaller: their transparent gutters are distributed
-# from left to right so full rows meet both core-row edges with one constant
-# gap, while incomplete rows remain anchored to the left edge.
-APP_COLUMNS = 5
-APP_DISPLAY_PERCENT = (
-    6 * PIPELINE_DISPLAY_PERCENT
-    + 5 * ARROW_DISPLAY_PERCENT
-) / APP_COLUMNS
+# SIX canvases span the same 99.5% width as the core row, so the largest
+# section fits on one line: Home's bands are 6, 6, 5 and 4 since the
+# 2026-08-31 restructure, and a band that wraps reads as two groups.
+APP_COLUMNS = 6
+# Rounded DOWN to three places. The exact quotient is 16.5833...%, and
+# emitting that repeating tail into every one of ~150 image directives
+# across ten READMEs is noise; rounding up could total more than 100% and
+# wrap the last tile, which is the one thing this width exists to prevent.
+APP_DISPLAY_PERCENT = round(
+    (6 * PIPELINE_DISPLAY_PERCENT + 5 * ARROW_DISPLAY_PERCENT)
+    / APP_COLUMNS - 0.0005, 3)
 APP_TILE_PADDING = 16
 APP_TILE_SIZE = BUTTON_SIZE - 2 * APP_TILE_PADDING
-APP_COLUMN_STEP = (BUTTON_SIZE - APP_TILE_SIZE) // (APP_COLUMNS - 1)
+# EVERY TILE DRAWN AT THE SAME OFFSET IN ITS CANVAS -- asked for as "make
+# all buttons the same size and aligned to the left".
+#
+# This used to distribute each tile's transparent gutter across the row,
+# left to right, so a FULL row met both edges of the core row above it
+# with one constant gap. The cost was that a button's position depended
+# on which column it landed in, so the same module moved within its
+# canvas when the row above it changed length -- and with bands of 6, 6,
+# 5 and 4, three of the four rows are short. A constant offset draws
+# every button identically and anchors every row, full or not, to the
+# left edge.
+APP_COLUMN_STEP = 0
 PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
 ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
 APP_DISPLAY_WIDTH = f"{APP_DISPLAY_PERCENT}%"
@@ -531,7 +544,10 @@ def _readme_workflow(
                 f"   :width: {APP_DISPLAY_WIDTH}",
                 f"   :alt: {alt_template.format(module=label)}",
                 f"   :target: {urls[key]}",
-                "   :align: middle",
+                # LEFT, not middle. A short row -- and three of the four
+                # bands are short -- would otherwise float away from the
+                # left edge that the core strip above it starts at.
+                "   :align: left",
             ])
     return "\n".join([*lines, *definitions]).rstrip()
 
