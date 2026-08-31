@@ -71,7 +71,22 @@ DELIBERATELY_UNTRANSLATED = {
     "Figures": {"fr"},
     # The cognate is spelled identically in these three languages.
     "Animation": {"de", "fr", "sv"},
+    # The two performance levels that name a MACHINE rather than describe
+    # one. German borrows both words unchanged -- "Laptop" is the ordinary
+    # German noun, and "Workstation" is what the hardware is called in
+    # German technical writing; "Arbeitsstation" would read as a generic
+    # work area rather than the class of computer meant here.
+    "Laptop": {"de"},
+    "Workstation": {"de"},
     "Live": {"de", "sv"},
+    # The QC module's name, after "QC Dashboard" was shortened to "QC" on
+    # 2026-08-31. ALL NINE, because "QC" is declared identity text in
+    # `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`, beside PNG and RGB
+    # -- an identifier rather than a word, required to stay
+    # byte-identical in every language. A first attempt translated the
+    # Chinese and Icelandic entries and was caught by
+    # test_standalone_technical_identity_values_remain_exact_in_every_language.
+    "QC": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
     "Module": {"fr"},
     "Navigation": {"de", "fr"},
     # The four organelle channels, numbered. "Organelle" is the German word.

@@ -55,11 +55,10 @@ APP_DESCRIPTION = _ROW.desc
 APP_INTRO = _ROW.intro
 APP_CLI_NOTE = _ROW.cli_note
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
-APP_TRANSLATIONS: Tuple[str, ...] = (
-    "QC-panel", "QC-Übersicht", "Panel de control de QC", "质控面板",
-    "Painel de QC", "QC डैशबोर्ड", "QC 대시보드", "Gæðayfirlit",
-    "Tableau de bord QC",
-)
+#: All nine identical: "QC" is declared technical identity text (see
+#: `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`, beside PNG and RGB),
+#: so it must stay byte-identical in every language.
+APP_TRANSLATIONS: Tuple[str, ...] = ("QC",) * 9
 
 LOG = logging.getLogger(__name__)
 
