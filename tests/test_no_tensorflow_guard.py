@@ -127,6 +127,16 @@ def test_the_guard_leaves_the_imported_modules_as_it_found_them():
     assert spacr.io.TimelapseKeyMismatch is TimelapseKeyMismatch
 
 
+def test_importing_timelapse_does_not_eagerly_load_trackpy():
+    """The optional tracking backend belongs at the tracking boundary."""
+    result = _run_in_fresh_interpreter(
+        "import sys\nimport spacr.timelapse\n"
+        "print('LOADED' if 'trackpy' in sys.modules else 'CLEAN')\n")
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "CLEAN"
+
+
 def test_qt_app_imports_without_tensorflow(_block_tf):
     with _reimported("spacr.qt.app"):
         try:
