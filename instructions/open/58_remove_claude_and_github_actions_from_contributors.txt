@@ -457,3 +457,43 @@ After the push, GitHub recomputes contributors lazily -- the listing can
 take a few minutes to drop Claude, and a clone made before the push will
 need `git fetch --all && git reset --hard origin/nightly` rather than a
 plain pull, because 203 commits were replaced.
+
+
+2026-08-31, LATER -- THE PUSH LANDED; THE REMOTE IS CLEAN
+----------------------------------------------------------
+
+The note above says "only the push is left". It is no longer true, and
+the correction is worth more than the tidy: the rewritten history reached
+`origin/nightly` while this session was working elsewhere, and later
+commits from the concurrent i18n lane are already stacked on top of it.
+
+Verified against the remote after a fetch, not against a local ref:
+
+    origin/nightly                            a94c4cd25
+    descends from the rewrite a701ba524       yes
+    anchored `Co-Authored-By: Claude` lines    0
+    author or committer rows naming Claude     0
+
+So both halves of the trailer problem are now closed on the public
+branch: 30 trailers gone, and the author/committer rows were never
+affected. The Pulse "top committers" split that reopened this item --
+graph clean, Pulse showing Claude -- had exactly one cause, and that
+cause is gone from the ref Pulse reads.
+
+WHAT REMAINS, and none of it is a commit:
+
+  * GitHub's own contributors sidebar/homepage cache, which is
+    server-owned. Support ticket #4711257 asks for a rebuild and for the
+    immutable pull refs to be reindexed or excluded. Nothing in this
+    repository can force it.
+  * github-actions[bot] in that same widget. No owner-writable author or
+    committer identity maps to it, so the ticket is the only lever.
+
+CLOSE THIS ITEM when the public homepage widget itself reports two
+contributors -- not when the REST endpoint does, which it already did
+before the last rewrite and which is what made this item look finished
+twice.
+
+The commit-msg guard stays. It is what stops a third round: the 30
+trailers this rewrite removed were themselves reintroduced after the
+first complete rewrite, by a lane that had no guard.
