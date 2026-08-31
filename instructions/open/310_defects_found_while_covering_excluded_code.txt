@@ -1968,6 +1968,11 @@ Left alone deliberately. Whoever owns the preview should pick; pinning
 the current behaviour in a test would only make the wrong sentence
 harder to remove.
 
+FIXED 2026-08-30. The tooltip now reports only the z-plane projection that
+this surface can prove. It no longer treats ``ImageSet.key[2]`` (the field
+identifier) as time metadata, and the production-path test proves that both
+empty and populated field IDs leave time-axis claims out of the tooltip.
+
 CONTRAST WITH THE custom_model DEFECT FIXED IN 387b47b5
 
 That one was also found by reading rather than by a failing test, and it

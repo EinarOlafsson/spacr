@@ -474,8 +474,8 @@ def _stack_set(well: str, fieldid: str, first: str) -> ImageSet:
                     planes={"01": [first, f"{first}_b"]})
 
 
-def test_a_stack_with_no_field_axis_says_nothing_about_time(panel):
-    """The time sentence is added only when the sets report a third key part.
+def test_a_stack_never_infers_time_from_its_field_identifier(panel):
+    """The third ImageSet key part is a field ID, not a time signal.
 
     The sets are handed to the sampler through its public ``adopt`` — the
     same door the background loader uses — because the question is about
@@ -498,11 +498,10 @@ def test_a_stack_with_no_field_axis_says_nothing_about_time(panel):
                           _stack_set("A02", "001", "c.tif")], ["01"])
     panel._max_sets_box.setValue(2)
 
-    talkative = panel._mip_toggle.toolTip()
-    assert "2 z-planes" in talkative
-    assert "time axis is" in talkative, (
-        "with the third key part present the tooltip must say the time axis "
-        "is left alone")
+    field_named = panel._mip_toggle.toolTip()
+    assert "2 z-planes" in field_named
+    assert "time axis" not in field_named, (
+        "a populated field identifier must not be presented as time metadata")
 
 
 # ---------------------------------------------------------------------------
