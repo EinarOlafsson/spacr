@@ -131,45 +131,40 @@ MAIN_PIPELINE = (
     ("map_barcodes", "Map Barcodes"),
     ("regression", "Regression"),
 )
-SECTION_ORDER = (
-    "Core",
-    "Data",
-    "Results & QC",
-    "Explore",
-    "Assays",
-    "Design",
-)
+def _home_layout() -> "tuple[tuple[str, ...], dict[str, tuple[str, ...]]]":
+    """``(sections, {section: keys})`` for the tiles Home draws, from Home.
 
-# The Qt registry is populated by modules that register themselves during
-# import.  Its membership is stable, but the order of those late registrations
-# depends on which screen a process imported first.  README assets must be
-# byte-for-byte reproducible in a clean generator process, a Sphinx process,
-# and a pytest worker, so the documented Home order is explicit here.  The
-# registry still supplies each current label, section, and API destination;
-# _grouped_apps rejects missing, additional, or refiled applications.
-APP_ORDER = {
-    # Core is MAIN_PIPELINE. Folded tools are reached from their host's
-    # masthead, so they do not get a second Home tile here.
-    "Core": (),
-    "Data": (
-        "align", "convert", "foreign", "external_masks", "queue", "batch",
-        "distributed_jobs", "db_browser", "make_masks", "data_manager",
-        "project_browser",
-    ),
-    "Results & QC": (
-        "plate_view", "umap", "train_compare", "run_history", "report",
-        "run_compare", "investigate_hit", "control_chart",
-    ),
-    "Explore": (
-        "pipeline_graph", "profiler", "qc_dashboard", "lineage",
-        "layer_viewer", "graph_builder", "tabulate", "feature_dict",
-        "trellis", "gate_editor", "feature_explorer", "outliers",
-    ),
-    "Assays": (
-        "analyze_plaques", "recruitment", "invasion", "replication",
-    ),
-    "Design": ("experiment_design", "power", "dose_response"),
-}
+    READ, NOT RESTATED. This file used to carry its own copy of both --
+    a SECTION_ORDER tuple and an APP_ORDER table naming every key by
+    hand -- with a comment explaining that the order had to be explicit
+    because late self-registration made registry order depend on import
+    order. That reasoning was sound and the copy was still wrong within a
+    day of Home changing: the README kept advertising seven sections and
+    thirty-eight tiles after Home became four and twenty-one, and every
+    module folded onto a host masthead was still offered as a place to
+    start.
+
+    ``SECTION_TILE_ORDER`` solves the problem the copy existed for. It is
+    a literal table in ``spacr.qt.app``, so it is as reproducible across
+    processes as a literal here -- and it is the one the GUI itself draws
+    from, so the two cannot disagree.
+
+    The Core pipeline keys are dropped: they are drawn as the workflow
+    strip above the grid, and a second tile for each would say the same
+    thing twice.
+    """
+    from spacr.qt.app import SECTION_ORDER, SECTION_TILE_ORDER
+
+    pipeline = {key for key, _label in MAIN_PIPELINE}
+    grouped = {
+        section: tuple(key for key in SECTION_TILE_ORDER.get(section, ())
+                       if key not in pipeline)
+        for section in SECTION_ORDER
+    }
+    # A section whose every member is in the pipeline draws no grid row,
+    # and an empty heading is worse than no heading.
+    sections = tuple(s for s in SECTION_ORDER if grouped[s])
+    return sections, grouped
 
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
@@ -394,6 +389,12 @@ def _inline_image_row(names: list[str]) -> str:
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
+    """Every REGISTERED app, folded ones included.
+
+    Used where the question is "does this module exist" -- the API
+    destination table, for one, because a folded module still has an API
+    page and a button that opens it.
+    """
     from spacr.qt import register_self_registering_modules
     from spacr.qt.app import APPS
 
@@ -402,6 +403,21 @@ def _registry() -> list[tuple[str, str, str, str]]:
     # not the smaller import-time snapshot of the registry.
     register_self_registering_modules()
     return list(APPS)
+
+
+def _tiled_registry() -> list[tuple[str, str, str, str]]:
+    """Only the rows that draw a TILE on Home.
+
+    The distinction that instruction 318 introduced and this file missed:
+    a module folded onto a host's masthead keeps its registry row, its
+    screen and its API page, and loses only its tile. The README grid
+    advertises places to START, so it draws these; the API documents what
+    EXISTS, so it keeps all of them.
+    """
+    from spacr.qt.app import tiled_apps
+
+    _registry()
+    return list(tiled_apps())
 
 
 def _api_urls() -> dict[str, str]:
@@ -416,11 +432,12 @@ def _api_urls() -> dict[str, str]:
 
 
 def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
-    apps = _registry()
+    apps = _tiled_registry()
+    section_order, app_order = _home_layout()
     pipeline_keys = {key for key, _label in MAIN_PIPELINE}
     by_key = {key: (label, section) for key, label, _desc, section in apps}
     expected = {
-        key for keys in APP_ORDER.values() for key in keys
+        key for keys in app_order.values() for key in keys
     }
     actual = set(by_key) - pipeline_keys
     if actual != expected:
@@ -432,7 +449,7 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
         )
 
     expected_order = tuple(
-        key for section in SECTION_ORDER for key in APP_ORDER[section]
+        key for section in section_order for key in app_order[section]
     )
     actual_order = tuple(
         key for key, _label, _desc, _section in apps
@@ -445,8 +462,8 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
         )
 
     grouped = {}
-    for section in SECTION_ORDER:
-        keys = APP_ORDER[section]
+    for section in section_order:
+        keys = app_order[section]
         refiled = [key for key in keys if by_key[key][1] != section]
         if refiled:
             raise ValueError(
@@ -496,7 +513,7 @@ def _readme_workflow(
     ])
 
     definitions: list[str] = []
-    for section in SECTION_ORDER:
+    for section in _home_layout()[0]:
         items = grouped[section]
         if not items:
             continue
@@ -553,7 +570,7 @@ def _documentation_workflow() -> str:
         "",
     ])
     lines.extend(["Other applications", "~~~~~~~~~~~~~~~~~~", ""])
-    for section in SECTION_ORDER:
+    for section in _home_layout()[0]:
         items = grouped[section]
         if not items:
             continue
@@ -699,8 +716,11 @@ def main() -> int:
     doc_app_dir = DOC_WORKFLOW_DIR / "apps"
     doc_app_dir.mkdir(parents=True, exist_ok=True)
     pipeline_keys = {item[0] for item in MAIN_PIPELINE}
+    # TILED rows. Rendering a tile image for a folded module would write a
+    # PNG nothing references, and `_app_column` refuses the key outright --
+    # which is how this was caught rather than shipped as dead artwork.
     app_rows = [
-        row for row in _registry() if row[0] not in pipeline_keys
+        row for row in _tiled_registry() if row[0] not in pipeline_keys
     ]
     for key, label, _description, _section in app_rows:
         image = render_app_tile(key, label)
