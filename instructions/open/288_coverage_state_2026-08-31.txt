@@ -682,3 +682,68 @@ TWO TRAPS FOUND WHILE DOING IT, both of which look exactly like "nothing ran":
   import. It failed with DID NOT RAISE rather than passing vacuously, which is
   luck rather than method -- the assertion happened to be positive. The same
   test written to assert an absence would have passed.
+
+
+THE NON-Qt HALF, HANDED OVER 2026-08-31 EVENING
+================================================
+
+Assigned: ml.py, io.py, plot.py, timelapse.py, sequencing.py -- 100 of the 355
+open items, and disjoint from 319's file list (which excludes ml.py and core.py
+and names none of the other four).
+
+NOT STARTED. What is known, so the next session does not re-derive it:
+
+THE GPU IS VERY NEARLY IRRELEVANT HERE, measured rather than assumed:
+
+    io.py, timelapse.py, sequencing.py     0 GPU-touching lines
+    plot.py                                2
+    ml.py                                  10 mentions, of which ONE is a
+                                           real call: torch.cuda.empty_cache()
+                                           at ml.py:828, inside an OOM handler
+
+So ~98 of the 100 items need no GPU, and the one real call is driven by
+SIMULATING an OOM rather than by owning a card. `mixed_gpu.py` is on 319's
+not-touching list and is not part of this anyway.
+
+AND THE RUN MUST STAY CPU-ONLY. `batched_coverage*.sh` exports
+CUDA_VISIBLE_DEVICES="" and that is correct, not a limitation: a coverage
+figure that depends on whether the measuring machine had a GPU is a figure
+that differs per machine, which is the same trap this file already records for
+the umap verdict and the same one that made two sessions report contradictory
+package facts today.
+
+LEAVE THE FEW cuda-GATED BRANCHES UNTIL 319 LANDS. A test written against
+`torch.cuda.is_available()` is a test of an API 319 is replacing with a
+resolver. It is at most a couple of items; the other ~98 are unaffected.
+
+THE MEASUREMENT HAS NOT COMPLETED, TWICE, and both failures are worth knowing:
+
+  1. The first run used the recorded `batched_coverage.sh`, which needs
+     pytest-cov and pytest-timeout. NO conda env on this host has either, so
+     pytest answered exit 4 per batch in about a second, the script printed
+     "No data to combine" and "DONE", and the wrapper's exit status was
+     `tail`'s -- zero. Forty-two batches, zero data, exit 0. See the tooling
+     section above; `batched_coverage_nocovplugin.sh` was written for this.
+  2. The second run measured correctly and then DIED after 10 of 42 batches,
+     with nothing in its log to say why. A later restart reached 12 of 21
+     (BATCH=120) before being stopped deliberately to free the machine for an
+     AlphaFold run.
+
+     PARTIAL DATA IS NOT A LOWER BOUND YOU CAN QUOTE. This file already
+     records that a per-module figure from a subset of tests is a lower bound
+     rather than a number; a truncated batched run is the same thing with a
+     less obvious cause. Re-run from scratch rather than combining what is in
+     the scratch directories.
+
+WHEN RE-RUNNING: `coverage combine` BEFORE reporting. `.coveragerc` sets
+parallel = True, so `coverage run` writes `.coverage.<host>.<pid>.<rand>` and
+NOT the file COVERAGE_FILE names. Reporting without combining first gives a
+JSON in which every file shows zero executed lines -- indistinguishable from a
+run that traced nothing, and it cost an hour here before it was recognised.
+
+THE IMPORT-GUARD COUNT IS STILL OPEN, and it is the one number that decides
+whether this file's "cannot fall without deleting code" claim has to be
+struck. The population is 55 arms explicitly catching ImportError across 33
+modules, 12 of them in these five (ml 5, timelapse 5, io 1, plot 1,
+sequencing 0). How many are among the 355 needs the completed measurement. 55
+is the upper bound on the correction.
