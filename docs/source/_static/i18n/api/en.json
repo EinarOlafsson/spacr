@@ -31105,10 +31105,11 @@
     },
     "spacr.qt.app.MainWindow.resizeEvent": {
       "source_blocks_sha256": [
-        "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf"
+        "731330843118e819f6b2be7bd4d74d77aefbac5f0ee3d9c30baca760ce2f5dbc",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ],
-      "source_sha256": "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf",
-      "text": "Keep the loading screen covering the whole window while it is up."
+      "source_sha256": "eda8414d6d1aea0f8ea897c98d3fac2f111dad456436536e97b16c9040bfd6dc",
+      "text": "Keep the loading screen covering the whole window, and erase the\nmenu bar's old band.\n\nEVERY RESIZE, not only a state change. Dragging an edge moves the\ncorner buttons without changing the window state, so `changeEvent`\nnever fires -- and the marks are redrawn at their new x over the\nold ones. That is the \"sometimes\" in the report: it is not\nintermittent, it is every resize that is not a fullscreen toggle."
     },
     "spacr.qt.app.MainWindow.resume_after_restart": {
       "source_blocks_sha256": [

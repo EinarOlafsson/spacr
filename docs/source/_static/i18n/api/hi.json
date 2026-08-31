@@ -50376,12 +50376,14 @@
     },
     "spacr.qt.app.MainWindow.resizeEvent": {
       "source_blocks_sha256": [
-        "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf"
+        "731330843118e819f6b2be7bd4d74d77aefbac5f0ee3d9c30baca760ce2f5dbc",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ],
-      "source_sha256": "4600a42d36c962aedac31490d2f79e7a4d58c759d933a9a3abf4684f8e5b9ecf",
-      "text": "लोड एप्लिकेशन दृश्य को पूरे खिड़की को कवर करते हुए रखें जब तक कि यह ऊपर है।",
+      "source_sha256": "eda8414d6d1aea0f8ea897c98d3fac2f111dad456436536e97b16c9040bfd6dc",
+      "text": "पूरे खिड़की को कवर करने वाले लोड एप्लिकेशन दृश्य को बनाए रखें, और मेनू बार के पुराने बैंड को हटा दें।\n\nहर बार पुनरावृत्ति, न केवल एक स्थिति परिवर्तन. एक किनारे को खींचकर, खिड़की की स्थिति को बदलने के बिना कोने के बटनों को स्थानांतरित किया जाता है, इसलिए `changeEvent` कभी नहीं जलाता है - और चिह्न पुराने पर अपने नए x पर लाल हो जाते हैं. यह रिपोर्ट में \"sometimes\" है: यह रुकावट नहीं है, यह हर पुनरुत्थान है जो एक पूर्ण स्क्रीन टोगल नहीं है.",
       "translation_source_blocks_sha256": [
-        "31829ba1bece1029b6bda827031e8afc7931c0125638cdf7bae847d11cf24575"
+        "d67b1d0416f9eb8b4f400c3a6a12292544080d205bf39064e74bbf19f07cf16b",
+        "cf1faf1be6b080fb4f5c78ff11ff7747b8a322d91c06880357760b5a9a4b17f5"
       ]
     },
     "spacr.qt.app.MainWindow.resume_after_restart": {

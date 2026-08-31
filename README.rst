@@ -628,16 +628,12 @@ Licensing
 ~~~~~~~~~
 
 spaCR is open source under the `BSD 3-Clause License
-<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ — the same
-licence as CellProfiler, napari, Cellpose, scikit-image and the rest of the
-scientific Python stack. Use it for anything, including commercially; keep
-the copyright notice and the disclaimer with any copy you distribute, and do
-not use the authors' names to endorse a derived product without asking.
-
-Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm Noncommercial
-License 1.0.0, and versions through 1.4.9.9 carried the MIT License. Those
-releases remain available under the licence that accompanied them; this one
-and everything after it are BSD 3-Clause.
+<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same licence
+as CellProfiler, napari and Cellpose. Use it for any purpose, including
+commercially. Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm
+Noncommercial License 1.0.0 and versions through 1.4.9.9 carried the MIT
+License; those releases remain available under the licence that accompanied
+them.
 
 If spaCR contributed to published work, a citation is appreciated and is not
 a condition of the licence — see `Citing spaCR`_ below.
