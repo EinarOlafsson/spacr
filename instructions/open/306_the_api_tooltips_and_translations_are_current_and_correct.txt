@@ -727,3 +727,47 @@ with the semantic dispositions above recorded against it.
 
 Data: instructions/data/306_caption_identities_since_3c224e468.json (refreshed
 against 2d16e469c).
+
+
+2026-08-31, LATE -- THE CATALOGS ARE COMPLETE; CORRECTNESS SPLIT OUT
+---------------------------------------------------------------------
+
+The one string this item was short of is in. The BSD relicense added
+`tr("Open source. Free for any use, including commercial.")` to the About
+box without regenerating the catalogs, so every language read 4982/4983
+and every non-English user saw that line in English. Fixed: all nine now
+read 4983/4983 with current source hashes, and docs/i18n/COVERAGE.md is
+regenerated.
+
+A NOTE ON THE MECHANISM, because a hand-added entry is not enough on its
+own. The audit measures "the key exists AND its stored source hash is
+current", so a translation added without its SOURCE_HASHES row still
+counts as missing. That is the audit doing its job: a translation with no
+hash cannot be told from one whose English has since changed underneath
+it.
+
+THE REVIEW ITSELF, against 3c224e468 -- the revision that actually owns
+the pinned digest, which d0c1a633c never could because that revision does
+not import at all:
+
+    added    134   (32 of them the spaCRPower settings, already
+                    translated in all nine locales with current hashes)
+    removed   31   (25 retired from source entirely, checked by grep
+                    rather than assumed; 6 rewordings)
+    net      103
+
+One of the six rewordings was a real bug fix rather than a rewording:
+the drawer tooltip said Ctrl+B, which BLANKS THE BACKGROUND. Ctrl+Shift+A
+is the app list (shortcuts.py:79,93).
+
+WHAT THIS ITEM IS NOW DOWN TO: moving the ratchet, which was deliberately
+NOT moved while the catalogs were a string short -- pinning then would
+have pinned a known-incomplete state. The string is no longer short, so
+the re-capture can happen.
+
+CORRECTNESS IS NOW INSTRUCTION 316. Five semantic defects were found that
+pass every gate this item has, and three mechanical proxies for finding
+more were tried and all three are dominated by false positives. That is a
+different claim from "complete and current" and it needs a reader per
+locale, so it is filed separately rather than left to make this item
+unclosable.
