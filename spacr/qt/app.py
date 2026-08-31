@@ -2030,7 +2030,15 @@ class MainWindow(QMainWindow):
             pass
 
     def resizeEvent(self, event):
-        """Keep the loading screen covering the whole window while it is up."""
+        """Keep the loading screen covering the whole window, and erase the
+        menu bar's old band.
+
+        EVERY RESIZE, not only a state change. Dragging an edge moves the
+        corner buttons without changing the window state, so `changeEvent`
+        never fires -- and the marks are redrawn at their new x over the
+        old ones. That is the "sometimes" in the report: it is not
+        intermittent, it is every resize that is not a fullscreen toggle.
+        """
         super().resizeEvent(event)
         screen = getattr(self, "_loading_screen", None)
         if screen is not None:
@@ -2038,6 +2046,7 @@ class MainWindow(QMainWindow):
                 screen.setGeometry(self.rect())
             except RuntimeError:
                 self._loading_screen = None
+        self._relay_the_menu_bar()
 
     def _resolve_version(self) -> str:
         """Return the installed spacr version string, or ``"dev"`` on failure."""
@@ -2277,16 +2286,67 @@ class MainWindow(QMainWindow):
         menu under Help.
         """
         super().changeEvent(event)
+        if event.type() != QEvent.Type.WindowStateChange:
+            return
+        self._relay_the_menu_bar()
+        # AND AGAIN ONCE THE NEW SIZE HAS ARRIVED. `changeEvent` is
+        # delivered when the STATE changes, which is before the compositor
+        # has resized the window -- so a re-lay done only here measures the
+        # old geometry and the menu still opens against the previous action
+        # rectangle. The zero-timer runs after the resize has been
+        # delivered and the layout has settled.
         try:
-            if event.type() == QEvent.Type.WindowStateChange:
-                bar = self.menuBar()
-                corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
-                if corner is not None:
-                    corner.adjustSize()
-                bar.updateGeometry()
-                if bar.layout() is not None:
-                    bar.layout().activate()
-                bar.update()
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(0, self._relay_the_menu_bar)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not schedule the menu-bar re-lay", exc_info=True)
+
+    def _relay_the_menu_bar(self) -> None:
+        """Re-measure the menu bar and erase what it used to cover.
+
+        TWO JOBS, AND THE SECOND IS THE ONE THAT WAS MISSING.
+
+        Re-measuring puts the actions and the corner buttons where the new
+        window size says they belong, so a menu opens under the name that
+        was pressed.
+
+        Repainting the bar's band ON THE WINDOW is what removes the ghost.
+        The bar and the corner widget both have `setAutoFillBackground`
+        FALSE -- deliberately, because the menu bar is the title bar and
+        the backdrop has to show through it -- so neither erases the pixels
+        it vacates. When the bar re-lays, the marks and the menu names are
+        redrawn at their new positions over the old ones, which is exactly
+        the reported "slightly misaligned duplicate minus, square, cross"
+        and the second copy of "Help".
+
+        `bar.update()` alone cannot fix it: the bar repaints ITSELF, and
+        the stale pixels are on the window underneath. The band is taken a
+        little taller than the bar so a corner widget that grew downwards
+        is covered too.
+
+        Never raises: a window whose bar has been torn down still has to
+        finish changing state.
+        """
+        try:
+            bar = self.menuBar()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the menu bar could not be asked for", exc_info=True)
+            return
+        if bar is None:
+            return
+        try:
+            corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
+            if corner is not None:
+                corner.adjustSize()
+            bar.updateGeometry()
+            if bar.layout() is not None:
+                bar.layout().activate()
+            bar.update()
+            band = max(bar.height(), bar.sizeHint().height())
+            if corner is not None:
+                band = max(band, corner.height())
+            self.update(0, 0, self.width(), band + 2)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-lay the menu bar", exc_info=True)
 
