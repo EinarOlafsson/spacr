@@ -1472,6 +1472,10 @@ A31. spacr/seg_qc.py:1706-1707 (_flag_findings)
 A32. pytest.ini:24 -- `error::pandas.errors.SettingWithCopyWarning` in filterwarnings
     WHAT: The pandas installed in this environment changed to 3.0.5 partway through this session (numpy to 2.5.2 with it), and pandas 3 removed `pandas.errors.SettingWithCopyWarning`. pytest resolves ini warning categories during startup, so it now raises `AttributeError: module 'pandas.errors' has no attribute 'SettingWithCopyWarning'` before a single test is collected.
     COST: No test in the repository can be collected or run at all until that filter is dropped or conditioned. I worked around it per-run with `-o filterwarnings=` (no file was edited). Whoever is running the coverage campaign on this machine will see every agent's suite die at startup otherwise.
+    VERDICT 2026-08-31: STALE, twice over. The line is gone from pytest.ini --
+    only the pandas FutureWarning/DeprecationWarning filters remain (lines
+    20-21) -- and the premise no longer holds either: this env has pandas 2.3.3
+    and `pandas.errors.SettingWithCopyWarning` still exists.
 
 A33. spacr/qt/widgets/setup_slides.py:1686 (_fade_the_greeting_away) vs 1721 (_place_the_greeting)
     WHAT: `_place_the_greeting` guards its use of the greeting label with `if self._greeting:` while `_fade_the_greeting_away`, which `_show_slide` calls for every slide after the first, dereferences `self._greeting.isVisibleTo(...)` with no guard.
@@ -1480,14 +1484,22 @@ A33. spacr/qt/widgets/setup_slides.py:1686 (_fade_the_greeting_away) vs 1721 (_p
 A34. spacr/macro.py:558-561, Macro.write
     WHAT: The temporary file is opened before the script is rendered: `with open(temporary, "w") as handle: handle.write(self.source())`. If `self.source()` raises (any settings value whose `__str__`/`__repr__` raises, or any rendering failure), the exception propagates out of `write` after the temp file has already been created, and nothing removes it. Reproduced: a one-step Macro whose settings hold an object with a raising `__str__` left `macro.py.2058192.tmp` in the target folder. There is no try/finally and no cleanup anywhere else — `_write_everywhere` only logs the exception.
     COST: The stable macro folder (~/.spacr/macros, or SPACR_MACRO_DIR) silently accumulates one orphaned `<macro_id>.py.<pid>.tmp` per failed write, forever; nothing ever reaps them, and a user inspecting the folder for the script that reproduces a run sees half-written debris next to the real scripts. The same debris lands inside a run journal folder, next to manifest.json, where `spacr-repro` and the notebook exporter look.
+    VERDICT 2026-08-31: STALE -- already fixed. `rendered = self.source()` is
+    evaluated BEFORE the temporary file is opened (macro.py:563-565), so a
+    raising __str__ cannot leave a half-written temp behind.
 
 A35. spacr/sequencing_qc.py:702-706 (collision_summary), reached in production from barcode_qc at line 1652 which writes collision_summary.csv
     WHAT: reads_at_risk is computed for EVERY reference by matching that reference's barcode names against the count table's `grna` column. The docstring says only the gRNA reference reports it ("the gRNA reference also reports reads_at_risk"), and for the row and column references the names never appear in the grna column, so the division produces a hard 0.0 rather than being left unmeasured. Verified: references {'grna': {'sg0','sg1'}, 'rowID': {'r1','r2'}} with a count table where every read carries row barcode r1 yields rows grna reads_at_risk=0.667 and rowID reads_at_risk=0.0, even though r1/r2 are one substitution apart and 100% of the reads carry r1.
     COST: collision_summary.csv, which barcode_qc writes for every run, tells the user that 0% of their reads are at risk from row- and column-barcode collisions. That is the reassuring reading of a number that was never computed for those fields, so a genuinely ambiguous row or column barcode set is dismissed on the strength of a 0 the code invented. The gRNA row's number, the only one the docstring claims, is correct.
+    VERDICT 2026-08-31: STALE -- already fixed. reads_at_risk is now guarded by
+    `label == "grna"` (sequencing_qc.py:702), exactly as the docstring says.
 
 A36. spacr/plate_measurements.py:147 (TableMerge.merged_column, via _UNPREFIXED at line 87) surfacing in PlateMerge.dropped_columns (line 209) and describe() (line 266)
     WHAT: _UNPREFIXED contains OBJECT_COLUMN ('object_label') unconditionally, so merged_column() returns the bare name for a CHILD table's object_label. But roll_up only leaves the JOIN KEYS unprefixed, and object_label is not a key for a child table (keys are IDENTITY + screenID + source_database + cell_id) -- the frame really carries it as 'pathogen_object_label'. Verified: with object_label present in the pathogen table the merged frame has 'pathogen_object_label' while entry.merged_column('object_label') returns 'object_label'.
     COST: When a child table's object_label is dropped by columns='common' (present in one database, absent from another), the Measurements tab reports '1 measurement(s) present in only some databases were dropped: object_label' -- naming a column that IS in the merged frame (the anchor's own object_label) and never saying which table lost it. If two child tables both lose it, the two distinct losses collapse into a single reported name, so the user cannot tell that both the pathogen and the nucleus measurements are gone.
+    VERDICT 2026-08-31: STALE -- already fixed. The OBJECT_COLUMN exception is
+    explicit: `if name in _UNPREFIXED and name != OBJECT_COLUMN`
+    (plate_measurements.py:169).
 
 A37. spacr/qt/screens/train_compare.py:451-471 (_apply_runs)
     WHAT: _apply_runs replaces self._runs (452) and nulls self._comparison (453) BEFORE it clears the canvas (_clear_plot, 457). Any failure in between -- _fill_runs_list, _fill_problems, _clear_diff, or _clear_plot itself, which calls self._canvas.draw_idle() and can raise RuntimeError when Qt has already deleted the canvas's C++ half -- leaves the screen holding the new run list, the new metric list and the OLD curves plus the OLD figure.spacr_series_by_label mapping. Nothing marks the plot as stale; the caller only sees the error text in the status label.
@@ -1500,14 +1512,24 @@ A38. spacr/qt/screens/gate_editor.py:1343 (save_graph, `except Exception as exc:
 A39. spacr/qt/layer_viewer.py:768-771 (LayerViewer._sync_controls)
     WHAT: When the selected ImageLayer's colormap is not one of the built-in COLORMAPS (any hex/named-colour ramp, which ImageLayer accepts via `colormaps='#ff00aa'`), `self.colormap_combo.findText(...)` returns -1 and the combo is left showing whatever the PREVIOUS selection put there. Confirmed live: a stack with layer 'green' (colormap 'green') and layer 'hex' (colormap '#ff00aa') leaves the combo reading 'green' after selecting 'hex'.
     COST: The property panel silently mislabels the selected layer's colour: the user reads 'green' for a channel that is actually magenta-pink. The combo is also the control that writes the colormap back, so the next unrelated touch of that widget would push the wrong, stale colour onto the layer. Leaving the combo unchanged is the deliberate safe half of this; what is missing is any indication that the shown name does not belong to the selected layer (e.g. clearing/disabling the combo, or inserting the custom name as a transient entry).
+    VERDICT 2026-08-31: STALE -- already fixed. A colormap the combo does not
+    carry is ADDED and tracked as `_custom_colormap_name`
+    (layer_viewer.py:798-802); findText's -1 is handled rather than used.
 
 A40. spacr/qt/widgets/figure_grid_view.py:688-703 (FigureGridView.apply_workspace_state)
     WHAT: The restored `collapsed` set is assigned (line 690) and `applied` is set True, but nothing relayouts. The only relayout in the method is a side effect of the `cell_width` branch calling `set_target_cell_width` (line 699), which is skipped whenever the saved width is missing or falsy.
     COST: A workspace document that carries folds but no `cell_width` (an older document, a hand-edited one, or one written with 0) restores fold state that never reaches the screen: `apply_workspace_state` returns True and `is_section_collapsed(label, start)` answers True while every figure of that run is still visible under a heading the next relayout will draw as folded. Verified live: on a grid holding two figures of `("run one", 0, 2)`, `apply_workspace_state({"collapsed": [["run one", 0]]})` left `[cell.isHidden() for cell in grid._cells] == [False, False]`; adding `"cell_width": 260` to the same document made it `[True, True]`. The user reopens a saved run and the sections they folded away are back until something unrelated (a window resize, the next figure landing) triggers a layout pass.
+    VERDICT 2026-08-31: STALE -- already fixed. `needs_relayout` is tracked
+    explicitly through apply_workspace_state (figure_grid_view.py:694), so a
+    restored `collapsed` set no longer depends on the cell_width branch to
+    relayout.
 
 A41. spacr/qt/comparison_grid.py:429-438 (_refresh_status), reached from add_panel line 276-280
     WHAT: A panel whose stack is empty never enters self._canvas_link (add_panel's `if canvas is not None:` guard at line 276 skips the link insert). _refresh_status computes `free` as `[key for key in self._panels if key in self._canvas_link and not is_locked(key)]`, so a key that is not in the link at all is filtered out of `free` and the status line reports it as linked: a grid of one loaded and one unloaded panel says "2 panel(s) - all linked".
     COST: The status line, which is the only feedback the grid gives about which panels share the world window, positively asserts that a panel is on the shared window when it is not in the link at all. A user whose fourth channel failed to load is told all four panels are linked, then finds that panning and Fit never move that cell, with nothing in the UI explaining why. The honest wording would distinguish "not linked" from "free".
+    VERDICT 2026-08-31: STALE -- already fixed. Panels absent from _canvas_link
+    are counted as `unlinked` in their own list (comparison_grid.py:436-437)
+    rather than silently vanishing from the status line.
 
 A42. coverage harness — /mnt/firecuda2/codex/repo/spacr/.coverage (shared by every parallel wf subagent)
     WHAT: pytest-cov defaults its data file to <rootdir>/.coverage. Several of these coverage subagents run pytest in the same repo directory at the same time, so they clobber one another's SQLite data file mid-run. My first run produced a JSON claiming spacr/train_compare.py was 14% covered with `from __future__ import annotations` (line 105) unexecuted, and check_arcs.py printed MISSING for all six targets; the report step also emitted dozens of `Couldn't use data file '.../.coverage': no such table: arc` warnings. Re-running the identical command with COVERAGE_FILE pointed at a private scratch path gave 64% and REACHED for all six.
