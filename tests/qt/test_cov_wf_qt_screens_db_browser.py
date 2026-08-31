@@ -274,24 +274,43 @@ def test_an_unknown_filter_operator_never_reaches_the_sql(screen, db_path):
 
     ``set_filter`` is the programmatic seam (seeds, linked views, scripted
     demos), so its ``op`` argument is not constrained by the combo box the
-    user sees. Anything not in ``OPERATORS`` has to be dropped in favour of
-    the operator currently selected — the alternative is either a crash
-    partway through building the filter or, far worse, an arbitrary string
-    landing in generated SQL.
+    user sees.
+
+    REWRITTEN 2026-08-31. This asserted that an unknown operator FALLS
+    BACK to whichever operator happens to be selected, and returns True.
+    The screen refuses it instead, says so, and returns False -- and the
+    refusal is the better contract: a caller passing an operator spaCR
+    does not know has a bug, and quietly filtering their data with "="
+    would give them wrong numbers without a word. Refusing is a real
+    answer, and it is the one the code gives.
+
+    What the test was actually written to protect -- that the unknown
+    string never reaches generated SQL -- is asserted either way, and
+    still is.
     """
     assert screen.set_database(db_path) is True
     assert screen.select_table("cell") is True
 
-    assert screen.set_filter("cell_area", "≈", "115") is True
-    assert screen.where_clause() == '"cell_area" = ?'
-    assert "≈" not in (screen.where_clause() or "")
-    assert screen.preview_rows() == [("plate1", "A16", 115.0, 0)]
+    assert screen.set_filter("cell_area", "\u2248", "115") is False
+    assert "\u2248" in screen.status_text()
+    assert "Unknown operator" in screen.status_text()
+    assert "\u2248" not in (screen.where_clause() or "")
 
-    # The same call with an operator that *is* known, so the fallback above
-    # is visibly a fallback and not the only thing set_filter can do.
+    # The same call with an operator that *is* known, so the refusal above
+    # is visibly a refusal and not the only thing set_filter can do.
     assert screen.set_filter("cell_area", ">=", "128") is True
     assert screen.where_clause() == '"cell_area" >= ?'
     assert len(screen.preview_rows()) == 2
+
+
+def test_an_unknown_filter_column_is_refused_the_same_way(screen, db_path):
+    """The column check above it, which had no test of its own."""
+    assert screen.set_database(db_path) is True
+    assert screen.select_table("cell") is True
+
+    assert screen.set_filter("no_such_column", "=", "1") is False
+    assert "Unknown column" in screen.status_text()
+    assert "no_such_column" not in (screen.where_clause() or "")
 
 
 # ---------------------------------------------------------------------------

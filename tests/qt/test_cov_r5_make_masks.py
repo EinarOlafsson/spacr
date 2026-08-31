@@ -242,9 +242,25 @@ class TestAnEvalWhoseSignatureCannotBeRead:
         seen = {}
 
         class _Opaque:
-            # ``numpy.frombuffer`` is a C function inspect cannot describe,
-            # which is what a compiled or wrapped ``eval`` looks like.
-            eval = np.frombuffer
+            # A callable whose signature CANNOT be read, which is what a
+            # compiled or wrapped ``eval`` looks like.
+            #
+            # This used to be ``numpy.frombuffer``, on the reasoning that a
+            # C function is one inspect cannot describe. NumPy 2.5 gives it
+            # a text signature, so the premise quietly became false and the
+            # test failed on its own setup rather than on the behaviour.
+            # Picking a different builtin would only move the same problem:
+            # CPython and NumPy keep ADDING signatures, never removing them.
+            #
+            # `__signature__` set to something that is not a Signature makes
+            # `inspect.signature` raise whatever the interpreter version, so
+            # the premise cannot rot again.
+            __signature__ = "deliberately not a signature"
+
+            def __call__(self, *args, **kwargs):
+                raise AssertionError("the opaque stand-in was called")
+
+            eval = None
 
         class _Recording:
             def eval(self, batch, batch_size=8, resample=True, channels=None,
@@ -277,9 +293,12 @@ class TestAnEvalWhoseSignatureCannotBeRead:
                 return ([labels], [[None, None, None]],
                         np.zeros(4, dtype=np.float32))
 
+        import inspect
+
+        _Opaque.eval = _Opaque()
         with pytest.raises(Exception):
-            # Proves the stand-in really has no readable signature.
-            import inspect
+            # Proves the stand-in really has no readable signature. If this
+            # stops raising, everything below is testing nothing.
             inspect.signature(_Opaque.eval)
 
         model = _Recording()
