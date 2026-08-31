@@ -14,8 +14,11 @@
 # The two files that SEGFAULT under offscreen Qt are excluded by name; a
 # segfault kills the process outright, so no timeout can rescue them.
 set -uo pipefail
-WT=/mnt/firecuda2/codex/covwt
-OUT=/mnt/firecuda2/codex/covscratch/batched
+# WT and OUT are overridable, because these were absolute paths on ONE machine
+# and the script silently measured nothing anywhere else -- `cd "$WT" || exit 2`
+# is the whole diagnostic you got. Defaults keep the original behaviour.
+WT=${WT:-/mnt/firecuda2/codex/covwt}
+OUT=${OUT:-/mnt/firecuda2/codex/covscratch/batched}
 BATCH=${BATCH:-60}
 mkdir -p "$OUT"
 cd "$WT" || exit 2

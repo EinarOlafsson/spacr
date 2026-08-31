@@ -537,3 +537,53 @@ ONE kind in this audit that depends on the machine rather than on the
 code. Every other verdict here is an argument about the source and stays
 true anywhere. Re-check the dependency ones with an import before
 relying on them.
+
+
+THE RECORDED TOOLING DOES NOT RUN ON THIS HOST, AND FAILS SILENTLY (2026-08-31)
+==============================================================================
+
+`tools/coverage/batched_coverage.sh` drives coverage through pytest-cov
+(`--cov`) and bounds hangs with pytest-timeout (`--timeout`). NEITHER PLUGIN IS
+INSTALLED IN ANY conda env on this machine -- checked across spacr, spacr12,
+spacr13, spacr14 and spacr_clone_1; only pytest-xdist and coverage are present.
+
+The failure mode is the one this instruction keeps re-learning. pytest answers
+a missing plugin with exit code 4 and "unrecognized arguments", per batch, in
+about a second. The script prints `exit=4` forty-two times, then "No data to
+combine", then "DONE" -- and the wrapper's own exit status is `tail`'s, which
+is 0. A run that measured NOTHING is indistinguishable from one that finished
+unless you read the middle of the log. Forty-two batches, zero data, exit 0.
+
+Two changes:
+
+  * `batched_coverage.sh` now takes WT and OUT from the environment. They were
+    absolute paths on one machine (`/mnt/firecuda2/codex/...`), so anywhere
+    else the whole diagnostic was `cd "$WT" || exit 2`. Defaults unchanged.
+
+  * `tools/coverage/batched_coverage_nocovplugin.sh` measures the same thing
+    with only what is installed: `coverage run --parallel-mode` instead of
+    --cov, shell `timeout` instead of --timeout, and concurrent batch
+    PROCESSES instead of xdist workers. It gates on `import coverage` and
+    refuses to start rather than emit 42 identical usage errors. Verified
+    producing data (35 parallel-mode files within the first minute), which is
+    the check the original lacked.
+
+TWO MORE STALE ENVIRONMENT FACTS, corrected the way the umap one above was:
+
+  * numpy here is 2.4.6, not the 2.5.2 this file records.
+  * OPTIONAL DEPENDENCIES, measured rather than assumed:
+
+        lightgbm     MISSING      adjustText   INSTALLED
+        trackastra   MISSING      ultrack      MISSING
+
+    This matters for the audit's verdicts. `ml.py`'s lightgbm branch,
+    `timelapse.py`'s trackastra (672-674) and ultrack (913-915) branches are
+    NOT unreachable here -- they are the path a user on this machine meets on
+    any real call, because the import genuinely fails. An "unreachable because
+    the dependency is present" verdict is the mirror of the umap case and
+    depends on the machine in exactly the same way.
+
+    And the general point, which holds on ANY machine: an `except ImportError`
+    arm is always drivable, installed or not, by making the import fail. It is
+    never "unreachable by construction". Any such arm still counted among the
+    355 is a testable item rather than a pin.
