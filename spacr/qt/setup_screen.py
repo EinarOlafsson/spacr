@@ -130,19 +130,34 @@ def questions() -> List[Tuple[str, str, Callable, Callable, Any]]:
          [(value, caption) for caption, value in prefs.theme_choices()]),
         ("colour_blind", "Colour-blind mode", prefs.get_color_blind_mode,
          prefs.set_color_blind_mode, choices_of(prefs.VALID_CB_MODES)),
-        # THE SAME DEFECT AS THE LANGUAGE ONE ABOVE, left in place when that
-        # was fixed. There is no `prefs.VALID_SPACR_MODES`; the tuple is
-        # called `SPACR_MODES`, so the getattr found nothing, fell back to
-        # its one-item default, and the setup screen offered "balanced" as
-        # the only mode there is -- reported as "there is only one option
-        # for spaCR mode, ballanced, where there should be 3".
+        # THE LEVELS, NOT THE POSTURES. This offered `SPACR_MODES`, which is
+        # the OLD three-value resource posture -- Extra Performance,
+        # Performance, Balanced -- while Preferences offers the five
+        # `PERFORMANCE_LEVELS`. So Laptop and Workstation existed, were
+        # settable in Preferences, and could not be chosen on the screen
+        # whose whole job is choosing them once.
         #
-        # Named directly rather than through getattr, so a rename breaks the
-        # import instead of silently shortening the list.
-        ("spacr_mode", "spaCR mode", prefs.get_spacr_mode,
-         prefs.set_spacr_mode,
-         [(mode, prefs.MODE_LABELS.get(mode, str(mode).replace("_", " ")))
-          for mode in prefs.SPACR_MODES]),
+        # They are not interchangeable. `spacr_mode_for_level` folds five
+        # levels onto three postures (laptop -> extra_performance,
+        # workstation -> balanced), so writing through `set_spacr_mode`
+        # cannot express either end of the scale: picking Balanced here and
+        # Workstation in Preferences produced the same posture and two
+        # different answers to "what did I choose".
+        #
+        # The level is the setting a user picks; the posture is what the
+        # cleanup code reads. `set_performance_level` writes both, in that
+        # order, which is why it is the one to call.
+        #
+        # (The previous defect here was the same shape one layer down: a
+        # `getattr(prefs, "VALID_SPACR_MODES")` that found nothing and fell
+        # back to a one-item default, so the screen offered Balanced alone.
+        # Named directly ever since, so a rename breaks the import instead
+        # of silently shortening the list.)
+        ("spacr_mode", "spaCR mode", prefs.get_performance_level,
+         prefs.set_performance_level,
+         [(level, prefs.PERFORMANCE_LABELS.get(
+             level, str(level).replace("_", " ")))
+          for level in prefs.PERFORMANCE_LEVELS]),
         ("hash_inputs", "Reproducibility hash", prefs.get_hash_inputs,
          prefs.set_hash_inputs, None),
         ("issue_prompt", "One-click issue filing",
