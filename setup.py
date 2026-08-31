@@ -363,8 +363,24 @@ dependencies = [
     # floors are the first Python-3.9-through-3.12-compatible line and force
     # the resolver onto mutually constrained numba/llvmlite wheels. Newer
     # Python versions naturally select newer releases within these bounds.
-    'numba>=0.60,<1.0',
-    'llvmlite>=0.43,<1.0',
+    'numba>=0.60,<1.0; sys_platform != "darwin" or platform_machine != "x86_64"',
+    'llvmlite>=0.43,<1.0; sys_platform != "darwin" or platform_machine != "x86_64"',
+    # INTEL MAC HAS A CEILING, and it is a fact about wheels rather than
+    # about spaCR: llvmlite 0.46+ publishes no macOS x86_64 wheel, and
+    # numba 0.63+ requires that unavailable line. Without the ceiling pip
+    # selects the newest of each, finds no wheel, falls back to a source
+    # build and stops on a missing `cmake` -- reported from a clean
+    # `pip install -e .` on an iMac, where the packaged installer had
+    # succeeded minutes earlier on the same machine.
+    #
+    # THE INSTALLER ALREADY KNEW THIS. `install_spacr_unix.sh` applies the
+    # identical pair as an architecture-specific resolver guard. Declaring
+    # it only there meant the shipped installer worked and a developer
+    # install from git did not -- the same knowledge written in one of the
+    # two places it is needed. It belongs here, where every install path
+    # reads it.
+    'numba>=0.60,<0.63; sys_platform == "darwin" and platform_machine == "x86_64"',
+    'llvmlite>=0.43,<0.46; sys_platform == "darwin" and platform_machine == "x86_64"',
     # Floor RAISED from `>=0.1`, which was false — torchvision 0.1.6 is from
     # 2017. spacr/utils.py:53 imports `ResNet18_Weights ... ResNet152_Weights`
     # from torchvision.models.resnet at module scope (the multi-weight API,

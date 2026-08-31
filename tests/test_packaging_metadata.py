@@ -1105,17 +1105,93 @@ def test_every_core_dependency_is_a_valid_requirement():
             pytest.fail(f"invalid requirement {spec!r}: {exc}")
 
 
+#: The platforms a marker is evaluated against when asking whether two
+#: requirements for one package can both apply.
+#:
+#: Four, because that is the matrix spaCR ships to and the only thing a
+#: marker here has ever had to distinguish. Python version is included
+#: since several requirements key on it.
+_PLATFORMS = (
+    {"sys_platform": "linux", "platform_machine": "x86_64"},
+    {"sys_platform": "darwin", "platform_machine": "x86_64"},
+    {"sys_platform": "darwin", "platform_machine": "arm64"},
+    {"sys_platform": "win32", "platform_machine": "AMD64"},
+)
+_PYTHONS = ("3.11", "3.12", "3.13", "3.14")
+
+
+def _can_both_apply(first, second) -> bool:
+    """Whether two requirements for one package are ever active together."""
+    for platform in _PLATFORMS:
+        for python in _PYTHONS:
+            environment = dict(platform, python_version=python,
+                               python_full_version=python + ".0")
+            if all(r.marker is None or r.marker.evaluate(environment)
+                   for r in (first, second)):
+                return True
+    return False
+
+
 def test_no_duplicate_core_dependencies():
     """The deleted block declared pyqtgraph, pyqt6, pyqt6.sip, qtpy and
-    superqt twice each. Duplication is how that went unnoticed."""
-    seen: dict[str, str] = {}
-    dupes = []
+    superqt twice each. Duplication is how that went unnoticed.
+
+    MARKER-AWARE, because two entries for one name are not always a
+    duplicate. A package whose newest release has no wheel on one
+    architecture is declared twice ON PURPOSE, with mutually exclusive
+    markers -- llvmlite and numba are, for Intel macOS, where 0.46+
+    publishes no wheel and pip would otherwise reach a source build that
+    needs CMake.
+
+    What makes that legitimate and a real duplicate not is whether the
+    two can ever be active AT ONCE. A pair that can is a conflict the
+    resolver reports as unsatisfiable; a pair that cannot is one
+    requirement written per platform. So the question asked here is that
+    one, over the four platforms spaCR ships to.
+    """
+    from packaging.requirements import Requirement
+
+    by_name: dict[str, list] = {}
     for spec in _core_dependencies():
-        n = _name_of(spec)
-        if n in seen:
-            dupes.append((seen[n], spec))
-        seen[n] = spec
-    assert not dupes, f"duplicate core dependencies: {dupes}"
+        by_name.setdefault(_name_of(spec), []).append(Requirement(spec))
+
+    dupes = []
+    for name, requirements in by_name.items():
+        for index, first in enumerate(requirements):
+            for second in requirements[index + 1:]:
+                if _can_both_apply(first, second):
+                    dupes.append((str(first), str(second)))
+    assert not dupes, (
+        f"core dependencies declared twice for one platform: {dupes}. "
+        f"Two that can both apply is a conflict; split them with mutually "
+        f"exclusive markers or declare one.")
+
+
+def test_a_package_split_by_marker_covers_every_platform():
+    """The other half: mutually exclusive markers must not leave a gap.
+
+    Two requirements that can never BOTH apply are correct; two that can
+    never EITHER apply on some platform are an undeclared dependency,
+    which shows up as an ImportError at runtime rather than at install.
+    """
+    from packaging.requirements import Requirement
+
+    by_name: dict[str, list] = {}
+    for spec in _core_dependencies():
+        by_name.setdefault(_name_of(spec), []).append(Requirement(spec))
+
+    gaps = []
+    for name, requirements in by_name.items():
+        if len(requirements) < 2:
+            continue
+        for platform in _PLATFORMS:
+            environment = dict(platform, python_version="3.12",
+                               python_full_version="3.12.0")
+            if not any(r.marker is None or r.marker.evaluate(environment)
+                       for r in requirements):
+                gaps.append((name, platform))
+    assert not gaps, (
+        f"packages declared per platform with a platform left out: {gaps}")
 
 
 def test_native_features_are_optional_on_python_314():
