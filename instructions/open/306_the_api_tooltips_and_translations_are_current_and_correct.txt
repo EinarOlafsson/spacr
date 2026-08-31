@@ -771,3 +771,43 @@ more were tried and all three are dominated by false positives. That is a
 different claim from "complete and current" and it needs a reader per
 locale, so it is filed separately rather than left to make this item
 unclosable.
+
+
+PROGRESS 2026-08-31, THE RATCHET IS MOVED
+------------------------------------------
+
+Pinned against 2d16e469c + the catalog completion (3207b2d0f), verified green
+rather than computed and asserted:
+
+    SETTING_LABELS    1002 -> 1018
+    SETTING_TOOLTIPS   997 -> 1013
+    CATEGORY_HELP      192 -> 192
+    UI                2625 -> 2696
+    MODULE_SUMMARIES    64 ->   64
+    digest  db46475608d0... -> 64cc78df62056cdfadd0b1b9f2861e47745708cdb02f7976fb7dd5e4e2857ea2
+
+THE CATALOG FIX NEEDED A THIRD STEP, not two. The nine translated catalogs and
+their SOURCE_HASHES rows were completed, and `audit_i18n_coverage` then read
+4983/4983 for every language -- but `en.UI_SOURCES`, the ENGLISH manifest, was
+still one short, and `test_external_caption_layer_is_complete_exclusive_and_
+pinned` asserts the external inventory equals it as a SET. So the audit passed
+while the ratchet test still failed, on a different file from the one the audit
+measures. Regenerated with `build_i18n_catalogs.py --sources-only`, which writes
+en.py and returns before loading any translation model; the diff is exactly one
+UI_SOURCES entry and nothing else moved, checked by comparing the parsed sets
+rather than reading a 355 KB single-line diff.
+
+WHY THIS ORDER MATTERED. The digest was moved only after the test it pins ran
+green. d0c1a633c and 71a328baa each wrote this constant in a commit whose own
+test could not execute; the whole cost of this item traces back to that. A
+ratchet moved on a red or unrunnable test is not a ratchet.
+
+STILL RED, and it is NOT this item: `test_compact_user_facing_caption_surface_
+has_exact_rows_and_is_pinned` wants `i18n._ROWS` entries for 'Laptop' and
+'Workstation' -- two of the five `PERFORMANCE_LABELS` in preferences.py:2228,
+from `34bf6da7e One performance selector with five levels`. They belong to the
+COMPACT layer, so they do not touch the external counts pinned above; that was
+checked before pinning, not assumed.
+
+WHAT REMAINS IN 306: nothing but this ratchet, which is now done. Semantic
+correctness moved to instruction 316.
