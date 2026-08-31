@@ -460,8 +460,17 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     frame = pd.DataFrame([convert(v) for v in names], columns=columns,
                          index=names.index)
     # object_label without the 'o': that is the spelling the object tables use.
-    frame["object_label"] = frame["object_label"].map(
-        lambda v: None if v is None else v[1:] if v.startswith("o") else v)
+    def bare_object_label(value):
+        # pandas 3 may infer these parsed text columns as StringDtype and
+        # materialise a tuple's ``None`` as float ``nan``.  Normalize through
+        # the same missing-key boundary used everywhere else before asking a
+        # value for string methods.
+        text = _clean_key(value)
+        if text is None:
+            return None
+        return text[1:] if text.startswith("o") else text
+
+    frame["object_label"] = frame["object_label"].map(bare_object_label)
     return frame
 
 
@@ -859,7 +868,13 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     lookup: Dict[str, Tuple] = {}
     conflicting: Dict[str, int] = {}
     unparsed = 0
-    key_list = list(result_keys)
+    # ``Series.map`` preserves ``None`` on pandas 2 object columns, while
+    # pandas 3's inferred StringDtype materialises the same missing key as
+    # float ``nan``.  Identity checks therefore changed the report from one
+    # unparsed row to one unmatched row.  Normalize both sides by value before
+    # counting or joining so the public merge report is version-independent.
+    key_list = [_clean_key(value) for value in result_keys]
+    db_key_list = [_clean_key(value) for value in db_keys]
     columns_by_row = [list(value_frames[db_col]) for db_col in order]
 
     for idx, row_key in enumerate(key_list):
@@ -888,7 +903,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     # -- match --
     updates = []
     matched_keys = set()
-    for position, row_key in enumerate(db_keys):
+    for position, row_key in enumerate(db_key_list):
         values = lookup.get(row_key) if row_key is not None else None
         if values is None:
             continue
@@ -901,7 +916,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
             cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
             updates)
 
-    db_key_set = {k for k in db_keys if k is not None}
+    db_key_set = {k for k in db_key_list if k is not None}
     unmatched_results = sum(
         1 for k in key_list
         if k is not None and k not in conflicting and k not in db_key_set)
