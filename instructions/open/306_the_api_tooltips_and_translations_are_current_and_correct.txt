@@ -495,3 +495,76 @@ moving the exact ratchet to 2,522/1,822 with digest
 ``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``;
 all nine locale groups review the replacement blocks rather than certifying the
 retired internal prose.
+
+
+PROGRESS 2026-08-31, LATER -- TWO OF THE FOUR WERE NOT THIS ITEM
+-----------------------------------------------------------------
+
+The entry above lists four failing tests. Two of them were not the
+eleven-symbol generation gap at all:
+
+    tests/test_api_i18n_extractor.py
+        ::test_public_docstrings_matches_reviewed_visible_coverage
+        ::test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+
+They were failing on THREE symbols added the same day by the spaceout
+backdrop fix (instruction 315, 1f), which were written public:
+
+    spacr.qt.widgets.ambient.the_heavy_import_lock_is_free
+    spacr.qt.widgets.ambient.the_backdrop_wants_a_retry
+    spacr.qt.widgets.fractal_travel.HeavyImportInProgress
+
+They are internal helpers passing state between three call sites inside
+`spacr.qt`, and every neighbour in those modules is already private.
+They are now `_`-prefixed. The surface is back at 8,748 and the
+inventory at 8,861, both matching their ratchets exactly, and both tests
+pass. NO catalog is owed anything for that work.
+
+WORTH KEEPING, because it will happen again: a new PUBLIC name anywhere
+in the package is a nine-locale regeneration and a fluent-speaker review,
+and this item is the thing holding that. A helper that is not part of
+spaCR's API should be named as one on the way in -- the cost of getting
+it wrong is not a rename, it is this queue.
+
+WHAT IS ACTUALLY STILL FAILING, and it is one test:
+
+    tests/qt/test_i18n_caption_ratchet.py
+        ::test_external_caption_layer_is_complete_exclusive_and_pinned
+
+The external caption inventory is ahead of its ratchet by 102 records:
+
+                        ratchet    now    delta
+    SETTING_LABELS        1002     1018     +16
+    SETTING_TOOLTIPS       997     1013     +16
+    CATEGORY_HELP          192      192       0
+    UI                    2625     2695     +70
+    MODULE_SUMMARIES        64       64       0
+
+The ratchet was last set by ``d0c1a633c`` (2026-08-30, "Translate the
+captions the Q shortcut added, in all nine locales"). The test's own
+message is the contract: review every new and removed record before
+moving the count.
+
+BLOCKED, AND ON SOMETHING SPECIFIC. Reviewing them means diffing the
+record IDENTITIES, not the counts, and the identities are pinned as a
+digest rather than listed -- so the previous set has to be recomputed by
+running `tools/build_i18n_catalogs.canonical_sources()` against the tree
+at d0c1a633c. That was attempted from a worktree at that commit and
+fails: the interpreter mixes the worktree's modules with the editable
+install's, and the import dies on a symbol one half has and the other
+does not. That is instruction 310's entry 30 -- two editable installs of
+spaCR active in the same interpreter -- biting the tooling rather than a
+test.
+
+THE ROUTE THROUGH, in order:
+  1. fix 310/30 for tools, or run the old builder in a subprocess with
+     an isolated sys.path that cannot see the editable install;
+  2. dump both identity sets, diff them, and read the 102 additions;
+  3. move the counts and the digest in the same change, naming what was
+     admitted -- the same discipline the API ratchet above uses;
+  4. regenerate the nine locales, which is the part still waiting on the
+     Hindi evidence decision and on disk space.
+
+A retained probe worktree at ``/tmp/claude-1000/capref`` (detached at
+d0c1a633c) is registered in `git worktree list`. Nothing was deleted;
+remove it when step 1 makes it unnecessary.
