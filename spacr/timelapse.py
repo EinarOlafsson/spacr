@@ -4918,7 +4918,10 @@ def _infection_qc_pca_clustering(
         for c in feature_cols:
             cl = c.lower()
             if ("intensity" in cl) or ("p75" in cl) or ("p95" in cl) or ("max" in cl):
-                vals = cell_for_X[c].to_numpy(dtype=float)
+                # pandas 3 may expose an already-float column through a
+                # read-only view.  The log transform is deliberately local,
+                # so own the buffer before changing its finite entries.
+                vals = cell_for_X[c].to_numpy(dtype=float, copy=True)
                 finite = np.isfinite(vals)
                 if finite.any() and np.nanmin(vals[finite]) >= 0:
                     vals[finite] = np.log1p(vals[finite])
@@ -7411,8 +7414,10 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             wells_single_class.append((plate_id, well_id))
             continue
 
-        pos_idx = pos_df.index.to_numpy()
-        neg_idx = neg_df.index.to_numpy()
+        # ``Generator.choice`` may shuffle its input while sampling.  pandas 3
+        # exposes Index storage as read-only, so pass NumPy-owned buffers.
+        pos_idx = pos_df.index.to_numpy(copy=True)
+        neg_idx = neg_df.index.to_numpy(copy=True)
 
         if n_pos >= min_per_class and n_neg >= min_per_class:
             # wells with enough data per class → balanced sampling within well
@@ -7728,7 +7733,11 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         from sklearn.preprocessing import StandardScaler
 
         if used_feature_cols:
-            X_panel = cell_level[used_feature_cols].to_numpy(dtype=float)
+            # The imputation below is display-only.  Own the matrix because
+            # pandas 3 can return a read-only view for homogeneous columns.
+            X_panel = cell_level[used_feature_cols].to_numpy(
+                dtype=float, copy=True
+            )
             for j in range(X_panel.shape[1]):
                 col = X_panel[:, j]
                 m = np.isfinite(col)

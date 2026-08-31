@@ -841,7 +841,18 @@ class VolcanoExplorer(QWidget):
                 if allow_none:
                     widget.addItem(_NONE_ROW, None)
                 for option in options:
-                    widget.addItem(str(option), option)
+                    # pandas 3 normalizes a ``None`` column label to ``nan``.
+                    # Keep the menu contract stable: an unnamed column is
+                    # shown as "None" and, unlike the em-dash sentinel above,
+                    # falls back to that visible text in ``_style_choices``.
+                    try:
+                        missing = pd.isna(option)
+                    except (TypeError, ValueError):
+                        missing = False
+                    if isinstance(missing, (bool, np.bool_)) and missing:
+                        widget.addItem("None", None)
+                    else:
+                        widget.addItem(str(option), option)
                 index = widget.findData(current)
                 if index < 0:
                     index = widget.findData(getattr(self._style, key, None))
