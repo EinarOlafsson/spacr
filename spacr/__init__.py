@@ -6,6 +6,25 @@ import os as _os
 import warnings as _warnings
 from importlib import import_module
 
+# APPLE METAL OPERATOR FALLBACK, AND IT HAS TO BE SET HERE.
+#
+# Metal implements most but not all of torch's operators. A missing one
+# raises NotImplementedError mid-run rather than degrading, which on the
+# reporting iMac took cellpose down at `aten::upsample_linear1d` -- after
+# the model had loaded and the image was already on the card. This flag
+# turns those into a quiet CPU detour for the op that is missing.
+#
+# TORCH READS IT WHEN THE MPS BACKEND REGISTERS, WHICH IS AT `import
+# torch`. Setting it later has no effect at all -- measured: identical
+# code fails when the variable is set after the import and succeeds when
+# set before it. That is why this sits at the top of the package rather
+# than in `spacr.accelerator`, which is imported far too late to matter.
+#
+# setdefault, not assignment: a user who set it to 0 deliberately wants
+# the hard failure, and that is a legitimate way to find out which
+# operator is costing them a round trip. See instruction 319.
+_os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 # ``spacr.version`` answers detailed environment/version queries and therefore
 # imports ``importlib.metadata``.  That machinery was more than 60% of a clean
 # installed ``import spacr`` even though the wheel already knows its version.

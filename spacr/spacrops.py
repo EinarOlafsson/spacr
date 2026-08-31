@@ -417,13 +417,15 @@ class spacrStitcher:
 
         pretrained = _resolve_cellpose_pretrained(self.cellpose_model)
         try:
-            import torch
-            gpu = torch.cuda.is_available()
+            from .accelerator import cellpose_kwargs
+
+            kwargs = cellpose_kwargs()
+            kwargs.pop("device", None)
         except Exception:
-            gpu = False
+            kwargs = {"gpu": False}
         # No model_type= / diam_mean=: Cellpose 4 logs "not used in v4.0.1+"
         # and drops both.
-        self._cp_model = cp_models.CellposeModel(gpu=gpu, pretrained_model=pretrained)
+        self._cp_model = cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
         return self._cp_model
 
     def _cellpose_labels(self, img_u8: np.ndarray) -> np.ndarray:

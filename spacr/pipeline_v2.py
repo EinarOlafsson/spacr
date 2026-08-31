@@ -573,8 +573,10 @@ def stream_masks_from_stack(
     import torch
     from .utils import _resolve_cellpose_pretrained
 
-    use_gpu = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_gpu else "cpu")
+    from .accelerator import is_gpu, torch_device
+
+    use_gpu = is_gpu()
+    device = torch_device()
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type)
     model = cp_models.CellposeModel(

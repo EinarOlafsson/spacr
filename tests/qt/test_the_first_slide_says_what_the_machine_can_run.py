@@ -51,7 +51,17 @@ def test_a_usable_card_is_named_in_green(qtbot, tmp_path, monkeypatch):
     text = made._gpu_note.text()
     assert "NVIDIA GeForce RTX 3090" in text
     assert GPU_YES_INK.lower() in text.lower()
-    assert GPU_NO_INK.lower() not in text.lower()
+
+    # THE VERDICT LINE, NOT THE WHOLE NOTE. This used to assert that no red
+    # appeared anywhere, which stopped being the right invariant when the
+    # note gained a per-task capability list: cuML ships for CUDA only, so
+    # that row is legitimately red on a machine whose card works perfectly
+    # for everything else. A single verdict colour for five different
+    # answers is the thing instruction 319 is against.
+    verdict = [line for line in text.split("</div>")
+               if "GeForce RTX 3090" in line]
+    assert verdict, "the card is not named on its own line"
+    assert GPU_NO_INK.lower() not in verdict[0].lower()
 
 
 def test_an_unusable_card_is_still_named_in_red(qtbot, tmp_path, monkeypatch):

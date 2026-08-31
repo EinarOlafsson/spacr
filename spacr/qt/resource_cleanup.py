@@ -920,8 +920,15 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
             details.append(f"{released} model reference(s) released")
     torch = _torch_if_loaded()
     try:
-        torch.cuda.empty_cache()
-        details.append("torch.cuda.empty_cache()")
+        # EVERY BACKEND CACHES, not only CUDA. Metal holds freed blocks in
+        # exactly the same way and answers `torch.mps.empty_cache()`; on a
+        # 4 GB card that is the difference between the next screen opening
+        # and an allocation failure. Routed through the resolver so the
+        # right call is made without a vendor branch here. See 319.
+        from ..accelerator import empty_cache as release_device_memory
+
+        release_device_memory()
+        details.append("device cache released")
     except Exception:
         LOG.debug("empty_cache failed", exc_info=True)
     after = cuda_reserved()

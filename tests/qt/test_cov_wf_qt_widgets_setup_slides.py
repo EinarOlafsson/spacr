@@ -575,6 +575,14 @@ def test_the_gpu_note_is_placed_whatever_the_greeting_is_doing(slides):
     born, the top left corner, and read as stray text above the language list.
     A slide whose note has been taken away still moves."""
     card, greeting = slides.card, slides._greeting
+    # TALL ENOUGH THAT THE BAND IS WHAT DECIDES. The note is placed at
+    # GPU_NOTE_BAND unless it would hang off the bottom, in which case it
+    # is deliberately lifted so a small window cannot hide the answer to
+    # "can this machine run spaCR". On a card a few pixels high the clamp
+    # wins and this assertion measures the clamp instead of the placement
+    # it is about -- which is what happened when the note grew a per-task
+    # capability list and became several lines taller.
+    card.resize(max(card.width(), 600), 1000)
     slides._greeting = None
     slides._place_the_greeting()
     assert slides._gpu_note.y() == int(card.height() * GPU_NOTE_BAND)

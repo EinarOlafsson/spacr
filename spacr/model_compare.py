@@ -1056,7 +1056,9 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
     import torch
     from cellpose import models as cp_models
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    from .accelerator import torch_device
+
+    device = torch_device()
     model = cp_models.CellposeModel(
         gpu=torch.cuda.is_available(),
         device=device,

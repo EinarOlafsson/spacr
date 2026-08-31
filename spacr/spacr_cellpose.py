@@ -175,11 +175,16 @@ def identify_masks_finetune(settings):
             print(f"Custom model not found: {settings['custom_model']}")
             return 
 
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+    from .accelerator import cellpose_gpu, cellpose_kwargs, describe
+
+    # ONE RESOLVER, NOT A CUDA TEST. `torch.cuda.is_available()` answers
+    # "is there CUDA", and this line meant "is there a GPU" -- which on a
+    # Mac or a ROCm box is a different answer. See instruction 319.
+    if not cellpose_gpu():
+        print('No GPU available to spaCR, using CPU')
+    else:
+        print(f'Segmenting on {describe()}')
+
     # 'cpsam' unless the user pointed at a checkpoint. custom_model wins when
     # set (its existence was checked above); otherwise model_name is resolved,
     # which maps a pre-SAM name forward and reports it once.
@@ -191,9 +196,11 @@ def identify_masks_finetune(settings):
     # No model_type= / diam_mean= : Cellpose 4 logs "not used in v4.0.1+" and
     # drops both. diameter is NOT dropped — it is passed to eval() below,
     # where the image is rescaled by 30/diameter, and that still works.
-    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
-                                    pretrained_model=pretrained,
-                                    device=device)
+    # gpu= AND device= TOGETHER. Cellpose branches on `gpu` before it
+    # looks at `device`, so passing a device without the flag still takes
+    # the CPU path -- which is exactly what pinned every Mac to the CPU.
+    model = cp_models.CellposeModel(pretrained_model=pretrained,
+                                    **cellpose_kwargs())
     print(f"Loaded model: {getattr(model, 'pretrained_model', pretrained)}")
 
     if settings['grayscale']:
@@ -422,13 +429,12 @@ def check_cellpose_models(settings):
     # one. It is left as a list rather than collapsed so a future release
     # that ships more than one needs no other change here.
     cellpose_models = ['cpsam']
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    from .accelerator import cellpose_kwargs
 
     for model_name in cellpose_models:
 
-        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
-                                        pretrained_model=model_name,
-                                        device=device)
+        model = cp_models.CellposeModel(pretrained_model=model_name,
+                                        **cellpose_kwargs())
         print(f'Using {model_name}')
         generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
