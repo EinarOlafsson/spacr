@@ -10229,6 +10229,30 @@ def ml_analysis(
             f"measurement table. Set location_column back to your well "
             f"column ('columnID' or 'rowID').")
 
+    # Name an empty measurement source before feature filtering turns it into
+    # an empty training set and the control guard misleadingly blames the
+    # configured control values.  Keep the missing-column diagnosis above:
+    # that remains the more actionable error when the requested column does
+    # not exist at all.
+    if df.empty:
+        raise ValueError(
+            "the measurement table contains 0 object rows, so there is "
+            "nothing to train on. Check that the selected source contains "
+            "measured objects before running the analysis.")
+
+    # A populated table can still have no usable labels.  This is a data-
+    # population problem, not a typo in positive_control/negative_control.
+    # Do not handle duplicate columns here: ``df[name]`` is then a DataFrame,
+    # and the dedicated duplicate-column diagnosis below remains authoritative.
+    location_values = df[location_column]
+    if isinstance(location_values, pd.Series):
+        non_empty_values = location_values.dropna().astype(str).str.strip()
+        if not non_empty_values.ne("").any():
+            raise ValueError(
+                f"location_column={location_column!r} has 0 non-empty values "
+                f"across {len(df)} object rows. Populate it with two real "
+                f"class labels before running the analysis.")
+
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
