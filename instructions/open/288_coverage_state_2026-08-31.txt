@@ -1,0 +1,69 @@
+288 COVERAGE STATE, MEASURED 2026-08-31
+=======================================
+
+MEASURED, not estimated, and against a FROZEN SNAPSHOT of the tree
+rather than the live one -- agents writing tests during a collect make
+xdist report "Different tests were collected", and the run is then a
+measurement of nothing. 2,344 test files in 40 batches of 60.
+
+    branch coverage   99.75%   (265,981 of 266,641 items)
+    modules           510      378 at 100%, 132 with a gap
+    Qt                99.71%   198 modules at 100%
+    non-Qt            99.80%   180 modules at 100%
+    remaining         660 items
+
+EFFECTIVE 99.77%, 605 items. The snapshot is commit e7a10357e, and 55
+items were closed after it was taken: methods_export (20), hit_list
+(16), the classify screen (12), info_link (2), flash (2) and wand_rescue
+(3 of 4, the fourth being an unreachable guard with the argument
+written out in the test file).
+
+THE FIGURE IS NOT INFLATED. `.coveragerc` sets `exclude_lines =` and
+`partial_branches =` to EMPTY lists, so the 102 `# pragma: no cover`
+markers still in the source exclude nothing and every one of those lines
+is in the denominator. Three modules were taken to 100% this round by
+simply testing what their pragmas claimed was untestable -- two of them
+"modal", which a replaced QFileDialog answers.
+
+READ THE PER-FILE DATA, NOT THE TOTALS BLOCK. The round 6 report's
+totals block gives num_statements as 407,403 where the per-file
+summaries sum to 204,735 for the identical file set. The PERCENTAGES
+agree (99.61%) and the per-file counts are identical between runs, so
+the per-file data is the trustworthy half. A gap list built from the
+totals block is wrong by a factor of two.
+
+A PER-MODULE MEASUREMENT WITH A SUBSET OF TESTS IS A LOWER BOUND, NOT A
+NUMBER. `annotate_engine` measures 67.96% against the fourteen files
+that mention it and 98.35% under the full suite; `api_help_label`
+measures 20.55% against one unrelated file and 100% under the full
+suite. Both were nearly acted on as if they were gaps. Use this file's
+list, or measure the whole suite.
+
+THE LARGEST REMAINING GAPS (from the snapshot; the six closed above
+still appear in it):
+
+     34 missing   99.35%  spacr/ml.py
+     28 missing   99.44%  spacr/qt/screens/app_screen.py
+     24 missing   99.52%  spacr/io.py
+     24 missing   99.04%  spacr/qt/app.py
+     23 missing   99.46%  spacr/plot.py
+     20 missing   92.51%  spacr/qt/screens/methods_export.py
+     19 missing   99.58%  spacr/timelapse.py
+     19 missing   98.43%  spacr/qt/widgets/fractal_travel.py
+     17 missing   98.35%  spacr/qt/annotate_engine.py
+     16 missing   98.68%  spacr/run_journal.py
+     16 missing   95.70%  spacr/qt/screens/hit_list.py
+     15 missing   99.73%  spacr/qt/widgets/fast_plots.py
+     14 missing   98.95%  spacr/qt/theme.py
+     13 missing   99.71%  spacr/qt/screens/settings_model.py
+     13 missing   99.55%  spacr/qt/preferences.py
+     12 missing   98.98%  spacr/regression_annotation.py
+     12 missing   94.23%  spacr/qt/screens/classify.py
+     11 missing   98.58%  spacr/sequencing.py
+     10 missing   99.61%  spacr/measure.py
+     10 missing   99.48%  spacr/qt/widgets/cell_montage_view.py
+     10 missing   99.45%  spacr/qt/widgets/measurement_scan_panel.py
+     10 missing   97.17%  spacr/guide_attribution.py
+     10 missing   93.87%  spacr/qt/__init__.py
+      9 missing   99.46%  spacr/qt/widgets/figure_queue.py
+      9 missing   98.91%  spacr/parameter_sweep.py
