@@ -104,3 +104,48 @@ def test_no_gl_canvas_is_built_after_the_drop(markers, monkeypatch):
 
     crash_recovery.take_the_backdrop_out_of_this_launch()
     assert fractal_travel.platform_can_do_opengl() is False
+
+
+def test_a_directory_where_the_marker_goes_is_not_a_crash(markers):
+    """310 A1: a *directory* at the marker path is not evidence of a crash.
+
+    ``os.path.exists`` answers True for a directory, and ``os.remove`` cannot
+    delete one -- it raises ``IsADirectoryError``, which the shutdown path
+    swallows along with everything else. So a stray directory at that name,
+    which a botched restore or a sync tool that materialises a name as a
+    folder can leave, was counted as an unclean exit on EVERY launch and no
+    clean shutdown could ever clear it.
+
+    The cost is that the user loses the animated backdrop permanently, with
+    no crash having occurred and no setting they can point at, and the
+    misdiagnosis is self-perpetuating: the marker cannot be written either,
+    so the next launch finds the same directory and counts again.
+
+    Both halves are asserted, because fixing only the read would leave a
+    shutdown that reports success while the path is still occupied.
+    """
+    stray = os.path.join(str(markers), crash_recovery._MARKER)
+    os.mkdir(stray)
+
+    assert crash_recovery.note_that_a_launch_began() == 0
+    assert crash_recovery.note_that_a_launch_began() == 0, (
+        "a directory must not accumulate unclean exits across launches"
+    )
+
+    crash_recovery.note_a_clean_shutdown()
+    assert crash_recovery.should_start_without_the_backdrop() is False
+    assert os.path.isdir(stray), (
+        "the directory was not ours to create and must not be removed"
+    )
+
+
+def test_a_real_stale_marker_file_still_counts(markers):
+    """The guard above must not blind the mechanism to what it is for.
+
+    A leftover marker FILE is exactly what an unclean exit leaves, and it has
+    to keep counting -- otherwise the A1 fix would disable crash recovery
+    rather than correct it.
+    """
+    with open(os.path.join(str(markers), crash_recovery._MARKER), "w") as fh:
+        fh.write("4242")
+    assert crash_recovery.note_that_a_launch_began() == 1

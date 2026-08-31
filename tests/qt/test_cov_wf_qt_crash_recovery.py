@@ -184,16 +184,20 @@ def test_a_marker_that_cannot_be_written_still_counts_the_crash(logs, caplog):
     failure this module exists to escape.
     """
     caplog.set_level(logging.DEBUG, logger=LOGGER)
-    # A directory where the marker file belongs: it "exists", so the previous
-    # run looks unclean, and it cannot be opened for writing.
+    # A directory where the marker file belongs: it cannot be opened for
+    # writing, which is what this test is about. It is NOT counted as a crash
+    # -- see 310 A1: `exists` answered True for it and `os.remove` could never
+    # clear it, so it read as an unclean exit on every launch for ever.
     os.mkdir(_marker_file(logs))
 
     unclean = crash_recovery.note_that_a_launch_began()
 
-    assert unclean == 1
+    assert unclean == 0, (
+        "a directory is not evidence that the last run died")
     assert "could not write the running marker" in caplog.text
-    assert crash_recovery._read_counter() == 1, (
-        "the crash was not remembered for the next launch")
+    assert "crash detection is disabled" in caplog.text, (
+        "an obstruction that switches recovery off must say so")
+    assert crash_recovery._read_counter() == 0
     assert os.path.isdir(_marker_file(logs)), (
         "the obstruction was silently replaced")
 
