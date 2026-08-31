@@ -50,11 +50,11 @@ EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1018,
     "SETTING_TOOLTIPS": 1013,
     "CATEGORY_HELP": 192,
-    "UI": 2696,
+    "UI": 2695,
     "MODULE_SUMMARIES": 64,
 }
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "64cc78df62056cdfadd0b1b9f2861e47745708cdb02f7976fb7dd5e4e2857ea2"
+    "d875900ed2d3bdf1f6c6d22be276497ab43d5ecb8a9c412b31a83aedf8bd1d8f"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
