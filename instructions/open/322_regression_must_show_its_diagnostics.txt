@@ -1,0 +1,86 @@
+322 — REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
+=====================================================================
+
+ASKED FOR (2026-08-31, verbatim)
+--------------------------------
+"in the regression module make sure qq-plots, fit vs. residuals,
+influence, leverage/Cook's distance, etc., are calculated and plotted
+whenever possible."
+
+THE HEADLINE: THIS IS A WIRING JOB, NOT AN IMPLEMENTATION JOB
+-------------------------------------------------------------
+`spacr/regression_diagnostics.py` already computes and plots every panel
+named in that request, and more:
+
+    design_report              wells per parameter, design-matrix rank,
+                               condition number, wells per guide
+    collinear_guide_pairs      guides no method can separate
+    variance_inflation_factors
+    residual_report            residual-vs-fitted, scale-location, QQ,
+                               leverage, Cook's distance
+    plot_design_diagnostics    the design panels
+    plot_residual_diagnostics  the residual panels
+    plot_inference_diagnostics P-value histogram, observed-vs-expected
+                               quantiles, genomic inflation factor
+    score_design / score_residuals / score_inference
+                               a verdict per report, so a panel can say
+                               PASS/WARN/FAIL rather than needing an eye
+
+Its module docstring explains why it exists: it was written after a real
+failure -- 824 guides in 587 wells, fitted simultaneously, returning a
+confident coefficient and P value for every guide out of a rank-deficient
+matrix. "A volcano plot shows what the model concluded. It cannot show
+whether the model was entitled to conclude it."
+
+AND NOTHING CALLS ANY OF IT. Grep the tree: outside its own module and
+`spacr/__init__.py`'s export list, the only mentions are COMMENTS in
+`trial_metrics.py` pointing at it. `ml.perform_regression` does not call
+it. The Regression screen does not draw it. So the checks that would have
+caught the failure the module was written for are, today, unreachable by
+a user.
+
+WHAT TO DO
+----------
+1. CALL IT FROM THE FIT. `ml.perform_regression` should build
+   `design_report` before fitting and `residual_report` +
+   inference numbers after, and write both into the run folder alongside
+   the existing outputs. Diagnostics that only exist when someone asks
+   for them are diagnostics nobody has when they need them.
+2. "WHENEVER POSSIBLE" IS THE HARD PART, and it is the request's actual
+   content. Not every model exposes residuals and fitted values --
+   `SLOW_MODELS` in the regression settings panel names mixed, RRA and
+   horseshoe, and RRA in particular is a rank statistic with no residual
+   in the OLS sense. So:
+     * compute what the fitted object can support, per model;
+     * where a panel cannot be computed, SAY WHY on the panel rather
+       than omitting it silently. A missing QQ plot and an inapplicable
+       one look identical to a reader, and only one of them is fine.
+     * `design_report` needs no fit at all, so it is available for EVERY
+       model including RRA. That one is never "not possible".
+3. SHOW THEM. A button on the Regression masthead opening a diagnostics
+   page, in the same style as the folds added by 318. The scores from
+   `score_design` / `score_residuals` / `score_inference` are what the
+   button should badge itself with -- a user needs to know there is a
+   FAIL without opening the page.
+4. The panels already write through `_finish(fig, save_path, ...)`, so
+   saving to the run folder is supported; use it rather than inventing a
+   second path convention.
+
+DONE MEANS
+----------
+* A regression run writes its design report unconditionally, and its
+  residual and inference reports for every model that can produce them.
+* The Regression screen can open the panels, and shows the worst verdict
+  without being opened.
+* A model that cannot support a panel produces a panel that says so,
+  naming the reason, not a blank.
+* Tests assert the NUMBERS, not that a figure was produced -- the module
+  was deliberately written to return plain numbers so they can be
+  asserted, and that is the affordance to use.
+* The rank-deficient case from the module's docstring is a regression
+  test: 824 guides in 587 wells must produce a FAIL verdict.
+
+WATCH OUT
+---------
+`ml.py` is one of the largest remaining coverage gaps (25 items in 288)
+and is being worked by another session. Coordinate before editing it.
