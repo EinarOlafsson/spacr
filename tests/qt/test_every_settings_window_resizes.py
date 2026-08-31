@@ -1073,29 +1073,45 @@ class TestEverySettingsWindow:
                                                build):
         """The same dialog, opened with the filter off and then on.
 
-        A THROWAWAY IS OPENED FIRST, and it is not ceremony. The two
-        measurements are of two different instances, so anything that
-        differs between a dialog's first construction in a process and
-        its second lands on the filter's account: Qt caches font metrics
-        and style sheets per widget class on first use, and two of these
-        dialogs came out 1 px and 8 px shorter on their second build
-        with the filter making no difference at all. Warming the cache
-        before either measurement leaves only the filter between them.
+        EACH SIDE IS MEASURED UNTIL IT SETTLES, and that is not
+        ceremony. The two measurements are of two different instances,
+        so anything that differs between one construction and the next
+        lands on the filter's account -- and Qt warms font metrics and
+        style sheets per widget class as it goes, so successive builds
+        of the same dialog shrink slightly until the caches are full.
+
+        One throwaway was not enough. Batched, `annotate._SettingsDialog`
+        came out 1,183 px against 1,191 and `ExecutionProfileDialog` 615
+        against 616, both on the THIRD build -- the warmup had moved the
+        number without finishing the job, and the difference was still
+        being read as the filter's doing. Building until two consecutive
+        sizes agree measures the size the dialog actually opens at,
+        which is what the claim is about.
         """
         from PySide6.QtWidgets import QApplication
 
         from spacr.qt import dialogs
 
         app = QApplication.instance()
-        warmup = _open(qtbot, build())
-        warmup.close()
-        QApplication.processEvents()
+
+        def settled():
+            """The size this dialog opens at, once the caches are warm."""
+            last = None
+            for _ in range(6):
+                size = _size(_open(qtbot, build()))
+                QApplication.processEvents()
+                if size == last:
+                    return size
+                last = size
+            return last
 
         app.removeEventFilter(dialogs._DETACHER)
-        without = _size(_open(qtbot, build()))
-        app.installEventFilter(dialogs._DETACHER)
+        try:
+            without = settled()
+        finally:
+            app.installEventFilter(dialogs._DETACHER)
 
-        assert _size(_open(qtbot, build())) == without, name
+        assert settled() == without, name
 
     def test_shown_again_it_is_where_it_was_left(self, resizer, qtbot,
                                                  name, build):
