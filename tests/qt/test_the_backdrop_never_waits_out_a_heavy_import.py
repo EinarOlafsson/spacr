@@ -49,14 +49,14 @@ class TestTheRefusalIsNotAGpuFailure:
         every time a module is opened during startup.
         """
         from spacr.qt.widgets.fractal_travel import (GpuBackendError,
-                                                     HeavyImportInProgress)
+                                                     _HeavyImportInProgress)
 
-        assert not issubclass(HeavyImportInProgress, GpuBackendError)
-        assert issubclass(HeavyImportInProgress, RuntimeError)
+        assert not issubclass(_HeavyImportInProgress, GpuBackendError)
+        assert issubclass(_HeavyImportInProgress, RuntimeError)
 
     def test_the_auto_fallback_lets_it_past_instead_of_drawing_on_the_cpu(
             self, monkeypatch):
-        """THE ARC: ``except HeavyImportInProgress: raise``.
+        """THE ARC: ``except _HeavyImportInProgress: raise``.
 
         Driven rather than read, because the handler sits above a bare
         ``except Exception`` that would otherwise swallow it -- which is
@@ -67,14 +67,14 @@ class TestTheRefusalIsNotAGpuFailure:
         built = []
 
         def refuse(*_args, **_kwargs):
-            raise F.HeavyImportInProgress("busy")
+            raise F._HeavyImportInProgress("busy")
 
         monkeypatch.setattr(F, "gpu_is_available", lambda: True)
         monkeypatch.setattr(F, "_make_gpu_widget", refuse)
         monkeypatch.setattr(F, "_make_cpu_widget",
                             lambda *a, **k: built.append("cpu"))
 
-        with pytest.raises(F.HeavyImportInProgress):
+        with pytest.raises(F._HeavyImportInProgress):
             F.create_fractal_widget(F.Settings(backend="auto"))
 
         assert built == [], (
@@ -119,7 +119,7 @@ class TestTheWaitIsBounded:
 
         source = inspect.getsource(F._make_gpu_widget)
         assert "lock.acquire(timeout=_HEAVY_LOCK_WAIT)" in source
-        assert "raise HeavyImportInProgress(" in source
+        assert "raise _HeavyImportInProgress(" in source
         # CODE ONLY. The comment above the acquire quotes the old form to
         # say what it cost, so matching the raw source would fail on the
         # explanation rather than on the thing explained.
@@ -147,16 +147,16 @@ class TestTheLockPeek:
 
     def test_a_free_lock_answers_yes_and_is_not_held_afterwards(self):
         from spacr.qt.app import HEAVY_IMPORT_LOCK
-        from spacr.qt.widgets.ambient import the_heavy_import_lock_is_free
+        from spacr.qt.widgets.ambient import _the_heavy_import_lock_is_free
 
-        assert the_heavy_import_lock_is_free() is True
+        assert _the_heavy_import_lock_is_free() is True
         assert HEAVY_IMPORT_LOCK.acquire(blocking=False), (
             "the peek kept the lock, so it is a reservation and not a peek")
         HEAVY_IMPORT_LOCK.release()
 
     def test_a_held_lock_answers_no(self):
         from spacr.qt.app import HEAVY_IMPORT_LOCK
-        from spacr.qt.widgets.ambient import the_heavy_import_lock_is_free
+        from spacr.qt.widgets.ambient import _the_heavy_import_lock_is_free
 
         held = threading.Event()
         release = threading.Event()
@@ -170,7 +170,7 @@ class TestTheLockPeek:
         worker.start()
         try:
             assert held.wait(5)
-            assert the_heavy_import_lock_is_free() is False
+            assert _the_heavy_import_lock_is_free() is False
         finally:
             release.set()
             worker.join(5)
@@ -179,20 +179,20 @@ class TestTheLockPeek:
 class TestTellingARefusalFromAFailure:
 
     def test_the_refusal_is_recognised(self):
-        from spacr.qt.widgets.ambient import the_backdrop_wants_a_retry
-        from spacr.qt.widgets.fractal_travel import HeavyImportInProgress
+        from spacr.qt.widgets.ambient import _the_backdrop_wants_a_retry
+        from spacr.qt.widgets.fractal_travel import _HeavyImportInProgress
 
-        assert the_backdrop_wants_a_retry(HeavyImportInProgress("busy"))
+        assert _the_backdrop_wants_a_retry(_HeavyImportInProgress("busy"))
 
     def test_a_real_failure_is_not(self):
         """The half that matters for the console: a broken backdrop must
         still be reported once, not retried every 120 ms forever."""
-        from spacr.qt.widgets.ambient import the_backdrop_wants_a_retry
+        from spacr.qt.widgets.ambient import _the_backdrop_wants_a_retry
         from spacr.qt.widgets.fractal_travel import GpuBackendError
 
-        assert not the_backdrop_wants_a_retry(GpuBackendError("no context"))
-        assert not the_backdrop_wants_a_retry(RuntimeError("anything else"))
-        assert not the_backdrop_wants_a_retry(ImportError("no module"))
+        assert not _the_backdrop_wants_a_retry(GpuBackendError("no context"))
+        assert not _the_backdrop_wants_a_retry(RuntimeError("anything else"))
+        assert not _the_backdrop_wants_a_retry(ImportError("no module"))
 
 
 # ---------------------------------------------------------------------------
@@ -257,12 +257,12 @@ class TestAModuleScreenComesBack:
         case it can see.
         """
         from spacr.qt.widgets import ambient as A
-        from spacr.qt.widgets.fractal_travel import HeavyImportInProgress
+        from spacr.qt.widgets.fractal_travel import _HeavyImportInProgress
 
         scheduled = _Scheduled(monkeypatch)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: (_ for _ in ()).throw(
-                                HeavyImportInProgress("busy")))
+                                _HeavyImportInProgress("busy")))
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
 
@@ -277,7 +277,7 @@ class TestAModuleScreenComesBack:
 
     def test_the_retry_installs_it_once_the_lock_frees(self, monkeypatch):
         from spacr.qt.widgets import ambient as A
-        from spacr.qt.widgets.fractal_travel import HeavyImportInProgress
+        from spacr.qt.widgets.fractal_travel import _HeavyImportInProgress
 
         scheduled = _Scheduled(monkeypatch)
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
@@ -288,7 +288,7 @@ class TestAModuleScreenComesBack:
         def busy_once(*_args, **_kwargs):
             attempts.append("try")
             if len(attempts) == 1:
-                raise HeavyImportInProgress("busy")
+                raise _HeavyImportInProgress("busy")
             return "the backdrop"
 
         monkeypatch.setattr(A, "install_ambient", busy_once)
@@ -359,7 +359,7 @@ class TestHomeComesBackToo:
         from spacr.qt.widgets import home as H
 
         scheduled = _Scheduled(monkeypatch)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: False)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: False)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: pytest.fail(
                                 "Home built the backdrop while the heavy "
@@ -380,7 +380,7 @@ class TestHomeComesBackToo:
         from spacr.qt.widgets import ambient as A
 
         _Scheduled(monkeypatch)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: pytest.fail(
                                 "a second backdrop was installed over one "
@@ -416,8 +416,8 @@ class TestAScreenThatIsNotAnAppScreen:
         assert "install_ambient(" not in theming
 
         installing = inspect.getsource(APP.MainWindow._install_screen_backdrop)
-        assert "the_heavy_import_lock_is_free()" in installing
-        assert "the_backdrop_wants_a_retry" in installing
+        assert "_the_heavy_import_lock_is_free()" in installing
+        assert "_the_backdrop_wants_a_retry" in installing
 
     def test_the_retry_checks_the_screen_is_still_alive(self):
         """A module can be closed inside the 120 ms, and calling a method
@@ -483,13 +483,13 @@ class TestHomesOwnHandler:
         the backdrop for the whole session.
         """
         from spacr.qt.widgets import ambient as A
-        from spacr.qt.widgets.fractal_travel import HeavyImportInProgress
+        from spacr.qt.widgets.fractal_travel import _HeavyImportInProgress
 
         scheduled = _Scheduled(monkeypatch)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: (_ for _ in ()).throw(
-                                HeavyImportInProgress("busy")))
+                                _HeavyImportInProgress("busy")))
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
 
@@ -507,7 +507,7 @@ class TestHomesOwnHandler:
         from spacr.qt.widgets import ambient as A
 
         scheduled = _Scheduled(monkeypatch)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: (_ for _ in ()).throw(
                                 RuntimeError("no context")))
@@ -525,7 +525,7 @@ class TestTheClassifierCannotBeTheThingThatIsMissing:
 
     def test_no_backdrop_module_means_nothing_could_have_raised_it(
             self, monkeypatch):
-        """THE ARC: ``the_backdrop_wants_a_retry``'s own import guard.
+        """THE ARC: ``_the_backdrop_wants_a_retry``'s own import guard.
 
         It is asked to classify a failure, and "the backdrop module is
         absent" is one of the failures it classifies -- so it has to
@@ -536,12 +536,12 @@ class TestTheClassifierCannotBeTheThingThatIsMissing:
         """
         import sys
 
-        from spacr.qt.widgets.ambient import the_backdrop_wants_a_retry
+        from spacr.qt.widgets.ambient import _the_backdrop_wants_a_retry
 
         monkeypatch.setitem(sys.modules, "spacr.qt.widgets.fractal_travel",
                             None)
 
-        assert the_backdrop_wants_a_retry(RuntimeError("anything")) is False
+        assert _the_backdrop_wants_a_retry(RuntimeError("anything")) is False
 
     def test_the_peek_answers_yes_when_there_is_no_lock_to_ask(
             self, monkeypatch):
@@ -549,12 +549,12 @@ class TestTheClassifierCannotBeTheThingThatIsMissing:
         before the feature existed: the screen builds, undecorated."""
         import sys
 
-        from spacr.qt.widgets.ambient import the_heavy_import_lock_is_free
+        from spacr.qt.widgets.ambient import _the_heavy_import_lock_is_free
 
         monkeypatch.setitem(sys.modules, "spacr.qt.widgets.fractal_travel",
                             None)
 
-        assert the_heavy_import_lock_is_free() is True
+        assert _the_heavy_import_lock_is_free() is True
 
     def test_home_survives_the_ambient_module_being_gone(self, monkeypatch):
         """THE ARC: Home's own defensive import, inside the handler.
@@ -590,11 +590,11 @@ class TestTheRemainingHalves:
         does not exist cannot be held, so the answer is yes.
         """
         from spacr.qt.widgets import fractal_travel as F
-        from spacr.qt.widgets.ambient import the_heavy_import_lock_is_free
+        from spacr.qt.widgets.ambient import _the_heavy_import_lock_is_free
 
         monkeypatch.setattr(F, "_heavy_import_lock", lambda: None)
 
-        assert the_heavy_import_lock_is_free() is True
+        assert _the_heavy_import_lock_is_free() is True
 
     def test_home_builds_nothing_when_the_animation_is_switched_off(
             self, monkeypatch):
@@ -610,7 +610,7 @@ class TestTheRemainingHalves:
         scheduled = _Scheduled(monkeypatch)
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: False)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free",
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free",
                             lambda: pytest.fail(
                                 "the lock was peeked at for a backdrop that "
                                 "is switched off"))
@@ -638,7 +638,7 @@ class TestTheRemainingHalves:
         scheduled = _Scheduled(monkeypatch)
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: "the backdrop")
 
@@ -697,7 +697,7 @@ class TestTheScreensThatBuildTheirOwn:
 
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: False)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: False)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: pytest.fail(
                                 "the backdrop was built while the heavy "
@@ -714,7 +714,7 @@ class TestTheScreensThatBuildTheirOwn:
         built = []
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: built.append("built"))
 
@@ -731,15 +731,15 @@ class TestTheScreensThatBuildTheirOwn:
         click during startup puts a traceback in the console."""
         from spacr.qt import app as APP
         from spacr.qt.widgets import ambient as A
-        from spacr.qt.widgets.fractal_travel import HeavyImportInProgress
+        from spacr.qt.widgets.fractal_travel import _HeavyImportInProgress
 
         logged = []
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: (_ for _ in ()).throw(
-                                HeavyImportInProgress("busy")))
+                                _HeavyImportInProgress("busy")))
         monkeypatch.setattr(APP.LOG, "exception",
                             lambda *a, **k: logged.append(a))
 
@@ -759,7 +759,7 @@ class TestTheScreensThatBuildTheirOwn:
         logged = []
         monkeypatch.setattr("spacr.qt.preferences.get_ambient_enabled",
                             lambda: True)
-        monkeypatch.setattr(A, "the_heavy_import_lock_is_free", lambda: True)
+        monkeypatch.setattr(A, "_the_heavy_import_lock_is_free", lambda: True)
         monkeypatch.setattr(A, "install_ambient",
                             lambda *a, **k: (_ for _ in ()).throw(
                                 RuntimeError("no context")))
@@ -774,7 +774,7 @@ class TestTheScreensThatBuildTheirOwn:
 
     def test_the_classifier_being_gone_falls_back_to_logging(self,
                                                              monkeypatch):
-        """THE ARC: ``the_backdrop_wants_a_retry = None``.
+        """THE ARC: ``_the_backdrop_wants_a_retry = None``.
 
         The handler absorbs a missing ambient module, so it cannot lean
         on that module to classify the failure. With no classifier the

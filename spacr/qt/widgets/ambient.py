@@ -5206,7 +5206,7 @@ def _retire_fractals_on(host) -> int:
     return retired
 
 
-def the_heavy_import_lock_is_free() -> bool:
+def _the_heavy_import_lock_is_free() -> bool:
     """Whether the heavy-import lock could be taken right now.
 
     Asked without blocking and released immediately: a peek, not a
@@ -5221,7 +5221,7 @@ def the_heavy_import_lock_is_free() -> bool:
 
     This is the cheap half of the pair. It cannot close the race on its
     own -- the preloader re-takes the lock between two imports -- which
-    is what :func:`the_backdrop_wants_a_retry` is for. Peeking first is
+    is what :func:`_the_backdrop_wants_a_retry` is for. Peeking first is
     still worth it because it keeps a retry timer from paying the
     bounded wait on every tick while a long import runs.
     """
@@ -5239,7 +5239,7 @@ def the_heavy_import_lock_is_free() -> bool:
     return True
 
 
-def the_backdrop_wants_a_retry(error: BaseException) -> bool:
+def _the_backdrop_wants_a_retry(error: BaseException) -> bool:
     """Whether ``error`` from :func:`install_ambient` means "not yet".
 
     The spaceout backdrop refuses to build while a heavy import holds
@@ -5255,12 +5255,12 @@ def the_backdrop_wants_a_retry(error: BaseException) -> bool:
         again shortly, ``False`` for a real failure.
     """
     try:
-        from .fractal_travel import HeavyImportInProgress
+        from .fractal_travel import _HeavyImportInProgress
     except Exception:                                        # noqa: BLE001
         # No class to compare against means no backdrop module, which
         # means nothing could have raised it.
         return False
-    return isinstance(error, HeavyImportInProgress)
+    return isinstance(error, _HeavyImportInProgress)
 
 
 def _the_spaceout_fractal(host):
@@ -5290,7 +5290,7 @@ def _the_spaceout_fractal(host):
     try:
         from ..preferences import get_fractal_settings
         from .fractal_travel import (
-            HeavyImportInProgress, RuntimeControls, Settings,
+            _HeavyImportInProgress, RuntimeControls, Settings,
             create_fractal_widget)
 
         values = get_fractal_settings()
@@ -5317,13 +5317,13 @@ def _the_spaceout_fractal(host):
         widget.show()
         host.installEventFilter(_FractalTracksItsHost(widget, host))
         return widget
-    except HeavyImportInProgress:
+    except _HeavyImportInProgress:
         # NOT A FAILURE, and so not something to log an exception for or to
         # answer with `None`. `None` means "this launch has no fractal" and
         # the caller then installs the ordinary ambient engine instead --
         # which under spaceout is the wrong artwork, kept for good, because
         # a heavy import happened to be running at the moment a screen was
-        # opened. Raising says "not yet"; see `the_backdrop_wants_a_retry`.
+        # opened. Raising says "not yet"; see `_the_backdrop_wants_a_retry`.
         raise
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not install the spaceout fractal")

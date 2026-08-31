@@ -1279,7 +1279,7 @@ class GpuBackendError(RuntimeError):
     """The GPU renderer could not be built. Always caught by `auto`."""
 
 
-class HeavyImportInProgress(RuntimeError):
+class _HeavyImportInProgress(RuntimeError):
     """The heavy-import lock was busy, so no GL context was built yet.
 
     Deliberately NOT a :class:`GpuBackendError`, and deliberately not
@@ -1296,7 +1296,7 @@ class HeavyImportInProgress(RuntimeError):
 
 
 #: How long :class:`GpuFractalWidget` will wait for the heavy-import lock
-#: before giving up and raising :class:`HeavyImportInProgress`.
+#: before giving up and raising :class:`_HeavyImportInProgress`.
 #:
 #: SHORT ON PURPOSE. The preloader holds the lock for a whole module
 #: import -- 2.3 s for each of the two that pull torch -- and this
@@ -1951,7 +1951,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             if lock is None:
                 self._canvas = _Canvas()
             elif not lock.acquire(timeout=_HEAVY_LOCK_WAIT):
-                raise HeavyImportInProgress(
+                raise _HeavyImportInProgress(
                     "the heavy-import lock is held; the backdrop will be "
                     "built when it frees")
             else:
@@ -2215,7 +2215,7 @@ def create_fractal_widget(settings: Optional[Settings] = None,
     if settings.backend in ("auto", "gpu") and gpu_is_available():
         try:
             return _make_gpu_widget(settings, controls, hardware)
-        except HeavyImportInProgress:
+        except _HeavyImportInProgress:
             # NOT A GPU FAILURE, so not the CPU renderer's cue. The context
             # was never attempted; the lock was busy. Falling through here
             # would trade a 0.3 s wait for the twenty-core fallback, and

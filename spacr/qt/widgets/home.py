@@ -1326,7 +1326,7 @@ class HomePage(QWidget):
             if not get_ambient_enabled():
                 return
             from .ambient import (install_ambient,
-                                  the_heavy_import_lock_is_free)
+                                  _the_heavy_import_lock_is_free)
             # NOT WHILE A HEAVY IMPORT IS RUNNING. Home is built at
             # startup, which is exactly when the pipeline preloader is
             # importing torch under the lock the spaceout backdrop's GL
@@ -1334,7 +1334,7 @@ class HomePage(QWidget):
             # GUI thread and then fails; asking first costs a
             # non-blocking acquire. The screen is what matters and the
             # backdrop is decoration, so the decoration is what waits.
-            if not the_heavy_import_lock_is_free():
+            if not _the_heavy_import_lock_is_free():
                 from PySide6.QtCore import QTimer
 
                 QTimer.singleShot(120, self._install_ambient)
@@ -1359,10 +1359,10 @@ class HomePage(QWidget):
             # this handler exists to absorb, so it cannot be the thing
             # asked to classify the failure without a guard of its own.
             try:
-                from .ambient import the_backdrop_wants_a_retry
+                from .ambient import _the_backdrop_wants_a_retry
             except Exception:                                # noqa: BLE001
                 return
-            if the_backdrop_wants_a_retry(error):
+            if _the_backdrop_wants_a_retry(error):
                 from PySide6.QtCore import QTimer
 
                 QTimer.singleShot(120, self._install_ambient)
