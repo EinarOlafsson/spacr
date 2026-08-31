@@ -94,15 +94,39 @@ class TestTheSpaceArmsThatNoLongerHaveAThemeBehindThem:
         with pytest.raises(ValueError, match="unknown theme choice"):
             P.set_theme_choice("space:nebula")
 
-    def test_the_arms_are_still_there_to_be_removed(self):
-        """Recorded so the dead code is findable, not so it is kept.
+    def test_the_arms_are_gone(self):
+        """The tidy-up this class asked for, done on 2026-08-31.
 
-        Both functions branch on a family the application no longer has.
-        Deleting the two arms and `get_space_variant`/`set_space_variant`
-        with them is a tidy-up nobody has done; this test says where.
+        It used to assert the arms were STILL THERE -- "recorded so the
+        dead code is findable, not so it is kept... this test says
+        where". They are deleted now, so it asserts the opposite, and
+        the three tests above are what make that safe: "space" cannot be
+        set, no `space:` token is offered, and one is refused before
+        reaching any arm. Absence is only worth asserting when the
+        positive facts under it are driven.
+
+        `get_space_variant` and `set_space_variant` DID NOT go with
+        them, and the old note suggesting they should was too broad.
+        The space ARTWORK outlived the space THEME:
+        `space_background_path` still reads the variant to pick a
+        backdrop, and `spaceout` still draws it. What was deleted is the
+        handling for a theme nobody can select.
         """
         import inspect
 
-        assert 'if theme == "space":' in inspect.getsource(P.get_theme_choice)
-        assert 'if choice.startswith("space:"):' in inspect.getsource(
-            P.set_theme_choice)
+        for function in (P.get_theme_choice, P.set_theme_choice):
+            code = "\n".join(
+                line for line in inspect.getsource(function).splitlines()
+                if not line.strip().startswith("#"))
+            assert '== "space"' not in code
+            assert 'startswith("space:")' not in code
+
+    def test_the_space_artwork_kept_its_variant_accessors(self):
+        """Because the backdrop still uses them.
+
+        Guards the over-broad half of the deletion: removing these would
+        take the `spaceout` backdrop's variant with them.
+        """
+        assert callable(P.get_space_variant)
+        assert callable(P.set_space_variant)
+        assert P.space_variants()

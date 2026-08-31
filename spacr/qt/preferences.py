@@ -1490,8 +1490,13 @@ def theme_choices() -> tuple:
 def get_theme_choice() -> str:
     """Return the composite token representing the current visual theme."""
     theme = get_theme()
-    if theme == "space":
-        return f"space:{get_space_variant()}"
+    # NO `space` BRANCH. "space" is not in VALID_THEMES -- `set_theme`
+    # refuses it and `theme_choices` offers no `space:` token -- so a
+    # branch for it could not be reached by any route through this
+    # module, and coverage counted three items nothing could execute.
+    # The Space ARTWORK still exists and `spaceout` still draws it; what
+    # is gone is the theme by that name, which is why the variant
+    # accessors below stay.
     if theme == "cell":
         return f"cell:{get_cell_variant()}"
     return theme
@@ -1503,10 +1508,9 @@ def set_theme_choice(choice: str) -> None:
     if choice not in valid:
         raise ValueError(
             f"unknown theme choice {choice!r}. Choose from {sorted(valid)}.")
-    if choice.startswith("space:"):
-        set_space_variant(choice.split(":", 1)[1])
-        set_theme("space")
-    elif choice.startswith("cell:"):
+    # Likewise no `space:` prefix: the validity check above rejects any
+    # token `theme_choices` does not offer, and it offers none.
+    if choice.startswith("cell:"):
         set_cell_variant(choice.split(":", 1)[1])
         set_theme("cell")
     else:
@@ -5468,14 +5472,18 @@ class PreferencesDialog:
                 box.setValue(float(value))
                 return box
 
-            def _whole(name, value, suffix=""):
+            def _whole(name, value):
+                # NO `suffix` PARAMETER. It had one, defaulting to "",
+                # and the single caller below never passed it -- so the
+                # `setSuffix` it guarded could not run, and coverage
+                # counted two items nothing could reach. A parameter with
+                # no caller is not extensibility, it is a branch that
+                # cannot be tested and a reader wondering what uses it.
                 """A whole-number field, equally uncapped."""
                 box = QSpinBox()
                 box.setObjectName(name)
                 box.setRange(-2_000_000_000, 2_000_000_000)
                 box.setKeyboardTracking(False)
-                if suffix:
-                    box.setSuffix(suffix)
                 box.setValue(int(value))
                 return box
 
