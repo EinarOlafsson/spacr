@@ -292,9 +292,26 @@ this end of the curve and not a sign of wasted work:
      1 -> 0   spacr/qt/widgets/setup_slides.py
      2 -> 3   spacr/qt/widgets/data_filter_panel.py   <-- WENT UP
 
-`data_filter_panel` gaining one is worth a look before the next run: an
-item appearing with no source change to that module usually means a test
-that used to reach it stopped, which is the quiet half of a ratchet.
+`data_filter_panel` gaining one was chased and CLOSED the same day. The
+new item was `114 -> 116` in `classify_columns`: the frame-identity memo
+finding an entry and rejecting it, which is the arc that makes an
+`id()`-keyed cache sound at all. Its neighbour `118 -> 120`, the reaping
+loop with something to reap, went with it. Nine tests, both guards
+mutation-checked -- see
+`tests/qt/test_cov_r8_column_kinds_cache_is_sound.py`.
+
+Two traps in writing them, both of the "the state under test never
+existed" kind that entry 35 of instruction 310 is about:
+
+  * classifying four temporaries in a row does NOT fill a four-entry
+    id-keyed cache. CPython hands each new frame the address the last
+    one just released, so they collapse onto two keys. Hold them while
+    it fills, then drop them together -- including the loop variable,
+    and with a `gc.collect()`, because pandas frames sit in cycles.
+  * the first weakref test passed against a mutant with the weakref
+    check DELETED, because the planted entry also differed in shape and
+    the cheap check was doing the work. A guard is only pinned when the
+    entry it rejects would otherwise be accepted.
 
 THE LARGEST REMAINING, unchanged from batched10 and now the whole list
 worth working from:
