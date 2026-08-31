@@ -1196,6 +1196,28 @@ def test_spacr_records_its_own_version_in_the_multiscale_metadata(tmp_path):
     assert recorded and recorded != "unknown"
 
 
+def test_distribution_metadata_precedes_the_checkout_version(monkeypatch):
+    """An installed artifact's own metadata remains authoritative."""
+    import spacr._version as checkout
+    import spacr.version as installed
+
+    monkeypatch.setattr(installed, "__version__", "9.8.7-installed")
+    monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
+
+    assert ome_zarr._spacr_version() == "9.8.7-installed"
+
+
+def test_checkout_version_fills_absent_distribution_metadata(monkeypatch):
+    """A source run records its synchronized literal instead of unknown."""
+    import spacr._version as checkout
+    import spacr.version as installed
+
+    monkeypatch.setattr(installed, "__version__", "unknown")
+    monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
+
+    assert ome_zarr._spacr_version() == "1.2.3-checkout"
+
+
 # ---------------------------------------------------------------------------
 # 9. The rest of the storage layer, one malformed fixture at a time
 # ---------------------------------------------------------------------------

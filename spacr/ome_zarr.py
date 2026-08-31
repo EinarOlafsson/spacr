@@ -2336,10 +2336,23 @@ def _spacr_version() -> str:
     Never allowed to fail a write: a version string is documentation.
     """
     try:
-        from .version import __version__
-        return str(__version__)
+        from .version import __version__ as installed_version
     except Exception:
         return "unknown"
+    resolved = str(installed_version)
+    if resolved and resolved != "unknown":
+        return resolved
+
+    # A checkout on PYTHONPATH may have no installed distribution metadata,
+    # but it still carries the release helper's synchronized version literal.
+    # Metadata remains authoritative for installed packages; this is only
+    # the source-tree fallback used when that lookup explicitly found none.
+    try:
+        from ._version import __version__ as checkout_version
+        fallback = str(checkout_version)
+    except Exception:
+        return "unknown"
+    return fallback or "unknown"
 
 
 def _validate_ngff_axes(axes: Sequence[Axis], shape: Sequence[int]) -> None:
