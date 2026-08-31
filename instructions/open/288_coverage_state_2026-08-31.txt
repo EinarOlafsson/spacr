@@ -206,19 +206,24 @@ The work split roughly three ways:
   retired space theme), and a second pin on the same fact is one more
   thing to update rather than one more thing checked.
 
-FOUR PINS WERE MUTATION-TESTED, because a pin that cannot fail is worse
-than no pin:
+SIX PINS WERE MUTATION-TESTED, because a pin that cannot fail is worse
+than no pin. Each premise was broken in the source, the pin run, and the
+source restored:
 
   a sixth unit appended to a byte formatter without extending its
   unconditional clause -- fails.
   the test-mode file listing stopping filtering by the regex -- fails.
   assign_well's priors no longer normalised -- fails.
   a tenth annotate key token with no branch in handle_key -- fails.
+  _toggle_annotation dropping its slot check before it writes -- fails.
+  the glitch scan widened from range(1, n-1) to range(0, n) -- fails.
+  condition_number's empty-matrix refusal removed -- fails.
 
-The first attempt at the fourth one PASSED, and the reason is worth
-keeping: my sed had not matched, so the mutation never landed. A
-negative mutation result has to be checked for whether the mutation
-actually applied.
+TWO OF THOSE ATTEMPTS FIRST REPORTED A PASS, and the reason is the part
+worth keeping: the mutation had not landed. One sed targeted a string
+that does not appear in the file; the other wrote syntax that changed
+nothing. A negative mutation result proves nothing until the mutation is
+confirmed to have applied -- check the diff, not the exit code.
 
 THE PINS ARE SOURCE-TEXT ASSERTIONS, and that is a deliberate trade.
 They are brittle to reformatting -- a line rewrapped will fail one --
