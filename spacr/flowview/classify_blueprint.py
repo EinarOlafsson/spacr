@@ -45,6 +45,14 @@ def classify_graph(
     The graph shows only the family the run will execute.  It deliberately
     does not draw a dormant CV/ML branch: Classify's settings already retain
     and grey the inactive family, while FlowView reports what this run did.
+
+    :param settings: Classify settings used to resolve the active family,
+        source, dataset basis, and stage metadata.
+    :param run_id: Identifier assigned to the resulting run graph.
+    :param started_at: Optional Unix timestamp for the start of the run.
+        The current time is used when this is omitted.
+    :param spacr_version: spaCR version recorded with the graph provenance.
+    :returns: Eight-stage run graph for the selected classifier family.
     """
 
     family = resolve_family(settings)

@@ -148,6 +148,13 @@ teardown, parameter and return contract contributes five exact reviewed mappings
 per locale.  Decoder-disabled rematerialization and grouped strict audits then
 prove that all nine 8,861-document catalogs use the reviewed replacement prose.
 
+The FlowView follow-up documents every required parameter in the complete
+``classify_blueprint``, ``theme`` and ``trace`` slice, reducing the exact
+reverse-direction debt by six across four functions.  The compositor helpers
+remain private implementation details and therefore do not enter the public
+API inventory.  All nine catalogs remain at 8,861 current documents with no
+orphan after rematerializing the four changed FlowView contracts.
+
 ## Explicit English identities and fallbacks
 
 The runtime catalogs preserve this complete 84-item reviewed technical-identity
@@ -248,12 +255,12 @@ rendered `:ivar:` description; ordinary callables cannot use that rule.
 Curated AutoAPI aliases count at their canonical target only after signatures
 and rendered prose match exactly, while canonical debt remains counted once.
 After those narrow boundary rules, the reverse-direction ratchet records
-2,522 required parameters without a structured description across
-1,822 public callables.  Its count and digest fail on additions or
+2,516 required parameters without a structured description across
+1,818 public callables.  Its count and digest fail on additions or
 substitutions; the debt
 is still nonzero.  Its current digest is
-``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``.
-The 2026-08-30 source-docstring sweep removed 1,015 exact omissions from the
+``16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf``.
+The source-docstring sweeps removed 1,021 exact omissions from the
 preceding 3,713/2,541 baseline while preserving executable ASTs and zero scoped
 ghost fields.
 
@@ -262,6 +269,6 @@ ghost fields.
 The source/catalog fixed point, warning-as-error documentation gate, complete
 real-catalog selector exercise, and explicit mutation ratchets can be green
 while the semantic acceptance criteria above remain incomplete.  Item 306 can
-move to done only after the 2,522 required-parameter omissions are resolved, the
+move to done only after the 2,516 required-parameter omissions are resolved, the
 remaining tooltip unit/default/applicability scope is semantically disposed,
 and a named exhaustive or exactly sampled semantic review is completed.

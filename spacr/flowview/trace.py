@@ -252,7 +252,18 @@ def stage(
     params: Mapping[str, Any] | None = None,
     node_id: str | None = None,
 ) -> _StageSpec | _NullStage:
-    """Describe one stage for use as a decorator or context manager."""
+    """Describe one stage for use as a decorator or context manager.
+
+    :param label: Human-readable stage label used in trace events.
+    :param kind: Input, process, or output role of the stage node.
+    :param consumes: Labels of input artifacts consumed by the stage.
+    :param produces: Labels of output artifacts produced by the stage.
+    :param params: Optional stage metadata to retain in the trace graph.
+    :param node_id: Optional stable node identifier. One is derived from
+        ``label`` when this is omitted.
+    :returns: Active stage specification, or a no-op stage while tracing is
+        disabled.
+    """
 
     if not is_enabled():
         return _NULL_STAGE
