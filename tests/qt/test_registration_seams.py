@@ -718,7 +718,15 @@ def test_two_widgets_cannot_quietly_claim_one_name(qss_sandbox):
 
 def test_the_exhaustive_loader_collects_without_restyling_per_import(
         qss_sandbox, monkeypatch):
-    """One explicit inventory sweep gets one outer composition, not N more."""
+    """One explicit inventory sweep gets one outer composition, not N more.
+
+    REWRITTEN 2026-08-31. This drove a `_QSS_REGISTRARS_LOADING` flag that
+    the module no longer has, so it failed on an AttributeError rather
+    than on anything it was asserting. The guarantee it was written for
+    is still real and is still worth holding, so it is asserted against
+    the design that replaced it: `load_widget_qss_registrars` imports the
+    inventory and re-applies nothing per module.
+    """
     import importlib
 
     restyles = []
@@ -731,51 +739,117 @@ def test_the_exhaustive_loader_collects_without_restyling_per_import(
         return object()
 
     monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
-    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADING", False)
     monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES", modules)
     monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied",
-                        lambda *names: restyles.append(names))
+                        lambda *names, **kw: restyles.append(names))
     monkeypatch.setattr(importlib, "import_module", fake_import)
 
     assert theme_mod.load_widget_qss_registrars() == modules
-    assert restyles == []
-    assert theme_mod._QSS_REGISTRARS_LOADING is False
+    assert restyles == [], "the sweep restyled once per module imported"
+    for name in modules:
+        assert name in theme_mod._WIDGET_QSS, f"{name} registered nothing"
 
 
-def test_a_registration_during_restyle_does_not_recurse(
+def test_the_loader_marks_itself_done_before_it_imports_anything(
+        qss_sandbox, monkeypatch):
+    """The recursion guard, asserted where it actually lives now.
+
+    Several of these modules call `stylesheet()` while being imported,
+    and `stylesheet()` calls the loader. The flag is therefore set BEFORE
+    the imports rather than after -- without that ordering the first
+    module would re-enter the loader and import the inventory again.
+
+    This is the property the deleted `_QSS_REGISTRARS_LOADING` flag used
+    to provide, so it is the one this test replaces it with.
+    """
+    import importlib
+
+    seen = []
+
+    def reenters(name):
+        seen.append(name)
+        # what a registrar module that calls stylesheet() does
+        assert theme_mod.load_widget_qss_registrars() == (), (
+            "the loader re-entered and would import the inventory twice")
+        return object()
+
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
+    monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES",
+                        ("spacr.qt.probe_one",))
+    monkeypatch.setattr(importlib, "import_module", reenters)
+    assert theme_mod.load_widget_qss_registrars() == ("spacr.qt.probe_one",)
+    assert seen == ["spacr.qt.probe_one"]
+
+
+def test_a_second_sweep_imports_nothing(qss_sandbox, monkeypatch):
+    """Idempotent: the inventory is imported once per process."""
+    import importlib
+
+    calls = []
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
+    monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES",
+                        ("spacr.qt.probe_one",))
+    monkeypatch.setattr(importlib, "import_module",
+                        lambda name: calls.append(name) or object())
+    assert theme_mod.load_widget_qss_registrars() == ("spacr.qt.probe_one",)
+    assert theme_mod.load_widget_qss_registrars() == ()
+    assert calls == ["spacr.qt.probe_one"], "the inventory was imported twice"
+
+
+def test_one_registrar_that_will_not_import_costs_only_its_own_rules(
+        qss_sandbox, monkeypatch):
+    """A widget QSS block is decoration and must never stop the GUI."""
+    import importlib
+
+    def half_broken(name):
+        if name.endswith("bad"):
+            raise RuntimeError("this module does not import")
+        return object()
+
+    monkeypatch.setattr(theme_mod, "_QSS_REGISTRARS_LOADED", False)
+    monkeypatch.setattr(theme_mod, "WIDGET_QSS_MODULES",
+                        ("spacr.qt.good", "spacr.qt.bad", "spacr.qt.also_good"))
+    monkeypatch.setattr(importlib, "import_module", half_broken)
+    assert theme_mod.load_widget_qss_registrars() == (
+        "spacr.qt.good", "spacr.qt.also_good")
+
+
+def test_registering_a_block_does_not_restyle_the_application(
         qapp, qss_sandbox, monkeypatch):
-    """Field fade and similar late registrations join the outer rebuild.
+    """REPLACES `test_a_registration_during_restyle_does_not_recurse`.
 
-    The one test here that is about the restyle and not about the registry,
-    so it puts back the real ``ensure_widget_qss_applied`` the sandbox
-    suppressed -- registering is the only way to reach it, and the sandbox
-    is what stops every OTHER test in this file being perturbed by it.
+    That test asserted the opposite of what this code now promises: it
+    expected a registration to re-apply the QApplication stylesheet, and
+    read a `_QSS_RESTYLE_IN_PROGRESS` flag the module no longer has.
+
+    The behaviour was removed deliberately and the docstring on
+    `register_widget_qss` says why: Qt re-polishes EVERY live widget on a
+    global `setStyleSheet`, so doing that once per screen imported on
+    demand made later module opens progressively slower. That is the same
+    class of defect as the 3148 ms freeze fixed on 2026-08-30, and it
+    should stay fixed -- so the guarantee is now asserted directly.
     """
     from spacr.qt import preferences
 
-    monkeypatch.setattr(theme_mod, "ensure_widget_qss_applied", qss_sandbox)
+    applications = []
+    monkeypatch.setattr(preferences, "apply_preferences_to_app",
+                        lambda app: applications.append(app))
 
     previous = qapp.styleSheet()
     qapp.setStyleSheet("QWidget { color: red; }")
-    applications = []
-
-    def apply_once(app):
-        applications.append(app)
-        theme_mod.register_widget_qss(
-            "Nested", lambda palette, opacity:
-            "QFrame#Nested { color: blue; }")
-        app.setStyleSheet(theme_mod.stylesheet(
-            load_widget_registrars=False))
-
-    monkeypatch.setattr(preferences, "apply_preferences_to_app", apply_once)
     try:
         theme_mod.register_widget_qss(
             "Outer", lambda palette, opacity:
             "QFrame#Outer { color: green; }")
-        assert applications == [qapp]
-        assert "registered widget QSS: Outer" in qapp.styleSheet()
-        assert "registered widget QSS: Nested" in qapp.styleSheet()
-        assert theme_mod._QSS_RESTYLE_IN_PROGRESS is False
+        assert applications == [], (
+            "registering a block re-applied the application stylesheet, "
+            "which re-polishes every live widget")
+        assert qapp.styleSheet() == "QWidget { color: red; }", (
+            "the application stylesheet was rebuilt by a registration")
+        assert "Outer" in theme_mod._WIDGET_QSS
+        # and the block does reach a stylesheet that is composed later
+        assert "registered widget QSS: Outer" in theme_mod.stylesheet(
+            load_widget_registrars=False)
     finally:
         qapp.setStyleSheet(previous)
 
