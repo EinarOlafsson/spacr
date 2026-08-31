@@ -145,8 +145,12 @@ the `offscreen` the test suite sets.
     inputs, on the same row as the adjacent button. Reported twice.
     Not yet found.
 
-3c. VERBOSE LOGGING still installs the interpreter-wide profile hook
-    (1a). It needs to stop being able to make the application unusable.
+3c. VERBOSE LOGGING no longer installs the interpreter-wide profile hook.
+    The GUI verbose/debug controls retain their diagnostics without changing
+    either the process or threading profile hook; explicit function tracing
+    remains available through its dedicated API. A deterministic 100,000-call
+    probe measured the former hook at 476.02x baseline and the corrected path
+    at 1.04x, with 127 focused tests passing. Fixed by e4b14c51d.
 
 3d. THE MODULE BUILD STILL HOLDS THE THREAD FOR ~1.4 s. What remains is
     diffuse -- imports, `settings_search.install`, widget construction --
