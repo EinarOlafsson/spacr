@@ -2592,13 +2592,22 @@ def normalise_plate_columns(frame):
     :param frame: any frame read from a database or a CSV.
     :returns: the same frame.
     """
+    import pandas as pd
+    from pandas.api.types import is_object_dtype
+
     for column in PLATE_BEARING_COLUMNS:
         if column not in frame.columns:
             continue
         values = frame[column]
-        # `.str` refuses a non-object column, and a plate id stored as an
-        # INTEGER cannot carry a "pp" prefix, so there is nothing to do.
-        if getattr(values, 'dtype', None) != object:
+        # A plate id stored as a number cannot carry a "pp" prefix, so there
+        # is nothing to do. pandas 3 infers ordinary Python text as
+        # StringDtype rather than object; both are text-bearing inputs, while
+        # categorical and other extension dtypes retain their old no-op
+        # behaviour.
+        dtype = getattr(values, 'dtype', None)
+        if not (
+                is_object_dtype(dtype)
+                or isinstance(dtype, pd.StringDtype)):
             continue
         frame[column] = values.map(
             lambda v: canonical_plate_id(v) if isinstance(v, str) else v)
