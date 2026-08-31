@@ -1,0 +1,106 @@
+320 — THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
+==============================================================================
+
+REPORTED (2026-08-31), opening Mask Generation on macOS
+-------------------------------------------------------
+Dozens of these, and each one appears TWICE -- once under a
+"=== spaCR output — Mask Generation ===" header and once under
+"=== spaCR ERROR — Mask Generation ===":
+
+    libpyside: addMetaMethod: Cannot add dynamic method "_on_tick()" (2)
+    to QWidget/0x7f9c4768f9d0: No Wrapper found.
+    ... "_on_use_offered()" (2) to QWidget/"ChainingBar"
+    ... "refresh()" (2) to QWidget/"ChainingBar"
+    ... "_on_run_clicked()" (2) to QWidget/"ChainingBar"
+    ... "_on_measure_clicked()" (2) to QWidget/"DiameterPanel"
+    ... "_on_use_all_clicked()" (2) to QWidget/"DiameterPanel"
+    ... "_on_toggle_findings()" (2) to QWidget/"MeasureQCBanner"
+    ... "_on_score_clicked()" / "_on_copy_clicked()" / "refresh()"
+
+Repeats in full every time the screen is rebuilt (three times in one
+30-second window in the report).
+
+THERE ARE THREE SEPARATE DEFECTS HERE. Do not fix them as one.
+--------------------------------------------------------------
+
+(1) EVERY QT MESSAGE IS EMITTED TWICE, IN TWO DIFFERENT FORMATS.
+    From the report:
+        [13:29:40] spacr.qt WARNING  Qt warning: ...      <- "output" pane
+        13:29:40 [WARNING] spacr.qt: Qt warning: ...      <- "ERROR" pane
+    Neither matches the raw `print(f"{label}: {message}", file=sys.stderr)`
+    in `_install_quiet_qt_logging` (spacr/qt/__init__.py), which emits no
+    timestamp -- so BOTH are formatted log records and there is a second
+    emission path that has not been identified yet. Find it before
+    changing anything. `spacr/qt/logging_util.py:159` calls the package
+    setup WITHOUT `stream=True`, so the root logger should have a file
+    handler and no stream handler; that is worth re-checking against what
+    actually runs, because the report says otherwise.
+
+(2) A WARNING IS PRESENTED AS AN ERROR. The handler itself is correct --
+    it maps QtWarningMsg to `logging.WARNING` -- so the mislabel is in
+    whatever routes a stream into the console panel's ERROR pane, almost
+    certainly "anything on stderr is an error". A Qt warning is not an
+    error, and a pane that cries error over routine noise is a pane
+    people stop reading. That is the cost: the next line in it might be
+    the one that matters.
+
+(3) THE PYSIDE WARNING ITSELF. Benign -- the module opens and works, and
+    the connections are made; what fails is PySide registering a dynamic
+    SLOT on the receiver for lifetime tracking. Do NOT simply add it to
+    `_QT_NOISE` until (a) and (b) below are answered, because an
+    untracked connection to a receiver that dies before its sender is a
+    real crash shape, and this warning is the only notice of it.
+
+ALREADY ESTABLISHED -- do not redo this
+---------------------------------------
+* NOT REPRODUCIBLE on Linux with PySide6 6.11.2. Built `MainWindow`,
+  navigated to `mask`, `make_masks` and `measure` through
+  `_on_nav_selected` with a `qInstallMessageHandler` capturing every Qt
+  message: ZERO `addMetaMethod` warnings. Also built `MakeMasksScreen`
+  directly: zero.
+* The warning strings ARE present in the local libpyside6 binary, so the
+  code path exists in 6.11.2 and simply is not being reached here.
+* setup.py pins `PySide6>=6.6,<7`, so a fresh Mac install from git gets
+  the newest 6.x available -- very likely NEWER than 6.11.2. That version
+  difference is the leading explanation for "only on Mac".
+* The connections are ordinary bound-method connects, e.g.
+  `spacr/qt/chaining.py:237` `self._btn_use.clicked.connect(self._on_use_offered)`,
+  `:268` `self._timer.timeout.connect(self.refresh)`,
+  `:347` `button.clicked.connect(self._on_run_clicked)`. Nothing exotic:
+  no `connectSlotsByName`, no `@Slot` decorators, and the only
+  string-based `QMetaObject.invokeMethod` calls in the tree are
+  `console_panel.py:470,482` for "start"/"stop", which are not these
+  names.
+* `ChainingBar` is a `QFrame` subclass (chaining.py:170) that sets
+  `setObjectName("ChainingBar")` (:190). The warning nonetheless reports
+  the class as `QWidget`, which is consistent with the wrapper lookup
+  having failed -- that is the message's own complaint, not a second
+  clue.
+
+WHAT TO ANSWER FIRST
+--------------------
+(a) WHICH PySide6 VERSION is on the reporting Mac. Ask; do not guess.
+    If it is >6.11.2, reproduce by installing that version here and
+    running the capture described above. If it reproduces, this is a
+    PySide behaviour change and the fix is ours to adapt to.
+(b) WHETHER THE CONNECTION IS ACTUALLY UNTRACKED when the warning fires.
+    Construct the failure directly: connect a signal to a bound method of
+    a receiver, destroy the receiver, emit. If PySide has fallen back to
+    an untracked connection this is a crash; if it has not, the warning
+    is cosmetic and can be filtered with a comment saying exactly that.
+
+DONE MEANS
+----------
+* One emission per Qt message, at its true level.
+* Warnings do not appear in an ERROR pane. Errors still do.
+* The PySide family is either filtered WITH a recorded reason and a
+  version bound, or adapted to -- not silenced on the grounds that it is
+  noisy.
+* A test that fails if a Qt warning is emitted twice, and one that fails
+  if a QtWarningMsg is classified as an error.
+
+FILES: spacr/qt/__init__.py (`_install_quiet_qt_logging`, `_QT_NOISE`),
+spacr/logging_util.py, spacr/qt/logging_util.py, the console panel's
+stream classification. NOT app.py, screens/, setup_slides.py,
+hf_download.py, command_palette.py or setup.py -- another session is in
+those.
