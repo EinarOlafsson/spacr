@@ -365,42 +365,94 @@ affected widget (`AmbientWidget`) declares no signals, so the live cost is
 noise -- but this is a trap armed for the next widget parented into a screen
 that does declare one, and it would fail silently.
 
-"macOS-SPECIFIC, SAME VERSION" LOOKS WRONG
-------------------------------------------
-The mechanism has nothing platform-specific in it, and Part 5 reproduces it
-from QWidget and an event filter alone. NOT PROVEN ON LINUX from here -- one
-command settles it, and a Linux session should run it before this line is
-believed either way:
+WHY A LINUX RECONSTRUCTION SAID "IDENTICAL" -- IT IS THE KEEPING, NOT THE CALL
+------------------------------------------------------------------------------
+The concurrent Linux session (PySide6 6.11.2) built the minimal case and got
+no difference at all:
 
-    python tools/diagnose_pyside_slot_warning.py
+    no filter                    class=Ticker  sig=33  findChildren=1  emit=[7]
+    filter calls event.child()   class=Ticker  sig=33  findChildren=1  emit=[7]
 
-Likeliest reason the Linux captures saw zero: `_install_ambient` returns
-early and reschedules through `QTimer.singleShot(120, ...)` when the
-heavy-import lock is busy, so a screen can be built with no backdrop at all.
-On this Mac, three screens produced two warnings for that reason. A capture
-that navigates and calls `processEvents()` never waits out that 120 ms.
+That is a correct measurement of a DIFFERENT thing, and the distinction is
+the whole mechanism. Measured here, on the Mac:
 
-THE FIX, AND WHO OWNS IT
-------------------------
-In the filter, not in any child. `_LateCaptionTranslator.eventFilter` should
-capture `watched` -- which is fully wrapped already -- and look at its
-children one turn later, instead of calling `event.child()` while the child
-is still being constructed. Verified here on the synthetic pair: 0 warnings,
-className restored, `findChildren` 1, emit delivered.
+    no filter                     : 0 warnings   class=Ticker
+    child() and KEPT              : 1 warning    class=QWidget   <-- poisoned
+    child() and DROPPED           : 0 warnings   class=Ticker
+    child() never called          : 0 warnings   class=Ticker
 
-Deferring that way also hands back the child's REAL class, which removes the
-reason `_on_arrival` has to ask Qt with `inherits` rather than Python with
-`isinstance` -- so the workaround at :771-776 can go with it.
+CALLING event.child() IS NOT ENOUGH. The bare wrapper it mints is collected
+again immediately, and collecting it RELEASES the key it took, so the real
+registration that follows succeeds. The damage needs the bare wrapper to be
+still ALIVE when Shiboken registers the real one -- which is exactly what
+`QTimer.singleShot(0, partial(self._on_arrival, child))` did: it held that
+wrapper for one turn of the event loop.
 
-NOT DONE HERE: `spacr/qt/screens/app_screen.py` belongs to another session
-and this one was told to stay out of it. The `_QT_NOISE` entry in
-spacr/qt/__init__.py is therefore LEFT IN PLACE, with its reasoning
-rewritten to record the cause and to say that the entry must be deleted as
-soon as the filter stops calling `event.child()`. Removing it now would
-restore the noise without repairing anything.
+So a reconstruction that calls `event.child()` and lets it go is clean, on
+any platform, and that is the easiest way to conclude wrongly that this is
+macOS-only. Part 5 now runs all four arms so the discriminating pair cannot
+be missed.
 
-UNRELATED, SEEN IN PASSING, NOT INVESTIGATED: constructing
-`AmbientWidget(QWidget())` with a temporary parent segfaults, because the
-parent is collected immediately and takes the child with it. Self-inflicted
-by that probe rather than a shape any spaCR code uses, so it is recorded
-here and not chased.
+NOT SETTLED, AND NOT CLAIMED: whether the KEPT arm also poisons on Linux.
+Nothing in the mechanism is platform-specific, but that is reasoning, not a
+measurement, and the earlier draft of this section asserted it as fact --
+wrongly. `python tools/diagnose_pyside_slot_warning.py` prints all four arms
+and settles it in one command. If Linux is clean on the KEPT arm too, then
+the difference is in Shiboken's registration order and IS platform-specific,
+and this section should be rewritten around that.
+
+CORRECTING (b) AGAIN -- IT WAS NOT COSMETIC, AND IT COST A FEATURE
+-------------------------------------------------------------------
+Recorded above, and by me earlier today: "the connection is still made and
+still fires ... what is lost is a lifetime optimisation". The bound-method
+connection really does still fire -- 58 ticks against 58 for a control -- and
+that one true fact is what kept this looking harmless for three sessions.
+
+Everything else about a poisoned child is broken, including one thing that
+matters more than the metaobject:
+
+    ITS PYTHON OVERRIDES OF QT VIRTUALS ARE SILENTLY SKIPPED.
+
+Shiboken resolves a virtual override through the wrapper, and the wrapper is
+gone, so Qt calls the C++ base implementation instead. Measured:
+
+    clean host    : class=Shows    showEvent fired=2  resizeEvent fired=2
+    poisoned host : class=QWidget  showEvent fired=0  resizeEvent fired=0
+
+`AmbientWidget.start()` is reached from `showEvent`. So the override never
+ran, the timer never started, and THE BACKDROP NEVER ANIMATED. Measured in
+the real app, same script both ways:
+
+    without the fix : 2 warnings  className QWidget        findChildren 0
+                      frames_painted 0            -- STALLED
+    with the fix    : 0 warnings  className AmbientWidget  findChildren 1
+                      frames_painted 35 and 32    -- animating
+
+"Every affected module works" was true of the modules and false of the
+feature the warning was actually about. The animation had been dead on this
+machine for as long as the warning has been printing, and nobody connected
+the two because the warning names a slot registration and says nothing about
+paint.
+
+THE FIX, APPLIED
+----------------
+In the filter, not in any child. `_LateCaptionTranslator.eventFilter` no
+longer calls `event.child()`; it defers on `watched` -- already fully
+wrapped -- and `_on_arrivals_in` runs the pass a turn later over children
+that have not had one, marked with a Qt dynamic property so each is
+translated once. By then every child is its real class.
+
+That also removed the `inherits`-instead-of-`isinstance` workaround at the
+old :771-776, which existed only because of the bare wrapper this was
+creating. The docstring describing that wrapper is now the docstring
+explaining why the call is forbidden.
+
+`_QT_NOISE` in spacr/qt/__init__.py HAS BEEN REDUCED to its two remaining
+entries; the `addMetaMethod` line is gone, because the bug is repaired
+rather than quiet. The reasoning is kept at that constant so the line does
+not get re-filtered by someone who meets it again, and it says what to look
+for instead: something calling `event.child()` during `ChildAdded` and
+holding it.
+
+app_screen.py was owned by the concurrent session, which agreed to the
+change and asked for it to be pushed here.

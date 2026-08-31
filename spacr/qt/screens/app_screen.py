@@ -757,31 +757,81 @@ class _LateCaptionTranslator(QObject):
     """
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Schedule a pass over ``watched``, WITHOUT touching the new child.
+
+        THE ARRIVING CHILD MUST NOT BE ASKED FOR HERE -- no `child` call on
+        this event -- and the reason is not
+        style. `ChildAdded` is delivered synchronously from inside the
+        child's C++ constructor, before Shiboken has registered the wrapper
+        for the Python class being built. Asking for the child at that
+        instant mints a BARE QWidget wrapper and registers THAT under the
+        child's pointer; Shiboken never overwrites an existing key, so the
+        real wrapper is never registered, and when the bare one is released
+        the pointer is left mapped to nothing for the rest of the process.
+
+        The child then loses its whole dynamic metaobject: its own signals
+        vanish from it, so emitting one is a silent no-op, and
+        `findChildren()` by type cannot see it. That is what produced
+        "libpyside: addMetaMethod: ... No Wrapper found." once per screen
+        built -- see instruction 320 and Part 5 of
+        `tools/diagnose_pyside_slot_warning.py`, which reproduces it and
+        this fix in isolation.
+
+        THE KEEPING IS WHAT DOES THE DAMAGE, not the call: a bare wrapper
+        that is dropped immediately is collected again before the real
+        registration and costs nothing, which is why deferring with
+        `partial(..., child)` -- holding it for exactly one turn -- was the
+        shape that broke it. So `watched` is deferred instead. It is
+        already fully wrapped, and a turn later every child of it is too.
+        """
         if event.type() != QEvent.ChildAdded:
             return False
-        child = event.child()
-        if not isinstance(child, QWidget):
-            return False
-        QTimer.singleShot(0, partial(self._on_arrival, child))
+        QTimer.singleShot(0, partial(self._on_arrivals_in, watched))
         return False
+
+    #: Marks a child this filter has already run its pass over. A Qt
+    #: dynamic property rather than a Python attribute or an id() set,
+    #: because it has to survive the Python wrapper being collected and
+    #: recreated, and id()s of dead widgets get reused.
+    _HANDLED = "_spacr_late_caption_seen"
+
+    def _on_arrivals_in(self, host) -> None:
+        """Run the pass over children of ``host`` that have not had one.
+
+        Scans rather than being handed the child, because the arrival is
+        the one moment the child cannot safely be touched -- see
+        :meth:`eventFilter`. A turn later they are ordinary widgets of
+        their real classes.
+        """
+        try:
+            children = [child for child in host.children()
+                        if isinstance(child, QWidget)]
+        except RuntimeError:
+            # The host itself went away before the turn came round.
+            return
+        for widget in children:
+            try:
+                if widget.property(self._HANDLED):
+                    continue
+                widget.setProperty(self._HANDLED, True)
+            except RuntimeError:
+                continue
+            self._on_arrival(widget)
 
     def _on_arrival(self, widget) -> None:
         """Follow and translate a subtree, a turn after it was parented.
 
-        ``ChildAdded`` arrives from inside the child's own constructor, so
-        what it hands out is a bare ``QWidget`` wrapper of a widget whose
-        real class does not exist yet -- and that wrapper stays a
-        ``QWidget`` for the rest of the process, which is why the class is
-        asked of Qt with ``inherits`` rather than of Python with
-        ``isinstance``.
+        The widget arrives here as its REAL class, because nothing wrapped
+        it while it was still being constructed. That is why the strip
+        below is recognised with `isinstance` rather than by asking Qt with
+        `inherits`: the bare-QWidget wrapper that made `isinstance`
+        useless here no longer happens.
         """
         try:
-            if widget.inherits("QTabWidget"):
+            if isinstance(widget, QTabWidget):
                 # A PAGE STRIP. Its own captions are its tabs, and the pass
-                # sets those through `QTabWidget` methods it reaches by
-                # `isinstance` -- which this wrapper will never satisfy. So
-                # the walk starts at what the strip was parented into,
-                # whose `findChildren` answers with the typed strip.
+                # sets those through `QTabWidget` methods, so the walk
+                # starts at what the strip was parented into.
                 self._watch_pages_of(widget)
                 self._translate(widget.parent() or widget)
                 return
