@@ -1989,7 +1989,13 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None,
     from .control_names import rows_for
 
     labels = pd.Series('other', index=features.index, dtype=object)
-    genes = guides.astype(str).str.split('_').str[0]
+    # pandas 3 preserves missing values through ``astype(str)``.  When every
+    # coefficient is a continuous term (for example Intercept + fraction),
+    # every extracted guide is missing and ``str.split`` then produces an
+    # all-float intermediate on which a second ``.str`` access raises.  A
+    # missing guide means "no guide", so normalize it to empty text before
+    # splitting; it cannot match any nonblank control.
+    genes = guides.fillna('').str.split('_').str[0]
     library = list(guides.astype(str).unique())
     if control_names:
         for name in sorted(control_names):
