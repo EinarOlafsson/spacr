@@ -37,9 +37,31 @@ def _reset_logging(monkeypatch, tmp_path):
     root = logging.getLogger()
     for h in list(root.handlers):
         root.removeHandler(h)
-    yield
-    for h in list(root.handlers):
-        root.removeHandler(h)
+    # AND ITS LEVEL. `setup_logging` sets the handlers' levels, never the
+    # root logger's, so a record is filtered by whatever the root was
+    # left at. Any earlier test in the same process that quietened it --
+    # and several do, deliberately, to keep their own output readable --
+    # makes the INFO records below vanish before they reach the Qt
+    # handler, which arrives here as "Signal not emitted after 1000 ms"
+    # and reads as a broken handler rather than a raised level.
+    was = root.level
+    root.setLevel(logging.INFO)
+    # The named loggers these tests use, too: a level set on an ancestor
+    # of "spacr.qt.tests" is checked before the root's is.
+    named = [logging.getLogger(name) for name in
+             ("spacr", "spacr.qt", "spacr.qt.tests",
+              "spacr.qt.tests.console")]
+    levels = [logger.level for logger in named]
+    for logger in named:
+        logger.setLevel(logging.NOTSET)
+    try:
+        yield
+    finally:
+        root.setLevel(was)
+        for logger, level in zip(named, levels):
+            logger.setLevel(level)
+        for h in list(root.handlers):
+            root.removeHandler(h)
 
 
 def test_setup_logging_creates_file_and_signal_handler(qt_theme_applied):
