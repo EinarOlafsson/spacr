@@ -5013,7 +5013,8 @@ categories = {
 
     # How Cellpose runs, including the optional saved Cellpose checkpoint.
     # Classify uses custom_model_path instead and never receives this key.
-    "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+    "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
+
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_distance", "cell_min_object_area", "cell_intensity_threshold_method", "cell_intensity_percentile"],
 
@@ -5078,7 +5079,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->
@@ -6527,6 +6528,31 @@ def get_analyze_plaque_settings(settings):
     """
     settings.setdefault('src', 'path')
     settings.setdefault('masks', True)
+    # Which checkpoint segments the plaques: 'bundled' (the pre-2026 model
+    # that ships with spaCR), a model_zoo key such as 'toxoplasma_plaque_v1'
+    # (fetched from Hugging Face and checksum-verified the first time it is
+    # CHOSEN), or a path to your own.
+    #
+    # THE DEFAULT STAYS 'bundled' ON PURPOSE, even though toxoplasma_plaque_v1
+    # is markedly better (F1 0.856 vs 0.718 in-domain; the bundled model
+    # recalls 0.631 on the literature set, missing about a third of the
+    # plaques). Two reasons to make it a choice rather than a default:
+    # a default that downloads 1.2 GB the first time anyone runs the module is
+    # a surprise, and changing which model runs would silently change the
+    # counts in every existing pipeline that never asked for a new model.
+    # Selecting it is one setting; both of those are irreversible for someone
+    # who did not notice.
+    settings.setdefault('plaque_model', 'bundled')
+    # False for images that each hold one plaque field (the original
+    # behaviour); True to find the wells first and analyse each separately.
+    # A path or model_zoo key selects a different detector.
+    settings.setdefault('well_detection', False)
+    settings.setdefault('well_confidence', 0.25)
+    settings.setdefault('well_pad', 0)
+    # The ruler. Without one of these, areas stay in pixels -- which are a
+    # property of the microscope, so they cannot be pooled across scopes.
+    settings.setdefault('plate_format', None)
+    settings.setdefault('well_diameter_mm', None)
     settings.setdefault('background', 200)
     settings.setdefault('Signal_to_noise', 10)
     settings.setdefault('CP_prob', 0)

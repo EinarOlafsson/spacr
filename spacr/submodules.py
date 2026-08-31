@@ -1,7 +1,7 @@
 """Cellpose training and domain-specific analysis pipeline entry points."""
 
 import seaborn as sns
-import os, random, sqlite3, re, time, shutil, itertools
+import os, random, sqlite3, re, time, shutil, itertools, logging
 import pandas as pd
 import numpy as np
 import torch
@@ -1106,6 +1106,181 @@ def analyze_recruitment(settings):
 
     return [cells,wells]
 
+
+
+
+
+def _plaque_scale_for(filename, settings):
+    """The pixels-per-mm for one segmented image, or ``None``.
+
+    Reads the well geometry recorded by the detection pass
+    (:func:`split_wells`) for this crop, and turns it into a scale against the
+    plate format the user declared.
+
+    ``None`` is a real answer and the common one: an image that was not split
+    into wells, or a run that never said what plate it was, has no ruler in it.
+    The analysis then reports pixels and leaves the mm^2 columns empty, which
+    is honest. Inventing a default plate format would fill those columns with
+    confident numbers that are wrong by whatever the real plate was.
+    """
+    from .plaque import Well, scale_from_well
+
+    geometry = (settings.get('_well_geometry') or {}).get(filename)
+    if not geometry:
+        return None
+    well = Well(**{k: geometry[k] for k in ('x0', 'y0', 'x1', 'y1')
+                   if k in geometry})
+    try:
+        return scale_from_well(
+            well,
+            plate_format=settings.get('plate_format'),
+            well_diameter_mm=settings.get('well_diameter_mm'))
+    except KeyError:
+        LOG_PLAQUE.warning(
+            "plate_format=%r is not a known format; plaque areas stay in "
+            "pixels", settings.get('plate_format'))
+        return None
+
+
+LOG_PLAQUE = logging.getLogger(__name__)
+
+
+def split_wells(settings):
+    """Cut every multi-well image under ``src`` into one image per well.
+
+    Runs the YOLO well detector over each image, writes one crop per well into
+    ``<src>/wells``, and records each crop's box so
+    :func:`_plaque_scale_for` can turn its diameter into a scale later.
+
+    :param settings: the plaque settings dict. Reads ``src``,
+        ``well_detector_model``, ``well_confidence`` and ``well_pad``; writes
+        ``_well_geometry``.
+    :returns: the folder holding the crops, or ``src`` unchanged when
+        detection is off or finds nothing.
+
+    WHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the
+    two shapes of input differ in what a RESULT ROW MEANS. One field per image
+    gives one row per image; a plate gives one row per well, and the well has
+    to be named or the conditions are pooled into a single meaningless count.
+    Splitting first makes every downstream row a well, whichever shape arrived.
+    """
+    from .plaque import crop_well, detect_wells
+
+    src = settings['src']
+    weights = _resolve_well_detector(settings)
+    if not weights:
+        return src
+
+    out_dir = os.path.join(src, 'wells')
+    os.makedirs(out_dir, exist_ok=True)
+    geometry = {}
+    n_images = 0
+    for filename in sorted(os.listdir(src)):
+        path = os.path.join(src, filename)
+        if not (os.path.isfile(path) and filename.lower().endswith(
+                ('.tif', '.tiff', '.png', '.jpg', '.jpeg'))):
+            continue
+        image = cellpose.io.imread(path)
+        wells = detect_wells(image, weights,
+                             confidence=float(settings.get('well_confidence',
+                                                           0.25)))
+        if not wells:
+            LOG_PLAQUE.warning(
+                "no wells detected in %s; it is passed through whole", filename)
+            continue
+        n_images += 1
+        stem = os.path.splitext(filename)[0]
+        for index, well in enumerate(wells, start=1):
+            crop = crop_well(image, well, pad=int(settings.get('well_pad', 0)))
+            name = f"{stem}_well{index:02d}.tif"
+            cellpose.io.imsave(os.path.join(out_dir, name), crop)
+            geometry[name] = well.as_dict()
+    if not geometry:
+        return src
+    settings['_well_geometry'] = geometry
+    print(f"split {n_images} image(s) into {len(geometry)} well crop(s)")
+    return out_dir
+
+
+def _resolve_well_detector(settings):
+    """Path to the YOLO well-detector checkpoint, or ``None`` when off.
+
+    ``well_detection`` may be ``False`` (off), a path, or a
+    :mod:`spacr.model_zoo` key -- ``True`` means the default detector.
+    """
+    requested = settings.get('well_detection', False)
+    if not requested:
+        return None
+    if requested is True:
+        requested = 'toxoplasma_well_detector_v1'
+    requested = str(requested)
+    if os.path.isfile(requested):
+        return requested
+    from . import model_zoo
+    entry = next((e for e in model_zoo.catalogue(remote=True)
+                  if e.key == requested), None)
+    if entry is None:
+        raise ValueError(
+            f"well_detection={requested!r} is neither a file nor a model_zoo "
+            f"key")
+    dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    os.makedirs(dest, exist_ok=True)
+    return str(model_zoo.fetch(entry, dest))
+
+
+def _resolve_plaque_model(settings):
+    """The Cellpose checkpoint the plaque analysis should segment with.
+
+    Three sources, in priority order, because they answer different questions:
+
+    1. ``plaque_model`` naming an existing FILE -- the user has their own
+       checkpoint and means it;
+    2. ``plaque_model`` naming a :mod:`spacr.model_zoo` key, fetched from
+       Hugging Face on first use and checksum-verified. This is the default,
+       and it is ``toxoplasma_plaque_v1``;
+    3. the legacy bundled pack, kept reachable as ``'bundled'`` so a run
+       recorded against the old model can be reproduced.
+
+    THE DEFAULT REMAINS ``'bundled'``, which is a deliberate refusal to improve
+    results behind the user's back. ``toxoplasma_plaque_v1`` is markedly better
+    -- F1 0.856 against 0.718 in-domain, and the bundled model recalls only
+    0.631 on the literature set, so it misses about a third of the plaques --
+    and it is still not the default, because making it one would download 1.2
+    GB the first time anyone opens the module and would change the counts
+    reported by every existing pipeline that never asked for a new model.
+    Choosing it is one setting. Neither of those surprises is undoable by
+    someone who did not notice them.
+
+    :param settings: the plaque settings dict.
+    :returns: a filesystem path to a Cellpose checkpoint.
+    """
+    from .utils import download_models
+
+    requested = str(settings.get('plaque_model') or 'bundled')
+
+    if os.path.isfile(requested):
+        return requested
+
+    if requested == 'bundled':
+        download_models()
+        package_dir = os.path.dirname(os.path.join(os.path.dirname(__file__),
+                                                   '__init__.py'))
+        return os.path.join(package_dir, 'resources', 'models', 'cp',
+                            'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+
+    from . import model_zoo
+    entry = next((e for e in model_zoo.catalogue(remote=True)
+                  if e.key == requested), None)
+    if entry is None:
+        raise ValueError(
+            f"plaque_model={requested!r} is neither a file that exists, the "
+            f"string 'bundled', nor a model_zoo key. Known keys: "
+            f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
+    dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    os.makedirs(dest, exist_ok=True)
+    return str(model_zoo.fetch(entry, dest))
+
+
 def analyze_plaques(settings):
     """Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.
 
@@ -1143,15 +1318,21 @@ def analyze_plaques(settings):
     #from spacr import __file__ as spacr_path
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
-    download_models()
-    package_dir = os.path.dirname(spacr_path)
-    models_dir = os.path.join(package_dir, 'resources', 'models', 'cp')
-    model_path = os.path.join(models_dir, 'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+    model_path = _resolve_plaque_model(settings)
     settings['custom_model'] = model_path
-    print('custom_model',settings['custom_model'])
+    print('custom_model', settings['custom_model'])
 
     settings = get_analyze_plaque_settings(settings)
     save_settings(settings, name='analyze_plaques', show=True)
+
+    # WELL DETECTION FIRST, when the images hold more than one well. This
+    # rewrites `src` to the folder of per-well crops, so everything below --
+    # segmentation, counting, the results rows -- is per WELL rather than per
+    # image. With detection off, src is unchanged and the old one-field-per-
+    # image behaviour is exactly what runs.
+    if settings.get('well_detection'):
+        settings['src'] = split_wells(settings)
+
     settings['dst'] = os.path.join(settings['src'], 'masks')
 
     if settings['masks']:
@@ -1177,11 +1358,34 @@ def analyze_plaques(settings):
             sizes = [region.area for region in regions]
             average_size = np.mean(sizes) if sizes else 0
             std_dev_size = np.std(sizes) if sizes else 0
-            
-            summary_data.append({'file': filename, 'object_count': object_count, 'average_size': average_size})
-            stats_data.append({'file': filename, 'plaque_count': object_count, 'average_size': average_size, 'std_dev_size': std_dev_size})
+
+            # THE WELL IS THE RULER. A pixel area is a property of the
+            # microscope; the same plaque at two magnifications gives two
+            # numbers, and pooling them compares optics rather than biology.
+            # The well is a manufactured object of known size present in the
+            # image, so dividing by its measured diameter puts every area into
+            # mm^2 and makes plates from different scopes comparable -- which
+            # is the whole reason the detector runs.
+            scale = _plaque_scale_for(filename, settings)
+            px_per_mm = scale.px_per_mm if scale else None
+            well_px = scale.well_diameter_px if scale else None
+            mm2 = (lambda a: scale.area_mm2(a)) if scale else (lambda a: None)
+
+            summary_data.append({'file': filename, 'object_count': object_count,
+                                 'average_size': average_size,
+                                 'well_diameter_px': well_px,
+                                 'px_per_mm': px_per_mm,
+                                 'average_size_mm2': mm2(average_size)})
+            stats_data.append({'file': filename, 'plaque_count': object_count,
+                               'average_size': average_size,
+                               'std_dev_size': std_dev_size,
+                               'well_diameter_px': well_px,
+                               'px_per_mm': px_per_mm,
+                               'average_size_mm2': mm2(average_size),
+                               'std_dev_size_mm2': mm2(std_dev_size)})
             for size in sizes:
-                details_data.append({'file': filename, 'plaque_size': size})
+                details_data.append({'file': filename, 'plaque_size': size,
+                                     'plaque_size_mm2': mm2(size)})
     
     # Convert lists to pandas DataFrames
     summary_df = pd.DataFrame(summary_data)

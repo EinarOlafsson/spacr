@@ -263,6 +263,21 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- the plaque assay's models and its physical ruler --------------
+    # `plaque_model` selects the segmenter, so it sits with `custom_model`
+    # under Cellpose. The rest are filed under Plate Layout & Controls
+    # rather than a new "Wells" section, deliberately: a new category needs
+    # a curated SECTION_HINT in spacr/qt/screens/app_screen.py or it draws
+    # the generic fallback tooltip, and well geometry IS plate layout.
+    #
+    # `plate_format` and `well_diameter_mm` are the ruler. A plaque area in
+    # pixels is a property of the microscope; the well is a manufactured
+    # object of known size in the same image, so dividing by its measured
+    # diameter is what lets areas from two scopes be pooled at all.
+    "plaque_model",
+    "well_detection", "well_confidence", "well_pad",
+    "plate_format", "well_diameter_mm",
+
     # ---- added when Illumination was folded into Measure -------------
     # The flat-field correction is applied before any intensity feature is
     # computed, so it has to be settable on the measure run it changes.
