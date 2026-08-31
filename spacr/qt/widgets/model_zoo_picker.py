@@ -25,7 +25,7 @@ from __future__ import annotations
 import os
 from typing import List, Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QObject, Qt, QThread, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QDialog, QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
@@ -67,6 +67,88 @@ def _remember_model_dir(folder: str) -> None:
         QSettings().setValue(_DIR_SETTING, str(folder))
     except Exception:                                       # noqa: BLE001
         pass
+
+
+class _DownloadWorker(QObject):
+    """Fetch one model off the GUI thread.
+
+    WHY A THREAD AT ALL. ``model_zoo.fetch`` streams a file that is 1.2 GB for
+    the Toxoplasma models. Called from a button handler it blocks the event
+    loop for minutes: the dialog stops repainting, the progress bar cannot
+    move, and the compositor offers to force-quit spaCR -- which is instruction
+    315's whole subject, arriving through a dialog rather than a screen build.
+
+    The worker owns nothing Qt-visual. It emits numbers; the dialog draws.
+    """
+
+    progressed = Signal(int, int)      # bytes done, bytes total (0 = unknown)
+    finished = Signal(str)             # the installed path
+    failed = Signal(str)               # the message to show
+
+    def __init__(self, entry, folder: str, *, unverified: bool = False):
+        super().__init__()
+        self._entry = entry
+        self._folder = folder
+        self._unverified = bool(unverified)
+
+    def run(self) -> None:
+        """Do the fetch, reporting as it goes."""
+        from ... import model_zoo
+
+        try:
+            path = model_zoo.fetch(
+                self._entry, self._folder,
+                require_checksum=not self._unverified,
+                progress=lambda done, total: self.progressed.emit(
+                    int(done), int(total or 0)))
+        except Exception as exc:                            # noqa: BLE001
+            # The message matters more than the type: a ChecksumMismatch here
+            # means the bytes that arrived are not the model, which is the one
+            # download outcome a user must never be allowed to miss.
+            self.failed.emit(str(exc))
+        else:
+            self.finished.emit(str(path))
+
+
+def _human_bytes_local(size: float) -> str:
+    """A byte count a person can read.
+
+    model_zoo has its own ``_human_bytes``; this does not import it, because
+    that module pulls the whole zoo -- and its network paths -- onto the GUI
+    thread to format a number during a repaint that happens five times a
+    second.
+    """
+    value = float(size)
+    for unit in ("B", "kB", "MB", "GB"):
+        if value < 1024 or unit == "GB":
+            return f"{value:.1f} {unit}" if unit != "B" else f"{int(value)} B"
+        value /= 1024.0
+    return f"{value:.1f} GB"
+
+
+def _human_rate(bytes_per_second: float) -> str:
+    """A transfer rate a person can read."""
+    for unit in ("B/s", "kB/s", "MB/s", "GB/s"):
+        if bytes_per_second < 1024 or unit == "GB/s":
+            return f"{bytes_per_second:.1f} {unit}"
+        bytes_per_second /= 1024.0
+    return f"{bytes_per_second:.1f} GB/s"
+
+
+def _human_eta(seconds: float) -> str:
+    """A remaining time a person can read.
+
+    Says "estimating…" rather than a number until there is enough of a
+    transfer to divide by: an ETA computed from the first chunk is wrong by
+    minutes and reads as a promise.
+    """
+    if seconds <= 0 or seconds != seconds or seconds > 86400:
+        return "estimating…"
+    if seconds < 60:
+        return f"{int(seconds)}s left"
+    if seconds < 3600:
+        return f"{int(seconds // 60)}m {int(seconds % 60)}s left"
+    return f"{int(seconds // 3600)}h {int((seconds % 3600) // 60)}m left"
 
 
 class ModelZooPicker(QDialog):
@@ -210,6 +292,16 @@ class ModelZooPicker(QDialog):
             self.status.setText("")
         elif local:
             self.status.setText(f"Ready: {local}")
+        elif not getattr(entry, "sha256", ""):
+            # SAID BEFORE THE CLICK, not after it. fetch refuses an entry it
+            # cannot verify, so without this the button is enabled, pressing it
+            # fails, and the message explains a policy the user had no way to
+            # see. They can still choose to accept it -- that is the dialog
+            # below -- but it is a choice, made knowingly.
+            self.status.setText(
+                "This model publishes no checksum, so a truncated or "
+                "substituted file could not be told from the real one. "
+                "Downloading it will ask you to accept that.")
         else:
             note = "; ".join(getattr(entry, "notes", ()) or ())
             self.status.setText(note or "Not downloaded yet.")
@@ -238,34 +330,106 @@ class ModelZooPicker(QDialog):
                                 f"Cannot write to {folder}:\n{exc}")
             return
 
+        import time
+
         self.progress.setVisible(True)
-        self.progress.setRange(0, 0)          # indeterminate; size is unknown
+        self.progress.setRange(0, 0)          # until the size is known
+        self.progress.setFormat("%p%")
         self.status.setText(f"Downloading {entry.name}…")
         self.download_button.setEnabled(False)
-        outcome = ""
-        try:
-            path = model_zoo.fetch(entry, folder)
-        except Exception as exc:                            # noqa: BLE001
-            # NAMED, not swallowed. fetch refuses an entry whose checksum does
-            # not match, and that refusal is the single most important message
-            # this dialog can carry: it means the bytes are not the model.
-            QMessageBox.warning(
+        self.use_button.setEnabled(False)
+        unverified = not getattr(entry, "sha256", "")
+        if unverified:
+            answer = QMessageBox.question(
                 self, "Model zoo",
-                f"Could not download {entry.name}:\n{exc}")
-            outcome = f"Download failed: {exc}"
+                f"{entry.name} publishes no checksum.\n\n"
+                "spaCR cannot tell a truncated or substituted file from the "
+                "real one, so it normally refuses to install it. Download it "
+                "anyway?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if answer != QMessageBox.Yes:
+                self.progress.setVisible(False)
+                self.download_button.setEnabled(True)
+                self.status.setText("Download cancelled.")
+                return
+        self._folder_for_download = folder
+        self._started_at = time.monotonic()
+        self._last_emit = 0.0
+
+        # OFF THE GUI THREAD. These files are 1.2 GB; fetched from the button
+        # handler the event loop stops for minutes, the bar cannot move, and
+        # the compositor offers to force-quit spaCR -- instruction 315's
+        # subject, reached through a dialog instead of a screen build.
+        self._thread = QThread(self)
+        self._worker = _DownloadWorker(entry, folder,
+                                       unverified=unverified)
+        self._worker.moveToThread(self._thread)
+        self._thread.started.connect(self._worker.run)
+        self._worker.progressed.connect(self._on_progress)
+        self._worker.finished.connect(self._on_download_finished)
+        self._worker.failed.connect(self._on_download_failed)
+        self._thread.start()
+
+    def _on_progress(self, done: int, total: int) -> None:
+        """Draw percent, speed and time remaining.
+
+        Throttled to about five updates a second. A progress signal per 64 kB
+        chunk on a gigabyte file is sixteen thousand repaints, which costs more
+        than the download and makes the bar juddery rather than smooth.
+        """
+        import time
+
+        now = time.monotonic()
+        if total and now - self._last_emit < 0.2 and done < total:
+            return
+        self._last_emit = now
+        elapsed = max(now - self._started_at, 1e-6)
+        rate = done / elapsed
+
+        if total > 0:
+            self.progress.setRange(0, 100)
+            self.progress.setValue(int(done * 100 / total))
+            remaining = (total - done) / rate if rate > 0 else -1
+            self.status.setText(
+                f"{_human_bytes_local(done)} of {_human_bytes_local(total)}  ·  "
+                f"{_human_rate(rate)}  ·  {_human_eta(remaining)}")
         else:
-            _remember_model_dir(folder)
-            outcome = f"Downloaded to {path}"
-        finally:
-            self.progress.setVisible(False)
-            # REFRESH FIRST, THEN SAY WHAT HAPPENED. refresh() re-runs
-            # _selection_changed, which rewrites the status line from the
-            # selected entry -- so a message set before it is overwritten by
-            # the entry's own notes, and the failure the user most needs to
-            # see is the one that disappears. Caught by the test below.
-            self.refresh()
-            if outcome:
-                self.status.setText(outcome)
+            # No content-length: a bar with no end is honest, a percentage
+            # invented from an unknown total is not.
+            self.progress.setRange(0, 0)
+            self.status.setText(
+                f"{_human_bytes_local(done)}  ·  {_human_rate(rate)}  ·  "
+                f"size unknown")
+
+    def _finish_download(self, outcome: str) -> None:
+        """Common teardown for both download outcomes."""
+        self.progress.setVisible(False)
+        thread = getattr(self, "_thread", None)
+        if thread is not None:
+            thread.quit()
+            thread.wait(5000)
+            self._thread = None
+            self._worker = None
+        # REFRESH FIRST, THEN SAY WHAT HAPPENED. refresh() re-runs
+        # _selection_changed, which rewrites the status line from the selected
+        # entry -- so a message set before it is overwritten by the entry's own
+        # notes, and the failure the user most needs to see is the one that
+        # disappears.
+        self.refresh()
+        if outcome:
+            self.status.setText(outcome)
+
+    def _on_download_finished(self, path: str) -> None:
+        _remember_model_dir(getattr(self, "_folder_for_download", "") or path)
+        self._finish_download(f"Downloaded to {path}")
+
+    def _on_download_failed(self, message: str) -> None:
+        # NAMED, not swallowed. fetch refuses an entry whose checksum does not
+        # match, and that refusal is the single most important message this
+        # dialog can carry: it means the bytes are not the model.
+        QMessageBox.warning(self, "Model zoo",
+                            f"Could not download:\n{message}")
+        self._finish_download(f"Download failed: {message}")
 
     def _accept_selected(self) -> None:
         entry = self.selected_entry()
@@ -275,6 +439,41 @@ class ModelZooPicker(QDialog):
         self._chosen_path = local
         self.model_chosen.emit(local)
         self.accept()
+
+    def _stop_any_download(self) -> None:
+        """Stop and join a running download thread.
+
+        A QThread destroyed while it is still running takes the process with
+        it -- Qt aborts rather than unwinding. So closing this dialog during a
+        1.2 GB download, which is exactly when a user would close it, has to
+        wait for the worker rather than let Python drop the last reference to
+        a live thread. This crashed the test suite before it could crash a
+        user, which is the only reason it was found here.
+        """
+        thread = getattr(self, "_thread", None)
+        if thread is None:
+            return
+        try:
+            if thread.isRunning():
+                thread.quit()
+                # A bounded wait: an unbounded one turns "close the dialog"
+                # into "hang until the download finishes", which is the same
+                # freeze this thread was introduced to remove.
+                thread.wait(10000)
+        except RuntimeError:
+            pass
+        self._thread = None
+        self._worker = None
+
+    def closeEvent(self, event):                            # noqa: N802
+        """Join the download before the dialog goes away."""
+        self._stop_any_download()
+        super().closeEvent(event)
+
+    def reject(self) -> None:
+        """Cancel closes the dialog; it must not leave a thread behind."""
+        self._stop_any_download()
+        super().reject()
 
     def chosen_path(self) -> Optional[str]:
         """The path the user accepted, or ``None`` if they cancelled."""

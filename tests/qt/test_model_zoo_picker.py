@@ -41,6 +41,9 @@ def picker(qapp, tmp_path, monkeypatch):
     monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(tmp_path))
     dialog = mzp.ModelZooPicker(kinds=("cellpose",))
     yield dialog
+    # Join any worker BEFORE the dialog is destroyed: a QThread deleted while
+    # running aborts the process, which is how this was found.
+    dialog._stop_any_download()
     dialog.deleteLater()
 
 
@@ -95,23 +98,86 @@ def test_a_failed_download_is_reported_and_leaves_nothing_usable(
         picker, tmp_path, monkeypatch):
     """fetch refuses an entry whose checksum does not match, and that refusal
     is the most important message this dialog carries: it means the bytes are
-    not the model. It must not be swallowed into a silent no-op."""
-    from spacr import model_zoo
-
-    def boom(entry, dest, **kwargs):
-        raise model_zoo.ChecksumMismatch("sha256 does not match")
-
-    monkeypatch.setattr(model_zoo, "fetch", boom)
+    not the model. It must survive the refresh that follows."""
     monkeypatch.setattr(mzp.QMessageBox, "warning",
                         staticmethod(lambda *a, **k: None))
-
     picker.table.selectRow(_row_needing_download(picker))
     picker.folder_edit.setText(str(tmp_path))
-    picker._download_selected()
+
+    picker._on_download_failed("sha256 does not match")
 
     assert "does not match" in picker.status.text()
     assert picker.chosen_path() is None
     assert not picker.use_button.isEnabled()
+
+
+def test_starting_a_download_does_not_block_the_gui_thread(picker, tmp_path,
+                                                           monkeypatch):
+    """THE FREEZE. These files are 1.2 GB; fetched from the button handler the
+    event loop stops for minutes, the bar cannot move, and the compositor
+    offers to force-quit spaCR.
+
+    Driven by making fetch sleep: if the download were still synchronous, the
+    handler would not return until the sleep finished.
+    """
+    import time
+
+    from spacr import model_zoo
+
+    def slow_fetch(entry, dest, **kwargs):
+        time.sleep(1.0)
+        return str(tmp_path / entry.name)
+
+    monkeypatch.setattr(model_zoo, "fetch", slow_fetch)
+    # The selected entry may be an unverifiable one, which asks first.
+    monkeypatch.setattr(mzp.QMessageBox, "question",
+                        staticmethod(lambda *a, **k: mzp.QMessageBox.Yes))
+    picker.table.selectRow(_row_needing_download(picker))
+    picker.folder_edit.setText(str(tmp_path))
+
+    started = time.monotonic()
+    picker._download_selected()
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 1.0, (
+        f"_download_selected blocked the GUI thread for {elapsed:.1f}s")
+    # isHidden, NOT isVisible: the dialog itself is never shown in a headless
+    # test, and isVisible() is False for every child of a hidden ancestor.
+    assert not picker.progress.isHidden()
+    picker._stop_any_download()
+
+
+def test_progress_reports_percent_speed_and_time_left(picker):
+    """What the bar has to say while it runs."""
+    picker._started_at = __import__("time").monotonic() - 2.0
+    picker._last_emit = 0.0
+    picker._on_progress(50 * 1024 * 1024, 100 * 1024 * 1024)
+
+    assert picker.progress.value() == 50
+    text = picker.status.text()
+    assert "MB" in text, text
+    assert "/s" in text, f"no transfer rate: {text}"
+    assert "left" in text or "estimating" in text, f"no time remaining: {text}"
+
+
+def test_an_unknown_total_does_not_invent_a_percentage(picker):
+    """A server with no content-length gives no total. A bar with no end is
+    honest; a percentage computed from an unknown total is not."""
+    picker._started_at = __import__("time").monotonic() - 1.0
+    picker._last_emit = 0.0
+    picker._on_progress(1024 * 1024, 0)
+
+    assert picker.progress.maximum() == 0, "indeterminate, not a fake percent"
+    assert "size unknown" in picker.status.text()
+
+
+def test_the_eta_says_estimating_rather_than_a_wrong_number():
+    """An ETA from the first chunk is wrong by minutes and reads as a promise."""
+    assert mzp._human_eta(-1) == "estimating…"
+    assert mzp._human_eta(float("nan")) == "estimating…"
+    assert mzp._human_eta(10**6) == "estimating…"
+    assert mzp._human_eta(30) == "30s left"
+    assert mzp._human_eta(90) == "1m 30s left"
 
 
 def test_the_download_folder_is_shown_before_anything_is_fetched(picker,
@@ -119,3 +185,71 @@ def test_the_download_folder_is_shown_before_anything_is_fetched(picker,
     """Large checkpoints on the wrong disk is a full-disk error discovered
     afterwards; the folder is a control, on screen, from the start."""
     assert picker.folder_edit.text() == str(tmp_path)
+
+
+def _unverified_row(picker):
+    """A row that publishes no checksum AND is not already on disk.
+
+    Both halves matter. An entry already present takes the "Ready" branch and
+    never reaches the checksum warning -- which is right, there is nothing to
+    download -- so a test that ignored that would assert the warning against a
+    row that correctly does not show it.
+    """
+    for row, entry in enumerate(picker._entries):
+        if not getattr(entry, "sha256", "") and picker._local_path(entry) is None:
+            return row
+    pytest.skip("no unverifiable model is missing locally")
+
+
+def test_an_unverifiable_model_says_so_before_the_click(picker):
+    """The dead end the user hit.
+
+    fetch refuses an entry it cannot verify. Without this the Download button
+    is enabled, pressing it fails, and the message explains a policy the user
+    had no way to see beforehand.
+    """
+    picker.table.selectRow(_unverified_row(picker))
+    assert "no checksum" in picker.status.text().lower(), picker.status.text()
+
+
+def test_downloading_an_unverifiable_model_asks_first_and_honours_no(
+        picker, tmp_path, monkeypatch):
+    """Declining must not download."""
+    from spacr import model_zoo
+
+    called = {}
+    monkeypatch.setattr(model_zoo, "fetch",
+                        lambda *a, **k: called.setdefault("yes", True))
+    monkeypatch.setattr(mzp.QMessageBox, "question",
+                        staticmethod(lambda *a, **k: mzp.QMessageBox.No))
+
+    picker.table.selectRow(_unverified_row(picker))
+    picker.folder_edit.setText(str(tmp_path))
+    picker._download_selected()
+
+    assert "yes" not in called, "declining still started the download"
+    assert "cancelled" in picker.status.text().lower()
+
+
+def test_accepting_the_risk_passes_require_checksum_false(picker, tmp_path,
+                                                          monkeypatch):
+    """Accepting is what makes it possible at all -- and it must be the ONLY
+    thing that turns verification off, never a default."""
+    seen = {}
+
+    class FakeWorker:
+        def __init__(self, entry, folder, *, unverified=False):
+            seen["unverified"] = unverified
+        def moveToThread(self, _t): pass
+        progressed = finished = failed = None
+
+    picker.table.selectRow(_unverified_row(picker))
+    picker.folder_edit.setText(str(tmp_path))
+    monkeypatch.setattr(mzp.QMessageBox, "question",
+                        staticmethod(lambda *a, **k: mzp.QMessageBox.Yes))
+    monkeypatch.setattr(mzp, "_DownloadWorker", FakeWorker)
+    try:
+        picker._download_selected()
+    except Exception:
+        pass                      # the fake worker has no signals to connect
+    assert seen.get("unverified") is True
