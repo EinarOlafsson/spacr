@@ -2459,7 +2459,7 @@ def categories_for_app(
 
             "Model & Regularization": [
                 "classifier_family",
-                "model_type", "custom_model", "custom_model_path",
+                "model_type", "custom_model_path",
                 "resume_checkpoint", "init_weights",
                 "normalize", "normalization", "normalization_scope",
                 "dropout_rate", "weight_decay", "use_checkpoint"],
@@ -4225,16 +4225,13 @@ def language_resolved_once():
     outermost scope exits so subsequent builds observe language or catalog
     changes.
     """
-    from ..i18n import language_resolved_once as i18n_language_resolved_once
-
     global _LANGUAGE_SCOPE, _LANGUAGE_SCOPE_DEPTH, _TRANSLATION_MEMO
     if _LANGUAGE_SCOPE is None:
         _LANGUAGE_SCOPE = {}
         _TRANSLATION_MEMO = {}
     _LANGUAGE_SCOPE_DEPTH += 1
     try:
-        with i18n_language_resolved_once():
-            yield
+        yield
     finally:
         _LANGUAGE_SCOPE_DEPTH -= 1
         if _LANGUAGE_SCOPE_DEPTH <= 0:
@@ -4639,7 +4636,6 @@ _EXPLAINER_WIDTH = 54
 _MODE_TITLES = {
     "auto": "chosen from the response",
     "ols": "ordinary least squares",
-    "spline": "spline-basis least squares",
     "wls": "weighted least squares",
     "rlm": "robust M-estimation",
     "huber": "robust M-estimation (Huber)",
@@ -4650,6 +4646,7 @@ _MODE_TITLES = {
     "logit": "binomial GLM, logit link",
     "probit": "binomial GLM, probit link",
     "quantile": "quantile regression",
+    "spline": "least squares with spline-adjusted covariates",
     "mixed": "mixed effects, guides nested in genes",
     "lasso": "penalised least squares, L1",
     "ridge": "penalised least squares, L2",
@@ -4705,13 +4702,6 @@ _MODE_NOTES = {
         "the well residuals are roughly normal around one common variance. "
         "It is the baseline the others are worth comparing against."
     ),
-    "spline": (
-        "Ordinary least squares after expanding continuous covariates into "
-        "a spline basis; guide-abundance columns stay linear, so every guide "
-        "still has one coefficient and one p-value. spline_degree and "
-        "spline_knots control flexibility and the resulting degrees of "
-        "freedom, not which guides enter the fit."
-    ),
     "wls": (
         "Least squares weighted by the well's cell count, so a well of 400 "
         "cells outweighs one of 30. Worth choosing when wells differ widely "
@@ -4764,6 +4754,14 @@ _MODE_NOTES = {
         "appears here and in no mean model. It is the one backend whose "
         "answer changes meaning with a setting, so name the quantile "
         "alongside the result."
+    ),
+    "spline": (
+        "Ordinary least squares in which each continuous nuisance covariate "
+        "may bend through a B-spline basis. spline_knots controls how many "
+        "knots each basis receives and spline_degree controls its polynomial "
+        "degree; indicators and low-cardinality covariates remain linear. "
+        "Guide and gene columns are never expanded, so each perturbation "
+        "keeps one coefficient and its usual OLS p-value."
     ),
     "lasso": (
         "L1-penalised least squares sets coefficients to zero; alpha='auto' "
@@ -5163,8 +5161,6 @@ MODEL_API_LINKS = {
     "auto": ("spacr.ml.check_distribution", "ml"),
     "ols": ("statsmodels OLS",
             _STATSMODELS + "statsmodels.regression.linear_model.OLS.html"),
-    "spline": ("statsmodels OLS",
-               _STATSMODELS + "statsmodels.regression.linear_model.OLS.html"),
     "wls": ("statsmodels WLS",
             _STATSMODELS + "statsmodels.regression.linear_model.WLS.html"),
     "rlm": ("statsmodels RLM",
@@ -5194,6 +5190,8 @@ MODEL_API_LINKS = {
                  _STATSMODELS
                  + "statsmodels.regression.quantile_regression.QuantReg"
                    ".html"),
+    "spline": ("spacr.nonparametric_fits.spline_design",
+               "nonparametric_fits"),
     "mixed": ("statsmodels MixedLM",
               _STATSMODELS
               + "statsmodels.regression.mixed_linear_model.MixedLM.html"),
@@ -5352,13 +5350,26 @@ def _api_html(regression_type: Any, ink: Dict[str, str],
 #: Brief guidance shown when nonparametric inference bypasses model fitting.
 #: The separate Permutation Test section contains the full method description.
 NONPARAMETRIC_NOTE = (
-    "No model is fitted. Each guide is tested independently as a marginal "
-    "association, with P values obtained from plate-blocked permutations; "
-    "there is no formula, no family, and no coefficient conditional on the "
-    "other guides.",
-    "The regression settings are greyed but their values are kept, so "
-    "switching back restores the model. The Permutation Test section "
-    "explains the shuffle count and minimum guide support.",
+    "This asks one question of each guide on its own: does its abundance "
+    "track the phenotype? It does not fit a model, so nothing here is a "
+    "coefficient — there is no formula, no family, and no estimate of what "
+    "a guide does with every other guide held fixed.",
+    "How the P value is reached: the guide's read fraction and the well "
+    "phenotype are both cleaned of plate, row and column effects, and the "
+    "cleaned phenotype is then reshuffled between wells of the same plate, "
+    "many thousands of times. The P value is the share of those shuffles "
+    "that produced an association at least as strong as the real one — so "
+    "it is measured from your own data rather than assumed from a "
+    "distribution.",
+    "USE IT WHEN THE GUIDES OUTNUMBER THE WELLS. A model that fits every "
+    "guide at once needs more wells than guides or its coefficients are not "
+    "identifiable at all; this has no such limit. The cost is that guides "
+    "sharing a well are not told apart, and that no P value can be smaller "
+    "than one divided by the number of shuffles plus one.",
+    "The regression settings are greyed because this path never reads them. "
+    "Their values are kept, so switching back restores the model you chose. "
+    "The Permutation Test section sets the number of shuffles and how much "
+    "support a guide needs to be tested at all.",
 )
 
 
@@ -7891,7 +7902,10 @@ class SettingsWidgets:
 
     def __init__(self, app_key: str, parent: Optional[QWidget] = None,
                  *, skip_keys=(), current=None):
-        """
+        """Load the app's defaults and prepare its empty widget map.
+
+        :param app_key: id of the app whose settings are being edited.
+        :param parent: optional Qt parent for created widgets.
         :param skip_keys: settings to build NO widget for.
 
             For a FOLD, which mounts one module's extra settings onto
@@ -7900,11 +7914,10 @@ class SettingsWidgets:
             kept the 14 that mask does not already have, discarding the rest
             because the host already owns them. Naming them here skips them
             instead, which is the same result for 4% of the work.
-        """
-        """Load the app's default settings dict and prepare an empty widget map.
-
-        :param app_key: id of the app whose settings are being edited.
-        :param parent: optional Qt parent for created widgets.
+        :param current: optional mapping from the form being rebuilt. Recognized
+            settings replace the app defaults; its organelle count, slot, and
+            object-channel values determine which controls the replacement
+            form builds.
         """
         self.app_key = app_key
         self._parent = parent
@@ -9014,8 +9027,12 @@ class SettingsWidgets:
         """Update a known run setting whose widget is not on this form.
 
         This includes dedicated controls outside the form and object rows
-        omitted by the current shape. Hidden does not mean absent: imported
-        values live in ``_defaults`` and still reach ``collect()``. A slot
+        omitted by the current shape.
+
+        Hidden does not mean absent: imported
+        values live in ``_defaults`` and still reach ``collect()``.
+
+        A slot
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
         """
@@ -10219,7 +10236,13 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
         # previous setting's name -- or, in the preview panels, with the
         # "drop a folder here" placeholder that happens to sit first in the
         # row.
-        item = layout.itemAt(index - 1)
+        candidate_index = index - 1
+        # A stretching label is row status or a path placeholder, not the
+        # fixed caption of the editor after it.  Measure's preview path was
+        # otherwise paired with the adjacent maximum-set spin box.
+        if layout.stretch(candidate_index) > 0:
+            return None
+        item = layout.itemAt(candidate_index)
         return _named(item.widget()) if item is not None else None
     return None
 
@@ -10287,6 +10310,8 @@ def retarget_field_tooltips(root: QWidget) -> int:
 
     moved = 0
     for field in root.findChildren(QWidget):
+        if field.property("settingHelpLabel"):
+            continue
         if not _is_a_settings_field(field):
             continue
         tip = field.toolTip()
@@ -10304,15 +10329,38 @@ def retarget_field_tooltips(root: QWidget) -> int:
             # ended up with no help anywhere, which is a worse defect than
             # the one this pass exists to fix.
             continue
+        key = str(field.property("settingKey") or "")
+        app_key = str(field.property("settingsAppKey") or "")
+        if key and not app_key:
+            app_key = str(getattr(root, "app_key", "") or "")
+
+        display_tip = tip
+        if app_key and key:
+            source = str(
+                field.property("apiTooltipDescriptionSource")
+                or field.property("apiTooltipDescription")
+                or tip
+            )
+            html = str(field.property("apiTooltipHtml") or "")
+            display_tip = (html if "href=" in html
+                           else format_tooltip(source, app_key, key))
+            field.setProperty("settingsAppKey", app_key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
+            field.setProperty("apiTooltipHtml", display_tip)
+
         if not existing:
-            label.setToolTip(tip)
             label.setToolTipDuration(-1)
             label.setCursor(Qt.WhatsThisCursor)
-        label.setProperty("apiTooltipHtml", tip)
-        label.setProperty("apiTooltipDisplayRole", "tooltip")
-        # This widget now OWNS setting help.  ``install_api_tooltips`` later
+        label.setToolTip(display_tip)
+        label.setProperty("apiTooltipHtml", display_tip)
+        label.setProperty(
+            "apiTooltipDisplayRole",
+            "tooltip" if app_key and key else "hover-help",
+        )
+        # This widget now OWNS setting help. ``install_api_tooltips`` later
         # discovers fields by ``settingKey``; without this mark it also
-        # rediscovers these labels as though they were editors.  On a compact
+        # rediscovers these labels as though they were editors. On a compact
         # grid that second pass pairs each label with the label to its left,
         # overwriting two UMAP help strings and leaving their real labels
         # empty.
