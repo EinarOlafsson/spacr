@@ -119,7 +119,12 @@ def test_home_preferences_and_quit_come_first(window):
     # thirty app names. "All apps" was removed from the menu at the same
     # time -- its Ctrl+Shift+A shortcut is still registered on the window,
     # and `test_drawer_shortcut_survives_leaving_the_menu` covers that.
-    assert texts[:3] == ["Home", "Preferences…", "Quit"], texts[:5]
+    # Minimise and Maximise sit between Preferences and Quit, asked for on
+    # 2026-08-31: "add maximize minimize to the spacr menue above quit".
+    # They are the SAME two QActions the Window submenu holds, added to a
+    # second menu rather than rebuilt.
+    assert texts[:5] == ["Home", "Preferences…", "Minimise", "Maximise",
+                         "Quit"], texts[:6]
     assert "All apps" not in texts, (
         "the drawer toggle is back in the menu; it was removed because the "
         "name does not say what it does")

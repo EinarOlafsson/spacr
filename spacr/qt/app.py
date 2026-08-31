@@ -2230,19 +2230,37 @@ class MainWindow(QMainWindow):
         # rounded plate behind a 10 px mark reads as a button growing a
         # background rather than as the mark itself lighting up, which is
         # what was asked for.
-        corner.setStyleSheet("""
-            QWidget#WindowChrome {
-                background: transparent;
+        # THE BAR'S OWN COLOUR, NOT `transparent`. Same defect as
+        # `QMenuBar::item` in theme.py, and reported in the same breath:
+        # "there are black boxes behind the minimize, fullscreen and close
+        # icons... the black boxes appear only after hovering".
+        #
+        # `transparent` means paint nothing, and what is behind this
+        # corner is the WINDOW, whose palette Window role is the splash
+        # colour -- pure black. On Linux the menu bar's fill covers that;
+        # on macOS the hover repaint clears to the window first and the
+        # black arrives as a plate behind the mark. Painting the bar's
+        # colour is identical wherever transparent already worked.
+        #
+        # Read from the theme rather than written here so the corner
+        # cannot drift from the bar it sits on -- two hard-coded colours
+        # that must match is one of them going stale.
+        from .theme import menu_bar_background
+
+        bar_bg = menu_bar_background()
+        corner.setStyleSheet(f"""
+            QWidget#WindowChrome {{
+                background: {bar_bg};
                 border: none;
-            }
+            }}
             QWidget#WindowChrome QToolButton,
             QWidget#WindowChrome QToolButton:hover,
             QWidget#WindowChrome QToolButton:pressed,
             QWidget#WindowChrome QToolButton:checked,
-            QWidget#WindowChrome QToolButton:disabled {
-                background: transparent;
+            QWidget#WindowChrome QToolButton:disabled {{
+                background: {bar_bg};
                 border: none;
-            }
+            }}
         """)
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
