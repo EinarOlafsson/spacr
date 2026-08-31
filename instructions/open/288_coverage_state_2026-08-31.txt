@@ -436,8 +436,9 @@ driven test or a pin, by module:
     qt/screens/settings_model group order     4   all unreachable
     five pure fast-plot helpers               8   all unreachable
     eight settled qt guards                   8   all unreachable
+    deep_spacr attribution stack              6   all unreachable, stack driven
                                             ---
-                                             89
+                                             95
 
 Plus the 26 sites carrying an explicit pragma with a written reason.
 
@@ -446,7 +447,7 @@ NEW HOLES were found along the way and are the reason the audit is worth
 doing at all -- process_chunk's single-end half and settings' per-slot
 category loop, both reached by no test.
 
-BE HONEST ABOUT THE LIMIT OF THIS: 89 of roughly 300 distinct sites were
+BE HONEST ABOUT THE LIMIT OF THIS: 95 of roughly 300 distinct sites were
 read individually. That is a sample, not a census, and it was not drawn
 at random -- it is the largest modules and the sites this session
 touched. It is enough to say the pattern dominates; it is NOT enough to
@@ -457,12 +458,23 @@ something.
 THE REMAINING WORK, stated so it can be finished rather than measured
 forever:
 
-  1. finish the hand audit -- roughly 210 sites remain, at the rate above
+  1. finish the hand audit -- roughly 205 sites remain, at the rate above
      about two sessions, classifying each as unreachable-with-a-pin or
      drivable-and-untested, and writing the test either way;
-  2. `deep_spacr`'s 6, which need a model, a data loader and a real
-     epoch. An integration test, and the one block that will not yield
-     to the method the rest do.
+  2. DONE 2026-08-31. `deep_spacr`'s 6 now have the integration test
+     they were waiting for: a two-layer CNN trained for eight real
+     epochs on a real DataLoader, in under a second on CPU. See
+     `tests/test_cov_r9_attribution_integration.py`.
+
+     All six false arms stay uncovered -- none is reachable through the
+     API -- so this did not move the number either. The tests are worth
+     having regardless: they are the first thing in the suite that
+     proves an attribution can be computed at all, and the two
+     assertions that carry that are the map not being flat (which is
+     what fails when gradients stop reaching the input) and the object
+     the model was trained on drawing more attention than the empty
+     corners. A flat map passes every shape check and explains
+     nothing.
 
 The census script is worth keeping: parse each module, map every missing
 line and branch to its enclosing scope, grep the test corpus for that
