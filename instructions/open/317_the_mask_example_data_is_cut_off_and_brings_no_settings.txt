@@ -1,0 +1,102 @@
+================================================================================
+THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
+================================================================================
+
+Status:    OPEN, filed 2026-08-31.
+Owner:     spacr/qt/hf_download.py, spacr/qt/screens/mask.py, and the
+           settings pack on Hugging Face.
+Requested: 2026-08-31, in the maintainer's words --
+
+  "in the mask loade example data, in the window that pops up the text
+   number and % test is cutt of and when importing this data the correct
+   settings should also be filled in, hugging face has a settings file
+   for mask and measure for this dataset. these might need to be
+   downloaded and reformated if they are not compatible with the new
+   version of the modual. please fix all of theias"
+
+--------------------------------------------------------------------------------
+THREE THINGS, AND THEY ARE NOT THE SAME BUG
+--------------------------------------------------------------------------------
+
+1. THE PROGRESS DIALOG CLIPS ITS OWN TEXT.
+
+   `hf_download.download_toxo_mito_demo` builds its QProgressDialog with
+   the label "Preparing..." and then replaces it with
+
+       f"Downloading {name}\n({done}/{total} files)"
+
+   A QProgressDialog sizes itself from the label it was CONSTRUCTED with
+   and does not grow when the text gets longer. A Hugging Face filename
+   is far longer than "Preparing...", and the second line carries the
+   count -- so the name is clipped and the "(n/m files)" line, which is
+   the only progress a user can read, is cut off with it.
+
+   The fix is a minimum width that fits a real filename, a word-wrapping
+   label, and a re-fit when the text changes.
+
+2. THE MASK EXAMPLE BRINGS NO SETTINGS FROM THE DATASET.
+
+   `mask.load_the_example_images` writes a SYNTHETIC plate and applies
+   `synthetic.demo_settings("mask", src)` -- values invented to match the
+   generated images. That is right for the synthetic plate and wrong for
+   the real one: the maintainer is asking about the toxo_mito data, for
+   which a settings pack already exists.
+
+3. THE SETTINGS PACK IS ALREADY DOWNLOADED AND ONLY THE E2E DEMO USES IT.
+
+   `hf_download.SETTINGS_REPO` is `einarolafsson/spacr_settings`, and the
+   worker already fetches every file in it beside the dataset. The only
+   reader is `_run_e2e_chain._settings_for`, a closure inside
+   `MainWindow`, which reads `{app_key}_settings.csv` and merges it over
+   the app defaults.
+
+   THAT READER IS NOT SAFE TO REUSE AS IT STANDS. It merges every key it
+   finds, so a settings file written against an older spaCR carries keys
+   this version has retired or renamed straight into the form, where they
+   are either ignored silently or land on a control that means something
+   else now. That is the "might need to be reformated" the maintainer
+   names, and it is the substance of this item.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  a. Fix the dialog's sizing. Cheap, and it is the part the user sees
+     first.
+
+  b. Lift `_settings_for` out of the `_run_e2e_chain` closure into a
+     module-level function that MIGRATES rather than merges: for each key
+     in the pack, decide whether this version still has it, has renamed
+     it, or has retired it, and REPORT the three counts to the console
+     rather than applying silently. A settings pack that half-applies
+     without saying so is worse than one that does not apply at all,
+     because the run looks configured.
+
+  c. Give Mask Generation a way to load the REAL dataset with its pack,
+     beside the synthetic plate rather than replacing it. The synthetic
+     plate is fast, offline and reproducible and should stay; the real
+     one is what the settings pack is for.
+
+  d. Do the same for Measure, since the pack carries
+     `measure_settings.csv` as well.
+
+HOW TO KNOW IT WORKED
+
+  * the progress dialog shows a whole Hugging Face filename and its
+    "(n/m files)" line at every stage of the download;
+  * loading the real example data fills the mask form from
+    `mask_settings.csv`, and says how many keys were applied, renamed and
+    dropped;
+  * a settings pack written against an older spaCR applies its live keys
+    and NAMES the ones it could not, rather than merging them silently;
+  * the synthetic plate still works offline.
+
+WHAT IS ALREADY TRUE, so nobody re-derives it:
+
+  * the pack is fetched by `_HFDownloadWorker.run` into `<dst>/settings`;
+  * `DATASET_REPO` is `einarolafsson/toxo_mito`, `DATASET_SUB` its
+    subfolder, and `tests/conftest.py` already downloads one field of it
+    for the end-to-end fixtures;
+  * `screen.apply_settings_dict` is the door into a module form and it
+    already returns how many settings it placed, which is half of the
+    report (b) asks for.
