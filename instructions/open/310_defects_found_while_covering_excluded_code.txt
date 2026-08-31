@@ -1480,6 +1480,12 @@ A32. pytest.ini:24 -- `error::pandas.errors.SettingWithCopyWarning` in filterwar
 A33. spacr/qt/widgets/setup_slides.py:1686 (_fade_the_greeting_away) vs 1721 (_place_the_greeting)
     WHAT: `_place_the_greeting` guards its use of the greeting label with `if self._greeting:` while `_fade_the_greeting_away`, which `_show_slide` calls for every slide after the first, dereferences `self._greeting.isVisibleTo(...)` with no guard.
     COST: None today -- `_greeting` is set in `__init__` and never cleared, so the guarded and unguarded paths agree in production. Reported only because the two methods disagree about whether the label may be absent; if the guard at 1721 is ever load-bearing, `_show_slide` will raise from a slide change. I did not change either.
+    VERDICT 2026-08-31: STILL LIVE, and NOT VERIFIED FURTHER -- setup_slides.py
+    belongs to the concurrent session. The asymmetry the entry reports is intact:
+    `_place_the_greeting` guards with `if self._greeting:` while
+    `_fade_the_greeting_away` dereferences it directly
+    (`self._greeting.isVisibleTo(self.card)`, setup_slides.py:1703). Left for
+    that lane.
 
 A34. spacr/macro.py:558-561, Macro.write
     WHAT: The temporary file is opened before the script is rendered: `with open(temporary, "w") as handle: handle.write(self.source())`. If `self.source()` raises (any settings value whose `__str__`/`__repr__` raises, or any rendering failure), the exception propagates out of `write` after the temp file has already been created, and nothing removes it. Reproduced: a one-step Macro whose settings hold an object with a raising `__str__` left `macro.py.2058192.tmp` in the target folder. There is no try/finally and no cleanup anywhere else — `_write_everywhere` only logs the exception.
@@ -1504,10 +1510,18 @@ A36. spacr/plate_measurements.py:147 (TableMerge.merged_column, via _UNPREFIXED 
 A37. spacr/qt/screens/train_compare.py:451-471 (_apply_runs)
     WHAT: _apply_runs replaces self._runs (452) and nulls self._comparison (453) BEFORE it clears the canvas (_clear_plot, 457). Any failure in between -- _fill_runs_list, _fill_problems, _clear_diff, or _clear_plot itself, which calls self._canvas.draw_idle() and can raise RuntimeError when Qt has already deleted the canvas's C++ half -- leaves the screen holding the new run list, the new metric list and the OLD curves plus the OLD figure.spacr_series_by_label mapping. Nothing marks the plot as stale; the caller only sees the error text in the status label.
     COST: After a half-applied scan the user reads a plot belonging to a tree that is no longer listed. The guards at 811 (`if run is not None`) and 806/808 (`last`/`best` is None) stop it from crashing or naming the wrong folder, so a click degrades to 'label - epochs 1-25' with no metric reading and no path, but the curves themselves stay on screen under a run list that contradicts them. Clearing the plot (or snapshotting and restoring the run list) before mutating self._runs would close the window. Not fixed -- reported only.
+    VERDICT 2026-08-31: STALE -- already fixed. The order is inverted from what
+    the entry describes: `self._clear_plot()` runs at train_compare.py:457,
+    BEFORE `self._runs = next_runs` (458) and `self._comparison = None` (459),
+    so a failure between them can no longer leave the canvas describing runs
+    the panel has forgotten.
 
 A38. spacr/qt/screens/gate_editor.py:1343 (save_graph, `except Exception as exc:  # pragma: no cover`)
     WHAT: The only handler that reports a renderer that RAISED (as opposed to returning False) is hidden behind a `# pragma: no cover`, which instruction 288 forbids. Nothing in tests/ asserted its message either -- `grep -rn 'Could not save the graph:' tests/` returned nothing -- so the pragma was hiding a genuinely untested handler rather than an unreachable one. Under the workflow's nopragma rc, lines 1344-1346 were measured and MISSING. Not edited (no changes under spacr/); the new test now exercises the handler.
     COST: A regression in that handler -- a raise escaping into the Qt slot behind the Save graph menu item and the toolbar button -- would have been invisible to both coverage and the suite, and would reach the user as a silent no-file save or a traceback out of the event loop.
+    VERDICT 2026-08-31: STALE -- already fixed. gate_editor.py carries no
+    `# pragma: no cover` at all, so the raised-renderer handler is no longer
+    excluded from coverage.
 
 A39. spacr/qt/layer_viewer.py:768-771 (LayerViewer._sync_controls)
     WHAT: When the selected ImageLayer's colormap is not one of the built-in COLORMAPS (any hex/named-colour ramp, which ImageLayer accepts via `colormaps='#ff00aa'`), `self.colormap_combo.findText(...)` returns -1 and the combo is left showing whatever the PREVIOUS selection put there. Confirmed live: a stack with layer 'green' (colormap 'green') and layer 'hex' (colormap '#ff00aa') leaves the combo reading 'green' after selecting 'hex'.
