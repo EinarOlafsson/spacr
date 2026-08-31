@@ -2303,3 +2303,42 @@ Half of this entry is now closed by repair rather than by argument.
 The lesson the deletion confirms rather than the fix: the duplicate had zero
 unique commits, so the lineage that had been silently answering imports for an
 unknown length of time was contributing nothing but the ambiguity.
+
+
+==============================================================================
+38. A NEGATIVE RESULT: THE OBVIOUS EARLY-OUT IN button_roles IS 5% SLOWER
+==============================================================================
+
+Recorded here as a named entry, not only in 315's prose, because the next
+person to read that filter will have the same idea and it is wrong.
+
+`_SemanticButtonFilter.eventFilter` is installed on the QApplication. Measured
+during ONE warm Regression screen build on a real display:
+
+    events dispatched to it              109,410
+    events sent to a QPushButton at all     4,576   (4.2%)
+    events of the four types it handles       155   (0.14%)
+
+It asks `isinstance(watched, QPushButton)` first. So it runs a type check
+109,410 times to do work 155 times, and the obvious repair is to test
+`event.type()` against the four handled types first and reject 95.8% of
+dispatches before the isinstance. That was implemented, and A/B measured over
+seven consecutive warm builds each:
+
+    original ordering       1,282 ms median
+    "optimised" ordering    1,352 ms median      5% SLOWER
+
+REVERTED. The reason is that the two tests are not the same price.
+`event.type()` is a PySide call that crosses into C++ and constructs a Python
+enum object; `isinstance` against a shiboken-registered type is a C-level
+check. The original ordering pays for `type()` only on the 4,576 events that
+already passed the cheap test, and the "optimisation" made all 109,410 pay it.
+
+THE GENERAL RULE, which is the reusable part: in PySide the test that LOOKS
+cheaper -- an int compare against a small set -- can cost more than a type
+check, because the int has to be marshalled out of C++ before it can be
+compared at all. Selectivity is not the only term in the product; the price of
+each test is the other, and it is not visible in the source. Any change to a
+filter on this path is an A/B measurement, not an argument.
+
+The ordering that is there now is deliberate. Leave it.
