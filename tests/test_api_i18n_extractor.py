@@ -26,7 +26,7 @@ _NEW_VISIBLE_DIGEST = (
     "22524dd9f041af43ece50e6b9e476536dbdf7f4229ed30de4a919e8aafbd18db"
 )
 _ALIASES_DIGEST = (
-    "5167459a662cc68d3de274d216297020ba159155bad4e9e8af8e751e69cdba66"
+    "f2cd23b5448a0969473eac0cb329a94826f012d1577e2ff887d996d4853d0bcb"
 )
 
 
@@ -783,7 +783,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # -107 non-rendered entries: 16 from the ignored Qt tutorial, 85 from
     # ignored resource generators, one Qt launcher module, four compatibility
     # bridge entries, and the CLI-only ``qt.run_without_setup`` function.
-    expected = 8719
+    # +16/-0 canonical documents from the database-browser and gate sweep:
+    # nine PreviewModel/linked-filter methods, five RectGate methods and two
+    # ThresholdGate methods. Six of those methods previously borrowed generic
+    # inherited prose through exact aliases; their implementation-specific
+    # documents retire those aliases rather than duplicating them.
+    expected = 8735
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -793,12 +798,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "otherwise the localized API pages silently omit the new contract."
     )
     # The same surface WITH the aliases, which is what the catalog actually
-    # carries. It tracks `expected` by a constant 119 -- the alias count --
+    # carries. It tracks `expected` by the current alias count --
     # and moving one without the other means the aliases changed, which is a
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8838
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8848
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -829,10 +834,11 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,945: the same 21 newly
-    # documented methods entered both inventories, while 101 configured-ignore
-    # keys plus the six explicit exposure exceptions above remain absent.
-    assert 8_945 - len(docs) == 107
+    # The audited pre-filter inventory is now 8,955. The same 16 canonical
+    # documents enter both inventories while six inherited aliases retire;
+    # 101 configured-ignore keys plus the six explicit exposure exceptions
+    # above remain absent.
+    assert 8_955 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
@@ -905,7 +911,7 @@ def test_exact_alias_map_and_manifest_records_are_identical():
     docs = builder.public_docstrings()
     aliases = builder.API_DOC_ALIASES
 
-    assert len(aliases) == 119
+    assert len(aliases) == 113
     assert _sha256_lines(
         f"{alias}\0{canonical}" for alias, canonical in aliases.items()
     ) == _ALIASES_DIGEST

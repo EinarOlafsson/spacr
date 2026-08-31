@@ -21549,11 +21549,10 @@
     },
     "spacr.ml.QuasiBinomial.variance": {
       "source_blocks_sha256": [
-        "e8f4bc5ac75a6042942c0758c70acce3eb15090a7f1cdce4b2562a5047c2bb0b",
-        "867ee8a68d236163d22f153b41e4218eb7ee4b938507287bc1f70a276fe636e9"
+        "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e"
       ],
-      "source_sha256": "1675e58689362f3bcae4bb240279df0c5ba8d908c2896c056a417e87635830c4",
-      "text": "Adjust the binomial variance by the configured dispersion.\n\n:param mu: fitted response means at which variance is evaluated."
+      "source_sha256": "1fca926957d90cfe3391015467a4d981982052803a020d1745730c94024db40e",
+      "text": "Adjust the variance with the dispersion parameter."
     },
     "spacr.ml.apply_transformation": {
       "source_blocks_sha256": [
@@ -21568,12 +21567,11 @@
     "spacr.ml.beta_logit": {
       "source_blocks_sha256": [
         "502eb9e99c7b6648b60ad6749cefd06d688f69c35beaca609b2f27d2e66c9c42",
-        "741cc68d2c60010b9965db95b70be0ab02d2a40e6125abc290115dfafb05c0bf",
         "9fc52c3acbacf37d496c04a3ba36d41ecca24f1ef98c618e9688cce513cea7e1",
         "79c9fe41e8c92216fd07dbb4f1b734d4b824b75cd584b17e079a75b8fb670e27"
       ],
-      "source_sha256": "5cdb2febd4f446a95c8ec7b7b5b8c43a6a9fe7574de6927349b6e4eb5a48e5ce",
-      "text": "A proportion on the logit scale, with the endpoints squeezed in.\n\n:param values: numeric proportions to transform; non-finite entries are\n    preserved.\n\n``transform='beta'`` is intended for proportional responses such as\nclassification scores and their well aggregates, where a logarithm is\nnot appropriate.\n\nThis is distinct from ``regression_type='beta'``, which selects a beta\nGLM. One transforms the response; the other selects the model family."
+      "source_sha256": "34fc3a925b3627cd136893ba04e06573ab70b5abc3833e6fe88e9c9baa3288c4",
+      "text": "A proportion on the logit scale, with the endpoints squeezed in.\n\n``transform='beta'`` is intended for proportional responses such as\nclassification scores and their well aggregates, where a logarithm is\nnot appropriate.\n\nThis is distinct from ``regression_type='beta'``, which selects a beta\nGLM. One transforms the response; the other selects the model family."
     },
     "spacr.ml.binarise_response": {
       "source_blocks_sha256": [
@@ -21642,12 +21640,10 @@
     },
     "spacr.ml.check_normality": {
       "source_blocks_sha256": [
-        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
-        "cff9a81c86f4ec249d153810c91044fea7511491916a3817751223e61bfadef0",
-        "6288c19aad79f3c704b6261599ee05e14ab7041061b50ed0874eeaae2f3fb5e8"
+        "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c"
       ],
-      "source_sha256": "1506976fc2a8b36b9548d8d362141b7d14caf2b8d0618806fc134611ac80ed0d",
-      "text": "Check if the data is normally distributed using the Shapiro-Wilk test.\n\n:param data: numeric observations; non-finite values are ignored.\n:param variable_name: label used in optional diagnostic output."
+      "source_sha256": "322959782d1924a247ac469cb0897fc950853236ddc767d11e4077bce3b5656c",
+      "text": "Check if the data is normally distributed using the Shapiro-Wilk test."
     },
     "spacr.ml.clean_controls": {
       "source_blocks_sha256": [
@@ -21735,12 +21731,12 @@
         "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
         "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
         "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-        "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
+        "44b408a98bde4b0669efb8116e6872b59d3838bd65ac87fc376f537611710648",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
+      "source_sha256": "c49f73eba18330bb69083ee18e993802bfdd236fa3dd185c0286ca7993450a95",
+      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, or if\n    ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
     },
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
@@ -21782,11 +21778,10 @@
     "spacr.ml.load_regression_input_pairs": {
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
-        "d23c2f048aa617ae95fa1f26b01056ca78e6fc7c3576f92a3a110e9a9961173e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad"
       ],
-      "source_sha256": "5df0bb6adef9637eec3b60d1325fc437fc084a0d36e1af7ad0988461a38f3054",
-      "text": "Read paired inputs and resolve plate identity without filename guesses.\n\n:param pairs: normalized score/count input rows, optionally carrying an\n    explicit plate identity.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``."
+      "source_sha256": "1e2165931399d40d2243d218b4236968810cee261a1f25d7f174b864fd425022",
+      "text": "Read paired inputs and resolve plate identity without filename guesses.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``."
     },
     "spacr.ml.mcfadden_note": {
       "source_blocks_sha256": [
@@ -21860,11 +21855,10 @@
     "spacr.ml.normalize_regression_input_pairs": {
       "source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
-        "7d5ddf0ef8fa6a2fe8ad766ef3274ebf8dae2592f905335b2349f9350d0b830a",
         "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed"
       ],
-      "source_sha256": "70efb7b1c0953b5e78d2900e4e4a2f5e5d985a775d6a24b1b5b8f5d093b6766a",
-      "text": "Return explicit ``score``/``count`` rows, migrating legacy lists.\n\n:param settings: mutable regression settings containing paired or legacy\n    input declarations; normalized projections are written back in place.\n\nNew settings store ``paired_data``. Older files remain valid: their flat\nlists are zipped positionally, exactly matching the former behaviour, and\nthe migration is reported so the invisible legacy assumption is visible."
+      "source_sha256": "eb91fa38f5836eda830ed3645f0176898962b94604878a4eec2ae9b92216ae9f",
+      "text": "Return explicit ``score``/``count`` rows, migrating legacy lists.\n\nNew settings store ``paired_data``. Older files remain valid: their flat\nlists are zipped positionally, exactly matching the former behaviour, and\nthe migration is reported so the invisible legacy assumption is visible."
     },
     "spacr.ml.perform_mixed_model": {
       "source_blocks_sha256": [
@@ -22019,16 +22013,14 @@
         "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
         "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
         "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-        "21557ce547c90d538433885bdc7dac62634e859793b56da618d9980bca1bf9f5",
-        "9a8682e486d67beaa34de7c0ef35996a506cc9a912426c9131cea2e269e34ecf",
         "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
         "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
         "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
         "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
         "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342"
       ],
-      "source_sha256": "54d04df16e5cf99e3f3bc9ccb1d1c4d174fd6164fd6b5b3f05bd60140e9afb0c",
-      "text": "Fit every level the run asked for, SEPARATELY, and return one per level.\n\nTHIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one\ndesign spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the\nSUM of the gene's gRNA fractions, so\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nputs a block of columns and their own sums into one design. Measured on\nthe reference TSG101 screen: 1248 parameters at rank 862 -- a\n386-dimensional EXACT null space -- and the fit statsmodels returned had a\nresidual sum of squares bit-identical to the one you get by adding seven\ntimes a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.\n\nTwo fits, two tables, TWO CORRECTIONS. Each fit is its own\nmultiple-testing family and is corrected within itself. Pooling them would\nbe wrong twice over: they are not independent -- same wells, and the gene\nregressor IS the sum of the guide regressors -- and doubling the family\nsize costs power for no protection. :func:`perform_regression` applies the\ncorrection per level and writes ``results_grna.csv`` and\n``results_gene.csv``.\n\n``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:\nthat model has both levels inside it already, the gene as a fixed effect\nand the guide as a random effect nested in the gene. Its guide output is\nBLUPs, which is why it cannot be split into two testing families.\n\n:param df: regression input table passed unchanged to each level-specific\n    :func:`regression` fit.\n:param csv_path: source count/score path or path collection used by each\n    fit for provenance and paired input resolution.\n:param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.\n:param dst: the run folder. With more than one fit each level's FIGURES go\n    into ``<dst>/<level>/`` so they cannot overwrite each other; the\n    tables stay in ``<dst>``, where every consumer looks for them.\n:param kwargs: passed straight through to :func:`regression`.\n:returns: ``dict`` mapping level to ``(model, coef_df, regression_type)``,\n    in fit order.\n:raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`."
+      "source_sha256": "0efd652a5e78d2b81f240ef2b3b6d4ffdbc9d55ecff66ce35c8663d70a45a203",
+      "text": "Fit every level the run asked for, SEPARATELY, and return one per level.\n\nTHIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one\ndesign spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the\nSUM of the gene's gRNA fractions, so\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nputs a block of columns and their own sums into one design. Measured on\nthe reference TSG101 screen: 1248 parameters at rank 862 -- a\n386-dimensional EXACT null space -- and the fit statsmodels returned had a\nresidual sum of squares bit-identical to the one you get by adding seven\ntimes a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.\n\nTwo fits, two tables, TWO CORRECTIONS. Each fit is its own\nmultiple-testing family and is corrected within itself. Pooling them would\nbe wrong twice over: they are not independent -- same wells, and the gene\nregressor IS the sum of the guide regressors -- and doubling the family\nsize costs power for no protection. :func:`perform_regression` applies the\ncorrection per level and writes ``results_grna.csv`` and\n``results_gene.csv``.\n\n``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:\nthat model has both levels inside it already, the gene as a fixed effect\nand the guide as a random effect nested in the gene. Its guide output is\nBLUPs, which is why it cannot be split into two testing families.\n\n:param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.\n:param dst: the run folder. With more than one fit each level's FIGURES go\n    into ``<dst>/<level>/`` so they cannot overwrite each other; the\n    tables stay in ``<dst>``, where every consumer looks for them.\n:param kwargs: passed straight through to :func:`regression`.\n:returns: ``dict`` mapping level to ``(model, coef_df, regression_type)``,\n    in fit order.\n:raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`."
     },
     "spacr.ml.regression_model": {
       "source_blocks_sha256": [
@@ -22080,16 +22072,14 @@
     "spacr.ml.resolve_auto_inference": {
       "source_blocks_sha256": [
         "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
-        "9160c659d7494ed83040c7bf3e93f8eff08223b669ed169cfe483e4f2647a16c",
-        "2edb50b789c98343aebb7507d7b5292b0c88d281ed99d8072c627037bdc4ff82",
         "5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c",
         "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
         "a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3",
         "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
         "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92"
       ],
-      "source_sha256": "0ddd43bf5a041180aca652f76c26fae03116808786939861b8c292fc0365718c",
-      "text": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.\n\n:param data: analysis frame used to count wells, guides, and block levels.\n:param settings: regression settings whose inference choice is resolved.\n\nThe simultaneous model estimates one coefficient per guide from the wells,\nso it needs more wells than guides -- with an intercept and any plate fixed\neffects on top -- before those coefficients are identifiable at all. Below\nthat the design matrix is rank deficient: statsmodels still returns a\nnumber for every guide, but the numbers are one arbitrary solution out of\ninfinitely many, and their P values describe nothing.\n\nThat is not a hypothetical. The screen this was written for has 824 guides\nin 587 analysed wells; the published fit had 825 parameters, rank 579 and\n8 residual degrees of freedom, and refitting it did not reproduce its own\ncoefficients.\n\n``auto`` therefore picks the permutation test whenever the simultaneous fit\nwould be unidentifiable, and says so. It is deliberately conservative: it\nneeds a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather\nthan a bare majority, because a design that only just fits is one dropped\nwell away from not fitting.\n\nAnything other than ``inference='auto'`` is returned untouched, so an\nexplicit choice is never overridden.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the\n    counts, suitable for the log and for the Methods section."
+      "source_sha256": "bb4f4e4d52258633eb6e03bb5ec39ebd37e2849274bb35bb897504da7ca6c3c3",
+      "text": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.\n\nThe simultaneous model estimates one coefficient per guide from the wells,\nso it needs more wells than guides -- with an intercept and any plate fixed\neffects on top -- before those coefficients are identifiable at all. Below\nthat the design matrix is rank deficient: statsmodels still returns a\nnumber for every guide, but the numbers are one arbitrary solution out of\ninfinitely many, and their P values describe nothing.\n\nThat is not a hypothetical. The screen this was written for has 824 guides\nin 587 analysed wells; the published fit had 825 parameters, rank 579 and\n8 residual degrees of freedom, and refitting it did not reproduce its own\ncoefficients.\n\n``auto`` therefore picks the permutation test whenever the simultaneous fit\nwould be unidentifiable, and says so. It is deliberately conservative: it\nneeds a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather\nthan a bare majority, because a design that only just fits is one dropped\nwell away from not fitting.\n\nAnything other than ``inference='auto'`` is returned untouched, so an\nexplicit choice is never overridden.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the\n    counts, suitable for the log and for the Methods section."
     },
     "spacr.ml.resolve_glm_transform_conflict": {
       "source_blocks_sha256": [
@@ -22131,12 +22121,11 @@
     "spacr.ml.results_folder_kind": {
       "source_blocks_sha256": [
         "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-        "d5c6ee98c2f5b771b29d94fc0f1d97032d390073eafcaca6fce7ecdc3c21b263",
         "9b52a8b1956d3070227014c2ab32c353bba0754f759d0bf009dadb6d47d9c5c9",
         "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8"
       ],
-      "source_sha256": "f0d3dbbe3a5ca04948d6e61a07000e3cd2876566dc4978f61d13aa8e4591d909",
-      "text": "What a run's results folder is NAMED after.\n\n:param settings: regression settings containing analysis mode and model\n    type choices.\n\nThe inference method when it decides the answer, and the regression type\notherwise. Under `analysis_mode='guide_permutation'` the regression type\nis never read -- ols and mixed produce byte-identical results -- so a\nfolder called `ridge` would name something the run did not do.\n\nPUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale\nwhen the rule changed and reported 39 missing CSVs while every run that\nwrote them was fine, which is the failure the `results_dir` helper in\ntests/test_cov_ml_perform_regression.py was already written to prevent\nonce. A suite pointing at the wrong file is worse than a silent one."
+      "source_sha256": "4a5dd44c860f87e446392acdc7c54957389351a828f986d8be3c77c9b1b23c58",
+      "text": "What a run's results folder is NAMED after.\n\nThe inference method when it decides the answer, and the regression type\notherwise. Under `analysis_mode='guide_permutation'` the regression type\nis never read -- ols and mixed produce byte-identical results -- so a\nfolder called `ridge` would name something the run did not do.\n\nPUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale\nwhen the rule changed and reported 39 missing CSVs while every run that\nwrote them was fine, which is the failure the `results_dir` helper in\ntests/test_cov_ml_perform_regression.py was already written to prevent\nonce. A suite pointing at the wrong file is worse than a silent one."
     },
     "spacr.ml.save_summary_to_file": {
       "source_blocks_sha256": [
@@ -22165,12 +22154,11 @@
     "spacr.ml.screen_is_blockable": {
       "source_blocks_sha256": [
         "f75d0803f78ebc8bb3c8e6300d5ffc799cddf1de7732b679267f3dc24d15dae5",
-        "0b416f276274ef44dfe8cd00eb7699dbd440c03640e6285e121cbe72e916a879",
         "614d082528bdf4410704514e30e38dd8858b2f785bd2559b1861e0246537239f",
         "85cf17e98cd765620cef074f22be95c88557bab382d69162fc4336f5d69cbcdf"
       ],
-      "source_sha256": "5328efdb9ae9a7822bd8d940deb7f1ed6c5cd67b19e87e100a16baecc28a2264",
-      "text": "Whether ``screenID`` can be a term in this frame's design.\n\n:param df: candidate design frame, or ``None``.\n\nTrue only when the column exists and carries more than one distinct\nvalue. A single-screen project is the normal case and must be untouched\nby the design: it has no screenID at all, or one value, and either\nway the term would be a constant column.\n\nThe same rule :func:`spacr.measurement_scan._dummy_block` applies, stated\nonce for the formula path so a frame cannot be blocked on by one and not\nthe other."
+      "source_sha256": "e8dfb61882e4088595123ab29f11d58c34a54aaeaf20eca8869fee5614fa845a",
+      "text": "Whether ``screenID`` can be a term in this frame's design.\n\nTrue only when the column exists and carries more than one distinct\nvalue. A single-screen project is the normal case and must be untouched\nby the design: it has no screenID at all, or one value, and either\nway the term would be a constant column.\n\nThe same rule :func:`spacr.measurement_scan._dummy_block` applies, stated\nonce for the formula path so a frame cannot be blocked on by one and not\nthe other."
     },
     "spacr.ml.select_glm_family": {
       "source_blocks_sha256": [
@@ -34411,6 +34399,14 @@
       "source_sha256": "da0f84bdb1b8a18442a58c7e62fe443c0ac23bac7a670807f91b8fc1a4edb959",
       "text": "Return ``(display label, code)`` choices for Preferences."
     },
+    "spacr.qt.i18n.language_resolved_once": {
+      "source_blocks_sha256": [
+        "4b870b5ced3ee7b4e030b2e203ff381aa0e4963baec86be04574fd8a724410f6",
+        "6f82634fc3efdba8973612ee98af9ffee865635e7a76bb19e7bb4a642f8fb8da"
+      ],
+      "source_sha256": "002739c162069deb137fd914fe15ad6c0fe52468d2a8603998927cb8a6797e52",
+      "text": "Resolve the persisted UI language once in one synchronous operation.\n\nWidget construction can call :func:`tr` hundreds of times. Reading\nQSettings for each fragment is needless and made a large settings panel\nscale with its row count. The cache is context-local (so background jobs\ncannot borrow the GUI thread's answer), re-entrant, and discarded as soon\nas the operation ends so a later language change is observed."
+    },
     "spacr.qt.i18n.normalize_language": {
       "source_blocks_sha256": [
         "b5e43a54c79e5a8fae7c8c6e61c78ac44cee9824d2ba2e96911004a43de397c3",
@@ -39894,10 +39890,10 @@
     "spacr.qt.screens.app_screen.AppScreen.rendered_settings_sections": {
       "source_blocks_sha256": [
         "ecaa07a03b598b553f1a3e41550640aa7f996e3d269ce28ed3378648446de478",
-        "98ed85b21c87bb634029fc0c5a1689fc339692794e170026232659731cf95e9c"
+        "e35b27cc0baeb61dcbe7ff265878df496655e979470f768ee9638a30fb364e4a"
       ],
-      "source_sha256": "c259cf7d3f0dc92e7433feda51ca5f6eb4b77fa47a777e794cf8c66b277330d8",
-      "text": "The section widgets actually mounted in the settings panel.\n\n``_settings_sections`` deliberately also contains dormant forms for\nobject-gated settings. Visual consumers -- maturity and category\nhints in particular -- must use this subset instead."
+      "source_sha256": "edf7f3bbee5862e57cc6f1115fcd1b65ad0e375c79128ec67fe06d21979d0dc1",
+      "text": "The section widgets actually mounted in the settings panel.\n\n``_settings_sections`` deliberately also contains dormant forms for\nobject-gated settings.  Visual consumers -- maturity and category\nhints in particular -- must use this subset instead."
     },
     "spacr.qt.screens.app_screen.AppScreen.restore_run_workspace": {
       "source_blocks_sha256": [
@@ -41032,13 +41028,14 @@
         "9f2243e685b760d19efee58abc2e1105d30cd6798f0b339d5945acc73fc548d5",
         "022cfeefbf73303d3f04af61775457a71900c4184b9877b4cb2a20cf6448fc75",
         "e76a7b246033920c37d47361e0ef1d12a1f37917c27c4131ca33b80cb377561d",
+        "8e89e061eb082cda25d7a6c3d6fa6be8717666aae02302127508313c98a32b5b",
         "e7098bddb545409bd5ed5efbf29cbea7d250d18183e24299083c3d3fa02fd2b6",
         "2cd847cccfdb807953ee747620d18234bf557bee4912e6f1da0c755b285ce1be",
         "7f6d849b7300810ef99fa586350d4ce0c9867af1969266318ff14d820d014c82",
         "deda5af5a02fafdb72b3fbad954c808adba767009ea7b8e8560bc033c6f937cd"
       ],
-      "source_sha256": "134e307e2497baca8b798a632de74a74e5afdba049f8271fca1683695ecc01d8",
-      "text": "Browser for a spaCR measurements database — read-only by default.\n\nJoined to the shared selection as ``\"db_browser\"``, in both directions:\n\n* selecting rows publishes them, so a row picked out here lights up on\n  the plate heatmap and in the UMAP;\n* a selection published elsewhere selects and scrolls to the same rows;\n* a filter published elsewhere HIDES rows, which a selection never does.\n\nAll three act on the rows already fetched. Nothing here re-queries: the\nshared filter is a lens over the page in memory, and the row-count label\nkeeps saying how much of the table that page is.\n\n:param threaded: run queries on a worker thread (the default). Tests\n    pass ``False`` to get deterministic, synchronous behaviour.\n:ivar last_error: text of the most recent failure, ``\"\"`` when the\n    last operation succeeded. Errors are *only* ever reported here\n    and in the inline status label — never in a modal dialog.\n:ivar confirm_edit_mode: callable taking the confirmation text and\n    returning a bool. Replace it to arm edit mode without a dialog\n    (every test does). The default opens the one QMessageBox this\n    screen owns.\n:ivar auto_count: when True (the default) the exact ``COUNT(*)``\n    follows the first chunk on its own job. Set False to browse a\n    very large table on the ``max(rowid)`` estimate alone."
+      "source_sha256": "ef6980ce06d9fd08e60d9b12844677261e70d1a12bb52a50577b8dbde3a8f105",
+      "text": "Browser for a spaCR measurements database — read-only by default.\n\nJoined to the shared selection as ``\"db_browser\"``, in both directions:\n\n* selecting rows publishes them, so a row picked out here lights up on\n  the plate heatmap and in the UMAP;\n* a selection published elsewhere selects and scrolls to the same rows;\n* a filter published elsewhere HIDES rows, which a selection never does.\n\nAll three act on the rows already fetched. Nothing here re-queries: the\nshared filter is a lens over the page in memory, and the row-count label\nkeeps saying how much of the table that page is.\n\n:param parent: optional Qt owner responsible for the screen's lifetime.\n:param threaded: run queries on a worker thread (the default). Tests\n    pass ``False`` to get deterministic, synchronous behaviour.\n:ivar last_error: text of the most recent failure, ``\"\"`` when the\n    last operation succeeded. Errors are *only* ever reported here\n    and in the inline status label — never in a modal dialog.\n:ivar confirm_edit_mode: callable taking the confirmation text and\n    returning a bool. Replace it to arm edit mode without a dialog\n    (every test does). The default opens the one QMessageBox this\n    screen owns.\n:ivar auto_count: when True (the default) the exact ``COUNT(*)``\n    follows the first chunk on its own job. Set False to browse a\n    very large table on the ``max(rowid)`` estimate alone."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.active_jobs": {
       "source_blocks_sha256": [
@@ -41075,10 +41072,11 @@
       "source_blocks_sha256": [
         "8937adc11fdf96e3637d0504561a1c17800d01f90edc74a96ee4f586c4bb1278",
         "11871faca7f5eee407b709bc94e0e081c317f76f0d477f5a6cc166ec8b00bb3e",
-        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769"
+        "ee93b9860e685822a19b07c1a8236b48e4c91af188c558e00cedd76be9116769",
+        "beb8759e3bab78e97661b8b4754030652063eb88f332ca66f60bf33564510ad4"
       ],
-      "source_sha256": "30ab6e533cf6882963c672b948bea18a93ec3d3c68b92fd56bb323b566d8f871",
-      "text": "Let every in-flight query thread finish before the widget dies.\n\nDestroying a QThread that is still running aborts the process, so\nwe wait (briefly) rather than hope. Jobs that have not started yet\nare dropped — nothing has been spawned for them.\n\nThe shared link outlives this screen, so let go of it too."
+      "source_sha256": "ec2975138d9b48aae0200aca9fbcb252a4532703168a434cd32cd550cfdba170",
+      "text": "Let every in-flight query thread finish before the widget dies.\n\nDestroying a QThread that is still running aborts the process, so\nwe wait (briefly) rather than hope. Jobs that have not started yet\nare dropped — nothing has been spawned for them.\n\nThe shared link outlives this screen, so let go of it too.\n\n:param event: Qt close event forwarded after worker cleanup."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.database_path": {
       "source_blocks_sha256": [
@@ -41089,18 +41087,23 @@
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.disable_edit_mode": {
       "source_blocks_sha256": [
-        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856"
+        "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
+        "026b7d17256fb423d57c73029a351497be25fba9eb0f5027b730bae839c30d42"
       ],
-      "source_sha256": "555c95bf970bd7eeacc53b79e77062a47f171f415cb6a59b075c1ea2b08e8856",
-      "text": "Drop back to read-only. Safe to call when already read-only."
+      "source_sha256": "0fc66241e70a5aa70dd98d877cec6b93d0bf4cc5068583a40d3e88bf0eea33a2",
+      "text": "Drop back to read-only. Safe to call when already read-only.\n\n:param quiet: suppress the read-only status message when true."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.edit_cell": {
       "source_blocks_sha256": [
         "a3c859e3dce3ba784f0ba81d9c0fa2e9f1325056f56219855298152afb9a1e48",
-        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45"
+        "e1b8a49b5593c435adc24a771a336c5d79cc05ece4c425ba7406a533f9702d45",
+        "f9fb9b84634d26f6be98e1bf81a267806db221a2809c0743930d59f20e00d414",
+        "e7e45adcf64b415b7b1a3cf7519ca6d1810443451c5227366627fa4b39aef5d2",
+        "81e8b358241613aeb794f8e52543f8666c807e2f293390cd6a65834df2184efb",
+        "eb5c9e9aa3a18482cf32ccbbaf23fdba94dfe0056626f29f32e2f819965158c5"
       ],
-      "source_sha256": "4a8e18c1de0509d6c64eb69b393bd5d069a5aaa51571d3b0946a62e5a7843760",
-      "text": "Write one cell of one row. Returns False, with a reason, if refused.\n\nThis is the only path in the screen that can write, and it is\nalso what :meth:`PreviewModel.setData` calls when a cell editor\ncloses."
+      "source_sha256": "b8b2d871adc1226e1eecfe662eb9af8b8208709102321a90ab2ade523847b2f8",
+      "text": "Write one cell of one row. Returns False, with a reason, if refused.\n\nThis is the only path in the screen that can write, and it is\nalso what :meth:`PreviewModel.setData` calls when a cell editor\ncloses.\n\n:param row: zero-based loaded model row to address.\n:param column: schema column whose value the user edited.\n:param text: raw editor value to coerce against the declared type.\n:returns: whether exactly one database row was updated or already held\n    the requested value."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.edit_mode_enabled": {
       "source_blocks_sha256": [
@@ -41127,10 +41130,12 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.export_csv": {
       "source_blocks_sha256": [
         "7328f932b3d4135a55441e63f339753c812d8f497ac715d31b4fb3b2ea400555",
-        "2b1d67a59af7a33923f09dd742accc1398902c3afb9439cb817b76e62f63e28c"
+        "2b1d67a59af7a33923f09dd742accc1398902c3afb9439cb817b76e62f63e28c",
+        "e850efa3c891a024c585ee9ec6c1c69501197aba030e87c92f3b46cb9d0bc30c",
+        "21e70b0cee89c83db53ea786b8715828ea082ffe0be5aa594399eae88c45694f"
       ],
-      "source_sha256": "e186386ea23ee1f5ed5739d7f9032432e5c49ce10e8b79602bb70d66d3b7be16",
-      "text": "Write the current table + filter + visible columns to ``out_path``.\n\nRuns off the GUI thread and streams the result, so a\n400 000-row export neither freezes the window nor loads the table\ninto memory. Reports inline on failure and returns ``False``."
+      "source_sha256": "1cc75790d005cb1b5b427c438a9c10ab4c16a67b128634e4390c82d0cf21847d",
+      "text": "Write the current table + filter + visible columns to ``out_path``.\n\nRuns off the GUI thread and streams the result, so a\n400 000-row export neither freezes the window nor loads the table\ninto memory. Reports inline on failure and returns ``False``.\n\n:param out_path: destination CSV path selected by the user.\n:returns: whether the export job was accepted for execution."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.fetch_more": {
       "source_blocks_sha256": [
@@ -41169,21 +41174,21 @@
       "text": "How many rows have been fetched so far."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed": {
-      "alias_of": "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
       "source_blocks_sha256": [
-        "c5e76557a3b69353b89e04a5517174b8466585c3961d5a61c2a63300fa3fb8bf",
-        "d79d9d436b8d860657f46455dc62bf6a688d37417c4ef143da0d86aafe53d50f"
+        "64eacbd97f7383e07bc48fe5c301df88b4cb691d768e119be13a55d587b200df",
+        "3d02ded03fc5d3ccc0f79cea0ab67e03d8ae34235c511497673f62428b10ae1a"
       ],
-      "source_sha256": "8bf5b60969a049358b12c282c6906535d0285bdf65ea439a69cfb9913b4aedda",
-      "text": "The shared population moved: re-query and re-lay-out.\n\nDefault: nothing, so a view can subscribe for selections alone."
+      "source_sha256": "3785f8a24581cbb646020decbfd636530f3dd8d03a0a4ec93c6e5c7053a79a70",
+      "text": "Apply a newly published shared filter to the loaded rows.\n\n:param data_filter: current process-wide filter; the linked-view state\n    already owns it, so this callback only refreshes row visibility."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_selection_changed": {
       "source_blocks_sha256": [
         "8298f5b995f5cc1b51736ff8a00c4a3b2132ea27f10725e2b440a9fc11926953",
-        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3"
+        "ae8105af3d19ef997562038b4d0958ce608b643e5debe821a6687cb1c689e8c3",
+        "42b261bccfe7d6a4b53d9322af05402fb242ae93779bc57ab18182aba59c38ba"
       ],
-      "source_sha256": "9edc798b5b98a664561553dc82eed65db480a1f7183bad32ae9519a602c9953e",
-      "text": "Select and scroll to the rows somebody else picked.\n\nNothing is hidden: rows the selection does not name stay exactly\nwhere they are. Only the shared *filter* removes rows from view."
+      "source_sha256": "df880e64796b4310666b5fa640d2ed752c2f40f999e40c0e1b0a6fc64df32bca",
+      "text": "Select and scroll to the rows somebody else picked.\n\nNothing is hidden: rows the selection does not name stay exactly\nwhere they are. Only the shared *filter* removes rows from view.\n\n:param selection: process-wide object selection published elsewhere."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.page_size": {
       "source_blocks_sha256": [
@@ -41252,25 +41257,29 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.rows_for_selection": {
       "source_blocks_sha256": [
         "72820abc7b7e94df31b5cba281c5e1a8c5d13ae60c1ce23eda704feab5b8dcd0",
-        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f"
+        "779ac767c2e27d7f70113c2030e0d83811970244f3b3d566607c87de0b6b303f",
+        "21484796e24fa20b191b4f0e5812da12cd09cc5ce07e29d5ae3b3decec750266"
       ],
-      "source_sha256": "d9e0d5d311c2e6d913f30ee2f2070c622d746db7c879568a609ee525f39e7602",
-      "text": "The loaded rows ``selection`` names, ascending.\n\nEmpty — not an error — for a table with no object identity in it\n(``png_list`` keyed on a path, a summary, a view). A shared selection\ndoes not identify those rows."
+      "source_sha256": "baa7951f34521c99e96b9a31dc0fc680ce076826b2adecc9dd043f327ff9fa6f",
+      "text": "The loaded rows ``selection`` names, ascending.\n\nEmpty — not an error — for a table with no object identity in it\n(``png_list`` keyed on a path, a summary, a view). A shared selection\ndoes not identify those rows.\n\n:param selection: shared object identity selection to match."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.select_rows": {
       "source_blocks_sha256": [
         "1496e4fe610b8c73108dbd157b57a66156285cc5ec694e28782b17f777e81da2",
+        "99cd513ac68f2cd00ed3c45c5be1baad49c1801ecb5947ae58563222e1001dc8",
         "0dd94e23c41c2cddcdef4a3f8eaf69c766fffb8f146db2a9180b130b9f671e73"
       ],
-      "source_sha256": "aa05e6f01d6d9498df9bfcc399de50e0c996e94e4e33d847f39452ef9ec8c71f",
-      "text": "Select ``rows`` as a user would, publishing them to every view.\n\n:returns: the rows that were in range and got selected."
+      "source_sha256": "88c67d296bb71fd7e74bea95dc9bc641756f508cc58772e07362d1f6170d1241",
+      "text": "Select ``rows`` as a user would, publishing them to every view.\n\n:param rows: zero-based model row indices requested by the caller.\n:returns: the rows that were in range and got selected."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.select_table": {
       "source_blocks_sha256": [
-        "589df4bcfc970627f5c4077208d526b083d6e472b4c323b533dced9a0c1fd5eb"
+        "a6d54b1ca1b6c1c3ec8dbd46cdc968454e81f4144f4750bb194c796480ce4b24",
+        "e4d7ec556c0a270fc8f53dafc6600672c106c4e5a6f299822d7a00e3aeed32bb",
+        "11e5c80898643696196aadfe850f6fa544c41a051360028747d9e92de5fe70b0"
       ],
-      "source_sha256": "589df4bcfc970627f5c4077208d526b083d6e472b4c323b533dced9a0c1fd5eb",
-      "text": "Make ``name`` the previewed table; resets the load and the filter."
+      "source_sha256": "e19878b61543435b15124c6f1380e6798aec0de06ccafaa6d45b8d6f28408735",
+      "text": "Make ``name`` the previewed table and reset load and filter state.\n\n:param name: live table or view name from the open database.\n:returns: whether the schema was read and the table load was started."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.selected_rows": {
       "source_blocks_sha256": [
@@ -41282,10 +41291,11 @@
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_column_filter": {
       "source_blocks_sha256": [
         "0e1dff24ca1feee5ac9b9c660b329a7f79adf3eb79b890322176841127daf5a2",
-        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66"
+        "379cecf7dca6a86c11d6f29244c22c0c538f392c03f5e7a7ffa3de2fd14a2b66",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ],
-      "source_sha256": "f70fe4fa3738f1e895293b0119d0f473bb10b64bf1ef3559a25176a86b9c2b97",
-      "text": "Narrow the displayed columns to those containing ``text``.\n\nPurely a view operation — no re-query — so it stays instant on a\ntable with hundreds of feature columns. An empty string restores\nevery column."
+      "source_sha256": "0d57a4dd9ea64e86b2e76fd4708f88d9dac90901ce838f6506220223b29d320a",
+      "text": "Narrow the displayed columns to those containing ``text``.\n\nPurely a view operation — no re-query — so it stays instant on a\ntable with hundreds of feature columns. An empty string restores\nevery column.\n\n:param text: case-insensitive substring required in visible names."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_database": {
       "source_blocks_sha256": [
@@ -41301,17 +41311,23 @@
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_filter": {
       "source_blocks_sha256": [
-        "505644a60c47e39ae4140baee290070156a1dd00102744c51337a96084640ee9"
+        "d01647251c8650639b55493d21960676aaa5853f99ac37a7df7ed2c26930d452",
+        "65480f85f39743bdcc4c9e725d7c4ed3025a5e6749c6f267d5d4b2a19d100c0f",
+        "5c66520f1625fdf56509ebab65cc6a627e8b033516553265a2327ae46c183455",
+        "37efea7ceefa6ebca673447f170f0759733dbb30d73070075221c6675e7940c3",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ],
-      "source_sha256": "505644a60c47e39ae4140baee290070156a1dd00102744c51337a96084640ee9",
-      "text": "Programmatic equivalent of filling in the filter row + Apply."
+      "source_sha256": "40bc54291d5083b10445d234d024a76083352d53bb2fe2a4b4e461f1a600d39a",
+      "text": "Programmatic equivalent of filling in the filter row and applying.\n\n:param column: live schema column to filter.\n:param op: structured operator label from :data:`OPERATORS`.\n:param value: raw filter value; operators such as ``is null`` ignore it.\n:returns: whether validation succeeded and the reload was started."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.set_raw_filter": {
       "source_blocks_sha256": [
-        "c22678425f7ba747d87be1036c50b16685fce5c05ee8361172ab60d021804f56"
+        "79b17c3ae3c72f484188565f13136ff6c071026d628f2799cf750f240b8fef0b",
+        "f5f816fd42a8ddc85d8cf00ffe5ad61af0e7e9be288abcf062af2e68d76ed3ed",
+        "13d9f2f77452ae0435147f9071560e7b59865a0860201f31e093d03eb1c4ab06"
       ],
-      "source_sha256": "c22678425f7ba747d87be1036c50b16685fce5c05ee8361172ab60d021804f56",
-      "text": "Programmatic equivalent of the raw-SQL box + Apply."
+      "source_sha256": "76d63cca5d51f49c134f6b5a008b38d6892479caee81f0162bd190ea929aca49",
+      "text": "Programmatic equivalent of the raw-SQL box and Apply.\n\n:param predicate: lone read-only WHERE-clause fragment.\n:returns: whether validation succeeded and the reload was started."
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.sql_text": {
       "source_blocks_sha256": [
@@ -41369,24 +41385,87 @@
         "a3d5413538ad2f33b46824528f517196de50974b83a7f637f417649742c676b4",
         "64db2e416f96230a12f5ce9e7fcccf43375624a0d960847493492ee903c20cd7",
         "73ac4bac8fb5959d9d4e2fa0a62808d7d76b7778d49759eb5b3583d82c81caa1",
-        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f"
+        "9414d5b15d1f47f44b0bfe50ec06652c0c0be499171d30ccef17dfc348cf5f8f",
+        "db94f25aef2836018c6535721198a6a64f4d4fc7505a330a7c4fde77c7e9abb8"
       ],
-      "source_sha256": "02d1fd820f13269eee56b1c594e99f3d20199a35433209b2d6bd913dd28a5401",
-      "text": "Holds the rows fetched so far plus the column-visibility mask.\n\nTwo jobs beyond the obvious one:\n\n* **Incremental fetch.** ``canFetchMore``/``fetchMore`` are the Qt\n  way to say \"there is more where that came from\"; the view calls\n  them when the user scrolls to the bottom and the model asks the\n  screen for another chunk. While a chunk is in flight\n  ``canFetchMore`` is False, so a scroll cannot queue ten of them.\n* **Row identity.** Every row carries the key tuple it was fetched\n  with (``rowid``, or the primary key). That is what makes an edit\n  addressable — and its absence is what makes an edit refusable.\n\nChunks are fetched with *every* column, and the column search only\nchanges which of them are mapped into the view. Typing in the search\nbox therefore never re-queries the database — which is what makes it\nusable on a table with 500 feature columns."
+      "source_sha256": "7442f0b5dfc960574215fa9b45fb5340e4d0ae8e35245e0a6df1b4dfde7b30b4",
+      "text": "Holds the rows fetched so far plus the column-visibility mask.\n\nTwo jobs beyond the obvious one:\n\n* **Incremental fetch.** ``canFetchMore``/``fetchMore`` are the Qt\n  way to say \"there is more where that came from\"; the view calls\n  them when the user scrolls to the bottom and the model asks the\n  screen for another chunk. While a chunk is in flight\n  ``canFetchMore`` is False, so a scroll cannot queue ten of them.\n* **Row identity.** Every row carries the key tuple it was fetched\n  with (``rowid``, or the primary key). That is what makes an edit\n  addressable — and its absence is what makes an edit refusable.\n\nChunks are fetched with *every* column, and the column search only\nchanges which of them are mapped into the view. Typing in the search\nbox therefore never re-queries the database — which is what makes it\nusable on a table with 500 feature columns.\n\n:param parent: optional Qt owner responsible for the model's lifetime."
     },
     "spacr.qt.screens.db_browser.PreviewModel.append_rows": {
       "source_blocks_sha256": [
-        "d768949e094c01c1e03a809b6125dacdcd6c0399dde74874500078af700d6531"
+        "44e8a8ff08bdd5e0d9a970f6123e3fd6974e63bc43d3646a6d6390d162063c66",
+        "f65b16eca19f581bb9cebe05f4a04a0618abac6fcf62b452a1cd2b918ecbbd6f",
+        "d2aa835083a1f3f9919331aa9d9cf73cce74f816f13299c8d9143fe6b2464d19"
       ],
-      "source_sha256": "d768949e094c01c1e03a809b6125dacdcd6c0399dde74874500078af700d6531",
-      "text": "Add a fetched chunk to the end. Returns how many rows landed."
+      "source_sha256": "d80543c38bcc357ee1e5eb6bb7b72063fd6f390936b94036512da04049a39ec0",
+      "text": "Add a fetched chunk to the end and return how many rows landed.\n\n:param rows: complete schema-order rows to append.\n:param keys: stable row addresses paired with ``rows``; ``None``\n    supplies an uneditable ``None`` key for every appended row."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.canFetchMore": {
+      "source_blocks_sha256": [
+        "a9464c06cb3aeefb070dc719f9e0123b5a19a9d16086d1f25f7808df4214f2a6",
+        "bab97ac05155e1f6c3c86b420e1e6ef331475bab3c5db37a7b82e76aebbc2379"
+      ],
+      "source_sha256": "0dcc6cf2d59f20396818b90657ff26d864220024cec7b2e4315e320853ad479b",
+      "text": "Return whether the root model can request another chunk.\n\n:param parent: Qt parent index; valid child indexes cannot fetch."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.columnCount": {
+      "source_blocks_sha256": [
+        "bf0825490db011a8a5fe0566844f374783a4e228541012c22db1ae2b7d2a08e0",
+        "46bd124e3cb8402f7bc1d43492d9e203df98ae792a2b3757c08e92d05f3b8b3b"
+      ],
+      "source_sha256": "eda578c7ee92a8596cb4ae1d6284d05bcc8415668f98c0385b7cfc32c6c916b2",
+      "text": "Return visible columns for the root model and zero for children.\n\n:param parent: Qt parent index whose child-column count is requested."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.data": {
+      "source_blocks_sha256": [
+        "8059e763018b66d6c392ca28f0513222dcf090c0c7f37b7848a82bab6bc5fe36",
+        "9a3bbb69d9ef1955c160236cc5cc853cfc081c3675f7174304fe325fe0244a53",
+        "dc74937680539ca72f01551d044a54fb9fd0192a062a203616cacdc65e5c3221"
+      ],
+      "source_sha256": "bd47e8dc1a6fd28ad74f7a800b311a763accadc680f54181223b27b9aed06d8d",
+      "text": "Return the display, tooltip, or exact editor value for a cell.\n\n:param index: model index identifying the requested cell.\n:param role: Qt data role; unsupported roles return ``None``."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.fetchMore": {
+      "source_blocks_sha256": [
+        "36561f91513ab8930de319d7658e1f0e232e80e1efab89ccc13d68d065077c69",
+        "0e8e6c705227bf90adb552cd362f8b5e4bcecb3059a115267d02bc473bae2b16"
+      ],
+      "source_sha256": "246f4ba73d221495e186450e4e2609fd0218dbebb503af0362e03bb52056bc9e",
+      "text": "Request the next chunk through the configured fetch hook.\n\n:param parent: Qt parent index; valid child indexes are ignored."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.flags": {
+      "source_blocks_sha256": [
+        "6314eb09af2a17cd7e6ff689c44ba48720a2ed5b264ac70f78c52583bce0397c",
+        "f23ffaac5e5f4a8b8f2dd97000759e37654ea0faf9f6d0549c4abbd02c3915f8"
+      ],
+      "source_sha256": "6119752d4c99b323c47c6a555a7e8e90a4d289250e806b80845f70be2ed71a4b",
+      "text": "Return Qt item flags for ``index``, including armed editability.\n\n:param index: model index whose interaction flags are requested."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.headerData": {
+      "source_blocks_sha256": [
+        "413574b45a5099d9fe11e9dca63f9a7cb8d38450a710305cf698a812c37c5351",
+        "7f9d7282b8e15e7db8a22c5de01e05a8b1ad00c34ac13a1cf220584156fdde67",
+        "b56e2b24188807b6f8e339cf619bc8cf229c1271ddd9c3e318f09d36abfca9a4",
+        "91a57e479ef0a6302c558ade7d5b3d3522f99267726851dda33de12b1ce345f1"
+      ],
+      "source_sha256": "b3a0ba46ec4812f41eda8201c1bb94bb61bc922465434afe416fba678a68550a",
+      "text": "Return a column name or one-based absolute row number.\n\n:param section: zero-based visible column or row-header section.\n:param orientation: horizontal for names, vertical for row numbers.\n:param role: Qt data role; only :attr:`Qt.DisplayRole` is served."
+    },
+    "spacr.qt.screens.db_browser.PreviewModel.rowCount": {
+      "source_blocks_sha256": [
+        "e05ac46e4a57db4d0904b9494f7339f734938ef52b1dc1dde9800d8375f1bbc2",
+        "39956c5486f47f8f7a4c90192c6a5379146dbf131960caf75ea5e62b8fe8e3ee"
+      ],
+      "source_sha256": "7a7c9fb68fe9c87b99b2726b9d5b28fa9b6d5bd270a0491e0b08304a01a18593",
+      "text": "Return loaded rows for the root model and zero for children.\n\n:param parent: Qt parent index whose child-row count is requested."
     },
     "spacr.qt.screens.db_browser.PreviewModel.row_key": {
       "source_blocks_sha256": [
-        "f48b3e166e2bc516c723cc2aee2d0c4c84d6349c6b45d5be53b87080397b1ec7"
+        "96818b8a7bdc268911093da840b33d06fe8d860913275b17c3bbcfcf2b43bd95",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12"
       ],
-      "source_sha256": "f48b3e166e2bc516c723cc2aee2d0c4c84d6349c6b45d5be53b87080397b1ec7",
-      "text": "The key tuple addressing ``row``, or ``None`` when it has none."
+      "source_sha256": "f9da4751526e43db27046bda9401ff16cb878e78fb37196189529a2a136a4068",
+      "text": "Return the key tuple addressing ``row``, or ``None``.\n\n:param row: zero-based model row index."
     },
     "spacr.qt.screens.db_browser.PreviewModel.rows": {
       "source_blocks_sha256": [
@@ -41395,70 +41474,98 @@
       "source_sha256": "e6b3f05b0b1085bc424e1d8b61a4522284245f3f544b60b2cb99ec7cb95f1cb7",
       "text": "The raw rows loaded so far, with every column (search-independent)."
     },
+    "spacr.qt.screens.db_browser.PreviewModel.setData": {
+      "source_blocks_sha256": [
+        "ff4424ecfd8ea4df900a81596aa8e8468da28e21ed966f1c68533936705ade38",
+        "667909a495db854da63a9d584f51f55cac726b97ae54c73229ab8554f7760a64",
+        "e401e58ff5cf7be7fa3a1e50aebdeb5aec0c3847ab29b1cf6c7c105b7bf00b3b",
+        "6811177313c24753c873829cfdfd23000dd312eeb83a39d3669ce981fcc0ca03",
+        "4d7493cefdd8b1c7253aecbc5295865e0c82c15e9b51a7479e1babe2f897325b"
+      ],
+      "source_sha256": "f390186a39990c2f9b7b3b1858171b1499f89f0f5bd35b34ba2af6e73b8e6d6e",
+      "text": "Commit an editor value through the guarded screen callback.\n\n:param index: valid editable model index.\n:param value: raw editor value passed to the commit hook.\n:param role: Qt role, which must be :attr:`Qt.EditRole`.\n:returns: whether the commit hook accepted and wrote the change."
+    },
     "spacr.qt.screens.db_browser.PreviewModel.set_column_filter": {
       "source_blocks_sha256": [
         "0031dc11e6ed89989f07d5287e85ee47c0ac4b32199edd23fd2ccf8156a44acc",
-        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52"
+        "df72dd1144476a825d6b34a183d46e28df68a61b323af60f381415c91ab15d52",
+        "4b2750d4f2e4f2ec83971ac92257eded572b3a1ae77872d29ba79f2e68e0f7ec"
       ],
-      "source_sha256": "e7910252f309e36017edbf408938e9fb6e823d47f4cae2ab559c6471eaf7cfe7",
-      "text": "Show only columns whose name contains ``text`` (case-insensitive).\n\nAn empty string restores every column."
+      "source_sha256": "ef81b06180b835ec6096c16993c9e7d33855a3579abca030b92a4654a38f37ee",
+      "text": "Show only columns whose name contains ``text`` (case-insensitive).\n\nAn empty string restores every column.\n\n:param text: case-insensitive substring required in visible names."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_commit_hook": {
       "source_blocks_sha256": [
-        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1"
+        "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1",
+        "3ac14b07f2c48dabb797d61b02d263d73c2f580fae4e1c6f4e67114370a2cb01"
       ],
-      "source_sha256": "09bfea131e001c797975643bb27d654319e574b0f99cb7ed8b59a2286cf9e9c1",
-      "text": "Set what :meth:`setData` calls to actually write a cell."
+      "source_sha256": "40c3bce8b0bbf6d4ee3d3532bcbb169f7ebcc81f3845d9fc127af8ca912a8a3a",
+      "text": "Set what :meth:`setData` calls to actually write a cell.\n\n:param hook: ``(row, column, value)`` writer, or ``None`` to disable it."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_editable": {
       "source_blocks_sha256": [
-        "c0924b64b3fb3f11831bf1855fc247f53ae4b7604797b9199554185f06ca8c93"
+        "6e0f3efd741de97956965a120e18c499f8fdc5a3ac6d9233b06b1ee2b15e45d1",
+        "44d3301f76159c652d9d27e18efe819c758401bd3c72816f8bcd1f4c79fc9faa"
       ],
-      "source_sha256": "c0924b64b3fb3f11831bf1855fc247f53ae4b7604797b9199554185f06ca8c93",
-      "text": "Turn cell editing on or off (and tell the view to repaint flags)."
+      "source_sha256": "1c43203d9a1078bbeca8459af264281e8e7b18b92af523c96842b01e43fa841b",
+      "text": "Turn cell editing on or off and repaint the item flags.\n\n:param editable: whether valid cells advertise Qt's editable flag."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_fetch_hook": {
       "source_blocks_sha256": [
-        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9"
+        "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9",
+        "72c35dc630e129731ac4ba2be725dd52b377f6c3ff31236dfa82870b73f27b56"
       ],
-      "source_sha256": "2762adcc2f2077f4ffc679f4c47438da6efcccbcc726c96bc889e5ce0f817ef9",
-      "text": "Set what :meth:`fetchMore` calls to ask for the next chunk."
+      "source_sha256": "1dadcaaf53a5a4c81ac687c25652dfcf8ea202b31ef328c8ea9e50a4ce770458",
+      "text": "Set what :meth:`fetchMore` calls to ask for the next chunk.\n\n:param hook: zero-argument fetch request, or ``None`` to disconnect it."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_more": {
       "source_blocks_sha256": [
-        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378"
+        "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378",
+        "92d07b8f0711a05844460b379793b34b8d40662b04dc22102a66cafdc1f534fe"
       ],
-      "source_sha256": "25edb793f5f57888dc0d4fa95aa69d69b1cc94cc2571d94bfd0ba2c2561a8378",
-      "text": "Say whether another chunk can be fetched right now."
+      "source_sha256": "ac0a2388bfc28df2a1337b058a9572cfc87d97757f778f4dff8950f8b52cf3dc",
+      "text": "Say whether another chunk can be fetched right now.\n\n:param more: true only while an unfetched chunk remains available."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_page": {
       "source_blocks_sha256": [
-        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79"
+        "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79",
+        "6f45aac0aa224763173902a2f924786c3d9879b548970e03154624cf06c38fa7",
+        "916307a5d4611338ed805385d060da8f537bf22abd5754cd66b4bb21bb348afd",
+        "fe213521e761f2457f394038343197e2bec760f675fb69f4ecfd105a30e9963c",
+        "a9c003d6c369cfecb2d694bcb718fd152d1677ed9d3f411319e25a12d9d266e2"
       ],
-      "source_sha256": "483a2644eba11170444e6ab71b8e11b95bba03d7f6172a3415b8208d83cbcb79",
-      "text": "Replace the model contents, keeping the current column search."
+      "source_sha256": "49aa8bc6709cd50bb23ad011a019bf262a2a7bf87b4480b15f46a16ca0af325e",
+      "text": "Replace the model contents, keeping the current column search.\n\n:param columns: schema-order column names represented by every row.\n:param rows: complete values for the newly loaded page.\n:param row_offset: zero-based database offset used for row headings.\n:param keys: stable row addresses, or ``None`` for uneditable rows."
     },
     "spacr.qt.screens.db_browser.PreviewModel.set_value": {
       "source_blocks_sha256": [
-        "3a96528e65a803216b775b688d14c542cbd50af2aaf528e15199c1a8ed08b5c0"
+        "87a3195ef2b539b38485869ebf317733ae0e7bcc1fd9942e0a7f6483a40ec1ec",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "8d26a3b9ba7d72d641a8c8a2e70c7a1de68398ff80b6894bacd20ffb51b6d020",
+        "4ea69e7de8cf797e3631a3ecf2f038a5b303e983ed65caadf077d45ab36adf0a",
+        "7c760fae1b7d69119d1de9adf5f1ffc64d9a63e5d8049d5a8bbabd80e3158858"
       ],
-      "source_sha256": "3a96528e65a803216b775b688d14c542cbd50af2aaf528e15199c1a8ed08b5c0",
-      "text": "Write a value back into the in-memory page after a real UPDATE."
+      "source_sha256": "1195374eb992faf75f84631e04f2c822890c10c6008c1ff9eb5f2d9bd4308929",
+      "text": "Write a value into the in-memory page after a real UPDATE.\n\n:param row: zero-based model row index.\n:param column: schema column whose displayed value changed.\n:param value: already-coerced value written to the database.\n:returns: whether the addressed cell exists and was updated."
     },
     "spacr.qt.screens.db_browser.PreviewModel.sort": {
       "source_blocks_sha256": [
         "71cb5bbc5dc93f3a91b405d91c9087d57048312f1745786822ec571f4cc52e2e",
-        "2001c5f7e87a33325d6b4e1a4aa92d4bd1172ee52e142be5af736a2c18b7b2c6"
+        "2001c5f7e87a33325d6b4e1a4aa92d4bd1172ee52e142be5af736a2c18b7b2c6",
+        "6359264eb8dd05dffc7910c47afabd2114a38fb1e6df1a40493b0107dfefed4f",
+        "23e9ff9e6a625aa275489e729dfccf8511c09ab19860b409240eabe29cf6ec75"
       ],
-      "source_sha256": "78b3d8b861795326587c3a92629194635253521028ada9335845170eb1ebbf56",
-      "text": "Sort the loaded rows in memory.\n\nThe screen only enables view sorting once the *whole* table is\nloaded, so this never sorts a partial result and calls it the\ntable's order. Keys travel with their rows, so an edit after a\nsort still addresses the row it looks like it addresses."
+      "source_sha256": "17df3c02fbf487a5bb5ee8e89be5fcb85f1354356694a99ae7fdd098764a24f9",
+      "text": "Sort the loaded rows in memory.\n\nThe screen only enables view sorting once the *whole* table is\nloaded, so this never sorts a partial result and calls it the\ntable's order. Keys travel with their rows, so an edit after a\nsort still addresses the row it looks like it addresses.\n\n:param column: zero-based visible column to sort by.\n:param order: Qt sort order, defaulting to\n    :attr:`Qt.AscendingOrder`."
     },
     "spacr.qt.screens.db_browser.PreviewModel.value": {
       "source_blocks_sha256": [
-        "d1c0187a1095e60ce07499e16db46e480de46451139a90688c2dddd4a92a6139"
+        "e7f14604f6c1d745f40af42ca707b2e24d5a813f4397dcda68b2a9fe4e4a8f56",
+        "f20423b4687d1ccf5974e6d8dd2bc4d384eb1aedbe5f6c411c34c4cd0e248e12",
+        "60f43a9be287d06da7f19842aa7f28c609260fec8f2342202268e8c74bc93aca"
       ],
-      "source_sha256": "d1c0187a1095e60ce07499e16db46e480de46451139a90688c2dddd4a92a6139",
-      "text": "The stored (unformatted) value at ``row`` / ``column``."
+      "source_sha256": "570ded283d19b0307a592acbbb6e79b8a8d2b14633d1116b18c8e67c4aa7879f",
+      "text": "Return the stored, unformatted value at ``row`` / ``column``.\n\n:param row: zero-based model row index.\n:param column: schema column name."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb": {
       "source_blocks_sha256": [
@@ -41473,28 +41580,41 @@
     "spacr.qt.screens.db_browser.ReadOnlyDb.check_columns": {
       "source_blocks_sha256": [
         "52c814f0091b334552b9781c0aef43c8df0ed5af985c1565f542ebb8ffd93238",
-        "59a66176cecc387ed88e3a69444b7104c316bac327921f131c5851f5555e3b7a"
+        "e77dd4915f5b0a29de43cd797a4ac0ba5866c7a9e067ae35bd6e3e61ff63add9",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868",
+        "a3572bd46a74ec48eba1ec7041fdc052ecb1c794e5e0ce60e538c8f7828e3831",
+        "97cf298783c6232160be30027fa353062d3eac0e3b15fd2af9bba56835e22a6b",
+        "0136a7389b0d04295ec83215f45fd0abfa07650d50f0aed58e430875276d160f"
       ],
-      "source_sha256": "be815b5b41e98504f58853f7614512a3fc38abd0c3b309181b05a6a9659947b7",
-      "text": "Return the requested columns, validated against the schema.\n\n``None`` means \"all of them\"."
+      "source_sha256": "4e47bd1e722b7db9db4655dc99038999f3af7e4cc3d87f5fde810e2a21604df0",
+      "text": "Return the requested columns, validated against the schema.\n\n``None`` or an empty sequence means \"all of them\".\n\n:param table: validated user-table or view name.\n:param columns: requested names, or ``None``/an empty sequence for the\n    complete schema.\n:returns: validated names in requested or declaration order.\n:raises ValueError: when any requested name is absent."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.check_table": {
       "source_blocks_sha256": [
         "ce402187304c209f3ff14fe5196a429d4f0653a71f10068a3f0daf372e0f4c06",
-        "dc7f71938637e94041ac3e8e1cebe4a20b28c3d601c162dbf6ffa260c15e7c46"
+        "dc7f71938637e94041ac3e8e1cebe4a20b28c3d601c162dbf6ffa260c15e7c46",
+        "2f1a58afcb67a0caa186eeef0d9c1fddfcd2084bd67708c72ef7494de9d4e467",
+        "3473c82a33a4eaa2de3021773a2bdf05d44fb2afa2c419981125cf86eae27c5e",
+        "bbbbcbb3e0f2a32849e16c73a7b2aeef548f9fbee158121cf444759842f5d564"
       ],
-      "source_sha256": "131a4c65a68cad3756f608776d3b6f270c065d92f3ff3f9711433f3c20121fd9",
-      "text": "Return ``table`` if the schema really has it, else raise.\n\nThis is the gate that keeps identifiers out of the \"user input\"\ncategory: a name that isn't in ``sqlite_master`` never reaches SQL."
+      "source_sha256": "537a0165bef2523b8d762847a2c0f4989fa94f36bccd6118bc3dae76c2ede7fc",
+      "text": "Return ``table`` if the schema really has it, else raise.\n\nThis is the gate that keeps identifiers out of the \"user input\"\ncategory: a name that isn't in ``sqlite_master`` never reaches SQL.\n\n:param table: candidate user-table or view name.\n:returns: ``table`` unchanged after validation.\n:raises ValueError: when the live schema has no such table or view."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.chunk": {
       "source_blocks_sha256": [
         "540faf598d0d68177699e9bab94b27150a453edb8f667c0ceea33f0fb5dbc6bb",
         "3d094b28799e48d404d1d9990d5b090e9af8abee39786a110358f5c3b4d8c61a",
         "7fc5d8ec0abca2aa943d10b46330578488e357a919e5a653bdab30553b623fc0",
-        "800a44b4129206211bc3ed612bf62179b7b740ce73140e0ac9a01264980e593c"
+        "6f60c60d46ade09a6f3b68ce962de32bc0b0ff7580ab01f8dcd7419185c80b6a",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "a7b8e3fa4a1ba7daebe10e8241f45488c8b3a66df827afa06075536b484228e2",
+        "9d764fa4baf14f983d922d139759ce3902a4d67d1f105786e0b6e0363f04fc89",
+        "800a44b4129206211bc3ed612bf62179b7b740ce73140e0ac9a01264980e593c",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd"
       ],
-      "source_sha256": "617c99519cce4daf82e154b0292ac5846cc9d656290c0691b1a2477e351f505e",
-      "text": "Return ``(columns, rows, keys)`` for the next ``limit`` rows.\n\n``after`` is the key tuple of the last row already loaded;\n``None`` asks for the first chunk. ``keys[i]`` addresses\n``rows[i]`` uniquely (or is ``None`` when the table has no key,\nin which case the caller must refuse to edit it).\n\n:param table: validated user-table name to page through. Its schema\n    determines both the returned columns and each row's stable key.\n:param loaded: only used by the ``OFFSET`` fallback for tables\n    with no single-column key."
+      "source_sha256": "d706a33904bf8cca0ecce52ccdf90d553b0b8293acfce9fea63563be32649735",
+      "text": "Return ``(columns, rows, keys)`` for the next ``limit`` rows.\n\n``after`` is the key tuple of the last row already loaded;\n``None`` asks for the first chunk. ``keys[i]`` addresses\n``rows[i]`` uniquely (or is ``None`` when the table has no key,\nin which case the caller must refuse to edit it).\n\n:param table: validated user-table name to page through. Its schema\n    determines both the returned columns and each row's stable key.\n:param columns: requested schema columns, or ``None``/an empty\n    sequence for every column.\n:param where: optional validated predicate without ``WHERE``.\n:param params: bound values consumed by predicate placeholders.\n:param limit: maximum number of rows requested for this chunk.\n:param after: stable key tuple of the last row already loaded, or\n    ``None`` for the first chunk.\n:param loaded: only used by the ``OFFSET`` fallback for tables\n    with no single-column key.\n:param order_by: optional ``(column, descending)`` whole-table order."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.chunk_sql": {
       "source_blocks_sha256": [
@@ -41503,25 +41623,35 @@
         "6657dd38c81d93f72046763dc1d5226f169823895b9981f36f9105fb22466b25",
         "45560f37ce58f5b28b52a2da9385f17c443f9a1bd081a46bc562dd5ec14452aa",
         "9dfc1d5bc01b0d1037d9df2900839a5f67643c73624aa8a878855eb3614a9c51",
-        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7"
+        "b95405685ff5e9f6348e8c5b64ac6576b26398d681a0d24c0614051ec62668c7",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "c22750ced3d9230ae8ca2174ba4ea7593d93938c68e80ac7f1f125a7582b9a8a",
+        "d2d2165d337bdb4604b3785c8b81a2e48da3c918d537efc2881d28223ffabf9e",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "80fa99446f0eedef669253e9faf65f90b73b9cd4d8539be41dbaed7fbaa0a98f",
+        "94fda8940c96411589094aae26fb7958084922b9bed5d7e2784cdf8ece11ae28",
+        "95a354844fc70de3538e3923bb8e7a2249363081b198d2038ead1bb50e01dabd",
+        "228528066e9ea86d1d42d4d1dbe40a415bc8245aa35d00b7d41309674f5a800b"
       ],
-      "source_sha256": "058732fb8acd19c3a530f5988163ed7733f5f5fbdb94b5ac3e6d206d8d8d99f2",
-      "text": "Build the paged chunk SELECT. Exposed so tests can read it.\n\n``after`` says whether a ``key > ?`` clause is wanted (i.e. this\nis not the first chunk). ``use_offset`` is the fallback for\ntables that have no single-column key.\n\n``order_by`` is ``(column, descending)`` when the user has clicked a\ncolumn header. It sorts **in SQL, over the whole table**, which is\nthe only way to sort a table the view has only partly loaded --\nsorting the rows fetched so far and presenting that as the table's\norder is the one option worse than not sorting at all.\n\nTwo details that are not optional:\n\n* the key column is appended as a **tiebreak**. Without it, rows\n  sharing a value come back in whatever order SQLite happens to\n  produce, and that order is free to differ between two chunks of\n  the same scroll -- so a row could be shown twice and another not\n  at all.\n* paging falls back to ``OFFSET``. Keyset paging needs the ordering\n  column to be the one being compared, and ``(value, rowid) > (?, ?)``\n  over an arbitrary user-chosen column is a different and much more\n  delicate query. OFFSET makes deep scrolling of a sorted view\n  progressively slower, which is a real cost and the reason it is\n  not the default; it is bounded here because a sort is an explicit\n  act on a table the user is looking at."
+      "source_sha256": "cc4e1beeeced485d501dba5f595355c54bc58ea980f687e252f464f229748ebc",
+      "text": "Build the paged chunk SELECT. Exposed so tests can read it.\n\n``after`` says whether a ``key > ?`` clause is wanted (i.e. this\nis not the first chunk). ``use_offset`` is the fallback for\ntables that have no single-column key.\n\n``order_by`` is ``(column, descending)`` when the user has clicked a\ncolumn header. It sorts **in SQL, over the whole table**, which is\nthe only way to sort a table the view has only partly loaded --\nsorting the rows fetched so far and presenting that as the table's\norder is the one option worse than not sorting at all.\n\nTwo details that are not optional:\n\n* the key column is appended as a **tiebreak**. Without it, rows\n  sharing a value come back in whatever order SQLite happens to\n  produce, and that order is free to differ between two chunks of\n  the same scroll -- so a row could be shown twice and another not\n  at all.\n* paging falls back to ``OFFSET``. Keyset paging needs the ordering\n  column to be the one being compared, and ``(value, rowid) > (?, ?)``\n  over an arbitrary user-chosen column is a different and much more\n  delicate query. OFFSET makes deep scrolling of a sorted view\n  progressively slower, which is a real cost and the reason it is\n  not the default; it is bounded here because a sort is an explicit\n  act on a table the user is looking at.\n\n:param table: schema-validated source table or view.\n:param columns: visible data columns to select after the key columns.\n:param key_columns: stable row-address columns prepended to each row.\n:param where: optional validated predicate without ``WHERE``.\n:param after: whether to add the next-page key comparison.\n:param use_offset: use OFFSET paging when no single key is available.\n:param order_by: optional ``(column, descending)`` whole-table order.\n:returns: parameterized SELECT containing a bounded ``LIMIT`` and,\n    when required, ``OFFSET``."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.column_types": {
       "source_blocks_sha256": [
         "d76f2e74aa5691153110326f2c34e1991511402f974b348a2524528a43e3cce6",
-        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261"
+        "c563662ee49427f5bafe3751247dae393e5fc9ea13576609e86689eb66fbd261",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "4471b121b4b4e77d2b6c2dab35eeddd35da9a954828f739a0569772594073360",
-      "text": "Return ``{column: declared type}`` — ``''`` for untyped columns.\n\nCached: the edit path asks for this on every keystroke-committed\ncell, and the schema cannot change under a read-only connection."
+      "source_sha256": "cbf9bed336ddbf917d0da75ed20739c39a1338c9768df9f77b9a8893e49c415b",
+      "text": "Return ``{column: declared type}`` — ``''`` for untyped columns.\n\nCached: the edit path asks for this on every keystroke-committed\ncell, and the schema cannot change under a read-only connection.\n\n:param table: validated user-table or view name."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.columns": {
       "source_blocks_sha256": [
-        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1"
+        "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "80f09d3b5c2bf4ef6dff75f35f480bde3f43cb8358053a287449af0f4c0abcd1",
-      "text": "Return the column names of ``table`` in declaration order."
+      "source_sha256": "45523a9429aca25060bd91e2e77d5216197d2b51580446b34c9aaac8dbc61fd6",
+      "text": "Return the column names of ``table`` in declaration order.\n\n:param table: validated user-table or view name."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.connect": {
       "source_blocks_sha256": [
@@ -41533,67 +41663,87 @@
     "spacr.qt.screens.db_browser.ReadOnlyDb.count": {
       "source_blocks_sha256": [
         "4ba2410e9e3f6cefad2ad8fb91d8b9d997e27ac097ce93b11c952e240a35f21d",
-        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81"
+        "316688bf46ffb3b10c29c98c96bb8678c02197783871cc8e57ae8067abb60d81",
+        "17e70e2b02f13bc612cb0308c8612f40039f5fa2da4098a99d30b279bc9430b3",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3"
       ],
-      "source_sha256": "45e8b76935c1acb6889127fde55627e0d4ce2b16a6516d4f7ee400418e50484a",
-      "text": "Return the exact ``COUNT(*)`` under the current filter.\n\nThis one *is* a full scan — never call it on the path that\npaints the first chunk."
+      "source_sha256": "b10bf3f9fed406f13a41373021ce869a19b388b3ef57f6acb1a4d3652bf38102",
+      "text": "Return the exact ``COUNT(*)`` under the current filter.\n\nThis one *is* a full scan — never call it on the path that\npaints the first chunk.\n\n:param table: schema-validated table or view to count.\n:param where: optional validated predicate without ``WHERE``.\n:param params: bound values consumed by the predicate placeholders."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.estimate_count": {
       "source_blocks_sha256": [
         "cb9e00c8b78e68926a8e310247b13ef95934aa4c00f5ab9d2bd5244cdf77ede7",
         "9e44b31a38abeba2fae325bab335bbdd4b008495484fc9215d5d3e65e67d9c17",
-        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5"
+        "6ffde313a82af27afbf8493536ca1ffb0d09714cb601a36cbaf6cfc26d546eb5",
+        "6cd31ab18a0cb0afa9c58e635ea76bc5d96e0f8b8fb14779406ab9a66f53369d"
       ],
-      "source_sha256": "b1c7d984f68c6dabc50dc594b2d4b37c9e9c9b4d1f2449e32684cd30ea47d939",
-      "text": "Return an O(1) *estimate* of the row count, or ``None``.\n\n``max(rowid)`` is answered from the right-hand edge of the\ntable's b-tree without scanning, which is the whole point: a\nreal ``COUNT(*)`` on a 400 k-row measurement table takes long\nenough to be felt. It is only an estimate — deleted rows leave\ngaps — so every caller must label it as one.\n\n``None`` when the table has no rowid, or is empty."
+      "source_sha256": "8d9ca7b87c06909967ab0538bb39a13ae96473a5cf10b4ce994cbd30f4d5707c",
+      "text": "Return an O(1) *estimate* of the row count, or ``None``.\n\n``max(rowid)`` is answered from the right-hand edge of the\ntable's b-tree without scanning, which is the whole point: a\nreal ``COUNT(*)`` on a 400 k-row measurement table takes long\nenough to be felt. It is only an estimate — deleted rows leave\ngaps — so every caller must label it as one.\n\n``None`` when the table has no rowid, or is empty.\n\n:param table: validated table or view to estimate."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.export_csv": {
       "source_blocks_sha256": [
         "fd9c030eb9962de6e4bfc85947f7b6ef13c02f31856f2b958a877d23f05f02f2",
         "f93244f47871d8b0dd50b6c8a8bde52d50821d17b829965ae2e299e0f6c92286",
+        "d0032bf1e01f1fc101da197222b131769106476aec2dfe7a1c0f9561006808d4",
+        "06c781efb67ce1e6fffd07314c8fd9c49c3cf09ac8b26f0f1b712ed26135157a",
+        "af1aa0bd8e099dc2cc59db578e87eb26ea616fc9587f75385a78f33b30965a46",
+        "c053c057916edee3110d00a026ac682bf19342788aeff6b49af2b05e4bcb866c",
+        "46b2b00c972db3b48c12451ed5ec4406b09e771927073d610bc206ed42692831",
+        "06d5388e6f235f12efd546a24b740bc12f000c38f474d0898599ebfa512e6edd",
         "a2e248a46d498da24d6450d1f8637ea04fd4e7c814d2c8995779d3d8e2038a9c"
       ],
-      "source_sha256": "6d129d30f7e3fcdfa77e1d87be7700272374eae4138e699cad4881baa35ea9e5",
-      "text": "Stream the filtered result to ``out_path`` as CSV.\n\nRows are pulled in ``chunk``-sized batches and written straight\nout, so exporting a 400 k-row table costs a constant amount of\nmemory.\n\n:returns: number of data rows written (header excluded)."
+      "source_sha256": "2e0d6bc423d92ce52a82bae15def4c602efa9dbff3d9ce3d8c22223cba9fae95",
+      "text": "Stream the filtered result to ``out_path`` as CSV.\n\nRows are pulled in ``chunk``-sized batches and written straight\nout, so exporting a 400 k-row table costs a constant amount of\nmemory.\n\n:param out_path: destination CSV path; missing parent folders are made.\n:param table: schema-validated table or view to export.\n:param columns: selected columns, or ``None`` for every column.\n:param where: optional validated predicate without ``WHERE``.\n:param params: bound values consumed by predicate placeholders.\n:param chunk: cursor batch size used while streaming rows.\n:returns: number of data rows written (header excluded)."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.row_key": {
       "source_blocks_sha256": [
         "4c077100589a4e5a6afe7696e6e2b3eb03aee8742e83149e0b13987c2acee2df",
         "fec2cdbc4026a81bd2f18744957f4ccceb2cb133090c03b5f50dbf400ae87caf",
-        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e"
+        "41cef4c47e867300fbefbb174ca0389b59469ffb61e90764778251bccc62090e",
+        "1f186e512a19624ba21158d794d85a20ed0667cfe14a697e5d8c400c609b6aca"
       ],
-      "source_sha256": "97b5a25f70d0677bc4999aff5b90769a8103d2fe73c3e9f8ccd989e2e45b5eab",
-      "text": "Return how one row of ``table`` can be addressed uniquely.\n\n``(\"rowid\", [\"rowid\"])`` for an ordinary table, ``(\"pk\", [...])``\nfor a ``WITHOUT ROWID`` table (its declared primary key), and\n``(\"\", [])`` for anything with neither — a view, or a table\ncreated ``WITHOUT ROWID`` with no primary key.\n\nTwo things hang off this: paging (keyset needs an ordered key)\nand editing (an UPDATE without a unique address is refused)."
+      "source_sha256": "3030801ec57e5a2fc9886ecec4efe79200cb9e248fe4062f43e4d3e3cc958f60",
+      "text": "Return how one row of ``table`` can be addressed uniquely.\n\n``(\"rowid\", [\"rowid\"])`` for an ordinary table, ``(\"pk\", [...])``\nfor a ``WITHOUT ROWID`` table (its declared primary key), and\n``(\"\", [])`` for anything with neither — a view, or a table\ncreated ``WITHOUT ROWID`` with no primary key.\n\nTwo things hang off this: paging (keyset needs an ordered key)\nand editing (an UPDATE without a unique address is refused).\n\n:param table: validated table or view whose identity is inspected."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.select_sql": {
       "source_blocks_sha256": [
-        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9"
+        "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9",
+        "00a9b00b1f86a1d1f452475e85d396c0c88371bd38814f180e45bd9118d132e3",
+        "7cb76a4787072af43546d3d3b1e588da0f66e7e3e58bffc6a13704b47b8cbeb9",
+        "bf99d330ca9bf20279164f583a4683043fb51b794fd2d7fc598e0a4c796d3b2d",
+        "ca3ba32c5c93b807188fd96b7034877006677f52167cb6a172c432d52ff7e9d9"
       ],
-      "source_sha256": "7dc09d6ee1a66021759630e64678bbd06b1b3d209c52330a123d2b73327403c9",
-      "text": "Build the unbounded SELECT used by the CSV export."
+      "source_sha256": "9ef14042b4410e765e56612974ebfb9315d67b01c38c20abe065eb81fb81ed4f",
+      "text": "Build the unbounded SELECT used by the CSV export.\n\n:param table: schema-validated source table or view.\n:param columns: schema-validated columns to export.\n:param where: optional validated predicate without the ``WHERE`` word.\n:returns: SELECT statement containing no user-formatted values."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.table_info": {
       "source_blocks_sha256": [
-        "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a"
+        "cb3dbf9648ea759d8864e4355fa6f08a260f885afe7acd2e5ea35b618510fe15",
+        "3ea23bd38c2496c7196d439b9713f3bdd207d155115f6d6278e5619065008868"
       ],
-      "source_sha256": "8c7264dd4ff492526086f3f385eebc3ef81479f3a9bf0b85a8e9cf62a7e4ee1a",
-      "text": "Raw ``PRAGMA table_info`` rows for ``table``."
+      "source_sha256": "1330bc49af1d2610396794bedc4cfb4e59b53277b520351ffca6fbcb7864c1f3",
+      "text": "Return raw ``PRAGMA table_info`` rows for ``table``.\n\n:param table: validated user-table or view name."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.tables": {
       "source_blocks_sha256": [
-        "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781"
+        "be2d70747e0e68afc74e48e3610bac8fdeb15d3ad8a00c4f5746389d15c8ee21",
+        "d26f2cb3e981dbd567686e651e0eb03612e27daaa4a684f81b86817890d8b662"
       ],
-      "source_sha256": "0951a65979274a2899d331f7f6d2e1a9e38a945282edfe7a2663941606d69781",
-      "text": "Return the user tables + views, alphabetically."
+      "source_sha256": "1c259ce1efecbb9ac61a9bac16e7d2c9f71c48be4d9c65827485acbfc25f79af",
+      "text": "Return the user tables and views alphabetically.\n\n:param refresh: bypass the cached schema inventory when true."
     },
     "spacr.qt.screens.db_browser.ReadOnlyDb.validate_where": {
       "source_blocks_sha256": [
         "6c754eecb3e8bf48d28d48860f81eab3f8ea1ba26d2a119b515e958d54a9edaa",
         "e6004200c052eb2cf436b2375be2197f9f7b6734492690d61fa50a8934f7d825",
+        "c56e59fbab8815439e575848a3960f06b8e5d73ada1a1d340b537e9a7c64d949",
+        "2a0a66170983384289829f3efcc5d6f9d830788eed38ba8010724989323bf56f",
+        "bdbcd7522f3b1526f1d125e371adb0a89ff85226a3038f5db45c2f23ab14fba3",
         "e5aec381ac480708d8fd683fd1d4054cef379feb5092e1af0d2efd6894c3fa18"
       ],
-      "source_sha256": "13cfc5fd0632245629e3b8d8f0c40e0e09409065a404c0d5b2faa97fa1eb6614",
-      "text": "Let SQLite parse ``where`` and raise if it is malformed.\n\nPrepared with ``LIMIT 0``, which SQLite short-circuits before it\ntouches a single row — so a typo costs a parse, not a full scan\nof a 400 000-row measurement table.\n\n:raises sqlite3.Error: with SQLite's own message (``no such\n    column: cell_are``, ``near \">\": syntax error``, …)."
+      "source_sha256": "3cd920d2a6ee597e31099b5a239dae6e50d636aa317ebb7791a8c2d5c08b150d",
+      "text": "Let SQLite parse ``where`` and raise if it is malformed.\n\nPrepared with ``LIMIT 0``, which SQLite short-circuits before it\ntouches a single row — so a typo costs a parse, not a full scan\nof a 400 000-row measurement table.\n\n:param table: schema-validated table or view used for name resolution.\n:param where: predicate fragment for SQLite to parse.\n:param params: bound values consumed by the predicate placeholders.\n:raises sqlite3.Error: with SQLite's own message (``no such\n    column: cell_are``, ``near \">\": syntax error``, …)."
     },
     "spacr.qt.screens.db_browser.WritableDb": {
       "source_blocks_sha256": [
@@ -41617,20 +41767,30 @@
         "3b5c8b5e8302b9cfb3cede271b16fc3f6ff43dc1f3bf88a723621c613dbd5a3c",
         "f3d540d7fec204c01d6beff9a99119a023e3ff60abb3f0108bf64fcbe9f89c88",
         "45bad7d8251efcaf79cf474f81084f0dcb9a7aa9cf34b85d634626045e6271a4",
+        "14ef1850f0be466bd57f556ee3c7c7cc8fb5fd1576f7fcf002a593c6f70c41e4",
+        "8abdb3e27585a54d348c116f3072f84e19151e7cecba252760de02a2f54a2757",
+        "115bd3b7db0b392b64a96ef3c54541dd24af7138e1527201e5d75499a149c9e8",
+        "b2aa39b1b47ceff5d777717e093e8cd2ebdc63dfc3bd56f1cd49b07b8571cebd",
+        "a9185860a3a5f7c61ec3bfa2b120ef6408556fa255bd031fa11dc17de985d97b",
+        "d0544d2f1b06965f787c1550aa71613ec4a41df9c110779dc1c494ae094ca883",
         "05e65aec50bae4fae7f411b0bc6e748423aa90a4cef1a72e8d8b1d8c6646ca46",
         "2ab5031500d79ea355be94dd7995fb8f04c531fa449520fab9acc6c11c5a00d0"
       ],
-      "source_sha256": "efd26753505f02df069d80ed11662bdd19fcda58c7234a9e9dfcdf6600ecf46d",
-      "text": "Set one column of one row. Returns the SQL that ran.\n\nThe guards, in order:\n\n1. ``table`` must be a real table in ``sqlite_master`` — a view\n   has no row to update.\n2. ``column`` and every key column must exist in its schema.\n3. the row address must match **exactly one** row (probed with\n   ``COUNT(*)`` before anything is written);\n4. the UPDATE itself must report ``rowcount == 1``, or the\n   transaction is rolled back.\n\n:raises EditRefused: when any guard fires — nothing was written.\n:raises sqlite3.Error: when SQLite refuses the write itself\n    (constraint violation, read-only file, locked database)."
+      "source_sha256": "dca5b41c5e28f43f8a7553913d24669cc0a58b3c62a6c3ce987651d4694b89de",
+      "text": "Set one column of one row. Returns the SQL that ran.\n\nThe guards, in order:\n\n1. ``table`` must be a real table in ``sqlite_master`` — a view\n   has no row to update.\n2. ``column`` and every key column must exist in its schema.\n3. the row address must match **exactly one** row (probed with\n   ``COUNT(*)`` before anything is written);\n4. the UPDATE itself must report ``rowcount == 1``, or the\n   transaction is rolled back.\n\n:param table: real schema table receiving the change.\n:param column: existing table column whose value will be replaced.\n:param value: already-coerced value to bind to the UPDATE.\n:param key_columns: rowid alias or primary-key columns addressing it.\n:param key_values: bound address values paired with ``key_columns``.\n:returns: exact parameterized SQL statement that ran.\n:raises EditRefused: when any guard fires — nothing was written.\n:raises sqlite3.Error: when SQLite refuses the write itself\n    (constraint violation, read-only file, locked database)."
     },
     "spacr.qt.screens.db_browser.build_update": {
       "source_blocks_sha256": [
         "7bc3f82ac653f2bd76388fb992eadd2189245176cbe4808bec939315fd7a8312",
         "2c38e153bb8b7c274ff8063481bb924cf2bf1426fc06f3069c57a01a75153d96",
+        "4935e4d46d650ca1ae37c0c30f53f2366d3db8bee601f76f0d89d23945c07c68",
+        "e241bc9b51e38e9ac547c631fbba1feac8ab8c93570f48fca0cf57a1bcec530d",
+        "b0595c1888719db4444f9e2100ab9e568a481dc4d1a74e3ef5d343e505f45a54",
+        "d87285c1a6eb01d5a7949e6cea3cbee59fbbfdee900822e4416cc52da16b2a61",
         "9b7b884d94164f2217e8346f08cbd9409cecb07e031214b1217fd41118bae72a"
       ],
-      "source_sha256": "9d6d63fe42c38b3d6341ac417179dbd68565f372351c13a6304c3afb1e3df32d",
-      "text": "Return the one statement this screen is ever willing to run.\n\n``UPDATE \"t\" SET \"c\" = ? WHERE \"rowid\" = ?`` — one column, one row\naddress, everything bound. Exposed so the screen can show the user\nthe exact SQL before it runs, and so tests can assert on it without\na database.\n\n:raises EditRefused: when there is no row address at all. An UPDATE\n    without a unique key would match on values and could rewrite\n    thousands of rows."
+      "source_sha256": "f46e41b06c9ddf571b68587343e6885bac11e78d9178322a72faba810a77bef7",
+      "text": "Return the one statement this screen is ever willing to run.\n\n``UPDATE \"t\" SET \"c\" = ? WHERE \"rowid\" = ?`` — one column, one row\naddress, everything bound. Exposed so the screen can show the user\nthe exact SQL before it runs, and so tests can assert on it without\na database.\n\n:param table: schema-validated table to update.\n:param column: schema-validated column whose value will be replaced.\n:param key_columns: rowid alias or primary-key columns identifying one row.\n:returns: parameterized single-cell UPDATE statement.\n:raises EditRefused: when there is no row address at all. An UPDATE\n    without a unique key would match on values and could rewrite\n    thousands of rows."
     },
     "spacr.qt.screens.db_browser.build_where": {
       "source_blocks_sha256": [
@@ -41654,26 +41814,33 @@
         "95887c9d5d51232671b0b214c34f9242728552a14ef5ec88dab6e539d41bd27b",
         "6cd8212bb1b93d1250758fcb9a4927ca106eb590c8bfc3a831d439bf18fa1ba9",
         "8247cd2500be933f6036e99d9f4526e0c0954cc490fd89652f5a9d7abd9c5beb",
+        "2da25b2f6bf6f59de1bf5fb7c1eae131bb382fed17bfd60a00d93a8cb8f2c44e",
+        "df12b827b83744bd8a819ac1bb6d8a2948e9aa2e1c7aa429774771122747cf9c",
+        "e60f0cd6f1e2b8d016a57ab834a4b2fbf13dca010c220432df75c249b993244c",
         "8693d2a83482825f2c19978a5f451d5b6506419e798b8943b933027d55a7bc3d"
       ],
-      "source_sha256": "8d40bef24a18ad5d5621fdee6cfa37f680a638ea844410a1a7a1ab980306e240",
-      "text": "Return the value to bind for ``text`` in a column of ``decl_type``.\n\nSQLite has no static typing: binding the string ``\"abc\"`` to an\nINTEGER column stores the *text* \"abc\" there, and every downstream\n``pandas.read_sql`` then gets an object column where it expected a\nnumber. This function refuses instead.\n\n* empty text → ``None`` (SQL NULL). A NOT NULL column then raises\n  from SQLite itself and the write is rolled back.\n* INTEGER affinity → ``int``, or :class:`ValueError`.\n* REAL affinity → ``float``, or :class:`ValueError`.\n* TEXT affinity → ``str``, always.\n* NUMERIC affinity / no declared type → ``int``, else ``float``,\n  else ``str`` (which is exactly what SQLite itself would store).\n* anything declared BLOB → refused; binary is not editable as text.\n\n:raises ValueError: when ``text`` cannot be represented in the\n    column's type."
+      "source_sha256": "d1c67d070886b334477f09973c48571c3528bee52bcf12f68736bd401e589cca",
+      "text": "Return the value to bind for ``text`` in a column of ``decl_type``.\n\nSQLite has no static typing: binding the string ``\"abc\"`` to an\nINTEGER column stores the *text* \"abc\" there, and every downstream\n``pandas.read_sql`` then gets an object column where it expected a\nnumber. This function refuses instead.\n\n* empty text → ``None`` (SQL NULL). A NOT NULL column then raises\n  from SQLite itself and the write is rolled back.\n* INTEGER affinity → ``int``, or :class:`ValueError`.\n* REAL affinity → ``float``, or :class:`ValueError`.\n* TEXT affinity → ``str``, always.\n* NUMERIC affinity / no declared type → ``int``, else ``float``,\n  else ``str`` (which is exactly what SQLite itself would store).\n* anything declared BLOB → refused; binary is not editable as text.\n\n:param text: editor value to convert before binding it to SQLite.\n:param decl_type: declared type of the destination column.\n:param column: destination column name used in actionable error messages.\n:raises ValueError: when ``text`` cannot be represented in the\n    column's type."
     },
     "spacr.qt.screens.db_browser.column_affinity": {
       "source_blocks_sha256": [
         "5284289c72d71bd9e09faf8e979bf9971ba1bcbb62724477ecb843d52929124f",
-        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61"
+        "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61",
+        "0c0567e77415593669840238ceaa430cac2ab160f2447eb80c795006fdd171d4",
+        "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56"
       ],
-      "source_sha256": "e945d772fc1225f1f88938e0250cb5add6ee8168e26f276266bc935c064b2030",
-      "text": "Return SQLite's type affinity for a declared column type.\n\nThe five rules are the ones in the SQLite file-format spec, in\norder: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT,\n``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` →\nREAL, otherwise NUMERIC. Knowing the affinity is what lets\n:func:`coerce_for_column` refuse a value SQLite would otherwise\nstore with the wrong type."
+      "source_sha256": "aea848c104e6e35e76aabb00dad768a2da5fb2a2869a515893b0d6cf0f7adcbf",
+      "text": "Return SQLite's type affinity for a declared column type.\n\nThe five rules are the ones in the SQLite file-format spec, in\norder: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT,\n``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` →\nREAL, otherwise NUMERIC. Knowing the affinity is what lets\n:func:`coerce_for_column` refuse a value SQLite would otherwise\nstore with the wrong type.\n\n:param decl_type: declared SQLite column type, or ``None``/an empty string\n    when untyped.\n:returns: ``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``."
     },
     "spacr.qt.screens.db_browser.quote_ident": {
       "source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
-        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2"
+        "cecea9ecb30c57de1b46930d57eed9f0797055c1d135810198c6b857126553f2",
+        "7e2aef67888ebefcf3e1f7c98c64ca971803dea012d6ee8a52eed91c3e3f6b8a",
+        "ca8e1d418352c68d54bf8bc4c6ceb01e80ac820567bbeec473c413ecb9895559"
       ],
-      "source_sha256": "155a00756759af09e0410fd996d1c52bec9fb66c3bb2fa79396617e8835a33ce",
-      "text": "Double-quote a SQL identifier, escaping embedded quotes.\n\nOnly ever called with a name that has already been matched against\nthe live schema; the quoting is belt-and-braces for identifiers that\nare legal but awkward (``cell_channel_1 (raw)``)."
+      "source_sha256": "61c421d657c57e4ac33806f03abbfc00d41c875600a51971e4757b7f57c48f6d",
+      "text": "Double-quote a SQL identifier, escaping embedded quotes.\n\nOnly ever called with a name that has already been matched against\nthe live schema; the quoting is belt-and-braces for identifiers that\nare legal but awkward (``cell_channel_1 (raw)``).\n\n:param name: schema-validated table or column identifier.\n:returns: identifier surrounded by SQL double quotes."
     },
     "spacr.qt.screens.db_browser.resolve_db_path": {
       "source_blocks_sha256": [
@@ -41690,10 +41857,13 @@
     "spacr.qt.screens.db_browser.validate_raw_predicate": {
       "source_blocks_sha256": [
         "81123f5eddbd1ac94eeb07bd159a511680b538531fbee761cc04b8b67a22a263",
-        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19"
+        "27f9594d0dd28f2728a3bfa5b2a15b45ac395c0a2eb11d1030d4720fcc8f9c19",
+        "4c66160b24aeeb82e2a3a1e94e666339bf22d01819d96061db14f506f44afec2",
+        "2f17102d02c8c5e86cc43b4b449f1205fdd28380582579f8f64344d7574745c3",
+        "23302bcccb0c44eae22850b16828b7259004b1cd710f97bedf8f5b306e9740b4"
       ],
-      "source_sha256": "c9f2054b4c0284e5e022a6ac2706bb121c51d6f98d6505b27d29df29fde4df7f",
-      "text": "Return ``text`` stripped, or raise if it is not a lone predicate.\n\nThe raw box is an explicit power-user escape hatch (``cell_area > 1000\nAND well LIKE 'A%'``). We refuse statement separators, comments and\nDDL/DML keywords so it stays a *predicate*; the read-only connection\nplus ``PRAGMA query_only`` guarantee the rest."
+      "source_sha256": "a2c07d85febe258be295c1d4252f8f2b6ef3af1237baadc6bff9bf4b93581eee",
+      "text": "Return ``text`` stripped, or raise if it is not a lone predicate.\n\nThe raw box is an explicit power-user escape hatch (``cell_area > 1000\nAND well LIKE 'A%'``). We refuse statement separators, comments and\nDDL/DML keywords so it stays a *predicate*; the read-only connection\nplus ``PRAGMA query_only`` guarantee the rest.\n\n:param text: raw WHERE-clause fragment entered by the user.\n:returns: stripped predicate after the safety checks.\n:raises ValueError: when the fragment is empty or contains statement\n    syntax, comments, or a forbidden SQL keyword."
     },
     "spacr.qt.screens.distributed_jobs": {
       "source_blocks_sha256": [
@@ -46560,15 +46730,12 @@
     "spacr.qt.screens.settings_model.SettingsWidgets": {
       "source_blocks_sha256": [
         "0341519b84a33232792e54bbd0d831bc852ce878ee3f4cc375bfc1440251a0b0",
-        "7a70392ac4011e6ead918bdf0c4f35d3537a017deb7318537b93344c8706157f",
-        "9747feb2023d1553079f7b747e9fed44952d7d48496c4296d1d8914b242e37af",
-        "6a4554e2573efc6f08b9c5c352e0ebde29dd58250ca7a0f8b6028973cd079b0f",
+        "7ec8fe50670b01867d06960b7c53742bbbe920ed6b19788f58e68b248172876a",
         "9abf3bd9e81212146d7cff33268a1d78f7a3fec8cbd4b3cd71a8eaa401006bf2",
-        "ce09415d4df6b12587d6650db27d0cecf9cc2285e832a89647760cb82b2c600c",
-        "eba0ca2adbd6777856c5df15c6a0cce97e1c09b03576f5412feddcf107a2cc0b"
+        "ce09415d4df6b12587d6650db27d0cecf9cc2285e832a89647760cb82b2c600c"
       ],
-      "source_sha256": "69d30624c01b709e3b52c27cf1ff7ccf6ddb694004106bc7226724232a99fe07",
-      "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits.\nLoad the app's defaults and prepare its empty widget map.\n\n:param app_key: id of the app whose settings are being edited.\n:param parent: optional Qt parent for created widgets.\n:param skip_keys: settings to build NO widget for.\n\n    For a FOLD, which mounts one module's extra settings onto\n    another's panel. The timelapse fold on the mask screen built all\n    364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and\n    kept the 14 that mask does not already have, discarding the rest\n    because the host already owns them. Naming them here skips them\n    instead, which is the same result for 4% of the work.\n:param current: optional mapping from the form being rebuilt. Recognized\n    settings replace the app defaults; its organelle count, slot, and\n    object-channel values determine which controls the replacement\n    form builds."
+      "source_sha256": "739beeb343f1ee12702d8873c983ce40f29c98e83cf8ca5e3d2b71180596e5eb",
+      "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits.\n:param skip_keys: settings to build NO widget for.\n\n    For a FOLD, which mounts one module's extra settings onto\n    another's panel. The timelapse fold on the mask screen built all\n    364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and\n    kept the 14 that mask does not already have, discarding the rest\n    because the host already owns them. Naming them here skips them\n    instead, which is the same result for 4% of the work."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
       "source_blocks_sha256": [
@@ -46696,12 +46863,10 @@
     "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
       "source_blocks_sha256": [
         "d982282f202c9318690419df9741cf8b2eab64e90367f8041fe97c7b5320098d",
-        "9922eb512e11a9bf8d8db6e75ec0120b643c3a26cdbf8a3d6e6747b1868202dd",
-        "c70c3a34003bdbfe4d17064f8ba7932ade81bda6900e3c65c06d1091ed39934c",
-        "e95818ae5277e0742aecd7ddda01e6cfb226a2e0e37ed0d52b03ce033b13bd6d"
+        "fe9dd2f835918bb0e69c8c7665473c20e26693d25a731f857a295f8db85034f0"
       ],
-      "source_sha256": "775742ee793c892fe792874807a705b3438be146e65d564d1c89e93a07fabb32",
-      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape.\n\nHidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``.\n\nA slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected."
+      "source_sha256": "937037c294e7a8654aab293c2ce373f03282d64203a5e4d8ea60484a18f757f3",
+      "text": "Update a known run setting whose widget is not on this form.\n\nThis includes dedicated controls outside the form and object rows\nomitted by the current shape. Hidden does not mean absent: imported\nvalues live in ``_defaults`` and still reach ``collect()``. A slot\nabove the current count is accepted only when this app owns the count\nand the key is a declared setting; foreign-app keys remain rejected."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -47962,11 +48127,11 @@
         "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
         "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
         "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-        "ccabc909941e3afe2105347182a893385388e4b12ec06203e711e10f5c44c215",
+        "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
         "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce"
       ],
-      "source_sha256": "dfb645dee7b68ac6ed60a36c7db81f71bbff7ec786df070d970f393b81db5e2c",
-      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+H        Go home\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+,        Open Preferences\n    Ctrl+/        Open the AI Console\n    Ctrl+Shift+A  Open the full app list\n    Ctrl+B        Blank the animated background\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up."
+      "source_sha256": "94813481bdb61571397ebd413785ef2a011ac4fd74f5b9b8bba8c3dde84f02bd",
+      "text": "Keyboard-first shortcuts for the spaCR Qt GUI.\n\nRegisters global :class:`QShortcut` bindings on the main window so\nthe whole app is usable without a mouse:\n\n    Ctrl+H        Go home\n    Ctrl+1..9     Switch to the Nth app in the sidebar\n    Ctrl+K        Open the command palette\n    F1  / ?       Show the shortcuts cheat sheet\n    Ctrl+,        Open Preferences\n    Ctrl+/        Open the AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n    Esc           Close any open dialog / popup\n\n:func:`install` is called once from ``MainWindow.__init__``. Every\nbinding is documented in :data:`SHORTCUTS` so the cheat-sheet\ndialog stays in sync with what's actually wired up."
     },
     "spacr.qt.shortcuts.ShortcutOverlay": {
       "source_blocks_sha256": [
@@ -60794,18 +60959,28 @@
     "spacr.qt.widgets.gate_spec.RectGate": {
       "source_blocks_sha256": [
         "bc0de71f15a2a06aa72938a3d2b24b16c6d731177e4ad4c769106e22f17cb9f9",
-        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6"
+        "e56e8e61552a0db8b9ac7723a4339acee0e571c9263e42c8f7bd207f95ddf5a6",
+        "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+        "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+        "648dc8a125070796c47117c6b61372a67b1afda034dec6334b1c75ec1384c356",
+        "d58faf3be0a11a3768f346f2a1baa0cc3d9736823ba06986f07f4eedd2970fff",
+        "f332725a8fa0f3f780d3eeb29680da29044e72c77a443abeb72d94e86cca1887",
+        "18d2df7595e690eaaca843a5a187e2d49233815455f638e718f9d3fb657a9d4f",
+        "849f58f7e2f752ebaffb2704e8da6f12f71071754ab23a0bb262ade56127485b",
+        "1955677b86993f48f1dee22c8caff4801356c65c3f3195d2c4aff2586d23416f"
       ],
-      "source_sha256": "fddc8a9f6162bf715cdb1e8aaa8d7c08319440a099b5e1f7fa85921da6195d0f",
-      "text": "A rectangle on a two-parameter scatter — the quadrant gate.\n\nKept as its own shape rather than as a four-vertex polygon so it can hand\nback real :class:`~spacr.selection.RangeFilter` clauses, which a rectangle\ngenuinely is and a polygon genuinely is not."
+      "source_sha256": "3e05ba73067a92e8d743a822fda9797fde031a07fa0f4b2d02e4d58f03a6b307",
+      "text": "A rectangle on a two-parameter scatter — the quadrant gate.\n\nKept as its own shape rather than as a four-vertex polygon so it can hand\nback real :class:`~spacr.selection.RangeFilter` clauses, which a rectangle\ngenuinely is and a polygon genuinely is not.\n\n:param name: unique name by which the hierarchy and filter identify this\n    gate.\n:param parent: name of the gate containing this one, or ``None`` for a\n    root gate.\n:param x_column: measurement shown on the horizontal axis.\n:param y_column: distinct measurement shown on the vertical axis.\n:param x_low: inclusive horizontal lower bound, or ``None`` when open.\n:param x_high: inclusive horizontal upper bound, or ``None`` when open.\n:param y_low: inclusive vertical lower bound, or ``None`` when open.\n:param y_high: inclusive vertical upper bound, or ``None`` when open."
     },
     "spacr.qt.widgets.gate_spec.RectGate.bounds_in": {
       "source_blocks_sha256": [
         "cb09b1c3c097feb81fef4e8dc49c9f43135c2a7051e7ae7420cc15575ca5d283",
-        "3255f94e13de353265be2c0f2d7971416193d048584b65f3d95ed2f65bace338"
+        "3255f94e13de353265be2c0f2d7971416193d048584b65f3d95ed2f65bace338",
+        "d758973098beb86a95b01c4a88a5a36984a48e0e29f1e37f25e4854a909945c8",
+        "d3c058f6156a910082cf789b72514dd5a4abc4169265404263e1b68ac6c05afa"
       ],
-      "source_sha256": "11f907cbea9daf5fa8efeb2a054e0915f25e4c6810d1c4015e7822c42d510c18",
-      "text": "The corners as drawn: unbounded sides fall back to the view edge.\n\nA rectangle open on one side really does extend forever, so it is\ndrawn to the edge of the axes. That edge is where its handle goes,\nand pulling it there gives the gate a bound it did not have -- which\nis the only way to close an open side without redrawing the gate."
+      "source_sha256": "63b4f78f4181e1adba595ba52b7d3630d7e9043c3eb01bb85d3d33d8a459c9e0",
+      "text": "The corners as drawn: unbounded sides fall back to the view edge.\n\nA rectangle open on one side really does extend forever, so it is\ndrawn to the edge of the axes. That edge is where its handle goes,\nand pulling it there gives the gate a bound it did not have -- which\nis the only way to close an open side without redrawing the gate.\n\n:param view: visible ``(x_low, x_high, y_low, y_high)`` axis limits.\n:returns: finite rectangle corners in the same four-value order."
     },
     "spacr.qt.widgets.gate_spec.RectGate.centre": {
       "alias_of": "spacr.qt.widgets.gate_spec.Gate.centre",
@@ -60818,10 +60993,21 @@
     },
     "spacr.qt.widgets.gate_spec.RectGate.handles": {
       "source_blocks_sha256": [
-        "9856cd705f63933e4397a76e250361328780ce9609cf1678e335758551644f15"
+        "2d6aabc7fbfb63b310f0557b18c9a5e13acb14ed4aca991d9f234f9d5789a59e",
+        "5b6cba5cdae939b3505f74a7d00551690be6fddeea2c5cde545619e69420f6d2",
+        "523b192474114c0c53572b693c644dc08c60526166f451f7a18c4ef5314d6042"
       ],
-      "source_sha256": "9856cd705f63933e4397a76e250361328780ce9609cf1678e335758551644f15",
-      "text": "Four corners and four side midpoints."
+      "source_sha256": "0169ed3d399580049720f90f7b270988ed8f16e7701e9381d711035322304b35",
+      "text": "Return four corner handles and four side midpoints.\n\n:param view: visible axis limits used for every unbounded side.\n:returns: eight handles whose roles identify the sides they move."
+    },
+    "spacr.qt.widgets.gate_spec.RectGate.mask": {
+      "source_blocks_sha256": [
+        "a33da19d60b716922448285066299bb6cfabf96e04c28ddb2ec76e232dae2a73",
+        "acd9799f1b8d37f897d83fe589111b9cd5ccb734142ff50daaea5d2d4e7c1d1f",
+        "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1"
+      ],
+      "source_sha256": "4041769e580b8c1ceb2b00be0241b520f7077539673ef9bb98e6bb94945ae25f",
+      "text": "Select finite rows inside every bounded side of the rectangle.\n\n:param frame: measurement table containing both axis columns.\n:returns: boolean mask aligned row-for-row with ``frame``."
     },
     "spacr.qt.widgets.gate_spec.RectGate.range_filters": {
       "alias_of": "spacr.qt.widgets.gate_spec.Gate.range_filters",
@@ -60833,15 +61019,14 @@
       "text": "This gate as ordinary per-column range clauses, where it is one.\n\nEmpty for a polygon, which is not a conjunction of ranges and must not\npretend to be — a bounding box would quietly include the corners."
     },
     "spacr.qt.widgets.gate_spec.RectGate.scaled": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.scaled",
       "source_blocks_sha256": [
-        "ee055d6771441827dc5a56c6b09213c16b1c598000b74be2ccaf74a52647f169",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "d719ac0588a2399fa52c681469121c681bda3a53989b30da29b1218f03fd1ce5",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "feefc6484b42d37ec035ae7e14f30ab4e512a835cb7fc2792ce778b001af071d",
+        "b2833332adb24666c24d9444f94aa44c8281f060e3a7648bc2e2b25d9b040110",
+        "265c9e1135fde0caf76eecb2528bbba5082c08bb7b1da33b8b8b0b3b93c8e7d9",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ],
-      "source_sha256": "2627d7b15413786425eef66d4ad86e32c9e1a18c90091388be9a6652d69b3b8c",
-      "text": "Return this gate grown or shrunk about a fixed point.\n\n:param factor: >1 grows, <1 shrinks.\n:param about: the point held fixed; the gate's own centre by\n    default, which is what \"pull to expand\" means when the user has\n    not grabbed a particular edge.\n:raises GateError: a non-positive factor, which would invert or\n    collapse the shape rather than resize it."
+      "source_sha256": "8e1bc7ede9d491bd2f78d3740ee61aedd2cd1f99ff22bcb84a202614c3c463a5",
+      "text": "Return this rectangle resized about a fixed data-space point.\n\n:param factor: positive scale factor; values above one grow the gate.\n:param about: point held fixed, or ``None`` to use the rectangle's\n    finite centre independently on each axis. Without an explicit\n    point, an axis lacking two finite bounds stays unchanged.\n:raises GateError: when ``factor`` is not positive."
     },
     "spacr.qt.widgets.gate_spec.RectGate.thresholds": {
       "source_blocks_sha256": [
@@ -60851,28 +61036,35 @@
       "text": "Both sides, whether or not they are currently set."
     },
     "spacr.qt.widgets.gate_spec.RectGate.translated": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.translated",
       "source_blocks_sha256": [
-        "477819970196ec8e766d01b3fd8b4c484e5f91cd05d3afe71d90e4b40701a2e7",
-        "78a7551547138451c3b630ae9924c602314fedf279b3dab7e3fd17ae906801b1",
-        "727ecc411bab95efb6569e73b87d4722bc84d6b3f4b67a55f096f34984c24dc3",
-        "5ec1847c56b863280510fdd86eb9c5641aeb37382d30f22bb655518a71e779fc"
+        "32eff74b0ea833426db56cfbf7de1f129b05ad51c230d325f56933d3c849997b",
+        "30706eb1eca23de6d20281c1bafc66afac88c69f693adac9f06e5719ea84a3f0",
+        "01e432235a34a8338bf3c2e7e5f47dc220bc85741075bfaafa4a1b25d22e0888"
       ],
-      "source_sha256": "9c05bf2c165b9b9c1b6509681c370769a4d2e79223c8a5ccaf8b587ba3e62009",
-      "text": "Return this gate moved by ``(dx, dy)`` in DATA units.\n\nData units, not pixels: a gate is a statement about measurements,\nand moving it by pixels would mean it drifted whenever the axes\nrescaled.\n\n:param dx: shift along the gate's x measurement.\n:param dy: shift along its y measurement. Ignored by a one-column\n    gate, which has no y."
+      "source_sha256": "0c5bfd8a242ae49885984a538868a2183951ed70349447133592aead4e412e01",
+      "text": "Return a copy shifted along both measurement axes.\n\n:param dx: displacement in horizontal-axis data units.\n:param dy: displacement in vertical-axis data units."
     },
     "spacr.qt.widgets.gate_spec.RectGate.with_handle": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.with_handle",
       "source_blocks_sha256": [
-        "e0567547c6c0ce0c9b3d38594cd27819533dbab52025f4dcfa343ae1b58f42fc",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "45736c9098122231b857fd654f8c41761c09cb753a0ef08cfc7e158bdc82bac1",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "250186ca88b2324e95f7c020d0f54beccf58ff8330cee0c31c2c7e8932d5e2e5",
-        "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
+        "d0f9c73b8bd207f0a72822cf2e8896bac9af27e056ed49475acc18cd423bb92f",
+        "aed0eb7b30859b68ca7474a5876aaf34d641b247c86086859e28f0545b05b64d",
+        "c23d39d5517a26896f456266c4ecba5e21997df96347485d08cda4140cbc6491",
+        "bf3ba9fa8ec043d18595f23986bb4c9a627dfabb262860504624df3d6b416329",
+        "45ff43ca5f79926072d69f8fbca5f868a99c60954dc731abc55b4033d9c52a8c"
       ],
-      "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "Return this gate with the ``role`` anchor moved to ``(x, y)``.\n\n:param role: a role from :meth:`handles`.\n:param x: the new position along the gate's x measurement.\n:param y: along its y measurement.\n:returns: a new gate, or ``self`` when the drag would collapse the\n    shape. Refusing beats raising here: this runs on mouse-release,\n    and a gate that snaps back is a clear \"that is too small\" while\n    a traceback out of an event handler is not.\n:raises GateError: a role this gate does not have, which is a bug in\n    the caller rather than something the user did."
+      "source_sha256": "8dab3468a6ce0e361a02340784c78b3ce071b05b2974d0db2bd16a3252760b8a",
+      "text": "Return the rectangle after dragging one side or corner handle.\n\n:param role: one of the four side names emitted by :meth:`handles`, or\n    one horizontal and one vertical side joined by a comma for a\n    corner.\n:param x: new horizontal coordinate used by any horizontal role.\n:param y: new vertical coordinate used by any vertical role.\n:raises GateError: when ``role`` names no rectangle handle."
+    },
+    "spacr.qt.widgets.gate_spec.RectGate.with_threshold": {
+      "source_blocks_sha256": [
+        "d701959f21c798765ae6835567715896ca9b075d0c4f98b759c4499f5cf1b102",
+        "50e73ad342925f1bf2589b0004c1448700e3932c73ed1781e3cd97dde3eb7022",
+        "c1c74dee76f5bc342eda7ecb14127d289a5c1c4cb9b5d317e4516322492b233c",
+        "6dc745eeff7f26e70b3f8f485455cb62d369a11e4e13e744c7fa9e3586e95b22",
+        "1b22e124de0410fcbc96e208e61e033d30a7c7c8a9bd18a3d756a0c31b2fc731"
+      ],
+      "source_sha256": "a7f154fe583c0395a07ac72f16345b3cf07cf1d607467bd5694d0942cfaf148c",
+      "text": "Return this gate with replacement bounds on one axis.\n\n:param column: horizontal or vertical measurement column to change.\n:param low: inclusive lower bound, or ``None`` for an open lower side.\n:param high: inclusive upper bound, or ``None`` for an open upper side.\n:raises GateError: when ``column`` is not one of this rectangle's axes."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate": {
       "source_blocks_sha256": [
@@ -60925,15 +61117,14 @@
       "text": "This gate as ordinary per-column range clauses, where it is one.\n\nEmpty for a polygon, which is not a conjunction of ranges and must not\npretend to be — a bounding box would quietly include the corners."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.scaled": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.scaled",
       "source_blocks_sha256": [
-        "ee055d6771441827dc5a56c6b09213c16b1c598000b74be2ccaf74a52647f169",
-        "a2a92bae4b5cb5c3ea6f2c1f02b586d6fe346046454fddd9bd7a03be40eeea24",
-        "d719ac0588a2399fa52c681469121c681bda3a53989b30da29b1218f03fd1ce5",
-        "4722c58f4a6153614ab704d3478212e542abda4aeda151dc79e7491dc0b17a54"
+        "dd418caacdc8e93faf2036fb27ca339be6cb7afe02e230dc37066a7ee0b88d16",
+        "4f80f1e7825bac7ddd08c43be5846aa75e644c75103ba314bd6753725dd80b18",
+        "bf0dfc6245f6c6b231ea2e9410f705609a8e6876e94c1a818f0155bfc029bb81",
+        "890325752e2c2d55c06df2661881929ef7f2a050538d39688c7f2df745e7139f"
       ],
-      "source_sha256": "2627d7b15413786425eef66d4ad86e32c9e1a18c90091388be9a6652d69b3b8c",
-      "text": "Return this gate grown or shrunk about a fixed point.\n\n:param factor: >1 grows, <1 shrinks.\n:param about: the point held fixed; the gate's own centre by\n    default, which is what \"pull to expand\" means when the user has\n    not grabbed a particular edge.\n:raises GateError: a non-positive factor, which would invert or\n    collapse the shape rather than resize it."
+      "source_sha256": "9fbad0dcb6eff866a659792f3f41e3a3d9c8183f9b2f08303953be9f10304c81",
+      "text": "Return this threshold resized about a horizontal anchor.\n\n:param factor: positive scale factor; values above one move every\n    finite bound away from the anchor.\n:param about: point whose first coordinate stays fixed, or ``None`` to\n    use the threshold's finite centre. A half-open threshold has no\n    finite centre and is returned unchanged when this is ``None``.\n:raises GateError: when ``factor`` is not positive."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.translated": {
       "source_blocks_sha256": [
@@ -60945,17 +61136,15 @@
       "text": "``dy`` is ignored: a threshold is a cut on ONE column, so it has\nno second axis to move along.\n\n:param dx: displacement to add to each finite threshold bound.\n:param dy: vertical displacement, ignored by this one-column gate."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle": {
-      "alias_of": "spacr.qt.widgets.gate_spec.Gate.with_handle",
       "source_blocks_sha256": [
-        "e0567547c6c0ce0c9b3d38594cd27819533dbab52025f4dcfa343ae1b58f42fc",
-        "486738f6bce979d5c15e035aa2e62c249f72e39921752dddc334714dd1628baa",
-        "45736c9098122231b857fd654f8c41761c09cb753a0ef08cfc7e158bdc82bac1",
-        "6306074ba764b84ad7f537a0fd03b517345ccdf4b121c07e4a856d744f17a3b7",
-        "250186ca88b2324e95f7c020d0f54beccf58ff8330cee0c31c2c7e8932d5e2e5",
-        "3496e4c01e34ca9d68616076a530b356fc5996a69d13ff5938c08895143102cf"
+        "7e6afe1b4a639baf65e2734d9de79cbd9b5f0c35f201096e792e13320a2731e1",
+        "d15f769019e4c256b0d971fcc1ff082c39301b2e1d2d06347275431a63b9151d",
+        "5a00ade99267bfe3a262a0e75e7552bac2b0ee7e17cd4c2f749b47f617221c5b",
+        "5bbc40dbe744b14bf3b3168a6e9b839709042ce72bd811ffbc9a2bae8f28ec09",
+        "777bf1de206439f11b5a9ec208f56cfa46b63f8223b647326cefa09d483685b8"
       ],
-      "source_sha256": "990bc01ebb1cafe60412d84b9d99f94968e55f271f8df674c2dd1f22fc39fd4b",
-      "text": "Return this gate with the ``role`` anchor moved to ``(x, y)``.\n\n:param role: a role from :meth:`handles`.\n:param x: the new position along the gate's x measurement.\n:param y: along its y measurement.\n:returns: a new gate, or ``self`` when the drag would collapse the\n    shape. Refusing beats raising here: this runs on mouse-release,\n    and a gate that snaps back is a clear \"that is too small\" while\n    a traceback out of an event handler is not.\n:raises GateError: a role this gate does not have, which is a bug in\n    the caller rather than something the user did."
+      "source_sha256": "bdef5b494be3f1ddbb9612d9be826ff98ef694e4c1116a1b64a8c21c99422c60",
+      "text": "Return the threshold after dragging one of its bound handles.\n\n:param role: ``\"low\"`` or ``\"high\"`` for the bound being moved.\n:param x: new bound value in the threshold column's data units.\n:param y: vertical handle coordinate, ignored by this one-column gate.\n:raises GateError: when ``role`` names no threshold handle."
     },
     "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold": {
       "source_blocks_sha256": [
@@ -76835,12 +77024,12 @@
       "source_blocks_sha256": [
         "0a58e1c77ed3e9569cb536aa77ddb4aa3883233c14ae9d5c74c022a3124ff047",
         "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-        "4087389bd661e1b0109080e4fe4a7557c5066c2d03c81b7bb54f62781b2f9fe9",
+        "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
         "98891dad7f1238087a23b92eadf791b02ba2ba024950c9ca53982adbb82458ed",
         "f5223cffccf24f82b32e302b7210082d0cecb77d0e0842814af2b72ba4c0361a"
       ],
-      "source_sha256": "5e0c5caac18d0f2f4050a28268263ae8aa6588da0fe67242954729624fc89229",
-      "text": "Populate default settings for gRNA/score regression analysis.\n\nSwitches ``agg_type`` to None automatically when quantile regression is\nselected, so ``alpha`` is treated as the quantile.\n\nEvery key :func:`spacr.ml.perform_regression` reads with ``settings[...]``\nis filled here. Six were not, and because all three dispatchers (the Tk\npanel via ``gui_core.setup_settings_panel``, the Qt panel via\n``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run\nregression`` via ``cli.module_defaults``) build the dict from this one\nfunction, regression could not be started from any entry point: it died on\n``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read\nand ``settings/regression.csv`` had been written, so the failure looked\nlike a run that had started cleanly.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
+      "source_sha256": "4caf40df26a44bf3ee347e7b89587c13aa8ed8d7be8565caaa72b1aff68bf181",
+      "text": "Populate default settings for gRNA/score regression analysis.\n\nSwitches ``agg_type`` to None automatically when quantile regression is\nselected, so ``alpha`` is treated as the quantile.\n\nEvery key :func:`spacr.ml.perform_regression` reads with ``settings[...]``\nis filled here. Six were not, and because both dispatchers (the Qt\npanel via ``qt.screens.settings_model.resolve_default_settings`` and\n``spacr-run regression`` via ``cli.module_defaults``) build the dict\nfrom this one function, regression could not be started from any entry\npoint: it died on\n``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read\nand ``settings/regression.csv`` had been written, so the failure looked\nlike a run that had started cleanly.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
     },
     "spacr.settings.get_plot_data_from_csv_default_settings": {
       "source_blocks_sha256": [

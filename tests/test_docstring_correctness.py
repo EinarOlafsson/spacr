@@ -1812,6 +1812,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
     ) == 49
+    # -1: `_fractal_heading(text)` is gone. It and `_quality_fills_the_rest`
+    # were nested handlers in the preferences dialog whose call sites commit
+    # 1a20f6f4 removed; the bodies were left behind and are now deleted too.
     assert sum(len(item.parameters) for item in callables) == 15_873
     assert sum(len(item.required_parameters) for item in callables) == 7_964
     assert _sha256_lines(
@@ -1823,7 +1826,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "8a275dc9230a06831204e120ede6e919889fc6d595e1130c47b73347623ed551"
+    ) == "af49cc486a633346bc38330242dae5297d23d09f19357be86fe6cd15ee640076"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1934,12 +1937,12 @@ def test_no_new_public_callable_lacks_a_docstring():
         for item in _public_callables()
         if item.docless_variant_count
     )
-    assert len(docless) == 657
+    assert len(docless) == 641
     assert sum(
         item.docless_variant_count for item in _public_callables()
-    ) == 657
+    ) == 641
     assert _sha256_lines(docless) == (
-        "316d79cf6dc26aa7cfe942a655a0b09e7e3b515741c188b68b0dc8cc0ca4100e"
+        "c063200b05d044bebe1e723cba3ef96f36774bd390df71ea3d025d65d24be4ec"
     )
 
 
@@ -2096,10 +2099,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    # 8,945 minus the audited 107 entries that AutoAPI never renders:
+    # 8,955 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_838
-    assert len(rendered_documented_callables) == 7_324
+    assert len(docs) == 8_848
+    assert len(rendered_documented_callables) == 7_340
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2237,8 +2240,8 @@ def test_callable_api_doc_alias_reduction_is_exact():
         declared_aliases,
     )
 
-    assert len(declared_aliases) == 119
-    assert len(callable_aliases) == 113
+    assert len(declared_aliases) == 113
+    assert len(callable_aliases) == 107
     assert set(declared_aliases) - set(callable_aliases) == {
         "spacr.layers.ImageLayer.ndim",
         "spacr.layers.ImageLayer.shape",
@@ -2264,8 +2267,8 @@ def test_callable_api_doc_alias_reduction_is_exact():
         for canonical in set(callable_aliases.values())
         if _missing_required_parameters(by_symbol[canonical])
     }
-    assert len(alias_debt) == 96
-    assert sum(map(len, alias_debt.values())) == 151
+    assert len(alias_debt) == 90
+    assert sum(map(len, alias_debt.values())) == 140
     assert len(canonical_debt) == 5
     assert sum(map(len, canonical_debt.values())) == 6
 
@@ -2273,9 +2276,9 @@ def test_callable_api_doc_alias_reduction_is_exact():
     deduplicated = _required_parameter_omission_inventory(
         items, callable_aliases,
     )
-    assert len(raw[0]) - len(deduplicated[0]) == 151
-    assert raw[1] - deduplicated[1] == {"method": 96}
-    assert raw[2] - deduplicated[2] == {"method": 151}
+    assert len(raw[0]) - len(deduplicated[0]) == 140
+    assert raw[1] - deduplicated[1] == {"method": 90}
+    assert raw[2] - deduplicated[2] == {"method": 140}
 
 
 def test_no_new_undocumented_required_public_parameters():
@@ -2284,8 +2287,8 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,698
-    omissions across 1,951 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,638
+    omissions across 1,912 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
     """
@@ -2299,24 +2302,26 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    assert len(omissions) == 2_698
-    assert sum(omitted_callables.values()) == 1_951
+    # The database-browser and gate sweep closes 60 net omissions across 39
+    # callables after the six retired aliases are removed from deduplication.
+    assert len(omissions) == 2_638
+    assert sum(omitted_callables.values()) == 1_912
     assert omitted_callables == {
-        "function": 698,
-        "method": 1_137,
+        "function": 701,
+        "method": 1_096,
         "constructor": 46,
-        "dataclass_constructor": 68,
+        "dataclass_constructor": 67,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_004,
-        "method": 1_381,
+        "function": 1_007,
+        "method": 1_319,
         "constructor": 68,
-        "dataclass_constructor": 233,
+        "dataclass_constructor": 232,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1"
+        "8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6"
     )
 
 
