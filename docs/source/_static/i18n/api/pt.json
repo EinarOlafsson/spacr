@@ -103476,6 +103476,38 @@
         "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
+    "spacr.qt.widgets.popup_state": {
+      "source_blocks_sha256": [
+        "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ],
+      "source_sha256": "5b86e1879457fd36bbf13cd58dc6eec3e842a816051967999b1302f059d3e059",
+      "text": "Indica se um menu ou uma dica de ferramenta está atualmente visível na tela da aplicação.\n\nPOR QUE ISTO EXISTE. Abrir o menu do spaCR provocava uma rajada de cerca de 105 repinturas de widgets sobre o plano de fundo GL ativo -- 68 QLabel, 25 QWidget e 12 AppTile -- e uma dica de ferramenta fazia o mesmo. Essa rajada ocorre porque o compositor de janelas recompõe uma janela pop-up sobre um widget filho GL nativo, e é isso que o usuário percebe como cintilação do painel acoplável e do cabeçalho.\n\nO plano de fundo não pode impedir a composição da janela pop-up, mas pode deixar de ser um alvo em movimento enquanto isso acontece. Manter a animação parada durante o tempo em que uma janela pop-up está aberta reduz o menu de 238 widgets repintados para 5 e uma dica de ferramenta de 90 para 0.\n\nPOR QUE É UMA CONSULTA PERIÓDICA, E NÃO UM FILTRO DE EVENTOS. A implementação óbvia é um filtro de eventos para toda a aplicação que observa Show e Hide em janelas pop-up. Isso foi implementado, medido e descartado: o filtro executava Python para cada evento na aplicação -- 13,646 chamadas por segundo enquanto um módulo era aberto -- e acrescentava 130 ms justamente ao bloqueio do caminho principal de execução da GUI que a abertura de um módulo acabara de ser corrigida para encurtar (1380-1424 ms passaram a 1473-1606).\n\nO Qt já sabe a resposta e a fornece em duas chamadas C++, portanto a animação faz essa consulta uma vez por quadro. A sessenta quadros por segundo, são 120 chamadas, em vez de treze mil.",
+      "translation_source_blocks_sha256": [
+        "b61fb234f8c36ff8f1264168e7998bc40c783d9e84a25deb0380c9fc94632c4e",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "2f5699a739e89976c43936b2e3654165294b899b98f754b315c0718bfea720f5",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ]
+    },
+    "spacr.qt.widgets.popup_state.a_popup_is_on_screen": {
+      "source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a"
+      ],
+      "source_sha256": "750f82290ec8bb2a050875e1bc8a8fed6318af7364c0ec6d65b5ffd5d3fa68dd",
+      "text": "O resultado é True enquanto um menu ou uma dica de ferramenta estiver visível em qualquer parte da aplicação.\n\nAmbos são consultados porque são coisas diferentes para o Qt: um menu é um ``activePopupWidget`` (tipo de janela ``Qt::Popup``), enquanto uma dica de ferramenta não é -- ela é uma janela ``Qt::ToolTip`` própria, acompanhada separadamente por :class:`~PySide6.QtWidgets.QToolTip`. Observar apenas o primeiro teria deixado a cintilação da dica de ferramenta exatamente como estava, e isso foi relatado junto com o menu.\n\nNunca gera exceções. Esta função é chamada a cada ciclo da animação, portanto uma falha aqui deve, no pior dos casos, afetar apenas a decisão de um quadro, e não o plano de fundo: uma pergunta sem resposta recebe como resposta \"no popup\", que corresponde ao comportamento da aplicação antes de esta função existir.",
+      "translation_source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "a68721cbaec1c995740c37a9d48dc04c59d139fe56347ca348e9339eccc8ad28"
+      ]
+    },
     "spacr.qt.widgets.power_design": {
       "source_blocks_sha256": [
         "4d5654c7fad6977c902c9cdc094f78c00221058be2a4e1a865c1a4d5ce9f8260",
