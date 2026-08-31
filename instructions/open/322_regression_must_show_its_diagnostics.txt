@@ -84,3 +84,52 @@ WATCH OUT
 ---------
 `ml.py` is one of the largest remaining coverage gaps (25 items in 288)
 and is being worked by another session. Coordinate before editing it.
+
+
+PROGRESS 2026-08-31 — THE WIRING IS DONE; THE SCREEN BUTTON IS NOT
+-------------------------------------------------------------------
+
+DONE (commit a76f4223e). `ml.perform_regression` writes the suite into
+`<res_folder>/diagnostics` at the point in `_perform_regression` where the
+inputs are in scope -- `merged_df` for the design, and the fitted object from
+`fits` for residuals. Items 1, 2 and 4 of WHAT TO DO.
+
+  * the design report is UNCONDITIONAL, as the instruction requires: it needs
+    no fit, so it covers RRA too, and it is the one that catches rank
+    deficiency;
+  * a backend that cannot support residual panels writes
+    `residual_panels_not_available.txt` NAMING THE REASON.
+    `RESIDUAL_FREE_MODELS` in ml.py carries those reasons rather than catching
+    AttributeError, because the reason is the content: RRA has no residual
+    because it is a rank statistic, not because a lookup failed. It is a FILE
+    and not a print -- a run is read from its folder later, by someone who did
+    not watch it, and a console line is gone by then;
+  * it never raises. The numbers the user came for are computed before this
+    runs.
+
+The 824-guides-in-587-wells case is pinned and produces FAIL, with the verdict
+"the design cannot identify one coefficient per guide".
+tests/test_regression_shows_its_diagnostics.py, 7 tests asserting NUMBERS.
+
+STILL OPEN — ITEM 3, THE SCREEN BUTTON. A masthead button opening the
+diagnostics page, badged with the worst of score_design / score_residuals /
+score_inference. That is spacr/qt/screens/, which belongs to the concurrent
+session. The scores are already on disk in `diagnostic_summary.csv`, so it is a
+read rather than a computation.
+
+TWO THINGS FOUND WHILE DOING IT, both worth keeping:
+
+  * A DESIGN WHOSE ROWS SUM TO A CONSTANT IS RANK-DEFICIENT HOWEVER MANY WELLS
+    IT HAS. `design_report` prepends an intercept, and fractions normalised per
+    well span it -- the dummy-variable trap. The first version of the test
+    fixture normalised each well to 1.0 and made the WELL-POWERED CONTROL fail
+    too. The report was right; the fixture was wrong. Pinned separately in
+    `test_a_constant_row_sum_is_rank_deficient_however_many_wells`, because a
+    screen whose counts are normalised before fitting is genuinely in that
+    state and would be told so.
+
+  * A SURVIVED MUTATION IS ONLY EVIDENCE WHEN THE MUTATION CHANGED BEHAVIOUR.
+    Two of the first three here survived and both were BAD MUTATIONS, not weak
+    tests: `{} or {...}` is a no-op, and `non_identifiable_directions` is not
+    what `identifiable` is derived from. Re-run against `identifiable` itself
+    and against a genuinely renamed key, both are caught.
