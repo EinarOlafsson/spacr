@@ -44,22 +44,18 @@ file outside the finder's lane.
 1. THE FIGURE SAVE MODE HAS NO WAY TO BE SET  (lane: spacr/qt)
 --------------------------------------------------------------------------------
 
-spacr/figure_style.py:831 reads
-``getattr(preferences, "get_figure_save_mode", None)``. No such function
-exists: spacr/qt/preferences.py does not define it, and a repo-wide grep finds
-the name ONLY at that one line. So the branch is dead in production and the
-saved-figure export mode can be set exclusively through the
-``SPACR_FIGURE_SAVE_MODE`` environment variable -- the GUI offers no control
-at all. The docstring's claim that the environment variable "takes precedence
-over the Qt preference store" describes a store that was never wired up.
+FIXED 2026-08-29 in b47caef2. ``spacr.qt.preferences`` now owns validated
+``get_figure_save_mode`` / ``set_figure_save_mode`` accessors and a real
+Figure save mode combo in the Preferences dialog. Saving that dialog writes
+the value that ``spacr.figure_style.figure_save_mode`` reads; a valid
+``SPACR_FIGURE_SAVE_MODE`` still takes precedence for command-line and
+notebook runs.
 
-This is spaCR's commonest defect shape: finished code with no caller. The
-``# pragma: no cover - needs Qt`` marker is exactly what kept it invisible.
-
-TO DO: add ``get_figure_save_mode()`` to spacr/qt/preferences.py and a
-Preferences control that sets it, or delete the branch and the docstring
-sentence. Do not leave a third state where the code reads a setting nothing
-can write. Assert the CALL SITE, not just the function.
+The regression drives the real widget and then asserts both the production
+resolver and ``saved_figure_appearance`` see its value:
+``tests/qt/test_figure_save_mode_preferences.py``. Rechecked against current
+nightly on 2026-08-30 together with the figure-style save-path tests: 41
+passed.
 
 --------------------------------------------------------------------------------
 2. A BARE VEuPATHDB ACCESSION IS CLASSIFIED AS A GUIDE  (lane: spacr/hits.py)
@@ -575,69 +571,35 @@ worth deleting.
 10. A MODEL-NAME CHECK THAT CAN NEVER FIRE  (lane: spacr/model_check.py)
 --------------------------------------------------------------------------------
 
-spacr/model_check.py:173-181 reads
+FIXED 2026-08-30 in 3972514a. ``_known_builtin_models`` starts from the
+lightweight curated settings inventory and augments it with
+``torchvision.models.list_models`` when TorchVision is available. An absent or
+broken optional TorchVision registry therefore cannot turn validation off,
+and ``check_model`` now rejects ``maxvit_tt`` before training while accepting
+``maxvit_t``.
 
-    try:
-        from .model_zoo import KNOWN_MODELS
-        known = set(KNOWN_MODELS)
-    except Exception:
-        known = set()
-    if known and name not in known:
-        problems.append(f"{name!r} is not a model spaCR knows; ...")
-
-``KNOWN_MODELS`` DOES NOT EXIST. A repo-wide grep finds the name at exactly two
-lines, both of them this import and the line under it. So the except always
-runs, ``known`` is always empty, the ``if`` is always False, and the complaint
-can never be emitted.
-
-CONSEQUENCE: ``check_model`` -- whose whole job is answering "can this model
-train on this data" before a click turns into an hour of training -- does not
-notice a misspelled model name. A user typing 'maxvit_tt' is told nothing, and
-finds out inside training as a torchvision AttributeError.
-
-THIS IS ENTRY 1'S SHAPE INVERTED. Entry 1 was finished code with no caller
-(``get_figure_save_mode``); this is a caller reading a name nothing defines,
-with a bare ``except Exception`` converting the ImportError into silence. Both
-are invisible without coverage, and a bare except is what makes this one
-survive every test run.
-
-THE FIX NEEDS A DECISION, which is why it is filed and not taken. There is no
-product-level registry of classifier names: ``spacr.utils.TorchModel`` resolves
-them straight off ``torchvision.models`` by attribute, so torchvision's own
-registry is the only authority. Whether to validate against it, and how to word
-the message when torchvision is absent, belongs to the classifier lane.
-
-Current behaviour is pinned by
-tests/test_the_model_check_cannot_currently_name_an_unknown_model.py, including
-an assertion that the import itself fails. Those tests must be UPDATED when the
-check is given a real source, not deleted -- they are the record that makes the
-change a fix rather than a regression.
+The former current-behaviour pin was updated into the production contract in
+``tests/test_the_model_check_cannot_currently_name_an_unknown_model.py``.
+Rechecked with the focused model-check coverage tests on 2026-08-30: 22
+passed.
 
 --------------------------------------------------------------------------------
 11. AN UNKNOWN ORGANELLE PROPERTY LOSES WHICH ORGANELLE IT WAS
      (lane: spacr/feature_dict.py)
 --------------------------------------------------------------------------------
 
-``_parse_organelle_summary`` canonicalises a role prefix before looking a
-property up, so ``organelle_summary_organelleb_count`` and its ``organelle``
-sibling share one description -- correct, and the point of the function: they
-are one measurement of different objects.
+FIXED 2026-08-30 in 7eb8f2f8. ``_parse_organelle_summary`` now retains the
+matched role and passes it to the unknown-feature fallback, so custom
+properties under ``organelleb``, ``organellec`` and ``organelled`` remain
+attributed to the object that produced them. Known properties still
+canonicalise to the shared vocabulary and keep the role-specific
+``object_type``.
 
-When the role matches but the PROPERTY is not in KNOWN_PROPERTIES, the loop
-breaks and falls through to a plain lookup that hard-codes
-``object_type="organelle"``. So an unrecognised property under ``organelleb``,
-``organellec`` or ``organelled`` comes back attributed to ``organelle``.
-
-SMALL AND REAL. The column name is preserved in full, so nothing is
-unrecoverable, but a report grouping unknown features by object_type files them
-under the wrong organelle. It bites only for properties spaCR does not know,
-which is why it has gone unnoticed -- and a custom measurement is exactly the
-sort of column that would be unknown.
-
-Current behaviour pinned by
-tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py, which says
-in its docstring that it is pinned and not endorsed. A fix would carry ``role``
-into the fall-through; that belongs to whoever owns the feature dictionary.
+The former current-behaviour pin now parametrizes all four organelle roles in
+``tests/test_the_organelle_summary_names_resolve_to_one_vocabulary.py``.
+Rechecked against current nightly on 2026-08-30: 8 passed. The shared
+``spacr/feature_dict.py`` had unrelated uncommitted edits during this audit,
+so no source file was touched here.
 
 --------------------------------------------------------------------------------
 12. A SECOND COPY OF THE OBJECT-ID VOCABULARY, DRIFTED
