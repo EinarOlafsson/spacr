@@ -6421,6 +6421,17 @@ class AppScreen(QWidget):
                 montage.shutdown()
             except RuntimeError:
                 pass
+        # Classify's FlowView footer owns a refresh timer and a graphics
+        # scene.  It is a direct child of the settings content rather than a
+        # SettingsWidgets field, so the generic settings shutdown below does
+        # not see it; close it explicitly while its Qt objects are still
+        # alive.
+        flowview = getattr(self, "_flowview_section", None)
+        if flowview is not None:
+            try:
+                flowview.shutdown()
+            except RuntimeError:
+                pass
         # The settings panel's own background work goes with the screen. The
         # exclusion editor reads distinct values off a worker, and it is a
         # child widget, so navigation destroying the panel never gives it a
