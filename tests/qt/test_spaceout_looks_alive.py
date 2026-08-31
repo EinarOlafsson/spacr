@@ -884,3 +884,31 @@ def test_none_of_this_is_offered_in_preferences():
         assert "Fractal" not in titles
     finally:
         dialog.deleteLater()
+
+
+def test_the_fast_scrim_solver_honours_a_none_colour_role():
+    """310 A7: `_scrim_bounds` must be the published solvers, including their
+    `colour_role=None` fallback.
+
+    Its docstring says it is `legible_scrim_floor` and `present_scrim_ceiling`
+    "in one pass" and that "it has to stay exactly them". Both of those take
+    `colour_role` as Optional and read `palette[colour_role or role]`;
+    `_scrim_bounds` took `role` and never read it, so the documented
+    `colour_role=None` raised `KeyError: None` out of the drift solver at
+    import instead of returning that role's own bounds.
+
+    Latent rather than live -- every `SCRIM_ROLES` value is a non-None string,
+    so no shipped caller reaches it. Pinned because the dead parameter also
+    hid the divergence from anyone comparing the three implementations, which
+    is exactly what the docstring asks a reader to do.
+    """
+    from spacr.qt import theme
+
+    palette = theme.palette_for("dark")
+    under = theme._channels(theme.scrim_under("dark"))
+
+    explicit = theme._scrim_bounds(palette, "surface", "surface", under)
+    implied = theme._scrim_bounds(palette, "surface", None, under)
+
+    assert implied == explicit, (
+        "colour_role=None must fall back to role, as the solvers do")
