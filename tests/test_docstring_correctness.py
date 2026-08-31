@@ -1826,7 +1826,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "d5735b1322b073c766608b019265c5b967266729a98732b37928c6fc85ba8993"
+    ) == "4d8a600d863afef00c599074c3d780c73e3afdd728edaf9d75af0e4847f8f3ef"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -1845,6 +1845,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert by_symbol["spacr.layers.LayerStack.add_image"].docstring, (
         "add_image lost its docstring again; it is no longer the documented "
         "half of this pair")
+    event_filter = by_symbol["spacr.qt.app.MainWindow.eventFilter"]
+    assert event_filter.required_parameters == {"event", "watched"}
+    assert event_filter.required_parameters <= _documented_parameter_names(
+        event_filter.docstring)
+    assert "docstring above this line" not in event_filter.docstring
     assert by_symbol["spacr.api.MaskConfig"].category == "dataclass_constructor"
     assert by_symbol["spacr.api.MaskConfig"].required_parameters == {"src"}
 
@@ -2105,10 +2110,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    # 8,957 minus the audited 107 entries that AutoAPI never renders:
+    # 8,968 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_850
-    assert len(rendered_documented_callables) == 7_341
+    assert len(docs) == 8_861
+    assert len(rendered_documented_callables) == 7_352
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2293,8 +2298,8 @@ def test_no_new_undocumented_required_public_parameters():
     The old denominator selected only callables whose prose already contained
     ``:param:`` and reached a misleading zero when those selected fields were
     completed. The source-derived denominator, exact generated-field rule and
-    validated rendered aliases expose the real current baseline: 2,638
-    omissions across 1,912 public callables. Count, category counts and digest
+    validated rendered aliases expose the real current baseline: 2,522
+    omissions across 1,822 public callables. Count, category counts and digest
     are all exact so deleting prose, weakening a boundary, or swapping one
     omission for another cannot turn this test green.
     """
@@ -2308,26 +2313,27 @@ def test_no_new_undocumented_required_public_parameters():
         _required_parameter_omission_inventory(items, callable_aliases)
     )
 
-    # The database-browser and gate sweep closes 60 net omissions across 39
-    # callables after the six retired aliases are removed from deduplication.
-    assert len(omissions) == 2_524
-    assert sum(omitted_callables.values()) == 1_823
+    # The layers sweep closes 114 omissions across 89 callables, and the
+    # event-filter cleanup closes two more, without changing executable
+    # signatures or hiding aliases from this denominator.
+    assert len(omissions) == 2_522
+    assert sum(omitted_callables.values()) == 1_822
     assert omitted_callables == {
         "function": 698,
-        "method": 1_014,
+        "method": 1_013,
         "constructor": 43,
         "dataclass_constructor": 66,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
         "function": 1_004,
-        "method": 1_216,
+        "method": 1_214,
         "constructor": 64,
         "dataclass_constructor": 228,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "f4287401503def54ecc4bdbad6a507acd11e5bc2ec4c00afd77237b4627d01ea"
+        "1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782"
     )
 
 

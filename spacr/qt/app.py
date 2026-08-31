@@ -2224,21 +2224,16 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        """Drag the frameless window by its menu bar, and maximise on a
-        double-click there -- the two gestures the title bar used to carry.
+        """Handle frameless-window menu-bar drag and double-click gestures.
 
-        NOTHING HERE MAY RAISE. Qt goes on delivering events to a filter
-        during teardown, after Python has cleared the object's attributes
-        and after the C++ half of the menu bar has gone -- and an
-        exception out of an event filter does not propagate to a caller
-        who could handle it. PySide prints "Error calling Python override
-        of QMainWindow::eventFilter()" and carries on delivering, so a
-        single broken teardown becomes one traceback per mouse move.
+        Teardown can invalidate the Qt menu bar while events are still queued.
+        This filter returns ``False`` instead of allowing that condition to
+        escape through PySide's callback boundary.
 
-        The docstring above this line used to say to ask with `getattr`
-        rather than `self.menuBar()`, and the line below it called
-        `self.menuBar()` anyway. The window state change that arrives
-        while the bar is being torn down is exactly the case it named.
+        :param watched: Qt object receiving the event.
+        :param event: Qt event delivered to the main window's filter.
+        :returns: ``True`` when a menu-bar mouse gesture is consumed;
+            otherwise ``False``.
         """
         try:
             bar = self.menuBar() if not self.isFullScreen() else None

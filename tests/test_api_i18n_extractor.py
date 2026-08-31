@@ -790,7 +790,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # documents retire those aliases rather than duplicating them.
     # +2/-0 for popup-state compositor coordination: the module contract
     # and ``a_popup_is_on_screen``. Both enter every locale in this change.
-    expected = 8737
+    # +11/-0 for formerly docless layer methods whose required parameters are
+    # now described. The other 78 documented layer symbols gain structured
+    # parameter blocks without changing this symbol count.
+    expected = 8748
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -805,7 +808,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8850
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8861
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -836,12 +839,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,957. The popup-state module and
-    # function enter both inventories. The same 16 canonical
+    # The audited pre-filter inventory is now 8,968. Popup state and the eleven
+    # formerly docless layer methods enter both inventories. The same 16 canonical
     # documents enter both inventories while six inherited aliases retire;
     # 101 configured-ignore keys plus the six explicit exposure exceptions
     # above remain absent.
-    assert 8_957 - len(docs) == 107
+    assert 8_968 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

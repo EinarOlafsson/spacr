@@ -26,7 +26,7 @@ ENGLISH_CATALOG = (
 )
 REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
 REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
-REAL_SYMBOL_COUNT = 8_850
+REAL_SYMBOL_COUNT = 8_861
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -494,7 +494,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 8,850-symbol union for every real locale."""
+    """Render the complete 8,861-symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"

@@ -29853,12 +29853,14 @@
     "spacr.layers.Blending.check": {
       "source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ],
-      "source_sha256": "21bb1e2a0c770536dd1f525c7dfdbbc83cb543b21435da282b6a21748b92b490",
-      "text": "Normalisieren und validieren Sie einen Mischnamen.\n\n:raises LayerError: auf einem unbekannten Modus — ein Tippfehler, der still auf transluzent zurückfiel, wäre ein kompositing Bug, den niemand sehen konnte.",
+      "source_sha256": "96ce0cbec8e88a264f3e24405c72a9e5d927ea871c82f2189283c3d3b1ede2d0",
+      "text": "Normalisieren und validieren Sie einen Mischnamen.\n\n:param mode: Name des Mischmodus. Führende und nachgestellte Leerzeichen sowie die Groß- und Kleinschreibung werden vor der Prüfung gegen :attr:`Blending.ALL` normalisiert.\n:raises LayerError: auf einem unbekannten Modus — ein Tippfehler, der still auf transluzent zurückfiel, wäre ein kompositing Bug, den niemand sehen konnte.",
       "translation_source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ]
     },
@@ -29942,36 +29944,46 @@
     },
     "spacr.layers.Canvas.panned": {
       "source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ],
-      "source_sha256": "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
-      "text": "Eine Leinwand bewegt von ``(d_row, d_column)`` Canvas Pixel.",
+      "source_sha256": "9c0f1688eb9ed5fb65c6da5c8217e54b644062cb27400d3249984ff5ac9e94ca",
+      "text": "Eine Leinwand bewegt von ``(d_row, d_column)`` Canvas Pixel.\n\n:param d_row: Verschiebung mit Vorzeichen in Pixeln entlang der Canvaszeilen.\n:param d_column: Verschiebung mit Vorzeichen in Pixeln entlang der Canvasspalten.",
       "translation_source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ]
     },
     "spacr.layers.Canvas.pixel_at": {
       "source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746"
       ],
-      "source_sha256": "246f4a13bddc9f55d861fd4a2a41de798fd900b5be933aaa2b0f068a3e9dc3f0",
-      "text": "Der (fraktionelle) Leinwand-Pixel ein Welt-Punkt fällt auf.\n\nDie Inverse von :meth:`world_at` und der Grund, warum eine Punktebene und eine Etikettenschicht auf derselben Welt Land auf demselben Pixel koordinieren: Sie werden beide durch diese, nicht durch ihre eigenen Array-Indizes, gesetzt.",
+      "source_sha256": "056971ed788048626de9f4d77c17da1e63ec7bede4a9bbe0ebcb3947ca9a5b59",
+      "text": "Der (fraktionelle) Leinwand-Pixel ein Welt-Punkt fällt auf.\n\nDie Inverse von :meth:`world_at` und der Grund, warum eine Punktebene und eine Etikettenschicht auf derselben Welt Land auf demselben Pixel koordinieren: Sie werden beide durch diese, nicht durch ihre eigenen Array-Indizes, gesetzt.\n\n:param world: Zuordnung mit Weltkoordinaten für beide Achsen dieser Canvasebene.",
       "translation_source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "50bbcaa2a89abab895d930d232b8fca2b663fba0a31f8663ea1f620412d12a15"
       ]
     },
     "spacr.layers.Canvas.resized": {
       "source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ],
-      "source_sha256": "520cf1b8fd5c19fb4d41cb8db1d459d63f87714e9e60c34dea83b47e1b9fabd1",
-      "text": "Das gleiche Weltfenster bei einer anderen Pixelgröße.\n\nDie Welt *span* wird gehalten, nicht der Schritt, so dass ein Widget die Größe des gleichen Gesichtsfeldes anstatt mehr des Beispiels zeigt.",
+      "source_sha256": "882d3cee83c907dcef6e91a1a3294a3a4e19127afc78180ca19651c65c19c281",
+      "text": "Das gleiche Weltfenster bei einer anderen Pixelgröße.\n\nDie Welt *span* wird gehalten, nicht der Schritt, so dass ein Widget die Größe des gleichen Gesichtsfeldes anstatt mehr des Beispiels zeigt.\n\n:param height: Neue Leinwandhöhe in Pixel, auf mindestens eine genötigt.\n:param width: Neue Leinwandbreite in Pixeln, auf mindestens eine genötigt.",
       "translation_source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ]
     },
     "spacr.layers.Canvas.row_world": {
@@ -29987,25 +29999,31 @@
     "spacr.layers.Canvas.world_at": {
       "source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ],
-      "source_sha256": "157241154cd79e1cf4f1ff7c3c7515858eb75e8c7523407fc7ab6d8348f0144c",
-      "text": "Der Weltpunkt unter Canvas-Pixel ``(row, column)``.\n\nEnthält die gepinnten Achsen :attr:`depth`, so dass das Ergebnis eine vollständige Weltposition ist, nach der eine Ebene gefragt werden kann.",
+      "source_sha256": "dea1842446c4c99bede31498b1dcfcca4a6edce250c638b7f8ffc5857508d13f",
+      "text": "Der Weltpunkt unter dem Bildpunkt \"Canvas pixel\" ``(row, column)``.\n\nEnthält die gepinnten Achsen :attr:`depth`, so dass das Ergebnis eine vollständige Weltposition ist, nach der eine Ebene gefragt werden kann.\n\n:param row: Gebrochene Koordinate entlang der Canvaszeilen.\n:param column: Gebrochene Koordinate entlang der Canvasspalten.",
       "translation_source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ]
     },
     "spacr.layers.Canvas.zoomed": {
       "source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ],
-      "source_sha256": "c01d143a6c3fc93939658022c9dd37ee5eeb75862cf2babaf158e49f231ad512",
-      "text": "Eine Leinwand ``factor``× näher, etwa ``centre`` (Canvas-Pixel).\n\n``factor > 1`` zoomt ein. Die Standardmitte ist die Mitte der Ansicht, was ein Tastaturzoom bedeutet; ein Radzoom passiert den Cursor.",
+      "source_sha256": "d2717209129b3c2f5aa40aa3166873044e524aeab0a8d75b71e3bc0a4ad240c8",
+      "text": "Eine Leinwand ``factor``× näher, etwa ``centre`` (Canvas-Pixel).\n\n``factor > 1`` zoomt ein. Die Standardmitte ist die Mitte der Ansicht, was ein Tastaturzoom bedeutet; ein Radzoom passiert den Cursor.\n\n:param factor: Positiver endlicher Vergrößerungsfaktor; Werte größer als eins zoomen hinein, Werte kleiner als eins heraus.",
       "translation_source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ]
     },
     "spacr.layers.CanvasLink": {
@@ -30027,13 +30045,17 @@
     "spacr.layers.CanvasLink.add": {
       "source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6"
+        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe"
       ],
-      "source_sha256": "65ab76ffd3c1e7cef582977e6dd8a57f48c59c2dce32cc9322379d9872ca766f",
-      "text": "Setzen Sie ein Panel in den Link, indem Sie das geteilte Fenster, wenn es ein.\n\nEin Panel, das zu einem bereits geschwenkten Link hinzugefügt wurde, beginnt, wo sich die anderen befinden, nicht wo es gebaut wurde — sonst wird ein fünfter Kanal zu einem Gitter hinzugefügt, in das der Benutzer gezoomt ist, zeigt das gesamte Mikroskopfeld in einer Zelle.",
+      "source_sha256": "9efe1e7455abe876a4617d8cc1e63a8180fa2b413ab607feaac748e38bb36574",
+      "text": "Setzen Sie ein Panel in den Link, indem Sie das geteilte Fenster, wenn es ein.\n\nEin Panel, das zu einem bereits geschwenkten Link hinzugefügt wurde, beginnt, wo sich die anderen befinden, nicht wo es gebaut wurde — sonst wird ein fünfter Kanal zu einem Gitter hinzugefügt, in das der Benutzer gezoomt ist, zeigt das gesamte Mikroskopfeld in einer Zelle.\n\n:param key: Eindeutige Panel-Kennung, zu einer Zeichenkette gezwungen.\n:param canvas: Canvas, der Ebene, Größe und Weltfenster dieses Panels festlegt.",
       "translation_source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42"
+        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "f74632e0a841c9f85a7549a127e010327382f2b091ea190358290b9899c40405"
       ]
     },
     "spacr.layers.CanvasLink.at_depth": {
@@ -30068,12 +30090,14 @@
     },
     "spacr.layers.CanvasLink.is_locked": {
       "source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
-      "text": "Ob ein Panel den anderen folgt.",
+      "source_sha256": "d8056f77b21988ca7c42428992bf2726a0cdf680ba4a2ee9acc1edbfe3e6d614",
+      "text": "Ob ein Panel den anderen folgt.\n\n:param key: Identifikator eines bestehenden Panels.",
       "translation_source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.keys": {
@@ -30088,122 +30112,154 @@
     },
     "spacr.layers.CanvasLink.lock": {
       "source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ],
-      "source_sha256": "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
-      "text": "Machen Sie eine Tafel folgen den anderen wieder, bewegen Sie es jetzt dort.",
+      "source_sha256": "72e1aa9b842118d9bcee0b7ef3b4c5f978da28fd283e737a92892b469149ec7a",
+      "text": "Machen Sie eine Tafel folgen den anderen wieder, bewegen Sie es jetzt dort.\n\n:param key: Identifikator des Panels zum Ausrichten und Verriegeln.",
       "translation_source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ]
     },
     "spacr.layers.CanvasLink.pan": {
       "source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ],
-      "source_sha256": "1c919e5cc9723f656dbc14478305553e728735393ed4b296f7e0a092d0d55912",
-      "text": "Pan durch eine Reihe der Pixel des DRIVING-Panels.\n\nUmgewandelt in die Welt, bevor sie den anderen übergeben wird, also bewegt sich ein Raster, dessen Felder bei unterschiedlichen Zooms sind (eins entsperrt, dann wieder gelockt), immer noch um den gleichen Abstand über das Sample und nicht die gleiche Anzahl von Pixeln.",
+      "source_sha256": "1d1305b76ef0aae72d2492aa5aefef650ea5662fa9e0f5361767cad6dc346c2e",
+      "text": "Pan durch eine Reihe der Pixel des DRIVING-Panels.\n\nUmgewandelt in die Welt, bevor sie den anderen übergeben wird, also bewegt sich ein Raster, dessen Felder bei unterschiedlichen Zooms sind (eins entsperrt, dann wieder gelockt), immer noch um den gleichen Abstand über das Sample und nicht die gleiche Anzahl von Pixeln.\n\n:param d_row: Zeilenverschiebung mit Vorzeichen, gemessen in Pixeln des steuernden Panels.\n:param d_column: Spaltenverschiebung mit Vorzeichen, gemessen in Pixeln des steuernden Panels.",
       "translation_source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ]
     },
     "spacr.layers.CanvasLink.remove": {
       "source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
-      "text": "Nimm ein Panel heraus und gib seine Leinwand zurück.",
+      "source_sha256": "1087cb1b1660a230eb2cc207bcd156f1f2d5c2323bd6eddba1a3a041bc1fb4bd",
+      "text": "Nimm ein Panel heraus und gib seine Leinwand zurück.\n\n:param key: Identifikator eines bestehenden Panels.",
       "translation_source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.reset": {
       "source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ],
-      "source_sha256": "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
-      "text": "Passen Sie jedes gesperrte Panel wieder auf ``source`` an, wobei die Pixelgröße beibehalten wird.",
+      "source_sha256": "52aa9ff1bc60c447de70a4807e6baaa6970b787e0c1e3891b1926bd59da2d2d8",
+      "text": "Passen Sie jedes gesperrte Panel wieder auf ``source`` an, wobei die Pixelgröße beibehalten wird.\n\n:param source: Ebenenstapel, Ebene oder Ausdehnungszuordnung, die :meth:`Canvas.covering` akzeptiert.",
       "translation_source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ]
     },
     "spacr.layers.CanvasLink.resize": {
       "source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ],
-      "source_sha256": "e6c1826e76b9a6730dc1b726e41113792bedf8c40475eb9a611b774d62013589",
-      "text": "Das Widget eines Panels hat die Größe geändert. Nur die Form des Panels ändert sich.\n\nDer STEP wird gehalten, nicht die Spanne — das Gegenteil von :meth:`Canvas.resized`, und absichtlich. In einem verknüpften Gitter ist die gemeinsame Menge die Vergrößerung: eine Zelle, die 10 px schmaler ist als ihr Nachbar muss 10 px weniger der Probe im gleichen Maßstab zeigen, oder die beiden Bilder sind in verschiedenen Vergrößerungen und der Vergleich, für den das Gitter existiert, ist nicht eins.",
+      "source_sha256": "97bcf37a4b2690ef7f10d1f05af16d0d4f569677f0de4c2231e17d36238048b2",
+      "text": "Das Widget eines Panels hat die Größe geändert. Nur die Form des Panels ändert sich.\n\nDer STEP wird gehalten, nicht die Spanne — das Gegenteil von :meth:`Canvas.resized`, und absichtlich. In einem verknüpften Gitter ist die gemeinsame Menge die Vergrößerung: eine Zelle, die 10 px schmaler ist als ihr Nachbar muss 10 px weniger der Probe im gleichen Maßstab zeigen, oder die beiden Bilder sind in verschiedenen Vergrößerungen und der Vergleich, für den das Gitter existiert, ist nicht eins.\n\n:param key: Kennung des vorhandenen Panels, dessen Widget seine Größe geändert hat.\n:param height: Neue Panelhöhe in Pixel, auf mindestens eine genötigt.\n:param width: Neue Panelbreite in Pixeln, auf mindestens eine genötigt.",
       "translation_source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ]
     },
     "spacr.layers.CanvasLink.set": {
       "source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ],
-      "source_sha256": "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
-      "text": "Ersetzen Sie die Leinwand eines Panels und bringen Sie die Verriegelten mit.",
+      "source_sha256": "65d2d87b70be8821f92446a44154769819e6fd651bdd301028c433444b3ed10f",
+      "text": "Ersetzen Sie die Leinwand eines Panels und bringen Sie die Verriegelten mit.\n\n:param key: Identifikator des zu ersetzenden Panels.\n:param canvas: Ersatz-Canvas, dessen Weltfenster von den gesperrten Panels übernommen wird.",
       "translation_source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ]
     },
     "spacr.layers.CanvasLink.subscribe": {
       "source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ],
-      "source_sha256": "4c374f21c4c8190c458492bcd5c6fd3f18eb1faf71456340be32830dd42fad5e",
-      "text": "Man muss sagen, mit dem Schlüssel, der sich bewegt, wann immer sich ein Panel ändert.\n\nWird durch starke Referenz gehalten, genau wie :meth:`LayerStack.subscribe`: eine Ansicht, die abonniert muss :meth:`unsubscribe` wenn sie schließt.",
+      "source_sha256": "37d325816b0696373b9a1709485ca94d39b289b2724a056e46caeaef9f8e1ae6",
+      "text": "Man muss sagen, mit dem Schlüssel, der sich bewegt, wann immer sich ein Panel ändert.\n\nWird durch starke Referenz gehalten, genau wie :meth:`LayerStack.subscribe`: eine Ansicht, die abonniert muss :meth:`unsubscribe` wenn sie schließt.\n\n:param listener: Aufrufbare Funktion, die die Kennung des geänderten Panels empfängt; sie wird durch eine starke Referenz gehalten.",
       "translation_source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ]
     },
     "spacr.layers.CanvasLink.unlock": {
       "source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ],
-      "source_sha256": "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
-      "text": "Lassen Sie eine Platte von sich aus bewegt werden.",
+      "source_sha256": "328c58deb9ecf0c69cb99d7bebad538fd82582aa4914263e15f759e07b63fa8d",
+      "text": "Lassen Sie eine Platte von sich aus bewegt werden.\n\n:param key: Kennung des Panels, das von der verknüpften Bewegung getrennt werden soll.",
       "translation_source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ]
     },
     "spacr.layers.CanvasLink.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Hör auf, es zu sagen. ``True`` Wenn dieser Anruf es entfernt hat.",
+      "source_sha256": "fb4854ff518e71eb68e7b621ca3224fad4c6929c2ed93c89276be76447c5d9d9",
+      "text": "Hör auf, es zu sagen. ``True`` Wenn dieser Anruf es entfernt hat.\n\n:param listener: Zuvor abonnierter Rückruf, der entfernt werden soll.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ]
     },
     "spacr.layers.CanvasLink.zoom": {
       "source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ],
-      "source_sha256": "b103353a3b3bd199e684f4396c1df5868cf3b989c209fba80e19b1bcd8108d0b",
-      "text": "Zoomen Sie ``key`` (oder jedes Panel) um ``factor``, ungefähr ``centre``.\n\nDer Weltpunkt unter ``centre`` in der zu fahrenden Platte ist, was die anderen Platten auch vergrößert werden — nicht ihre eigenen Mitten, oder ein Rad über eine Zelle würde den Rest des Gitters seitwärts schieben.",
+      "source_sha256": "1afdfcd0c37b4ae96649d993bfa1c632e2f153e0c38f9688bfbb732c228bf6b6",
+      "text": "Zoomen Sie ``key`` (oder jedes Panel) um ``factor``, ungefähr ``centre``.\n\nDer Weltpunkt unter ``centre`` in der zu fahrenden Platte ist, was die anderen Platten auch vergrößert werden — nicht ihre eigenen Mitten, oder ein Rad über eine Zelle würde den Rest des Gitters seitwärts schieben.\n\n:param factor: Positiver endlicher Vergrößerungsfaktor, der an jeden betroffenen Canvas übergeben wird.",
       "translation_source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ]
     },
     "spacr.layers.Colormap": {
       "source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9"
+        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ],
-      "source_sha256": "a96c154e7e58d40b4dc699c8e5b5f41ba1f749484ae2d34d83e158ad95c25965",
-      "text": "Eine benannte Rampe von einem Wert in 0–1 zu einer Farbe.\n\nLineare Interpolation zwischen ``colors`` bei ``stops``. Zwei Stops decken jeden Mikroskopie-Bilddatenkanal LUT ab (schwarz → die Farbe des Bilddatenkanals), und weitere Stops umfassen die Wahrnehmungskarten, ohne matplotlib in ein Modul zu ziehen, das in einem Worker-Prozesse importierbar bleiben muss.",
+      "source_sha256": "14d72ed96d88d88a519e0c582fb93152f5adfede906113714844ea9a2b9ef321",
+      "text": "Eine benannte Rampe von einem Wert in 0–1 zu einer Farbe.\n\nLineare Interpolation zwischen ``colors`` bei ``stops``. Zwei Stops decken jeden Mikroskopie-Bilddatenkanal LUT ab (schwarz → die Farbe des Bilddatenkanals), und weitere Stops umfassen die Wahrnehmungskarten, ohne matplotlib in ein Modul zu ziehen, das in einem Worker-Prozesse importierbar bleiben muss.\n\n:param name: Mit der Farbrampe gespeicherter Anzeige- und Suchname; er wird in eine Zeichenkette umgewandelt.\n:param colors: Geordnete Sequenz von mindestens zwei Farbspezifikationen, die von :func:`to_rgba` akzeptiert werden; die Rampe interpoliert sie in der Reihenfolge.",
       "translation_source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47"
+        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ]
     },
     "spacr.layers.Colormap.colors": {
@@ -30218,12 +30274,14 @@
     },
     "spacr.layers.Colormap.map": {
       "source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ],
-      "source_sha256": "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
-      "text": "Karte ``values`` (jede Form, 0–1, geclippt) bis ``(..., 3)`` float32.",
+      "source_sha256": "d44bc6930eff4ab861525b12ae9b7bb119c13b4c03261a4972081d459c210d72",
+      "text": "Karte ``values`` (jede Form, 0–1, geclippt) bis ``(..., 3)`` float32.\n\n:param values: Numerischer Skalar oder arrayartige Werte zur Interpolation; Werte außerhalb von 0–1 werden auf das nächstgelegene Ende der Rampe begrenzt.",
       "translation_source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ]
     },
     "spacr.layers.Colormap.stops": {
@@ -30266,44 +30324,52 @@
     },
     "spacr.layers.FieldKey.frame": {
       "source_blocks_sha256": [
-        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5"
+        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
+        "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a"
       ],
-      "source_sha256": "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
-      "text": "Ein Rahmen mit einer Ausgabespalte für jede Kennungsspalte in ``labels``, wobei ihre Reihenfolge erhalten bleibt.",
+      "source_sha256": "40cb79e68a34eef070ac79e767a2a20ad3b0ea339fb51507cd830861b02a1545",
+      "text": "Ein Rahmen mit einer Ausgabespalte für jede Kennungsspalte in ``labels``, wobei ihre Reihenfolge erhalten bleibt.\n\n:param labels: Iterierbare Sammlung ganzzahlähnlicher Objekt-Labels, die dieser Feldidentität zugeordnet werden.",
       "translation_source_blocks_sha256": [
-        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb"
+        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb",
+        "c2fe737b390de6510efd90175f213b911a37f8d148c93af33fe16a8525823efb"
       ]
     },
     "spacr.layers.FieldKey.from_row": {
       "source_blocks_sha256": [
         "6cd8c0d449bf06de8080354ae8f7e759d68ec379bc2f066627de5cf1d8cda20d",
-        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802"
+        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ],
-      "source_sha256": "dc3043bd6b23a275feb200864d525833b9372277c796db03ba1a796218dc906f",
-      "text": "Nehmen Sie die Identifierspalten aus einer Messzeile (oder einem beliebigen Mapping) heraus.\n\nAlles andere in der Reihe wird fallen gelassen — ein Feld strukturiert-Datenname ist eine Identität, und mit einer Messung zusammen mit ihm würde zwei strukturierte Datennamen für das gleiche Feld ungleich vergleichen.",
+      "source_sha256": "5009c670395a31711e65f9482b60110422c8dd91aff93bf55ada69eae28f0695",
+      "text": "Nehmen Sie die Identifierspalten aus einer Messzeile (oder einem beliebigen Mapping) heraus.\n\nAlles andere in der Reihe wird fallen gelassen — ein Feld strukturiert-Datenname ist eine Identität, und mit einer Messung zusammen mit ihm würde zwei strukturierte Datennamen für das gleiche Feld ungleich vergleichen.\n\n:param row: Zuordnung einer Messzeile, aus der die erforderlichen Identitätsspalten entnommen werden.",
       "translation_source_blocks_sha256": [
         "4fa407403eab95095b6b298465b075829b6d6718819e773a0099527588ebdfe3",
-        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8"
+        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ]
     },
     "spacr.layers.FieldKey.object_key": {
       "source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12"
       ],
-      "source_sha256": "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
-      "text": "Der Schlüssel für ein Objekt für ``label``.",
+      "source_sha256": "9c0ffb61704a39ffd2308e7bd131ba754dcf2b5caf578cea363a1dcf07523bc9",
+      "text": "Der Schlüssel für ein Objekt für ``label``.\n\n:param label: Ganzzahlähnliches Objekt-Label, das für dieses Feld kodiert wird.",
       "translation_source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "b4b790d2e119d8ec65a3ac0f15b4f6f0011a4753feb44e7fde4010a0cce252a4"
       ]
     },
     "spacr.layers.FieldKey.object_keys": {
       "source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ],
-      "source_sha256": "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
-      "text": ":class:`pandas.Index` der Objektschlüssel für ``labels``, in Reihenfolge.",
+      "source_sha256": "8aeaa33840efac26e90a789b6909c6e7a0a6c929253a60f69fd7784fbea893a8",
+      "text": ":class:`pandas.Index` der Objektschlüssel für ``labels``, in Reihenfolge.\n\n:param labels: Iterierbar von Integer-ähnlichen Objektetiketten zum Kodieren.",
       "translation_source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ]
     },
     "spacr.layers.ImageLayer": {
@@ -30340,12 +30406,26 @@
     },
     "spacr.layers.ImageLayer.channel_data": {
       "source_blocks_sha256": [
-        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b"
+        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ],
-      "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "text": "Das räumliche Array für einen Bilddatenkanal (eine Ansicht, keine Kopie).",
+      "source_sha256": "15de51c78f3d0361193a224fff41be5f626235806342ddaadd54c29239268d52",
+      "text": "Das räumliche Array für einen Bilddatenkanal (eine Ansicht, keine Kopie).\n\n:param channel: Nullbasierter Kanalindex, akzeptiert durch normale Sequenz-Indizierung.",
       "translation_source_blocks_sha256": [
-        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509"
+        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ]
+    },
+    "spacr.layers.ImageLayer.channel_is_visible": {
+      "source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ],
+      "source_sha256": "d8e695a52522e5e5457c5945555946345282682afb868b70699f25ef2e05601c",
+      "text": "Ob ein Kanal am Rendering teilnimmt.\n\n:param channel: Nullbasierter Kanalindex, akzeptiert durch normale Sequenz-Indizierung.",
+      "translation_source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ]
     },
     "spacr.layers.ImageLayer.colormap": {
@@ -30379,25 +30459,45 @@
         "af3320fcd4373de12c3c56554534b7704b1c62e20835a0f9548731ee070822e0"
       ]
     },
+    "spacr.layers.ImageLayer.set_channel_visible": {
+      "source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ],
+      "source_sha256": "e1a8be22f1960a50e5eb3f6173e8c0228092d0630738144fd727e11b9b08c055",
+      "text": "Festlegen, ob ein Kanal am Rendering teilnimmt.\n\n:param channel: Nullbasierter Kanalindex, akzeptiert durch normale Sequenz-Indizierung.\n:param visible: Wahrheitswert für den neuen Sichtbarkeitszustand des Kanals.",
+      "translation_source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ]
+    },
     "spacr.layers.ImageLayer.set_colormap": {
       "source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ],
-      "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "text": "Gib einem Kanal einen neuen LUT.",
+      "source_sha256": "a65a79a6a74fec31bfa36fc24c6bbafc045a1ced9c6e85ed52b17e6efda99cf4",
+      "text": "Gib einem Kanal einen neuen LUT.\n\n:param value: Farbkarte oder Farbspezifikation akzeptiert von :func:`colormap`.",
       "translation_source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ]
     },
     "spacr.layers.ImageLayer.set_contrast_limits": {
       "source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+        "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ],
-      "source_sha256": "f8c007ce8415d95d9833f128e8e4ae98763c820511b8f376c3e5b2e16f4247e5",
-      "text": "Setzt die Grenzen eines Kanals.\n\n:raises LayerError: wenn sie nicht zunehmen — ein invertiertes Paar rendert ein schwarzes Bild, das als \"no signal\" anstatt als schlechte Einstellung liest.",
+      "source_sha256": "67991223e0e1401f9a83adbeeca279685329443027954cdacd55f4a295b00e40",
+      "text": "Setzt die Grenzen eines Kanals.\n\n:param low: Untere Intensitätsgrenze in den Dateneinheiten des Kanals.\n:param high: Obere Intensitätsgrenze in den Dateneinheiten des Kanals; sie muss größer als ``low`` sein.\n:raises LayerError: wenn sie nicht zunehmen — ein invertiertes Paar rendert ein schwarzes Bild, das als \"no signal\" anstatt als schlechte Einstellung liest.",
       "translation_source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "e0b961b66f0bb8a66b1a7f65084598cad3de63525f72c27f13d12387c18aa5a5",
+        "50129cb6dd8ed758ec82f61e82119b5e51c69e8d1c10a84961da1c83b61011b8",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ]
     },
@@ -30427,13 +30527,15 @@
       "source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ],
-      "source_sha256": "7a4e53da8be2116ee8ce70e78922594a4988175d7f9582491543cef395f17578",
-      "text": "Eine Ganzzahl-Segmentierungsmaske. 0 ist Hintergrund und zeichnet als nichts.\n\nFarben stammen von :func:`label_color`, ein Objekt behält also seine Farbe zwischen Sitzungen und zwischen diesem Betrachter und der Live-Vorschau.\n\n:param field: die :class:`FieldKey` diese Maske Segmente. Optional, aber ohne sie kann ein Klick nur sagen \"label 17\" — mit ihm, kann der Klick ``plate1_A_1_1_17`` zu jeder anderen Ansicht veröffentlichen.",
+      "source_sha256": "12854f7027909f636182b3838e1df4f568b7287c604915e4fa51acf3e9ad0400",
+      "text": "Eine Ganzzahl-Segmentierungsmaske. 0 ist Hintergrund und zeichnet als nichts.\n\nFarben stammen von :func:`label_color`, ein Objekt behält also seine Farbe zwischen Sitzungen und zwischen diesem Betrachter und der Live-Vorschau.\n\n:param data: Zwei- oder dreidimensionale arrayartige Segmentierungs-Labels; die Werte müssen ganzzahlig sein oder exakt Ganzzahlen darstellen.\n:param field: die :class:`FieldKey` diese Maske Segmente. Optional, aber ohne sie kann ein Klick nur sagen \"label 17\" — mit ihm, kann der Klick ``plate1_A_1_1_17`` zu jeder anderen Ansicht veröffentlichen.",
       "translation_source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ]
     },
@@ -30442,25 +30544,29 @@
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "ef10abde172c944037ac91cd1df4dc457505cf9a68dfa7dc3c36f95884939a7c"
       ],
-      "source_sha256": "43cf6677f673f3d5cf1ad8bb1b5e92d9f25d0ebacd690c44858e5235687eaecc",
-      "text": "Die Elemente ein Welt-Raum-Kugelbürste deckt, als Index Arrays.\n\nDer Pinsel ist ein Ball im WORLD-Raum, also deckt er auf einem anisotropen Stapel weniger Z-Scheiben als Y-Zeilen ab – was der Benutzer mit einem 5 µm Pinsel meint. Ein Pinsel, gemessen in Arrayelementen, wäre ein 5-Scheibezylinder, d.h. 10 µm tief und 3,25 µm breit auf einem gewöhnlichen spaCR Stapel.\n\nAus :meth:`paint` teilen, also ein Anrufer, der *aufzeichnen* muss, was er geändert hat – :class:`spacr.curation.MaskCuration`, der eine Undo-Geschichte und einen Audit-Trail behält – fragt die Ebene nach der Geometrie, anstatt die Anisotropie-Regel neu abzuleiten und sie subtil zu unterscheiden. Es gibt einen Ball, und er wird hier definiert.\n\n:returns: ein Integer-Array pro Achse, bereit, :attr:`data` mit zu indexieren. Leere Arrays, wenn der Pinsel vollständig vom Raster fällt, was zu nichts als zu werfen indiziert.",
+      "source_sha256": "fdf4c2cda21386361c12e28138b98cb1fa7ac9955847f3c48294f1caeba3e78e",
+      "text": "Die Elemente ein Welt-Raum-Kugelbürste deckt, als Index Arrays.\n\nDer Pinsel ist ein Ball im WORLD-Raum, also deckt er auf einem anisotropen Stapel weniger Z-Scheiben als Y-Zeilen ab – was der Benutzer mit einem 5 µm Pinsel meint. Ein Pinsel, gemessen in Arrayelementen, wäre ein 5-Scheibezylinder, d.h. 10 µm tief und 3,25 µm breit auf einem gewöhnlichen spaCR Stapel.\n\nAus :meth:`paint` teilen, also ein Anrufer, der *aufzeichnen* muss, was er geändert hat – :class:`spacr.curation.MaskCuration`, der eine Undo-Geschichte und einen Audit-Trail behält – fragt die Ebene nach der Geometrie, anstatt die Anisotropie-Regel neu abzuleiten und sie subtil zu unterscheiden. Es gibt einen Ball, und er wird hier definiert.\n\n:param world: Mapping von Achsennamen zum Pinselzentrum in Weltkoordinaten; weggelassene Abstandsachsen werden bei Null bewertet.\n:returns: ein Integer-Array pro Achse, bereit, :attr:`data` mit zu indexieren. Leere Arrays, wenn der Pinsel vollständig vom Raster fällt, was zu nichts als zu werfen indiziert.",
       "translation_source_blocks_sha256": [
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "3ae0cae7c74005239749168d3c233396333acaa07054d119c714a851f197938f"
       ]
     },
     "spacr.layers.LabelsLayer.label_at_world": {
       "source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ],
-      "source_sha256": "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
-      "text": "Das Etikett unter einem Weltpunkt, oder 0 für Hintergrund / Außen.",
+      "source_sha256": "fcbca66bbfadfd442c3f75be94a15baf8d2757596873994a0fe6155ad002d03c",
+      "text": "Das Etikett unter einem Weltpunkt, oder 0 für Hintergrund / Außen.\n\n:param world: Mapping von Achsennamen zu einem Punkt in Weltkoordinaten.",
       "translation_source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ]
     },
     "spacr.layers.LabelsLayer.labels": {
@@ -30487,13 +30593,15 @@
     "spacr.layers.LabelsLayer.object_key_at_world": {
       "source_blocks_sha256": [
         "2888b920fd6956b3f6e04d746585f4c83a11948a1cc8cd56b4542a34cd758fce",
-        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72"
+        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ],
-      "source_sha256": "99e56ad84d2620d6e72ee69ea199ef77fec0bb0bab9aecbf02fb51b583348e72",
-      "text": "Der messbare strukturierte Datenname des Objekts unter einem Weltpunkt.\n\n``None`` für Hintergrund, oder wenn dieser Ebene nicht gesagt wurde, welches Mikroskopfeld es segmentiert. Dies ist der ganze Grund, warum eine Etikettenschicht eine :class:`FieldKey` trägt: die Zeichenkette, die diese zurückgibt, ist dieselbe Zeichenkette die UMAP, die Labor-Mikroplattenansicht und die Annotationsrasternutzung, so dass die Veröffentlichung über :mod:`spacr.qt.linked_selection` die gleiche Zelle überall hervorhebt.",
+      "source_sha256": "5f58c8e407661db6c30f1a9acaf1188141ee5aafe63ae9fa8e202386082cd334",
+      "text": "Der messbare strukturierte Datenname des Objekts unter einem Weltpunkt.\n\n``None`` für Hintergrund, oder wenn dieser Ebene nicht gesagt wurde, welches Mikroskopfeld es segmentiert. Dies ist der ganze Grund, warum eine Etikettenschicht eine :class:`FieldKey` trägt: die Zeichenkette, die diese zurückgibt, ist dieselbe Zeichenkette die UMAP, die Labor-Mikroplattenansicht und die Annotationsrasternutzung, so dass die Veröffentlichung über :mod:`spacr.qt.linked_selection` die gleiche Zelle überall hervorhebt.\n\n:param world: Zuordnung von Achsennamen zu dem zu identifizierenden Weltpunkt.",
       "translation_source_blocks_sha256": [
         "160302220e41d10a573d3ae6c448bc4902b3975356b159aa5ce4a15216d782d6",
-        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69"
+        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ]
     },
     "spacr.layers.LabelsLayer.object_keys": {
@@ -30510,13 +30618,17 @@
       "source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ],
-      "source_sha256": "8a9f7db9bf93c003bd26b54d940d58a9e09b6421c9a6e351242612219eb95b92",
-      "text": "Legen Sie jedes Element innerhalb ``radius`` Welteinheiten eines Punktes.\n\n:meth:`brush_index` Der Ball gehört, das ist das plus das Schreiben.\n\n:returns: wie viele Elemente sich verändert haben.",
+      "source_sha256": "4826c2d76d13a5e9b76d0bc8a2f2099a1d6eb699c17ba6a7a44a62c114fdf48b",
+      "text": "Legen Sie jedes Element innerhalb ``radius`` Welteinheiten eines Punktes.\n\n:meth:`brush_index` Der Ball gehört, das ist das plus das Schreiben.\n\n:param world: Kartierung von Achsennamen zum Pinselzentrum in Weltkoordinaten.\n:param label: Integerartiges Etikett zum Malen.\n:returns: wie viele Elemente sich verändert haben.",
       "translation_source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ]
     },
@@ -30533,13 +30645,17 @@
     "spacr.layers.LabelsLayer.set_labels_at": {
       "source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ],
-      "source_sha256": "4b51f05f5b36b84aef9aadcff8334a00b17ff1eac193ad3b1e17e18b4038b7bb",
-      "text": "Legen Sie die Elemente ``index`` auf ``label``; wie viele Änderungen vorgenommen wurden.\n\nDie Schreibhälfte von :meth:`brush_index`, und die ONE-Position der Daten einer Etikettenschicht wird elementweise bearbeitet — also meldet sich genau ein Aufruf. Ein Anrufer, der seine eigene Arithmetik auf :attr:`data` macht, würde das Array mutieren, ohne die Leinwand zu sagen, und das Bild würde nur bei der nächsten unabhängigen Repaint kommen.",
+      "source_sha256": "1abf895c5080ad211ca94bb5ff03f93c50724b8a87a65630308906543c555767",
+      "text": "Legen Sie die Elemente ``index`` auf ``label``; wie viele Änderungen vorgenommen wurden.\n\nDie Schreibhälfte von :meth:`brush_index`, und die ONE-Position der Daten einer Etikettenschicht wird elementweise bearbeitet — also meldet sich genau ein Aufruf. Ein Anrufer, der seine eigene Arithmetik auf :attr:`data` macht, würde das Array mutieren, ohne die Leinwand zu sagen, und das Bild würde nur bei der nächsten unabhängigen Repaint kommen.\n\n:param index: Ein Array mit Ganzzahlindizes pro Datenachse, geeignet für die erweiterte Indizierung in NumPy.\n:param label: Ganzzahlähnliches Label, das an die ausgewählten Elemente geschrieben wird.",
       "translation_source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ]
     },
     "spacr.layers.LabelsLayer.shape": {
@@ -30568,14 +30684,16 @@
       "source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ],
-      "source_sha256": "d9bf540e5df502fb1259165c71211aad3d5b283456e1a09ecad2a91dacad0e8e",
-      "text": "Eines im Stapel: ein Name, ein Platz in der Welt und wie man ihn zeichnet.\n\nUnterklassen implementieren:meth:`_draw`; alles, was geteilt wird – Sichtbarkeit, Deckkraft, Blending, Abstand, Benachrichtigung – lebt hier.\n\nAnzeigeeigenschaften sind einfache Attribute mit Settern, die den Stack benachrichtigen, also eine Ansicht neu paints, weil das Modell geändert, anstatt weil das Widget, das es geändert erinnerte, zu fragen.",
+      "source_sha256": "00ae1646166976c37b3971d157a42c453ea3828f10371a9e2f504447306b03d2",
+      "text": "Eines im Stapel: ein Name, ein Platz in der Welt und wie man ihn zeichnet.\n\nUnterklassen implementieren:meth:`_draw`; alles, was geteilt wird – Sichtbarkeit, Deckkraft, Blending, Abstand, Benachrichtigung – lebt hier.\n\nAnzeigeeigenschaften sind einfache Attribute mit Settern, die den Stack benachrichtigen, also eine Ansicht neu paints, weil das Modell geändert, anstatt weil das Widget, das es geändert erinnerte, zu fragen.\n\n:param name: Nicht leere Ebenenkennung; Namen werden eindeutig gemacht, wenn die Ebene einem :class:`LayerStack` hinzugefügt wird.",
       "translation_source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ]
     },
     "spacr.layers.Layer.describe": {
@@ -30601,13 +30719,15 @@
     "spacr.layers.Layer.render": {
       "source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ],
-      "source_sha256": "6a69174507dcd6941d3e37953e3d4375f3afcdff90f51f7eb47c94bf2f6bf77a",
-      "text": "Zeichnet auf ``canvas``; gibt ``(rgb, coverage)`` zurück.\n\n``rgb`` ist ``(H, W, 3)`` float32 in 0–1 und ``coverage`` ist ``(H, W)`` float32 in 0–1, wo diese Ebene etwas zu sagen hat. Opazität und Blending werden hier NICHT angewendet – der Stapel wendet sie an, so dass der eigene Render einer Ebene das gleiche ist, was auch immer sie zusammenfasst.",
+      "source_sha256": "041a29bcd5eb327d63f54158ec2e06819a2804d242f09ce3b6633f43facb47b8",
+      "text": "Zeichnet auf ``canvas``; gibt ``(rgb, coverage)`` zurück.\n\n``rgb`` ist ``(H, W, 3)`` float32 in 0–1 und ``coverage`` ist ``(H, W)`` float32 in 0–1, wo diese Ebene etwas zu sagen hat. Opazität und Blending werden hier NICHT angewendet – der Stapel wendet sie an, so dass der eigene Render einer Ebene das gleiche ist, was auch immer sie zusammenfasst.\n\n:param canvas: Weltfenster und Ausgabegitter, auf dem die Ebene gezeichnet werden soll.",
       "translation_source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ]
     },
     "spacr.layers.Layer.shape": {
@@ -30632,22 +30752,26 @@
     },
     "spacr.layers.Layer.to_data": {
       "source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ],
-      "source_sha256": "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
-      "text": "``{axis: world}`` → fraktionierter Datenindex.",
+      "source_sha256": "1e3345eda89cb5de4ca629fff4184928f324444e3cfe6d73079e8bf9cfdaa78c",
+      "text": "``{axis: world}`` → fraktionierter Datenindex.\n\n:param world: Kartierung von Welt-Achsen-Namen zu Koordinaten; weggelassene Abstandsachsen werden bei Weltkoordinaten-Null ausgewertet.",
       "translation_source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ]
     },
     "spacr.layers.Layer.to_world": {
       "source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ],
-      "source_sha256": "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
-      "text": "Datenindex → ``{axis: world}``.",
+      "source_sha256": "26735f18d934b2c7f3e0e8645475aca52ab5011ffc91614884d6dbbc7b76d282",
+      "text": "Datenindex → ``{axis: world}``.\n\n:param index: Gebrochene Datenkoordinate in der Reihenfolge der Abstandsachsen dieser Ebene.",
       "translation_source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ]
     },
     "spacr.layers.Layer.world_extent": {
@@ -30708,14 +30832,40 @@
         "281fc7123610fd43406cdaf51b4d1a0d1589061eaa7d666c63c7ee7ff0b3fc32"
       ]
     },
+    "spacr.layers.LayerStack.add_image": {
+      "source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ],
+      "source_sha256": "d763809cb6736d1325da4effb708e3a9eb378b08036775cfe67a5a185b3b7677",
+      "text": "Konstruieren und anhängen einer Bildebene.\n\n:param data: Arrayartige Intensitätsdaten, die an :class:`ImageLayer` übergeben werden.",
+      "translation_source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ]
+    },
+    "spacr.layers.LayerStack.add_labels": {
+      "source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ],
+      "source_sha256": "a0aaaecabc526aeccd0261c59e4092b9bae0224cdd83104f63dfe9a68f93758b",
+      "text": "Konstruieren und Anhängen einer Etikettenschicht.\n\n:param data: Arrayartige Segmentierungs-Labels, die an :class:`LabelsLayer` übergeben werden.",
+      "translation_source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ]
+    },
     "spacr.layers.LayerStack.append": {
       "source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
-      "text": "Legen Sie ``layer`` oben drauf.",
+      "source_sha256": "e8ffcf4ef88d408c04bde53496a66c9da50eaa0bee446324b9379c46b163e733",
+      "text": "Legen Sie ``layer`` oben drauf.\n\n:param layer: Ebeneninstanz, die diesem Stapel hinzugefügt wird.",
       "translation_source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.canvas": {
@@ -30750,56 +30900,70 @@
     },
     "spacr.layers.LayerStack.get": {
       "source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ],
-      "source_sha256": "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
-      "text": "Die Ebene, die durch ein Objekt, einen Namen oder einen Index benannt wird.",
+      "source_sha256": "f0b308ec65c968a7c63063e083a1d517495af8e79a3c10b3477b8acb554501ba",
+      "text": "Die Ebene, die durch ein Objekt, einen Namen oder einen Index benannt wird.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Auflösen.",
       "translation_source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ]
     },
     "spacr.layers.LayerStack.index": {
       "source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ],
-      "source_sha256": "fce075446257bcb107abcae907b588e44e92a8c0a191db02ea3761b70186f78d",
-      "text": "Wenn ``layer`` sitzt, nach Objekt, Name oder Index.\n\n:raises LayerError: wenn es sich nicht in diesem Stapel befindet. ``-1`` wäre ein gültiger Index von oben und würde die falsche Ebene stillschweigend beeinflussen.",
+      "source_sha256": "b9f1a82e69c109470a037e5dbb9339af4d9e4e7bef6735bccc16878c639aabf1",
+      "text": "Wenn ``layer`` sitzt, nach Objekt, Name oder Index.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Auflösen.\n:raises LayerError: wenn es sich nicht in diesem Stapel befindet. ``-1`` wäre ein gültiger Index von oben und würde die falsche Ebene stillschweigend beeinflussen.",
       "translation_source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ]
     },
     "spacr.layers.LayerStack.insert": {
       "source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
-      "text": "``layer`` bei ``index`` (0 ist der untere Wert).",
+      "source_sha256": "de6ede5822f1b49b01cbf558ecb4ea1c142274743c204e0ca40fb7080d1d97d4",
+      "text": "``layer`` bei ``index`` (0 ist der untere Wert).\n\n:param index: Gewünschte Einsteckposition, zwischen Null und der aktuellen Stapellänge eingeklemmt.\n:param layer: Ebeneninstanz, die diesem Stapel hinzugefügt wird.",
       "translation_source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.lower_layer": {
       "source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ],
-      "source_sha256": "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
-      "text": "Ein Schritt nach hinten.",
+      "source_sha256": "2042e5a08104144b57ffbbe3cc0fa1ed914881b5bbd24e6d1787af90263e2542",
+      "text": "Ein Schritt nach hinten.\n\n:param layer: Ebenenobjekt, eindeutiger Ebenenname oder ganzzahliger Stapelindex der abzusenkenden Ebene.",
       "translation_source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ]
     },
     "spacr.layers.LayerStack.move": {
       "source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ],
-      "source_sha256": "5be37c8323202e92afacd3368b433d3248015a1b32f84f546389a98acab94606",
-      "text": "Verschieben Sie eine Ebene auf ``destination``; gibt zurück, wo sie gelandet ist.\n\nDie z-Order-Steuerung. ``destination`` ist eingeklemmt, so dass \"move to the top\" mit jeder großen Zahl geschrieben werden kann.",
+      "source_sha256": "cf6605e56f490303bd3300077bd6d207a33e970524f37c835fde803e3843bd76",
+      "text": "Verschieben Sie eine Ebene auf ``destination``; gibt zurück, wo sie gelandet ist.\n\nDie z-Order-Steuerung. ``destination`` ist eingeklemmt, so dass \"move to the top\" mit jeder großen Zahl geschrieben werden kann.\n\n:param source: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Verschieben.\n:param destination: Angefragter Zielindex, eingeklemmt am Stapel, nachdem die Quelle entfernt wurde.",
       "translation_source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ]
     },
     "spacr.layers.LayerStack.names": {
@@ -30815,85 +30979,107 @@
     "spacr.layers.LayerStack.pick": {
       "source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ],
-      "source_sha256": "7a87bd473703e187dbc6926399a02bb0314584d2bd2db2052fc20b6b3ff592d7",
-      "text": "Was ist unter einem Canvas-Pixel: ``(layer, world, value)``.\n\nGeht von der TOP-Ebene nach unten und stoppt bei der ersten sichtbaren Ebene mit etwas dort, was ein Klick bedeutet – das, was man sehen kann. ``value`` ist das Etikett für eine Etikettenschicht, der Punktindex für eine Punktschicht, der Formindex für eine Shape-Ebene und ``None`` sonst.",
+      "source_sha256": "e6deb023970c48d1b50d0be27ae6c93929cbbb42be91616ad3063e61a410f489",
+      "text": "Was ist unter einem Canvas-Pixel: ``(layer, world, value)``.\n\nGeht von der TOP-Ebene nach unten und stoppt bei der ersten sichtbaren Ebene mit etwas dort, was ein Klick bedeutet – das, was man sehen kann. ``value`` ist das Etikett für eine Etikettenschicht, der Punktindex für eine Punktschicht, der Formindex für eine Shape-Ebene und ``None`` sonst.\n\n:param canvas: Canvas, dessen angezeigter Stapel abgefragt wird.\n:param row: Gebrochene Canvaszeilen-Koordinate des Abfragepixels.\n:param column: Gebrochene Canvasspalten-Koordinate des Abfragepixels.",
       "translation_source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ]
     },
     "spacr.layers.LayerStack.raise_layer": {
       "source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ],
-      "source_sha256": "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
-      "text": "Ein Schritt nach vorne.",
+      "source_sha256": "14e58cf30dc8ff73ab9ee247e9070ca41c985b1af42eb587db47512480d9a6a1",
+      "text": "Ein Schritt nach vorne.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Anheben.",
       "translation_source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ]
     },
     "spacr.layers.LayerStack.remove": {
       "source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ],
-      "source_sha256": "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
-      "text": "Nehmen Sie eine Schicht heraus und geben Sie sie zurück.",
+      "source_sha256": "1227ba3055b381e8adee5534e1fa424faf0a9d9ab871fd486d466005039441a2",
+      "text": "Nehmen Sie eine Schicht heraus und geben Sie sie zurück.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Entfernen.",
       "translation_source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ]
     },
     "spacr.layers.LayerStack.rename": {
       "source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ],
-      "source_sha256": "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
-      "text": "Nennen Sie eine Ebene um, die bei Bedarf unquifizierend ist; gibt den Namen zurück, den sie erhalten hat.",
+      "source_sha256": "cc42f737075a19f21b32353e139736f7eebc2bf94d221135189aa507a96b0d5a",
+      "text": "Nennen Sie eine Ebene um, die bei Bedarf unquifizierend ist; gibt den Namen zurück, den sie erhalten hat.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Umbenennen.\n:param name: Gewünschter nicht leerer Name; bei einem Konflikt mit einer anderen Ebene wird ein numerisches Suffix angefügt.",
       "translation_source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ]
     },
     "spacr.layers.LayerStack.render": {
       "source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
-      "text": "Zusammensetzen jeder sichtbaren Schicht; ``(H, W, 3)`` float32 in 0–1.",
+      "source_sha256": "706df46e91c0f2d4d8bcce5d8328ed32c63a27244faa7c5dda30ae45b7229d0f",
+      "text": "Zusammensetzen jeder sichtbaren Schicht; ``(H, W, 3)`` float32 in 0–1.\n\n:param canvas: Weltfenster und Ausgaberaster, auf denen der Stapel zusammengesetzt wird.",
       "translation_source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_rgba": {
       "source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "97936d0c7625321036ed948f50eae43ffb5b967dda28602b306c1b34ae93c382",
-      "text": ":meth:`render` plus die eigene Abdeckung des Verbundwerkstoffs, ``(H, W, 4)``.\n\nDer Alpha-Kanal wird quellüber akkumuliert, was auch immer die Mischmodi der Ebenen waren: er zeichnet auf, wo der Stapel *jedes* gezeichnet hat, was ein Anrufer, der dies auf einen Seitenhintergrund komponiert, benötigt.",
+      "source_sha256": "ceb49044e299ac918477ab9f59aeddb369712efa87c78629f3232136c688b313",
+      "text": ":meth:`render` plus die eigene Abdeckung des Verbundwerkstoffs, ``(H, W, 4)``.\n\nDer Alpha-Kanal wird quellüber akkumuliert, was auch immer die Mischmodi der Ebenen waren: er zeichnet auf, wo der Stapel *jedes* gezeichnet hat, was ein Anrufer, der dies auf einen Seitenhintergrund komponiert, benötigt.\n\n:param canvas: Weltfenster und Ausgaberaster, auf denen der Stapel zusammengesetzt wird.",
       "translation_source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_uint8": {
       "source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
-      "text": ":meth:`render` als ``(H, W, 3)`` uint8 – was ein QImage will.",
+      "source_sha256": "647e96602de114a2eabc49017bcba8ccce0c5a6728ebfd92a93c48ebad7ab059",
+      "text": ":meth:`render` als ``(H, W, 3)`` uint8 – was ein QImage will.\n\n:param canvas: Weltfenster und Ausgaberaster, auf denen der Stapel zusammengesetzt wird.",
       "translation_source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.select": {
       "source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ],
-      "source_sha256": "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
-      "text": "Wählen Sie eine Ebene (oder ``None``); gibt sie zurück.",
+      "source_sha256": "ea1e6d3da45023b1240bbdfcace66315b40a56ce20b5e39f2fabd1f38ee0992e",
+      "text": "Wählen Sie eine Ebene (oder ``None``); gibt sie zurück.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname, Integer-Stack-Index oder ``None``, um die Auswahl zu löschen.",
       "translation_source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ]
     },
     "spacr.layers.LayerStack.selected": {
@@ -30919,13 +31105,39 @@
     "spacr.layers.LayerStack.subscribe": {
       "source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
       ],
-      "source_sha256": "943a56c50d0d9e46e2283d3f0405a514395aea062ca6eb3f783dbd3f2baff04c",
-      "text": "Wird gesagt, wenn sich etwas ändert. Gibt ``listener`` zurück, um das Abmelden zu beenden.\n\nHörer werden von starken Verweisen gehalten und sind NICHT schwach: eine Ansicht, die abonniert, muss :meth:`unsubscribe`, wenn sie schließt, genau wie :class:`spacr.qt.linked_selection.LinkedView` muss nicht verlinken.",
+      "source_sha256": "719511e2e892343f955dd3aeb4a586939a96ccc827ec1317d3ca4763ebc97dc7",
+      "text": "Wird gesagt, wenn sich etwas ändert. Gibt ``listener`` zurück, um das Abmelden zu beenden.\n\nHörer werden von starken Verweisen gehalten und sind NICHT schwach: eine Ansicht, die abonniert, muss :meth:`unsubscribe`, wenn sie schließt, genau wie :class:`spacr.qt.linked_selection.LinkedView` muss nicht verlinken.\n\n:param listener: Aufrufbare Funktion, die jedes :class:`LayerEvent` empfängt; sie wird durch eine starke Referenz gehalten.",
       "translation_source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
+      ]
+    },
+    "spacr.layers.LayerStack.to_bottom": {
+      "source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "2c4e5a81230c6aa517ba256075cfb7916b2522771553763d477b5adb6cfa3a4d",
+      "text": "Eine Ebene an das Ende des Stapels verschieben.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Verschieben.",
+      "translation_source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ]
+    },
+    "spacr.layers.LayerStack.to_top": {
+      "source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "7648f3524e9c0407039ab77348af494dc0607d388ba15123e8b38ff4f891707d",
+      "text": "Legen Sie eine Ebene an die Vorderseite des Stapels.\n\n:param layer: Layer-Objekt, eindeutiger Ebenenname oder Integer-Stack-Index zum Verschieben.",
+      "translation_source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
       ]
     },
     "spacr.layers.LayerStack.units": {
@@ -30940,12 +31152,14 @@
     },
     "spacr.layers.LayerStack.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Hör auf, es zu sagen. ``True`` Wenn dieser Anruf es entfernt hat.",
+      "source_sha256": "8e090f82185bff494bdee81622acc5fb8451afeec73d42e0d3cc3fc6e9d41bb6",
+      "text": "Hör auf, es zu sagen. ``True`` Wenn dieser Anruf es entfernt hat.\n\n:param listener: Zuvor abonnierter Ereignisrückruf, der entfernt werden soll.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ]
     },
     "spacr.layers.LayerStack.world_extent": {
@@ -30968,10 +31182,14 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ],
-      "source_sha256": "2b75a74eb22ab14e902efb40ce88c60343cc91338bb24242160717ecd70ab793",
-      "text": "Die drei Bildlagen eines Volumens wurden so angelegt, dass sie sich aufreihen.\n\nEin z-Stack, der nur von oben gesehen wird, verbirgt das, wofür ein z-Stack erworben wird. Die drei Leinwände hier sind die obere und die beiden Seitenansichten durch ein Fadenkreuz, angeordnet wie ImageJs orthogonale Ansichten sind:\n\n* :attr:`xy` — die Ansicht oben, die Zeilen ``y`` und die Spalten ``x``, in der Tiefe ``z``;\n* :attr:`zx` — NACH ihr, Zeilen ``z`` und Spalten ``x``, so dass sie ihre Spalten mit der Ansicht oben teilen;\n* :attr:`yz` — BESIDE es, Zeilen ``y`` und Spalten ``z``, so teilt es seine Zeilen mit der oberen Ansicht.\n\n**Jedes Panel verwendet eine Welt-Einheiten-pro-Pixel-Skala.** Das ist die ganze Schwierigkeit, und deshalb ist dies eine Klasse statt drei :meth:`Canvas.covering` Anrufe. Konfokale Stapel in dieser Codebase sind routinemäßig 0,65 µm in xy und 2 µm in z; eine Seitenansicht gezeichnet ein Pixel pro Scheibe ist dreimal zu dünn, und es sieht nicht falsch aus — es sieht aus wie eine leicht flache Zelle. Nukleare Sphärikität, Kolokalisierungstiefe und jede 3-D-Form Funktion abgelesen ein solches Bild sind falsch durch einen Faktor, den niemand sieht. Hier sind die Seitenansichten :math:`z_{span}/step` Pixel hoch, also ein 10-Slice 2 µm Stapel ist 31 px einer 0.65 µm/px Ansicht, nicht 10.\n\nBaue eins mit :meth:`covering` und verschiebe das Fadenkreuz mit :meth:`at`.",
+      "source_sha256": "37e013953329b5c1d534589475c650a0827d965212edaf5d0b41d6c82451c43c",
+      "text": "Die drei Bildlagen eines Volumens wurden so angelegt, dass sie sich aufreihen.\n\nEin z-Stack, der nur von oben gesehen wird, verbirgt das, wofür ein z-Stack erworben wird. Die drei Leinwände hier sind die obere und die beiden Seitenansichten durch ein Fadenkreuz, angeordnet wie ImageJs orthogonale Ansichten sind:\n\n* :attr:`xy` — die Ansicht oben, die Zeilen ``y`` und die Spalten ``x``, in der Tiefe ``z``;\n* :attr:`zx` — NACH ihr, Zeilen ``z`` und Spalten ``x``, so dass sie ihre Spalten mit der Ansicht oben teilen;\n* :attr:`yz` — BESIDE es, Zeilen ``y`` und Spalten ``z``, so teilt es seine Zeilen mit der oberen Ansicht.\n\n**Jedes Panel verwendet eine Welt-Einheiten-pro-Pixel-Skala.** Das ist die ganze Schwierigkeit, und deshalb ist dies eine Klasse statt drei :meth:`Canvas.covering` Anrufe. Konfokale Stapel in dieser Codebase sind routinemäßig 0,65 µm in xy und 2 µm in z; eine Seitenansicht gezeichnet ein Pixel pro Scheibe ist dreimal zu dünn, und es sieht nicht falsch aus — es sieht aus wie eine leicht flache Zelle. Nukleare Sphärikität, Kolokalisierungstiefe und jede 3-D-Form Funktion abgelesen ein solches Bild sind falsch durch einen Faktor, den niemand sieht. Hier sind die Seitenansichten :math:`z_{span}/step` Pixel hoch, also ein 10-Slice 2 µm Stapel ist 31 px einer 0.65 µm/px Ansicht, nicht 10.\n\nBaue eins mit :meth:`covering` und verschiebe das Fadenkreuz mit :meth:`at`.\n\n:param xy: Canvas der Draufsicht, dessen Zeilen und Spalten die zweite und dritte Volumenachse abdecken.\n:param zx: Canvas der unteren Seitenansicht, dessen Zeilen die Tiefe abdecken und dessen Spalten an :attr:`xy` ausgerichtet sind.\n:param yz: Canvas der Seitenansicht, dessen Zeilen an :attr:`xy` ausgerichtet sind und dessen Spalten die Tiefe abdecken.\n:param point: Zuordnung von Weltachsennamen zu den Koordinaten des gemeinsamen Fadenkreuzes.",
       "translation_source_blocks_sha256": [
         "b72972c43719e6b9dd2c816ea35f67471dea9c18f7335146511e036f724738d0",
         "4c72efac983619abe219f91e9767b8e1c7937d976a34c5d75466a1ef5137b08f",
@@ -30979,7 +31197,11 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ]
     },
     "spacr.layers.OrthoViews.at": {
@@ -30997,13 +31219,19 @@
     "spacr.layers.OrthoViews.at_pixel": {
       "source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ],
-      "source_sha256": "e22e20e6e83c86de844acb9d76f0171313052eec1acb3058bd1400f9e30b6af2",
-      "text": "Bewegen Sie das Fadenkreuz zum Weltpunkt unter einem Pixel eines Panels.\n\nKlicken Sie auf die Seitenansicht, um die Scheibe der oberen Ansicht zu verschieben, was die Interaktion ist, für die eine orthogonale Ansicht ist.",
+      "source_sha256": "e4015cbe1fb3d9b38e38184ff9186468e95cbfd1046880f1169eb0dbed990fde",
+      "text": "Bewegen Sie das Fadenkreuz zum Weltpunkt unter einem Pixel eines Panels.\n\nKlicken Sie auf die Seitenansicht, um die Scheibe der oberen Ansicht zu verschieben, was die Interaktion ist, für die eine orthogonale Ansicht ist.\n\n:param panel: Panelschlüssel: ``\"xy\"``, ``\"zx\"`` oder ``\"yz\"``.\n:param row: Gebrochene Zeilenkoordinate innerhalb des ausgewählten Panels.\n:param column: Gebrochene Spaltenkoordinate innerhalb des ausgewählten Panels.",
       "translation_source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ]
     },
     "spacr.layers.OrthoViews.axes": {
@@ -31072,32 +31300,38 @@
     },
     "spacr.layers.OrthoViews.n_slices": {
       "source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ],
-      "source_sha256": "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
-      "text": "Wie viele Scheiben der Schieberegler auf ``axis`` hat.",
+      "source_sha256": "6afd266348961d5dcdeca9e963e657393c8b4d8c8e969bff7e5d46d5212dd767",
+      "text": "Wie viele Scheiben der Schieberegler auf ``axis`` hat.\n\n:param axis: Weltachse, deren Ausmaß und Voxelschritt die Zählung definieren.",
       "translation_source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ]
     },
     "spacr.layers.OrthoViews.render": {
       "source_blocks_sha256": [
-        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e"
+        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ],
-      "source_sha256": "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
-      "text": "``{panel: (H, W, 3)}`` — derselbe Stapel, der auf allen drei Bildlagen gezeichnet wird.",
+      "source_sha256": "7ef8064f1fd4169b359ed7d33952bf6022b2168bb8034380896b68437ab026b8",
+      "text": "``{panel: (H, W, 3)}`` — derselbe Stapel, der auf allen drei Bildlagen gezeichnet wird.\n\n:param stack: Ebenenstapel, der über jeden orthogonalen Canvas gerendert wird.",
       "translation_source_blocks_sha256": [
-        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb"
+        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ]
     },
     "spacr.layers.OrthoViews.resized": {
       "source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ],
-      "source_sha256": "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
-      "text": "Das gleiche Fadenkreuz bei einer anderen Pixelbreite, die Platten noch ausgerichtet.",
+      "source_sha256": "2e6c7485d0b98803414fe4d85aea541725d253833239b01be25d9b651806c322",
+      "text": "Das gleiche Fadenkreuz bei einer anderen Pixelbreite, die Platten noch ausgerichtet.\n\n:param width: Neue Top-Panel-Breite in Pixeln; abgeleitete Panel-Abmessungen bleiben auf die gleiche Weltskala ausgerichtet.",
       "translation_source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ]
     },
     "spacr.layers.OrthoViews.scale": {
@@ -31113,25 +31347,29 @@
     "spacr.layers.OrthoViews.slider": {
       "source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ],
-      "source_sha256": "a07551dcd2dbd286df7b9dcecb8323e5a2eee618de9446a3708ee6188c1ccc8c",
-      "text": "``(low, high, step)`` in WORLD-Einheiten für einen Scheibenschieber.\n\nDer Schritt ist die eigene Voxelgröße der Quelle entlang dieser Achse, also bewegt sich das Ziehen des Schiebereglers eine Scheibe zu einer Zeit und nicht ein beliebiger Bruchteil des Volumens — und ein µm-kalibrierter Schieberegler des Stapels wird in µm markiert, was die Zahl ist, die ein Benutzer gegen die Erfassungseinstellungen überprüfen kann.",
+      "source_sha256": "42401bb79d74e5cbd94edfc285d1da23dfdb445f1e89e6d6d6130220bb997b83",
+      "text": "``(low, high, step)`` in WORLD-Einheiten für einen Scheibenschieber.\n\nDer Schritt ist die eigene Voxelgröße der Quelle entlang dieser Achse, also bewegt sich das Ziehen des Schiebereglers eine Scheibe zu einer Zeit und nicht ein beliebiger Bruchteil des Volumens — und ein µm-kalibrierter Schieberegler des Stapels wird in µm markiert, was die Zahl ist, die ein Benutzer gegen die Erfassungseinstellungen überprüfen kann.\n\n:param axis: Weltachse, für die Grenzen und Voxelschritt zurückgegeben werden.",
       "translation_source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ]
     },
     "spacr.layers.OrthoViews.zoomed": {
       "source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ],
-      "source_sha256": "acd215310f8dc4d25dd6a1f3ca2d57c75d632e57db76fa2d2ead807786dbc5c8",
-      "text": "Jedes Panel ``factor`` mal näher, um das Fadenkreuz.\n\nAlle drei zusammen, und über das Fadenkreuz anstatt über die eigene Mitte jedes Panels, so dass die Platten noch nach oben reihen.",
+      "source_sha256": "f218382523598225c5a996d0db5aa48a14139f91128b3e7cae848d48ad25c799",
+      "text": "Jedes Panel ``factor`` mal näher, um das Fadenkreuz.\n\nAlle drei zusammen, und über das Fadenkreuz anstatt über die eigene Mitte jedes Panels, so dass die Platten noch nach oben reihen.\n\n:param factor: Positiver endlicher Vergrößerungsfaktor, der auf jedes Panel angewendet wird; Werte größer als eins zoomen hinein.",
       "translation_source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ]
     },
     "spacr.layers.PointsLayer": {
@@ -31154,22 +31392,26 @@
     },
     "spacr.layers.PointsLayer.add": {
       "source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ],
-      "source_sha256": "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
-      "text": "Fügen Sie einen Punkt in DATA-Koordinaten an; gibt seinen Index zurück.",
+      "source_sha256": "3d69d2809dcae8483972d4751ab95f07f7972c18d0b4d194103887a92b4bd04f",
+      "text": "Fügen Sie einen Punkt in DATA-Koordinaten an; gibt seinen Index zurück.\n\n:param point: Datenkoordinatensequenz mit einem Wert pro Schichtachse.",
       "translation_source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ]
     },
     "spacr.layers.PointsLayer.add_world": {
       "source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ],
-      "source_sha256": "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
-      "text": "Fügen Sie einen Punkt als ``{axis: world}`` an.",
+      "source_sha256": "c783505993a85d7b3948d3b1a155d3e2ba2030679e2a9b996dbe425196bdc4f4",
+      "text": "Fügen Sie einen Punkt als ``{axis: world}`` an.\n\n:param world: Zuordnung von Achsennamen zu Weltkoordinaten; ausgelassene Ebenenachsen werden an der Weltkoordinate null ausgewertet.",
       "translation_source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ]
     },
     "spacr.layers.PointsLayer.border_width": {
@@ -31205,32 +31447,38 @@
     },
     "spacr.layers.PointsLayer.nearest": {
       "source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ],
-      "source_sha256": "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
-      "text": "Index des Punktes, dessen Scheibe ``world``, zuerst am nächsten liegt.",
+      "source_sha256": "d5874f95281f3675072c764349c10fe51e027ac35bb30a7072371841482c1d57",
+      "text": "Index des Punktes, dessen Scheibe ``world``, zuerst am nächsten liegt.\n\n:param world: Mapping von Achsennamen zum Abfragepunkt in Weltkoordinaten; weggelassene Ebenenachsen werden bei Null ausgewertet.",
       "translation_source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ]
     },
     "spacr.layers.PointsLayer.remove": {
       "source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ],
-      "source_sha256": "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
-      "text": "Lassen Sie einen Punkt fallen.",
+      "source_sha256": "d6d4506e32187c8fe006bb6a67a77abe0071c04c9482bee504fb1d2e402995ae",
+      "text": "Lassen Sie einen Punkt fallen.\n\n:param index: Nullbasierter Index des zu entfernenden Punktes; negative Indizes werden abgelehnt.",
       "translation_source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ]
     },
     "spacr.layers.PointsLayer.set_size": {
       "source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ],
-      "source_sha256": "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
-      "text": "Stellen Sie jeden Punkt Durchmesser, oder einen pro Punkt.",
+      "source_sha256": "b8b9809e4fda9d1e845bca224edb21f35c740f5771e9f0167a930eb2e8c157be",
+      "text": "Stellen Sie jeden Punkt Durchmesser, oder einen pro Punkt.\n\n:param value: Skalarer Durchmesser, der auf jeden Punkt angewendet wird, oder eine arrayartige Folge mit einem Durchmesser in Welteinheiten pro Punkt.",
       "translation_source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ]
     },
     "spacr.layers.PointsLayer.size": {
@@ -31296,12 +31544,66 @@
     },
     "spacr.layers.ShapesLayer.add": {
       "source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
       ],
-      "source_sha256": "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
-      "text": "Anhängen einer Form; gibt seinen Index zurück.",
+      "source_sha256": "2bfeec03044fbbe8bf926596b631b8b37c682b995a98a561a278b3b42de377fe",
+      "text": "Anhängen einer Form; gibt seinen Index zurück.\n\n:param shape: :class:`Shape` mit der gleichen Dimensionalität wie diese Ebene.",
       "translation_source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_ellipse": {
+      "source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ],
+      "source_sha256": "f1d9f3a788d5883f722c2f1f79446c81832bec8d86a4d4d2abe76110df18c3e2",
+      "text": "Eine achsenparallele Ellipse in einem durch gegenüberliegende Ecken definierten Rechteck hinzufügen.\n\n:param corner_a: Erste Ecke des Begrenzungsrahmens in Datenkoordinaten, ein Wert pro Achse.\n:param corner_b: Gegenüberliegende Ecke des Begrenzungsrahmens in Datenkoordinaten, ein Wert pro Achse.",
+      "translation_source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_path": {
+      "source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ],
+      "source_sha256": "f65a3e822260e8f9029620daf67fcf6b69083229deb18bd386ba172b21bd94ff",
+      "text": "Einen offenen Pfad hinzufügen.\n\n:param vertices: Arrayähnliche Eckpunkte in Datenkoordinaten, geformt ``(M, ndim)`` mit mindestens zwei Zeilen.",
+      "translation_source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_polygon": {
+      "source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ],
+      "source_sha256": "694adfc8f8ccfe61f0552bf1adb5fd6b67089f8fce7ef898b80607dca1270aed",
+      "text": "Ein geschlossenes Polygon anhängen.\n\n:param vertices: Arrayähnliche Eckpunkte in Datenkoordinaten, geformt ``(M, ndim)`` mit mindestens drei Zeilen.",
+      "translation_source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_rectangle": {
+      "source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
+      ],
+      "source_sha256": "e9d5686e0baf47cb1a32e97597676e325bd3e6124898765b6d3c49644c164ac7",
+      "text": "Ein achsenorientiertes Rechteck von gegenüberliegenden Ecken anhängen.\n\n:param corner_a: Erste Ecke in Datenkoordinaten, ein Wert pro Achse.\n:param corner_b: Gegenüberstehende Ecke in Datenkoordinaten, ein Wert pro Achse.",
+      "translation_source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
       ]
     },
     "spacr.layers.ShapesLayer.mask": {
@@ -31309,15 +31611,17 @@
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4"
       ],
-      "source_sha256": "245ac0f9839a35e7a1b7bdc1a807c619a8415fe2e6607c831b221b9d9e5ae54f",
-      "text": "Die beiliegenden Formen auf ``canvas``; ``(H, W)`` bool rastern.\n\nDie Umwandlung Maß benötigt: Hand es ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` und die ROI kommt zurück auf das eigene Raster dieser Schicht, auf welches Gitter es gezogen wurde.\n\nGrenzen sind HALF-OPEN: ein Pixelzentrum genau am unteren Rand eines Rechtecks ist darin und eins genau am oberen Rand ist es nicht. Das ist die eigene Konvention der ebenen Regel, und es ist die, die zählt — zwei ROIs teilen eine Kantenpartition die Pixel zwischen ihnen, anstatt beide behaupten, die Naht, so ein Objekt auf der Grenze wird einmal gezählt.\n\nOffene Formen (Linien, Pfade) umschließen nichts und tragen nichts bei.",
+      "source_sha256": "40ebc5e7b20343d4bdf7f3039c746dca512ad548b9c0e439d3d53179fad4664f",
+      "text": "Die beiliegenden Formen auf ``canvas``; ``(H, W)`` bool rastern.\n\nDie Umwandlung Maß benötigt: Hand es ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` und die ROI kommt zurück auf das eigene Raster dieser Schicht, auf welches Gitter es gezogen wurde.\n\nGrenzen sind HALF-OPEN: ein Pixelzentrum genau am unteren Rand eines Rechtecks ist darin und eins genau am oberen Rand ist es nicht. Das ist die eigene Konvention der ebenen Regel, und es ist die, die zählt — zwei ROIs teilen eine Kantenpartition die Pixel zwischen ihnen, anstatt beide behaupten, die Naht, so ein Objekt auf der Grenze wird einmal gezählt.\n\nOffene Formen (Linien, Pfade) umschließen nichts und tragen nichts bei.\n\n:param canvas: Weltebene und Pixelraster, auf denen die geschlossenen Formen rasterisiert werden.",
       "translation_source_blocks_sha256": [
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "d51f3daf5ec1b3e392613fb5d87fa96b2cd2a7b57cec000af658067feb9ebafd"
       ]
     },
     "spacr.layers.ShapesLayer.ndim": {
@@ -31333,12 +31637,14 @@
     },
     "spacr.layers.ShapesLayer.remove": {
       "source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ],
-      "source_sha256": "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
-      "text": "Lassen Sie eine Form fallen und geben Sie sie zurück.",
+      "source_sha256": "498b9d49d3ed3c1d9af0f1531f8c3c144f980ae5e1aa3e9b74f6335936302b69",
+      "text": "Lassen Sie eine Form fallen und geben Sie sie zurück.\n\n:param index: Integer Index der zu entfernenden Form; normale Python negative Indexierung wird akzeptiert.",
       "translation_source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ]
     },
     "spacr.layers.ShapesLayer.world_extent": {
@@ -31377,25 +31683,29 @@
     "spacr.layers.Spacing.axis_index": {
       "source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ],
-      "source_sha256": "7afb83103e2afa15ad8d9d626983ece2b96f0590d6baa5cb191768709d467fc8",
-      "text": "Position von ``axis`` in diesem Abstand.\n\n:raises LayerError: wenn dieser Abstand keine solche Achse hat.",
+      "source_sha256": "27fd6a76be317613b41443b99f9a897931182a143d993567924e0f495bf4f81e",
+      "text": "Position von ``axis`` in diesem Abstand.\n\n:param axis: Achsenname, der in :attr:`axes` lokalisiert werden soll.\n:raises LayerError: wenn dieser Abstand keine solche Achse hat.",
       "translation_source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ]
     },
     "spacr.layers.Spacing.data_from_map": {
       "source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ],
-      "source_sha256": "296763bc6cc9dc4ff02d88d91c454ee0132496092eef5ff5a45b71b9bc6afea5",
-      "text": "Bruchdatenindex aus einem ``{axis: world}`` Mapping.\n\nDie im Mapping nicht erwähnten Achsen werden als 0 in Welteinheiten betrachtet, was ein 2-D-Klick auf eine 3-D-Ebene bedeutet, sobald der Betrachter die angezeigte Scheibe geliefert hat.",
+      "source_sha256": "62e34087483880aae4ba9c8e5f98abddccfd561cd62a810e92cf45c12b1ee8b6",
+      "text": "Bruchdatenindex aus einem ``{axis: world}`` Mapping.\n\nDie im Mapping nicht erwähnten Achsen werden als 0 in Welteinheiten betrachtet, was ein 2-D-Klick auf eine 3-D-Ebene bedeutet, sobald der Betrachter die angezeigte Scheibe geliefert hat.\n\n:param world: Zuordnung von Achsennamen zu Weltkoordinaten. Nicht angegebene Abstandsachsen werden an der Weltkoordinate null ausgewertet.",
       "translation_source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ]
     },
     "spacr.layers.Spacing.describe": {
@@ -31411,25 +31721,41 @@
     "spacr.layers.Spacing.extent": {
       "source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ],
-      "source_sha256": "36c184514f8d4a8f09c4090674a146bd3448ea964e62891d63bf9646bc8b6ce5",
-      "text": "Weltumrandungsbox mit einem Array von ``shape``, akkordiert durch Achse.\n\nGemessen an der OUTER EDGE der Endelemente (ein halbes Voxel über die ersten und letzten Zentren hinaus), denn das ist die Region, die die Daten tatsächlich abdecken — eine Leinwand, die an Elementzentren angebracht ist, klammert einen halben Voxels von jeder Seite ab, was bei 2 µm z-Schritten eine sichtbare Platte ist.",
+      "source_sha256": "dd53f648c3b8d249d00fcc6bbb4cdf066b0eb770c8e48b881e1d720f361a611c",
+      "text": "Weltumrandungsbox mit einem Array von ``shape``, akkordiert durch Achse.\n\nGemessen an der OUTER EDGE der Endelemente (ein halbes Voxel über die ersten und letzten Zentren hinaus), denn das ist die Region, die die Daten tatsächlich abdecken — eine Leinwand, die an Elementzentren angebracht ist, klammert einen halben Voxels von jeder Seite ab, was bei 2 µm z-Schritten eine sichtbare Platte ist.\n\n:param shape: Arrayform in :attr:`axes` Reihenfolge, mit einer Größe pro Abstandsachse.",
       "translation_source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ]
     },
     "spacr.layers.Spacing.from_map": {
       "source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c"
+        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
       ],
-      "source_sha256": "79321e8be4b91d6a9eb15039791904144fff79526c5e7b5bb2d10d8214ebad02",
-      "text": "Bauen Sie aus ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nDie Reihenfolge ist die eigene, die für ein Key-Value-Mapping wörtlich die Reihenfolge ist, in der sie geschrieben wurde – die gleiche Reihenfolge wie die Achsen des Arrays sind in. Die Achsen an der Call-Site zu benennen, ist der Punkt: ``(2.0, 0.65, 0.65)`` allein wurde vorher rückwärts gelesen.",
+      "source_sha256": "c3f4d833de0cc8dd226a2105dcc11d0dbc65c68ecb7864cb3c0f4eae89929e72",
+      "text": "Bauen Sie aus ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nDie Reihenfolge ist die eigene, die für ein Key-Value-Mapping wörtlich die Reihenfolge ist, in der sie geschrieben wurde – die gleiche Reihenfolge wie die Achsen des Arrays sind in. Die Achsen an der Call-Site zu benennen, ist der Punkt: ``(2.0, 0.65, 0.65)`` allein wurde vorher rückwärts gelesen.\n\n:param sizes: Zuordnung vom Achsennamen zu einer endlichen Voxelgröße ungleich null; die Iterationsreihenfolge der Zuordnung wird zur Reihenfolge der Arrayachsen.",
       "translation_source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525"
+        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
+      ]
+    },
+    "spacr.layers.Spacing.has_axis": {
+      "source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
+      ],
+      "source_sha256": "61fcd66c2efe3bf5e40cf76dde754d3f0e24bed1258ce2fc4e597d2a318a2758",
+      "text": "Ob dieser Abstand ``axis`` enthält.\n\n:param axis: Zu prüfender Achsenname nach Umwandlung in eine Zeichenkette.",
+      "translation_source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
       ]
     },
     "spacr.layers.Spacing.isotropic": {
@@ -31454,22 +31780,26 @@
     },
     "spacr.layers.Spacing.to_data": {
       "source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ],
-      "source_sha256": "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
-      "text": "Weltkoordinate → (fraktioneller) Datenindex, pro Achse.",
+      "source_sha256": "7247239dbc50ab4d4769f4891dce4e76b8af6474dcaaeae019e821b86f511f7b",
+      "text": "Weltkoordinate → (fraktioneller) Datenindex, pro Achse.\n\n:param world: Weltkoordinate in :attr:`axes` Reihenfolge, mit einem Eintrag pro Abstandsachse.",
       "translation_source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ]
     },
     "spacr.layers.Spacing.to_world": {
       "source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ],
-      "source_sha256": "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
-      "text": "Datenindex → Weltkoordinate, pro Achse.",
+      "source_sha256": "9f126591f87d9055df66f6d259f3ae9cc7185ea088453f1c545c44e1537312d4",
+      "text": "Datenindex → Weltkoordinate, pro Achse.\n\n:param index: Gebrochene Datenkoordinate in der Reihenfolge :attr:`axes`, mit einem Eintrag pro Abstandsachse.",
       "translation_source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ]
     },
     "spacr.layers.Spacing.translated": {
@@ -31484,12 +31814,14 @@
     },
     "spacr.layers.Spacing.world_map": {
       "source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ],
-      "source_sha256": "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
-      "text": ":meth:`to_world` mit dem Achsennamen gekennzeichnet.",
+      "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
+      "text": ":meth:`to_world` mit dem Achsennamen gekennzeichnet.\n\n:param index: Gebrochene Datenkoordinate in der Reihenfolge :attr:`axes`.",
       "translation_source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ]
     },
     "spacr.layers.colormap": {
@@ -31497,14 +31829,16 @@
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ],
-      "source_sha256": "09829fae1667dfd1d47de9aa74496240f9805e32fdf9e14ee2c43adb8d084335",
-      "text": "Lösen Sie ``spec`` auf eine :class:`Colormap`.\n\nEs nimmt einen :class:`Colormap` (unverändert) an, einen Namen in :data:`COLORMAPS`, eine Farbe (jede :func:`to_rgba`-Form), die zu einer schwarzen→Farbrampe wird, oder – als letztes Mittel – einen Namen für die Farbkarte matplotlib.\n\nMatplotlib wird zuletzt und lazily versucht. Dieses Modul muss importierbar bleiben, wo matplotlib nicht installiert und billig in einen Worker-Prozesse importiert wird, also ist es nie eine harte Abhängigkeit; aber wenn ein Benutzertypen ``\"viridis\"`` und matplotlib vorhanden ist, wäre die Ablehnung pedantry.\n\n:raises LayerError: wenn ``spec`` nichts nennt.",
+      "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
+      "text": "Lösen Sie ``spec`` auf eine :class:`Colormap`.\n\nEs nimmt einen :class:`Colormap` (unverändert) an, einen Namen in :data:`COLORMAPS`, eine Farbe (jede :func:`to_rgba`-Form), die zu einer schwarzen→Farbrampe wird, oder – als letztes Mittel – einen Namen für die Farbkarte matplotlib.\n\nMatplotlib wird zuletzt und lazily versucht. Dieses Modul muss importierbar bleiben, wo matplotlib nicht installiert und billig in einen Worker-Prozesse importiert wird, also ist es nie eine harte Abhängigkeit; aber wenn ein Benutzertypen ``\"viridis\"`` und matplotlib vorhanden ist, wäre die Ablehnung pedantry.\n\n:param spec: Vorhandene :class:`Colormap`, Name einer integrierten oder einer matplotlib-Farbkarte oder eine Farbangabe, aus der eine Rampe von Schwarz zur Farbe erstellt wird.\n:raises LayerError: wenn ``spec`` nichts nennt.",
       "translation_source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ]
     },
@@ -31512,26 +31846,30 @@
       "source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ],
-      "source_sha256": "d70a1cd5ad3faca333aceb4c87ddc70789d0f27995f446007e29520fb9c87820",
-      "text": "Eine stabile, lebendige Farbe für Ganzzahl ``label``.\n\nGolden-Ratio Farbabstand mit einem deterministischen Sättigungs-/Wert-Jitter, so dass angrenzende Etiketten weit voneinander entfernt sind und das gleiche Objekt seine Farbe über Zooms, Re-Renders und Sitzungen hinweg hält. Label 0 ist Hintergrund und ist schwarz (Caller zeichnen es transparent).\n\nDie Konstruktion ist absichtlich die gleiche, die :func:`spacr.qt.widgets.live_preview._random_outline_palette` für Umrisse verwendet, also hat eine Maske die gleichen Objektfarben in beiden Betrachtern. Sie wird umfunktioniert anstatt importiert, weil dieses Modul PySide6 importiert und diese nicht – siehe Modul-Dokstring.",
+      "source_sha256": "fb3ac6337fe21dc9e4e45a73452f5672c76ca40c0e4282cb5c1203860d5e3873",
+      "text": "Eine stabile, lebendige Farbe für Ganzzahl ``label``.\n\nGolden-Ratio Farbabstand mit einem deterministischen Sättigungs-/Wert-Jitter, so dass angrenzende Etiketten weit voneinander entfernt sind und das gleiche Objekt seine Farbe über Zooms, Re-Renders und Sitzungen hinweg hält. Label 0 ist Hintergrund und ist schwarz (Caller zeichnen es transparent).\n\nDie Konstruktion ist absichtlich die gleiche, die :func:`spacr.qt.widgets.live_preview._random_outline_palette` für Umrisse verwendet, also hat eine Maske die gleichen Objektfarben in beiden Betrachtern. Sie wird umfunktioniert anstatt importiert, weil dieses Modul PySide6 importiert und diese nicht – siehe Modul-Dokstring.\n\n:param label: Integer-ähnliches Objekt-Label. Label 0 ist für die schwarze Hintergrundfarbe reserviert.",
       "translation_source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ]
     },
     "spacr.layers.label_colors": {
       "source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ],
-      "source_sha256": "eb2f8980cec8017542fd9dd67ab763b32a76bc1119422ed8575e08a05a6b4d29",
-      "text": ":func:`label_color` über ein Array, ``(..., 3)`` float32 zurückgeben.\n\nErbaut durch das Aufsuchen der einzigartigen Etiketten einmal anstatt pro Pixel: eine 2048×2048 Maske enthält ein paar hundert Objekte und Dutzende von Millionen von Pixeln.",
+      "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
+      "text": ":func:`label_color` über ein Array, ``(..., 3)`` float32 zurückgeben.\n\nErbaut durch das Aufsuchen der einzigartigen Etiketten einmal anstatt pro Pixel: eine 2048×2048 Maske enthält ein paar hundert Objekte und Dutzende von Millionen von Pixeln.\n\n:param labels: Arrayartige Ganzzahl-Etiketten; die Ausgabe bewahrt ihre Form und fügt eine RGB Achse an.",
       "translation_source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ]
     },
     "spacr.layers.to_rgba": {
@@ -49906,14 +50244,20 @@
     },
     "spacr.qt.app.MainWindow.eventFilter": {
       "source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ],
-      "source_sha256": "aa02a7e221ca124cc7e424f497be745e0b8021f7381773edcf4e7649f1c0198d",
-      "text": "Ziehen Sie das rahmenlose Fenster durch seine Menüleiste und maximieren Sie bei einem Doppelklick dort - die beiden Gesten, die die Titelleiste trug.\n\n`getattr`, nicht `self.menuBar()`: Qt liefert während des Abrisses Ereignisse an einen Filter weiter, nachdem Python die Attribute des Objekts gelöscht hat.",
+      "source_sha256": "7593037df2981dfe4776d8272cb83b810ac86583dfd0dca0cfcdb46a447743a7",
+      "text": "Drag- und Doppelklickgesten an der Menüleiste eines rahmenlosen Fensters verarbeiten.\n\nBeim Herunterfahren kann die Qt-Menüleiste ungültig werden, während noch Ereignisse in der Warteschlange stehen. Dieser Filter gibt ``False`` zurück, statt zuzulassen, dass dieser Zustand die Rückrufgrenze von PySide überschreitet.\n\n:param watched: Qt-Objekt, das das Ereignis empfängt.\n:param event: Qt-Ereignis, das an den Filter des Hauptfensters übergeben wird.\n:returns: ``True``, wenn eine Mausgeste an der Menüleiste verarbeitet wird; andernfalls ``False``.",
       "translation_source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ]
     },
     "spacr.qt.app.MainWindow.keyPressEvent": {

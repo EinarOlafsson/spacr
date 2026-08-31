@@ -29853,12 +29853,14 @@
     "spacr.layers.Blending.check": {
       "source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ],
-      "source_sha256": "21bb1e2a0c770536dd1f525c7dfdbbc83cb543b21435da282b6a21748b92b490",
-      "text": "Normalize e valide um nome de mistura.\n\n:raises LayerError: em um modo desconhecido – um erro de digitação que silenciosamente caiu de volta para translúcido seria um bug de composição que ninguém poderia ver.",
+      "source_sha256": "96ce0cbec8e88a264f3e24405c72a9e5d927ea871c82f2189283c3d3b1ede2d0",
+      "text": "Normalize e valide um nome de mistura.\n\n:param mode: Nome do modo de mistura. Os espaços em branco iniciais e finais e o uso de maiúsculas e minúsculas são normalizados antes da validação com :attr:`Blending.ALL`.\n:raises LayerError: em um modo desconhecido – um erro de digitação que silenciosamente caiu de volta para translúcido seria um bug de composição que ninguém poderia ver.",
       "translation_source_blocks_sha256": [
         "b68e8a8df628c077820bdd886c2b006678a730de66934d92dc541bcf15988bca",
+        "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
         "14cd27dcd41911e82fd2485451c9fb888edf14ed98bbed0472a911521483bda1"
       ]
     },
@@ -29942,36 +29944,46 @@
     },
     "spacr.layers.Canvas.panned": {
       "source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ],
-      "source_sha256": "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
-      "text": "Uma tela movida por ``(d_row, d_column)`` pixels de tela.",
+      "source_sha256": "9c0f1688eb9ed5fb65c6da5c8217e54b644062cb27400d3249984ff5ac9e94ca",
+      "text": "Uma tela movida por ``(d_row, d_column)`` pixels de tela.\n\n:param d_row: Deslocamento com sinal em pixels de linha da tela.\n:param d_column: Deslocamento com sinal em pixels de coluna da tela.",
       "translation_source_blocks_sha256": [
-        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b"
+        "ba9a64479fbad631f8a633c21f9da330a35fab21ce267cf610bd417e67a5391b",
+        "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+        "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023"
       ]
     },
     "spacr.layers.Canvas.pixel_at": {
       "source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746"
       ],
-      "source_sha256": "246f4a13bddc9f55d861fd4a2a41de798fd900b5be933aaa2b0f068a3e9dc3f0",
-      "text": "O pixel (fracional) de tela em que um ponto mundial cai.\n\nO inverso de :meth:`world_at`, e a razão pela qual uma camada de pontos e uma camada de etiquetas no mesmo mundo coordenam a terra no mesmo pixel: ambos são colocados através disso, não através de seus próprios índices de matriz.",
+      "source_sha256": "056971ed788048626de9f4d77c17da1e63ec7bede4a9bbe0ebcb3947ca9a5b59",
+      "text": "O pixel de tela (fracionado) em que um ponto do mundo cai.\n\nO inverso de :meth:`world_at`, e a razão pela qual uma camada de pontos e uma camada de etiquetas no mesmo mundo coordenam a terra no mesmo pixel: ambos são colocados através disso, não através de seus próprios índices de matriz.\n\n:param world: Mapeamento que contém coordenadas de mundo para ambos os eixos da camada de imagem desta tela.",
       "translation_source_blocks_sha256": [
         "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
-        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2"
+        "84cba413d930762e097f5cbc41d79dc53d353030789cdd4cb13c33e83cd957b2",
+        "50bbcaa2a89abab895d930d232b8fca2b663fba0a31f8663ea1f620412d12a15"
       ]
     },
     "spacr.layers.Canvas.resized": {
       "source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ],
-      "source_sha256": "520cf1b8fd5c19fb4d41cb8db1d459d63f87714e9e60c34dea83b47e1b9fabd1",
-      "text": "A mesma janela de mundo com um tamanho de pixel diferente.\n\nO mundo *span* é mantido, não o passo, então um widget redimensiona mostra o mesmo campo de visão em vez de mais da amostra.",
+      "source_sha256": "882d3cee83c907dcef6e91a1a3294a3a4e19127afc78180ca19651c65c19c281",
+      "text": "A mesma janela de mundo com um tamanho de pixel diferente.\n\nO mundo *span* é mantido, não o passo, então um widget redimensiona mostra o mesmo campo de visão em vez de mais da amostra.\n\n:param height: Nova altura da tela em pixels, ajustada para no mínimo um.\n:param width: Nova largura da tela em pixels, ajustada para no mínimo um.",
       "translation_source_blocks_sha256": [
         "af66de4a3b359b50c4485de6df26067878991fa5531678d21f6074be05caef3c",
-        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445"
+        "0a0fe6a69ea7313d90d55d584e4fc54a9091f7f5a7731137638a8e803effc445",
+        "161a433d823721da750052f508610cdd2a97916f349f547cb1aea0542d65e046",
+        "b71eafad120c2c1d147f2818829493f867610a9d62307ab637b47dbdc1de710e"
       ]
     },
     "spacr.layers.Canvas.row_world": {
@@ -29987,25 +29999,31 @@
     "spacr.layers.Canvas.world_at": {
       "source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ],
-      "source_sha256": "157241154cd79e1cf4f1ff7c3c7515858eb75e8c7523407fc7ab6d8348f0144c",
-      "text": "O ponto do mundo sob o pixel da tela ``(row, column)``.\n\nInclui os eixos :attr:`depth` fixados, de modo que o resultado é uma posição de mundo completa sobre a qual uma camada pode ser questionada.",
+      "source_sha256": "dea1842446c4c99bede31498b1dcfcca4a6edce250c638b7f8ffc5857508d13f",
+      "text": "O ponto do mundo sob o pixel da tela ``(row, column)``.\n\nInclui os eixos :attr:`depth` fixados, de modo que o resultado é uma posição de mundo completa sobre a qual uma camada pode ser questionada.\n\n:param row: Coordenada fracionária de linha da tela.\n:param column: Coordenada fracionária de coluna da tela.",
       "translation_source_blocks_sha256": [
         "33ca7ebab7c5a9194f47e7a6d747bf6f74763e445d62e4ac5a64d90779cf2661",
-        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89"
+        "807902b8f81e0d325ff0e99ef1126455778fc129abd578dfa4bb584f6bc3bf89",
+        "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+        "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39"
       ]
     },
     "spacr.layers.Canvas.zoomed": {
       "source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ],
-      "source_sha256": "c01d143a6c3fc93939658022c9dd37ee5eeb75862cf2babaf158e49f231ad512",
-      "text": "Uma tela ``factor``× Mais perto, sobre ``centre`` (pixels de canvas).\n\n``factor > 1`` aumenta o zoom. O centro padrão é o meio da visualização, que é o que um zoom do teclado significa; um zoom da roda passa o cursor.",
+      "source_sha256": "d2717209129b3c2f5aa40aa3166873044e524aeab0a8d75b71e3bc0a4ad240c8",
+      "text": "Uma tela ``factor``× mais próxima, sobre  ``centre`` (pixels de lona).\n\n``factor > 1`` aumenta o zoom. O centro padrão é o meio da visualização, que é o que um zoom do teclado significa; um zoom da roda passa o cursor.\n\n:param factor: Fator de ampliação positivo e finito; valores maiores que um aproximam e valores menores que um afastam.",
       "translation_source_blocks_sha256": [
         "ac145a54f3a975ed227c341ff429f8d95f514f7eb95ddd376c58c927d3d343ae",
-        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339"
+        "f4c6f10963efd4753e65f0616a3af383966840a47c7faaf5bc555a96bf0d0339",
+        "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485"
       ]
     },
     "spacr.layers.CanvasLink": {
@@ -30027,13 +30045,17 @@
     "spacr.layers.CanvasLink.add": {
       "source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6"
+        "4f6dc33d8610f499b7dfa23713c33559a0e004da01f94beb5661f114875b3ad6",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe"
       ],
-      "source_sha256": "65ab76ffd3c1e7cef582977e6dd8a57f48c59c2dce32cc9322379d9872ca766f",
-      "text": "Coloque um painel no link, adotando a janela compartilhada, se houver um.\n\nUm painel adicionado a um link que já foi suspenso começa onde os outros estão, não onde foi construído - caso contrário, adicionar um quinto canal a uma grade em que o usuário fez zoom mostra todo o campo de visão do microscópio em uma célula.",
+      "source_sha256": "9efe1e7455abe876a4617d8cc1e63a8180fa2b413ab607feaac748e38bb36574",
+      "text": "Coloque um painel no link, adotando a janela compartilhada, se houver uma.\n\nUm painel adicionado a um link que já foi suspenso começa onde os outros estão, não onde foi construído - caso contrário, adicionar um quinto canal a uma grade em que o usuário fez zoom mostra todo o campo de visão do microscópio em uma célula.\n\n:param key: Identificador exclusivo do painel, convertido em uma cadeia de caracteres.\n:param canvas: Tela que define a camada de imagem, o tamanho e a janela em coordenadas de mundo deste painel.",
       "translation_source_blocks_sha256": [
         "33266247798abe53dd4f549833fc7b3dd0b4f24a08e1d5f2488f19e1b873dd23",
-        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42"
+        "f6ca30a4f20cb4abe3bce6b6784ca595d7d22c4f7cd0039c1ca65345e13cee42",
+        "5f4ed8cb8714fce54a8149eb844cb081a5d448af8816c1647cd66ae7cb553902",
+        "f74632e0a841c9f85a7549a127e010327382f2b091ea190358290b9899c40405"
       ]
     },
     "spacr.layers.CanvasLink.at_depth": {
@@ -30068,12 +30090,14 @@
     },
     "spacr.layers.CanvasLink.is_locked": {
       "source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
-      "text": "Se um painel segue os outros.",
+      "source_sha256": "d8056f77b21988ca7c42428992bf2726a0cdf680ba4a2ee9acc1edbfe3e6d614",
+      "text": "Se um painel segue os outros.\n\n:param key: Identificador de um painel existente.",
       "translation_source_blocks_sha256": [
-        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06"
+        "463b0b9e8d5e872b308c14017393b3bed5869e8f345cbb6281bca18b6af61f06",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.keys": {
@@ -30088,122 +30112,154 @@
     },
     "spacr.layers.CanvasLink.lock": {
       "source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ],
-      "source_sha256": "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
-      "text": "Faça um painel seguir os outros novamente, movendo-o para lá agora.",
+      "source_sha256": "72e1aa9b842118d9bcee0b7ef3b4c5f978da28fd283e737a92892b469149ec7a",
+      "text": "Faça um painel seguir os outros novamente, movendo-o para lá agora.\n\n:param key: Identificador do painel a alinhar e bloquear.",
       "translation_source_blocks_sha256": [
-        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948"
+        "9aace5d204bf441bc968cbf86ce26fcc5503e8f52c2ce833dcde12d574923948",
+        "6ef2f07ee511657eeef4828f1d625569c9033db3c8a53d542197351d3849ec4a"
       ]
     },
     "spacr.layers.CanvasLink.pan": {
       "source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ],
-      "source_sha256": "1c919e5cc9723f656dbc14478305553e728735393ed4b296f7e0a092d0d55912",
-      "text": "Pan por um número de pixels do painel de condução.\n\nConvertido para o mundo antes de ser entregue aos outros, uma grade cujos painéis estão em diferentes zooms (um desbloqueado e depois bloqueado) ainda se move pela mesma distância através da amostra em vez do mesmo número de pixels.",
+      "source_sha256": "1d1305b76ef0aae72d2492aa5aefef650ea5662fa9e0f5361767cad6dc346c2e",
+      "text": "Pan por um número de pixels do painel DRIVING.\n\nConvertido para o mundo antes de ser entregue aos outros, uma grade cujos painéis estão em diferentes zooms (um desbloqueado e depois bloqueado) ainda se move pela mesma distância através da amostra em vez do mesmo número de pixels.\n\n:param d_row: Deslocamento com sinal da linha, em pixels, no painel controlador.\n:param d_column: Deslocamento com sinal da coluna, em pixels, no painel controlador.",
       "translation_source_blocks_sha256": [
         "ee6e853c79ba93198f4f20b8293d9366b89b619a9cc5b741717c26b31cbff6fb",
-        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91"
+        "a4e6afeb672841fc29dc9b5434cbc838033530c835df8bf381f62181e508af91",
+        "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+        "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4"
       ]
     },
     "spacr.layers.CanvasLink.remove": {
       "source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ],
-      "source_sha256": "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
-      "text": "Pegue um painel e devolva sua tela.",
+      "source_sha256": "1087cb1b1660a230eb2cc207bcd156f1f2d5c2323bd6eddba1a3a041bc1fb4bd",
+      "text": "Pegue um painel e devolva sua tela.\n\n:param key: Identificador de um painel existente.",
       "translation_source_blocks_sha256": [
-        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266"
+        "e61fac9b50feb4c9b23599f0cc539b007987d039247a4797b5b090a35353b266",
+        "e49877b5a8ed18639aa46a64ce2150db140f8d80ebca5b80c881e4d637ff8321"
       ]
     },
     "spacr.layers.CanvasLink.reset": {
       "source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ],
-      "source_sha256": "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
-      "text": "Ajuste cada painel bloqueado para ``source`` novamente, mantendo seu tamanho de pixel.",
+      "source_sha256": "52aa9ff1bc60c447de70a4807e6baaa6970b787e0c1e3891b1926bd59da2d2d8",
+      "text": "Ajuste cada painel bloqueado para ``source`` novamente, mantendo seu tamanho de pixel.\n\n:param source: Pilha de camadas, camada ou mapeamento de extensão aceito por :meth:`Canvas.covering`.",
       "translation_source_blocks_sha256": [
-        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588"
+        "d1e10ab07f2b0f5e31cac9b62af57ea87f747dfea2ab48cff1e0208cb4678588",
+        "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f"
       ]
     },
     "spacr.layers.CanvasLink.resize": {
       "source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ],
-      "source_sha256": "e6c1826e76b9a6730dc1b726e41113792bedf8c40475eb9a611b774d62013589",
-      "text": "O widget de um painel mudou de tamanho. Apenas a forma do painel muda.\n\nO PASSO é mantido, não o vão o oposto de :meth:`Canvas.resized`, e deliberadamente. Em uma grade vinculada a quantidade compartilhada é a ampliação: uma célula que é 10 px mais estreita do que seu vizinho deve mostrar 10 px menos da amostra na mesma escala, ou as duas imagens estão em ampliações diferentes e a comparação para a grade existe não é uma.",
+      "source_sha256": "97bcf37a4b2690ef7f10d1f05af16d0d4f569677f0de4c2231e17d36238048b2",
+      "text": "O widget de um painel mudou de tamanho. Apenas a forma do painel muda.\n\nO PASSO é mantido, não o vão o oposto de :meth:`Canvas.resized`, e deliberadamente. Em uma grade vinculada a quantidade compartilhada é a ampliação: uma célula que é 10 px mais estreita do que seu vizinho deve mostrar 10 px menos da amostra na mesma escala, ou as duas imagens estão em ampliações diferentes e a comparação para a grade existe não é uma.\n\n:param key: Identificador do painel existente cujo widget foi redimensionado.\n:param height: Nova altura do painel em pixels, ajustada para no mínimo um.\n:param width: Nova largura do painel em pixels, ajustada para no mínimo um.",
       "translation_source_blocks_sha256": [
         "e24ae753dcae863c8f1d8b7946c15d5170ad808381ff93f28ab09b62b6fd46eb",
-        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6"
+        "006b34589e98a57d6af2b3e3b485cf326037a0bde3beebe3ac70f6d9ed9862d6",
+        "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+        "d7676487137600cf92327d08dd2f1952f9e5e79b9a67854a5c58c0e52bc69d2e",
+        "59dee9c5fceaf35040e09a4ab4872c8a0051c4e46a22228fc622746931efdda0"
       ]
     },
     "spacr.layers.CanvasLink.set": {
       "source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ],
-      "source_sha256": "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
-      "text": "Substitua a tela de um painel e traga os bloqueados com ela.",
+      "source_sha256": "65d2d87b70be8821f92446a44154769819e6fd651bdd301028c433444b3ed10f",
+      "text": "Substitua a tela de um painel e traga os bloqueados com ela.\n\n:param key: Identificador do painel existente a substituir.\n:param canvas: Tela substituta cuja janela em coordenadas de mundo é adotada pelos painéis pares bloqueados.",
       "translation_source_blocks_sha256": [
-        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459"
+        "2419e12bd1e6b29df8517dfbe33225a32239435bb367871b4ccc075f4fe46459",
+        "fbc7ed31f5e5fc7c2156474aa23f5d33e9d4a7e9d7bbda780c37761827348571",
+        "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04"
       ]
     },
     "spacr.layers.CanvasLink.subscribe": {
       "source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ],
-      "source_sha256": "4c374f21c4c8190c458492bcd5c6fd3f18eb1faf71456340be32830dd42fad5e",
-      "text": "Seja informado, com a chave que se moveu, sempre que um painel muda.\n\nRealizado por referência forte, exatamente como :meth:`LayerStack.subscribe`: uma visão que assina deve :meth:`unsubscribe` quando fecha.",
+      "source_sha256": "37d325816b0696373b9a1709485ca94d39b289b2724a056e46caeaef9f8e1ae6",
+      "text": "Seja informado, com a chave que se moveu, sempre que um painel muda.\n\nRealizado por referência forte, exatamente como :meth:`LayerStack.subscribe`: uma visão que assina deve  :meth:`unsubscribe` quando fecha.\n\n:param listener: Função chamável que recebe o identificador do painel alterado; uma referência forte à função é mantida.",
       "translation_source_blocks_sha256": [
         "5b8b5cee0286d0362ab08648f8c0940ead761ad8580e03b87e9caecd022a7ba3",
-        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f"
+        "188d95989a58a0366fdc78168f1a9bc392427b1b46779d056f4c21ded839885f",
+        "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4"
       ]
     },
     "spacr.layers.CanvasLink.unlock": {
       "source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ],
-      "source_sha256": "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
-      "text": "Deixe um painel ser movido por conta própria.",
+      "source_sha256": "328c58deb9ecf0c69cb99d7bebad538fd82582aa4914263e15f759e07b63fa8d",
+      "text": "Deixe um painel ser movido por conta própria.\n\n:param key: Identificador do painel a desacoplar do movimento vinculado.",
       "translation_source_blocks_sha256": [
-        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4"
+        "0015ac4c10afd0122eaca6645356773ef29209bd554298fe8cb5f5f9f0274fc4",
+        "838ef241bc7cddb69a2e3a0ce5983b3323e037c229cc3750419322b71524212d"
       ]
     },
     "spacr.layers.CanvasLink.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Pare de ser informado. ``True`` se esta chamada foi o que a removeu.",
+      "source_sha256": "fb4854ff518e71eb68e7b621ca3224fad4c6929c2ed93c89276be76447c5d9d9",
+      "text": "Pare de ser informado. ``True`` se esta chamada foi o que a removeu.\n\n:param listener: Função de retorno anteriormente inscrita a remover.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013"
       ]
     },
     "spacr.layers.CanvasLink.zoom": {
       "source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ],
-      "source_sha256": "b103353a3b3bd199e684f4396c1df5868cf3b989c209fba80e19b1bcd8108d0b",
-      "text": "Zoom ``key`` (ou todos os painéis) por ``factor``, cerca de ``centre``.\n\nO ponto do mundo sob ``centre`` no painel que está sendo conduzido é o que os outros painéis são zoomed sobre demasiado - não seus próprios meios, ou uma roda sobre uma célula deslizaria o resto da grade para os lados.",
+      "source_sha256": "1afdfcd0c37b4ae96649d993bfa1c632e2f153e0c38f9688bfbb732c228bf6b6",
+      "text": "Zoom ``key`` (ou todos os painéis) por  ``factor``, cerca de  ``centre``.\n\nO ponto do mundo sob ``centre`` no painel que está sendo conduzido é o que os outros painéis são zoomed sobre demasiado - não seus próprios meios, ou uma roda sobre uma célula deslizaria o resto da grade para os lados.\n\n:param factor: Fator de ampliação positivo e finito passado a cada tela afetada.",
       "translation_source_blocks_sha256": [
         "4550e533807fbf200a0902d702e30cb3d5aad8bc475ca611eb8b0b3422a69fec",
-        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71"
+        "32961f50c4f845de609fd563b7d3887f0d43c59aad095768eedec76480ea1d71",
+        "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345"
       ]
     },
     "spacr.layers.Colormap": {
       "source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9"
+        "03e22284ae0485da50998114946c71a842cbc80828c0a7971be5ebd7d3dd2cd9",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ],
-      "source_sha256": "a96c154e7e58d40b4dc699c8e5b5f41ba1f749484ae2d34d83e158ad95c25965",
-      "text": "Uma rampa nomeada de um valor em 0 para uma cor.\n\nInterpolação linear entre ``colors`` em ``stops``. Duas paradas cobrem todos os canais de dados de imagem de microscopia LUT existe (preto → a cor do canal de dados da imagem), e mais paradas cobre os mapas perceptivos sem puxar matplotlib em um módulo que tem que permanecer importável em um trabalhador.",
+      "source_sha256": "14d72ed96d88d88a519e0c582fb93152f5adfede906113714844ea9a2b9ef321",
+      "text": "Uma rampa nomeada de um valor em 0 para uma cor.\n\nInterpolação linear entre ``colors`` em  ``stops``. Duas paradas cobrem todos os canais de dados de imagem de microscopia LUT existe (preto  → a cor do canal de dados da imagem), e mais paradas cobre os mapas perceptivos sem puxar matplotlib em um módulo que tem que permanecer importável em um trabalhador.\n\n:param name: Nome de exibição e consulta armazenado com a rampa de cores; ele é convertido em uma cadeia de caracteres.\n:param colors: Sequência ordenada de pelo menos duas especificações de cor aceitas por :func:`to_rgba`; a rampa interpola entre elas nessa ordem.",
       "translation_source_blocks_sha256": [
         "a658cb42915639fad54af13621fbf617c1cff700d34bc38a4208992e0af9fee3",
-        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47"
+        "24b155ded144afd8cd1d8fbe4f55fb949c4a3a89ee0a470a29364c0fda127e47",
+        "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+        "eb7a34f7984ae5796b5ddd6caefee72f1e1fdf16bf56f11d68587cbacb3a8260"
       ]
     },
     "spacr.layers.Colormap.colors": {
@@ -30218,12 +30274,14 @@
     },
     "spacr.layers.Colormap.map": {
       "source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ],
-      "source_sha256": "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
-      "text": "Map ``values`` (qualquer forma, 0, recortado) para ``(..., 3)`` float32.",
+      "source_sha256": "d44bc6930eff4ab861525b12ae9b7bb119c13b4c03261a4972081d459c210d72",
+      "text": "Mapa ``values`` (qualquer forma, 0, recortado) para  ``(..., 3)`` float32.\n\n:param values: Escalar numérico ou valores semelhantes a uma matriz a interpolar; valores fora de 0–1 são limitados à extremidade mais próxima da rampa.",
       "translation_source_blocks_sha256": [
-        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da"
+        "0cc11cfa9b263b6c6adaaffa565727b068be32f124da62de6bc5ab9b817fc4da",
+        "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9"
       ]
     },
     "spacr.layers.Colormap.stops": {
@@ -30266,44 +30324,52 @@
     },
     "spacr.layers.FieldKey.frame": {
       "source_blocks_sha256": [
-        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5"
+        "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
+        "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a"
       ],
-      "source_sha256": "f3050609b9aed0e1057d843a9fbd60b5085788cb5d2548a0c004c5e9fc05b5b5",
-      "text": "Um quadro com uma coluna de saída para cada coluna de identificador em ``labels``, preservando sua ordem.",
+      "source_sha256": "40cb79e68a34eef070ac79e767a2a20ad3b0ea339fb51507cd830861b02a1545",
+      "text": "Um quadro com uma coluna de saída para cada coluna de identificador em ``labels``, preservando sua ordem.\n\n:param labels: Iterável de rótulos de objeto semelhantes a inteiros a associar à identidade deste campo de visão do microscópio.",
       "translation_source_blocks_sha256": [
-        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb"
+        "a23f1c8d6ffd919a4d24018970c878a90c109c0b1a73a2db27d6f6d343b6f0cb",
+        "c2fe737b390de6510efd90175f213b911a37f8d148c93af33fe16a8525823efb"
       ]
     },
     "spacr.layers.FieldKey.from_row": {
       "source_blocks_sha256": [
         "6cd8c0d449bf06de8080354ae8f7e759d68ec379bc2f066627de5cf1d8cda20d",
-        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802"
+        "03b31d35b43c5817e14538e01f0a83db11a7a2b0d944224c46f7a5ff20a5d802",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ],
-      "source_sha256": "dc3043bd6b23a275feb200864d525833b9372277c796db03ba1a796218dc906f",
-      "text": "Tire as colunas identificadoras de uma linha de medição (ou de qualquer mapeamento).\n\nQualquer outra coisa na linha é descartada - um nome de dados estruturados de campo é uma identidade, e carregar uma medida junto com ele faria dois nomes de dados estruturadas para o mesmo campo comparar desigual.",
+      "source_sha256": "5009c670395a31711e65f9482b60110422c8dd91aff93bf55ada69eae28f0695",
+      "text": "Tire as colunas identificadoras de uma linha de medição (ou de qualquer mapeamento).\n\nQualquer outra coisa na linha é descartada - um nome de dados estruturados de campo é uma identidade, e carregar uma medida junto com ele faria dois nomes de dados estruturadas para o mesmo campo comparar desigual.\n\n:param row: Mapeamento da linha de medição do qual são extraídas as colunas de identidade obrigatórias.",
       "translation_source_blocks_sha256": [
         "4fa407403eab95095b6b298465b075829b6d6718819e773a0099527588ebdfe3",
-        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8"
+        "c87cc89e00da2b18712c9d8adfca078be25840fdc9dd0edebf1c280ad6fbc2b8",
+        "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e"
       ]
     },
     "spacr.layers.FieldKey.object_key": {
       "source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12"
       ],
-      "source_sha256": "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
-      "text": "A chave de um objeto para ``label``.",
+      "source_sha256": "9c0ffb61704a39ffd2308e7bd131ba754dcf2b5caf578cea363a1dcf07523bc9",
+      "text": "A chave de um objeto para ``label``.\n\n:param label: Rótulo de objeto semelhante a um inteiro a codificar para este campo de visão do microscópio.",
       "translation_source_blocks_sha256": [
-        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397"
+        "4c537378f90893ce7ec10f575a0a97c8019d90a29e7df76cbd6a6aafd4293397",
+        "b4b790d2e119d8ec65a3ac0f15b4f6f0011a4753feb44e7fde4010a0cce252a4"
       ]
     },
     "spacr.layers.FieldKey.object_keys": {
       "source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ],
-      "source_sha256": "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
-      "text": ":class:`pandas.Index` de teclas de objeto para ``labels``, em ordem.",
+      "source_sha256": "8aeaa33840efac26e90a789b6909c6e7a0a6c929253a60f69fd7784fbea893a8",
+      "text": ":class:`pandas.Index` de teclas de objeto para  ``labels``, em ordem.\n\n:param labels: Iterável de rótulos de objeto semelhantes a inteiros a codificar.",
       "translation_source_blocks_sha256": [
-        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3"
+        "4881fa95a085e2a388c1d36181fa962b443bf6ad01d02aa4164d011c861854c3",
+        "491ec67dbedb5cb6af438e30ba68a4c950a2ee5401aa24f4cd16519bf504fd07"
       ]
     },
     "spacr.layers.ImageLayer": {
@@ -30340,12 +30406,26 @@
     },
     "spacr.layers.ImageLayer.channel_data": {
       "source_blocks_sha256": [
-        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b"
+        "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ],
-      "source_sha256": "78dd811f89bd3fb9e4954796fa99c4e78a24e8d57d0aa8862d097f00f2c1133b",
-      "text": "O array espacial para um canal de dados de imagem (uma visualização, não uma cópia).",
+      "source_sha256": "15de51c78f3d0361193a224fff41be5f626235806342ddaadd54c29239268d52",
+      "text": "O array espacial para um canal de dados de imagem (uma visualização, não uma cópia).\n\n:param channel: Índice de canal baseado em zero aceito pela indexação normal de sequências.",
       "translation_source_blocks_sha256": [
-        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509"
+        "080c2ddf8a8e9617836669708e5ae5f7351a850ba8117d6cf11a3b67dd537509",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ]
+    },
+    "spacr.layers.ImageLayer.channel_is_visible": {
+      "source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
+      ],
+      "source_sha256": "d8e695a52522e5e5457c5945555946345282682afb868b70699f25ef2e05601c",
+      "text": "Se um canal participa da renderização.\n\n:param channel: Índice de canal baseado em zero aceito pela indexação normal de sequências.",
+      "translation_source_blocks_sha256": [
+        "1b853d672f53988f4d85fdd7f862168f1b606027159df385e9be9e04fb1d2221",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2"
       ]
     },
     "spacr.layers.ImageLayer.colormap": {
@@ -30379,25 +30459,45 @@
         "af3320fcd4373de12c3c56554534b7704b1c62e20835a0f9548731ee070822e0"
       ]
     },
+    "spacr.layers.ImageLayer.set_channel_visible": {
+      "source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ],
+      "source_sha256": "e1a8be22f1960a50e5eb3f6173e8c0228092d0630738144fd727e11b9b08c055",
+      "text": "Define se um canal participa da renderização.\n\n:param channel: Índice de canal baseado em zero aceito pela indexação normal de sequências.\n:param visible: Valor booleano para o novo estado de visibilidade do canal.",
+      "translation_source_blocks_sha256": [
+        "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+        "df980276322b8d6e16e02da0a1bf6d70ec0a835754c11065697462b6597a3ee2",
+        "0aa1130d2c360c18d80207acb347a1e9ae5709a356a372a6bac613ff9737b36c"
+      ]
+    },
     "spacr.layers.ImageLayer.set_colormap": {
       "source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ],
-      "source_sha256": "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
-      "text": "Dê a um canal um novo LUT.",
+      "source_sha256": "a65a79a6a74fec31bfa36fc24c6bbafc045a1ced9c6e85ed52b17e6efda99cf4",
+      "text": "Dê a um canal um novo LUT.\n\n:param value: Mapa de cores ou especificação de cor aceita por :func:`colormap`.",
       "translation_source_blocks_sha256": [
-        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f"
+        "b4ba88150c094a97325e5a57e51396aa812472725f274dc43166aad06006111f",
+        "5aaf7439d6400c3b02e64f295639203f13550e3b96d402cfbb22d89d074b2918"
       ]
     },
     "spacr.layers.ImageLayer.set_contrast_limits": {
       "source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+        "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ],
-      "source_sha256": "f8c007ce8415d95d9833f128e8e4ae98763c820511b8f376c3e5b2e16f4247e5",
-      "text": "Defina os limites de um canal.\n\n:raises LayerError: se eles não aumentarem – um par invertido renderiza uma imagem preta, que é lida como \"no signal\" e não como uma configuração ruim.",
+      "source_sha256": "67991223e0e1401f9a83adbeeca279685329443027954cdacd55f4a295b00e40",
+      "text": "Defina os limites de um canal.\n\n:param low: Limite inferior de intensidade nas unidades de dados do canal.\n:param high: Limite superior de intensidade nas unidades de dados do canal; deve ser maior que ``low``.\n:raises LayerError: se eles não aumentarem – um par invertido renderiza uma imagem preta, que é lida como \"no signal\" e não como uma configuração ruim.",
       "translation_source_blocks_sha256": [
         "812b4a2237f5f956e033e889d5aaa283076884c64d669243ac1e86fa4dc73015",
+        "e0b961b66f0bb8a66b1a7f65084598cad3de63525f72c27f13d12387c18aa5a5",
+        "50129cb6dd8ed758ec82f61e82119b5e51c69e8d1c10a84961da1c83b61011b8",
         "42c8545cfa2e2c0e31ff45e83f5ec920902c2780bd3de425b0c9c71b67515a3a"
       ]
     },
@@ -30427,13 +30527,15 @@
       "source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ],
-      "source_sha256": "7a4e53da8be2116ee8ce70e78922594a4988175d7f9582491543cef395f17578",
-      "text": "Uma máscara de segmentação inteira. 0 é fundo e desenha como nada.\n\nAs cores vêm de :func:`label_color`, então um objeto mantém sua cor entre as sessões e entre esse visualizador e a visualização ao vivo.\n\n:param field: o :class:`FieldKey` esta máscara segmentos. Opcional, mas sem ele um clique só pode dizer \"label 17\" com ele, o clique pode publicar ``plate1_A_1_1_17`` para todas as outras vistas.",
+      "source_sha256": "12854f7027909f636182b3838e1df4f568b7287c604915e4fa51acf3e9ad0400",
+      "text": "Uma máscara de segmentação inteira. 0 é fundo e desenha como nada.\n\nAs cores vêm de :func:`label_color`, então um objeto mantém sua cor entre as sessões e entre esse visualizador e a visualização ao vivo.\n\n:param data: Rótulos de segmentação semelhantes a uma matriz, com duas ou três dimensões; os valores devem ser inteiros ou números de valor exatamente inteiro.\n:param field: o :class:`FieldKey` esta máscara segmenta. Opcional, mas sem ele um clique só pode dizer  \"label 17\" com ele, o clique pode publicar  ``plate1_A_1_1_17`` para todas as outras vistas.",
       "translation_source_blocks_sha256": [
         "00a6600aceaf941916941030b62cef85119f2cb456ff1f9d49446082b52f44fe",
         "b610e5290e0531f1e77d44a520ca10b1db26759711a1ea3d2632777c3645cdc7",
+        "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
         "9d77bc3218c115fde35e4662d39660dc52dafaf729245e6d00c2fac096e68a7f"
       ]
     },
@@ -30442,25 +30544,29 @@
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "ef10abde172c944037ac91cd1df4dc457505cf9a68dfa7dc3c36f95884939a7c"
       ],
-      "source_sha256": "43cf6677f673f3d5cf1ad8bb1b5e92d9f25d0ebacd690c44858e5235687eaecc",
-      "text": "Os elementos de uma escova de bola de espaço-mundo cobrem, como matrizes de índice.\n\nO pincel é uma bola no espaço WORLD, então em uma pilha anisotrópica ele cobre menos z-slices do que y-rows – que é o que o usuário quer dizer com um pincel 5 µm. Uma escova medida em elementos de matriz seria um cilindro de 5 fatias, ou seja, 10 µm de profundidade e 3,25 µm de largura em uma pilha spaCR comum.\n\nDividir de :meth:`paint` para que um chamador que tem que *registrá-lo* o que mudou :class:`spacr.curation.MaskCuration`, que mantém um histórico de desfazer e uma trilha de auditoria pede a camada para a geometria em vez de re-derivar a regra de anisotropia e obtê-lo sutilmente diferente. Há uma bola, e é definido aqui.\n\n:returns: um array inteiro por eixo, pronto para indexar :attr:`data` com. Arrays vazios quando o pincel cai totalmente fora da grade, que indexa a nada em vez de jogar.",
+      "source_sha256": "fdf4c2cda21386361c12e28138b98cb1fa7ac9955847f3c48294f1caeba3e78e",
+      "text": "Os elementos de um mundo-espaço bola escova cobre, como matrizes de índice.\n\nA escova é uma bola no espaço WORLD, então em uma pilha anisotrópica ela cobre menos z-slices do que y-rows que é o que o usuário quer dizer com uma escova 5 µm. Uma escova medida em elementos de matriz seria um cilindro de 5 fatias, ou seja, 10  µm de profundidade e 3,25  µm de largura em uma bateria comum spaCR.\n\nDividir de :meth:`paint` para que um chamador que tem que *registrá-lo* o que mudou :class:`spacr.curation.MaskCuration`, que mantém um histórico de desfazer e uma trilha de auditoria pede a camada para a geometria em vez de re-derivar a regra de anisotropia e obtê-lo sutilmente diferente. Há uma bola, e é definido aqui.\n\n:param world: Mapeamento dos nomes dos eixos para o centro do pincel em coordenadas de mundo; os eixos de espaçamento omitidos são avaliados em zero.\n:returns: um array inteiro por eixo, pronto para indexar :attr:`data` com. Arrays vazios quando o pincel cai totalmente fora da grade, que indexa para nada em vez de jogar.",
       "translation_source_blocks_sha256": [
         "d472e53c73c2e136f02292f5db156413e8f63fa68a798d0076ee185220c897e1",
         "6eed062768cdc0ce4e30958a18cfbb59a641f38ede1215c61858461f6c4d61bd",
         "d2abe041661ec024767e2832e2fa6d4dd5232c5fc0fdbba64999e860c18b90e5",
+        "8e71f4716f7181180d1855b3ee105c2029df7726b58625d6446d3e71eb600097",
         "3ae0cae7c74005239749168d3c233396333acaa07054d119c714a851f197938f"
       ]
     },
     "spacr.layers.LabelsLayer.label_at_world": {
       "source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ],
-      "source_sha256": "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
-      "text": "O rótulo sob um ponto de mundo, ou 0 para fundo / fora.",
+      "source_sha256": "fcbca66bbfadfd442c3f75be94a15baf8d2757596873994a0fe6155ad002d03c",
+      "text": "O rótulo sob um ponto de mundo, ou 0 para fundo / fora.\n\n:param world: Mapeamento dos nomes dos eixos para um ponto em coordenadas de mundo.",
       "translation_source_blocks_sha256": [
-        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7"
+        "068a459f85f63fbd1d48870004e20645f3fc6855376ab6478624c94f367f8af7",
+        "344abe2df63991328c8419692677d2e2a64f4ac5372f60747e4df7c9b0d9edbc"
       ]
     },
     "spacr.layers.LabelsLayer.labels": {
@@ -30487,13 +30593,15 @@
     "spacr.layers.LabelsLayer.object_key_at_world": {
       "source_blocks_sha256": [
         "2888b920fd6956b3f6e04d746585f4c83a11948a1cc8cd56b4542a34cd758fce",
-        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72"
+        "11f0ec5bce8172cc5892ee10e5b601bf2433bbaebcb43a8751795d81d6581b72",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ],
-      "source_sha256": "99e56ad84d2620d6e72ee69ea199ef77fec0bb0bab9aecbf02fb51b583348e72",
-      "text": "O nome de dados estruturados da tabela de medição do objeto sob um ponto de mundo.\n\n``None`` para fundo, ou quando esta camada não foi informada qual campo de visão de microscópio segmenta. Esta é toda a razão pela qual uma camada de etiquetas carrega um :class:`FieldKey`: a cadeia de caracteres que retorna é a mesma cadeia de caracteres do UMAP, a visualização de microplacas de laboratório e o uso da grade de anotação, portanto, publicá-la através do :mod:`spacr.qt.linked_selection` destaca a mesma célula em todos os lugares.",
+      "source_sha256": "5f58c8e407661db6c30f1a9acaf1188141ee5aafe63ae9fa8e202386082cd334",
+      "text": "O nome de dados estruturados da tabela de medição do objeto sob um ponto de mundo.\n\n``None`` para fundo, ou quando esta camada não foi informada sobre qual campo de microscópio de visualização ele segmenta. Esta é toda a razão pela qual uma camada de etiquetas carrega um  :class:`FieldKey`: a cadeia de caracteres que retorna é a mesma cadeia de caracteres que  UMAP, a visualização de microplacas de laboratório e o uso da grade de anotação, portanto, publicá-la através de :mod:`spacr.qt.linked_selection` destaca a mesma célula em todos os lugares.\n\n:param world: Mapeamento dos nomes dos eixos para o ponto de mundo a identificar.",
       "translation_source_blocks_sha256": [
         "160302220e41d10a573d3ae6c448bc4902b3975356b159aa5ce4a15216d782d6",
-        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69"
+        "7ab68d48e95860307c89039afc13a40181fddd7c0fc62351de03648bb86e5f69",
+        "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5"
       ]
     },
     "spacr.layers.LabelsLayer.object_keys": {
@@ -30510,13 +30618,17 @@
       "source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ],
-      "source_sha256": "8a9f7db9bf93c003bd26b54d940d58a9e09b6421c9a6e351242612219eb95b92",
-      "text": "Defina cada elemento dentro de ``radius`` unidades de um ponto.\n\n:meth:`brush_index` possui a bola; isso é mais a escrita.\n\n:returns: Quantos elementos mudaram.",
+      "source_sha256": "4826c2d76d13a5e9b76d0bc8a2f2099a1d6eb699c17ba6a7a44a62c114fdf48b",
+      "text": "Defina cada elemento dentro das unidades do mundo ``radius`` de um ponto.\n\n:meth:`brush_index` possui a bola; isso é mais a escrita.\n\n:param world: Mapeamento dos nomes dos eixos para o centro do pincel em coordenadas de mundo.\n:param label: Rótulo semelhante a um inteiro a pintar.\n:returns: Quantos elementos mudaram.",
       "translation_source_blocks_sha256": [
         "6d70fef720f04a26cea72264bf11509c8c09cabd9a5453b973a474f208f59120",
         "81da4d2b68109bfc60b6804b3a66eb725a8a0f0378a7b9eab9baec05883bd53d",
+        "6a846aa2f7f4de6eeb0d7d4c703af8b7da1a026e55e2e15d01ddff5acab630e4",
+        "75979ef77cff2fbceac5a0b361477e14575a1c92d434452f24102bff321b7c60",
         "2272facfb0f1a5290aad9418095613dfd975babaa56a364bfa3d90ec262a4a99"
       ]
     },
@@ -30533,13 +30645,17 @@
     "spacr.layers.LabelsLayer.set_labels_at": {
       "source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ],
-      "source_sha256": "4b51f05f5b36b84aef9aadcff8334a00b17ff1eac193ad3b1e17e18b4038b7bb",
-      "text": "Defina os elementos ``index`` nomes para ``label``; quantos mudaram.\n\nA metade escrita de :meth:`brush_index`, e o um coloca os dados de uma camada de etiquetas é editado element-wise então exatamente uma chamada notifica. Um chamador fazendo sua própria aritmética em :attr:`data` mutaria a matriz sem contar a tela, e a imagem viria à direita apenas na próxima repintura não relacionada.",
+      "source_sha256": "1abf895c5080ad211ca94bb5ff03f93c50724b8a87a65630308906543c555767",
+      "text": "Defina os elementos ``index`` nomes para  ``label``; quantos mudaram.\n\nA parte de escrita de :meth:`brush_index` e o ÚNICO local em que os dados de uma camada de rótulos são editados elemento a elemento — portanto, exatamente uma chamada envia uma notificação. Se o código que chama fizesse seus próprios cálculos em :attr:`data`, alteraria a matriz sem informar a tela, e a imagem só seria corrigida na próxima repintura não relacionada.\n\n:param index: Uma matriz de índices inteiros por eixo de dados, adequada à indexação avançada do NumPy.\n:param label: Rótulo semelhante a um inteiro a escrever nos elementos selecionados.",
       "translation_source_blocks_sha256": [
         "d1ddd776e0e5e67ecb2cf44dfc358a1fcecaff763c027c2858ca12c29fc9fcb1",
-        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44"
+        "aa29b61ea6eef93cc66f6ecb104ff2dc1ebf3d016166f961ffdbb04ed2e9bf44",
+        "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+        "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09"
       ]
     },
     "spacr.layers.LabelsLayer.shape": {
@@ -30568,14 +30684,16 @@
       "source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ],
-      "source_sha256": "d9bf540e5df502fb1259165c71211aad3d5b283456e1a09ecad2a91dacad0e8e",
-      "text": "Uma coisa na pilha: um nome, um lugar no mundo e como desenhá-lo.\n\nAs subclasses implementam :meth:`_draw`; tudo o que é compartilhado visibilidade, opacidade, mistura, espaçamento, notificação mora aqui.\n\nPropriedades de exibição são atributos simples com setters que notificam a pilha, então uma exibição é reintegrada porque o modelo mudou em vez de porque o widget que mudou lembrou de perguntar.",
+      "source_sha256": "00ae1646166976c37b3971d157a42c453ea3828f10371a9e2f504447306b03d2",
+      "text": "Uma coisa na pilha: um nome, um lugar no mundo e como desenhá-lo.\n\nAs subclasses implementam :meth:`_draw`; tudo o que é compartilhado visibilidade, opacidade, mistura, espaçamento, notificação vive aqui.\n\nPropriedades de exibição são atributos simples com setters que notificam a pilha, então uma exibição é reintegrada porque o modelo mudou em vez de porque o widget que mudou lembrou de perguntar.\n\n:param name: Identificador de camada não vazio; os nomes são tornados exclusivos quando a camada entra em uma :class:`LayerStack`.",
       "translation_source_blocks_sha256": [
         "dfc12e2ca059d8f620b87dd4f1d6ce4b092e4d7226b23b04c80eb675d6c9aac1",
         "8bbf842c252c37293ae71ba794db55fd92754095695d45597745a463ef4983c5",
-        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04"
+        "079a3adebf2c3c24dac0849583e22e14c5a40530b1788b3b0f52a9337a671e04",
+        "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29"
       ]
     },
     "spacr.layers.Layer.describe": {
@@ -30601,13 +30719,15 @@
     "spacr.layers.Layer.render": {
       "source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ],
-      "source_sha256": "6a69174507dcd6941d3e37953e3d4375f3afcdff90f51f7eb47c94bf2f6bf77a",
-      "text": "Desenhe para ``canvas``; retorna ``(rgb, coverage)``.\n\n``rgb`` é ``(H, W, 3)`` float32 em 0 e ``coverage`` é ``(H, W)`` float32 em 0, dizendo onde esta camada tem algo a dizer. Opacidade e mistura NO são aplicadas aqui a pilha aplica-as, de modo que a renderização da própria camada é a mesma com o que ela é composta.",
+      "source_sha256": "041a29bcd5eb327d63f54158ec2e06819a2804d242f09ce3b6633f43facb47b8",
+      "text": "Desenhe em ``canvas``; retorna  ``(rgb, coverage)``.\n\n``rgb`` é ``(H, W, 3)`` float32 em 0 e ``coverage`` é ``(H, W)`` float32 em 0, dizendo onde esta camada tem algo a dizer. Opacidade e mistura NO são aplicadas aqui a pilha aplica-as, de modo que a renderização da própria camada é a mesma com o que ela é composta.\n\n:param canvas: Janela em coordenadas de mundo e grade de saída na qual desenhar a camada.",
       "translation_source_blocks_sha256": [
         "3ded14e9d2ce1c578f31cde5b7e2a8ed5f8574b1b0ea39ba5b7fdce5943a47e9",
-        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7"
+        "d51139952575c99f71524dbbae380ee187aa93f7b2fe3ac48dd5138e7eab4bd7",
+        "14e4643c641299d7553ef92aee5ef6e195fdc25c95f0021ad83f6bd2d90fd181"
       ]
     },
     "spacr.layers.Layer.shape": {
@@ -30632,22 +30752,26 @@
     },
     "spacr.layers.Layer.to_data": {
       "source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ],
-      "source_sha256": "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
-      "text": "ndice de dados fracionários ``{axis: world}`` →.",
+      "source_sha256": "1e3345eda89cb5de4ca629fff4184928f324444e3cfe6d73079e8bf9cfdaa78c",
+      "text": "``{axis: world}`` → índice de dados fracionário.\n\n:param world: Mapeamento dos nomes dos eixos de mundo para coordenadas; os eixos de espaçamento omitidos são avaliados na coordenada de mundo zero.",
       "translation_source_blocks_sha256": [
-        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb"
+        "99eb275b31203f4b595069aea76e59eb7a38c5137952b8479c6345af4ed128fb",
+        "d3c8a4cb694470ad4a798fa30ae1a866f4ca776f86d80c1bc74c12226620219e"
       ]
     },
     "spacr.layers.Layer.to_world": {
       "source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ],
-      "source_sha256": "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
-      "text": "ndice de dados → ``{axis: world}``.",
+      "source_sha256": "26735f18d934b2c7f3e0e8645475aca52ab5011ffc91614884d6dbbc7b76d282",
+      "text": "ndice de dados →  ``{axis: world}``.\n\n:param index: Coordenada fracionária de dados na ordem dos eixos de espaçamento desta camada.",
       "translation_source_blocks_sha256": [
-        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff"
+        "0aa2d871428fba3da13bb436222c3a600b818e595090e88576537e2fa063c9ff",
+        "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd"
       ]
     },
     "spacr.layers.Layer.world_extent": {
@@ -30708,14 +30832,40 @@
         "281fc7123610fd43406cdaf51b4d1a0d1589061eaa7d666c63c7ee7ff0b3fc32"
       ]
     },
+    "spacr.layers.LayerStack.add_image": {
+      "source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ],
+      "source_sha256": "d763809cb6736d1325da4effb708e3a9eb378b08036775cfe67a5a185b3b7677",
+      "text": "Constrói e acrescenta uma camada de imagem.\n\n:param data: Dados de intensidade semelhantes a uma matriz passados a :class:`ImageLayer`.",
+      "translation_source_blocks_sha256": [
+        "77f0f0aadf5d634c770db8f4f80d12bf2bcf6093489f708cac82e5a2e0685aab",
+        "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca"
+      ]
+    },
+    "spacr.layers.LayerStack.add_labels": {
+      "source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ],
+      "source_sha256": "a0aaaecabc526aeccd0261c59e4092b9bae0224cdd83104f63dfe9a68f93758b",
+      "text": "Constrói e acrescenta uma camada de rótulos.\n\n:param data: Rótulos de segmentação semelhantes a uma matriz passados a :class:`LabelsLayer`.",
+      "translation_source_blocks_sha256": [
+        "db4e1314047e3036b9ab5bd49f58bf8c8a179e64ad295fe07e8aa7474bca6732",
+        "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d"
+      ]
+    },
     "spacr.layers.LayerStack.append": {
       "source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
-      "text": "Coloque ``layer`` em cima.",
+      "source_sha256": "e8ffcf4ef88d408c04bde53496a66c9da50eaa0bee446324b9379c46b163e733",
+      "text": "Coloque ``layer`` em cima.\n\n:param layer: Instância de camada a anexar a esta pilha.",
       "translation_source_blocks_sha256": [
-        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068"
+        "f37f0ad43142bd4ae1a83eeba7aec8b0cb22d75103064f1ba8daff8df4b1f068",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.canvas": {
@@ -30750,56 +30900,70 @@
     },
     "spacr.layers.LayerStack.get": {
       "source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ],
-      "source_sha256": "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
-      "text": "A camada nomeada por um objeto, um nome ou um índice.",
+      "source_sha256": "f0b308ec65c968a7c63063e083a1d517495af8e79a3c10b3477b8acb554501ba",
+      "text": "A camada nomeada por um objeto, um nome ou um índice.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a resolver.",
       "translation_source_blocks_sha256": [
-        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb"
+        "e6271df7ad4ccb67e350152f681a90be7093e807384cb0251a146295c49efcbb",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec"
       ]
     },
     "spacr.layers.LayerStack.index": {
       "source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ],
-      "source_sha256": "fce075446257bcb107abcae907b588e44e92a8c0a191db02ea3761b70186f78d",
-      "text": "Onde ``layer`` se senta, por objeto, nome ou índice.\n\n:raises LayerError: Se não estiver nesta pilha, ``-1`` seria um índice válido a partir do topo e afetaria silenciosamente a camada errada.",
+      "source_sha256": "b9f1a82e69c109470a037e5dbb9339af4d9e4e7bef6735bccc16878c639aabf1",
+      "text": "Onde ``layer`` se senta, por objeto, nome ou índice.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a resolver.\n:raises LayerError: ``-1`` seria um índice válido do topo e afetaria silenciosamente a camada errada.",
       "translation_source_blocks_sha256": [
         "d0a132d3617708cdd46edf57d64e1b9aede3af08a9fad6f7c9ddc11f6c15a6a7",
+        "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
         "88f3504094120b7062776a4325c589c93cd1c213cb9ddd7e672eec2bf5fcf840"
       ]
     },
     "spacr.layers.LayerStack.insert": {
       "source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ],
-      "source_sha256": "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
-      "text": "Coloque ``layer`` em ``index`` (0 é o fundo).",
+      "source_sha256": "de6ede5822f1b49b01cbf558ecb4ea1c142274743c204e0ca40fb7080d1d97d4",
+      "text": "Coloque ``layer`` em  ``index`` (0 é a parte inferior).\n\n:param index: Posição de inserção solicitada, limitada entre zero e o comprimento atual da pilha.\n:param layer: Instância de camada a anexar a esta pilha.",
       "translation_source_blocks_sha256": [
-        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a"
+        "a661dc7dafb2dfe31b8c77138d4a0feb141a9f53d0a064f14d4616d3385e353a",
+        "5d8fb795879d67c5fcbc8a8e59dd8e6998318e2039fc5df407cf7c1017846b50",
+        "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645"
       ]
     },
     "spacr.layers.LayerStack.lower_layer": {
       "source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ],
-      "source_sha256": "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
-      "text": "Um passo em direção às costas.",
+      "source_sha256": "2042e5a08104144b57ffbbe3cc0fa1ed914881b5bbd24e6d1787af90263e2542",
+      "text": "Um passo para trás.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a rebaixar.",
       "translation_source_blocks_sha256": [
-        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e"
+        "e16dac94a6ddc99f1483d8237028cc4e2e36d2656ef5ad5b9b00fb67010b9c1e",
+        "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a"
       ]
     },
     "spacr.layers.LayerStack.move": {
       "source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ],
-      "source_sha256": "5be37c8323202e92afacd3368b433d3248015a1b32f84f546389a98acab94606",
-      "text": "Mover uma camada para ``destination``; retorna onde ela acabou.\n\nO controle de ordem z. ``destination`` é preso, então \"move to the top\" pode ser escrito com qualquer número grande.",
+      "source_sha256": "cf6605e56f490303bd3300077bd6d207a33e970524f37c835fde803e3843bd76",
+      "text": "Mover uma camada para ``destination``; retorna onde ela acabou.\n\nO controle de ordem z. ``destination`` é preso, então  \"move to the top\" pode ser escrito com qualquer número grande.\n\n:param source: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a mover.\n:param destination: Índice de destino solicitado, limitado à pilha restante depois da remoção da camada de origem.",
       "translation_source_blocks_sha256": [
         "4f52d1151fcab7ee97eee7d46504785d147a33d2f2425e0c396ca4619a0da48d",
-        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4"
+        "598ea629295cbeab140a2283a1cf6919148d90f3fd764157ee25cb0afbd17dc4",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6",
+        "c064dd9cd6884ff257b29ad41fa99a9d54ec6590f72838d766c7a9d8a5157aa2"
       ]
     },
     "spacr.layers.LayerStack.names": {
@@ -30815,85 +30979,107 @@
     "spacr.layers.LayerStack.pick": {
       "source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ],
-      "source_sha256": "7a87bd473703e187dbc6926399a02bb0314584d2bd2db2052fc20b6b3ff592d7",
-      "text": "O que está sob um pixel de tela: ``(layer, world, value)``.\n\nCaminha do TOP para baixo e para na primeira camada visível com algo lá, que é o que um clique significa – a coisa que você pode ver. ``value`` é o rótulo para uma camada de etiquetas, o índice de pontos para uma camada de pontos, o índice de forma para uma camada de formas e ``None`` de outra forma.",
+      "source_sha256": "e6deb023970c48d1b50d0be27ae6c93929cbbb42be91616ad3063e61a410f489",
+      "text": "O que está sob um pixel de tela: ``(layer, world, value)``.\n\nCaminha do TOP para baixo e para na primeira camada visível com algo lá, que é o que um clique significa – a coisa que você pode ver. ``value`` é o rótulo para uma camada de etiquetas, o índice de pontos para uma camada de pontos, o índice de forma para uma camada de formas e ``None`` de outra forma.\n\n:param canvas: Tela cuja pilha exibida está sendo consultada.\n:param row: Coordenada fracionária de linha da tela para o pixel consultado.\n:param column: Coordenada fracionária de coluna da tela para o pixel consultado.",
       "translation_source_blocks_sha256": [
         "bf0a900110af385c96c9f183cb8749982bef981ccdf79b3318b367dd169fdb7d",
-        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36"
+        "561622f1672a08039cc62c1ef6134e2230638f8712069046f0c7b2e6df936a36",
+        "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+        "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+        "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c"
       ]
     },
     "spacr.layers.LayerStack.raise_layer": {
       "source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ],
-      "source_sha256": "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
-      "text": "Um passo em frente.",
+      "source_sha256": "14e58cf30dc8ff73ab9ee247e9070ca41c985b1af42eb587db47512480d9a6a1",
+      "text": "Um passo em frente.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a elevar.",
       "translation_source_blocks_sha256": [
-        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26"
+        "e6014b5b23d761111634970a43243094dba4c1ede13a023c515faeae94430b26",
+        "14ae05ae92c2f2a519781faad12d5dd0af891c1970bb1689b40fb39e86c53f6a"
       ]
     },
     "spacr.layers.LayerStack.remove": {
       "source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ],
-      "source_sha256": "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
-      "text": "Retire uma camada e devolva-a.",
+      "source_sha256": "1227ba3055b381e8adee5534e1fa424faf0a9d9ab871fd486d466005039441a2",
+      "text": "Retire uma camada e devolva-a.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a remover.",
       "translation_source_blocks_sha256": [
-        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375"
+        "72f2fe2baa01065d5cd3837f53653d4b0bee570378dea7e97e41c7ad1fb61375",
+        "2b8933d0edf49c973116df0fcc44cc53d01a5ce56e29c90dc087a8c02b18014f"
       ]
     },
     "spacr.layers.LayerStack.rename": {
       "source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ],
-      "source_sha256": "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
-      "text": "Renomeie uma camada, uni-qualificando se necessário; retorna o nome que obteve.",
+      "source_sha256": "cc42f737075a19f21b32353e139736f7eebc2bf94d221135189aa507a96b0d5a",
+      "text": "Renomear uma camada, uni-qualificando se necessário; retorna o nome que obteve.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a renomear.\n:param name: Nome não vazio solicitado; um sufixo numérico é acrescentado se ele colidir com outra camada.",
       "translation_source_blocks_sha256": [
-        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35"
+        "65e475e7611f61bb34e7c7bfd43bb1db3d52000b546e6611491be62d7ba7ed35",
+        "78922ac738c9e6f659568ed9a8d70fee87f5e30ecf4a332cbce8a2ebeb7fe866",
+        "8e1be2f841b185c632fc0f51cd32014198f879e73607d1eb29fa38d1f563be3b"
       ]
     },
     "spacr.layers.LayerStack.render": {
       "source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
-      "text": "Compor cada camada visível; ``(H, W, 3)`` float32 em 0.",
+      "source_sha256": "706df46e91c0f2d4d8bcce5d8328ed32c63a27244faa7c5dda30ae45b7229d0f",
+      "text": "Compor cada camada visível; ``(H, W, 3)`` float32 em 0.\n\n:param canvas: Janela em coordenadas de mundo e grade de saída na qual compor a pilha.",
       "translation_source_blocks_sha256": [
-        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd"
+        "e9b4225f27c9c6ad102f7cd58266a87e9ddee777a0e68aae4c4a3008b4e44bcd",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_rgba": {
       "source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "97936d0c7625321036ed948f50eae43ffb5b967dda28602b306c1b34ae93c382",
-      "text": ":meth:`render` mais a cobertura do compósito, ``(H, W, 4)``.\n\nO canal alfa é acumulado sobre qualquer que seja o modo de mesclagem das camadas: ele registra onde a pilha desenhou *qualquer coisa*, que é o que um chamador que compõe isso em uma página precisa.",
+      "source_sha256": "ceb49044e299ac918477ab9f59aeddb369712efa87c78629f3232136c688b313",
+      "text": ":meth:`render` além da própria cobertura do compósito,  ``(H, W, 4)``.\n\nO canal alfa é acumulado sobre qualquer que seja o modo de mesclagem das camadas: ele registra onde a pilha desenhou *qualquer coisa*, que é o que um chamador que compõe isso em uma página precisa.\n\n:param canvas: Janela em coordenadas de mundo e grade de saída na qual compor a pilha.",
       "translation_source_blocks_sha256": [
         "1490c4504294001cae842a896bc35134b0c7a60c063ebba66c90735258ab1feb",
-        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1"
+        "e3127b2372d4ed258b6b0bcb1751a552f9a8f1e7118a4703270b59c79459e9f1",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.render_uint8": {
       "source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ],
-      "source_sha256": "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
-      "text": ":meth:`render` como ``(H, W, 3)`` uint8 – o que uma QImage quer.",
+      "source_sha256": "647e96602de114a2eabc49017bcba8ccce0c5a6728ebfd92a93c48ebad7ab059",
+      "text": ":meth:`render` como  ``(H, W, 3)``  uint8 o que um QImage quer.\n\n:param canvas: Janela em coordenadas de mundo e grade de saída na qual compor a pilha.",
       "translation_source_blocks_sha256": [
-        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462"
+        "ef3c7d26d7200824dadf224ee2b0d8184c9b55717c67d9d922c0a276dd30d462",
+        "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218"
       ]
     },
     "spacr.layers.LayerStack.select": {
       "source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ],
-      "source_sha256": "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
-      "text": "Selecione uma camada (ou ``None``); retorna-a.",
+      "source_sha256": "ea1e6d3da45023b1240bbdfcace66315b40a56ce20b5e39f2fabd1f38ee0992e",
+      "text": "Selecione uma camada (ou ``None``); retorna-a.\n\n:param layer: Objeto de camada, nome exclusivo da camada, índice inteiro da pilha ou ``None`` para limpar a seleção.",
       "translation_source_blocks_sha256": [
-        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e"
+        "0c7d3350e3a6bad6a08d624b1028100275b561e71df222b6fdc58855aeb1ce1e",
+        "0594c6e814eda9b26b0a7a40a96d55466b41f83ea9839b511009ead906df39a7"
       ]
     },
     "spacr.layers.LayerStack.selected": {
@@ -30919,13 +31105,39 @@
     "spacr.layers.LayerStack.subscribe": {
       "source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
       ],
-      "source_sha256": "943a56c50d0d9e46e2283d3f0405a514395aea062ca6eb3f783dbd3f2baff04c",
-      "text": "Seja informado quando algo mudar. Retorna ``listener``, para cancelar a inscrição.\n\nOs ouvintes são mantidos por referência forte e NO são fracos: uma visualização que assina deve :meth:`unsubscribe` quando fecha, exatamente como :class:`spacr.qt.linked_selection.LinkedView` deve desvincular.",
+      "source_sha256": "719511e2e892343f955dd3aeb4a586939a96ccc827ec1317d3ca4763ebc97dc7",
+      "text": "Seja informado quando algo mudar. Retorna ``listener``, para cancelar a inscrição.\n\nOs ouvintes são mantidos por referência forte e NO são fracos: uma visualização que assina deve :meth:`unsubscribe` quando fecha, exatamente como :class:`spacr.qt.linked_selection.LinkedView` deve desvincular.\n\n:param listener: Função chamável que recebe cada :class:`LayerEvent`; uma referência forte à função é mantida.",
       "translation_source_blocks_sha256": [
         "fe15ef0e96509c7be047166452c477563f3b8086bb0d7570192707d9a0038f13",
-        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb"
+        "cf9d3fc6ad6bd45f8a5cb4b7beebf4818a0937e1eae7778d8dd213417b104fbb",
+        "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157"
+      ]
+    },
+    "spacr.layers.LayerStack.to_bottom": {
+      "source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "2c4e5a81230c6aa517ba256075cfb7916b2522771553763d477b5adb6cfa3a4d",
+      "text": "Move uma camada para o fundo da pilha.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a mover.",
+      "translation_source_blocks_sha256": [
+        "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ]
+    },
+    "spacr.layers.LayerStack.to_top": {
+      "source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
+      ],
+      "source_sha256": "7648f3524e9c0407039ab77348af494dc0607d388ba15123e8b38ff4f891707d",
+      "text": "Move uma camada para a frente da pilha.\n\n:param layer: Objeto de camada, nome exclusivo da camada ou índice inteiro da pilha a mover.",
+      "translation_source_blocks_sha256": [
+        "67005f9dcf2430a4529562e9e7e6f1089dd9901e6d7f41843a1e00822f8e3a5b",
+        "a5642cc0d1b204b3c25ea9c3b47e984a30511096b8ecaecf74173122dd8137f6"
       ]
     },
     "spacr.layers.LayerStack.units": {
@@ -30940,12 +31152,14 @@
     },
     "spacr.layers.LayerStack.unsubscribe": {
       "source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ],
-      "source_sha256": "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
-      "text": "Pare de ser informado. ``True`` se esta chamada foi o que a removeu.",
+      "source_sha256": "8e090f82185bff494bdee81622acc5fb8451afeec73d42e0d3cc3fc6e9d41bb6",
+      "text": "Pare de ser informado. ``True`` se esta chamada foi o que a removeu.\n\n:param listener: Função de retorno de evento anteriormente inscrita a remover.",
       "translation_source_blocks_sha256": [
-        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb"
+        "37a83d0f34532da6640b8f893117836cbf4b14703989ab0cdf89527277b4d0cb",
+        "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900"
       ]
     },
     "spacr.layers.LayerStack.world_extent": {
@@ -30968,10 +31182,14 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ],
-      "source_sha256": "2b75a74eb22ab14e902efb40ce88c60343cc91338bb24242160717ecd70ab793",
-      "text": "As três camadas de imagem de um volume, dispostas para que se alinhem.\n\nUm z-stack visto apenas de cima esconde a coisa para a qual um z-stack é adquirido. As três telas aqui são a vista superior e as duas vistas laterais através de uma mira cruzada, organizadas da maneira como as vistas ortogonais do ImageJ são:\n\n* :attr:`xy` a vista superior, linhas ``y`` e colunas ``x``, em profundidade ``z``;\n* :attr:`zx` ABAIXO-O, linhas ``z`` e colunas ``x``, então ele compartilha suas colunas com a vista superior;\n* :attr:`yz` Por trás dele, linhas ``y`` e colunas ``z``, então ele compartilha suas linhas com a vista superior.\n\n**Cada painel usa uma escala mundo-unidades-por-pixel.** Essa é toda a dificuldade, e é por isso que esta é uma classe em vez de três chamadas :meth:`Canvas.covering`. As pilhas confocal nesta base de código são rotineiramente 0.65 µm em xy e 2 µm em z; uma vista lateral desenhada um pixel por fatia é três vezes muito fina, e não parece errada - parece uma célula ligeiramente plana. A esfericidade nuclear, a profundidade de colocalização e todos os recursos de forma 3D lidos em tal imagem estão errados por um fator que ninguém vê. Aqui as visualizações laterais são :math:`z_{span}/step` pixels de altura, então uma pilha de 10 fatias 2 µm é 31 px de uma visualização de 0,65 µm/px, não 10.\n\nCrie um com :meth:`covering` e mova o crosshair com :meth:`at`.",
+      "source_sha256": "37e013953329b5c1d534589475c650a0827d965212edaf5d0b41d6c82451c43c",
+      "text": "As três camadas de imagem de um volume, dispostas para que se alinhem.\n\nUm z-stack visto apenas de cima esconde a coisa para a qual um z-stack é adquirido. As três telas aqui são a vista superior e as duas vistas laterais através de uma mira cruzada, organizadas da maneira como as vistas ortogonais do ImageJ são:\n\n* :attr:`xy` a vista superior, linhas  ``y`` e colunas  ``x``, em profundidade ``z``;\n* :attr:`zx` ABAIXO-o, linhas  ``z`` e colunas  ``x``, por isso partilha as suas colunas com a vista superior;\n* :attr:`yz`  BESIDE-lo, linhas  ``y`` e colunas  ``z``, então ele compartilha suas linhas com a vista superior.\n\n**Cada painel usa uma escala mundo-unidades-por-pixel.** Essa é toda a dificuldade, e é por isso que esta é uma classe em vez de três chamadas :meth:`Canvas.covering`. As pilhas confocal nesta base de código são rotineiramente 0.65 µm em xy e 2 µm em z; uma vista lateral desenhada um pixel por fatia é três vezes muito fina, e não parece errada - parece uma célula ligeiramente plana. A esfericidade nuclear, a profundidade de colocalização e todos os recursos de forma 3D lidos em tal imagem estão errados por um fator que ninguém vê. Aqui as visualizações laterais são :math:`z_{span}/step` pixels de altura, então uma pilha de 10 fatias 2 µm é 31 px de uma visualização de 0,65 µm/px, não 10.\n\nCrie um com :meth:`covering` e mova o crosshair com ?:meth:`at`.\n\n:param xy: Tela de vista superior cujas linhas e colunas abrangem o segundo e o terceiro eixos do volume.\n:param zx: Tela da vista lateral inferior cujas linhas abrangem a profundidade e cujas colunas se alinham com :attr:`xy`.\n:param yz: Tela de vista lateral cujas linhas se alinham com :attr:`xy` e cujas colunas abrangem a profundidade.\n:param point: Mapeamento dos nomes dos eixos de mundo para as coordenadas compartilhadas da mira.",
       "translation_source_blocks_sha256": [
         "b72972c43719e6b9dd2c816ea35f67471dea9c18f7335146511e036f724738d0",
         "4c72efac983619abe219f91e9767b8e1c7937d976a34c5d75466a1ef5137b08f",
@@ -30979,7 +31197,11 @@
         "f110f2e5fc7c0a703c2705108ee7f864463d9b2833e7272f8115521380d754f3",
         "a1c299e3c15a66ee876ffdb9b4c0d7d763e97a653c226600feb26148df0bceaf",
         "80f811e4bd5380a4213bca987e0b1f64969269cac38251d45bf17e0ef1a5c6dd",
-        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0"
+        "d938c4042fc5de9b588557ab6408e3c57e56ec73786277f49420513aa7d0b3a0",
+        "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+        "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+        "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+        "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08"
       ]
     },
     "spacr.layers.OrthoViews.at": {
@@ -30997,13 +31219,19 @@
     "spacr.layers.OrthoViews.at_pixel": {
       "source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ],
-      "source_sha256": "e22e20e6e83c86de844acb9d76f0171313052eec1acb3058bd1400f9e30b6af2",
-      "text": "Mova a mira para o ponto do mundo sob um pixel de um painel.\n\nClicando na vista lateral para mover a fatia da vista superior, que é a interacção que uma vista ortogonal serve.",
+      "source_sha256": "e4015cbe1fb3d9b38e38184ff9186468e95cbfd1046880f1169eb0dbed990fde",
+      "text": "Mova a mira para o ponto do mundo sob um pixel de um painel.\n\nClicando na vista lateral para mover a fatia da vista superior, que é a interacção para a qual serve uma vista ortogonal.\n\n:param panel: Chave do painel: ``\"xy\"``, ``\"zx\"`` ou ``\"yz\"``.\n:param row: Coordenada fracionária de linha dentro do painel selecionado.\n:param column: Coordenada fracionária de coluna dentro do painel selecionado.",
       "translation_source_blocks_sha256": [
         "6c1e70ff48e021a13cd717b29a514b12acd67ff88e7e7ed7e908fafe86accf81",
-        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813"
+        "74df32b334ff6a8899fdff96c3e2a773111b1802a2642a40b002f9e58c937813",
+        "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+        "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+        "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2"
       ]
     },
     "spacr.layers.OrthoViews.axes": {
@@ -31072,32 +31300,38 @@
     },
     "spacr.layers.OrthoViews.n_slices": {
       "source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ],
-      "source_sha256": "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
-      "text": "Quantas fatias o controle deslizante em ``axis`` tem.",
+      "source_sha256": "6afd266348961d5dcdeca9e963e657393c8b4d8c8e969bff7e5d46d5212dd767",
+      "text": "Quantas fatias o controle deslizante em ``axis`` tem.\n\n:param axis: Eixo de mundo cuja extensão e passo de voxel definem a contagem.",
       "translation_source_blocks_sha256": [
-        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c"
+        "db2d9564a83b07efe2737ff47275451102eab51d689682f2c11973a247d69d6c",
+        "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b"
       ]
     },
     "spacr.layers.OrthoViews.render": {
       "source_blocks_sha256": [
-        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e"
+        "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ],
-      "source_sha256": "5424997dc3c2b53e0dd853b76b31bdbbec7db17f590957b044fb772320d7e13e",
-      "text": "``{panel: (H, W, 3)}`` a mesma pilha desenhada em todas as três camadas de imagem.",
+      "source_sha256": "7ef8064f1fd4169b359ed7d33952bf6022b2168bb8034380896b68437ab026b8",
+      "text": "``{panel: (H, W, 3)}`` a mesma pilha desenhada em todas as três camadas de imagem.\n\n:param stack: Pilha de camadas a renderizar por meio de cada tela ortogonal.",
       "translation_source_blocks_sha256": [
-        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb"
+        "dda688a0a44a25405c45de224f1a70eb3176f86783243d4cc4948f6ae53f20bb",
+        "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1"
       ]
     },
     "spacr.layers.OrthoViews.resized": {
       "source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ],
-      "source_sha256": "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
-      "text": "O mesmo crosshair em uma largura de pixel diferente, painéis ainda alinhados.",
+      "source_sha256": "2e6c7485d0b98803414fe4d85aea541725d253833239b01be25d9b651806c322",
+      "text": "O mesmo crosshair em uma largura de pixel diferente, painéis ainda alinhados.\n\n:param width: Nova largura do painel superior em pixels; as dimensões derivadas dos painéis permanecem alinhadas à mesma escala de mundo.",
       "translation_source_blocks_sha256": [
-        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de"
+        "97e3a9c431dc755272df8c22c8defe33143e4b0d7092deaab9cbd23a323ea8de",
+        "6325cc8493e83401b1ed3df00b554341c300e9fad76741b098bfb496860d5fa7"
       ]
     },
     "spacr.layers.OrthoViews.scale": {
@@ -31113,25 +31347,29 @@
     "spacr.layers.OrthoViews.slider": {
       "source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ],
-      "source_sha256": "a07551dcd2dbd286df7b9dcecb8323e5a2eee618de9446a3708ee6188c1ccc8c",
-      "text": "``(low, high, step)`` em unidades WORLD para um controle deslizante de fatias.\n\nO passo é o tamanho do voxel da própria fonte ao longo desse eixo, então arrastar o controle deslizante move uma fatia de cada vez em vez de uma fração arbitrária do volume - e o controle slide de uma pilha calibrada µm é rotulado em µm, que é o número que um usuário pode verificar contra as configurações de aquisição.",
+      "source_sha256": "42401bb79d74e5cbd94edfc285d1da23dfdb445f1e89e6d6d6130220bb997b83",
+      "text": "``(low, high, step)`` em unidades WORLD para um controle deslizante de fatias.\n\nO passo é o tamanho do voxel da própria fonte ao longo desse eixo, então arrastar o controle deslizante move uma fatia de cada vez em vez de uma fração arbitrária do volume - e um controle deslizante da pilha calibrada µm é rotulado em  µm, que é o número que um usuário pode verificar contra as configurações de aquisição.\n\n:param axis: Eixo de mundo para o qual retornar os limites e o passo de voxel.",
       "translation_source_blocks_sha256": [
         "5b7ce88ff4be5739449c6028db80f9f60e13740054565d04ffdf1c2906175ffd",
-        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a"
+        "5d74f9df7408c95be3a66b720bf1d0b4f45912f143d41edbaed9550d37b83d7a",
+        "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9"
       ]
     },
     "spacr.layers.OrthoViews.zoomed": {
       "source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ],
-      "source_sha256": "acd215310f8dc4d25dd6a1f3ca2d57c75d632e57db76fa2d2ead807786dbc5c8",
-      "text": "Cada painel ``factor`` vezes mais perto, sobre o crosshair.\n\nTodos os três juntos, e sobre a mira, em vez de sobre o próprio meio de cada painel, então os painéis ainda se alinham depois.",
+      "source_sha256": "f218382523598225c5a996d0db5aa48a14139f91128b3e7cae848d48ad25c799",
+      "text": "Cada painel ``factor`` vezes mais perto, sobre o crosshair.\n\nTodos os três juntos, e sobre a mira, em vez de sobre o próprio meio de cada painel, então os painéis ainda se alinham depois.\n\n:param factor: Fator de ampliação positivo e finito aplicado a todos os painéis; valores maiores que um aproximam.",
       "translation_source_blocks_sha256": [
         "072dcd31e1a9ca0def3b69c79f34105263b8fb46499626bfb134af8b66fab658",
-        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3"
+        "e019067ea8369efc301eee8049a6764e523889f2f56a2819a3fe6f9d43cbedc3",
+        "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa"
       ]
     },
     "spacr.layers.PointsLayer": {
@@ -31154,22 +31392,26 @@
     },
     "spacr.layers.PointsLayer.add": {
       "source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ],
-      "source_sha256": "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
-      "text": "Acrescentar um ponto nas coordenadas de dados; retorna seu índice.",
+      "source_sha256": "3d69d2809dcae8483972d4751ab95f07f7972c18d0b4d194103887a92b4bd04f",
+      "text": "Acrescentar um ponto nas coordenadas de DATA; retorna seu índice.\n\n:param point: Sequência de coordenadas de dados com um valor por eixo da camada.",
       "translation_source_blocks_sha256": [
-        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a"
+        "514db6a9b2e235c8a1e32870a5bad04fa0774b829e917e31410e417d61d7ca0a",
+        "d413b11a1bfda16609401500347e194426a2f340883e3ea5a0050ce845977353"
       ]
     },
     "spacr.layers.PointsLayer.add_world": {
       "source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ],
-      "source_sha256": "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
-      "text": "Adicione um ponto dado como ``{axis: world}``.",
+      "source_sha256": "c783505993a85d7b3948d3b1a155d3e2ba2030679e2a9b996dbe425196bdc4f4",
+      "text": "Adicione um ponto dado como ``{axis: world}``.\n\n:param world: Mapeamento dos nomes dos eixos para coordenadas de mundo; os eixos omitidos da camada são avaliados na coordenada de mundo zero.",
       "translation_source_blocks_sha256": [
-        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702"
+        "ab8b1cd53c1a0f4cc867dec0e71618df799c47a128f9f4a1503525104945d702",
+        "a71d71cc6135bfe071dea521a449f3eaa48e646615ab49ee5b5b68b9bdba4d85"
       ]
     },
     "spacr.layers.PointsLayer.border_width": {
@@ -31205,32 +31447,38 @@
     },
     "spacr.layers.PointsLayer.nearest": {
       "source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ],
-      "source_sha256": "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
-      "text": "ndice do ponto cujo disco contém ``world``, mais próximo primeiro.",
+      "source_sha256": "d5874f95281f3675072c764349c10fe51e027ac35bb30a7072371841482c1d57",
+      "text": "ndice do ponto cujo disco contém ``world``, mais próximo primeiro.\n\n:param world: Mapeamento dos nomes dos eixos para o ponto de consulta em coordenadas de mundo; os eixos omitidos da camada são avaliados em zero.",
       "translation_source_blocks_sha256": [
-        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69"
+        "97e399ecc4ab16625a1c1194722e295ee9eae3d750d92e0461f70bc4c0c31f69",
+        "490e9ed4bcfecda2a111cb162e5c2f71826210b81801828de38106a329de4339"
       ]
     },
     "spacr.layers.PointsLayer.remove": {
       "source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ],
-      "source_sha256": "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
-      "text": "Largue um ponto.",
+      "source_sha256": "d6d4506e32187c8fe006bb6a67a77abe0071c04c9482bee504fb1d2e402995ae",
+      "text": "Largue um ponto.\n\n:param index: Índice baseado em zero do ponto a remover; índices negativos são rejeitados.",
       "translation_source_blocks_sha256": [
-        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad"
+        "3889dc5e8e271a58cb954c8fffdb2b7467d5612bd48ad2c18eb5b6f333ca5aad",
+        "9cc50f437055a9a04b9a6156882315df446bf1864d6c37dbc805f6551e6493e8"
       ]
     },
     "spacr.layers.PointsLayer.set_size": {
       "source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ],
-      "source_sha256": "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
-      "text": "Defina o diâmetro de cada ponto, ou um por ponto.",
+      "source_sha256": "b8b9809e4fda9d1e845bca224edb21f35c740f5771e9f0167a930eb2e8c157be",
+      "text": "Defina o diâmetro de cada ponto, ou um por ponto.\n\n:param value: Diâmetro escalar aplicado a todos os pontos ou sequência semelhante a uma matriz com um diâmetro em unidades de mundo por ponto.",
       "translation_source_blocks_sha256": [
-        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0"
+        "f45266b0a4c3a1d45fab039d3fe329063774a8fc6d8d9c38724a81d6060232e0",
+        "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9"
       ]
     },
     "spacr.layers.PointsLayer.size": {
@@ -31296,12 +31544,66 @@
     },
     "spacr.layers.ShapesLayer.add": {
       "source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
       ],
-      "source_sha256": "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
-      "text": "Adicione uma forma; retorna seu índice.",
+      "source_sha256": "2bfeec03044fbbe8bf926596b631b8b37c682b995a98a561a278b3b42de377fe",
+      "text": "Acrescentar uma forma; retorna seu índice.\n\n:param shape: :class:`Shape` com a mesma dimensionalidade desta camada.",
       "translation_source_blocks_sha256": [
-        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8"
+        "371add46d1690f00df27be33162869760fd780c334f4fdc32a7624b186edb1a8",
+        "0b9ab97bec70c4de950f882dd40ca76ad68b766c0270aaf36cd136eb1b89b862"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_ellipse": {
+      "source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ],
+      "source_sha256": "f1d9f3a788d5883f722c2f1f79446c81832bec8d86a4d4d2abe76110df18c3e2",
+      "text": "Acrescenta uma elipse alinhada aos eixos dentro de uma caixa definida por cantos opostos.\n\n:param corner_a: Primeiro canto da caixa delimitadora em coordenadas de dados, um valor por eixo.\n:param corner_b: Canto oposto da caixa delimitadora em coordenadas de dados, um valor por eixo.",
+      "translation_source_blocks_sha256": [
+        "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+        "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+        "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_path": {
+      "source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ],
+      "source_sha256": "f65a3e822260e8f9029620daf67fcf6b69083229deb18bd386ba172b21bd94ff",
+      "text": "Acrescenta um caminho aberto.\n\n:param vertices: Vértices semelhantes a uma matriz em coordenadas de dados, com formato ``(M, ndim)`` e pelo menos duas linhas.",
+      "translation_source_blocks_sha256": [
+        "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+        "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_polygon": {
+      "source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ],
+      "source_sha256": "694adfc8f8ccfe61f0552bf1adb5fd6b67089f8fce7ef898b80607dca1270aed",
+      "text": "Acrescenta um polígono fechado.\n\n:param vertices: Vértices semelhantes a uma matriz em coordenadas de dados, com formato ``(M, ndim)`` e pelo menos três linhas.",
+      "translation_source_blocks_sha256": [
+        "82fd705db73dc2c6b50ff48252090a1b400fad9edcc85d8c393f9c05afef7016",
+        "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206"
+      ]
+    },
+    "spacr.layers.ShapesLayer.add_rectangle": {
+      "source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
+      ],
+      "source_sha256": "e9d5686e0baf47cb1a32e97597676e325bd3e6124898765b6d3c49644c164ac7",
+      "text": "Acrescenta um retângulo alinhado aos eixos a partir de cantos opostos.\n\n:param corner_a: Primeiro canto em coordenadas de dados, um valor por eixo.\n:param corner_b: Canto oposto em coordenadas de dados, um valor por eixo.",
+      "translation_source_blocks_sha256": [
+        "1a6dddfb14624c72f7208a2cc5d702a8cb3eae78d3d4767c23753dba9bda9ad7",
+        "acb9874332a8252c1c9f5617a5a9a72e658a5960e100b7a144cd749458c9b58f",
+        "f9f16c54d25ea766422275d8adca9c565da008ac6c2dd1cb5ba2dd216dd0d4af"
       ]
     },
     "spacr.layers.ShapesLayer.mask": {
@@ -31309,15 +31611,17 @@
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4"
       ],
-      "source_sha256": "245ac0f9839a35e7a1b7bdc1a807c619a8415fe2e6607c831b221b9d9e5ae54f",
-      "text": "Rasterize as formas fechadas em ``canvas``; ``(H, W)`` bool.\n\nA medida de conversão precisa: mão-lo ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` e o ROI volta na própria grade dessa camada, qualquer grade em que foi desenhado.\n\nLimites são meio-oPEN: um centro de pixels exatamente na borda baixa de um retângulo está dentro dele e um exatamente na borda alta não. Essa é a própria convenção da regra ímpar, e é a única que importa - dois ROIs compartilhando uma partição de borda dos pixels entre eles em vez de ambos reivindicando a costura, então um objeto no limite é contado uma vez.\n\nFormas abertas (linhas, caminhos) não encerram nada e não contribuem com nada.",
+      "source_sha256": "40ebc5e7b20343d4bdf7f3039c746dca512ad548b9c0e439d3d53179fad4664f",
+      "text": "Rasterize as formas fechadas em ``canvas``;  ``(H, W)`` bool.\n\nA medida de conversão precisa: entregá-lo ``Canvas.for_grid(mask_layer.spacing, mask_layer.shape)`` e o  ROI volta na própria grade dessa camada, seja qual for a grade em que foi desenhado.\n\nLimites são meio-oPEN: um centro de pixels exatamente na borda baixa de um retângulo está dentro dele e um exatamente na borda alta não. Essa é a própria convenção da regra ímpar, e é a única que importa - dois ROIs compartilhando uma partição de borda dos pixels entre eles em vez de ambos reivindicando a costura, então um objeto no limite é contado uma vez.\n\nFormas abertas (linhas, caminhos) não encerram nada e não contribuem com nada.\n\n:param canvas: Camada de imagem em coordenadas de mundo e grade de pixels nas quais rasterizar as formas fechadas.",
       "translation_source_blocks_sha256": [
         "eea500feb85f39e1b0a97d27c4e8a7b3d048f8f3a29a7e8b827257c8f1196481",
         "da41ed4f939f4815474c91f790e940346eea42b49c59d5986097d664239d6322",
         "5131c477bf44e112a534ea244febd315c0bc5b4215cc1ecd5d94af1c3200fc6d",
-        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d"
+        "d84a20ab5c45babe9d6b35acfa641a07ad3a39e168d3f7a542ec7749beacef1d",
+        "d51f3daf5ec1b3e392613fb5d87fa96b2cd2a7b57cec000af658067feb9ebafd"
       ]
     },
     "spacr.layers.ShapesLayer.ndim": {
@@ -31333,12 +31637,14 @@
     },
     "spacr.layers.ShapesLayer.remove": {
       "source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ],
-      "source_sha256": "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
-      "text": "Solte uma forma e devolva-a.",
+      "source_sha256": "498b9d49d3ed3c1d9af0f1531f8c3c144f980ae5e1aa3e9b74f6335936302b69",
+      "text": "Solte uma forma e devolva-a.\n\n:param index: Índice inteiro da forma a remover; a indexação negativa normal do Python é aceita.",
       "translation_source_blocks_sha256": [
-        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef"
+        "09b2042dc52d2779c05c20c19b0246f2ccf7466e45f2758f2f17eb47740c65ef",
+        "3f0d2cf3b8d42e08193dbb2c3956f6193867a2a2115f08de6c47c89ed24dee83"
       ]
     },
     "spacr.layers.ShapesLayer.world_extent": {
@@ -31377,25 +31683,29 @@
     "spacr.layers.Spacing.axis_index": {
       "source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ],
-      "source_sha256": "7afb83103e2afa15ad8d9d626983ece2b96f0590d6baa5cb191768709d467fc8",
-      "text": "Posição de ``axis`` neste espaçamento.\n\n:raises LayerError: Se esse espaçamento não tiver tal eixo.",
+      "source_sha256": "27fd6a76be317613b41443b99f9a897931182a143d993567924e0f495bf4f81e",
+      "text": "Posição de ``axis`` neste espaçamento.\n\n:param axis: Nome do eixo a localizar em :attr:`axes`.\n:raises LayerError: se esse espaçamento não tiver tal eixo.",
       "translation_source_blocks_sha256": [
         "fd35d810e4a81d55d7dd03ad5e6811c743f8346ddf5b02d2d7613583b8dae608",
+        "fe7f75862dd7a94813d7a837e02dfb0081f86d44355fe313ed832f8c176ecb5d",
         "42f488ffa1a7eeb3b9d8c3826a1f5b53f1f07c327f2028310dd56a91bd5b024a"
       ]
     },
     "spacr.layers.Spacing.data_from_map": {
       "source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ],
-      "source_sha256": "296763bc6cc9dc4ff02d88d91c454ee0132496092eef5ff5a45b71b9bc6afea5",
-      "text": "ndice de dados fracionários a partir de um mapeamento ``{axis: world}``.\n\nOs eixos que o mapeamento não menciona são considerados 0 em unidades de mundo, que é o que um clique 2-D em uma camada 3-D significa uma vez que o visualizador forneceu a fatia que está mostrando.",
+      "source_sha256": "62e34087483880aae4ba9c8e5f98abddccfd561cd62a810e92cf45c12b1ee8b6",
+      "text": "ndice de dados fracionários a partir de um mapeamento ``{axis: world}``.\n\nOs eixos que o mapeamento não menciona são considerados 0 em unidades de mundo, que é o que um clique 2-D em uma camada 3-D significa uma vez que o visualizador forneceu a fatia que está mostrando.\n\n:param world: Mapeamento dos nomes dos eixos para coordenadas de mundo. Os eixos de espaçamento sem nome são avaliados na coordenada de mundo zero.",
       "translation_source_blocks_sha256": [
         "a8df792c7451b12739197121b0bc5a168932ac73564e75cbde1533d71d58ecec",
-        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580"
+        "d59e4dc87689f3266c7ebce61373ad81c25a4f33320b4630f6154a9bcfa0e580",
+        "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136"
       ]
     },
     "spacr.layers.Spacing.describe": {
@@ -31411,25 +31721,41 @@
     "spacr.layers.Spacing.extent": {
       "source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ],
-      "source_sha256": "36c184514f8d4a8f09c4090674a146bd3448ea964e62891d63bf9646bc8b6ce5",
-      "text": "Caixa delimitadora mundial de uma matriz de ``shape``, com chave por eixo.\n\nMedido para o EDGE EXTERIOR dos elementos finais (meio voxel além do primeiro e último centros), porque essa é a região que os dados realmente cobrem - uma tela montada nos centros de elementos corta metade de um voxel de cada lado, que a 2 µm z-steps é uma laje visível.",
+      "source_sha256": "dd53f648c3b8d249d00fcc6bbb4cdf066b0eb770c8e48b881e1d720f361a611c",
+      "text": "Caixa delimitadora mundial de um array de ``shape``, com chave por eixo.\n\nMedido para o EDGE EXTERIOR dos elementos finais (meio voxel além do primeiro e último centros), porque essa é a região que os dados realmente cobrem - uma tela montada nos centros de elementos corta metade de um voxel de cada lado, que a 2 µm z-steps é uma laje visível.\n\n:param shape: Formato da matriz na ordem de :attr:`axes`, com um tamanho por eixo de espaçamento.",
       "translation_source_blocks_sha256": [
         "ae2cb08745bc43dcd787b32358608d210db77181370b1d8fdf7d07eea161fb7b",
-        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871"
+        "1be46ccff204410f790f7335590d86aeaf7123ead10f81fa89fc05256d234871",
+        "ed16c5aa0ed008bef169d34ef35957e40ddfc72eddfb8b80fb8cbd2aeb0c040e"
       ]
     },
     "spacr.layers.Spacing.from_map": {
       "source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c"
+        "46d844cafa26b7b309d3e07e6afde4e6f49101f5a81221d84cd7d2d4525b619c",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
       ],
-      "source_sha256": "79321e8be4b91d6a9eb15039791904144fff79526c5e7b5bb2d10d8214ebad02",
-      "text": "Construa a partir de ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nA ordem é própria do mapeamento, que para um literal de mapeamento de valor-chave é a ordem em que foi escrita - a mesma ordem na qual os eixos da matriz estão. Nomear os eixos no local da chamada é o ponto: ``(2.0, 0.65, 0.65)`` por si só foi lido para trás antes.",
+      "source_sha256": "c3f4d833de0cc8dd226a2105dcc11d0dbc65c68ecb7864cb3c0f4eae89929e72",
+      "text": "Construa a partir de ``{\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}``.\n\nA ordem é própria do mapeamento, que para um literal de mapeamento de valor-chave é a ordem em que foi escrita a mesma ordem em qual os eixos do array estão. Nomear os eixos no local da chamada é o ponto: ``(2.0, 0.65, 0.65)`` por si só foi lido para trás antes.\n\n:param sizes: Mapeamento do nome do eixo para um tamanho de voxel finito e diferente de zero; a ordem de iteração do mapeamento torna-se a ordem dos eixos da matriz.",
       "translation_source_blocks_sha256": [
         "a2d7c5e2e61499d278b6d61cbfd2daece8eab02e7272decd9a45c79346477680",
-        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525"
+        "bf8353adf5a3ac38114388c804168b9bcb594231833ddbcf0a9105304bf92525",
+        "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427"
+      ]
+    },
+    "spacr.layers.Spacing.has_axis": {
+      "source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
+      ],
+      "source_sha256": "61fcd66c2efe3bf5e40cf76dde754d3f0e24bed1258ce2fc4e597d2a318a2758",
+      "text": "Se este espaçamento contém ``axis``.\n\n:param axis: Nome do eixo a testar depois da conversão para uma cadeia de caracteres.",
+      "translation_source_blocks_sha256": [
+        "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+        "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac"
       ]
     },
     "spacr.layers.Spacing.isotropic": {
@@ -31454,22 +31780,26 @@
     },
     "spacr.layers.Spacing.to_data": {
       "source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ],
-      "source_sha256": "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
-      "text": "Coordenada mundial → (fraccional) índice de dados, por eixo.",
+      "source_sha256": "7247239dbc50ab4d4769f4891dce4e76b8af6474dcaaeae019e821b86f511f7b",
+      "text": "Coordenada mundial → (fraccional) índice de dados, por eixo.\n\n:param world: Coordenada de mundo na ordem de :attr:`axes`, com uma entrada por eixo de espaçamento.",
       "translation_source_blocks_sha256": [
-        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566"
+        "17c2aac50d65f5c4d2e5dd4f44910318d11db57a3649ce657c423242e444f566",
+        "bd6b5060a3d3971a513023089e75bf2a8a5c4c7542f875c67692a5475b5e8cc0"
       ]
     },
     "spacr.layers.Spacing.to_world": {
       "source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ],
-      "source_sha256": "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
-      "text": "ndice de dados → coordenada mundial, por eixo.",
+      "source_sha256": "9f126591f87d9055df66f6d259f3ae9cc7185ea088453f1c545c44e1537312d4",
+      "text": "ndice de dados → coordenada mundial, por eixo.\n\n:param index: Coordenada fracionária de dados na ordem de :attr:`axes`, com uma entrada por eixo de espaçamento.",
       "translation_source_blocks_sha256": [
-        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c"
+        "d9d11c7a1db7ed5f2619bf0100fba7ae5bb97ddd22a63939c3994e744f43a73c",
+        "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9"
       ]
     },
     "spacr.layers.Spacing.translated": {
@@ -31484,12 +31814,14 @@
     },
     "spacr.layers.Spacing.world_map": {
       "source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ],
-      "source_sha256": "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
-      "text": ":meth:`to_world` chaveado pelo nome do eixo.",
+      "source_sha256": "164d00d51fade3099128753c069567e116fb8c9e4d89dac2d146b49b0acfeae6",
+      "text": ":meth:`to_world` digitado pelo nome do eixo.\n\n:param index: Coordenada fracionária de dados na ordem de :attr:`axes`.",
       "translation_source_blocks_sha256": [
-        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7"
+        "119b68fc8c0dc5aba99482531ee4f3ded4ebd4ba29be724edb5cc27ba8d577e7",
+        "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783"
       ]
     },
     "spacr.layers.colormap": {
@@ -31497,14 +31829,16 @@
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ],
-      "source_sha256": "09829fae1667dfd1d47de9aa74496240f9805e32fdf9e14ee2c43adb8d084335",
-      "text": "Resolva ``spec`` para um :class:`Colormap`.\n\nToma uma :class:`Colormap` (retornada inalterada), um nome em :data:`COLORMAPS`, uma cor (qualquer forma :func:`to_rgba`) que se torna uma rampa black→color, ou - como último recurso - um nome de colormap matplotlib.\n\nMatplotlib é tentado por último e preguiçoso. Este módulo deve permanecer importável onde matplotlib não está instalado e barato para importar em um trabalhador, por isso nunca é uma dependência difícil; mas se um usuário digita ``\"viridis\"`` e matplotlib está lá, recusar seria pedantry.\n\n:raises LayerError: Se ``spec`` não nomear nada.",
+      "source_sha256": "5a31aa1ad57e938922c8dca2c49fc960286efb9ec7eee7321f20d2e1f4dabb7a",
+      "text": "Resolva ``spec`` para um  :class:`Colormap`.\n\nToma uma :class:`Colormap` (retornada inalterada), um nome em  :data:`COLORMAPS`, uma cor (qualquer forma :func:`to_rgba`) que se torna uma rampa de cor preta→, ou como um último recurso um nome de colormap  matplotlib.\n\nMatplotlib é tentado por último e preguiçoso. Este módulo deve permanecer importável onde matplotlib não está instalado e barato para importar em um trabalhador, por isso nunca é uma dependência difícil; mas se um usuário digita ``\"viridis\"`` e matplotlib está lá, recusar seria pedantry.\n\n:param spec: :class:`Colormap` existente, nome de mapa de cores interno ou do matplotlib, ou uma especificação de cor usada para construir uma rampa do preto até essa cor.\n:raises LayerError: se ``spec`` não nomeia nada.",
       "translation_source_blocks_sha256": [
         "b70adc58d1a296d246861e565861caab06b2eb82b026532fffaf42da88b02398",
         "35b7548bab9f29cdb92a2c46a6cdd6353a6df9d419f65f217ccbcfbeb97fd684",
         "f9feaaf2b950e29886156385046873b991508194e83bbc690b74926262bd1460",
+        "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
         "e0869e672b102c990ae18d6e67bd70e9c530417cd3f0ed55e3252bebc5de4fda"
       ]
     },
@@ -31512,26 +31846,30 @@
       "source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ],
-      "source_sha256": "d70a1cd5ad3faca333aceb4c87ddc70789d0f27995f446007e29520fb9c87820",
-      "text": "Uma cor estável e vívida para inteiro ``label``.\n\nEspaçamento de tonalidade de razão dourada com um jitter de saturação/valor determinístico, de modo que as etiquetas adjacentes estão muito distantes em tonalidade e o mesmo objeto mantém sua cor em zooms, re-renders e sessões. A etiqueta 0 é de fundo e é preta (os chamadores a desenham transparente).\n\nA construção é deliberadamente a mesma que :func:`spacr.qt.widgets.live_preview._random_outline_palette` usa para contornos, então uma máscara tem as mesmas cores de objeto em ambos os visualizadores. É reimplantado em vez de importado porque esse módulo importa PySide6 e este não deve ver o docstring do módulo.",
+      "source_sha256": "fb3ac6337fe21dc9e4e45a73452f5672c76ca40c0e4282cb5c1203860d5e3873",
+      "text": "Uma cor estável e vívida para inteiro ``label``.\n\nEspaçamento de tonalidade de razão dourada com um jitter de saturação/valor determinístico, de modo que as etiquetas adjacentes estão muito distantes em tonalidade e o mesmo objeto mantém sua cor em zooms, re-renders e sessões. A etiqueta 0 é de fundo e é preta (os chamadores a desenham transparente).\n\nA construção é deliberadamente a mesma que :func:`spacr.qt.widgets.live_preview._random_outline_palette` usa para contornos, então uma máscara tem as mesmas cores de objeto em ambos os visualizadores. É reimplantado em vez de importado porque esse módulo importa PySide6 e este não deve ver o docstring do módulo.\n\n:param label: Rótulo de objeto semelhante a um inteiro. O rótulo 0 é reservado para a cor preta do fundo.",
       "translation_source_blocks_sha256": [
         "3e3f058c3e007c262f9e5d2961131f6c62fff24376a67e3b73d3676ac2ff8bba",
         "c252496b6b3798865efe64ffe52e759bb9a9cb6b9b0e125350ef3c5d06450245",
-        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056"
+        "3214d3b019fa17fdca7f3055533bbc7ebaebbb21a15acf98a90cb59193912056",
+        "63698ff6ce3e4f979bf1cebb25233af3fb9e425f6c19db530bf7a36afac58208"
       ]
     },
     "spacr.layers.label_colors": {
       "source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ],
-      "source_sha256": "eb2f8980cec8017542fd9dd67ab763b32a76bc1119422ed8575e08a05a6b4d29",
-      "text": ":func:`label_color` sobre um array, retornando ``(..., 3)`` float32.\n\nConstruído procurando as etiquetas exclusivas uma vez em vez de por pixel: um 2048×A máscara 2048 contém algumas centenas de objetos e dezenas de milhões de pixels.",
+      "source_sha256": "345f05b2443a82e184d8e346ce91da928bce02bdc04091dd46a271a50d3f2dfa",
+      "text": ":func:`label_color` sobre um array, retornando  ``(..., 3)`` float32.\n\nConstruído procurando as etiquetas exclusivas uma vez em vez de por pixel: uma máscara 2048×2048 contém algumas centenas de objetos e dezenas de milhões de pixels.\n\n:param labels: Rótulos inteiros semelhantes a uma matriz; a saída preserva o formato e acrescenta um eixo RGB.",
       "translation_source_blocks_sha256": [
         "78a22522ac2a14acd722af50ee570967f467d1fa5e582c48496096bad5d52cf5",
-        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7"
+        "3136b231d91e6c5edf2c6030a3fd5e4adc8566f85d52fc19d451835d00bf07c7",
+        "3bec3fc8250a5e5fc3c1ab0b662bc1e95c1d825a0178acbd1478b19cc8340b4e"
       ]
     },
     "spacr.layers.to_rgba": {
@@ -49906,14 +50244,20 @@
     },
     "spacr.qt.app.MainWindow.eventFilter": {
       "source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ],
-      "source_sha256": "aa02a7e221ca124cc7e424f497be745e0b8021f7381773edcf4e7649f1c0198d",
-      "text": "Arraste a janela sem moldura pela barra de menu e maximize com um duplo clique - os dois gestos que a barra de título costumava carregar.\n\n`getattr`, não `self.menuBar()`:  Qt continua entregando eventos para um filtro durante a desmontagem, depois que  Python limpou os atributos do objeto.",
+      "source_sha256": "7593037df2981dfe4776d8272cb83b810ac86583dfd0dca0cfcdb46a447743a7",
+      "text": "Trata os gestos de arrastar e clicar duas vezes na barra de menus de uma janela sem moldura.\n\nDurante o encerramento, a barra de menus do Qt pode ser invalidada enquanto ainda há eventos na fila. Este filtro retorna ``False`` em vez de permitir que essa condição escape pelo limite de retorno de chamada do PySide.\n\n:param watched: Objeto Qt que recebe o evento.\n:param event: Evento Qt entregue ao filtro da janela principal.\n:returns: ``True`` quando um gesto do mouse na barra de menus é consumido; caso contrário, ``False``.",
       "translation_source_blocks_sha256": [
-        "232503519c23a8d00f9b860d721efb8ad7887dce4c4e02bb2049d739d2d276c4",
-        "71ef8795c539ef97b7eaf7f7843c01268fe77cad478aa233dc1a4307d3da1be2"
+        "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+        "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+        "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+        "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+        "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a"
       ]
     },
     "spacr.qt.app.MainWindow.keyPressEvent": {

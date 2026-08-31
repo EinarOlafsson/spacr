@@ -1,0 +1,482 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.layers.Blending.check#1",
+      "source_sha256": "a0883aa4935931740ddbb6227000a3c1955d105db7d95c0509d7d65ac5099715",
+      "source": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "context": "Blending-mode name. Leading and trailing whitespace and letter case are normalised before validation against :attr:`Blending.ALL`.",
+      "translation": "Namn på blandningsläge. Inledande och avslutande blanksteg samt skiftläge normaliseras före validering mot :attr:`Blending.ALL`."
+    },
+    {
+      "label": "spacr.layers.Canvas.panned#1",
+      "source_sha256": "3c8f9dfb533362ccfc92bb526f2bd330607d7fd337f48df7ccec35d125bc4831",
+      "source": "Signed displacement in canvas-row pixels.",
+      "context": "Signed displacement in canvas-row pixels.",
+      "translation": "Förskjutning med tecken, mätt i bildpunkter längs dukens rader."
+    },
+    {
+      "label": "spacr.layers.Canvas.panned#2",
+      "source_sha256": "5100f5ceae7a82a1e1a6d291ea0bbabd251a45d4e3c65502e12c533f903b7023",
+      "source": "Signed displacement in canvas-column pixels.",
+      "context": "Signed displacement in canvas-column pixels.",
+      "translation": "Förskjutning med tecken, mätt i bildpunkter längs dukens kolumner."
+    },
+    {
+      "label": "spacr.layers.Canvas.pixel_at#2",
+      "source_sha256": "b1c50ebf8849f64b6e7dd1361bfc15527bf91aa3ad0c0209d84d038dad9bf746",
+      "source": "Mapping containing world coordinates for both axes of this canvas plane.",
+      "context": "Mapping containing world coordinates for both axes of this canvas image layer.",
+      "translation": "Mappning som innehåller världskoordinater för båda axlarna i detta dukplan."
+    },
+    {
+      "label": "spacr.layers.Canvas.world_at#2",
+      "source_sha256": "cc16b3bf8e666674524078cc8c3ff52db32dc673adce7dae727045eeb8322047",
+      "source": "Fractional canvas-row coordinate.",
+      "context": "Fractional canvas-row coordinate.",
+      "translation": "Fraktionell koordinat längs dukens rader."
+    },
+    {
+      "label": "spacr.layers.Canvas.world_at#3",
+      "source_sha256": "d695ac1456d702dfc875cf5222c119eb8f2e82329066012dbe51aaebc9328a39",
+      "source": "Fractional canvas-column coordinate.",
+      "context": "Fractional canvas-column coordinate.",
+      "translation": "Fraktionell koordinat längs dukens kolumner."
+    },
+    {
+      "label": "spacr.layers.Canvas.zoomed#2",
+      "source_sha256": "3fd5a8be2d364d159e840e74db47828a9ade1ba609c60b6c522396bb6c4a4485",
+      "source": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "context": "Positive finite magnification factor; values above one zoom in and values below one zoom out.",
+      "translation": "Positiv ändlig förstoringsfaktor; värden över ett zoomar in och värden under ett zoomar ut."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.add#3",
+      "source_sha256": "66a5be01952485cf5043c75e48646913c282ae1088e140eba57b8670cfb54dbe",
+      "source": "Canvas that defines this panel's plane, size and world window.",
+      "context": "Canvas that defines this panel's image layer, size and world window.",
+      "translation": "Duk som definierar panelens plan, storlek och världsfönster."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.pan#2",
+      "source_sha256": "784add23d11a41230e8850e8c1de9d99b9481dfb6bbfb49a3eccc337d53966fc",
+      "source": "Signed row displacement in pixels of the driving panel.",
+      "context": "Signed row displacement in pixels of the driving panel.",
+      "translation": "Radförskjutning med tecken, mätt i den styrande panelens bildpunkter."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.pan#3",
+      "source_sha256": "4ee1e86ea1899fc52da4dd14007fa73697c72d7190c219c533886ce6f696c7a4",
+      "source": "Signed column displacement in pixels of the driving panel.",
+      "context": "Signed column displacement in pixels of the driving panel.",
+      "translation": "Kolumnförskjutning med tecken, mätt i den styrande panelens bildpunkter."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.reset#1",
+      "source_sha256": "546e3c71996241e075132a25036e6d27c2c1a2e265fddbd55b84e792ca4d128f",
+      "source": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "context": "Layer stack, layer or extent mapping accepted by :meth:`Canvas.covering`.",
+      "translation": "Lagerstack, lager eller utsträckningsmappning som godtas av :meth:`Canvas.covering`."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.resize#2",
+      "source_sha256": "1b7dcf951fa2b336b55c8e11618cef24ad865184cd4215f9ee7bf7cfd921f07f",
+      "source": "Identifier of the existing panel whose widget resized.",
+      "context": "Identifier of the existing panel whose widget resized.",
+      "translation": "Identifierare för den befintliga panel vars komponent ändrade storlek."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.set#2",
+      "source_sha256": "d31f73576e87e06ff021e5469641ccc05418dd333b27c3c732351719ef05ad04",
+      "source": "Replacement canvas whose world window locked peers adopt.",
+      "context": "Replacement canvas whose world window locked peers adopt.",
+      "translation": "Ersättningsduk vars världsfönster används av de låsta panelerna."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.subscribe#2",
+      "source_sha256": "8f961296998d6d175fd5830411a139be4955f2d9be5fe076ce680f49f25c16c4",
+      "source": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "context": "Callable receiving the identifier of the panel that changed; it is retained by strong reference.",
+      "translation": "Anropsbar funktion som tar emot identifieraren för den ändrade panelen; den hålls kvar genom en stark referens."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.unsubscribe#1",
+      "source_sha256": "f702fd077a5b4fd5122b574d937ef21d4797b7fb5766dbe66a3f65b121faf013",
+      "source": "Previously subscribed callback to remove.",
+      "context": "Previously subscribed callback to remove.",
+      "translation": "Tidigare prenumererat återanrop som ska tas bort."
+    },
+    {
+      "label": "spacr.layers.CanvasLink.zoom#2",
+      "source_sha256": "f2d187a46841fda6ca4858cae4b4c5edb82995af2b6c413847b30f5ce182a345",
+      "source": "Positive finite magnification factor passed to each affected canvas.",
+      "context": "Positive finite magnification factor passed to each affected canvas.",
+      "translation": "Positiv ändlig förstoringsfaktor som skickas till varje berörd duk."
+    },
+    {
+      "label": "spacr.layers.Colormap#2",
+      "source_sha256": "db6dd2bbc5f3712602d07241872ac4910ea78be43cd4b5faf5b95ad9cba46f77",
+      "source": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "context": "Display and lookup name stored with the colour ramp; it is coerced to a string.",
+      "translation": "Visnings- och uppslagsnamn som lagras med färgrampen; det omvandlas till en sträng."
+    },
+    {
+      "label": "spacr.layers.Colormap.map#1",
+      "source_sha256": "0d391ae3a84d8d0cd5747a8d8c655abccecb500e17e57b8a464f67dde9da49d9",
+      "source": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "context": "Numeric scalar or array-like values to interpolate; values outside 0–1 are clipped to the nearest end of the ramp.",
+      "translation": "Numerisk skalär eller matrisliknande värden som ska interpoleras; värden utanför 0–1 klipps till rampens närmaste ände."
+    },
+    {
+      "label": "spacr.layers.FieldKey.frame#1",
+      "source_sha256": "6d86ce765f5cb71addfd9f2e8611818df970461940a75093d6e816fabc91388a",
+      "source": "Iterable of integer-like object labels to attach to this field identity.",
+      "context": "Iterable of integer-like object labels to attach to this microscope field of view identity.",
+      "translation": "Itererbar samling heltalsliknande objektetiketter som ska kopplas till denna fältidentitet."
+    },
+    {
+      "label": "spacr.layers.FieldKey.from_row#2",
+      "source_sha256": "1e078a8c1b02acf096e654110d05746adcc07333d070ac14ab4967df9ed7990e",
+      "source": "Measurement-row mapping from which the required identity columns are extracted.",
+      "context": "Measurement-row mapping from which the required identity columns are extracted.",
+      "translation": "Mappning av en mätrad från vilken de obligatoriska identitetskolumnerna hämtas."
+    },
+    {
+      "label": "spacr.layers.FieldKey.object_key#1",
+      "source_sha256": "79336e4e3962c0d327751719cfd22534a141b5b5b5cbb2cf6d5b825218b61e12",
+      "source": "Integer-like object label to encode for this field.",
+      "context": "Integer-like object label to encode for this microscope field of view.",
+      "translation": "Heltalsliknande objektetikett som ska kodas för detta fält."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_channel_visible#0",
+      "source_sha256": "55d052744c6be10ac331bd7091579ba9329fda909e98559dc8899d7a1b4b275d",
+      "source": "Set whether one channel participates in rendering.",
+      "context": "Set whether one channel participates in rendering.",
+      "translation": "Ange om en kanal ska delta i återgivningen."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#1",
+      "source_sha256": "705f995080d97f7cd97f449ec716c07914f05eb7387cb14c84787020a190aeed",
+      "source": "Lower intensity bound in the channel's data units.",
+      "context": "Lower intensity bound in the image data channel's data units.",
+      "translation": "Nedre intensitetsgräns i kanalens dataenheter."
+    },
+    {
+      "label": "spacr.layers.ImageLayer.set_contrast_limits#2",
+      "source_sha256": "90e9474ef20a566814b76fd1e546ceb8269bc4b3118609f2cd7bfb3b5c4b80c9",
+      "source": "Upper intensity bound in the channel's data units; it must be greater than ``low``.",
+      "context": "Upper intensity bound in the image data channel's data units; it must be greater than ``low``.",
+      "translation": "Övre intensitetsgräns i kanalens dataenheter; den måste vara större än ``low``."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer#2",
+      "source_sha256": "e9e96d30dc1dc1d4bc20f5addc66b496d08cacfa77bc3dd2fb3808c7cf6aac28",
+      "source": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "context": "Two- or three-dimensional array-like segmentation labels; values must be integers or exactly integral numbers.",
+      "translation": "Två- eller tredimensionella, matrisliknande segmenteringsetiketter; värdena måste vara heltal eller exakt heltalsvärda tal."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.object_key_at_world#2",
+      "source_sha256": "e51ee34607a23dd46f1be4886a3f4aecc78ba459c40a0156bdce0b19a0176cd5",
+      "source": "Mapping from axis names to the world point to identify.",
+      "context": "Mapping from axis names to the world point to identify.",
+      "translation": "Mappning från axelnamn till den världspunkt som ska identifieras."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.set_labels_at#2",
+      "source_sha256": "37ae30a74826a9d4272ccd01093038f3b697ecc57781f109b43ad704a7248e6e",
+      "source": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "context": "One integer index array per data axis, suitable for NumPy advanced indexing.",
+      "translation": "En matris med heltalsindex per dataaxel, lämplig för avancerad indexering i NumPy."
+    },
+    {
+      "label": "spacr.layers.LabelsLayer.set_labels_at#3",
+      "source_sha256": "445cec87ff142dd71a1811af868de09f3ce2c98fa9cd4912d8675577a6019c09",
+      "source": "Integer-like label to write at the selected elements.",
+      "context": "Integer-like label to write at the selected elements.",
+      "translation": "Heltalsliknande etikett som ska skrivas till de valda elementen."
+    },
+    {
+      "label": "spacr.layers.Layer#3",
+      "source_sha256": "a5f015162de1e184de7a4e7de76825b32e39083ec9be3b3a7b1cec51ae9bdf29",
+      "source": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "context": "Non-blank layer identifier; names are uniquified when the layer enters a :class:`LayerStack`.",
+      "translation": "Icke-tom lageridentifierare; namnen görs unika när lagret läggs till i en :class:`LayerStack`."
+    },
+    {
+      "label": "spacr.layers.Layer.to_world#1",
+      "source_sha256": "f8f1f38a7874e0a5d2129d63d8bde27113379545838560289f5a3866fde0dcdd",
+      "source": "Fractional data coordinate in this layer's spacing-axis order.",
+      "context": "Fractional data coordinate in this layer's spacing-axis order.",
+      "translation": "Fraktionell datakoordinat enligt ordningen på lagrets samplingsaxlar."
+    },
+    {
+      "label": "spacr.layers.LayerStack.add_image#1",
+      "source_sha256": "1dbe398271363bd47245e5e8ce43e43bba000457b6bb627039102cbce68b87ca",
+      "source": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "context": "Array-like intensity data passed to :class:`ImageLayer`.",
+      "translation": "Matrisliknande intensitetsdata som skickas till :class:`ImageLayer`."
+    },
+    {
+      "label": "spacr.layers.LayerStack.add_labels#1",
+      "source_sha256": "53461a89b377191c965cfba4eb5f2a1b0b2c21efc467bf4afdfd490c031e643d",
+      "source": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "context": "Array-like segmentation labels passed to :class:`LabelsLayer`.",
+      "translation": "Matrisliknande segmenteringsetiketter som skickas till :class:`LabelsLayer`."
+    },
+    {
+      "label": "spacr.layers.LayerStack.append#1",
+      "source_sha256": "0707123d18759edca43d43d2e26784ea242e35244ff2cf31150dd2bb92104645",
+      "source": "Layer instance to attach to this stack.",
+      "context": "Layer instance to attach to this stack.",
+      "translation": "Lagerinstans som ska kopplas till denna stack."
+    },
+    {
+      "label": "spacr.layers.LayerStack.lower_layer#1",
+      "source_sha256": "6418af3358450561b3b67a1941179d348b10a200ee233021b5dbaf44aa24891a",
+      "source": "Layer object, unique layer name or integer stack index to lower.",
+      "context": "Layer object, unique layer name or integer stack index to lower.",
+      "translation": "Lagerobjekt, unikt lagernamn eller heltalsindex i stacken som ska sänkas."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#2",
+      "source_sha256": "3b3ff99177dbde7494fcb68f91a687714994d06f582823af2dac8bda968c864a",
+      "source": "Canvas whose displayed stack is being queried.",
+      "context": "Canvas whose displayed stack is being queried.",
+      "translation": "Duk vars visade stack efterfrågas."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#3",
+      "source_sha256": "02439d7bc04e493fab62deffd9eb8d084fb6128634413b73290b3e1ad6e7c496",
+      "source": "Fractional canvas-row coordinate of the query pixel.",
+      "context": "Fractional canvas-row coordinate of the query pixel.",
+      "translation": "Fraktionell dukradkoordinat för frågebildpunkten."
+    },
+    {
+      "label": "spacr.layers.LayerStack.pick#4",
+      "source_sha256": "da6076326433d547d5435b36d54d7d792440b18cf302f18ca60432508c8f894c",
+      "source": "Fractional canvas-column coordinate of the query pixel.",
+      "context": "Fractional canvas-column coordinate of the query pixel.",
+      "translation": "Fraktionell dukkolumnkoordinat för frågebildpunkten."
+    },
+    {
+      "label": "spacr.layers.LayerStack.render#1",
+      "source_sha256": "775108410d7c7c77bc8b9478f5cbd57f14157f3020a9683c4c9ef9c65fe17218",
+      "source": "World window and output grid on which to composite the stack.",
+      "context": "World window and output grid on which to composite the stack.",
+      "translation": "Världsfönster och utdatarutnät där stacken ska sammanfogas."
+    },
+    {
+      "label": "spacr.layers.LayerStack.subscribe#2",
+      "source_sha256": "7224ed13157b12a50721447fadf8fa8e7811c824c74a81670b691392cb661157",
+      "source": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "context": "Callable receiving each :class:`LayerEvent`; it is retained by strong reference.",
+      "translation": "Anropsbar funktion som tar emot varje :class:`LayerEvent`; den hålls kvar genom en stark referens."
+    },
+    {
+      "label": "spacr.layers.LayerStack.to_bottom#0",
+      "source_sha256": "94dcd964bc9d61939806bbba7853923c0d0eb2c045304994ed83c331fa3cc4b7",
+      "source": "Move one layer to the back of the stack.",
+      "context": "Move one layer to the back of the stack.",
+      "translation": "Flytta ett lager längst bak i lagerstacken."
+    },
+    {
+      "label": "spacr.layers.LayerStack.unsubscribe#1",
+      "source_sha256": "89fffd6065138cd82c154c4e4c44365aaa4638b7771e88464865a7ea9b445900",
+      "source": "Previously subscribed event callback to remove.",
+      "context": "Previously subscribed event callback to remove.",
+      "translation": "Tidigare prenumererat händelseåteranrop som ska tas bort."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#7",
+      "source_sha256": "f3839831926a40e7ddb3efdc628cdae4b9549a36783b58c7303e22ad5d8b2ac0",
+      "source": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "context": "Top-view canvas whose rows and columns span the second and third volume axes.",
+      "translation": "Duk för toppvyn vars rader och kolumner sträcker sig längs volymens andra och tredje axel."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#8",
+      "source_sha256": "1c80a2a35b600bf704fe1972066d05d821b51a006218b3e55ea081bb73227e25",
+      "source": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "context": "Lower side-view canvas whose rows span depth and whose columns align with :attr:`xy`.",
+      "translation": "Duk för den nedre sidovyn vars rader sträcker sig längs djupet och vars kolumner är linjerade med :attr:`xy`."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#9",
+      "source_sha256": "57dbd529994d34fd4774e045d2bc2f82e41e9ba5682df9f6c10d247fddfee71f",
+      "source": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "context": "Side-view canvas whose rows align with :attr:`xy` and whose columns span depth.",
+      "translation": "Duk för sidovyn vars rader är linjerade med :attr:`xy` och vars kolumner sträcker sig längs djupet."
+    },
+    {
+      "label": "spacr.layers.OrthoViews#10",
+      "source_sha256": "11ca35fc9710f03e124ca8d5dcd27e39cd3409552acdf3e364055d4f143a6a08",
+      "source": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "context": "Mapping from world-axis names to the shared crosshair coordinates.",
+      "translation": "Mappning från världsaxlarnas namn till det gemensamma hårkorsets koordinater."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#2",
+      "source_sha256": "9b8ec1125127c10bae98f97497146cd8bf58ac7ae6034c8d9119175fd25287ef",
+      "source": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "context": "Panel key: ``\"xy\"``, ``\"zx\"`` or ``\"yz\"``.",
+      "translation": "Panelnyckel: ``\"xy\"``, ``\"zx\"`` eller ``\"yz\"``."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#3",
+      "source_sha256": "a741128f9327ae35e1bb4e9cc7de7ca9f5d37869d0f54a9998abd3f0bc27bea6",
+      "source": "Fractional row coordinate within the selected panel.",
+      "context": "Fractional row coordinate within the selected panel.",
+      "translation": "Fraktionell radkoordinat i den valda panelen."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.at_pixel#4",
+      "source_sha256": "906157ad3de04b9ffed5afcc8ea129cd07e7c7aa4f68e42fae158af612857ee2",
+      "source": "Fractional column coordinate within the selected panel.",
+      "context": "Fractional column coordinate within the selected panel.",
+      "translation": "Fraktionell kolumnkoordinat i den valda panelen."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.render#1",
+      "source_sha256": "b7f5a915fba7709fd38b4c5f78f2da4c002993f887d8cb6f0f0869efc26c68c1",
+      "source": "Layer stack to render through each orthogonal canvas.",
+      "context": "Layer stack to render through each orthogonal canvas.",
+      "translation": "Lagerstack som ska återges genom varje ortogonal duk."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.slider#2",
+      "source_sha256": "17f3bfa6e410aa46bec4bb5347d3429f2e2d41e74835e3f704d092a8ccc6e1d9",
+      "source": "World axis for which to return bounds and voxel step.",
+      "context": "World axis for which to return bounds and voxel step.",
+      "translation": "Världsaxel vars gränser och voxelsteg ska returneras."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.zoomed#2",
+      "source_sha256": "ac210f947174535922408547124d63934339513396d739d6bc3253ddf7800afa",
+      "source": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "context": "Positive finite magnification factor applied to every panel; values above one zoom in.",
+      "translation": "Positiv ändlig förstoringsfaktor som används för varje panel; värden över ett zoomar in."
+    },
+    {
+      "label": "spacr.layers.PointsLayer.set_size#1",
+      "source_sha256": "f48f83b587152ad202e6dae956af248cfb343b152e673dd1da6836add7f5e3e9",
+      "source": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "context": "Scalar diameter applied to every point, or an array-like sequence with one world-unit diameter per point.",
+      "translation": "Skalär diameter som används för varje punkt, eller en matrisliknande sekvens med en diameter i världsenheter per punkt."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#0",
+      "source_sha256": "b8e3801ba27fa253f813471b8f75876d8c4b9bd8e46273dd37cc8369d1a4803f",
+      "source": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "context": "Append an axis-aligned ellipse inside an opposite-corner box.",
+      "translation": "Lägg till en axeljusterad ellips inuti en ruta som definieras av motsatta hörn."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#1",
+      "source_sha256": "fc1354bee3970c86b4f856d396d07aec04944d35ce412d8b933e32f582240d12",
+      "source": "First bounding-box corner in data coordinates, one value per axis.",
+      "context": "First bounding-box corner in data coordinates, one value per axis.",
+      "translation": "Begränsningsrutans första hörn i datakoordinater, ett värde per axel."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_ellipse#2",
+      "source_sha256": "e5bd0e9889b10097bee0c0e12f5de2be9c478af145d471b5c741fb5f6fc8a24c",
+      "source": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "context": "Opposite bounding-box corner in data coordinates, one value per axis.",
+      "translation": "Begränsningsrutans motsatta hörn i datakoordinater, ett värde per axel."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_path#0",
+      "source_sha256": "3068c3f1f187f2d444cc5399f5beb1a1b42e3e5a51307e33953c8ea7e840134b",
+      "source": "Append an open path.",
+      "context": "Append an open path.",
+      "translation": "Lägg till en öppen bana."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.mask#4",
+      "source_sha256": "6f1663c271f5c0314d6f1159d66333d6313cc4dcbbe24975472ed840d67118f4",
+      "source": "World plane and pixel grid on which to rasterise the closed shapes.",
+      "context": "World image layer and pixel grid on which to rasterise the closed shapes.",
+      "translation": "Världsplan och bildpunktsrutnät där de slutna formerna ska rastreras."
+    },
+    {
+      "label": "spacr.layers.Spacing.data_from_map#2",
+      "source_sha256": "4fe847cfa87030093adb812df78b64f687d56dbd71ec969eee5463ff03ac3136",
+      "source": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "context": "Mapping from axis names to world coordinates. Unnamed spacing axes are evaluated at world coordinate zero.",
+      "translation": "Mappning från axelnamn till världskoordinater. Samplingsaxlar som inte anges utvärderas vid världskoordinaten noll."
+    },
+    {
+      "label": "spacr.layers.Spacing.from_map#2",
+      "source_sha256": "c5a4be3fca48baf316d6d60aa150fb2994ab3021d85325504247d5a79375b427",
+      "source": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "context": "Mapping from axis name to non-zero finite voxel size; mapping iteration order becomes the array-axis order.",
+      "translation": "Mappning från axelnamn till en ändlig voxelstorlek som inte är noll; mappningens iterationsordning blir matrisaxlarnas ordning."
+    },
+    {
+      "label": "spacr.layers.Spacing.has_axis#1",
+      "source_sha256": "a12de1953f34ea6b9bba803577e969cb8529ea602b75654f70b06fa477e4c0ac",
+      "source": "Axis name to test after coercion to a string.",
+      "context": "Axis name to test after coercion to a string.",
+      "translation": "Axelnamn som ska testas efter omvandling till en sträng."
+    },
+    {
+      "label": "spacr.layers.Spacing.to_world#1",
+      "source_sha256": "1b84a25068edb295f52d03ad6b3171f32e2917b75ba9a233b5f025e6c2361bc9",
+      "source": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "context": "Fractional data coordinate in :attr:`axes` order, with one entry per spacing axis.",
+      "translation": "Fraktionell datakoordinat i ordningen :attr:`axes`, med en post per samplingsaxel."
+    },
+    {
+      "label": "spacr.layers.Spacing.world_map#1",
+      "source_sha256": "46f3562e8adc8b26c84d3b4e20358ba3dd0115d7334c4f07a5b80d91a986f783",
+      "source": "Fractional data coordinate in :attr:`axes` order.",
+      "context": "Fractional data coordinate in :attr:`axes` order.",
+      "translation": "Fraktionell datakoordinat i ordningen :attr:`axes`."
+    },
+    {
+      "label": "spacr.layers.colormap#3",
+      "source_sha256": "1b6fd67e857ac6b5af9de57b6036cb08d1e86b1e3d38a23918666131ca3941ad",
+      "source": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "context": "Existing :class:`Colormap`, built-in or matplotlib colormap name, or a colour specification from which to build a black-to-colour ramp.",
+      "translation": "Befintlig :class:`Colormap`, namn på en inbyggd färgkarta eller en färgkarta från matplotlib, eller en färgspecifikation som används för att skapa en ramp från svart till färgen."
+    },
+    {
+      "label": "spacr.layers.LayerStack.get#1",
+      "source_sha256": "824561c8a2b23ba47c0dcb72c7215d0809051d20544c3010e55628a8c97f2eec",
+      "source": "Layer object, unique layer name or integer stack index to resolve.",
+      "context": "Layer object, unique layer name or integer stack index to resolve.",
+      "translation": "Lagerobjekt, unikt lagernamn eller heltalsindex i stacken som ska slås upp."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_path#1",
+      "source_sha256": "ee1c665d6bcacf6241644c42fac33bbd8c6c7d35a75bb9f73a58d79983046aeb",
+      "source": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least two rows.",
+      "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least two rows.",
+      "translation": "Matrisliknande hörnpunkter i datakoordinater, med formen ``(M, ndim)`` och minst två rader."
+    },
+    {
+      "label": "spacr.layers.ShapesLayer.add_polygon#1",
+      "source_sha256": "ae0c5fd066758dd98d486b7cc54fbe57fe63e9dcf1a5df11e45ce16146c16206",
+      "source": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least three rows.",
+      "context": "Array-like vertices in data coordinates, shaped ``(M, ndim)`` with at least three rows.",
+      "translation": "Matrisliknande hörnpunkter i datakoordinater, med formen ``(M, ndim)`` och minst tre rader."
+    },
+    {
+      "label": "spacr.layers.Spacing.has_axis#0",
+      "source_sha256": "7d654fd8644081e4f3c29f3b95658f075bf72e200f2a35f4852406fb1350584f",
+      "source": "Whether this spacing contains ``axis``.",
+      "context": "Whether this spacing contains ``axis``.",
+      "translation": "Om denna samplingsbeskrivning innehåller ``axis``."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.n_slices#1",
+      "source_sha256": "fa29256dfbcead1bd068967a216153631ea266a59618466add41d53ad951044b",
+      "source": "World axis whose extent and voxel step define the count.",
+      "context": "World axis whose extent and voxel step define the count.",
+      "translation": "Världsaxel vars utsträckning och voxelsteg bestämmer antalet."
+    }
+  ]
+}

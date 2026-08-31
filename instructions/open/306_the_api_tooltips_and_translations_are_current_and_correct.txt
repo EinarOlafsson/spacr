@@ -447,8 +447,8 @@ CURRENT FIXED POINT 2026-08-30 -- DATABASE/GATE API AND RENDERER COPY CURRENT
 
 The database-browser and gate pass documents 16 canonical public methods and
 retires six aliases whose targets now have their own source contracts.  The
-live API inventory is therefore 8,850 documents: 8,737 canonical documents
-plus 113 validated rendered aliases.  All nine catalogs contain 8,850/8,850
+live API inventory is therefore 8,861 documents: 8,748 canonical documents
+plus 113 validated rendered aliases.  All nine catalogs contain 8,861/8,861
 current records with zero orphans, and their strict audit passes.
 
 The same 118 blocks in 29 database-browser, gate and related upstream symbols
@@ -462,19 +462,36 @@ installation command are preserved.  The strict nine-language runtime audit
 and 65 focused runtime/Preferences tests pass.
 
 This is a measured semantic and mechanical advance, not closure.  The exact
-reverse-direction ratchet is now 2,638 required-parameter omissions across
-1,912 public callables, digest
-``8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6``.
+reverse-direction ratchet is now 2,522 required-parameter omissions across
+1,822 public callables, digest
+``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``.
 No exhaustive fluent-speaker disposition of every remaining runtime or API
 sentence is recorded, so item 306 remains OPEN and release-blocking.
 
 The compositor-popup fix subsequently added the documented
 ``spacr.qt.widgets.popup_state`` module and its public
-``a_popup_is_on_screen`` function. Both have no required parameters, so the
-2,638-omission inventory is unchanged; the source-derived callable inventory
-moves to 7,984 and the translated API inventory to 8,850. The nine catalogs
+``a_popup_is_on_screen`` function. The function moves the source-derived
+callable inventory to 7,984, but has no required parameters and therefore does
+not change the omission debt. After the following layers pass, the translated
+API inventory is 8,861. The nine catalogs
 were rematerialized from current source and audited again at that fixed point.
 All eight new prose blocks were then reviewed in every locale after the first
 model pass exposed semantically wrong but structurally valid translations of
 polling, event filters, compositing, C++ calls and frame timings. The 72 exact
 source-bound replacements rematerialize with model decoding disabled.
+
+The subsequent ``spacr.layers`` pass documents 114 required parameters across
+89 public callables without changing executable ASTs or signatures. Eleven
+formerly docless methods enter the rendered inventory, moving it by eleven
+symbols and 125 translatable blocks; 78 existing symbols gain structured
+parameter prose. The docless inventory falls by eleven, and the exact omission
+ratchet moves from 2,638/1,912 to 2,524/1,823.
+
+The final public-prose audit found that ``MainWindow.eventFilter`` exposed an
+all-caps internal warning and a paragraph about what an older docstring used to
+say.  Its current contract now documents the two Qt callback parameters and
+return behavior without development history.  That closes two more omissions,
+moving the exact ratchet to 2,522/1,822 with digest
+``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``;
+all nine locale groups review the replacement blocks rather than certifying the
+retired internal prose.

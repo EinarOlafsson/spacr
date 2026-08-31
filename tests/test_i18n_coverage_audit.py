@@ -18,8 +18,8 @@ REVIEWED_RUNTIME_COUNTS = {
     "hi": 104, "ko": 222, "is": 110, "fr": 93,
 }
 REVIEWED_API_BLOCK_COUNTS = {
-    "sv": 375, "de": 331, "es": 209, "zh_CN": 360, "pt": 315,
-    "hi": 284, "ko": 310, "is": 805, "fr": 312,
+    "sv": 448, "de": 402, "es": 279, "zh_CN": 481, "pt": 437,
+    "hi": 405, "ko": 431, "is": 926, "fr": 433,
 }
 DISPLAY_NAMES = {
     "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -141,9 +141,9 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-08-30.md").read_text(
         encoding="utf-8",
     )
-    assert len(docs) == 8_850
+    assert len(docs) == 8_861
     assert len(api_builder.API_DOC_ALIASES) == 113
-    assert len(docs) - len(api_builder.API_DOC_ALIASES) == 8_737
+    assert len(docs) - len(api_builder.API_DOC_ALIASES) == 8_748
     for language, runtime_expected in REVIEWED_RUNTIME_COUNTS.items():
         api_expected = REVIEWED_API_BLOCK_COUNTS[language]
         reviewed_api = api_builder.reviewed_api_block_translations(
@@ -171,18 +171,18 @@ def test_written_review_scope_matches_current_source_bound_evidence():
         row = (
             f"| {DISPLAY_NAMES[language]} | {runtime_expected:,} | "
             f"{runtime_expected / 4_982:.2%} | {4_982 - runtime_expected:,} | "
-            f"{api_expected:,} | {api_expected / 8_850:.2%} | "
-            f"{8_850 - api_expected:,} |"
+            f"{api_expected:,} | {api_expected / 8_861:.2%} | "
+            f"{8_861 - api_expected:,} |"
         )
         assert row in report
 
     assert "84 x 9 = 756 reviewed source/target pairs" in report
     assert "not a certificate that every sentence was read" in report
     assert "exhaustive frontend coverage, not exhaustive semantic review" in report
-    assert "2,638 required parameters" in report
-    assert "1,912 public callables" in report
+    assert "2,522 required parameters" in report
+    assert "1,822 public callables" in report
     assert (
-        "8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6"
+        "1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782"
         in report
     )
     assert "must not be closed" in report
