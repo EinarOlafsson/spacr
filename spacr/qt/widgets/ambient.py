@@ -5206,6 +5206,63 @@ def _retire_fractals_on(host) -> int:
     return retired
 
 
+def the_heavy_import_lock_is_free() -> bool:
+    """Whether the heavy-import lock could be taken right now.
+
+    Asked without blocking and released immediately: a peek, not a
+    reservation. The spaceout backdrop's own constructor still takes the
+    lock properly, so the guarantee that a GL context is never built
+    while the preloader is bringing CUDA up is unchanged -- all this
+    decides is whether to try at all on this event-loop turn.
+
+    A tree with no lock to ask (the widget module is absent, or its
+    import failed) answers yes, so a machine without the backdrop
+    behaves exactly as it did before.
+
+    This is the cheap half of the pair. It cannot close the race on its
+    own -- the preloader re-takes the lock between two imports -- which
+    is what :func:`the_backdrop_wants_a_retry` is for. Peeking first is
+    still worth it because it keeps a retry timer from paying the
+    bounded wait on every tick while a long import runs.
+    """
+    try:
+        from .fractal_travel import _heavy_import_lock
+
+        lock = _heavy_import_lock()
+    except Exception:                                        # noqa: BLE001
+        return True
+    if lock is None:
+        return True
+    if not lock.acquire(blocking=False):
+        return False
+    lock.release()
+    return True
+
+
+def the_backdrop_wants_a_retry(error: BaseException) -> bool:
+    """Whether ``error`` from :func:`install_ambient` means "not yet".
+
+    The spaceout backdrop refuses to build while a heavy import holds
+    the lock its GL context needs, because waiting for it on the GUI
+    thread is a multi-second freeze. That refusal arrives as an
+    exception like any other, and a caller whose handler cannot tell it
+    apart would treat a two-second import as a permanently broken
+    backdrop -- which is a spaceout launch that quietly loses its
+    artwork for the rest of the session.
+
+    :param error: whatever :func:`install_ambient` raised.
+    :returns: ``True`` when the install should simply be attempted
+        again shortly, ``False`` for a real failure.
+    """
+    try:
+        from .fractal_travel import HeavyImportInProgress
+    except Exception:                                        # noqa: BLE001
+        # No class to compare against means no backdrop module, which
+        # means nothing could have raised it.
+        return False
+    return isinstance(error, HeavyImportInProgress)
+
+
 def _the_spaceout_fractal(host):
     """The spaceout backdrop, or None when this is an ordinary launch.
 
@@ -5233,7 +5290,8 @@ def _the_spaceout_fractal(host):
     try:
         from ..preferences import get_fractal_settings
         from .fractal_travel import (
-            RuntimeControls, Settings, create_fractal_widget)
+            HeavyImportInProgress, RuntimeControls, Settings,
+            create_fractal_widget)
 
         values = get_fractal_settings()
         widget = create_fractal_widget(
@@ -5259,6 +5317,14 @@ def _the_spaceout_fractal(host):
         widget.show()
         host.installEventFilter(_FractalTracksItsHost(widget, host))
         return widget
+    except HeavyImportInProgress:
+        # NOT A FAILURE, and so not something to log an exception for or to
+        # answer with `None`. `None` means "this launch has no fractal" and
+        # the caller then installs the ordinary ambient engine instead --
+        # which under spaceout is the wrong artwork, kept for good, because
+        # a heavy import happened to be running at the moment a screen was
+        # opened. Raising says "not yet"; see `the_backdrop_wants_a_retry`.
+        raise
     except Exception:                                        # noqa: BLE001
         LOG.exception("Could not install the spaceout fractal")
         return None

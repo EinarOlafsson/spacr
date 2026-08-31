@@ -4007,6 +4007,21 @@ class MainWindow(QMainWindow):
 
         if not uses_ambient_background(key):
             return
+        self._install_screen_backdrop(screen, key)
+
+    def _install_screen_backdrop(self, screen: QWidget, key: str) -> None:
+        """Put the ambient backdrop behind a screen that has no `AppScreen`.
+
+        Separate from :meth:`_theme_screen` because it is the one part of
+        the theming that can honestly answer "not yet": the spaceout
+        backdrop needs a GL context, and building one while the pipeline
+        preloader is importing torch is the concurrent initialisation
+        `HEAVY_IMPORT_LOCK` exists to prevent. Re-entered on a timer in
+        that case, where re-running the whole of `_theme_screen` would
+        re-apply the stylesheet to the tree for nothing.
+
+        Never raises: a module opens with or without its decoration.
+        """
         try:
             from .preferences import (
                 get_ambient_enabled,
@@ -4017,17 +4032,60 @@ class MainWindow(QMainWindow):
             )
             if not get_ambient_enabled():
                 return
+            # NOT WHILE A HEAVY IMPORT IS RUNNING, and this runs on the GUI
+            # thread as a module is being opened -- which is precisely when
+            # the preloader is holding the lock. `AppScreen` has taken this
+            # care since instruction 315; the screens that build their own
+            # had not, so under `spaceout` they froze where `spacr` did not.
+            from .widgets.ambient import (install_ambient,
+                                          the_heavy_import_lock_is_free)
+            if not the_heavy_import_lock_is_free():
+                self._retry_screen_backdrop(screen, key)
+                return
             # The spaceout fractal is installed by `install_ambient` itself
             # (instruction 260), so this caller needs no branch: hooking the
             # three call sites separately is what left the Home screen still
             # showing the old artwork.
-            from .widgets.ambient import install_ambient
             install_ambient(
                 screen, None,
                 theme=get_ambient_theme(), palette=get_ambient_palette(),
                 backdrop=theme_background_path(resolve_effective_theme()))
-        except Exception:
+        except Exception as error:
+            # The peek is a check, not a reservation: the preloader re-takes
+            # the lock between two imports, so the refusal can still arrive
+            # here. It means "not yet" and not "this machine cannot", and
+            # logging it as an exception would put a traceback in the console
+            # for an ordinary click made during startup.
+            try:
+                from .widgets.ambient import the_backdrop_wants_a_retry
+            except Exception:                                # noqa: BLE001
+                the_backdrop_wants_a_retry = None
+            if (the_backdrop_wants_a_retry is not None
+                    and the_backdrop_wants_a_retry(error)):
+                self._retry_screen_backdrop(screen, key)
+                return
             LOG.exception("Could not install the backdrop for %s", key)
+
+    def _retry_screen_backdrop(self, screen: QWidget, key: str) -> None:
+        """Come back for :meth:`_install_screen_backdrop` shortly.
+
+        The screen is checked for liveness at the far end rather than
+        here: a module can be closed inside the interval, and calling a
+        method on a freed QWidget is the "Internal C++ object already
+        deleted" storm this file has had before.
+        """
+        from PySide6.QtCore import QTimer
+
+        def again() -> None:
+            try:
+                from shiboken6 import isValid
+            except Exception:                                # noqa: BLE001
+                return
+            if not isValid(screen):
+                return
+            self._install_screen_backdrop(screen, key)
+
+        QTimer.singleShot(120, again)
 
     def _show_preparing(self, key: str):
         """Put a "preparing" card up before a module is built.

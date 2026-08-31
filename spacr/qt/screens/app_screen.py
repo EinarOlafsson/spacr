@@ -1325,17 +1325,10 @@ class AppScreen(QWidget):
         behaves exactly as it did before.
         """
         try:
-            from ..widgets.fractal_travel import _heavy_import_lock
-
-            lock = _heavy_import_lock()
+            from ..widgets.ambient import the_heavy_import_lock_is_free
         except Exception:                                    # noqa: BLE001
             return True
-        if lock is None:
-            return True
-        if not lock.acquire(blocking=False):
-            return False
-        lock.release()
-        return True
+        return the_heavy_import_lock_is_free()
 
     def _install_ambient(self) -> None:
         """Build the ambient backdrop for this screen, if it is wanted.
@@ -1418,10 +1411,36 @@ class AppScreen(QWidget):
             # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
             # still uses `bg` and flashes black. See _sync_page_palette.
             self._sync_page_palette()
-        except Exception:
+        except Exception as error:
             self._ambient = None
             _discard_widget(widget)
             self._discard_orphan_ambient()
+            # "NOT YET" IS NOT "NEVER". The spaceout backdrop refuses
+            # rather than blocking the GUI thread when a heavy import
+            # holds the lock its GL context needs, and the peek above
+            # cannot rule that out -- it is a check, not a reservation,
+            # and the preloader re-takes the lock between two imports.
+            #
+            # Without this the refusal would land in `_ambient_applied`
+            # as an attempt already made, and the screen would stay
+            # undecorated for the life of the session because a module
+            # was opened while the preloader happened to be running.
+            # Forgetting the attempt and coming back is what the peek
+            # does for the case it can see, so it is what this does too.
+            # DEFENSIVELY, because this handler's whole job is that a
+            # backdrop can never stop a screen opening -- and "the widget
+            # module is absent" is one of the failures it is here to
+            # absorb, so asking that module to classify the failure has to
+            # tolerate its being the thing that is missing.
+            try:
+                from ..widgets.ambient import the_backdrop_wants_a_retry
+            except Exception:                                # noqa: BLE001
+                return
+            if the_backdrop_wants_a_retry(error):
+                self._ambient_applied = None
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
 
     def _discard_orphan_ambient(self) -> None:
         """Remove an ambient widget an aborted install left parented here.

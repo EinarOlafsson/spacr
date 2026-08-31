@@ -1279,6 +1279,34 @@ class GpuBackendError(RuntimeError):
     """The GPU renderer could not be built. Always caught by `auto`."""
 
 
+class HeavyImportInProgress(RuntimeError):
+    """The heavy-import lock was busy, so no GL context was built yet.
+
+    Deliberately NOT a :class:`GpuBackendError`, and deliberately not
+    caught by the ``auto`` fallback: this machine's GPU is fine and the
+    shaders would compile. Treating it as a GPU failure would answer a
+    two-second wait with the CPU renderer -- the one that ate twenty
+    cores in instruction 315 -- instead of the backdrop that was asked
+    for.
+
+    The caller is expected to come back on a timer. It is decoration:
+    arriving a fraction of a second late costs nothing, and blocking the
+    GUI thread to be punctual is what this exception exists to stop.
+    """
+
+
+#: How long :class:`GpuFractalWidget` will wait for the heavy-import lock
+#: before giving up and raising :class:`HeavyImportInProgress`.
+#:
+#: SHORT ON PURPOSE. The preloader holds the lock for a whole module
+#: import -- 2.3 s for each of the two that pull torch -- and this
+#: constructor runs on the GUI thread, so an unbounded wait is a freeze
+#: the compositor offers to force-quit. A tenth of a second is under any
+#: compositor's threshold and under the eye's, while still being long
+#: enough to ride out the brief holds that are not an import at all.
+_HEAVY_LOCK_WAIT: Final[float] = 0.1
+
+
 def _heavy_import_lock():
     """The lock the module preloader holds while importing, or None.
 
@@ -1902,12 +1930,35 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # the concurrent initialisation `_PipelinePreloader` used to stay
             # on the GUI thread to avoid. It is on a worker thread now, so
             # the two take turns instead.
+            #
+            # THE WAIT IS BOUNDED, and it has to be. This constructor runs on
+            # the GUI thread, and the lock's other holder is an import that
+            # takes seconds -- so `with lock:` here was a priority inversion:
+            # a background task with no deadline holding up the one thread
+            # that has one. Measured at 2,130 ms of blocked GUI thread for a
+            # 2,000 ms hold, against ~130 ms of actual construction. That is
+            # the whole of the difference the maintainer reported between
+            # `spaceout` and `spacr` on opening a module: only spaceout builds
+            # this widget, and only this widget takes the lock. The ordinary
+            # ambient backdrop never does, which is why `spacr` opened the
+            # same screen without the compositor offering to force-quit.
+            #
+            # `AppScreen._heavy_lock_is_free` cannot prevent it. That peek is
+            # a check, not a reservation, and the preloader re-takes the lock
+            # between two imports -- so landing in the gap is not rare, it is
+            # the ordinary case for a click made while the preloader runs.
             lock = _heavy_import_lock()
             if lock is None:
                 self._canvas = _Canvas()
+            elif not lock.acquire(timeout=_HEAVY_LOCK_WAIT):
+                raise HeavyImportInProgress(
+                    "the heavy-import lock is held; the backdrop will be "
+                    "built when it frees")
             else:
-                with lock:
+                try:
                     self._canvas = _Canvas()
+                finally:
+                    lock.release()
             layout = QVBoxLayout(self)
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(0)
@@ -2164,6 +2215,12 @@ def create_fractal_widget(settings: Optional[Settings] = None,
     if settings.backend in ("auto", "gpu") and gpu_is_available():
         try:
             return _make_gpu_widget(settings, controls, hardware)
+        except HeavyImportInProgress:
+            # NOT A GPU FAILURE, so not the CPU renderer's cue. The context
+            # was never attempted; the lock was busy. Falling through here
+            # would trade a 0.3 s wait for the twenty-core fallback, and
+            # would do it every time a module is opened during startup.
+            raise
         except Exception:                                    # noqa: BLE001
             # SAID OUT LOUD. This swallowed every GPU failure without a
             # word, so a shader that would not compile looked exactly like a

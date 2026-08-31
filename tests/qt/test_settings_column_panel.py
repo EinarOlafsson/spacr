@@ -677,7 +677,23 @@ def test_a_late_registered_block_reaches_its_screen_before_first_paint(
         # The same host hook every production screen passes before insertion
         # into MainWindow's visible stack.
         from spacr.qt.app import MainWindow
-        MainWindow._theme_screen(object(), root, "late_probe")
+
+        # A STAND-IN WITH THE ONE METHOD `_theme_screen` DELEGATES TO.
+        # The backdrop install is a separate step so its refusal can be
+        # retried without re-applying the stylesheet to the whole tree
+        # (see `test_the_backdrop_never_waits_out_a_heavy_import.py`), and
+        # this test is about the QSS half. A bare `object()` used to work
+        # only because the backdrop code was inline and inside a
+        # `try/except`, which made a broken `self` look like a machine
+        # with no ambient module.
+        class _NoBackdrop:
+            installs = 0
+
+            def _install_screen_backdrop(self, screen, key):
+                type(self).installs += 1
+
+        host = _NoBackdrop()
+        MainWindow._theme_screen(host, root, "late_probe")
         assert name in root.styleSheet()
         assert qt_theme_applied.styleSheet() == live_sheet
         root.show()
