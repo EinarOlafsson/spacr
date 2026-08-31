@@ -46,10 +46,13 @@ def test_every_plate_bearing_column_is_covered():
                                                  "prcfo"}
 
 
-def test_a_frame_is_normalised_across_all_of_them():
+@pytest.mark.parametrize("text_dtype", ["object", "string"])
+def test_a_frame_is_normalised_across_all_of_them(text_dtype):
     frame = pd.DataFrame({
-        "plateID": ["pplate1"], "prcf": ["pplate1_r1_c1_f1"],
-        "prcfo": ["pplate1_r1_c1_f1_o2"], "area": [10.0],
+        "plateID": pd.Series(["pplate1"], dtype=text_dtype),
+        "prcf": pd.Series(["pplate1_r1_c1_f1"], dtype=text_dtype),
+        "prcfo": pd.Series(["pplate1_r1_c1_f1_o2"], dtype=text_dtype),
+        "area": [10.0],
     })
 
     schema.normalise_plate_columns(frame)
@@ -58,6 +61,20 @@ def test_a_frame_is_normalised_across_all_of_them():
     assert frame["prcf"].iloc[0] == "plate1_r1_c1_f1"
     assert frame["prcfo"].iloc[0] == "plate1_r1_c1_f1_o2"
     assert frame["area"].iloc[0] == 10.0, "a measurement was touched"
+
+
+def test_plate_normalisation_leaves_non_text_dtypes_unchanged():
+    frame = pd.DataFrame({
+        "plateID": pd.Series([7], dtype="int64"),
+        "prcf": pd.Series(["pplate1_r1_c1_f1"], dtype="category"),
+    })
+
+    schema.normalise_plate_columns(frame)
+
+    assert frame["plateID"].tolist() == [7]
+    assert str(frame["plateID"].dtype) == "int64"
+    assert frame["prcf"].tolist() == ["pplate1_r1_c1_f1"]
+    assert str(frame["prcf"].dtype) == "category"
 
 
 def test_the_database_reader_normalises(tmp_path):
