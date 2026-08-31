@@ -203,6 +203,79 @@ def main() -> int:
         print("  how those particular widgets are built matters too.")
         print("  Compare against what Part 1 found before concluding.")
 
+    # ---- Part 4: the shape the real code actually uses -------------------
+    print()
+    print("=" * 72)
+    print("PART 4  A child built while its PARENT is still in __init__")
+    print("=" * 72)
+    print("  Part 3's widgets were standalone. The real one is not:")
+    print("  AppScreen.__init__ calls _install_ambient, which calls")
+    print("  install_ambient(self, ...), which does AmbientWidget(host).")
+    print("  So the child is constructed WITH A PARENT that has not")
+    print("  finished its own __init__ -- and a parent mid-construction")
+    print("  may not be in Shiboken's binding manager yet.\n")
+
+    class Child(QWidget):
+        """Built by Host, connects to itself, exactly like AmbientWidget."""
+
+        def __init__(self, parent=None) -> None:
+            super().__init__(parent)
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self._on_tick)
+
+        def _on_tick(self) -> None:
+            pass
+
+    class HostBuildsChildInInit(QWidget):
+        """AppScreen's shape: builds the child from inside __init__."""
+
+        def __init__(self) -> None:
+            super().__init__()
+            self.child = Child(self)
+
+    class HostBuildsChildAfterInit(QWidget):
+        def __init__(self) -> None:
+            super().__init__()
+            self.child = None
+
+        def build(self) -> None:
+            self.child = Child(self)
+
+    shapes = (
+        ("child with NO parent, standalone      ", lambda: Child(None)),
+        ("child WITH parent, parent already made",
+         lambda: Child(QWidget())),
+        ("child built INSIDE parent's __init__  ",
+         HostBuildsChildInInit),
+        ("child built AFTER parent's __init__   ",
+         lambda: (lambda h: (h.build(), h)[1])(HostBuildsChildAfterInit())),
+    )
+    results = []
+    for label, make in shapes:
+        before = len(caught)
+        keep = make()                                    # noqa: F841
+        count = len(caught) - before
+        results.append((label, count))
+        print(f"  {label} : {count} warning(s)"
+              f"   {'<-- REPRODUCED' if count else 'clean'}")
+
+    print()
+    guilty = [label.strip() for label, count in results if count]
+    if not guilty:
+        print("  VERDICT: none of the four shapes reproduces it, yet Part 1")
+        print("  does. So the trigger is something more specific than how")
+        print("  the widget is parented -- report these numbers rather")
+        print("  than changing any connect.")
+    elif len(guilty) == len(results):
+        print("  VERDICT: every shape warns. The trigger is connecting to")
+        print("  self at all on this build, not where or when.")
+    else:
+        print("  VERDICT: reproduced by exactly these shapes:")
+        for label in guilty:
+            print(f"    - {label}")
+        print("  That names the condition, and the fix is to stop building")
+        print("  the widget that way -- not to silence the warning.")
+
     QTimer.singleShot(0, app.quit)
     return 0
 
