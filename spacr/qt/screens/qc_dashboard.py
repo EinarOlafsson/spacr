@@ -163,6 +163,14 @@ class QCDashboardScreen(QWidget):
     def __init__(self, parent: Optional[QWidget] = None, *,
                  src: Any = "", threaded: bool = True, reader=None) -> None:
         super().__init__(parent)
+        # ITS OWN REGISTRY KEY. Screens that build themselves rather
+        # than being the generic `AppScreen` had no `app_key`, and
+        # `install_folds_on` dispatches on exactly that -- so this screen
+        # could declare folds (it does, below) and never be handed them.
+        # Every other consumer of `app_key` reads it the same way the
+        # generic screen sets it, so naming it here is the screen
+        # answering a question it always could.
+        self.app_key = "qc_dashboard"
         self.setObjectName("QCDashboardScreen")
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
