@@ -8064,12 +8064,13 @@ class SettingsWidgets:
 
         Anything in no category at all lands in a trailing "Other".
         """
-        # `spacr.settings_spec`, NOT `spacr.gui_utils`. The function is the
-        # same one (gui_utils re-exports it); the module it now lives in
-        # imports nothing. Reaching it through gui_utils cost 770 ms of Tk
-        # dependencies -- IPython, matplotlib.pyplot, cv2, tkinter,
-        # huggingface_hub -- on the GUI thread, and it was the whole remaining
-        # cost of opening the first module. See spacr/settings_spec.py.
+        # `spacr.settings_spec` -- a module that imports NOTHING, which is
+        # the entire point of it existing. This function used to be reached
+        # through a module that pulled IPython, matplotlib.pyplot, cv2 and
+        # huggingface_hub in behind it: 770 ms on the GUI thread, and the
+        # whole remaining cost of opening the first module. That module is
+        # gone now, but the rule it taught is not -- import the leaf, not
+        # the package that re-exports it. See spacr/settings_spec.py.
         from spacr.settings_spec import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
 
