@@ -1052,7 +1052,7 @@ def test_a_control_that_raises_on_read_is_skipped_by_modified_keys():
     assert "_probe" not in widgets.modified_keys()
 
 
-def test_the_class_editor_is_handed_the_live_preview_frame():
+def test_the_class_editor_is_handed_the_live_preview_frame(monkeypatch):
     """Without it the class editor draws its swatches against nothing."""
     widgets = SM.SettingsWidgets("classify_merged")
     seen = []
@@ -1065,13 +1065,23 @@ def test_the_class_editor_is_handed_the_live_preview_frame():
         def set_frame(self, frame):
             seen.append(frame)
 
-    import spacr.qt.screens.settings_model as module
-    real = module.ClassEditorWidget
-    module.ClassEditorWidget = _Editor
-    try:
-        widgets._widget_for("entry", None, [], "classes")
-    finally:
-        module.ClassEditorWidget = real
+    # PATCHED IN THE NAMESPACE THE FUNCTION ACTUALLY READS.
+    # `_widget_for` resolves `ClassEditorWidget` as a module global, and
+    # a function reads the globals dict it was DEFINED against -- which
+    # is not necessarily what `import spacr.qt.screens.settings_model`
+    # hands back later in a long run. Anything that drops the module
+    # from `sys.modules` and lets it be imported again leaves a second
+    # module object: the patch lands on that one, `_widget_for` goes on
+    # using the real editor, and the real editor gets an `object()`
+    # where it expects a frame.
+    #
+    # This is why the failure could not be reproduced on its own. It
+    # only appeared batched, next to whatever re-imported the module,
+    # and the old form's `try/finally` restored the wrong copy too.
+    globals_read = type(widgets)._widget_for.__globals__
+    monkeypatch.setitem(globals_read, "ClassEditorWidget", _Editor)
+
+    widgets._widget_for("entry", None, [], "classes")
 
     assert seen == [widgets._preview_frame]
 
