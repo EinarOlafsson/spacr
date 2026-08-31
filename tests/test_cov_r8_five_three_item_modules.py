@@ -23,7 +23,8 @@ class TestNamingAStackFrame:
     def test_a_spacr_frame_is_named_relative_to_the_package(self):
         from spacr.qt import timing as T
 
-        assert hasattr(T, "_SPACR_ROOT") or True
+        assert hasattr(T, "_SPACR_ROOT"), (
+            "the package root the frame names are made relative to is gone")
         source = inspect.getsource(T)
         assert "path.startswith(_SPACR_ROOT)" in source
 
@@ -101,23 +102,44 @@ class TestTheObjectRoleRegistry:
         """The ambiguity the check exists for, shown rather than argued."""
         assert "cell1" + "7" == "cell" + "17"
 
-    def test_a_row_that_is_not_letters_falls_through_to_the_prefix(self):
-        """THE UNCOVERED ARC in ``row_id``: the letters do not decode.
+    def test_a_row_name_of_one_or_two_letters_always_decodes(self):
+        """THE PIN, for ``if index is not None`` in ``row_id``.
 
-        ``row_index_from_letters`` answers None for something that
-        matched the letters pattern and is still not a row name, and the
-        fall-through hands it to the general prefixed-id path -- which
-        is what keeps a numeric or already-prefixed row working.
+        The pattern above it admits one or two ASCII letters and nothing
+        else, and every such string is a plate row: A is 1 and ZZ is
+        702. So the decode cannot answer None, and the fall-through
+        below it is unreachable from that branch.
+
+        It is still the right shape, because the fall-through is what
+        keeps a NUMERIC or already-prefixed row working -- those never
+        enter the letters branch at all, which the cases below show.
         """
         from spacr import schema
 
+        assert schema._ROW_ONLY.pattern == r"^([A-Za-z]{1,2})$", (
+            "the row pattern changed; a string it now admits may not decode")
+
+        for letters in ("A", "a", "Z", "AB", "zz", "ZZ"):
+            assert schema._ROW_ONLY.match(letters)
+            assert not schema._PREFIXED_INT.match(letters)
+            assert schema.row_index_from_letters(letters) is not None, (
+                f"{letters!r} matched the row pattern and did not decode, so "
+                f"the fall-through below it is live")
+
         assert schema.row_id("A") == "r1"
+        assert schema.row_id("ZZ") == "r702"
+
+    def test_a_row_that_is_not_letters_takes_the_general_path(self):
+        """What the fall-through is for."""
+        from spacr import schema
+
+        for row in ("AAA", "A1", "", "r3"):
+            assert not (schema._ROW_ONLY.match(str(row))
+                        and not schema._PREFIXED_INT.match(str(row))), (
+                f"{row!r} now enters the letters branch")
+
         assert schema.row_id(1) == "r1"
         assert schema.row_id("r3") == "r3"
-
-        source = inspect.getsource(schema.row_id)
-        assert "if index is not None:" in source
-        assert "return _prefixed_id(ROW_KEY, row, strict=strict)" in source
 
 
 # ---------------------------------------------------------------------------
