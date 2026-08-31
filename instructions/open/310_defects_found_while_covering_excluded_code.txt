@@ -2615,3 +2615,43 @@ All four shipped tables name a title that exists, so nothing live changes.
 Recorded at this length because reversing it should be cheap for whoever
 disagrees: the position being overridden was written down, which is the only
 reason it could be weighed at all.
+
+
+==============================================================================
+39. THE MASK PANEL RENDERS NO PATHOGEN MODEL ROW  (lane: spacr/qt/screens)
+==============================================================================
+
+Found 2026-08-31 while attaching the model-zoo button, and it is why the
+maintainer's "pathogen model setting isn't wired yet" was right in a way
+neither session expected.
+
+`pathogen_model` and `pathogen_model_name` are BOTH offered by
+`set_default_settings_preprocess_generate_masks`, and BOTH categorised under
+"Pathogen" in `spacr.settings.categories`. Neither is in `_APP_HIDDEN_KEYS`.
+And the Mask panel builds no widget for either: measured across every built-in
+module, exactly ONE renders a key that names a Cellpose checkpoint --
+`analyze_plaques` renders `plaque_model`.
+
+    AppScreen(app_key="mask")._settings_model._widgets
+        94 widgets, and the only "model" key among them is `cell_model_name`
+
+`nucleus_model_name` and `organelle_model_name` are absent for the same
+reason. The Pathogen, Nucleus and Organelle sections are conditional on the run
+having that object, and setting `pathogen_channel` through the widget did not
+bring the rows back -- `_lay_out_the_rows_that_are_back` takes an argument this
+session did not trace.
+
+WHY IT MATTERS BEYOND THE BUTTON. The BACKEND honours `pathogen_model`
+end-to-end: `object.py:769-771` reads it for `object_type == 'pathogen'` and
+hands it to `_resolve_cellpose_pretrained`, which returns an existing file
+as-is and raises FileNotFoundError rather than silently falling back to cpsam;
+`core.py:432` reaches that on the default Mask path. Instruction 23eacd71c
+corrected the comments that said otherwise. So the setting works from a
+settings CSV or the API, and there is no way to reach it from the screen --
+which is the state most likely to be read as "the setting does nothing".
+
+NOT FIXED. `spacr/qt/screens/` belongs to the concurrent session, and the fix
+is a row that renders rather than a button that attaches. The button is
+already written and lands on `plaque_model` today
+(`AppScreen._with_a_model_zoo_button`, `_MODEL_ZOO_KEYS`), so whenever the
+pathogen row appears it acquires the button with no further work.
