@@ -278,20 +278,25 @@ def graphics_card() -> Tuple[bool, str]:
     name = ""
     usable = False
     try:
-        from ...accelerator import resolve
+        import torch as _torch_module
 
-        found = resolve()
+        from ...accelerator import inspect_torch
+
+        # PROBED FOR THIS torch, not read from the cached answer for the
+        # machine: the slide is exercised against a stand-in torch, and a
+        # cached global reports the developer's own card instead.
+        found = inspect_torch(_torch_module)
         # ANY VENDOR, NOT ONLY NVIDIA. This used to ask
         # `torch.cuda.is_available()`, so an AMD card driven perfectly well
         # through Metal reported as "No compatible GPU" -- the machine this
         # was fixed on segments 139x faster on the card the slide was
         # denying. See instruction 319.
         if found.is_gpu:
-            return True, found.label
+            return True, found.name or found.label
         if found.detected and not found.usable:
             # Found and not usable is its own answer, and the label
             # carries which accelerator it was.
-            return False, found.label
+            return False, found.name or found.label
     except Exception:                                        # noqa: BLE001
         LOG.debug("the accelerator resolver could not be asked",
                   exc_info=True)

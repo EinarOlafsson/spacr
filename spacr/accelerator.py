@@ -48,6 +48,7 @@ import logging
 import os
 import platform
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from typing import Optional, Tuple
 
 LOG = logging.getLogger("spacr.accelerator")
@@ -92,6 +93,14 @@ class Accelerator:
     kind: str
     device: str
     label: str
+    #: The card's own name, undecorated -- "AMD Radeon Pro 5300", not
+    #: "AMD Radeon Pro 5300 (Apple Metal)". SEPARATE FROM `label` because
+    #: the two have different jobs: a user recognises the name from the box
+    #: and from About This Mac, while the route only matters where it is
+    #: surprising. On NVIDIA the two would differ only by a suffix that
+    #: repeats the word NVIDIA, so the setup slide shows this one and its
+    #: output there is byte-for-byte what it was before instruction 319.
+    name: str = ""
     detected: bool = True
     usable: bool = True
     note: str = ""
@@ -161,7 +170,12 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
     except Exception:                                        # noqa: BLE001
         return None
     # ROCm builds set torch.version.hip and leave torch.version.cuda None.
-    hip = getattr(torch.version, "hip", None)
+    # `torch.version` is fetched defensively rather than dotted into: a
+    # partially-built torch, and any stand-in that implements only the
+    # `cuda` namespace, has no `version` at all -- and an AttributeError
+    # here would demote a working CUDA card to the CPU.
+    version_module = getattr(torch, "version", None)
+    hip = getattr(version_module, "hip", None)
     try:
         name = torch.cuda.get_device_name(0)
     except Exception:                                        # noqa: BLE001
@@ -169,14 +183,14 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
     if hip:
         return Accelerator(
             kind="rocm", device="cuda:0",
-            label=f"{name} (AMD ROCm {hip})",
+            label=f"{name} (AMD ROCm {hip})", name=name,
             # ROCm is a full CUDA-shaped backend: double precision and
             # autocast both work, which is why it needs no capability
             # carve-outs the way Metal does.
             float64=True, autocast=True)
-    version = getattr(torch.version, "cuda", None) or "?"
-    return Accelerator(kind="cuda", device="cuda:0",
-                       label=f"{name} (NVIDIA CUDA {version})")
+    version = getattr(version_module, "cuda", None)
+    label = f"{name} (NVIDIA CUDA {version})" if version else name
+    return Accelerator(kind="cuda", device="cuda:0", label=label, name=name)
 
 
 def _mps(torch) -> Optional[Accelerator]:
@@ -197,12 +211,15 @@ def _mps(torch) -> Optional[Accelerator]:
             return None
     except Exception:                                        # noqa: BLE001
         return None
+    metal_name = _metal_gpu_name()
     return Accelerator(
-        kind="mps", device="mps", label=f"{_metal_gpu_name()} (Apple Metal)",
+        kind="mps", device="mps", label=f"{metal_name} (Apple Metal)",
+        name=metal_name,
         # MEASURED, not assumed -- see this module's docstring.
         float64=False, autocast=False, fallback=True)
 
 
+@lru_cache(maxsize=1)
 def _metal_gpu_name() -> str:
     """The GPU's marketing name on macOS, or a safe generic.
 
@@ -244,7 +261,8 @@ def _xpu(torch) -> Optional[Accelerator]:
     # autocast support depends on the torch build, so both are claimed
     # conservatively: a wrong "yes" here is a crash in a training run.
     return Accelerator(kind="xpu", device="xpu", label=f"{name} (Intel XPU)",
-                       float64=False, autocast=False, fallback=True)
+                       name=name, float64=False, autocast=False,
+                       fallback=True)
 
 
 def _directml() -> Optional[Accelerator]:
@@ -261,7 +279,7 @@ def _directml() -> Optional[Accelerator]:
     except Exception:                                        # noqa: BLE001
         return None
     return Accelerator(kind="directml", device=device,
-                       label=f"{name} (DirectML)",
+                       label=f"{name} (DirectML)", name=name,
                        float64=False, autocast=False, fallback=True)
 
 
@@ -278,6 +296,28 @@ def neural_engines() -> Tuple[str, ...]:
     if platform.system() == "Darwin" and platform.machine() == "arm64":
         found.append("Apple Neural Engine (CoreML only)")
     return tuple(found)
+
+
+def inspect_torch(torch) -> Accelerator:
+    """Resolve against a SPECIFIC torch module, without touching the cache.
+
+    For callers that already hold a torch handle and must be answered about
+    that one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch
+    through its own indirection so the diagnosis can be exercised against a
+    stand-in, and a cached answer about the real machine would defeat that
+    entirely. Same probes and same order as :func:`resolve`, so the two
+    cannot drift.
+    """
+    found = None
+    for probe in (lambda: _cuda_or_rocm(torch), lambda: _mps(torch),
+                  lambda: _xpu(torch), _directml):
+        try:
+            found = probe()
+        except Exception:                                    # noqa: BLE001
+            found = None
+        if found is not None:
+            return found
+    return _CPU
 
 
 def resolve(refresh: bool = False) -> Accelerator:
@@ -540,12 +580,25 @@ def _keep_cellpose_flows_off_metal() -> None:
     LOG.debug("cellpose flow-error pass pinned to the CPU (Metal indexing bug)")
 
 
-def empty_cache() -> None:
-    """Hand the driver back whatever this backend caches. Never raises."""
-    torch = _torch()
+def empty_cache(torch_module=None) -> str:
+    """Hand the driver back whatever this backend caches. Never raises.
+
+    :param torch_module: ask about THIS torch instead of the cached answer
+        for the machine. :mod:`spacr.qt.resource_cleanup` holds its own
+        handle -- it deliberately does not import torch just to free
+        memory -- and a cached global would send the call to the wrong
+        backend when that handle is a stand-in.
+    """
+    torch = torch_module if torch_module is not None else _torch()
     if torch is None:
-        return
-    accelerator = resolve()
+        return ""
+    accelerator = (inspect_torch(torch) if torch_module is not None
+                   else resolve())
+    calls = {"cuda": "torch.cuda.empty_cache()",
+             "rocm": "torch.cuda.empty_cache()",
+             "mps": "torch.mps.empty_cache()",
+             "xpu": "torch.xpu.empty_cache()"}
+    made = calls.get(accelerator.kind, "")
     try:
         if accelerator.kind in ("cuda", "rocm"):
             torch.cuda.empty_cache()
@@ -556,6 +609,11 @@ def empty_cache() -> None:
     except Exception:                                        # noqa: BLE001
         LOG.debug("empty_cache failed for %s", accelerator.kind,
                   exc_info=True)
+        return ""
+    # THE CALL IS RETURNED, NOT A GENERIC PHRASE. Preferences shows this
+    # verbatim, and "torch.cuda.empty_cache()" is the line a user can look
+    # up; "device cache released" is a euphemism they cannot check.
+    return made
 
 
 def capabilities() -> Tuple[Tuple[str, bool, str], ...]:

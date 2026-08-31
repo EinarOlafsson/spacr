@@ -927,8 +927,9 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
         # right call is made without a vendor branch here. See 319.
         from ..accelerator import empty_cache as release_device_memory
 
-        release_device_memory()
-        details.append("device cache released")
+        made = release_device_memory(torch)
+        if made:
+            details.append(made)
     except Exception:
         LOG.debug("empty_cache failed", exc_info=True)
     after = cuda_reserved()

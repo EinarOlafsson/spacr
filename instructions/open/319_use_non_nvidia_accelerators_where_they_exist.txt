@@ -76,7 +76,6 @@ DONE MEANS
   because that is the configuration every current user has.
 
 
-================================================================================
 ADDENDUM 2026-08-31 — THE README AND THE API MUST SAY SO TOO
 ================================================================================
 
@@ -128,3 +127,129 @@ DONE MEANS, additionally: no sentence in README.rst, the nine translated
 READMEs, or the API index names CUDA as the only way to get a GPU; and
 the README's claims are checked against the resolver's own list rather
 than typed, in the way the module grid now is -- see instruction 321.
+=======
+==============================================================================
+2026-08-31 — IMPLEMENTED. ONE RESOLVER, AND THE MAC'S AMD CARD NOW RUNS
+==============================================================================
+
+MEASURED ON: Intel iMac, Core i5-10500, macOS 26.5.2, AMD Radeon Pro 5300
+(4 GB, Metal 3), conda env `spacr`, Python 3.12.11, PySide6 6.11.2,
+torch 2.2.2 / shiboken6 6.11.2. Quote the env with the version; see 320 for
+why that matters on this host.
+
+THE INSTRUCTION'S BACKEND TABLE WAS WRONG ABOUT THIS MACHINE, in the one way
+that mattered. It files MPS under "Apple Silicon" and AMD under ROCm. Both
+are wrong here:
+
+  * ROCm HAS NO macOS BUILD AT ALL. On a Mac it is not "Linux only in
+    practice", it is unavailable in principle.
+  * MPS IS METAL, NOT AN APPLE-SILICON FEATURE. `torch.backends.mps` drives
+    the AMD Radeon in this Intel Mac. Metal is the ONLY route to an AMD card
+    on macOS, and the instruction does not mention the combination.
+
+So the leading question -- "which PySide/torch version" -- was not the axis.
+The axis was that ~45 sites asked `torch.cuda.is_available()` and about a
+dozen of them meant "is there a GPU".
+
+WHAT WAS MEASURED, all on the machine above, CPU vs the same machine's card:
+
+    conv2d stack 512x512, inference     139.5 ms  ->    8.5 ms   (16x)
+    conv+BN+Adam step, 16x3x224x224      1022 ms  ->   380 ms   (2.7x)
+    cellpose cpsam, one 256x256 image   444.5 s   ->    3.2 s    (139x)
+
+The cellpose number is the headline and it is not a typo: 7.4 minutes to
+3.2 seconds for one small image, because cpsam is a SAM encoder and that is
+what a CPU does with one.
+
+WHAT IT TOOK, because "point it at mps" is not the fix and each of these
+was a separate failure with its own symptom:
+
+  1. `gpu=` AND `device=` TOGETHER. Cellpose branches on `gpu` BEFORE it
+     looks at `device`, so passing a device without the flag still runs on
+     the CPU. spaCR passed `gpu=torch.cuda.is_available()`, which is False
+     here -- so spaCR was actively overriding a cellpose that already
+     resolves Metal correctly on its own (`assign_device(gpu=True)` answers
+     `mps`). The capability was installed and being switched off.
+  2. `use_bfloat16=False`. cpsam loads its weights in bfloat16 and Metal on
+     torch 2.2 has none: `TypeError: BFloat16 is not supported on MPS` at
+     construction. PROBED, not hardcoded -- Metal gained bfloat16 after 2.2
+     and 2.2.2 is the last x86-64 macOS wheel, so the same backend answers
+     differently on an Intel Mac and an Apple Silicon one.
+  3. `PYTORCH_ENABLE_MPS_FALLBACK=1` SET BEFORE `import torch`. Metal is
+     missing operators; the network died at `aten::upsample_linear1d` after
+     the model had loaded. Torch reads this variable when the MPS backend
+     REGISTERS, which is at import. Measured: identical code fails when it
+     is set after the import and succeeds when set before. It is therefore
+     in `spacr/__init__.py` and NOT in the resolver, which runs far too late
+     to matter. This is the one that would be silently reintroduced by
+     anyone "tidying" it into the module it belongs to.
+  4. A NARROW SHIM keeping cellpose's flow-error pass on the CPU.
+     `cellpose.dynamics.masks_to_flows_gpu` indexes one past the end on MPS
+     (`IndexError: index 256 is out of bounds for axis 1 with size 256`),
+     reproduced on ordinary round blobs, not a pathological input. Only
+     `remove_bad_flow_masks` moves back -- it is post-processing, it is
+     cheap, and its own signature already defaults to the CPU. The encoder,
+     which is all of the runtime, stays on Metal. Removal condition is in
+     the docstring.
+
+THE SHAPE, as the instruction asked: ONE resolver, `spacr/accelerator.py`,
+that every site asks. It answers three questions the old idiom conflated:
+
+    is_gpu()   "is there an accelerator"   <- what a dozen sites meant
+    is_cuda()  "is it NVIDIA"              <- what they asked
+    capabilities / float64 / bfloat16 / autocast   "what can it NOT do"
+
+The third is not decoration. float64 raises on Metal, `autocast(device_type=
+"mps")` raises, and cellpose needs the dtype answer -- so a resolver that
+returned only a device string would hand those to a training run.
+
+DETECTED AND USABLE STAY SEPARATE, in the setup slide and in the doctor,
+and the doctor was the worse offender: its FIRST branch is "No NVIDIA
+driver and a CPU-only torch: segmentation and training will be very slow",
+which is what every Mac got. Wrong by two orders of magnitude about the
+card in the machine, and it ended in `nvidia-smi`. It now reads:
+
+    PASS  AMD Radeon Pro 5300 (Apple Metal) — spaCR will use it.
+          device: mps
+          still on the CPU: UMAP / t-SNE / clustering
+          float64 is unsupported on this backend, so anything needing
+          double precision runs on the CPU
+
+That cuML line is deliberate. RAPIDS ships for CUDA only -- no AMD, no
+Intel, no macOS build -- so those reductions are honestly red on every
+machine here except NVIDIA, and one green tick for all five tasks would be
+a lie about that one.
+
+A SECOND BUG FOUND WHILE LOOKING, unrelated to torch: the spaceout fractal
+ran its CPU renderer on EVERY Mac. `platform_can_do_opengl` required
+`DISPLAY` or `WAYLAND_DISPLAY` when `QT_QPA_PLATFORM` is empty, which is the
+normal state on macOS, where neither variable exists. VisPy opens a context
+on this machine reporting GL_RENDERER "AMD Radeon Pro 5300 OpenGL Engine",
+so the card was there the whole time and the environment heuristic was what
+said otherwise. The offscreen refusal -- which exists because a GL canvas
+there DUMPS CORE rather than raising -- is unchanged and asserted.
+
+NEURAL ENGINES: detect and report only, as instructed. The ANE is reachable
+through CoreML alone, Intel AI Boost through OpenVINO; naming either as a
+compute device would be a promise nothing behind it can keep. They appear
+on the slide as "detected, not used by spaCR".
+
+TESTS. One per backend, each FAKING that backend's probe and asserting the
+device string, because no machine has five of them and this one has one --
+the fake is the test. `test_the_accelerator_resolver.py` (19) and
+`test_the_doctor_names_a_non_nvidia_accelerator.py` (5). The first
+assertion in each file is that NVIDIA is unchanged, which is the whole risk
+of this change.
+
+NOT DONE, AND WHY
+-----------------
+* UMAP / t-SNE / DBSCAN on a non-NVIDIA GPU. cuML is CUDA-only and there is
+  no port; this is "write it", not "enable it". PCA and KMeans are
+  reachable in torch on Metal but sklearn's PCA is 71 ms on 20k x 256 here,
+  so the transfer would cost more than the compute.
+* Mixed-effects regression on Metal. It wants float64 and MPS raises on it.
+  Blocked at the backend, not by spaCR.
+* torch 2.2.2 IS A CEILING on this machine: PyTorch stopped publishing
+  x86-64 macOS wheels after it. Apple Silicon is not capped this way and
+  should pick up bfloat16 and the missing operators automatically, because
+  the capability flags are probed rather than declared.
