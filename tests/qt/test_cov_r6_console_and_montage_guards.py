@@ -151,24 +151,28 @@ def view(qtbot):
 
 def test_the_fraction_reader_reports_both_failures_from_the_live_path(
         monkeypatch):
-    """``load``'s second ``try`` cannot raise, so its two handlers are dead.
+    """The two answers ``load`` gives when the fractions cannot be read.
 
-    Lines 687-694 are a ``try:`` whose whole body is ``pass``; a ``pass``
-    raises nothing, so neither ``except MontageError`` nor ``except
-    Exception`` can ever run. The two answers they were written to give are
-    produced by the live reader above them (lines 663-678), and that is what
-    this drives: a :class:`MontageError` becomes the montage's own sentence,
-    and any other failure becomes the "Could not read" sentence, both marked
-    unavailable.
+    A :class:`MontageError` becomes the montage's own sentence, because
+    that error was written for the user; anything else becomes the
+    "Could not read" sentence with the original text appended. Both mark
+    the result unavailable, so the view says nothing is there rather than
+    drawing an empty panel.
+
+    This test used to also pin a second ``try`` whose body was a bare
+    ``pass``, making its two handlers unreachable. That husk has since
+    been deleted -- the pin fired when it was, which is what a pin is
+    for -- and the live reader above it is the only path now. The AST
+    check below keeps it deleted.
     """
     from spacr import cell_montage as cm
 
-    dead = [node for node in ast.walk(ast.parse(open(cmv.__file__).read()))
-            if isinstance(node, ast.Try)
-            and len(node.body) == 1 and isinstance(node.body[0], ast.Pass)
-            and any(h.type is not None for h in node.handlers)]
-    assert dead, "the handlers below are only dead while the try body is a pass"
-    assert 687 in {node.lineno for node in dead}
+    husks = [node for node in ast.walk(ast.parse(open(cmv.__file__).read()))
+             if isinstance(node, ast.Try)
+             and len(node.body) == 1 and isinstance(node.body[0], ast.Pass)]
+    assert not husks, (
+        f"a try whose body is a pass is back at line(s) "
+        f"{[node.lineno for node in husks]}; its handlers cannot run")
 
     request = cmv.MontageRequest(
         name="GRA14_1", level="grna", effect=1.0,

@@ -234,8 +234,18 @@ def test_an_eval_whose_signature_cannot_be_read_is_offered_every_setting():
         def __init__(self):
             self.seen = None
 
-        def eval(self, batch, batch_size=8, normalize=True, channel_axis=None,
-                 diameter=None):
+        # THE WHOLE INSTALLED SIGNATURE, not a convenient subset: a double
+        # that takes **kwargs, or omits a parameter, cannot fail when spaCR
+        # passes an argument cellpose 4 removed. Enforced by
+        # tests/test_cellpose_api_contract.py.
+        def eval(self, batch, batch_size=8, resample=True, channels=None,
+                 channel_axis=None, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
             self.seen = dict(batch_size=batch_size, normalize=normalize,
                              channel_axis=channel_axis, diameter=diameter)
             labels = np.zeros((8, 8), dtype=np.uint16)
