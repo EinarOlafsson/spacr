@@ -57,11 +57,27 @@ ALREADY ESTABLISHED -- do not redo this
   ENV, not just the version -- there are two on this host and quoting a
   bare version number reads as a contradiction between sessions:
 
-      conda env `spacr`     PySide6 6.11.2
-      conda env `spacr12`   PySide6 6.11.1
-      conda env `spacr13`   no PySide6
+      conda env `spacr`     PySide6 6.11.1   (Python 3.13.14)
+      conda env `spacr12`   PySide6 6.11.2   (Python 3.12.14)
+      conda env `spacr13`   PySide6 6.11.2   (Python 3.13.15)
 
-  Under 6.11.2: built `MainWindow`, navigated to `mask`, `make_masks` and
+  CORRECTED 2026-08-31 by measurement -- the first version of this table had
+  `spacr` and `spacr12` the wrong way round and said `spacr13` had no PySide6
+  at all. Read twice from each interpreter, `PySide6.__version__` and
+  `pip show`, agreeing. Which is the point the table was added to make: the
+  env is what disambiguates, and it is what both sessions got wrong. Quote a
+  version only with the interpreter it came out of.
+
+  ATTRIBUTION CORRECTED WITH THE TABLE: the MainWindow navigation capture
+  below was run in env `spacr`, which is 6.11.1 -- NOT 6.11.2 as first
+  recorded. That left the strong test unrun on 6.11.2, with only the lighter
+  connect/destroy control covering it. Closed 2026-08-31: the same capture was
+  run in env `spacr12` (6.11.2, Python 3.12.14) and built `mask`, `make_masks`
+  and `measure` with ZERO Qt messages of any kind and zero `addMetaMethod`.
+
+  So both builds are now covered by BOTH tests. Original text follows.
+
+  Under 6.11.1 (env `spacr`): built `MainWindow`, navigated to `mask`, `make_masks` and
   `measure` through `_on_nav_selected` with a `qInstallMessageHandler`
   capturing every Qt message -- ZERO `addMetaMethod` warnings; also built
   `MakeMasksScreen` directly, zero. Under 6.11.1: connect to a bound
