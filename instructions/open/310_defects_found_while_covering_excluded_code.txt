@@ -1374,30 +1374,51 @@ A17. spacr/qt/mask_engine.py:733-753, magic_wand()
 A18. spacr/qt/widgets/measure_preview.py:823-830 (_on_max_sets_changed) together with ImageSetSampler.describe in spacr/qt/widgets/preview_controls.py:855-869
     WHAT: The guard `if self.sample_note():` is meant to stop an empty sample sentence from blanking the status line, but `describe()` never returns an empty string -- with nothing enumerated it returns "showing all 0 image sets". Verified live: a fresh panel with no array loaded, status line set to "2 object(s) . 1 category", then `_on_max_sets_changed(7)` leaves status == "Showing all 0 image sets".
     COST: Nudging the FOV-cap spinbox before an array is loaded (or after a load failed) wipes whatever the status line was saying -- the crop count, or the sentence explaining why the last pass could not run -- and replaces it with a sentence about a folder that was never listed. The False side of the guard is dead code in production; my test had to substitute `apply_sample_to_combo` to exercise it.
+    VERDICT 2026-08-31: STALE -- already fixed. The dead `if self.sample_note():`
+    guard is gone; the real condition (`if not self._sampler.total: return`,
+    measure_preview.py:830) replaced it and the status is set unconditionally.
 
 A19. spacr/qt/widgets/measure_preview.py:1248-1259 (_on_thumb_clicked)
     WHAT: The selection set is toggled BEFORE the `0 <= index < len(self._crops)` range check, so an out-of-range index is still added to `self._selected`. Verified: with 2 crops loaded, `_on_thumb_clicked(99)` leaves `99 in panel._selected`.
     COST: A click delivered by a thumbnail that a newer, shorter crop pass has outlived inflates the "N selected" count on the status line and puts a phantom index into `current_params()["selected"]`, which then disagrees with `n_crops`. Low severity today (`_on_crops_ready` clears the set on every pass and nothing in spacr/ consumes `current_params()`), but the range check clearly intended to reject the click entirely.
+    VERDICT 2026-08-31: STALE -- already fixed. The range check is now FIRST
+    (measure_preview.py:1252-1253); the toggle cannot see an out-of-range index.
 
 A20. spacr/figures/scene.py:1186-1205, _add_legend
     WHAT: The entry texts are FILTERED (`if body:` skips a legend text whose string is empty) but they are then paired with the unfiltered handle list: `for entry, handle in zip(entries, legend.legend_handles)`. Every surviving label after a blank one is therefore zipped against the handle of the previous entry, so the swatch beside it is the wrong series' colour. Measured: `axes.legend(handles=[red_line, blue_line], labels=["", "kept"])` translates to a single row labelled 'kept' drawn with pen #ff0000 -- the RED line's colour -- although 'kept' is the blue series. The same shift applies to every entry after the blank one when there are more.
     COST: A pyqtgraph-rendered panel prints a key that names a series in another series' colour, which is the one failure a legend exists to prevent, and it is silent: the translation reports itself complete and the matplotlib page (which is correct) is not written. Reachable whenever a panel passes explicit `handles=`/`labels=` with a blank spacer label, which is how three of the QC panels build their legends.
+    VERDICT 2026-08-31: STALE -- already fixed. texts and handles are zipped
+    BEFORE the `if body:` filter (scene.py:1190-1193), so each kept entry
+    carries its own handle. The mispairing is impossible as written.
 
 A21. spacr/qt/widgets/picture_settings_dialog.py:337-339 (_say_what_the_cap_costs, early return on an empty cost)
     WHAT: When montage_cap_cost() answers "" -- which it does for any cap that is not a positive count, and the cap QSpinBox's range starts at 0 -- the method returns without touching the label, so the PREVIOUS cap's cost sentence stays on the tooltip. Verified: a dialog opened at cap=2000 and then set to 0 still shows 'about 287 MB of crops held while the tab is open' beside a box reading 0.
     COST: The help beside the cap prices a limit the control no longer holds. A user who clears the box (or passes through 0 while retyping) reads a page count, a memory figure and a cut time that belong to a number they have just replaced, and nothing on screen says the figures are stale.
+    VERDICT 2026-08-31: STALE -- already fixed. An empty cost no longer returns
+    early; it REMOVES the previous count's sentence, with a comment saying why
+    ('ZERO HAS NO PRICE', picture_settings_dialog.py:363-366).
 
 A22. spacr/qt/widgets/picture_settings_dialog.py:238-241 (the cap live-pricing connection) with a non-int stored cap
     WHAT: A settings blob that stores cap as a decimal (e.g. 2000.0 round-tripped through a float column) builds a QDoubleSpinBox, which is not a QSpinBox, so valueChanged is never connected. Verified: with values={'cap': 12.5} the label prices '12 objects' at build time and keeps saying 12 after the control is dragged to 30.0; values()['cap'] then returns 30.0, a float, where every other reader of this setting expects a count.
     COST: For that user the cost line silently freezes at whatever the file held -- it never again describes the cap they are choosing -- and the dialog hands the montage a float cap. The guard correctly keeps the window openable; the missing part is any signal that the live pricing is off.
+    VERDICT 2026-08-31: STALE -- already fixed. A float cap is normalised to int
+    at the boundary so the control stays a QSpinBox and stays live-wired
+    (picture_settings_dialog.py:213-219), with a comment naming this exact case.
 
 A23. spacr/qt/ai/providers.py:147-151 (terminate_all_streams) and 222-226 (_stream_process finally)
     WHAT: After the escalation calls proc.kill() there is no follow-up proc.wait(), unlike ChatProvider.cancel_stream() (lines 93-97) which does wait after kill.
     COST: A vendor CLI child that ignored SIGTERM is SIGKILLed but never reaped, so it stays a zombie for the life of the GUI process and Popen.__del__ emits a ResourceWarning about a still-running child. On a long session with several stuck streams the zombies accumulate.
+    VERDICT 2026-08-31: STALE -- already fixed. terminate_all_streams delegates to
+    `_terminate_and_reap`, which calls proc.wait(timeout=...) and falls back to
+    `_kill_and_reap` (providers.py:162-181).
 
 A24. spacr/qt/ai/providers.py:152-158 (terminate_all_streams)
     WHAT: When proc.terminate() raises (e.g. OSError for a pid the OS refuses), the exception is swallowed by the outer `except Exception: pass` but the finally still removes the entry from _LIVE_STREAMS.
     COST: A child that is still running but momentarily unsignallable is dropped from the registry, so a later terminate_all_streams() (or the autouse shutdown at app exit) can never reach it again -- exactly the blocked-reader-thread-outlives-its-owner situation this registry exists to prevent. Confirmed by test_a_child_that_cannot_be_signalled_does_not_strand_the_others: the unreachable child is left running yet the registry ends up empty.
+    VERDICT 2026-08-31: STALE -- already fixed by the same change. The entry is
+    only discarded when the reap CONFIRMS exit (`if finished:`,
+    providers.py:202-203); a terminate that raises returns finished=False and
+    the process stays tracked.
 
 A25. spacr/report.py:812-816, _collect_run_status (the `if isinstance(failure, dict)` guard)
     WHAT: A run-status stamp whose `failures` list holds bare strings instead of {item, stage, error} records (a hand-written sidecar, or one from an older writer) has those entries silently dropped: the count line says "2 of 3 item(s) failed" but only the dict-shaped failure gets a bullet, and the string's text appears nowhere in the HTML or the text/PDF rendering.
