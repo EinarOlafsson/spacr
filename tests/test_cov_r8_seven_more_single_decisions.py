@@ -214,24 +214,49 @@ class TestRenderingAFailureRecord:
 
         ``json.dumps`` already has a ``default`` for objects it does not
         know, so what reaches the handler is what ``default`` cannot
-        save it from: a recursive structure (ValueError) and a float too
-        large for JSON (OverflowError among them).
+        save it from -- a structure that refers to itself, which is
+        exactly what a sidecar written from a live object graph
+        produces.
 
         A failure record that cannot be written is still a failure that
-        happened, and losing it would remove the only trace of the run
-        that produced it.
+        happened, and losing it here would remove the only trace of the
+        run that produced it. Naming the type keeps the row.
         """
+        from spacr import report as R
+
         recursive = {}
         recursive["self"] = recursive
 
-        with pytest.raises((ValueError, RecursionError)):
-            json.dumps(recursive, default=lambda item: f"<{type(item)}>")
+        rendered = R._failure_record_text(recursive)
+
+        assert rendered == "<dict>", (
+            f"a recursive record rendered as {rendered!r} rather than being "
+            f"named by its type")
+
+    def test_a_number_json_cannot_hold_is_named_too(self):
+        """The other half of the same handler: a float outside JSON."""
+        from decimal import Decimal
 
         from spacr import report as R
 
-        source = inspect.getsource(R)
-        assert "except (TypeError, ValueError, OverflowError):" in source
-        assert 'rendered = f"<{type(value).__name__}>"' in source
+        rendered = R._failure_record_text({"scale": Decimal("NaN")})
+
+        assert rendered, "a record with an unserialisable number was lost"
+
+    def test_an_object_json_does_not_know_is_named_by_default_not_by_repr(
+            self):
+        """The ``default`` above the handler, which catches the ordinary
+        case: an in-memory object is named by TYPE rather than by its
+        potentially unsafe or unstable repr."""
+        from spacr import report as R
+
+        class Opaque:
+            def __repr__(self):
+                raise RuntimeError("this repr is not safe to call")
+
+        rendered = R._failure_record_text({"held": Opaque()})
+
+        assert "Opaque" in rendered
 
     def test_an_empty_render_is_named_rather_than_blank(self):
         from spacr import report as R
