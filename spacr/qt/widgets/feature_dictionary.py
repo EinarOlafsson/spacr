@@ -21,7 +21,7 @@ This module is the missing half:
     column.
 
 :func:`register`
-    puts the panel in the app registry (Explore section) and its QSS in the
+    puts the panel in the app registry (Tools section) and its QSS in the
     theme, through the ``register_app`` / ``register_widget_qss`` seams —
     this module owns its own registration and edits neither ``app.py`` nor
     ``theme.py``.
@@ -575,13 +575,13 @@ def register() -> bool:
     """
     ok = True
     try:
-        from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
+        from ..app import APPS, SECTION_TOOLS, STAGE_ALPHA, register_app
         if not any(row[0] == APP_KEY for row in APPS):
             register_app(
                 APP_KEY,
                 APP_NAME,
                 APP_DESC,
-                SECTION_EXPLORE,
+                SECTION_TOOLS,
                 factory=make_screen,
                 stage=STAGE_ALPHA,
                 translations=APP_NAME_TRANSLATIONS,

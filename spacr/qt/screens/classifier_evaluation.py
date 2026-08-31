@@ -119,7 +119,7 @@ LIST_PREVIEW = 200
 
 APP_KEY = "classifier_evaluation"
 APP_NAME = "Classifier Evaluation"
-APP_SECTION = "Results & QC"
+APP_SECTION = "Core"
 APP_INTRO = (
     "Inspect held-out predictions, grouped or nested cross-validation, "
     "calibration, confusion matrices, per-plate performance and leakage checks."

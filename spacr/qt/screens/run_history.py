@@ -51,7 +51,7 @@ __all__ = [
 
 APP_KEY = "run_history"
 APP_NAME = "Run History"
-APP_SECTION = "Results & QC"
+APP_SECTION = "Data"
 APP_INTRO = (
     "Search every recorded job and inspect its settings, inputs, outputs, "
     "warnings, failure traceback, versions, seeds, and performance in one place."

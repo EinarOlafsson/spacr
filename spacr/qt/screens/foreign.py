@@ -275,14 +275,29 @@ class ForeignScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        # ITS OWN REGISTRY KEY -- what `install_folds_on` dispatches
+        # on. A screen that builds itself has no `app_key` unless it says
+        # so, and without it this screen could declare folds and never be
+        # handed them.
+        self.app_key = "foreign"
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel("Import Project")
-        title.setObjectName("DisplayHeading")
-        outer.addWidget(title)
+        # A ModuleHeader RATHER THAN A BARE LABEL, for the same reason
+        # Database Browser grew one: it draws the same `DisplayHeading`
+        # this built by hand, and its `add_trailing` is where the fold
+        # strip hangs. Without a masthead, Format Converter and External
+        # Masks have nowhere to appear.
+        header = ModuleHeader(
+            "Import",
+            description="Convert microscope formats, map somebody else's "
+                        "columns, or adopt masks made elsewhere",
+            app_key="foreign",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         subtitle = QLabel(
             "Turn somebody else's images, label masks and measurement table "
@@ -1010,3 +1025,53 @@ class ForeignScreen(QWidget):
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(f"Import failed: {line}", error=True)
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+from .app_screen import ModuleHeader
+from .map_barcodes import build_registered_screen
+
+HOST_KEY = "foreign"
+
+#: The other two ways data gets into a project, folded onto this one.
+#:
+#: Asked for on 2026-08-31: "make one module called import, and have
+#: format converter, import project (use import project as the icon),
+#: external masks". This screen IS Import Project, renamed to Import and
+#: keeping its icon, so the other two arrive as buttons on its masthead
+#: rather than as a third and fourth tile saying the same thing.
+#:
+#: They are genuinely one job seen three ways -- convert a microscope
+#: format, map somebody else's columns, or adopt masks made elsewhere --
+#: and which one a user needs depends on what they were handed, which is
+#: not a decision Home can help with.
+FOLDED_APPS: Tuple[str, ...] = ("convert", "external_masks")
+
+
+def _build_convert(host_window: Optional[QWidget] = None) -> QWidget:
+    """Format Converter, as the window builds it."""
+    return build_registered_screen("convert", host_window)
+
+
+def _build_external_masks(host_window: Optional[QWidget] = None) -> QWidget:
+    """External Masks, as the window builds it."""
+    return build_registered_screen("external_masks", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "convert": _build_convert,
+    "external_masks": _build_external_masks,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put Import's fold strip on ``screen``'s masthead."""
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

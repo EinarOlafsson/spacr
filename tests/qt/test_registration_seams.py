@@ -178,31 +178,43 @@ def test_sections_are_the_ones_that_have_apps_not_the_ones_declared():
     named today and appears the day its first app registers. That is
     what lets a module claim one without editing app.py.
 
-    Both of the sections that were declared and empty when this was
-    written have since been claimed from their own modules, which is the
-    mechanism working rather than the property lapsing: Explore by Layer
-    Viewer and Graph Builder, Design by Power / Design. All seven are
-    live, so the "appears from nothing" half of the property no longer
-    has a shipped subject and is pinned instead by
+    Home was cut to four categories on 2026-08-31, which exercises this
+    property in the other direction: Explore, Design, Results & QC and
+    Segmentation models are still SPELLED in app.py and still have their
+    notes, and they vanished from the UI the moment their last app was
+    re-filed -- no edit to the section list required. The "appears from
+    nothing" half has no shipped subject and is pinned instead by
     ``test_an_importer_of_sections_cannot_hold_a_stale_snapshot`` and
     ``test_claiming_an_empty_section_makes_it_appear_with_its_note`` on
     :data:`SANDBOX_SECTION`, which the fixture declares and no app can
     ever claim. What is asserted here is the steady state: the published
     list is exactly the sections `APPS` uses, in declared order.
     """
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTION_ORDER
-    assert app_mod.SECTION_DESIGN in app_mod.SECTION_ORDER
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
+    # THE FOUR THAT SURVIVED. Home was cut to four categories on
+    # 2026-08-31; Explore, Design, Results & QC and Segmentation models
+    # are still SPELLED in app.py, because screens and saved state name
+    # them, but no app is filed under any of them so none appears.
+    # Naming Tools here rather than Explore is the same claim about the
+    # new shape.
+    assert app_mod.SECTION_TOOLS in app_mod.SECTION_ORDER
+    assert app_mod.SECTION_TOOLS in app_mod.SECTIONS
+    assert app_mod.SECTION_EXPLORE not in app_mod.SECTIONS, (
+        "Explore is back; the four-category Home was asked for explicitly")
     assert set(app_mod.SECTIONS) == {row[3] for row in app_mod.APPS}
     # Derived, not a copy of the declaration that happens to match: the
     # order is SECTION_ORDER's and the membership is APPS'.
     assert list(app_mod.SECTIONS) == [
         section for section in app_mod.SECTION_ORDER
         if any(row[3] == section for row in app_mod.APPS)]
-    # Every declared section has its note written now, so the first app
-    # to claim one gets a described tab rather than a bare heading.
-    assert set(app_mod._SECTION_NOTE_LIBRARY) == set(app_mod.SECTION_ORDER)
+    # Every declared section has its note written, so the first app to
+    # claim one gets a described tab rather than a bare heading.
+    #
+    # A SUPERSET, not equality. The library still holds notes for the
+    # three sections retired on 2026-08-31 -- Explore, Results & QC,
+    # Segmentation models -- and that costs nothing: they are strings for
+    # names nothing is filed under. The property worth defending is that
+    # no section can APPEAR without a note, which is this direction.
+    assert set(app_mod.SECTION_ORDER) <= set(app_mod._SECTION_NOTE_LIBRARY)
     assert all(app_mod._SECTION_NOTE_LIBRARY.values())
     # ...and the published notes track the published sections exactly.
     assert set(app_mod.SECTION_NOTES) == set(app_mod.SECTIONS)
@@ -253,19 +265,19 @@ def test_a_registered_app_reaches_every_reader_of_the_registry(
     """One call, and the app is in all six derived views."""
     row = app_mod.register_app(
         "seam_probe", "Seam Probe", "A registered app, for the test",
-        app_mod.SECTION_RESULTS, stage=app_mod.STAGE_ALPHA)
+        app_mod.SECTION_TOOLS, stage=app_mod.STAGE_ALPHA)
 
     assert row == ("seam_probe", "Seam Probe",
-                   "A registered app, for the test", app_mod.SECTION_RESULTS)
+                   "A registered app, for the test", app_mod.SECTION_TOOLS)
     assert row in app_mod.APPS
     assert row in app_mod.visible_apps()
     assert app_mod.app_stage("seam_probe") == app_mod.STAGE_ALPHA
     assert app_mod.home_stages()["seam_probe"] == app_mod.STAGE_ALPHA
-    assert row in app_mod.section_members(app_mod.SECTION_RESULTS)
+    assert row in app_mod.section_members(app_mod.SECTION_TOOLS)
     categories = dict(app_mod.home_categories())
-    assert "seam_probe" in categories[app_mod.SECTION_RESULTS]
+    assert "seam_probe" in categories[app_mod.SECTION_TOOLS]
     bands = {s: [r[0] for r in rows] for s, rows in app_mod.home_bands()}
-    assert "seam_probe" in bands[app_mod.SECTION_RESULTS]
+    assert "seam_probe" in bands[app_mod.SECTION_TOOLS]
 
 
 def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
@@ -280,7 +292,7 @@ def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
 
     app_mod.register_app("seam_probe", "Seam Probe",
                          "A registered app, for the test",
-                         app_mod.SECTION_RESULTS)
+                         app_mod.SECTION_TOOLS)
 
     page = app_mod.make_home_page()
     qtbot.addWidget(page)
@@ -352,7 +364,7 @@ def test_a_new_row_is_filed_beside_its_own_section_not_appended(
     and then an Explore heading after the Toxo apps.
     """
     app_mod.register_app("explore_probe", "Explore Probe", "…",
-                         app_mod.SECTION_EXPLORE)
+                         app_mod.SECTION_TOOLS)
     app_mod.register_app("core_probe", "Core Probe", "…",
                          app_mod.SECTION_CORE)
 
@@ -418,19 +430,19 @@ def test_going_over_the_cap_still_starts_and_no_longer_says_so(
     read about.
     """
     room = app_mod.MAX_APPS_PER_SECTION - len(
-        app_mod.section_members(app_mod.SECTION_MODELS))
+        app_mod.section_members(app_mod.SECTION_TOOLS))
     for i in range(room):
         app_mod.register_app(f"filler_{i}", f"Filler {i}", "…",
-                             app_mod.SECTION_MODELS)
+                             app_mod.SECTION_TOOLS)
     with caplog.at_level(logging.WARNING, logger=app_mod.LOG.name):
         app_mod.register_app("one_too_many", "One Too Many", "…",
-                             app_mod.SECTION_MODELS)
+                             app_mod.SECTION_TOOLS)
 
     assert any(row[0] == "one_too_many" for row in app_mod.APPS), (
         "a registration past the cap must still be accepted; refusing it "
         "would take the app away without helping anyone split the section")
     assert "one_too_many" in {
-        key for key, *_ in app_mod.section_members(app_mod.SECTION_MODELS)}
+        key for key, *_ in app_mod.section_members(app_mod.SECTION_TOOLS)}
     assert not [rec.getMessage() for rec in caplog.records
                 if "cap" in rec.getMessage()], (
         "the per-registration cap warning is back; it fires once per app past "
@@ -507,7 +519,7 @@ def test_a_registered_factory_builds_the_screen(qtbot, registry_sandbox):
         return widget
 
     app_mod.register_app("factory_probe", "Factory Probe", "…",
-                         app_mod.SECTION_RESULTS, factory=factory)
+                         app_mod.SECTION_TOOLS, factory=factory)
     assert app_mod.registered_factory("factory_probe") is factory
 
     screen = MainWindow._build_screen(_Host(), "factory_probe")
@@ -533,14 +545,14 @@ def test_a_factory_is_given_the_arguments_it_declares(qtbot,
     from spacr.qt.app import MainWindow
 
     host = _Host()
-    app_mod.register_app("both_probe", "Both", "…", app_mod.SECTION_RESULTS,
+    app_mod.register_app("both_probe", "Both", "…", app_mod.SECTION_TOOLS,
                          factory=wants_both)
     qtbot.addWidget(MainWindow._build_screen(host, "both_probe"))
     assert seen == {"app_key": "both_probe", "host": host}
 
     seen.clear()
     app_mod.register_app("kwargs_probe", "Kwargs", "…",
-                         app_mod.SECTION_RESULTS, factory=wants_kwargs)
+                         app_mod.SECTION_TOOLS, factory=wants_kwargs)
     qtbot.addWidget(MainWindow._build_screen(host, "kwargs_probe"))
     assert seen == {"app_key": "kwargs_probe", "host": host}
 
@@ -561,7 +573,7 @@ def test_a_factory_is_called_once_even_when_it_raises_a_type_error(
         calls.append(1)
         raise TypeError("something inside the screen went wrong")
 
-    app_mod.register_app("boom_probe", "Boom", "…", app_mod.SECTION_RESULTS,
+    app_mod.register_app("boom_probe", "Boom", "…", app_mod.SECTION_TOOLS,
                          factory=explodes)
     with pytest.raises(TypeError, match="inside the screen"):
         MainWindow._build_screen(_Host(), "boom_probe")
@@ -571,7 +583,7 @@ def test_a_factory_is_called_once_even_when_it_raises_a_type_error(
 def test_a_factory_that_returns_a_non_widget_is_refused(registry_sandbox):
     from spacr.qt.app import MainWindow
 
-    app_mod.register_app("bad_probe", "Bad", "…", app_mod.SECTION_RESULTS,
+    app_mod.register_app("bad_probe", "Bad", "…", app_mod.SECTION_TOOLS,
                          factory=lambda: {"not": "a widget"})
     with pytest.raises(TypeError, match="expected QWidget"):
         MainWindow._build_screen(_Host(), "bad_probe")
@@ -584,7 +596,7 @@ def test_an_app_without_a_factory_still_gets_the_generic_screen(
     from spacr.qt.screens.app_screen import AppScreen
 
     app_mod.register_app("plain_probe", "Plain Probe", "…",
-                         app_mod.SECTION_RESULTS)
+                         app_mod.SECTION_TOOLS)
     screen = MainWindow._build_screen(_Host(), "plain_probe")
     qtbot.addWidget(screen)
     assert isinstance(screen, AppScreen)
@@ -1203,7 +1215,7 @@ def test_a_registration_reaches_every_side_table_in_one_call(registry_sandbox):
 
     app_mod.register_app(
         key, "Fanout Probe", "One call, every table",
-        app_mod.SECTION_RESULTS, stage=app_mod.STAGE_ALPHA,
+        app_mod.SECTION_TOOLS, stage=app_mod.STAGE_ALPHA,
         title="Fanout Probe (header)", intro="What the module does, at length.",
         cli_note="Fanout Probe is interactive; run it in the GUI (spacr-qt).",
         api_module="qt/fanout_probe",
@@ -1237,7 +1249,7 @@ def test_title_and_intro_fall_back_to_the_name_and_the_description(
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
 
     app_mod.register_app("minimal_probe", "Minimal Probe",
-                         "The one-line description", app_mod.SECTION_RESULTS)
+                         "The one-line description", app_mod.SECTION_TOOLS)
     try:
         assert APP_TITLES["minimal_probe"] == "Minimal Probe"
         assert APP_INTROS["minimal_probe"] == "The one-line description"
@@ -1254,14 +1266,14 @@ def test_a_registered_entry_is_spelled_module_colon_function(registry_sandbox):
     "Not runnable" forever.
     """
     app_mod.register_app("entry_probe", "Entry Probe", "…",
-                         app_mod.SECTION_RESULTS,
+                         app_mod.SECTION_TOOLS,
                          entry="spacr.illumination.illumination_settings")
     with pytest.raises(ValueError, match="module:function"):
         app_mod.registered_entry("entry_probe")
 
     app_mod.unregister_app("entry_probe")
     app_mod.register_app("entry_probe", "Entry Probe", "…",
-                         app_mod.SECTION_RESULTS,
+                         app_mod.SECTION_TOOLS,
                          entry="spacr.illumination:illumination_settings")
     from spacr.illumination import illumination_settings
     assert app_mod.registered_entry("entry_probe") is illumination_settings
@@ -1283,7 +1295,7 @@ def test_an_earlier_import_of_sections_sees_the_four_new_apps():
     from spacr.qt.app import SECTIONS as imported_here
 
     assert imported_here is app_mod.SECTIONS
-    assert app_mod.SECTION_EXPLORE in imported_here
+    assert app_mod.SECTION_TOOLS in imported_here
     assert {row[3] for row in app_mod.APPS} <= set(imported_here)
 
 

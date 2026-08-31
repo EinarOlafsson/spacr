@@ -39,9 +39,47 @@ _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 #: * the OpenType line fires once per screen that lays out text in a script
 #:   "Open Sans" has no table for. Qt falls back to a font that does and the
 #:   text renders correctly; the message is a note, not a failure.
+#: Lines that say nothing a user or a maintainer can act on.
+#:
+#: `addMetaMethod` is the third entry and the only one that was
+#: INVESTIGATED before being filtered rather than after. What it means:
+#: when a signal is connected to a bound method of a QObject, PySide
+#: registers a dynamic slot on the receiver so the connection dies with
+#: it. "Cannot add... No Wrapper found" says that registration failed.
+#: The connection is still made and still fires -- the modules it is
+#: reported from all work -- so what is lost is a lifetime optimisation,
+#: not the behaviour.
+#:
+#: FILTERED ONLY AFTER FOUR HYPOTHESES WERE KILLED, on a Mac, by
+#: `tools/diagnose_pyside_slot_warning.py`, which is kept in the tree so
+#: any of this can be re-opened in one command:
+#:
+#:   * NOT a PySide version change. The reporting Mac runs 6.11.2, the
+#:     exact build this project's Linux machines run without ever
+#:     warning. macOS-specific, same version.
+#:   * NOT connect-in-__init__. Both shapes are clean on that Mac.
+#:   * NOT how the widget is parented. Four parenting shapes -- none, a
+#:     finished parent, a parent still inside __init__, and the same
+#:     parent afterwards -- are all clean on that Mac.
+#:   * NOT a dangling connection. Destroying the receiver and emitting
+#:     survives cleanly, so the untracked-connection crash this would
+#:     otherwise imply does not occur.
+#:
+#: What IS known: it comes from `AmbientWidget.__init__` (ambient.py),
+#: via `install_ambient` from `AppScreen._install_ambient`, once per
+#: screen built -- which is why it repeats on every module opened. No
+#: synthetic reconstruction of that call reproduces it.
+#:
+#: So this is a filter for a line that names an internal PySide
+#: optimisation, on one platform, that no user can act on and that
+#: reports nothing about spaCR's own behaviour. It is NOT a fix, and the
+#: distinction matters: if the underlying cause is ever found, remove
+#: this line rather than leaving the noise suppressed over a real repair.
 _QT_NOISE = re.compile(
     r"OpenType support missing for|"
-    r"This plugin does not support (propagateSizeHints|raise)"
+    r"This plugin does not support (propagateSizeHints|raise)|"
+    r"libpyside: addMetaMethod: Cannot add dynamic method .* "
+    r"No Wrapper found\."
 )
 
 #: The inotify line, which is somebody else's problem and says so badly.
