@@ -2110,7 +2110,20 @@ def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
     run that has already read and merged a 400k-row measurements database
     before it fails is not a cheap thing to repeat.
     """
-    lines = [f'  - {name} ({dtype}): {reason}' for name, dtype, reason in problems]
+    import pandas as pd
+
+    # pandas 3 infers ordinary Python text as StringDtype (displayed as
+    # ``str``) where earlier versions inferred ``object``.  The diagnostic is
+    # a user-facing description of the same text-storage problem, so keep its
+    # established wording stable without flattening categorical or other
+    # extension dtypes that carry materially different information.
+    def diagnostic_dtype(dtype) -> str:
+        return 'object' if isinstance(dtype, pd.StringDtype) else str(dtype)
+
+    lines = [
+        f'  - {name} ({diagnostic_dtype(dtype)}): {reason}'
+        for name, dtype, reason in problems
+    ]
     count = len(problems)
     head = (f'{count} declared model feature{"s" if count != 1 else ""} '
             f'{"are" if count != 1 else "is"} not numeric, so '
