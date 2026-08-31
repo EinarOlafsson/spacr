@@ -423,17 +423,11 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
-    # Cover internal helpers and class methods too.  Entry-point decorators
-    # alone miss most of a pipeline; the package-level profiler filters to
-    # spacr source files and is completely removed when verbose mode is off.
-    from ..logging_util import (
-        disable_function_trace,
-        enable_function_trace,
-    )
-    if on:
-        enable_function_trace()
-    else:
-        disable_function_trace()
+    # Keep the interpreter-wide profiler an explicit developer tool. Even a
+    # filtered profile hook runs for every Python call in every thread, so it
+    # cannot be part of an always-on GUI preference. Decorated entry points,
+    # button presses, and ordinary DEBUG records still provide the useful
+    # verbose trail without imposing that process-wide cost.
     if on:
         # Nudge cellpose's own logger to INFO so its "loaded model X"
         # breadcrumbs come through. We deliberately DO NOT touch

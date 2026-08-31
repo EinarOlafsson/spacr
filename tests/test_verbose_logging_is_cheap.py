@@ -2,9 +2,42 @@
 from __future__ import annotations
 
 import logging
+import sys
+import threading
 import time
 
 from spacr import logging_util
+
+
+def test_gui_verbose_never_installs_an_interpreter_profile_hook(caplog):
+    """Keep the 2-second startup path instead of the measured 60-second one.
+
+    Hook identity is a deterministic performance contract: timing a quiet CI
+    host is noisy, while any installed Python profile callback necessarily
+    intercepts every function call in every thread.
+    """
+    from spacr.qt import verbose_logger
+
+    logging_util.disable_function_trace()
+    verbose_logger.apply_verbose_logging(False)
+    sys_profile = sys.getprofile()
+    get_thread_profile = getattr(threading, "getprofile", lambda: None)
+    thread_profile = get_thread_profile()
+    try:
+        verbose_logger.apply_verbose_logging(True)
+        assert sys.getprofile() is sys_profile
+        assert get_thread_profile() is thread_profile
+        assert not logging_util.function_trace_enabled()
+
+        with caplog.at_level(logging.DEBUG, logger="spacr.trace"):
+            verbose_logger.log_button_press("Run", {"screen": "home"})
+        assert any("[button:Run]" in record.getMessage()
+                   and "home" in record.getMessage()
+                   for record in caplog.records)
+    finally:
+        verbose_logger.apply_verbose_logging(False)
+        # If this regression fails, do not leak its hook into later tests.
+        logging_util.disable_function_trace()
 
 
 def test_the_animation_modules_are_never_traced():

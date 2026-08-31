@@ -482,7 +482,6 @@ def enable_debug() -> None:
     logging.getLogger("spacr").setLevel(logging.DEBUG)
     for h in logging.getLogger().handlers:
         h.setLevel(logging.DEBUG)
-    enable_function_trace()
 
 
 def disable_debug() -> None:
@@ -493,7 +492,6 @@ def disable_debug() -> None:
     logging.getLogger("spacr").setLevel(_SESSION_LEVEL)
     for h in logging.getLogger().handlers:
         h.setLevel(_SESSION_LEVEL)
-    disable_function_trace()
 
 
 # ---------------------------------------------------------------------------
