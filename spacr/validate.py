@@ -1342,17 +1342,55 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, "cell_channel",
                 "no segmentation channel is set: every registered object channel is None.",
                 "Set at least one *_channel setting to an acquisition-channel index."))
-        # pathogen_model: the bundled toxo checkpoints were Cellpose-3 and are
-        # gone. Anything set here is ignored, so say so rather than validating
-        # against a list of models that cannot load.
+        # pathogen_model: A CHECKPOINT PATH HERE IS HONOURED.
+        #
+        # This used to warn that the setting was IGNORED, which was true
+        # while the only values anyone set were the pre-SAM toxo names.
+        # It stopped being true: `object.py` reads `pathogen_model` for
+        # `object_type == 'pathogen'` and hands it to
+        # `_resolve_cellpose_pretrained`, which returns an existing file
+        # as-is -- so a cpsam fine-tune loads. Saying "ignored" now would
+        # tell a user their working setting will be discarded.
+        #
+        # Two things are still worth saying, and they are opposites:
+        #
+        #   a MISSING file is an ERROR, not a warning. The resolver
+        #   raises FileNotFoundError rather than falling back to cpsam,
+        #   deliberately -- segmenting with the wrong weights silently is
+        #   worse than stopping. But it raises INSIDE the run, after the
+        #   images are batched. Catching it here is the whole purpose of
+        #   a validator: the same failure, before the time is spent.
+        #
+        #   a LEGACY NAME still resolves to cpsam with only a log line,
+        #   so it is the case that DOES pass silently and is the one the
+        #   original warning was really about.
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
-            if model is not None and model != "cpsam":
-                problems.append(Problem(
-                    WARNING, "pathogen_model",
-                    f"pathogen_model={model!r} is ignored: Cellpose 4 ships only 'cpsam', "
-                    f"and the pre-SAM toxo_pv_lumen / toxo_cyto checkpoints have been removed.",
-                    "Drop the setting, or set it to 'cpsam' to be explicit."))
+            # IMPORTED FROM THE RESOLVER, not spelled again here. The two
+            # must agree on what the stock model is called, and a second
+            # copy of the string is the one that goes stale.
+            from .utils import CPSAM_MODEL
+
+            if isinstance(model, str) and model.strip():
+                model = model.strip()
+                looks_like_a_path = (
+                    os.sep in model or model.endswith((".pth", ".pt")))
+                if looks_like_a_path and not os.path.isfile(model):
+                    problems.append(Problem(
+                        ERROR, "pathogen_model",
+                        f"pathogen_model={model!r} names a checkpoint that "
+                        f"is not there.",
+                        "Point it at an existing .pth/.pt file, or drop the "
+                        "setting to segment pathogens with stock cpsam."))
+                elif not looks_like_a_path and model != CPSAM_MODEL:
+                    problems.append(Problem(
+                        WARNING, "pathogen_model",
+                        f"pathogen_model={model!r} is not a checkpoint on "
+                        f"disk, so Cellpose 4 will load stock "
+                        f"{CPSAM_MODEL!r} instead. The pre-SAM "
+                        f"toxo_pv_lumen / toxo_cyto checkpoints are gone.",
+                        "Give the path to a fine-tuned checkpoint, or set "
+                        f"{CPSAM_MODEL!r} to be explicit."))
 
     if app == "measure":
         # measure_crop returns early on both of these.
