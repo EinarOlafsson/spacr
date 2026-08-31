@@ -1020,6 +1020,14 @@ class TestStylesheet:
                 theme.css_color(theme.rim_colour(name), 0.35),
                 theme.css_color(palette["button_accent"], 0.18),
                 theme.css_color(palette["error"], 0.18),
+                # The menu bar, and the window chrome in its corner. This
+                # bar is the frameless window's TITLE bar, so it sits over
+                # the animated backdrop; a fully opaque one reads as a
+                # slab pasted on top. Asked for on 2026-08-31 as "just
+                # make it a little transparent", after a fully
+                # transparent one showed the backdrop as a moving
+                # gradient behind the only two words on it.
+                theme.menu_bar_background(name),
             }
             for hue in theme.STAGE_HOVER.values():
                 allowed.add(theme.css_color(hue, 0.22))

@@ -65,7 +65,24 @@ def test_the_menu_bar_words_light_in_the_accent(theme_name):
     rule = sheet[start:sheet.find("}", start)]
 
     assert "QMenuBar::item:pressed" in rule, "pressing it does nothing"
-    assert "background: transparent" in rule, "it grows a plate instead"
+    # NO CONTRASTING PLATE -- asserted as the bar's own colour rather
+    # than as `transparent`, which is what this used to demand.
+    #
+    # The two are identical to look at: painting the colour already
+    # underneath you changes no pixel. They are not identical when the
+    # paint is SKIPPED, which is what `transparent` means. What is behind
+    # this bar is the window, whose palette Window role is the splash
+    # colour -- pure black. On Linux the bar's own fill covers that; on
+    # macOS the hover repaint clears to the window first, and the black
+    # arrived as a plate behind the hovered word. Reported 2026-08-31:
+    # "black boxes... appear only after hovering".
+    #
+    # So the intent this test defends is unchanged -- the word lights, no
+    # plate grows -- and only the means of getting it has moved.
+    assert f"background: {theme.menu_bar_background(theme_name)}" in rule, (
+        "the hover paints something other than the bar's own colour, so "
+        "it grows a plate -- or paints nothing, and shows the window's "
+        "black through the hole")
     if palette is not None:
         assert palette["accent"].lower() in rule.lower()
 

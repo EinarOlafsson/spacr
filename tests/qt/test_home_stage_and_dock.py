@@ -32,7 +32,8 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel
 
 from spacr.qt import theme
-from spacr.qt.app import APPS, MainWindow, app_stage, make_home_page
+from spacr.qt.app import (APPS, MainWindow, app_stage, make_home_page,
+                          tiled_apps)
 from spacr.qt.widgets.home import AppTile, StageLegend
 
 
@@ -221,7 +222,10 @@ def test_every_tile_carries_the_stage_the_registry_gave_it(qtbot,
     seen = {}
     for tile in page.findChildren(AppTile):
         seen.setdefault(tile.text_label, set()).add(tile.stage)
-    expected = {name: {app_stage(key)} for key, name, *_r in APPS}
+    # TILED apps. The stage is read from the registry for every app,
+    # folded or not -- but this compares against what is DRAWN, and a
+    # folded module draws no tile to carry one.
+    expected = {name: {app_stage(key)} for key, name, *_r in tiled_apps()}
     assert seen == expected
     for tile in page.findChildren(AppTile):
         assert tile.property("stage") == tile.stage, (
@@ -662,10 +666,16 @@ class TestDockModes:
                 continue
             collect(top.menu())
             break
-        assert {name for _k, name, *_r in APPS} <= labels
+        # The MODULE MENU and the tiles both show the tiled apps. A folded
+        # module is deliberately in neither: it is reached from a button
+        # on its host, from Help, or from the command palette -- and the
+        # palette covering every module, folded or not, is pinned by
+        # `test_the_drawer_is_not_the_only_way_to_reach_every_app`, which
+        # is where "no dead end" is actually guaranteed.
+        assert {name for _k, name, *_r in tiled_apps()} <= labels
         drawn = {t.text_label
                  for t in win._startup._tabs.widget(0).findChildren(AppTile)}
-        assert drawn == {name for _k, name, *_r in APPS}
+        assert drawn == {name for _k, name, *_r in tiled_apps()}
 
     def test_switching_modes_moves_the_same_widget_back_and_forth(
             self, qtbot, qt_theme_applied, tmp_settings):

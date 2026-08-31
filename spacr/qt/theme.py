@@ -2171,6 +2171,37 @@ def composite(top: str, alpha: float, under: str = WORST_CASE_UNDER) -> str:
     return "#%02x%02x%02x" % out
 
 
+#: How opaque the menu bar is. Not 1.0, so the bar does not read as a
+#: slab pasted over the backdrop; nowhere near 0, because this bar is the
+#: frameless window's title bar and its two labels have to stay legible
+#: over whatever the backdrop is doing underneath.
+MENU_BAR_ALPHA = 0.94
+
+
+def menu_bar_background(theme: Optional[str] = None) -> str:
+    """The QSS colour the menu bar and its corner chrome both paint.
+
+    ONE FUNCTION FOR BOTH so they cannot drift. The bar is styled from
+    the generated stylesheet and the window chrome is styled in
+    ``spacr.qt.app`` with a stylesheet of its own; two hard-coded colours
+    that have to match is one of them going stale.
+
+    :param theme: theme name; the active theme when omitted.
+    :returns: a QSS colour string.
+    """
+    if theme is None:
+        # The theme ON SCREEN, resolved the way `active_palette` does --
+        # the chrome is restyled on a theme change like everything else,
+        # so reading a constant here would leave the corner painting the
+        # dark bar's colour under the light one.
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:                                   # noqa: BLE001
+            theme = "dark"
+    return css_color(palette_for(theme)["surface"], MENU_BAR_ALPHA)
+
+
 def css_color(color: str, alpha: float = 1.0) -> str:
     """Render a colour for QSS — plain hex, or ``rgba()`` when translucent."""
     if alpha >= 1.0:
@@ -3602,6 +3633,11 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     # Opaque variants for the places translucency would be wrong.
     ELEVATED = css_color(
         base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
+    #: The menu bar, and everything drawn onto it: its items, and the
+    #: window chrome in its corner. Slightly translucent so the bar does
+    #: not read as a separate slab, but nowhere near transparent -- see
+    #: the QMenuBar rules for what fully-transparent cost on macOS.
+    BAR_BG = css_color(base["surface"], 0.94)
     over_image = theme in IMAGE_THEMES
     # Tiles take page opacity on every theme. Over an image they always did;
     # on the flat themes they were `transparent`, which looked identical to
@@ -3777,22 +3813,39 @@ QGroupBox::title:disabled, QRadioButton:disabled {{
  *  Menu bar + menus
  * ----------------------------------------------------------------- */
 QMenuBar {{
-    background-color: {P["surface"]};
+    /* ONE FLAT, MOSTLY-OPAQUE COLOUR. This bar is the frameless window's
+       title bar, so it sits over the animated backdrop -- and read
+       through a fully translucent bar that backdrop is a moving gradient
+       behind the only two words on it. Reported from macOS: "the bar is
+       transparent and has a gradient so it is hard to see the spaCR and
+       Help". A little translucency keeps it from looking pasted on; the
+       rest is what makes the labels legible over anything. */
+    background-color: {BAR_BG};
     color: {P["fg_muted"]};
     padding: {S["xs"]}px {S["sm"]}px;
     border-bottom: 1px solid {P["border_soft"]};
     font-size: {F["small"]}px;
 }}
 QMenuBar::item {{
-    background: transparent;
+    /* THE BAR'S OWN COLOUR, NEVER `transparent`. `transparent` means
+       "paint nothing", and what is behind this bar is the WINDOW, whose
+       palette Window role is the splash colour -- pure black. On Linux
+       the bar's own fill covers that and nothing shows; on macOS the
+       hover repaint clears to the window first, and the black came
+       through as a box behind each label. Painting the bar's colour
+       here is indistinguishable from transparent wherever transparent
+       worked, and correct where it did not. */
+    background: {BAR_BG};
     padding: {S["xs"]}px {S["sm"]}px;
     border-radius: {R["sm"]}px;
 }}
 QMenuBar::item:selected, QMenuBar::item:pressed {{
     /* THE WORD LIGHTS, not a plate behind it: the same accent the dock's
        open section header takes, so pointing at spaCR or Help reads the
-       same way as pointing at a category. */
-    background: transparent;
+       same way as pointing at a category. The background repeats the
+       bar's colour rather than being `transparent` for the reason
+       above -- this is the exact state the black box appeared in. */
+    background: {BAR_BG};
     color: {P["accent"]};
 }}
 QMenu {{
