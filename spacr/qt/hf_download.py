@@ -25,9 +25,19 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtWidgets import QProgressDialog
+from PySide6.QtWidgets import QLabel, QProgressDialog
 
 LOG = logging.getLogger("spacr.qt.hf_download")
+
+#: The longest caption the progress dialog shows, used to size it once at
+#: construction. Not a guess: the download reports one HuggingFace file at
+#: a time and this is a real name from the toxo_mito pack, which is the
+#: dataset the "load example data" button fetches.
+_WIDEST_CAPTION = "Downloading plate1_A01_T0001F001L01A01Z01C01.tif"
+
+#: Room for the dialog's frame, its margins and the progress bar's own
+#: padding, on top of the caption itself.
+_CAPTION_MARGIN = 96
 
 # Match the classic Tk GUI's demo endpoints so users see the same
 # dataset here they'd have seen in the Tk build.
@@ -382,6 +392,30 @@ def download_toxo_mito_demo(parent,
 
     dlg = QProgressDialog("Preparing…", "Cancel", 0, 1, parent)
     dlg.setWindowTitle("Downloading spaCR demo dataset")
+    # SIZED FOR THE TEXT IT WILL SHOW, NOT THE TEXT IT STARTS WITH.
+    # A QProgressDialog takes its width from the label it is constructed
+    # with, and this one is constructed with "Preparing…" -- eleven
+    # characters -- then spends the whole download showing
+    # "Downloading <filename>\n(3/6 files)". Reported 2026-08-31: "the
+    # text number and % test is cut off".
+    #
+    # A plain QLabel does not wrap, so the filename was clipped at the
+    # dialog edge and the count line fell outside the dialog entirely.
+    # Both are fixed by the same two changes: a label that WRAPS, and a
+    # width chosen from the longest string this dialog actually shows
+    # rather than from its first one.
+    caption = QLabel("Preparing…", dlg)
+    caption.setWordWrap(True)
+    caption.setAlignment(Qt.AlignmentFlag.AlignLeft
+                         | Qt.AlignmentFlag.AlignVCenter)
+    dlg.setLabel(caption)
+    # KEPT ON THE DIALOG. PySide6's QProgressDialog exposes setLabel() but
+    # no label() getter, so the only way to reach this widget again -- to
+    # measure whether its text still fits -- is to hold on to it.
+    dlg.spacr_caption = caption
+    dlg.setMinimumWidth(
+        caption.fontMetrics().horizontalAdvance(_WIDEST_CAPTION)
+        + _CAPTION_MARGIN)
     dlg.setMinimumDuration(0)
     dlg.setValue(0)
     # AutoClose True so hitting max value closes the dialog and returns
