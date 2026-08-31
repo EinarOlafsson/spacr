@@ -123,6 +123,24 @@ def test_nan_never_passes_a_range():
     assert keep.tolist() == [True, False, True]
 
 
+def test_range_filter_owns_the_mask_it_refines(monkeypatch):
+    """Pandas may return read-only views unless ``copy=True`` is requested."""
+    original = pd.Series.to_numpy
+
+    def read_only_view_by_default(series, *args, **kwargs):
+        array = original(series, *args, **kwargs)
+        if not kwargs.get("copy", False):
+            array.setflags(write=False)
+        return array
+
+    monkeypatch.setattr(pd.Series, "to_numpy", read_only_view_by_default)
+    df = _frame(4, area=[1.0, 5.0, np.nan, 20.0])
+
+    keep = RangeFilter("area", low=2.0, high=10.0).mask(df)
+
+    assert keep.tolist() == [False, True, False, False]
+
+
 def test_a_non_numeric_column_coerces_rather_than_crashing():
     df = _frame(3, area=["1.0", "oops", "3.0"])
     keep = RangeFilter("area", low=0.0, high=10.0).mask(df)

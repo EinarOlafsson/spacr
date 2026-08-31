@@ -441,7 +441,11 @@ class RangeFilter:
                 f"range filter names column {self.column!r}, which this frame "
                 f"does not have")
         values = pd.to_numeric(df[self.column], errors="coerce")
-        keep = values.notna().to_numpy()
+        # Pandas 3 may expose this boolean array as a read-only view.  The
+        # bounds below deliberately refine it in place, so ask pandas for an
+        # owned, writable buffer rather than relying on version-specific
+        # ``to_numpy`` ownership.
+        keep = values.notna().to_numpy(copy=True)
         if self.low is not None:
             keep &= (values >= self.low).to_numpy()
         if self.high is not None:
