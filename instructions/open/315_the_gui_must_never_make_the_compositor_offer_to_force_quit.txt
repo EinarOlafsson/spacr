@@ -258,3 +258,72 @@ alone is a check-then-act race and cannot be the whole answer.
 
 Guard: tests/qt/test_the_backdrop_never_waits_out_a_heavy_import.py, 19
 tests. The three that carry the argument were mutation-checked.
+
+
+--------------------------------------------------------------------------------
+3d, MEASURED 2026-08-31 ON A REAL DISPLAY: IT IS NOT DIFFUSE
+--------------------------------------------------------------------------------
+
+3d said "diffuse -- imports, settings_search.install, widget construction --
+with no single offender". That verdict does not survive a profile that
+separates cold from warm. 3840x2160 display, quiet machine, seven consecutive
+warm builds of the Regression screen:
+
+    cold (first open in the process)   2,068 ms
+    warm (every open after)            1,263 ms   median, min 1,246, max 1,288
+
+So ~800 ms of the "1.4 s" is once-per-process import cost and is NOT what a
+user pays when opening a module. The 1,263 ms warm build is, and it has three
+named owners rather than none:
+
+    _build_runtime_panel                673 ms   53%
+    _build_settings_panel               314 ms   25%
+      of which 11 pyqtgraph plots       199 ms   16%
+
+1. THE STYLE CASCADE IS 65.6% OF EVERY EVENT DISPATCHED.
+   109,410 events reach each application-wide filter during ONE build:
+
+       PaletteChange   27,995   25.6%
+       FontChange      27,832   25.4%
+       StyleChange     16,027   14.6%
+
+   Those 71,854 events come from FIFTY-FOUR setStyleSheet/setFont/setPalette
+   calls -- about 1,330 descendant events each, because Qt sends them to the
+   whole subtree. Setting style on a parent AFTER its children are attached is
+   therefore quadratic in the subtree, and the call sites are all in
+   spacr/qt/screens/. `theme.batched_widget_qss()` already solves exactly this
+   shape at window level; the same trick per-screen is the fix. NOT DONE HERE:
+   screens/ belongs to the concurrent session.
+
+2. field_fade's FILTER DOES ZERO WORK DURING A BUILD.
+   It is dispatched 109,410 times and acts on Paint only -- and there are
+   ZERO Paint events in the whole 1,263 ms. Its first line is already a single
+   enum compare, so the ~89 ms is pure C++ -> Python dispatch that cannot be
+   optimised from inside the filter. Removing it needs either a per-widget
+   install or a suspend scope entered by the builder, which is in screens/.
+
+3. THE OBVIOUS REORDER IN button_roles IS WRONG. RECORDED SO IT IS NOT RETRIED.
+   That filter asks `isinstance(watched, QPushButton)` on all 109,410 events to
+   act on 155 (0.14%), which looks like an obvious win: test `event.type()`
+   first and reject 95.8% before the isinstance. Implemented and measured:
+
+       original ordering    1,282 ms median
+       "optimised" ordering 1,352 ms median      <- 5% SLOWER
+
+   `event.type()` is a PySide call that crosses into C++ and builds an enum
+   object; `isinstance` against a shiboken type is a C-level check. The
+   original ordering pays type() only for the 4,576 QPushButton events. The
+   change was reverted. The general point: in PySide the cheap-looking test is
+   not always the cheap one, and a filter this hot must be A/B measured rather
+   than reasoned about.
+
+NEXT, AND IT IS IN widgets/ RATHER THAN screens/: RegressionResultsPanel builds
+ten pyqtgraph plots eagerly at 199 ms and puts each straight into a QTabWidget
+tab, of which the user sees one. Deferring construction to first tab activation
+is worth ~199 ms of the 1,263. It is not a two-line change: the tabs set their
+tooltips through `self.tabs.indexOf(self.effect_rank)`, and the plots are also
+fed directly by attribute (`self.qq.set_p_values(...)`) from the results
+loader, so laziness has to survive both an indexOf during construction and an
+attribute touch before the tab is ever shown. A `__getattr__` that materialises
+on first touch covers both; it was scoped but deliberately not shipped
+half-tested.
