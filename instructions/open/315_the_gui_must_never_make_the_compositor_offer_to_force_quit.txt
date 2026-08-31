@@ -141,9 +141,15 @@ the `offscreen` the test suite sets.
     by design, so that bar is probably a dialog rather than the main
     window; establish which before changing anything there.
 
-3b. A BLACK BOX IN REGRESSION, above the Run button and below the
-    inputs, on the same row as the adjacent button. Reported twice.
-    Not yet found.
+3b. THE BLACK BOX IN REGRESSION WAS THE AI-PROVIDER CHEVRON. A sentinel
+    render isolated the anonymous 21x25 provider ``QToolButton`` as the only
+    pure-black component: 368 of its 525 pixels were black. It now uses the
+    narrow ``AiProviderMenuButton`` theme selector and renders only its glyph
+    (64/729 painted pixels, 8.8%) while preserving its ``InstantPopup`` menu.
+    The identical latent plate in Annotate was then measured at 521/525 black
+    pixels and moved onto the same selector; both production controls now
+    render identically. The two fixes passed 546 and 172 focused test
+    executions respectively. Fixed by 732657f3b and 6f230472c.
 
 3c. VERBOSE LOGGING no longer installs the interpreter-wide profile hook.
     The GUI verbose/debug controls retain their diagnostics without changing
