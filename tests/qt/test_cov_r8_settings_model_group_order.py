@@ -23,16 +23,32 @@ pytestmark = pytest.mark.qt
 class TestTheMergedClassifyGroupOrder:
 
     def _panel_groups(self):
-        """``SettingsWidgets`` is not a QWidget -- it owns them."""
+        """The section TITLES the merged panel builds.
+
+        ``SettingsWidgets`` is not a QWidget -- it owns them -- and the
+        groups reach the screen as sections, so that is where the order
+        is read back from. A family group's title carries its family
+        prefix, which is stripped here to compare against the tuples.
+        """
         widgets = SM.SettingsWidgets("classify_merged")
-        for name in ("_groups", "groups", "_ordered"):
-            groups = getattr(widgets, name, None)
-            if isinstance(groups, dict) and groups:
-                return widgets, groups
-        return widgets, None
+        sections = widgets.build_sections()
+        titles = [str(getattr(section, "title", "")) for section in sections]
+        bare = set()
+        for title in titles:
+            for separator in (" — ", " -- ", " - "):
+                if separator in title:
+                    title = title.split(separator, 1)[1]
+                    break
+            bare.add(title)
+        return widgets, bare
 
     def test_the_family_choice_comes_first(self):
-        self._panel_groups()
+        widgets = SM.SettingsWidgets("classify_merged")
+        sections = widgets.build_sections()
+
+        assert str(getattr(sections[0], "title", "")) == "Classifier", (
+            "the panel asks which model to train after asking how to "
+            "train it")
 
         source = inspect.getsource(SM)
         assert 'rebuilt = {"Classifier": ["classifier_family"]}' in source, (
@@ -73,8 +89,7 @@ class TestTheMergedClassifyGroupOrder:
 
         assert named, "the group tuples are gone"
         _widgets, groups = self._panel_groups()
-        if groups is None:
-            pytest.skip("this build does not expose the group mapping")
+        assert groups, "the merged panel built no sections at all"
 
         missing = sorted(name for name in named if name not in groups)
         assert not missing, (
