@@ -103477,6 +103477,38 @@
         "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
+    "spacr.qt.widgets.popup_state": {
+      "source_blocks_sha256": [
+        "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ],
+      "source_sha256": "5b86e1879457fd36bbf13cd58dc6eec3e842a816051967999b1302f059d3e059",
+      "text": "应用程序界面上当前是否显示了菜单或工具提示。\n\n为何需要此功能。打开 spaCR 菜单会在实时 GL 背景上引发约 105 个控件集中重绘——其中包括 68 个 QLabel、25 个 QWidget 和 12 个 AppTile——工具提示也会造成同样的情况。这一波重绘源于合成器在原生 GL 子控件之上重新合成弹出窗口，用户看到的停靠栏和标题栏闪烁正是由此产生的。\n\n背景无法阻止弹出窗口被合成，但可以在合成期间不再成为不断变化的目标。弹出窗口显示时让动画保持静止，可将菜单触发重绘的控件数量从 238 个降至 5 个，并将工具提示触发的数量从 90 个降至 0 个。\n\n为何采用轮询而不是事件过滤器。显而易见的实现方式是安装一个应用程序级事件过滤器，用于监视弹出窗口的 Show 和 Hide 事件。这个方案经过实现和测量后被弃用：模块打开期间，它会为应用程序中的每个事件运行 Python，每秒调用 13,646 次；而且它让打开模块时那段刚刚缩短的 GUI 主线程阻塞又增加了 130 ms（原本从 1380–1424 ms 缩短，却变成 1473–1606 ms）。\n\nQt 已经知道答案，只需两次 C++ 调用即可提供，因此动画改为每帧查询一次。以每秒 60 帧计算，这相当于 120 次调用，而不是 13,000 次。",
+      "translation_source_blocks_sha256": [
+        "b61fb234f8c36ff8f1264168e7998bc40c783d9e84a25deb0380c9fc94632c4e",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "2f5699a739e89976c43936b2e3654165294b899b98f754b315c0718bfea720f5",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ]
+    },
+    "spacr.qt.widgets.popup_state.a_popup_is_on_screen": {
+      "source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a"
+      ],
+      "source_sha256": "750f82290ec8bb2a050875e1bc8a8fed6318af7364c0ec6d65b5ffd5d3fa68dd",
+      "text": "应用程序内任意位置显示菜单或工具提示时返回 True。\n\n之所以同时查询二者，是因为 Qt 对它们的处理不同：菜单是 ``activePopupWidget``（窗口类型为 ``Qt::Popup``），而工具提示不是；工具提示拥有自己的 ``Qt::ToolTip`` 窗口，由 :class:`~PySide6.QtWidgets.QToolTip` 单独跟踪。如果只监视前者，工具提示闪烁将完全不受影响，而这个问题与菜单闪烁是同时报告的。\n\n绝不抛出异常。此函数由动画时钟周期调用，因此这里的失败最多只能影响一帧的判断，不能影响背景：对于无法回答的问题，函数会回答 \"no popup\"，这正是此功能出现之前应用程序的行为。",
+      "translation_source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "a68721cbaec1c995740c37a9d48dc04c59d139fe56347ca348e9339eccc8ad28"
+      ]
+    },
     "spacr.qt.widgets.power_design": {
       "source_blocks_sha256": [
         "4d5654c7fad6977c902c9cdc094f78c00221058be2a4e1a865c1a4d5ce9f8260",

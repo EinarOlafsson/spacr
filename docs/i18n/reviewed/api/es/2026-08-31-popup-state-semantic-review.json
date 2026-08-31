@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.popup_state#0",
+      "source_sha256": "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+      "source": "Whether a menu or a tooltip is currently on screen.",
+      "context": "Whether a menu or a tooltip is currently on application view.",
+      "translation": "Indica si actualmente se muestra un menú o una descripción emergente en la vista de la aplicación."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#1",
+      "source_sha256": "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+      "source": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "context": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "translation": "POR QUÉ EXISTE ESTO. Abrir el menú de spaCR provocaba una ráfaga de ~105 repintados de controles sobre el fondo GL activo -- 68 QLabel, 25 QWidget y 12 AppTile -- y una descripción emergente hacía lo mismo. Esa ráfaga se produce cuando el compositor vuelve a componer una ventana emergente sobre un elemento secundario GL nativo, y es lo que el usuario percibe como parpadeo del panel acoplable y el encabezado."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#2",
+      "source_sha256": "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+      "source": "The backdrop cannot stop the popup from compositing, but it can stop being a moving target while it happens. Holding the animation still for the moment a popup is up takes the menu from 238 painted widgets to 5, and a tooltip from 90 to 0.",
+      "context": "The backdrop cannot stop the popup from compositing, but it can stop being a moving target while it happens. Holding the animation still for the moment a popup is up takes the menu from 238 painted widgets to 5, and a tooltip from 90 to 0.",
+      "translation": "El fondo no puede impedir que se componga la ventana emergente, pero sí puede dejar de ser un objetivo móvil mientras ocurre. Mantener inmóvil la animación mientras se muestra una ventana emergente reduce el menú de 238 widgets repintados a 5 y una descripción emergente de 90 a 0."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#3",
+      "source_sha256": "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+      "source": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very GUI-thread block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "context": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "translation": "POR QUÉ SE USA UNA CONSULTA PERIÓDICA Y NO UN FILTRO DE EVENTOS. La implementación evidente es un filtro de eventos para toda la aplicación que vigila Mostrar y Ocultar en las ventanas emergentes. Se implementó, se midió y se descartó: ejecutaba Python para cada evento de la aplicación -- 13,646 llamadas por segundo mientras se abría un módulo -- y añadía 130 ms precisamente al bloque de la ruta principal de ejecución de la GUI que la corrección de apertura de módulos acababa de acortar (1380-1424 ms pasaron a 1473-1606)."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#4",
+      "source_sha256": "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23",
+      "source": "Qt already knows the answer and will give it for two C++ calls, so the animation asks once per frame instead. At sixty frames a second that is 120 calls, against thirteen thousand.",
+      "context": "Qt already knows the answer and will give it for two C++ calls, so the animation asks once per frame instead. At sixty frames a second that is 120 calls, against thirteen thousand.",
+      "translation": "Qt ya conoce la respuesta y la proporciona con dos llamadas de C++, por lo que la animación consulta una vez por fotograma. A sesenta fotogramas por segundo son 120 llamadas, frente a trece mil."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#0",
+      "source_sha256": "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+      "source": "True while a menu or a tooltip is showing, anywhere in the app.",
+      "context": "True while a menu or a tooltip is showing, anywhere in the app.",
+      "translation": "True mientras se muestra un menú o una descripción emergente en cualquier parte de la aplicación."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#1",
+      "source_sha256": "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+      "source": "Both are asked for, because they are different things to Qt: a menu is an ``activePopupWidget`` (window type ``Qt::Popup``), and a tooltip is not -- it is its own ``Qt::ToolTip`` window that :class:`~PySide6.QtWidgets.QToolTip` tracks separately. Watching only the first would have left the tooltip flicker exactly as it was, and that was reported alongside the menu.",
+      "context": "Both are asked for, because they are different things to Qt: a menu is an ``activePopupWidget`` (window type ``Qt::Popup``), and a tooltip is not -- it is its own ``Qt::ToolTip`` window that :class:`~PySide6.QtWidgets.QToolTip` tracks separately. Watching only the first would have left the tooltip flicker exactly as it was, and that was reported alongside the menu.",
+      "translation": "Se consultan ambas porque son cosas distintas para Qt: un menú es un ``activePopupWidget`` (tipo de ventana ``Qt::Popup``), mientras que una descripción emergente no lo es -- tiene su propia ventana ``Qt::ToolTip``, que :class:`~PySide6.QtWidgets.QToolTip` controla por separado. Comprobar solo lo primero habría dejado intacto el parpadeo de la descripción emergente, que se notificó junto con el menú."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#2",
+      "source_sha256": "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a",
+      "source": "Never raises. This is called from an animation tick, so a failure here must cost a frame's decision at worst, not the backdrop: an unanswerable question is answered \"no popup\", which is the behaviour the application had before this existed.",
+      "context": "Never throws. This is called from an animation tick, so a failure here must cost a frame's decision at worst, not the backdrop: an unanswerable question is answered \"no popup\", which is the behaviour the application had before this existed.",
+      "translation": "Nunca genera una excepción. Esta función se llama en un paso de animación, por lo que un fallo aquí debe costar, como máximo, la decisión de un fotograma y no el fondo: una pregunta sin respuesta se contesta con \"no popup\", que era el comportamiento de la aplicación antes de que existiera esta función."
+    }
+  ]
+}

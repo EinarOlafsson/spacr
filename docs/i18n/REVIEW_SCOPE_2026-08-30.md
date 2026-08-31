@@ -10,7 +10,7 @@ basis of these numbers alone.
 
 The live runtime inventory contains 4,982 entries: 1,018 setting labels, 1,013
 setting tooltips, 192 category explanations, 2,695 UI strings, and 64 module
-summaries.  The live API inventory contains 8,848 symbol documents: 8,735
+summaries.  The live API inventory contains 8,850 symbol documents: 8,737
 canonical documents plus 113 rendered aliases.  The nine supported non-English
 locales are Swedish
 (`sv`), German (`de`), Spanish (`es`), Simplified Chinese (`zh_CN`), Portuguese
@@ -19,23 +19,23 @@ locales are Swedish
 The table counts unique, current source strings admitted through
 `docs/i18n/reviewed/runtime/<locale>/` and unique, current translatable blocks
 admitted through `docs/i18n/reviewed/api/<locale>/`.  Percentages and remainders
-use the requested release denominators (4,982 runtime entries and 8,848 API
+use the requested release denominators (4,982 runtime entries and 8,850 API
 symbol documents).  API evidence is block-keyed, not document-keyed, so its
 percentage is an intentionally conservative normalization, not the proportion
 of whole API documents read.  Repeated source strings likewise mean that the
 runtime percentage is not a unique-string percentage.
 
-| Language | Reviewed runtime sources | Of 4,982 | Arithmetic remainder | Reviewed API blocks | Of 8,848 | Arithmetic remainder |
+| Language | Reviewed runtime sources | Of 4,982 | Arithmetic remainder | Reviewed API blocks | Of 8,850 | Arithmetic remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 115 | 2.31% | 4,867 | 367 | 4.15% | 8,481 |
-| German | 85 | 1.71% | 4,897 | 323 | 3.65% | 8,525 |
-| Spanish | 92 | 1.85% | 4,890 | 201 | 2.27% | 8,647 |
-| Simplified Chinese | 239 | 4.80% | 4,743 | 352 | 3.98% | 8,496 |
-| Portuguese | 96 | 1.93% | 4,886 | 307 | 3.47% | 8,541 |
-| Hindi | 104 | 2.09% | 4,878 | 276 | 3.12% | 8,572 |
-| Korean | 222 | 4.46% | 4,760 | 302 | 3.41% | 8,546 |
-| Icelandic | 110 | 2.21% | 4,872 | 797 | 9.01% | 8,051 |
-| French | 93 | 1.87% | 4,889 | 304 | 3.44% | 8,544 |
+| Swedish | 115 | 2.31% | 4,867 | 375 | 4.24% | 8,475 |
+| German | 85 | 1.71% | 4,897 | 331 | 3.74% | 8,519 |
+| Spanish | 92 | 1.85% | 4,890 | 209 | 2.36% | 8,641 |
+| Simplified Chinese | 239 | 4.80% | 4,743 | 360 | 4.07% | 8,490 |
+| Portuguese | 96 | 1.93% | 4,886 | 315 | 3.56% | 8,535 |
+| Hindi | 104 | 2.09% | 4,878 | 284 | 3.21% | 8,566 |
+| Korean | 222 | 4.46% | 4,760 | 310 | 3.50% | 8,540 |
+| Icelandic | 110 | 2.21% | 4,872 | 805 | 9.10% | 8,045 |
+| French | 93 | 1.87% | 4,889 | 312 | 3.53% | 8,538 |
 
 In addition, `tools/i18n_reviewed_ui.py` pins 84 context-sensitive UI sources
 in every locale: 84 x 9 = 756 reviewed source/target pairs.  Those rows overlap
@@ -43,7 +43,7 @@ the runtime inventory and are therefore not added to the table.  The review
 evidence schemas do not consistently name a fluent-speaker reviewer; some
 records and the Portuguese API evidence explicitly describe Codex-assisted
 review.  No fluent-speaker census of all 44,802 runtime target entries or all
-79,542 API target documents is recorded.
+79,650 API target documents is recorded.
 
 ## Sampling method and exact unsampled remainder
 
@@ -124,7 +124,15 @@ methods plus 13 related public contracts whose block positions changed in the
 integrated source.  Source-bound evidence adds 1,045 unique current
 source/target mappings across the nine reviewed maps.  Materialization was
 then repeated with model decoding disabled; every locale reused only current
-catalog or reviewed evidence and the strict 8,848-symbol audit passed.
+catalog or reviewed evidence and the strict 8,850-symbol audit passed.
+
+The popup-state pass then reviewed all eight newly exposed compositor, polling,
+frame-budget, menu and tooltip blocks in every locale. The generated candidates
+had passed structural gates while reversing polling versus event-filter logic,
+dropping timing comparisons, or mistranslating compositor and C++ call senses.
+The 72 replacements are bound to the exact source, contextual translation input
+and SHA-256 hashes. Rematerialization was decoder-disabled and reused only those
+reviewed records or already-current catalog blocks.
 
 ## Explicit English identities and fallbacks
 
@@ -198,9 +206,9 @@ exercise rendering, selector persistence, malformed/stale payload fallback, and
 request races with two-symbol synthetic catalogs.  The exhaustive browser
 ratchet constructs one AutoAPI-shaped document containing every exact English
 symbol ID, then loads all nine complete real catalogs and requires exactly
-8,848 translated panels whose IDs equal that full symbol union for each locale.
+8,850 translated panels whose IDs equal that full symbol union for each locale.
 It therefore drives every catalog document through the frontend without the
-cost and weaker state isolation of 8,848 separate Chrome launches.  This is
+cost and weaker state isolation of 8,850 separate Chrome launches.  This is
 exhaustive frontend coverage, not exhaustive semantic review.  Dedicated
 mutations delete a Swedish tooltip translation and inject a broken tooltip API
 URL; the runtime audit and link resolver respectively turn red.  Synthetic

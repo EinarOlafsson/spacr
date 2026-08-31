@@ -447,8 +447,8 @@ CURRENT FIXED POINT 2026-08-30 -- DATABASE/GATE API AND RENDERER COPY CURRENT
 
 The database-browser and gate pass documents 16 canonical public methods and
 retires six aliases whose targets now have their own source contracts.  The
-live API inventory is therefore 8,848 documents: 8,735 canonical documents
-plus 113 validated rendered aliases.  All nine catalogs contain 8,848/8,848
+live API inventory is therefore 8,850 documents: 8,737 canonical documents
+plus 113 validated rendered aliases.  All nine catalogs contain 8,850/8,850
 current records with zero orphans, and their strict audit passes.
 
 The same 118 blocks in 29 database-browser, gate and related upstream symbols
@@ -467,3 +467,14 @@ reverse-direction ratchet is now 2,638 required-parameter omissions across
 ``8757a6dbbb674f1489fb3a69313e18f3b732d09de3a02250f0f62345ca9e54d6``.
 No exhaustive fluent-speaker disposition of every remaining runtime or API
 sentence is recorded, so item 306 remains OPEN and release-blocking.
+
+The compositor-popup fix subsequently added the documented
+``spacr.qt.widgets.popup_state`` module and its public
+``a_popup_is_on_screen`` function. Both have no required parameters, so the
+2,638-omission inventory is unchanged; the source-derived callable inventory
+moves to 7,984 and the translated API inventory to 8,850. The nine catalogs
+were rematerialized from current source and audited again at that fixed point.
+All eight new prose blocks were then reviewed in every locale after the first
+model pass exposed semantically wrong but structurally valid translations of
+polling, event filters, compositing, C++ calls and frame timings. The 72 exact
+source-bound replacements rematerialize with model decoding disabled.

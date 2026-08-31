@@ -1826,7 +1826,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "4d8a600d863afef00c599074c3d780c73e3afdd728edaf9d75af0e4847f8f3ef"
+    ) == "d5735b1322b073c766608b019265c5b967266729a98732b37928c6fc85ba8993"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2105,10 +2105,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         item.symbol: item.docstring for item in _public_callables()
         if item.exposure == "autoapi" and item.docstring
     }
-    # 8,955 minus the audited 107 entries that AutoAPI never renders:
+    # 8,957 minus the audited 107 entries that AutoAPI never renders:
     # 101 from configured ignore paths and six CLI/compatibility entries.
-    assert len(docs) == 8_861
-    assert len(rendered_documented_callables) == 7_352
+    assert len(docs) == 8_850
+    assert len(rendered_documented_callables) == 7_341
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

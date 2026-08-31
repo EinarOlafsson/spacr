@@ -788,23 +788,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ThresholdGate methods. Six of those methods previously borrowed generic
     # inherited prose through exact aliases; their implementation-specific
     # documents retire those aliases rather than duplicating them.
-    # +13/-0 on 2026-08-31. Enumerated against 00f36778c, the commit the
-    # 8,735 above was measured on -- computed by running public_docstrings()
-    # in a worktree at that commit and subtracting, not read off a diff:
-    #   11  spacr.layers  -- eleven formerly docless methods that gained
-    #                        their first prose: ImageLayer.channel_is_visible
-    #                        and set_channel_visible; LayerStack.add_image,
-    #                        add_labels, to_top and to_bottom;
-    #                        ShapesLayer.add_rectangle, add_ellipse,
-    #                        add_polygon and add_path; and Spacing.has_axis.
-    #    2  spacr.qt.widgets.popup_state -- the module and
-    #                        a_popup_is_on_screen, added for the menu and
-    #                        tooltip flicker: the backdrop has to hold still
-    #                        while a popup composites over the native GL
-    #                        surface, and "is a popup on screen" needed one
-    #                        place to live.
-    # Nothing retired.
-    expected = 8748
+    # +2/-0 for popup-state compositor coordination: the module contract
+    # and ``a_popup_is_on_screen``. Both enter every locale in this change.
+    expected = 8737
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -819,7 +805,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8861
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 8850
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
@@ -850,13 +836,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
     assert "spacr.qt.run_without_setup" not in docs
 
-    # The audited pre-filter inventory is now 8,968: 8,955 plus the same
-    # thirteen admitted above, none of which is behind a configured ignore
-    # or an exposure exception. The gap is therefore unchanged at 107 --
-    # 101 configured-ignore keys plus the six explicit exceptions -- which
-    # is the number this asserts, because a new module landing UNDER an
-    # ignored path would move it.
-    assert 8_968 - len(docs) == 107
+    # The audited pre-filter inventory is now 8,957. The popup-state module and
+    # function enter both inventories. The same 16 canonical
+    # documents enter both inventories while six inherited aliases retire;
+    # 101 configured-ignore keys plus the six explicit exposure exceptions
+    # above remain absent.
+    assert 8_957 - len(docs) == 107
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

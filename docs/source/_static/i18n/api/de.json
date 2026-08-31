@@ -103476,6 +103476,38 @@
         "9cf44a9d107963a8f3dc986e9feff8caf5cccb0c96bf626c2831754c14e6c653"
       ]
     },
+    "spacr.qt.widgets.popup_state": {
+      "source_blocks_sha256": [
+        "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ],
+      "source_sha256": "5b86e1879457fd36bbf13cd58dc6eec3e842a816051967999b1302f059d3e059",
+      "text": "Ob derzeit ein Menü oder eine QuickInfo in der Anwendungsansicht angezeigt wird.\n\nWARUM ES DIES GIBT. Das Öffnen des spaCR-Menüs verursachte einen Schub von ~105 Neuzeichnungen von Bedienelementen über dem aktiven GL-Hintergrund -- 68 QLabel, 25 QWidget und 12 AppTile -- und eine QuickInfo bewirkte dasselbe. Dieser Schub entsteht, wenn der Compositor ein Popup über einem nativen GL-Kindelement neu zusammensetzt, und wird für den Benutzer als Flackern des Docks und der Kopfzeile sichtbar.\n\nDer Hintergrund kann nicht verhindern, dass das Popup zusammengesetzt wird, aber er kann währenddessen aufhören, ein bewegliches Ziel zu sein. Wird die Animation angehalten, solange ein Popup angezeigt wird, sinkt die Zahl der gezeichneten Widgets für das Menü von 238 auf 5 und für eine QuickInfo von 90 auf 0.\n\nWARUM EINE ABFRAGE STATT EINES EREIGNISFILTERS VERWENDET WIRD. Die naheliegende Implementierung ist ein anwendungsweiter Ereignisfilter, der bei Popup-Fenstern auf Anzeigen und Ausblenden achtet. Er wurde implementiert, gemessen und verworfen: Er führte Python für jedes Ereignis in der Anwendung aus -- 13,646 Aufrufe pro Sekunde beim Öffnen eines Moduls -- und kostete 130 ms genau in dem Block des Hauptausführungspfads der GUI, den die Korrektur für das Öffnen eines Moduls gerade verkürzt hatte (1380-1424 ms wurden zu 1473-1606).\n\nQt kennt die Antwort bereits und liefert sie mit zwei C++-Aufrufen; die Animation fragt daher stattdessen einmal pro Frame ab. Bei sechzig Frames pro Sekunde sind das 120 Aufrufe gegenüber dreizehntausend.",
+      "translation_source_blocks_sha256": [
+        "b61fb234f8c36ff8f1264168e7998bc40c783d9e84a25deb0380c9fc94632c4e",
+        "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+        "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+        "2f5699a739e89976c43936b2e3654165294b899b98f754b315c0718bfea720f5",
+        "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23"
+      ]
+    },
+    "spacr.qt.widgets.popup_state.a_popup_is_on_screen": {
+      "source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a"
+      ],
+      "source_sha256": "750f82290ec8bb2a050875e1bc8a8fed6318af7364c0ec6d65b5ffd5d3fa68dd",
+      "text": "True, solange irgendwo in der Anwendung ein Menü oder eine QuickInfo angezeigt wird.\n\nBeide werden abgefragt, da Qt sie unterschiedlich behandelt: Ein Menü ist ein ``activePopupWidget`` (Fenstertyp ``Qt::Popup``), eine QuickInfo dagegen nicht -- sie ist ein eigenes Fenster vom Typ ``Qt::ToolTip``, das :class:`~PySide6.QtWidgets.QToolTip` separat verfolgt. Nur die erste Möglichkeit zu prüfen hätte das Flackern der QuickInfo unverändert gelassen; dieses wurde zusammen mit dem Menü gemeldet.\n\nLöst niemals eine Ausnahme aus. Diese Funktion wird bei einem Animationstakt aufgerufen; ein Fehler darf daher schlimmstenfalls die Entscheidung für einen Frame kosten, nicht den Hintergrund: Eine nicht beantwortbare Frage wird mit \"no popup\" beantwortet, wie es dem Verhalten der Anwendung vor Einführung dieser Funktion entspricht.",
+      "translation_source_blocks_sha256": [
+        "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+        "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+        "a68721cbaec1c995740c37a9d48dc04c59d139fe56347ca348e9339eccc8ad28"
+      ]
+    },
     "spacr.qt.widgets.power_design": {
       "source_blocks_sha256": [
         "4d5654c7fad6977c902c9cdc094f78c00221058be2a4e1a865c1a4d5ce9f8260",

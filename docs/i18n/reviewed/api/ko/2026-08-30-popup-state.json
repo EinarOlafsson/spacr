@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.popup_state#0",
+      "source": "Whether a menu or a tooltip is currently on screen.",
+      "context": "Whether a menu or a tooltip is currently on application view.",
+      "source_sha256": "4a900dffb907e4a1bc092a5ba380585d497de18dcccb4b997c6dfa12c3451e8f",
+      "translation": "애플리케이션 화면에 메뉴나 도구 설명이 현재 표시되어 있는지 여부."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#1",
+      "source": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "context": "WHY THIS EXISTS. Opening the spaCR menu cost a burst of ~105 widget repaints over the live GL backdrop -- 68 QLabel, 25 QWidget, 12 AppTile -- and a tooltip did the same. That burst is the compositor re-composing a popup over a native GL child, and it is what the user sees as the dock and the header flickering.",
+      "source_sha256": "5fe23c20441b098d778740e67821caa9a8d77b03350c3d8f8953ca2a6c1365a6",
+      "translation": "이 기능이 필요한 이유. spaCR 메뉴를 열면 실시간 GL 배경 위에서 약 105개의 위젯(QLabel 68개, QWidget 25개, AppTile 12개)이 한꺼번에 다시 그려졌으며, 도구 설명도 같은 현상을 일으켰습니다. 이 재그리기 폭증은 합성기가 네이티브 GL 자식 위에 팝업을 다시 합성하면서 발생하며, 사용자는 이를 도크와 헤더의 깜박임으로 보게 됩니다."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#2",
+      "source": "The backdrop cannot stop the popup from compositing, but it can stop being a moving target while it happens. Holding the animation still for the moment a popup is up takes the menu from 238 painted widgets to 5, and a tooltip from 90 to 0.",
+      "context": "The backdrop cannot stop the popup from compositing, but it can stop being a moving target while it happens. Holding the animation still for the moment a popup is up takes the menu from 238 painted widgets to 5, and a tooltip from 90 to 0.",
+      "source_sha256": "3ee660043cf1196f5214fca9718256e5bfda0fb54cb04a196a04b032b804261f",
+      "translation": "배경은 팝업 합성 자체를 막을 수 없지만 그동안 움직이는 대상이 되는 것은 멈출 수 있습니다. 팝업이 표시되는 동안 애니메이션을 정지하면 메뉴가 다시 그리는 위젯 수는 238개에서 5개로, 도구 설명의 경우에는 90개에서 0개로 줄어듭니다."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#3",
+      "source": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very GUI-thread block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "context": "WHY IT IS A POLL AND NOT AN EVENT FILTER. The obvious implementation is an application-wide event filter watching for Show and Hide on popup windows. That was written, measured, and thrown away: it ran Python for every event in the application -- 13,646 calls per second while a module opens -- and it cost 130 ms on the very main GUI execution path block that opening a module had just been fixed to shorten (1380-1424 ms became 1473-1606).",
+      "source_sha256": "5da3e96d16169321115839efb91d93aac5b7b5ed689ead16976ca0470573c6e6",
+      "translation": "이벤트 필터가 아니라 폴링을 사용하는 이유. 가장 명백한 구현 방법은 팝업 창의 Show 및 Hide 이벤트를 감시하는 애플리케이션 전역 이벤트 필터입니다. 이 방법은 구현하고 측정한 뒤 폐기했습니다. 모듈이 열리는 동안 애플리케이션의 모든 이벤트마다 Python 코드를 실행하여 초당 13,646회 호출되었고, 모듈을 열 때 발생하는 GUI 주 스레드의 병목 구간을 막 단축했는데도 그 구간에 130 ms 를 더했습니다(1380-1424 ms였던 시간이 1473-1606 ms가 됨)."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state#4",
+      "source": "Qt already knows the answer and will give it for two C++ calls, so the animation asks once per frame instead. At sixty frames a second that is 120 calls, against thirteen thousand.",
+      "context": "Qt already knows the answer and will give it for two C++ calls, so the animation asks once per frame instead. At sixty frames a second that is 120 calls, against thirteen thousand.",
+      "source_sha256": "b22329eddeb668e0664d6f1921e40aa6c1d7e28d3a2a7e2378bcc8d0dda62d23",
+      "translation": "Qt 는 이미 답을 알고 있으며 두 번의 C++ 호출로 알려 주므로, 애니메이션은 대신 프레임마다 한 번씩 확인합니다. 초당 60프레임이면 호출 횟수는 13,000회가 아니라 120회입니다."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#0",
+      "source": "True while a menu or a tooltip is showing, anywhere in the app.",
+      "context": "True while a menu or a tooltip is showing, anywhere in the app.",
+      "source_sha256": "0af64ae69bcf9605ee40d9173fcb8f301754d6a70007468b6ec9387fba8904a0",
+      "translation": "애플리케이션 어디에서든 메뉴나 도구 설명이 표시되는 동안 True 입니다."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#1",
+      "source": "Both are asked for, because they are different things to Qt: a menu is an ``activePopupWidget`` (window type ``Qt::Popup``), and a tooltip is not -- it is its own ``Qt::ToolTip`` window that :class:`~PySide6.QtWidgets.QToolTip` tracks separately. Watching only the first would have left the tooltip flicker exactly as it was, and that was reported alongside the menu.",
+      "context": "Both are asked for, because they are different things to Qt: a menu is an ``activePopupWidget`` (window type ``Qt::Popup``), and a tooltip is not -- it is its own ``Qt::ToolTip`` window that :class:`~PySide6.QtWidgets.QToolTip` tracks separately. Watching only the first would have left the tooltip flicker exactly as it was, and that was reported alongside the menu.",
+      "source_sha256": "d1c70aae09d952df73f89e4e8f748b88f78410b3c6654a8f59ea804c2538b3e8",
+      "translation": "두 항목을 모두 확인하는 이유는 Qt 에서 서로 다른 것으로 취급하기 때문입니다. 메뉴는 ``activePopupWidget``(창 유형 ``Qt::Popup``)이지만 도구 설명은 그렇지 않으며, 자체 ``Qt::ToolTip`` 창이 있고 이를 :class:`~PySide6.QtWidgets.QToolTip`이 별도로 추적합니다. 첫 번째 항목만 감시했다면 도구 설명 깜박임은 그대로 남았을 것이며, 이 문제는 메뉴 문제와 함께 보고되었습니다."
+    },
+    {
+      "label": "spacr.qt.widgets.popup_state.a_popup_is_on_screen#2",
+      "source": "Never raises. This is called from an animation tick, so a failure here must cost a frame's decision at worst, not the backdrop: an unanswerable question is answered \"no popup\", which is the behaviour the application had before this existed.",
+      "context": "Never throws. This is called from an animation tick, so a failure here must cost a frame's decision at worst, not the backdrop: an unanswerable question is answered \"no popup\", which is the behaviour the application had before this existed.",
+      "source_sha256": "972e7e3ded77c004ef93ed38fc24f5f53de73859b36de816d24b26bf5a4d164a",
+      "translation": "예외를 절대 발생시키지 않습니다. 이 함수는 애니메이션 틱에서 호출되므로, 여기서 실패하더라도 최악의 경우 한 프레임의 판단만 포기해야 하며 배경까지 잃어서는 안 됩니다. 답을 얻을 수 없는 질문에는 \"no popup\"으로 답하며, 이는 이 기능이 생기기 전 애플리케이션의 동작입니다."
+    }
+  ]
+}
