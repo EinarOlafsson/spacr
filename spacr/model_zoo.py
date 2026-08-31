@@ -202,8 +202,15 @@ __all__ = [
 #: not know what this model was trained on".
 UNKNOWN = "unknown"
 
-#: The two kinds of model spaCR runs.
-KINDS = ("cellpose", "classifier")
+#: The kinds of model spaCR runs.
+#:
+#: ``detector`` was added for the YOLO well detector, which is neither of the
+#: first two: it does not segment and it does not classify a crop, it locates
+#: regions so something else can. :class:`ModelEntry` VALIDATES against this
+#: tuple and raises on anything else, so an entry naming a kind that is not
+#: here fails at construction rather than being quietly filed as a Cellpose
+#: model and handed to CellposeModel later.
+KINDS = ("cellpose", "classifier", "detector")
 
 #: Filename endings that mark a Cellpose checkpoint. ``.CP_model`` is what
 #: :func:`spacr.submodules.train_cellpose` names its output.
@@ -269,6 +276,81 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "notes": (
             "publishes no checksum; fetch refuses it unless you pass "
             "require_checksum=False or supply expected_sha256=",
+        ),
+    },
+    # THE THREE BELOW PUBLISH REAL CHECKSUMS, and live in MODEL repos rather
+    # than the dataset repo above -- hence `repo_type`. Being verifiable is
+    # the difference between an entry `fetch` installs and one it refuses, so
+    # a new entry without a sha256 should be treated as unfinished rather
+    # than as following the precedent set by the first entry.
+    {
+        "key": "toxoplasma_pv_v1",
+        "name": "cpsam_v2_toxo_r2",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+        "display_name": "Toxoplasma PV v1",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the "
+            "PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base "
+            "cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 "
+            "against 0.426",
+            "accuracy falls sharply above IoU 0.8 -- suited to counting and "
+            "area rather than precise morphometry",
+        ),
+    },
+    {
+        "key": "toxoplasma_plaque_v1",
+        "name": "cpsam_plaque_r3",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+        "display_name": "Toxoplasma Plaque v1",
+        "trained_on": (
+            "Toxoplasma gondii plaque assays; round 3, evaluated in-domain "
+            "(NAS) and against a literature generalisation set"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.856 in-domain and 0.834 on the literature set, against "
+            "0.718 / 0.755 for round 1",
+            "round 3 trades precision (0.939 -> 0.858) for recall (0.631 -> "
+            "0.811) on the literature set, which is the right direction for "
+            "a counting assay",
+        ),
+    },
+    {
+        "key": "toxoplasma_well_detector_v1",
+        "name": "yolo_welldetect_v3.pt",
+        "kind": "detector",
+        "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+        "display_name": "Toxoplasma Plaque Well Detector v1",
+        "trained_on": (
+            "whole-plate and multi-well Toxoplasma plaque-assay images; "
+            "yolo11n base, 150 epochs, batch 16, imgsz 640"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987",
+            "locates WELLS, not plaques; it is the front half of a two-stage "
+            "pipeline with toxoplasma_plaque_v1, and the well it finds also "
+            "gives the diameter that makes areas comparable across "
+            "microscopes",
         ),
     },
 )
@@ -1063,17 +1145,35 @@ def _as_paths(roots: Any) -> List[Path]:
 # the catalogue
 # ---------------------------------------------------------------------------
 
-def hf_uri(repo_id: str, filename: str) -> str:
-    """The download URL for a file in a Hugging Face **dataset** repo.
+def hf_uri(repo_id: str, filename: str, repo_type: str = "dataset") -> str:
+    """The download URL for a file in a Hugging Face repo.
 
-    :param repo_id: Hugging Face dataset repository identifier.
+    :param repo_id: Hugging Face repository identifier.
     :param filename: repository-relative name of the file to download.
+    :param repo_type: ``"dataset"`` (the default, and what spaCR shipped
+        first) or ``"model"``.
 
     Exactly the URL :func:`spacr.utils.download_models` and
     :func:`spacr.qt.hf_download._download_one` build, kept in one place so the
     zoo cannot drift away from the downloader spaCR already ships.
+
+    THE TWO REPO KINDS HAVE DIFFERENT URLS, which is not cosmetic: a dataset
+    file lives under ``/datasets/<repo>/resolve/...`` and a model file under
+    ``/<repo>/resolve/...``. Asking for one at the other's URL returns a 404
+    page, and a downloader that does not check the content type writes that
+    HTML into the destination and leaves a "checkpoint" that fails to load
+    with a torch error naming neither the URL nor the repo.
+
+    ``dataset`` remains the default because :data:`HF_MODELS_REPO` is a
+    DATASET repo -- ``einarolafsson/models`` -- and every entry written before
+    this parameter existed assumes it. New model repos pass ``"model"``.
     """
-    return (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
+    kind = str(repo_type or "dataset").lower()
+    if kind not in ("dataset", "model"):
+        raise ValueError(
+            f"repo_type must be 'dataset' or 'model', not {repo_type!r}")
+    prefix = "datasets/" if kind == "dataset" else ""
+    return (f"https://huggingface.co/{prefix}{repo_id}/resolve/main/"
             f"{filename}?download=true")
 
 
@@ -1085,7 +1185,8 @@ def _entry_from_mapping(data: Mapping[str, Any],
         raise ValueError("a catalogue entry needs at least a name")
     uri = data.get("uri")
     if not uri:
-        uri = hf_uri(str(data.get("repo_id") or HF_MODELS_REPO), name)
+        uri = hf_uri(str(data.get("repo_id") or HF_MODELS_REPO), name,
+                     str(data.get("repo_type") or "dataset"))
     notes = tuple(str(n) for n in (data.get("notes") or ()))
     sha = str(data.get("sha256") or "").strip().lower()
     if not sha:
