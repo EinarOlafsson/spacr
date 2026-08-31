@@ -345,25 +345,15 @@ DECLARED_APPS = (
             'format_dashboard() to read and format the same stored results.'
         ),
         api_module='qt/screens/qc_dashboard',
-        # "QC" IS THE SAME INITIALISM IN EIGHT OF THE NINE. The old
-        # names each translated the word "dashboard" -- QC-panel,
-        # QC-Übersicht, Tableau de bord QC -- and that word is gone, so
-        # every one of them had to change or they would name a screen
-        # that no longer exists. Chinese keeps a translated form because
-        # a bare Latin initialism is not read as a word there; Icelandic
-        # keeps its own because `gæði` is the ordinary word for quality
-        # and `Gæðaeftirlit` is what the field is actually called.
-        translations=(
-            'QC',
-            'QC',
-            'QC',
-            '质控',
-            'QC',
-            'QC',
-            'QC',
-            'Gæðaeftirlit',
-            'QC',
-        ),
+        # ALL NINE IDENTICAL, and that is a rule rather than laziness.
+        # "QC" is declared in `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`
+        # alongside PNG and RGB -- text that must stay byte-identical in
+        # every language because it is an identifier, not a word.
+        # Translating it to 质控 and Gæðaeftirlit, which is what the old
+        # "QC Dashboard" names did, breaks that rule; the test
+        # `test_standalone_technical_identity_values_remain_exact_in_every_language`
+        # is what caught it.
+        translations=('QC',) * 9,
     ),
     DeclaredApp(
         module='spacr.qt.screens.lineage',
