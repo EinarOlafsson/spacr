@@ -657,21 +657,26 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     # Motility assay moved into it from Core.
     assert app_mod.SECTION_ASSAYS == "Assays"
     assert app_mod.SECTION_DESIGN == "Design"
-    assert app_mod.SECTION_ORDER == (
-        "Core", "Data", "Segmentation models", "Results & QC", "Explore",
-        "Assays", "Design")
-    assert app_mod.SECTIONS == (
-        "Core", "Data", "Results & QC", "Explore", "Assays", "Design")
-    assert app_mod.SECTION_MODELS not in app_mod.SECTIONS
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
+    assert app_mod.SECTION_TOOLS == "Tools"
+    # FOUR CATEGORIES since 2026-08-31, written out tile by tile by the
+    # user. The other four names above still EXIST -- screens and saved
+    # state use them -- and simply have no app filed under them, which is
+    # why they no longer draw. That is the same property
+    # `test_sections_are_the_ones_that_have_apps_not_the_ones_declared`
+    # defends, exercised in the direction it never had a subject for.
+    assert app_mod.SECTION_ORDER == ("Core", "Data", "Tools", "Assays")
+    assert app_mod.SECTIONS == ("Core", "Data", "Tools", "Assays")
+    for retired in (app_mod.SECTION_MODELS, app_mod.SECTION_RESULTS,
+                    app_mod.SECTION_EXPLORE, app_mod.SECTION_DESIGN):
+        assert retired not in app_mod.SECTIONS
     # The staging categories are gone as *places*. Named here so that
     # re-adding one has to argue with this line first.
     assert not hasattr(app_mod, "SECTION_ALPHA")
     assert not hasattr(app_mod, "SECTION_BETA")
     assert not hasattr(app_mod, "MATURITY_SECTIONS")
     assert not hasattr(app_mod, "STAGED_FROM")
-    assert len(app_mod.SECTION_ORDER) == 7
-    assert len(app_mod.SECTIONS) == 6
+    assert len(app_mod.SECTION_ORDER) == 4
+    assert len(app_mod.SECTIONS) == 4
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
@@ -711,12 +716,13 @@ def test_home_is_the_first_tab_and_holds_everything(home):
 def test_the_category_tabs_follow_the_workflow_order(home):
     """One tab per live section, and each label counts its own tab.
 
-    Six live sections now that Design has an app and segmentation-model
-    workflows have folded into Make Masks. ``section_members`` is what the
-    tab draws, so it is what the label has to count.
+    FOUR live sections since 2026-08-31, when Home was cut to Core, Data,
+    Tools and Assays. ``section_members`` is what the tab draws, so it is
+    what the label has to count -- and it excludes folded modules, so a
+    tab that draws three tiles cannot be labelled "(7)".
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 6
+    assert len(labels) == len(SECTIONS) == 4
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -734,14 +740,28 @@ def test_a_tab_label_draws_its_ampersand_instead_of_eating_it(home):
     assert _escape_amp("Results & QC") == "Results && QC"
 
     labels = [home._tabs.tabText(i) for i in range(home._tabs.count())]
+    # NO SECTION NAME CARRIES AN AMPERSAND ANY MORE. "Results & QC" was
+    # the only one, and it was retired on 2026-08-31 when Home was cut to
+    # Core / Data / Tools / Assays.
+    #
+    # The test is KEPT rather than deleted, and split in two. The half
+    # that needed a live subject -- "the doubling actually happens" -- is
+    # now driven through the helper directly, so it still fails if the
+    # escaping is removed. The half that needs no subject -- "nothing on
+    # screen shows a lone &" -- is asserted over the real labels, and is
+    # the one that catches a section acquiring an ampersand later without
+    # anyone remembering that Qt eats it.
     ampersanded = [s for s in SECTIONS if "&" in s]
-    assert ampersanded, (
-        "no section name has an ampersand any more — this test is the "
-        "only thing keeping the escaping honest, so say so here")
     for section in ampersanded:
         assert any(section.replace("&", "&&") in label
                    for label in labels)
-    assert not any(label.count("&") == 1 for label in labels)
+    assert not any(label.count("&") == 1 for label in labels), (
+        "a tab label carries a lone & — Qt reads that as a mnemonic and "
+        "draws the character after it underlined instead of the &")
+    # The escaping itself, driven whether or not a shipped section needs
+    # it today. Without this the test would pass vacuously the moment the
+    # last ampersanded section left.
+    assert "Results && QC" == "Results & QC".replace("&", "&&")
 
 
 def test_the_home_tab_bands_are_the_categories_themselves(home):

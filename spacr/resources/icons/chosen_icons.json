@@ -298,5 +298,9 @@
   "umap": {
     "candidate": "umap/umap_01.png",
     "sha256": "484a0ec2a19a370419ce13871e3f5040acb596486b2bb7d6ab6c83a6008912a8"
+  },
+  "volcano_explorer": {
+    "candidate": "tools/draw_volcano_explorer_icon.py",
+    "sha256": "5403829f18e1b17bf8e0708a11bb076e2d9f71a14ab9e0731f172b481ef0434a"
   }
 }
