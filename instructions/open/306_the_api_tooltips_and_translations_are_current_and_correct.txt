@@ -647,3 +647,83 @@ the two commits above did without the review, and the review of these 164
 records -- with the nine-locale consequences of the 31 rewordings -- is this
 item's actual work rather than its preliminary. The disk-space blocker recorded
 earlier has cleared (407 G free).
+
+
+PROGRESS 2026-08-31, LATER -- THE CAPTION REVIEW, ENUMERATED AND PARTLY READ
+----------------------------------------------------------------------------
+
+Against 3c224e468 (4,880, the revision that owns the pinned digest) the current
+HEAD 2d16e469c reads 4,983. The set is 134 ADDED and 31 REMOVED, net 103 -- one
+more than the 102 recorded above, because the BSD relicense landed meanwhile and
+added one caption.
+
+THE RELICENSE BROKE CATALOG FRESHNESS, AND IT IS THE ONE URGENT FINDING.
+
+    tr("Open source. Free for any use, including commercial.")   app.py:3064
+
+is missing from ALL NINE catalogs. `tools/audit_i18n_coverage.py` independently
+reports 4982/4983 for every language -- it had been 4880/4880. So this item's
+recorded "all nine catalogs are current" is FALSE as of the relicense, and every
+non-English user sees that line in English. It is user-facing, it is in the
+release, and it is one string: regenerate the nine catalogs before 1.5.0.5.
+
+WHAT THE 134 ADDITIONS ARE. 32 are the spaCRPower settings (16 labels, 16
+tooltips), already carrying translations and current source hashes in all nine
+locales. 102 are UI. Nothing in the additions is unreviewed by the mechanical
+gates except the relicense string above.
+
+THE 31 REMOVALS ARE NOT ALL REWORDINGS. Six pair with a replacement:
+
+    color letters                     -> colour letters          (spelling only)
+    All apps ... (Ctrl+B)             -> ... (Ctrl+Shift+A)      (was WRONG: Ctrl+B
+                                          blanks the background; Ctrl+Shift+A is
+                                          the app list. shortcuts.py:79,93)
+    1.5 is the maximum                -> 1.5 is the default      (meaning changed)
+    Fine-tune a Cellpose model ...    -> reworded
+    Which fractal spaceout draws ...  -> reworded
+    Background                        -> Full-screen background
+
+The other 25 are genuinely retired -- the old hand-built spaCRPower and
+preferences UI strings, replaced by registered settings with new tooltips. They
+are gone from the source, not moved between tables; grep confirms.
+
+SEMANTIC DEFECTS FOUND BY READING, NOT BY ANY GATE. Each of these is present,
+source-hash-current and normal-length, and each is wrong:
+
+    is   "1.5 er óþekkt"          = "1.5 is UNKNOWN"; English says "default"
+    is   "Allir notendur"         = "All USERS"; English says "All apps"
+    is   "mönnun" for "pattern"   = "staffing"; "yfirheyrir" = "interrogates"
+    es   "se ciernen para revelar"= "they LOOM in order to reveal"; wrong sense
+                                    of "hover", conjugated to agree with
+                                    "aplicaciones"
+    hi   the "hover to reveal" instruction is dropped; only "All apps (shortcut)"
+    zh_CN "所有应用程式 — hover to reveal (Ctrl+Shift+A)" -- English left in place
+
+Icelandic is the worst of the nine and is also the one the maintainer can check
+fastest. Its defects are wrong word SENSE, which is what machine translation
+fails at and what no gate here tests.
+
+WHAT DID NOT WORK, recorded so nobody rebuilds it. Three mechanical proxies were
+tried against all 134 x 9 and all three are dominated by false positives:
+
+  * length ratio -- flagged 64. Chinese runs at a median 0.36 of English and
+    Korean 0.55, measured from the catalogs themselves; short is normal;
+  * untranslated-fragment (4+ consecutive English words) -- flagged 41, nearly
+    all legitimate technical identifiers: `mean-field ADVI`,
+    `well_abundance_factor_mu`, `'gene' mode`, `numpyro`, `pymc`. One real hit;
+  * translation == source -- flagged "FlowView" in nine locales. It is a
+    product name.
+
+THE POINT: presence, source-hash freshness and length are ALL satisfied by every
+semantic defect listed above. The mechanical fixed point this item reached is not
+evidence of correctness, and the remaining criterion cannot be automated -- it
+needs a reader per locale. That is this item's real remaining cost, and it should
+be scoped as such rather than as another catalog regeneration.
+
+THE RATCHET IS STILL NOT MOVED, and now must not be: the catalogs are one string
+short of complete, so a digest pinned here would pin a known-incomplete state.
+Order: regenerate for the relicense string, re-capture, then move the ratchet
+with the semantic dispositions above recorded against it.
+
+Data: instructions/data/306_caption_identities_since_3c224e468.json (refreshed
+against 2d16e469c).
