@@ -636,12 +636,14 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     for value in spec.values:
         wanted = [_PANDAS_NAMES[a] for a in spec.aggs if a in _PANDAS_NAMES]
         table = grouped[value].agg(wanted)
-        # DEFENSIVE, and unreachable while pandas keeps its documented
-        # shape: `SeriesGroupBy.agg` returns a DataFrame for a LIST of
-        # function names however short the list is, and `wanted` is always a
-        # non-empty list because `n` is always in `spec.aggs`.
-        if isinstance(table, pd.Series):  # pragma: no cover - see above
-            table = table.to_frame(name=wanted[0])
+        # NO Series BRANCH. `SeriesGroupBy.agg` returns a DataFrame for a
+        # LIST of function names however short the list is, and `wanted`
+        # is never empty: `PivotSpec.__post_init__` starts its agg list
+        # with `n` and appends the rest, so `n` survives even
+        # `aggs=()` and `with_aggs(())`, and `n` maps to pandas' `count`.
+        #
+        # Checked exhaustively -- all 256 subsets of the eight
+        # aggregations -- and `agg` returned a Series for none of them.
         if QUANTILE in spec.aggs:
             table = table.assign(
                 **{"__q": grouped[value].quantile(spec.quantile)})
