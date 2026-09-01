@@ -33,6 +33,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
 
+from .database_concurrency import connect as connect_database
+
 LOG = logging.getLogger("spacr.annotation_dataset")
 
 __all__ = [
@@ -220,7 +222,7 @@ def reserve_png_table(db_path: str) -> str:
     :param db_path: the measurements database.
     :returns: the reserved table name.
     """
-    connection = sqlite3.connect(str(db_path), isolation_level=None)
+    connection = connect_database(str(db_path))
     try:
         connection.execute("BEGIN IMMEDIATE")
         name = next_png_table(connection)
@@ -261,7 +263,7 @@ def write_png_list(db_path: str, frame: pd.DataFrame, *,
     :param table: a name already reserved.
     :returns: the table actually written.
     """
-    connection = sqlite3.connect(str(db_path), isolation_level=None)
+    connection = connect_database(str(db_path))
     try:
         connection.execute("BEGIN IMMEDIATE")
         name = table or next_png_table(connection)
@@ -397,7 +399,7 @@ def read_objects_from_database(db_path: str, object_type: str
     """
     if not os.path.isfile(str(db_path)):
         return None
-    connection = sqlite3.connect(str(db_path))
+    connection = connect_database(str(db_path), readonly=True)
     try:
         names = {r[0] for r in connection.execute(
             "select name from sqlite_master where type='table'")}
