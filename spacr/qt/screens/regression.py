@@ -545,6 +545,46 @@ class DiagnosticsOpener:
                     newest, newest_at = found, stamped
         return newest
 
+    def verdict(self) -> tuple:
+        """``(level, detail)`` for the badge, from what is on disk.
+
+        ITEM 3 OF INSTRUCTION 322: the button is badged with the worst of
+        score_design / score_residuals / score_inference. That worst is
+        already computed and written -- ``diagnostic_summary.csv`` carries
+        a ``suite``/``verdict_level`` row -- so this is a READ, and it has
+        to stay one. Recomputing it here would let the button and the
+        panels disagree about the same run.
+
+        ``("", "")`` when there is nothing to read, which is not the same
+        as a pass: a run that has not happened has no verdict, and a green
+        dot would claim it did and was fine.
+        """
+        folder = self._folder()
+        if folder is None:
+            return "", ""
+        level = detail = ""
+        try:
+            import csv
+
+            for name in sorted(os.listdir(folder)):
+                if not name.startswith("diagnostic_summary"):
+                    continue
+                with open(os.path.join(folder, name), newline="",
+                          encoding="utf-8") as handle:
+                    for row in csv.DictReader(handle):
+                        if row.get("section") != "suite":
+                            continue
+                        if row.get("metric") == "verdict_level":
+                            level = str(row.get("value") or "")
+                        elif row.get("metric") == "verdict":
+                            detail = str(row.get("value") or "")
+        except Exception:                                    # noqa: BLE001
+            # A summary that cannot be read is not a verdict. The button
+            # still opens the folder, which is where the panels are.
+            LOG.debug("could not read the diagnostics summary", exc_info=True)
+            return "", ""
+        return level, detail
+
     def open(self) -> None:
         """Open the folder, or say why there is nothing to open."""
         from PySide6.QtWidgets import QMessageBox
@@ -702,7 +742,24 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     try:
         strip = FoldStrip([(o.key, o.open) for o in openers], header)
         for opener in openers:
-            restate_fold_button(strip.button_for(opener.key), opener.key)
+            button = strip.button_for(opener.key)
+            restate_fold_button(button, opener.key)
+            # THE BADGE, item 3 of instruction 322. Only the diagnostics
+            # opener has a verdict to show; the rest are modules, and a
+            # module has no verdict on a run.
+            #
+            # Read once, here, rather than on every repaint: it is a file
+            # on disk, and a run finishing is what changes it. Failing to
+            # read it leaves the button unbadged, which is the same thing
+            # a run that has not happened yet shows -- and is right,
+            # because in both cases there is no verdict to report.
+            if hasattr(opener, "verdict") and hasattr(button, "set_verdict"):
+                try:
+                    level, detail = opener.verdict()
+                    button.set_verdict(level, detail)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not badge the diagnostics button",
+                              exc_info=True)
         header.add_trailing(strip)
     except Exception:
         LOG.debug("Could not build the regression fold strip", exc_info=True)

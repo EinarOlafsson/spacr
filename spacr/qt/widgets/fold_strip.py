@@ -253,6 +253,64 @@ class FoldButton(QPushButton):
         self.setProperty("moduleTooltipStyle", "fold")
         self.setAccessibleName(name)
 
+    #: Verdict colours for :meth:`set_verdict`, keyed by level. Read from
+    #: the regression QC palette so the dot on a button and the stamp on
+    #: a panel cannot disagree about what "check" looks like.
+    def _verdict_ink(self, level: str) -> str:
+        try:
+            from ...regression_qc import _VERDICT_INK
+
+            ink = _VERDICT_INK.get(level)
+            if ink:
+                return str(ink)
+        except Exception:                                    # noqa: BLE001
+            pass
+        return {"fail": "#F85149", "check": "#D29922",
+                "pass": "#3FB950"}.get(level, "")
+
+    def set_verdict(self, level: str, detail: str = "") -> None:
+        """Badge this button with a run's worst verdict.
+
+        A DOT, NOT A COLOURED BUTTON. The button's own colour already
+        means maturity -- alpha, beta, stable -- and a second meaning on
+        the same surface makes both unreadable. The dot is drawn over the
+        corner instead, and the detail goes in the tooltip where the
+        reason can be a sentence.
+
+        ``""`` clears it, which is what a run that has produced no
+        diagnostics yet must show: no dot rather than a green one, because
+        "not measured" and "measured and fine" are different answers.
+
+        :param level: ``"pass"``, ``"check"``, ``"fail"`` or ``""``.
+        :param detail: the sentence behind the verdict, for the tooltip.
+        """
+        level = str(level or "")
+        self._verdict = level if level in ("pass", "check", "fail") else ""
+        self._verdict_detail = str(detail or "")
+        self.update()
+
+    def paintEvent(self, event):        # noqa: N802 - Qt naming
+        super().paintEvent(event)
+        level = getattr(self, "_verdict", "")
+        if not level:
+            return
+        ink = self._verdict_ink(level)
+        if not ink:
+            return
+        from PySide6.QtCore import QRectF
+        from PySide6.QtGui import QColor, QPainter
+
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            size = max(6.0, self.height() * 0.22)
+            box = QRectF(self.width() - size - 3.0, 3.0, size, size)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(ink))
+            painter.drawEllipse(box)
+        finally:
+            painter.end()
+
     def set_stage(self, stage: str) -> None:
         """Re-state the maturity this button is drawn in.
 
