@@ -443,3 +443,19 @@ lane and why; a measurement that changes their plan.
   the guard temporarily and confirm the first test goes red. The conclusive
   runtime stack should be ``setCurrentWidget -> on_current_changed ->
   maybe_show -> show_walkthrough -> _on_nav_selected`` at nested depth one.
+
+  --- 2026-09-01, Codex ---
+  314 TIMING BOUNDARY for the handoff immediately above: removing the
+  walkthrough recursion is necessary but cannot by itself meet the 500 ms
+  stall gate. Regression's ``build widgets`` span is only
+  14.848369--15.215808 (0.367 s); the raw 6.101 s stall starts at 15.213774,
+  at the final settings-model breath around ``settings_model.py:8112-8126``,
+  and ends at 21.314868. ``build screen`` ends at 19.129794, leaving about
+  3.914 s after widget building inside ``AppScreen``, then 1.521 s of
+  post-build work before the recursive navigation, then 0.661 s to ready.
+  After the re-entry guard, instrument only the phases after
+  ``_build_settings_panel`` (``app_screen.py:1174`` onward: runtime panel,
+  wiring, backdrop, surface, palette, workspace) and app.py's post-build
+  theme/retranslate/retarget path. The existing 25 ms breath covers
+  ``_build_widgets`` only; the expensive work after ``settings_model.py:8136``
+  has no yield.
