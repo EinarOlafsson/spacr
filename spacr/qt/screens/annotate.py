@@ -74,6 +74,7 @@ from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
                            QKeySequence, QPainter, QPainterPath, QPen,
                            QPixmap, QShortcut)
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -1585,10 +1586,13 @@ class _SettingsDialog(QDialog):
         database = Path(destination) / "measurements.db"
         source = str(database if database.is_file() else destination)
         self._src_edit.setText(source)
-        # The column the published labels are in, so the screen opens on them
-        # rather than on an empty column the user then has to guess.
+        # `infected`, NOT `annotate`. The published set is labelled by a rule
+        # -- a cell is infected exactly when the pathogen table names it as a
+        # parent -- and that column is what Classify is meant to train on.
+        # `annotate` is deliberately empty, so opening on it would show 2,341
+        # unlabelled crops and none of the labels the example exists to carry.
         if hasattr(self, "_ann_col") and not self._ann_col.text().strip():
-            self._ann_col.setText("annotate")
+            self._ann_col.setText("infected")
         return source
 
     def _pick_src(self):
@@ -1692,6 +1696,159 @@ class _SettingsDialog(QDialog):
         s.queue_diversity = self._queue_diversity.currentText()
         s.queue_limit = int(self._queue_limit.value())
         return s
+
+
+class _GenerateAnnotationDatabaseDialog(QDialog):
+    """Build a set of crops to annotate, without measuring the plate again.
+
+    Everything the run needs is already on disk twice over: the object masks
+    inside the merged arrays, and the coordinate columns in measurements.db.
+    This chooses between them, filters, and registers the result as a new
+    ``png_list`` table. See :mod:`spacr.annotation_dataset`.
+
+    THE TWO SOURCES ARE NOT INTERCHANGEABLE and the difference is not
+    guessable, so it is written on the form rather than left to the manual:
+    the database stores coordinates and nothing else, so it can only ever cut
+    a bounding box.
+    """
+
+    def __init__(self, settings, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Generate annotation database")
+        self._settings = settings
+        self._written = ""
+        outer = QVBoxLayout(self)
+
+        form = QFormLayout()
+        self._source = QComboBox(self)
+        from spacr.annotation_dataset import STREAM_SOURCES
+
+        for value, label in STREAM_SOURCES:
+            self._source.addItem(label, value)
+        self._source.currentIndexChanged.connect(self._refresh_gates)
+        form.addRow("Read the objects from", self._source)
+
+        self._object = QComboBox(self)
+        self._object.addItems(["cell", "nucleus", "pathogen", "cytoplasm"])
+        form.addRow("Object", self._object)
+
+        self._channels = QLineEdit("0,1,2", self)
+        self._channels.setToolTip(
+            "Image channels to put in the crop, in order. Three make an RGB "
+            "picture; one makes greyscale.")
+        form.addRow("Channels", self._channels)
+
+        self._bounding_box = QCheckBox("Crop to the bounding box", self)
+        self._bounding_box.setChecked(True)
+        self._bounding_box.setToolTip(
+            "On, the crop is the rectangle around the object and keeps "
+            "whatever else falls inside it. Off, everything outside the mask "
+            "is removed -- which only the array source can do.")
+        form.addRow("", self._bounding_box)
+
+        self._min_size = QSpinBox(self)
+        self._min_size.setRange(0, 100_000_000)
+        self._min_size.setToolTip("0 means no lower bound.")
+        form.addRow("Minimum object area", self._min_size)
+
+        self._max_size = QSpinBox(self)
+        self._max_size.setRange(0, 100_000_000)
+        self._max_size.setToolTip("0 means no upper bound.")
+        form.addRow("Maximum object area", self._max_size)
+
+        self._max_objects = QSpinBox(self)
+        self._max_objects.setRange(0, 10_000_000)
+        self._max_objects.setToolTip(
+            "0 means every object. A cap is applied last and in the table's "
+            "existing order, so the same settings always give the same set.")
+        form.addRow("Most objects to take", self._max_objects)
+        outer.addLayout(form)
+
+        self._note = QLabel("", self)
+        self._note.setWordWrap(True)
+        self._note.setObjectName("SubtitleSmall")
+        outer.addWidget(self._note)
+
+        self._status = QLabel("", self)
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        self._generate = QPushButton("Generate")
+        self._generate.setDefault(True)
+        self._generate.clicked.connect(self._on_generate)
+        buttons.addButton(self._generate, QDialogButtonBox.ActionRole)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+        self._refresh_gates()
+
+    def written_table(self) -> str:
+        """The table that was written, or ``""``."""
+        return self._written
+
+    def _refresh_gates(self, *_args) -> None:
+        """Say what the chosen source can and cannot do."""
+        source = self._source.currentData()
+        if source == "database":
+            self._bounding_box.setChecked(True)
+            self._bounding_box.setEnabled(False)
+            self._note.setText(
+                "The database stores coordinates and no masks, so this source "
+                "can only cut a bounding box. Choose the arrays to cut to the "
+                "object itself.")
+        else:
+            self._bounding_box.setEnabled(True)
+            self._note.setText(
+                "The arrays carry the object masks, so this source can cut to "
+                "the object or to its bounding box.")
+
+    def _collected(self) -> dict:
+        """The settings the generator will be given."""
+        object_type = self._object.currentText()
+        channels = [int(part) for part in
+                    str(self._channels.text()).replace(" ", "").split(",")
+                    if part]
+        return {
+            "src": str(getattr(self._settings, "src", "") or ""),
+            "database": str(getattr(self._settings, "db_path", "") or ""),
+            "stream_source": self._source.currentData(),
+            "object_array": object_type,
+            "channel_arrays": channels or [0, 1, 2],
+            "bounding_box": self._bounding_box.isChecked(),
+            f"{object_type}_min_size": int(self._min_size.value()),
+            f"{object_type}_max_size": int(self._max_size.value()),
+            "max_objects": int(self._max_objects.value()),
+        }
+
+    def _on_generate(self) -> None:
+        """Run it, and say what happened either way."""
+        from spacr.annotation_dataset import generate_annotation_dataset
+
+        self._generate.setEnabled(False)
+        self._status.setText("Working…")
+        try:
+            report = generate_annotation_dataset(self._collected())
+        except Exception as error:                           # noqa: BLE001
+            LOG.warning("could not generate the annotation set", exc_info=True)
+            self._status.setText(f"Failed: {error}")
+            self._generate.setEnabled(True)
+            return
+        self._generate.setEnabled(True)
+        self._written = str(report.get("table") or "")
+        trouble = "; ".join(str(t) for t in report.get("trouble") or [])
+        if not report.get("written"):
+            # NOT SILENT. A generator that writes nothing and closes looks
+            # exactly like one that worked.
+            self._status.setText(
+                f"Nothing was written. {trouble}" if trouble
+                else "Nothing was written.")
+            return
+        message = (f"Wrote {report['written']} crops from "
+                   f"{report['fields']} field(s) into {self._written}.")
+        if trouble:
+            message += f"\n\nAlso: {trouble}"
+        self._status.setText(message)
+        self.accept()
 
 
 # ---------------------------------------------------------------------------
@@ -2300,7 +2457,22 @@ class AnnotateScreen(QWidget):
         self._btn_clear.clicked.connect(self._on_clear_column)
         row.addWidget(self._btn_clear)
 
+        # BUILD A SET TO ANNOTATE, for a user who has measured a plate and has
+        # no crops registered -- or who wants a different selection from the
+        # one Measure happened to cut. It sits on the right, past the stretch,
+        # because it is a module rather than one of the per-page actions to
+        # its left.
         row.addStretch(1)
+        self._btn_generate = QPushButton("Generate annotation database…")
+        self._btn_generate.setCursor(Qt.PointingHandCursor)
+        self._btn_generate.setToolTip(
+            "Build a set of crops to annotate by streaming them from the "
+            "merged arrays or from the coordinates in measurements.db, "
+            "without measuring the plate again. The result is registered as "
+            "a new png_list table.")
+        self._btn_generate.clicked.connect(self._on_generate_annotation_db)
+        row.addWidget(self._btn_generate)
+
         self._page_label = QLabel("")
         self._page_label.setObjectName("SubtitleSmall")
         self._page_label.setProperty("i18nSkipText", True)
@@ -3426,6 +3598,38 @@ class AnnotateScreen(QWidget):
         slots = self._slots_on_page()
         changed = self._apply_to_slots(slots, None)
         self._set_kbd_hint(f"Cleared {changed} image(s) on this page.")
+
+    def _on_generate_annotation_db(self) -> None:
+        """Open the streaming generator, and adopt what it makes."""
+        dialog = _GenerateAnnotationDatabaseDialog(self._settings, self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        table = dialog.written_table()
+        if not table:
+            return
+        # SAID PLAINLY, INCLUDING THE PART THAT DOES NOT WORK YET. This screen
+        # reads `png_list` and only `png_list` (see `spacr.agreement.
+        # PNG_TABLE`), so a second generated set lands under a name it cannot
+        # open. Telling the user that is the honest thing; silently showing
+        # them the OLD set while a new one sits unopened would look like the
+        # generator had done nothing.
+        from spacr.annotation_dataset import PNG_TABLE_BASE
+
+        if table == PNG_TABLE_BASE:
+            QMessageBox.information(
+                self, "Annotation set ready",
+                f"Wrote {table}. Reopening the source to show it.")
+            try:
+                self._reload()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not reload after generating", exc_info=True)
+        else:
+            QMessageBox.information(
+                self, "Annotation set ready",
+                f"Wrote {table}.\n\nThis screen currently opens "
+                f"'{PNG_TABLE_BASE}' only, so to annotate this set either "
+                f"rename it, or work from a database where it is the first "
+                f"one. Instruction 338 tracks making the table selectable.")
 
     def _on_thumb_left(self, slot: int):
         self._toggle_annotation(slot, 1)

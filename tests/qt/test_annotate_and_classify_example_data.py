@@ -175,3 +175,32 @@ def test_an_empty_folder_still_downloads(tmp_path):
 
 def test_the_repo_is_named_once():
     assert ANNOTATE_EXAMPLE_REPO == "einarolafsson/spacr-example-annotate"
+
+
+# ---------------------------------------------------------------------------
+# The labels are a rule, not one person's pass
+# ---------------------------------------------------------------------------
+#
+# The published set carries `infected` for every one of its 2,341 crops: 1 for
+# a cell with no parasite, 2 for one with at least one, matching the values a
+# left and a right click write in the viewer. That is what Classify trains on.
+
+
+def test_the_screen_opens_on_the_rule_based_column():
+    """`annotate` is deliberately empty. Opening on it would show 2,341
+    unlabelled crops and none of the labels the example exists to carry."""
+    source = Path(
+        __import__("spacr.qt.screens.annotate", fromlist=["x"]).__file__
+    ).read_text(encoding="utf-8")
+    assert 'self._ann_col.setText("infected")' in source
+
+
+def test_the_click_values_are_the_ones_the_viewer_writes():
+    """1 and 2 are not arbitrary: _on_thumb_left writes 1 and _on_thumb_right
+    writes 2, so a rule-made label is indistinguishable from a hand-made one
+    and can be extended by hand without a second convention."""
+    import spacr.qt.screens.annotate as annotate
+
+    source = Path(annotate.__file__).read_text(encoding="utf-8")
+    assert "self._toggle_annotation(slot, 1)" in source
+    assert "self._toggle_annotation(slot, 2)" in source

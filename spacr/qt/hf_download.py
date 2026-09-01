@@ -573,25 +573,48 @@ class _AnnotateExampleWorker(QObject):
 
     def run(self) -> None:
         try:
-            self.info.emit("Fetching the example annotation set…")
+            self.info.emit("Listing files on Hugging Face…")
             try:
-                from huggingface_hub import snapshot_download
+                from huggingface_hub import hf_hub_download, list_repo_files
             except ImportError as exc:
                 raise ImportError(
                     f"huggingface_hub is not installed: {exc}") from exc
-            # snapshot_download RATHER THAN a file at a time. This set is 2,365
-            # files, and one HTTP request each -- the shape the Mask demo uses
-            # for its six -- spends minutes on request overhead alone.
+            # A FILE AT A TIME, NOT snapshot_download.
             #
-            # The cost is granular progress: the dialog cannot show a count it
-            # is not given. It says what it is doing instead, which is better
-            # than a bar that moves once.
-            self._dest.mkdir(parents=True, exist_ok=True)
-            snapshot_download(ANNOTATE_EXAMPLE_REPO, repo_type="dataset",
-                              local_dir=str(self._dest))
-            if self._cancel:
-                self.finished.emit(False, "", "", "Cancelled by user.")
+            # snapshot_download cannot be interrupted: it returns when it is
+            # done and not before. So Cancel did nothing, and QUITTING THE APP
+            # MID-DOWNLOAD destroyed a QThread that was still running --
+            # "QThread: Destroyed while thread '' is still running", then
+            # abort. It also writes its own progress bars straight to stdout,
+            # which is where the wall of tqdm output in the console came from.
+            #
+            # A loop costs more request overhead across 2,365 files and buys
+            # a download that stops when it is asked to, and a count the
+            # dialog can actually show.
+            names = [f for f in list_repo_files(ANNOTATE_EXAMPLE_REPO,
+                                                repo_type="dataset")
+                     if not f.startswith(".")]
+            if not names:
+                self.finished.emit(False, "", "",
+                                   f"No files in {ANNOTATE_EXAMPLE_REPO}.")
                 return
+            self._dest.mkdir(parents=True, exist_ok=True)
+            total = len(names)
+            self.info.emit(f"Found {total} files to download.")
+            for done, name in enumerate(names):
+                if self._cancel:
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return
+                self.progress.emit(name, done, total)
+                target = self._dest / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if target.is_file():
+                    # Already here from an interrupted run. Re-fetching 280 MB
+                    # to arrive at the same bytes is the wrong trade.
+                    continue
+                cached = hf_hub_download(
+                    ANNOTATE_EXAMPLE_REPO, name, repo_type="dataset")
+                target.write_bytes(Path(cached).read_bytes())
             self.info.emit("Pointing the database at its crops…")
             make_the_example_paths_absolute(self._dest)
             self.progress.emit("done", 1, 1)
@@ -715,6 +738,39 @@ def download_toxo_mito_demo(parent,
     # already finished. cancel() only flips a bool, which is safe to do
     # from the GUI thread.
     dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
+    # AND QUITTING THE APPLICATION CANCELS IT TOO.
+    #
+    # Nothing did. A download still running when the window closed left a
+    # QThread to be destroyed with its thread alive -- "QThread: Destroyed
+    # while thread '' is still running", then abort -- because the finished
+    # handler that quits and waits for the thread only runs if the worker
+    # EMITS finished, and a worker that is still downloading never does.
+    #
+    # DirectConnection for the same reason the cancel above uses it: the
+    # worker's event loop is blocked for the whole of run(), so a queued call
+    # would be delivered after the shutdown it was meant to survive. cancel()
+    # only flips a bool.
+    #
+    # The wait is bounded and then given up on: a shutdown that hangs on a
+    # slow socket is a worse failure than the one being prevented, and the
+    # loop checks its flag between files.
+    try:
+        from PySide6.QtCore import QCoreApplication
+
+        application = QCoreApplication.instance()
+        if application is not None:
+            def _stop_before_quitting(_w=worker, _t=thread):
+                try:
+                    _w.cancel()
+                    _t.quit()
+                    _t.wait(5000)
+                except Exception:                            # noqa: BLE001
+                    pass
+
+            application.aboutToQuit.connect(_stop_before_quitting,
+                                            Qt.DirectConnection)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not arm the shutdown cancel", exc_info=True)
     thread.started.connect(worker.run)
     # NOTE the absence of `thread.finished.connect(worker.deleteLater)`.
     # `spacr.qt.bridge.make_thread` documents why, from a measured crash:
