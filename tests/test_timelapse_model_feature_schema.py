@@ -78,8 +78,10 @@ def test_pca_qc_uses_numeric_text_without_mutating_measurements(
     # Coercion is model-local: neither the input nor the returned measurement
     # and metadata columns are rewritten as a side effect of fitting.
     pd.testing.assert_frame_equal(frame, original)
-    assert out["cell_p95_intensity_ch1"].dtype == object
-    assert out["cell_empty_measurement"].dtype == object
+    assert out["cell_p95_intensity_ch1"].dtype == \
+        original["cell_p95_intensity_ch1"].dtype
+    assert out["cell_empty_measurement"].dtype == \
+        original["cell_empty_measurement"].dtype
     assert out["cell_empty_measurement"].isna().all()
     assert out["acquisition_note"].tolist() == original["acquisition_note"].tolist()
     assert (out["cell_mean_intensity_ch0"] == "not measured").all()
@@ -155,6 +157,8 @@ def test_xgboost_one_numeric_text_feature_keeps_a_2d_pca_payload(tmp_path):
     np.testing.assert_array_equal(coords[:, 1], np.zeros(len(frame)))
 
     pd.testing.assert_frame_equal(frame, original)
-    assert out["cell_p95_intensity_ch1"].dtype == object
-    assert out["cell_empty_measurement"].dtype == object
+    assert out["cell_p95_intensity_ch1"].dtype == \
+        original["cell_p95_intensity_ch1"].dtype
+    assert out["cell_empty_measurement"].dtype == \
+        original["cell_empty_measurement"].dtype
     assert out["acquisition_note"].tolist() == original["acquisition_note"].tolist()
