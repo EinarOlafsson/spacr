@@ -62,17 +62,15 @@ estimates which genes are associated with phenotypic changes. Starting from
 plate images and FASTQ reads, it produces per-object measurements, trained
 classifiers, per-guide and per-gene effect estimates, and a ranked hit list.
 
-Without a sequencing arm, the segmentation, measurement, annotation and
-classification modules can be used on their own.
+The segmentation, measurement, annotation and classification modules also
+run without a sequencing arm.
 
 Images, masks, crops, measurements, annotations, predictions, barcodes and
-well identifiers live in one SQLite project, so a number in a result can be
-traced back to the object it came from.
+well identifiers live in one SQLite project.
 
-Run spaCR as a desktop application or headlessly on a workstation, server or
-cluster; both drive the same modules. A GPU is used automatically where a
-module supports it, and the CPU is the fallback — see `What each
-configuration accelerates`_ for what each vendor's hardware does.
+Runs as a desktop application or headlessly on a workstation, server or
+cluster; both drive the same modules. GPU where supported, CPU otherwise —
+see `What each configuration accelerates`_.
 
 What each configuration accelerates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,8 +256,7 @@ Install spaCR
 Desktop application
 ~~~~~~~~~~~~~~~~~~~
 
-The desktop installers include a private Python environment, so conda and an
-existing Python installation are not required.
+The installers bundle their own Python. Conda is not required.
 
 .. spacr-installer-links-begin
 
@@ -378,21 +375,20 @@ which is the usual cause.
 Install from source, without the whole repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plain clone writes about 427 MB and fetches the full history — over 1.3 GB
-on disk. Most of it is built documentation, tests, archived figures and
-Cellpose checkpoints spaCR downloads on demand anyway. To fetch only what
-runs, a 76 MB tree with 52 MB of git objects::
+Full clone: 427 MB. Core clone: 76 MB.
+
+::
 
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-It installs ``main`` by default, so fetch the script from the branch you mean
-to install. The result is a normal checkout: ``git pull`` and editing work as
-usual. Other options: ``--dir``, ``--with-tests``, ``--no-install``, and
-``--with-translations`` — without those the interface still translates, from a
-smaller built-in catalog.
+Skips ``docs/``, ``tests/``, Cellpose checkpoints, archived figures and the
+extended translation catalogs. The result is a normal checkout.
 
-``packaging/source_install_excludes.txt`` lists every skipped path and why.
+Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``,
+``--with-docs``, ``--with-translations``, ``--no-install``.
+
+``packaging/source_install_excludes.txt`` lists every skipped path.
 
 
 Command-line entry points
@@ -440,17 +436,15 @@ resume interrupted work and record the settings behind each result.
 Make Masks
 ~~~~~~~~~~
 
-Make Masks appears under **Data** and provides manual correction of
-segmentation masks; its masthead also opens the Cellpose workflows. The canvas
-has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**,
-**Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from
-a closed outline, Divide separates a merged object along a drawn line, and
-Recrop turns one object in a crowded field into a field of its own.
+Make Masks appears under **Data** for manual correction of segmentation
+masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**,
+**Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
+**Zoom** and **Recrop**. Draw makes one filled label from a closed outline,
+Divide separates a merged object along a drawn line, Recrop turns one object
+in a crowded field into its own field.
 
-Running Cellpose-SAM here shows the cell-probability map and the flow field
-beside the mask, which is what distinguishes a low-probability failure from an
-inconsistent-flow one. The `feature guide <docs/source/features.rst>`_
-describes each tool in full.
+Cellpose-SAM runs here show the cell-probability map and the flow field beside
+the mask. See the `feature guide <docs/source/features.rst>`_ for each tool.
 
 Objects and settings
 ~~~~~~~~~~~~~~~~~~~~
@@ -536,14 +530,12 @@ Generate a hardware report and attach it to a performance-related issue::
 
     python tools/spacr_hardware_report.py
 
-It saves a report under ``~/.spacr/reports`` and prints the path last.
-``--quick`` skips the longer benchmarks; ``--out PATH`` chooses where to
-write.
+Saves to ``~/.spacr/reports`` and prints the path. ``--quick`` skips the
+longer benchmarks; ``--out PATH`` sets the location.
 
-It never opens a project or reads project data. It times imports, numeric
-libraries, window construction and animation, and identifies two things that
-quietly cost a lot of performance: processor-architecture emulation, such as an
-x86_64 Python build on Apple Silicon, and the BLAS implementation NumPy found.
+Reads no project data. Times imports, numeric libraries, window
+construction and animation. Reports processor-architecture emulation (an
+x86_64 Python build on Apple Silicon) and NumPy's BLAS implementation.
 
 Command-line reference
 ----------------------
@@ -560,12 +552,10 @@ Launching the application
    spacr-tutorial     # the interactive tutorial library
    spacr-server       # no first-run setup screen, for unattended launches
 
-``spacr-server`` exists because the setup screen is modal and opens before
-the main window, so a job with nobody in front of it would block on it.
+``spacr-server`` skips the modal setup screen, which would otherwise block
+an unattended job.
 
-``spacr-qt`` and ``spacr-nightly`` are aliases of ``spacr`` and start the
-same application. They exist so that a script written against either name
-keeps working.
+``spacr-qt`` and ``spacr-nightly`` are aliases of ``spacr``.
 
 When spaCR will not start
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,15 +565,13 @@ When spaCR will not start
    spacr-doctor       # diagnose the installation and say how to fix it
    safespacr          # the least spaCR that can still change a setting
 
-``spacr-doctor`` prints one line per check, and for every line that is not
-``PASS`` a command you can copy and run. It also answers the question that
-wastes the most time: *which* ``spacr`` is actually running, when an old
-editable install is shadowing the one you just edited.
+``spacr-doctor`` prints one line per check, with a command to run for each
+failure. It also reports which ``spacr`` is on the path, which is what an old
+editable install shadows.
 
-``safespacr`` is for when a saved preference is what breaks the launch. It
-reads every preference as its default and forces the backdrop, animations,
-verbose logging and preloading off, so you can get in and re-save the value
-that broke it. It changes nothing permanently by itself.
+``safespacr`` reads every preference as its default and forces the backdrop,
+animations, verbose logging and preloading off. Use it when a saved
+preference breaks the launch. It changes nothing permanently.
 
 Running modules headlessly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -599,13 +587,11 @@ No Qt, no display — for clusters, servers and CI.
    spacr-run MODULE --settings settings.csv      # execute
    spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
 
-Validate first. It reads the same settings the run would and reports what is
-missing, contradictory or pointing at nothing — which costs a second, against
-a run that may not.
+``validate`` reads the same settings the run would and reports what is
+missing, contradictory or pointing at nothing.
 
-``spacr-run --list`` shows only modules with a headless entry point.
-Annotation, curation and exploration are interactive by nature and are
-omitted.
+``spacr-run --list`` shows only modules with a headless entry point;
+annotation, curation and exploration are interactive and omitted.
 
 Inspecting a run afterwards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -634,9 +620,8 @@ Environment
 
    SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
 
-Rotating logs are written to ``~/.spacr/logs/spacr.log``. Attach that file to
-a bug report rather than a screenshot of a terminal — the terminal is usually
-gone by the time the crash is noticed.
+Rotating logs are written to ``~/.spacr/logs/spacr.log``. Attach that file
+to a bug report.
 
 
 Contributing and support

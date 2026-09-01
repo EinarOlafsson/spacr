@@ -1966,3 +1966,63 @@ def hf_spacr_settings(tmp_path_factory):
             pytest.skip(f"HF download failed for {name}: {e}")
         paths[name] = p
     return paths
+
+
+@pytest.fixture(scope="session")
+def _the_real_accelerator():
+    """Probe this machine ONCE for the whole session.
+
+    Probing torch is not free, and the answer cannot change while the
+    suite runs. Resolving once here is what lets the per-test fixture
+    below restore a WARM cache rather than an empty one.
+    """
+    try:
+        from spacr import accelerator
+    except Exception:               # accelerator unimportable in this env
+        return None
+    try:
+        return accelerator.resolve()
+    except Exception:
+        return None
+
+
+@pytest.fixture(autouse=True)
+def _the_accelerator_verdict_does_not_leak_between_tests(
+        _the_real_accelerator):
+    """Put ``spacr.accelerator._CACHED`` back after every test.
+
+    ``resolve()`` caches the machine's accelerator the first time it is
+    asked, which is right in production -- probing torch is not free and
+    the answer cannot change mid-run.
+
+    In a test process it is a trap. A test that makes ``torch.cuda`` raise
+    to prove the CPU fallback works leaves "this machine has no GPU"
+    CACHED, and monkeypatch undoes the torch patch but knows nothing about
+    the cache. Every later test in that process then sees a machine with
+    no GPU.
+
+    That is exactly how
+    tests/qt/test_a_preview_without_torch_still_segments.py failed: the
+    second test passed alone and failed after the first, and the failure
+    looked like a bug in the preview's device choice rather than a
+    neighbouring test's leftovers.
+
+    RESTORES THE REAL VERDICT, NOT WHATEVER WAS THERE BEFORE. Putting
+    back the pre-test value would mean putting back ``None`` for the first
+    test that runs, and every test after it would re-probe torch -- slow,
+    and on a machine with a flaky driver, differently flaky. Restoring the
+    session's own answer keeps the cache warm and still lets no fake
+    machine escape the test that built it.
+
+    Autouse and unconditional: any test may poison the cache, so every
+    test is protected rather than the handful known to need it.
+    """
+    try:
+        from spacr import accelerator
+    except Exception:
+        yield
+        return
+    try:
+        yield
+    finally:
+        accelerator._CACHED = _the_real_accelerator
