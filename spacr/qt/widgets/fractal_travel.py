@@ -1186,15 +1186,36 @@ float field(vec2 uv) {
 }
 
 
-// THE POINTER IS THE POINT EVERYTHING FLOWS TO. Shifting the coordinate
-// ORIGIN toward the cursor moves the centre the pattern radiates from,
-// rather than adding a second warp on top of the one the pattern already
-// has -- which would read as a smear rather than as a centre.
+// THE POINTER BENDS THE PLANE, IT DOES NOT MOVE THE CAMERA.
 //
-// A click pushes the origin away instead, so the flow reverses around it.
+// This used to translate the whole plane: `uv - target * pull` shifts
+// EVERY pixel by the same amount, which is towing the viewport. Two
+// things follow from that, and both were reported. The shift grows with
+// the pointer's distance from centre, so near an edge the whole picture
+// is dragged; and when the pointer leaves the widget the pull decays to
+// zero, so the picture springs back -- "if the mouse is to close to the
+// sides of the screen the camera snapps back".
+//
+// The CPU orbit fold never had either problem, and the user says so:
+// "the orbit fold cpu effect is like a magnigying glass, which looks
+// cool". This is that same warp, transliterated, so the two renderers
+// bend the picture identically:
+//
+//   * the displacement is TOWARD the pointer and falls off as 1/r^2, so
+//     it is firm under the cursor and gone by the far corner;
+//   * distant pixels are left where they were, so there is no global
+//     shift to spring back from;
+//   * a click reverses it, pushing the structure away instead.
+//
+// The 0.05 floor keeps the divide finite at the pointer itself, and the
+// clamps stop a pixel being thrown past it.
 vec2 toward_pointer(vec2 uv) {
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    return uv - target * (u_pull - 0.85 * u_push);
+    vec2 to_pointer = target - uv;
+    float distance2 = dot(to_pointer, to_pointer) + 0.05;
+    float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
+    strength = clamp(strength, -1.4, 0.9);
+    return uv + strength * to_pointer;
 }
 
 vec3 render_sample(vec2 fragment_position) {

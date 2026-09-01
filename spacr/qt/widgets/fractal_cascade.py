@@ -150,8 +150,27 @@ vec4 fractal_window(vec2 p) {
 // which would read as a smear rather than as a centre. A click pushes the
 // origin away instead, so the flow reverses around it.
 vec2 toward_pointer(vec2 uv) {
+    // THE POINTER BENDS THE PLANE, IT DOES NOT MOVE THE CAMERA.
+    //
+    // This used to be `uv - target * pull`, a uniform translation of the
+    // whole plane -- towing the viewport. The shift grew with the
+    // pointer's distance from centre, so near an edge the whole picture
+    // was dragged, and when the pointer left the widget the pull decayed
+    // to zero and it sprang back: "if the mouse is to close to the sides
+    // of the screen the camera snapps back".
+    //
+    // The CPU orbit fold never had that problem, and this is its warp
+    // transliterated so every renderer bends the picture the same way:
+    // displacement TOWARD the pointer, falling off as 1/r^2, so it is
+    // firm under the cursor and gone by the far corner. Distant pixels
+    // stay where they were, so there is no global shift to spring back
+    // from. A click reverses it.
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    return uv - target * (u_pull - 0.85 * u_push);
+    vec2 to_pointer = target - uv;
+    float distance2 = dot(to_pointer, to_pointer) + 0.05;
+    float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
+    strength = clamp(strength, -1.4, 0.9);
+    return uv + strength * to_pointer;
 }
 
 vec3 render_sample(vec2 fragment_position) {
