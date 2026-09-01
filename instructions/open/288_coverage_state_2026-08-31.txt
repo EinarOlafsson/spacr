@@ -747,3 +747,47 @@ struck. The population is 55 arms explicitly catching ImportError across 33
 modules, 12 of them in these five (ml 5, timelapse 5, io 1, plot 1,
 sequencing 0). How many are among the 355 needs the completed measurement. 55
 is the upper bound on the correction.
+
+--------------------------------------------------------------------------------
+2026-09-01 — LEAKED SHADING THREADS ACCUMULATE ACROSS tests/qt
+--------------------------------------------------------------------------------
+
+A 360-file prefix of tests/qt run under a 120 s per-test timeout wedged
+one test around the 70% mark. The timeout dump is the useful part: NINE
+threads named ``spacr-ambient-shade`` were alive at once, most of them
+inside numpy work (``cross += c_im32`` in ``_paint_field``), alongside
+Thread-215 through Thread-220. Nine backdrop shaders competing for the
+CPU is enough on its own to push a timing-sensitive test past a 120 s
+limit, and it is exactly the ACCUMULATION this instruction has been
+looking for -- no single test file segfaults, and the failure position
+moves, both of which fit a load that grows with the number of tests run
+rather than a single poisoned test.
+
+WHERE THE LEAK IS NOT. Production is clean, measured rather than
+assumed. `AmbientWidget.__init__` connects ``destroyed`` to
+``_retire_producer`` through a closure that captures only the
+one-element producer box and never the widget, so real C++ destruction
+-- what closing a window does -- stops and joins the thread. Destroying
+a shown widget with ``shiboken6.delete`` takes the live thread count
+from 1 to 0. Hiding it does the same through ``hideEvent``.
+
+WHERE IT IS. Dropping the last PYTHON reference to a running widget
+whose C++ half stays alive leaves the thread running: the count stays at
+1 across a gc collection and twenty event-loop turns, and only falls to 0
+when the host is hidden or destroyed. That is a test-shaped lifetime, not
+a user-shaped one -- a test builds a widget, shows it, and lets the name
+go out of scope while pytest-qt keeps the C++ object alive.
+
+WHAT A FIX MAY NOT DO. `deferred_deletions_flushed` in tests/qt/conftest.py
+carries the constraint in its own docstring: the "reach across every live
+widget at teardown" fixture was removed on 2026-08-08 for segfaulting the
+run three ways, and what makes the surviving fixture safe is that it runs
+at SETUP, when the previous test's teardown is complete and pytest-qt is
+not part-way through closing anything. Any producer sweep has to sit on
+that same phase boundary.
+
+NOT YET ESTABLISHED: that the nine threads CAUSED this particular
+timeout. The correlation is strong and the mechanism is plausible, but
+the failing test has not been named yet -- pytest -q does not print it
+until the summary, and the run was still going. Name the test, then
+re-run it alone and with the leak present, before crediting the fix.
