@@ -243,14 +243,13 @@ def test_an_all_zero_design_draws_a_spectrum_with_no_positive_bar():
 # ---------------------------------------------------------------------------
 
 def test_a_coefficient_table_outside_zero_to_one_draws_no_uniform_line():
-    """The uniform expectation has no height when nothing landed in [0, 1].
+    """A malformed p-value column is refused before anything is drawn.
 
-    The histogram is fixed to the range [0, 1] because that is where p-values
-    live. A coefficient table whose ``p_value`` column holds test statistics or
-    -log10 p -- which is what arrives when a caller wires up the wrong column --
-    puts zero counts in the histogram, so the "uniform" reference has nowhere
-    to be drawn. Drawing it at a nan height would put a rule across the panel
-    at whatever the axis happened to autoscale to.
+    A coefficient table whose ``p_value`` column holds test statistics or
+    -log10 p is not a sparse histogram: it is the wrong quantity. A16 made
+    that distinction loud with ``PanelUnavailable`` rather than returning a
+    plausible ``too-few`` diagnosis. Genuine p-values remain the positive
+    counterpart and still draw the uniform expectation.
     """
     n = 6
     response = np.arange(n, dtype=float)
@@ -261,16 +260,17 @@ def test_a_coefficient_table_outside_zero_to_one_draws_no_uniform_line():
                            {"p_value": np.linspace(0.01, 0.99, 40)}))
 
     bogus_ax, genuine_ax = _axes(), _axes()
-    bogus_stats = rq._panel_p_value_histogram(bogus, bogus_ax)
+    with pytest.raises(
+            rq.PanelUnavailable,
+            match=r"3 finite p-value\(s\) outside \[0, 1\].*\[3, 12\]",
+    ):
+        rq._panel_p_value_histogram(bogus, bogus_ax)
     genuine_stats = rq._panel_p_value_histogram(genuine, genuine_ax)
 
-    assert bogus_stats["n"] == 0
-    assert bogus_stats["source"] == "coefficient table"
-    assert bogus_stats["verdict"] == "too-few"
+    assert len(bogus_ax.containers) == 0
     assert len(bogus_ax.lines) == 0
-    # Real p-values in the same column do get the uniform rule, so the missing
-    # line above is the out-of-range input and not a panel that never draws one.
     assert genuine_stats["n"] == 40
+    assert genuine_stats["source"] == "coefficient table"
     assert len(genuine_ax.lines) == 1
 
 

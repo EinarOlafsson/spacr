@@ -12,7 +12,6 @@ import re
 import numpy as np
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # 1. `if s != 0:` -- lifting a downsampled transform back to full resolution
 # ---------------------------------------------------------------------------
@@ -71,7 +70,7 @@ class TestTheDownsampleFactor:
 
 
 # ---------------------------------------------------------------------------
-# 2. `if _raw in _dense:` -- a channel the merged stack does not carry
+# 2. every numeric role channel is in the dense map built from those roles
 # ---------------------------------------------------------------------------
 
 class TestTheDenseChannelMap:
@@ -117,20 +116,42 @@ class TestTheDenseChannelMap:
         assert positions == {1: 0}
 
     def test_every_copy_of_the_lookup_guards_it(self):
-        """THE PIN, over all three copies. They are in three modules and
-        each one is a segmentation run's channel resolution, so a copy
-        that lost its guard raises a KeyError mid-run."""
-        from spacr import io as IO
-        from spacr import object as OBJ
+        """The map construction is the guard; membership re-checks are dead.
 
-        for module in (IO, OBJ):
-            source = inspect.getsource(module)
-            for match in re.finditer(r"_dense\[(\w+)\]", source):
-                name = match.group(1)
-                before = source[:match.start()]
-                assert f"if {name} in _dense:" in before[-200:], (
-                    f"{module.__name__} indexes _dense without the "
-                    f"membership check above it")
+        Both object generators ask ``dense_mask_channel_positions`` to walk
+        these same four role keys, then apply the same ``int`` coercion before
+        indexing.  A numeric value that reaches the lookup is therefore in the
+        map.  Direct indexing is intentional: if either contract ever drifts,
+        the run fails loudly instead of silently leaving an alias unset.
+
+        The source assertion makes the old ``if _raw in _dense`` shape a red
+        mutation, while the value assertion pins the premise that makes its
+        removal safe.
+        """
+        from spacr import object as OBJ
+        from spacr.utils import dense_mask_channel_positions
+
+        settings = {
+            "nucleus_channel": "2",
+            "cell_channel": 0,
+            "pathogen_channel": None,
+            "organelle_channel": 1,
+        }
+        positions = dense_mask_channel_positions(settings)
+        for role in ("nucleus", "cell", "pathogen", "organelle"):
+            raw = settings.get(f"{role}_channel")
+            if raw is None:
+                continue
+            assert int(raw) in positions
+
+        for function in (
+                OBJ.generate_cellpose_masks_sam,
+                OBJ.generate_cellpose_masks):
+            source = inspect.getsource(function)
+            assert "if _raw in _dense:" not in source
+            assert source.count(
+                "settings[f'cellpose_{_role}_channel'] = _dense[_raw]"
+            ) == 1
 
 
 # ---------------------------------------------------------------------------
