@@ -808,7 +808,10 @@ class DataManagerScreen(QWidget):
             try:
                 thread.quit()
                 thread.wait(2000)
-            except RuntimeError:        # pragma: no cover - already gone
+            except RuntimeError:
+                # The thread's C++ half has already gone. A close handler
+                # that let this out would leave the screen half-closed,
+                # and the job list below is cleared either way.
                 pass
         self._jobs.clear()
         super().closeEvent(event)

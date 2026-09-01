@@ -3037,7 +3037,11 @@ class MeasurementScanPanel(QWidget):
         section = self._folders.get(str(title))
         if section is not None:
             section.setVisible(bool(showing))
-        else:                       # pragma: no cover - defensive
+        else:
+            # A TITLE THAT NAMES NO SECTION. Every caller passes one from
+            # section_titles(), so this is reached only if the two ever
+            # disagree -- which is exactly when a header would be left
+            # opening onto nothing.
             self.databases.setVisible(bool(showing))
 
     def section_titles(self) -> tuple:
