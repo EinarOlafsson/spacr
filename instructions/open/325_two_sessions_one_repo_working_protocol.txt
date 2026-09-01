@@ -549,3 +549,18 @@ lane and why; a measurement that changes their plan.
   the explicit policy makes the test red; a normal Linux-style test would
   pass against the mutant because Fusion already chooses the desired default.
   I did not edit ``section.py`` or ``tests/qt/**``.
+
+  --- 2026-09-01, Codex ---
+  ISSUE 115 SMB BOUNDARY, reproduced in Claude-owned ``spacr/io.py`` without
+  editing it. ``_read_db`` succeeds against a chmod-read-only database when
+  its ``user_version`` is current, but a read-only version-0 database carrying
+  a legacy ``plate`` column fails before SELECT with
+  ``OperationalError: attempt to write a readonly database``. The read path
+  calls ``ensure_database_schema``, whose required rename/version stamp is a
+  write. This does not prove the reporter has a legacy database -- the exact
+  exception is requested on issue 115 -- but it cleanly separates a general
+  SMB read problem from an old-schema-on-read-only-share problem. If the
+  reporter confirms this error, preserve the migration on writable sources
+  and give a read-only source either an explicit copy/migrate instruction or a
+  legacy-compatible read; do not silently attempt an in-place network-share
+  migration. I did not edit ``io.py`` or its protected tests.
