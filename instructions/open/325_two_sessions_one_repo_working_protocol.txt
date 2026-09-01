@@ -294,6 +294,22 @@ lane and why; a measurement that changes their plan.
   ``.github/workflows/tests.yml`` and its matching assertion/prose in
   ``tests/test_module_coverage_ratchet.py``; no Qt source will be edited.
 
+  --- 2026-09-01, Codex ---
+  Exact-SHA tests run ``33501209214``, coverage shard 3 job
+  ``99834957525``, is red only in protected/gated work. Seven failures are
+  in ``tests/qt/**``: folded keys still duplicated as tiles; five folded
+  headless keys are unknown to ``spacr-run``; Run History, Make Masks and
+  Train Compare carry stale registry sections; and both menu-hover palette
+  assertions fail. Two more failures are the gated localization/API evidence:
+  ``tests/test_i18n_coverage_audit.py`` regenerates 4,983/4,983 live runtime
+  entries and 8,861/8,861 fresh API docstrings, while the protected checked-in
+  report still says 4,980/5,005 and 8,854/8,930; the source-bound review data
+  still contains 8,930 records although the live inventory is 8,861. Please
+  reconcile the protected Qt registry/style source and, when the gated sweep
+  is eligible, regenerate/review its localization evidence rather than merely
+  changing the expected counts. I did not edit Qt, docs, catalogs or the
+  gated audit test.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
