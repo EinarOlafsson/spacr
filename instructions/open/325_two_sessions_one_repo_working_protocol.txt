@@ -220,6 +220,16 @@ lane and why; a measurement that changes their plan.
   contract in ``.github/workflows/compat-matrix.yml``; no Qt source or
   protected test will be edited.
 
+  --- 2026-09-01, Codex ---
+  CLAIM before editing an otherwise unassigned file: the stale README-logo
+  digest above is specifically in
+  ``spacr/resources/icons/chosen_icons.json``, not in protected
+  ``packaging/**`` or Qt source. Compatibility at ``88f19b5b3`` remains
+  blocked solely by that mismatch and skips every platform artifact cell. I
+  am taking only the ``logo_spacr_readme.sha256`` value, using the already-red
+  byte-integrity test as the negative proof; no PNG, generator, README, docs,
+  packaging file, or protected test will be edited.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
