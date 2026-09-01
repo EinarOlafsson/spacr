@@ -330,7 +330,6 @@ def human_bytes(size: float) -> str:
                 return f"{int(value)} B"
             return f"{value:.1f} {unit}"
         value /= 1000.0
-    return f"{value:.1f} PB"          # pragma: no cover - loop always returns
 
 
 def _absolute(path: Any) -> str:

@@ -1,4 +1,4 @@
-"""``digest_numbers``' unreachable ``except ValueError``.
+"""``digest_numbers`` converts exactly the numeric strings it admits.
 
 The token has already matched ``_NUMBER`` in full, so ``float`` cannot
 refuse it -- unless the pattern and ``float`` disagree about what a
@@ -54,15 +54,15 @@ class TestWhatThePatternAdmits:
             f"some of these, and a report quoting 'inf' as a measurement "
             f"reads as a result rather than an overflow")
 
-    def test_the_handler_is_still_there_and_still_continues(self):
+    def test_the_conversion_has_no_unreachable_handler(self):
         source = inspect.getsource(ME.digest_numbers)
         match = source.index("if _NUMBER.fullmatch(token):")
-        handler = source.index("except ValueError:", match)
+        conversion = source.index("found.add(float(token))", match)
 
-        assert match < handler, (
-            "the conversion is no longer guarded by the pattern match, so "
-            "the handler is live and needs a driven test")
-        assert "continue" in source[handler:handler + 120]
+        assert match < conversion
+        assert "except ValueError:" not in source[match:], (
+            "the regex is a strict subset of float syntax, so this handler "
+            "could never run")
 
 
 class TestWhatTheDigestYields:

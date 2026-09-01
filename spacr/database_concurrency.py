@@ -247,7 +247,6 @@ def transaction(
             "transaction before starting another.")
     attempts = max(1, int(attempts))
     delay = max(0.0, float(initial_delay))
-    last_error: Optional[BaseException] = None
     timeout_row = connection.execute("PRAGMA busy_timeout").fetchone()
     original_busy_timeout = int(timeout_row[0]) if timeout_row else 0
     # sqlite's busy_timeout applies to *each* BEGIN. Without dividing the
@@ -272,15 +271,12 @@ def transaction(
             except sqlite3.OperationalError as exc:
                 if not is_busy_error(exc):
                     raise
-                last_error = exc
                 if attempt == attempts:
                     raise DatabaseBusy(
                         f"database remained locked after {attempts} "
                         f"transaction attempts: {exc}") from exc
                 time.sleep(delay)
                 delay = min(maximum_delay, max(initial_delay, delay * 2))
-        else:  # pragma: no cover - loop always breaks or raises
-            raise DatabaseBusy(str(last_error))
     finally:
         if changed_timeout:
             try:

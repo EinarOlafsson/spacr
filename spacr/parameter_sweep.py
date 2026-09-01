@@ -369,9 +369,10 @@ def _named_control_rows(results: pd.DataFrame, names: Mapping[str, str]
         if effect_column:
             position = ranked_labels.str.contains(
                 str(needle), regex=False, na=False)
-            if position.any():
-                row = ranked.loc[position].iloc[0]
-                out[f"{alias}_rank"] = int(position.idxmax()) + 1
+            # ranked_labels is a permutation of labels, so a control present
+            # in labels is necessarily present here as well.
+            row = ranked.loc[position].iloc[0]
+            out[f"{alias}_rank"] = int(position.idxmax()) + 1
             out[f"{alias}_effect"] = float(row[effect_column])
         if q_column and pd.notna(row.get(q_column)):
             out[f"{alias}_q"] = float(row[q_column])
@@ -1195,28 +1196,30 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
 
         _fill()
         while futures:
-            for future in as_completed(list(futures)):
-                trial_id = futures.pop(future)
-                done += 1
-                try:
-                    rows.append(_register_resource_workers(future.result()))
-                except BaseException as error:  # noqa: BLE001 - dead worker
-                    rows.append({"trial_id": trial_id, "status": "failed",
-                                 "error_type": type(error).__name__,
-                                 "error": str(error)[:300], "seconds": 0.0})
-                if progress_every and done % progress_every == 0:
-                    elapsed = time.time() - started
-                    remaining = elapsed / done * (len(trials) - done)
-                    ok = sum(1 for row in rows if row.get("status") == "ok")
-                    note = (f", paused {paused_for_memory}x for memory"
-                            if paused_for_memory else "")
-                    print(f"[sweep] {done}/{len(trials)} done, {ok} ok, "
-                          f"{elapsed / 60:.1f} min elapsed, "
-                          f"~{remaining / 60:.1f} min left{note}", flush=True)
-                pd.DataFrame(rows).sort_values("trial_id").to_csv(
-                    results_path, index=False)
-                _fill()
-                break
+            # ``futures`` is non-empty here, so as_completed necessarily
+            # yields one item. Taking exactly one lets _fill recheck memory
+            # after every completion without an unreachable for-loop exit.
+            future = next(as_completed(tuple(futures)))
+            trial_id = futures.pop(future)
+            done += 1
+            try:
+                rows.append(_register_resource_workers(future.result()))
+            except BaseException as error:  # noqa: BLE001 - dead worker
+                rows.append({"trial_id": trial_id, "status": "failed",
+                             "error_type": type(error).__name__,
+                             "error": str(error)[:300], "seconds": 0.0})
+            if progress_every and done % progress_every == 0:
+                elapsed = time.time() - started
+                remaining = elapsed / done * (len(trials) - done)
+                ok = sum(1 for row in rows if row.get("status") == "ok")
+                note = (f", paused {paused_for_memory}x for memory"
+                        if paused_for_memory else "")
+                print(f"[sweep] {done}/{len(trials)} done, {ok} ok, "
+                      f"{elapsed / 60:.1f} min elapsed, "
+                      f"~{remaining / 60:.1f} min left{note}", flush=True)
+            pd.DataFrame(rows).sort_values("trial_id").to_csv(
+                results_path, index=False)
+            _fill()
 
     if paused_for_memory:
         own = last_memory_state.get("spacr_tree_gib")

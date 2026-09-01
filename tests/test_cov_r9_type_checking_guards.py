@@ -1,18 +1,16 @@
-"""The three ``if TYPE_CHECKING:`` blocks, and the cost they avoid.
+"""Lazy pandas imports, with no runtime-only typing branches.
 
-Each one shows as an uncovered branch and an uncovered import, and each
-is unreachable by construction: ``typing.TYPE_CHECKING`` is a literal
-``False`` at runtime and only a type checker sets it True. There is no
-input that reaches those lines, so what is held here is the REASON they
-are guarded rather than the lines themselves.
+``typing.TYPE_CHECKING`` is a literal ``False`` at runtime, so a block under
+it cannot contribute behavior. Modules that need pandas only inside a public
+operation use a function-local import; the remaining Qt guard supports a
+type-only class annotation and is tracked explicitly until that owner moves it.
 
-The reason is measurable. All three annotate with ``pandas``, and pandas
-is one of the heaviest imports in the dependency set. A module that
-pulls it eagerly pays that on every launch whether or not anything asks
-for a frame -- which is what item 282 and item 284 are about, and what
-lazy imports throughout this package exist to avoid. Moving one of these
-imports out of its guard would be invisible in review and would show up
-as a slower start.
+The reason is measurable. Pandas is one of the heaviest imports in the
+dependency set. A module that pulls it eagerly pays that on every launch
+whether or not anything asks for a frame -- which is what item 282 and item
+284 are about, and what lazy imports throughout this package exist to avoid.
+Moving one of these imports to module scope would be invisible in review and
+would show up as a slower start.
 """
 from __future__ import annotations
 
@@ -31,14 +29,17 @@ ROOT = Path(__file__).resolve().parents[1]
 #: is hiding. Enumerated rather than discovered, so a NEW guard has to
 #: be added here deliberately and its runtime cost argued for.
 GUARDED = (
-    ("spacr.classify_classes", "pandas"),
-    ("spacr.feature_dict", "pandas"),
     ("spacr.qt.widgets.class_editor", "pandas"),
 )
+DEFERRED_WITHOUT_GUARD = (
+    ("spacr.classify_classes", "pandas"),
+    ("spacr.feature_dict", "pandas"),
+)
+LAZY = DEFERRED_WITHOUT_GUARD + GUARDED
 
 
 def _sources():
-    return {name: (ROOT / (name.replace(".", "/") + ".py")) for name, _ in GUARDED}
+    return {name: (ROOT / (name.replace(".", "/") + ".py")) for name, _ in LAZY}
 
 
 def test_the_enumeration_is_the_whole_set():
@@ -68,6 +69,24 @@ def test_the_flag_is_false_at_runtime():
     blocks would become live code with no test.
     """
     assert typing.TYPE_CHECKING is False
+
+
+@pytest.mark.parametrize("module,hidden", DEFERRED_WITHOUT_GUARD)
+def test_a_runtime_impossible_typing_branch_is_not_kept(module, hidden):
+    """The launch path stays lazy without an uncovered branch."""
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    assert not any(isinstance(node, ast.If)
+                   and _is_type_checking(node.test)
+                   for node in ast.walk(tree))
+    module_imports = [name for node in tree.body
+                      if isinstance(node, (ast.Import, ast.ImportFrom))
+                      for name in _names(node)]
+    assert hidden not in module_imports
+    assert any(hidden in _names(node)
+               for node in ast.walk(tree)
+               if isinstance(node, (ast.Import, ast.ImportFrom))), (
+        f"{module} no longer imports {hidden} at its actual point of use")
 
 
 @pytest.mark.parametrize("module,hidden", GUARDED)
@@ -107,7 +126,7 @@ def _names(node):
     return [node.module.split(".")[0]] if node.module else []
 
 
-@pytest.mark.parametrize("module,hidden", GUARDED)
+@pytest.mark.parametrize("module,hidden", LAZY)
 def test_importing_the_module_does_not_pull_the_hidden_package(module,
                                                                hidden):
     """THE SUBSTANCE, and the half a source check cannot give.
@@ -147,7 +166,7 @@ def _offscreen_env():
     return env
 
 
-@pytest.mark.parametrize("module,hidden", GUARDED)
+@pytest.mark.parametrize("module,hidden", LAZY)
 def test_the_annotations_that_need_it_are_strings(module, hidden):
     """The other half of the arrangement: with the import deferred, any
     annotation naming it has to be lazy too, or the module raises
@@ -180,7 +199,7 @@ def test_the_guard_is_not_load_bearing_for_behaviour():
         "import importlib\n"
         "for name in %r:\n"
         "    importlib.import_module(name)\n"
-        "print('ok')\n" % ([name for name, _ in GUARDED],)
+        "print('ok')\n" % ([name for name, _ in LAZY],)
     )
     probe = subprocess.run(
         [sys.executable, "-c", code], cwd=str(ROOT),
@@ -197,4 +216,4 @@ def test_this_file_is_about_lines_that_cannot_run():
     next reader does not go looking for a way to drive them."""
     source = inspect.getsource(sys.modules[__name__])
 
-    assert "unreachable by construction" in source
+    assert "cannot contribute behavior" in source

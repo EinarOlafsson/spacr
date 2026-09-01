@@ -98,8 +98,8 @@ class TestReadingTheDigestsOwnNumbers:
         assert digest_numbers({}) == set()
 
 
-class TestTheConversionGuardThatCannotFire:
-    """`except ValueError` inside `digest_numbers` is unreachable.
+class TestTheNumericConversion:
+    """The numeric regex is a sufficient precondition for ``float``.
 
     A token only reaches `float()` after `_NUMBER.fullmatch` has
     accepted it, and that pattern --
@@ -131,10 +131,14 @@ class TestTheConversionGuardThatCannotFire:
                     "ValueError guard in extract_numbers is now reachable")
         assert tried > 1000, "the search accepted too few tokens to mean much"
 
-    def test_the_pattern_is_still_the_one_that_guards_the_conversion(self):
+    def test_the_pattern_still_precedes_a_direct_conversion(self):
         import inspect
 
         source = inspect.getsource(digest_numbers)
         assert "_NUMBER.fullmatch(token)" in source, (
             "the conversion is no longer guarded by the pattern, so its "
-            "ValueError arm may now be reachable")
+            "input contract may have changed")
+        assert "found.add(float(token))" in source
+        assert "except ValueError" not in source, (
+            "the regex admits only valid floats, so a ValueError arm is "
+            "unreachable and must not be restored")

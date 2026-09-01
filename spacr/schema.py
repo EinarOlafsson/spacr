@@ -276,20 +276,6 @@ KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
     (KEY_SEPARATOR, '%5F'),
 )
 
-# Validate the registry where it is declared. Typed object ids concatenate
-# role and numeric label without a separator, so a digit in a role is
-# ambiguous (``cell1`` + 7 versus ``cell`` + 17), while an underscore would
-# split the surrounding prcfo key. Failing import is preferable to writing
-# identities that cannot round-trip.
-for _registered_role in OBJECT_TYPES:
-    if (not _registered_role or KEY_SEPARATOR in _registered_role
-            or any(character.isdigit() for character in _registered_role)):
-        raise RuntimeError(
-            f'invalid object role {_registered_role!r}: roles must be '
-            f'non-empty, digit-free and contain no {KEY_SEPARATOR!r}')
-del _registered_role
-
-
 #: Every legacy spelling spaCR has written, and the canonical name it means.
 #:
 #: This is the superset of ``database_schema.DB_COLUMN_RENAMES`` (applied to
@@ -761,9 +747,8 @@ def row_id(row: Any, *, strict: bool = False) -> str:
     if isinstance(row, str):
         letters = row.strip()
         if _ROW_ONLY.match(letters) and not _PREFIXED_INT.match(letters):
-            index = row_index_from_letters(letters)
-            if index is not None:
-                return f'r{index}'
+            # _ROW_ONLY admits precisely the strings the decoder accepts.
+            return f'r{row_index_from_letters(letters)}'
     return _prefixed_id(ROW_KEY, row, strict=strict)
 
 

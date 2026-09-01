@@ -170,22 +170,20 @@ class TestTheSweepFutureLoop:
     def test_the_outer_while_refills_as_trials_finish(self):
         """THE ARC: the inner ``for`` running again after a refill.
 
-        ``as_completed`` is taken over a SNAPSHOT of the futures, so new
-        trials submitted while draining are not in it -- the outer
-        ``while futures`` is what picks them up. Without it a sweep would
-        run only its first batch and report as complete.
+        One completion is taken from a snapshot before the pool is refilled,
+        so new trials are picked up by the outer ``while futures``. Without
+        it a sweep would run only its first batch and report as complete.
         """
         from spacr import parameter_sweep as P
 
         source = _source(P)
         while_at = source.index("while futures:")
-        for_at = source.index("for future in as_completed(list(futures)):",
-                              while_at)
+        next_at = source.index(
+            "future = next(as_completed(tuple(futures)))", while_at)
 
-        assert while_at < for_at
-        assert "list(futures)" in source[for_at:for_at + 80], (
-            "as_completed is no longer given a snapshot, so mutating the "
-            "mapping while draining it is a RuntimeError")
+        assert while_at < next_at
+        assert "tuple(futures)" in source[next_at:next_at + 80]
+        assert "for future in as_completed" not in source[while_at:]
 
 
 class TestTheFloodFillBounds:
