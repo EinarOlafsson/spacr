@@ -62,8 +62,11 @@ import os
 from functools import partial
 from typing import Callable, Dict, Optional, Tuple
 
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QWidget
 
+from ..i18n import tr
 from ..widgets.fold_strip import FoldStrip
 from .map_barcodes import (FoldOpener, build_registered_screen,
                            restate_fold_button)
@@ -73,12 +76,23 @@ LOG = logging.getLogger(__name__)
 #: Registry key of the screen this module hangs its strip on.
 HOST_KEY = "regression"
 
+#: The fold key for the diagnostics page. Not a registered app -- there is
+#: no module behind it, only the panels a finished run wrote -- so it takes
+#: a key of its own and `fold_description` answers for it from
+#: `FOLD_FALLBACK` below.
+DIAGNOSTICS_KEY = "regression_diagnostics"
+
+#: Where `spacr.ml._write_regression_diagnostics` puts its panels, relative
+#: to the run's results folder. One spelling, shared with the writer, so the
+#: button cannot look somewhere the writer does not use.
+DIAGNOSTICS_DIRNAME = "diagnostics"
+
 #: Registry keys of the modules folded into it, in the order the strip
 #: draws them: the figure, then the list, then the write-up -- which is
 #: the order the three are wanted in after a run finishes.
 FOLDED_APPS: Tuple[str, ...] = ("volcano_explorer", "hit_list",
                                 "methods_export", "investigate_hit",
-                                "profiler")
+                                "profiler", DIAGNOSTICS_KEY)
 
 # NONE OF THE THREE HAS A REGISTRY ROW. What each said as a TILE -- the
 # name, the sentence and the maturity colour a button has to go on carrying
@@ -476,6 +490,89 @@ BUILDERS: Dict[str, Callable[..., Optional[QWidget]]] = {
 }
 
 
+#: What the diagnostics button says, since no registry row answers for it.
+#: `fold_description` reads the registry, then the declared catalogue, then
+#: the shared fold records -- and this is in none of them, because it is a
+#: view of files a run wrote rather than a module.
+FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    DIAGNOSTICS_KEY: (
+        "Diagnostics",
+        "Whether the fit can be believed: design rank, residuals, "
+        "leverage and the P-value distribution",
+        "beta"),
+}
+
+
+class DiagnosticsOpener:
+    """The Diagnostics button: show the panels the last run wrote.
+
+    NOT A MODULE. `spacr.ml` writes these panels into the run's results
+    folder as it finishes -- see `_write_regression_diagnostics` -- so
+    there is nothing to compute here and nothing to configure. The button
+    opens what is already on disk.
+
+    Which is also why it can be pressed when there is nothing to show. A
+    run that has not happened, or one whose backend has no residuals, has
+    no folder or a partial one, and saying so is more useful than a
+    button that appears to do nothing.
+
+    :param screen: the host screen the button sits on.
+    """
+
+    key = DIAGNOSTICS_KEY
+
+    def __init__(self, screen: QWidget) -> None:
+        self.screen = screen
+
+    def _folder(self) -> Optional[str]:
+        """The diagnostics folder of the run on screen, if it is there."""
+        root = project_path(self.screen)
+        if not root:
+            return None
+        candidate = os.path.join(str(root), RESULTS_DIRNAME)
+        if not os.path.isdir(candidate):
+            return None
+        # THE NEWEST RUN, not the first found. A project accumulates
+        # results folders and the one the user just produced is the one
+        # they mean; offering an older one silently would show panels for
+        # a fit they are not looking at.
+        newest, newest_at = None, -1.0
+        for base, dirs, _files in os.walk(candidate):
+            if DIAGNOSTICS_DIRNAME in dirs:
+                found = os.path.join(base, DIAGNOSTICS_DIRNAME)
+                stamped = os.path.getmtime(found)
+                if stamped > newest_at:
+                    newest, newest_at = found, stamped
+        return newest
+
+    def open(self) -> None:
+        """Open the folder, or say why there is nothing to open."""
+        from PySide6.QtWidgets import QMessageBox
+
+        folder = self._folder()
+        if folder is None:
+            QMessageBox.information(
+                self.screen, tr("Diagnostics"),
+                tr("This project has no regression diagnostics yet. They "
+                   "are written when a regression finishes."))
+            return
+        note = os.path.join(folder, "residual_panels_not_available.txt")
+        if os.path.isfile(note):
+            # THE REASON, NOT AN EMPTY FOLDER. `ml` writes this file when
+            # the backend cannot produce residuals -- RRA ranks rather
+            # than fits, so "residual" has no meaning for it. A reader who
+            # opens a folder with fewer panels than they expected cannot
+            # tell that from a failure.
+            try:
+                with open(note, encoding="utf-8") as handle:
+                    QMessageBox.information(
+                        self.screen, tr("Diagnostics"), handle.read().strip())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not read the diagnostics note",
+                          exc_info=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(folder))
+
+
 class HitsOpener:
     """The Hits button: raise the tab, or open the module when there is none.
 
@@ -590,7 +687,9 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
         return None
     openers = []
     for key in FOLDED_APPS:
-        if key == HitsOpener.key:
+        if key == DiagnosticsOpener.key:
+            openers.append(DiagnosticsOpener(screen))
+        elif key == HitsOpener.key:
             openers.append(HitsOpener(screen))
         elif key == "volcano_explorer":
             openers.append(publication_opener(screen))
