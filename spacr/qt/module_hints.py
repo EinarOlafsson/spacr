@@ -40,6 +40,19 @@ NAME_PROPERTY = "moduleNameSource"
 #: short enough not to describe a module nobody is pointing at.
 LINGER_MS = 4000
 
+#: Longest hint put on the status bar.
+#:
+#: THE BAR MUST NOT RESIZE. Module descriptions run to 154 characters,
+#: and a status bar whose text demands more width than the window has
+#: raises the window's own minimum width -- so every hover relaid the
+#: main window out and the dock flickered. Reported 2026-09-01: "the
+#: dock on linux is acting up, flickering when mouse is hovered".
+#:
+#: Eliding here rather than relying on the label to do it, because the
+#: reflow happens when the bar ASKS for the width, which is before any
+#: painting-time elision could help.
+MAX_HINT_CHARS = 96
+
 
 def module_hint_text(widget: QWidget) -> str:
     """The line a module widget contributes, or ``""``.
@@ -59,7 +72,14 @@ def module_hint_text(widget: QWidget) -> str:
     name = str(name or "").strip()
     if not summary:
         return name
-    return f"{name} — {summary}" if name else summary
+    line = f"{name} — {summary}" if name else summary
+    if len(line) <= MAX_HINT_CHARS:
+        return line
+    # Cut on a word so the tail is not half a word, and mark it so the
+    # reader knows there is more rather than thinking the sentence ends
+    # oddly.
+    cut = line[:MAX_HINT_CHARS].rsplit(" ", 1)[0].rstrip(" ,;:—-")
+    return f"{cut}…"
 
 
 class _ModuleHints(QObject):

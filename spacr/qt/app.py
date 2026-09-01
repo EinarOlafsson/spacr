@@ -2064,6 +2064,12 @@ class MainWindow(QMainWindow):
         status.addPermanentWidget(self._status_app_label)
         status.addPermanentWidget(self._status_version_label)
         status.showMessage(tr("Ready"))
+        # FIXED HEIGHT, so a longer message cannot grow the bar and relay
+        # the window out under the pointer. The module hints below write
+        # into it on every hover; without this the dock flickered on
+        # Linux each time one arrived.
+        status.setSizeGripEnabled(False)
+        status.setFixedHeight(status.sizeHint().height())
         self.setStatusBar(status)
 
         # MODULE DESCRIPTIONS GO HERE, not into a popup over the grid.

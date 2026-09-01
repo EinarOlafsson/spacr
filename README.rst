@@ -109,7 +109,7 @@ Hardware support
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 not supported
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 

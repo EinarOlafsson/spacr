@@ -631,9 +631,11 @@ def _cell(accelerated: bool, maturity: str, row_has_a_gpu: bool) -> str:
 
     THREE STATES, AND THE THIRD IS THE ONE WORTH GETTING RIGHT.
 
-    A machine WITH a GPU that cannot accelerate a task is RED -- that is
-    what "not supported" means here, and UMAP on Metal is the case: cuML
-    ships for CUDA only, so there is nothing to wait for.
+    A machine WITH a GPU that cannot accelerate a task is RED, and the
+    legend says "CPU support only" rather than "not supported" -- changed
+    2026-09-01, because the task DOES run, on the processor. UMAP on
+    Metal is the case: cuML ships for CUDA only, so there is nothing to
+    wait for and nothing missing except the acceleration.
 
     A machine with NO GPU is GREEN on every row. Its cells say CPU
     because that is what they use, and marking them red would say spaCR
@@ -701,7 +703,7 @@ def _hardware_table() -> str:
     lines += [
         "",
         f"{GREEN} supported (stable) \u2003 {PURPLE} implemented (beta) "
-        f"\u2003 {RED} not supported",
+        f"\u2003 {RED} CPU support only",
         "",
     ]
     return "\n".join(lines)
