@@ -563,6 +563,11 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
             crop_type = png_crop_type(db_path)
             flag = f"{PRESENT_PREFIX}{crop_type}" if crop_type else None
             if flag and flag in out.columns:
+                # Pandas 3 may infer a nullable string dtype during the
+                # merge.  The public table distinguishes an absent crop as
+                # Python ``None``, so own an object-typed result before
+                # clearing paths for rows of another object type.
+                out["png_path"] = out["png_path"].astype(object)
                 out.loc[out[flag] != 1, "png_path"] = None
         else:
             LOG.info("%s shares no identity columns; no crop paths carried",
