@@ -637,3 +637,40 @@ def linked_filter_starts_empty(deferred_deletions_flushed):
     except Exception:
         pass
     yield
+
+
+@pytest.fixture(autouse=True)
+def _the_live_backdrop_controls_do_not_leak():
+    """Restore ``fractal_travel._LIVE_CONTROLS`` around every test.
+
+    Every backdrop that gets installed appends its ``RuntimeControls`` to
+    that module-level list, and the list is what Ctrl+R, the wheel and the
+    arrow keys act on -- so a widget installed by one test is still being
+    steered by the next.
+
+    That is not theoretical. Five tests failed in a full run and passed
+    alone, and the evidence was in the assertion messages: one reported
+    ``RuntimeControls(speed=4.0, ...)`` when the default has been 1.0
+    since 2026-09-01, and another found ``restart_token`` already at 0
+    after a Ctrl+R it had just sent. Both were reading a previous test's
+    object.
+
+    The list is capped at eight entries by ``del _LIVE_CONTROLS[:-8]``,
+    which bounds the leak without stopping it -- eight tests' worth of
+    stale controls is still stale.
+
+    Snapshotted on the way IN as well as restored on the way out, for the
+    reason this suite keeps rediscovering: restoring alone leaves a test
+    running BEFORE this one deciding the answer.
+    """
+    try:
+        from spacr.qt.widgets import fractal_travel
+    except Exception:                                    # noqa: BLE001
+        yield
+        return
+    before = list(fractal_travel._LIVE_CONTROLS)
+    fractal_travel._LIVE_CONTROLS[:] = []
+    try:
+        yield
+    finally:
+        fractal_travel._LIVE_CONTROLS[:] = before
