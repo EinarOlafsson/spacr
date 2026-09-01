@@ -80,7 +80,7 @@ class TestEveryLastNonBlankLineLoop:
 
 
 # ---------------------------------------------------------------------------
-# object.py -- a channel with no dense position
+# object.py -- every numeric role channel has a dense position
 # ---------------------------------------------------------------------------
 
 class TestFillingInTheDenseChannelPositions:
@@ -95,27 +95,26 @@ class TestFillingInTheDenseChannelPositions:
 
         assert settings["cellpose_cell_channel"] == 0
 
-    def test_a_channel_with_no_dense_position_is_left_unset(self):
-        """THE UNCOVERED ARC: the loop goes round.
+    def test_every_numeric_role_channel_is_in_the_map_it_just_built(self):
+        """The deleted membership guard re-checked this exact premise.
 
-        ``dense_mask_channel_positions`` maps the channels that are
-        actually IN the stack. A settings file naming a channel the
-        stack does not carry -- an old settings CSV against a re-converted
-        plate is the usual way -- has no position to fill in, and
-        inventing one would point Cellpose at whatever plane happened to
-        be there.
+        ``dense_mask_channel_positions`` reads the same role keys as the two
+        generator loops and applies the same ``int`` coercion.  A numeric role
+        channel therefore cannot be absent; indexing directly makes future
+        contract drift fail loudly instead of silently leaving an alias unset.
         """
         from spacr import object as O
+        from spacr.utils import dense_mask_channel_positions
+
+        settings = {"nucleus_channel": 2, "cell_channel": 5,
+                    "pathogen_channel": None, "organelle_channel": 7}
+        dense = dense_mask_channel_positions(settings)
+        for role in ("nucleus", "cell", "organelle"):
+            assert int(settings[f"{role}_channel"]) in dense
 
         source = inspect.getsource(O)
-        assert "if _raw in _dense:" in source
-        assert source.count("if _raw in _dense:") == 2, (
-            "the dense-position fill is no longer written twice; check both "
-            "call sites still guard on membership")
-
-        dense = {2: 0}
-        for raw in (7, 99):
-            assert raw not in dense
+        assert "if _raw in _dense:" not in source
+        assert source.count("= _dense[_raw]") == 2
 
     def test_a_channel_that_is_not_a_number_is_skipped_before_the_lookup(self):
         """The guard above it: ``int('rgb')`` raises, and a settings file
@@ -123,8 +122,8 @@ class TestFillingInTheDenseChannelPositions:
         from spacr import object as O
 
         source = inspect.getsource(O)
-        first = source.index("if _raw in _dense:")
-        window = source[max(0, first - 400):first]
+        first = source.index("= _dense[_raw]")
+        window = source[max(0, first - 500):first]
         assert "except (TypeError, ValueError):" in window
         assert "continue" in window
 

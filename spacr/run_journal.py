@@ -1338,7 +1338,9 @@ def search_runs(
             values = manifest.get(key) or []
             if isinstance(values, (list, tuple)):
                 warnings_list.extend(str(value) for value in values if value)
-            elif values:
+            # Falsy values became ``[]`` above and took the list arm, so every
+            # remaining JSON scalar is truthy and represents one warning.
+            else:
                 warnings_list.append(str(values))
         warnings_list.extend(str(error) for error in rec["errors"])
 

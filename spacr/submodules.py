@@ -5122,8 +5122,10 @@ def analyze_invasion(settings):
     field_classes = parasites.groupby('prcf', sort=False)['invasion_class']
     field_counts = field_classes.value_counts().unstack(fill_value=0)
     for name in _INVASION_CLASSES:
-        if name not in field_counts.columns:
-            field_counts[name] = 0
+        # Categorical value_counts currently emits every declared class, and
+        # ``get`` retains the defensive zero for a future plain-string input
+        # without adding a branch that the categorical path cannot take.
+        field_counts[name] = field_counts.get(name, 0)
     # one_to_one: `fields` is one row per prcf (built by a groupby in
     # _invasion_field_thresholds) and field_counts is a value_counts over the
     # same key unstacked into columns, so it is too. This is the row the

@@ -150,11 +150,12 @@ class TestThePreprocessSourceList:
         """
         from spacr import core as C
 
-        source = inspect.getsource(C)
+        source = inspect.getsource(C.preprocess_generate_masks)
         wrap = source.index("if isinstance(settings['src'], str):")
-        check = source.index("if isinstance(settings['src'], list):", wrap)
-        assert wrap < check
-        assert "settings['src'] = [settings['src']]" in source[wrap:check]
+        direct = source.index("source_folders = settings['src']", wrap)
+        assert wrap < direct
+        assert "settings['src'] = [settings['src']]" in source[wrap:direct]
+        assert "if isinstance(settings['src'], list):" not in source[wrap:direct]
 
         for value in ("/data/plate1", ["/data/a", "/data/b"]):
             if isinstance(value, str):

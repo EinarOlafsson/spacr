@@ -586,12 +586,14 @@ def _human_bytes(size: Any) -> str:
     if n <= 0:
         return UNKNOWN
     for unit in ("B", "KB", "MB", "GB"):
-        # `or unit == "GB"` makes the last pass return unconditionally, so
-        # the loop always returns and there is nothing after it to fall
-        # through to. A `return` there would be a line no test can reach.
-        if n < 1024 or unit == "GB":
+        if n < 1024:
             return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
+        # GB is the display ceiling.  Let its last pass finish naturally so
+        # values larger than a terabyte reach the reachable fallback below.
+        if unit == "GB":
+            continue
         n /= 1024.0
+    return f"{n:.1f} GB"
 
 
 # ---------------------------------------------------------------------------

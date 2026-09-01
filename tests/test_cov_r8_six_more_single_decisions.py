@@ -185,11 +185,14 @@ class TestTheChannelOrderSidecar:
         with pytest.raises(IndexError):
             stacks[0]
 
-        source = inspect.getsource(P)
-        assert "if stacks:" in source
-        guard = source.index("if stacks:")
-        assert "stacks[0].path.parent" in source[guard:guard + 200], (
-            "the sidecar path no longer follows the emptiness check")
+        source = inspect.getsource(P.stream_masks_from_stack)
+        empty_guard = source.index("if not stacks:")
+        empty_return = source.index("return stacks", empty_guard)
+        sidecar = source.index(
+            'sidecar = stacks[0].path.parent / "channel_order.json"')
+        assert empty_guard < empty_return < sidecar
+        assert "if stacks:" not in source, (
+            "the early empty return should make a second guard redundant")
 
     def test_a_sidecar_that_cannot_be_written_warns_and_keeps_the_masks(self):
         """The masks are written either way -- but a stack whose sidecar
