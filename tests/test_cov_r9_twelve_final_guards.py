@@ -93,7 +93,7 @@ class TestTheMosaicRoot:
         assert root == "b"
 
     def test_a_mosaic_with_no_tiles_has_no_root_and_no_transforms(self):
-        """THE ARC: ``root is None``.
+        """The early empty-node answer makes a later root guard redundant.
 
         Every pair can fail to register -- a plate whose tiles do not
         overlap -- leaving no node to root the BFS at. Returning empty
@@ -108,31 +108,38 @@ class TestTheMosaicRoot:
         from spacr import spacrops as S
 
         source = _source(S)
-        assert "if root is None:" in source
-        assert "return {}, used_edges" in source
+        assert "if not nodes:" in source
+        assert "return {}, []" in source
+        assert "if root is None:" not in source
+        assert "if nodes else None" not in source
 
 
 class TestMovingAFileOntoItself:
 
-    def test_a_source_that_is_already_the_destination_is_not_moved(self):
-        """THE ARC: the two paths resolve to the same file.
+    def test_the_post_stitch_destination_is_a_deeper_directory(self):
+        """The post-stitch move always adds the non-empty well component.
 
-        ``shutil.move(p, p)`` raises ``SameFileError``, and the case
-        arises whenever the output folder IS the input folder -- which is
-        what an in-place run does.
+        The first organizer stage leaves the tile under ``dst/well``; the
+        post-stitch stage moves it under ``dst/well/well``. The filename gate
+        refuses an empty well, so these paths cannot be equal.
         """
-        assert os.path.abspath("a/../b") == os.path.abspath("b")
+        source = os.path.join("dst", "A1", "tile.tif")
+        target = os.path.join("dst", "A1", "A1", "tile.tif")
+        assert os.path.abspath(source) != os.path.abspath(target)
 
         from spacr import spacrops as S
 
-        assert "if os.path.abspath(sp) != os.path.abspath(rp):" in _source(S)
+        text = _source(S)
+        assert "if os.path.abspath(sp) != os.path.abspath(rp):" not in text
+        assert "shutil.move(sp, rp)" in text
 
-    def test_the_comparison_is_on_absolute_paths(self):
-        """A relative and an absolute spelling of one file are unequal as
-        strings and the same file on disk, which is exactly the case a
-        naive comparison would move onto itself."""
-        assert "b" != os.path.abspath("b")
-        assert os.path.abspath("b") == os.path.abspath("./b")
+    def test_the_added_well_component_cannot_be_empty(self):
+        """Pin the parser premise that keeps source and target distinct."""
+        from spacr import spacrops as S
+
+        text = inspect.getsource(S.stitch_cycle_wells)
+        assert "not m.group(well_group)" in text
+        assert "well = (m.group(well_group) or \"\").upper()" in text
 
 
 class TestTheInvasionClassColumns:
