@@ -3304,7 +3304,7 @@ def _summarise_child_features_per_parent(
         c
         for c in df.columns
         if c not in group_cols + [child_label_col]
-        and np.issubdtype(df[c].dtype, np.number)
+        and pd.api.types.is_numeric_dtype(df[c])
     ]
     if not numeric_cols:
         return counts

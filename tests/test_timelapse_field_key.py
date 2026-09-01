@@ -255,12 +255,15 @@ def test_replication_change_plate_answers_what_the_database_key_answers(tmp_path
     rebuilt = analyze_replication(_replication_settings(root, change_plate=True))
 
     columns = ['prcf', 'n_parasites', 'replication_bucket', 'cell_id']
-    pd.testing.assert_frame_equal(
-        kept['vacuoles'][columns].sort_values(['prcf', 'cell_id'])
-        .reset_index(drop=True),
-        rebuilt['vacuoles'][columns].sort_values(['prcf', 'cell_id'])
-        .reset_index(drop=True),
-    )
+    kept_rows = (kept['vacuoles'][columns].sort_values(['prcf', 'cell_id'])
+                 .reset_index(drop=True))
+    rebuilt_rows = (rebuilt['vacuoles'][columns].sort_values(['prcf', 'cell_id'])
+                    .reset_index(drop=True))
+    assert kept_rows['prcf'].map(type).eq(str).all()
+    assert rebuilt_rows['prcf'].map(type).eq(str).all()
+    kept_rows['prcf'] = kept_rows['prcf'].astype('string')
+    rebuilt_rows['prcf'] = rebuilt_rows['prcf'].astype('string')
+    pd.testing.assert_frame_equal(kept_rows, rebuilt_rows)
     assert len(kept['vacuoles']) == 12
 
 
@@ -336,8 +339,13 @@ def test_invasion_change_plate_answers_what_the_database_key_answers(tmp_path):
     rebuilt = analyze_invasion(_invasion_settings(root, change_plate=True))
 
     columns = ['prcf', 'n_objects', 'threshold', 'n_attached', 'n_invaded']
-    pd.testing.assert_frame_equal(kept['fields'][columns],
-                                  rebuilt['fields'][columns])
+    kept_fields = kept['fields'][columns].copy()
+    rebuilt_fields = rebuilt['fields'][columns].copy()
+    assert kept_fields['prcf'].map(type).eq(str).all()
+    assert rebuilt_fields['prcf'].map(type).eq(str).all()
+    kept_fields['prcf'] = kept_fields['prcf'].astype('string')
+    rebuilt_fields['prcf'] = rebuilt_fields['prcf'].astype('string')
+    pd.testing.assert_frame_equal(kept_fields, rebuilt_fields)
     assert kept['wells']['invasion_efficiency'].tolist() == [0.5, 0.5]
 
 
