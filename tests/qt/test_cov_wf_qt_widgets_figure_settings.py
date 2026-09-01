@@ -312,13 +312,24 @@ def test_an_artist_is_only_offered_the_controls_it_can_take(qapp, figure,
 # reading a recipe back off a figure's artists
 # ---------------------------------------------------------------------------
 
-def test_a_reconstruction_with_no_group_names_is_refused(monkeypatch):
-    """A redraw needs groups to draw; nameless values cannot make a plot.
+def test_a_reconstruction_names_every_group_it_finds():
+    """A redraw needs groups to draw, and it always has them.
 
-    The recipe is reconstructed from whatever the artists give up. Values
-    with no usable group at all must be declined rather than handed to
-    ``create_grouped_plot``, which would redraw the figure as a blank panel
-    and lose the plot the user was looking at.
+    This used to assert the opposite half too: that a recipe whose groups
+    were all NaN is refused. That guard was deleted on 2026-08-31 --
+    instruction 310 A15 -- because no figure can produce it. The group
+    names come only from `_named`, which returns a tick label or
+    `f"{float(x):g}"`, so a NaN x arrives as the STRING "nan" and the
+    column is never empty.
+
+    Reaching it needed `_pairs_from_axes` monkeypatched to return real
+    NaNs, which is not a figure -- and A15's own note says that was the
+    only way. A test that manufactures an impossible state to cover a
+    guard is testing the monkeypatch.
+
+    What survives is the half with a subject: a figure with named bars
+    reconstructs into named groups. The premise underneath is pinned in
+    tests/qt/test_a_replot_recipe_always_has_named_groups.py.
     """
     fig, axis = plt.subplots()
     try:
@@ -328,13 +339,6 @@ def test_a_reconstruction_with_no_group_names_is_refused(monkeypatch):
         assert recipe is not None
         assert sorted(recipe["df"]["group"]) == ["ctrl", "treat"], (
             "named bars reconstruct into named groups")
-
-        monkeypatch.setattr(
-            fs, "_pairs_from_axes",
-            lambda axes: [(float("nan"), 1.0), (float("nan"), 2.0)])
-
-        assert fs.derive_replot_recipe(fig) is None, (
-            "two values and not one group name between them: no recipe")
     finally:
         plt.close(fig)
 
