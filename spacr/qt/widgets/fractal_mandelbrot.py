@@ -158,11 +158,30 @@ vec3 palette(float x) {
     return a + b * cos(6.28318530718 * (c * x + d));
 }
 
-// The pointer moves the point the zoom descends into, so the mouse steers
-// the dive rather than smearing the picture.
+// THE POINTER BENDS THE PLANE, IT DOES NOT STEER THE DIVE.
+//
+// This used to be `q - target * pull`, which translates the whole
+// sampled region -- so the pointer moved the point the zoom descends
+// into. That reads as steering until the pointer nears an edge, where
+// the whole picture is dragged, or leaves the widget, where the pull
+// decays and it springs back to the trajectory.
+//
+// Same warp as every other pattern now: displacement TOWARD the pointer
+// falling off as 1/r^2, firm under the cursor and gone by the far
+// corner. The structure under the mouse magnifies; the dive carries on
+// where it was going.
+//
+// SAFE FOR THE PERTURBATION. `dc` is a per-pixel offset from the
+// reference orbit, and the clamps keep the warp inside the same
+// coordinate range the unwarped q already spanned -- so no pixel is
+// moved further from the reference than one at the edge already was.
 vec2 toward_pointer(vec2 q) {
     vec2 target = vec2(u_pointer_x, u_pointer_y);
-    return q - target * (u_pull - 0.85 * u_push);
+    vec2 to_pointer = target - q;
+    float distance2 = dot(to_pointer, to_pointer) + 0.05;
+    float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
+    strength = clamp(strength, -1.4, 0.9);
+    return q + strength * to_pointer;
 }
 
 vec3 sample_mandel(vec2 pixel) {
