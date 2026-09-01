@@ -1,0 +1,157 @@
+327 — THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
+==================================================================
+
+ASKED FOR (2026-08-31), four things, in the user's words
+--------------------------------------------------------
+1. "the fullscreen mode fractal is super choppy while the normal
+   background one is super smoothe."
+2. "when the user scrolls and changes the speed the manderbrot should not
+   jump arround and just stay on the sure defined trajectory... the
+   jumping should be changed to gently and smoothely mooving between
+   points, it ruins the immersion when it jumps."
+3. "map out which coordinates show interesting visuals like spirals and
+   texture and have say 20 regions on the image that the camera will
+   automatically smoothely float towards."
+4. "the mouse gravity really only pushes the camera abit and then if the
+   mouse is to close to the sides of the screen the camera snapps back.
+   I was more looking for the visual feature itself being centered on the
+   mouse or for instance stars in space mode being pulled towards the
+   mouse... (like gravity)."
+
+Plus: port the CPU orbit fold to the GPU as a second entry, and put its
+spiral under the pointer.
+
+--------------------------------------------------------------------------------
+1. FULLSCREEN IS CHOPPY AND THE BACKDROP IS NOT
+--------------------------------------------------------------------------------
+Same renderer, same machine, different frame rate -- so the difference is
+in what changes between the two, not in the shader. Measure BEFORE
+changing anything, and measure the RIGHT thing: frames actually painted,
+not the timer interval. `AmbientWidget` already counts `frames_painted`
+for exactly this reason.
+
+Candidates, in the order they are cheap to rule out:
+
+  * AREA. Fullscreen is several times the pixels of a backdrop panel at
+    the same supersampling. If the cost is quadratic in the long edge,
+    this is the whole answer and the fix is to scale resolution or
+    supersampling with area rather than hold it constant.
+  * SUPERSAMPLING. `FractalSupersampling` squares its cost. A value fine
+    for a panel is four or nine times the work fullscreen.
+  * WHAT ELSE IS ON SCREEN. The backdrop draws behind a settled window;
+    fullscreen may be compositing over more, or without the same
+    occlusion.
+  * THE REFERENCE ORBIT. `fractal_mandelbrot.py` rebuilds it on the CPU
+    when the camera moves far enough; if fullscreen moves the camera
+    faster, it rebuilds more often, and that cost is not in the shader
+    at all.
+
+State which one it was, with numbers, before writing a fix.
+
+--------------------------------------------------------------------------------
+2. THE CAMERA MUST NOT JUMP
+--------------------------------------------------------------------------------
+Two separate jumps, and they need different fixes.
+
+SPEED CHANGES MUST NOT MOVE THE CAMERA. Scrolling changes how fast the
+trajectory is travelled; it must not change WHERE on the trajectory the
+camera is. If speed is applied by scaling a time value that also
+positions the camera, a change of speed teleports it. Keep a phase that
+only ever advances, and let speed change the RATE that phase advances --
+never the phase itself.
+
+ARRIVING SOMEWHERE NEW MUST BE A MOVE, NOT A CUT. Interpolate position
+and zoom, and interpolate zoom in LOG SPACE: a linear ramp through a
+magnification of 1e6 spends almost all its time at one end and arrives
+as a jump anyway. Ease in and out; a constant-velocity move still reads
+as mechanical.
+
+"WITHOUT PIXELING OUT FOR AS LONG AS POSSIBLE" is a real constraint and
+it has a hard floor: `fractal_mandelbrot.py:31` records that the
+REFERENCE ORBIT's precision sets the end of the zoom. Do not fight that
+-- detect the approach and turn the camera before the detail dissolves,
+so the limit is never reached in view.
+
+--------------------------------------------------------------------------------
+3. TWENTY PLACES WORTH LOOKING AT
+--------------------------------------------------------------------------------
+The Mandelbrot set is deterministic, so the interesting coordinates can
+be found ONCE and written down rather than searched at runtime.
+
+FIND THEM WITH A SCRIPT, KEEP THE SCRIPT. `tools/` already holds
+`draw_volcano_explorer_icon.py` on the same principle: the artefact is
+generated, the generator is committed, and the values are reproducible
+rather than mysterious. A candidate is a point where the escape-time
+gradient is high over a range of zooms -- that is what a spiral or a
+filament is, numerically -- and not a point that dissolves into uniform
+colour two zoom levels in.
+
+Store them as data, with a name and the zoom range each is good at, so a
+reader can tell why a coordinate is in the list. Twenty is the number
+asked for; the structure should not care how many there are.
+
+DRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a
+statement about where they want to be, and a tour that resumes over it is
+the application arguing. Restart the tour on Ctrl+R, as asked, and say so
+somewhere a user can find it.
+
+--------------------------------------------------------------------------------
+4. THE POINTER SHOULD BEND THE PICTURE, NOT TOW THE CAMERA
+--------------------------------------------------------------------------------
+THIS IS THE ONE THAT CHANGES A DESIGN DECISION, so it is worth being
+explicit. `fractal_travel.py:87` says today's behaviour outright: "The
+pointer pulls the pattern toward it, and a click shoves it away."
+Moving the CAMERA is what produces the reported snap-back -- the camera
+is pulled off its path, the pull cannot continue past the widget edge,
+and it returns.
+
+What is wanted instead is a LOCAL DISTORTION centred on the pointer,
+with the camera left alone:
+
+  * the feature under the pointer is what moves, not the viewport;
+  * in space mode, stars near the pointer are drawn toward it, and get
+    faster as they get closer -- an inverse-square falloff, which is what
+    makes it read as gravity rather than as a magnet;
+  * nothing snaps back, because nothing was displaced from a path.
+
+The CPU orbit fold ALREADY DOES THIS and the user likes it: "the orbit
+fold cpu effect is like a magnigying glass, which looks cool". Read that
+implementation first -- it is the reference for what is wanted, and it is
+the one renderer excluded from the complaint.
+
+--------------------------------------------------------------------------------
+5. ORBIT FOLD ON THE GPU
+--------------------------------------------------------------------------------
+Port the CPU orbit fold to the GPU list. "Orbit fold" is taken, so it
+needs its own name -- the user suggested "Orbit fold 2"; something
+descriptive would be better if one fits.
+
+With the pointer behaviour from section 4: the SPIRAL under the pointer,
+rather than the camera being dragged and snapping back.
+
+--------------------------------------------------------------------------------
+DONE MEANS
+--------------------------------------------------------------------------------
+* Fullscreen and windowed frame rates measured and reported, the cause
+  named, and fullscreen no longer choppy on the machine that reported it.
+* Changing speed does not move the camera -- asserted by sampling the
+  camera position across a speed change, not by eye.
+* Transitions are interpolated, zoom in log space, with no discontinuity
+  at either end.
+* The interesting coordinates are generated by a committed script, stored
+  as named data, and each has a zoom range.
+* User drag disables the tour; Ctrl+R restarts it; both tested.
+* The pointer distorts locally and moves no camera, on every GPU pattern
+  and every CPU one except the orbit fold, which already behaves.
+* Orbit fold is available on the GPU under a new name.
+* NO REGRESSION IN THE BACKDROP. It is described as "super smoothe"
+  today, and it is on screen behind every module -- a change that makes
+  fullscreen better and the backdrop worse is a bad trade. Measure both.
+
+WATCH
+-----
+`fractal_travel.py` and the fractal modules are large and shared with the
+backdrop that every screen draws. A frame-rate regression here is felt
+everywhere, and `spacr/qt/widgets/fractal_travel.py` already carries a
+heavy-import lock whose contention caused a two-second freeze once. Do
+not hold it longer, and do not move work into the paint path.
