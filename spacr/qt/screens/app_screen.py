@@ -12,6 +12,7 @@ Structure (horizontal splitter):
 from __future__ import annotations
 
 import logging
+import re
 import os
 import shutil
 import sys
@@ -57,6 +58,10 @@ from .settings_model import (
 )
 
 LOG = logging.getLogger(__name__)
+
+#: `organelleb_model_name`, `organellec_model_name`, ... -- the
+#: per-organelle model fields generated when a run has more than one.
+_ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 
 
 #: Object name the settings column carries, and what the block below keys
@@ -3311,11 +3316,33 @@ class AppScreen(QWidget):
     #: matched on a suffix: `custom_model_path` in Classify holds a torch
     #: classifier, not a Cellpose model, and offering cpsam checkpoints there
     #: would offer something that screen cannot load.
+    #: Settings whose value is a Cellpose checkpoint, named explicitly.
+    #:
+    #: Not matched on a suffix alone: `custom_model_path` in Classify holds a
+    #: torch classifier, and offering cpsam checkpoints there would offer
+    #: something that screen cannot load.
     _MODEL_ZOO_KEYS = (
         "pathogen_model", "pathogen_model_name",
         "cell_model_name", "nucleus_model_name", "organelle_model_name",
         "custom_model", "plaque_model",
     )
+
+    @classmethod
+    def _takes_a_cellpose_checkpoint(cls, key: str) -> bool:
+        """Whether ``key`` names a Cellpose checkpoint field.
+
+        THE SECOND ORGANELLE ONWARDS IS NOT IN THE LIST ABOVE, and cannot be:
+        with more than one organelle the settings are generated per organelle
+        as `organelleb_model_name`, `organellec_model_name` and so on
+        (:data:`spacr.settings.DYNAMIC_ORGANELLE_SETTINGS`). A fixed tuple gave
+        the button to organelle 1 and silently withheld it from every organelle
+        after it -- reported 2026-09-01 -- which is the shape of bug a list of
+        literal names always eventually has when the names are generated.
+        """
+        name = str(key)
+        if name in cls._MODEL_ZOO_KEYS:
+            return True
+        return bool(_ORGANELLE_MODEL_KEY.match(name))
 
     def _with_a_model_zoo_button(self, widget, key):
         """Add the model-zoo button beside a Cellpose-checkpoint field.
@@ -3332,7 +3359,7 @@ class AppScreen(QWidget):
         unreadable would be worse than no button. Typing a path by hand keeps
         working exactly as before; this only adds a second way in.
         """
-        if str(key) not in self._MODEL_ZOO_KEYS:
+        if not self._takes_a_cellpose_checkpoint(key):
             return widget
         from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
 

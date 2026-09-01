@@ -773,6 +773,12 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     # returns the checkpoint path when the user named one.
     model_name = object_settings['model_name']
     if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        # LEGACY ONLY. `pathogen_model` was a second setting naming the same
+        # thing as `pathogen_model_name`, and two controls for one value is
+        # how a user sets one and wonders why the other wins. It is no longer
+        # OFFERED -- see _APP_HIDDEN_KEYS -- and is read here so a settings
+        # CSV written before it was retired still segments with the model it
+        # names rather than silently falling back to cpsam.
         model_name = settings['pathogen_model']
     pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
     model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model=pretrained, device=device)

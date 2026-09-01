@@ -234,7 +234,7 @@ class TestPanel:
         qtbot.addWidget(panel)
         assert panel.load_image(sample_tif) is True
         assert panel._image is not None
-        assert panel._path_label.text() == str(sample_tif)
+        assert panel._path_full == str(sample_tif)
 
     def test_load_image_bad_path_is_silent(self, qtbot, tmp_path):
         panel = live_preview.LivePreviewPanel()

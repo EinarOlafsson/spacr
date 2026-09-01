@@ -83,3 +83,52 @@ def test_every_object_model_row_gets_the_zoo_button():
                 "pathogen_model_name", "pathogen_model",
                 "organelle_model_name"):
         assert key in AppScreen._MODEL_ZOO_KEYS, key
+
+
+def test_every_organelle_gets_the_zoo_button_not_only_the_first():
+    """Reported 2026-09-01: the button appeared on organelle 1 and no other.
+
+    With more than one organelle the settings are GENERATED per organelle --
+    organelleb_model_name, organellec_model_name, ... -- so a fixed tuple of
+    literal names covers the first and silently withholds the button from
+    every organelle after it. That is the failure a literal list always
+    eventually has when the names are generated.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.app_screen import AppScreen
+
+    assert AppScreen._takes_a_cellpose_checkpoint("organelle_model_name")
+    for suffix in "bcdefgh":
+        key = f"organelle{suffix}_model_name"
+        assert AppScreen._takes_a_cellpose_checkpoint(key), key
+
+
+def test_a_classifier_field_does_not_get_the_cellpose_button():
+    """custom_model_path in Classify holds a torch classifier, so offering
+    cpsam checkpoints there offers something that screen cannot load."""
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.app_screen import AppScreen
+
+    assert not AppScreen._takes_a_cellpose_checkpoint("custom_model_path")
+
+
+def test_pathogen_model_is_no_longer_offered_but_is_still_read():
+    """One control for one value.
+
+    `pathogen_model` and `pathogen_model_name` named the same thing, and two
+    controls for one value is how a user sets one and wonders why the other
+    wins. The old one is retired from the panel and still READ, so a settings
+    CSV written before this keeps segmenting with the model it names rather
+    than silently falling back to cpsam.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
+    assert "pathogen_model" in _APP_HIDDEN_KEYS.get("mask", set())
+
+    import inspect
+
+    from spacr import object as spacr_object
+    source = inspect.getsource(spacr_object.generate_cellpose_masks_sam)
+    assert "settings['pathogen_model']" in source, (
+        "the legacy value must still be honoured for old settings files")

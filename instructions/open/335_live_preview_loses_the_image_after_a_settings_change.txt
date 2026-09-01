@@ -1,0 +1,60 @@
+335 — LIVE PREVIEW LOSES THE LOADED IMAGE AFTER A SETTINGS CHANGE
+==================================================================
+
+REPORTED (2026-09-01, verbatim)
+--------------------------------
+"sometimes when i loade the example images and press live the images dont
+load into live. if loade and live are the first things i do when starting
+the modual the images loade properly into live. but if i change some
+setings then do it they dont."
+
+WHY THAT ORDERING IS THE WHOLE CLUE
+-----------------------------------
+Load then Live works. Change a setting, then load then Live, does not. So
+something a settings change does is destroying or replacing the state the
+preview needs -- it is not a bad image, a bad path, or a race in loading.
+
+WHAT WAS RULED OUT, 2026-09-01
+------------------------------
+* `LivePreviewPanel._image` is assigned in exactly ONE place
+  (`_install_loaded_image`, live_preview.py:1754) and is never cleared. So the
+  panel is not forgetting its image through its own code.
+* `apply_settings` seeds widgets only. It does not touch `_image`,
+  `_image_path` or the source selectors.
+
+THE LEADING HYPOTHESIS, NOT YET CONFIRMED
+-----------------------------------------
+The SCREEN rebuilds, and the rebuild replaces the panel. `AppScreen` watches
+the settings that decide the form shape (`_watch_the_settings_that_decide_the_form`,
+`_rebuild_the_form`) and its own comments record that "merely leaving an
+unchanged watched field rebuilt the whole page once and stole focus" -- so a
+rebuild on a settings change is known to happen. A rebuilt panel is a NEW
+LivePreviewPanel with `_image = None`, and the image the user loaded belongs to
+the old one, which explains every part of the report including why it is
+intermittent: it depends on whether the setting touched is a watched one.
+
+HOW TO CONFIRM IT IN ONE STEP
+-----------------------------
+Load an image, note `id(panel)`, change a watched setting, and read `id(panel)`
+again. If it changed, this is a rebuild that drops preview state, and the fix
+is to carry the loaded image across the rebuild (or to not rebuild the runtime
+panel for a settings-only shape change). If it did NOT change, the hypothesis
+is wrong and the next thing to instrument is `_preview_blocked_reason`.
+
+WHY THIS IS FILED RATHER THAN FIXED
+-----------------------------------
+The fix is in `spacr/qt/screens/app_screen.py` -- the rebuild path -- which is
+the other session's file, and confirming it needs a running GUI rather than a
+headless test. Both halves were out of reach in this session.
+
+WATCH OUT
+---------
+Do not "fix" it by making the preview reload from `src` on rebuild. The user
+may have dropped a specific image that is not in `src` at all, and silently
+loading a different one is worse than loading nothing.
+
+HOW TO KNOW IT WORKED
+---------------------
+* Change a setting, load the example images, press Live: the image appears.
+* The image loaded BEFORE a settings change survives the change.
+* A dropped image that is not under `src` also survives.

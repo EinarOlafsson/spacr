@@ -1054,6 +1054,34 @@ class _ZoomView(QGraphicsView):
 _FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
 
 
+def _is_a_real_model_name(value: str) -> bool:
+    """Whether ``value`` names a model spaCR can actually load.
+
+    Two things qualify and nothing else: a retired pre-SAM spelling, which
+    Cellpose still resolves to cpsam and which a settings file written years
+    ago may hold; and a checkpoint that exists on disk.
+
+    A name that is neither is a typo, and putting it in the combo would let
+    the preview run against a model that does not exist.
+    """
+    name = str(value or "").strip()
+    if not name:
+        return False
+    try:
+        import os
+
+        if os.path.isfile(name):
+            return True
+    except Exception:                                        # noqa: BLE001
+        pass
+    try:
+        from ...settings import _CELLPOSE_ALIASES
+
+        return name in set(_CELLPOSE_ALIASES)
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
 def _model_menu():
     """What the Cellpose model combo offers, read from the Cellpose API.
 
@@ -1486,6 +1514,25 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # They stay constructed because apply_sample_to_combo fills
         # one, the saved view state names a field through it, and
         # selected_channel() reads the other.
+        # OUT OF THE PANEL, not merely hidden. Both were parented to `self`
+        # and never added to a layout, and a widget in that state occupies
+        # (0, 0) -- the top left, exactly where the loaded-path label sits. It
+        # is only setVisible(False) that keeps it off screen, and that is one
+        # stray show() away from a combo box drawn over the path, which is how
+        # this was reported twice.
+        #
+        # They cannot simply be deleted: apply_sample_to_combo fills the fov
+        # box, the saved view state names a field through it, and
+        # selected_channel() reads the other. So they keep working and stop
+        # being able to appear, by living in a container that is never shown.
+        self._offscreen_controls = QWidget(self)
+        self._offscreen_controls.setVisible(False)
+        _offscreen = QVBoxLayout(self._offscreen_controls)
+        _offscreen.setContentsMargins(0, 0, 0, 0)
+        self._fov_box.setParent(self._offscreen_controls)
+        self._channel_box.setParent(self._offscreen_controls)
+        _offscreen.addWidget(self._fov_box)
+        _offscreen.addWidget(self._channel_box)
         self._fov_box.setVisible(False)
         self._channel_box.setVisible(False)
         root.addLayout(pick_row)
@@ -2322,6 +2369,29 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             except Exception:
                 LOG.debug("propagate_settings failed", exc_info=True)
 
+    def _choose_a_preview_model(self) -> None:
+        """Open the model zoo and preview with what the user picks.
+
+        The chosen value is ADDED to the combo when it is not already there:
+        a downloaded checkpoint is a path, and the menu only lists what was on
+        disk when the panel was built. Selecting an item the combo does not
+        hold would otherwise silently do nothing.
+
+        ``kinds`` is a rule rather than a parameter -- the zoo also carries
+        the YOLO well detector, and CellposeModel cannot load it, so offering
+        it here would produce a preview that fails on selection.
+        """
+        from .model_zoo_picker import choose_model
+
+        path = choose_model(self, kinds=("cellpose",))
+        if not path:
+            return
+        index = self._model_box.findText(str(path))
+        if index < 0:
+            self._model_box.addItem(str(path))
+            index = self._model_box.count() - 1
+        self._model_box.setCurrentIndex(index)
+
     def apply_settings(self, settings: dict):
         """Seed the panel from a module's settings, and cache the whole dict
         for the Pre / Post routes to read from.
@@ -2376,7 +2446,28 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             except Exception:
                 LOG.debug("apply_settings: bad normalize", exc_info=True)
         if settings.get("model_name") is not None:
-            idx = self._model_box.findText(str(settings["model_name"]))
+            # NOT OFFERED IS NOT THE SAME AS NOT ACCEPTED. The live menu drops
+            # the pre-SAM spellings, because all four resolve to cpsam and
+            # offering them is four labels for one model. But a SAVED settings
+            # file naming `cyto2` still has to round-trip: dropping it here
+            # would leave the combo on whatever it happened to show, so the
+            # preview would quietly use a different model than the settings
+            # say -- which is the defect the menu change was meant to reduce,
+            # reintroduced at the other end.
+            #
+            # The same add-if-missing rule serves a zoo checkpoint whose path
+            # was not on disk when the panel was built.
+            wanted = str(settings["model_name"])
+            idx = self._model_box.findText(wanted)
+            if idx < 0 and _is_a_real_model_name(wanted):
+                # ADDED ONLY IF IT NAMES SOMETHING. A retired alias and a
+                # checkpoint on disk are both real answers the menu simply does
+                # not offer; a typo is not, and accepting one would put junk in
+                # the combo and preview with it. The existing contract that an
+                # unknown name is IGNORED is kept -- see
+                # test_apply_settings_ignores_none_channels_and_unknown_models.
+                self._model_box.addItem(wanted)
+                idx = self._model_box.count() - 1
             if idx >= 0:
                 self._model_box.setCurrentIndex(idx)
 
@@ -3098,7 +3189,23 @@ class LiveSettingsDialog(QDialog):
 
         seg_group = QGroupBox("Segmentation")
         form = QFormLayout(seg_group)
-        form.addRow("Model", panel._model_box)
+        # THE MODEL ROW CARRIES THE ZOO BUTTON, the same as every object model
+        # name on the settings panel. Without it the live view offered cpsam
+        # and nothing else, so a zoo model could be selected for the RUN and
+        # not for the PREVIEW -- which is the preview showing a different model
+        # than the run will use, while the user tunes against it.
+        model_row = QWidget(seg_group)
+        model_row_layout = QHBoxLayout(model_row)
+        model_row_layout.setContentsMargins(0, 0, 0, 0)
+        model_row_layout.setSpacing(4)
+        model_row_layout.addWidget(panel._model_box, 1)
+        panel._model_zoo_btn = QPushButton("Model zoo…", model_row)
+        panel._model_zoo_btn.setToolTip(
+            "Browse the models spaCR knows about, download one and preview "
+            "with it. The same list the object model settings offer.")
+        panel._model_zoo_btn.clicked.connect(panel._choose_a_preview_model)
+        model_row_layout.addWidget(panel._model_zoo_btn)
+        form.addRow("Model", model_row)
         form.addRow("Primary object", panel._object_box)
         form.addRow("Cell channel", panel._cell_channel)
         form.addRow("Nucleus channel", panel._nucleus_channel)
