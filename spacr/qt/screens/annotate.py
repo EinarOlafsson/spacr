@@ -2142,29 +2142,52 @@ class AnnotateScreen(QWidget):
         self._btn_curve.clicked.connect(self._on_learning_curve)
         row.addWidget(self._btn_curve)
 
-        self._btn_train_cv = QPushButton("Train CV")
-        self._btn_train_cv.setIcon(iconset.icon("classify"))
-        self._btn_train_cv.setCursor(Qt.PointingHandCursor)
-        self._btn_train_cv.setToolTip(
+        # ONE TRAINING BUTTON, TWO DESTINATIONS.
+        #
+        # "Train CV" and "Train XG" sat side by side and read as two features
+        # rather than as one decision. They are the same act -- take these
+        # annotations and train something on them -- differing only in WHAT
+        # the model looks at: the images, or the measured features. A menu
+        # says that; two buttons made the user work it out from four-letter
+        # abbreviations.
+        #
+        # A menu rather than a dialog: the choice is between two named things
+        # with no further settings, and a modal for that is a click more than
+        # the question is worth.
+        self._btn_train = QPushButton("Train…")
+        self._btn_train.setIcon(iconset.icon("classify"))
+        self._btn_train.setCursor(Qt.PointingHandCursor)
+        self._btn_train.setToolTip(
+            "Train a model on the current annotations, on the images or on "
+            "the measured features, and apply it to the whole dataset."
+        )
+        train_menu = QMenu(self._btn_train)
+        action_cv = train_menu.addAction(
+            iconset.icon("classify"), "On the images (CNN / Transformer)…")
+        action_cv.setToolTip(
             "Generate a training dataset from the current annotations "
             "and train a Torch CNN / Transformer classifier, then apply "
             "it to the full dataset. Opens the Classify screen with "
             "this source pre-selected."
         )
-        self._btn_train_cv.clicked.connect(self._on_train_cv)
-        row.addWidget(self._btn_train_cv)
-
-        self._btn_train_xg = QPushButton("Train XG")
-        self._btn_train_xg.setIcon(iconset.icon("chart"))
-        self._btn_train_xg.setCursor(Qt.PointingHandCursor)
-        self._btn_train_xg.setToolTip(
+        action_cv.triggered.connect(self._on_train_cv)
+        action_xg = train_menu.addAction(
+            iconset.icon("chart"), "On the measured features (XGBoost)…")
+        action_xg.setToolTip(
             "Train an XGBoost model on the measurement features "
             "using the current annotations as class labels, then apply "
             "it to score the full dataset. Opens the ML Analyze screen "
             "with this source pre-selected."
         )
-        self._btn_train_xg.clicked.connect(self._on_train_xg)
-        row.addWidget(self._btn_train_xg)
+        action_xg.triggered.connect(self._on_train_xg)
+        self._btn_train.setMenu(train_menu)
+        self._train_menu = train_menu
+        # KEPT AS NAMES, not as widgets. Everything that used to enable,
+        # disable or click these two buttons still has something to hold, and
+        # a caller that flips one now flips the single button they became.
+        self._btn_train_cv = self._btn_train
+        self._btn_train_xg = self._btn_train
+        row.addWidget(self._btn_train)
 
         self._btn_auto = QPushButton("Auto-annotate…")
         self._btn_auto.setCursor(Qt.PointingHandCursor)

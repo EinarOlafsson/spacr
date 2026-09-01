@@ -58,6 +58,25 @@ if str(_REPO_ROOT) not in sys.path:
 # Headless matplotlib for CI / test runs.
 os.environ.setdefault("MPLBACKEND", "Agg")
 
+# THE SUITE DOES NOT WRITE INTO THE USER'S OWN LOG.
+#
+# `spacr.logging_util` logs to ~/.spacr/logs/spacr.log, and running the tests
+# filled that file with tracebacks the tests THREW ON PURPOSE --
+# ConnectionError("no dns"), MemoryError("the merged array will not fit"),
+# ValueError("unreadable names") -- interleaved with real pipeline output.
+#
+# That is not untidiness. On 2026-09-01 a Measure run failed one field of
+# fifty-two and its message said the traceback was in that log; finding it
+# meant reading past a screenful of deliberate test failures, and a user
+# reading their own crash report has no way to tell which lines are theirs.
+#
+# Set here, at import, rather than in a fixture: `log_dir()` is read the first
+# time anything configures logging, which can happen while a test module is
+# being imported -- before any fixture has run.
+os.environ.setdefault(
+    "SPACR_LOG_DIR",
+    os.path.join(tempfile.gettempdir(), "spacr-test-logs"))
+
 # ---------------------------------------------------------------------------
 # Pre-empt display-touching imports. Three packages open the X display at
 # IMPORT time and throw Xlib.error.DisplayConnectionError in a display-less

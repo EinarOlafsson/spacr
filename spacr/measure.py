@@ -622,6 +622,40 @@ def _calculate_zernike(mask, df, degree=8):
     return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
 
 
+#: Whether Mahotas answered, decided once per process rather than per object.
+#:
+#: `_morphological_measurements` runs once per FIELD, in each of up to `n_jobs`
+#: worker processes, and probed the import every time -- so a machine without
+#: Mahotas got the same four-line install notice fifty-two times, burying the
+#: one message in that run that mattered (a field that actually failed).
+_ZERNIKE_AVAILABLE = None
+
+
+def _zernike_is_available() -> bool:
+    """Whether Zernike moments can be computed here. Said once.
+
+    THE ANSWER CANNOT CHANGE inside a run: a package does not become
+    installable between two fields. So it is probed on the first field and
+    remembered, and the notice is printed with it.
+
+    Still once PER PROCESS rather than once per run, because a pool worker is a
+    fresh interpreter with its own module state. That turns fifty-two notices
+    into at most `n_jobs`, and the parent-side decision that would make it
+    exactly one belongs with the settings resolution rather than here.
+    """
+    global _ZERNIKE_AVAILABLE
+    if _ZERNIKE_AVAILABLE is not None:
+        return _ZERNIKE_AVAILABLE
+    try:
+        _load_zernike_moments()
+    except ImportError as exc:
+        _ZERNIKE_AVAILABLE = False
+        print(f"[measure] {exc} Zernike columns will be skipped.")
+    else:
+        _ZERNIKE_AVAILABLE = True
+    return _ZERNIKE_AVAILABLE
+
+
 def _load_zernike_moments():
     """Load Mahotas only when its optional descriptor is computed."""
     try:
@@ -630,7 +664,11 @@ def _load_zernike_moments():
         raise ImportError(
             "Zernike morphology requires the optional Mahotas package. "
             "Install it with `pip install \"spacr[zernike]\"`, or run "
-            "morphological measurements with zernike=False."
+            "morphological measurements with zernike=False. "
+            "NOTE: Mahotas publishes no wheel for Python 3.13 or newer, so on "
+            "those interpreters that install builds from source and needs a "
+            "C++ toolchain -- see the note in setup.py. Every other "
+            "morphological measurement is unaffected."
         ) from exc
     return zernike_moments
 
@@ -1146,13 +1184,7 @@ def _morphological_measurements(
        construction. Default ``False``: an unchanged run does no extra work.
     """
     if zernike is None:
-        try:
-            _load_zernike_moments()
-        except ImportError as exc:
-            zernike = False
-            print(f"[measure] {exc} Zernike columns will be skipped.")
-        else:
-            zernike = True
+        zernike = _zernike_is_available()
 
     ndim = _ndim_of(cell_mask)
     spacing, stamp = resolve_measurement_spacing(settings, ndim)
