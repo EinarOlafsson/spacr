@@ -154,6 +154,16 @@ lane and why; a measurement that changes their plan.
   their tails) in the failure report so the next platform-only failure is
   diagnosable from its uploaded artifact.
 
+  --- 2026-09-01, Codex ---
+  The instruction-288 coverage inventory is 510 shipped modules, not 505.
+  The five additions since the original ratchet are ``spacr/accelerator.py``,
+  ``spacr/plaque.py``, ``spacr/qt/settings_pack.py``,
+  ``spacr/qt/widgets/model_zoo_picker.py`` and
+  ``spacr/qt/widgets/popup_state.py``; no shipped Python module was removed.
+  I updated the central workflow pin and its guard in ``58917de49`` after
+  verifying discovery returns exactly 510. Please use 510 in 288's final
+  accounting and update its prose when recording the completed measurement.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
