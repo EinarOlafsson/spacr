@@ -1,0 +1,50 @@
+334 — NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
+=======================================================
+
+ASKED FOR (2026-09-01)
+----------------------
+"normalize should be compatible with any float now only 2 decimals are
+supported. so i can do 99.99 % but not 99.999 % and beyond."
+
+WHY IT MATTERS
+--------------
+A display percentile is a way of saying "ignore the brightest N pixels", and
+on a 2048x2048 field 0.01% is four hundred pixels. A single hot pixel, a
+cosmic ray or a saturated bead sits far above the real signal, and clipping at
+99.99 can still leave it in -- which pins the display range to it and makes
+every real object dim. The next step down, 99.999, is the one that removes it.
+So the missing decimals are not precision for its own sake; they are the
+difference between a usable image and a black one on exactly the fields where
+it matters most.
+
+WHAT IS ALREADY SIX DECIMALS, so this is NOT a global cap
+---------------------------------------------------------
+Checked 2026-09-01:
+
+  * the generic float widget the settings panel builds --
+    `settings_model.py:8822`, `w.setDecimals(6)`;
+  * make_masks' display-percentile boxes -- `make_masks.py:320`, with a
+    comment saying six "because the interesting" range needs them.
+
+So SOME control in the normalize path caps at two and it was not located in
+the time available. It is one `setDecimals(2)`, a `round(x, 2)`, or a `%.2f`
+format somewhere between the widget and the value that reaches
+`spacr.utils`'s normalisation.
+
+WHAT TO DO
+----------
+1. FIND WHICH CONTROL. Ask the reporter which screen and which field -- the
+   word "normalize" names a bool in the Mask settings, a checkbox in the
+   preview, and the percentile pair, and the fix differs for each.
+2. Raise it to six, matching the two above rather than inventing a third
+   answer.
+3. CHECK THE WHOLE PATH, not only the widget. A spin box that accepts 99.999
+   is no use if the value is rounded on the way into settings, on the way
+   through a CSV round-trip, or when it is displayed back. The round trip is
+   the test: type 99.999, save, reopen, and read it back.
+
+HOW TO KNOW IT WORKED
+---------------------
+* 99.999 can be entered, is stored, survives a settings save/load, and reaches
+  the normalisation unchanged.
+* The value shown after reopening is the value typed.
