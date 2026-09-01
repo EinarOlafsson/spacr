@@ -1838,8 +1838,17 @@ class DatabaseMergePanel(QWidget):
         started = self._jobs.submit(
             lambda: self._merge_worker(prepared, kwargs),
             lambda outcome: self._finish_merge(prepared, outcome))
-        if not started:                      # pragma: no cover - JobRunner
-            self._merging = False            # always returns True today
+        if not started:
+            # PUT THE PANEL BACK. `_merging` and the running state were
+            # set before the submit, because the submit is the part that
+            # takes minutes. Left set after a refusal, every later press
+            # returns early and the merge can never be started.
+            #
+            # The old pragma here claimed JobRunner always returns True.
+            # It does not: `submit` returns False whenever it is
+            # unthreaded and the work or the completion callback raises,
+            # which is exactly how these panels are built in tests.
+            self._merging = False
             self._set_running(False)
         return bool(started)
 
@@ -2516,8 +2525,11 @@ class ColumnRegressionPanel(QWidget):
         started = self._jobs.submit(
             lambda cols=tuple(columns): self._queue_worker(cols),
             self._finish_queue)
-        if not started:                       # pragma: no cover - JobRunner
-            self._running = False             # always returns True today
+        if not started:
+            # Same contract as start_merge above: the running state goes
+            # up before the submit, so a refusal has to take it down or
+            # the queue can never be started again.
+            self._running = False
             self._refresh_buttons()
         return bool(started)
 
