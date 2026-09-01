@@ -378,3 +378,41 @@ def test_merged_arrays_without_a_mask_plane_fall_back_to_the_crop_tar(
             "image_size": 8, "input_statistics": "symmetric"})
 
     assert "yielded no images" in str(excinfo.value)
+
+
+def test_crop_tar_loading_can_explicitly_skip_normalization(tmp_path):
+    """``input_statistics='none'`` keeps ToTensor's raw [0, 1] values."""
+    import tarfile
+    from io import BytesIO
+
+    torch = pytest.importorskip("torch")
+    from PIL import Image
+
+    model_path = tmp_path / "model.pth"
+    torch.save(torch.nn.Sequential(torch.nn.Flatten(),
+                                   torch.nn.Linear(3 * 8 * 8, 2)), model_path)
+
+    pixels = np.empty((8, 8, 3), dtype=np.uint8)
+    pixels[..., 0] = 64
+    pixels[..., 1] = 128
+    pixels[..., 2] = 255
+    payload = BytesIO()
+    Image.fromarray(pixels, mode="RGB").save(payload, format="PNG")
+    image_bytes = payload.getvalue()
+
+    dataset = tmp_path / "crops.tar"
+    with tarfile.open(dataset, "w") as archive:
+        member = tarfile.TarInfo("plate_A1_1.png")
+        member.size = len(image_bytes)
+        archive.addfile(member, BytesIO(image_bytes))
+
+    from spacr.hyperparam import load_activation_data
+    data = load_activation_data({
+        "model_path": str(model_path), "dataset": str(dataset),
+        "src": str(tmp_path / "no-merged"), "channels": [1, 2, 3],
+        "image_size": 8, "normalize_input": True,
+        "input_statistics": "none",
+    }, n_images=1)
+
+    observed = data.images[0][:, 0, 0].detach().cpu().numpy()
+    assert observed == pytest.approx(np.array([64, 128, 255]) / 255.0)

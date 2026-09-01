@@ -1735,6 +1735,19 @@ def test_an_injected_attribution_is_scored_like_any_other(corner_model):
     assert "attribution" in extra
 
 
+def test_maps_can_be_scored_without_retaining_the_large_arrays(corner_model):
+    """``keep_maps=False`` preserves metrics while dropping map payloads."""
+    fit = hp.activation_fit_fn(corner_model, n_steps=3,
+                               run_sanity_check=False, keep_maps=False)
+
+    score, extra = fit({"cam_type": "saliency"})
+
+    assert np.isfinite(score)
+    assert score == pytest.approx(extra["deletion_auc"])
+    assert "insertion_auc" in extra
+    assert "attribution" not in extra
+
+
 def test_smoothgrad_is_used_when_the_trial_asks_for_samples(corner_model):
     """`smoothgrad_samples` above one averages the map over noisy copies."""
     fit = hp.activation_fit_fn(corner_model, n_steps=3,

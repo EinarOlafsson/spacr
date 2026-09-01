@@ -1954,10 +1954,6 @@ def embedding_stability(
             [int(value) for value in row if int(value) != int(index)][:k]
             for index, row in enumerate(raw)
         ], dtype=int)
-        if cleaned.shape != (shape[0], k):
-            raise RuntimeError(
-                "Could not construct a complete nearest-neighbour graph for "
-                "stability scoring.")
         neighbourhoods.append(cleaned)
     pair_scores = []
     for left_index in range(len(neighbourhoods) - 1):
@@ -2355,9 +2351,9 @@ def umap_search(features,
             if hasattr(value, "get"):
                 value = value.get()
             return np.asarray(value)
-    elif requested_backend == "cpu":
-        # An injected embedder is neither umap-learn nor cuML. Naming it CPU
-        # would be false provenance in saved checkpoints and table rows.
+    else:
+        # An injected embedder is neither umap-learn nor cuML. Reusing either
+        # requested label would be false provenance in checkpoints and rows.
         requested_backend = "custom"
 
     notes = [
@@ -2475,26 +2471,25 @@ def umap_search(features,
                 from .umap_search import walk_clusters
                 cluster_walk = walk_clusters(
                     embedding, min_cluster_sizes=cluster_sizes)
-                if cluster_walk:
-                    chosen = cluster_walk[0]
-                    extra.update({
-                        "cluster_labels": chosen.labels,
-                        "cluster_min_size": chosen.min_cluster_size,
-                        "cluster_silhouette": chosen.silhouette,
-                        "cluster_score": chosen.score,
-                        "n_clusters": chosen.n_clusters,
-                        "cluster_noise_fraction": chosen.noise_fraction,
-                        "cluster_walk": [
-                            {
-                                "min_cluster_size": row.min_cluster_size,
-                                "silhouette": row.silhouette,
-                                "score": row.score,
-                                "n_clusters": row.n_clusters,
-                                "noise_fraction": row.noise_fraction,
-                            }
-                            for row in cluster_walk
-                        ],
-                    })
+                chosen = cluster_walk[0]
+                extra.update({
+                    "cluster_labels": chosen.labels,
+                    "cluster_min_size": chosen.min_cluster_size,
+                    "cluster_silhouette": chosen.silhouette,
+                    "cluster_score": chosen.score,
+                    "n_clusters": chosen.n_clusters,
+                    "cluster_noise_fraction": chosen.noise_fraction,
+                    "cluster_walk": [
+                        {
+                            "min_cluster_size": row.min_cluster_size,
+                            "silhouette": row.silhouette,
+                            "score": row.score,
+                            "n_clusters": row.n_clusters,
+                            "noise_fraction": row.noise_fraction,
+                        }
+                        for row in cluster_walk
+                    ],
+                })
             except Exception as exc:
                 # Clustering is an optional second analysis of a valid map.
                 # Its failure must stay on that row, not erase the embedding.
@@ -2758,7 +2753,7 @@ def activation_fit_fn(data: ActivationSearchData,
                    if criterion == "pointing_game" else
                    "the randomisation sanity check was disabled for this "
                    "sweep."))
-        if keep_maps and maps:
+        if keep_maps:
             scores["attribution"] = maps[0]
         scores["criterion"] = criterion
         return float(scores[criterion]), scores

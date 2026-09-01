@@ -96,31 +96,31 @@ class TestTheNeighbourGraph:
 
         assert cleaned.shape == (3, k)
 
-    def test_a_short_row_makes_the_shape_wrong_and_is_refused(self):
-        """THE ARC: ``cleaned.shape != (shape[0], k)``.
+    def test_duplicate_points_still_return_distinct_neighbour_indices(self):
+        """Duplicate coordinates do not duplicate an index in sklearn's row."""
+        from sklearn.neighbors import NearestNeighbors
 
-        A duplicate point can make its own index appear twice in a
-        neighbour row, leaving that row one short -- and numpy then
-        builds an object array rather than raising, so the stability
-        score would be computed over a ragged graph without a word.
-        """
-        raw = np.array([[0, 0, 1], [1, 0, 2], [2, 0, 1]])
+        points = np.array([[0.0, 0.0], [0.0, 0.0], [1.0, 0.0],
+                           [0.0, 1.0]])
         k = 2
+        raw = NearestNeighbors(n_neighbors=k + 1).fit(points).kneighbors(
+            points, return_distance=False)
         rows = [[int(v) for v in row if int(v) != index][:k]
                 for index, row in enumerate(raw)]
 
-        assert len(rows[0]) == k or len(rows[0]) < k
+        assert all(len(row) == k for row in rows)
         from spacr import hyperparam as H
 
         source = _source(H)
-        assert "Could not construct a complete nearest-neighbour graph" in source
+        assert "if cleaned.shape != (shape[0], k):" not in source
+        assert "Could not construct a complete nearest-neighbour graph" \
+            not in source
 
 
 class TestNamingTheBackendHonestly:
 
     def test_an_injected_embedder_is_called_custom_not_cpu(self):
-        """THE ARC: ``requested_backend == "cpu"`` with an embedder that
-        is neither umap-learn nor cuML.
+        """An injected embedder is custom even if the caller labels it cuML.
 
         Naming it CPU would be false provenance in saved checkpoints and
         table rows -- a reader would believe the run is reproducible with
@@ -128,39 +128,40 @@ class TestNamingTheBackendHonestly:
         """
         from spacr import hyperparam as H
 
-        source = _source(H)
-        assert 'requested_backend = "custom"' in source
-        assert "false provenance in saved checkpoints" in source, (
-            "the reason the backend is renamed is no longer written down, so "
-            "the next reader may 'simplify' it back to cpu")
+        features = np.random.default_rng(3).normal(size=(20, 4))
+        result = H.umap_search(
+            features, H.SearchSpace({"n_neighbors": [5]}), backend="cuml",
+            embed_fn=lambda values, _params: values[:, :2])
+
+        assert result.best.extra_metrics["backend"] == "custom"
+        assert "Embedding backend: custom." in " ".join(result.notes)
 
 
 class TestResultsTheLineAboveProduced:
 
-    def test_a_cluster_walk_that_found_nothing_adds_no_labels(self):
-        """THE ARC: ``cluster_walk`` is empty.
+    def test_a_valid_cluster_walk_always_has_a_result_row(self):
+        """All-noise partitions still produce a scored walk row."""
+        from spacr import hyperparam as H
+        from spacr.umap_search import walk_clusters
 
-        Every candidate cluster size can fail to produce a clustering --
-        a small or uniform embedding does this -- and indexing [0] would
-        be an IndexError at the end of a fit that succeeded.
+        rows = walk_clusters(np.zeros((8, 2)), min_cluster_sizes=(5,))
+        assert len(rows) == 1
+
+        source = inspect.getsource(H.umap_search)
+        assert "if cluster_walk:" not in source
+        assert "chosen = cluster_walk[0]" in source
+
+    def test_attribution_maps_are_kept_only_when_asked(self):
+        """THE ARC: ``keep_maps``.
+
+        The data loader refuses an empty image list, so every completed fit
+        has a map; the remaining choice is whether to retain that large array.
         """
-        cluster_walk = []
+        from spacr import hyperparam as H
 
-        assert not cluster_walk
-        with pytest.raises(IndexError):
-            cluster_walk[0]
-
-    def test_attribution_maps_are_kept_only_when_both_asked_and_made(self):
-        """THE ARC: ``keep_maps and maps``.
-
-        Both halves are needed: a sweep that did not ask for maps must
-        not carry them (they are large), and one that asked and got none
-        must not index an empty list.
-        """
-        for keep, maps in ((False, []), (False, ["m"]), (True, []),
-                           (True, ["m"])):
-            kept = bool(keep and maps)
-            assert kept == (keep and bool(maps))
+        source = inspect.getsource(H.activation_fit_fn)
+        assert "if keep_maps:" in source
+        assert "if keep_maps and maps:" not in source
 
     def test_normalisation_is_added_only_when_statistics_were_resolved(self):
         """THE ARC: ``stats is None``.
