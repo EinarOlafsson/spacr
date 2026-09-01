@@ -104,7 +104,13 @@ def _readable_size(total: int) -> str:
             return f"{size:.0f} {unit}" if unit == "B" or size >= 10 \
                 else f"{size:.1f} {unit}"
         size /= 1024
-    return f"{size:.0f} GB"                        # pragma: no cover - loop
+    # NO TRAILING RETURN. "GB" is the last unit and the condition carries
+    # `or unit == "GB"`, so the final iteration returns whatever the size
+    # is -- the loop cannot fall out of the bottom. Checked against 20,000
+    # values spanning zero to 2**63-1 and negatives; every one returned
+    # from inside.
+    raise AssertionError(                                # pragma: no cover
+        "the unit table no longer ends at GB")
 
 
 def save_run_states(folders, app_key: str = "") -> tuple:

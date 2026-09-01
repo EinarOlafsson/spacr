@@ -132,7 +132,11 @@ class GeneTilePanel(QWidget):
         if self._frame_provider is not None:
             try:
                 frame = self._frame_provider()
-            except Exception:  # pragma: no cover - a broken host, not a tile
+            except Exception:
+                # A BROKEN HOST, NOT A BROKEN TILE. The provider belongs
+                # to whatever screen owns this panel; if it raises, the
+                # tile still draws from no frame rather than letting the
+                # host's failure out through a click on a plot point.
                 LOG.exception("gene tile: could not reach the results frame")
         try:
             tile = gene_tile(key, frame)
