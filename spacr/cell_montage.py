@@ -1304,9 +1304,6 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
             f"{len(keep) - len(mine)} more well(s) joined to anchor the "
             f"{len(rivals)} guide(s) it is compared against")
         rows = [i for i, w in enumerate(wells) if w in keep]
-        if not rows:
-            notes.append("sudoku: no cell sits in a well holding this guide")
-            return None
         frame = frame.iloc[rows]
         features = features.iloc[rows]
         wells = [wells[i] for i in rows]
@@ -2609,18 +2606,17 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
         root = src.get("src") if isinstance(src, Mapping) else src
         if isinstance(root, (list, tuple)):
             root = root[0] if root else None
-        if root:
-            root = str(root)
-            if os.path.basename(os.path.abspath(root)) == "merged":
-                root = os.path.dirname(os.path.abspath(root))
-            db = os.path.join(root, "measurements", "measurements.db")
-            if os.path.isfile(db):
-                try:
-                    saved = crop_settings_from_db(db)
-                except Exception:                               # noqa: BLE001
-                    saved = {}
-                declared = bool(saved.get("png_channel_mapping")
-                                or saved.get("png_dims"))
+        root = str(root)
+        if os.path.basename(os.path.abspath(root)) == "merged":
+            root = os.path.dirname(os.path.abspath(root))
+        db = os.path.join(root, "measurements", "measurements.db")
+        if os.path.isfile(db):
+            try:
+                saved = crop_settings_from_db(db)
+            except Exception:                               # noqa: BLE001
+                saved = {}
+            declared = bool(saved.get("png_channel_mapping")
+                            or saved.get("png_dims"))
     requirements = montage_route_requirements(
         source, objects, object_type=object_type, channels=channels,
         channels_declared=declared)
