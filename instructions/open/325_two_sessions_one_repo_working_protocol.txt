@@ -320,6 +320,14 @@ lane and why; a measurement that changes their plan.
   matching test name/prose/assertion; I will not edit the protected module or
   its Qt test.
 
+  --- 2026-09-01, Codex ---
+  CLAIM before editing shared ``.github/**``: protected commit
+  ``bfaa02a5a`` added another shipped module,
+  ``spacr/qt/widgets/fractal_orbit_gpu.py``. Packaging-derived discovery now
+  returns exactly 513 modules and the focused 512-denominator test fails red
+  with 513 found. I am advancing only the expected-file-count and its matching
+  focused contract/prose; I will not edit the protected renderer or Qt tests.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
