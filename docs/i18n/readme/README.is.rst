@@ -119,77 +119,77 @@ Yfirlit yfir verkflæðið
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Import
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Run Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Experiment Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Power / Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Dose–Response
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir QC
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Make Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Align & Stitch
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Image UMAP
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Gate Editor
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Plaque Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Recruitment
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Invasion Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Opna API-skjölin fyrir Replication Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -298,8 +298,8 @@ Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skrá
 ``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
 
 
-Það sem hægt er að gera
------------------------
+Kjarnaverkflæði
+---------------
 
 Aðalvinnuflæðið samanstendur af sex einingum:
 
@@ -326,14 +326,7 @@ Recrop dregur út myndsvið með einum hlut úr undirbúinni mynd sem inniheldur
 
 Þegar Cellpose-SAM er keyrt úr Make Masks birtast tvær milliniðurstöður við hlið grímunnar: **líkindakort frumna** og **flæðisvið**. Gríman er skilgreind með þröskuldi á líkindakortinu og samræmispróf á flæði geta hafnað hlutum ef afleitt flæði þeirra víkur frá spáða sviðinu. Skoðaðu þessar niðurstöður til að greina lágar frumulíkur frá ósamræmdu flæði þegar röng eða ófullgerð gríma er metin.
 
-Hlutir og stillingar
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR styður frumu-, kjarna- og sýklahluti, umfrymi sem er leitt af grímum þeirra og frá núll upp í tuttugu og sex hólf fyrir frumulíffæri. Hvert hólf fyrir frumulíffæri hefur sjálfstæða rás, þvermál, forstillingu fyrir lögun og greiningaraðferð.
-
-Stillingaspjaldið birtir stýringar aðeins þegar þær eiga við. Hólf fyrir frumulíffæri umfram stilltan fjölda eru falin, hlutur án úthlutaðrar rásar er útilokaður frá keyrslunni og stýringar sem eiga við tiltekna lögun birtast aðeins fyrir valda aðferð. Rofarnir **3D** og **Time** skilgreina víddirnar: ``z_stack`` virkjar rúmmálsstillingar, ``timelapse`` virkjar rakningarstillingar og fjórvíðar stillingar birtast þegar kveikt er á báðum.
-
-Veldu næsta síðu með því sem þú vilt gera:
+**Önnur úrræði**
 
 - `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
 - `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.

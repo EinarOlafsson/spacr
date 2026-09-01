@@ -119,77 +119,77 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Import API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Run Compare API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Experiment Design API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Power / Design API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Dose–Response API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: QC API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Make Masks API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Align & Stitch API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Image UMAP API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Gate Editor API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Graph Builder API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Plaque Assay API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Recruitment API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Invasion Assay API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Replication Assay API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -298,8 +298,8 @@ spaCR Python **3.9 से 3.14** तक समर्थित है, लेक�
 ``spacr-run --list`` उन मॉड्यूलों की सूची दिखाता है जिनके पास ग्राफ़िकल इंटरफ़ेस के बिना चलाने के लिए कमांड-लाइन प्रवेश बिंदु हैं। केवल GUI में उपलब्ध एनोटेशन, क्यूरेशन, तुलना और अन्वेषण मॉड्यूल इस सूची में शामिल नहीं होते।
 
 
-आप क्या कर सकते हैं
-------------------
+मुख्य वर्कफ़्लो
+---------------
 
 मुख्य कार्यप्रवाह में छह मॉड्यूल हैं:
 
@@ -326,14 +326,7 @@ Recrop क्यूरेशन के लिए तैयार की गई, 
 
 Make Masks से Cellpose-SAM चलाने पर मास्क के पास दो मध्यवर्ती आउटपुट दिखते हैं: **कोशिका-प्रायिकता मानचित्र** और **प्रवाह क्षेत्र**। मास्क प्रायिकता मानचित्र पर लगाए गए थ्रेशहोल्ड से निर्धारित होता है, और प्रवाह-संगति जाँच उन ऑब्जेक्ट को अस्वीकार कर सकती है जिनके व्युत्पन्न प्रवाह अनुमानित क्षेत्र से भिन्न हों। किसी गलत या अधूरे मास्क का मूल्यांकन करते समय कम कोशिका प्रायिकता और असंगत प्रवाह में अंतर करने के लिए इन आउटपुट की जाँच करें।
 
-ऑब्जेक्ट और सेटिंग्स
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR कोशिका, केंद्रक और रोगजनक ऑब्जेक्ट, उनके मास्क से निकला साइटोप्लाज़्म और शून्य से छब्बीस तक ऑर्गेनेल स्लॉट समर्थित करता है। प्रत्येक ऑर्गेनेल स्लॉट का अपना चैनल, व्यास, मॉर्फ़ोलॉजी प्रीसेट और पहचान विधि होती है।
-
-सेटिंग पैनल किसी नियंत्रण को तभी दिखाता है जब वह लागू हो। निर्धारित संख्या से अधिक ऑर्गेनेल स्लॉट छिपे रहते हैं, जिस ऑब्जेक्ट को कोई चैनल नहीं दिया गया है वह रन में शामिल नहीं होता, और मॉर्फ़ोलॉजी-विशिष्ट नियंत्रण केवल चुनी गई विधि के लिए दिखते हैं। **3D** और **Time** स्विच विमाओं को निर्धारित करते हैं: ``z_stack`` आयतनी सेटिंग्स सक्षम करता है, ``timelapse`` ट्रैकिंग सेटिंग्स सक्षम करता है, और दोनों के सक्षम होने पर चार-विमीय सेटिंग्स दिखाई देती हैं।
-
-अगले पृष्ठ का चयन करें जो आप करना चाहते हैं:
+**अन्य संसाधन**
 
 - `इंटरैक्टिव ट्यूटोरियल <https://einarolafsson.github.io/spacr/tutorials/>`_ — स्थापना से हिट जांच के माध्यम से 73 निर्देशित कार्यप्रवाह।
 - `Python API त्वरित प्रारंभ <../../source/python_api.rst>`_ - स्क्रिप्ट, नोटबुक या एक क्लस्टर से पाइपलाइन चलाएं और वैध करें।

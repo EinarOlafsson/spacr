@@ -74,24 +74,40 @@ BUTTON_RADIUS = 32
 BUTTON_MARK = round(BUTTON_SIZE * 0.80)
 README_LOGO_SIZE = (920, 380)
 README_LOGO_MARK = 340
+#: Corner radius of the logo's panel, in proportion with BUTTON_RADIUS on
+#: a canvas this much larger than a button.
+README_LOGO_RADIUS = 56
 # Percentage widths keep the linked images responsive on both GitHub and the
 # Sphinx API. The rows leave a little rounding headroom so the browser never
 # moves the last tile onto a new line.
 PIPELINE_DISPLAY_PERCENT = 14.5
 ARROW_DISPLAY_PERCENT = 2.5
-# SIX canvases span the same 99.5% width as the core row, so the largest
-# section fits on one line: Home's bands are 6, 6, 5 and 4 since the
-# 2026-08-31 restructure, and a band that wraps reads as two groups.
+# SIX per band, so the largest section fits on one line: Home's bands are
+# 6, 6, 5 and 4 since the 2026-08-31 restructure, and a band that wraps
+# reads as two groups.
 APP_COLUMNS = 6
-# Rounded DOWN to three places. The exact quotient is 16.5833...%, and
-# emitting that repeating tail into every one of ~150 image directives
-# across ten READMEs is noise; rounding up could total more than 100% and
-# wrap the last tile, which is the one thing this width exists to prevent.
-APP_DISPLAY_PERCENT = round(
-    (6 * PIPELINE_DISPLAY_PERCENT + 5 * ARROW_DISPLAY_PERCENT)
-    / APP_COLUMNS - 0.0005, 3)
 APP_TILE_PADDING = 16
 APP_TILE_SIZE = BUTTON_SIZE - 2 * APP_TILE_PADDING
+# EVERY BUTTON THE SAME SIZE ON THE PAGE, asked for on 2026-08-31: "the
+# dimensions of the core module buttons should be the same as the other
+# module buttons".
+#
+# They were not, and the reason is that the two rows carry different
+# things. The core row is six buttons AND five arrows in the full width;
+# an app row is six buttons. Sizing both rows to the same total width
+# therefore had to make the core buttons narrower -- 14.5% against an
+# effective 15.5% -- because the arrows have to come out of somewhere.
+#
+# So the width the rows share is dropped, and the size the BUTTONS share
+# is kept instead. A core tile fills its 512px canvas; an app tile is
+# APP_TILE_SIZE inside one, so its canvas has to be wider by exactly that
+# ratio to draw the same number of pixels.
+#
+# The consequence is deliberate: an app row now ends short of the right
+# margin rather than reaching it. Rows already anchor left, so a short
+# row was always the normal case -- three of the four bands are short.
+APP_DISPLAY_PERCENT = round(
+    PIPELINE_DISPLAY_PERCENT * BUTTON_SIZE / APP_TILE_SIZE - 0.0005, 3)
 # EVERY TILE DRAWN AT THE SAME OFFSET IN ITS CANVAS -- asked for as "make
 # all buttons the same size and aligned to the left".
 #
@@ -267,8 +283,30 @@ def render_resource_button(name: str) -> Image.Image:
 
 
 def render_readme_logo() -> Image.Image:
-    """Place the canonical logo in a full-width transparent README canvas."""
+    """Draw the logo on a dark rounded panel.
+
+    THE MARK IS WHITE. On a transparent canvas that is invisible against
+    GitHub's light theme -- the README opened to a blank space where the
+    logo should be, for every reader not using dark mode.
+
+    A light and a dark variant swapped by ``prefers-color-scheme`` is the
+    usual answer and is not available here: GitHub renders README.rst
+    through docutils, which does not pass raw HTML, so there is no
+    ``<picture>`` element to switch on. One image has to work in both
+    themes, which means it has to bring its own background.
+
+    The panel is the workflow tile's own surface and rim at the button
+    corner radius, so the logo reads as the first element of the same
+    design system as the module buttons directly beneath it.
+    """
     canvas = Image.new("RGBA", README_LOGO_SIZE, (0, 0, 0, 0))
+    panel = Image.new("RGBA", README_LOGO_SIZE, (0, 0, 0, 0))
+    ImageDraw.Draw(panel).rounded_rectangle(
+        (0, 0, README_LOGO_SIZE[0] - 1, README_LOGO_SIZE[1] - 1),
+        radius=README_LOGO_RADIUS, fill=WORKFLOW_TILE, outline=WORKFLOW_RIM,
+        width=2,
+    )
+    canvas.alpha_composite(panel)
     logo = _fit(Image.open(ICON_DIR / "logo_spacr.png"), README_LOGO_MARK)
     canvas.alpha_composite(
         logo,

@@ -119,77 +119,77 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Import API
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Run Compare API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Experiment Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Dose–Response API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 QC API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Make Masks API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Align & Stitch API
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Gate Editor API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Plaque Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Recruitment API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Invasion Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: 打开 Replication Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -298,8 +298,8 @@ spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python
 ``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。
 
 
-您可以做什么
----------------
+核心工作流程
+------
 
 主要工作流程由六个模块组成：
 
@@ -326,14 +326,7 @@ Recrop 可从待整理的多对象图像中提取单对象视野。在一个对�
 
 在 Make Masks 中运行 Cellpose-SAM 时，掩膜旁会显示两项中间输出：**细胞概率图**和**流场**。掩膜由概率图上的阈值确定；流一致性检查可以排除推导流与预测流场不一致的对象。评估错误或不完整的掩膜时，请检查这些输出，以区分细胞概率偏低和流不一致。
 
-对象和设置
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR 支持细胞、细胞核和病原体对象、由这些对象的掩膜推导出的细胞质，以及 0 至 26 个细胞器槽位。每个细胞器槽位都有独立的通道、直径、形态预设和检测方法。
-
-设置面板仅在控件适用时显示控件。超过已配置数量的细胞器槽位会被隐藏，未分配通道的对象不会参与运行，形态特异性控件仅在所选方法需要时显示。**3D** 和 **Time** 开关定义数据维度：``z_stack`` 启用体积设置，``timelapse`` 启用跟踪设置，同时启用两者时会显示四维设置。
-
-选择下一个页面,根据你想做的事情:
+**其他资源**
 
 - `互动教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到成功调查的73个导向工作流。
 - `Python API 快速启动 <../../source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。

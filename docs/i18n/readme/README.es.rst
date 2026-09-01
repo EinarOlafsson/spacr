@@ -119,77 +119,77 @@ Flujo de trabajo de un vistazo
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Import
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Run Compare
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Experiment Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Power / Design
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Dose–Response
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de QC
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Make Masks
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Align & Stitch
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Image UMAP
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Gate Editor
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Graph Builder
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Plaque Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Recruitment
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Invasion Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Abrir la API de Replication Assay
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -298,8 +298,8 @@ Establezca ``SPACR_LOG_LEVEL=DEBUG`` durante la resolución de problemas. Los re
 ``spacr-run --list`` enumera los módulos con puntos de entrada de línea de comandos para ejecutarse sin interfaz gráfica. Se omiten los módulos de anotación, curación, comparación y exploración disponibles únicamente en la interfaz gráfica.
 
 
-Qué puede hacer
----------------
+Flujo de trabajo principal
+--------------------------
 
 El flujo de trabajo principal comprende seis módulos:
 
@@ -326,14 +326,7 @@ Recrop extrae un campo con un solo objeto de una imagen preparada que contiene v
 
 Al ejecutar Cellpose-SAM desde Make Masks se muestran dos resultados intermedios junto a la máscara: el **mapa de probabilidad celular** y el **campo de flujo**. La máscara se define mediante un umbral sobre el mapa de probabilidad, y las comprobaciones de coherencia del flujo pueden rechazar objetos cuyos flujos derivados difieran del campo predicho. Examine estos resultados para distinguir una probabilidad celular baja de un flujo incoherente al evaluar una máscara incorrecta o incompleta.
 
-Objetos y ajustes
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR admite objetos de célula, núcleo y patógeno, un citoplasma derivado de sus máscaras y entre cero y veintiséis espacios para orgánulos. Cada espacio para orgánulos tiene un canal, diámetro, ajuste predefinido de morfología y método de detección independientes.
-
-El panel de ajustes solo muestra los controles cuando son aplicables. Los espacios para orgánulos por encima de la cantidad configurada se ocultan, los objetos sin un canal asignado se excluyen de la ejecución y los controles específicos de la morfología solo se muestran para el método seleccionado. Los interruptores **3D** y **Time** definen la dimensionalidad: ``z_stack`` activa los ajustes volumétricos, ``timelapse`` activa los ajustes de seguimiento y los ajustes de cuatro dimensiones aparecen cuando ambos están activados.
-
-Elija la siguiente página por lo que desea hacer:
+**Otros recursos**
 
 - `Tutoriales interactivos <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 flujos de trabajo guiados desde la instalación hasta la investigación de impacto.
 - `Inicio rápido Python API <../../source/python_api.rst>`_ — ejecutar y validar flujos de trabajo desde scripts, cuadernos o un clúster.

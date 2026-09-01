@@ -3551,12 +3551,8 @@ REVIEWED_README_HEADINGS.update({
         "ko": "PyPI 설치", "is": "Uppsetning frá PyPI",
         "fr": "Installation depuis PyPI",
     },
-    "What you can do": {
-        "sv": "Det här kan du göra", "de": "Was Sie tun können",
-        "es": "Qué puede hacer", "zh_CN": "您可以做什么",
-        "pt": "O que você pode fazer", "hi": "आप क्या कर सकते हैं",
-        "ko": "할 수 있는 일", "is": "Það sem hægt er að gera",
-        "fr": "Ce que vous pouvez faire",
+    "Core workflow": {
+        "sv": "Kärnarbetsflöde", "de": "Kern-Workflow", "es": "Flujo de trabajo principal", "zh_CN": "核心工作流程", "pt": "Fluxo de trabalho principal", "hi": "मुख्य वर्कफ़्लो", "ko": "핵심 워크플로", "is": "Kjarnaverkflæði", "fr": "Flux de travail principal",
     },
 })
 

@@ -4005,13 +4005,30 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                     if str(source) in _ROWS or str(source) in _TERM_ROWS:
                         rendered = tr(str(source), code)
                     else:
-                        from .i18n_catalogs import setting_label
-                        rendered = setting_label(
-                            str(setting_key), str(source), code,
-                            str(settings_app_key),
-                        )
-                        if rendered is None:
+                        # GUARDED LIKE EVERY OTHER CATALOG IMPORT. The
+                        # contract is stated at the top of _exact_translation:
+                        # "External catalogs add coverage; their absence must
+                        # not make the compact core catalog unavailable."
+                        #
+                        # This one was the exception, and it was not
+                        # theoretical: a lightweight source install omits
+                        # spacr/qt/i18n_catalogs, and the ModuleNotFoundError
+                        # escaped -- the enclosing except catches
+                        # AttributeError, RuntimeError and TypeError, none of
+                        # which an ImportError is. Every screen change then
+                        # logged a traceback and gave up on translating that
+                        # screen, once per late settings panel.
+                        try:
+                            from .i18n_catalogs import setting_label
+                        except (ImportError, AttributeError):
                             rendered = tr(str(source), code)
+                        else:
+                            rendered = setting_label(
+                                str(setting_key), str(source), code,
+                                str(settings_app_key),
+                            )
+                            if rendered is None:
+                                rendered = tr(str(source), code)
                     if rendered:
                         widget.setText(str(rendered))
                         semantic_setting_text = True
