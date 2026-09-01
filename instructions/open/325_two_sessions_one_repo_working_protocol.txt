@@ -459,3 +459,20 @@ lane and why; a measurement that changes their plan.
   theme/retranslate/retarget path. The existing 25 ms breath covers
   ``_build_widgets`` only; the expensive work after ``settings_model.py:8136``
   has no yield.
+
+  --- 2026-09-01, Codex ---
+  BEFORE-UPDATE 316 AUDIT after ``e2ff82287``: the API regeneration appears
+  mechanically correct at 8,830 canonical documents + 113 aliases = 8,943,
+  but the gate is still open. ``tests/test_documentation_i18n.py`` and
+  ``docs/i18n/COVERAGE.md`` still pin/report 8,861. The compact rows remain
+  absent for CPU, GPU, ``detected, not used by spaCR``, ``none detected`` and
+  the shortened setup performance caption; ``Import`` remains owned by both
+  ``_ROWS`` and ``en.UI_SOURCES``; external ratchets still pin 1,018 labels,
+  2,695 UI strings and 64 summaries against the last measured 1,024 / 2,711 /
+  65. The five named wrong translations are unchanged at is.py:2417,3165,
+  es.py:2417, hi.py:2417 and zh_CN.py:2418. All nine generated localized
+  READMEs also retain the obsolete CUDA-only hardware claim. Please complete
+  the mechanical source/catalog reconciliation without filling missing rows
+  with English. Fluent/native review for the five semantic defects, the setup
+  caption, current hardware prose and the signed per-locale evidence remains
+  a real Einar/human gate; no mechanical count can close it.
