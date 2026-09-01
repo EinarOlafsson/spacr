@@ -1777,11 +1777,23 @@ class SetupSlides(QDialog):
         # guard skipped the fade and left the word marked visible for
         # whenever the dialog did appear. The question here is whether this
         # widget is marked visible, which is what isVisibleTo answers.
-        if not self._greeting.isVisibleTo(self.card):
+        # `getattr`, FOR THE SAME REASON `_place_the_greeting` FETCHES THE
+        # CARD THAT WAY. A resize can arrive while the dialog is still
+        # being built, and `_greeting` is created AFTER `card` -- so there
+        # is a window in which the card exists and this label does not.
+        # `_place_the_greeting` already survived it and this did not,
+        # which is the asymmetry instruction 310 A33 reports: the two
+        # methods disagreed about whether the label may be absent, and
+        # only one of them was right.
+        greeting = getattr(self, "_greeting", None)
+        card = getattr(self, "card", None)
+        if greeting is None or card is None:
+            return
+        if not greeting.isVisibleTo(card):
             return
         try:
-            effect = QGraphicsOpacityEffect(self._greeting)
-            self._greeting.setGraphicsEffect(effect)
+            effect = QGraphicsOpacityEffect(greeting)
+            greeting.setGraphicsEffect(effect)
             animation = QPropertyAnimation(effect, b"opacity", self)
             animation.setDuration(GREETING_LEAVE_MS)
             animation.setStartValue(1.0)
@@ -1790,13 +1802,13 @@ class SetupSlides(QDialog):
             # HIDDEN AT THE END, not at the start: a hidden widget does not
             # animate, so hiding first is the abrupt cut with extra steps.
             animation.finished.connect(
-                lambda: self._greeting.setVisible(False))
+                lambda: greeting.setVisible(False))
             self._goodbye = animation
             animation.start()
         except Exception:                                    # noqa: BLE001
             # INVARIANTS 10: without an animation it simply goes.
             LOG.debug("no fade for the greeting", exc_info=True)
-            self._greeting.setVisible(False)
+            greeting.setVisible(False)
             self._goodbye = None
 
     def _place_the_greeting(self) -> None:
