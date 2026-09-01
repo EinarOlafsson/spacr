@@ -70,6 +70,290 @@
         "c7624d80aa121ab929effeabb4426fadcdf4a1faeb66bd14b3ccc96e0fcb86d2"
       ]
     },
+    "spacr.accelerator": {
+      "source_blocks_sha256": [
+        "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
+        "15dff90b56995b17fd1aa75bb409e01dab59b0979aef01687f92913453f098d8",
+        "99d4ce17199d371ee68c074f60b5d0a194a2875300fd5f7dcfb5f0a7f1adb3f7",
+        "8c64ff1aa50e85739b9ad280a75fc946984083709f4b392ec67ca309be3286ae",
+        "a14f18227402c2e74284729c483c05e77f5552f51e7c39d7f0097f0c826b5e09",
+        "d161ca04622e0fbb0d23c6b2c8d46d2fe64b8789e13c387322cb248c5433f821",
+        "cf41dfcad12f1c86581be6c1d2ecf4e3c6478c22e0adf6a7ca3928d1a5f52b62",
+        "453415f95bbd7ad1c741908f0e25af536265bae230853c21c9df6a207029d875",
+        "f2e09a5ff091661fadd97ef88d0132d9fbc70cdad21d55074f32402627e82547",
+        "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
+      ],
+      "source_sha256": "61f96686df792b263d539bce0b6b6c7edd1f2ec26c4da53c0521cd1edf552449",
+      "text": "하나의 대답은 \"이것이 어떻게 진행되어야 하는지, 그리고 그것이 무엇이라고 부르는지\"입니다.\n\nInstruction 319. spaCR grew up on NVIDIA, so roughly forty-five call sites ask ``torch.cuda.is_available()`` and most of them mean \"is there a GPU?\". Those are DIFFERENT QUESTIONS on every machine that is not NVIDIA, and conflating them is what makes a perfectly good card read as \"no GPU\":\n\n* ROCm은 ``torch.cuda.is_available()`` **True**을 응답하고 ``device=\"cuda\"``을 원합니다. \"CUDA\"을 인쇄하는 코드는 거기에 있지 않은 판매자 이름을 지정하고, \"no NVIDIA GPU\"를 인쇄 하는 코드는 그것을 부인합니다.\n* Apple's Metal answers it **False** and wants ``device=\"mps\"``. This is the case the instruction under-describes: MPS is filed there under \"Apple Silicon\", but MPS is *Metal*, not an Apple-Silicon feature. On the Intel iMac this was written on it drives an AMD Radeon Pro 5300 -- measured 16x on conv2d inference and 2.7x on a training step against the same machine's CPU. ROCm has no macOS build at all, so Metal is the ONLY route to an AMD card on a Mac.\n\n그래서이 모듈은 두 가지 질문을 별도로 대답하고, 두 가지보다 더 중요한 세 번째 : *이 장치가 할 수없는 일은 무엇입니까?* MPS에서 테너를 다시 지정하는 것은 충분하지 않습니다, 왜냐하면 세 가지가 부족하기보다는 실패하기 때문에, 각각은 추측하는 대신 측정되었습니다 :\n\n* ``float64`` raises ``TypeError`` outright -- not a slow path, a hard stop. Anything wanting double precision must stay on the CPU.\n* ``autocast(device_type=\"mps\")`` 상승 ``RuntimeError``. 혼합 정확도는 단순히 다시 표시되지 않고 분리되어야합니다.\n* 일부 운영자는 단순히 사라집니다 (``aten::linalg_qr.out`` 그들 사이에서). ``PYTORCH_ENABLE_MPS_FALLBACK=1`` 사고에서 조용한 CPU 퇴치로 변환, 그래서이 모듈은 MPS를 선택할 때 그것을 설정합니다.\n\nDETECTED AND USABLE ARE REPORTED SEPARATELY, and the instruction is right to insist on it. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.\n\nNOTHING HERE RAISES. A half-installed ROCm, a broken driver, a torch built without a backend it advertises -- all resolve to the CPU with a note. The machines most likely to have a strange accelerator are the least able to afford a traceback at import time.",
+      "translation_source_blocks_sha256": [
+        "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
+        "15dff90b56995b17fd1aa75bb409e01dab59b0979aef01687f92913453f098d8",
+        "99d4ce17199d371ee68c074f60b5d0a194a2875300fd5f7dcfb5f0a7f1adb3f7",
+        "8c64ff1aa50e85739b9ad280a75fc946984083709f4b392ec67ca309be3286ae",
+        "a14f18227402c2e74284729c483c05e77f5552f51e7c39d7f0097f0c826b5e09",
+        "d161ca04622e0fbb0d23c6b2c8d46d2fe64b8789e13c387322cb248c5433f821",
+        "cf41dfcad12f1c86581be6c1d2ecf4e3c6478c22e0adf6a7ca3928d1a5f52b62",
+        "453415f95bbd7ad1c741908f0e25af536265bae230853c21c9df6a207029d875",
+        "f2e09a5ff091661fadd97ef88d0132d9fbc70cdad21d55074f32402627e82547",
+        "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
+      ]
+    },
+    "spacr.accelerator.Accelerator": {
+      "source_blocks_sha256": [
+        "4341189fdc373cb717f0c45a5ebadeb1dbab7d707e79224c067d9a4e9e2c3775",
+        "032f14a0ef36aa093eba3ed56926180bd3f204a61e41f0d1700c654012a0b271",
+        "f427eb694f9c750f736b945e6d37e0210f843c9898ac992baad883d730edf6d9",
+        "fad4ec73de4cc2bd3fc370c09e5c715851b51bc9a90fd5a4cd43f71c038042e2",
+        "bf08ecc5b0e47142a6751870646db29e7279df57a64df24e53b815f024ab5725",
+        "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+        "70be5e7d6d7325a7b164b6b6ad65094099854507c61dc921e87148a56c9ae96d",
+        "e1795cecdd2fb464ec0ddc68d73203dd157c660acc994b245b9e0a9a048beb7f",
+        "037e68bd2b501058b6e0df88d3158920f2676ebffc502000914727ee4a6fe302",
+        "1c1152a4d0f4b2ab229be147c05415c5c55c17b98fdfe363177106de5e3ca444",
+        "8c3f8b52c28abc29634a890c2081561d4626aea70d9a82e9ec53aaeb86701b03"
+      ],
+      "source_sha256": "40029cfd16268cde677cb4dfc32135ad117e94a80a09fcd88a44ad623a12a103",
+      "text": "What spaCR will compute on, and what it can be told about it.\n\n:param kind: one of :data:`KINDS`. ``rocm`` is reported distinctly from ``cuda`` even though both dispatch to ``device=\"cuda\"``, because the only thing a user can act on is the true vendor.\n:param device: ``torch.device`` 핸드 라인에 링크를 입력합니다.\n:param label: 설정 슬라이드 및 의사에 대한 사용자 얼굴 텍스트.\n:param detected: 하드웨어가 존재합니다.\n:param usable: spaCR will actually dispatch to it. Never true unless ``detected``; false for accelerators with no torch device.\n:param note: 왜 사용할 수 없을까, 그렇지 않을 때. 텅 비어 있지 않다.\n:param float64: 장치는 두 배의 정확도를 받아들인다.\n:param autocast: ``torch.autocast``이 장치 유형을 수락합니다.\n:param fallback: missing operators silently run on the CPU instead of throwing, because this module set the backend's fallback flag.\n:param bfloat16: the device accepts ``torch.bfloat16``. PROBED rather than assumed from the backend name, because it is the one capability that moves with the torch version: Metal gained it after 2.2, and 2.2.2 is the last x86-64 macOS wheel, so the same backend answers differently on an Intel Mac and an Apple Silicon one. Cellpose's cpsam loads its weights in bfloat16 by default, so a wrong answer here is a TypeError at model construction.",
+      "translation_source_blocks_sha256": [
+        "4341189fdc373cb717f0c45a5ebadeb1dbab7d707e79224c067d9a4e9e2c3775",
+        "032f14a0ef36aa093eba3ed56926180bd3f204a61e41f0d1700c654012a0b271",
+        "f427eb694f9c750f736b945e6d37e0210f843c9898ac992baad883d730edf6d9",
+        "0dbca15bb985fb40e3794d1917474cb7552a1399c015461742fdee73d0db0f36",
+        "bf08ecc5b0e47142a6751870646db29e7279df57a64df24e53b815f024ab5725",
+        "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+        "70be5e7d6d7325a7b164b6b6ad65094099854507c61dc921e87148a56c9ae96d",
+        "e1795cecdd2fb464ec0ddc68d73203dd157c660acc994b245b9e0a9a048beb7f",
+        "037e68bd2b501058b6e0df88d3158920f2676ebffc502000914727ee4a6fe302",
+        "6d4f4326eb8c8e1ad96359aed736cc83e0219554bfd498013b7cb6256fdda598",
+        "8c3f8b52c28abc29634a890c2081561d4626aea70d9a82e9ec53aaeb86701b03"
+      ]
+    },
+    "spacr.accelerator.Accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "4cc1e361a59dd5b8b677d9b1f2c0d3e2ecaf410621f4f8234d9976ff7d0a3f5a",
+        "19b1041774af16e43efeceb67ba4c69173e9bc8ad96c57769761e34833816668"
+      ],
+      "source_sha256": "75a2cb10792ad3fa36faff9aa79649277f29ba5384c43e0a4af1f0752b051778",
+      "text": "Is this genuinely NVIDIA CUDA.\n\n:attr:`is_gpu`보다 좁고 의도적으로 그렇습니다 : ``nvidia-smi``, CUDA 버전 또는 NVIDIA 특정 메모리 인터페이스를 읽는 모든 것이 이것을 원하고 ROCm에서 잘못 될 것입니다.",
+      "translation_source_blocks_sha256": [
+        "4cc1e361a59dd5b8b677d9b1f2c0d3e2ecaf410621f4f8234d9976ff7d0a3f5a",
+        "19b1041774af16e43efeceb67ba4c69173e9bc8ad96c57769761e34833816668"
+      ]
+    },
+    "spacr.accelerator.Accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "ad2a0db989f68883110633f2987354e746226875fe34ada912e3aa43df8aad8f",
+        "60ec10a2f1b0fdb06af28e99ca79a706f5e11909dd1f82b2674ba386906b5f79"
+      ],
+      "source_sha256": "8df64a6f814be9f6c87fe66f0d61f21fc839e7b9d4830a868eb337420fc8cc37",
+      "text": "사용 가능하지 않은 CPU 장치가 있습니까?\n\n질문은 ``torch.cuda.is_available()``을 썼을 때 가장 많이 전화하는 사이트입니다.",
+      "translation_source_blocks_sha256": [
+        "ad2a0db989f68883110633f2987354e746226875fe34ada912e3aa43df8aad8f",
+        "60ec10a2f1b0fdb06af28e99ca79a706f5e11909dd1f82b2674ba386906b5f79"
+      ]
+    },
+    "spacr.accelerator.Accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ],
+      "source_sha256": "ccbd0918a3838f05bdbf83e756f06f7499ee7a418857648c39093eaa0be697cb",
+      "text": "``torch.device``에 대 한 :attr:`device`, 또는 CPU torch 완전히 사라진 경우.",
+      "translation_source_blocks_sha256": [
+        "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ]
+    },
+    "spacr.accelerator.autocast_device_type": {
+      "source_blocks_sha256": [
+        "995d81791d5ffb824bff678e0866866e73124b8c50f856aa17b9cd6206a92f00",
+        "471cb7d35648f2113d56e0d3d032c3e3e8e938e62c2d2c2d3911d3eff8080b5e"
+      ],
+      "source_sha256": "3f7c2806ee2eea2cdb86788bfca0e862a8100fd0034cfff4c8ddbec10e1fe86f",
+      "text": "The string for ``torch.autocast(device_type=...)``, or None.\n\nNone means \"do not use mixed precision here\", which is a different answer from \"use it on the CPU\" and has to stay distinguishable.",
+      "translation_source_blocks_sha256": [
+        "995d81791d5ffb824bff678e0866866e73124b8c50f856aa17b9cd6206a92f00",
+        "471cb7d35648f2113d56e0d3d032c3e3e8e938e62c2d2c2d3911d3eff8080b5e"
+      ]
+    },
+    "spacr.accelerator.capabilities": {
+      "source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "a7f7a6a6bb252b0fe58d0189634b4a19c8f0f605674e595b09ed55f034f37b6c",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ],
+      "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
+      "text": "``(task, accelerated, detail)``이 기계가 실제로 할 수있는 일.\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a question nobody asked: users want to know whether THE SLOW STEP will be slow. So this reports per task, and it reports the truth per backend rather than one verdict for all of them -- on Metal the segmentation and the machine-learning classification model are accelerated while the cuML reductions are not, and a single green tick would be a lie about the second.\n\nOrdered by how much the acceleration is worth: segmentation on the CPU took 444 s for one 256x256 image on the machine this was written on, and 3.2 s on its Radeon.",
+      "translation_source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "46f9f29437d8821e086ce0ca7348ca97062f038b37854a25070619cbf0c48629",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ]
+    },
+    "spacr.accelerator.cellpose_gpu": {
+      "source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ],
+      "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
+      "text": "What to pass cellpose as ``gpu=``.\n\nCellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here is what pinned every Mac to the CPU: cellpose branches on this flag before it looks at ``device`` at all.",
+      "translation_source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ]
+    },
+    "spacr.accelerator.cellpose_kwargs": {
+      "source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ],
+      "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
+      "text": "Everything ``CellposeModel`` needs to land on this machine's GPU.\n\n동의해야 할 세 가지 주장, 그래서 그들은 6 개의 전화 사이트에서 표시되는 대신 함께 생산됩니다 :\n\n* ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``, so a device without the flag still takes the CPU path.\n* ``device`` - 하나에서 해결, 그래서 cellpose 및 spaCR 동일한 기계에 대해 동의하지 않을 수 없습니다.\n* ``use_bfloat16`` -- cpsam은 기본적으로 bfloat16에 무게를 부담하고 torch 2.2에 금속은 bfLOat16이 없으므로 기본적으로 건설 중 ``TypeError: BFloat16 is not supported on MPS``입니다. 보고 iMac에서 측정; float32 무게는 거기에서 작동하고 VRAM 비용, 그렇지 않으면 idle에 앉아있는 카드에 대한 올바른 거래입니다.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose resolve it -- should take ``gpu`` and ``use_bfloat16`` from here and drop ``device``.",
+      "translation_source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ]
+    },
+    "spacr.accelerator.describe": {
+      "source_blocks_sha256": [
+        "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db"
+      ],
+      "source_sha256": "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db",
+      "text": "로그 또는 콘솔을위한 하나의 라인 : 무엇이 발견되었는지, 그것이 실행되는지 여부.",
+      "translation_source_blocks_sha256": [
+        "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db"
+      ]
+    },
+    "spacr.accelerator.device_string": {
+      "source_blocks_sha256": [
+        "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48"
+      ],
+      "source_sha256": "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48",
+      "text": "해결된 장치는 ``\"cuda:0\"``, ``\"mps\"``과 같은 끈으로 작동합니다.",
+      "translation_source_blocks_sha256": [
+        "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48"
+      ]
+    },
+    "spacr.accelerator.empty_cache": {
+      "source_blocks_sha256": [
+        "2e214e3e0b1555b714c84b246ac05923a68f3e12987aa77754377881478d98e5",
+        "6a760af003e1f8e495805ec1ac45e9cd012f9e1fbc7ae0c32ddfb16c2196b05c"
+      ],
+      "source_sha256": "39b9c29b3095048ed01a18697cf4d7fdeaf49840fecf9dce6ad8723a734dd396",
+      "text": "핸드 드라이버를 돌려보내는 것은 무엇이든이 후반 캐시. 결코 던지지 않는다.\n\n:param torch_module: ask about THIS torch instead of the cached answer for the machine. :mod:`spacr.qt.resource_cleanup` holds its own handle -- it deliberately does not import torch just to free memory -- and a cached global would send the call to the wrong backend when that handle is a stand-in.",
+      "translation_source_blocks_sha256": [
+        "e9765619d64d6b5ce02a76cdcaae3dc8fa81566daab530392259db755a341e5a",
+        "6a760af003e1f8e495805ec1ac45e9cd012f9e1fbc7ae0c32ddfb16c2196b05c"
+      ]
+    },
+    "spacr.accelerator.inspect_torch": {
+      "source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ],
+      "source_sha256": "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9",
+      "text": "특정 torch 모듈에 대항하여, 캐시를 만지지 않고 해결합니다.\n\nFor callers that already hold a torch handle and must be answered about that one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch through its own indirection so the diagnosis can be exercised against a stand-in, and a cached answer about the real machine would defeat that entirely. Same probes and same order as :func:`resolve`, so the two cannot drift.",
+      "translation_source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ]
+    },
+    "spacr.accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "9afb729c3b683cc6f20a8353d791d4d808ab0051af642ce9b1e5eb2d8e2ca656",
+        "464f092322d2b8bd7ce6e316ef111143293e2959f6a0d8ff5aefda5c6d0d4909"
+      ],
+      "source_sha256": "fcf1d0bbb604ffda019d26ca0b23adf7c296932c46e35a3d60b628545a75e2a7",
+      "text": "Is the resolved accelerator genuinely NVIDIA CUDA.\n\nFor the places that legitimately need CUDA specifically -- memory interrogation, ``nvidia-smi`` advice, CUDA version reporting.",
+      "translation_source_blocks_sha256": [
+        "9afb729c3b683cc6f20a8353d791d4d808ab0051af642ce9b1e5eb2d8e2ca656",
+        "464f092322d2b8bd7ce6e316ef111143293e2959f6a0d8ff5aefda5c6d0d4909"
+      ]
+    },
+    "spacr.accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "3c560283890f10dc867d39b641440531d81a1b4b5a162ebe69848f432b7c601e",
+        "ed21ba5b37e2c3eb68dc2ed548ee1a7375f9fdf9cce5d4cecabf44844404b59a"
+      ],
+      "source_sha256": "c7c2492a485dea49cd29c0d86b946a285fbef19208390b3924ea9a8ba04cb3f6",
+      "text": "어떤 판매자의 사용 가능한 가속기가 있습니까?\n\nWhat a call site means when it writes ``torch.cuda.is_available()`` to decide whether to use a GPU at all.",
+      "translation_source_blocks_sha256": [
+        "3c560283890f10dc867d39b641440531d81a1b4b5a162ebe69848f432b7c601e",
+        "ed21ba5b37e2c3eb68dc2ed548ee1a7375f9fdf9cce5d4cecabf44844404b59a"
+      ]
+    },
+    "spacr.accelerator.neural_engines": {
+      "source_blocks_sha256": [
+        "cefa51270f5cbff34a6f4adf304a12e51303c9018d80e6a6eea64b4926c4c61e",
+        "793621758e6340a4a792461f46091f26e0f14a998f684b74fd5b13fd2baf9cca"
+      ],
+      "source_sha256": "6a01b8415d8d44b160edbfa32eed027bc63b461887502bd57a79fc956c8c21d9",
+      "text": "Inference silicon that is present and that spaCR will NOT use.\n\n이렇게 보고된 설정 슬라이드는 사용자가 왜 그들의 신경 엔진이 어리석은지 궁금해하는 대신 \" 찾았습니다, 사용되지 않았습니다\"라고 말할 수 있습니다.이 장치 중 하나에 대한 휴대용 torch 장치가 없습니다 - ANE는 CoreML을 통해서만 접근 할 수 있으며, Intel의 AI Boost는 OpenVINO를 통해만 - 그래서 하나를 컴퓨터 장치로 부르는 것은 뒤에 아무것도 유지할 수없는 약속이 될 것입니다.",
+      "translation_source_blocks_sha256": [
+        "cefa51270f5cbff34a6f4adf304a12e51303c9018d80e6a6eea64b4926c4c61e",
+        "793621758e6340a4a792461f46091f26e0f14a998f684b74fd5b13fd2baf9cca"
+      ]
+    },
+    "spacr.accelerator.resolve": {
+      "source_blocks_sha256": [
+        "71f3c04fb83fe480fde852a007279d76c29c6b225715508e51739b2e546c0eb9",
+        "73c9663388611bd7865e72d97897e77ead3ee64a753bf0183dc2ecf909ac6693"
+      ],
+      "source_sha256": "ed55e31201a7ca0914eadebdc6fdf3d0275cc79bffe63e699ed55d55920d7c6f",
+      "text": "spaCR 가속기는 사용됩니다. 숨겨진; 절대 던지지 않습니다.\n\n:param refresh: 다시 탐색 대신 캐시에서 응답. 테스트를 위해, 가짜 테스트.",
+      "translation_source_blocks_sha256": [
+        "7b80b1b4c4573c0dcf36f1d87278de86fc9cea75f55cb5ee6fbd93f46c1e3ac1",
+        "73c9663388611bd7865e72d97897e77ead3ee64a753bf0183dc2ecf909ac6693"
+      ]
+    },
+    "spacr.accelerator.supports_autocast": {
+      "source_blocks_sha256": [
+        "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083"
+      ],
+      "source_sha256": "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083",
+      "text": "``torch.autocast``이 장치 유형을 받아들이는지 여부.",
+      "translation_source_blocks_sha256": [
+        "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083"
+      ]
+    },
+    "spacr.accelerator.supports_bfloat16": {
+      "source_blocks_sha256": [
+        "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934"
+      ],
+      "source_sha256": "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934",
+      "text": "``torch.bfloat16`` 테너가 장치에 설치될 수 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934"
+      ]
+    },
+    "spacr.accelerator.supports_float64": {
+      "source_blocks_sha256": [
+        "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6"
+      ],
+      "source_sha256": "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6",
+      "text": "이중 정확도가 장치에 전송될 수 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6"
+      ]
+    },
+    "spacr.accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "7aa10622c8586fbe6e244c521f09abc84f60063a47bed43ba90b8702aa7cc157",
+        "064e19296edc2fd16fa26f9a4da33b8fde33b851a7ce4a8fb9092a0bda8eefb9"
+      ],
+      "source_sha256": "5081bfcb3af6754254ed5933d972cda0d5b78d2a115cfad6c7304e163138f135",
+      "text": "``torch.device`` 해결된 가속기에 대 한.\n\n``torch.device(\"cuda:0\" if torch.cuda.is_available() else \"cpu\")``에 대한 직접적인 대체입니다.",
+      "translation_source_blocks_sha256": [
+        "7aa10622c8586fbe6e244c521f09abc84f60063a47bed43ba90b8702aa7cc157",
+        "064e19296edc2fd16fa26f9a4da33b8fde33b851a7ce4a8fb9092a0bda8eefb9"
+      ]
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -10989,7 +11273,7 @@
         "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
         "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
         "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
-        "cdbcac4248f5452793cc57ecc68155ff793302a9751a4b190cd6c9b2bf3c8f35",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
         "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
         "f156737bd7777fb3403d9b269ec7bf3af4482e5f2d473182308eb40a771266da",
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
@@ -11001,8 +11285,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "3996af7f9926e613d27f7d3b85a473676bddd463636afd205e3b40d45e68d57e",
-      "text": "원료 마이크로스코피 이미지의 폴더를 :func:`spacr.measure.measure_crop`을 위해 준비된 Cellpose 데이터 채널으로 변환합니다.\n\n다중 이미지 데이터 채널 이미지의 출처 폴더 ``src``를 고려하여,이 작업 흐름 (1) 선택적으로 둥근 폴드에서 입력을 통합, (2) 다운로드 스트리밍에 사용 된 Yokogawa 레이아웃에 파일을 재명, (3) 사전 프로세스 매일 이미지 채널 라인, (4) Cellpose (SAM 변형)를 통해 세포 / 핵 / 병원 / 유기 이미지 데이터를위한 마스크를 생성, (5) 선택적으로 핵 + 병원 과잉에 대한 세포 마스크와 합의, 그리고 (6) 출력 옆에 과잉 플로트와 ``gen_mask_settings.csv``를 작성합니다.\n\n:param settings: :func:`spacr.settings.set_default_settings_preprocess_generate_masks`을 통해 캐논화된 키 가치 맵링을 설정합니다. ``src`` 및 적어도 ``cell_channel``, ``nucleus_channel``,``pathogen_channel`` 또는 ``organelle_channel`` 중 하나를 포함해야 합니다.\n\n    - ``src`` (str 또는 str 목록) - 이미지 폴더(s)를 처리합니다.\n    - ``metadata_type`` — ``'cellvoyager'`` 또는 ``'auto'`` (설정할 때 ``custom_regex``를 사용합니다).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` / ``organelle_channel`` - 0 기반 채널 지표; ``None`` 스키프.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter`` - Cellpose 픽셀의 개체 직경.\n    - ``pathogen_model`` - 제거.Pathogens는 다른 모든 개체와 마찬가지로 cpsam으로 분류됩니다; pre-SAM toxo 체크 포인트는 사라집니다.\n    - ``consolidate`` - 처리하기 전에 ``src/consolidated``에 둥근 이미지를 복사합니다.\n    - ``preprocess`` / ``masks`` - 두 개의 작업 흐름의 절반을 조정합니다.\n    - ``adjust_cells`` - 핵 + 병원균에 대한 조화 세포 마스크.\n    - ``timelapse`` - trackpy 링크를 활성화; 힘 ``randomize=False``.\n    - ``dry_run`` - 유효한: 입력 폴더를 검사하고, 사전 보고서와 계획을 인쇄하고, 아무것도 쓰거나 모델을 업로드하지 않고 반환합니다.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` 정상적인 움직임에서, 마스크를 쓰고, 위장, ``measurements.db`` 계산 및 설정 CSVs 밑바닥에 앉아 있는 사람들 ``src``그리고 언제 ``dry_run`` 설정, 대신 문제 목록을 반환 :func:`spacr.validate.run_preflight`.\n:raises ValueError: ``src``가 없거나 잘못된 유형이 있는 경우 또는 분할 채널이 정의되지 않습니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n또한 참조: :func:`spacr.io.preprocess_img_data` - 사전 처리 절반만. :func:`spacr.measure.measure_crop` - 아래 스트림 기능 추출.",
+      "source_sha256": "106e3b3159d69d117144e8c1a332713778fa3a75ed041bf5f3802330dd3944db",
+      "text": "원료 마이크로스코피 이미지의 폴더를 :func:`spacr.measure.measure_crop`을 위해 준비된 Cellpose 데이터 채널으로 변환합니다.\n\n다중 이미지 데이터 채널 이미지의 출처 폴더 ``src``를 고려하여,이 작업 흐름 (1) 선택적으로 둥근 폴드에서 입력을 통합, (2) 다운로드 스트리밍에 사용 된 Yokogawa 레이아웃에 파일을 재명, (3) 사전 프로세스 매일 이미지 채널 라인, (4) Cellpose (SAM 변형)를 통해 세포 / 핵 / 병원 / 유기 이미지 데이터를위한 마스크를 생성, (5) 선택적으로 핵 + 병원 과잉에 대한 세포 마스크와 합의, 그리고 (6) 출력 옆에 과잉 플로트와 ``gen_mask_settings.csv``를 작성합니다.\n\n:param settings: :func:`spacr.settings.set_default_settings_preprocess_generate_masks`을 통해 캐논화된 키 가치 맵링을 설정합니다. ``src`` 및 적어도 ``cell_channel``, ``nucleus_channel``,``pathogen_channel`` 또는 ``organelle_channel`` 중 하나를 포함해야 합니다.\n\n    - ``src`` (str 또는 str 목록) — 이미지 폴더(s)를 처리합니다.\n    - ``metadata_type`` — ``'cellvoyager'`` 또는 ``'auto'`` (설정할 때 ``custom_regex``를 사용합니다).\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` - 0 기반 채널 지표; ``None`` 스키프.\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` - Cellpose 픽셀의 개체 직경.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.\n    - ``consolidate`` - 처리하기 전에 ``src/consolidated``에 둥근 이미지를 복사합니다.\n    - ``preprocess`` / ``masks`` - 두 개의 작업 흐름의 절반을 조정합니다.\n    - ``adjust_cells`` - 핵 + 병원균에 대한 조화 세포 마스크.\n    - ``timelapse`` - trackpy 링크를 활성화; 힘 ``randomize=False``.\n    - ``dry_run`` - 유효: 입력 폴더를 검사하고, 사전 보고서와 계획을 인쇄하고, 아무것도 쓰거나 모델을 업로드하지 않고 반환합니다.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays, ``measurements.db`` counts and settings CSVs into subfolders of ``src``. When ``dry_run`` is set, returns instead the list of problems from :func:`spacr.validate.run_preflight`.\n:raises ValueError: ``src``가 실종되거나 잘못된 유형의 경우 또는 분할 채널이 정의되지 않습니다.\n\n예를 들어 :\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n또한 참조: :func:`spacr.io.preprocess_img_data` — 사전 처리 절반만. :func:`spacr.measure.measure_crop` — 아래 스트림 함수 추출.",
       "translation_source_blocks_sha256": [
         "366be24510440a273cbaba7959fe628cb0f26e8c20215e13824a60d0ef5f95e0",
         "5afca811e741b3d6db1bbf2850514b3ac5b11f100ceed1f08a8e759717d5dc42",
@@ -11011,7 +11295,7 @@
         "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
         "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
         "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
-        "cdbcac4248f5452793cc57ecc68155ff793302a9751a4b190cd6c9b2bf3c8f35",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
         "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
         "2084c6cc53377ead874cde4aced38e5f71c9a114dfe900d97f5115dcd6ae753c",
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
@@ -36931,8 +37215,8 @@
         "d029f87e3d80f8fd9b1be67c7426b4cc1ff47b4a9d0a8461c826a59d8c5eb6cd",
         "c685efdcd6fe024ea405d69f6df68566cb667ce83b3158ea7ac1164abf9ab10c"
       ],
-      "source_sha256": "12fce4f1aff95c588516f17b61e2bc0e19f8c8a79bfeebbdfc48af0f695c2ee1",
-      "text": "Browse, verify, fetch 및 benchmark spaCR 분류 및 분류 모델.\n\n왜 이런 존재가\n---------------\nspaCR 저장소를 실행할 수 있습니다. Cellpose 모델 A Cellpose 모델 누군가 팀에서 작년에 완벽하게 정해진, 기계 학습 분류 모델 체크 포인트에서 세 개의 폴더를 처리 세션, 또는 다운로드 된 체크포인트에서 Hugging Face 오늘날 어떤 기계에 존재하는지 알 수 있는 유일한 방법은 ``find / -name '*.pth'``, 그들 중 하나가 무엇에 훈련 된지 알 수있는 유일한 방법은 기억하는 것입니다, 그리고 디스크에 복사본이 게시 된 파일인지 알 수 있는 유일 한 방법은 희망입니다.\n\n이 모듈은 이 세 가지 질문에 대답하고 다른 것은 없습니다 :\n\n* **여기** - :func:`discover_local`는 폴더를 실행하고 Cellpose 또는 기계 학습 분류 모델로 분류 된 체크 포인트를 반환하며, 이미 작성된 설정 spaCR 스냅샷에서 복구 할 수있는 출처가 무엇이든;\n* **이 바로 바이트** - :func:`sha256_file` / :func:`verify` / :func:`fetch`, 원자로 다운로드, 도착한 것을 확인하고 오류를 설치하는 것을 거부;\n* **그것이 내 데이터** - :func:`benchmark`에 무엇을 하는가, 이는 :mod:`spacr.model_compare`의 \"three fields\" 값이 두 개 대신 하나의 모델에 표시됩니다.\n\n여기서 아무것도 torch 또는 cellpose 모듈 수입 시간에 수입하지 않습니다. 동물원을 탐색하고, 출처를 읽고, 파일을 검사하고, 테이블이 설치되지 않은 기계에서 모든 작업을 수행합니다; 단지 :func:`benchmark` (:func:`spacr.model_compare.segment_with_cellpose`을 통해) 그들을 필요로하고, 그것이 호출 될 때만. ``tests/test_model_zoo.py`` 그것을 주장합니다.\n\n이것을 신뢰할 수있는 대신 단순히 편리하게 만드는 4 가지\n------------------------------------------------------------------------\n**모든 다운로드가 체크인되고 확인이 사용하기 전에 발생합니다.** 같은 URL에서 떨어진 연결에 의해 흔들리거나 다른 하나로 교환 된 체크 포인트는 여전히 충전됩니다. 그것은 던지지 않습니다; 그것은 조용히 다른 마스크를 생성하고, 사용하는 실행은 그것이하지 않은 실행과 정확히 보입니다. 그래서 :func:`fetch` 해시 무엇이 도착하고 게시 된 카탈로그의 해시와 비교 : 오류가 파일을 삭제하고 :class:`ChecksumMismatch` - 입력은 결코 등록되지 않습니다. 실제로 계산 된 해시는 반환 된 입력에 저장되므로 \"verified\"는 \"these bytes\", 아니 \"this filename\"를 의미합니다.\n\n    게시 된 해시가없는 카탈로그 입력은 전혀 확인할 수 없으며, 이는 기본적으로 거부됩니다 (``require_checksum=True``) 대신 조용히 벌금으로 취급됩니다. ``require_checksum=False``를 무의식적으로 받아 들일 수없는 소스 패스를 호출; 결과 입력은 ``verified=False``를 가지고 :func:`format_zoo`에서 그렇게 말합니다.\n\n**모든 다운로드는 원자이며 결코 과장하지 않습니다.** 목적지 디렉토리 *에서 일시적인 파일*로 스트림을 변경합니다 (그러므로 최종 ``os.replace``는 동일한 파일 시스템의 이름이며, 이것은 원자입니다) 그리고 이름은 체크 룸이 통과 한 후에만 발생합니다. 중단되거나 취소 된 다운로드는 따라서 모델처럼 보이는 아무것도 남기지 않습니다.\n\n    목적지는 과장된 대신 버전화됩니다 (:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, ...). 같은 이름을 가진 두 개의 모델이있는 것은 정상적인 일입니다; 첫 번째를 두 번째로 잃는 것은 아닙니다.\n\n**Provenance는 기록되고, \"unknown\"는 완전히 작성됩니다.** Cellpose 모델은 60x 컨플루엔트 HeLa에 깔끔하게 맞는 하나와 교환 할 수 없습니다 20x 스파르스 fibroblasts에 훈련 된 하나, 그리고 균형 점수의 양은 그것을 만듭니다. 모델이 교육 된 것은 동물원이 보여줄 수있는 유일한 가장 유용한 것입니다, 그래서 :class:`ModelEntry`는 :attr:`~ModelEntry.trained_on`와 :attr:`~ModelEntry.trained_by`를 가지고, 설정에서 회복 된 모두 spaCR 이미 그것의 모델 옆에 기록 (``<file>_settings.csv``에 대한 Cellpose 모델, ``<dst>/settings.csv`` 기계 학습 분류 모델 - 읽기 통해 :func:`spacr.train_compare.load_run`, 이미 어디를 볼 수 있는지 알고있다).\n\n    그것을 복구 할 수없는 필드는 ``'unknown'``, 결코 ``''``를 읽습니다. 출처 테이블의 흰색 세포는 \"no constraints\"로 읽습니다; 그것은 그것이 의미하는 반대입니다.\n\n**벤치마크는 한 필드 세트 내에서만 비교할 수 있습니다.** 당신의 세 필드에있는 모델의 점수는 다른 사람의 점수에 대해 아무 말도하지 않으며, 두 개를 함께 분류하는 테이블은 두 개의 관련되지 않은 숫자로 순위를 발명합니다. 그래서 각 :class:`BenchmarkResult`은 :func:`fieldset_id`를 기록합니다 - 실제 픽셀의 해시, 폴더 이름이 아닙니다 - 그리고 :func:`rank` **는** :class:`IncomparableBenchmarks`에서 결과를 전달 할 때. :func:`rank_groups`와 :func:`format_benchmarks`는 지원되는 대안입니다 : 그들은 필드 세트에 따라 그룹, 각 그룹 내에서 순위를 차지하고 그룹을 표시합니다.\n\n그리고 다섯 번째, 작은 하나 : 실종되는 모델 파일, 텅 비어 있거나 torch 체크 포인트는 모두 실패합니다. :func:`inspect_checkpoint` 파일 이름을 지정하는 메시지와 함께, 무엇이든 그것을 충전하려고하기 전에. ``KeyError`` 깊은 내부에서 국가-문자 이름으로 들어간다. torch - 사용자가 선택한 이름은 없습니다.\n\n벤치마크가 말할 수 있고 말할 수 없는 것\n---------------------------------------\n여기에는 근본적인 진실이 없습니다. :func:`benchmark` N 마이크로스코프 시각 필드에 하나의 모델을 실행하고 무엇이 나왔는지 보고합니다 : 개체 계산, 타이밍 및 :mod:`spacr.seg_qc` 판결은 마이크로는 시각 영역에 따라 (거짓? 분해? 텅 비어? 모든 국경에?). 이것은 *품질 제어* 점수, 정확성이 아닙니다 - 그것은 당신에게 당신의 데이터에 붕괴 된 모델을 말할 수 있습니다, 그것은 두 가지 확실한 분할 중 어느 것이 옳은지 알 수 없습니다. . :data:`RANK_KEYS` 따라서 정확히 두 개의 구조화 된 데이터 이름, ``'qc'``와 ``'seconds'``을 제공하고, 정확성으로 읽을 수있는 구조화된 데이터 이름은 없습니다. 서로 반대하는 두 가지 모델을 비교하려면 :func:`compare_entries`를 사용하여 양쪽 모두 :func:`spacr.model_compare.compare_models`로 손을 잡으십시오. - A/B는 어느 쪽도 진실이 아닌 것에 대해 명백합니다.\n\nCellpose 4는 ``model_type``, ``diam_mean``, ``nchan``, ``channels`` 및 ``rescale``를 받아들이고 무시합니다. 단지 ``diameter``에서 ``eval``은 여전히 마스크를 변경합니다. :class:`BenchmarkResult`은 해결된 ``honoured`` 및 ``ignored`` 매개 변수의 키 가치 맵을 :class:`spacr.model_compare.ModelConfig`에서 직접 옮기므로 참조 표시는 조용히 설정을 참조 할 수 없습니다.\n\n예를 들어::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('toxo_plaque_cyto_e25000_X1120_Y1120.CP_model', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\n또한 참조: :mod:`spacr.model_compare` — A/B 사용 이 모듈은 분류 및 두 모델 비교를 위해 다시 사용됩니다. :mod:`spacr.train_compare` — 실행 발견 및 설정 복구, 재사용 대량 판매 기계 학습 분류 모델의 절반 동물원. :func:`spacr.utils.download_models` — 유산 대량 끌기 묶여 Hugging Face 모델 패키지, :func:`download_bundled_models`로 포장.",
+      "source_sha256": "83cb76b62543507805c052895fd3461e9bad7836f187b85ce99b1f8b5b5a4af0",
+      "text": "Browse, verify, fetch 및 benchmark spaCR 분류 및 분류 모델.\n\n왜 이것이 존재하는가\n--------------------\nspaCR can execute a stock Cellpose model, a Cellpose model somebody on the team fine-tuned last year, a machine-learning classification model checkpoint from a processing session three folders up, or a checkpoint downloaded from Hugging Face. Today the only way to find out which of those exist on a machine is ``find / -name '*.pth'``, the only way to know what one of them was trained on is to remember, and the only way to know whether the copy on disk is the file the author published is to hope.\n\n이 모듈은 이 세 가지 질문에 대답하고 다른 아무것도 없습니다 :\n\n* **여기** - :func:`discover_local`는 폴더를 실행하고 Cellpose 또는 기계 학습 분류 모델로 분류 된 체크 포인트를 반환하며, 이미 작성된 설정 spaCR 스냅샷에서 복구 할 수있는 출처가 무엇이든;\n* **그것은 올바른 바이트** - :func:`sha256_file` / :func:`verify` / :func:`fetch`, 그것은 원자로 다운로드, 도착한 것을 검사하고 오류를 설치하는 것을 거부;\n* **그것이 내 데이터** - :func:`benchmark`에 무엇을 하는가, 이는 :mod:`spacr.model_compare`의 \"three fields\" 값이 두 개 대신 하나의 모델에 표시됩니다.\n\n여기서 아무것도 torch 또는 cellpose 모듈 수입 시간에 수입하지 않습니다. 동물원을 탐색하고, 출처를 읽고, 파일을 검사하고, 테이블이 설치되지 않은 기계에서 모든 작업을 수행합니다; 단지 :func:`benchmark` (:func:`spacr.model_compare.segment_with_cellpose`을 통해) 그들을 필요로하고, 그것이 호출 될 때만. ``tests/test_model_zoo.py`` 그것을 주장합니다.\n\n그것을 신뢰할 수있는 대신 단순히 편리하게 만드는 4 가지\n------------------------------------------------------------------------\n**모든 다운로드가 체크인되고 확인이 사용하기 전에 발생합니다.** 같은 URL에서 떨어진 연결에 의해 흔들리거나 다른 하나로 교환 된 체크 포인트는 여전히 충전됩니다. 그것은 던지지 않습니다; 그것은 조용히 다른 마스크를 생성하고, 사용하는 실행은 그것이하지 않은 실행과 정확히 보입니다. 그래서 :func:`fetch` 해시 무엇이 도착하고 게시 된 카탈로그의 해시와 비교 : 오류가 파일을 삭제하고 :class:`ChecksumMismatch` - 입력은 결코 등록되지 않습니다. 실제로 계산 된 해시는 반환 된 입력에 저장되므로 \"verified\"는 \"these bytes\", 아니 \"this filename\"를 의미합니다.\n\n    게시 된 해시가없는 카탈로그 입력은 전혀 확인할 수 없으며, 이는 기본적으로 거부됩니다 (``require_checksum=True``) 대신 조용히 벌금으로 취급됩니다. ``require_checksum=False``를 무의식적으로 받아 들일 수없는 소스 패스를 호출; 결과 입력은 ``verified=False``를 가지고 :func:`format_zoo`에서 그렇게 말합니다.\n\n**모든 다운로드는 원자이며 결코 과장하지 않습니다.** 목적지 디렉토리 *에서 일시적인 파일*로 스트림을 변경합니다 (그러므로 최종 ``os.replace``는 동일한 파일 시스템의 이름이며, 이것은 원자입니다) 그리고 이름은 체크 룸이 통과 한 후에만 발생합니다. 중단되거나 취소 된 다운로드는 따라서 모델처럼 보이는 아무것도 남기지 않습니다.\n\n    목적지는 과장된 대신 버전화됩니다 (:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, ...). 같은 이름을 가진 두 개의 모델이있는 것은 정상적인 일입니다; 첫 번째를 두 번째로 잃는 것은 아닙니다.\n\n**Provenance는 기록되고, \"unknown\"는 완전히 작성됩니다.** Cellpose 모델은 60x 컨플루엔트 HeLa에 깔끔하게 맞는 하나와 교환 할 수 없습니다 20x 스파르스 fibroblasts에 훈련 된 하나, 그리고 균형 점수의 양은 그것을 만듭니다. 모델이 교육 된 것은 동물원이 보여줄 수있는 유일한 가장 유용한 것입니다, 그래서 :class:`ModelEntry`는 :attr:`~ModelEntry.trained_on`와 :attr:`~ModelEntry.trained_by`를 가지고, 설정에서 회복 된 모두 spaCR 이미 그것의 모델 옆에 기록 (``<file>_settings.csv``에 대한 Cellpose 모델, ``<dst>/settings.csv`` 기계 학습 분류 모델 - 읽기 통해 :func:`spacr.train_compare.load_run`, 이미 어디를 볼 수 있는지 알고있다).\n\n    그것을 복구 할 수없는 필드는 ``'unknown'``, 결코 ``''``를 읽습니다. 출처 테이블의 흰색 세포는 \"no constraints\"로 읽습니다; 그것은 그것이 의미하는 반대입니다.\n\n**벤치마크는 하나의 필드 세트 내에서만 비교할 수 있습니다.** 당신의 세 필드에있는 모델의 점수는 다른 사람에 대한 점수에 대해 아무것도 말하지 않으며, 두 개를 함께 분류하는 테이블은 두 개의 관련되지 않은 숫자에서 순위를 발명합니다. 그래서 각 :class:`BenchmarkResult`은 :func:`fieldset_id`를 기록합니다 - 실제 픽셀의 해시, 폴더 이름이 아닙니다 - 그리고 :func:`rank` **는** :class:`IncomparableBenchmarks`에서 결과를 전달 할 때. :func:`rank_groups`와 :func:`format_benchmarks`는 지원되는 대안입니다 : 그들은 필드 셋에 따라 그룹, 각 그룹 내에서 순위, 그리고 그룹을 표시합니다.\n\nAnd a fifth, smaller one: a model file that is missing, empty, or not a torch checkpoint at all fails in :func:`inspect_checkpoint` with a message naming the file, before anything tries to load it. The default failure — a ``KeyError`` on a state-dictionary entry name from deep inside torch — names nothing the user chose.\n\n벤치마크는 무엇을 말할 수 있고 할 수 없습니까?\n----------------------------------------------\n여기에는 근본적인 진실이 없습니다. :func:`benchmark` N 마이크로스코프 시각 필드에 하나의 모델을 실행하고 무엇이 나왔는지 보고합니다 : 개체 계산, 타이밍 및 :mod:`spacr.seg_qc` 판결은 마이크로는 시각 영역에 따라 (거짓? 분해? 텅 비어? 모든 국경에?). 이것은 *품질 제어* 점수, 정확성이 아닙니다 - 그것은 당신에게 당신의 데이터에 붕괴 된 모델을 말할 수 있습니다, 그것은 두 가지 확실한 분할 중 어느 것이 옳은지 알 수 없습니다. . :data:`RANK_KEYS` 따라서 정확히 두 개의 구조화 된 데이터 이름, ``'qc'``와 ``'seconds'``을 제공하고, 정확성으로 읽을 수있는 구조화된 데이터 이름은 없습니다. 서로 반대하는 두 가지 모델을 비교하려면 :func:`compare_entries`를 사용하여 양쪽 모두 :func:`spacr.model_compare.compare_models`로 손을 잡으십시오. - A/B는 어느 쪽도 진실이 아닌 것에 대해 명백합니다.\n\nCellpose 4 accepts and ignores ``model_type``, ``diam_mean``, ``nchan``, ``channels`` and ``rescale``; only ``diameter`` at ``eval`` still changes the masks. :class:`BenchmarkResult` carries the resolved ``honoured`` and ``ignored`` parameter key-value mappings straight from :class:`spacr.model_compare.ModelConfig` so a benchmark cannot silently be a benchmark of settings nothing read.\n\n예를 들어::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('cpsam_plaque_r3', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\n또한 참조: :mod:`spacr.model_compare` — A/B 사용 이 모듈은 분류 및 두 모델 비교를 위해 다시 사용됩니다. :mod:`spacr.train_compare` — 실행 발견 및 설정 복구, 재사용 대량 판매 기계 학습 분류 모델의 절반 동물원. :func:`spacr.utils.download_models` — 유산 대량 끌기 묶여 Hugging Face 모델 패키지, :func:`download_bundled_models`로 포장.",
       "translation_source_blocks_sha256": [
         "7521f6b4838ebc00325856192fd2a2073ec4930d387bf77cfae17ee761fd0d05",
         "54e879ed145cf24c46dbbbf872468596ed095a82b4d505a81b2b47a8ae80ba9d",
@@ -37514,18 +37798,24 @@
     },
     "spacr.model_zoo.hf_uri": {
       "source_blocks_sha256": [
-        "2a59bfa69fa642c3cf0afba55f735fd55913706e824d0274275063dba1b83b62",
-        "199b43f564eef876743eb13a85abefe5f4f6b9c84273460d44b51b8c4a952faa",
+        "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
+        "d707caa1dac688dde8e806747e241637ccdd3cbbd57480c1952b777b246af9f9",
         "20c27e4986b0163bb9405576424c980b7ff9164d01402172450b16225932e050",
-        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a"
+        "d14ac783f6bc714d1cc867f2c2399d16028138334efcdbf740b3f2b95957fcc1",
+        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a",
+        "d9eb0f6be7a4024dd34a4d25805e22bd611dd18c2d0d6cfecd18f35369eff75b",
+        "73c4925336ee0b32be6c64819776011bcde47b1ffa5a6c9da48087e2f62e2411"
       ],
-      "source_sha256": "52e49fc3d9083b421994f816fe942b788daba6307c9895b45e03ffc39170fde8",
-      "text": "다운로드 URL은 Hugging Face **dataset** repo에서 파일을 다운로드합니다.\n\n:param repo_id: Hugging Face 데이터 세트 저장소 식별자.\n:param filename: 저장소와 관련된 파일 이름을 다운로드합니다.\n\n정확히 URL :func:`spacr.utils.download_models` 및 :func:`spacr.qt.hf_download._download_one`를 구축, 동물원은 이미 배 spaCR 다운로드에서 멀리 드리브 할 수 없도록 한 곳에 보관.",
+      "source_sha256": "460292250dd48e5cd3cf5dfa2ae8915f72762c154db7bd2a15acf955f8eaed91",
+      "text": "Hugging Face repo에서 파일을 다운로드하는 URL.\n\n:param repo_id: Hugging Face 저장소 식별자\n:param filename: 저장소와 관련된 파일 이름을 다운로드합니다.\n:param repo_type: ``\"dataset\"`` (기본, 그리고 무엇 spaCR 먼저 배송) 또는 ``\"model\"``.\n\n정확히 :func:`spacr.utils.download_models` 및 :func:`spacr.qt.hf_download._download_one` URL을 구축하고, 동물원은 이미 배 spaCR 다운로드기에서 멀리 떨어져 나갈 수 없도록 한 곳에 보관됩니다.\n\n두 개의 레포 킨드는 다른 URL을 가지고, 그것은 화장품이 아닙니다 : 데이터 세트 파일은 ``/datasets/<repo>/resolve/...`` 아래에 살고 모델 파일 ``/<repo>/resolve/...`` 아래. URL에서 하나를 요청하면 404 페이지를 반환하고 콘텐츠 유형을 확인하지 않는 다운로드자는 HTML을 목적지로 입력하고 \"checkpoint\"를 남기고 torch 오류로 로드 할 수 없습니다 URL 또는 리포 이름.\n\n``dataset`` remains the default because :data:`HF_MODELS_REPO` is a DATASET repo -- ``einarolafsson/models`` -- and every entry written before this parameter existed assumes it. New model repos pass ``\"model\"``.",
       "translation_source_blocks_sha256": [
-        "2a59bfa69fa642c3cf0afba55f735fd55913706e824d0274275063dba1b83b62",
-        "199b43f564eef876743eb13a85abefe5f4f6b9c84273460d44b51b8c4a952faa",
+        "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
+        "d707caa1dac688dde8e806747e241637ccdd3cbbd57480c1952b777b246af9f9",
         "20c27e4986b0163bb9405576424c980b7ff9164d01402172450b16225932e050",
-        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a"
+        "d14ac783f6bc714d1cc867f2c2399d16028138334efcdbf740b3f2b95957fcc1",
+        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a",
+        "d9eb0f6be7a4024dd34a4d25805e22bd611dd18c2d0d6cfecd18f35369eff75b",
+        "73c4925336ee0b32be6c64819776011bcde47b1ffa5a6c9da48087e2f62e2411"
       ]
     },
     "spacr.model_zoo.inspect_checkpoint": {
@@ -37626,6 +37916,40 @@
         "a7ae2d75ccde23c9c18ae4ceb90a60da9c34933812e38ba759646e4f2dc9b57b"
       ]
     },
+    "spacr.model_zoo.publish_model": {
+      "source_blocks_sha256": [
+        "f706fa49fea9876a84946de1a132e4ed895dcbb3edd063f1f51c6ec0641deb67",
+        "580e5bc97aecf5da1659e5b7a770b6fa8cceaf9e658ec5d1b5d9f34753ec1477",
+        "35fdcf7bf4b6cd8a028800b680472dcfffef86ac4c1e0c95f922d1191c314e8f",
+        "ee2f07255bebdb809a7e6655c2afc13695559bead8a5bf2eacf464f74a455bf7",
+        "46f56fc545a25965f04a6eeffffd8fc81b613160495cefc27faa4c12e2b15fe1",
+        "f217d93d7cc15dfe02c0bae94e0fd1fc19b3ba445aa9c888c77612ae66cb1ff4",
+        "d5bfcf60574a3ee8ddd64e18641f545faf91be10adf29aece4b145447e417069",
+        "48909f1d1f80db6d572e41536c7f06ac38e92dd5a1229f30c479edbdc01f7e3e",
+        "e7cc1af6de91affc4a608628fa50a5d53b3b34c0371554702c2a478bf9a2f4b4",
+        "9f14437941218d4a48704c42c918fe84d0c3f5c37aa8f86e43fa20bcf83fa116",
+        "df5968b7a99568cb7c3d12daffee697e525d979773318842b9f92994eb8652d2",
+        "c6d0f7375e75539f20c06819d9dce8cecffa7a84759cb42960480e7276eb9d83",
+        "4d54092612677cb82923a5210c71666dd66fa845885c73428c1ab75497cee9c2"
+      ],
+      "source_sha256": "0d3f5dde0dceb2eb7533f51a5f304d7523a4030ffe07edf01dbd5595c8af739d",
+      "text": "Upload a model to Hugging Face and return its catalogue row.\n\n:param local_path: 업로드하기 위한 체크 포인트\n:param repo_id: ``<user>/<repo>`` - 귀하의 OWN 계정\n:param key: 짧은 이름 spaCR 아래 모델을 제공합니다.\n:param kind: :data:`KINDS`에 해당되는 글 1건\n:param trained_on: 그것을 올바르게 말하십시오 : 이것은 다른 실험실이 그들에게 적용되는지 여부를 결정해야하는 유일한 것입니다.\n:param trained_by: 누가 그것을 훈련했는지, 그리고 거의 언제.\n:param private: 리포를 개인적으로 유지하십시오.개인 모델은 다른 spaCR 사용자에 의해 캡처 될 수 없으므로 기본적으로 꺼집니다.\n:param notes: 모델 옆에 가져갈 가치가 있는 케이블.\n:returns: 카탈로그 라인, sha256이 채워져 있습니다.\n:raises ImportError: ``huggingface_hub``이 설치되지 않은 경우\n\nTHE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded, which is the whole reason this exists as a function rather than as instructions in a README. :func:`fetch` refuses an entry it cannot verify, so a row written by hand without a hash produces a model nobody can install without disabling the check -- which is what the one pre-existing bundled entry does, and it is a hole rather than a precedent.\n\n출판사는 모델을 스스로 배포하지 않습니다 : 공유 카탈로그 (:data:`REMOTE_CATALOGUE_URI`)에 반환 라인을 추가하고 각 spaCR 사용자가 :data:`CATALOGUE_CACHE_SECONDS` 내에서 볼 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "f706fa49fea9876a84946de1a132e4ed895dcbb3edd063f1f51c6ec0641deb67",
+        "580e5bc97aecf5da1659e5b7a770b6fa8cceaf9e658ec5d1b5d9f34753ec1477",
+        "35fdcf7bf4b6cd8a028800b680472dcfffef86ac4c1e0c95f922d1191c314e8f",
+        "ee2f07255bebdb809a7e6655c2afc13695559bead8a5bf2eacf464f74a455bf7",
+        "46f56fc545a25965f04a6eeffffd8fc81b613160495cefc27faa4c12e2b15fe1",
+        "f217d93d7cc15dfe02c0bae94e0fd1fc19b3ba445aa9c888c77612ae66cb1ff4",
+        "d5bfcf60574a3ee8ddd64e18641f545faf91be10adf29aece4b145447e417069",
+        "48909f1d1f80db6d572e41536c7f06ac38e92dd5a1229f30c479edbdc01f7e3e",
+        "e7cc1af6de91affc4a608628fa50a5d53b3b34c0371554702c2a478bf9a2f4b4",
+        "9f14437941218d4a48704c42c918fe84d0c3f5c37aa8f86e43fa20bcf83fa116",
+        "df5968b7a99568cb7c3d12daffee697e525d979773318842b9f92994eb8652d2",
+        "c6d0f7375e75539f20c06819d9dce8cecffa7a84759cb42960480e7276eb9d83",
+        "4d54092612677cb82923a5210c71666dd66fa845885c73428c1ab75497cee9c2"
+      ]
+    },
     "spacr.model_zoo.rank": {
       "source_blocks_sha256": [
         "733801703a6c71ba83a9a2d82a0275ef091d6a6b02e67f46b845c6425c7b0da8",
@@ -37702,6 +38026,28 @@
         "47aa33447ea3e919ca309b3b7754b24e56133f6aa1c74092124def699364465c",
         "c271247f3d3914971b1f19f8e6592bd16836eeb6b8dd29eb8730fd0437b03658",
         "8b0e30d283779d0f9eeb703058c97de2d26ac5d2404a1fdc1065c069a141edb3"
+      ]
+    },
+    "spacr.model_zoo.shared_catalogue": {
+      "source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+      ],
+      "source_sha256": "e509ddcbd927f27362584d7b1c6cff42e402960106e8096171763ec4e5d80b98",
+      "text": "커뮤니티 카탈로그, :data:`REMOTE_CATALOGUE_URI`에서 가득 차 있습니다.\n\n:param uri: 카탈로그 위치를 위로합니다.\n:param timeout: 요청을 기다리는 데 몇 초가 걸렸습니다.\n:param force: cache를 무시하고 re-fetch.\n:returns: 입력, 또는 ``()`` 카탈로그가 읽을 수 없을 때.\n\n이것은 사용자가 모델 목록을 제공하는 모듈을 열 때 실행되며, 목록이 없이는 유용합니다 : 묶여있는 입력 및 모든 지역 모델은 여전히 거기에 있습니다. 기차에있는 노트북, 프로시 뒤에있는 실험실 및 Hugging Face 오테이션은 모두 같은 것을 생산합니다 - 짧은 목록과 로그 라인 - 열리지 않는 모듈 대신.\n\nWOULD가 침묵하고 해롭다는 실패는 부패하거나 적대적인 카탈로그입니다, 그래서 파시하지 않는 입력은 개별적으로 떨어지고 ``sha256``가없는 입력은 여전히 :func:`fetch`에 의해 설치되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "21486dc5563909ca31365b2e048042fe0cc2f0c4b7e4ca74b25a0a5cd841a0dd",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
       ]
     },
     "spacr.model_zoo.verify": {
@@ -43240,6 +43586,198 @@
         "dd7d1b1613a93bd23e78a85452a417e474d5121d86ed962eec1d7bd8922ac30b",
         "410135220cc1a377dbcc20add63516d7210af83b244e08a2d2a03697197622cb",
         "e1e8de21694973f15d2f0c287a54f3febd75773ce12f4e0c44f9877527262e4a"
+      ]
+    },
+    "spacr.plaque": {
+      "source_blocks_sha256": [
+        "4d3bf9235924af4da2143761c5a27cd7e46ff33414c79a69e4908a4570afdda4",
+        "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
+        "c11841650656574225811d61e62095472888bebbbe66e518157d5ca017a2b045",
+        "6ec8281e68b70e3f6b484efa2d347143d33fc7506ebe2b503791f8ae98d596aa",
+        "4c24aeeb63934d7675e061dcec78e6a5b56d4cbcebc022381c1416d792b5ad3a",
+        "2d73e5b66b7c0cd573014408c710b19313b7808a31efbcaa34a60e5bb467cbc1",
+        "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
+      ],
+      "source_sha256": "363a766b9cf0030415769afdb429eb9771d795efdbc625ce9760f26f3b2fba6f",
+      "text": "마이크로 플레이트 샘플 위치 탐지 및 플레크 평가를위한 물리적 규모.\n\n플래크 시험은 두 가지 형태로 나타나는 이미지에서 계산되며, 그들은 다른 처리가 필요합니다 :\n\n* **그림**에 따라 하나의 플레이트 마이크로스코프 시각 필드 - 그것을 분류하고 계산, 이것은 :func:`spacr.submodules.analyze_plaques`가 항상 한 것입니다;\n* **평등 마이크로 플레이트 샘플 위치 하나의 이미지** - 전체 실험실 마이크, 또는 스트립. 각 덩어리의 각 플레인을 직접 하나의 숫자로 계산하고 손실, 각각에서 온, 즉 전체 실습입니다.\n\n이 모듈은 두 번째 사례를위한 전면 절반을 제공합니다 : 마이크로 플레이트 샘플 위치를 찾고 각각 분할기에 분리됩니다.\n\n왜 마이크로 플레이트 샘플 위치를 측정하고 단순히 찢어지지 않습니다. 픽셀의 *area* 플레이는 생물학이 아닌 미크로스코프의 속성입니다. 두 개의 확대에서 묘사 된 동일한 플래크는 두 가지 영역을 제공하고, 그들을 수영하는 연구는 광학을 비교합니다. 대조적으로 마이크를 샘블 위치는 알려진 물리적 크기의 제조 된 개체입니다. - 6 위치 실험실 마이크 마이크는 그것을 이미지에 상관없이 34.8 mm입니다. 그래서 마이크의 템플릿 위치의 직경은 이미지 자체에 존재하는 통제자이며, 그것에 의해 분할 각 영역은 물리적으로 하나로 변환 될 수 있습니다.\n\n그래서 :func:`detect_wells`은 단지 상자보다는 직경을 반환하고, 왜 :func:`scale_from_well`은 분석이 실제로 소비하는 조각입니다.",
+      "translation_source_blocks_sha256": [
+        "38045b69c8dae724b3f99728fb296f9499c305059eb5fca3b09115d68bdb2e96",
+        "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
+        "f31779c30dbe80e686ded071c1d452bcc9444e91207b376e53ab58450925a82a",
+        "7ef4c8754ba7c577b14736ff3cf122c092aa3b0723a2a01ddfc4ddcbae5418c0",
+        "8ac97ae90907feced7241a95a76cd2543a0bc29592fb403ee1284380cb14ff1b",
+        "ed5273b4e6901475f8995348042420796f174db20114eeb5a04c9a10c6eca32c",
+        "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
+      ]
+    },
+    "spacr.plaque.PlaqueScale": {
+      "source_blocks_sha256": [
+        "fd34679e6581f9e83ea804ad4a278fb7be7af2b1da56d1e1490ff68390e26e26",
+        "0178c9739574a7db3cff4f05e3443b1c20121dec067e53ff29007f27479ffd9c",
+        "bd7133cbb6c558082d3eedaad7799ea40938260244eb698695c7678c32c1e813",
+        "34b919142f878f2f0bb7fdb6ea641fad72714d63c32ffcbb2ff59ab902c8c4ba",
+        "2d8615811ffd50a9ad7f018b7d4a5d0ef49d8f296b4d23a3dab7efeb81623c21"
+      ],
+      "source_sha256": "e0f5c5562990ef35b09e82eb5293d06b255f7ba03cd6e64ae8062da9562d9684",
+      "text": "한 마이크로 플레이트 샘플 위치를위한 픽셀에서 밀리미터, 그리고 그것이 무엇에서 추출되었는지.\n\n:param px_per_mm: 1 밀리미터 당 픽셀\n:param well_diameter_px: 그것은 스케일에서 나온 측정된 직경입니다.\n:param well_diameter_mm: 물리적 다이아몬드가 그와 비교되었습니다.\n:param source: ``well_diameter_mm``가 어떻게 결정되었는지 - 플레이트 형식 이름, 또는 ``\"explicit\"``.",
+      "translation_source_blocks_sha256": [
+        "0dd79879357713ad2815a567b4fb3eba7f3c9f16bd765beac1888ad7af330b34",
+        "0178c9739574a7db3cff4f05e3443b1c20121dec067e53ff29007f27479ffd9c",
+        "bd7133cbb6c558082d3eedaad7799ea40938260244eb698695c7678c32c1e813",
+        "34b919142f878f2f0bb7fdb6ea641fad72714d63c32ffcbb2ff59ab902c8c4ba",
+        "2d8615811ffd50a9ad7f018b7d4a5d0ef49d8f296b4d23a3dab7efeb81623c21"
+      ]
+    },
+    "spacr.plaque.PlaqueScale.area_mm2": {
+      "source_blocks_sha256": [
+        "4bad4abe369edadacd3960a2a5b853254b08f0b023d3a3d012b0aab478077309",
+        "fbba576e3c57087032a496669b1c74e301e4e3c3e10805ca24699c2a938ebc26",
+        "7b04ea9eb1fdf8df3cef8f074790c5b4ce2b317b3365b05ffa8325aeb09de39e"
+      ],
+      "source_sha256": "6aea07076422c831508ed3450aa90e69c2b936072ab7bbcb5803ac01f21b54c6",
+      "text": "픽셀 영역을 mm^2로 변환합니다.\n\n:param area_px: 픽셀에 있는 영역입니다.\n:returns: 동일한 영역은 평방 밀리미터입니다.",
+      "translation_source_blocks_sha256": [
+        "4bad4abe369edadacd3960a2a5b853254b08f0b023d3a3d012b0aab478077309",
+        "fbba576e3c57087032a496669b1c74e301e4e3c3e10805ca24699c2a938ebc26",
+        "7b04ea9eb1fdf8df3cef8f074790c5b4ce2b317b3365b05ffa8325aeb09de39e"
+      ]
+    },
+    "spacr.plaque.Well": {
+      "source_blocks_sha256": [
+        "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
+        "11b5dd26582ae540c1d4f02593dd6e6072e666a90b5bdb7b2e0b3c1fa87f44a9",
+        "0bc495683cda93d55f5a6db6ce664bd93d3d8099733bbb6e58398acaa7d95aa0",
+        "2c570f38ad6a69b4ce98a8749730a892cc870870011afdae20af22db467f46fa",
+        "eaba50e515f50ef499e221d7160ccd4d96c19ca21ecad831337bd9e3761033ea",
+        "086bf9a56fac8478c13f773ca6bfc8daee28c1a39929ea2fbd348c43b0b808a6"
+      ],
+      "source_sha256": "3feac3fafe8ba9997dd22a31358863ce45949f521f7f0cf4b0bd2e8ec8c6e546",
+      "text": "하나는 잘 발견되었습니다.\n\n:param x0: 픽셀에서 왼쪽 옆구리.\n:param y0: 픽셀에서 가장 높은 수준입니다.\n:param x1: 픽셀에서 오른쪽 측면.\n:param y1: 픽셀의 바닥에 앉아있다.\n:param confidence: 이 상자에 대한 탐지기의 점수.",
+      "translation_source_blocks_sha256": [
+        "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
+        "11b5dd26582ae540c1d4f02593dd6e6072e666a90b5bdb7b2e0b3c1fa87f44a9",
+        "0bc495683cda93d55f5a6db6ce664bd93d3d8099733bbb6e58398acaa7d95aa0",
+        "2c570f38ad6a69b4ce98a8749730a892cc870870011afdae20af22db467f46fa",
+        "eaba50e515f50ef499e221d7160ccd4d96c19ca21ecad831337bd9e3761033ea",
+        "086bf9a56fac8478c13f773ca6bfc8daee28c1a39929ea2fbd348c43b0b808a6"
+      ]
+    },
+    "spacr.plaque.Well.as_dict": {
+      "source_blocks_sha256": [
+        "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b"
+      ],
+      "source_sha256": "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b",
+      "text": "상자 플러스 그것의 추출 측정, 결과 테이블을 위해.",
+      "translation_source_blocks_sha256": [
+        "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b"
+      ]
+    },
+    "spacr.plaque.Well.axis_ratio": {
+      "source_blocks_sha256": [
+        "7a8ee795fd989ce039884eb0dcf175f69c180d28a78c78677923a7dc1837e555",
+        "42445b7fe70f69b99d0239a74270f4b2a03cb7bf66df6ff12f3d6992298fe8a3"
+      ],
+      "source_sha256": "100d39b77b35d5674d4a3b19ae3aa913a0d0dedea3e191c29dd077bcde862f5d",
+      "text": "더 짧은 상자 측면 더 오래, 그래서 1.0은 평방입니다.\n\n마이크로 플레이트 샘플 위치는 회로적입니다; 그것보다 훨씬 더 넓은 상자는 탐지기가 이미지의 가장자리에 그것을 붙잡거나 두 개의 미생물 샘프 위치를 결합하거나 미생물을 입지 않는 무언가를 발견한다는 것을 의미합니다.이 중 어느 하나는 :attr:`diameter_px` 잘못되며, 그 직경이 마이크를 입지에있는 모든 영역을 회복하기 때문에, 잘못된 하나는 사라진 하나보다 더 나쁘다.",
+      "translation_source_blocks_sha256": [
+        "7a8ee795fd989ce039884eb0dcf175f69c180d28a78c78677923a7dc1837e555",
+        "b1d40da134138af2b9bc111c7b6617b9c721182bdd609ba50239b8ec17b5058b"
+      ]
+    },
+    "spacr.plaque.Well.diameter_px": {
+      "source_blocks_sha256": [
+        "dc2705df1c319ce03c92ccaa1e9f1e7236536429cf2feddcd8a7affe2088d35d",
+        "f13f0dd38a721eab0b83d6b9e65996baf3109b08d1d00b6096ec57de11c2603c"
+      ],
+      "source_sha256": "69e906d54fb5613caa9115025969327fbfd5706cf9df755f473cc55ad4f05805",
+      "text": "마이크로 플레이트 샘플 위치의 직경은 픽셀, 상자 측면의 중간으로.\n\n마이크로 플레이트 샘플 위치는 둥근, 그래서 올바른 상자는 평방이며 두 측면이 동의합니다. MEAN 대신 양쪽만으로는 약간 빈 상자를 부드럽게 떨어 뜨리는 대신 한 방향으로 - 그리고 분쟁 자체는 :attr:`axis_ratio`에 의해보고되므로 평방이 아닌 상자는 조용히 평균화 된 대신 볼 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "507172e6094d32b8e8447f5694da6ed4ed99aaaf9c4b460c5bd5cbe40009a3c9",
+        "1d27ff3e083cb838d011f37d3529830c34f68c5858f0b26981721b8d62d52f6f"
+      ]
+    },
+    "spacr.plaque.Well.height": {
+      "source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ],
+      "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
+      "text": "픽셀의 상자 높이.",
+      "translation_source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ]
+    },
+    "spacr.plaque.Well.width": {
+      "source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ],
+      "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
+      "text": "박스 넓은 픽셀.",
+      "translation_source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ]
+    },
+    "spacr.plaque.crop_well": {
+      "source_blocks_sha256": [
+        "4472f722d2e08a47c03718b9f819aad15769c1535f8b1a1df9b753c0c29d6d23",
+        "1c09a685342bd83b0edb0ebdfa33b2a62c0606df4dec82b95b27617a97431db5",
+        "220007a0db5f514e872429f1aa58a1fc0929a8fe36658932ecc291a0849fdc2e",
+        "4d05689341415edc1b2927c064ba5b63378837b771309f938460f59d32a4bb9d",
+        "6d283f22812d405bfce22ac18da0fd6f0a27dbe5b1fbde9843dc6fa62334e4ee"
+      ],
+      "source_sha256": "0cecf02b0dd4afd16055aeef8a9796e2b470f39220f9fa7a50a767be4719d4c2",
+      "text": "그림은 하나의 마이크로 플레이트 샘플 위치 안에 있습니다.\n\n:param image: 전체 필드 입니다.\n:param well: 상자를 끊어야 한다.\n:param pad: 상자 주위에 추가 픽셀, 이미지에 클립.\n:returns: 그 지역의 시각 형식의 복사본입니다.",
+      "translation_source_blocks_sha256": [
+        "f62d450018cc41332f5b0bba8a8a494d2666ba14dbf7eee58a055a5d97478448",
+        "1c09a685342bd83b0edb0ebdfa33b2a62c0606df4dec82b95b27617a97431db5",
+        "220007a0db5f514e872429f1aa58a1fc0929a8fe36658932ecc291a0849fdc2e",
+        "4d05689341415edc1b2927c064ba5b63378837b771309f938460f59d32a4bb9d",
+        "6d283f22812d405bfce22ac18da0fd6f0a27dbe5b1fbde9843dc6fa62334e4ee"
+      ]
+    },
+    "spacr.plaque.detect_wells": {
+      "source_blocks_sha256": [
+        "1d2caa3a3ed2d99abf429a3f7c3ec025bc96e4be94a9831054e622cecc0b5e21",
+        "2cf5a0200673a30b1cc0dd0c639807ab50c5f8a8968028a28683d69b354fc71e",
+        "f7728c2d90e11f4d4f2a1338b89aa37de0115d19a708cfa860b93129c4421e89",
+        "28b69f036ab7003d87b6bba6cc06b88fdbbcf04e21a86502449687ed6e55c7ba",
+        "357c1725ae5f701f6ee029d91100d55b02c267fb1dc3c98c4135e2657d29ac97",
+        "23c7eb2d92cf705b09cf22010137254189fb077ca93cd35be6b979db161b28d7",
+        "60ae7d1a22b6e5e791057cc573cd2b739d6f91b95a0d979e2334d9bbe3864674",
+        "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
+      ],
+      "source_sha256": "b2d5d59baf95b872d44bcfd4916b31ba6d615f5e69e90f7f31f47d9570fb7aee",
+      "text": "하나의 이미지에서 마이크로 플레이트 샘플 위치를 찾으십시오.\n\n:param image: 필드, 탐지기가 읽을 수있는 순서로.\n:param weights: YOLO 체크 포인트로 이동합니다.\n:param confidence: 이 아래에서 점수를 추적하는 드롭 탐지.\n:param imgsz: 추출 크기; 640은 배송 탐지기가 훈련 한 것입니다.\n:param min_axis_ratio: :attr:`Well.axis_ratio` - 비 평방 상자는 직경을 만들고, 따라서 그 마이크로 플레이트 샘플 위치의 각 영역은 잘못됩니다.\n:returns: 마이크로 플레이트 샘플 위치, 위에서 아래로 주문 다음 왼쪽에서 오른쪽으로, 그것은 읽기 명령이고 따라서 명령 실험실 마이크를 지도가 작성됩니다.\n:raises ImportError: ``ultralytics``이 설치되지 않은 경우",
+      "translation_source_blocks_sha256": [
+        "c689f923a025fd958fc10b0f0bcd8686e9b138b27abc7d461e9dd06ab7a57902",
+        "2cf5a0200673a30b1cc0dd0c639807ab50c5f8a8968028a28683d69b354fc71e",
+        "f7728c2d90e11f4d4f2a1338b89aa37de0115d19a708cfa860b93129c4421e89",
+        "28b69f036ab7003d87b6bba6cc06b88fdbbcf04e21a86502449687ed6e55c7ba",
+        "357c1725ae5f701f6ee029d91100d55b02c267fb1dc3c98c4135e2657d29ac97",
+        "899ec21188376b75bb7a822a290d5279bd31c3370ced9ca44012c82631f4c67d",
+        "b6d56bbc2a7605b8d42e084b7f7a4f5dcd55178437c32fda6ecf0f7e4f18af86",
+        "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
+      ]
+    },
+    "spacr.plaque.scale_from_well": {
+      "source_blocks_sha256": [
+        "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
+        "9911096259f98d4ebc85d9981d672b240ed3841c9c7a40e46108e53a31822241",
+        "2718ef72048df6a447dc8b671f89acbad86876488cdd85f75bc536598e4e366d",
+        "b356fdf0a0c779489f22ef4620430af61438221b20b6212abbbf3fc6cda1a212",
+        "a86ee3443409aaa41b3c9663d5dd026c6375a1868d46dfa0e93c88ab6a475071",
+        "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
+        "fdcddab3f7b6d974d15d4e152375b6782662f202108aacb531717e8659142ac3"
+      ],
+      "source_sha256": "911b79d76180023104a5771c25a6731295b7ee733ad886a1452ae29bde831f9d",
+      "text": "픽셀 / 밀리미터에서 발견 된 덩어리, 또는 ``None``.\n\n:param well: 잘 측정할 수 있는 분위기입니다.\n:param plate_format: :data:`WELL_DIAMETERS_MM`의 열쇠가 있습니다.\n:param well_diameter_mm: 물리적 직경은 ``plate_format``을 초과합니다.\n:returns: 스케일, 또는 ``None`` 어느 논쟁도 마이크로 플레이트 샘플 위치가 물리적으로 얼마나 큰지 말하지 않는 경우.\n:raises KeyError: ``plate_format``가 알려진 형식이 아닌 경우\n\nRETURNS ``None`` RATHER THAN ASSUMING. Without a physical diameter there is no scale, and inventing one -- a default plate format, say -- would convert every area into confident millimetres that are wrong by whatever the real plate was. The caller keeps pixels and says so.",
+      "translation_source_blocks_sha256": [
+        "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
+        "9911096259f98d4ebc85d9981d672b240ed3841c9c7a40e46108e53a31822241",
+        "2718ef72048df6a447dc8b671f89acbad86876488cdd85f75bc536598e4e366d",
+        "b356fdf0a0c779489f22ef4620430af61438221b20b6212abbbf3fc6cda1a212",
+        "8f7651ae9371c6b3abff53961e9021d104b38961f92798e52fe1010592c06de4",
+        "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
+        "fdcddab3f7b6d974d15d4e152375b6782662f202108aacb531717e8659142ac3"
       ]
     },
     "spacr.plate_measurements": {
@@ -50525,13 +51063,17 @@
     "spacr.qt.app.app_is_visible": {
       "source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
-        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28"
+        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28",
+        "8fc954aa7de3eec50b6e3a471439a0ce35053cb3af29fb4d6313f61c25ae1f81",
+        "c0e7c7e21c85e75f244efbed376fbe21324a4b55a442f8369a4f99c66147d110"
       ],
-      "source_sha256": "23488ee5be2d7a54d77a2dd8634051f56ccd4f4a807e0263163e949c3ab21669",
-      "text": "``key``이 모듈 탐색에 나타나야 하는지 여부.\n\n선호도는 깔끔하게 수입되어 이 레지스트리가 포장 및 헤드없는 호출자에게 안전하게 유지됩니다. 선호도가 읽을 수 없다면 역사적인 모든 모듈 시각적 행동을 유지하십시오.",
+      "source_sha256": "6f5b5b61ebee7b92a466d95545114550d58fe04af2e94cb2edd185dbb20790d3",
+      "text": "``key``이 모듈 네비게이션에 나타나야 하는지 여부.\n\n이 레지스트리는 포장 및 헤드없는 호출자에게 안전하게 유지됩니다. 선호도가 읽을 수 없다면 역사적인 모든 모듈 시각적 인 행동을 유지하십시오.\n\n이 대답은 \"사용자가 이 모듈에 도달 할 수 있습니다\"는 성숙을 선호하고 다른 것은 아닙니다. 폴더 모듈은 여전히 도달할 수 있습니다 - 호스트의 버튼에서, 도움말에서, 그리고 명령 패널에서 - 그래서 여전히 시각적입니다; 그것은 단순히 탭이 없습니다. 탭 질문을 위해 :func:`tiled_apps`를 사용합니다.\n\n이 기능은 둘 다 짧게 대답했고, 명령 패널은 그것을 잡은 것입니다 : 여기에서 :data:`TILELESS_APPS`을 필터링하는 것은 Ctrl+K에서 9 개의 모듈을 가져 왔으므로 폴더는 하나를 움직이는 대신 문을 제거했습니다.",
       "translation_source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
-        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28"
+        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28",
+        "8fc954aa7de3eec50b6e3a471439a0ce35053cb3af29fb4d6313f61c25ae1f81",
+        "c0e7c7e21c85e75f244efbed376fbe21324a4b55a442f8369a4f99c66147d110"
       ]
     },
     "spacr.qt.app.app_stage": {
@@ -50558,6 +51100,22 @@
         "26a6a0a7d2c1c9ee3f7030bd638c58bf5390374f8d763beb60d3777f8e47b626",
         "3e2d83bb6bd966c6d5488d87556d333501de180ef715471261921395ffee9a8e",
         "ca8a2369688b114ae74b0d2389110d160fe08458f1df6f58f5ce0c6521ccc8f3"
+      ]
+    },
+    "spacr.qt.app.folded_children": {
+      "source_blocks_sha256": [
+        "a5ee1eccadf938cf4617f59f0eee48df8d2612afbc8c958f17d3e35a9a7b88e0",
+        "cdc6651cfe23d83bbc56e020bb8a44765ec7d0403398d29383edf86b4567f89c",
+        "fa79b30a9da610f41adf631c2cb10dbc226a36b61f61b433f5cc6bfd2cd2e808",
+        "7ca534244cbbb0fb770b690bf9b27e0f271a612b78d6f0e66b6d552b06972116"
+      ],
+      "source_sha256": "27c3758399bbd997ce1ab46b3dccc8a0c9526f18f78c60ab4fc076600f65c44c",
+      "text": "``host key -> the module keys folded onto its masthead``.\n\n한 맵, 호스트 자체에서 읽으십시오, 그래서 도크, 메뉴 바 및 폴드 스트립은 어디에 속하는지에 대해 동의하지 않을 수 없습니다. 각 호스트는 자신의 `FOLDED_APPS`을 선언합니다; 그 트플은 진실이며 이것은 단지 그들을 수집합니다.\n\n2026-09-01에 요청: 도크와 spaCR 메뉴는 둥근 구조를 표시해야하며, \"버튼이 새로운 주요 모듈에서 한 레벨 아래로 나타나는 각 레벨을 추가합니다.\"\n\n절대 던지지 마십시오 : 모듈을 가져오지 못하는 호스트는 아무것도 기여하지 않습니다, 왜냐하면 탐색 도움말이 창을 건설하는 것을 막을 수 없어야합니다.",
+      "translation_source_blocks_sha256": [
+        "a5ee1eccadf938cf4617f59f0eee48df8d2612afbc8c958f17d3e35a9a7b88e0",
+        "cdc6651cfe23d83bbc56e020bb8a44765ec7d0403398d29383edf86b4567f89c",
+        "fa79b30a9da610f41adf631c2cb10dbc226a36b61f61b433f5cc6bfd2cd2e808",
+        "1554769cf9b51fc098ffc6592dc681268892974c2c5cdd28abc0a17f24a28992"
       ]
     },
     "spacr.qt.app.home_bands": {
@@ -50740,12 +51298,44 @@
     },
     "spacr.qt.app.section_members": {
       "source_blocks_sha256": [
-        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426"
+        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
+        "9d5d2aaea39fac25999bcc850b3c2f999cb009d50fa18e5d1b22639fdcbf86d7",
+        "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
       ],
-      "source_sha256": "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
-      "text": "``APPS``은 등록 순서로 카테고리의 탭 표시를 순서합니다.",
+      "source_sha256": "357c82920205bd6ca003ec9b4be48ff7d5ff1287da8f8c7357a94d8d457f68ed",
+      "text": "``APPS``은 레지스트리 순서로 카테고리의 탭을 표시합니다.\n\n이것은 탭 DRAWS와 그것의 레이블 COUNTS, 그래서 레이블이없는 모듈은 둘 다에서 벗어나야합니다 - 그렇지 않으면 레이블은 \"결과 & QC (7)\"를 세 레이블 위에서 읽고, 이는 사용자가 볼 수없는 무언가의 숫자입니다.\n\nAn explicit ``apps`` list is filtered too. A caller passing its own rows is asking \"which of these belong to this section\", and a tileless one does not belong to any tab whichever list it arrives in.",
       "translation_source_blocks_sha256": [
-        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426"
+        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
+        "9d5d2aaea39fac25999bcc850b3c2f999cb009d50fa18e5d1b22639fdcbf86d7",
+        "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.tile_sort_key": {
+      "source_blocks_sha256": [
+        "6ab7a372b5316f62b107189443768b02ee3c5abc4bc818afa1b192211b9f4929",
+        "fae5777e5581d241ea3f4bd49ecee8d15eb5fc6ff291822bb8736085cb535eb7",
+        "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430"
+      ],
+      "source_sha256": "3db7ad675463135c57b7b51fd553b1dcbe3be22e8f49505967b7bc560f997146",
+      "text": "Sort key placing ``row`` where :data:`SECTION_TILE_ORDER` says.\n\n:param row: ``APPS`` 라인에 해당되는 글 1건\n:returns: ``(section index, position in that section)``. An unlisted key sorts after every listed one, keeping registry order among the unlisted by virtue of Python's stable sort.",
+      "translation_source_blocks_sha256": [
+        "6ab7a372b5316f62b107189443768b02ee3c5abc4bc818afa1b192211b9f4929",
+        "fae5777e5581d241ea3f4bd49ecee8d15eb5fc6ff291822bb8736085cb535eb7",
+        "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430"
+      ]
+    },
+    "spacr.qt.app.tiled_apps": {
+      "source_blocks_sha256": [
+        "0de3276422ae3898b1b48b0fdac8dc399457b5bf72b54219ad7028d4b4d0f470",
+        "bf6bb627ba20566a0c317f879cdc5d720fe41787e9c1a53aa2d60b0c4c8d46ac",
+        "9ee4a0bb76ae9ea2b3d57da7d5644871fb76544bd6a1a423d1054f44766cd64d"
+      ],
+      "source_sha256": "64990697010505290ee3ef07acf3ad1d2b73f554e0b7a0d78930e6143deab60e",
+      "text": "``APPS`` 라인은 레지스트리 순서로 TILE를 얻습니다.\n\n``APPS``은 존재하는 것입니다; 이것은 홈 드라이브입니다.이 두 개는 모듈이 호스트로 융합하기 시작했을 때 같은 것이되지 않았습니다 - 융립 된 모듈은 레지스트리 순서를 유지합니다 (그것은 여전히 스크린, 아이콘, 섹션 및 구조화 된 데이터 이름을 가지고 있습니다) 그리고 그것은 이제 호스트에있는 버튼이나 도움말 메뉴에서 도달하기 때문에 그것의 타일만 잃어 버립니다.\n\n\"사용자가 홈에서 보는 것\", \"이 밴드에 얼마나 많은 타일이 있는지\"또는 \"이 타일의 레이블이 맞는지\"를 물어보는 것은 무엇이든 \"이 키가 탐색 될 수 있다\"라고 물어보고, \"이 애플리케이션이 예술 작품을 가지고 있다\" 또는 \"모든 앱이 스크린을 가지고있다\"를 원한다 ``APPS`` - 포장 된 모듈은 여전히 세 가지 모두에게 예를 대답해야합니다.",
+      "translation_source_blocks_sha256": [
+        "0de3276422ae3898b1b48b0fdac8dc399457b5bf72b54219ad7028d4b4d0f470",
+        "e421beb17e2b208f2d3b1e0b048ea247ef436eddaf5e32aff6095549ed9bcf61",
+        "9ee4a0bb76ae9ea2b3d57da7d5644871fb76544bd6a1a423d1054f44766cd64d"
       ]
     },
     "spacr.qt.app.unregister_app": {
@@ -58586,6 +59176,50 @@
         "94b38cad0a1f8f3418e6ed7c1e2b802cc8ea21fb654589b1be71d31b8694a417",
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "c2c56bc0485c82cb023de769149b159eaa161c58bc04a350a97b23a5b05685a1"
+      ]
+    },
+    "spacr.qt.module_hints": {
+      "source_blocks_sha256": [
+        "d8f6e3e0b5355ec9031d55a72dd4a733a400ed3bc412eaefe798f7be205b7e3f",
+        "a463479b0fc8dcf01d78cd0c4daec2985d0c48c83ca1ff12bef2f24a9478bc8f",
+        "ea746518bb511cb0a199918eb5fd78df8ec07ed2ec5e85abd216004ba84e5ab2",
+        "9c825b5d71ea0ecd9f73aeb6740230a59f9b35a52305fdb00d53e5a3bfc25bc6",
+        "3c898e5af9ca348cf9fcb99f4c306b8cd7efb19c77b4d04d1c4ebcb06edb0230"
+      ],
+      "source_sha256": "741a88a2e3df1152f1f9b3484fe2f0eb0e050b03f095610b973423124be45bd1",
+      "text": "모듈 설명은 창의 바닥으로 가고, 네트워크 위가 아닙니다.\n\n2026-09-01에 요청: \"모듈에 대한 도구 팁은 응용 프로그램 보기의 바닥에만 표시되어야합니다.\"\n\n집은 이미이 방법으로 작동하고 그 이유는 ``AppTile``에 기록되어있다 : 이러한 혼란은 수백 개의 캐릭터로 실행되며, 이는 고정 라인에서 눈이 뛰어 넘을 수 있고 잘못된 상자에서 당신이 읽고있는 네트워크의 꼭대기에 끌려 갈 수 있습니다.\n\nThe hook is ``QEvent.ToolTip`` rather than hover. It fires exactly when Qt has decided to show a tooltip -- after the same delay, at the same moment -- so the description appears when the user expects it, and returning ``True`` from the filter is what stops the popup being drawn. Reimplementing the timing on ``HoverEnter`` would be a second, slightly different delay for the same gesture.\n\n접근 가능한 이름과 설명은 터치되지 않습니다 : 그들은 이러한 위젯에 별도로 설정되며 스크린 리더가 읽는 것입니다, 그래서 눈에 띄는 텍스트를 움직이는 비용은 도움이되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "d8f6e3e0b5355ec9031d55a72dd4a733a400ed3bc412eaefe798f7be205b7e3f",
+        "2252010c1768dc4f060dc2fd609316a2da3cce763b9e66f5271508b4468b8227",
+        "ea746518bb511cb0a199918eb5fd78df8ec07ed2ec5e85abd216004ba84e5ab2",
+        "9c825b5d71ea0ecd9f73aeb6740230a59f9b35a52305fdb00d53e5a3bfc25bc6",
+        "3c898e5af9ca348cf9fcb99f4c306b8cd7efb19c77b4d04d1c4ebcb06edb0230"
+      ]
+    },
+    "spacr.qt.module_hints.install_module_hints": {
+      "source_blocks_sha256": [
+        "ee83f4926dd95e4ec9618fe40a394064c5a5ac943d6392b91c3fcc4bbb48e859",
+        "605a69897d886c8b1c4bcb6bca01f6828f33b5aeeb8eaf2c965266f8ba964090",
+        "fe88ff4f9714e4c7379af5d1796af632e7cabc3ccd07b8dc71846b64a25772ee"
+      ],
+      "source_sha256": "36f68efa46a9ffcb71e07b51f866927485983dcf8407693e65676ea7ac118fb1",
+      "text": "``window``의 상태 바에 모듈 설명을 보내십시오.\n\n각 버튼 대신 애플리케이션에 설치: 폴드 스트립은 호스트 마스트 헤드 당 단단히 버튼을 구축하고, 위젯에 설치된 필터는 이 실행 후에 만들어진 모든 것을 놓칠 것입니다.\n\n:returns: 필터, 그래서 호출자가 그것을 제거 할 수있다; ``None`` 응용 프로그램이 설치할 수 없을 때.",
+      "translation_source_blocks_sha256": [
+        "ee83f4926dd95e4ec9618fe40a394064c5a5ac943d6392b91c3fcc4bbb48e859",
+        "605a69897d886c8b1c4bcb6bca01f6828f33b5aeeb8eaf2c965266f8ba964090",
+        "fe88ff4f9714e4c7379af5d1796af632e7cabc3ccd07b8dc71846b64a25772ee"
+      ]
+    },
+    "spacr.qt.module_hints.module_hint_text": {
+      "source_blocks_sha256": [
+        "9fdd57aa2915f1e1cb0e328482838953dac127fcb6c0796a21676bf3d0cdb6e0",
+        "45beb280c858bf92b35ba189a97e1306986b75da6b0c020564b9916d053dc44f"
+      ],
+      "source_sha256": "f45a839213e871ed90848c477a64b26483f8ba2aea6d49d452f1cb7bff999925",
+      "text": "라인은 모듈 비게트가 기여하거나 ``\"\"``입니다.\n\n이름과 요약은 도구 팁 대신 PROPERTIES에서 읽을 수 있으므로 텍스트는 캐논 영어 출처이며 언어 스위치가 번역을 번역하는 대신 다시 번역합니다.",
+      "translation_source_blocks_sha256": [
+        "9fdd57aa2915f1e1cb0e328482838953dac127fcb6c0796a21676bf3d0cdb6e0",
+        "45beb280c858bf92b35ba189a97e1306986b75da6b0c020564b9916d053dc44f"
       ]
     },
     "spacr.qt.multi_format": {
@@ -66990,6 +67624,18 @@
         "1a918c4a97e9f06e7251938e8b6ffcfd1de4ce30579fc903c3aba5607afb2d56"
       ]
     },
+    "spacr.qt.screens.db_browser.install_folds": {
+      "source_blocks_sha256": [
+        "9373aaa67d4cb47235c9dc47218d7a82b5b6fc32bb51f8f5592e88d5e1a7d6f9",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "fa3c58a28e4b5b84002322e6d99cc7cad9888a07f069d9e13d57356fc4555875",
+      "text": "Put db_browser's fold strip on ``screen``'s masthead.\n\n각 호스트가 봉사하는 스택을 통과 한 사람에 의해 달성 - :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`를 참조하십시오.",
+      "translation_source_blocks_sha256": [
+        "9373aaa67d4cb47235c9dc47218d7a82b5b6fc32bb51f8f5592e88d5e1a7d6f9",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ]
+    },
     "spacr.qt.screens.db_browser.quote_ident": {
       "source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
@@ -68000,6 +68646,16 @@
         "574c656f4ea7b6f28e8099c75701bb3f7d0b103572c62c2ba29049e11f397ef9"
       ]
     },
+    "spacr.qt.screens.foreign.install_folds": {
+      "source_blocks_sha256": [
+        "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9"
+      ],
+      "source_sha256": "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9",
+      "text": "``screen``의 마스트 헤드에 Import의 폴드 스트립을 넣으십시오.",
+      "translation_source_blocks_sha256": [
+        "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9"
+      ]
+    },
     "spacr.qt.screens.gate_editor": {
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
@@ -68430,6 +69086,18 @@
       "text": "``frame``.이 호스트가 필요하다고 부르는 사람.",
       "translation_source_blocks_sha256": [
         "8e345d75be70016dbf6b25b01179d0b48d8d1c5f1ec872e105c84aff12fa503c"
+      ]
+    },
+    "spacr.qt.screens.graph_builder.install_folds": {
+      "source_blocks_sha256": [
+        "b380eb9877cf0d4f70fb3cceadfea84b4badbeffab43408f1e894552b0e6f0c3",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "58cb8e09fdf787b9df7a617b99bf69cdb01f5929f4df5ed05956d4da4fec6851",
+      "text": "Put graph_builder's fold strip on ``screen``'s masthead.\n\n각 호스트가 봉사하는 스택을 통과 한 사람에 의해 달성 - :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`를 참조하십시오.",
+      "translation_source_blocks_sha256": [
+        "b380eb9877cf0d4f70fb3cceadfea84b4badbeffab43408f1e894552b0e6f0c3",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
       ]
     },
     "spacr.qt.screens.graph_builder.make_graph_builder_screen": {
@@ -70382,6 +71050,28 @@
       "text": "포장 된 모듈을 표시; 그것이 이미 상승하는 경우에 그것을 올리십시오.",
       "translation_source_blocks_sha256": [
         "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.build_registered_screen": {
+      "source_blocks_sha256": [
+        "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
+        "0f70848f7ef21f5dc3f108e5d89f1b481b313c7bef6ed5d6914d8a02ffbab3b2",
+        "e2693ed89228b02e20fe367123fbddc5a9b45a1b6629683a60ec43a7929da0de",
+        "a0c45a1424dea18b4ae55ab475aaf665be1849161a729181c54cfeff52ded824",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "fc5d8741925314ec351f6997c871873647b6c079eab1e0cfa7a03c2911fae138",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804"
+      ],
+      "source_sha256": "9838634199216863bd21b4fb26cd2d2dfb1b3b2d347cd6f66601f8118765d737",
+      "text": "애플리케이션 보기 NAVIGATION은 ``key``, 열기 위해 폴드 버튼을 구축합니다.\n\n여전히 레지스트리 순서를 유지하는 폴더 모듈은 두 가지 방법으로 도달됩니다 - 호스트의 마스트 헤드와 명령 패널의 버튼 - 둘 다 동일한 응용 프로그램 전망에 착륙해야합니다. 그것을 구축하는 창을 요청하는 것은 무엇을 보장합니다 : `_build_screen`는 구조화 된 데이터 이름이 특수 응용량 전망 클래스를 가지고있는 것을 알고있는 유일한 장소입니다, 그것은 카탈로그에 의해 이끄는 `AppScreen`s, 그리고 그것은 플러그인에서 온다.\n\n대안은 여기에 10 개의 구조 데이터 이름을 10 클래스로 지도하는 테이블이었는데, 이는 두 번째로 쓰여진 동일한 지식이며 첫 번째에서 자유롭게 흐르는 지식입니다.\n\n질문할 창이 없을 때 :func:`build_settings_screen`로 돌아갑니다 - 헤드없고 단위 테스트 경로, 설정 응용 프로그램 보기가 카탈로그 드라이브 모듈이 어쨌든 생산했을 것입니다.\n\n:param key: 포장된 모듈의 레지스트리 키.\n:param host_window: 가장 큰 창, 하나가있을 때.\n:returns: 이 스크린",
+      "translation_source_blocks_sha256": [
+        "58a168c9879adfebe119158ec4422dc4b343443496a8ea0804948217e9d32e3f",
+        "9a5f0aa74dd1d7a29d9442e58c6c6b75cf9b5d388a3696f03ceb49d87a9a6a1b",
+        "d9e1c2d637876794424e98c8aed9cb79b09df8172a64239eadc648bf2fe8a07d",
+        "77686ffabc8db40b1c6b1831c0e81b1e2702693c9a9b1a145b9a44b0f7f8b199",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "fc5d8741925314ec351f6997c871873647b6c079eab1e0cfa7a03c2911fae138",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804"
       ]
     },
     "spacr.qt.screens.map_barcodes.build_settings_screen": {
@@ -73634,6 +74324,18 @@
         "240f42163b995c0b8169d241ce7112551c221eb22b382d71235646d73c37aeb5"
       ]
     },
+    "spacr.qt.screens.qc_dashboard.install_folds": {
+      "source_blocks_sha256": [
+        "ecadd6bfabbd0fcabf76ae423a0cedcc71ad3d872a248ea38d7c10987a4a55be",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "275082acf7c4d42b82ea4102bdcf6505be749df2ed48e8ca64f0289a0298744a",
+      "text": "Put qc_dashboard's fold strip on ``screen``'s masthead.\n\n각 호스트가 봉사하는 스택을 통과 한 사람에 의해 달성 - :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`를 참조하십시오.",
+      "translation_source_blocks_sha256": [
+        "ecadd6bfabbd0fcabf76ae423a0cedcc71ad3d872a248ea38d7c10987a4a55be",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ]
+    },
     "spacr.qt.screens.qc_dashboard.make_qc_dashboard_screen": {
       "source_blocks_sha256": [
         "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
@@ -73724,6 +74426,46 @@
         "77c1f0d1217f28cda2b7cf51ea66b3c50767825b4603e9dc1da9f787a9a407c8",
         "6e06b20762fd6fceeb3202be5c3d34d976b31a2f23bba79db4fb903be552c30a",
         "f35bfe6fde4e28adc159bfc44a08303affceb45c64269aae844a3bc90f985ef1"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener": {
+      "source_blocks_sha256": [
+        "0f4f7779ca5851d23ec8b6f7c4271ecf698ba7506858cc98927e4cb33566c402",
+        "b9b835c8f5605fe8dd3c6e335aec1e7817d62d4a6f7d6f9b8efe1c0e07f4483d",
+        "6ab3ae927aee13014a565f1b486c38517f493ed3f8a81a12776cbf4d6cb50e75",
+        "7f0324b69872a608df4dc85b49c57d9d2d3c91b163c1c5244463d488669237bd"
+      ],
+      "source_sha256": "4ddc199e82c3cbdbf53c87ba5446144c3a0b75b33d42d2a8d334c8cbd6145d38",
+      "text": "진단 버튼: 마지막 라운드가 작성된 패널을 표시합니다.\n\n모듈이 없습니다. `spacr.ml`이 작업이 완료되면 처리 세션 결과 폴더에 이러한 패널을 입력합니다. - `_write_regression_diagnostics`를 참조하십시오. - 그래서 여기서 계산할 것이 없으며 설정할 것이 없습니다.\n\n아직 일어나지 않은 처리 세션, 또는 배경에는 남은 것이 없고, 폴더 또는 부분적인 하나가 없으며, 그렇게 말하는 것은 아무것도하지 않는 것처럼 보이는 버튼보다 더 유용합니다.\n\n:param screen: 호스트 화면에서 버튼이 앉아 있습니다.",
+      "translation_source_blocks_sha256": [
+        "0f4f7779ca5851d23ec8b6f7c4271ecf698ba7506858cc98927e4cb33566c402",
+        "5cf659f7e635f6b032cd383da9c62e677b66a4f282bdf0b27de707d52f35e0e4",
+        "37c6b1d118653d44c6fe8b2fbc6f819b8ffb3e3db900f9e749e5835eb9a98006",
+        "7f0324b69872a608df4dc85b49c57d9d2d3c91b163c1c5244463d488669237bd"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.open": {
+      "source_blocks_sha256": [
+        "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751"
+      ],
+      "source_sha256": "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751",
+      "text": "폴더를 열거나 왜 열 수 없는지 말해주세요.",
+      "translation_source_blocks_sha256": [
+        "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751"
+      ]
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.verdict": {
+      "source_blocks_sha256": [
+        "b399ec2f073258d2848401d84a148df082fbb02754f3424c034fdfa30b3bfed1",
+        "479189aad9a855b2228a8d39f83f0c3cb674ac9f85a0f6c0bdb0084530ca8125",
+        "c11963af4f1b2786bb036766bb466e7fc461fa4e6bef4dd937ec95519aab2a9b"
+      ],
+      "source_sha256": "9795c92d2e4e6677035d29863bc487189b56f9000770b2c3b9fbc212c3349785",
+      "text": "``(level, detail)`` 벨기에, 디스크에 있는 것에서.\n\nITEM 3 OF INSTRUCTION 322: the button is badged with the worst of score_design / score_residuals / score_inference. That worst is already computed and written -- ``diagnostic_summary.csv`` carries a ``suite``/``verdict_level`` row -- so this is a READ, and it has to stay one. Recomputing it here would let the button and the panels disagree about the same run.\n\n``(\"\", \"\")`` 읽을 것이 없을 때, 그것은 통과와 동일하지 않습니다 : 일어나지 않은 경로는 판결이 없으며, 녹색 점은 그것을 주장하고 괜찮았을 것입니다.",
+      "translation_source_blocks_sha256": [
+        "b399ec2f073258d2848401d84a148df082fbb02754f3424c034fdfa30b3bfed1",
+        "479189aad9a855b2228a8d39f83f0c3cb674ac9f85a0f6c0bdb0084530ca8125",
+        "c11963af4f1b2786bb036766bb466e7fc461fa4e6bef4dd937ec95519aab2a9b"
       ]
     },
     "spacr.qt.screens.regression.HitsOpener": {
@@ -76226,6 +76968,84 @@
         "dc6fc5386326a63279fa8841a88645bad031ad40676e6a724a072b395b8657a9"
       ]
     },
+    "spacr.qt.settings_pack": {
+      "source_blocks_sha256": [
+        "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
+        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
+        "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
+        "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
+        "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
+        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+      ],
+      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
+      "text": "Read a downloaded settings pack into settings this spaCR can execute.\n\nThe demo dataset on HuggingFace ships ``<app>_settings.csv`` files beside the images. They were written by an older spaCR, so some of what they name no longer exists -- structured-data names renamed, structured-data names removed with the feature they configured, structured-data names that were never settings at all.\n\nMERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous loader read every row of the CSV straight over the defaults, so a structured-data name the current build has never heard of arrived in the settings key-value mapping and travelled into the workflow, where it was either ignored silently or produced an error naming a setting the user did not type and cannot find in the form. Either way the user is told nothing at the point where it could be explained.\n\n그래서 이것은 합병하는 대신 이민, 그리고 추측 대신 보고 :\n\n* 응용 프로그램이 여전히 사용 중인 키;\n* 새롭게 이름을 바꾸어 놓은 키가 새 이름으로 적용되고 계산됩니다.\n* 더 이상 존재하지 않는 열쇠는 어디에도 떨어지고 이름을 지정합니다.\n\n보고서는 설정만큼 배달 가능합니다. \"로드 34 설정, 다시 이름 2, 떨어진 3 이 버전은 더 이상 가지고 있지 않습니다\"는 사용자가 행동 할 수있는 문장입니다.",
+      "translation_source_blocks_sha256": [
+        "f26d4231e3cb3be29f573b79b1d90cf4b2c0b7a247dcb8391795e8999986c249",
+        "c3d3fb2ce9f32a764a44d1c5ed3faaaf916d6a61080caccd07121a9dff419400",
+        "baeee889933029a540e5a5f8fa202738899ffdab8297638446b913da4dbcc139",
+        "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
+        "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
+        "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
+        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+      ]
+    },
+    "spacr.qt.settings_pack.PackReport": {
+      "source_blocks_sha256": [
+        "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06"
+      ],
+      "source_sha256": "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06",
+      "text": "설정 패키지에서 무엇이되었는지, 사용자가 말할 수있는 측면에서.",
+      "translation_source_blocks_sha256": [
+        "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06"
+      ]
+    },
+    "spacr.qt.settings_pack.PackReport.summary": {
+      "source_blocks_sha256": [
+        "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+      ],
+      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
+      "text": "상태 바에 대한 한 문장, 잃어버린 것을 명칭합니다.\n\n떨어진 열쇠를 계산하는 대신 이름 : \"dropped 3\"는 사용자가 무언가가 그들에게 무엇을 말하지 않고 잃어버렸다고 말하며, 두 가지 중 최악입니다.",
+      "translation_source_blocks_sha256": [
+        "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+      ]
+    },
+    "spacr.qt.settings_pack.read_pack": {
+      "source_blocks_sha256": [
+        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
+        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+      ],
+      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
+      "text": "``({key: value}, malformed row count)``에서 ``<app>_settings.csv``로 이동합니다.\n\n잃어버린 파일은 오류가 아닙니다 : 패키지는 합법적으로 일부 앱이 아닌 다른 앱에 대한 설정을 수행하고 호출자는 빈 키 가치 맵링을 얻습니다.",
+      "translation_source_blocks_sha256": [
+        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
+        "db4b929678523be1ada9f07fa8cfa9dd8bbfe2239e8e740d6d24e3050f1c0f7d"
+      ]
+    },
+    "spacr.qt.settings_pack.settings_from_pack": {
+      "source_blocks_sha256": [
+        "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
+        "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
+        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
+        "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
+        "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
+      ],
+      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
+      "text": "애플리케이션의 결함, 패키지가 그들 위로 이주.\n\n:param app_key: 패키지가 있는 모듈입니다.\n:param pack_dir: 폴더를 ``<app_key>_settings.csv``로 유지합니다.\n:param src: 데이터 세트 폴더; ``src`` 패키지 이름이 무엇이든 상승, 왜냐하면 누군가의 기계에 쓰여진 패키지는 이 패키지가 존재하지 않는 경로를 지정하기 때문입니다.\n:param defaults: 응용 프로그램의 결함; 거부되면 레지스트리에서 해결.\n:returns: 적용해야 할 설정, 그리고 패키지에서 무엇이되었는지.",
+      "translation_source_blocks_sha256": [
+        "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
+        "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
+        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
+        "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
+        "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
+      ]
+    },
     "spacr.qt.settings_search": {
       "source_blocks_sha256": [
         "c75fdd23d525b9704a0cd36681dcaa474e3c97d012d481059f69e8a47879539a",
@@ -78260,6 +79080,22 @@
       "translation_source_blocks_sha256": [
         "3d5e146a3ca58a147bd3b5838f709de2c565e66e099ea9ef935b8c33545defc7",
         "a29aab1b03a55cff3014e2f32b0d57035da94c276d1c95f8d97efd3a72d11ac7"
+      ]
+    },
+    "spacr.qt.theme.menu_bar_background": {
+      "source_blocks_sha256": [
+        "0ef1e0b248738e104fab71325864b8918e97796c5d30139cc3fb07109de10a78",
+        "e5342e28fd1bef3b3a2ff8d80faa2d7a4c02a43894374ca19ce5165b5376a8a4",
+        "4123bbe9bc92ef59539e0d6696ce6633daa1a1f64a1ff72e69c231bf2e6b1bd9",
+        "5c0d3263237d2549a7d002576bb3ef65abaf54ecb29ac03c82d974e503337c89"
+      ],
+      "source_sha256": "e5ab259b5f80f09ce6f7e666a5168492a84f2f569af0ab68039fa18b91fd8dda",
+      "text": "QSS 색상은 메뉴 바와 각도 크롬 모두 페인트.\n\n바는 생성 된 스타일리스트에서 스타일링되며 창 크롬은 ``spacr.qt.app``로 스타일링됩니다; 두 개의 단단히 암호화 된 색상이 일치해야합니다 그 중 하나는 스틸링됩니다.\n\n:param theme: 주제 이름; 무시할 때 활성 주제.\n:returns: QSS 색상 스트리트",
+      "translation_source_blocks_sha256": [
+        "0ef1e0b248738e104fab71325864b8918e97796c5d30139cc3fb07109de10a78",
+        "e5342e28fd1bef3b3a2ff8d80faa2d7a4c02a43894374ca19ce5165b5376a8a4",
+        "4123bbe9bc92ef59539e0d6696ce6633daa1a1f64a1ff72e69c231bf2e6b1bd9",
+        "5c0d3263237d2549a7d002576bb3ef65abaf54ecb29ac03c82d974e503337c89"
       ]
     },
     "spacr.qt.theme.page_colour": {
@@ -84628,6 +85464,20 @@
         "3f27d1d453ed77ab19d0955fdba6b658af3d003676cb750fe3d4481af1976217"
       ]
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.append_warning": {
+      "source_blocks_sha256": [
+        "43671ecf50dfdd68d9a39e4936764f7b18dae5352758c14ba3752f7407e2dd1b",
+        "6efa78e8c8e6549929382ab90dd2186fb4117ecd3a7079da4b12d4eaabdda543",
+        "f699cc1988ba0b9c6ad5094ebf723213a74cc7c69244f94c534260b68ef90cb8"
+      ],
+      "source_sha256": "5b61531411fe7eaf96fedc897f05a19bdc5c60f25a3b72c5967576f0aeec7f97",
+      "text": "테마의 앰버에 경고 텍스트를 첨부하여 출력판 아래에 있습니다.\n\nDELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet another session owns. Amber under the existing translated \"spaCR output\" heading already satisfies what instruction 320 asks for -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner is the nicer end state and is recorded in 320 as the follow-up.\n\n:param text: 포맷 된 기록; 빈 스트립은 무시됩니다.",
+      "translation_source_blocks_sha256": [
+        "43671ecf50dfdd68d9a39e4936764f7b18dae5352758c14ba3752f7407e2dd1b",
+        "6efa78e8c8e6549929382ab90dd2186fb4117ecd3a7079da4b12d4eaabdda543",
+        "f699cc1988ba0b9c6ad5094ebf723213a74cc7c69244f94c534260b68ef90cb8"
+      ]
+    },
     "spacr.qt.widgets.console_panel.ConsolePanel.apply_zoom": {
       "source_blocks_sha256": [
         "809eac73c97a658c420331267ae9d478ed8cf5186cdf79f4d0d1667982e73620"
@@ -84958,6 +85808,18 @@
       "text": "현재 응용 프로그램 보기 테마에 대한 사용자 입력 색상.",
       "translation_source_blocks_sha256": [
         "e850f56a25db7bd5372bb94000727b9cd84bb3f5dfc4d7af0989fd909387f854"
+      ]
+    },
+    "spacr.qt.widgets.console_panel.color_warning": {
+      "source_blocks_sha256": [
+        "991fe8e233f0f2a7874c5c71976941ea4fe79081509b792319685f5ba3502a0e",
+        "4c41f83e11a551581814d3bf0704722946c9d394f93a14caf458d9f4cda5ff67"
+      ],
+      "source_sha256": "5fda83a953445a6056e1535e7b981d5d3d66e79a0bd0d484493c22e2e79c0d54",
+      "text": "현재 응용 프로그램 보기 테마에 대한 경고 색상.\n\n목적에 :func:`color_error`에서 차이 - :meth:`ConsolePanel.append_warning`을 참조하십시오.모든 테마는 이미 ``warning`` 역할을 정의합니다.",
+      "translation_source_blocks_sha256": [
+        "c0c8ca619d34938c170a68d26d594ef3eddf6833ac1e00a3000b4e3e91d63fa8",
+        "4c41f83e11a551581814d3bf0704722946c9d394f93a14caf458d9f4cda5ff67"
       ]
     },
     "spacr.qt.widgets.console_panel.get_split_state": {
@@ -90371,19 +91233,19 @@
         "4a7618289eb2b2115930041f8195b8b298d67b1e7d0e7552d0e90e3b23f6dc6e",
         "51b795024d73c44a107b628775b0119b4e6394902f1503cb563078cb468627e7",
         "514dd2531b57a99fb060d614648ab537d72562c86b63dcbbb8ca8af435b45b7f",
-        "daf330e74aaf8e574d68ac110a7c240dde42c5d39b9015acc2859cb40a919c99",
+        "e0549d09928c50d38cbfa012e6c7f76d81479c664e29d8358b14f159802d8d37",
         "4b5c4c8132e0bc132147e7bfa1e66e66ee9f57aa476ee77f3d902cec47d693ab",
         "02e65cdb2acee1355970f59fe7858a30a3ab48f666fe278f1b3815e39a6eb899"
       ],
-      "source_sha256": "acb0f5bc4ea460c4333333a6f13bcbe94a862b3c59ce38d455a49547c8c155b6",
-      "text": "In-app 기능 키 가치 맵링 : 떠나지 않고 측정을 볼 수 있습니다. spaCR.\n\n완성된 실행은 ``cell_channel_1_percentile_75``과 같은 이름으로 개체에 수백 개의 열을 작성합니다. :mod:`spacr.feature_dict`는 그들이 의미하는 것을 잠시 알고 있지만 *수출*으로만 : 데이터베이스를 설명하는 표시 파일을 작성할 수 있었고, 그것은 전체 인터페이스였습니다. 그래서 사용자가 실제로 대답을 필요로하는 순간 - 결과 테이블을 읽고, 회전율을보고, UMAP 좌석을 움직이는 - 그들은 응용 프로그램을 떠나야합니다.\n\n이 모듈은 실종 된 절반입니다 :\n\n:class:`FeatureDictionaryPanel` 검색할 수 있는 패널: 열 이름, substring 또는 by *아이디어* (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"), 개체 유형과 개념에 따라 필터, 그리고 정의를 읽고, 단위, 어떤 개체에 대한 기능이 존재하고, 어떤 채널에 적용되고 어떤 모듈에 그것을 계산합니다.\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary` 비 모달 창과 동일한 패널, 선택적으로 한 열에 직접 열립니다.\n\n:func:`register`은 ``register_app`` / ``register_widget_qss`` 샘플을 통해 앱 레지스트리 (탐색 섹션)에 패널을 넣어 주제에 QSS를 넣어 - 이 모듈은 자신의 등록을 소유하고 ``app.py`` 또는 ``theme.py``을 편집하지 않습니다.\n\n:func:`install_window_hooks`는 현재 위치에서 접근할 수 있는 두 경로를 설치합니다. **Help ▸ Feature Dictionary…** 작업과, 애플리케이션 결과 테이블의 컨텍스트 메뉴에 있는 **\"What is this?\"** 항목입니다.\n\n컨텍스트 메뉴 경로는 의도적으로 응용 프로그램 수준의 이벤트 필터가 대신 각 테이블 애플리케이션 전망에 편집합니다. 11 개의 테이브를 가진 애플리의 전망이 있으며, 그들 중 어느 것도 오늘날 컨텍처 메뉴를 주장하지 않으므로 필터는 그들 모두에 도달합니다 - 이 호크 실행 후 오랫동안 건설 된 것들을 포함하여 - 그리고 나중에 무료로 추가 된 모든 테이프를 달성합니다. 그것은 자신의 컨텍트 메뉴 (``CustomContextMenu`` / ``ActionsContextMenu``)을 주장 한 모든 위젯에 옆에 서 있으므로 나중에는 조용히 하나를 채택하면 이것보다 우선 순위를 차지합니다.",
+      "source_sha256": "942df7b3a5bd67f0f687614647ab8720d91c5f29ffab47038bca9157b7483f12",
+      "text": "The in-app feature key-value mapping: look a measurement up without leaving spaCR.\n\n완성된 실행은 ``cell_channel_1_percentile_75``과 같은 이름으로 개체에 수백 개의 열을 작성합니다. :mod:`spacr.feature_dict`는 그들이 의미하는 것을 잠시 알고 있지만 *수출*으로만 : 데이터베이스를 설명하는 마크 다운 파일을 작성할 수 있었고, 그것은 전체 인터페이스였습니다. 그래서 그 순간에 사용자가 실제로 대답을 필요로합니다 - 결과 테이블을 읽고, 회전 요소를보고, UMAP 좌석을 움직이는 - 그들은 응용 프로그램을 떠나야합니다.\n\n이 모듈은 실종 된 절반입니다 :\n\n:class:`FeatureDictionaryPanel` the searchable panel. Search by column name, by substring, or by *idea* (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"), filter by object type and concept, and read the definition, the unit, which objects the feature exists for, which channel it applies to and which module computes it.\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary` 비모델 창과 동일한 패널, 선택적으로 하나의 열에 직접 열립니다.\n\n:func:`register`은 ``register_app`` / ``register_widget_qss`` 세임을 통해 패널을 앱 레지스트리 (기구 섹션) 및 QSS 테마에 넣어 - 이 모듈은 자신의 등록을 소유하고 ``app.py`` 또는 ``theme.py``를 편집하지 않습니다.\n\n:func:`install_window_hooks` the two reach-me-from-where-I-am routes: a **Help ▸ Feature key-value mapping…** action, and a **\"What is this?\"** item on the context menu of any results table in the app.\n\n컨텍스트 메뉴 경로는 의도적으로 응용 프로그램 수준의 이벤트 필터가 대신 각 테이블 애플리케이션 전망에 편집합니다. 11 개의 테이브를 가진 애플리의 전망이 있으며, 그들 중 어느 것도 오늘날 컨텍처 메뉴를 주장하지 않으므로 필터는 그들 모두에 도달합니다 - 이 호크 실행 후 오랫동안 건설 된 것들을 포함하여 - 그리고 나중에 무료로 추가 된 모든 테이프를 달성합니다. 그것은 자신의 컨텍트 메뉴 (``CustomContextMenu`` / ``ActionsContextMenu``)을 주장 한 모든 위젯에 옆에 서 있으므로 나중에는 조용히 하나를 채택하면 이것보다 우선 순위를 차지합니다.",
       "translation_source_blocks_sha256": [
         "797e5dfa2a5326cf6f136409f3f2402090092f164f71a993690654de307c955b",
         "a7a1b991e6e7c07d0dc9c9b75004c48307b549fb721d57ee27b5a89b9ea1bfde",
         "4a7618289eb2b2115930041f8195b8b298d67b1e7d0e7552d0e90e3b23f6dc6e",
         "51b795024d73c44a107b628775b0119b4e6394902f1503cb563078cb468627e7",
         "514dd2531b57a99fb060d614648ab537d72562c86b63dcbbb8ca8af435b45b7f",
-        "daf330e74aaf8e574d68ac110a7c240dde42c5d39b9015acc2859cb40a919c99",
+        "e0549d09928c50d38cbfa012e6c7f76d81479c664e29d8358b14f159802d8d37",
         "9faece4c5c9bd1a551260adbb2afa2d3793e42385dea242a44dc48ba45bb1f5e",
         "eebd9dcf69e1465b1539e896beb12631adf50787955d8389cb0ca1be3ebfcbbf"
       ]
@@ -92828,6 +93690,24 @@
         "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854"
       ]
     },
+    "spacr.qt.widgets.fold_strip.FoldButton.set_verdict": {
+      "source_blocks_sha256": [
+        "1ad0e93d1fbd8028236e36e6a64b89416a664c62092f3f13134356ffc37a71d3",
+        "3ef646b4c335f48f41d50726610b4ea7159f59cdf9c1614ec44ed32d8b747b66",
+        "e641356b2aac9678dd4ab143e1655819bf6fd48fe38fdf7ff5807dd499911895",
+        "64da6288febc7f6b4edde5a1c8bf17dbcfc4486a61b4611ec1952994ed039379",
+        "216a1eedb7795fc6e1492b19fc9da5492c42cadc7dc1188ada5a0e018d9ef1ca"
+      ],
+      "source_sha256": "52dea2bcadb94908be8570e73aaa9ab9a8a219b4e43a1f4274778c205413d5fa",
+      "text": "이 버튼을 실행의 최악의 판결으로 바드하십시오.\n\nA DOT, NOT A COLOURED BUTTON. The button's own colour already means maturity -- alpha, beta, stable -- and a second meaning on the same surface makes both unreadable. The dot is drawn over the corner instead, and the detail goes in the tooltip where the reason can be a sentence.\n\n``\"\"``은 그것을 정리하고, 이것은 진단이 아직 나타나지 않은 경로가 보여주어야합니다 : \"not measured\"과 \"measured and fine\"이 다른 대답이기 때문에 녹색이 아닌 포인트가 없습니다.\n\n:param level: ``\"pass\"``, ``\"check\"``, ``\"fail\"`` or ``\"\"``.\n:param detail: 판결의 뒤에 있는 판결, 도구 타이프에 대하여.",
+      "translation_source_blocks_sha256": [
+        "1ad0e93d1fbd8028236e36e6a64b89416a664c62092f3f13134356ffc37a71d3",
+        "3ef646b4c335f48f41d50726610b4ea7159f59cdf9c1614ec44ed32d8b747b66",
+        "e641356b2aac9678dd4ab143e1655819bf6fd48fe38fdf7ff5807dd499911895",
+        "64da6288febc7f6b4edde5a1c8bf17dbcfc4486a61b4611ec1952994ed039379",
+        "216a1eedb7795fc6e1492b19fc9da5492c42cadc7dc1188ada5a0e018d9ef1ca"
+      ]
+    },
     "spacr.qt.widgets.fold_strip.FoldStrip": {
       "source_blocks_sha256": [
         "6a50ddd84c7227d3d3f3501ef193ff8b80cb1850011cf55fad4e8f554b71b784",
@@ -94044,6 +94924,34 @@
         "ff643c54cbe41ea26487aaf81e56ad47f9729e5187ddb62ec7ecae496a3ac4bb"
       ]
     },
+    "spacr.qt.widgets.fractal_orbit_gpu": {
+      "source_blocks_sha256": [
+        "a0321f31ace6aea55af1384f4fc91bd5b8c2f62ac5ce6e122729ef0d34321be4",
+        "02727a705ada0afaa8e8d6127e2eb0ea3296787532c5365a0835e91f751608a7",
+        "75a813886aa962a7bef10ddfe069c0c5eac21f94ea3eb4702a33cf6c5288ca10",
+        "1d805b1d806a17696a442c411d625ed84fa27de93fe61a7abb5c87ce3af2561a"
+      ],
+      "source_sha256": "75402e36c4c4c08c60a34ea86e34a51ca0919eddabd04ffb9e24d01553e2753f",
+      "text": "The orbit fold on the GPU: the fifth spaceout pattern.\n\nInstruction 327 (5). The CPU orbit fold in :mod:`spacr.qt.widgets.fractal_travel` is the one renderer the maintainer singled out as right -- \"the orbit fold cpu effect is like a magnigying glass, which looks cool\" -- and it is the one the pointer complaint excluded. This is that same map, on the GPU.\n\nCPU 경로는 4 개의 샘플을 추가 4 프레임, 중간에 4 다른 애니메이션 시간; GPU 패스는 한 순간 내에서 4 개를 제공 할 수 있습니다. 그들은 동일한 그림이 아닙니다, 그래서 숨겨진 배경을 가진 하나의 옵션으로 그들을 제공하는 것은 같은 설정 두 가지를 그리는 것을 의미합니다. \"Orbit fold\" 가져, 그래서 이것은 \"Orbit fold (sharp)\" - 실제로 버전 번호보다 다르다는 것을 설명합니다.\n\nTHE MAP IS TRANSLITERATED, not reinvented: same fold, same inversion constants, same three orbit traps, same palette. A test asserts the constants match the CPU function character for character, because two renderers that drift apart are two patterns wearing one name.",
+      "translation_source_blocks_sha256": [
+        "a0321f31ace6aea55af1384f4fc91bd5b8c2f62ac5ce6e122729ef0d34321be4",
+        "02727a705ada0afaa8e8d6127e2eb0ea3296787532c5365a0835e91f751608a7",
+        "75a813886aa962a7bef10ddfe069c0c5eac21f94ea3eb4702a33cf6c5288ca10",
+        "1d805b1d806a17696a442c411d625ed84fa27de93fe61a7abb5c87ce3af2561a"
+      ]
+    },
+    "spacr.qt.widgets.fractal_regions": {
+      "source_blocks_sha256": [
+        "5c7ea33918a061ca5b59290044449b18476bbc3f3980f30dfaa5261385d79554",
+        "9406df6d4a7f1efc4ca01799df8708ad0f4231a355e5dec55372e0d3f6bb8eb3"
+      ],
+      "source_sha256": "4a4e33a8aff4067e7aa71979040b7563dea514c77e39e294cf17e9545dd03ead",
+      "text": "Mandelbrot은 배경 카메라 투어를 조정합니다.\n\n도구에 의해 생성/find_mandelbrot_regions.py - 수동으로 편집하지 마십시오. 지침 327 (3). 각 입력은 4 년 동안 높은 탈출 시간 그레이딩을 유지하는 포인트입니다, 그래서 카메라는 여전히 그것이 도착할 때 보여줄 것이 있습니다.",
+      "translation_source_blocks_sha256": [
+        "5c7ea33918a061ca5b59290044449b18476bbc3f3980f30dfaa5261385d79554",
+        "9406df6d4a7f1efc4ca01799df8708ad0f4231a355e5dec55372e0d3f6bb8eb3"
+      ]
+    },
     "spacr.qt.widgets.fractal_space": {
       "source_blocks_sha256": [
         "e158c620939913328c1bf469d951093c551573f47225d188dffc0265013a0dd9",
@@ -94168,6 +95076,34 @@
         "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.DepthPhase": {
+      "source_blocks_sha256": [
+        "0acbfed2a8de82c703a66dbe9cad070699326eb869948566ed24423190fb13da",
+        "ffd62a341272ed7efb021704d33c66a8d7ed2cce4547b650d8170164882ce13b",
+        "7a22e7f431fac3f9bb6a3177159c2806f7b4ccd2c5b9b3ea90923208ec578967",
+        "4fe7f8d19404ba55b80e83a85e56759432a0a5d7f15a2d09212e7e07ec5a4d9e"
+      ],
+      "source_sha256": "5ebf34207069f04e242befd7ecf99e4545f93418bfde208ebebc7a515817052f",
+      "text": "카메라가 얼마나 멀리 떨어져 있는지, 그것은 단지 성장하는 숫자입니다.\n\n속도는 속도를 변경해야합니다, 위치가 아닙니다. 깊이가 ``t * speed``이되기 위해 사용되었으므로 속도를 두 배로 늘리는 스크롤은 같은 순간에 깊이를 두배로 늘렸습니다 : t=60s에서 측정 된 속도 1 -> 2는 카메라를 5.0 단위로 움직였습니다.\n\n대신 통합 - ``phase += dt * speed`` - 건설에 따라 속도 변화를 지속적으로 만듭니다. 카메라는 정확히 어디에 있었는지; 그것이 얼마나 빨리 떠나는지에 불과합니다.\n\n위젯에 두 개의 흐름 대신 작은 개체로 덮으십시오, 왜냐하면 변수는 명칭할 가치가 있기 때문입니다: `value` 결코 감소하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "0acbfed2a8de82c703a66dbe9cad070699326eb869948566ed24423190fb13da",
+        "ffd62a341272ed7efb021704d33c66a8d7ed2cce4547b650d8170164882ce13b",
+        "7a22e7f431fac3f9bb6a3177159c2806f7b4ccd2c5b9b3ea90923208ec578967",
+        "4fe7f8d19404ba55b80e83a85e56759432a0a5d7f15a2d09212e7e07ec5a4d9e"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.DepthPhase.advance": {
+      "source_blocks_sha256": [
+        "e703c51e741e9518b85fb0aafc6af7faa11fb0be224bca46114f04aa8ffa276f",
+        "58f0ebcf71fdc5f6a5fb4d33e66a35ab75bde8270e9894053e4c485caa61b85c"
+      ],
+      "source_sha256": "93ea642573b377444074f7d7e66c55a68f5f5256f33202588ee884f7d6fa0101",
+      "text": "Move the phase to wall-clock ``t`` at ``speed``, and return it.\n\nA t가 BACKWARDS - 다시 시작, 시계 재설정 - 반복하는 대신 다시 기반 : 단계는 거리가 여행하고 여행은 멈추지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "e703c51e741e9518b85fb0aafc6af7faa11fb0be224bca46114f04aa8ffa276f",
+        "58f0ebcf71fdc5f6a5fb4d33e66a35ab75bde8270e9894053e4c485caa61b85c"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.GpuBackendError": {
       "source_blocks_sha256": [
         "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
@@ -94230,6 +95166,80 @@
         "ca87e6a1fbe1d8ee1d9544bd4ea40061624a8fd3ed9138be3b9486252a160c03",
         "293c637a120bfa3f6605830769a5cfa902d7979703e1be2bf151b55067d3d5dc",
         "f2134d86823814189842ac04a661c8ca0136e8350c4ce5aa4da185c368262b4a"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour": {
+      "source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "b57036d63c78f88a0f0b4fcabd64c537d5fee67473dd5d37a7019ef198903de3",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1"
+      ],
+      "source_sha256": "27127790bc767be47367670c7c9d2e5511d9c965f5391956910bef024adba137",
+      "text": "카메라를 조심할 가치가 있는 좌표 사이에 흐르십시오.\n\n지침 327 (3) : \"사진에 20 개 지역이 카메라가 자동으로 부드럽게 방향으로 흐르게 될 것이라고 말해야합니다.\"\n\nSMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a smoothstep rather than a straight line: it leaves one region and arrives at the next with zero velocity, which is what stops the arrival reading as a stop. A linear blend is continuous in position and not in velocity, and the eye sees the corner.\n\n드라이프는 사용자가 카메라를 잡는 순간을 끄는 것입니다. 드라이핑은 그들이 어디에 있기를 원하는지에 대한 진술이며, 그것을 재현하는 투어는 응용 프로그램이 논쟁하는 것입니다. :meth:`take_over`는 그것을 멈추게합니다; :meth:`restart`는 Ctrl+R가 부르는 것입니다.\n\n:param regions: ``(name, x, y, half_width, score)`` 라인, 일반적으로 :data:`spacr.qt.widgets.fractal_regions.REGIONS`.\n:param dwell: 떠나기 전에 한 지역에서 몇 분을 보냈습니다.\n:param travel: 두 개의 지역 사이에 움직이는 시간을 보냈습니다.",
+      "translation_source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "b57036d63c78f88a0f0b4fcabd64c537d5fee67473dd5d37a7019ef198903de3",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.active": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "여전히 투어가 진행되고 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.period": {
+      "source_blocks_sha256": [
+        "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1"
+      ],
+      "source_sha256": "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1",
+      "text": "각 지역의 하나의 전체 회로를위한 초.",
+      "translation_source_blocks_sha256": [
+        "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.restart": {
+      "source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ],
+      "source_sha256": "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d",
+      "text": "Ctrl+R : 카메라를 회전으로 돌려보내십시오.",
+      "translation_source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.take_over": {
+      "source_blocks_sha256": [
+        "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d"
+      ],
+      "source_sha256": "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d",
+      "text": "사용자는 카메라를 옮겼습니다.이 투어는 논쟁하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.target_at": {
+      "source_blocks_sha256": [
+        "f99425d4c60b727e1df40721087166767dde33cbdb874e4bace67a4ae637353e",
+        "7998864774cae35e3880025d01aadf0b3352b8e983b1b295f149a4f9c0747130"
+      ],
+      "source_sha256": "62d802f7f78a23c7931e447d3dc111e60be5c481b3dd894ea0c4e2b520da2926",
+      "text": "카메라가 ``seconds``로 표시되어야 합니다.\n\n``None`` 투어가 제어되지 않을 때, 호출자는 사용자가 그것을 배치하는 곳에서 카메라를 떠날 수 있습니다 대신 그것을 무시해야하는 일정을 전달합니다.",
+      "translation_source_blocks_sha256": [
+        "f99425d4c60b727e1df40721087166767dde33cbdb874e4bace67a4ae637353e",
+        "7998864774cae35e3880025d01aadf0b3352b8e983b1b295f149a4f9c0747130"
       ]
     },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
@@ -94316,6 +95326,16 @@
         "618de892f89c90010fa7ec0ba5f9501fab2bfea333271e8e8a830f06919ae2f2"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.default_region_tour": {
+      "source_blocks_sha256": [
+        "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e"
+      ],
+      "source_sha256": "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e",
+      "text": "약속된 지역을 여행하거나, 그들없이 빈 곳을 여행하십시오.",
+      "translation_source_blocks_sha256": [
+        "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.gpu_is_available": {
       "source_blocks_sha256": [
         "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
@@ -94352,18 +95372,20 @@
         "ec8c94075ffbc62cdd7dce8bef1f166870c69f016af3a2168c699b6f64efd61c",
         "7be9c9bdb03fa48be8a14829136c386b958445fe3cb1de80006bcbca6b377abf",
         "ce8ae6bf385e6f4494ddc12e5241ed1527a76a0ce2ded12c475d68e4ad63186f",
-        "df7cbfe9339972a835a788915719e6d4b954201b525a480610848f3bced5189b",
-        "89eb3ae37b59b093ec666751cfc8757381631b173db863df7b4ad86df15ef3fe"
+        "83056b62d3911d0abbb834c08d1015d90ca5ec61cd8374f964a06ad21e891e92",
+        "46f767a6f2678cca2a811de5545287180196dd10db9a93c80a80a77c9be5c187",
+        "879cb818af87c9a8ee13f9ec07208ce6ea5222f7e3ea971f9cdbf69e4b4fdd1a"
       ],
-      "source_sha256": "cfd200f21085b660bde040a05009082747b6284539260565b3cb46d32884196e",
-      "text": "실제로 여기서 끌어올릴 수 있는 패턴입니다.\n\n:param pattern: 사용자가 요구한 것.\n:param backend: 해결된 후속 끝, 또는 ``\"auto\"``.\n:returns: ``pattern``, 또는 그것이 끌 수 없을 때 떨어지는.\n\n맨델브로트는 GPU-만입니다. 그것은 그것 주위를 방해하기 위해 참조 궤도의 구조와 그림자를 필요로합니다; 아직 NUMBA RENDER가 없습니다. 그래서 사용할 수없는 GL 컨텍스트를 가진 기계는 대신 궤도 필드를 얻습니다 - 그것은 CPU 레이더를 가지고 있으며 그것이하는 세 가지 중 가장 저렴합니다 - 아무것도 끌어 들이지 않는 뒷면보다.\n\n조용하고 의도적으로 : 뒷면은 장식이며, 기계가 4 개의 장식 중 하나를 실행할 수 없다는 것을 설명하는 대화는 중단 비용보다 덜 가치가 있습니다.",
+      "source_sha256": "3025f9ae25049c48ac75ee9d56bf6e27a0c4a71ebe00fb67dc3895d6d6f259a1",
+      "text": "실제로 여기서 끌어올릴 수 있는 패턴입니다.\n\n:param pattern: 사용자가 요청한 것.\n:param backend: 해결된 후속 끝, 또는 ``\"auto\"``.\n:returns: ``pattern``, 또는 그것이 끌 수 없을 때 떨어지는.\n\nTWO PATTERNS ARE GPU-ONLY. Mandelbrot needs a texture of the reference orbit and a shader to perturb around it, and `orbit_gpu` is a fragment shader with no numba twin -- the CPU orbit fold is a DIFFERENT picture, four samples across four frames rather than four of one instant, which is why the two are separate entries at all.\n\n그래서 사용할 수없는 GL 컨텍스트가있는 기계는 대신 궤도 폴드를 얻습니다 - 그것은 CPU 레이더를 가지고 있으며 그것이하는 것 중 가장 저렴합니다 - 아무것도 끌어들이지 않는 뒷면보다.\n\n조용하고 의도적으로 : 뒷면은 장식이며, 기계가 다섯 개의 장식 중 하나를 실행할 수 없다고 설명하는 대화는 중단 비용보다 덜 가치가 있습니다.",
       "translation_source_blocks_sha256": [
         "13f8d2949745b02e28c04bff38399779d0bed2a0592fec12769de9c0e200ea54",
         "ec8c94075ffbc62cdd7dce8bef1f166870c69f016af3a2168c699b6f64efd61c",
         "7be9c9bdb03fa48be8a14829136c386b958445fe3cb1de80006bcbca6b377abf",
         "ce8ae6bf385e6f4494ddc12e5241ed1527a76a0ce2ded12c475d68e4ad63186f",
-        "df7cbfe9339972a835a788915719e6d4b954201b525a480610848f3bced5189b",
-        "89eb3ae37b59b093ec666751cfc8757381631b173db863df7b4ad86df15ef3fe"
+        "83056b62d3911d0abbb834c08d1015d90ca5ec61cd8374f964a06ad21e891e92",
+        "46f767a6f2678cca2a811de5545287180196dd10db9a93c80a80a77c9be5c187",
+        "879cb818af87c9a8ee13f9ec07208ce6ea5222f7e3ea971f9cdbf69e4b4fdd1a"
       ]
     },
     "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
@@ -94436,12 +95458,30 @@
     },
     "spacr.qt.widgets.fractal_travel.state_at_seconds": {
       "source_blocks_sha256": [
-        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+        "6ecfef74f33fc4a1a461301d83724cbd06381f528eb94bc318809a3de212cb01"
       ],
-      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
-      "text": "카메라는 ``t``. 순수하므로 테스트가 그것이 움직이는 것을 주장할 수 있습니다.",
+      "source_sha256": "c7e993c4aa84f71054193db06529572aa1a410a24a7e89cefc2c5eabed35f4fc",
+      "text": "카메라는 ``t``. 순수하므로 테스트가 그것이 움직이는 것을 주장할 수 있습니다.\n\n:param depth_phase: 통합 거리가 움직인 경우 카메라가 경로를 따라 어떤 위치를 지니고 있는지, ``speed``는 더 이상 하지 않는다. ``None``는 오래된 ``t * speed``를 재현하는 스크롤을 멈추게 하는 것입니다.",
       "translation_source_blocks_sha256": [
-        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+        "6ecfef74f33fc4a1a461301d83724cbd06381f528eb94bc318809a3de212cb01"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.target_render_size": {
+      "source_blocks_sha256": [
+        "1f108251feb3af26cb97e55e6b8343483f5827b3369cc98b33a2d4d39b1ab2b0",
+        "2886a01261b5a90a4450ea775f27467944aa30d831f00902634e6de234875c38",
+        "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
+        "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
+      ],
+      "source_sha256": "cb0c01a3a861743b503b471ac476b65ae970e5242e8dc32a8844e33509a1c826",
+      "text": "이 크기의 위젯을 위해 얼마나 많은 픽셀을 모양해야합니까?\n\n지침 327은 네 명의 후보자 중 누가 풀 스크린 을 만들고 배경이 부드럽고, 글을 쓰기 전에 숫자로 대답해야한다고 말합니다 - 그것은 가능하지 않지만 아리메틱은 GL 맥락을 필요로하는 클래스에서 단지 둥근 방법 내부에 존재합니다.\n\n규칙 자체는 변함이 없습니다 : 위젯 자체의 물리적 픽셀의 ``render_scale`` 평방 빛, 위젯이 가지고있는 것보다 더 많지 않으며 180,000 미만은 없으며, 측면 비율과 똑같은 폭과 높이를 유지합니다.\n\n:returns: ``(width, height)`` 물리적 픽셀에서",
+      "translation_source_blocks_sha256": [
+        "1f108251feb3af26cb97e55e6b8343483f5827b3369cc98b33a2d4d39b1ab2b0",
+        "2886a01261b5a90a4450ea775f27467944aa30d831f00902634e6de234875c38",
+        "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
+        "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
@@ -101313,6 +102353,116 @@
       "translation_source_blocks_sha256": [
         "195fe159b86715f4300ad73c7d255e2fe6d71da753ea5262567ab498c2dd9810",
         "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker": {
+      "source_blocks_sha256": [
+        "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
+        "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
+        "3b62748b2fde38f7cbca21b21b8f57ac548c36cd63ac93b3019a806950e0f6df",
+        "c77e10260a852b65e6e384d252a7b856872e80e0e40ec6c6eff66e6d7d1a39b4"
+      ],
+      "source_sha256": "1f9551a5524e82117f70f90fea60a41637b657dbcd185f0f421579f27d924c46",
+      "text": "모델 동물원을 탐색하고, 모델을 다운로드하고, 그것의 경로를 돌려보세요.\n\nA model setting takes a filesystem path, which is exact and unhelpful: the user has to know a model exists, find where it lives, and type it correctly before anything happens. This dialog is the other way in -- the list of models spaCR knows about, what each was trained on, whether it is already on this machine, and a button that downloads one and returns its path to the field that opened it.\n\nWHY THE DOWNLOAD LOCATION IS A CONTROL RATHER THAN A CONSTANT. Checkpoints are large -- the Toxoplasma models are 1.2 GB each -- and on a shared workstation or a laptop with a small root volume the default is often the wrong disk. A lab that keeps models on a NAS wants them there once, not once per user. So the folder is on application view, remembered between openings, and shown before anything is fetched rather than discovered afterwards in a full-disk error.\n\n다이어트 목록을 열고, 다운로드는 버튼에 발생합니다.이것은 목록이 자체적으로 유용하기 때문에 중요합니다 - 모델이 존재하고 무엇에 훈련되었는지 보는 것은 종종 전체 질문입니다 - 그리고 대화가 열려있는 기가바이트 전송을 시작하기 때문에 한 사용자가 열리지 않는 법을 배우고 있기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
+        "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
+        "faec6272674124a03e116cc414d89e9a676e699fcc878b8c82d95faaef0be9d5",
+        "c77e10260a852b65e6e384d252a7b856872e80e0e40ec6c6eff66e6d7d1a39b4"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker": {
+      "source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0"
+      ],
+      "source_sha256": "9bc9330cc5bab388fad244c5945241e834a4eda84a89c43bae07476632deda11",
+      "text": "동물원에서 모델을 선택; 현지 경로로 돌아갑니다.\n\n:param kinds: restrict the list to these :data:`spacr.model_zoo.KINDS`. A pathogen-model field wants ``(\"cellpose\",)`` -- offering a detector there would be offering something that cannot be loaded.\n:param parent: 이것을 열어주는 윈도우입니다.",
+      "translation_source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.chosen_path": {
+      "source_blocks_sha256": [
+        "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f"
+      ],
+      "source_sha256": "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f",
+      "text": "사용자가 수락한 경로 또는 취소된 경우 ``None``.",
+      "translation_source_blocks_sha256": [
+        "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.closeEvent": {
+      "source_blocks_sha256": [
+        "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d"
+      ],
+      "source_sha256": "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d",
+      "text": "대화가 사라지기 전에 다운로드에 가입하십시오.",
+      "translation_source_blocks_sha256": [
+        "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.refresh": {
+      "source_blocks_sha256": [
+        "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e"
+      ],
+      "source_sha256": "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e",
+      "text": "카탈로그를 다시 다운로드하고 테이블을 다시 업로드합니다.",
+      "translation_source_blocks_sha256": [
+        "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.reject": {
+      "source_blocks_sha256": [
+        "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9"
+      ],
+      "source_sha256": "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9",
+      "text": "취소는 대화를 닫습니다; 그것은 뒤에 끈을 남기지 않아야합니다.",
+      "translation_source_blocks_sha256": [
+        "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.selected_entry": {
+      "source_blocks_sha256": [
+        "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ],
+      "source_sha256": "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada",
+      "text": "카탈로그 입력은 강조된 순서, 또는 ``None``에 있습니다.",
+      "translation_source_blocks_sha256": [
+        "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.choose_model": {
+      "source_blocks_sha256": [
+        "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
+        "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
+        "1ab46d1267bc0bf37fe8cd9c91d349e4135b106c648a314cf5db196b9d36dece",
+        "d0fad6b91759412b57adee181106326c85614fc1c0b27dd44a402077a8e9b93d",
+        "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
+      ],
+      "source_sha256": "8c1b45ab0a50f6cf04856fa6b299983b7f11fe1ad7dd24225dca2ce6edfb1baa",
+      "text": "피커를 열고 선택한 경로 또는 ``None``를 반환합니다.\n\n설정 순서의 추적 버튼을위한 단일 전화 양식::\n\n    path = choose_model(self, kinds=(\"cellpose\",))\n    if path:\n        field.setText(path)\n\n:param parent: 위젯은 대화를 열어줍니다.\n:param kinds: 이러한 유형의 모델을 제한합니다.\n:returns: 현지 파일 시스템 경로, 또는 ``None`` 취소 할 때.",
+      "translation_source_blocks_sha256": [
+        "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
+        "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
+        "1ab46d1267bc0bf37fe8cd9c91d349e4135b106c648a314cf5db196b9d36dece",
+        "d0fad6b91759412b57adee181106326c85614fc1c0b27dd44a402077a8e9b93d",
+        "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
+      ]
+    },
+    "spacr.qt.widgets.model_zoo_picker.remembered_model_dir": {
+      "source_blocks_sha256": [
+        "f694e83d44aa0b638e17453270a2807a0d0d2a3375405c22ac80d81074fa678e",
+        "f4233925200d9ec23cf19f5bdabdafb57b5f2186fa9680995648b92bff6bd2dc"
+      ],
+      "source_sha256": "c4d8357a5ccd6528027c5f6f397ccace6844de4fbb935407a20744f6b1ceab15",
+      "text": "사용자가 마지막으로 다운로드 한 폴더 또는 기본 폴드.\n\nQSettings를 통해 읽기 대신 대화에서 그것을 유지 : 다음 모델은 일반적으로 마지막과 동일한 장소에서 원하고 있으며, 이는 세션 내에서만 사실입니다.",
+      "translation_source_blocks_sha256": [
+        "f694e83d44aa0b638e17453270a2807a0d0d2a3375405c22ac80d81074fa678e",
+        "f4233925200d9ec23cf19f5bdabdafb57b5f2186fa9680995648b92bff6bd2dc"
       ]
     },
     "spacr.qt.widgets.motility_preview": {
@@ -112337,21 +113487,23 @@
         "89b1adf928de86480b19df43a602595dcc44a719f1e769aa859816064d161c51",
         "4fc5aab8007bba828fecfd8661b155c1b4089b2f52e975f9d75f80d1b3eb3b20",
         "557fcf82a4e7dcc194d289e4456082b476683b77e6a25f81d1f83674edcfbdd0",
-        "0bb3487afbf03f2f7aa76eedcafaef9e76d5f9e15f4bdf13c1fe6fd9cbac4964",
+        "9409654345f8c0033d2614279ef6690cee61f1834ee4bb1bcfd7d13599274801",
         "b7f6aa983771c05c73f6685f30172a5075c0b30e512314f08890a23844a1b76d",
         "ffe0cdd7fb8976c6f4f34e4e0c506e53dcdf2c48090ac3228feb613fd9d1a39f",
+        "305b1e14b85d6403393507600f990a59230c78234efb5ca22a4a4b7b768a7d71",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "50c06eafcf0e43ba7619d63113a1b6c198b19d9d8ebc2a462f191dc71e8d6bb8",
-      "text": "화면의 p-값 분배의 형태를 분류합니다.\n\n대부분의 유전자가 아무것도하지 않는 스크린링 실험은 ``[0, 1]``에 동일한 p 값을 제공해야합니다 (실제 히트). 두 가지 다른 형태는 깨진 적합의 진단이며이 패널이 존재하는 이유입니다 :\n\n* **spike 근처 1**는 테스트가 보수적이라는 것을 의미합니다 - 일반적으로 신호를 흡수하는 변형 구성 요소, 또는 n에 팽창하는 복제 행;\n* **U 형태** (두 끝이 풍부한)는 0이 잘못 지정되어 있음을 의미합니다 - 일반적으로 모델링되지 않은 플레이트 구조, 반은 유전자를 한 방향으로 밀어 반은 다른 방향으로 밀어.\n\n:param p_values: p 값의 이터블; 끝없는 입력이 떨어집니다.\n:param n_bins: 히스토그램 해상도. 기본 20 (폭 0.05의 쌍).\n:returns: 키 가치 지도와 함께 ``verdict`` (에 대한 하나의 ``'uniform-with-spike'``, ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``, ``'too-few'``), ``message``, ``counts``, ``expected``, ``first_bin_ratio``, ``last_bin_ratio`` 그리고 ``frac_below_0.05``.\n\n예시:\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'",
+      "source_sha256": "e73eadfe81a07d104bbdf702bb106ce1fcfb90263873145f6988c9bc0157df71",
+      "text": "화면의 p-값 분배의 형태를 분류합니다.\n\n대부분의 유전자가 아무것도하지 않는 스크린링 실험은 ``[0, 1]``에 동일한 p 값을 제공해야합니다 (실제 히트). 두 가지 다른 형태는 깨진 적합의 진단이며이 패널이 존재하는 이유입니다 :\n\n* **spike 근처 1**는 테스트가 보수적이라는 것을 의미합니다 - 일반적으로 신호를 흡수하는 변형 구성 요소, 또는 n를 팽창하는 복제 행;\n* **U 형태** (두 끝이 풍부한)는 0이 잘못 지정되어 있음을 의미합니다 - 일반적으로 모델링되지 않은 플레이트 구조, 그것은 반의 유전자를 한 방향으로 밀어 반 다른 방향.\n\n:param p_values: p 값의 이테라블; 끝없는 입력이 떨어집니다.모든 나머지 값은 닫힌 범위 ``[0, 1]``에 있어야합니다.\n:param n_bins: 히스토그램 해상도. 기본 20 (폭 0.05의 쌍).\n:returns: key-value mapping with ``verdict`` (one of ``'uniform-with-spike'``, ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``, ``'too-few'``), ``message``, ``counts``, ``expected``, ``first_bin_ratio``, ``last_bin_ratio`` and ``frac_below_0.05``.\n:raises ValueError: 최종 값이 ``[0, 1]`` 밖에 있는 경우\n\n예를 들어 :\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'",
       "translation_source_blocks_sha256": [
         "746f12abd53269ba1a5ccc16e0eef6bfc975270442d9764d866973bf33a5bb23",
         "001fbd3532e5eb0aca60ee00036ac90d6530e35470cc4423c2c3c4fd6bd59105",
         "4fc5aab8007bba828fecfd8661b155c1b4089b2f52e975f9d75f80d1b3eb3b20",
         "557fcf82a4e7dcc194d289e4456082b476683b77e6a25f81d1f83674edcfbdd0",
-        "0bb3487afbf03f2f7aa76eedcafaef9e76d5f9e15f4bdf13c1fe6fd9cbac4964",
+        "9409654345f8c0033d2614279ef6690cee61f1834ee4bb1bcfd7d13599274801",
         "b7f6aa983771c05c73f6685f30172a5075c0b30e512314f08890a23844a1b76d",
         "fff05aaca5eff931bebc7210546b44114513f895bcc2374f9a01216ee220e2cc",
+        "305b1e14b85d6403393507600f990a59230c78234efb5ca22a4a4b7b768a7d71",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
@@ -116339,6 +117491,32 @@
         "971e5b66f5f59bd3ad3121746d7158387a56e59ba9584afe2803f664b9b7f67f",
         "02a5ad49f53f1f3fd1289dabb424ddc55ae04d1ce98c1988dead8e0c1ca6bb0b",
         "7b57383d71e8db9d4fec2d153a11d643b2bd9b13b701bc76a8b1052ef655fbe8"
+      ]
+    },
+    "spacr.run_journal.delete_runs": {
+      "source_blocks_sha256": [
+        "ab14ade1a330b5102e8fe02cb7c4937f50ecc675ef793b446d1b3c5daabd5081",
+        "94e051ab9eab8b3fdb584502bfeb60c571ce19bf1d2a131a3aea7988c138cbff",
+        "43840ea675d347a875070a58bcff2b9f096d33d840b2add67a8ad7d65181a54b",
+        "322c8423613c7d46db468ee16f4df93449188f6b5198468b36bf8ca8bbebe8f0",
+        "a715192853b7ee09f29c1a0db0d91e2db3ed8b74a90ac29fed35bfa2e01b58ce",
+        "5498d700fd623a37baf8d812716d8622e4ef848711c2dadef7a56bf5ffa0a1bb",
+        "21f8373d644eacc3b7085be558556232f0a6355c15fbfdd0611953ca0d65aed1",
+        "c960a06beb656f320d1ea3115156db90d5c9319c4757da1cb3d06d1ce3fa5155",
+        "5b3816eb8c524f2f4d590c6029b8aeb43b9b02313b87bb3a80782599430d138d"
+      ],
+      "source_sha256": "bc1bdf3655f643385c18dca11cca6129b3cfc295b99f742c13a03e6c44a82416",
+      "text": "기록된 처리 세션 폴더를 삭제합니다. ``(deleted, refused)``로 돌아갑니다.\n\n그것은 필드를 제거한다, 그래서 아래의 모든 경비원은 방어 습관 대신 부하입니다 :\n\n* 경로는 해결되면 단지 엄격히 INSIDE :func:`runs_root`입니다. 레코드의 ``dir``는 디스크에 표시된 메뉴에서 읽혀 있으며, 메뉴는 사용자가 편집할 수 있는 파일입니다. ``../../..``는 아무것도 도달하지 않아야 합니다.\n* ``runs_root()`` ITSELF는 거부됩니다. \"Delete everything\"는 아이들 위의 롤이며 결코 뿌리에서 제거되지 않으므로 빈 선택을 계산하는 호출자는 저널을 가지고 가지 못합니다.\n* The processing session OPEN ON THIS THREAD is refused: deleting the folder a processing session is still writing into leaves it failing on its next write with an error that names nothing.\n* 디렉토리가 아닌 경로는 링크되지 않은 대신 거부됩니다.\n\n거절은 반환되지 않습니다.사람이 살고있는 곳에서 50 라운드를 삭제하면 49 라운드를 삭제하고 어떤 하나를 유지했는지 말해야합니다.이 시점에서 예외는 이미 알려지지 않은 숫자를 삭제하고 호출자에게 아무것도 말하지 않습니다.\n\n:param directories: 프로세션 세션 폴더 경로, 레코드의 ``\"dir\"``와 같이.\n:returns: 얼마나 많은 사람들이 제거되었는지, 거절 당 메시지.",
+      "translation_source_blocks_sha256": [
+        "521dd33e7c6a4bf72ec3f13e2c5758b47d29fa6380db9de66bb0e02b5494467f",
+        "94e051ab9eab8b3fdb584502bfeb60c571ce19bf1d2a131a3aea7988c138cbff",
+        "43840ea675d347a875070a58bcff2b9f096d33d840b2add67a8ad7d65181a54b",
+        "322c8423613c7d46db468ee16f4df93449188f6b5198468b36bf8ca8bbebe8f0",
+        "0f3c6a4d8686b54e202156c46839d645a108c84083276b35afd6d785d2190be3",
+        "5498d700fd623a37baf8d812716d8622e4ef848711c2dadef7a56bf5ffa0a1bb",
+        "21f8373d644eacc3b7085be558556232f0a6355c15fbfdd0611953ca0d65aed1",
+        "b7c16a56bc116d91bc8bcad52a78e0a0dab0596f7945e0230fb76ec6ec604cdc",
+        "5b3816eb8c524f2f4d590c6029b8aeb43b9b02313b87bb3a80782599430d138d"
       ]
     },
     "spacr.run_journal.diff_runs": {
@@ -124515,6 +125693,16 @@
         "1efc0162bea34ce465b0a03e909411af8442250148d4edba2642fbb176f6da87"
       ]
     },
+    "spacr.submodules.ModelZooMissing": {
+      "source_blocks_sha256": [
+        "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
+      ],
+      "source_sha256": "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25",
+      "text": "이름의 모델은 그것이 있어야 할 곳이 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
+      ]
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -124903,6 +126091,24 @@
         "7a5ebb92209d4795d928a5e0a10595133aae046df88cc8ca92fcea05b20e2bef",
         "23a839d42bf00ad080692a8296bf2c91ba38365f8180f78d2d011ec2b9e784be",
         "98af194ee73bf5e4fa252936e134ddd9da525c2cc0024887b3ffae77059b366b"
+      ]
+    },
+    "spacr.submodules.split_wells": {
+      "source_blocks_sha256": [
+        "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
+        "23fe5dc7a07e6e2191befab0210373406951f4fb582c62587d5641428a8a5854",
+        "686174645ed7fbf932881c734d4794e704d5c2c2669954f7fc7093052c97efb6",
+        "4d9c67e04440f7f255ef30f58e5626e7bcf02cd8c8cbd0f727a619660f261251",
+        "f8cf5ffad8d154596062d06e0de8638931d2ea45d147f8d515a665dba88da570"
+      ],
+      "source_sha256": "06c42017109b7337ffdc0b99f0444c5973bc9dcef375ed40c8b7d7b67829a575",
+      "text": "``src`` 아래의 각 멀티 웰 이미지를 하나의 웰 이미지로 자르십시오.\n\nYOLO 잘 탐지기를 각 이미지 위로 실행하고, 한 개의 추출 된 이미지 영역을 ``<src>/wells``로 녹음하고, 각 추출된 이미지 영역의 상자를 기록하여 :func:`_plaque_scale_for`은 그 직경을 나중에 스케일로 변환 할 수 있습니다.\n\n:param settings: ``src``, ``well_detector_model``; ``well_confidence`` 및 ``well_pad``을 읽고 ``_well_geometry``을 작성합니다.\n:returns: 추출된 이미지 영역을 보관하는 폴더 또는 ``src`` 탐지가 꺼져 있거나 아무것도 찾지 못할 때 변경되지 않습니다.\n\n왜 이것은 분리된 단계가 아닌 세그먼터 내부의 지점입니다 : 두 개의 입력 형태는 결과 라운드가 의미하는 것에 따라 다릅니다. 이미지 당 미크로스코프 시각 필드는 이미지 당 하나의 줄을 제공합니다. 실험실 마이크로 플레이트는 마이클 플레트 샘플 위치 당 하나를 제공하고 마이크 플레드 샘블 위치는 이름을 지정해야합니다. 또는 조건은 단일 무의미한 계산으로 결합됩니다.",
+      "translation_source_blocks_sha256": [
+        "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
+        "84c5f31167ba71011836ac20fb9271c6d47c8f74235a475b86afd9609701e515",
+        "e6ffec94654263dbe4fff12a560b568ec23f413a3dd99af98f381634a7029e28",
+        "8c5a3135776b936b6337a06fb49d54abaddbd40e698cc97bf4723a83d0b680f2",
+        "5e5021e35ffe875ffe53b076acb65013f22866e3268245861d44959bce818339"
       ]
     },
     "spacr.submodules.test_cellpose_model": {
