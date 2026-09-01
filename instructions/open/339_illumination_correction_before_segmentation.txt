@@ -1,0 +1,106 @@
+================================================================================
+ILLUMINATION CORRECTION BELONGS BEFORE SEGMENTATION, NOT ONLY BEFORE MEASURING
+================================================================================
+
+Status:    not started
+Requested: 2026-09-01 — "we have illumination correction in measure, shouldnt we
+           have that in mask generation also or instead?"
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`spacr/illumination.py` is complete and reusable. `measure.py:3836` calls
+`prepare_illumination_correction(settings)` before the worker pool is built; it
+estimates a flat field from the merged arrays, saves it, and installs a
+PREPROCESSING HOOK that divides the pixels before any feature is computed.
+
+It runs in Measure and nowhere else. Mask generation has no illumination
+setting at all.
+
+So today: the masks are drawn on UNCORRECTED pixels, and only the intensity
+features computed from those masks are corrected.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+THE ANSWER TO THE QUESTION IS "ALSO, AND ARGUABLY MORE THERE".
+
+Correcting at measure time fixes a bias in the VALUES. Correcting before
+segmentation fixes a bias in WHICH OBJECTS EXIST, and no downstream correction
+can undo that one:
+
+* a cell in a dim corner of the field is faint, so Cellpose may miss it
+  entirely, or cut it smaller than it is;
+* whether an object is found is not a number that can be rescaled afterwards.
+  A missing cell is missing from every table, and a cell segmented small
+  carries a wrong area, a wrong intensity mean, and a wrong parent-child
+  relationship to anything inside it;
+* the bias is SPATIAL, so it correlates with position in the well -- which in
+  a plate assay correlates with edge effects, dispensing order and evaporation.
+  That is exactly the kind of confound that survives normalisation and looks
+  like biology.
+
+The current arrangement also makes the QC misleading: illumination QC reports
+on the field the measurement used, and says nothing about the field the
+segmentation saw.
+
+--------------------------------------------------------------------------------
+THE DESIGN QUESTION THAT HAS TO BE ANSWERED FIRST
+--------------------------------------------------------------------------------
+
+CORRECT ONCE, OR TWICE? If mask generation corrects the pixels it writes into
+`merged/`, and Measure then corrects again on the way in, the field is applied
+twice and every intensity is wrong by the square of it. Nothing would raise.
+
+Three options, and the choice belongs to whoever picks this up:
+
+1. **Correct at mask time, write corrected arrays, and have Measure detect
+   it.** Cheapest to run (one estimation, one division) but the merged arrays
+   are then no longer raw, which is a real loss: the raw pixels cannot be
+   recovered, and `keep_npz`/re-measurement assume they are what the microscope
+   produced.
+
+2. **Correct at mask time IN MEMORY only, for segmentation, and leave the
+   written arrays raw.** The masks improve, the arrays stay honest, and Measure
+   keeps correcting independently as it does now. Costs one extra division per
+   field during mask generation. RECOMMENDED unless measurement time dominates.
+
+3. **Estimate once, share the model.** `illumination_model` already names a
+   saved model, so mask generation could estimate and save, and Measure could
+   load rather than re-estimate. Worth doing under either of the above.
+
+Whichever is chosen, the run must RECORD what was applied, so a measurements
+database says whether its masks were drawn on corrected pixels.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Decide between the three above and write the decision here.
+
+2. Add `illumination_correction` and its siblings to the Mask settings
+   (`spacr/settings.py`, `set_default_settings_preprocess_generate_masks`), and
+   to the Mask layout in `settings_model.py`. Default OFF, as Measure's is.
+
+3. Call `prepare_illumination_correction` in `preprocess_generate_masks` AFTER
+   the merged arrays are written and BEFORE segmentation starts -- the
+   estimator reads `merged/`, so it cannot run earlier than that.
+
+4. Guard against double correction explicitly. A flag in the run journal and a
+   check in `measure_crop`, not a comment.
+
+5. Extend the illumination QC to say which stage it describes.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A synthetic field with a known vignette: segmentation finds objects near the
+  dim corner that it misses uncorrected. That is the whole claim, and it is
+  measurable.
+* Correcting at both stages does not apply the field twice -- asserted on
+  pixel values, not on a log line.
+* A run with the switch off is byte-identical to one from before this change.
