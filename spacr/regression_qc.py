@@ -300,8 +300,34 @@ class RegressionQCContext:
 
     @property
     def n(self) -> int:
-        """Number of observations (wells) in the fit."""
+        """Number of fitted design rows (one per well in ordinary designs)."""
         return int(self.X.shape[0])
+
+    @property
+    def n_unique_wells(self) -> int:
+        """Independent well identifiers represented by the fitted rows.
+
+        Historical long-format screen OLS has one design row per well-guide
+        pair, so ``n`` and the number of wells are not interchangeable.  The
+        metadata is the only trustworthy place to make that distinction.
+        """
+        if (self.metadata is not None
+                and schema.PRC_KEY in self.metadata.columns):
+            return int(self.metadata[schema.PRC_KEY].astype(str).nunique())
+        return self.n
+
+    @property
+    def sample_description(self) -> str:
+        """Human-readable fitted-row count without calling duplicates wells."""
+        if self.n_unique_wells < self.n:
+            return (f"{self.n:,} fitted rows / "
+                    f"{self.n_unique_wells:,} unique wells")
+        return f"{self.n:,} wells"
+
+    @property
+    def fit_unit(self) -> str:
+        """Singular name for one row to which influence is attributed."""
+        return "fitted row" if self.n_unique_wells < self.n else "well"
 
     @property
     def p(self) -> int:
@@ -1890,6 +1916,14 @@ def _wells(n, unit="wells"):
     return f"n = {n:,} {unit}"
 
 
+def _fit_sample(ctx):
+    """Count fitted rows and independent wells without conflating the two."""
+    if ctx.n_unique_wells < ctx.n:
+        return (f"n = {ctx.n:,} fitted rows\n"
+                f"{ctx.n_unique_wells:,} unique wells")
+    return _wells(ctx.n)
+
+
 def _panel_residuals_vs_fitted(ctx, ax):
     """Residual vs fitted: the single most informative regression diagnostic."""
     with figure_style(_REPORT_TARGET):
@@ -1904,7 +1938,7 @@ def _panel_residuals_vs_fitted(ctx, ax):
         ink = _house_axes(ax, "residuals vs fitted",
                           "fitted value (response scale)",
                           "residual (observed - fitted)")
-        text = (f"{_wells(ctx.n)}\nfamily: {ctx.family}\n"
+        text = (f"{_fit_sample(ctx)}\nfamily: {ctx.family}\n"
                 f"resid SD = {spread:.4g}\n"
                 f"mean = {np.nanmean(ctx.resid):+.3g}\n"
                 f"|trend| max = {trend:.3g}")
@@ -2040,7 +2074,9 @@ def _panel_scale_location(ctx, ax):
         ink = _house_axes(
             ax, "scale-location", "fitted value",
             r"$\sqrt{|\mathrm{standardised\ residual}|}$")
-        annotate(ax, f"{_wells(int(good.sum()))}\n"
+        sample_text = (_fit_sample(ctx) if int(good.sum()) == ctx.n
+                       else _wells(int(good.sum()), "finite fitted rows"))
+        annotate(ax, f"{sample_text}\n"
                      f"Spearman rho = {rho:+.2f} (p = {rho_p:.2g})\n"
                      f"Brown-Forsythe p = {levene_p:.2g}\n"
                      f"max/min quartile SD = {sd_ratio:.2f}", colour=ink)
@@ -2099,7 +2135,9 @@ def _panel_qq_residuals(ctx, ax):
         text_legend(ax, [("quartile reference", ROLES["reference"])])
         normality = (f"{test} = {statistic:.3g}, p = {pval:.3g}"
                      if np.isfinite(pval) else test)
-        annotate(ax, f"{_wells(int(sample.size))}\n"
+        sample_text = (_fit_sample(ctx) if int(sample.size) == ctx.n
+                       else _wells(int(sample.size), "finite fitted rows"))
+        annotate(ax, f"{sample_text}\n"
                      f"skew = {skew:+.2f}; excess kurtosis = {kurt:+.2f}\n"
                      f"{normality}\n"
                      f"quantile correlation = {corr:.4f}",
@@ -2192,9 +2230,10 @@ def _panel_cooks_distance(ctx, ax):
         # of each other whenever the worst well lands on that side.
         side = "left" if worst >= ctx.n / 2 else "right"
         edge = 0.02 if side == "left" else 0.98
-        annotate(ax, f"{above.size} well(s) above 4/n", x=edge, ha=side,
+        annotate(ax, f"{above.size} {ctx.fit_unit}(s) above 4/n",
+                 x=edge, ha=side,
                  colour=ROLES["down"] if above.size else ink)
-        annotate(ax, f"{_wells(ctx.n)}\n"
+        annotate(ax, f"{_fit_sample(ctx)}\n"
                      f"max = {np.nanmax(finite):.3g} ({ctx.labels[worst]})",
                  x=edge, y=0.91, ha=side, colour=ink)
     return {"threshold": float(threshold), "n_above": int(above.size),
@@ -2239,8 +2278,9 @@ def _panel_influence(ctx, ax):
         ink = _house_axes(ax, "leverage vs residual",
                           "leverage (hat diagonal)",
                           "standardised residual")
-        annotate(ax, f"{_wells(ctx.n)}\n"
-                     f"{high} well(s) above 2p/n = {guides[0]:.3g}\n"
+        annotate(ax, f"{_fit_sample(ctx)}\n"
+                     f"{high} {ctx.fit_unit}(s) above 2p/n = "
+                     f"{guides[0]:.3g}\n"
                      f"max leverage = {ctx.leverage.max():.3g}\n"
                      f"bubble area ∝ cook's D\n"
                      + textwrap.fill(f"hat from {ctx.leverage_source}", 44,
@@ -4006,7 +4046,8 @@ def format_qc_report(manifest):
              f"regression type  : {manifest.get('regression_type')}",
              f"family / link    : {manifest.get('family')}"
              + (f" / {manifest['link']}" if manifest.get("link") else ""),
-             f"observations     : {manifest.get('n_observations')} wells",
+             f"fitted rows      : {manifest.get('n_observations')}",
+             f"unique wells     : {manifest.get('n_unique_wells')}",
              f"predictors       : {manifest.get('n_predictors')}",
              f"leverage source  : {manifest.get('leverage_source')}",
              # The residual scale is on the header because it sets every |z|
@@ -4271,7 +4312,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
             assumptions_path, drew, why = _write_combined_page(
                 ctx, results, out_dir, OLS_ASSUMPTION_PANELS, fmt=fmt,
                 renderer=renderer, stem="ols_assumption_diagnostics",
-                title="OLS assumption, influence and batch diagnostics")
+                title="OLS assumption, influence and batch diagnostics",
+                n_cols=2, show_verdicts=False)
             drawn_by[drew] = drawn_by.get(drew, 0) + 1
             if renderer == "pyqtgraph" and drew != renderer and why:
                 fell_back.append(("ols_assumption_diagnostics", why))
@@ -4290,6 +4332,7 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         "family": ctx.family,
         "link": ctx.link,
         "n_observations": ctx.n,
+        "n_unique_wells": ctx.n_unique_wells,
         "n_predictors": ctx.p,
         "leverage_source": ctx.leverage_source,
         "residual_scale": (ctx.standardisation.source
@@ -4391,6 +4434,7 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
         "regression_type": manifest.get("regression_type"),
         "family": manifest.get("family"),
         "n_observations": manifest.get("n_observations"),
+        "n_unique_wells": manifest.get("n_unique_wells"),
         "n_predictors": manifest.get("n_predictors"),
         # FLAT, and per panel. Flat is what a reader wants -- one lookup for
         # "the normality p-value" -- and the per-panel copy is what keeps it
@@ -4424,7 +4468,7 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
 
 def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
                          renderer=None, *, stem="regression_qc_report",
-                         title=None):
+                         title=None, n_cols=4, show_verdicts=True):
     """Draw every panel again onto one page, skipped ones as grey tiles.
 
     Redrawing rather than re-parenting the individual axes is deliberate:
@@ -4434,16 +4478,16 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
     """
     by_name = {r.name: r for r in results}
     order = [name for name in selected if name in by_name]
-    n_cols = 4
+    n_cols = max(1, min(int(n_cols), max(len(order), 1)))
     n_rows = int(np.ceil(len(order) / n_cols))
     fig = Figure(figsize=(4.6 * n_cols, 3.7 * n_rows), dpi=110)
     axes = fig.subplots(n_rows, n_cols, squeeze=False)
     for slot, name in enumerate(order):
         ax = axes[slot // n_cols][slot % n_cols]
         result = by_name[name]
-        title, _, fn = _PANEL_BY_NAME[name]
+        panel_title, _, fn = _PANEL_BY_NAME[name]
         if result.status in ("skipped", "failed"):
-            _skip_box(ax, title, result.reason or "no reason recorded")
+            _skip_box(ax, panel_title, result.reason or "no reason recorded")
             continue
         try:
             fn(ctx, ax)
@@ -4451,7 +4495,8 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
             # Re-scoring the redraw would let the combined page and the
             # individual file disagree about the same panel, which is exactly
             # the failure this suite exists to catch elsewhere.
-            draw_verdict(ax, result.verdict)
+            if show_verdicts:
+                draw_verdict(ax, result.verdict)
         except Exception as exc:                # noqa: BLE001
             # The panel drew a moment ago on its own figure, so this can only
             # be an axes-specific problem; state it rather than leaving a
@@ -4461,13 +4506,14 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
     for slot in range(len(order), n_rows * n_cols):
         axes[slot // n_cols][slot % n_cols].set_axis_off()
 
-    drawn = sum(1 for r in results if r.status in ("written", "partial"))
+    drawn = sum(1 for name in order
+                if by_name[name].status in ("written", "partial"))
     heading = (title or "spaCR regression QC")
     fig.suptitle(
         f"{heading} — {ctx.family}"
         + (f" / {ctx.link} link" if ctx.link else "")
-        + f" — {ctx.n:,} wells, {ctx.p} predictors — "
-          f"{drawn}/{len(results)} panels available",
+        + f" — {ctx.sample_description}, {ctx.p} predictors — "
+          f"{drawn}/{len(order)} panels available",
         fontsize=13, y=0.995)
     fig.tight_layout(rect=(0, 0, 1, 0.985))
     path = os.path.join(out_dir, stem if not fmt else f"{stem}.{fmt}")

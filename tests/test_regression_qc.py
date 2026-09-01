@@ -256,6 +256,30 @@ def test_qq_notices_heavy_tails():
     assert stats["quantile_correlation"] < 0.99
 
 
+def test_qq_reports_the_exact_dagostino_shape_statistics():
+    """The Q-Q panel records the numerical judgement printed beside it."""
+    from scipy import stats as sps
+
+    rng = _stream(111, 2)
+    n = 300
+    X = _design(n, seed=111, n_predictors=1)
+    y = 1.0 + X["x1"] + rng.exponential(1.0, size=n)
+    ctx = rq.build_context(sm.OLS(y, X).fit(), X, y)
+    fig, ax = _axes()
+    stats = rq.draw_panel("qq_residuals", ctx, ax)
+    expected = sps.normaltest(ctx.resid)
+
+    assert stats["normality_test"] == "D'Agostino K²"
+    assert stats["normality_statistic"] == pytest.approx(expected.statistic)
+    assert stats["normality_p"] == pytest.approx(expected.pvalue)
+    assert stats["skew"] == pytest.approx(sps.skew(ctx.resid))
+    assert stats["excess_kurtosis"] == pytest.approx(
+        sps.kurtosis(ctx.resid))
+    annotation = " ".join(text.get_text() for text in ax.texts)
+    assert "D'Agostino K²" in annotation
+    assert "skew" in annotation and "excess kurtosis" in annotation
+
+
 def test_residual_distribution_reports_the_planted_skew():
     """A deliberately skewed residual is reported as skewed, not smoothed over."""
     rng = _stream(12, 2)
@@ -266,6 +290,7 @@ def test_residual_distribution_reports_the_planted_skew():
     fig, ax = _axes()
     stats = rq.draw_panel("residual_distribution", ctx, ax)
     assert stats["skew"] > 1.0
+    assert np.isfinite(stats["normality_statistic"])
     assert stats["normality_p"] < 1e-6
     assert stats["n_points"] == n
 
@@ -937,8 +962,12 @@ def test_report_writes_every_drawn_panel_and_a_combined_page(tmp_path):
         assert os.path.getsize(panel.path) > 1000
         assert os.path.basename(panel.path) == f"{panel.name}.pdf"
     assert os.path.isfile(manifest["combined"])
+    assert os.path.isfile(manifest["assumptions"])
+    assert os.path.basename(manifest["assumptions"]) == (
+        "ols_assumption_diagnostics.pdf")
     assert os.path.isfile(manifest["report"])
     assert manifest["n_observations"] == 96
+    assert manifest["n_unique_wells"] == 96
     assert manifest["n_predictors"] == X.shape[1]
     assert {p.name for p in manifest["panels"]} == set(rq.PANEL_ORDER)
 
@@ -949,6 +978,31 @@ def test_report_writes_every_drawn_panel_and_a_combined_page(tmp_path):
     assert volcano_panel.stats["volcano_path"] == str(volcano)
     assert not any("volcano_plot" in name
                    for name in os.listdir(manifest["directory"]))
+
+
+def test_long_fit_reports_rows_and_unique_wells_separately(tmp_path):
+    """Repeated guide rows must never be relabelled as independent wells."""
+    X = pd.DataFrame({"Intercept": np.ones(8),
+                      "x": np.linspace(0.0, 1.0, 8)})
+    y = 1.0 + 2.0 * X["x"] + np.array([0.1, -0.1] * 4)
+    model = sm.OLS(y, X).fit()
+    metadata = pd.DataFrame({
+        schema.PRC_KEY: np.repeat(["w1", "w2", "w3", "w4"], 2),
+        schema.PLATE_KEY: ["p1"] * 4 + ["p2"] * 4,
+    })
+
+    manifest = rq.regression_qc_report(
+        model, X, y, str(tmp_path), metadata=metadata,
+        regression_type="ols", panels=["residuals_vs_fitted"],
+        combined=False, verbose=False)
+
+    assert manifest["n_observations"] == 8
+    assert manifest["n_unique_wells"] == 4
+    panel = manifest["panels"][0]
+    assert panel.status == "written"
+    report = open(manifest["report"], encoding="utf-8").read()
+    assert "fitted rows      : 8" in report
+    assert "unique wells     : 4" in report
 
 
 def test_every_skipped_panel_carries_a_reason_in_the_text_report(tmp_path):
@@ -1137,7 +1191,8 @@ def test_format_qc_report_names_every_panel_and_the_headline_numbers(tmp_path):
     text = rq.format_qc_report(manifest)
     for panel in manifest["panels"]:
         assert panel.title in text
-    assert "observations     : 96 wells" in text
+    assert "fitted rows      : 96" in text
+    assert "unique wells     : 96" in text
     assert "Model fit" in text and "Screen-level structure" in text
     r2 = next(p for p in manifest["panels"]
               if p.name == "observed_vs_predicted").stats["r2"]

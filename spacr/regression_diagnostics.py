@@ -114,7 +114,15 @@ def design_report(fractions: pd.DataFrame, *, block: pd.Series | None = None,
         # than trusting incidental row order; the fallback by position keeps
         # the plain-array API working for callers without labels.
         if isinstance(fractions, pd.DataFrame) and isinstance(block, pd.Series):
-            if labels.index.is_unique and fractions.index.isin(labels.index).all():
+            if not labels.index.is_unique:
+                raise ValueError("block labels must have a unique well index")
+            positional = labels.index.equals(pd.RangeIndex(len(labels)))
+            if not positional:
+                missing = fractions.index.difference(labels.index)
+                if len(missing):
+                    raise ValueError(
+                        f"block labels are missing for {len(missing)} well(s), "
+                        f"including {missing[0]!r}")
                 labels = labels.reindex(fractions.index)
         if len(labels) != n_wells:
             raise ValueError(
@@ -604,6 +612,77 @@ def _finish(fig, save_path, dpi=None, fmt=None, renderer=None, title=None):
         plt.close(fig)
 
 
+def plot_design_identifiability(fractions: pd.DataFrame, *,
+                                block: pd.Series | None = None,
+                                save_path=None, save_format=None,
+                                presence_threshold: float = 0.0):
+    """One compact panel reporting wells, predictors, rank and guide support.
+
+    The six-panel :func:`plot_design_diagnostics` remains the detailed audit.
+    This compact version is the publication-facing answer to a narrower
+    question: can one coefficient per guide be identified from these wells?
+
+    :returns: ``(written_path, report)`` in the same form as the other plotters.
+    """
+    import matplotlib.pyplot as plt
+
+    report = design_report(fractions, block=block,
+                           presence_threshold=presence_threshold)
+    matrix = np.asarray(fractions, dtype=float)
+    support = (matrix > float(presence_threshold)).sum(axis=0)
+    verdict = score_design(report)
+    colour = _GOOD if report["identifiable"] else _BAD
+
+    with figure_style():
+        fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.1),
+                                 gridspec_kw={"width_ratios": [1.25, 1.0]})
+        axis = axes[0]
+        bins = min(40, max(int(support.max()), 1)) if support.size else 1
+        axis.hist(support, bins=bins, color=_DATA, edgecolor=_separator())
+        axis.axvline(1.5, color=_BAD, linestyle="--", linewidth=1)
+        _house(axis, "Guide support", "Wells containing guide", "Guides")
+        axis.text(
+            0.98, 0.95,
+            f"min / median / max = {report['guide_support_min']} / "
+            f"{report['guide_support_median']:.1f} / "
+            f"{report['guide_support_max']}\n"
+            f"{report['guides_in_one_well']} guide(s) in <=1 well",
+            transform=axis.transAxes, ha="right", va="top", fontsize=8,
+            color=colour if report["guides_in_one_well"] else _REFERENCE,
+        )
+
+        axis = axes[1]
+        axis.set_axis_off()
+        state = "IDENTIFIABLE" if report["identifiable"] else "NOT IDENTIFIABLE"
+        predictors = report["guides"] + report["block_terms"]
+        lines = [
+            f"Independent wells       {report['wells']:,}",
+            f"Guide predictors        {report['guides']:,}",
+            f"Block predictors        {report['block_terms']:,}",
+            f"Predictors (excl. int.)  {predictors:,}",
+            f"Parameters (incl. int.)  {report['parameters']:,}",
+            f"Design rank              {report['design_rank']:,}",
+            f"Residual df              {report['residual_degrees_of_freedom']:,}",
+            f"Unidentified directions  {report['non_identifiable_directions']:,}",
+            f"Condition number          {report['condition_number']:.3g}",
+        ]
+        axis.text(0.5, 0.94, state, transform=axis.transAxes, ha="center",
+                  va="top", fontsize=13, fontweight="bold", color=colour)
+        axis.text(0.04, 0.78, "\n".join(lines), transform=axis.transAxes,
+                  ha="left", va="top", fontsize=9, family="monospace")
+        axis.text(0.04, 0.08, verdict.headline, transform=axis.transAxes,
+                  ha="left", va="bottom", fontsize=8, color=colour,
+                  wrap=True)
+        fig.suptitle("Screen design identifiability", fontsize=13,
+                     fontweight="bold")
+        _stamp(axes[0], verdict)
+        report = dict(report, verdict=verdict.headline,
+                      verdict_level=verdict.level,
+                      verdict_detail=verdict.detail)
+        return _finish(fig, save_path, fmt=save_format,
+                       title="screen design identifiability"), report
+
+
 def plot_design_diagnostics(fractions: pd.DataFrame, *,
                             block: pd.Series | None = None,
                             save_path=None, save_format=None,
@@ -1007,6 +1086,9 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
             reports[name] = report
 
     if fractions is not None:
+        _emit("design_identifiability", plot_design_identifiability,
+              fractions=fractions, block=block,
+              presence_threshold=presence_threshold)
         _emit("design_diagnostics", plot_design_diagnostics,
               fractions=fractions, block=block,
               presence_threshold=presence_threshold)

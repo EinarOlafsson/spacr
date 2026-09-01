@@ -97,10 +97,12 @@ def test_the_example_button_comes_back_in_the_chosen_language(qtbot,
 
     seen = {}
 
-    def fake_missing():
+    # `kind` is accepted because counts and scores can now be fetched
+    # separately; a stub without it hides the call the screen actually makes.
+    def fake_missing(folder=None, kind=None):
         return ["counts.csv", "scores.csv"]
 
-    def fake_fetch(download=True, progress=None):
+    def fake_fetch(download=True, progress=None, kind=None):
         seen["while fetching"] = button.text()
         raise ExampleDataError("no network in a test")
 

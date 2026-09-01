@@ -7421,6 +7421,66 @@ def _diagnostic_inputs(model):
     return observed, np.asarray(fitted, dtype=float), design
 
 
+def _diagnostic_screen_design(data, settings):
+    """Return the well-by-guide matrix and aligned block labels for QC.
+
+    ``perform_regression`` works with a long table because the historical OLS
+    formula has one fitted row per well-guide pair.  Identifiability, however,
+    is a question about independent wells and guide predictors.  Passing that
+    long mixed-type table straight to ``design_report`` both miscounted the
+    observations and failed while converting ``prc`` to float.  This adapter
+    performs the same sum-and-zero-fill pivot used by the permutation path and
+    verifies that a well has exactly one block label.
+
+    A caller that already supplies a numeric wide matrix keeps the original
+    API: it is returned unchanged with no inferred block.
+    """
+    if not isinstance(data, pd.DataFrame):
+        return data, None
+
+    required = {schema.PRC_KEY, "grna", "fraction"}
+    if not required.issubset(data.columns):
+        # ``write_diagnostic_suite`` has always accepted an already-wide
+        # DataFrame.  Do not mistake its guide names for missing long-table
+        # metadata and try to pivot it.
+        return data, None
+
+    frame = data.loc[:, [schema.PRC_KEY, "grna", "fraction"]].copy()
+    if frame[[schema.PRC_KEY, "grna"]].isna().any().any():
+        raise ValueError("well and guide identifiers must not contain missing values")
+    frame["fraction"] = pd.to_numeric(frame["fraction"], errors="raise")
+    values = frame["fraction"].to_numpy(dtype=float)
+    if not np.isfinite(values).all():
+        raise ValueError("guide fractions must be finite")
+    if np.any(values < 0):
+        raise ValueError("guide fractions must be non-negative")
+
+    wide = frame.pivot_table(
+        index=schema.PRC_KEY, columns="grna", values="fraction",
+        aggfunc="sum", fill_value=0.0,
+    ).sort_index()
+    wide.columns = wide.columns.astype(str)
+
+    block = None
+    block_column = str(settings.get("guide_permutation_block") or
+                       schema.PLATE_KEY)
+    if block_column in data.columns:
+        labels = data.loc[:, [schema.PRC_KEY, block_column]].copy()
+        counts = labels.groupby(schema.PRC_KEY, sort=False)[block_column].nunique(
+            dropna=False)
+        inconsistent = counts > 1
+        if inconsistent.any():
+            example = inconsistent.index[inconsistent][0]
+            raise ValueError(
+                f"block labels are not constant within well {example!r}")
+        block = (labels.drop_duplicates(schema.PRC_KEY)
+                 .set_index(schema.PRC_KEY)[block_column]
+                 .reindex(wide.index))
+        if block.isna().any():
+            raise ValueError("block labels are missing for one or more wells")
+    return wide, block
+
+
 def _write_regression_diagnostics(res_folder, fractions, fits, settings):
     """Write the diagnostic suite for a completed fit.
 
@@ -7461,10 +7521,13 @@ def _write_regression_diagnostics(res_folder, fractions, fits, settings):
                   "not be computed for this run.")
 
     try:
+        fractions, block = _diagnostic_screen_design(fractions, settings)
         written = dict(rd.write_diagnostic_suite(
-            destination, fractions=fractions,
+            destination, fractions=fractions, block=block,
             observed=observed, fitted=fitted, design=design,
-            label=str(model_type or "")))
+            label=str(model_type or ""),
+            presence_threshold=float(
+                settings.get("guide_presence_threshold", 0.0) or 0.0)))
     except Exception as error:                               # noqa: BLE001
         print(f"Diagnostics could not be written: "
               f"{type(error).__name__}: {error}")
