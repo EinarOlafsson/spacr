@@ -12,8 +12,6 @@ the ``len(consensus_seq) >= expected_end`` check below it unable to fail.
 """
 from __future__ import annotations
 
-import inspect
-
 import pandas as pd
 import pytest
 
@@ -115,30 +113,33 @@ class TestTheTruncatedRead:
         assert pd.isna(df["rowID"].iloc[0])
         assert int(qc["rowID"].iloc[0]) == 1
 
-    def test_the_length_check_cannot_fail_after_the_padding(self):
-        """THE PIN, for ``if len(consensus_seq) >= expected_end``.
+    def test_a_padded_nonmatch_reaches_the_reverse_complement_fallback(
+            self, references, monkeypatch, capsys):
+        """Every existing consensus is long enough after padding.
 
-        Read from the source rather than driven, because there is no
-        input that makes it false: the padding three lines above brings
-        every window up to exactly ``expected_end``. What is worth
-        holding is the ORDER -- a padding that moved below the check
-        would make short reads vanish silently rather than match with
-        ``N``.
+        A direct mismatch therefore reaches the orientation fallback even
+        when the original read ended early.  This observes the actual call,
+        rather than pinning the spelling and order of source lines.
         """
-        # SLICED TO THE SINGLE-END FUNCTION FIRST. Both nested helpers
-        # pad an R1 window with the same line, and the paired one comes
-        # first in the file -- so searching the whole of `process_chunk`
-        # pins the wrong function and passes while this one changes.
-        whole = inspect.getsource(S.process_chunk)
-        source = whole[whole.index("def single_find_sequence_in_chunk_reads"):]
-        pad = source.index("if len(r1_seq) < expected_end:")
-        check = source.index("if len(consensus_seq) >= expected_end:", pad)
+        seen = []
 
-        assert pad < check
-        assert "r1_seq += 'N' * (expected_end - len(r1_seq))" in source[pad:check]
-        assert "consensus_seq = r1_seq" in source[pad:check], (
-            "the single-end consensus is no longer the padded R1 window, "
-            "so the check below it can fail again")
+        def _matching_reverse(sequence):
+            seen.append(sequence)
+            return "ACGTTTTTTTCCCC"
+
+        monkeypatch.setattr(S, "reverse_complement", _matching_reverse)
+        exact = r"(?P<columnID>ACGT)(?P<grna>TTTTTT)(?P<rowID>CCCC)"
+        read = _record("AAAA" + ANCHOR + "ACGT" + "TTTTTT" + "CC")
+
+        result = S.process_chunk(
+            _chunk([read], references)[:1]
+            + (exact,)
+            + _chunk([read], references)[2:]
+        )
+
+        assert seen == ["ACGTTTTTTTCCNN"]
+        assert "Reverse complement of last sequence" in capsys.readouterr().out
+        assert result[0].empty
 
 
 class TestTheOffset:

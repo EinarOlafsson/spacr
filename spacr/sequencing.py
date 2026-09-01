@@ -540,7 +540,9 @@ def process_chunk(chunk_data):
             print("Are barcode sequences in the correct orientation?")
             print(f"Is {consensus_seq} compatible with {regex} ?")
 
-            if consensus_seq and len(consensus_seq) >= expected_end:
+            # Every assigned consensus is padded to ``expected_end`` above;
+            # only the absence of an anchored read can skip this fallback.
+            if consensus_seq:
                 consensus_seq_rc = reverse_complement(consensus_seq)
                 match = re.match(regex, consensus_seq_rc)
                 if match:
