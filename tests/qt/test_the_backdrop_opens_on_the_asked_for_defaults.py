@@ -55,8 +55,29 @@ def test_the_speed_is_one():
     assert F.DEFAULT_SPEED == 1.0
 
 
-def test_supersampling_is_two():
-    assert F.DEFAULT_SUPERSAMPLING == 2
+def test_supersampling_is_one():
+    """CHANGED 2026-09-01: "default to computationally easy settings like
+    supersampling 1 and scale 0.5 and speed 1".
+
+    It squares the cost -- 2 is FOUR samples per pixel, not two -- so on
+    a backdrop it is the single most expensive setting to have on by
+    default. The picture is softer, which is the right trade for
+    something drawn behind the interface.
+    """
+    assert F.DEFAULT_SUPERSAMPLING == 1
+
+
+def test_the_easy_defaults_are_all_easy():
+    """The three asked for together, so raising one alone is visible."""
+    assert F.DEFAULT_SUPERSAMPLING == 1
+    assert F.DEFAULT_SCALE == 0.5
+    assert F.DEFAULT_SPEED == 1.0
+
+    # Supersampling squares: this is what the default actually costs
+    # relative to one sample per pixel at native resolution.
+    cost = (F.DEFAULT_SUPERSAMPLING ** 2) * (F.DEFAULT_SCALE ** 2)
+    assert cost <= 0.25, (
+        f"the default shades {cost:.2f}x a native single-sampled frame")
 
 
 def test_every_default_is_inside_its_own_limits():
