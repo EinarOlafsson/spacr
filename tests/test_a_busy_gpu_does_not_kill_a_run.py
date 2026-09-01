@@ -24,8 +24,9 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-import spacr.accelerator as accelerator                       # noqa: E402
-from spacr.deep_spacr import GPU_ROOM_MB, pick_device        # noqa: E402
+import spacr.accelerator as accelerator  # noqa: E402
+from spacr.accelerator import Accelerator  # noqa: E402
+from spacr.deep_spacr import GPU_ROOM_MB, pick_device  # noqa: E402
 
 
 class _Card:
@@ -73,6 +74,25 @@ class TestWhichDeviceItPicks:
         _Card(free_mb=0, available=False).install(monkeypatch)
         device, note = pick_device()
         assert device.type == "cpu"
+        assert note == ""
+
+    def test_a_non_cuda_accelerator_is_used_without_cuda_memory_probe(
+            self, monkeypatch):
+        """Metal and XPU memory are not reported by CUDA's driver API."""
+        found = Accelerator(
+            kind="mps",
+            device="mps",
+            label="Apple Metal",
+        )
+        monkeypatch.setattr(accelerator, "resolve", lambda: found)
+
+        def unexpected_cuda_probe():
+            raise AssertionError("a non-CUDA device reached mem_get_info")
+
+        monkeypatch.setattr(torch.cuda, "mem_get_info", unexpected_cuda_probe)
+
+        device, note = pick_device()
+        assert device.type == "mps"
         assert note == ""
 
     def test_exactly_enough_room_is_enough(self, monkeypatch):
