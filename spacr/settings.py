@@ -940,7 +940,47 @@ def cellpose_model_menu(block=False, refresh=False):
         off and the fallback list in play.
     """
     live = cellpose_model_choices(block=block, refresh=refresh)
-    return live + tuple(n for n in _CELLPOSE_ALIASES if n not in live)
+    menu = live + tuple(n for n in _CELLPOSE_ALIASES if n not in live)
+    return menu + tuple(n for n in downloaded_zoo_models() if n not in menu)
+
+
+def downloaded_zoo_models():
+    """Paths of model-zoo Cellpose checkpoints already on this machine.
+
+    Instruction 333. The live preview built its model from whatever the combo
+    held, and the combo held Cellpose's stock list -- so a user who had chosen
+    a zoo model for the RUN was shown a PREVIEW made with stock cpsam, while
+    tuning diameter and thresholds against it. The preview did not fail; it
+    quietly answered a different question than the one being asked.
+
+    ONLY WHAT IS ALREADY DOWNLOADED. Listing a model that is not on disk would
+    put an entry in a dropdown that cannot be selected without a 1.2 GB
+    download starting from a combo box, which is not where anyone expects to
+    begin one. The picker is where downloading happens; this is where the
+    result of having done it shows up.
+
+    Never raises and never blocks on the network: the zoo is consulted with
+    its own local view, and any failure yields an empty tuple. A dropdown that
+    could not be built because a catalogue was unreachable would be worse than
+    one missing an entry.
+
+    :returns: a tuple of filesystem paths, newest catalogue order.
+    """
+    try:
+        import os
+
+        from . import model_zoo
+
+        out = []
+        for entry in model_zoo.catalogue(remote=True):
+            if entry.kind != "cellpose":
+                continue
+            path = str(getattr(entry, "path", "") or "")
+            if path and os.path.isfile(path):
+                out.append(path)
+        return tuple(out)
+    except Exception:                                        # noqa: BLE001
+        return ()
 
 
 def normalize_cellpose_model_name(value, object_type=None, key=None):
