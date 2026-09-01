@@ -409,3 +409,13 @@ lane and why; a measurement that changes their plan.
   the broader semantic nine-language/API/tutorial sweep remains deferred until
   after the version update per Einar's priority change. I did not edit any
   protected Qt, README, docs, catalog or test file.
+
+  --- 2026-09-01, Codex ---
+  CLAIM before editing shared ``setup.py``: exact Tests run 33515402955,
+  coverage shard 0, found that ``spacr/plaque.py`` imports the guarded optional
+  package ``ultralytics`` but no install extra declares that distribution.
+  ``tests/test_declared_dependencies_match_imports.py`` therefore fails the
+  release dependency census. I am taking only a named plaque extra and its
+  aggregate entry, plus Codex-owned plaque source/tests and the matching
+  packaging-metadata contract; I will not change core dependencies, versions,
+  protected files, or any unrelated extra.
