@@ -118,3 +118,53 @@ WATCH
 -----
 `spacr/schema.py` is shared and central. Announce in instruction 325 §5
 before editing it, and do not hold it for long.
+
+--------------------------------------------------------------------------------
+2026-09-01 — STEP 1 DONE, AND IT FOUND THE REAL CEILING. IT IS FOUR, NOT 26.
+--------------------------------------------------------------------------------
+
+The round-trip property test this instruction asks for FIRST is written
+and passing: `tests/test_the_object_key_round_trips_for_every_slot.py`,
+ten tests over the current scheme, covering the three cases named above
+as the ones naive schemes break -- a label beginning with a digit, the
+role at the vocabulary boundary, and a plate name containing
+KEY_SEPARATOR -- plus parser idempotence, which `parse_prcfo`'s own
+docstring records as having been wrong once ('oxy' -> 'ooxy' -> 'ooooxy').
+
+It did not pass on the first run, and the reason is the finding.
+
+    organelle_types.MAX_ORGANELLES               26
+    settings_model.PANEL_ORGANELLE_SLOTS         26   (= MAX_ORGANELLES)
+    schema.ORGANELLE_ROLES                        4
+        ('organelle', 'organelleb', 'organellec', 'organelled')
+
+`schema.OBJECT_TYPES` is a CLOSED vocabulary and it holds four organelle
+roles. Slots 5 through 26 produce a valid role from `organelle_role()`,
+are offered by the settings panel, and CANNOT BE WRITTEN INTO AN OBJECT
+KEY: `compose_prcfo(..., object_type='organellee')` raises KeyParseError,
+and the closed-vocabulary contract says to ask `is_object_type()` and
+leave the frame UNTYPED when the answer is no.
+
+WHY THAT MATTERS MORE THAN THE NUMBER. An untyped frame is precisely the
+state the object type was introduced to remove: schema.py's own comment
+says a nucleus labelled 1 and a pathogen labelled 1 in the same field
+were the same key, so "four objects opened as three and which one you got
+depended on the row order of png_list". An organelle in slot 5 or beyond
+is silently in that state today. `compose_prcfo` has no production caller
+yet, but `is_object_type` and `object_type_prefix` do -- selection.py,
+layers.py and lineage.py -- so the untyped path is reachable.
+
+WHAT THIS DOES TO THE ITEM. The three candidate schemes are still the
+three candidate schemes, but they are no longer the first question. The
+first question is that two modules disagree about how many organelles
+exist, and the GUI believes the larger one. Reconciling
+`schema.ORGANELLE_ROLES` with `MAX_ORGANELLES` is a prerequisite for
+raising either, and it is the smaller and better-defined piece of work.
+
+The disagreement is pinned by
+`test_the_keyable_roles_are_fewer_than_the_slots_offered`, which fails the
+moment the two agree -- so whoever reconciles them must come back here
+and update this instruction in the same change. Mutation-checked: adding
+a fifth role to schema.ORGANELLE_ROLES fails that test and nothing else.
+
+`spacr/schema.py` was NOT modified. Step 1 only reads it.
