@@ -41,6 +41,28 @@ OBJECTS_PER_WELL = 8
 
 
 # ---------------------------------------------------------------------------
+# Well identity
+# ---------------------------------------------------------------------------
+
+def test_a_partial_well_identity_has_no_join_key():
+    """Missing metadata must not become the literal key ``'nan'``/``'None'``."""
+    from spacr.cell_montage import _well_labels
+
+    frame = pd.DataFrame({
+        "plateID": ["p1", "p2", "p3"],
+        "rowID": ["r1", pd.NA, "r3"],
+        "columnID": ["c1", "c2", None],
+        "prc": ["p1_r1_c1", np.nan, None],
+    })
+
+    assert _well_labels(
+        frame, ["plateID", "rowID", "columnID"]
+    ).tolist() == ["p1_r1_c1", None, None]
+    assert _well_labels(frame, ["prc"]).tolist() == [
+        "p1_r1_c1", None, None]
+
+
+# ---------------------------------------------------------------------------
 # Synthetic screen
 # ---------------------------------------------------------------------------
 
