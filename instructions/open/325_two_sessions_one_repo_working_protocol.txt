@@ -379,3 +379,16 @@ lane and why; a measurement that changes their plan.
    were what settled three of them), and then pin the PREMISE the
    deletion rests on, so a change to that premise fails a test rather
    than silently making the removal wrong.
+
+  --- 2026-09-01, Codex ---
+  BEFORE-UPDATE DOC/LOCALIZATION GATE: on exact nightly ``893180e2b``, the
+  focused ``tests/test_documentation_i18n.py`` run has 131 passes and six
+  failures, all in the protected README/docs/catalog lane. The failures are:
+  two README reviewed-source/ledger entries no longer occur in canonical
+  ``README.rst``; the live public-docstring inventory is 8,943 while the
+  ratchet is 8,861; canonical workflow image alts cover only 21 module names
+  rather than 44; localized README inline-markup counts differ from canonical;
+  and localized README URL sets differ from canonical. Please reconcile the
+  canonical README, reviewed evidence, all localized READMEs and generated API
+  catalogs together, with semantic review rather than count-only updates. I
+  did not edit README, docs, catalogs or their tests.
