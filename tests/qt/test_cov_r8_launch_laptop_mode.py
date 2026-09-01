@@ -33,13 +33,29 @@ def test_a_laptop_probe_that_raises_does_not_stop_the_launch(
     """
     from spacr.qt import laptop_mode
 
+    asked = []
+
     def refuse():
+        asked.append(True)
         raise RuntimeError("no battery on this machine")
 
     monkeypatch.setattr(laptop_mode, "describe", refuse)
+
     with caplog.at_level("DEBUG"):
         assert app_mod.launch([]) == 0
-    assert "could not decide laptop mode" in caplog.text
+
+    # ASSERTED ON THE PROBE, NOT ON THE LOG.
+    #
+    # This used to check caplog for "could not decide laptop mode" and
+    # failed whenever another launch had run first: `launch` configures
+    # logging itself, so a second call raises the spacr.qt.app logger
+    # above DEBUG and the line is never captured. The test was
+    # order-dependent, and passed alone.
+    #
+    # What the test is actually about is that a probe which raises does
+    # not stop the launch -- so it asserts the probe WAS called and the
+    # launch still returned 0. That holds whatever logging is doing.
+    assert asked == [True], "the laptop probe was never reached"
 
 
 def test_an_apply_that_raises_is_survived_too(launched, monkeypatch):
