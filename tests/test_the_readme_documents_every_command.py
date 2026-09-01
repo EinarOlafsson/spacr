@@ -55,6 +55,20 @@ def test_the_readme_names_no_command_that_does_not_exist():
         f"declare: {invented}")
 
 
+#: Entry points deliberately absent from the README.
+#:
+#: `spaceout` is a hidden function -- asked on 2026-08-31 not to be
+#: written about. It is the same application wearing different dressing,
+#: reachable only by typing the name, and nothing in the interface offers
+#: it. Documenting it would make it a feature, which is the opposite of
+#: what it is for.
+#:
+#: A name goes here only with a REASON, because the default must stay
+#: "everything that ships is documented" -- an undocumented command is a
+#: feature nobody finds, and this list is the exception that proves it.
+UNDOCUMENTED_ON_PURPOSE = {"spaceout"}
+
+
 def test_every_command_that_exists_is_in_the_readme():
     """Every entry point is documented somewhere in the README.
 
@@ -64,7 +78,8 @@ def test_every_command_that_exists_is_in_the_readme():
     """
     text = README.read_text(encoding="utf-8")
     undocumented = sorted(name for name in declared_commands()
-                          if name not in text)
+                          if name not in text
+                          and name not in UNDOCUMENTED_ON_PURPOSE)
     assert not undocumented, (
         f"these entry points ship but the README never mentions them: "
         f"{undocumented}")
@@ -128,3 +143,16 @@ def test_the_readme_has_no_rst_errors(path):
         f"{path.name} has {len(errors)} RST errors; a failed image "
         f"directive renders as a link, not a button:\n  "
         + "\n  ".join(errors[:5]))
+
+
+def test_the_hidden_entry_point_stays_hidden():
+    """`spaceout` is not in the README, and that is deliberate.
+
+    Asserted so a future "every command should be documented" tidy-up
+    argues with this line first, rather than quietly reintroducing it.
+    """
+    text = README.read_text(encoding="utf-8")
+    for name in UNDOCUMENTED_ON_PURPOSE:
+        assert name not in text, (
+            f"{name} is a hidden entry point and should not be advertised "
+            "in the README")
