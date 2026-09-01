@@ -3572,18 +3572,30 @@ def _measure_crop_core(index, time_ls, file, settings):
                         # ``img_path`` or register a .npy path in ``png_list``.
 
         cells = np.unique(cell_mask)
+        error_text = ""
     except Exception as e:
-        print('main',e)
         # `cells = 0` (a plain int) is the cross-process failure sentinel:
         # the success path always assigns np.unique(...), an ndarray, so the
         # parent's job_callback can tell the two apart and file this field on
         # the run ledger. Without that the pool callback saw a normal result
         # and the run reported as complete.
         cells = 0
-        traceback.print_exc()
-        # Also lands in ~/.spacr/logs/spacr.log with the file id, so the
-        # failure survives a scrolled-away terminal.
-        RunLedger('_measure_crop_core').record_failure(file, stage='measure', exc=e)
+        # THE TRACEBACK GOES HOME WITH THE RESULT, because this runs in a
+        # multiprocessing.Pool worker and the parent's logging configuration
+        # is not this process's. `traceback.print_exc()` here writes to a
+        # worker stderr nobody is reading, and `RunLedger(...)` opened here
+        # is a second ledger in a second process -- so the parent could say
+        # only "worker traceback in ~/.spacr/logs/spacr.log", which was NOT
+        # TRUE: reported 2026-09-01 against plate1_E02_20_1.npy, where the
+        # named log held nothing about it and the one thing needed to fix the
+        # field was the one thing thrown away.
+        #
+        # Returned as text rather than as the exception: an exception is not
+        # always picklable, and a field that fails with an unpicklable error
+        # would then fail again on the way back, losing the first failure.
+        error_text = "".join(
+            traceback.format_exception(type(e), e, e.__traceback__))
+        print(f"[measure] {os.path.basename(str(file))} failed:\n{error_text}")
 
     end = time.time()
     duration = end-start
@@ -3595,7 +3607,7 @@ def _measure_crop_core(index, time_ls, file, settings):
     if settings['plot'] and grid:
         fig = img_list_to_grid(grid)
         figs[f'{file_name}__pngs'] = fig
-    return index, average_time, cells, figs
+    return index, average_time, cells, figs, error_text
 
 #@log_function_call
 def _record_organelle_caveats(settings, run):
@@ -3960,10 +3972,16 @@ def measure_crop(settings):
                     # cells is np.unique(cell_mask) on success and the int 0 when
                     # _measure_crop_core swallowed an exception for this field.
                     if isinstance(result[2], int) and result[2] == 0:
+                        # The worker's own traceback, carried back in the
+                        # result. Recorded HERE, in the parent, whose logging
+                        # configuration is the one writing spacr.log -- so the
+                        # message that says the traceback is in the log is
+                        # true.
+                        detail = (result[4] if len(result) > 4 else "") or (
+                            'field failed inside _measure_crop_core, and the '
+                            'worker returned no traceback')
                         ledger.record_failure(
-                            item, stage='measure',
-                            exc='field failed inside _measure_crop_core '
-                                '(worker traceback in ~/.spacr/logs/spacr.log)')
+                            item, stage='measure', exc=detail)
                     else:
                         ledger.record_success(item, stage='measure')
                     process_measure_crop_results([result], settings)
@@ -4126,7 +4144,10 @@ def process_measure_crop_results(partial_results, settings):
     for result in partial_results:
         if result is None:
             continue
-        index, avg_time, cells, figs = result
+        # Five since the worker started carrying its traceback home; the
+        # four-tuple form is still accepted so a partial result saved by an
+        # older run can still be processed.
+        index, avg_time, cells, figs = result[:4]
         if figs is not None:
             for key, fig in figs.items():
                 part_1, part_2 = key.split('__')

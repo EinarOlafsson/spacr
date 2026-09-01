@@ -52,9 +52,35 @@ def told(monkeypatch):
     return seen
 
 
+#: Dialogs built by a test, so they can be destroyed when it ends.
+#:
+#: An IssuePreviewDialog owns the Diagnose poll timer and is parented to
+#: nothing here, so left alone it was freed whenever the collector next ran --
+#: which landed inside a LATER test's `qapp.exec()`. That is how a test in this
+#: file made `tests/qt/test_track_previews.py` fail while passing itself.
+_BUILT = []
+
+
 def _dialog(qapp, console):
-    return IssuePreviewDialog(REPORT, None, console=console,
-                              traceback_text=TB)
+    dialog = IssuePreviewDialog(REPORT, None, console=console,
+                               traceback_text=TB)
+    _BUILT.append(dialog)
+    return dialog
+
+
+@pytest.fixture(autouse=True)
+def _destroy_dialogs(qapp):
+    """Take every dialog down at the end of the test that built it."""
+    yield
+    while _BUILT:
+        dialog = _BUILT.pop()
+        timer = getattr(dialog, "_diagnose_timer", None)
+        if timer is not None:
+            timer.stop()
+        dialog.close()
+        dialog.setParent(None)
+        dialog.deleteLater()
+    qapp.processEvents()
 
 
 def test_the_button_is_there(qapp):
@@ -147,6 +173,7 @@ def test_an_answer_about_another_error_is_not_used(qapp, told):
     console = _Console(provider=True, answer="about something else")
     dialog = IssuePreviewDialog(REPORT, None, console=console,
                                 traceback_text="ValueError: different")
+    _BUILT.append(dialog)
     dialog._on_diagnose()
     assert "about something else" not in dialog.body_edit.toPlainText()
     assert console.asked == ["ValueError: different"]
@@ -154,6 +181,7 @@ def test_an_answer_about_another_error_is_not_used(qapp, told):
 
 def test_no_console_says_so_rather_than_crashing(qapp, told):
     dialog = IssuePreviewDialog(REPORT, None, console=None, traceback_text=TB)
+    _BUILT.append(dialog)
     dialog._on_diagnose()
     assert told and "not available" in told[0][1]
 
