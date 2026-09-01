@@ -148,68 +148,43 @@ class TestTheStabilityNeighbourGraph:
 
         assert cleaned.shape == (3, k)
 
-    def test_a_point_with_too_few_neighbours_makes_a_ragged_graph(self):
-        """THE UNCOVERED ARC: the shape does not match.
+    def test_duplicate_coordinates_still_produce_a_complete_graph(self):
+        """NearestNeighbors returns distinct indices, not distinct values."""
+        embedding = np.array([[0.0, 0.0], [0.0, 0.0], [1.0, 0.0],
+                              [0.0, 1.0], [1.0, 1.0]])
 
-        Every row drops the point itself and keeps k of the rest, so a
-        row that held fewer than k+1 candidates comes back short -- and
-        ``np.asarray`` over ragged rows gives an OBJECT array, not a
-        (n, k) one. Scoring stability off that compares neighbour lists
-        of different lengths and silently reports a lower agreement.
-        """
-        raw = [[0, 1, 2], [1, 0], [2, 0, 1]]
-        k = 2
-        rows = [[int(v) for v in row if int(v) != index][:k]
-                for index, row in enumerate(raw)]
+        score = H.embedding_stability(
+            [embedding, embedding.copy()], neighbourhood_k=2)
 
-        assert [len(row) for row in rows] == [2, 1, 2], (
-            "the fixture no longer produces a short row")
-        ragged = np.asarray(rows, dtype=object)
-        assert ragged.shape != (3, k)
+        assert score == pytest.approx(1.0)
 
-        source = inspect.getsource(H)
-        assert "if cleaned.shape != (shape[0], k):" in source
+    def test_the_impossible_shape_refusal_is_removed(self):
+        source = inspect.getsource(H.embedding_stability)
+        assert "n_neighbors=k + 1" in source
+        assert "[:k]" in source
+        assert "if cleaned.shape != (shape[0], k):" not in source
         assert "Could not construct a complete nearest-neighbour graph" \
-            in source, (
-            "the shape check no longer refuses a ragged graph by name")
-
-    def test_the_refusal_names_what_it_could_not_build(self):
-        source = inspect.getsource(H)
-        message = source[source.index(
-            "Could not construct a complete nearest-neighbour graph"):]
-        assert "stability scoring" in message[:120], (
-            "the refusal no longer says what the graph was for")
+            not in source
 
 
 # ---------------------------------------------------------------------------
-# hyperparam -- a cluster walk that found no clustering
+# hyperparam -- every valid cluster walk returns at least one row
 # ---------------------------------------------------------------------------
 
-class TestTheOptionalClusterWalk:
+class TestTheClusterWalkContract:
 
-    def test_a_walk_that_found_nothing_adds_no_cluster_columns(self):
-        """THE UNCOVERED ARC: ``cluster_walk`` is empty.
+    def test_every_valid_walk_returns_a_row_even_for_structureless_data(self):
+        """A valid candidate yields a row; all-noise is recorded, not omitted."""
+        from spacr.umap_search import walk_clusters
 
-        Clustering is an optional SECOND analysis of a map that is
-        already valid. A walk that found no clustering at any minimum
-        size -- which is the honest answer for an embedding with no
-        structure -- must add no columns at all, because a
-        ``cluster_score`` of NaN beside a real silhouette reads as a
-        clustering that scored badly rather than as one that was never
-        found.
-        """
-        extra = {}
-        cluster_walk = []
+        rows = walk_clusters(np.zeros((8, 2)), min_cluster_sizes=(5,))
 
-        if cluster_walk:                       # the shape the module uses
-            extra["cluster_score"] = cluster_walk[0]
+        assert len(rows) == 1
+        assert np.isnan(rows[0].silhouette)
 
-        assert extra == {}
-
-        source = inspect.getsource(H)
-        assert "if cluster_walk:" in source
-        assert '"cluster_score": chosen.score,' in source, (
-            "the cluster columns changed shape")
+        source = inspect.getsource(H.umap_search)
+        assert "if cluster_walk:" not in source
+        assert "chosen = cluster_walk[0]" in source
 
     def test_the_walk_is_wrapped_so_a_failure_keeps_the_map(self):
         source = inspect.getsource(H)

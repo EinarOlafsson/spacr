@@ -116,8 +116,8 @@ class TestTheGpuEmbedder:
             "a non-cuML reducer produced a trial with no recorded refusal")
 
 
-class TestTheNeighbourGraphShapeCheck:
-    """`if cleaned.shape != (shape[0], k): raise RuntimeError(...)` is dead.
+class TestTheNeighbourGraphShapeContract:
+    """The removed postcondition check could never see a wrong shape.
 
     The graph is queried with `n_neighbors=k + 1`, because a row is its
     own nearest point. Each row of the result therefore has exactly
@@ -145,9 +145,12 @@ class TestTheNeighbourGraphShapeCheck:
         source = inspect.getsource(H.embedding_stability)
         assert "n_neighbors=k + 1" in source, (
             "the graph no longer over-queries by one, so a row can yield "
-            "fewer than k neighbours and the shape check becomes reachable")
+            "fewer than k neighbours and needs an explicit refusal again")
         assert "[:k]" in source, (
             "the rows are no longer truncated to k")
+        assert "if cleaned.shape != (shape[0], k):" not in source
+        assert "Could not construct a complete nearest-neighbour graph" \
+            not in source
 
     @pytest.mark.parametrize("k", [1, 2, 5, 9])
     def test_every_row_yields_exactly_k_neighbours(self, k):
@@ -161,6 +164,6 @@ class TestTheNeighbourGraphShapeCheck:
         cleaned = [[int(v) for v in row if int(v) != int(i)][:k]
                    for i, row in enumerate(raw)]
         assert all(len(row) == k for row in cleaned), (
-            "a row yielded fewer than k neighbours; the shape check in "
-            "embedding_stability is now reachable")
+            "a row yielded fewer than k neighbours; the removed postcondition "
+            "is no longer guaranteed")
         assert np.asarray(cleaned, dtype=int).shape == (20, k)
