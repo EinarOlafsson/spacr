@@ -99,6 +99,22 @@ class _ModuleHints(QObject):
         bar.showMessage(text, LINGER_MS)
         return True
 
+    @staticmethod
+    def _shows_its_own_name(widget) -> bool:
+        """Whether the widget already says what it is on screen.
+
+        A SIDEBAR ROW HAS ITS NAME WRITTEN ON IT; a fold-strip button is
+        an icon and nothing else. For the first, a description at the
+        bottom of the window is extra detail about something already
+        identified. For the second it is the ONLY way to learn what the
+        button is, and putting it in the far corner is why the maintainer
+        reported the Mask masthead button as having no tooltip at all.
+        """
+        try:
+            return bool(str(widget.text() or "").strip())
+        except (AttributeError, RuntimeError):
+            return False
+
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         if event.type() != QEvent.Type.ToolTip:
             return False
@@ -107,10 +123,17 @@ class _ModuleHints(QObject):
         text = module_hint_text(watched)
         if not text:
             return False
+        landed = self._show(text)
+        # AN ICON-ONLY BUTTON KEEPS ITS POPUP. The description still goes
+        # to the status bar -- that is what was asked for -- but the
+        # popup is not suppressed, because a button with no label has
+        # nothing else to identify it with.
+        if not self._shows_its_own_name(watched):
+            return False
         # SUPPRESSED ONLY IF IT LANDED SOMEWHERE. A window with no status
         # bar would otherwise lose the description entirely, which is
         # worse than the popup this replaces.
-        return self._show(text)
+        return landed
 
 
 def install_module_hints(window) -> Optional[_ModuleHints]:

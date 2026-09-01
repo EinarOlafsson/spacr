@@ -35,8 +35,15 @@ def window(qtbot):
     return win
 
 
-def _module_button(parent, name="Mask", summary="Segment cells and nuclei."):
-    button = QPushButton(parent)
+def _module_button(parent, name="Mask", summary="Segment cells and nuclei.",
+                   labelled=True):
+    """A module button.
+
+    `labelled` matters: a widget that shows its own name has its popup
+    diverted to the status bar, and an ICON-ONLY one keeps the popup as
+    well, because the popup is the only thing identifying it.
+    """
+    button = QPushButton(name if labelled else "", parent)
     button.setProperty(M.NAME_PROPERTY, name)
     button.setProperty(M.SUMMARY_PROPERTY, summary)
     return button
@@ -182,3 +189,35 @@ def test_the_main_window_installs_the_filter():
 
     source = inspect.getsource(app_mod.MainWindow)
     assert "install_module_hints" in source
+
+
+# ---------------------------------------------------------------------------
+# An icon-only button keeps its popup
+# ---------------------------------------------------------------------------
+
+def test_a_button_with_no_label_keeps_its_popup(window):
+    """Reported: the Mask masthead button "tooltip isnt showing up".
+
+    A fold-strip button is an icon and nothing else, so sending its
+    identity to the far corner of the window removes the only way to
+    learn what it is. The description still goes to the status bar --
+    that is what was asked for -- but the popup is not suppressed.
+    """
+    hints = M._ModuleHints(window)
+    button = _module_button(window, name="Timelapse", labelled=False)
+
+    handled = hints.eventFilter(button, _tooltip_event(button))
+
+    assert handled is False, "an icon-only button lost its popup"
+    assert "Timelapse" in window.statusBar().currentMessage(), (
+        "the description did not also reach the status bar")
+
+
+def test_a_labelled_button_still_gives_its_popup_up(window):
+    """The other half. A sidebar row has its name written on it, so the
+    popup would be a second copy of something already on screen."""
+    hints = M._ModuleHints(window)
+    button = _module_button(window, name="Mask", labelled=True)
+
+    assert hints.eventFilter(button, _tooltip_event(button)) is True
+    assert "Mask" in window.statusBar().currentMessage()
