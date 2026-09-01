@@ -1,0 +1,14 @@
+Key,Value
+src,/media/carruthers/mnt3/claude/repo
+plot,False
+dataset_mode,annotation
+annotation_column,annotate
+annotated_classes,"[1, 2]"
+png_type,cell_png
+file_type,cell_png
+image_size,64
+batch_size,8
+epochs,2
+test_split,0.25
+model_type,resnet50
+train_channels,"['r', 'g', 'b']"
