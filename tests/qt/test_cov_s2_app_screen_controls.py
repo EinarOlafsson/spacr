@@ -570,8 +570,15 @@ class TestFilingAnIssueAboutTheLastError:
         from spacr.qt.ai import issue_preview
 
         class Preview:
-            def __init__(self, built, parent=None):
+            # `console` and `traceback_text` ARE NAMED rather than swept into
+            # **kwargs: the Diagnose button is inert without them, and a stub
+            # that accepts anything could not notice the screen stopping
+            # passing them.
+            def __init__(self, built, parent=None, console=None,
+                         traceback_text=""):
                 self.built = built
+                self.console = console
+                self.traceback_text = traceback_text
 
             def exec(self):
                 return QDialog.Accepted if accepted else QDialog.Rejected

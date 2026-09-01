@@ -1,0 +1,122 @@
+================================================================================
+ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
+THE DEFAULTS
+================================================================================
+
+Status:    not started
+Requested: 2026-09-01 — "remove the corrected manders settings in measure, and
+           remove the depreceated incorrect manders measurements and just keep
+           the new correct measurements. spacial measurements and object
+           distances should be on by default. also the settings i set now for
+           measure and mask should be the new defaults, path should always just
+           say path exp should be experiment"
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+FOUR SEPARATE THINGS, filed together because they were reported together.
+
+1. TWO MANDERS DEFINITIONS SHIP AT ONCE.
+
+   `corrected_manders` (spacr/settings.py:1286, default False) selects between
+   them, and its own description says what the problem is:
+
+       "Add standards-compliant Manders coefficients (manders_m1, manders_m2
+       and manders_overlap_coefficient) alongside the DEPRECATED
+       M1_correlation_* columns, which use a different definition."
+
+   So the default run writes the deprecated columns, and the correct ones are
+   opt-in. Both sets can be present in one database, under names that do not
+   say which definition produced them.
+
+   Touches: `corrected_manders` in settings.py (default, expected_types:3323,
+   description:4506), whatever in spacr/measure.py reads it, and the
+   `M1_correlation_<t>` / `M2_correlation_<t>` writers.
+
+2. SPATIAL MEASUREMENTS ARE OFF BY DEFAULT.
+
+   `spatial_measurements` and `object_distances` both default off. They are
+   the measurements the module is for in a host-pathogen screen, so every
+   default run produces a database missing them and the user finds out after
+   the run.
+
+3. THE DEFAULTS DO NOT MATCH WHAT A REAL RUN USES.
+
+   The settings used for the 2026-09-01 mask run are in the published example
+   dataset at `settings/gen_mask_settings.csv`
+   (huggingface.co/datasets/einarolafsson/spacr-example-measure) — that file
+   IS the requested default set for mask, and the measure equivalent is the
+   one set in the GUI at the same time. NOT YET CAPTURED for measure: whoever
+   picks this up must get the measure settings from the user before starting,
+   because they were never written to a file.
+
+4. TWO LABELS READ AS ABBREVIATIONS.
+
+   `src` shows as something other than "path", and `experiment` shows as
+   "exp". Both should read as the full word.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The Manders one is a CORRECTNESS problem, not a tidiness one. A measurements
+database can hold both definitions under names that do not distinguish them,
+and the DEPRECATED definition is what a default run writes. Anyone comparing
+two runs, or pooling a database made before the flag existed with one made
+after, is comparing two different coefficients without being told. Published
+colocalisation numbers can come out of that.
+
+The other three are each a default that makes a user redo work: a run that
+silently omits the spatial measurements, a settings panel that has to be
+re-tuned to the same values every time, and two labels that make a reader
+guess.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Establish which Manders columns are correct and delete the other WRITER,
+   not just the setting. In spacr/measure.py: keep `manders_m1`, `manders_m2`,
+   `manders_overlap_coefficient`; stop writing `M1_correlation_<t>` /
+   `M2_correlation_<t>`.
+
+2. Remove `corrected_manders` — default (settings.py:1286), type (:3323) and
+   description (:4506) — and add it to the retired-key list so an old settings
+   file naming it is answered rather than rejected. `_check_retired_keys` in
+   spacr/validate.py is where that lives.
+
+3. DECIDE AND STATE what happens to an existing database holding the old
+   columns. They are not rewritten by this change, so a reader must be able to
+   tell the two apart. Either leave them and document it in the release notes,
+   or add a schema-version marker. Not deciding is what produced the problem.
+
+4. Flip `spatial_measurements` and `object_distances` to default True
+   (spacr/settings.py). Check the cost first — `object_distances` is O(n²) in
+   objects per field unless it is already using a KD-tree; if it is not, that
+   is a separate defect and turning it on by default would make every run
+   slower for a reason the user cannot see.
+
+5. Ask the user for the measure settings they had set on 2026-09-01, then move
+   both sets into the defaults factories: `set_default_settings_preprocess_
+   generate_masks` and `get_measure_crop_settings` in spacr/settings.py. The
+   mask half can be read from the published example dataset's
+   `settings/gen_mask_settings.csv`.
+
+6. Relabel `src` to "path" and `experiment` to "experiment" wherever the GUI
+   builds their captions, and re-run the i18n extraction so the nine catalogues
+   carry the new strings rather than silently falling back to English.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A measure run on the example dataset writes `manders_m1` / `manders_m2` /
+  `manders_overlap_coefficient` and NO `M1_correlation_*` column.
+* A settings file naming `corrected_manders` opens, with the key reported as
+  retired rather than unknown.
+* A default measure run writes the spatial and object-distance tables.
+* The defaults factories return the 2026-09-01 values, pinned in a test so a
+  later edit cannot drift them silently.
+* The two labels read "path" and "experiment" on a fresh screen.

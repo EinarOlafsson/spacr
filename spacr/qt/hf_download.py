@@ -45,6 +45,16 @@ DATASET_REPO  = "einarolafsson/toxo_mito"
 DATASET_SUB   = "plate1"
 SETTINGS_REPO = "einarolafsson/spacr_settings"
 
+#: Measure's own example data: the merged arrays a Mask run produces, so
+#: Measure can be exercised without segmenting anything first.
+#:
+#: A SEPARATE REPO from the Mask demo because it is a different artefact at a
+#: different stage -- `toxo_mito` is raw acquisition, this is that plate after
+#: `preprocess_generate_masks`. Sixteen fields across four wells; the wells are
+#: all kept because well-level aggregation and between-condition comparison
+#: are most of what Measure does after the per-object step.
+MEASURE_EXAMPLE_REPO = "einarolafsson/spacr-example-measure"
+
 
 @dataclass
 class DownloadResult:
@@ -370,10 +380,128 @@ class _HFDownloadUI(QObject):
 # Public entry point
 # ---------------------------------------------------------------------------
 
+class _MeasureExampleWorker(QObject):
+    """Fetch Measure's example plate and leave it in the shape Measure reads.
+
+    Signals match :class:`_HFDownloadWorker` so the same progress dialog
+    drives both.
+    """
+
+    progress = Signal(str, int, int)
+    info     = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    def __init__(self, dest_dir: Path):
+        super().__init__()
+        self._dest = Path(dest_dir)
+        self._cancel = False
+
+    def cancel(self) -> None:
+        self._cancel = True
+
+    def run(self) -> None:
+        try:
+            self.info.emit("Listing files on Hugging Face…")
+            try:
+                from huggingface_hub import list_repo_files
+            except ImportError as exc:
+                raise ImportError(
+                    f"huggingface_hub is not installed: {exc}") from exc
+            names = [f for f in list_repo_files(MEASURE_EXAMPLE_REPO,
+                                                repo_type="dataset")
+                     if not f.startswith(".")]
+            if not names:
+                self.finished.emit(False, "", "",
+                                   "No files to download from "
+                                   f"{MEASURE_EXAMPLE_REPO}.")
+                return
+            self.info.emit(f"Found {len(names)} files to download.")
+            root = self._dest
+            root.mkdir(parents=True, exist_ok=True)
+
+            total = len(names)
+            for done, name in enumerate(names):
+                if self._cancel:
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return
+                self.progress.emit(name, done, total)
+                # Sub-paths are preserved: `merged/` is where Measure looks,
+                # and flattening the repo would put the arrays where nothing
+                # reads them.
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                _download_one(MEASURE_EXAMPLE_REPO, name, target.parent)
+
+            self.info.emit("Unpacking the arrays…")
+            self._expand_arrays(root / "merged")
+            self.progress.emit("done", total, total)
+            self.finished.emit(True, str(root),
+                               str(root / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("measure example download failed: %s", e,
+                        exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+    def _expand_arrays(self, merged: Path) -> None:
+        """Write each ``.npz`` back out as the ``.npy`` Measure reads.
+
+        The compression is a TRANSPORT detail -- it halves a 700 MB download
+        -- and Measure loads `.npy`. Converting on arrival keeps that entirely
+        inside the downloader rather than teaching every reader about a second
+        format.
+
+        The ``.npz`` is removed afterwards: keeping both doubles the disk cost
+        of an example dataset for a file nothing will open again.
+        """
+        import numpy as np
+
+        if not merged.is_dir():
+            return
+        for archive in sorted(merged.glob("*.npz")):
+            target = archive.with_suffix(".npy")
+            if target.is_file():
+                archive.unlink(missing_ok=True)
+                continue
+            try:
+                with np.load(archive) as bundle:
+                    # Written by the publisher under `image`; the first key is
+                    # the fallback so a hand-made archive still loads.
+                    key = "image" if "image" in bundle else bundle.files[0]
+                    np.save(target, bundle[key])
+                archive.unlink(missing_ok=True)
+            except Exception:                                # noqa: BLE001
+                # One bad archive must not cost the other fifteen. It is left
+                # on disk, so what failed is visible rather than merely absent.
+                LOG.warning("could not unpack %s", archive, exc_info=True)
+
+
+def download_measure_example(parent, dest: Path,
+                             on_done: Callable[
+                                 [Optional[DownloadResult], str],
+                                 None]) -> None:
+    """Fetch Measure's example plate, with the same dialog as the Mask demo.
+
+    :param parent: any QWidget — the progress dialog parents to this.
+    :param dest: local directory that will hold ``merged/`` and ``settings/``.
+    :param on_done: called with ``(result, error_message)``; ``result`` is
+        ``None`` on failure or cancellation.
+    """
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    download_toxo_mito_demo(
+        parent, dest, on_done,
+        worker_factory=_MeasureExampleWorker,
+        title="Downloading spaCR Measure example data")
+
+
 def download_toxo_mito_demo(parent,
                                 dest: Path,
                                 on_done: Callable[
-                                    [Optional[DownloadResult], str], None]) -> None:
+                                    [Optional[DownloadResult], str], None],
+                                *,
+                                worker_factory=None,
+                                title: str = "Downloading spaCR demo dataset"
+                                ) -> None:
     """Kick off the demo download with a modal progress dialog.
 
     :param parent: any QWidget — the progress dialog parents to this.
@@ -391,7 +519,7 @@ def download_toxo_mito_demo(parent,
     dest.mkdir(parents=True, exist_ok=True)
 
     dlg = QProgressDialog("Preparing…", "Cancel", 0, 1, parent)
-    dlg.setWindowTitle("Downloading spaCR demo dataset")
+    dlg.setWindowTitle(title)
     # SIZED FOR THE TEXT IT WILL SHOW, NOT THE TEXT IT STARTS WITH.
     # A QProgressDialog takes its width from the label it is constructed
     # with, and this one is constructed with "Preparing…" -- eleven
@@ -425,7 +553,12 @@ def download_toxo_mito_demo(parent,
     dlg.setAutoReset(True)
 
     thread = QThread(parent)
-    worker = _HFDownloadWorker(dest)
+    # WHICH worker, so a second dataset reuses this function's wiring rather
+    # than copying it. The thread affinity, the direct-connected cancel and
+    # the deliberate absence of a `deleteLater` below are all load-bearing and
+    # were each arrived at from a measured crash; a second copy of them would
+    # be a second place for one of them to be dropped.
+    worker = (worker_factory or _HFDownloadWorker)(dest)
     worker.moveToThread(thread)
 
     # ``ui`` is constructed here, on the GUI thread, so every connection
