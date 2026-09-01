@@ -3757,20 +3757,27 @@ class AppScreen(QWidget):
             crop_measure_settings.csv src,/home/carruthers/datasets/plate1/merged
 
         Both lines matter. The first is why the path is wrong; the second is
-        why substituting the destination outright is not the fix either -- the
-        Measure set points at a SUBFOLDER, and collapsing it to the plate root
-        would quietly measure the wrong directory rather than fail.
+        why substituting the destination outright is not the fix -- the Measure
+        set points at a SUBFOLDER, and collapsing it to the plate root would
+        quietly measure the wrong directory rather than fail.
 
-        MOST OF THIS IS NOT NEW WORK. :func:`spacr.portable_paths.reroot_crop_path`
-        already solves the general case, and better than a fresh attempt would:
-        it picks the deepest recorded suffix that EXISTS below the current
+        LISTS AND TUPLES ARE NOT A CORNER CASE. Classify's ``src`` is
+        list-valued and regression's ``count_data``, ``score_data`` and
+        ``paired_data`` are too, and ``utils.load_settings`` turns any CSV cell
+        starting with ``[``, ``(`` or ``{`` into a real Python container. An
+        earlier version of this method tested ``isinstance(value, str)`` and
+        skipped everything else, which skipped exactly the two modules whose
+        loaders never write a local path as a fallback -- so for those the
+        publisher's path was the panel's only source of truth. Containers are
+        walked.
+
+        Most of the per-path work is not new. :func:`spacr.portable_paths.reroot_crop_path`
+        already picks the deepest recorded suffix that EXISTS below the current
         root, so a rewrite is only made when the reconstructed path is really
-        there. It is used first and its answer is preferred.
-
-        What it cannot do is the root itself. Its resolution needs a suffix to
-        match below the root, and ``src`` pointing at the plate folder has
-        none -- which is exactly the reported case. That single gap is filled
-        here, by matching the destination's own folder name.
+        there; it is tried first and its answer preferred. What it cannot do is
+        the root itself -- its resolution needs a suffix to match, and ``src``
+        pointing at the plate folder has none, which is the reported case. That
+        one gap is filled by matching the destination's own folder name.
 
         A path that already resolves on this machine is left ALONE: a user who
         imported an example, edited ``src`` to their own data and saved would
@@ -3786,44 +3793,50 @@ class AppScreen(QWidget):
 
         destination = Path(destination)
         anchor = destination.name
-        out = dict(loaded)
-        for key, value in list(out.items()):
-            if not isinstance(value, str) or not value.strip():
-                continue
-            text = value.strip()
+
+        def rehome_text(text: str):
+            stripped = text.strip()
+            if not stripped:
+                return text
             # Both separators: the file may have been written on Windows and
             # read here, or the other way round.
-            pure = PureWindowsPath(text) if "\\" in text else PurePosixPath(text)
+            pure = (PureWindowsPath(stripped) if "\\" in stripped
+                    else PurePosixPath(stripped))
             if not pure.is_absolute():
-                continue
-            if Path(text).exists():
-                continue
+                return text
+            if Path(stripped).exists():
+                return text
 
             try:
-                rerooted = reroot_crop_path(text, str(destination))
+                rerooted = reroot_crop_path(stripped, str(destination))
             except Exception:                                # noqa: BLE001
-                rerooted = text
-            if rerooted and rerooted != text:
-                out[key] = rerooted
-                continue
+                rerooted = stripped
+            if rerooted and rerooted != stripped:
+                return rerooted
 
-            # The root case portable_paths cannot reach.
             parts = list(pure.parts)
             if anchor in parts:
                 tail = parts[len(parts) - 1 - parts[::-1].index(anchor) + 1:]
                 candidate = destination.joinpath(*tail) if tail else destination
                 # NOT conditional on the candidate existing, unlike
                 # portable_paths. Some of these are OUTPUT paths -- a
-                # measurements.db the run has not written yet -- and requiring
-                # existence would leave the publisher's path on exactly the
-                # settings a first run needs. A local path that does not exist
-                # yet is still better than a foreign one that never will.
-                out[key] = str(candidate)
-            # Otherwise there is nothing to hang the tail on. A bare re-point
-            # at the destination would be a guess, and a wrong path that LOOKS
-            # local is worse than one that is obviously foreign, so it is left
-            # for the user to see and correct.
-        return out
+                # measurements.db a first run has not written yet -- and
+                # requiring existence would leave the publisher's path on
+                # exactly the settings a first run needs.
+                return str(candidate)
+            # Nothing to hang the tail on. A bare re-point at the destination
+            # would be a guess, and a wrong path that LOOKS local is worse than
+            # one that is obviously foreign, so it is left for the user to see.
+            return text
+
+        def rehome(value):
+            if isinstance(value, str):
+                return rehome_text(value)
+            if isinstance(value, (list, tuple)):
+                return type(value)(rehome(item) for item in value)
+            return value
+
+        return {key: rehome(value) for key, value in loaded.items()}
 
     def apply_settings_that_came_with(self, folder) -> int:
         """Load the settings a downloaded example shipped, for THIS module.
