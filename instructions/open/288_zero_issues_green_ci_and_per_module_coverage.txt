@@ -407,3 +407,31 @@ was never satisfied. Every one of them was green.
 STILL OPEN in this lane: the full tests/qt run segfaults at 34% in a
 single process. Pre-existing and already tracked here; the affected
 files pass when run directly.
+
+ORDER-DEPENDENT FAILURES AND THE SEGFAULT, measured 2026-09-01
+--------------------------------------------------------------
+Both are real and both are INTERACTIONS, not single bad files. Recorded
+with the evidence so the next attempt does not start from zero.
+
+THE SEGFAULT. `tests/qt` segfaults partway through a single process --
+at 34% on one run and 28% on the next, so the position moves with the
+content rather than sitting on one test. Every one of the 21 files in a
+subset that segfaulted was then run ON ITS OWN: none segfaulted, and
+only one failed at all. So no file is individually responsible.
+
+ORDER-DEPENDENT FAILURES. Seven tests in the
+`-k "plugin or registration or section"` selection fail there and pass
+when their files are run together. The obvious suspects were checked and
+cleared: `SECTIONS` is derived live from `APPS`; `SECTION_NOTES` is
+rebuilt by `_refresh_sections`; the conftest fixture restores APPS,
+APP_FACTORIES, APP_STAGE, APP_META and the side tables and calls
+`_refresh_sections`; and `unregister_app` refreshes too. The registry
+mechanics are sound, so the leak is somewhere else.
+
+WHAT WAS FIXED RATHER THAN RECORDED. Two order-dependent failures were
+genuine and are gone: a Qt-warning test whose own file left the root
+sink's LEVEL raised, and a laptop-mode test that asserted on caplog
+after another launch had reconfigured logging. Both passed alone and
+failed in a run. The pattern is worth naming -- a test that depends on
+global state must pin it on the way IN as well as restoring it on the
+way out, or a test running BEFORE it decides the answer.
