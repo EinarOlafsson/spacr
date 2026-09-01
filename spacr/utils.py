@@ -10583,7 +10583,15 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
         else:
             return None
         
-    df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
+    # Preserve unmatched features as real ``None`` values.  Pandas 3 may
+    # otherwise infer a nullable string dtype and expose those entries as
+    # ``nan``, which changes the public result even though ``isna`` agrees.
+    df[name] = pd.Series(
+        (find_feature_class(feature, feature_groups)
+         for feature in df['feature']),
+        index=df.index,
+        dtype=object,
+    )
     
     if name == 'channel':
         # See add_column_to_database: chained inplace is a no-op under
