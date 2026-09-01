@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-31 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-09-01 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-302 done / 13 open (95%).
+311 done / 22 open (93%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -63,6 +63,33 @@ OPEN
 
   316  THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
        316_the_translations_are_semantically_wrong_in_places.txt
+
+  319  USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
+       319_use_non_nvidia_accelerators_where_they_exist.txt
+
+  325  TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
+       325_two_sessions_one_repo_working_protocol.txt
+
+  326  THE ORGANELLE COUNT MUST BE ARBITRARY
+       326_the_organelle_count_must_be_arbitrary.txt
+
+  327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
+       327_the_backdrop_camera_and_the_pointer_should_feel_like_gravity.txt
+
+  330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
+       330_the_dock_and_menu_should_show_the_nested_structure.txt
+
+  331  WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+       331_before_the_version_update.txt
+
+  332  MEASURE NEEDS DOWNLOADABLE TEST DATA, LIKE MASK HAS
+       332_measure_needs_downloadable_test_data.txt
+
+  333  CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
+       333_custom_pathogen_models_in_live_preview.txt
+
+  334  NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
+       334_normalize_percentiles_need_more_than_two_decimals.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -370,7 +397,12 @@ DONE
   311  NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
   312  SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
   313  THE PYTHON CEILING ADMITS 3.15
-  329  README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01) -- DONE
-  328  A SOURCE INSTALL SHOULD NOT COST A GIGABYTE -- DONE
-  330  THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
-  331  WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+  317  THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
+  318  FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
+  320  THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
+  321  THE API AND README STILL SHOW THE OLD MODULE STRUCTURE
+  322  REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
+  323  THE README NEEDS A TABLE OF WHAT EACH HARDWARE CONFIGURATION CAN DO
+  324  THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
+  328  A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
+  329  README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01)

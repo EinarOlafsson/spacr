@@ -3311,7 +3311,11 @@ class AppScreen(QWidget):
     #: matched on a suffix: `custom_model_path` in Classify holds a torch
     #: classifier, not a Cellpose model, and offering cpsam checkpoints there
     #: would offer something that screen cannot load.
-    _MODEL_ZOO_KEYS = ("pathogen_model", "custom_model", "plaque_model")
+    _MODEL_ZOO_KEYS = (
+        "pathogen_model", "pathogen_model_name",
+        "cell_model_name", "nucleus_model_name", "organelle_model_name",
+        "custom_model", "plaque_model",
+    )
 
     def _with_a_model_zoo_button(self, widget, key):
         """Add the model-zoo button beside a Cellpose-checkpoint field.

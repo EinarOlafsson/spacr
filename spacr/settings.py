@@ -944,6 +944,27 @@ def cellpose_model_menu(block=False, refresh=False):
     return menu + tuple(n for n in downloaded_zoo_models() if n not in menu)
 
 
+def cellpose_live_model_menu(block=False, refresh=False):
+    """:func:`cellpose_model_menu` without the retired pre-SAM spellings.
+
+    THE LIVE VIEW IS NOT A SETTINGS FILE. `cellpose_model_menu` keeps 'cyto',
+    'cyto2', 'cyto3' and 'nuclei' so a user whose SAVED settings name one can
+    see their own value rather than have it silently replaced -- that is a
+    compatibility obligation and it is real.
+
+    A live preview has no such obligation: nothing is being loaded from disk,
+    the user is choosing what to look at now. And all four resolve to cpsam,
+    so offering them there is offering four labels for one model and inviting
+    the question of which is better. Dropped, per the maintainer's request to
+    "remove the old models as options" in the live model view.
+
+    Downloaded zoo checkpoints stay, because those ARE different models.
+    """
+    aliases = set(_CELLPOSE_ALIASES)
+    return tuple(n for n in cellpose_model_menu(block=block, refresh=refresh)
+                 if n not in aliases)
+
+
 def downloaded_zoo_models():
     """Paths of model-zoo Cellpose checkpoints already on this machine.
 
@@ -6208,6 +6229,44 @@ def get_setting_dependencies():
                 f"{settings.get('stream_method')!r}. The value is kept and "
                 f"saved."),
         )
+
+    # ---- Mask input and metadata -------------------------------------
+    # `custom_regex` is only read by two conventions, so under the other two
+    # it is a control that changes nothing.
+    #
+    # 'auto' IS INCLUDED, and that is the part worth stating: it is not the
+    # obvious reading of "grey it out unless metadata type is custom". The
+    # description for `metadata_type` says 'auto' renames the folder to
+    # Yokogawa naming "using custom_regex when supplied, otherwise automatic
+    # detection" -- so a user on 'auto' who has a regex CAN use it, and
+    # greying the field there would take away a documented behaviour while
+    # looking like a tidy-up.
+    setting_dependencies['custom_regex'] = _combined(
+        setting_dependencies.get('custom_regex'),
+        ('metadata_type',),
+        lambda settings, context: str(
+            settings.get('metadata_type') or '').strip().lower()
+        in ('custom', 'auto'),
+        lambda settings, context: (
+            f"custom_regex is only read when metadata_type is 'custom', or "
+            f"'auto' with a regex supplied. It is "
+            f"{settings.get('metadata_type')!r}. The value is kept and saved."),
+    )
+
+    # ---- Organelle segmentation --------------------------------------
+    # Every other organelle_method is a threshold or a filter and takes no
+    # checkpoint; only cellpose loads one.
+    setting_dependencies['organelle_model_name'] = _combined(
+        setting_dependencies.get('organelle_model_name'),
+        ('organelle_method',),
+        lambda settings, context: str(
+            settings.get('organelle_method') or '').strip().lower()
+        == 'cellpose',
+        lambda settings, context: (
+            f"organelle_model_name is only read when organelle_method is "
+            f"'cellpose'. It is {settings.get('organelle_method')!r}, which "
+            f"segments without a checkpoint. The value is kept and saved."),
+    )
 
     return setting_dependencies
 
