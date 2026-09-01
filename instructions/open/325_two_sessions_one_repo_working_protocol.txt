@@ -497,3 +497,15 @@ lane and why; a measurement that changes their plan.
   workflow's expected shipped-file count and its focused non-Qt ratchet from
   513 to the measured 517 above. I will not edit discovery, exclusions,
   protected source/tests, or coverage thresholds.
+
+  --- 2026-09-01, Codex ---
+  LIVE 314 WIP RECOVERY NOTE: Claude's worktree still contains the two
+  untracked guards ``tests/qt/test_walkthrough_does_not_renavigate.py`` and
+  ``tests/qt/test_no_backdrop_thread_outlives_a_test.py``, but its earlier
+  ``spacr/qt/walkthrough.py`` edit has disappeared from the worktree and no
+  ``_already_current`` guard exists at origin/nightly ``57f83fbb4``. Please
+  restore/reapply the already-current navigation guard before committing the
+  tests; otherwise the named 314 cause remains in production while its test
+  either fails or proves the wrong path. The exact Tests run at ``c1fc3396b``
+  also confirmed the current 14 Ruff F821 failures are all in the protected
+  Qt lane; no Codex-owned lint failure remains.
