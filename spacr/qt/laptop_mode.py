@@ -52,7 +52,10 @@ def total_memory_gib() -> Optional[float]:
         pages = os.sysconf("SC_PHYS_PAGES")
         size = os.sysconf("SC_PAGE_SIZE")
         return (pages * size) / (1024 ** 3)
-    except (AttributeError, ValueError, OSError):   # pragma: no cover
+    except (AttributeError, ValueError, OSError):
+        # os.sysconf is absent on Windows and refuses unknown names
+        # elsewhere. None means "could not be read", which every caller
+        # already treats as "do not decide laptop mode on memory".
         return None
 
 

@@ -337,7 +337,9 @@ class MethodsExportScreen(QWidget):
     def _on_digest_ready(self, digest: Optional[Dict[str, Any]]) -> None:
         """Show a freshly built digest and spaCR's own sections."""
         self._digest = digest
-        if not digest:                                # pragma: no cover
+        if not digest:
+            # None or empty -- both are as useless as each other here,
+            # and saying nothing would leave the previous digest up.
             self._set_provenance("The digest could not be built.",
                                  problem=True)
             return
@@ -379,7 +381,7 @@ class MethodsExportScreen(QWidget):
 
     def _on_draft_ready(self, draft: Any) -> None:
         """Show a draft and, above all, the verdict on its numbers."""
-        if draft is None:                             # pragma: no cover
+        if draft is None:
             self._set_provenance("The draft could not be produced.",
                                  problem=True)
             return

@@ -423,7 +423,11 @@ class HitListScreen(QWidget):
     def _on_hits_ready(self, hit_list: Optional[HitList]) -> None:
         """Take a freshly built list. Runs on the GUI thread."""
         self._all = hit_list
-        if hit_list is None:                          # pragma: no cover
+        if hit_list is None:
+            # THE WORKER FAILED. This runs on the GUI thread from a
+            # finished signal, so an AttributeError here surfaces as an
+            # unhandled exception in the Qt event loop and leaves the
+            # screen showing the last list it had.
             self._set_summary("The hit list could not be built.", problem=True)
             return
         self.hits_loaded.emit(hit_list)
