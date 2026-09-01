@@ -1536,11 +1536,15 @@ class _SettingsDialog(QDialog):
         return self._src_edit.text().strip()
 
     def example_destination(self):
-        """Where the annotation example is cached. Shared with Classify: it is
-        one dataset, and downloading it twice would cost 280 MB twice."""
-        from pathlib import Path
+        """The shared example plate folder.
 
-        return Path.home() / ".cache" / "spacr" / "example_annotate"
+        Shared with Classify because it is one dataset, and with Mask and
+        Measure because `data/`, `merged/` and `measurements/measurements.db`
+        are parts of one plate that are needed together.
+        """
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
 
     def _load_the_example_data(self, *, ask=None) -> str:
         """Fetch the example set and point this screen at it.
@@ -1550,9 +1554,10 @@ class _SettingsDialog(QDialog):
         destination = self.example_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        # The DATABASE is the test for "already here", not the folder: a
-        # cancelled download leaves the folder behind.
-        if (destination / "measurements.db").is_file():
+        # THIS SET'S OWN DATABASE is the test. The folder is shared with the
+        # other example sets now, so its existence says nothing -- and a
+        # cancelled download leaves it behind too.
+        if (destination / "measurements" / "measurements.db").is_file():
             return self._use_the_example_data(destination)
 
         button = getattr(self, "_example_btn", None)
@@ -1584,7 +1589,7 @@ class _SettingsDialog(QDialog):
         from pathlib import Path
 
         destination = Path(destination)
-        database = destination / "measurements.db"
+        database = destination / "measurements" / "measurements.db"
         source = str(database if database.is_file() else destination)
         self._src_edit.setText(source)
         # AND THE SETTINGS THAT CAME WITH IT. The dataset ships an

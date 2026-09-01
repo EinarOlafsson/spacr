@@ -111,10 +111,33 @@ def is_whole(path, entry) -> bool:
     return _digest(path) == entry["sha256"]
 
 
-def missing(folder=None) -> List[dict]:
-    """Return manifest entries absent or invalid in ``folder``."""
+def entries_of_kind(kind: Optional[str] = None) -> List[dict]:
+    """The manifest entries for one ``kind``, or all of them.
+
+    :param kind: ``"counts"``, ``"scores"``, or ``None`` for everything.
+    :raises ValueError: for a kind the manifest does not contain, rather than
+        returning an empty list -- a typo would otherwise download nothing and
+        report success.
+    """
+    if kind is None:
+        return list(FILES)
+    known = {entry["kind"] for entry in FILES}
+    if kind not in known:
+        raise ValueError(
+            f"no example files of kind {kind!r}; the manifest has "
+            f"{sorted(known)}")
+    return [entry for entry in FILES if entry["kind"] == kind]
+
+
+def missing(folder=None, kind: Optional[str] = None) -> List[dict]:
+    """Return manifest entries absent or invalid in ``folder``.
+
+    :param kind: restrict to one kind. Regression can fetch its counts and its
+        scores separately, because a user checking one of them should not wait
+        for the other.
+    """
     where = folder or cache_folder()
-    return [entry for entry in FILES
+    return [entry for entry in entries_of_kind(kind)
             if not is_whole(os.path.join(where, entry["name"]), entry)]
 
 
@@ -182,7 +205,8 @@ def _forget(path) -> None:
 
 def fetch(folder=None, *, progress: Optional[Callable] = None,
           cancelled: Optional[Callable] = None,
-          download: bool = True) -> Fetched:
+          download: bool = True,
+          kind: Optional[str] = None) -> Fetched:
     """Prepare the example screen, downloading only missing files.
 
     Parameters
@@ -210,17 +234,21 @@ def fetch(folder=None, *, progress: Optional[Callable] = None,
         cancelled, or downloading is disabled while files are missing.
     """
     where = folder or cache_folder()
-    absent = missing(where)
+    wanted = entries_of_kind(kind)
+    absent = missing(where, kind)
     if absent and not download:
         raise ExampleDataError(
-            f"{len(absent)} of the {len(FILES)} example files are not cached "
+            f"{len(absent)} of the {len(wanted)} example files are not cached "
             f"in {where}, and downloading was not allowed.")
     got: List[str] = []
     for entry in absent:
         got.append(_download(entry, where, progress, cancelled))
 
+    # REPORTED FOR THE REQUESTED KIND ONLY. Listing a path for a file that was
+    # never asked for -- and so may not be on disk -- would hand the caller a
+    # name it cannot open.
     by_kind: Dict[str, List[str]] = {"counts": [], "scores": []}
-    for entry in FILES:
+    for entry in wanted:
         by_kind[entry["kind"]].append(os.path.join(where, entry["name"]))
     return Fetched(counts=sorted(by_kind["counts"]),
                    scores=sorted(by_kind["scores"]),
