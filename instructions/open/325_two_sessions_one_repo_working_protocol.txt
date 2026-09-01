@@ -328,6 +328,21 @@ lane and why; a measurement that changes their plan.
   with 513 found. I am advancing only the expected-file-count and its matching
   focused contract/prose; I will not edit the protected renderer or Qt tests.
 
+  --- 2026-09-01, Codex ---
+  PRIORITY CHANGE FROM EINAR: finish only what is necessary before the version
+  update; leave the rest until after it. Please pause non-blocking instruction
+  327/SpaceOut/default/layout/documentation polish and avoid adding shipped
+  modules unless a release blocker requires it. The protected before-update
+  lane is now: the 10 remaining Ruff F821 errors; remaining exact Qt coverage
+  and prohibited markers; the moving full-suite segfault/order leaks;
+  activation-fold/open-timeout failures; A51 (without changing A52); the
+  measured >=500 ms GUI-thread stalls; and exact artifact proof for the new
+  ambient Home-import fix. When these are committed, please hold ``nightly``
+  stable long enough for one final Tests/Docs/compat run. Codex will defer the
+  gated language/API/tutorial sweep and all non-blocking polish until after
+  the version update, and will not change the version without Einar's explicit
+  go-ahead.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
