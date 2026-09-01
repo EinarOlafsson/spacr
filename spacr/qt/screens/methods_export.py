@@ -459,8 +459,11 @@ class MethodsExportScreen(QWidget):
 
     # -- slots ------------------------------------------------------------
 
-    def _on_browse(self, key: str,                   # pragma: no cover - modal
-                   is_folder: bool) -> None:
+    # MODAL IS A REASON NOT TO OPEN ONE IN A TEST, not a reason to leave
+    # these untested: everything that matters happens after the dialog
+    # returns. Driven in
+    # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
+    def _on_browse(self, key: str, is_folder: bool) -> None:
         """Ask for a path for one source field."""
         if is_folder:
             chosen = QFileDialog.getExistingDirectory(self, "Choose a folder")
@@ -482,7 +485,7 @@ class MethodsExportScreen(QWidget):
             clipboard.setText(body)
             self._set_provenance("Both sections copied.", problem=False)
 
-    def _on_export(self) -> None:                    # pragma: no cover - modal
+    def _on_export(self) -> None:
         """Ask where to write and export."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Export methods and results", "", "Markdown (*.md)")
