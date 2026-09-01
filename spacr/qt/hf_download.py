@@ -661,6 +661,97 @@ class _TarExampleWorker(QObject):
             self.finished.emit(False, "", "", explain_download_failure(e))
 
 
+class _ChosenArchivesWorker(_TarExampleWorker):
+    """Fetch a chosen LIST of archives, one after another.
+
+    The screen is published as eight separate pieces so a user can take the
+    two-gigabyte databases without the thirty gigabytes of crops. This is the
+    worker behind that choice: same streaming, same cancel-between-chunks, same
+    filtered extraction, run once per selected piece.
+    """
+
+    repo = ""
+
+    def __init__(self, dest_dir, archives=(), repo: str = ""):
+        super().__init__(dest_dir)
+        self._archives = list(archives)
+        self.repo = repo or self.repo
+
+    def run(self) -> None:
+        try:
+            if not self._archives:
+                self.finished.emit(False, "", "", "Nothing was selected.")
+                return
+            done = []
+            for position, archive in enumerate(self._archives, start=1):
+                if self._cancel:
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return
+                self.info.emit(
+                    f"Downloading {archive} ({position} of "
+                    f"{len(self._archives)})…")
+                if not self._fetch_one(archive):
+                    return                      # it emitted its own outcome
+                done.append(archive)
+            self.info.emit("Preparing the files…")
+            make_the_example_paths_absolute(self._dest)
+            self.progress.emit("done", 1, 1)
+            self.finished.emit(True, str(self._dest),
+                               str(self._dest / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("screen download failed: %s", e, exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+    def _fetch_one(self, archive: str) -> bool:
+        """Stream and unpack one archive. False when it ended the run."""
+        import requests
+
+        url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+               f"{archive}?download=true")
+        target = self._dest / archive
+        self._dest.mkdir(parents=True, exist_ok=True)
+        part = target.with_name(target.name + ".part")
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
+        expected = _content_length(response)
+        written = 0
+        with part.open("wb") as handle:
+            for chunk in response.iter_content(chunk_size=1 << 20):
+                if self._cancel:
+                    part.unlink(missing_ok=True)
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return False
+                if not chunk:
+                    continue
+                handle.write(chunk)
+                written += len(chunk)
+                if expected:
+                    self.progress.emit(archive, written // (1 << 20),
+                                       max(1, expected // (1 << 20)))
+        if expected is not None and written != expected:
+            part.unlink(missing_ok=True)
+            raise IOError(
+                f"{archive} stopped early: {written} bytes of {expected}. "
+                f"Nothing was unpacked.")
+        part.replace(target)
+        extract_example_archive(target, self._dest)
+        target.unlink(missing_ok=True)
+        return True
+
+
+def download_chosen_screen_data(parent, dest: Path, archives, repo: str,
+                                on_done) -> None:
+    """Fetch the chosen pieces of the published screen."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+
+    def _factory(where):
+        return _ChosenArchivesWorker(where, archives=archives, repo=repo)
+
+    download_toxo_mito_demo(parent, dest, on_done, worker_factory=_factory,
+                            title="Downloading screen data")
+
+
 class _MeasureTarWorker(_TarExampleWorker):
     repo = MEASURE_EXAMPLE_REPO
 

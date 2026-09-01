@@ -1168,14 +1168,35 @@ class _SettingsDialog(QDialog):
         # SOMETHING TO ANNOTATE, for a user who has not measured a plate yet.
         # Beside Browse because it fills the same field, and because the
         # question it answers -- "what do I point this at?" -- is asked here.
-        example_btn = QPushButton("Example…")
+        # TWO STRATEGIES, TWO BUTTONS. Annotating can read crops that are
+        # already on disk, or cut them from the merged arrays on demand, and
+        # the two need different halves of a plate:
+        #
+        #   crops     -> data/ and measurements/measurements.db  (282 MB)
+        #   streaming -> merged/ and measurements/measurements.db (388 MB)
+        #
+        # Both unpack into the same plate folder, so pressing both leaves a
+        # complete plate and either strategy then works. One button fetching
+        # 670 MB would make the cheaper half unavailable on its own.
+        example_btn = QPushButton("Example (crops)")
         example_btn.setToolTip(
-            "Download about 280 MB of example data: 2,341 single-cell crops "
-            "with a measurements database, 88 of them already labelled. The "
-            "annotation settings are filled in with it. Cached afterwards.")
+            "Download about 280 MB: 2,341 single-cell crops already cut, with "
+            "the measurements database that indexes them, labelled infected "
+            "or not. For annotating images that exist on disk. The annotation "
+            "settings are filled in with it.")
         example_btn.clicked.connect(self._load_the_example_data)
         self._example_btn = example_btn
         src_row.addWidget(example_btn)
+
+        stream_btn = QPushButton("Example (streaming)")
+        stream_btn.setToolTip(
+            "Download about 390 MB: the merged arrays the crops were cut "
+            "from, so a set can be streamed with 'Generate annotation "
+            "database…' rather than read off disk. Unpacks beside the crops "
+            "in the same plate folder.")
+        stream_btn.clicked.connect(self._load_the_streaming_example)
+        self._stream_btn = stream_btn
+        src_row.addWidget(stream_btn)
         src_wrap = QWidget(); src_wrap.setLayout(src_row)
         form.addRow("Source folder", src_wrap)
 
@@ -1577,6 +1598,41 @@ class _SettingsDialog(QDialog):
         download = ask
         if download is None:
             from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _load_the_streaming_example(self, *, ask=None) -> str:
+        """Fetch the merged arrays, for the streaming strategy.
+
+        The same plate folder as the crops, so the two compose: a user who
+        presses both ends up with a plate that either strategy can work from.
+        """
+        destination = self.example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # `merged/` holding an array is the test, not the folder: it is shared
+        # with the crops download and with Mask's images.
+        merged = destination / "merged"
+        if merged.is_dir() and any(merged.glob("*.npy")):
+            return self._use_the_example_data(destination)
+
+        button = getattr(self, "_stream_btn", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText("Fetching…")
+
+        def _done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText("Example (streaming)")
+            if result is None:
+                LOG.info("streaming example not downloaded: %s", error)
+                return
+            self._use_the_example_data(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_measure_example as download
         download(self, destination, _done)
         return ""
 
