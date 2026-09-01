@@ -5789,6 +5789,17 @@ class AppScreen(QWidget):
                 {"result": "bad_settings", "error": str(e)})
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
+
+        # WHAT THE CROP SETTINGS WILL COST, said before the run rather than
+        # after it. Both of these quietly change what every downstream model
+        # sees, and neither is recoverable without measuring again -- which is
+        # twenty minutes a plate.
+        if self.app_key == "measure" and not self._confirm_crop_choices(
+                settings):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "cancelled_at_crop_warning"})
+            return
+
         if self.app_key == "umap":
             # Resolve GUI colours on the GUI thread and pass plain strings to
             # the worker. The UMAP canvas sits inside a Card, whose material is
@@ -6607,6 +6618,59 @@ class AppScreen(QWidget):
             "[issue] report handoff completed.\n{url}...\n",
             url=str((outcome or {}).get("url") or "")[:100],
         )
+
+    def _crop_choice_warnings(self, settings) -> list:
+        """What is worth saying about this run's crop settings, in order.
+
+        Returned as a list rather than shown from here, so WHAT is warned
+        about is testable without a dialog in the way.
+        """
+        notes = []
+        if settings.get("normalize"):
+            notes.append(
+                "NORMALISING THE CROPS LOSES INFORMATION THAT CANNOT BE "
+                "RECOVERED.\n\n"
+                "The annotation viewer and the training pipeline each apply "
+                "their own normalisation, at the point they display or learn "
+                "from an image. Normalising here as well rescales the raw "
+                "pixels before either of them sees them, so intensity "
+                "differences between cells -- often the phenotype itself -- "
+                "are flattened into one displayed range, and the crops on "
+                "disk cannot be un-normalised afterwards.")
+        if settings.get("use_bounding_box"):
+            notes.append(
+                "A BOUNDING BOX INCLUDES WHAT IS AROUND THE OBJECT, NOT ONLY "
+                "THE OBJECT.\n\n"
+                "The crop becomes the rectangle enclosing the mask, so "
+                "neighbouring cells, debris and background inside that "
+                "rectangle are kept. A classifier trained on those crops can "
+                "learn the neighbourhood rather than the cell.")
+        if notes:
+            notes.append(
+                "YOU DO NOT HAVE TO DECIDE THIS NOW.\n\n"
+                "Once Measure has finished you can build a training or "
+                "annotation set by streaming crops straight from the merged "
+                "arrays, or from the coordinate columns in measurements.db, "
+                "without measuring again. Streaming from the database gives "
+                "BOUNDING-BOX crops only, because coordinates are all it "
+                "stores; streaming from the arrays uses the object masks, so "
+                "it can cut to the object itself.")
+        return notes
+
+    def _confirm_crop_choices(self, settings) -> bool:
+        """Ask before a crop setting that changes every downstream image.
+
+        :returns: whether the run should go ahead. ``True`` when there is
+            nothing to warn about, so an ordinary run is never interrupted.
+        """
+        notes = self._crop_choice_warnings(settings)
+        if not notes:
+            return True
+        answer = QMessageBox.question(
+            self, tr("Check the crop settings"),
+            "\n\n".join(notes) + "\n\n" + tr("Run with these settings?"),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return answer == QMessageBox.Yes
 
     def _umap_display_defaults(self) -> dict:
         """The display settings the run is currently configured with.

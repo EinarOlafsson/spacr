@@ -1,0 +1,123 @@
+================================================================================
+GENERATE AN ANNOTATION DATABASE BY STREAMING, AND MAKE THE THREE ROUTES AGREE
+================================================================================
+
+Status:    not started
+Requested: 2026-09-01 — "in the annotation application there should be a module
+           button in the to pight that starts a new tab where the user can
+           generate a data set by streaming from array or database (array uses
+           the objects in the mask in merged, and database uses the coordination
+           colunms.) this module should update the measurements database with a
+           png_list table , if that already existes then png_list_2 and so on.
+           the module button should be called generate annotation databse. this
+           is already possible in classify for generating datasets for
+           classefication. so you should know what settings each strattegy needs
+           and the implementation should be verry simmilar to the one in classify
+           and annotation settings already has something like this. if i create a
+           png list with measure, or by streaming from databse (with object lable
+           and coordinates column), or stream from array (using the coordinates
+           and labels of the mask) i should get exactly the same images (given
+           the same filtration chriteria). filtration should be possible in this
+           new annotation module button mode."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+MOST OF THE MACHINERY ALREADY EXISTS. `spacr/stream_dataset.py` implements
+exactly the two strategies asked for, under those names:
+
+    STREAM_METHODS = (
+        ("column", "coordinates from a column in a table"),
+        ("array",  "object numbers from a mask array"),
+    )
+    METHOD_SETTINGS = {
+        "column": ("object_array", "channel_arrays"),
+        "array":  ("mask_array", "channel_arrays", "bounding_box"),
+    }
+
+`stream_dataset.stream_dataset(settings, dst)` builds a deterministic selection
+table and then extracts the crops. `spacr/crops.py` names the option
+`STREAM_IMAGES_LABEL = "stream images (array)"`, and `picture_settings.py:583`
+already writes `stream_method = "array"`. So the classify side is the working
+reference the request points at.
+
+WHAT IS MISSING is the annotation side and the database write:
+
+* no module button in the Annotation app, and no tab behind it;
+* nothing writes the result into `measurements.db`. The annotation viewer reads
+  `png_list` (`spacr/agreement.py:98`, `PNG_TABLE = "png_list"`), and a
+  streamed set currently lands as files on disk with no table;
+* no `png_list_2`, `png_list_3` … naming, so a second set would overwrite the
+  first or fail;
+* no filtration in the streaming path.
+
+THE PARITY CLAIM IS UNVERIFIED, and it is the part most likely to be wrong.
+Three routes produce crops today -- measure_crop, streaming from a column, and
+streaming from an array -- and nothing checks that they agree.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Annotating means looking at crops, and today the only way to get a set of them
+is to run Measure over the whole plate -- about twenty minutes for 52 fields on
+a 30-core machine, measured 2026-09-01. Deciding afterwards that the crops
+should have been cut differently means running it again.
+
+The parity requirement is the load-bearing half. If the three routes disagree,
+then an annotation made against one set does not describe the images a model is
+then trained on, and the label noise that introduces is invisible: nothing
+errors, the numbers just get worse for no stated reason.
+
+Note the ASYMMETRY that makes parity non-trivial and must be stated in the UI
+rather than discovered: the database stores coordinates, so streaming from it
+can only ever produce BOUNDING-BOX crops. Streaming from the array has the
+mask, so it can cut to the object. Those two are therefore only comparable when
+measure_crop also used `use_bounding_box`.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add the module button, top right of the Annotation app, labelled "Generate
+   annotation database". It opens a tab, the same way the existing module
+   buttons do -- follow whatever the Annotation screen already uses rather than
+   inventing a second mechanism.
+
+2. Build the tab from `stream_dataset.METHOD_SETTINGS`, not from a hand-written
+   list. That table already says which settings each strategy needs, and a
+   second copy of it will drift.
+
+3. Add filtration to the streaming path. It must be the SAME filter the
+   measure crop path applies -- share the function; do not re-implement the
+   predicates. If measure's filtration is not currently reachable from
+   `stream_dataset`, extracting it is the first task, not an afterthought.
+
+4. Write the selection into `measurements.db` as `png_list`, falling back to
+   `png_list_2`, `png_list_3` … when the name is taken. Pick the name inside
+   one transaction with the write, or two runs started together will choose the
+   same name.
+
+5. THE PARITY TEST IS THE DELIVERABLE, not a nice-to-have. On the published
+   example data (`einarolafsson/spacr-example-measure`, which carries merged
+   arrays and their masks), with `use_bounding_box` on and one filtration
+   setting, assert that the three routes produce the same crops:
+       measure_crop  ==  stream(method="array")  ==  stream(method="column")
+   Compare the PIXELS, not the filenames -- identical names with different
+   contents is the failure this is for. Expect to find real disagreements;
+   record them rather than loosening the assertion.
+
+6. Say the bounding-box asymmetry in the tab itself, beside the method picker.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The button exists, opens a tab, and the tab offers both methods.
+* A generated set appears in `measurements.db` as `png_list`; a second run of
+  the same plate creates `png_list_2` and leaves the first untouched.
+* The annotation viewer opens a streamed set without knowing how it was made.
+* The three-route parity test passes on the example dataset, or the ways in
+  which it does not are written down here.
