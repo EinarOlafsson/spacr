@@ -304,3 +304,60 @@ see what is left.
 NOT APPLIED HERE. Whoever holds spacr/qt/widgets/ should apply it, add a guard
 that fails if the import returns inside the function, and re-run the cold
 Regression gate.
+
+
+--------------------------------------------------------------------------------
+ADDENDUM 2026-08-31 — NOT REPRODUCED HERE, AND WHAT WAS RULED OUT
+--------------------------------------------------------------------------------
+
+MEASURED on the Linux machine, offscreen, warm cache:
+
+    start -> usable Home     0.88 s
+    click -> regression      1.34 s
+    click -> mask            0.47 s
+    click -> measure         0.23 s
+    build Preferences        0.42 s   (0.07 s on a second build)
+
+Neither symptom appears. That is not evidence the report is wrong -- it
+is a different machine, and the report is from an interactive session on
+a Mac.
+
+THE TWO PATHS THAT COULD BLOCK THE GUI THREAD ARE ALREADY GUARDED, so
+whoever picks this up does not spend the afternoon finding that out:
+
+  * `AppScreen._install_ambient` checks `_heavy_lock_is_free()` and
+    defers on a 120 ms timer rather than waiting. The comment there
+    records the original measurement -- 83% of a 3148 ms block was the
+    backdrop constructor waiting for a lock the startup preloader held.
+  * `fractal_travel` acquires the same lock with a TIMEOUT and raises
+    `_HeavyImportInProgress` rather than blocking.
+  * The preloader itself runs on a WORKER thread. It holds the lock
+    through each import, which is what the two guards above exist for.
+
+So the freeze this instruction describes has a known mechanism and that
+mechanism is handled. What is reported now is either a different one or a
+regression in those guards.
+
+A GUARD NOW EXISTS FOR THE SHAPE ITSELF:
+`tests/qt/test_opening_things_does_not_hang.py`. Instruction 314's own
+observation is that 284's ratchet fails a module at ten seconds and a
+hang has no number, so the ceilings there are deliberately generous --
+20 s for a module, 10 s for a Preferences build, against measured costs
+of 1.34 s and 0.42 s. It is watching for stuck, not for slow. It also
+pins that `_install_ambient` still checks the lock and still retries,
+because that check is what a refactor would quietly remove.
+
+WHAT IS STILL NEEDED, and it can only come from the machine that saw it:
+
+  1. WHICH MACHINE, and whether it was the first launch after an install
+     -- the preloader's imports are slowest with a cold disk cache, and
+     that is when the lock is held longest.
+  2. WHETHER THE WINDOW WAS RESPONSIVE during the hang. A frozen window
+     is the GUI thread blocked; a responsive window with nothing
+     appearing is a worker that never finished, and they have different
+     causes.
+  3. `~/.spacr/logs/spacr.log` from that session. The timing spans are
+     logged, so the slow step names itself.
+  4. Whether Preferences was slow ONLY the first time. It builds in
+     0.42 s cold and 0.07 s warm here; "slow every time" and "slow once"
+     are different faults.
