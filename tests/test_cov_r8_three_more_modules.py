@@ -1,5 +1,5 @@
-"""Six decisions across three modules: an empty filter, a rank that did
-not match, a well nobody's cell sits in, and a source with no root.
+"""Decisions across three modules: an incomplete filter, control rank,
+Sudoku well scope, and crop-source discovery.
 
 Four are driven directly, because each helper takes plain values, and two
 are pinned to the caller that keeps them shut.
@@ -33,30 +33,24 @@ class TestReadingAnImageFilter:
         assert E.parse_image_type("") == ("", [])
         assert E.parse_image_type("   ") == ("", [])
 
-    def test_a_filter_of_nothing_but_separators_matches_everything_too(self):
-        """THE UNCOVERED ARC: the text is not empty and tokenises to
-        nothing.
+    def test_empty_parentheses_are_rejected_as_an_incomplete_expression(self):
+        """Parentheses are tokens, so ``()`` is not a blank filter.
 
-        A filter of punctuation alone -- a half-typed expression, or one
-        a paste left as ``"()"`` -- is not blank, so the check above it
-        lets it through, and an empty token list would then be parsed as
-        an expression with no terms. Answering "match everything" is the
-        same answer a blank filter gets, which is what a user who has
-        not finished typing expects.
+        The adjacent test is the positive blank-input counterpart.  Once a
+        user types syntax, an expression with no term must be reported as
+        incomplete rather than silently broadened to every image.
         """
         pytest.importorskip("PySide6")
         from spacr.qt import annotate_engine as E
 
         for text in ("()", "( )", "  ()  "):
-            tokens = E._tokenise_image_type(text)
-            if not tokens:
-                assert E.parse_image_type(text) == ("", []), (
-                    f"{text!r} tokenised to nothing and did not match "
-                    f"everything")
+            assert E._tokenise_image_type(text) == ["(", ")"]
+            with pytest.raises(ValueError, match="path fragment"):
+                E.parse_image_type(text)
 
         source = inspect.getsource(E.parse_image_type)
-        assert "if not tokens:" in source
-        assert source.index("if not text:") < source.index("if not tokens:")
+        assert "if not tokens:" not in source
+        assert "tokens = _tokenise_image_type(text)" in source
 
     def test_a_table_without_the_annotation_column_lists_nothing(self):
         """THE UNCOVERED ARC.
