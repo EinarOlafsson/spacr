@@ -26,7 +26,7 @@
    :alt: GitHub 问题
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause 许可证
+   :alt: PolyForm 非商业许可证
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -58,12 +58,207 @@ spaCR
 
 spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。
 
-对于基于图像的混合 CRISPR 筛选，spaCR 提供从图像分割到命中结果优先级排序的工作流程。对于不包含测序筛选的高内涵显微镜研究，分割、测量、标注和分类模块可独立使用。
+分区、测量、标记和分类模块也没有序列手臂运行。
 
-图像、掩膜、图像裁剪、测量值、标注、预测、条形码和孔位标识符都存储在同一个 SQLite 项目中，因此结果中的数值可以追溯到其来源对象。
+图像、掩膜、图像裁剪、测量、笔记、预测、条码和好识别器生活在一个 SQLite 项目中。
 
-spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面模式运行。两种方式使用相同的模块；模块支持 CUDA 时会自动启用。
+作为桌面应用程序或在工作站、服务器或集群上无图形界面运行。
 
+硬件支持
+~~~~~~~~~~~~~~~~
+
+.. spacr-hardware-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 18 18 22
+
+   * - Hardware
+     - Cellpose 4
+     - Torch
+     - UMAP / clustering
+   * - NVIDIA (CUDA)
+     - 🟢 GPU
+     - 🟢 GPU
+     - 🟢 GPU
+   * - AMD on Linux (ROCm)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - AMD in an Intel Mac (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Apple Silicon (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Intel Arc/Xe (XPU)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - No GPU
+     - 🟢 CPU
+     - 🟢 CPU
+     - 🟢 CPU
+
+支持(稳定) 实施(beta) 🔴 CPU 仅支持
+
+.. spacr-hardware-end
+
+
+安装 spaCR
+-------------
+
+桌面应用程序
+~~~~~~~~~~~~~~~~~~~
+
+安装器包装自己的 Python. Conda 不需要。
+
+.. spacr-installer-links-begin
+
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
+
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: 旧版 spaCR 安装程序
+   :target: ../../source/installers.rst
+
+.. spacr-installer-links-end
+
+第一三个图标下载当前版本. spaCR 图标打开完整的安装档案. 安装链接和版本的文件名由发布工作流更新; 以前的安装者仍然在同一发布档案中。
+
+在 Linux 上，将下载的文件设为可执行文件并运行：
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
+
+请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
+
+使用 PyPI 安装
+~~~~~~~~~~~~~~~~~
+
+如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富：
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install --upgrade pip
+   python -m pip install "spacr[qt]"
+   spacr
+
+spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm workflows; macOS and Windows are also supported, and both use their GPUs — macOS through Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and Windows through CUDA or DirectML.
+
+在服务器、集群或 CI 运行器上安装时，请省略 Qt：
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list
+
+可选集成单独安装,例如 ``spacr[zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``. 查看完整的附件和 Python 版本兼容性表的 `安装导游 <../../source/installer_guide.rst>`_。
+
+使用 conda-forge 安装
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+安装源
+~~~~~~~~~~~~~~~~~~~
+
+克隆存储库并将其安装在可编辑模式下,以便您的工作副本 *is* 安装的包和编辑有效,而无需重新安装::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+默认分支为 ``nightly``. 对于特定发布::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+以后来的变化,从克隆的内部::
+
+    git pull
+    pip install -e .
+
+第二行只需要当依赖或输入点改变时; Python 代码在没有它的情况下获取。 如果命令在拖动后仍然运行旧代码,则 ``spacr-doctor`` 报告 ``spacr`` 实际上是您的路径,这是常见原因。
+
+从源头安装(光)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+全克隆:427 MB 核心克隆:76 MB。
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+Skips ``docs/``、``tests/``、 Cellpose 检查点、存档数字和扩展翻译目录。
+
+Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
+
+``packaging/source_install_excludes.txt`` 列出每条路径。
+
+
+命令行入口
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr                                      # launch the Qt application
+   spacr-doctor                               # diagnose the installation
+   spacr-run --list                           # list headless modules
+   spacr-run --describe MODULE                # inspect a module contract
+   spacr-run MODULE --settings settings.csv   # execute a module
+   spacr-run validate --module MODULE \
+       --settings settings.csv                # validate before running
+   spacr-repro RUN_DIR                        # replay a recorded run
+
+排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
+
+``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。
+
+
+核心工作流程
+-------------
+
+主要工作流程由六个模块组成：
+
+- **Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。
+- **Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。
+- **Annotate** 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。
+- **Classify** 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。
+- **Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。
+- **Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。
+
+同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
 
 工作流程概览
 --------------------
@@ -199,132 +394,12 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 选择一个工作流程模块以打开其 API 页面。网格包含其余所有应用，其分类和顺序与 spaCR 主屏幕一致。
 
 
-安装 spaCR
--------------
-
-桌面应用程序
-~~~~~~~~~~~~~~~~~~~
-
-桌面安装器包含私人 Python 环境,因此不需要 conda 和现有 Python 安装。
-
-.. spacr-installer-links-begin
-
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
-
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
-   :width: 64
-   :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
-   :width: 64
-   :alt: 旧版 spaCR 安装程序
-   :target: ../../source/installers.rst
-
-.. spacr-installer-links-end
-
-第一三个图标下载当前版本. spaCR 图标打开完整的安装档案. 安装链接和版本的文件名由发布工作流更新; 以前的安装者仍然在同一发布档案中。
-
-在 Linux 上，将下载的文件设为可执行文件并运行：
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
-
-请参见 `安装导游 <../../source/installer_guide.rst>`_ 更新、删除、离线和解决问题的指示。
-
-使用 conda-forge 安装
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-官方 conda-forge 软件包会将 spaCR 及其桌面应用依赖项安装到当前环境中：
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   conda install conda-forge::spacr
-   spacr
-
-使用 PyPI 安装
-~~~~~~~~~~~~~~~~~
-
-如需使用 PyPI 版本，请在 Conda 环境中通过 pip 安装 spaCR。Python 3.12 可选择的科学计算扩展包最为丰富：
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
-   spacr
-
-spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python 3.14.1。建议在 Linux 上运行 CUDA 工作流程；同时也支持 macOS 和 Windows。
-
-在服务器、集群或 CI 运行器上安装时，请省略 Qt：
-
-.. code-block:: bash
-
-   python -m pip install spacr
-   spacr-run --list
-
-可选集成单独安装,例如 ``spacr[zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``. 查看完整的附件和 Python 版本兼容性表的 `安装导游 <../../source/installer_guide.rst>`_。
-
-命令行入口
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   spacr                                      # launch the Qt application
-   spacr-doctor                               # diagnose the installation
-   spacr-run --list                           # list headless modules
-   spacr-run --describe MODULE                # inspect a module contract
-   spacr-run MODULE --settings settings.csv   # execute a module
-   spacr-run validate --module MODULE \
-       --settings settings.csv                # validate before running
-   spacr-repro RUN_DIR                        # replay a recorded run
-
-排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。
-
-``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。
-
-
-核心工作流程
-------
-
-主要工作流程由六个模块组成：
-
-- **Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。
-- **Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。
-- **Annotate** 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。
-- **Classify** 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。
-- **Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。
-- **Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。
-
-同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。
-
-可从宿主界面使用的模块
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-20 个模块集成在相关宿主界面中，而不是作为单独的 Home 磁贴显示。每个模块都从其宿主界面的顶部标题栏打开，并使用当前项目。Mask、Measure、Annotate、Classify、Map Barcodes、Regression、Image UMAP 和 Make Masks 提供这些集成模块。它们的帮助和 API 文档仍可访问；具有流程入口的模块仍可在无界面模式下运行。`功能指南 <../../source/features.rst>`_ 列出了每个集成模块及其宿主界面。
-
 Make Masks
 ~~~~~~~~~~
 
-Make Masks 位于 **Data** 下，用于手动校正分割掩膜。其顶部标题栏还提供 Cellpose 工作流程的入口。画布包含九种工具：**Brush**、**Erase**、**Erase object**、**Wand +**、**Wand −**、**Draw**、**Divide**、**Zoom** 和 **Recrop**。Draw 根据任意形状的闭合轮廓创建一个填充标签。Divide 沿用户指定的线分离合并对象，同时保留其他所有对象标签。
+Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
 
-Recrop 可从待整理的多对象图像中提取单对象视野。在一个对象周围绘制边界框后，相应的图像和掩膜区域会写入一个新视野；该视野会安排在当前视野之后处理，同时原始多对象视野会从数据整理队列中移除。Recrop 改变的是当前视野，而不是标签像素。
-
-在 Make Masks 中运行 Cellpose-SAM 时，掩膜旁会显示两项中间输出：**细胞概率图**和**流场**。掩膜由概率图上的阈值确定；流一致性检查可以排除推导流与预测流场不一致的对象。评估错误或不完整的掩膜时，请检查这些输出，以区分细胞概率偏低和流不一致。
+Cellpose-SAM runs here show the cell-probability map and the flow field beside the mask. See the `feature guide <../../source/features.rst>`_ for each tool.
 
 **其他资源**
 
@@ -380,11 +455,86 @@ Recrop 可从待整理的多对象图像中提取单对象视野。在一个对�
 
     python tools/spacr_hardware_report.py
 
-该命令会输出报告，并在 ``~/.spacr/reports`` 下保存一份副本；最后一行会标明保存路径。``--quick`` 会省略耗时较长的基准测试，``--out PATH`` 可指定其他输出位置。
+节省到 ``~/.spacr/reports`` 并打印路径. ``--quick`` 将更长的基准标志; ``--out PATH`` 设置位置。
 
-该报告不会打开项目，也不会读取项目数据。它记录导入与数值库计时、显示缩放、当前首选项、主窗口和模块界面的构建过程以及动画性能。它创建的唯一输出是报告文件。
+阅读没有项目数据. 时间进口,数字图书馆,窗户建设和动画. 报告处理器架构模拟(一个 x86_64 Python 构建在苹果硅)和 NumPy 的 BLAS 实施。
 
-该报告还会识别处理器架构模拟（例如在 Apple Silicon 上运行的 x86_64 Python 构建）以及 NumPy 使用的 BLAS 实现。二者均可能显著影响性能。
+命令线参考
+----------------------
+
+下面的每个命令都以 ``pip install spacr`` 安装,所有命令都会接受 ``--help``。
+
+启动申请
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` 扫描模型设置筛选,否则会阻止未预期的工作。
+
+``spacr-qt`` 和 ``spacr-nightly`` 是 ``spacr`` 的联盟。
+
+当 spaCR 不开始时
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` 打印一个行每检查,每个故障运行一个命令. 它还报告哪个 ``spacr`` 在路径上,这是一个可编辑的旧安装的阴影。
+
+``safespacr`` 读取每个偏好作为其默认的,并强迫背景,动画,字面登录和预载。
+
+无图形界面发运行模块
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+没有 Qt,没有显示器 - 用于集群、服务器和CI。
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+``validate`` 读取相同的设置,并报告什么是缺乏,矛盾或指向什么。
+
+``spacr-run --list`` 只显示无图形界面输入点的模块;标记、治疗和探索是互动的,被忽略了。
+
+接下来的跑步检查
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+每个运行记录为 ``~/.spacr/runs`` 与其设置,加密输入,输出,警告,版本和种子。
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+数据审计与安装
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+环境
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+旋转日志写为 ``~/.spacr/logs/spacr.log``. 将此文件添加到错误报告中。
+
 
 贡献与支持
 ------------------------
@@ -394,7 +544,9 @@ Recrop 可从待整理的多对象图像中提取单对象视野。在一个对�
 许可
 ~~~~~~~~~
 
-spaCR 是依据 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布的开源软件，与 CellProfiler、napari 和 Cellpose 使用相同的许可证。可用于任何用途，包括商业用途。1.5.0.0 至 1.5.0.4 的发行版曾采用 PolyForm Noncommercial License 1.0.0，1.4.9.9 及更早版本采用 MIT License；这些发行版仍适用其发布时附带的许可证。
+spaCR is released under the `BSD 3 条款许可证 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+
+如果 spaCR 有助于发表作品,则引用被评估,并且不符合许可的条件,请参见下面的 `Citing spaCR`_。
 
 教程
 ~~~~~~~~~
