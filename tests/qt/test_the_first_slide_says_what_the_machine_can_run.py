@@ -37,8 +37,19 @@ def test_the_note_says_what_a_gpu_is_needed_for(slides):
 
     assert "NVIDIA" in text
     assert "egmentation" in text and "lassification" in text
-    # And that it is not a gate: everything else runs without one.
-    assert "without" in text.lower()
+    # NOT A GATE -- but the slide no longer SAYS "everything else runs
+    # without one", because it now SHOWS it: a per-task table whose right
+    # column reads GPU or CPU for each row. A blanket sentence could only
+    # ever be true on average, and on an AMD card it was wrong about UMAP
+    # in one direction and right about segmentation in the other.
+    #
+    # So the claim to check is that the table actually distinguishes, not
+    # that a particular word appears.
+    assert ">CPU<" in text or ">GPU<" in text
+    tasks = [task for _library, _prefix, task in setup_slides.GPU_TABLE_ROWS]
+    assert len(set(tasks)) > 1, "a table that says the same thing per row"
+    for task in tasks:
+        assert task in text, f"{task!r} missing from the capability table"
 
 
 def test_a_usable_card_is_named_in_green(qtbot, tmp_path, monkeypatch):

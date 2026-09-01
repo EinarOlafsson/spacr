@@ -78,18 +78,25 @@ class TestTheNoteIsOnTheCard:
 
 class TestWhatItSays:
 
-    def test_it_names_the_two_steps_that_need_a_card(self, slides):
-        """NOT A WARNING AND NOT A GATE: everything else runs without
-        one, so the note says which two steps are affected and leaves the
-        decision to the reader."""
+    def test_it_names_the_steps_that_need_a_card(self, slides):
+        """NOT A WARNING AND NOT A GATE: the note says which steps are
+        affected and leaves the decision to the reader."""
         text = slides._gpu_note.text()
 
-        assert "Segmentation and object classification" in text
-        assert "Everything else runs without one" in text
+        # The sentence that named exactly two steps is gone, replaced by a
+        # table that answers per task -- which is strictly more honest,
+        # since the answer differs by vendor. cuML is CUDA-only, so "the
+        # two steps that need a card" was never a fixed pair.
+        #
+        # Segmentation and classification must still BE there; they are
+        # just rows now rather than a sentence.
+        assert "Segmentation" in text
+        assert "Classification" in text
+        assert "NVIDIA" in text and "AMD" in text
 
     def test_the_verdict_is_green_when_torch_can_reach_the_card(self, slides):
         """The colour is the whole signal at a glance."""
-        usable, _name = S.graphics_card()
+        usable, name = S.graphics_card()
         if not usable:
             pytest.skip("no usable GPU on this machine; see the red case")
 
@@ -104,7 +111,16 @@ class TestWhatItSays:
                    if S.GPU_YES_INK in line]
         assert verdict, "no green verdict line"
         assert S.GPU_NO_INK not in verdict[0]
-        assert "Compatible GPU" in text
+        # The verdict reads "GPU: <card>: <library>" now, asked for on
+        # 2026-08-31, with only the CARD coloured -- the eye should land
+        # on the thing that varies between machines, and the word "GPU"
+        # and the library name are identical on every machine with that
+        # card. "Compatible GPU" was the old wording and said less: it
+        # never named which backend was actually driving the card.
+        assert "GPU:" in text
+        assert name in text, "the verdict must name the card it found"
+        assert f'color:{S.GPU_YES_INK};">{name}' in text, (
+            "the card's NAME is what carries the colour")
 
     def test_the_card_is_named_either_way(self, slides):
         """"No compatible GPU" on its own leaves the reader wondering
