@@ -92,6 +92,17 @@ def _carry_preview_state(old, fresh) -> None:
         try:
             if getattr(target, "_image", None) is not None:
                 target._show_elided_path()
+                # THE SET TABLE TOO, not just the canvas. Carrying `_image`
+                # alone left the panel showing a picture above an EMPTY table
+                # -- and the table is how a field is chosen, so the preview
+                # looked loaded and could not be driven. Worse, `_image_path`
+                # was carried too, so the panel read as already-loaded and
+                # pressing Choose appeared to do nothing.
+                #
+                # `_refresh_source_selectors` re-enumerates from `_image_path`,
+                # and that enumeration is cached per folder, so the table comes
+                # back without re-scanning the disk.
+                target._refresh_source_selectors()
                 target._refresh_canvases()
         except Exception:                                    # noqa: BLE001
             pass
@@ -5170,6 +5181,17 @@ def launch(argv: Optional[list[str]] = None) -> int:
     try:
         from .thread_guard import install as _install_thread_guard
         _install_thread_guard()
+    except Exception:
+        pass
+    # AND TAKE CYCLIC COLLECTION OFF THE WORKER THREADS. A collection runs on
+    # whichever thread allocated past a threshold, and it runs destructors
+    # there -- so a Cellpose pass in a preview worker would destroy some widget
+    # the GUI thread had abandoned, and Qt cannot stop that widget's timer from
+    # a foreign thread. See spacr.qt.gc_policy for the reproduction of the
+    # exact crash this prevents.
+    try:
+        from .gc_policy import install as _install_gc_policy
+        _install_gc_policy(app)
     except Exception:
         pass
     # Logged as MEASURED rather than as intended: a name that silently failed
