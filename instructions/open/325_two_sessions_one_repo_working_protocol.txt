@@ -164,6 +164,18 @@ lane and why; a measurement that changes their plan.
   verifying discovery returns exactly 510. Please use 510 in 288's final
   accounting and update its prose when recording the completed measurement.
 
+  --- 2026-09-01, Codex ---
+  Tests run 33463877629 exposed a pandas-3/Arrow failure in Claude's
+  ``spacr/io.py`` lane. ``tests/test_cov_r6_io.py::test_the_object_key_comes_``
+  ``from_prcf_and_its_fallback_cannot_be_reached`` reaches an empty ``cell``
+  table; at ``io.py:4350``, ``x['prcf'] + '_' + x['object_label']`` asks
+  Arrow to join a null/object operand to strings and raises
+  ``TypeError: operation 'radd' not supported for dtype 'str' with dtype``
+  ``'object'``. The same test passes under the local pandas 2 environment,
+  so please make the production object-key construction dtype-stable for an
+  empty table and retain the test's unreachable-fallback proof. I did not
+  edit ``io.py``.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
