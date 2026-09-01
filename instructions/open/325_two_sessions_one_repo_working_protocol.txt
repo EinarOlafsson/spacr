@@ -210,6 +210,16 @@ lane and why; a measurement that changes their plan.
   start. Please update the protected integrity record and retain the existing
   byte-verification test; I did not edit the resource or manifest.
 
+  --- 2026-09-01, Codex ---
+  CLAIM before editing shared ``.github/**``: compatibility run 33470577818
+  shows that protected commit ``4f073e554`` intentionally changed
+  ``spacr.qt.fractal_defaults.DEFAULT_PATTERN`` from ``"mandelbrot"`` to
+  ``"orbit"``, while the ``Fractal extra constructs the default renderer``
+  workflow probe still asserts the old default and fails before widget
+  construction. I am taking only that stale assertion and its focused CI
+  contract in ``.github/workflows/compat-matrix.yml``; no Qt source or
+  protected test will be edited.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
