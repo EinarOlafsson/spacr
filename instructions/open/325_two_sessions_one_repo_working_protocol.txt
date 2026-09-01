@@ -1,0 +1,147 @@
+325 — TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
+===================================================
+
+Status:  OPEN for as long as two sessions are working. This file is not a
+         task; it is the CHANNEL between them and the record of who owns
+         what. Read it before you touch anything, and write to it when
+         something needs the other session's attention.
+Owner:   both.
+
+WHY THIS EXISTS
+---------------
+On 2026-08-31 two sessions edited the SAME working tree without knowing
+it. One session's uncommitted 156-line change to spacr/plot.py sat in the
+other's index; a `git add -A` from either would have swept it up, and a
+rebase from either failed. Separately, a two-week-old checkout was reset
+against a force-pushed history, which looked like data loss and was not.
+Both cost more time than the work they interrupted.
+
+--------------------------------------------------------------------------------
+1. WHICH TREE IS WHOSE
+--------------------------------------------------------------------------------
+
+  Claude   /mnt/firecuda2/Claude/repo/spacr
+  Codex    /mnt/firecuda2/codex/repo/spacr
+
+Confirm with `git worktree list` before your first commit of a session.
+If you are not in your own tree, STOP and move -- do not "just finish
+this one thing" in somebody else's checkout.
+
+--------------------------------------------------------------------------------
+2. WHICH FILES ARE WHOSE
+--------------------------------------------------------------------------------
+
+CLAUDE owns:
+  spacr/qt/**                        (every file, including widgets and
+                                      screens)
+  spacr/io.py                        spacr/measure.py
+  spacr/guide_attribution.py         spacr/regression_annotation.py
+  README.rst   docs/**   packaging/**   instructions/**
+  tests/qt/**
+  tests/test_the_readme_*.py   tests/test_every_module_is_reachable_*.py
+
+CODEX owns:
+  spacr/ml.py          spacr/plot.py         spacr/timelapse.py
+  spacr/sequencing.py  spacr/utils.py        spacr/spacrops.py
+  spacr/deep_spacr.py  spacr/hyperparam.py
+  every other module under spacr/ not listed above
+  tests/** except tests/qt/** and the named files above
+
+NEITHER owns without saying so first: setup.py, spacr/__init__.py,
+spacr/accelerator.py, .github/**. These are small, central, and a
+collision in them is expensive. Announce in section 5 before editing.
+
+A file not listed anywhere: claim it in section 5 BEFORE the first edit,
+not after.
+
+--------------------------------------------------------------------------------
+3. COMMIT CADENCE — SMALL AND CONSTANT
+--------------------------------------------------------------------------------
+
+After EVERY finished item, without exception:
+
+    git add -A
+    git commit          (Einar's name only -- never Claude as author or
+                         co-author, never a "Generated with" trailer)
+    git pull --rebase
+    git push
+
+Not at the end of a session. Not when a group of things is done. Every
+item. A conflict between two commits is a minute; a conflict between two
+days is an afternoon, and the whole reason this section exists is that
+conflicts compound while unpushed work sits.
+
+If `git pull --rebase` reports a conflict:
+
+  1. STOP. Do not resolve it by preference and carry on.
+  2. Write what happened into section 5 of this file, in one commit of
+     its own, and push that first if you can.
+  3. If the conflicting hunk is in the other session's file, take THEIRS
+     -- they know why it is that way. If it is in yours, take yours and
+     tell them what you overwrote.
+  4. If it is in a shared file, or you cannot tell, say so in section 5
+     and move to the next item rather than guessing.
+
+Never `--force` and never `--force-with-lease` on nightly. If you think
+you need one, you have found something worth writing in section 5.
+
+--------------------------------------------------------------------------------
+4. REPORTING — A TABLE AFTER EVERY FINISHED TASK
+--------------------------------------------------------------------------------
+
+When you finish an item, print a table:
+
+    item | summary (two sentences) | percent done | time left
+
+If the item has numbered sub-items, ONE ROW PER NUMBER with its own
+description -- not one row for the parent. "310: 40%" tells nobody which
+six defects are left.
+
+Percent is of the ITEM, not of your session. An item you cannot finish is
+reported at its true percentage with the blocker named, not rounded up.
+
+--------------------------------------------------------------------------------
+5. HANDOFF — WRITE HERE, THE OTHER SESSION READS IT
+--------------------------------------------------------------------------------
+
+This is the channel. Append, never rewrite. Date every entry. Push it on
+its own rather than bundling it with code, so the other session sees it
+at their next pull rather than at their next conflict.
+
+Use it for: a file you need that the other owns; a conflict you hit; a
+premise of theirs you have invalidated; anything you changed outside your
+lane and why; a measurement that changes their plan.
+
+  --- 2026-08-31, Claude ---
+  Filed this protocol after the shared-tree collision. Trees and file
+  ownership as in sections 1 and 2. A full coverage measurement was
+  started and killed today: it and concurrent test suites starved each
+  other, 12 minutes a batch against a 2.4 minute baseline, projecting to
+  8 hours. ANNOUNCE HERE BEFORE STARTING ONE and the other session will
+  stay off the CPU.
+
+--------------------------------------------------------------------------------
+6. FOUR THINGS THAT COST AN HOUR EACH TODAY
+--------------------------------------------------------------------------------
+
+1. A TEST ASSERTING AN ABSENCE PROVES NOTHING UNTIL YOU HAVE WATCHED IT
+   FAIL. Four separate cases today: a test that passed against a
+   deliberately broken source; one that refused a path which had never
+   existed; two that reached a different guard than the one they named.
+   Always write the positive counterpart. Always mutate the source and
+   confirm red.
+
+2. AFTER WRITING A TEST FOR A NAMED LINE, MEASURE THAT LINE. Six passing
+   tests were written for the wrong half of a function today and would
+   have been reported as three items closed having closed none.
+
+3. `# pragma: no cover` EXCLUDES NOTHING. .coveragerc empties
+   exclude_lines and partial_branches. Those markers are notes, not
+   exemptions, and every line is counted. About a third are drivable in
+   one line; the rest are genuinely impossible.
+
+4. WHEN A GUARD IS IMPOSSIBLE, DELETE IT -- but prove it EMPIRICALLY
+   first (20,000 random inputs, 30,000 fraction sets, 45 request shapes
+   were what settled three of them), and then pin the PREMISE the
+   deletion rests on, so a change to that premise fails a test rather
+   than silently making the removal wrong.
