@@ -499,6 +499,7 @@ class _MeasureExampleWorker(QObject):
 #: compressed, so gzip would cost minutes of CPU on every download to save
 #: almost nothing.
 EXAMPLE_ARCHIVES: Dict[str, str] = {
+    DATASET_REPO: "spacr-example-mask.tar",
     MEASURE_EXAMPLE_REPO: "spacr-example-measure.tar",
     ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
 }
@@ -566,6 +567,16 @@ class _TarExampleWorker(QObject):
     def after_extract(self, dest) -> None:
         """Hook for whatever one set needs after unpacking. Nothing by default."""
 
+    def dataset_root(self, dest) -> Path:
+        """What the caller is handed as "the data".
+
+        The whole unpacked folder for most sets. The Mask demo overrides it,
+        because its callers have always been given the plate directory rather
+        than the folder holding it -- and changing that would move the `src`
+        the example fills in.
+        """
+        return Path(dest)
+
     def __init__(self, dest_dir: Path):
         super().__init__()
         self._dest = Path(dest_dir)
@@ -625,7 +636,7 @@ class _TarExampleWorker(QObject):
             self.after_extract(self._dest)
             make_the_example_paths_absolute(self._dest)
             self.progress.emit("done", 1, 1)
-            self.finished.emit(True, str(self._dest),
+            self.finished.emit(True, str(self.dataset_root(self._dest)),
                                str(self._dest / "settings"), "")
         except Exception as e:                               # noqa: BLE001
             LOG.warning("example download failed: %s", e, exc_info=True)
@@ -647,6 +658,22 @@ class _MeasureTarWorker(_TarExampleWorker):
 
 class _AnnotateTarWorker(_TarExampleWorker):
     repo = ANNOTATE_EXAMPLE_REPO
+
+
+class _MaskTarWorker(_TarExampleWorker):
+    """The Mask demo, which is 210 files across two repos.
+
+    The archive carries the settings pack under `settings/` as well, so the
+    demo arrives in one request instead of 210 plus 2 -- and the two halves
+    can no longer arrive out of step with each other, which they could when
+    they were fetched from separate repos in separate loops.
+    """
+
+    repo = DATASET_REPO
+
+    def dataset_root(self, dest) -> Path:
+        """`plate1/`, which is what `load_the_example_images` puts in `src`."""
+        return Path(dest) / DATASET_SUB
 
 
 def make_the_example_paths_absolute(root) -> int:
@@ -717,76 +744,6 @@ def make_the_example_paths_absolute(root) -> int:
 
     LOG.info("example dataset at %s: %d paths made absolute", root, rewritten)
     return rewritten
-
-
-class _AnnotateExampleWorker(QObject):
-    """Fetch the Annotate/Classify example set and make it usable in place."""
-
-    progress = Signal(str, int, int)
-    info     = Signal(str)
-    finished = Signal(bool, str, str, str)
-
-    def __init__(self, dest_dir: Path):
-        super().__init__()
-        self._dest = Path(dest_dir)
-        self._cancel = False
-
-    def cancel(self) -> None:
-        self._cancel = True
-
-    def run(self) -> None:
-        try:
-            self.info.emit("Listing files on Hugging Face…")
-            try:
-                from huggingface_hub import hf_hub_download, list_repo_files
-            except ImportError as exc:
-                raise ImportError(
-                    f"huggingface_hub is not installed: {exc}") from exc
-            # A FILE AT A TIME, NOT snapshot_download.
-            #
-            # snapshot_download cannot be interrupted: it returns when it is
-            # done and not before. So Cancel did nothing, and QUITTING THE APP
-            # MID-DOWNLOAD destroyed a QThread that was still running --
-            # "QThread: Destroyed while thread '' is still running", then
-            # abort. It also writes its own progress bars straight to stdout,
-            # which is where the wall of tqdm output in the console came from.
-            #
-            # A loop costs more request overhead across 2,365 files and buys
-            # a download that stops when it is asked to, and a count the
-            # dialog can actually show.
-            names = [f for f in list_repo_files(ANNOTATE_EXAMPLE_REPO,
-                                                repo_type="dataset")
-                     if not f.startswith(".")]
-            if not names:
-                self.finished.emit(False, "", "",
-                                   f"No files in {ANNOTATE_EXAMPLE_REPO}.")
-                return
-            self._dest.mkdir(parents=True, exist_ok=True)
-            total = len(names)
-            self.info.emit(f"Found {total} files to download.")
-            for done, name in enumerate(names):
-                if self._cancel:
-                    self.finished.emit(False, "", "", "Cancelled by user.")
-                    return
-                self.progress.emit(name, done, total)
-                target = self._dest / name
-                target.parent.mkdir(parents=True, exist_ok=True)
-                if target.is_file():
-                    # Already here from an interrupted run. Re-fetching 280 MB
-                    # to arrive at the same bytes is the wrong trade.
-                    continue
-                cached = hf_hub_download(
-                    ANNOTATE_EXAMPLE_REPO, name, repo_type="dataset")
-                target.write_bytes(Path(cached).read_bytes())
-            self.info.emit("Pointing the database at its crops…")
-            make_the_example_paths_absolute(self._dest)
-            self.progress.emit("done", 1, 1)
-            self.finished.emit(True, str(self._dest),
-                               str(self._dest / "settings"), "")
-        except Exception as e:                               # noqa: BLE001
-            LOG.warning("annotate example download failed: %s", e,
-                        exc_info=True)
-            self.finished.emit(False, "", "", explain_download_failure(e))
 
 
 def download_annotate_example(parent, dest: Path,
@@ -885,6 +842,15 @@ def download_toxo_mito_demo(parent,
     # the deliberate absence of a `deleteLater` below are all load-bearing and
     # were each arrived at from a measured crash; a second copy of them would
     # be a second place for one of them to be dropped.
+    # THE DEFAULT STAYS THE PER-FILE WORKER, and the Mask demo asks for the
+    # tar at its call site instead.
+    #
+    # Switching the default here looked tidier and broke
+    # `tests/qt/test_console_thread_safety.py`, which patches `_list_files`
+    # and drives this function to prove the offline failure path stays on the
+    # GUI thread. The tar worker does not call `_list_files`, so the patched
+    # test went to the network for real and aborted. A shared entry point's
+    # default is part of its contract with everything already calling it.
     worker = (worker_factory or _HFDownloadWorker)(dest)
     worker.moveToThread(thread)
 
