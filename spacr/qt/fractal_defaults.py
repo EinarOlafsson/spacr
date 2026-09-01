@@ -26,6 +26,23 @@ DEFAULT_PATTERN: str = "orbit"
 #: What to draw when the Mandelbrot cannot be.
 FALLBACK_PATTERN: str = "orbit"
 
+#: EVERY PATTERN, in the order they are offered. Lives here rather than
+#: in `widgets.fractal_travel` because `preferences` needs it at import
+#: time and importing that widget pulls numba onto the launch path.
+#:
+#: There used to be a second copy in `preferences.FRACTAL_PATTERNS`, and
+#: adding a pattern to one and not the other meant the new pattern was
+#: selectable in code and absent from the Preferences combo -- which is
+#: how it was found.
+PATTERNS: Final[tuple] = ("orbit", "orbit_gpu", "cascade", "space",
+                          "mandelbrot")
+
+#: Patterns with NO CPU renderer. A machine that cannot give them a GL
+#: context gets FALLBACK_PATTERN instead of a backdrop that draws
+#: nothing -- which is how the Mandelbrot came to be a default that
+#: could not be drawn.
+GPU_ONLY_PATTERNS: Final[frozenset] = frozenset({"mandelbrot", "orbit_gpu"})
+
 DEFAULT_BACKEND: Final[str] = "auto"
 #: Samples per pixel per side. Two, asked for on 2026-09-01.
 DEFAULT_SUPERSAMPLING: Final[int] = 2

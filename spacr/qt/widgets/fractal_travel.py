@@ -67,10 +67,19 @@ QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
 #: could act on.
 LOG = logging.getLogger("spacr.qt.widgets.fractal_travel")
 
-PATTERNS: Final[tuple[str, ...]] = ("orbit", "cascade", "space",
-                                    "mandelbrot")
+# ONE LIST, in the Qt-free module, because `preferences` needs it at
+# import time and cannot import this one. Two copies is how a pattern
+# came to be selectable in code and absent from the Preferences combo.
+from ..fractal_defaults import (GPU_ONLY_PATTERNS,  # noqa: E402
+                                PATTERNS)
 PATTERN_LABELS: Final[dict] = {
     "orbit": "Orbit fold (temporal 2x2)",
+    # A SECOND ENTRY, NOT A BACKEND SWITCH. Same map, but the CPU path
+    # jitters four samples across four FRAMES -- averaging four different
+    # animation times -- while this takes four samples of one instant.
+    # They are not the same picture, so one setting drawing either would
+    # mean the setting no longer says what appears. Instruction 327 (5).
+    "orbit_gpu": "Orbit fold (sharp, GPU 2x2)",
     "cascade": "Fold-inversion cascade (spatial 2x2)",
     "space": "Space (star field flight)",
     "mandelbrot": "Mandelbrot (perturbation deep zoom)",
@@ -1568,6 +1577,15 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
         base_detail = 5 if quality == "balanced" else 6
         detail_floor = 4
+    elif settings.pattern == "orbit_gpu":
+        from .fractal_orbit_gpu import FRAGMENT_SHADER as _FRAGMENT
+
+        # THE ITERATION COUNT IS FIXED IN THE SHADER, so the adaptive
+        # detail loop has nothing to turn down here -- equal numbers mean
+        # a frame that runs long cannot change the picture. Resolution is
+        # what gives way instead, through the adaptive render scale.
+        base_detail = 4
+        detail_floor = 4
     else:
         _FRAGMENT = FRAGMENT_SHADER
         base_detail = 6 if quality == "balanced" else 8
@@ -2373,23 +2391,27 @@ def pattern_for_this_machine(pattern: str, backend: str = "auto") -> str:
     :param backend: the resolved backend, or ``"auto"``.
     :returns: ``pattern``, or the fallback when it cannot be drawn.
 
-    MANDELBROT IS GPU-ONLY. It needs a texture of the reference orbit and a
-    shader to perturb around it; there is no numba renderer for it yet. So a
-    machine with no usable GL context gets the orbit fold instead -- which
-    has a CPU renderer and is the cheapest of the three that do -- rather
-    than a backdrop that draws nothing at all.
+    TWO PATTERNS ARE GPU-ONLY. Mandelbrot needs a texture of the reference
+    orbit and a shader to perturb around it, and `orbit_gpu` is a fragment
+    shader with no numba twin -- the CPU orbit fold is a DIFFERENT picture,
+    four samples across four frames rather than four of one instant, which
+    is why the two are separate entries at all.
+
+    So a machine with no usable GL context gets the orbit fold instead --
+    it has a CPU renderer and is the cheapest of the ones that do -- rather
+    than a backdrop that draws nothing.
 
     Silent, and deliberately: the backdrop is decoration, and a dialog
-    explaining that a machine cannot run one of four ornaments is worth less
-    than the interruption costs.
+    explaining that a machine cannot run one of five ornaments is worth
+    less than the interruption costs.
     """
-    if str(pattern) != "mandelbrot":
+    if str(pattern) not in GPU_ONLY_PATTERNS:
         return str(pattern)
     if str(backend) == "cpu":
         return FALLBACK_PATTERN
     if not platform_can_do_opengl() or not gpu_is_available():
         return FALLBACK_PATTERN
-    return "mandelbrot"
+    return str(pattern)
 
 
 def create_fractal_widget(settings: Optional[Settings] = None,

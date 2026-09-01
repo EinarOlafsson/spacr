@@ -736,7 +736,28 @@ def test_the_home_screen_path_gets_it_too(qtbot, sandbox, monkeypatch):
 
 
 def test_every_pattern_is_offered():
-    assert F.PATTERNS == ("orbit", "cascade", "space", "mandelbrot")
+    """ONE LIST, read from the Qt-free module.
+
+    This used to repeat the tuple, and `preferences` kept a second copy
+    of it -- so adding a pattern to one and not the other made it
+    selectable in code and absent from the Preferences combo. Both now
+    read `fractal_defaults.PATTERNS`, and this asserts that rather than
+    a literal that has to be edited every time a pattern is added.
+    """
+    from spacr.qt.fractal_defaults import PATTERNS
+    from spacr.qt.preferences import FRACTAL_PATTERNS
+
+    assert F.PATTERNS is PATTERNS
+    assert FRACTAL_PATTERNS is PATTERNS
+    assert "orbit" in PATTERNS and "mandelbrot" in PATTERNS
+    assert len(set(PATTERNS)) == len(PATTERNS), "a pattern is listed twice"
+
+
+def test_every_pattern_has_a_label():
+    """A pattern with no label shows its key in the combo, which reads
+    as a bug to whoever sees it."""
+    for key in F.PATTERNS:
+        assert F.PATTERN_LABELS.get(key), f"{key} has no label"
 
 
 def test_the_cascade_draws_something_that_is_not_flat():
