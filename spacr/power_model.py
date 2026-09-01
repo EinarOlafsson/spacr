@@ -2008,17 +2008,15 @@ def scan_parameters(
             # would print as 'nan' in the error column of a perfectly fine run.
             for column in ("run_key", "backend", "method", "status",
                            "seed_channel", "reason", "error"):
-                if column in existing.columns:
-                    existing[column] = existing[column].fillna("").astype(str)
-            if "run_key" in existing.columns:
-                for record in existing.to_dict("records"):
-                    done[str(record["run_key"])] = record
-                logger.info(
-                    "power_model: resuming from %s -- %d completed row(s) "
-                    "will be skipped.",
-                    path,
-                    len(done),
-                )
+                existing[column] = existing[column].fillna("").astype(str)
+            for record in existing.to_dict("records"):
+                done[str(record["run_key"])] = record
+            logger.info(
+                "power_model: resuming from %s -- %d completed row(s) "
+                "will be skipped.",
+                path,
+                len(done),
+            )
 
     rows: List[Dict[str, Any]] = []
     cancelled = False

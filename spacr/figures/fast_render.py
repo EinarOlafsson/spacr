@@ -255,7 +255,9 @@ def build_fast_plot(key: str, frame, *, alpha: float = 0.05):
         if len(groups) < 2:
             return None
         plot.set_groups(groups, keys=group_keys or None)
-    elif key == "agreement":
+    else:
+        # FAST_PANELS is exhaustive; this is the former
+        # ``elif key == "agreement":`` arm after the six keys above.
         from ..guide_concordance import guide_support
 
         if effect is None or "feature" not in frame.columns:

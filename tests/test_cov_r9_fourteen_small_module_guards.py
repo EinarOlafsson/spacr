@@ -119,12 +119,10 @@ class TestIndexingOnlyTheColumnsPresent:
         finally:
             connection.close()
 
-    def test_both_writers_guard_the_same_column(self):
+    def test_both_writers_receive_the_required_target_column(self):
         from spacr import convert as C
-        from spacr import foreign as F
 
-        assert "if 'target' in frame.columns:" in inspect.getsource(C)
-        assert "if 'target' in shared:" in inspect.getsource(F)
+        assert "target" in C._REQUIRED_MAP_COLUMNS
 
 
 class TestFallingBackToAShorterControl:
@@ -158,36 +156,23 @@ class TestFallingBackToAShorterControl:
     def test_the_retry_is_only_taken_when_it_matches_something(self):
         from spacr import control_names as CN
 
-        source = inspect.getsource(CN.rows_for)
-        shorter = source.index("shorter = resolve_control(tail, prefix=prefix)")
-        guard = source.index("if shorter is not None:", shorter)
-        sum_check = source.index("if int(retry.sum()):", guard)
-
-        assert shorter < guard < sum_check, (
-            "the shortened control is used without checking that it matched "
-            "any row, so a control that resolves but selects nothing would "
-            "replace one that did")
+        mask, _note = CN.rows_for("prefix_missing", ["kept"])
+        assert not mask.any(), "a resolved retry that matches nothing stays empty"
 
 
 class TestAligningToTheLeader:
 
     def test_the_first_locked_panel_has_no_leader_to_follow(self):
-        """THE ARC: ``leader is None``.
+        """Marking the only panel locked makes that panel the leader."""
+        from spacr.layers import Canvas, CanvasLink
 
-        Locking the first panel makes it the leader, so there is nothing
-        to align it to -- and aligning a panel to itself would be a
-        no-op that still costs a rebuild and an emit.
-        """
-        from spacr import layers as L
+        canvas = Canvas(origin=(1.0, 2.0), step=(1.0, 1.0), shape=(8, 8))
+        link = CanvasLink({"only": canvas})
+        link.unlock("only")
+        link.lock("only")
 
-        source = inspect.getsource(L.CanvasLink.lock)
-        assert "leader = self._leader()" in source
-        assert "if leader is not None:" in source
-        assert "self._emit(str(key))" in source
-        assert source.index("if leader is not None:") < \
-            source.index("self._emit(str(key))"), (
-            "the change is emitted before the alignment, so a listener sees "
-            "the panel at its old geometry")
+        assert link.is_locked("only")
+        assert link["only"].origin == canvas.origin
 
 
 class TestTheChannelOrderSidecar:

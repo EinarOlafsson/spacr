@@ -701,18 +701,20 @@ def read_run_status(artifact: Union[str, os.PathLike],
     if target.suffix.lower() in DB_SUFFIXES:
         if not target.is_file():
             return []
-        conn = None
         try:
             from .database_concurrency import connect
 
             conn = connect(target, readonly=True, timeout=timeout)
-            if not _has_run_status_table(conn):
-                # Never stamped. The artifact predates stamping, or was
-                # written by a code path that does not stamp yet.
-                return []
-            rows = conn.execute(
-                f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
-                'ORDER BY rowid').fetchall()
+            try:
+                if not _has_run_status_table(conn):
+                    # Never stamped. The artifact predates stamping, or was
+                    # written by a code path that does not stamp yet.
+                    return []
+                rows = conn.execute(
+                    f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
+                    'ORDER BY rowid').fetchall()
+            finally:
+                conn.close()
         except sqlite3.Error as exc:
             raise RunStatusUnreadable(
                 f'{target} exists but its run status cannot be read: {exc}. '
@@ -720,9 +722,6 @@ def read_run_status(artifact: Union[str, os.PathLike],
                 f'or one truncated by a crash, fails here — so this is "the '
                 f'run may not have finished", not "the run finished". Wait '
                 f'for the writer to exit, or check the file.') from exc
-        finally:
-            if conn is not None:
-                conn.close()
         records = []
         for row in rows:
             record = dict(zip(_STATUS_COLUMNS, row))

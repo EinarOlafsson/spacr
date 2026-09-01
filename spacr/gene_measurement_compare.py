@@ -1239,14 +1239,13 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
                 patch.set_edgecolor(HOUSE.GREY_DARK)
         if kind == "violin":
             alive = [(i, s) for i, s in enumerate(series) if len(s)]
-            if alive:
-                drawn = axes.violinplot([s for _i, s in alive],
-                                        positions=[i for i, _s in alive],
-                                        widths=0.7, showextrema=False)
-                for body, (i, _s) in zip(drawn["bodies"], alive):
-                    body.set_facecolor(colours[i])
-                    body.set_alpha(0.55)
-                    body.set_edgecolor("none")
+            drawn = axes.violinplot([s for _i, s in alive],
+                                    positions=[i for i, _s in alive],
+                                    widths=0.7, showextrema=False)
+            for body, (i, _s) in zip(drawn["bodies"], alive):
+                body.set_facecolor(colours[i])
+                body.set_alpha(0.55)
+                body.set_edgecolor("none")
         if kind == "bar":
             means = [float(np.mean(s)) if len(s) else np.nan for s in series]
             errors = [float(np.std(s, ddof=1)) if len(s) > 1 else 0.0

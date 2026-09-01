@@ -512,13 +512,12 @@ def sudoku_all(features: np.ndarray,
         here = sudoku(values[live], np.asarray(scores)[live],
                       [labels[i] for i in live], fractions, names,
                       decision=decision, **kwargs)
-        mine = here.names.index(guide) if guide in here.names else None
+        mine = here.names.index(guide)
         taken = 0
         for position, index in enumerate(live):
-            if mine is not None:
-                affirm[index, column] = here.affirm[position, mine]
-                eliminate[index, column] = here.eliminate[position, mine]
-                posterior[index, column] = here.posterior[position, mine]
+            affirm[index, column] = here.affirm[position, mine]
+            eliminate[index, column] = here.eliminate[position, mine]
+            posterior[index, column] = here.posterior[position, mine]
             reach[index] = max(reach[index], here.reach[position])
             # Only THIS guide's cells are claimed this round. The others
             # were computed to make the comparison honest and are left for

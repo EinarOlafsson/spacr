@@ -1089,14 +1089,15 @@ def _crop_from_field(fld: MergedField, spec: CropSpec) -> np.ndarray:
 
     crop = fld.read_window(wy0, wy1, wx0, wx1, spec.channels, dtype)
 
-    if region is not None:
-        keep = np.zeros((height, width), dtype=bool)
-        oy0, oy1 = max(wy0, ry0), min(wy1, ry1)
-        ox0, ox1 = max(wx0, rx0), min(wx1, rx1)
-        if oy1 > oy0 and ox1 > ox0:
-            keep[oy0 - wy0:oy1 - wy0, ox0 - wx0:ox1 - wx0] = \
-                region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
-        crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
+    # ``_region_for`` always returns a region, and the crop window is centred
+    # on a point inside its bounds.  The former ``if region is not None:`` and
+    # ``if oy1 > oy0 and ox1 > ox0:`` therefore re-checked its contract.
+    keep = np.zeros((height, width), dtype=bool)
+    oy0, oy1 = max(wy0, ry0), min(wy1, ry1)
+    ox0, ox1 = max(wx0, rx0), min(wx1, rx1)
+    keep[oy0 - wy0:oy1 - wy0, ox0 - wx0:ox1 - wx0] = \
+        region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
+    crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
 
     if isinstance(spec.normalize, (list, tuple)):
         crop = _normalize_to_dtype(crop, spec.normalize[0], spec.normalize[1],

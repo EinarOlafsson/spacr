@@ -1161,8 +1161,6 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
         rng = np.random.default_rng(0)
         for row, gene in enumerate(summary.index):
             values = frame.loc[frame["gene"] == gene, "agree"].to_numpy(float)
-            if not len(values):
-                continue
             # Jitter is deterministic: a figure that moves its points between two
             # renders of the same data is a figure a reader cannot check.
             spread = rng.uniform(-0.13, 0.13, len(values))

@@ -2048,10 +2048,9 @@ def populate_db_from_map(db_path: str, map_path: str,
             connection.execute(
                 f'CREATE INDEX IF NOT EXISTS idx_{table}_prcf '
                 f'ON {table} (prcf)')
-        if 'target' in frame.columns:
-            connection.execute(
-                f'CREATE INDEX IF NOT EXISTS idx_{table}_target '
-                f'ON {table} (target)')
+        connection.execute(
+            f'CREATE INDEX IF NOT EXISTS idx_{table}_target '
+            f'ON {table} (target)')
         connection.commit()
     finally:
         connection.close()

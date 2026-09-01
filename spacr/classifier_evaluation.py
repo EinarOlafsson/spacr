@@ -638,7 +638,7 @@ def _identity_sets_with_hashes(
             digest, error = _content_sha256(path)
             if digest:
                 result["content_sha256"].add(digest)
-            elif error:
+            else:
                 errors.append(error)
     return result, errors
 
@@ -1540,9 +1540,8 @@ def evaluate_predictions(
         metrics["plate"] = plate or "unknown"
         per_plate_rows.append(metrics)
     per_plate = pd.DataFrame(per_plate_rows)
-    if not per_plate.empty:
-        columns = ["plate", *[c for c in per_plate if c != "plate"]]
-        per_plate = per_plate[columns]
+    columns = ["plate", *[c for c in per_plate if c != "plate"]]
+    per_plate = per_plate[columns]
 
     return {
         "summary": summary,

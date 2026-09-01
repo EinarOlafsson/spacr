@@ -64,7 +64,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field, replace
 from types import MappingProxyType
-from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping,
+from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping, cast,
                     Optional, Sequence, Tuple, Union)
 
 import numpy as np
@@ -1330,9 +1330,8 @@ class CanvasLink:
         """
         canvas = self[key]
         self._locked[str(key)] = True
-        leader = self._leader()
-        if leader is not None:
-            self._canvases[str(key)] = self._aligned(canvas, leader)
+        leader = cast(Canvas, self._leader())
+        self._canvases[str(key)] = self._aligned(canvas, leader)
         self._emit(str(key))
 
     def unlock(self, key: str) -> None:

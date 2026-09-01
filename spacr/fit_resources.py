@@ -811,7 +811,6 @@ def readable(total: Optional[int]) -> str:
         if size < 1024 or unit == "TB":
             return f"{size:.1f} {unit}"
         size /= 1024
-    return f"{size:.1f} TB"                          # pragma: no cover - loop
 
 
 def record_stage(settings: Any, name: str) -> Dict[str, Any]:

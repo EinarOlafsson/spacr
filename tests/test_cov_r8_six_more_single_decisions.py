@@ -105,28 +105,13 @@ class TestResumingAPowerSweep:
         assert done["a"]["error"] == "", (
             "a NaN error survived the round trip and would print as 'nan'")
 
-    def test_a_resume_file_with_no_run_key_column_resumes_nothing(self):
-        """THE UNCOVERED ARC: the key column is absent.
-
-        A TSV from before the run key existed, or one a user assembled
-        by hand, has rows and no way to say which point each is. Indexing
-        ``record["run_key"]`` on those is a KeyError raised while
-        RESUMING -- which is the moment a user is trying to recover a
-        long sweep, and the least welcome time to lose it.
-        """
-        existing = pd.DataFrame({"status": ["done"], "error": [None]})
-
-        assert "run_key" not in existing.columns
-
+    def test_the_accepted_header_always_contains_every_normalised_column(self):
+        """Header equality makes the later presence checks redundant."""
         from spacr import power_model as P
 
-        source = inspect.getsource(P)
-        assert 'if "run_key" in existing.columns:' in source
-        fill = source.index('if column in existing.columns:')
-        key = source.index('if "run_key" in existing.columns:')
-        assert fill < key, (
-            "the per-column fill no longer precedes the key check, so a "
-            "resumed row can carry a NaN into the done map")
+        normalized = {"run_key", "backend", "method", "status",
+                      "seed_channel", "reason", "error"}
+        assert normalized <= set(P._SCAN_RESULT_COLUMNS)
 
 
 # ---------------------------------------------------------------------------
