@@ -3455,7 +3455,7 @@ class AppScreen(QWidget):
         counts, scores = self._tables_for_the_advisor(values)
         if not counts and not scores:
             return ("No count or score table is attached yet. Fill in Input "
-                    "Tables — or press 'Load the example screen…' there — "
+                    "Tables — or press 'Load test data…' there — "
                     "and this can read them.")
         return ""
 
@@ -3720,7 +3720,7 @@ class AppScreen(QWidget):
 
         # The whole-screen button keeps its place ABOVE the form: it fills
         # both slots at once, so it belongs beside neither of them.
-        button = QPushButton("Load the example screen…")
+        button = QPushButton(tr("Load test data…"))
         button.setToolTip(
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
@@ -3744,6 +3744,86 @@ class AppScreen(QWidget):
         "regression": ("regression_settings.csv",),
         "umap": ("umap_settings.csv",),
     }
+
+    @staticmethod
+    def reanchor_example_paths(loaded, destination) -> dict:
+        """Re-root every absolute path in ``loaded`` onto ``destination``.
+
+        A shipped example settings file records the paths of the machine that
+        GENERATED it. Reported 2026-09-01 from a home machine, which had never
+        heard of that user::
+
+            gen_masks_settings.csv    src,/home/carruthers/datasets/plate1
+            crop_measure_settings.csv src,/home/carruthers/datasets/plate1/merged
+
+        Both lines matter. The first is why the path is wrong; the second is
+        why substituting the destination outright is not the fix either -- the
+        Measure set points at a SUBFOLDER, and collapsing it to the plate root
+        would quietly measure the wrong directory rather than fail.
+
+        MOST OF THIS IS NOT NEW WORK. :func:`spacr.portable_paths.reroot_crop_path`
+        already solves the general case, and better than a fresh attempt would:
+        it picks the deepest recorded suffix that EXISTS below the current
+        root, so a rewrite is only made when the reconstructed path is really
+        there. It is used first and its answer is preferred.
+
+        What it cannot do is the root itself. Its resolution needs a suffix to
+        match below the root, and ``src`` pointing at the plate folder has
+        none -- which is exactly the reported case. That single gap is filled
+        here, by matching the destination's own folder name.
+
+        A path that already resolves on this machine is left ALONE: a user who
+        imported an example, edited ``src`` to their own data and saved would
+        otherwise have that edit undone by the next example load.
+
+        :param loaded: the settings as read from the shipped file.
+        :param destination: the local folder the example actually unpacked to.
+        :returns: a new mapping; the input is not modified.
+        """
+        from pathlib import Path, PurePosixPath, PureWindowsPath
+
+        from ...portable_paths import reroot_crop_path
+
+        destination = Path(destination)
+        anchor = destination.name
+        out = dict(loaded)
+        for key, value in list(out.items()):
+            if not isinstance(value, str) or not value.strip():
+                continue
+            text = value.strip()
+            # Both separators: the file may have been written on Windows and
+            # read here, or the other way round.
+            pure = PureWindowsPath(text) if "\\" in text else PurePosixPath(text)
+            if not pure.is_absolute():
+                continue
+            if Path(text).exists():
+                continue
+
+            try:
+                rerooted = reroot_crop_path(text, str(destination))
+            except Exception:                                # noqa: BLE001
+                rerooted = text
+            if rerooted and rerooted != text:
+                out[key] = rerooted
+                continue
+
+            # The root case portable_paths cannot reach.
+            parts = list(pure.parts)
+            if anchor in parts:
+                tail = parts[len(parts) - 1 - parts[::-1].index(anchor) + 1:]
+                candidate = destination.joinpath(*tail) if tail else destination
+                # NOT conditional on the candidate existing, unlike
+                # portable_paths. Some of these are OUTPUT paths -- a
+                # measurements.db the run has not written yet -- and requiring
+                # existence would leave the publisher's path on exactly the
+                # settings a first run needs. A local path that does not exist
+                # yet is still better than a foreign one that never will.
+                out[key] = str(candidate)
+            # Otherwise there is nothing to hang the tail on. A bare re-point
+            # at the destination would be a guess, and a wrong path that LOOKS
+            # local is worse than one that is obviously foreign, so it is left
+            # for the user to see and correct.
+        return out
 
     def apply_settings_that_came_with(self, folder) -> int:
         """Load the settings a downloaded example shipped, for THIS module.
@@ -3770,6 +3850,9 @@ class AppScreen(QWidget):
                 continue
             try:
                 loaded = self._load_settings_csv(str(path))
+                # BEFORE applying, not after: the panel must never hold the
+                # publisher's path, not even for a repaint.
+                loaded = self.reanchor_example_paths(loaded, folder)
                 applied = self.apply_settings_dict(loaded)
             except Exception as exc:                         # noqa: BLE001
                 LOG.debug("could not apply %s", path, exc_info=True)
@@ -3849,7 +3932,7 @@ class AppScreen(QWidget):
         """Add the example-image control that populates ``src``."""
         from PySide6.QtWidgets import QPushButton
 
-        button = QPushButton(tr("Load the example images\u2026"))
+        button = QPushButton(tr("Load test data…"))
         button.setToolTip(tr(
             "Download the approximately 400 MB toxo_mito example plate and "
             "set its image directory as the source (src). Later requests "
@@ -3863,7 +3946,7 @@ class AppScreen(QWidget):
         """Add the example-data control that populates Measure's ``src``."""
         from PySide6.QtWidgets import QPushButton
 
-        button = QPushButton(tr("Load the example measure data\u2026"))
+        button = QPushButton(tr("Load test data…"))
         button.setToolTip(tr(
             "Download about 370 MB of example data for Measure: sixteen "
             "fields across four wells, already segmented, so Measure can be "
@@ -3907,14 +3990,14 @@ class AppScreen(QWidget):
         button = getattr(self, "_measure_example_button", None)
         if button is not None:
             button.setEnabled(False)
-            button.setText(tr("Fetching the example data\u2026"))
+            button.setText(tr("Fetching test data…"))
 
         placed: dict = {}
 
         def _done(result, error):
             if button is not None:
                 button.setEnabled(True)
-                button.setText(tr("Load the example measure data\u2026"))
+                button.setText(tr("Load test data…"))
             if result is None:
                 self._console.append_notice(
                     "[example] the measure example data was not "
@@ -3952,7 +4035,7 @@ class AppScreen(QWidget):
         """Add the example-data control for the Annotate/Classify set."""
         from PySide6.QtWidgets import QPushButton
 
-        button = QPushButton(tr("Load the example annotation data\u2026"))
+        button = QPushButton(tr("Load test data…"))
         button.setToolTip(tr(
             "Download about 280 MB of example data: 2,341 single-cell crops "
             "with a measurements database, of which 88 are already labelled. "
@@ -3988,14 +4071,14 @@ class AppScreen(QWidget):
         button = getattr(self, "_annotate_example_button", None)
         if button is not None:
             button.setEnabled(False)
-            button.setText(tr("Fetching the example data\u2026"))
+            button.setText(tr("Fetching test data…"))
 
         applied: dict = {}
 
         def _done(result, error):
             if button is not None:
                 button.setEnabled(True)
-                button.setText(tr("Load the example annotation data\u2026"))
+                button.setText(tr("Load test data…"))
             if result is None:
                 self._console.append_notice(
                     "[example] the annotation example was not downloaded: "
@@ -4063,14 +4146,14 @@ class AppScreen(QWidget):
         button = getattr(self, "_example_images_button", None)
         if button is not None:
             button.setEnabled(False)
-            button.setText(tr("Fetching the example plate\u2026"))
+            button.setText(tr("Fetching test data…"))
 
         placed = {}
 
         def done(result, error):
             if button is not None:
                 button.setEnabled(True)
-                button.setText(tr("Load the example images\u2026"))
+                button.setText(tr("Load test data…"))
             if result is None:
                 self._console.append_stdout(
                     tr(
@@ -4160,7 +4243,7 @@ class AppScreen(QWidget):
                 # caption once, and putting the English source back would
                 # both show the wrong word and opt the button out of every
                 # later pass.
-                button.setText(tr("Load the example screen\u2026"))
+                button.setText(tr("Load test data…"))
 
         # `paired_data`, NOT `count_data`/`score_data`. The regression panel
         # holds ONE ROW PER PLATE -- its score CSV beside its count CSV --

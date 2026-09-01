@@ -1178,7 +1178,7 @@ class _SettingsDialog(QDialog):
         # Both unpack into the same plate folder, so pressing both leaves a
         # complete plate and either strategy then works. One button fetching
         # 670 MB would make the cheaper half unavailable on its own.
-        example_btn = QPushButton("Example (crops)")
+        example_btn = QPushButton(tr("Load test data"))
         example_btn.setToolTip(
             "Download about 280 MB: 2,341 single-cell crops already cut, with "
             "the measurements database that indexes them, labelled infected "
