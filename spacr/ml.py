@@ -7389,8 +7389,8 @@ def _stage(settings, name):
 #: cannot supply one. RRA is a rank statistic -- it never fits a linear
 #: predictor, so "residual" has no meaning for it rather than being
 #: unavailable. Naming them here rather than catching AttributeError keeps the
-#: REASON, which is the whole point of instruction 322: a missing QQ plot and
-#: an inapplicable one look identical to a reader, and only one is fine.
+#: REASON: a missing QQ plot and an inapplicable one look identical to a
+#: reader, and only the inapplicable case is valid.
 RESIDUAL_FREE_MODELS: dict = {
     "rra": ("Robust Rank Aggregation is a rank statistic: it ranks guides "
             "within each well and aggregates those ranks, so it never forms a "
