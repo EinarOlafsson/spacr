@@ -934,7 +934,10 @@ class GraphCanvas(LinkedView, QWidget):
         if kind == HEATMAP:
             self._draw_heatmap(ax, rows, palette)
             return None
-        return None  # pragma: no cover - every kind is handled above
+        # A KIND THE CHAIN DOES NOT KNOW. The return value is an
+        # updater for a cheap highlight repaint, so None is the honest
+        # answer for a kind that drew nothing.
+        return None
 
     def _xy(self, rows: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
         spec, scales = self._spec, self._scales

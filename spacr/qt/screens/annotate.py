@@ -3868,7 +3868,10 @@ class AnnotateScreen(QWidget):
             if self._legend_expanded:
                 return self._toggle_legend()
             return False
-        return False      # pragma: no cover - every token above is handled
+        # A TOKEN THE CHAIN DOES NOT KNOW. False means "not consumed",
+        # so the key is left for Qt's default handling -- returning True
+        # here would swallow a key the window still wants.
+        return False
 
     # -- individual actions --------------------------------------------
     def _kbd_assign(self, value: int) -> bool:

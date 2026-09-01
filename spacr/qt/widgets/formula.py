@@ -804,7 +804,10 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
             return _binary(item, walk(item.left), walk(item.right))
         if isinstance(item, Call):
             return _call(item, [walk(arg) for arg in item.args], length)
-        raise FormulaError(  # pragma: no cover - every node type is above
+        # A NODE THE PARSER DOES NOT PRODUCE TODAY. Named rather than
+        # merely refused: a formula error the user sees has to say what
+        # it could not do.
+        raise FormulaError(
             f"cannot evaluate a {type(item).__name__}")
 
     return walk(node)
