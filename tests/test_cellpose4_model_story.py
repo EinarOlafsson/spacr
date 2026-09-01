@@ -458,7 +458,7 @@ def test_the_docs_say_which_parameters_cellpose4_still_reads():
 
 
 def test_the_model_choices_constant_offers_only_what_exists():
-    assert S.CELLPOSE_MODEL_CHOICES == ("cpsam",)
+    assert S.CELLPOSE_MODEL_CHOICES == (U.CPSAM_MODEL,) == ("cpsam",)
     for legacy in ("cyto", "cyto2", "cyto3", "nuclei"):
         assert legacy not in S.CELLPOSE_MODEL_CHOICES
 
