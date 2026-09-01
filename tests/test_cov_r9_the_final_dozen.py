@@ -107,7 +107,7 @@ class TestTheNestedHelpersWithNothingToDo:
 class TestTheLevelColumn:
 
     def test_a_table_without_a_level_column_is_labelled_grna(self):
-        """THE ARC: ``'level' not in levelled.columns``.
+        """The guide table is always unlabeled and is stamped unconditionally.
 
         results_grna.csv predates the column, and a reader asking for
         genes still needs to know which rows are guides -- without the
@@ -120,20 +120,13 @@ class TestTheLevelColumn:
         levelled["level"] = "grna"
         assert list(levelled["level"]) == ["grna"]
 
-    def test_a_gene_table_without_one_is_labelled_gene(self):
-        gene_rows = pd.DataFrame({"coefficient": [2.0]})
+    def test_the_redundant_level_guards_stay_removed(self):
+        from spacr import ml as M
 
-        assert "level" not in gene_rows.columns
-        gene_rows["level"] = "gene"
-        assert list(gene_rows["level"]) == ["gene"]
-
-    def test_a_table_that_already_says_so_is_left_alone(self):
-        """The arm that runs: a newer table carries the column, and
-        overwriting it would relabel gene rows as guides."""
-        primary = pd.DataFrame({"level": ["gene"], "coefficient": [1.0]})
-
-        assert "level" in primary.columns
-        assert list(primary["level"]) == ["gene"]
+        source = _source(M)
+        assert "if 'level' not in levelled.columns:" not in source
+        assert "levelled['level'] = 'grna'" in source
+        assert "if 'level' not in gene_rows.columns:" not in source
 
     def test_the_reader_asking_for_genes_gets_genes(self):
         from spacr import ml as M
@@ -146,21 +139,21 @@ class TestTheLevelColumn:
 class TestTheShrunkCoefficientWarning:
 
     def test_the_note_is_decoration_and_cannot_cost_the_fit(self):
-        """THE PIN, for ``except Exception: pass``.
+        """THE PIN for removing the old ``except Exception: pass``.
 
         The block builds a WARNING about penalised coefficients -- that
         a small t-statistic under a penalty is not evidence of no effect
-        -- and losing it must not cost the caller the volcano they asked
-        for.
+        -- from the same well-defined DataFrame and settings dict as the fit.
+        The helper is independently driven through both decisions in the
+        focused ml guard tests.
         """
         from spacr import ml as M
 
-        source = _source(M)
-        note = source.index("this is NOT evidence of no effect")
-        handler = source.index("except Exception:", note)
-
-        assert note < handler
-        assert "pass" in source[handler:handler + 60]
+        helper = inspect.getsource(M._warn_if_penalised_no_hits)
+        caller = inspect.getsource(M._perform_regression)
+        assert "this is NOT evidence of no effect" in helper
+        assert "except Exception:" not in helper
+        assert "_warn_if_penalised_no_hits(settings, coef_df)" in caller
 
     def test_the_warning_says_what_to_do_about_it(self):
         """A caution with no remedy is one a reader cannot act on."""

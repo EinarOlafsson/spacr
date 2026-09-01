@@ -188,16 +188,13 @@ def _flat_src(tmp_path, name):
     return src
 
 
-def test_a_scores_file_spelled_row_and_col_is_canonical_before_the_aliases(
+def test_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
         tmp_path):
-    """``row``/``col``/``row_name``/``column`` never reach the alias block.
+    """``row``/``col``/``row_name``/``column`` need no second alias block.
 
-    ``read_and_preprocess_data`` maps four legacy spellings onto ``rowID`` and
-    ``columnID`` (ml.py:11459-11469) -- but it reads the file through
-    ``tabular.read_table``, whose vocabulary has already renamed every one of
-    them. So the file that would exercise those four assignments cannot exist:
-    by the time they are reached the canonical name is present and the guard
-    above them is False.
+    ``read_and_preprocess_data`` reads through ``tabular.read_table``, whose
+    vocabulary has already renamed every legacy spelling. The four later
+    assignments therefore had no input that could reach them and are removed.
 
     Driven from both ends: the aliased file JOINS (so the spellings really are
     understood), and the frame the merge sees carries the canonical names
@@ -229,16 +226,20 @@ def test_a_scores_file_spelled_row_and_col_is_canonical_before_the_aliases(
     assert len(merged) == 4
     assert merged["cv_predictions"].tolist() == [0, 1, 0, 1]
 
+    import inspect
+    source = inspect.getsource(ml.interpret_vision_model)
+    for alias in ("row", "row_name", "col", "column"):
+        assert f"if '{alias}' in scores_df.columns:" not in source
+    assert "if 'rowID' not in scores_df.columns:" not in source
+    assert "if 'columnID' not in scores_df.columns:" not in source
+
 
 def test_a_scores_file_with_no_well_identity_falls_through_and_names_it(
         tmp_path):
-    """No row and no column anywhere: every alias guard is taken and fails.
+    """No row and no column anywhere is refused by the join contract.
 
-    This is the input that walks the whole of ml.py:11459-11470 -- ``rowID``
-    absent, no ``row``, no ``row_name``, ``columnID`` absent, no ``col``, no
-    ``column`` -- and it proves the block cannot rescue such a file: the join
-    stops on the two columns it could not supply, rather than silently
-    matching every score to every object.
+    It proves deleting the unreachable alias block did not turn a malformed
+    file into a silent match: the join stops on the two columns it lacks.
     """
     src = _flat_src(tmp_path, "wellless")
     scores = pd.DataFrame({
@@ -311,6 +312,11 @@ def test_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied(
     assert "NOT_THE_GENE" not in set(result["gene"])
     assert sorted(result["grna"].unique()) == ["GENEA_g1", "GENEB_g1"]
 
+    import inspect
+    source = inspect.getsource(ml.process_reads)
+    assert ("if not all(col in merged_df.columns for col in "
+            "['grna', 'gene']):") not in source
+
 
 def _prcfo_scores(n=12):
     """A per-object score frame keyed only by ``prcfo``, as png_list writes it."""
@@ -319,7 +325,7 @@ def _prcfo_scores(n=12):
         "pred": np.linspace(0.1, 0.9, n)})
 
 
-def test_process_scores_always_has_the_well_columns_it_re_checks():
+def test_process_scores_has_the_well_columns_without_a_second_check():
     """``_assign_prcfo_parts`` assigns every well column, or raises.
 
     ml.py:9428-9430 asks for ``plateID``/``rowID``/``columnID``, calls the
@@ -347,6 +353,12 @@ def test_process_scores_always_has_the_well_columns_it_re_checks():
     # would make the re-check False.
     with pytest.raises(ValueError, match="token"):
         ml._assign_prcfo_parts(pd.DataFrame({"prcfo": ["plate1_r1_c1"]}))
+
+    import inspect
+    source = inspect.getsource(ml.process_scores)
+    check = ("if all(col in df.columns for col in "
+             "['plateID', 'rowID', 'columnID']):")
+    assert source.count(check) == 1
 
 
 def test_process_scores_never_returns_a_prcfo_column_to_drop():
@@ -416,6 +428,9 @@ def test_cross_validation_is_never_handed_a_single_group():
     assert "accuracy" in metrics.index
     assert output[0]["predictions"].notna().all()
 
+    import inspect
+    assert "if n_folds < 2:" not in inspect.getsource(ml.ml_analysis)
+
 
 # ---------------------------------------------------------------------------
 # the QC manifest that never arrives
@@ -441,9 +456,8 @@ def test_the_qc_manifest_survives_the_level_annotation():
         "coefficient": [0.4, 0.2], "p_value": [0.01, 0.2]})
     coefficients.attrs["qc_manifest"] = manifest
 
-    # `.attrs` is a plain dict, which is why the try/except around the
-    # assignment at ml.py:5057-5060 has nothing to catch: a str key into a
-    # dict does not raise.
+    # `.attrs` is a plain dict, which is why the removed try/except had nothing
+    # to catch: a str key into a dict does not raise.
     assert isinstance(coefficients.attrs, dict)
     assert coefficients.copy().attrs["qc_manifest"] == manifest
     assert (pd.concat([coefficients], ignore_index=True)
@@ -458,19 +472,23 @@ def test_the_qc_manifest_survives_the_level_annotation():
     # `_perform_regression` reads to populate output['qc'].
     assert annotated.attrs.get("qc_manifest") == manifest
 
+    import inspect
+    source = inspect.getsource(ml.regression)
+    start = source.index("if qc_manifest is not None and coef_df is not None:")
+    end = source.index("return model, coef_df, regression_type", start)
+    assert "except Exception:" not in source[start:end]
+
 
 # ---------------------------------------------------------------------------
 # the permutation path's level stamps
 # ---------------------------------------------------------------------------
 
-def test_only_the_gene_permutation_pass_stamps_a_level():
-    """The two ``'level' not in ...`` guards in ml.py:6691/6696 are one-sided.
+def test_the_permutation_level_schema_needs_no_rechecks():
+    """The guide is stamped here; the gene analyser already stamps its rows.
 
-    ``_run_guide_permutation_analysis`` stamps ``level='grna'`` on the guide
-    table and ``level='gene'`` on the gene table, each behind a "unless it
-    already says so" guard. Only one of those guards can ever fire: the gene
-    analyser labels every row it returns and the guide analyser labels none,
-    so the guide guard is always True and the gene guard always False.
+    The guide analyser returns no level, so ml stamps ``grna`` unconditionally.
+    The gene analyser always returns ``gene``, so a second conditional stamp
+    had only an impossible true side.
     """
     from spacr.guide_permutation import (analyse_long_gene_table,
                                          analyse_long_guide_table)
@@ -485,13 +503,19 @@ def test_only_the_gene_permutation_pass_stamps_a_level():
     assert set(genes["level"]) == {"gene"}
     assert "level" not in guides.columns
 
+    import inspect
+    source = inspect.getsource(ml._run_guide_permutation_analysis)
+    assert "if 'level' not in levelled.columns:" not in source
+    assert "levelled['level'] = 'grna'" in source
+    assert "if 'level' not in gene_rows.columns:" not in source
+
 
 # ---------------------------------------------------------------------------
 # a folder that is always there to make
 # ---------------------------------------------------------------------------
 
 def test_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
-    """``if folder:`` / ``if parent:`` cannot be False (ml.py:5482, 10897).
+    """The removed ``if folder/parent`` guards could never be False.
 
     Both spell the same thing -- ``os.path.dirname(os.path.abspath(path))`` --
     and ``abspath`` returns a rooted path for every input, so its dirname is
@@ -514,6 +538,10 @@ def test_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
     assert os.path.isdir(tmp_path / "nested" / "deeper")
     assert "OLS Regression Results" in (
         tmp_path / "nested" / "deeper" / "summary.txt").read_text()
+
+    import inspect
+    assert "if folder:" not in inspect.getsource(ml.save_summary_to_file)
+    assert "if parent:" not in inspect.getsource(ml.write_plot)
 
 
 # ---------------------------------------------------------------------------
