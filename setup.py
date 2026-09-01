@@ -967,6 +967,14 @@ setup(
         # because xgboost and scikit-learn's HistGradientBoosting — the two
         # defaults — are core already.
         'boosting': ['catboost>=1.2,<2.0', 'lightgbm>=4.0,<5.0'],
+        # `pip install spacr[plaque]` — YOLO well detection for plate or strip
+        # images in `spacr.plaque`. The import is function-local, so users who
+        # analyze one plaque field per image do not install another detection
+        # framework or download detector weights. The floor is the first
+        # Ultralytics YOLO release exposing the `YOLO(...).predict(...)` API
+        # this module calls; the major-version ceiling keeps that API contract
+        # explicit.
+        'plaque': ['ultralytics>=8.0,<9'],
         # `pip install spacr[umap]` — declared so the command spaCR already
         # prints is true. `spacr/hyperparam.py:80-85` (UMAP_MISSING_MESSAGE)
         # tells the user to run `pip install umap-learn` "or `pip install
@@ -1271,6 +1279,7 @@ setup(
             'platform_machine != "x86_64" or python_version < "3.13")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
+            'ultralytics>=8.0,<9',
             'pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
             'czifile',
             'nd2reader>=3.3.0,<4.0',
