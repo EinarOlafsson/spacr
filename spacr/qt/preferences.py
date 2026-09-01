@@ -243,7 +243,7 @@ def _mandelbrot_defaults() -> dict:
         # a later instruction wins over an earlier inference.
         return dict(DEFAULTS)
     except Exception:                                        # noqa: BLE001
-        return {"supersampling": 2, "seconds_per_decade": 24.0,
+        return {"supersampling": 1, "seconds_per_decade": 24.0,
                 "base_iterations": 300, "iterations_per_decade": 55.0,
                 "max_iterations": 2200, "precision_digits": 320,
                 "initial_scale": 1.25, "zoom_rate": 1.0,

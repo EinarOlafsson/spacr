@@ -44,8 +44,17 @@ PATTERNS: Final[tuple] = ("orbit", "orbit_gpu", "cascade", "space",
 GPU_ONLY_PATTERNS: Final[frozenset] = frozenset({"mandelbrot", "orbit_gpu"})
 
 DEFAULT_BACKEND: Final[str] = "auto"
-#: Samples per pixel per side. Two, asked for on 2026-09-01.
-DEFAULT_SUPERSAMPLING: Final[int] = 2
+#: Samples per pixel per side.
+#:
+#: ONE, changed 2026-09-01: "default to computationally easy settings
+#: like supersampling 1 and scale 0.5 and speed 1". Supersampling SQUARES
+#: the cost -- 2 is four samples per pixel, not two -- so on a backdrop
+#: it is the single most expensive setting to have on by default.
+#:
+#: The picture is softer. That is the right trade for something drawn
+#: behind the interface: anyone who wants it sharper can raise it, and
+#: the setting now says what it costs.
+DEFAULT_SUPERSAMPLING: Final[int] = 1
 DEFAULT_QUALITY: Final[str] = "auto"
 #: Render scale, asked for on 2026-09-01. Half resolution: the backdrop is
 #: behind the interface and a full-resolution one buys sharpness nobody

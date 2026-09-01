@@ -205,9 +205,14 @@ GREETING_POINTS = 30
 #: is what lets the word leave slowly instead of being switched off to make
 #: room for what comes next.
 #:
-#: It sits a row higher than it did, to leave the row beneath it for what
+#: It sits TWO rows higher than it did, to leave room beneath it for what
 #: the machine can actually run.
-GREETING_BAND = 0.64
+#:
+#: Reported 2026-09-01: "the Hello in spacr start needs to be one or two
+#: rows up so it dosnt overlap with the GPU text". The note grew a
+#: capability table on 2026-08-31 and got taller; the greeting had not
+#: moved since, so the two met.
+GREETING_BAND = 0.50
 
 #: How far down the card the GPU note sits: the row the greeting left.
 GPU_NOTE_BAND = 0.78
@@ -1982,7 +1987,14 @@ class SetupSlides(QDialog):
                 where = _say("GPU") if accelerated else _say("CPU")
                 cells.append(
                     f'<tr>'
-                    f'<td style="padding-right:14px;">{_say(library)}</td>'
+                    # RIGHT-ALIGNED, asked for 2026-09-01. The library
+                    # names differ in length -- "UMAP / t-SNE / cluster"
+                    # against "Torch models" -- so ragging them left puts
+                    # the GPU/CPU column a different distance from each
+                    # one. Aligned right, the verdicts line up against a
+                    # straight edge and read as a column.
+                    f'<td align="right" style="padding-right:14px;">'
+                    f'{_say(library)}</td>'
                     f'<td style="padding-right:14px; color:{ink}; '
                     f'font-weight:600;">{where}</td>'
                     f'<td style="opacity:0.85;">{_say(task)}</td>'
