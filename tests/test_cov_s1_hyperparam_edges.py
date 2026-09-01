@@ -380,8 +380,8 @@ def test_merged_arrays_without_a_mask_plane_fall_back_to_the_crop_tar(
     assert "yielded no images" in str(excinfo.value)
 
 
-def test_crop_tar_loading_can_explicitly_skip_normalization(tmp_path):
-    """``input_statistics='none'`` keeps ToTensor's raw [0, 1] values."""
+def test_crop_tar_loading_applies_exactly_the_requested_normalization(tmp_path):
+    """``none`` keeps raw values while ``symmetric`` transforms the same crop."""
     import tarfile
     from io import BytesIO
 
@@ -407,12 +407,20 @@ def test_crop_tar_loading_can_explicitly_skip_normalization(tmp_path):
         archive.addfile(member, BytesIO(image_bytes))
 
     from spacr.hyperparam import load_activation_data
-    data = load_activation_data({
-        "model_path": str(model_path), "dataset": str(dataset),
-        "src": str(tmp_path / "no-merged"), "channels": [1, 2, 3],
-        "image_size": 8, "normalize_input": True,
-        "input_statistics": "none",
-    }, n_images=1)
 
-    observed = data.images[0][:, 0, 0].detach().cpu().numpy()
-    assert observed == pytest.approx(np.array([64, 128, 255]) / 255.0)
+    def _load(statistics):
+        data = load_activation_data({
+            "model_path": str(model_path), "dataset": str(dataset),
+            "src": str(tmp_path / "no-merged"), "channels": [1, 2, 3],
+            "image_size": 8, "normalize_input": True,
+            "input_statistics": statistics,
+        }, n_images=1)
+        return data.images[0][:, 0, 0].detach().cpu().numpy()
+
+    raw = np.array([64, 128, 255]) / 255.0
+    unnormalized = _load("none")
+    symmetric = _load("symmetric")
+
+    assert unnormalized == pytest.approx(raw)
+    assert symmetric == pytest.approx(2.0 * raw - 1.0, abs=1e-7)
+    assert not np.allclose(unnormalized, symmetric)
