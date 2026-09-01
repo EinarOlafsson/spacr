@@ -846,7 +846,7 @@ class TestDragAndDrop:
         assert drop.accepted
         _wait_loaded(qtbot, p)
         assert p._image is not None and p._image.shape == (48, 48)
-        assert p._path_label.text() == str(gray_tif)
+        assert p._path_full == str(gray_tif)
 
     def test_a_non_image_drop_is_refused_by_every_handler(self, qtbot,
                                                           tmp_path):
@@ -901,7 +901,7 @@ class TestPanelIO:
         p._pick_file()
         _wait_loaded(qtbot, p)
         assert p._image is not None
-        assert p._path_label.text() == str(gray_tif)
+        assert p._path_full == str(gray_tif)
 
     def test_pick_file_cancelled_loads_nothing(self, qtbot, monkeypatch):
         p = _panel(qtbot)
@@ -1239,7 +1239,12 @@ class TestPanelSettings:
     def test_build_request_carries_widget_state(self, qtbot, gray_tif):
         p = _panel(qtbot)
         p.load_image(gray_tif)
-        p._model_box.setCurrentText("cyto3")
+        # A model the LIVE combo actually offers. It dropped the retired
+        # pre-SAM spellings, and setCurrentText on a non-editable combo
+        # with no matching item is a silent no-op -- so using one here
+        # tested nothing. This assertion is about widget state reaching
+        # the request, not about which model.
+        p._model_box.setCurrentText("cpsam")
         p._diameter.setValue(17.0)
         p._flow.setValue(0.15)
         p._prob.setValue(-2.0)
@@ -1248,7 +1253,7 @@ class TestPanelSettings:
         p._object_box.setCurrentText("cell + nucleus")
         p.apply_settings({"some_pipeline_key": "kept"})
         req = p._build_request()
-        assert req.model == "cyto3"
+        assert req.model == "cpsam"
         assert req.diameter == pytest.approx(17.0)
         assert req.flow_threshold == pytest.approx(0.15)
         assert req.cellprob == pytest.approx(-2.0)
@@ -1323,7 +1328,9 @@ class TestPanelSettings:
 
     def test_settings_for_propagation_maps_the_main_panel_keys(self, qtbot):
         p = _panel(qtbot)
-        p._model_box.setCurrentText("nuclei")
+        # See the note above: the live combo no longer offers the retired
+        # spellings, so this has to name one it does.
+        p._model_box.setCurrentText("cpsam")
         p._cell_channel.setValue(1)
         p._nucleus_channel.setValue(2)
         p._diameter.setValue(25.0)
@@ -1331,7 +1338,7 @@ class TestPanelSettings:
         p._prob.setValue(1.5)
         p._lo_pct.setValue(3.0)
         s = p.settings_for_propagation()
-        assert s["model_name"] == "nuclei"
+        assert s["model_name"] == "cpsam"
         assert s["cell_channel"] == 1 and s["nucleus_channel"] == 2
         assert s["cell_diameter"] == pytest.approx(25.0)
         assert s["cell_FT"] == pytest.approx(0.33)
@@ -1769,11 +1776,16 @@ class TestPropagation:
         p = _panel(qtbot)
         seen = []
         p.set_propagate_callback(seen.append)
-        p._model_box.setCurrentText("cyto3")
+        # A model the LIVE combo actually offers. It dropped the retired
+        # pre-SAM spellings, and setCurrentText on a non-editable combo
+        # with no matching item is a silent no-op -- so using one here
+        # tested nothing. This assertion is about widget state reaching
+        # the request, not about which model.
+        p._model_box.setCurrentText("cpsam")
         p._compartment_widgets["cell"]["min_area"].setValue(321)
         p.propagate_settings()
         assert len(seen) == 1
-        assert seen[0]["model_name"] == "cyto3"
+        assert seen[0]["model_name"] == "cpsam"
         assert seen[0]["cell_min_area"] == 321
 
     def test_a_throwing_callback_is_swallowed(self, qtbot):

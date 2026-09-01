@@ -81,3 +81,45 @@ def test_the_label_can_be_squeezed_below_its_text(panel):
     survives as a statement of intent rather than as behaviour.
     """
     assert panel._path_label.minimumWidth() == 0
+
+
+def test_the_live_model_row_offers_the_zoo(panel, monkeypatch):
+    """Reported 2026-09-01: the live settings offered cpsam and nothing else.
+
+    A zoo model could be chosen for the RUN and not for the PREVIEW, which is
+    the preview showing a different model than the run will use while the user
+    tunes against it.
+    """
+    import spacr.qt.widgets.model_zoo_picker as picker
+
+    monkeypatch.setattr(picker, "choose_model",
+                        lambda *a, **k: "/models/cpsam_v2_toxo_r2")
+    panel._choose_a_preview_model()
+
+    assert panel._model_box.currentText() == "/models/cpsam_v2_toxo_r2", (
+        "the chosen model was not selected in the combo")
+
+
+def test_a_model_not_in_the_menu_is_added_rather_than_ignored(panel,
+                                                              monkeypatch):
+    """The menu lists what was on disk when the panel was BUILT. Selecting an
+    item the combo does not hold would silently do nothing."""
+    import spacr.qt.widgets.model_zoo_picker as picker
+
+    before = panel._model_box.count()
+    monkeypatch.setattr(picker, "choose_model",
+                        lambda *a, **k: "/somewhere/new_checkpoint")
+    panel._choose_a_preview_model()
+
+    assert panel._model_box.count() == before + 1
+    assert panel._model_box.currentText() == "/somewhere/new_checkpoint"
+
+
+def test_cancelling_the_picker_leaves_the_model_alone(panel, monkeypatch):
+    import spacr.qt.widgets.model_zoo_picker as picker
+
+    chosen = panel._model_box.currentText()
+    monkeypatch.setattr(picker, "choose_model", lambda *a, **k: None)
+    panel._choose_a_preview_model()
+
+    assert panel._model_box.currentText() == chosen

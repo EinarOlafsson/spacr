@@ -312,6 +312,18 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
 _APP_HIDDEN_KEYS: Dict[str, set] = {
+    # `pathogen_model` named the same thing as `pathogen_model_name` --
+    # `object.py` reads the first as an override of the second -- and two
+    # controls for one value is how a user sets one and wonders why the other
+    # wins. Retired from the panel 2026-09-01 at the maintainer's request;
+    # `pathogen_model_name` is the one control, and it loads a checkpoint path
+    # exactly as the override did, because both go through
+    # `_resolve_cellpose_pretrained`.
+    #
+    # It stays in the settings dict, and object.py still reads it, so a
+    # settings CSV written before this keeps segmenting with the model it
+    # names instead of silently falling back to cpsam.
+    "mask": {"pathogen_model"},
     # This module IS the timelapse one. A user who turned this off would be
     # left looking at a screen whose every remaining control is about a time
     # dimension it had just been told to ignore -- and Mask Generation is
