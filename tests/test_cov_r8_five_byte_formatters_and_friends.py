@@ -98,7 +98,6 @@ class TestEveryByteFormatter:
 class TestTheTypeCheckingImports:
 
     @pytest.mark.parametrize("module_name", [
-        "spacr.classify_classes", "spacr.feature_dict",
         "spacr.qt.widgets.class_editor",
     ])
     def test_the_typing_import_never_runs(self, module_name):
@@ -268,4 +267,7 @@ class TestTheTransactionRetryLoop:
         assert "break" in loop, "the success path no longer leaves the loop"
         assert "if attempt == attempts:" in loop, (
             "the last attempt no longer raises, so the for-else is live")
-        assert "else:" in loop and "raise DatabaseBusy(str(last_error))" in loop
+        assert "else:" not in loop, (
+            "the loop cannot exhaust normally, so a for-else arm would be "
+            "unreachable")
+        assert "raise DatabaseBusy(str(last_error))" not in loop

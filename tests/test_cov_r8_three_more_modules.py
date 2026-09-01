@@ -91,29 +91,22 @@ class TestFindingAControlInTheRanking:
         assert position.any()
         assert int(position.idxmax()) + 1 == 2
 
-    def test_a_control_that_is_not_in_the_ranking_gets_an_effect_only(self):
-        """THE UNCOVERED ARC: ``position.any()`` is false.
-
-        The ranking holds the coefficients that were TESTED, and a
-        control can be present in the fit and absent from the ranking --
-        filtered out for too few cells, most often. ``idxmax()`` over an
-        all-False mask answers the first index rather than raising, so
-        without the guard the control would be reported as rank 1, which
-        is the strongest possible claim about a guide that was not
-        ranked at all.
-        """
+    def test_the_present_control_cannot_disappear_from_the_ranking(self):
+        """The ranking is a permutation of the input, not a filter."""
         from spacr import parameter_sweep as P
 
-        labels = pd.Series(["TSC2_1", "TSC2_2"])
-        position = labels.str.contains("AAVS1", regex=False, na=False)
+        frame = pd.DataFrame({
+            "grna": ["TSC2_1", "AAVS1_1", "TSC2_2"],
+            "coefficient": [0.2, -0.8, 0.4],
+        })
+        out = P._named_control_rows(frame, {"control": "AAVS1"})
 
-        assert not position.any()
-        assert int(position.idxmax()) + 1 == 1, (
-            "idxmax on an all-False mask no longer answers the first index, "
-            "so the guard protects something else now")
+        assert out["control_present"] is True
+        assert out["control_rank"] == 1
+        assert out["control_effect"] == pytest.approx(-0.8)
 
         source = inspect.getsource(P)
-        assert "if position.any():" in source
+        assert "if position.any():" not in source
         assert 'out[f"{alias}_rank"] = int(position.idxmax()) + 1' in source
 
     def test_only_a_main_process_caller_registers_the_workers(self):

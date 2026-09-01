@@ -118,26 +118,7 @@ class TestANamedControlAlwaysGetsItsRank:
 
 
 class TestTheSweepPoolTopsUpOneJobAtATime:
-    """``for future in as_completed(list(futures)):`` never runs out.
-
-    The last statement in that loop's body is an unconditional ``break``,
-    so the ``for`` can only be exhausted when ``as_completed`` yields
-    nothing -- and it is called with ``list(futures)`` under
-    ``while futures:``, which guarantees at least one. The arc "the for
-    loop ended normally" is therefore unreachable: this is the
-    "loop-else where the loop always breaks" case.
-
-    That break is not decoration. It is what makes ``_fill()`` run after
-    EVERY single completion, which is what lets the memory floor hold a
-    sweep back one job at a time instead of resubmitting a whole batch.
-    Draining the snapshot before topping up would resubmit ``n_jobs``
-    futures against a memory reading taken before any of them started.
-
-    So the invariant is pinned on the source: the completion loop's body
-    ends with a bare ``break``, and ``_fill()`` is the statement before
-    it. If someone drops the ``break``, this fails -- which is the point,
-    because coverage never would.
-    """
+    """The non-empty future map yields exactly one completion per refill."""
 
     def test_the_completion_loop_refills_then_breaks(self):
         from spacr import parameter_sweep
@@ -147,27 +128,21 @@ class TestTheSweepPoolTopsUpOneJobAtATime:
         tree = ast.parse(source)
 
         loops = [node for node in ast.walk(tree)
-                 if isinstance(node, ast.For)
-                 and isinstance(node.iter, ast.Call)
-                 and getattr(node.iter.func, "id", "") == "as_completed"]
-        assert len(loops) == 1, (
-            "run_sweep_parallel should drain futures in exactly one "
-            f"as_completed loop; found {len(loops)}")
-
+                 if isinstance(node, ast.While)
+                 and isinstance(node.test, ast.Name)
+                 and node.test.id == "futures"]
+        assert len(loops) == 1
         body = loops[0].body
-        assert isinstance(body[-1], ast.Break), (
-            "the completion loop must break after one future, so the pool is "
-            "topped up against a fresh memory reading")
-        refill = body[-2]
+        assignment = body[0]
+        assert isinstance(assignment, ast.Assign)
+        assert ast.unparse(assignment.value) == \
+            "next(as_completed(tuple(futures)))"
+        refill = body[-1]
         assert (isinstance(refill, ast.Expr)
                 and isinstance(refill.value, ast.Call)
-                and getattr(refill.value.func, "id", "") == "_fill"), (
-            "the statement before the break must be the _fill() that "
-            f"resubmits, not {ast.dump(refill)[:60]}")
-        assert not any(isinstance(node, ast.Break)
-                       for node in ast.walk(loops[0])
-                       if node is not body[-1]), \
-            "a second break would make the refill conditional"
+                and getattr(refill.value.func, "id", "") == "_fill")
+        assert not any(isinstance(node, (ast.For, ast.Break))
+                       for node in ast.walk(loops[0]))
 
 
 # ---------------------------------------------------------------------------

@@ -177,10 +177,9 @@ def digest_numbers(digest: Mapping[str, Any]) -> Set[float]:
         elif isinstance(leaf, str):
             token = leaf.strip()
             if _NUMBER.fullmatch(token):
-                try:
-                    found.add(float(token))
-                except ValueError:                    # pragma: no cover
-                    continue
+                # _NUMBER accepts a strict subset of Python's float syntax,
+                # so a fully matched token is always convertible.
+                found.add(float(token))
     return found
 
 

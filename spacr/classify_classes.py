@@ -17,7 +17,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -29,9 +28,6 @@ from typing import (
 )
 
 import numpy as np
-
-if TYPE_CHECKING:                    # pragma: no cover - typing only
-    import pandas as pd
 
 LOG = logging.getLogger("spacr.classify_classes")
 
@@ -125,7 +121,7 @@ def candidate_columns(settings: Mapping[str, Any],
     return tuple(str(c) for c in available)
 
 
-def values_in(frame: pd.DataFrame, column: str,
+def values_in(frame: Any, column: str,
               *, limit: int = 100) -> Tuple[Any, ...]:
     """The distinct values of ``column`` -- the keys the dict is populated with.
 
@@ -441,8 +437,8 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
 # Applying it
 # ---------------------------------------------------------------------------
 
-def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
-                   seed: Optional[int] = 0) -> pd.Series:
+def assign_classes(frame: Any, settings: Mapping[str, Any], *,
+                   seed: Optional[int] = 0) -> Any:
     """Label every row with its class name, or NA.
 
     The random complement is drawn from the rows NO rule claimed, sized to

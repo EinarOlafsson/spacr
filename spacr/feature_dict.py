@@ -43,10 +43,10 @@ import re
 import sqlite3
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import Any, Iterable
 
-if TYPE_CHECKING:
-    import pandas as pd
+from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
+from .object_roles import ORGANELLE_ROLES
 
 # PANDAS IS NOT IMPORTED HERE. Everything above the export section is
 # strings and parsing: what a measured column is called, what it means and
@@ -58,9 +58,6 @@ if TYPE_CHECKING:
 # module-level pandas here was several hundred modules and a good fraction
 # of a second spent before the window drew, on behalf of a user who may
 # never open it.
-
-from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
-from .object_roles import ORGANELLE_ROLES
 
 __all__ = [
     "CHANNEL_NONE",
@@ -3347,7 +3344,7 @@ def _table_measurement_units(db_path: str | Path, table: str,
 
 
 def describe_database(db_path: str | Path, table: str | None = None,
-                      measurement_units: str | None = None) -> pd.DataFrame:
+                      measurement_units: str | None = None) -> Any:
     """Describe every column of a spaCR measurements database.
 
     Every column of every table is returned — a column that this dictionary
@@ -3465,7 +3462,7 @@ _UNITS_GLOSS: dict[str, str] = {
 }
 
 
-def _markdown(df: pd.DataFrame, db_path: Path,
+def _markdown(df: Any, db_path: Path,
               units_by_table: dict[str, tuple[str | None, str]] | None = None
               ) -> str:
     """Render the dictionary as markdown grouped by object then family."""
