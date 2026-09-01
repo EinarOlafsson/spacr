@@ -850,6 +850,41 @@ def test_a_recorded_drop_with_a_denominator_reports_both():
         "12 of 400 gRNA rows")
 
 
+def test_pre_fraction_guide_exclusion_names_what_really_matched():
+    """The summary proves the contaminant left before the denominator."""
+    run = _run(settings={
+        "exclude_grnas": ["TGGT1_220950_1"],
+        "_regression_exclusions": {
+            "exclude_grnas": 384,
+            "exclude_grnas_of": 600_000,
+            "exclude_grnas_guides": ["TGGT1_220950_1"],
+            "exclude_grnas_unmatched": [],
+        },
+    })
+    field = _fields(RS._excluded_section, run)["exclude_grnas"]
+    assert "384 of 600,000 raw count rows" in field.value
+    assert "before well totals and fractions" in field.value
+    assert "TGGT1_220950_1" in field.value
+    assert field.kind == RS.COMPUTED
+
+
+def test_pre_fraction_guide_exclusion_misspelling_is_a_warning():
+    """A requested name that matched nothing cannot look successful."""
+    run = _run(settings={
+        "exclude_grnas": ["TGGT1_NOT_HERE"],
+        "_regression_exclusions": {
+            "exclude_grnas": 0,
+            "exclude_grnas_of": 600_000,
+            "exclude_grnas_guides": [],
+            "exclude_grnas_unmatched": ["TGGT1_NOT_HERE"],
+        },
+    })
+    field = _fields(RS._excluded_section, run)["exclude_grnas"]
+    assert "matched nothing" in field.value
+    assert "TGGT1_NOT_HERE" in field.value
+    assert field.kind == RS.COMPUTED
+
+
 # ---------------------------------------------------------------------------
 # _median_wells on a table it cannot group
 # ---------------------------------------------------------------------------

@@ -3670,12 +3670,12 @@ class AppScreen(QWidget):
         layout = QHBoxLayout(row)
         layout.setContentsMargins(0, 0, 0, 0)
         for label, kind, tip in (
-                ("Example counts", "counts",
-                 "Fetch only the four count tables (about 16 MB) and put them "
-                 "in the counts slot."),
-                ("Example scores", "scores",
-                 "Fetch only the four score tables (about 19 MB) and put them "
-                 "in the scores slot."),
+                ("Score", "scores",
+                 "Fetch the four score tables (about 19 MB) into the scores "
+                 "slot."),
+                ("Count", "counts",
+                 "Fetch the four count tables (about 16 MB) into the counts "
+                 "slot."),
         ):
             one = QPushButton(label)
             one.setToolTip(tip + " Cached afterwards, so pressing it again is "
@@ -3686,32 +3686,48 @@ class AppScreen(QWidget):
             layout.addWidget(one)
             setattr(self, f"_example_{kind}_button", one)
 
+        # TWO THAT COST GIGABYTES ASK FIRST. Each opens a picker holding only
+        # its own kind, with what it costs said above the list.
+        feature = QPushButton("Feature")
+        feature.setToolTip(
+            "Choose which of the screen's measurement databases to download. "
+            "These are what the measurement and cell functions read. About "
+            "0.5 GB per plate.")
+        feature.clicked.connect(
+            lambda: self.load_the_screen_data(kind="measurements"))
+        self._screen_feature_button = feature
+        layout.addWidget(feature)
+
+        crops = QPushButton("Image crops")
+        crops.setToolTip(
+            "Choose which of the screen's crop folders to download. Only "
+            "needed to display images — the measurement functions do not "
+            "read them. About 8 GB per plate.")
+        crops.clicked.connect(
+            lambda: self.load_the_screen_data(kind="crops"))
+        self._screen_crops_button = crops
+        layout.addWidget(crops)
+
+        layout.addStretch(1)
+
+        # A LABELLED ROW, ALIGNED WITH THE SETTINGS IT FILLS. A row of buttons
+        # floating above the form reads as unrelated to it; one whose label
+        # sits in the same right-aligned column reads as part of the same
+        # form. `add_prose_row` rather than `add_row`, because `_row_widgets`
+        # is taken to hold labelled SETTINGS by the module smoke test and a
+        # row of buttons is not one.
+        section.add_prose_row("Download", row)
+
+        # The whole-screen button keeps its place ABOVE the form: it fills
+        # both slots at once, so it belongs beside neither of them.
         button = QPushButton("Load the example screen…")
         button.setToolTip(
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
             "first time; cached afterwards, so pressing it again is instant.")
-        layout.addWidget(button)
-        layout.addStretch(1)
         button.clicked.connect(lambda: self.load_the_example_screen())
         self._example_data_button = button
-
-        # THE REAL SCREEN, in pieces. The counts and scores above are summary
-        # tables; the measurement and cell functions want a measurements.db,
-        # and those are 0.5 GB each with 8 GB of crops beside them. A picker
-        # rather than a button, so nothing is transferred that was not ticked.
-        measurements = QPushButton("Screen measurements…")
-        measurements.setToolTip(
-            "Choose which of the published screen's databases and crop "
-            "folders to download. Each is fetched on its own and unpacks into "
-            "the shared example plate folder; sizes are shown before you "
-            "commit to one.")
-        measurements.clicked.connect(lambda: self.load_the_screen_data())
-        self._screen_data_button = measurements
-        layout.addWidget(measurements)
-        # The ROW goes in, not the button: the button is already inside it,
-        # and adding both would put it in two layouts.
-        section.add_prose(row, at_top=True)
+        section.add_prose(button, at_top=True)
 
     #: Settings files an example dataset may ship, per module, best first.
     #:
@@ -3773,9 +3789,14 @@ class AppScreen(QWidget):
 
         return example_plate_folder()
 
-    def load_the_screen_data(self, *, ask=None, choose=None) -> dict:
+    def load_the_screen_data(self, *, kind=None, ask=None,
+                             choose=None) -> dict:
         """Ask which pieces of the screen to fetch, then fetch them.
 
+        :param kind: ``"measurements"`` or ``"crops"``, so the Feature and
+            Image-crops buttons each show only their own. Filtered rather than
+            greyed: a Feature download listing eight rows and refusing four of
+            them would be four chances to start a 30 GB transfer by mistake.
         :param choose: replaces the picker, for tests.
         :param ask: replaces the downloader, for tests.
         :returns: what was set on the panel, or an empty mapping.
@@ -3788,11 +3809,15 @@ class AppScreen(QWidget):
         picker = choose
         if picker is None:
             from ..widgets.screen_data_picker import choose_screen_data as picker
-        chosen = picker(self, destination) or []
+        chosen = picker(self, destination, kind) or []
         if not chosen:
             return {}
 
-        button = getattr(self, "_screen_data_button", None)
+        # The button that was pressed, so the other one does not look busy.
+        was = {"measurements": ("_screen_feature_button", "Feature"),
+               "crops": ("_screen_crops_button", "Image crops")}.get(
+                   kind, ("_screen_data_button", "Screen measurements\u2026"))
+        button = getattr(self, was[0], None)
         if button is not None:
             button.setEnabled(False)
             button.setText(tr("Fetching\u2026"))
@@ -3802,7 +3827,7 @@ class AppScreen(QWidget):
         def _done(result, error):
             if button is not None:
                 button.setEnabled(True)
-                button.setText(tr("Screen measurements\u2026"))
+                button.setText(tr(was[1]))
             if result is None:
                 self._console.append_notice(
                     "[screen] not downloaded: {detail}\n",

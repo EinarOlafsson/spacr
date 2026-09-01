@@ -182,6 +182,32 @@ class Section(QFrame):
         self._apply_maturity(label, setting=True)
         self._apply_maturity(widget, setting=True)
 
+    def add_prose_row(self, label: Union[str, QWidget],
+                      widget: QWidget) -> None:
+        """A labelled row that is NOT a setting.
+
+        The difference from :meth:`add_row` is `_row_widgets`, for the reason
+        :meth:`add_prose` gives: every entry there is taken to BE a labelled
+        setting by the module smoke test, which asserts each field carries a
+        ``settingKey`` and that its label holds linked API help. A row of
+        Download buttons is neither.
+
+        It still goes through the section's own QFormLayout, so its label sits
+        in the same column and at the same right-aligned edge as every setting
+        above and below it -- which is the point: a row of buttons floating in
+        the middle of the section reads as unrelated to the settings it acts
+        on, and one aligned with them reads as part of the same form.
+        """
+        form_label = QWidget(self._body)
+        form_label.setObjectName("SettingLabelWithInfo")
+        label_row = QHBoxLayout(form_label)
+        label_row.setContentsMargins(0, 0, 0, 0)
+        label_row.setSpacing(SPACING["xs"])
+        label_row.addStretch(1)
+        label_row.addWidget(label if isinstance(label, QWidget)
+                            else QLabel(str(label), form_label))
+        self._form.addRow(form_label, widget)
+
     def add_widget(self, widget: QWidget) -> None:
         """Add a full-width (label-less) widget to the section's form body."""
         self._form.addRow(widget)

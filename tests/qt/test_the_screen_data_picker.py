@@ -179,8 +179,95 @@ def test_cancelling_the_picker_downloads_nothing(qapp, tmp_path):
         load_the_screen_data = AppScreen.load_the_screen_data
 
     assert _Screen().load_the_screen_data(
-        choose=lambda parent, folder: [],
+        choose=lambda parent, folder, kind: [],
         ask=lambda *a, **k: pytest.fail("it downloaded after a cancel")) == {}
+
+
+def test_each_kind_shows_only_its_own(qapp, tmp_path):
+    """Filtered rather than greyed: a Feature download listing eight rows and
+    refusing four of them would be four chances to start a 30 GB transfer by
+    mistake."""
+    from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
+
+    for kind in ("measurements", "crops"):
+        made = ScreenDataPicker(folder=tmp_path, kind=kind)
+        try:
+            shown = {made._list.item(i).data(0x0100).kind
+                     for i in range(made._list.count())}
+            assert shown == {kind}
+            assert made._list.count() == len(assets_for(kind))
+        finally:
+            made.close()
+            made.deleteLater()
+            qapp.processEvents()
+
+
+def test_the_crops_dialog_says_what_they_cost(qapp, tmp_path):
+    """30 GB is worth a sentence before it is started, not after."""
+    from spacr.qt.widgets.screen_data_picker import ScreenDataPicker
+
+    made = ScreenDataPicker(folder=tmp_path, kind="crops")
+    try:
+        advice = ScreenDataPicker.ADVICE["crops"]
+        assert "8 GB per" in advice and "30 GB" in advice
+        assert "only needed to DISPLAY images" in advice
+    finally:
+        made.close()
+        made.deleteLater()
+        qapp.processEvents()
+
+
+def test_the_feature_dialog_says_what_reads_them(qapp, tmp_path):
+    advice = __import__(
+        "spacr.qt.widgets.screen_data_picker", fromlist=["x"]
+    ).ScreenDataPicker.ADVICE["measurements"]
+    assert "measurement and cell functions actually read" in advice
+
+
+def test_the_four_download_buttons_exist():
+    """Score and Count are cheap and fetch at once; Feature and Image crops
+    cost gigabytes and open a picker."""
+    from pathlib import Path
+
+    import spacr.qt.screens.app_screen as module
+
+    source = Path(module.__file__).read_text(encoding="utf-8")
+    assert 'QPushButton("Feature")' in source
+    assert 'QPushButton("Image crops")' in source
+    assert '("Score", "scores",' in source
+    assert '("Count", "counts",' in source
+
+
+def test_the_row_is_labelled_and_aligned_with_the_settings():
+    """A row of buttons floating above the form reads as unrelated to it; one
+    whose label sits in the same column reads as part of it."""
+    from pathlib import Path
+
+    import spacr.qt.screens.app_screen as module
+
+    source = Path(module.__file__).read_text(encoding="utf-8")
+    assert 'section.add_prose_row("Download", row)' in source
+
+
+def test_the_labelled_row_is_not_a_setting():
+    """`_row_widgets` is taken to hold labelled SETTINGS by the module smoke
+    test, which asserts each field carries a settingKey."""
+    import ast
+    import inspect
+    import textwrap
+
+    from spacr.qt.widgets.section import Section
+
+    # The CODE, not the prose: the docstring explains why `_row_widgets` is
+    # not touched, and a text search reads that explanation as the thing it
+    # warns against.
+    tree = ast.parse(textwrap.dedent(inspect.getsource(Section.add_prose_row)))
+    touched = {node.attr for node in ast.walk(tree)
+               if isinstance(node, ast.Attribute)}
+    assert "_row_widgets" not in touched
+    assert "_form" in touched, (
+        "it must still go through the section's own form, or the label will "
+        "not line up with the settings")
 
 
 def test_the_chosen_archives_are_what_is_fetched(qapp, tmp_path):
@@ -195,7 +282,7 @@ def test_the_chosen_archives_are_what_is_fetched(qapp, tmp_path):
         load_the_screen_data = AppScreen.load_the_screen_data
 
     _Screen().load_the_screen_data(
-        choose=lambda parent, folder: wanted,
+        choose=lambda parent, folder, kind: wanted,
         ask=lambda parent, dest, archives, repo, done: asked.update(
             archives=archives, repo=repo))
 
