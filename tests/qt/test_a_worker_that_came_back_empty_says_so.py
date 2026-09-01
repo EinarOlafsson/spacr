@@ -133,3 +133,84 @@ def test_a_draft_that_could_not_be_produced_is_reported(qtbot):
 
     assert said and "could not be produced" in said[0][0]
     assert said[0][1] is True
+
+
+# ---------------------------------------------------------------------------
+# manuscript.availability with a provider list that will not build
+# ---------------------------------------------------------------------------
+
+def test_a_provider_list_that_raises_still_gives_advice(monkeypatch):
+    """THE ARM.
+
+    ``availability`` only reaches ``list_providers`` when NOTHING is
+    configured -- that is the branch which explains how to set a provider
+    up. If the registry cannot be read, the advice above it is still
+    worth printing: a traceback here would replace a paragraph of help
+    with nothing, and the run's own numbers do not depend on any of it.
+
+    ``configured_providers`` is stubbed empty because this machine has
+    Claude configured, so the function returns before the guard.
+    """
+    from spacr.qt.ai import manuscript
+
+    monkeypatch.setattr(manuscript, "configured_providers", lambda: ())
+
+    asked = []
+
+    def _refuse():
+        asked.append(True)
+        raise RuntimeError("the provider registry is unreadable")
+
+    monkeypatch.setattr(manuscript, "list_providers", _refuse)
+
+    answer = manuscript.availability()
+
+    assert asked == [True], "the provider list was never asked for"
+    assert answer.ok is False
+    assert "No AI provider is configured" in answer.message, (
+        f"the advice was lost with the provider list: {answer.message[:200]}")
+
+
+def test_a_provider_list_that_works_is_used(monkeypatch):
+    """So the arm above is about the failure, not a function that never
+    consults the registry."""
+    from spacr.qt.ai import manuscript
+
+    monkeypatch.setattr(manuscript, "configured_providers", lambda: ())
+
+    class _Provider:
+        label = "Test Provider"
+        cli_name = "testcli"
+        login_command = "testcli login"
+
+        @staticmethod
+        def is_installed():
+            return True
+
+    monkeypatch.setattr(manuscript, "list_providers", lambda: [_Provider()])
+
+    message = manuscript.availability().message
+
+    assert "Test Provider" in message and "testcli" in message, (
+        f"an installed provider was not named: {message[:200]}")
+
+
+def test_a_configured_provider_short_circuits_before_the_advice(monkeypatch):
+    """The path this machine actually takes, pinned so the two stubs
+    above are visibly necessary rather than decorative."""
+    from spacr.qt.ai import manuscript
+
+    class _Ready:
+        name = "claude"
+        label = "Claude"
+
+    monkeypatch.setattr(manuscript, "configured_providers",
+                        lambda: [_Ready()])
+    monkeypatch.setattr(
+        manuscript, "list_providers",
+        lambda: pytest.fail("the advice branch was reached anyway"))
+
+    answer = manuscript.availability()
+
+    assert answer.ok is True
+    assert answer.providers == ("claude",)

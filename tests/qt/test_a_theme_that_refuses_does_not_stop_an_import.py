@@ -26,12 +26,16 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-#: (module, the constant naming its stylesheet)
+#: (module, the constant naming its stylesheet, or None when the module
+#: passes a literal instead of a constant)
 REGISTERING_MODULES = [
     ("spacr.qt.settings_search", "BAR_NAME"),
     ("spacr.qt.shortcuts", "OVERLAY_NAME"),
     ("spacr.qt.recipes", "RECIPE_BUTTON_NAME"),
     ("spacr.qt.prerun", "QSS_NAME"),
+    ("spacr.qt.screens.map_barcodes", "PAGES_NAME"),
+    ("spacr.qt.widgets.gate_editor", "QSS_NAME"),
+    ("spacr.qt.screens.settings_model", None),
 ]
 
 
@@ -71,8 +75,9 @@ def test_a_refusing_theme_still_lets_the_module_import(module_name, constant,
     module = importlib.reload(importlib.import_module(module_name))
 
     assert asked, f"{module_name} never registered a stylesheet"
-    assert getattr(module, constant, None), (
-        f"{module_name} imported but lost {constant}")
+    if constant is not None:
+        assert getattr(module, constant, None), (
+            f"{module_name} imported but lost {constant}")
 
 
 @pytest.mark.parametrize("module_name,constant", REGISTERING_MODULES)
@@ -93,8 +98,14 @@ def test_a_working_theme_registers_the_sheet(module_name, constant,
 
     assert registered, f"{module_name} registered nothing"
     names = [name for name, _replace in registered]
-    assert getattr(module, constant) in names, (
-        f"{module_name} registered {names}, not its own {constant}")
+    if constant is not None:
+        assert getattr(module, constant) in names, (
+            f"{module_name} registered {names}, not its own {constant}")
+    else:
+        # A module that passes a literal still has to register SOMETHING
+        # under a name of its own rather than an empty string.
+        assert all(name for name in names), (
+            f"{module_name} registered a stylesheet with no name")
     assert all(replace for _name, replace in registered), (
         "the sheet is registered without replace=True, so a reload "
         "stacks a second copy on the first")
