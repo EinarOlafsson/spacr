@@ -267,7 +267,24 @@ class TestPlacingThePopoverWithNoScreen:
         monkeypatch.setattr(QGuiApplication, "primaryScreen",
                             staticmethod(lambda: None))
 
+        from spacr.qt.widgets.dna_rain_settings import ANCHOR_GAP
+
+        top_left = anchor.mapToGlobal(anchor.rect().topLeft())
+        expected_x = (top_left.x() + anchor.width() // 2
+                      - popover.width() // 2)
+        expected_y = top_left.y() - popover.height() - ANCHOR_GAP
+
         popover._position_near(anchor)  # must not raise
+
+        # ASSERTED against the ARITHMETIC, not against "it moved". With
+        # no screen there is nothing to clamp to, so the popover lands on
+        # the unclamped position computed from the anchor -- which is the
+        # documented behaviour: possibly off-screen, on a machine that
+        # has no screen to be off.
+        assert popover.x() == expected_x, (
+            f"x is {popover.x()}, expected {expected_x} from the anchor")
+        assert popover.y() == expected_y, (
+            f"y is {popover.y()}, expected {expected_y} from the anchor")
 
 
 # ---------------------------------------------------------------------------

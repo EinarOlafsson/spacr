@@ -47,8 +47,55 @@ class TestWhatTheseFunctionsActuallyDo:
     """The live behaviour, driven through the public entry points."""
 
     def test_arrays_are_found_and_drawn(self, tmp_path):
+        """AN IMAGE AND A MASK, which is what actually draws.
+
+        The pair this test used to build -- two folders of the same
+        random 16x16 array -- draws NOTHING. `plot_images_and_arrays`
+        classifies each side by its unique-value count against
+        `threshold`, and only reaches `plt.subplots` when it has one
+        continuous image AND one label mask. Two arrays of the same kind
+        leave one of them None and the figure is never made.
+
+        So the old test asserted nothing and was named for something it
+        did not do. This builds the pair the function is for.
+        """
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        image, mask = tmp_path / "image", tmp_path / "mask"
+        image.mkdir()
+        mask.mkdir()
+        np.save(image / "field1.npy", np.random.rand(64, 64))
+        np.save(mask / "field1.npy",
+                np.random.randint(0, 5, (64, 64)))
+        plt.close("all")
+
+        P.plot_images_and_arrays([str(image), str(mask)], max_nr=1,
+                                 randomize=False)
+
+        assert plt.get_fignums(), "nothing was drawn for an image/mask pair"
+        axes = plt.gcf().axes
+        assert len(axes) == 2, f"expected two panels, got {len(axes)}"
+        assert axes[0].images, "the image panel is empty"
+        plt.close("all")
+
+    def test_two_arrays_of_the_same_kind_draw_nothing(self, tmp_path):
+        """The other side, and the reason the test above had to change.
+
+        Pinned rather than left implicit: a pair the function cannot
+        classify as image-plus-mask is found, grouped, and then silently
+        not drawn.
+        """
+        import matplotlib.pyplot as plt
+
         a, b = _paired_folders(tmp_path)
+        plt.close("all")
+
         P.plot_images_and_arrays([a, b], max_nr=1, randomize=False)
+
+        assert not plt.get_fignums(), (
+            "two arrays of the same kind produced a figure; the "
+            "image-versus-mask classification has changed")
 
     def test_a_file_outside_the_image_formats_is_ignored(self, tmp_path):
         """A folder pair holding only .txt groups nothing, and that must
@@ -58,12 +105,34 @@ class TestWhatTheseFunctionsActuallyDo:
         b.mkdir()
         for folder in (a, b):
             (folder / "notes.txt").write_text("not an image")
-        P.plot_images_and_arrays([str(a), str(b)], max_nr=1, randomize=False)
+
+        import matplotlib.pyplot as plt
+
+        plt.close("all")
+
+        P.plot_images_and_arrays([str(a), str(b)], max_nr=1,
+                                 randomize=False)
+
+        # AND NOTHING WAS DRAWN. An empty result is an ordinary answer,
+        # but a blank figure is not -- it is a window the user has to
+        # close for no reason.
+        assert not plt.get_fignums(), (
+            "a folder pair with no images still produced a figure")
 
     def test_an_explicit_extension_list_is_honoured(self, tmp_path):
+        import matplotlib.pyplot as plt
+
         a, b = _paired_folders(tmp_path)
+        plt.close("all")
+
         P.plot_images_and_arrays([a, b], extensions=['.npy'], max_nr=1,
                                  randomize=False)
+
+        # The pair is two arrays of the same kind, so nothing is DRAWN --
+        # see test_two_arrays_of_the_same_kind_draw_nothing. What this
+        # pins is that an explicit extension list is accepted and walks
+        # the same files without raising on the filter.
+        assert not plt.get_fignums()
 
     def test_asking_for_overlay_says_it_uses_the_first_two_folders(
             self, tmp_path, capsys):
@@ -115,9 +184,20 @@ class TestTheVolcanoAxisTransform:
 
     @pytest.mark.parametrize("transform", ["log2", "log10", "ln", "log"])
     def test_every_named_transform_is_accepted(self, transform):
-        P.volcano_plot(self._positive_frame(), fold_change_col="fc",
-                       p_value_col="p", name_col="g",
-                       x_transform=transform, fold_change_threshold=2.0)
+        figure, axes, _rest = P.volcano_plot(
+            self._positive_frame(), fold_change_col="fc",
+            p_value_col="p", name_col="g",
+            x_transform=transform, fold_change_threshold=2.0)
+
+        # ASSERTED on the RETURN, which volcano_plot documents as
+        # (Figure, Axes, list). "Accepted" has to mean a plot came back,
+        # not merely that nothing raised.
+        assert figure is not None and axes is not None
+        assert axes.collections or axes.lines or axes.patches, (
+            f"the {transform} transform drew an empty axis")
+        import matplotlib.pyplot as plt
+
+        plt.close(figure)
 
     def test_a_negative_fold_change_is_refused_before_the_transform(self):
         """A log of a negative fold change is not a number, and the
