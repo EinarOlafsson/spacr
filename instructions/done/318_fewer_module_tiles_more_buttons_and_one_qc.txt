@@ -2,7 +2,27 @@
 FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
 ================================================================================
 
-Status:    OPEN, filed 2026-08-31.
+Status:    DONE 2026-09-01. Filed 2026-08-31. All thirteen changes are in;
+           the line below said OPEN long after the file moved to done/.
+
+           VERIFIED 2026-09-01, and the first two checks were WRONG in a
+           way worth recording, because both looked like gaps:
+
+             * `_HELP_MODULES` holds (key, label, tip) triples, so
+               comparing it against a set of keys reports every module
+               missing. Three of the four are there; `feature_dict` is
+               the fourth and installs its own Help entry from
+               `widgets/feature_dictionary.py`, as the note at
+               app.py:1288 says.
+             * `folded_modules()` reads the app registry, and
+               investigate_hit, profiler and train_compare deliberately
+               have NO registry row -- the comment above
+               regression.FOLDED_APPS says so. They are folded through
+               their hosts' own FOLDED_APPS tuples.
+
+           Measured state: 23 tileless apps, none of the seven named here
+           draws a tile, and every one is reachable from Help or from its
+           host's masthead.
 Owner:     the module registry in `spacr/qt/app.py`, the Help menu, and
            the eleven screens named below.
 Requested: 2026-08-31, in the maintainer's words. Reproduced verbatim at
