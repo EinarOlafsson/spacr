@@ -19,11 +19,36 @@ import pytest
 
 @pytest.fixture
 def sinks(qapp):
+    """The two sinks, with their LEVELS restored afterwards.
+
+    The de-duplication is a level comparison -- the verbose forwarder
+    renders a record only when it is BELOW the root sink's level -- so
+    every one of these tests depends on that level, and one of them
+    changes it.
+
+    Without the restore this file polluted itself and the rest of the
+    session: a root sink left above WARNING makes the duplicate come
+    back, and `test_a_qt_warning_is_rendered_once_not_twice` then fails
+    in a full run while passing on its own. The level is also pinned to
+    a known value on the way IN, so a test that runs before this file
+    cannot decide the answer either.
+    """
     from spacr.qt import logging_util as qt_log, verbose_logger
 
     qt_log.setup_logging()
     forwarder = verbose_logger._ensure_handler()
-    yield qt_log, verbose_logger, forwarder
+
+    root_sink = qt_log.get_signal_handler()
+    before_sink = root_sink.level
+    spacr_logger = logging.getLogger("spacr.qt")
+    before_logger = spacr_logger.level
+
+    root_sink.setLevel(logging.WARNING)
+    try:
+        yield qt_log, verbose_logger, forwarder
+    finally:
+        root_sink.setLevel(before_sink)
+        spacr_logger.setLevel(before_logger)
 
 
 def _renders(qt_log, forwarder, level, message):
