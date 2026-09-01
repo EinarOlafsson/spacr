@@ -46,3 +46,26 @@ HOW TO KNOW IT WORKED
 * That database opens in the Plate Viewer and in Regression.
 * The download is declined gracefully: no example data must never mean no
   module.
+
+--------------------------------------------------------------------------------
+DONE, 2026-09-01
+--------------------------------------------------------------------------------
+
+Published as `einarolafsson/spacr-example-measure`: sixteen merged arrays
+across four wells, cut from the example plate by a real Mask run. All four
+wells are kept deliberately -- well-level aggregation and between-condition
+comparison are most of what Measure does after the per-object step, and a
+single-well set makes neither testable.
+
+A "Load the example measure data..." button sits beside `src` in Input &
+Experiment. The arrays ship compressed (~370 MB rather than ~890 MB) and are
+written back out as .npy on arrival, so the second format lives entirely
+inside the downloader.
+
+Two things had to be solved that were not in the original plan. The database
+stored ABSOLUTE paths naming the machine that made it, so the published copy
+stores them relative to the plate folder and the downloader makes them
+absolute wherever it lands. And every example set now unpacks into ONE folder,
+`~/.cache/spacr/example_data/plate1`, because `merged/`, `data/` and
+`measurements/measurements.db` are parts of one plate that are needed
+together.

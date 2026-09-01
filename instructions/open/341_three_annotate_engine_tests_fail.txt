@@ -1,0 +1,74 @@
+================================================================================
+THREE ANNOTATE-ENGINE TESTS FAIL, AND HAVE FOR LONGER THAN ANYONE NOTICED
+================================================================================
+
+Status:    not started
+Requested: not requested -- found on 2026-09-01 while working elsewhere, and
+           filed so it stops being rediscovered.
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Three tests fail on a clean tree:
+
+    tests/qt/test_cov_w2_2_annotate_engine.py::
+        test_the_outline_model_takes_the_card_exactly_when_there_is_one[False]
+    tests/qt/test_cov_w2_2_annotate_engine.py::
+        test_a_torch_that_cannot_answer_leaves_the_card_alone
+    tests/qt/test_cov_r8_annotate_engine_tails.py::TestTwoEmptyResults::
+        test_a_missing_annotation_column_cannot_reach_the_late_guard
+
+THEY ARE NOT ORDER-DEPENDENT. They fail when the two files are run together,
+alone, and in a full sweep. They were confirmed PRE-EXISTING on 2026-09-01 by
+stashing that day's `annotate.py` changes and re-running: identical three
+failures. So they predate the annotation work of that session and are not
+caused by it.
+
+They were rediscovered three separate times in one day, each time costing a
+bisect to establish they were not the new thing. That is the cost this file
+exists to stop.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Not because three tests are red. Because a suite with known-red tests in it
+trains everybody to read a failure list rather than a pass/fail, and the next
+genuinely new failure in those files will be assumed to be one of these. Two
+of the three concern the OUTLINE MODEL card, which is what tells a user
+whether the outlines they are annotating against came from a model at all --
+so if they are failing for a real reason, the thing being untested is a
+correctness claim, not a cosmetic one.
+
+Instruction 288 counts on `tests/qt` being green to mean something.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Establish WHICH SIDE is wrong before touching either. Two of these assert
+   on a torch-model card; the third on a guard that a missing annotation
+   column supposedly cannot reach. Each is either a stale test or a real
+   regression, and the two need opposite fixes.
+
+2. `git log -S` the assertions to find when they last passed. A test that was
+   green and went red names its own cause; one that was never green after a
+   rewrite is a different problem.
+
+3. If they are stale, DELETE the assertion and say why in the test, the way
+   310 A48 was withdrawn -- not by loosening it until it passes, which leaves
+   something that looks like coverage and is not.
+
+4. If they are real, the outline-model card is the user-visible half and
+   should be fixed first.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* `pytest tests/qt/test_cov_w2_2_annotate_engine.py
+   tests/qt/test_cov_r8_annotate_engine_tails.py` is green.
+* Whichever way each went -- stale or real -- is written into the test or the
+  code, so the next reader does not re-derive it.

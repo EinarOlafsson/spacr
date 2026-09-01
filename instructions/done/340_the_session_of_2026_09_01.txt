@@ -1,0 +1,219 @@
+================================================================================
+WHAT WAS ASKED FOR AND FINISHED ON 2026-09-01
+================================================================================
+
+Status:    done, 2026-09-01.
+Requested: 2026-09-01, across one working session, as the maintainer tested a
+           1.5.0.5 candidate and reported what broke.
+Owner:     the session that did it.
+
+This file exists because most of a day's work arrived as live bug reports
+rather than as instructions, and would otherwise be recorded only in commit
+messages. Items that had their own file are in `done/` under their own number;
+what follows is everything that did not.
+
+--------------------------------------------------------------------------------
+THE TWO THAT WOULD HAVE COST THE MOST
+--------------------------------------------------------------------------------
+
+1. A SEGFAULT ON RUN, IN THE LIVE PREVIEW, WITH cpsam.
+
+       QObject::killTimer: Timers cannot be stopped from another thread
+       QObject::~QObject: Timers cannot be stopped from another thread
+       Segmentation fault (core dumped)
+
+   Reproduced exactly with no spaCR code: a QObject owning a RUNNING QTimer,
+   dropped into a reference cycle so only the collector can free it, plus a
+   `gc.collect()` on a worker thread. CPython runs an automatic collection
+   whenever an allocation crosses a threshold, so the thread that PAYS for a
+   collection is simply the thread that allocated most recently -- and a
+   Cellpose pass allocates enormously in a preview worker. That worker then
+   destroys some unrelated widget the GUI thread abandoned earlier, and Qt
+   cannot stop a timer from a foreign thread.
+
+   `spacr/qt/gc_policy.py` switches automatic collection off and drives it
+   from a GUI-thread QTimer, reproducing CPython's generational policy against
+   the same thresholds, so collection happens as often as before on the right
+   thread. The Qt message handler now dumps a Python stack for the "stopped
+   from another thread" family too; it covered only "started", so the family
+   that precedes this crash was the one that never got a stack.
+
+   THIS IS ALSO A MECHANISM FOR INSTRUCTION 288's UNATTRIBUTED tests/qt
+   SEGFAULT, and 288 now records it with two measured negative results.
+
+2. MASK GENERATION DIED AFTER 154 SECONDS.
+
+       TypeError: '>' not supported between instances of 'str' and 'int'
+
+   Cellpose's eval tests `diameter > 0`. Every route into that setting which
+   is not a Python literal hands it over as a STRING -- a number typed into
+   the GUI, and any settings CSV -- and both eval call sites in `object.py`
+   plus the `run_v2` call in `core.py` passed it through raw, while `core.py`
+   cast every other numeric on the same call.
+
+   `object._eval_diameter` coerces and PRESERVES None. The obvious fix --
+   read the already-coerced `object_settings['diameter']` -- would have been
+   worse: that key always holds a magnification-derived default, so it would
+   have turned "blank means native scale" into a 30/diameter rescale for every
+   run that left the field empty. Silently, for every run.
+
+   The deeper cause is fixed too: `validate.coerce_expected_types` restores
+   every declared type at the boundary, and the bridge hands the pipeline the
+   restored dict -- so the next consumer is not the one that crashes. The same
+   defect was also producing three ERROR lines per run telling the user to
+   hand-fix values that were perfectly well-formed.
+
+--------------------------------------------------------------------------------
+THE LIVE PREVIEW
+--------------------------------------------------------------------------------
+
+* THE VIEW FOLLOWS THE PRIMARY OBJECT. Choosing "cell" while a nucleus plane
+  was up meant tuning cell diameter, flow and background against nucleus
+  pixels, with nothing on screen saying so.
+* CYCLING ARROWS for "cell + nucleus". Two channels are segmented and only one
+  could be seen. "Both" is a composite handed to `_to_uint8`, which stretches
+  each plane on its own percentiles -- ordered so the result reproduces the
+  green/magenta the outlines already use, without a second colour table to
+  keep in step.
+* ONE ORGANELLE ENTRY PER DECLARED SLOT. With `number_of_organelles` at 2 the
+  second slot could not be previewed at all, and anything tuned for it was
+  written into the FIRST slot's keys.
+* THE ORGANELLE'S OWN METHOD. `organelle_method` has eight values and only one
+  is 'cellpose'; the preview ran Cellpose unconditionally, so seven of the
+  eight could not be previewed and most of the fifty-odd organelle settings
+  had no effect on anything visible. It now calls the pipeline's own
+  `_segment_single_image`.
+* AN ORGANELLE SETTINGS COLUMN, showing only what the chosen morphology reads
+  and only the methods `LEGAL_METHODS` allows for it -- the pipeline raises
+  for any other pairing.
+* PROPAGATE CARRIES THE MODEL. `model_name` is the TRAINING module's key, so a
+  custom pathogen checkpoint tuned in the preview propagated into a field the
+  Mask panel never shows, and the run still segmented with cpsam.
+
+--------------------------------------------------------------------------------
+THE MEASURE CROP PREVIEW
+--------------------------------------------------------------------------------
+
+* IT OPENS ON `src` BY ITSELF, resolving a file, a `merged/` folder or a run
+  folder. The field is picked at RANDOM: sorted-first is always the same well
+  and field, and if that one happens to be clean, a crop size that halves
+  cells everywhere else looks fine.
+* ONE ORGANELLE SLOT PER DECLARED SLOT in the crop settings, for the same
+  reason as above -- a fixed four meant a one-organelle run carried three
+  mask-slice and three minimum-area fields for objects it does not have.
+* PROPAGATE IS A BUTTON, matching the Mask live dialog. It was the sliding
+  Toggle used for ordinary boolean settings, which read as a property of the
+  preview rather than something reaching out of it.
+
+--------------------------------------------------------------------------------
+WHAT A RUN SAYS
+--------------------------------------------------------------------------------
+
+* A FAILED FIELD BRINGS ITS TRACEBACK HOME. The parent said "worker traceback
+  in ~/.spacr/logs/spacr.log" and the log held nothing: `_measure_crop_core`
+  runs in a Pool worker, so `traceback.print_exc()` went to a stderr nobody
+  reads and the RunLedger it opened was a second ledger in a second process.
+  Text, not the exception -- an unpicklable error would fail again on the way
+  back and lose the first failure.
+* THE ZERNIKE NOTICE IS SAID ONCE, not once per field in each of n_jobs
+  workers. Mahotas was NOT promoted to a core dependency though new ones were
+  welcome: it publishes no wheel for 3.13+, which is why it is an extra, and
+  on the 3.14 interpreter this was reported from that would make
+  `pip install spacr` attempt a source build.
+* CROP SETTINGS ARE CONFIRMED BEFORE A RUN. Normalising and bounding-box both
+  change what every downstream model sees and neither is recoverable without
+  measuring again -- twenty minutes a plate, measured.
+* THE SUITE NO LONGER WRITES INTO ~/.spacr/logs/spacr.log. Deliberate test
+  failures were interleaved with real pipeline output, and a user reading
+  their own crash report cannot tell which lines are theirs.
+
+--------------------------------------------------------------------------------
+THE FIGURE GALLERY
+--------------------------------------------------------------------------------
+
+* IT STOPS STEALING THE VIEW. Every arriving figure jumped onto the screen, so
+  a user reading figure 3 of a Cellpose run was thrown off it every few
+  seconds. It is also most of the queue's cost while a run streams.
+* THE LIVE CANVAS ZOOMS ON A WHEEL TURN. The raster view did and the canvas
+  did not, and which view a figure gets is invisible -- so a recent figure
+  refused to zoom and the same figure zoomed fine an hour later.
+* ZOOMING RE-RENDERS THE VECTOR PAGE rather than magnifying a raster of it.
+  Measured while doing it: the PDF export doubles the per-figure cost, 0.68s
+  to 1.33s, which is why the fine render happens for the one figure being
+  examined rather than for every figure a run produces.
+
+--------------------------------------------------------------------------------
+THE AI CONSOLE AND BUG REPORTS
+--------------------------------------------------------------------------------
+
+* A FILED ISSUE CARRIES spaCR AI'S ANALYSIS of the same error, folded shut,
+  sanitised, capped so it cannot push the environment out when `issue_url`
+  trims the body, and marked machine-generated. The analysis in this very
+  session was right about the cause and wrong about the fix.
+* IT IS PAIRED WITH THE ERROR IT EXPLAINS. The console holds one conversation
+  for a whole session, so "the last AI reply" would have filed a confident
+  analysis of a different crash.
+* A DIAGNOSE BUTTON in the report dialog. The AI toggle is deliberately not
+  consulted: it governs whether spaCR VOLUNTEERS an explanation, and pressing
+  a button named Diagnose is asking for one outright.
+
+--------------------------------------------------------------------------------
+THE EXAMPLE DATASETS
+--------------------------------------------------------------------------------
+
+Four sets, eleven archives, all published and all verified from the published
+copies rather than from what was uploaded:
+
+    toxo_mito                spacr-example-mask.tar        1.7 GB
+    spacr-example-measure    spacr-example-measure.tar     388 MB
+    spacr-example-annotate   spacr-example-annotate.tar    294 MB
+    spacr-example-screen     8 pieces                     34.9 GB
+
+* THEY ALL UNPACK INTO ONE PLATE FOLDER, `~/.cache/spacr/example_data/plate1`.
+  `data/`, `merged/` and `measurements/measurements.db` are parts of one plate
+  and were landing in three trees. Two conflicts had to be resolved rather
+  than left to whichever download ran last.
+* AS TAR, NOT AS FILES. The annotate set is 2,365 files; `snapshot_download`
+  cannot be interrupted, so Cancel did nothing and quitting mid-download
+  destroyed a live QThread and aborted the process. Extraction goes through
+  one function with `filter="data"`: a tar can name `../../etc/something` and
+  a plain `extractall` writes there.
+* EVERY DATASET APPLIES ITS SETTINGS. That was true for Classify alone. All of
+  them now go through one helper and the same two calls "Import settings..."
+  makes, so Run is the next action.
+* THE SCREEN IS PUBLISHED IN PIECES with a picker that states each size, a
+  running total, and only the kind that was asked for. The `merged/` folders
+  are deliberately absent: 300 GB a plate, 1.2 TB for the screen, past what a
+  public dataset host takes without arrangement -- and nothing in Regression
+  reads them.
+* THE EXAMPLE SET IS LABELLED BY A RULE. `png_list.infected` is 2 where the
+  pathogen table names the cell as a parent and 1 where it does not, matching
+  the values a right and a left click write. 1,173 against 1,168, and every
+  one of the 1,173 independently agrees with
+  `cell_pathogen_overlap_fraction > 0`, which Measure computes another way.
+
+--------------------------------------------------------------------------------
+MISTAKES MADE AND CAUGHT, WORTH NOT REPEATING
+--------------------------------------------------------------------------------
+
+* A `cp` OF A WAL-MODE SQLITE DATABASE took 10 of 88 annotations and looked
+  fine. Recent commits live in the -wal file, which a file copy leaves behind.
+  Caught by comparing row counts against the live database; it goes through
+  SQLite's backup API now.
+* AN UPLOAD SCRIPT WOULD HAVE SHIPPED A TRUNCATED 8 GB ARCHIVE. It wrote the
+  tar to its final name and skipped any that existed, so a run killed part-way
+  left a 6.6 GB partial the next run believed was finished. A truncated tar
+  has a plausible size and only fails when something reads to the end.
+* A SPAN-BASED EDIT DELETED THIRTEEN METHODS from `app_screen.py` -- the
+  model-zoo button, the settings advisor, well picking. Replacing the text
+  between two distant landmarks is only as safe as one's memory of what lies
+  between them. The tests caught it; the file was reverted and the change
+  re-applied anchored on its own text.
+* A BETWEEN-TESTS `gc.collect()` FIXTURE was added and then removed: measured
+  not to prevent the crash it was for, and forbidden by
+  `test_no_boundary_fixture_forces_python_collection_over_live_qt_wrappers`,
+  which calls itself the CI segfault guard. Its AST check inspects two
+  fixtures by name, so a third slipped past -- worth fixing on its own.
+* A MANIFEST SYNC TOOL matched `str(bytes)` and so skipped literals written
+  with underscore separators. It reported a size as updated while leaving it
+  stale, which is exactly the failure the tool exists to prevent.

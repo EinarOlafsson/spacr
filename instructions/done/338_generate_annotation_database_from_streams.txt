@@ -121,3 +121,45 @@ HOW IT WILL BE CHECKED
 * The annotation viewer opens a streamed set without knowing how it was made.
 * The three-route parity test passes on the example dataset, or the ways in
   which it does not are written down here.
+
+--------------------------------------------------------------------------------
+DONE, 2026-09-01
+--------------------------------------------------------------------------------
+
+`spacr/annotation_dataset.py` builds a set from the merged arrays or from the
+database coordinates, filters it with the predicates a run applies, and
+registers it as `png_list` -- or `png_list_2`, `png_list_3`. The name is
+claimed FIRST, by creating the table empty inside a transaction, and the crop
+folder is named from it, so `png_list_2` always comes with `data_2` and two
+runs started together cannot collide.
+
+A "Generate annotation database..." button on the Annotation toolbar opens the
+form. It says what each source can do rather than leaving it to be discovered:
+the database stores coordinates and no masks, so it can only cut a bounding
+box, and the checkbox is forced and disabled there.
+
+THE PARITY TEST FOUND TWO REAL DEFECTS ON ITS FIRST RUN, which is what it was
+written for:
+
+* the DATABASE ROUTE WROTE NOTHING. A selection built from the arrays records
+  the file each object came from; one built from the database has only parsed
+  identifiers, which come back as `r1`/`c1` while the file is named
+  `plate1_A01_1_1.npy`. Neither the exact nor the prefix match could hit, so
+  every object in every field was reported missing and the route silently
+  produced an empty dataset.
+* the two routes NAMED THE SAME PICTURE DIFFERENTLY, because the crop was
+  named from the stem that went looking rather than from the file that was
+  found -- so a set built one way could not be matched against one built the
+  other.
+
+Both routes go through `measure._save_object_crop`, so identical bytes are a
+property of the code rather than a coincidence. Verified twice: on synthetic
+fields, and against the real plate through the previously-skipped
+SPACR_STREAM_ROOT test, which passes.
+
+THE TABLE SELECTOR THIS FILE ASKED FOR IS ALSO DONE. Every reader in
+`annotate_engine` takes the table as a keyword defaulting to `png_list`,
+`AnnotateSettings` carries it, and the generator sets it and reopens -- so a
+generated set is simply what the screen is looking at. The SaveWorker takes it
+too, which is the half that mattered most: a writer pointed at the wrong table
+would put a user's labels on somebody else's rows.

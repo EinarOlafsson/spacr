@@ -56,3 +56,13 @@ HOW TO KNOW IT WORKED
 * The preview names the model it used, visibly.
 * A model not yet on disk previews with a stated fallback rather than hanging
   or silently substituting.
+
+--------------------------------------------------------------------------------
+DONE, 2026-09-01
+--------------------------------------------------------------------------------
+
+The live model menu lists downloaded zoo checkpoints, and the Live settings
+model row carries the same "Model zoo..." button every object model name has.
+Without it the live view offered cpsam and nothing else, so a zoo model could
+be selected for the RUN and not for the PREVIEW -- the preview showing a
+different model than the run would use, while the user tuned against it.

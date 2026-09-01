@@ -120,3 +120,26 @@ HOW IT WILL BE CHECKED
 * The defaults factories return the 2026-09-01 values, pinned in a test so a
   later edit cannot drift them silently.
 * The two labels read "path" and "experiment" on a fresh screen.
+
+--------------------------------------------------------------------------------
+WHAT IS BLOCKED, AND ON WHOM (2026-09-01)
+--------------------------------------------------------------------------------
+
+THREE OF THE FOUR PARTS ARE UNBLOCKED and can be started now: the Manders
+removal, the spatial-measurement defaults, and the two labels.
+
+THE FOURTH CANNOT BE. "the settings i set now for measure and mask should be
+the new defaults" needs the values the maintainer had on screen on
+2026-09-01. The MASK half survives -- it is in the published example dataset
+at `settings/gen_mask_settings.csv` -- but the MEASURE half was never written
+to a file, and the panel has been through several runs since. Ask for it
+before starting that part; guessing it would put someone's approximation into
+the defaults every future run inherits.
+
+ONE CORRECTION TO THE ORIGINAL: the label request was "path should always just
+say path exp should be experiment". The `exp` half has a concrete address --
+`spacr/qt/widgets/measure_preview.py:451` is literally
+`QLineEdit("exp", self)`. The `src` half is a settings CAPTION, not a value,
+and needs finding in the settings-model layout rather than in a widget
+constructor.
+
