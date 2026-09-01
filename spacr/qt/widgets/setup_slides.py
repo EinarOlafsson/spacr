@@ -1854,11 +1854,26 @@ class SetupSlides(QDialog):
         if height <= 0:
             height = note.sizeHint().height()
         top = int(card.height() * GPU_NOTE_BAND)
-        # AND IT CANNOT HANG OFF THE BOTTOM. A card short enough that the
-        # band plus the wrapped height overflows lifts the note instead of
-        # losing it -- the note is the answer to "can this machine run
-        # spaCR", so a small window must not be the reason it is missed.
-        top = max(0, min(top, card.height() - margin - height))
+        # AND IT CANNOT HANG OFF THE BOTTOM, NOR OVER THE BUTTONS. A card
+        # short enough that the band plus the wrapped height overflows
+        # lifts the note instead of losing it -- the note is the answer to
+        # "can this machine run spaCR", so a small window must not be the
+        # reason it is missed.
+        #
+        # The floor is the NAV ROW, not the card's edge. The note grew a
+        # capability table on 2026-08-31 and the extra height put it
+        # straight over Back and the step counter, which is how a label
+        # that is only decoration ends up eating a button.
+        floor = card.height() - margin
+        back = getattr(self, "_back", None)
+        if back is not None and back.parent() is not None:
+            try:
+                top_of_buttons = back.mapTo(card, back.rect().topLeft()).y()
+                if top_of_buttons > 0:
+                    floor = min(floor, top_of_buttons - 12)
+            except (AttributeError, RuntimeError):
+                pass
+        top = max(0, min(top, floor - height))
         note.setGeometry(margin, top, width, height)
         note.raise_()
 
@@ -1973,9 +1988,14 @@ class SetupSlides(QDialog):
                     f'<td style="opacity:0.85;">{_say(task)}</td>'
                     f'</tr>')
             if cells:
+                # CENTRED. Qt's rich text does not honour `margin:auto`,
+                # so the table is centred by wrapping it in a block that
+                # is, which is the one construction that works in
+                # QLabel's subset of HTML.
                 rows.append(
+                    '<div align="center">'
                     '<table style="margin-top:6px; border-collapse:collapse;">'
-                    + "".join(cells) + '</table>')
+                    + "".join(cells) + '</table></div>')
             for engine in neural_engines():
                 # FOUND AND NOT USED, said in as many words. There is no
                 # portable torch device for a neural engine, so silence
@@ -2074,7 +2094,12 @@ class SetupSlides(QDialog):
             self._place_the_gpu_note()
         if index != 0:
             self._fade_the_greeting_away()
+        # NOT ON THE FIRST SLIDE. Slide one carries the greeting and the
+        # capability table and has no room for a counter under them; "1 of
+        # 7" was landing on top of the note. It also says least there --
+        # nobody needs telling they are at the beginning.
         self._where.setText(
+            "" if index == 0 else
             _say("{n} of {total}", n=index + 1, total=len(SLIDES)))
         self._back.setEnabled(index > 0)
         self._next.setText(_say("Start spaCR") if index == len(SLIDES) - 1

@@ -2332,25 +2332,40 @@ class MainWindow(QMainWindow):
         # black arrives as a plate behind the mark. Painting the bar's
         # colour is identical wherever transparent already worked.
         #
-        # Read from the theme rather than written here so the corner
-        # cannot drift from the bar it sits on -- two hard-coded colours
-        # that must match is one of them going stale.
-        from .theme import menu_bar_background
-
-        bar_bg = menu_bar_background()
-        corner.setStyleSheet(f"""
-            QWidget#WindowChrome {{
-                background: {bar_bg};
+        # TRANSPARENT, NOT "the same colour as the bar".
+        #
+        # This used to read menu_bar_background() and paint that, so the
+        # corner could not drift from the bar it sits on. It drifted
+        # anyway, reported 2026-09-01: "the x square and minus in the top
+        # right dont always have the same background as the container".
+        #
+        # A colour copied once at construction is a snapshot. The bar
+        # repaints for a theme change, for a palette change, and on macOS
+        # for a translucency the copied value never had -- and every one
+        # of those leaves three plates in the old colour. Matching by
+        # copying is the bug; matching by showing through cannot drift,
+        # because there is nothing to keep in step.
+        #
+        # Safe here in a way it is NOT for the bar itself: transparent
+        # means "paint nothing", and these sit INSIDE the menu bar, which
+        # paints its own surface. The bar is a top-level surface and would
+        # show the desktop through instead.
+        #
+        # The hover state is unaffected: it is a repaint of the GLYPH in
+        # the hover colour, never a plate behind it.
+        corner.setStyleSheet("""
+            QWidget#WindowChrome {
+                background: transparent;
                 border: none;
-            }}
+            }
             QWidget#WindowChrome QToolButton,
             QWidget#WindowChrome QToolButton:hover,
             QWidget#WindowChrome QToolButton:pressed,
             QWidget#WindowChrome QToolButton:checked,
-            QWidget#WindowChrome QToolButton:disabled {{
-                background: {bar_bg};
+            QWidget#WindowChrome QToolButton:disabled {
+                background: transparent;
                 border: none;
-            }}
+            }
         """)
 
         self.menuBar().setCornerWidget(corner, Qt.Corner.TopRightCorner)
