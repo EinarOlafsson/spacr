@@ -67,6 +67,36 @@ DOCS_URL = f"{DOCS_BASE_URL}/index.html"
 TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"
 
 
+def _carry_preview_state(old, fresh) -> None:
+    """Move the live preview's loaded image from a retiring screen to its
+    replacement.
+
+    Best effort and silent on failure: a rebuild that raised here would cost
+    the user their whole screen to save them a re-load, which is the wrong
+    trade. Each attribute is copied independently for the same reason.
+    """
+    if old is None or fresh is None:
+        return
+    for name in ("_live_preview", "_preview_panel", "_live_panel"):
+        source = getattr(old, name, None)
+        target = getattr(fresh, name, None)
+        if source is None or target is None:
+            continue
+        for attribute in ("_image", "_image_path", "_path_full", "_settings"):
+            try:
+                value = getattr(source, attribute, None)
+                if value is not None:
+                    setattr(target, attribute, value)
+            except Exception:                                # noqa: BLE001
+                continue
+        try:
+            if getattr(target, "_image", None) is not None:
+                target._show_elided_path()
+                target._refresh_canvases()
+        except Exception:                                    # noqa: BLE001
+            pass
+
+
 class _FractalFollowsItsScreen(QObject):
     """Keeps the spaceout backdrop the same size as the screen behind it."""
 
@@ -4259,6 +4289,20 @@ class MainWindow(QMainWindow):
             fresh._settings_model._organelle_preset_owned = old_preset_owned
         except AttributeError:
             pass
+        # THE LOADED PREVIEW IMAGE SURVIVES THE REBUILD.
+        #
+        # This rebuild carries the user's VALUES across and always has. It did
+        # not carry the live preview's loaded image, and the preview lives on
+        # the screen being replaced -- so typing a channel number, which is a
+        # shaping value and therefore rebuilds, silently emptied the preview.
+        # Reported as "the images are gone every time I put in a number for an
+        # object channel", and it made the preview unusable for exactly the
+        # task it exists for: setting the channels while watching the result.
+        #
+        # The IMAGE is carried, not the path. Re-reading from the path would
+        # be wrong for a dropped file that is not under `src` at all, and
+        # would put a disk read on the rebuild.
+        _carry_preview_state(old, fresh)
 
         self._screens[key] = fresh
         self._stack.addWidget(fresh)
