@@ -93,7 +93,7 @@ SCREEN_ASSETS: Tuple[ScreenAsset, ...] = (
                 548567040, "measurements/measurements.db"),
     ScreenAsset("plate4-measurements.tar", 4, "measurements",
                 486932480, "measurements/measurements.db"),
-    ScreenAsset("plate1-data.tar", 1, "crops", 8_300_000_000, "data"),
+    ScreenAsset("plate1-data.tar", 1, "crops", 8874557440, "data"),
     ScreenAsset("plate2-data.tar", 2, "crops", 7_900_000_000, "data"),
     ScreenAsset("plate3-data.tar", 3, "crops", 7_600_000_000, "data"),
     ScreenAsset("plate4-data.tar", 4, "crops", 6_900_000_000, "data"),
