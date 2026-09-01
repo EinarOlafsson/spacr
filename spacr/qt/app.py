@@ -1390,6 +1390,59 @@ def home_stages() -> dict:
 #: after every listed one, so registering a new app is still a one-line
 #: change that shows up immediately -- at the end of its band, where a
 #: new thing belongs until somebody decides where it goes.
+#: Screen modules that host folded modules, beyond the ones
+#: `fold_strip.FOLD_HOST_MODULES` already names. Those four grew fold
+#: strips later and were never added there.
+_EXTRA_FOLD_HOSTS: Tuple[str, ...] = (
+    "spacr.qt.screens.graph_builder",
+    "spacr.qt.screens.qc_dashboard",
+    "spacr.qt.screens.db_browser",
+    "spacr.qt.screens.foreign",
+)
+
+
+def folded_children() -> Dict[str, Tuple[str, ...]]:
+    """``host key -> the module keys folded onto its masthead``.
+
+    ONE MAPPING, read from the hosts themselves, so the dock, the menu
+    bar and the fold strips cannot disagree about what belongs where.
+    Each host declares its own `FOLDED_APPS`; that tuple is the truth
+    and this only collects them.
+
+    Asked for on 2026-09-01: the dock and the spaCR menu should show the
+    nested structure, "adding a level to each where the butons are
+    represented one level down from the new main modules".
+
+    Never raises: a host whose module cannot be imported contributes
+    nothing, because a navigation aid must not be able to stop the
+    window being built.
+    """
+    import importlib
+
+    try:
+        from .widgets.fold_strip import FOLD_HOST_MODULES
+    except Exception:                                    # noqa: BLE001
+        FOLD_HOST_MODULES = ()
+
+    found: Dict[str, Tuple[str, ...]] = {}
+    for module_name in tuple(FOLD_HOST_MODULES) + _EXTRA_FOLD_HOSTS:
+        try:
+            module = importlib.import_module(module_name)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("fold host %s unavailable", module_name, exc_info=True)
+            continue
+        # FOLD_ORDER as well as FOLDED_APPS: make_masks spells it the
+        # other way, and a host missed here is a submenu that silently
+        # has nothing in it.
+        folded = (getattr(module, "FOLDED_APPS", None)
+                  or getattr(module, "FOLD_ORDER", None) or ())
+        host = (getattr(module, "APP_KEY", None)
+                or getattr(module, "HOST_KEY", None))
+        if host and folded:
+            found[str(host)] = tuple(str(k) for k in folded)
+    return found
+
+
 SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
     SECTION_CORE: ("mask", "measure", "annotate", "classify_merged",
                    "map_barcodes", "regression"),

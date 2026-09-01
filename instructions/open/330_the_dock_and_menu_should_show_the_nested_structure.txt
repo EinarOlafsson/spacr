@@ -1,0 +1,58 @@
+330 — THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
+================================================================
+
+Status:    OPEN, filed 2026-09-01. AFTER THE VERSION UPDATE, by the
+           maintainer's own split: this is a feature, and the items
+           before the update are defects and the release itself.
+
+ASKED FOR (2026-09-01, verbatim)
+--------------------------------
+"the dock and the spacr menu bar dont reflect the new module structure.
+best would be if the new nested structure is reflected in these two. so
+adding a level to each where the butons are represented one level down
+from the new main modules"
+
+WHAT THE STATE IS
+-----------------
+The dock already has ONE level: a collapsible header per section
+(Core/Data/Tools/Assays) with the modules of that section under it. What
+it does not show is the SECOND level -- instruction 318 folded 33
+modules onto the mastheads of 11 hosts, and none of them appears in the
+dock or the menu at all. A user who wants Volcano Explorer has to know
+it lives on Regression.
+
+The groundwork is already in: `spacr.qt.app.folded_children()` returns
+`host key -> the module keys folded onto its masthead`, collected from
+each host's own `FOLDED_APPS` (or `FOLD_ORDER`, which make_masks spells
+differently). Measured 2026-09-01: 11 hosts, 33 folded modules.
+
+    classify_merged 5   make_masks 6   regression 6   measure 3
+    qc_dashboard 3      db_browser 2   foreign 2      graph_builder 2
+    umap 2              map_barcodes 1 mask 1
+
+ONE MAPPING ON PURPOSE, so the dock, the menu bar and the fold strips
+cannot disagree about what belongs where. Anything added here must read
+that function rather than growing a second list -- two copies of the
+pattern list caused a bug on this very date, and two copies of the
+section map caused another.
+
+WHAT TO DO
+----------
+1. The dock: under each module row that has folded children, add an
+   indented row per child. They must be collapsible with their parent,
+   or the dock becomes 60 rows long.
+
+2. The spaCR menu bar: the same, as a submenu per host.
+
+3. Pressing a child must open the host AND raise that module's tab --
+   which is what the fold-strip button already does, so reuse its
+   opener rather than reimplementing the route.
+
+DONE MEANS
+----------
+* Every one of the 33 folded modules is reachable from the dock and from
+  the menu without knowing which host it belongs to.
+* The counts come from `folded_children()`, so a module folded later
+  appears without anyone editing a list.
+* The dock still fits: sections collapsed by default except Core, as
+  now, and children collapsed with their parent.
