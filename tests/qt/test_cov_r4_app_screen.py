@@ -1154,16 +1154,18 @@ class TestLoadingTheExampleImages:
     def test_a_plate_already_on_disk_is_reused_rather_than_downloaded(
             self, screen, monkeypatch, tmp_path):
         """The dataset is about 400 MB, so this is the branch that matters."""
+        # The destination IS the plate folder now, and it is shared with the
+        # other example sets -- so an image, not a non-empty folder, is what
+        # says this one has already been fetched.
         self._point_at(screen, monkeypatch, tmp_path)
-        (tmp_path / "plate1").mkdir(parents=True)
-        (tmp_path / "plate1" / "field.tif").write_bytes(b"")
+        (tmp_path / "field.tif").write_bytes(b"")
 
         asked = []
         placed = screen.load_the_example_images(
             ask=lambda *a: asked.append(a))
 
         assert asked == []
-        assert placed["src"] == str(tmp_path / "plate1")
+        assert placed["src"] == str(tmp_path)
         assert placed["settings"] == ""
 
     def test_a_download_that_fails_says_so_and_restores_the_button(
@@ -1252,7 +1254,10 @@ class TestLoadingTheExampleScreen:
         got = types.SimpleNamespace(
             counts=["p1_counts.csv"], scores=["p1_dv.csv"],
             folder=str(tmp_path), note=lambda: "Cached.")
-        monkeypatch.setattr(example_data, "missing", lambda: [])
+        # `kind` is accepted because the screen now fetches counts and
+        # scores separately; a stub without it hides that call.
+        monkeypatch.setattr(example_data, "missing",
+                            lambda folder=None, kind=None: [])
         monkeypatch.setattr(example_data, "fetch",
                             lambda **_kwargs: got)
         screen._example_data_button = None

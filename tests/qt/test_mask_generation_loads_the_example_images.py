@@ -126,11 +126,13 @@ def test_a_failed_download_says_so_and_does_not_fill_src(
 def test_a_plate_already_cached_is_not_downloaded_again(mask, tmp_path,
                                                        monkeypatch):
     """400 MB once. The second press must be free."""
-    cache = tmp_path / "example_images"
-    plate = cache / "plate1"
+    # THE DESTINATION IS THE PLATE FOLDER NOW, shared with the other example
+    # sets, so an IMAGE is what says this one has been fetched -- "the folder
+    # is not empty" is true as soon as any of them has been.
+    plate = tmp_path / "example_data" / "plate1"
     plate.mkdir(parents=True)
     (plate / "a.tif").write_bytes(b"")
-    monkeypatch.setattr(mask, "example_images_destination", lambda: cache)
+    monkeypatch.setattr(mask, "example_images_destination", lambda: plate)
 
     called = []
 

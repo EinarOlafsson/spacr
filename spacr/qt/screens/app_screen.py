@@ -3656,16 +3656,48 @@ class AppScreen(QWidget):
         neither a setting nor labelled -- the same reason the explainer boxes
         go in that way.
         """
-        from PySide6.QtWidgets import QPushButton
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        # THREE BUTTONS, ONE PER THING TO FETCH. Counts are 16 MB and scores
+        # are 19 MB; a user checking one of them should not wait for the
+        # other, and a user who wants both still presses one button.
+        #
+        # In a ROW AT THE TOP rather than above each field. `add_prose` puts a
+        # widget above or below the section's controls, and inserting between
+        # two setting rows would put a non-setting into `_row_widgets`, which
+        # the module smoke test reads as a labelled setting row.
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        for label, kind, tip in (
+                ("Example counts", "counts",
+                 "Fetch only the four count tables (about 16 MB) and put them "
+                 "in the counts slot."),
+                ("Example scores", "scores",
+                 "Fetch only the four score tables (about 19 MB) and put them "
+                 "in the scores slot."),
+        ):
+            one = QPushButton(label)
+            one.setToolTip(tip + " Cached afterwards, so pressing it again is "
+                                 "instant.")
+            one.clicked.connect(
+                lambda _checked=False, _k=kind: self.load_the_example_screen(
+                    kind=_k))
+            layout.addWidget(one)
+            setattr(self, f"_example_{kind}_button", one)
 
         button = QPushButton("Load the example screen…")
         button.setToolTip(
             "Fetch the four-plate example screen and put its count tables "
-            "and score tables into the two slots below. About 33 MB the "
+            "and score tables into the two slots below. About 35 MB the "
             "first time; cached afterwards, so pressing it again is instant.")
+        layout.addWidget(button)
+        layout.addStretch(1)
         button.clicked.connect(lambda: self.load_the_example_screen())
         self._example_data_button = button
-        section.add_prose(button, at_top=True)
+        # The ROW goes in, not the button: the button is already inside it,
+        # and adding both would put it in two layouts.
+        section.add_prose(row, at_top=True)
 
     def _install_example_images_button(self, section) -> None:
         """Add the example-image control that populates ``src``."""
@@ -3696,10 +3728,16 @@ class AppScreen(QWidget):
         section.add_prose(button, at_top=True)
 
     def measure_example_destination(self):
-        """Cache directory for Measure's downloaded example data."""
-        from pathlib import Path
+        """The shared example plate folder.
 
-        return Path.home() / ".cache" / "spacr" / "example_measure"
+        The same one Mask and Annotate use: `merged/` and
+        `measurements/measurements.db` are two halves of one plate, and
+        downloading them into separate trees meant they could not be opened
+        together.
+        """
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
 
     def load_the_measure_example(self, *, ask=None) -> dict:
         """Download Measure's example plate and point ``src`` at it.
@@ -3712,10 +3750,10 @@ class AppScreen(QWidget):
         destination = self.measure_example_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        # An arrived dataset is reused rather than re-fetched: 370 MB is a
-        # long wait for files already on disk. `merged` holding at least one
-        # array is the test, not the folder existing -- a cancelled download
-        # leaves the folder behind.
+        # `merged/` holding at least one array is the test. The folder itself
+        # is shared with the other example sets now, so its existence says
+        # nothing about whether THIS one has been fetched -- and a cancelled
+        # download leaves it behind too.
         merged = destination / "merged"
         if merged.is_dir() and any(merged.glob("*.npy")):
             return self._put_the_measure_example_in_place(destination)
@@ -3777,10 +3815,10 @@ class AppScreen(QWidget):
         section.add_prose(button, at_top=True)
 
     def annotate_example_destination(self):
-        """Cache directory for the Annotate/Classify example data."""
-        from pathlib import Path
+        """The shared example plate folder, which is where `data/` belongs."""
+        from ..hf_download import example_plate_folder
 
-        return Path.home() / ".cache" / "spacr" / "example_annotate"
+        return example_plate_folder()
 
     def load_the_annotate_example(self, *, ask=None) -> dict:
         """Download the annotation example and fill this module's settings in.
@@ -3792,9 +3830,11 @@ class AppScreen(QWidget):
         destination = self.annotate_example_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        # An arrived dataset is reused. The DATABASE is the test, not the
-        # folder: a cancelled download leaves the folder behind.
-        if (destination / "measurements.db").is_file():
+        # THIS SET'S OWN PART IS THE TEST, not the folder. Every example now
+        # unpacks into one shared plate directory, so "the folder exists" is
+        # true as soon as any of them has been fetched -- and a cancelled
+        # download leaves the folder behind as well.
+        if (destination / "measurements" / "measurements.db").is_file():
             return self._apply_the_example_settings(destination)
 
         button = getattr(self, "_annotate_example_button", None)
@@ -3862,10 +3902,10 @@ class AppScreen(QWidget):
         return dict(loaded) or {"src": str(destination)}
 
     def example_images_destination(self):
-        """Return the cache directory used for downloaded example images."""
-        from pathlib import Path
+        """The shared example plate folder. See `hf_download.example_plate_folder`."""
+        from ..hf_download import example_plate_folder
 
-        return Path.home() / ".cache" / "spacr" / "example_images"
+        return example_plate_folder()
 
     def load_the_example_images(self, *, ask=None) -> dict:
         """Download the example plate and populate the ``src`` setting.
@@ -3879,10 +3919,13 @@ class AppScreen(QWidget):
         destination = self.example_images_destination()
         destination.mkdir(parents=True, exist_ok=True)
 
-        # Reuse an existing non-empty plate directory to avoid downloading
-        # the approximately 400 MB dataset again.
-        plate = destination / "plate1"
-        if plate.is_dir() and any(plate.iterdir()):
+        # THE IMAGES THEMSELVES are the test. The destination is the plate
+        # directory now and is shared with the other example sets, so
+        # "the folder is not empty" is true as soon as any of them has been
+        # fetched -- it would have skipped the download and pointed `src` at a
+        # folder with no images in it.
+        plate = destination
+        if plate.is_dir() and any(plate.glob("*.tif")):
             return self._put_the_example_images_in_place(plate, None)
 
         button = getattr(self, "_example_images_button", None)
@@ -3945,7 +3988,8 @@ class AppScreen(QWidget):
         return {"src": str(images),
                 "settings": str(settings) if settings else ""}
 
-    def load_the_example_screen(self, *, download: bool = True) -> dict:
+    def load_the_example_screen(self, *, download: bool = True,
+                               kind=None) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
 
         :param download: If ``True``, download files that are not already in
@@ -3954,8 +3998,13 @@ class AppScreen(QWidget):
         """
         from ...example_data import ExampleDataError, fetch, missing
 
-        button = getattr(self, "_example_data_button", None)
-        absent = missing()
+        # THE BUTTON THAT WAS PRESSED, so a counts fetch does not disable
+        # and relabel the "load everything" button while leaving its own
+        # looking idle.
+        button = getattr(self, f"_example_{kind}_button", None) if kind else None
+        if button is None:
+            button = getattr(self, "_example_data_button", None)
+        absent = missing(kind=kind)
         if absent and button is not None:
             button.setEnabled(False)
             # The count is substituted AFTER the lookup, so the catalog
@@ -3963,7 +4012,7 @@ class AppScreen(QWidget):
             button.setText(tr("Fetching {count} file(s)\u2026",
                               count=len(absent)))
         try:
-            got = fetch(download=download,
+            got = fetch(download=download, kind=kind,
                         progress=self._say_the_download_is_moving)
         except ExampleDataError as error:
             self._console.append_stdout(f"{error}\n")

@@ -29,7 +29,8 @@ from spacr.qt.hf_download import (ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER,
 def unpacked(tmp_path):
     """A dataset as it arrives: relative paths throughout."""
     (tmp_path / "settings").mkdir()
-    connection = sqlite3.connect(tmp_path / "measurements.db")
+    (tmp_path / "measurements").mkdir()
+    connection = sqlite3.connect(tmp_path / "measurements" / "measurements.db")
     connection.execute("create table png_list (png_path text, note text)")
     connection.executemany(
         "insert into png_list values (?, ?)",
@@ -46,7 +47,7 @@ def unpacked(tmp_path):
 
 
 def _paths(root):
-    connection = sqlite3.connect(root / "measurements.db")
+    connection = sqlite3.connect(root / "measurements" / "measurements.db")
     try:
         return [r[0] for r in connection.execute("select png_path from png_list")]
     finally:
@@ -75,7 +76,7 @@ def test_running_it_twice_changes_nothing(unpacked):
 def test_prose_columns_are_left_alone(unpacked):
     """Only values that look like our relative paths are touched."""
     make_the_example_paths_absolute(unpacked)
-    connection = sqlite3.connect(unpacked / "measurements.db")
+    connection = sqlite3.connect(unpacked / "measurements" / "measurements.db")
     notes = [r[0] for r in connection.execute("select note from png_list")]
     connection.close()
     assert notes == ["a note, not a path", "another", "left alone"]
@@ -113,6 +114,25 @@ def test_classify_offers_the_button_where_its_labels_are():
     from spacr.qt.screens.app_screen import EXAMPLE_DATA_SECTIONS
 
     assert EXAMPLE_DATA_SECTIONS["classify"] == "Labels & Classes"
+
+
+def test_every_example_lands_in_one_plate_folder():
+    """`data/` and `measurements/measurements.db` are two halves of one plate.
+    Downloading them into separate trees meant they could not be opened
+    together, and the user had to know which download put what where."""
+    from spacr.qt.hf_download import example_plate_folder
+    from spacr.qt.screens.annotate import _SettingsDialog
+    from spacr.qt.screens.app_screen import AppScreen
+
+    class _Stand:
+        pass
+
+    shared = example_plate_folder()
+    assert shared.name == "plate1"
+    assert AppScreen.example_images_destination(_Stand()) == shared
+    assert AppScreen.measure_example_destination(_Stand()) == shared
+    assert AppScreen.annotate_example_destination(_Stand()) == shared
+    assert _SettingsDialog.example_destination(_Stand()) == shared
 
 
 def test_the_two_modules_share_one_download():
@@ -153,7 +173,8 @@ def test_the_cached_copy_is_reused(tmp_path):
         _load_the_example_data = _SettingsDialog._load_the_example_data
 
     screen = _Screen()
-    (tmp_path / "measurements.db").write_bytes(b"")
+    (tmp_path / "measurements").mkdir()
+    (tmp_path / "measurements" / "measurements.db").write_bytes(b"")
 
     result = screen._load_the_example_data(
         ask=lambda *a, **k: pytest.fail("it re-downloaded"))

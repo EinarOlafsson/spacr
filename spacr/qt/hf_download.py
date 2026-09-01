@@ -67,6 +67,24 @@ ANNOTATE_EXAMPLE_REPO = "einarolafsson/spacr-example-annotate"
 DATASET_PLACEHOLDER = "<dataset>"
 
 
+def example_plate_folder() -> Path:
+    """The ONE folder every example dataset unpacks into.
+
+    ``~/.cache/spacr/example_data/plate1`` -- a real spaCR plate directory,
+    holding whichever of ``merged/``, ``data/``, ``measurements/`` and
+    ``settings/`` have been downloaded.
+
+    ONE FOLDER BECAUSE THE SETS ARE USED TOGETHER. `data/` is the crops and
+    `measurements/measurements.db` is what indexes them; downloading them into
+    separate trees meant the two halves of one plate could not be opened at
+    once, and the user had to know which download had put what where. Each
+    archive's members are relative to this folder, so the three unpack into it
+    side by side and compose into a plate that Measure, Annotate and Classify
+    can all be pointed at.
+    """
+    return Path.home() / ".cache" / "spacr" / "example_data" / "plate1"
+
+
 @dataclass
 class DownloadResult:
     """Outcome of one :func:`download_toxo_mito_demo` call."""
@@ -672,8 +690,14 @@ class _MaskTarWorker(_TarExampleWorker):
     repo = DATASET_REPO
 
     def dataset_root(self, dest) -> Path:
-        """`plate1/`, which is what `load_the_example_images` puts in `src`."""
-        return Path(dest) / DATASET_SUB
+        """The plate folder itself.
+
+        The archive's members are the plate's CONTENTS now -- the tifs at the
+        top, `settings/` beside them -- so the destination is already the
+        plate directory `src` should name. It used to carry a `plate1/`
+        prefix, which put the images one level deeper than the other sets.
+        """
+        return Path(dest)
 
 
 def make_the_example_paths_absolute(root) -> int:
@@ -701,7 +725,13 @@ def make_the_example_paths_absolute(root) -> int:
     prefix = str(root).rstrip("/") + "/"
     rewritten = 0
 
-    database = root / "measurements.db"
+    # WHEREVER THE DATABASE IS. spaCR keeps it at `measurements/measurements.db`
+    # inside a plate; the published archive used to carry it at the top. Both
+    # are checked so an already-unpacked older copy is still repaired.
+    for database in (root / "measurements" / "measurements.db",
+                     root / "measurements.db"):
+        if database.is_file():
+            break
     if database.is_file():
         connection = sqlite3.connect(str(database))
         try:

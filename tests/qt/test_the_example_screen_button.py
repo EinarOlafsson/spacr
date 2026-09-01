@@ -51,10 +51,34 @@ class TestTheButtonIsWhereItBelongs:
         assert hasattr(screen, "_example_data_button")
 
     def test_it_says_what_it_will_cost(self, screen):
-        tip = screen._example_data_button.toolTip()
+        """The figure is DERIVED FROM THE MANIFEST, not pinned as a literal.
 
-        assert "33 MB" in tip, "a 33 MB download must not be a surprise"
+        It was pinned at "33 MB" and the manifest had grown to 35, so the
+        tooltip either lied or the test failed -- and the test failing is how
+        it was noticed. Reading the real total means the tooltip is checked
+        against what will actually be downloaded, and adding a file to the
+        manifest cannot silently make the promise stale.
+        """
+        from spacr.example_data import total_bytes
+
+        tip = screen._example_data_button.toolTip()
+        megabytes = round(total_bytes() / 1e6)
+
+        assert f"{megabytes} MB" in tip, (
+            f"the tooltip does not state the real {megabytes} MB cost: {tip!r}")
         assert "cached" in tip, "and that the second press is free"
+
+    def test_each_half_can_be_fetched_on_its_own(self, screen):
+        """Counts are 16 MB and scores 19; a user checking one should not wait
+        for the other."""
+        from spacr.example_data import entries_of_kind, total_bytes
+
+        for kind in ("counts", "scores"):
+            button = getattr(screen, f"_example_{kind}_button", None)
+            assert button is not None, f"no button for {kind}"
+            megabytes = round(total_bytes(entries_of_kind(kind)) / 1e6)
+            assert f"{megabytes} MB" in button.toolTip(), (
+                f"the {kind} button does not state its own cost")
 
     def test_it_is_not_on_a_module_with_no_such_slots(self, qtbot):
         from spacr.qt.screens.app_screen import AppScreen
