@@ -68,6 +68,8 @@ from .preview_contract import (
 from .toggle import Toggle
 from ..i18n import set_translatable_items, tr
 from ..job_runner import JobRunner
+from ...organelle_types import (organelle_count, organelle_role,
+                                organelle_roles)
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
@@ -112,6 +114,38 @@ DIAMETER_TOOLTIP = (
 # organelle are single-compartment selections whose settings panels light up
 # when chosen.
 OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
+
+#: The object choices that are never per-slot, in the order they are offered.
+FIXED_OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen")
+
+
+def organelle_label(number: int) -> str:
+    """The dropdown caption for organelle slot ``number``.
+
+    Slot 1 stays plain ``organelle``: one organelle is the ordinary case, and
+    numbering it "organelle 1" would relabel every existing screen to say
+    something new about a run that has not changed.
+    """
+    return "organelle" if int(number) <= 1 else f"organelle {int(number)}"
+
+
+def object_role(label: str) -> str:
+    """The settings ROLE an object-dropdown caption stands for.
+
+    ``organelle`` is slot 1, whose role has the same name; ``organelle 2`` is
+    ``organelleb``, which is the prefix its settings keys actually carry. The
+    dropdown counts because that is what the main panel counts, and the roles
+    use letters because a digit cannot start a Python identifier.
+    """
+    if not isinstance(label, str) or not label.startswith("organelle"):
+        return label
+    tail = label[len("organelle"):].strip()
+    if not tail:
+        return "organelle"
+    try:
+        return organelle_role(int(tail))
+    except (TypeError, ValueError):
+        return "organelle"
 
 # The four segmentation compartments, in the left→right order their settings
 # panels appear in the Live settings dialog.
@@ -1305,6 +1339,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # segmented the cell channel while appearing to work.
         self._pathogen_channel = QSpinBox(self)
         self._pathogen_channel.setRange(0, 8); self._pathogen_channel.setValue(2)
+        #: One channel per organelle slot, behind the single spinner below.
+        self._organelle_channel_values: Dict[str, int] = {}
+        self._active_organelle_role = "organelle"
         self._organelle_channel = QSpinBox(self)
         self._organelle_channel.setRange(0, 8); self._organelle_channel.setValue(3)
 
@@ -2340,13 +2377,22 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         primary = self._primary_object()
         out = {
             "model_name": model,
+            # AND THE COMPARTMENT'S OWN MODEL FIELD. `model_name` is the
+            # TRAINING module's key; the Mask panel holds one checkpoint per
+            # object -- `pathogen_model_name`, `cell_model_name` and so on --
+            # so propagating only `model_name` left a custom pathogen model
+            # chosen in the live preview writing to a field the Mask panel
+            # does not show. The user tuned against a zoo checkpoint, pressed
+            # Propagate, and the run still used cpsam.
+            f"{primary}_model_name": model,
             "cell_channel": int(self._cell_channel.value()),
             "nucleus_channel": int(self._nucleus_channel.value()),
             # Propagated like the other two, so tuning a pathogen or
             # organelle channel here reaches the main settings panel
             # instead of being lost when the dialog closes.
             "pathogen_channel": int(self._pathogen_channel.value()),
-            "organelle_channel": int(self._organelle_channel.value()),
+            f"{self._active_organelle_role}_channel": int(
+                self._organelle_channel.value()),
             f"{primary}_diameter": float(self._diameter.value()),
             f"{primary}_FT": float(self._flow.value()),
             f"{primary}_CP_prob": float(self._prob.value()),
@@ -2411,6 +2457,25 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         settings = dict(settings or {})
         self._settings = settings
+        # THE SLOT COUNT FIRST. Everything below reads the primary object, and
+        # with `number_of_organelles` at 2 the second slot is not offered at
+        # all until the dropdown has been rebuilt -- so seeding before this
+        # would seed a panel that cannot represent what it was given.
+        try:
+            self._rebuild_object_choices(organelle_count(settings))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not rebuild the object choices", exc_info=True)
+        # Each slot's channel, so switching between them shows what the run
+        # will actually use rather than slot 1's value carried across.
+        for role in organelle_roles(max(1, organelle_count(settings))):
+            raw = settings.get(f"{role}_channel")
+            if raw is None:
+                continue
+            try:
+                self._organelle_channel_values[role] = int(raw)
+            except (TypeError, ValueError):
+                LOG.debug("apply_settings: %r is not a channel for %r",
+                          raw, role, exc_info=True)
         primary = self._primary_object()
 
         def _seed(widget, keys, cast):
@@ -2435,7 +2500,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # are read back in as well: a round trip that drops two of its four
         # channels is how the panel came to disagree with the run.
         for comp in COMPARTMENTS:
-            _seed(getattr(self, f"_{comp}_channel"), (f"{comp}_channel",), int)
+            # The organelle spinner shows the SELECTED slot, which need not be
+            # slot 1, so it is seeded from that slot's own key.
+            key = (f"{self._active_organelle_role}_channel"
+                   if comp == "organelle" else f"{comp}_channel")
+            _seed(getattr(self, f"_{comp}_channel"), (key,), int)
 
         _seed(self._lo_pct, ("lower_percentile",), float)
         if settings.get("normalize") is not None:
@@ -2620,6 +2689,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
         self._organelle_channel.valueChanged.connect(self._refresh_canvases)
         self._object_box.currentIndexChanged.connect(self._refresh_canvases)
+        # AND THE VIEW FOLLOWS THE OBJECT. Choosing "cell" while looking at
+        # the nucleus plane left the user tuning cell settings against a
+        # nucleus image -- the channel each object is segmented from is
+        # already stated in its spinner, so the view can simply follow it.
+        self._object_box.currentIndexChanged.connect(
+            self._on_primary_object_changed)
+        for _channel_spinner in (self._cell_channel, self._nucleus_channel,
+                                 self._pathogen_channel,
+                                 self._organelle_channel):
+            # NOT `_spin`: that name is a local widget factory further down
+            # this same method, and binding over it made the next call to it
+            # raise "QSpinBox object is not callable".
+            _channel_spinner.valueChanged.connect(self._follow_object_channel)
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
@@ -2684,8 +2766,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Map every compartment + common tuning widget to its setting key."""
         out: dict = {}
         for comp, group in self._compartment_widgets.items():
+            # The organelle panel is ONE set of widgets serving whichever slot
+            # is selected, so its keys carry that slot's role rather than the
+            # generic "organelle" -- otherwise tuning slot 2 wrote slot 1.
+            prefix = (self._active_organelle_role
+                      if comp == "organelle" else comp)
             for suffix, w in group.items():
-                out[f"{comp}_{suffix}"] = self._widget_value(w)
+                out[f"{prefix}_{suffix}"] = self._widget_value(w)
         # The common controls are one widget each, retargeted to whatever is
         # selected. Written for EVERY selected object type, not just the
         # primary: with "cell + nucleus" chosen, keying them off
@@ -2703,11 +2790,142 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
         return out
 
+    def _channel_for_object(self, obj: str) -> Optional[int]:
+        """The channel index an object is segmented from, or ``None``.
+
+        Read from the same spinner the run uses, so the view cannot disagree
+        with what the segmentation will actually be given.
+        """
+        if obj.startswith("organelle"):
+            if obj == self._active_organelle_role:
+                return int(self._organelle_channel.value())
+            stored = self._organelle_channel_values.get(obj)
+            return None if stored is None else int(stored)
+        spinner = {
+            "cell": self._cell_channel,
+            "nucleus": self._nucleus_channel,
+            "pathogen": self._pathogen_channel,
+        }.get(obj)
+        return None if spinner is None else int(spinner.value())
+
+    def _follow_object_channel(self) -> None:
+        """Show the primary object's own channel.
+
+        Switching the primary object used to leave the displayed plane where
+        it was, so picking "cell" while a nucleus plane was up meant tuning
+        cell diameter, flow and background against nucleus pixels -- with
+        nothing on screen saying so.
+
+        Only the PRIMARY object's channel is followed. With "cell + nucleus"
+        both are being segmented and neither is the answer, so the selection
+        is left alone rather than made to flicker between the two.
+
+        Signals are blocked around the change and the repaint is issued once,
+        explicitly: the channel box is wired to `_refresh_canvases` too, and
+        letting both fire repaints the full-size image twice per keystroke
+        while a spinner is being typed into.
+        """
+        ordered = self._selected_object_types()
+        if len(ordered) != 1:
+            return
+        wanted = self._channel_for_object(ordered[0])
+        if wanted is None:
+            return
+        box = self._channel_box
+        target = f"Ch {wanted}"
+        for index in range(box.count()):
+            # `itemData` holds the entry AS WRITTEN, because the captions are
+            # translated -- "All channels" reads "Alla kanaler" on a Swedish
+            # screen. Falling back to the caption covers the window before
+            # `_localise_channel_combo` has run, when `populate_channel_combo`
+            # has added plain items with no data.
+            written = box.itemData(index)
+            if not isinstance(written, str) or not written:
+                written = box.itemText(index)
+            if written != target:
+                continue
+            if box.currentIndex() == index:
+                return
+            blocked = box.blockSignals(True)
+            try:
+                box.setCurrentIndex(index)
+            finally:
+                box.blockSignals(blocked)
+            self._refresh_canvases()
+            return
+
     def _selected_object_types(self) -> Tuple[str, ...]:
+        """The compartment ROLES selected, not the captions.
+
+        ``organelle 2`` is the caption; ``organelleb`` is the prefix its
+        settings keys carry, and every consumer here -- the channel the view
+        follows, the keys propagation writes, the compartment the common
+        controls retarget -- wants the role.
+        """
         current = _combo_value(self._object_box)
         if current == "cell + nucleus":
             return ("cell", "nucleus")
-        return (current,)
+        return (object_role(current),)
+
+    def _rebuild_object_choices(self, count: int) -> None:
+        """Offer one organelle entry per slot the main settings declare.
+
+        With `number_of_organelles` at 2 the panel offered a single
+        "organelle" entry, so the second slot could not be previewed at all
+        and anything tuned for it propagated into the FIRST slot's keys --
+        silently re-tuning an organelle the user was not looking at.
+
+        The current selection is kept across the rebuild by role, so raising
+        the count does not throw the user back to "cell".
+        """
+        labels = list(FIXED_OBJECT_TYPES) + [
+            organelle_label(n) for n in range(1, max(1, int(count)) + 1)]
+        box = self._object_box
+        wanted = _combo_value(box)
+        blocked = box.blockSignals(True)
+        try:
+            set_translatable_items(
+                box, labels,
+                language=getattr(self, "_i18n_language", None))
+            index = -1
+            for position in range(box.count()):
+                written = box.itemData(position) or box.itemText(position)
+                if written == wanted:
+                    index = position
+                    break
+            box.setCurrentIndex(index if index >= 0 else 0)
+        finally:
+            box.blockSignals(blocked)
+
+    def _swap_organelle_channel(self) -> None:
+        """Give each organelle slot its own channel behind the one spinner.
+
+        There is a single "Organelle channel" spinner and up to twenty-six
+        slots. Without this, moving from `organelle` to `organelleb` carried
+        slot 1's channel across and then wrote it into slot 2's settings.
+        """
+        role = self._selected_object_types()[0]
+        previous = getattr(self, "_active_organelle_role", "organelle")
+        if previous.startswith("organelle"):
+            self._organelle_channel_values[previous] = int(
+                self._organelle_channel.value())
+        if not role.startswith("organelle"):
+            return
+        self._active_organelle_role = role
+        stored = self._organelle_channel_values.get(role)
+        if stored is None or int(stored) == self._organelle_channel.value():
+            return
+        blocked = self._organelle_channel.blockSignals(True)
+        try:
+            self._organelle_channel.setValue(int(stored))
+        finally:
+            self._organelle_channel.blockSignals(blocked)
+
+    def _on_primary_object_changed(self) -> None:
+        """Swap the slot's channel in, then move the view onto it. In that
+        order: following first would follow the outgoing slot's channel."""
+        self._swap_organelle_channel()
+        self._follow_object_channel()
 
     def _build_request(self) -> PreviewRequest:
         obj_types = self._selected_object_types()

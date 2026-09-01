@@ -79,14 +79,28 @@ def _row_shown(screen, key: str) -> bool:
     """
     from PySide6.QtWidgets import QFormLayout
 
+    # THE WIDGET IN THE ROW IS NOT ALWAYS THE FIELD. A setting that takes a
+    # Cellpose checkpoint sits in a little holder next to its "Model zoo…"
+    # button, and it is the HOLDER the form knows -- so an identity match
+    # against the field alone reported `organelle_model_name` as being "on no
+    # form at all" once that button was added. The panel's own
+    # `_set_row_visible` walks up for the same reason; this walks with it, so
+    # the check still measures the row rather than quietly passing.
     field = screen._settings_model._widgets[key]
+    candidates = []
+    node = field
+    for _ in range(3):
+        if node is None:
+            break
+        candidates.append(node)
+        node = node.parentWidget()
     for section in screen._settings_sections:
         form = getattr(section, "_form", None)
         if not isinstance(form, QFormLayout):
             continue
         for index in range(form.rowCount()):
             item = form.itemAt(index, QFormLayout.FieldRole)
-            if item is not None and item.widget() is field:
+            if item is not None and any(item.widget() is c for c in candidates):
                 return bool(form.isRowVisible(index))
     raise AssertionError(f"{key} is on no form at all")
 
