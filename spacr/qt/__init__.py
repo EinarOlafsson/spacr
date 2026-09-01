@@ -170,7 +170,14 @@ def _install_quiet_qt_logging() -> None:
         # Only for this family. A stack on every Qt warning would bury the one
         # that matters, which is the mistake the guard's own test exists to
         # prevent.
+        # "STOPPED" BELONGS HERE TOO, and its absence cost a day. The
+        # started/created pair was matched; `killTimer` and `~QObject` say
+        # "cannot be STOPPED from another thread" and fell through with no
+        # stack -- which is the pair that precedes the cyclic-collector crash
+        # spacr.qt.gc_policy documents, so the one crash that most needed a
+        # Python stack was the one family that never got one.
         if "cannot be started from another thread" in (message or "") or \
+                "cannot be stopped from another thread" in (message or "") or \
                 "Cannot create children for a parent" in (message or ""):
             try:
                 import logging

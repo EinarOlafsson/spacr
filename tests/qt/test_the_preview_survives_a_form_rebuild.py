@@ -29,12 +29,16 @@ class _Panel:
         self._path_full = ""
         self._settings = {}
         self.redrawn = False
+        self.table_rebuilt = False
 
     def _show_elided_path(self):
         pass
 
     def _refresh_canvases(self):
         self.redrawn = True
+
+    def _refresh_source_selectors(self):
+        self.table_rebuilt = True
 
 
 class _Screen:
@@ -68,6 +72,26 @@ def test_the_replacement_is_redrawn_so_the_image_is_actually_shown():
 
     _carry_preview_state(old, fresh)
     assert fresh._live_preview.redrawn is True
+
+
+def test_the_set_table_is_rebuilt_not_only_the_canvas():
+    """Carrying the image alone left a picture above an EMPTY table.
+
+    The table is how a field is chosen, so the preview looked loaded and could
+    not be driven -- and `_image_path` came across too, so the panel read as
+    already-loaded and pressing Choose appeared to do nothing. Reported
+    2026-09-01 as "the images are now still there after reloading but the
+    table is gone. and pressing import again does nothing".
+    """
+    from spacr.qt.app import _carry_preview_state
+
+    old = _Screen(_Panel())
+    old._live_preview._image = np.zeros((4, 4), dtype=np.uint8)
+    fresh = _Screen(_Panel())
+
+    _carry_preview_state(old, fresh)
+    assert fresh._live_preview.table_rebuilt is True, (
+        "the image came across but its set table did not")
 
 
 def test_nothing_loaded_means_nothing_carried_and_no_redraw():
