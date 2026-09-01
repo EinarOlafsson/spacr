@@ -57,6 +57,11 @@ class ScreenDataPicker(QDialog):
         self.setMinimumWidth(520)
         self._folder = folder
         self._kind = kind
+        # One lookup for the whole dialog. None means "could not tell", which
+        # is deliberately not the same as "nothing is published".
+        from ...screen_data import published_archives
+
+        self._published = published_archives()
         outer = QVBoxLayout(self)
 
         advice = QLabel(self.ADVICE.get(kind, self.ADVICE[None]))
@@ -78,6 +83,12 @@ class ScreenDataPicker(QDialog):
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             here = self._is_present(asset)
             item.setCheckState(Qt.Unchecked)
+            if self._is_missing_upstream(asset):
+                # Disabled, because ticking it could only fail. Left visible
+                # so the set still reads as eight pieces with one not ready,
+                # rather than as a set that never had it.
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                item.setToolTip("Not published yet — nothing to download.")
             if here:
                 # ALREADY ON DISK. Left selectable rather than disabled: a
                 # re-download is how a truncated or edited copy gets repaired,
@@ -116,8 +127,27 @@ class ScreenDataPicker(QDialog):
     # -- rows ---------------------------------------------------------------
 
     def _text_for(self, asset: ScreenAsset) -> str:
-        here = " — already downloaded" if self._is_present(asset) else ""
-        return f"{asset.label}    {human_size(asset.bytes)}{here}"
+        if self._is_missing_upstream(asset):
+            note = " — not published yet"
+        elif self._is_present(asset):
+            note = " — already downloaded"
+        else:
+            note = ""
+        return f"{asset.label}    {human_size(asset.bytes)}{note}"
+
+    def _is_missing_upstream(self, asset: ScreenAsset) -> bool:
+        """Whether the hub does not have this piece.
+
+        Checked ONCE when the dialog opens rather than at download time. A
+        piece named in the manifest but absent upstream -- a publish that has
+        not finished, or one that failed -- would otherwise be ticked, start,
+        and fail after the user had committed to it.
+
+        A lookup that could not be made is not an absence: `published_archives`
+        returns None when it could not tell, and every row stays offered.
+        """
+        return (self._published is not None
+                and asset.archive not in self._published)
 
     def _is_present(self, asset: ScreenAsset) -> bool:
         if self._folder is None:
@@ -150,7 +180,8 @@ class ScreenDataPicker(QDialog):
         """Select every piece of one kind, or none at all."""
         for item in self._items():
             asset = item.data(Qt.UserRole)
-            item.setSelected(bool(kind) and asset.kind == kind)
+            item.setSelected(bool(kind) and asset.kind == kind
+                             and bool(item.flags() & Qt.ItemIsEnabled))
         self._follow_selection()
 
     def _refresh_total(self, *_args) -> None:
@@ -165,9 +196,14 @@ class ScreenDataPicker(QDialog):
         self._download.setEnabled(True)
 
     def chosen(self) -> List[ScreenAsset]:
-        """The pieces that will be downloaded."""
+        """The pieces that will be downloaded.
+
+        A row disabled for being unpublished is never returned even if some
+        other path ticked it: what cannot be fetched must not be promised.
+        """
         return [item.data(Qt.UserRole) for item in self._items()
-                if item.checkState() == Qt.Checked]
+                if item.checkState() == Qt.Checked
+                and item.flags() & Qt.ItemIsEnabled]
 
 
 def choose_screen_data(parent=None, folder=None,
