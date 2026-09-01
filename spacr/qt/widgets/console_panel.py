@@ -951,6 +951,9 @@ class ConsolePanel(QWidget):
         self._run_function: str = ""
         self._last_entry_kind: str = ""   # "stdout" | "ai" | "user" | ""
         self._current_stdout: Optional[_StdoutBlock] = None
+        #: Label of the topic bar currently showing, so an
+        #: identical one is not drawn again. See begin_topic.
+        self._current_topic_label: Optional[str] = None
         self._working_dots: Optional[_WorkingDots] = None
         self._ai_messages: List[Dict] = []
         self._ai_buf: List[str] = []
@@ -1391,8 +1394,37 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
     def begin_topic(self, label: str, accent: Optional[str] = None,
                     trailing: Optional[QWidget] = None) -> None:
-        """Insert a divider bar labeled `label` (e.g. 'spaCR output — …')."""
+        """Insert a divider bar labeled `label` (e.g. 'spaCR output — …').
+
+        A BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now
+        write under the "spaCR output" heading -- stdout, warnings, and the
+        notice path -- and each opens its topic. A run that alternates between
+        them therefore drew the identical banner before EVERY line:
+
+            === spaCR output — Mask Generation ===
+            Source directory (src): ...
+            === spaCR output — Mask Generation ===
+            12:09:37 [WARNING] cellpose.vit: Could not import CPDINO...
+            === spaCR output — Mask Generation ===
+            12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...
+
+        which is what the console looked like when this was reported. The
+        divider exists to say the subject CHANGED; repeating it says nothing
+        and costs three lines of a panel people read during a run.
+
+        The accent is deliberately not part of the comparison. It rides on the
+        TEXT below the bar -- amber for a warning, blue for output -- so a
+        warning still reads differently without a second identical heading
+        above it.
+        """
+        if label and label == getattr(self, "_current_topic_label", None):
+            # Same subject: keep the bar, but still break the block so the
+            # next append opens one in its own colour.
+            self._last_entry_kind = ""
+            self._current_stdout = None
+            return
         self._insert_entry(_TopicBar(label, accent=accent, trailing=trailing))
+        self._current_topic_label = label
         self._last_entry_kind = ""    # force next append to open a block
         self._current_stdout = None
 
@@ -1720,6 +1752,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 w.deleteLater()
         self._last_entry_kind = ""
         self._current_stdout = None
+        # FORGET THE TOPIC MEMO. Without this the first banner after a clear
+        # matches the last one before it, is skipped as a repeat, and the
+        # output that follows sits under no heading at all.
+        self._current_topic_label = None
         self._ai_messages.clear()
         self._console_sent_lengths.clear()
 

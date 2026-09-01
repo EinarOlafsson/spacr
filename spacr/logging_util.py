@@ -109,6 +109,23 @@ QUIET_LOGGERS: tuple[str, ...] = (
     "h5py",
 )
 
+#: Loggers quieted to ERROR rather than WARNING.
+#:
+#: :data:`QUIET_LOGGERS` sets WARNING, which is right for a library whose
+#: warnings a user can act on. These emit CAPABILITY NOTICES at warning level
+#: -- "this optional extra is not installed" -- on every import, for extras
+#: spaCR does not use. `cellpose.vit` announces that CPDINO is unavailable
+#: every time a module screen opens, and it was reported against Mask, Measure
+#: and Map Barcodes as three separate bugs before it was recognised as one
+#: line printed everywhere.
+#:
+#: ERROR rather than CRITICAL: a genuine cellpose failure still reaches the
+#: user. What is dropped is the advertisement.
+SILENT_LOGGERS: tuple[str, ...] = (
+    "cellpose.vit",
+)
+
+
 #: The five levels the user can switch on and off, lowest first.
 LEVELS: tuple[int, ...] = (
     logging.DEBUG, logging.INFO, logging.WARNING,
@@ -350,6 +367,8 @@ def setup_logging(level: Optional[int] = None,
 
     for name in quiet:
         logging.getLogger(name).setLevel(logging.WARNING)
+    for name in SILENT_LOGGERS:
+        logging.getLogger(name).setLevel(logging.ERROR)
 
     _INITIALISED = True
     get_logger("spacr").info("logging initialised → %s", resolved_path)

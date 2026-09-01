@@ -1377,9 +1377,20 @@ def _budget_tick() -> None:
     try:
         result = sweep_memory_budget()
         if result.dropped or result.models_released or result.vram_freed:
-            LOG.info(
-                "memory budget: %.1f -> %.1f MiB; %d cache entries, "
-                "%d model references and %s VRAM released",
+            # DEBUG, NOT INFO. This is housekeeping the user did not ask for
+            # and cannot act on, and it fired on EVERY module open -- reported
+            # against Mask, Measure and Map Barcodes alike. It also read as
+            # nonsense when it did: "memory budget: 0.0 -> 0.0 MiB ... and 2.6
+            # GB VRAM released" is two different accountings in one sentence,
+            # because before_mb/after_mb are HOST RSS and vram_freed is device
+            # memory. Host RSS legitimately does not move when VRAM is
+            # released, so the line was correct and unreadable at once.
+            #
+            # Kept rather than deleted: it is genuinely useful when chasing a
+            # leak, which is what the debug level is for.
+            LOG.debug(
+                "memory budget: host RSS %.1f -> %.1f MiB; %d cache entries, "
+                "%d model references and %s device VRAM released",
                 result.before_mb, result.after_mb, len(result.dropped),
                 result.models_released, human_bytes(result.vram_freed))
         elif result.errors:
