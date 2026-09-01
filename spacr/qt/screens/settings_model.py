@@ -7496,10 +7496,13 @@ QToolButton#SettingAlphabetChip:checked {{
 """
 
 
-try:  # pragma: no cover - the theme seam is present in every real launch
+# AT IMPORT TIME, so the failure is not a missing chip style -- it is
+# the module not importing, which takes down whatever imports it. Driven
+# in tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from ..theme import register_widget_qss as _register_widget_qss
     _register_widget_qss("SettingAlphabetChip", _alphabet_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOGGER.debug("Could not register the alphabet-chip QSS", exc_info=True)
 
 
