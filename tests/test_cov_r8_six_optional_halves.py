@@ -76,26 +76,11 @@ class TestThePerPlateTable:
         assert list(per_plate.columns)[0] == "plate"
 
     def test_an_empty_table_is_left_alone_rather_than_reordered(self):
-        """THE UNCOVERED ARC: no plate produced a row.
+        """The public entry point refuses the only empty-frame premise."""
+        from spacr.classifier_evaluation import evaluate_predictions
 
-        ``DataFrame([])`` has no columns at all, so ``per_plate["plate"]``
-        is a KeyError -- and this runs at the end of an evaluation that
-        has already computed everything else, so it would lose the whole
-        result over an ordering.
-
-        A run with no per-plate rows is ordinary: a single-plate screen,
-        or one where every plate was filtered out of the calibration.
-        """
-        per_plate = pd.DataFrame([])
-
-        assert per_plate.empty
-        with pytest.raises(KeyError):
-            per_plate[["plate"]]
-
-        from spacr import classifier_evaluation as C
-
-        source = inspect.getsource(C)
-        assert "if not per_plate.empty:" in source
+        with pytest.raises(ValueError, match="At least one prediction"):
+            evaluate_predictions([], np.zeros((0, 2)), [], classes=["a", "b"])
 
 
 # ---------------------------------------------------------------------------
@@ -105,17 +90,19 @@ class TestThePerPlateTable:
 class TestLockingAPanelToTheLeader:
 
     def test_the_first_panel_locked_has_no_leader_to_align_to(self):
-        """THE UNCOVERED ARC: ``leader`` is None.
+        """The panel being locked is itself available as the leader."""
+        from spacr.layers import Canvas, CanvasLink
 
-        The leader is whichever panel is already locked, so the FIRST
-        lock has none -- it becomes the leader. Aligning to None is an
-        AttributeError on the very action that starts a linked view.
-        """
-        from spacr.layers import CanvasLink
+        link = CanvasLink({
+            "first": Canvas(
+                origin=(2.0, 3.0), step=(1.0, 1.0), shape=(8, 8),
+            ),
+        })
+        link.unlock("first")
+        link.lock("first")
 
-        source = inspect.getsource(CanvasLink.lock)
-        assert "leader = self._leader()" in source
-        assert "if leader is not None:" in source
+        assert link.is_locked("first")
+        assert link["first"].origin == (2.0, 3.0)
 
     def test_the_lock_is_recorded_before_the_leader_is_asked_for(self):
         """The order is the mechanism.
@@ -128,12 +115,11 @@ class TestLockingAPanelToTheLeader:
 
         source = inspect.getsource(CanvasLink.lock)
         assert source.index('self._locked[str(key)] = True') < \
-            source.index("leader = self._leader()"), (
+            source.index("leader = cast(Canvas, self._leader())"), (
             "the panel is no longer marked locked BEFORE the leader is "
             "looked up, so the first lock cannot become the leader")
-        assert source.index("if leader is not None:") < \
-            source.index("self._aligned(canvas, leader)"), (
-            "the alignment no longer follows the None check")
+        assert source.index("leader = cast(Canvas, self._leader())") < \
+            source.index("self._aligned(canvas, leader)")
 
 
 # ---------------------------------------------------------------------------

@@ -6,7 +6,7 @@ import logging
 import pickle
 import queue
 import threading
-from typing import Protocol, cast
+from typing import Callable, Protocol, cast
 
 from .collector import Collector
 from .events import (
@@ -36,11 +36,11 @@ _EVENT_TYPES = (
 
 
 class _QueueSource(Protocol):
-    def get(self, block: bool = True, timeout: float | None = None) -> object: ...
+    get: Callable[..., object]
 
 
 class _QueueSink(Protocol):
-    def put_nowait(self, value: object) -> None: ...
+    put_nowait: Callable[[object], None]
 
 
 def is_transport_event(

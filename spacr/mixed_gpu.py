@@ -143,7 +143,6 @@ def _readable(total: int) -> str:
         if size < 1024 or unit == "TB":
             return f"{size:.1f} {unit}"
         size /= 1024
-    return f"{size:.1f} TB"                          # pragma: no cover - loop
 
 
 def _refuse_if_too_large(n: int, q: int, *, dtype=None, device: str = "cpu"):

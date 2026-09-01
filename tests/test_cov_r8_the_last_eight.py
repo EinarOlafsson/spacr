@@ -35,9 +35,9 @@ class TestTheQueueProtocols:
 
         source = inspect.getsource(F)
         assert "class _QueueSource(Protocol):" in source
-        assert "def get(self, block: bool = True, timeout:" in source
+        assert "get: Callable[..., object]" in source
         assert "class _QueueSink(Protocol):" in source
-        assert "def put_nowait(self, value: object) -> None: ..." in source
+        assert "put_nowait: Callable[[object], None]" in source
 
     def test_a_standard_queue_satisfies_both(self):
         """The check that makes the Protocols worth having: the thing

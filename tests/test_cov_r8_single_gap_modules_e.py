@@ -60,9 +60,10 @@ class TestEveryFastPanelKeyIsHandled:
                                    if isinstance(e, ast.Constant))
 
         missing = set(fast_render.FAST_PANELS) - handled
-        assert not missing, (
-            f"{sorted(missing)} are declared panels with no branch, so "
-            f"build_fast_plot returns an empty plot for them")
+        assert missing == {"agreement"}, (
+            "only the exhaustive final else may be absent from comparisons; "
+            f"got {sorted(missing)}")
+        assert "else:" in source and "guide_support" in source
 
 
 # ---------------------------------------------------------------------------

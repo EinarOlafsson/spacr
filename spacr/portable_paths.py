@@ -55,8 +55,7 @@ def candidate_roots(root: Optional[str]) -> Tuple[str, ...]:
         here = os.path.dirname(here)
     out: List[str] = []
     for _ in range(_MAX_CLIMB + 1):
-        if here and here not in out:
-            out.append(here)
+        out.append(here)
         parent = os.path.dirname(here)
         if parent == here:
             break

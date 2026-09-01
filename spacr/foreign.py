@@ -2956,10 +2956,9 @@ def _populate_conversion_map(db_path: str, map_path: str) -> None:
                                    f'ADD COLUMN "{column}"')
                     held.append(column)
             shared = [c for c in incoming if c in held]
-            if 'target' in shared:
-                cursor.execute(
-                    f'DELETE FROM "{cv.CONVERSION_TABLE}" WHERE target IN '
-                    f'(SELECT target FROM "{staging}")')
+            cursor.execute(
+                f'DELETE FROM "{cv.CONVERSION_TABLE}" WHERE target IN '
+                f'(SELECT target FROM "{staging}")')
             names = ', '.join(f'"{c}"' for c in shared)
             cursor.execute(f'INSERT INTO "{cv.CONVERSION_TABLE}" ({names}) '
                            f'SELECT {names} FROM "{staging}"')

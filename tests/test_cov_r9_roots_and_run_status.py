@@ -135,13 +135,10 @@ class TestClosingTheStatusConnection:
             "a finished run, which is the whole reason it raises")
 
     def test_the_close_is_in_a_finally_and_guarded(self):
-        """Both halves matter: without the ``finally`` a refusal leaks
-        the handle, and without the guard the refusal above -- which
-        happens before ``conn`` is assigned -- would be replaced by an
-        AttributeError on None."""
+        """Only an acquired connection enters the inner ``finally``."""
         source = inspect.getsource(E.read_run_status)
 
-        assert "conn = None" in source
+        opened = source.index("conn = connect(")
         assert "finally:" in source
-        assert "if conn is not None:" in source
-        assert source.index("conn = None") < source.index("finally:")
+        closed = source.index("conn.close()", opened)
+        assert opened < source.index("finally:", opened) < closed

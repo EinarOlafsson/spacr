@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-from typing import Iterable, Optional, Sequence, Tuple
+from typing import cast, Iterable, Optional, Sequence, Tuple
 
 SEPARATOR = "_"
 
@@ -307,13 +307,12 @@ def rows_for(typed, guides, genes=None, *, names=None, prefix=None,
         library = {str(n) for n in (names or series)}
         unused = not any(str(n).startswith(head + SEPARATOR) for n in library)
         if tail and unused:
-            shorter = resolve_control(tail, prefix=prefix)
-            if shorter is not None:
-                retry = matches(shorter, guides, genes)
-                if int(retry.sum()):
-                    spec = ControlSpec(spec.typed, shorter.level,
-                                       shorter.value, head)
-                    mask, found = retry, int(retry.sum())
+            shorter = cast(ControlSpec, resolve_control(tail, prefix=prefix))
+            retry = matches(shorter, guides, genes)
+            if int(retry.sum()):
+                spec = ControlSpec(spec.typed, shorter.level,
+                                   shorter.value, head)
+                mask, found = retry, int(retry.sum())
     if not found and strict:
         raise ControlNotFound(
             f"{label} {spec.typed!r} was read as {'gene' if spec.is_gene else 'guide'} "

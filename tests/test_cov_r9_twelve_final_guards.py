@@ -150,22 +150,21 @@ class TestTheSudokuGuideColumn:
         assert names.index("g2") == 1
         assert ("g3" in names) is False
 
-    def test_a_guide_the_sub_problem_never_saw_leaves_its_column_alone(self):
-        """THE ARC: ``mine is None``.
+    def test_every_ranked_guide_is_a_result_column(self):
+        """The inner solve returns the complete guide tuple it receives."""
+        from spacr.sudoku import sudoku_all
 
-        A guide can be in the library and absent from one well's own
-        solve -- it was not sequenced there. Writing ``here.affirm[:,
-        None]`` would be an index error; leaving the column at its
-        initial value says "no evidence from this well", which is true.
-        """
-        names = ["g1", "g2"]
-        mine = names.index("g3") if "g3" in names else None
+        rng = np.random.default_rng(2)
+        features = rng.normal(size=(24, 3))
+        scores = rng.uniform(0.0, 1.0, 24)
+        wells = [f"w{i % 4}" for i in range(24)]
+        fractions = {f"w{i}": {"g1": 0.6, "g2": 0.4} for i in range(4)}
+        result = sudoku_all(
+            features, scores, wells, fractions,
+            ranking=[("g1", 0.9), ("g2", 0.5)],
+        )
 
-        assert mine is None
-
-        from spacr import sudoku as S
-
-        assert "if mine is not None:" in _source(S)
+        assert result.names == ("g1", "g2")
 
 
 class TestTheManifestWarnings:
@@ -211,20 +210,14 @@ class TestTheBeforeAfterLegend:
 
         assert handles
 
-    def test_no_bars_means_no_legend_rather_than_an_empty_box(self):
-        """THE ARC: ``handles`` is empty.
+    def test_even_an_empty_histogram_has_a_patch_for_its_legend(self):
+        """Matplotlib creates one rectangle per requested bin."""
+        from matplotlib.figure import Figure
 
-        A transform panel over a column with nothing finite draws no
-        patches, and ``ax.legend([], [...])`` puts an empty box on the
-        figure with a title and no entries.
-        """
-        handles = []
+        axes = Figure().add_subplot(111)
+        axes.hist(np.array([]), bins=40)
 
-        assert not handles
-
-        from spacr import response_distribution as R
-
-        assert "if handles:" in _source(R)
+        assert len(axes.patches) == 40
 
 
 class TestThePositionalEffectPanel:

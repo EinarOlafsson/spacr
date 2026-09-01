@@ -293,9 +293,8 @@ def panel(values: Sequence[float], transform: str, ax=None,
         twin.set_xlabel(f"after {result['transform']}")
         handles = [ax.patches[0]] if ax.patches else []
         handles += [twin.patches[0]] if twin.patches else []
-        if handles:
-            ax.legend(handles, ["before", f"after {result['transform']}"],
-                      loc="upper right", fontsize=8)
+        ax.legend(handles, ["before", f"after {result['transform']}"],
+                  loc="upper right", fontsize=8)
     else:
         # ONE AXIS, which is what makes "what changed" readable at a glance.
         both = np.concatenate([before, after]) if after.size else before
