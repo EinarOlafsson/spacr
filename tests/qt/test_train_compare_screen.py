@@ -130,17 +130,27 @@ def test_screen_builds_offscreen_without_raising(qtbot, qt_theme_applied):
     assert w.comparison() is None
 
 
-def test_registration_constants_put_it_in_results_and_qc():
+def test_registration_constants_put_it_where_home_draws_it():
     """``APP_SECTION`` is the SUBJECT, not the staging bucket.
 
     #16i staged this screen into Alpha modules, so for a while this
     asserted ``"Alpha modules"``. That conflates two different axes:
     staging says how finished the app is and moves the day it is signed
-    off, while the subject says what it does and does not. Comparing
-    training runs is reading a result, and this constant says so."""
+    off, while the subject says what it does and does not.
+
+    It said "Results & QC" until the 2026-08-31 restructure, which left
+    Core/Data/Tools/Assays. This screen folds onto Classify, so it takes
+    Core with its host. Asserted against SECTION_ORDER rather than
+    against a literal, because a section Home does not draw is one this
+    screen is silently dropped from.
+    """
+    from spacr.qt.app import SECTION_ORDER
+
     assert APP_KEY == "train_compare"
     assert APP_NAME == "Training Runs"
-    assert APP_SECTION == "Results & QC"
+    assert APP_SECTION == "Core"
+    assert APP_SECTION in SECTION_ORDER, (
+        f"{APP_SECTION!r} is not a section Home draws")
     assert APP_INTRO.strip()
 
 

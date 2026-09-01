@@ -69,7 +69,13 @@ def test_registration_metadata_matches_app_registry():
 
     row = next(item for item in APPS if item[0] == APP_KEY)
     assert row[1] == APP_NAME == "Run History"
-    assert row[3] == APP_SECTION == "Results & QC"
+    # DATA since the 2026-08-31 restructure, which retired Results & QC.
+    # Checked against SECTION_ORDER as well: a section Home does not draw
+    # is one this screen is silently dropped from.
+    from spacr.qt.app import SECTION_ORDER
+
+    assert row[3] == APP_SECTION == "Data"
+    assert APP_SECTION in SECTION_ORDER
     assert APP_INTRO
 
 
