@@ -7085,7 +7085,9 @@ class _RegressionBackendField(QWidget):
             return super().eventFilter(obj, event)
         try:
             view = combo.view()
-        except RuntimeError:                             # pragma: no cover
+        except RuntimeError:
+            # The combo's C++ half has gone. An event filter outlives the
+            # widget it watches, so this is teardown rather than never.
             return super().eventFilter(obj, event)
         viewport = view.viewport() if view is not None else None
         kind = event.type()
@@ -7117,7 +7119,9 @@ class _RegressionBackendField(QWidget):
         """A greyed row under the pointer opens the panel beside it."""
         try:
             position = event.position().toPoint()
-        except AttributeError:                           # pragma: no cover
+        except AttributeError:
+            # `position()` is Qt 6; `pos()` is the Qt 5 spelling. spaCR
+            # is installed against both.
             position = event.pos()
         index = view.indexAt(position)
         if not index.isValid():
