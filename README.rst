@@ -62,21 +62,17 @@ estimates which genes are associated with phenotypic changes. Starting from
 plate images and FASTQ reads, it produces per-object measurements, trained
 classifiers, per-guide and per-gene effect estimates, and a ranked hit list.
 
-For image-based pooled CRISPR screens, spaCR provides the workflow from image
-segmentation through hit prioritization. For high-content microscopy studies
-without sequencing-based screens, the segmentation, measurement, annotation
-and classification modules can be used independently.
+Without a sequencing arm, the segmentation, measurement, annotation and
+classification modules can be used on their own.
 
 Images, masks, crops, measurements, annotations, predictions, barcodes and
 well identifiers live in one SQLite project, so a number in a result can be
 traced back to the object it came from.
 
 Run spaCR as a desktop application or headlessly on a workstation, server or
-cluster. Both drive the same modules, and a GPU is used automatically where a
-module supports it — NVIDIA (CUDA), AMD (ROCm on Linux, Metal on macOS),
-Apple Silicon (Metal) and Intel Arc/Xe (XPU). spaCR picks the device for you
-and falls back to the CPU when there is none; the setup screen and
-``spacr-doctor`` name what was found and say which steps it will be used for.
+cluster; both drive the same modules. A GPU is used automatically where a
+module supports it, and the CPU is the fallback — see `What each
+configuration accelerates`_ for what each vendor's hardware does.
 
 What each configuration accelerates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -382,38 +378,20 @@ which is the usual cause.
 Install from source, without the whole repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plain clone is large: it fetches the full history and writes about
-427 MB of files, of which roughly 76 MB is what it takes to run spaCR.
-The rest is built documentation, the test suite, archived figures and
-Cellpose checkpoints that spaCR downloads on demand anyway.
-
-To fetch only what runs::
+A plain clone writes about 427 MB and fetches the full history. Most of that
+is built documentation, tests, archived figures and Cellpose checkpoints that
+spaCR downloads on demand anyway. To fetch only what runs — a 76 MB tree with
+52 MB of git objects — use::
 
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/main/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh
 
-That produces a 76 MB working tree with about 52 MB of git objects,
-against 427 MB plus the entire history for a full clone. It is a normal
-git checkout: ``git pull`` works, and so does editing the code you just
-installed.
+It is a normal checkout: ``git pull`` and editing work as usual. Options:
+``--dir``, ``--branch``, ``--with-tests``, ``--no-install``, and
+``--with-translations`` for the full translation catalogs — without them the
+interface still translates, from a smaller built-in catalog.
 
-Useful options::
-
-    sh install_spacr.sh --dir ~/code/spacr     # where to put it
-    sh install_spacr.sh --branch v1.5.0.5      # a specific release
-    sh install_spacr.sh --with-translations    # extended UI translations
-    sh install_spacr.sh --with-tests           # the test suite
-    sh install_spacr.sh --no-install           # fetch only, install later
-
-Everything the lean install leaves out is either regenerated on demand or
-absent from the PyPI wheel as well, with one exception: the extended
-translation catalogs. Without them the interface is still translated, from
-a smaller built-in catalog that covers the common interface text; add
-``--with-translations`` for the full set.
-
-If you would rather run the git commands yourself, the script is short and
-the paths it skips are listed with their justifications in
-``packaging/source_install_excludes.txt``.
+``packaging/source_install_excludes.txt`` lists every skipped path and why.
 
 
 Command-line entry points
@@ -462,26 +440,16 @@ Make Masks
 ~~~~~~~~~~
 
 Make Masks appears under **Data** and provides manual correction of
-segmentation masks. Its masthead also provides access to the Cellpose
-workflows. The canvas has nine tools: **Brush**,
-**Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
-**Zoom** and **Recrop**. Draw creates one filled label from a free-form closed
-outline. Divide separates a merged object along a user-defined line while
-preserving all other object labels.
+segmentation masks; its masthead also opens the Cellpose workflows. The canvas
+has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**,
+**Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from
+a closed outline, Divide separates a merged object along a drawn line, and
+Recrop turns one object in a crowded field into a field of its own.
 
-Recrop extracts a single-object field from a staged image containing multiple
-objects. A bounding box around one object writes the corresponding image and
-mask regions as a new field, schedules that field after the current one and
-removes the original multi-object field from the curation queue. Recrop changes
-the active field rather than editing label pixels.
-
-Running Cellpose-SAM from Make Masks displays two intermediate outputs beside
-the mask:
-the **cell-probability map** and the **flow field**. A mask is a threshold on
-the probability map, and flow-consistency checks can reject objects whose
-derived flows differ from the predicted field. Inspect these outputs to
-distinguish low cell probability from inconsistent flow when evaluating an
-incorrect or incomplete mask.
+Running Cellpose-SAM here shows the cell-probability map and the flow field
+beside the mask, which is what distinguishes a low-probability failure from an
+inconsistent-flow one. The `feature guide <docs/source/features.rst>`_
+describes each tool in full.
 
 Objects and settings
 ~~~~~~~~~~~~~~~~~~~~
@@ -572,14 +540,10 @@ The command prints a report and saves a copy under ``~/.spacr/reports``; the
 last line identifies the saved path. ``--quick`` omits the longer benchmarks,
 and ``--out PATH`` selects another output location.
 
-The report does not open a project or read project data. It records import and
-numeric-library timing, display scaling, active preferences, main-window and
-module-screen construction, and animation performance. The report file is the
-only output it creates.
-
-It also identifies processor-architecture emulation, such as an x86_64 Python
-build on Apple Silicon, and the BLAS implementation used by NumPy. Either can
-substantially affect performance.
+It never opens a project or reads project data. It times imports, numeric
+libraries, window construction and animation, and identifies two things that
+quietly cost a lot of performance: processor-architecture emulation, such as an
+x86_64 Python build on Apple Silicon, and the BLAS implementation NumPy found.
 
 Command-line reference
 ----------------------

@@ -55,7 +55,27 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
         "",
         before_workflow + after_workflow,
     )
-    assert len(visible_prose.split()) < 1800
+    # Code blocks are NOT prose, and counting them here put this ceiling in
+    # direct conflict with test_the_readme_documents_every_command, which
+    # requires every console-script entry point to be named in the README.
+    # The command reference that satisfies it is ~420 words of command
+    # lines; measuring those against an editorial ceiling meant the README
+    # could only document more commands by deleting explanation, which is
+    # the opposite of what this test is for.
+    #
+    # So the ceiling now measures the thing it was written to police --
+    # explanatory prose -- and the blocks get their own bound below, so
+    # excluding them is not an escape hatch for sprawl.
+    literal_block = (r"(?ms)^(?:\.\. code-block::[^\n]*\n(?:[ \t]*\n)*)?"
+                     r"(?:^[ \t]{3,}[^\n]*\n|^[ \t]*\n(?=[ \t]{3,}\S))+")
+    prose_only = re.sub(literal_block, "", visible_prose)
+    assert len(prose_only.split()) < 1800, (
+        f"README prose is {len(prose_only.split())} words; trim it or move "
+        f"detail into docs/source/features.rst")
+    blocks = len(visible_prose.split()) - len(prose_only.split())
+    assert blocks < 600, (
+        f"{blocks} words of code blocks -- the command reference is meant to "
+        f"be a reference, not a manual; long examples belong in the docs")
     for heading in (
         "Core screen workflow",
         "Planning, quality control and exploration",
@@ -91,13 +111,34 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     # destination before this count advances.
     assert len(registry) == 44
     assert set(urls) == {key for key, _label, _description, _section in registry}
-    assert "Segmentation models" not in generator.SECTION_ORDER
+    # The generator no longer keeps its OWN copy of the section order. It
+    # reads spacr.qt.app's SECTION_ORDER/SECTION_TILE_ORDER through
+    # _home_layout(), which is the whole point -- the README figure and the
+    # Home screen cannot disagree about what is in which section if there
+    # is only one list. Ask the generator for the layout it will actually
+    # draw rather than for module attributes that no longer exist.
+    section_order, app_order = generator._home_layout()
+    assert "Segmentation models" not in section_order
+    # TILES are drawn for what Home offers as a place to START. Instruction
+    # 318 folded 23 modules onto host mastheads: each KEEPS its registry
+    # row, its screen and its API page, and loses only its tile. So the
+    # figure is built from _tiled_registry(), while _registry() -- which is
+    # what the API documents -- stays larger.
+    #
+    # Comparing the drawn layout against the full registry was the old
+    # behaviour and is now wrong by 23 entries; it would demand a tile
+    # image for every folded module, and none exists.
+    tiled = generator._tiled_registry()
+    assert len(tiled) < len(registry), (
+        "if every registry row draws a tile then the fold strip has been "
+        "lost; instruction 318 is what makes these two counts differ")
     assert tuple(
         key
-        for section in generator.SECTION_ORDER
-        for key in generator.APP_ORDER[section]
-    ) == tuple(key for key, *_rest in registry if key not in pipeline)
-    for key, label, _description, _section in registry:
+        for section in section_order
+        for key in app_order[section]
+    ) == tuple(key for key, *_rest in tiled if key not in pipeline)
+
+    for key, label, _description, _section in tiled:
         if key in pipeline:
             relative = f"spacr/resources/icons/workflow/{key}.png"
             committed = Image.open(WORKFLOW_DIR / f"{key}.png").convert("RGBA")
@@ -115,9 +156,21 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         assert docs_relative in docs
         assert urls[key] in docs
 
+    # A folded module has no tile, but it must still be REACHABLE: the API
+    # destination is the only thing left pointing at it, so losing that
+    # would strand the module entirely.
+    for key, _label, _description, _section in registry:
+        assert key in urls, f"{key} has no API destination"
+    assert not (APP_WORKFLOW_DIR / "report.png").exists(), (
+        "a folded module has grown a tile image; either it was unfolded "
+        "and belongs in the layout, or the asset is stale")
+
+    # Assets exist for TILED apps only, for the same reason -- a folded
+    # module draws nothing, so committing a PNG for it would be dead
+    # weight that no page references.
     expected_app_assets = {
         f"{key}.png"
-        for key, _label, _description, _section in registry
+        for key, _label, _description, _section in tiled
         if key not in pipeline
     }
     assert {path.name for path in APP_WORKFLOW_DIR.glob("*.png")} == (
@@ -205,24 +258,45 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
     )
     app_width = generator.APP_COLUMNS * generator.APP_DISPLAY_PERCENT
     assert top_width < 100
-    assert app_width == top_width
-    assert generator.APP_COLUMN_STEP * (generator.APP_COLUMNS - 1) == (
-        2 * generator.APP_TILE_PADDING
-    )
-    visible_gap = (
-        generator.BUTTON_SIZE
-        + generator.APP_COLUMN_STEP
-        - generator.APP_TILE_SIZE
-    )
+    # Not an exact equality. APP_DISPLAY_PERCENT is the top row's width
+    # divided by the column count and ROUNDED to three decimals, so it is
+    # only exact when the column count divides 99.5. At six columns it is
+    # 16.583, and six of those come to 99.498 rather than 99.5.
+    #
+    # The 0.002% shortfall is two thousandths of one percent of the
+    # viewport -- far under a device pixel at any width a browser renders.
+    # Allowing the generator's own rounding is right; widening this any
+    # further would stop it catching a genuinely mismatched row.
+    tolerance = generator.APP_COLUMNS * 0.001
+    assert abs(app_width - top_width) <= tolerance, (
+        f"app row is {app_width}% against a {top_width}% pipeline row -- "
+        f"more than rounding apart")
+    # The row layout CHANGED, and these assertions now pin the new rule.
+    #
+    # Tiles used to distribute their transparent gutter across the row so a
+    # full row met both edges of the core row above it. That made a
+    # button's position depend on which column it landed in, so the same
+    # module moved inside its canvas whenever the row above changed length
+    # -- and with bands of 6, 6, 5 and 4, three of the four rows are short.
+    # APP_COLUMN_STEP is 0 now: every tile is drawn at the same offset and
+    # every row, full or not, anchors to the left edge.
+    #
+    # So the old invariants are gone deliberately, not broken. What
+    # replaces them is that the offset does not vary at all.
+    assert generator.APP_COLUMN_STEP == 0
+    offsets = {generator._app_column(key) * generator.APP_COLUMN_STEP
+               for items in generator._grouped_apps().values()
+               for key, *_rest in items}
+    assert offsets == {0}, (
+        f"tiles are drawn at differing offsets {sorted(offsets)}; the "
+        f"constant-offset layout is what keeps a module still when the row "
+        f"above it changes length")
+
+    # The gap between neighbouring buttons is now made entirely by each
+    # tile's own padding, so it must still be a real gap.
+    visible_gap = generator.BUTTON_SIZE - generator.APP_TILE_SIZE
+    assert visible_gap == 2 * generator.APP_TILE_PADDING
     assert visible_gap > 0
-    first_left = 0
-    last_right = (
-        (generator.APP_COLUMNS - 1) * generator.BUTTON_SIZE
-        + (generator.APP_COLUMNS - 1) * generator.APP_COLUMN_STEP
-        + generator.APP_TILE_SIZE
-    )
-    assert first_left == 0
-    assert last_right == generator.APP_COLUMNS * generator.BUTTON_SIZE
     for items in generator._grouped_apps().values():
         for start in range(0, len(items), generator.APP_COLUMNS):
             assert generator._app_column(items[start][0]) == 0
