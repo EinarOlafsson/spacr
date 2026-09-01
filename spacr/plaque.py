@@ -155,9 +155,9 @@ def _load_detector(weights: str):
     """Load the YOLO well detector, or say what to install.
 
     Kept separate so the import failure has ONE address and one message.
-    ``ultralytics`` is not a spaCR dependency: it pulls a second full torch
-    stack and most spaCR users never open the plaque module, so requiring it
-    for everyone to serve one screen would be the wrong trade.
+    ``ultralytics`` is an optional spaCR dependency: most users never need
+    well detection, so requiring its detection framework and model download
+    for every installation would be the wrong trade.
     """
     try:
         from ultralytics import YOLO
@@ -165,7 +165,7 @@ def _load_detector(weights: str):
         raise ImportError(
             "Well detection needs the 'ultralytics' package, which spaCR does "
             "not install by default. Install it with:\n"
-            "  pip install ultralytics\n"
+            "  pip install \"spacr[plaque]\"\n"
             "Or run the plaque analysis without well detection, by giving it "
             "images that each hold a single plaque field."
         ) from exc

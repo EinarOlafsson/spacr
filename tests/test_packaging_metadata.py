@@ -1276,8 +1276,8 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "fractal", "tutorial", "trackastra", "ultrack",
-                  "boosting", "czi", "nd2", "lif", "zernike", "btrack",
-                  "anndata")
+                  "boosting", "plaque", "czi", "nd2", "lif", "zernike",
+                  "btrack", "anndata")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"

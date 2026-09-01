@@ -27,7 +27,7 @@ def test_a_missing_well_detector_names_the_optional_dependency(monkeypatch):
     """No detector install must produce an actionable error, not a bare import."""
     monkeypatch.setitem(sys.modules, "ultralytics", None)
 
-    with pytest.raises(ImportError, match="pip install ultralytics") as caught:
+    with pytest.raises(ImportError, match=r'pip install "spacr\[plaque\]"') as caught:
         plaque._load_detector("wells.pt")
 
     assert isinstance(caught.value.__cause__, ImportError)
