@@ -3171,11 +3171,18 @@ FOLDED_APPS: Tuple[str, ...] = ('lineage', 'tabulate')
 
 def _build_lineage(host_window: Optional[QWidget] = None) -> QWidget:
     """Lineage, as the window builds it."""
+    # IMPORTED HERE. This module used `build_registered_screen`
+    # without importing it, so every folded module it hosts raised
+    # NameError the moment its button was pressed.
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("lineage", host_window)
 
 
 def _build_tabulate(host_window: Optional[QWidget] = None) -> QWidget:
     """Tabulate, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("tabulate", host_window)
 
 

@@ -387,11 +387,19 @@ FOLDED_APPS: Tuple[str, ...] = ('plate_view', 'trellis')
 
 def _build_plate_view(host_window: Optional[QWidget] = None) -> QWidget:
     """Plate View, as the window builds it."""
+    # IMPORTED HERE, like `install_fold_strip` below. This module was
+    # calling `build_registered_screen` without importing it at all, so
+    # both folded modules raised NameError the moment their button was
+    # pressed -- reported from the Measure console.
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("plate_view", host_window)
 
 
 def _build_trellis(host_window: Optional[QWidget] = None) -> QWidget:
     """Trellis, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
     return build_registered_screen("trellis", host_window)
 
 
