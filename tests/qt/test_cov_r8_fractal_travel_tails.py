@@ -126,6 +126,14 @@ class TestShutdownRaces:
 
         widget = _Widget()
         F._join_on_destroy(widget, object())
+
+        # ASSERTED. The slot has to be CONNECTED as well as harmless --
+        # "it did not raise" passes just as well against a helper that
+        # connected nothing at all, which is the failure that leaves a
+        # renderer thread running after its widget is gone.
+        assert hasattr(widget.destroyed, "slot"), (
+            "_join_on_destroy connected nothing to `destroyed`")
+
         widget.destroyed.slot()          # must not raise
 
     def test_shutting_down_twice_is_safe(self, gpu_backdrop):
@@ -141,8 +149,19 @@ class TestShutdownRaces:
         shutdown, and so does the harness that tears these down.
         """
         widget = gpu_backdrop("orbit")
+
         widget.shutdown()
         widget.shutdown()               # must not raise
+
+        # ASSERTED on what shutdown is FOR. Destroying a live QThread is
+        # a process-fatal Qt error, so the second call finishing quietly
+        # is only correct if the thread is actually stopped -- and a
+        # shutdown that returned early on both calls would pass without
+        # this.
+        thread = getattr(widget._canvas, "_thread", None)
+        if thread is not None and hasattr(thread, "isRunning"):
+            assert not thread.isRunning(), (
+                "the renderer thread outlived two shutdowns")
 
     def test_the_timer_is_stopped_by_the_first_shutdown(self, gpu_backdrop):
         """Whatever else happens, the animation must not outlive it."""

@@ -138,8 +138,18 @@ class TestShowingASectionByTitle:
         titles = panel.section_titles()
         if not titles:
             pytest.skip("this build has no named sections")
+        # THE SECTION WIDGET is the evidence. `_show_section` sets
+        # visibility on the whole folder -- header included, deliberately
+        # -- so that is what has to follow the flag. Asserting on
+        # `section_titles()` would not: it lists sections whether they are
+        # shown or not.
+        section = panel._folders[titles[0]]
+
         panel._show_section(titles[0], False)
+        assert not section.isVisibleTo(panel), "the section stayed visible"
+
         panel._show_section(titles[0], True)
+        assert section.isVisibleTo(panel), "the section did not come back"
 
     def test_an_unknown_title_falls_back_to_the_database_list(self, qtbot):
         """THE UNCOVERED ARM.
