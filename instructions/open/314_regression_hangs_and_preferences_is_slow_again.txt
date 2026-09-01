@@ -479,3 +479,50 @@ guard, laptop mode, plugin discovery and the screensaver install. One of
 those, or their interaction with a real button press, is where the 5.8 s
 lives. That is where the next attempt should start, and it should start
 by bisecting `run()` rather than by re-testing anything above.
+
+--------------------------------------------------------------------------------
+2026-09-01 (later still) — THE STACK-DUMP ATTEMPT, AND HOW TO MAKE IT WORK
+--------------------------------------------------------------------------------
+
+Step 3 of this instruction says to attach
+`faulthandler.dump_traceback_later` and take the stack while it hangs.
+Attempted; it half worked, and the half that did not is worth writing
+down because it will stop the next attempt in the same place.
+
+  THE BENCHMARK RUNS THE APP IN A CHILD. `_run_worker` does
+  `subprocess.run([sys.executable, "-c", WORKER])`, so a faulthandler
+  armed in the parent only ever catches the parent blocked in
+  `subprocess.communicate`. Twenty-one identical dumps of nothing.
+
+  THE CHILD'S ENVIRONMENT IS REBUILT, and `_worker_environment` sets
+  `PYTHONPATH` to the repo root outright rather than extending it -- so
+  a `sitecustomize.py` on PYTHONPATH does not reach the child either.
+  Putting one at the repo root does, because that IS the child's
+  PYTHONPATH. Remove it afterwards; it is not something to commit.
+
+  THE DUMP FILE MUST BE UNBUFFERED. faulthandler writes to the file
+  descriptor, and a plain `open` held most dumps in memory until exit:
+  three landed out of an expected twenty.
+
+  AND SOMETHING RE-ARMS IT. Even unbuffered at a 1 s interval, only five
+  dumps landed across a ~45 s run. spaCR installs its own fatal-signal
+  handler at launch -- the log line "fatal-signal stacks will be written
+  to ..." -- and arming faulthandler there cancels an externally armed
+  `dump_traceback_later`. THAT is the thing to solve first next time:
+  either have spaCR's own handler leave an existing periodic dump alone,
+  or drive the dump from outside with SIGQUIT.
+
+WHAT THE FIVE DUMPS DID SHOW, none of which is the regression stall:
+two consecutive seconds inside `iconset.reink` / `_load_rgba` during
+HOME construction, and later frames in the ambient renderer's own
+thread. Chasing the icon lead: a cold icon cache costs 1.90 s at
+MainWindow construction against roughly 1.0 s warm, and changes module
+opening not at all -- regression is 0.86 s either way. So icon theming
+is a startup cost worth knowing about and is NOT this defect.
+
+ELEVEN CAUSES NOW ELIMINATED. Added since the last note: the Qt
+translators (`install_qt_translations` returns False here and regression
+stays at 0.82 s), pressing the real sidebar button rather than calling
+the handler (0.85 s), draining the event loop until genuinely idle
+rather than for a fixed number of turns (0.82 s -- so the harness was
+not stopping its clock early), and a cold icon cache (0.86 s).
