@@ -3009,9 +3009,13 @@ def _insert_frame(conn, table, frame):
     values_by_column = []
     for _name, series in frame.items():
         if series.dtype.kind == 'm':
-            # pandas.to_sql deliberately writes NaT as numpy's iNaT sentinel
-            # for unsupported timedelta columns; preserve that compatibility.
-            values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            # pandas writes numpy-backed timedeltas in their native unit, but
+            # normalises Arrow-backed durations to nanoseconds.  Preserve both
+            # behaviours, including numpy's iNaT sentinel for missing values.
+            if isinstance(series.dtype, getattr(pd, 'ArrowDtype', ())):
+                values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            else:
+                values = series.to_numpy().view('i8')
             values_by_column.append(values.astype(object))
         else:
             values_by_column.append(

@@ -241,7 +241,8 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
         'boolean': pd.Series([True, None], dtype='boolean'),
         'text': ['alpha', None],
         'timestamp': [pd.Timestamp('2026-08-14T12:30:00'), pd.NaT],
-        'duration': [pd.Timedelta(seconds=2), pd.NaT],
+        'duration': pd.Series(
+            [pd.Timedelta(seconds=2), pd.NaT], dtype='timedelta64[us]'),
     })
     direct = sqlite3.connect(path)
     reference = sqlite3.connect(':memory:')
@@ -254,6 +255,33 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
         ).fetchall()
         reference_rows = reference.execute(
             'SELECT * FROM values_table ORDER BY integer IS NULL'
+        ).fetchall()
+    finally:
+        direct.close()
+        reference.close()
+
+    assert direct_rows == reference_rows
+
+
+def test_direct_insert_matches_pandas_arrow_timedelta_encoding(tmp_path):
+    """Arrow durations retain pandas' nanosecond-normalisation rule."""
+    pytest.importorskip('pyarrow')
+    path = _fresh_db(tmp_path)
+    frame = pd.DataFrame({
+        'duration': pd.Series(
+            [pd.Timedelta(seconds=2), pd.NaT],
+            dtype='duration[us][pyarrow]',
+        ),
+    })
+    direct = sqlite3.connect(path)
+    reference = sqlite3.connect(':memory:')
+    try:
+        frame.iloc[:0].to_sql('values_table', direct, index=False)
+        _insert_frame(direct, 'values_table', frame)
+        frame.to_sql('values_table', reference, index=False)
+        direct_rows = direct.execute('SELECT * FROM values_table').fetchall()
+        reference_rows = reference.execute(
+            'SELECT * FROM values_table'
         ).fetchall()
     finally:
         direct.close()
