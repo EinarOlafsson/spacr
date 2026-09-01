@@ -33,6 +33,7 @@ APP_WORKFLOW_DIR = WORKFLOW_DIR / "apps"
 FONT_DIR = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
 DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
 DOC_FOLDS = ROOT / "docs" / "source" / "_generated" / "folded_modules.rst"
+HARDWARE_TABLE = ROOT / "docs" / "source" / "_generated" / "hardware_table.rst"
 DOC_WORKFLOW_DIR = ROOT / "docs" / "source" / "_static" / "workflow"
 README_PATHS = (
     ROOT / "README.rst",
@@ -40,6 +41,8 @@ README_PATHS = (
 )
 WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
+HARDWARE_BEGIN = ".. spacr-hardware-begin"
+HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
 INSTALLER_END = ".. spacr-installer-links-end"
 INSTALLER_SUBSTITUTIONS = (
@@ -496,6 +499,175 @@ def _grouped_apps() -> dict[str, list[tuple[str, str]]]:
 _HELP_FROM_ITS_OWN_WIDGET = ("feature_dict",)
 
 
+#: One row per hardware configuration the README describes.
+#:
+#: ``(label, maturity, Accelerator kwargs)``. The kwargs are what the
+#: resolver would have found on that machine, and `capabilities()` is
+#: then asked the real question with that answer in place -- the same
+#: trick `tests/test_the_accelerator_resolver.py` uses to exercise 19
+#: backends on a machine that has one.
+#:
+#: MATURITY IS A SEPARATE CLAIM FROM SUPPORT, and it is why this table
+#: has three colours rather than two. "The code exists" and "somebody ran
+#: it on that hardware" are different things:
+#:
+#:   stable  CUDA. Years of use, and the resolver's own tests assert
+#:           instruction 319 left it unchanged.
+#:   beta    everything else. Metal on an Intel Mac was MEASURED -- 444.5 s
+#:           to 3.2 s for one 256x256 Cellpose image -- but on one machine,
+#:           one day old. ROCm, XPU and Apple Silicon Metal are implemented
+#:           and measured on NOTHING, because no such hardware was here.
+#:
+#: The CPU row is `stable`, deliberately. Everything works without a GPU;
+#: it is only slower. Marking it otherwise would be the most damaging
+#: thing this table could say.
+HARDWARE_ROWS = (
+    ("NVIDIA (CUDA)", "stable",
+     dict(kind="cuda", device="cuda", label="NVIDIA")),
+    ("AMD on Linux (ROCm)", "beta",
+     dict(kind="rocm", device="cuda", label="AMD")),
+    ("AMD in an Intel Mac (Metal)", "beta",
+     dict(kind="mps", device="mps", label="AMD", float64=False)),
+    ("Apple Silicon (Metal)", "beta",
+     dict(kind="mps", device="mps", label="Apple", float64=False)),
+    ("Intel Arc/Xe (XPU)", "beta",
+     dict(kind="xpu", device="xpu", label="Intel", float64=False)),
+    ("No GPU", "stable",
+     dict(kind="cpu", device="cpu", label="CPU")),
+)
+
+#: The tasks the table has a column for, matched against the START of
+#: what `capabilities()` returns so a detail sentence can be reworded
+#: without silently emptying a column.
+HARDWARE_TASKS = (
+    ("Cellpose 4", "Segmentation"),
+    ("Torch", "Model training"),
+    ("UMAP / clustering", "UMAP"),
+)
+
+#: Circles, not colours. An RST colour role emits `<span class="green">`
+#: with NO inline style, and GitHub applies no custom CSS to a README --
+#: so coloured text renders in the body colour and a legend describing it
+#: describes nothing the reader can see. Tested before it was written.
+#: These render identically on GitHub, PyPI, Sphinx and a plain editor.
+GREEN, PURPLE, RED = "\U0001F7E2", "\U0001F7E3", "\U0001F534"
+
+
+def _cell(accelerated: bool, maturity: str, row_has_a_gpu: bool) -> str:
+    """One table cell: the mark, then what it runs on.
+
+    THREE STATES, AND THE THIRD IS THE ONE WORTH GETTING RIGHT.
+
+    A machine WITH a GPU that cannot accelerate a task is RED -- that is
+    what "not supported" means here, and UMAP on Metal is the case: cuML
+    ships for CUDA only, so there is nothing to wait for.
+
+    A machine with NO GPU is GREEN on every row. Its cells say CPU
+    because that is what they use, and marking them red would say spaCR
+    does not support running without a GPU. That is false, and it is the
+    most damaging claim this table could make -- every task runs, every
+    result is identical, only the clock changes.
+    """
+    if not row_has_a_gpu:
+        return f"{GREEN} CPU"
+    if not accelerated:
+        return f"{RED} CPU"
+    return f"{GREEN if maturity == 'stable' else PURPLE} GPU"
+
+
+def _capabilities_for(**kwargs) -> "dict[str, bool]":
+    """``{task: accelerated}`` as `capabilities()` answers for one machine.
+
+    The REAL function, with the resolver's cache holding the accelerator
+    that machine would have found. Asking the real function is the point:
+    a second table of per-task facts here would be free to drift from the
+    one the setup screen and `spacr-doctor` both render.
+    """
+    from spacr import accelerator
+
+    previous = accelerator._CACHED
+    try:
+        accelerator._CACHED = accelerator.Accelerator(**kwargs)
+        return {task: bool(ok) for task, ok, _detail
+                in accelerator.capabilities()}
+    finally:
+        accelerator._CACHED = previous
+
+
+def _hardware_table() -> str:
+    """The README's hardware table, derived rather than typed.
+
+    A ``list-table`` rather than an RST simple table: the cells carry
+    emoji, which are one character to ``len()`` and two columns wide in
+    most renderers, so the ``===`` rules of a simple table would be
+    aligned to the wrong width and the table would not parse. A
+    list-table needs no alignment at all.
+    """
+    header = ["Hardware"] + [name for name, _prefix in HARDWARE_TASKS]
+    rows = []
+    for label, maturity, kwargs in HARDWARE_ROWS:
+        answers = _capabilities_for(**kwargs)
+        has_gpu = kwargs.get("kind") != "cpu"
+        cells = []
+        for _name, prefix in HARDWARE_TASKS:
+            matched = [ok for task, ok in answers.items()
+                       if task.startswith(prefix)]
+            if not matched:
+                raise ValueError(
+                    f"no capability row starts with {prefix!r}; the table "
+                    "and spacr.accelerator.capabilities() have diverged")
+            cells.append(_cell(matched[0], maturity, has_gpu))
+        rows.append([label] + cells)
+
+    lines = [".. list-table::", "   :header-rows: 1", "   :widths: 32 18 18 22",
+             ""]
+    for row in [header] + rows:
+        lines.append(f"   * - {row[0]}")
+        for cell in row[1:]:
+            lines.append(f"     - {cell}")
+    lines += [
+        "",
+        f"{GREEN} supported (stable) \u2003 {PURPLE} implemented (beta) "
+        f"\u2003 {RED} not supported",
+        "",
+        "Every cell is generated from ``spacr.accelerator.capabilities()``",
+        "with that backend's probe faked, so this table, the first setup",
+        "screen and ``spacr-doctor`` cannot disagree.",
+        "",
+        "**No GPU is supported, not broken.** Every task runs on a CPU and",
+        "every result is identical; only the wall clock changes. On the",
+        "machine these were measured on, one 256x256 Cellpose image took",
+        "444.5 s on the CPU and 3.2 s on its Radeon.",
+        "",
+        "*Beta* means implemented and dispatched to, but exercised on one",
+        "machine or none. CUDA is the only configuration with years behind",
+        "it.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def _write_the_hardware_table(path) -> bool:
+    """Replace the marked block in ``path`` with the generated table.
+
+    Between markers rather than appended, for the reason the workflow
+    grid is: a regeneration must be able to REPLACE what it wrote last
+    time, and finding that by content is how a generator ends up with
+    two copies of its own output in the file.
+    """
+    text = path.read_text(encoding="utf-8")
+    start = text.find(HARDWARE_BEGIN)
+    end = text.find(HARDWARE_END)
+    if start < 0 or end < 0:
+        return False
+    end += len(HARDWARE_END)
+    block = f"{HARDWARE_BEGIN}\n\n{_hardware_table()}\n{HARDWARE_END}"
+    updated = text[:start] + block + text[end:]
+    if updated != text:
+        path.write_text(updated, encoding="utf-8")
+    return True
+
+
 def _fold_hosts() -> "dict[str, str]":
     """``{folded key: host key}`` for every module opened from a masthead.
 
@@ -874,6 +1046,11 @@ def main() -> int:
     DOC_WORKFLOW.write_text(_documentation_workflow(), encoding="utf-8")
     print(DOC_WORKFLOW.relative_to(ROOT))
     DOC_FOLDS.write_text(_documentation_folds(), encoding="utf-8")
+    HARDWARE_TABLE.write_text(_hardware_table(), encoding="utf-8")
+    print(HARDWARE_TABLE.relative_to(ROOT))
+    for readme_path in README_PATHS:
+        if _write_the_hardware_table(readme_path):
+            print(readme_path.relative_to(ROOT))
     print(DOC_FOLDS.relative_to(ROOT))
     print(DOC_WORKFLOW.relative_to(ROOT))
     return 0
