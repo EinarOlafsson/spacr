@@ -20,7 +20,7 @@ import pytest
 class TestTheDownsampleFactor:
 
     def test_all_three_copies_lift_the_same_way(self):
-        """THE PIN, for three copies of ``if s != 0``.
+        """THE PIN for the three unconditional translation lifts.
 
         ``s`` is the downsample factor a stage chose for itself, and a
         transform estimated at that scale has its TRANSLATION in
@@ -29,21 +29,21 @@ class TestTheDownsampleFactor:
         column 2 is what that means, and getting it wrong shifts every
         stitched tile by a factor.
 
-        A factor of zero would be a stage that downsampled an image to
-        nothing, so the guard cannot fire; what it protects against is a
-        ZeroDivisionError that would only appear on such an image.
+        A factor of zero either receives the explicit 1.0 floor or makes the
+        earlier feature detector reject its 1x1 image, so no lift sees zero.
         """
         from spacr import spacrops as S
 
         source = inspect.getsource(S)
         lifts = re.findall(
-            r"if s != 0:\s*\n\s*M_full\[0, 2\] /= (?:float\()?s\)?\s*\n"
+            r"M_full\[0, 2\] /= (?:float\()?s\)?\s*\n"
             r"\s*M_full\[1, 2\] /= (?:float\()?s\)?", source)
 
         assert len(lifts) == 3, (
             f"expected three copies of the downsample lift; found "
             f"{len(lifts)}. A copy that stopped matching has either been "
             f"removed or has drifted from the other two")
+        assert "if s != 0:" not in source
 
     def test_only_the_translation_is_lifted(self):
         """The arithmetic itself, which is what the three copies must

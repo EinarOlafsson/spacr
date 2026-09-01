@@ -927,9 +927,8 @@ class spacrStitcher:
     
         # lift DS → full-res
         M_full = M_ds.astype(np.float32).copy()
-        if s != 0:
-            M_full[0, 2] /= s
-            M_full[1, 2] /= s
+        M_full[0, 2] /= s
+        M_full[1, 2] /= s
     
         a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
         c, d, ty = float(M_full[1, 0]), float(M_full[1, 1]), float(M_full[1, 2])
@@ -1967,12 +1966,10 @@ class spacrStitcher:
                 break
 
         # Choose root = node with max degree in MST
-        root = max(nodes, key=lambda p: len(adj[p])) if nodes else None
+        root = max(nodes, key=lambda p: len(adj[p]))
 
         # BFS to compute transforms to root (homogeneous 3x3 to avoid shape bugs)
         T3: Dict[str, np.ndarray] = {}
-        if root is None:
-            return {}, used_edges
         T3[root] = np.eye(3, dtype=np.float32)
         stack = [root]
         visited = set([root])
@@ -2817,9 +2814,8 @@ class StitchedMultiAligner:
     
             # lift to full res
             M_full = M_ds.copy()
-            if s != 0:
-                M_full[0, 2] /= s
-                M_full[1, 2] /= s
+            M_full[0, 2] /= s
+            M_full[1, 2] /= s
     
             a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
             c, d, ty = float(M_full[1, 0]), float(M_full[1, 1]), float(M_full[1, 2])
@@ -3191,8 +3187,7 @@ def stitch_cycle_wells(settings):
                             os.remove(dp)
                         except FileNotFoundError:
                             pass
-                    if os.path.abspath(sp) != os.path.abspath(rp):
-                        shutil.move(sp, rp)
+                    shutil.move(sp, rp)
                 else:
                     # create a symlink into orig_outdir (keep source untouched)
                     target = os.path.realpath(sp)
@@ -3540,9 +3535,8 @@ class FOVAlignAndCropper:
                     # ⇒ A_full = s_known * A_ds ; t_full = t_ds / s
                     M_full = M_ds.astype(np.float32).copy()
                     M_full[:2, :2] *= float(s_known)
-                    if s != 0:
-                        M_full[0, 2] /= float(s)
-                        M_full[1, 2] /= float(s)
+                    M_full[0, 2] /= float(s)
+                    M_full[1, 2] /= float(s)
     
                     # Decompose
                     a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])

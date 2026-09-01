@@ -1,9 +1,9 @@
-"""The downsample factor, written three times and never zero.
+"""The downsample factor cannot reach any of the three translation lifts at zero.
 
 Every stitching transform is estimated on a downsampled pair and then
 lifted back to full resolution by dividing the translation by that
-factor. All three copies guard the division against a zero -- and all
-three are handed the same expression, which cannot produce one.
+factor. The redundant zero guards are removed after pinning the producing
+expressions and the earlier image-resize failure for raw zero settings.
 """
 from __future__ import annotations
 
@@ -19,17 +19,14 @@ from spacr import spacrops as S
 class TestTheDownsampleFactor:
 
     def test_it_is_read_with_a_floor_of_one(self):
-        """THE PIN, for all three ``if s != 0`` copies.
+        """THE PIN for removing the zero guard from the floored lift.
 
         ``s = self.downsample if self.downsample > 0 else 1.0`` -- so a
         zero, a negative or an unset downsample all become 1.0, and the
         divisions below can never divide by zero.
 
-        The guards are right to keep: the lift is
-        ``M_full[0, 2] /= s``, and a zero there is an inf translation
-        that puts a tile at infinity in the mosaic, which draws as a
-        blank canvas rather than an error. But they cannot fire while
-        the floor above them stands, and that is what this holds.
+        The lift is ``M_full[0, 2] /= s``; the floor is what makes that
+        unconditional division safe.
         """
         source = inspect.getsource(S)
         assert "s = self.downsample if self.downsample > 0 else 1.0" in source, (
@@ -43,6 +40,8 @@ class TestTheDownsampleFactor:
 
         for downsample in (0.25, 1.0, 4):
             assert (downsample if downsample > 0 else 1.0) == downsample
+
+        assert "if s != 0:" not in source
 
     def test_all_three_lifts_divide_the_translation_only(self):
         """The rotation and scale are unaffected by the downsample; only
@@ -99,11 +98,8 @@ class TestTheMosaicGraphRoot:
 
         assert root is None
 
-        source = inspect.getsource(S)
-        assert "if root is None:" in source
-        assert "return {}, used_edges" in source
-        root_check = source.index("if root is None:")
-        assert source.index("T3[root] = np.eye(3, dtype=np.float32)") > \
-            root_check, (
-            "the root transform is seeded before the None check, so an "
-            "empty graph now writes a None key")
+        source = inspect.getsource(S.spacrStitcher._compute_mosaic_transforms)
+        assert "if not nodes:" in source
+        assert "return {}, []" in source
+        assert "if root is None:" not in source
+        assert "if nodes else None" not in source

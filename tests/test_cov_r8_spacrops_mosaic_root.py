@@ -80,11 +80,12 @@ class TestTheRootGuardThatCannotFire:
     def test_an_empty_tile_set_is_answered_at_the_top(self, stitcher):
         source = inspect.getsource(stitcher._compute_mosaic_transforms)
         assert "if not nodes:" in source, (
-            "the early empty-node return has gone; the `root is None` guard "
-            "below may now be reachable and wants a test of its own")
+            "the early empty-node return has gone, so max(nodes) can now fail")
         early = source.index("if not nodes:")
         root_line = source.index("root = max(nodes")
         assert early < root_line
+        assert "if root is None:" not in source
+        assert "if nodes else None" not in source
 
     def test_any_row_at_all_puts_two_tiles_in_the_node_set(self, stitcher):
         """So `nodes` is non-empty whenever the early return did not fire.
