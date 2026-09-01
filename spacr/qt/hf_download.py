@@ -588,7 +588,7 @@ class _MeasureExampleWorker(QObject):
                 _download_one(MEASURE_EXAMPLE_REPO, name, target.parent)
 
             self.info.emit("Unpacking the arrays…")
-            self._expand_arrays(root / "merged")
+            expand_measure_arrays(root / "merged")
             self.progress.emit("done", total, total)
             self.finished.emit(True, str(root),
                                str(root / "settings"), "")
@@ -598,36 +598,54 @@ class _MeasureExampleWorker(QObject):
             self.finished.emit(False, "", "", explain_download_failure(e))
 
     def _expand_arrays(self, merged: Path) -> None:
-        """Write each ``.npz`` back out as the ``.npy`` Measure reads.
+        """Deprecated shim: call :func:`expand_measure_arrays`.
 
-        The compression is a TRANSPORT detail -- it halves a 700 MB download
-        -- and Measure loads `.npy`. Converting on arrival keeps that entirely
-        inside the downloader rather than teaching every reader about a second
-        format.
-
-        The ``.npz`` is removed afterwards: keeping both doubles the disk cost
-        of an example dataset for a file nothing will open again.
+        Kept because it is a method on a worker that other code may still hold,
+        but it does no work of its own -- see the module function for why this
+        stopped being a method at all.
         """
-        import numpy as np
+        expand_measure_arrays(merged)
 
-        if not merged.is_dir():
-            return
-        for archive in sorted(merged.glob("*.npz")):
-            target = archive.with_suffix(".npy")
-            if target.is_file():
-                archive.unlink(missing_ok=True)
-                continue
-            try:
-                with np.load(archive) as bundle:
-                    # Written by the publisher under `image`; the first key is
-                    # the fallback so a hand-made archive still loads.
-                    key = "image" if "image" in bundle else bundle.files[0]
-                    np.save(target, bundle[key])
-                archive.unlink(missing_ok=True)
-            except Exception:                                # noqa: BLE001
-                # One bad archive must not cost the other fifteen. It is left
-                # on disk, so what failed is visible rather than merely absent.
-                LOG.warning("could not unpack %s", archive, exc_info=True)
+
+def expand_measure_arrays(merged: Path) -> None:
+    """Write each ``.npz`` back out as the ``.npy`` Measure reads.
+
+    The compression is a TRANSPORT detail -- it halves a 700 MB download -- and
+    Measure loads `.npy`. Converting on arrival keeps that entirely inside the
+    downloader rather than teaching every reader about a second format.
+
+    The ``.npz`` is removed afterwards: keeping both doubles the disk cost of
+    an example dataset for a file nothing will open again.
+
+    A MODULE FUNCTION, NOT A METHOD, and that is the point. `after_extract`
+    runs on the download thread, and reaching this code through
+    ``_MeasureExampleWorker(dest)._expand_arrays(...)`` CONSTRUCTED a QObject
+    there purely to borrow a helper. `thread_guard` reported it exactly as it
+    should have: the object then lived on 'Dummy-6' and every later touch from
+    the GUI thread was illegal. Nothing in here ever read ``self``, so there
+    was never an object to need.
+    """
+    import numpy as np
+
+
+    if not merged.is_dir():
+        return
+    for archive in sorted(merged.glob("*.npz")):
+        target = archive.with_suffix(".npy")
+        if target.is_file():
+            archive.unlink(missing_ok=True)
+            continue
+        try:
+            with np.load(archive) as bundle:
+                # Written by the publisher under `image`; the first key is
+                # the fallback so a hand-made archive still loads.
+                key = "image" if "image" in bundle else bundle.files[0]
+                np.save(target, bundle[key])
+            archive.unlink(missing_ok=True)
+        except Exception:                                # noqa: BLE001
+            # One bad archive must not cost the other fifteen. It is left
+            # on disk, so what failed is visible rather than merely absent.
+            LOG.warning("could not unpack %s", archive, exc_info=True)
 
 
 #: The single archive each example repo ships, keyed by repo.
@@ -888,7 +906,8 @@ class _MeasureTarWorker(_TarExampleWorker):
         Measure loads `.npy`. Converting here keeps the second format entirely
         inside the downloader rather than teaching every reader about it.
         """
-        _MeasureExampleWorker(dest)._expand_arrays(Path(dest) / "merged")
+        # No worker is constructed: see expand_measure_arrays.
+        expand_measure_arrays(Path(dest) / "merged")
 
 
 class _AnnotateTarWorker(_TarExampleWorker):
