@@ -168,6 +168,9 @@ tutorial_colab.ipynb
 #do not include docs
 /docs/*
 !/docs/flowview.md
+# Instruction 336's consumer map is committed on purpose: the next audit
+# is meant to be a diff rather than a rerun of the generator.
+!/docs/setting_consumers.json
 !/docs/source/
 !/docs/i18n/
 !/docs/i18n/**
