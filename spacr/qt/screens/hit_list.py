@@ -554,14 +554,18 @@ class HitListScreen(QWidget):
         if path:
             self.export(path, fmt)
 
-    def _on_export_csv(self) -> None:                # pragma: no cover - modal
+    # MODAL IS A REASON NOT TO OPEN ONE IN A TEST, not a reason to leave
+    # these untested: everything that matters happens after the dialog
+    # returns. Driven by stubbing the Qt static, in
+    # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
+    def _on_export_csv(self) -> None:
         self._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
 
-    def _on_export_markdown(self) -> None:           # pragma: no cover - modal
+    def _on_export_markdown(self) -> None:
         self._ask_and_export("markdown", "Export hit list",
                              "Markdown (*.md)")
 
-    def _on_export_html(self) -> None:               # pragma: no cover - modal
+    def _on_export_html(self) -> None:
         self._ask_and_export("html", "Export hit list", "HTML (*.html)")
 
     def _on_investigate_selected(self) -> None:
@@ -595,14 +599,14 @@ class HitListScreen(QWidget):
         """Load whatever was typed into the folder box."""
         self.load_folder(self._folder_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a results folder and load it."""
         chosen = QFileDialog.getExistingDirectory(
             self, "Choose a regression results folder")
         if chosen:
             self.load_folder(chosen)
 
-    def _on_pick_metadata(self) -> None:             # pragma: no cover - modal
+    def _on_pick_metadata(self) -> None:
         """Ask for annotation CSVs and rebuild with them."""
         paths, _ = QFileDialog.getOpenFileNames(
             self, "Choose gene metadata CSVs", "", "CSV (*.csv)")
