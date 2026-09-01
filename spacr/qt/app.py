@@ -4331,8 +4331,16 @@ class MainWindow(QMainWindow):
             # looking at a module that says it is preparing, rather than at
             # the old screen doing nothing.
             #
-            # The build already yields to the event loop on a 25 ms
-            # deadline, so this card animates while the widgets are made.
+            # THE BUILD DOES NOT YIELD. This comment used to claim it
+            # "yields to the event loop on a 25 ms deadline, so this card
+            # animates while the widgets are made", and there is no such
+            # mechanism here: the `processEvents` in `_show_preparing` is
+            # a single paint BEFORE the work, and `_build_screen` then
+            # runs to completion. The card is drawn once and then sits
+            # still, which is better than the old screen sitting still
+            # but is not what was written. Corrected 2026-09-01 while
+            # measuring instruction 314, because a false comment is worse
+            # than no comment when someone is hunting a stall.
             card = self._show_preparing(key)
             try:
                 self._screens[key] = self._build_screen(key)
