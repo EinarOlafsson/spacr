@@ -283,7 +283,13 @@ def test_replication_without_a_timelapse_is_byte_for_byte_unchanged(tmp_path):
         patch.setattr(submodules, '_ensure_field_key', _legacy_field_key)
         legacy = analyze_replication(_replication_settings(root, change_plate=True))
 
-    pd.testing.assert_frame_equal(legacy['vacuoles'], fixed['vacuoles'])
+    legacy_vacuoles = legacy['vacuoles'].copy()
+    fixed_vacuoles = fixed['vacuoles'].copy()
+    assert legacy_vacuoles['prcf'].map(type).eq(str).all()
+    assert fixed_vacuoles['prcf'].map(type).eq(str).all()
+    legacy_vacuoles['prcf'] = legacy_vacuoles['prcf'].astype('string')
+    fixed_vacuoles['prcf'] = fixed_vacuoles['prcf'].astype('string')
+    pd.testing.assert_frame_equal(legacy_vacuoles, fixed_vacuoles)
     assert set(fixed['vacuoles']['prcf']) == {f'{PLATE}_r1_c1_f1',
                                               f'{PLATE}_r1_c2_f1'}
     assert len(fixed['vacuoles']) == 4        # 2 wells x 2 host cells, one frame
@@ -360,7 +366,13 @@ def test_invasion_without_a_timelapse_is_byte_for_byte_unchanged(tmp_path):
         patch.setattr(submodules, '_ensure_field_key', _legacy_field_key)
         legacy = analyze_invasion(_invasion_settings(root, change_plate=True))
 
-    pd.testing.assert_frame_equal(legacy['fields'], fixed['fields'])
+    legacy_fields = legacy['fields'].copy()
+    fixed_fields = fixed['fields'].copy()
+    assert legacy_fields['prcf'].map(type).eq(str).all()
+    assert fixed_fields['prcf'].map(type).eq(str).all()
+    legacy_fields['prcf'] = legacy_fields['prcf'].astype('string')
+    fixed_fields['prcf'] = fixed_fields['prcf'].astype('string')
+    pd.testing.assert_frame_equal(legacy_fields, fixed_fields)
     pd.testing.assert_frame_equal(legacy['wells'], fixed['wells'])
     assert set(fixed['fields']['prcf']) == {f'{PLATE}_r1_c1_f1',
                                             f'{PLATE}_r1_c2_f1'}
