@@ -204,16 +204,61 @@ def png_list_frame(selection: pd.DataFrame, paths: Sequence[str]) -> pd.DataFram
     return out[list(PNG_LIST_COLUMNS)]
 
 
+def reserve_png_table(db_path: str) -> str:
+    """Claim the next free table name by creating it, empty.
+
+    RESERVED BEFORE THE CROPS ARE CUT, not after, so the folder they are
+    written into can be named to match: `png_list_2` gets `data_2`. Deriving
+    the folder from the table is what makes a set on disk traceable to the set
+    in the database -- with two independent counters they drift the first time
+    either is deleted, and then nothing says which folder a table describes.
+
+    Creating the table is what reserves it: two runs started together would
+    otherwise choose the same name, and the second would fail on insert after
+    it had already written a folder full of crops.
+
+    :param db_path: the measurements database.
+    :returns: the reserved table name.
+    """
+    connection = sqlite3.connect(str(db_path), isolation_level=None)
+    try:
+        connection.execute("BEGIN IMMEDIATE")
+        name = next_png_table(connection)
+        columns = ", ".join(f'"{c}"' for c in PNG_LIST_COLUMNS)
+        connection.execute(f'CREATE TABLE "{name}" ({columns})')
+        connection.execute("COMMIT")
+    except Exception:
+        try:
+            connection.execute("ROLLBACK")
+        except sqlite3.Error:
+            pass
+        raise
+    finally:
+        connection.close()
+    return name
+
+
+def crops_folder_for(table: str) -> str:
+    """The crop folder that belongs to ``table``.
+
+    ``png_list`` -> ``data``; ``png_list_2`` -> ``data_2``. The suffix is
+    carried across rather than counted again, so the pair cannot drift.
+    """
+    suffix = str(table)[len(PNG_TABLE_BASE):]
+    return "data" + suffix
+
+
 def write_png_list(db_path: str, frame: pd.DataFrame, *,
                    table: Optional[str] = None) -> str:
     """Write an annotation set into the measurements database.
 
     The name is chosen and the table created inside ONE transaction, so two
-    runs started together cannot pick the same one.
+    runs started together cannot pick the same one. A caller that already
+    reserved a name with :func:`reserve_png_table` passes it as ``table``.
 
     :param db_path: the measurements database.
     :param frame: rows as :func:`png_list_frame` builds them.
-    :param table: force a name, for a caller that already chose one.
+    :param table: a name already reserved.
     :returns: the table actually written.
     """
     connection = sqlite3.connect(str(db_path), isolation_level=None)
@@ -221,7 +266,8 @@ def write_png_list(db_path: str, frame: pd.DataFrame, *,
         connection.execute("BEGIN IMMEDIATE")
         name = table or next_png_table(connection)
         columns = ", ".join(f'"{c}"' for c in PNG_LIST_COLUMNS)
-        connection.execute(f'CREATE TABLE "{name}" ({columns})')
+        if table is None:
+            connection.execute(f'CREATE TABLE "{name}" ({columns})')
         placeholders = ", ".join("?" for _ in PNG_LIST_COLUMNS)
         connection.executemany(
             f'INSERT INTO "{name}" ({columns}) VALUES ({placeholders})',
@@ -257,8 +303,25 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
     merged = str(settings.get("merged_folder") or os.path.join(src, "merged"))
     database = str(settings.get("database")
                    or os.path.join(src, "measurements", "measurements.db"))
-    destination = str(settings.get("dst") or os.path.join(src, "annotation"))
     object_type = str(settings.get("object_array") or "cell")
+
+    # THE TABLE NAME IS CLAIMED FIRST, and the crop folder is named after it.
+    # `png_list` gets `data`, `png_list_2` gets `data_2` -- so a folder on
+    # disk says which table describes it. Two independent counters would
+    # drift the first time either was deleted.
+    table = str(settings.get("table") or "")
+    if not table:
+        try:
+            table = reserve_png_table(database)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not reserve a png_list table in %s", database,
+                        exc_info=True)
+            return {"written": 0, "missing": 0, "fields": 0, "folders": [],
+                    "table": "",
+                    "trouble": [f"could not open {database} to reserve a "
+                                f"table for this set"]}
+    destination = str(settings.get("dst")
+                      or os.path.join(src, crops_folder_for(table)))
 
     objects = None
     if source == "database":
@@ -279,7 +342,8 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
     if not len(selection):
         return {"written": 0, "missing": 0, "fields": 0, "folders": [],
                 "table": "", "selection": selection_path,
-                "trouble": ["every object was filtered out"]}
+                "trouble": ["every object was filtered out; the reserved "
+                            f"table {table} is empty"]}
 
     written: List[str] = []
 
@@ -312,9 +376,14 @@ def generate_annotation_dataset(settings: Mapping[str, Any]) -> Dict[str, Any]:
 
     if written:
         frame = png_list_frame(selection.head(len(written)), written)
-        report["table"] = write_png_list(database, frame)
+        report["table"] = write_png_list(database, frame, table=table)
     else:
+        # The reserved table stays, empty, rather than being dropped: it is
+        # the record that this name is spoken for, and dropping it would let
+        # a later run reuse a name whose folder is already on disk.
         report["table"] = ""
+        report.setdefault("trouble", []).append(
+            f"nothing was written; the reserved table {table} is empty")
     return report
 
 

@@ -1583,17 +1583,84 @@ class _SettingsDialog(QDialog):
         """
         from pathlib import Path
 
-        database = Path(destination) / "measurements.db"
+        destination = Path(destination)
+        database = destination / "measurements.db"
         source = str(database if database.is_file() else destination)
         self._src_edit.setText(source)
-        # `infected`, NOT `annotate`. The published set is labelled by a rule
-        # -- a cell is infected exactly when the pathogen table names it as a
-        # parent -- and that column is what Classify is meant to train on.
-        # `annotate` is deliberately empty, so opening on it would show 2,341
-        # unlabelled crops and none of the labels the example exists to carry.
+        # AND THE SETTINGS THAT CAME WITH IT. The dataset ships an
+        # `annotate_settings.csv` describing which column holds the labels,
+        # what size the crops are and which channels they carry -- and a user
+        # who has to work that out first has done most of the work the example
+        # was meant to save.
+        self._apply_example_settings(destination / "settings"
+                                     / "annotate_settings.csv")
+        # `infected`, NOT `annotate`, when the file did not say. The published
+        # set is labelled by a rule -- a cell is infected exactly when the
+        # pathogen table names it as a parent -- and `annotate` is
+        # deliberately empty, so opening on it would show 2,341 unlabelled
+        # crops and none of the labels the example exists to carry.
         if hasattr(self, "_ann_col") and not self._ann_col.text().strip():
             self._ann_col.setText("infected")
         return source
+
+    #: Settings keys the dialog can fill in, and the widget each one drives.
+    #:
+    #: Named rather than derived: the dialog holds far more widgets than the
+    #: published file sets, and a loop over every attribute would quietly pick
+    #: up whichever ones happened to share a name.
+    _EXAMPLE_SETTING_WIDGETS = {
+        "annotation_column": "_ann_col",
+        "image_size": "_img_size",
+        "channels": "_channels",
+        "image_type": "_image_type",
+        "measurement": "_measurement",
+        "threshold": "_threshold",
+        "normalize_channels": "_norm_channels",
+        "outline": "_outline",
+    }
+
+    def _apply_example_settings(self, path) -> int:
+        """Fill the form from a settings CSV that shipped with a dataset.
+
+        Each field independently: one unusable value must not cost the rest of
+        the form, which is the whole reason a settings file is worth shipping.
+
+        :returns: how many fields were set.
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        if not path.is_file():
+            return 0
+        try:
+            with path.open(newline="") as handle:
+                rows = {str(row[0]).strip(): str(row[1]).strip()
+                        for row in csv.reader(handle)
+                        if len(row) >= 2 and row[0] != "Key"}
+        except OSError:
+            LOG.debug("could not read %s", path, exc_info=True)
+            return 0
+
+        applied = 0
+        for key, attribute in self._EXAMPLE_SETTING_WIDGETS.items():
+            value = rows.get(key)
+            widget = getattr(self, attribute, None)
+            if widget is None or value in (None, "", "None"):
+                continue
+            try:
+                if hasattr(widget, "setValue"):
+                    widget.setValue(int(float(value)))
+                elif hasattr(widget, "setCurrentText"):
+                    widget.setCurrentText(value)
+                else:
+                    widget.setText(value)
+                applied += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("example settings: %r is not usable for %s",
+                          value, key, exc_info=True)
+        LOG.info("applied %d settings from %s", applied, path)
+        return applied
 
     def _pick_src(self):
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
