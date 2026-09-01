@@ -213,3 +213,90 @@ def test_the_input_is_not_modified():
 
 def test_filtering_everything_out_is_allowed():
     assert len(filter_selection(_selection(), {"cell_min_size": 10 ** 9})) == 0
+
+
+# ---------------------------------------------------------------------------
+# The crop folder is named after the table it belongs to
+# ---------------------------------------------------------------------------
+#
+# `png_list` gets `data`, `png_list_2` gets `data_2`. Two independent counters
+# would drift the first time either was deleted, and then nothing on disk would
+# say which folder a table describes.
+
+
+def test_the_folder_carries_the_tables_suffix():
+    from spacr.annotation_dataset import crops_folder_for
+
+    assert crops_folder_for("png_list") == "data"
+    assert crops_folder_for("png_list_2") == "data_2"
+    assert crops_folder_for("png_list_11") == "data_11"
+
+
+def test_reserving_claims_the_name(tmp_path):
+    from spacr.annotation_dataset import next_png_table, reserve_png_table
+
+    path = _db(tmp_path)
+    assert reserve_png_table(str(path)) == "png_list"
+
+    connection = sqlite3.connect(path)
+    assert next_png_table(connection) == "png_list_2", (
+        "the reserved name was not actually taken")
+
+
+def test_two_reservations_never_collide(tmp_path):
+    """Two runs started together would otherwise write a folder each and then
+    fight over one table."""
+    from spacr.annotation_dataset import reserve_png_table
+
+    path = str(_db(tmp_path))
+    names = [reserve_png_table(path) for _ in range(3)]
+    assert names == ["png_list", "png_list_2", "png_list_3"]
+    assert len(set(names)) == 3
+
+
+def test_a_reserved_table_starts_empty_with_the_right_columns(tmp_path):
+    from spacr.annotation_dataset import reserve_png_table
+
+    path = _db(tmp_path)
+    name = reserve_png_table(str(path))
+    connection = sqlite3.connect(path)
+    assert connection.execute(f'select count(*) from "{name}"').fetchone()[0] == 0
+    assert [r[1] for r in connection.execute(f'PRAGMA table_info("{name}")')] \
+        == list(PNG_LIST_COLUMNS)
+
+
+def test_filling_a_reserved_table_does_not_recreate_it(tmp_path):
+    from spacr.annotation_dataset import reserve_png_table
+
+    path = str(_db(tmp_path))
+    name = reserve_png_table(path)
+    assert write_png_list(path, _frame(2), table=name) == name
+
+    connection = sqlite3.connect(path)
+    assert connection.execute(f'select count(*) from "{name}"').fetchone()[0] == 2
+
+
+def test_the_generator_pairs_the_folder_with_the_table(tmp_path):
+    """The claim, end to end: a second set lands in data_2 beside png_list_2."""
+    import numpy as np
+
+    from spacr.annotation_dataset import generate_annotation_dataset
+
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    (tmp_path / "measurements").mkdir()
+    sqlite3.connect(tmp_path / "measurements" / "measurements.db").close()
+    stack = np.zeros((24, 24, 4), dtype=np.uint16)
+    stack[4:10, 4:10, 0] = 800
+    stack[4:10, 4:10, 3] = 1
+    np.save(merged / "plate1_A01_1_1.npy", stack)
+
+    settings = {"src": str(tmp_path), "stream_source": "array",
+                "object_array": "cell", "channel_arrays": [0, 1, 2]}
+    first = generate_annotation_dataset(dict(settings))
+    second = generate_annotation_dataset(dict(settings))
+
+    assert (first["table"], second["table"]) == ("png_list", "png_list_2")
+    assert (tmp_path / "data").is_dir()
+    assert (tmp_path / "data_2").is_dir(), (
+        "the second set overwrote the first, or landed somewhere unrelated")
