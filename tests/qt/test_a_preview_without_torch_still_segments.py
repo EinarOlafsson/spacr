@@ -58,10 +58,26 @@ def test_a_cuda_check_that_raises_still_lands_on_the_cpu(fake_cellpose,
     """
     import torch
 
+    import spacr.accelerator as accelerator
+
     def _explode():
         raise RuntimeError("no CUDA driver on this machine")
 
     monkeypatch.setattr(torch.cuda, "is_available", _explode)
+
+    # THE CACHE HAS TO BE CLEARED FIRST, and that is not incidental.
+    #
+    # `resolve()` caches, and tests/conftest.py restores the session's
+    # real verdict after every test so one test's fake machine cannot
+    # leak into the next. On a machine that HAS a GPU that warm cache is
+    # returned before torch is consulted at all, so the raising
+    # is_available above is never reached -- this test passed alone,
+    # where nothing had warmed the cache yet, and failed in a full run.
+    #
+    # Clearing it is what makes the probe happen. monkeypatch restores
+    # the attribute, and the autouse fixture puts the real verdict back
+    # afterwards either way.
+    monkeypatch.setattr(accelerator, "_CACHED", None, raising=False)
 
     _build()
 
