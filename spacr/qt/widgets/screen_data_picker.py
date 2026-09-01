@@ -31,24 +31,48 @@ __all__ = ["ScreenDataPicker", "choose_screen_data"]
 class ScreenDataPicker(QDialog):
     """A checkable list of screen pieces, each with its size."""
 
-    def __init__(self, folder=None, parent=None):
+    #: What each kind costs the user, said before the list rather than after.
+    ADVICE = {
+        "measurements": (
+            "These are the measurement databases — what the measurement and "
+            "cell functions actually read.\n\n"
+            "About 0.5 GB per plate. Take only the plates you mean to work "
+            "on; they are not needed together."),
+        "crops": (
+            "These are the object crops, and they are LARGE: about 8 GB per "
+            "plate, roughly 30 GB for the whole screen.\n\n"
+            "They are only needed to DISPLAY images. Every measurement and "
+            "cell function reads the database instead, so if you are testing "
+            "those, take the Feature download and none of this."),
+        None: (
+            "Choose what to download. Each piece is fetched on its own, so "
+            "nothing is transferred that is not ticked.\n\n"
+            "The measurement and cell functions read the DATABASES; the crop "
+            "folders are only needed to display images."),
+    }
+
+    def __init__(self, folder=None, parent=None, kind=None):
         super().__init__(parent)
         self.setWindowTitle("Download screen data")
         self.setMinimumWidth(520)
         self._folder = folder
+        self._kind = kind
         outer = QVBoxLayout(self)
 
-        outer.addWidget(QLabel(
-            "Choose what to download. Each piece is fetched on its own, so "
-            "nothing is transferred that is not ticked.\n\n"
-            "The measurement and cell functions read the DATABASES; the crop "
-            "folders are only needed to display images."))
+        advice = QLabel(self.ADVICE.get(kind, self.ADVICE[None]))
+        advice.setWordWrap(True)
+        outer.addWidget(advice)
 
         self._list = QListWidget(self)
         # A tick and a highlight say the same thing, which is what makes the
         # selection legible at a glance rather than only on close inspection.
         self._list.setSelectionMode(QListWidget.MultiSelection)
         for asset in SCREEN_ASSETS:
+            if kind is not None and asset.kind != kind:
+                # Filtered rather than greyed: a Feature download that listed
+                # eight rows and refused four of them would be four chances to
+                # start a 30 GB transfer by mistake.
+                continue
             item = QListWidgetItem(self._text_for(asset))
             item.setData(Qt.UserRole, asset)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
@@ -66,12 +90,13 @@ class ScreenDataPicker(QDialog):
         outer.addWidget(self._list, 1)
 
         buttons_row = QHBoxLayout()
-        for label, kind in (("All databases", "measurements"),
-                            ("All crops", "crops"),
-                            ("Clear", None)):
+        quick_picks = ((("All", kind), ("Clear", None)) if kind is not None
+                       else (("All databases", "measurements"),
+                             ("All crops", "crops"), ("Clear", None)))
+        for label, which in quick_picks:
             quick = QPushButton(label, self)
             quick.clicked.connect(
-                lambda _checked=False, _k=kind: self._tick_kind(_k))
+                lambda _checked=False, _k=which: self._tick_kind(_k))
             buttons_row.addWidget(quick)
         buttons_row.addStretch(1)
         outer.addLayout(buttons_row)
@@ -145,12 +170,15 @@ class ScreenDataPicker(QDialog):
                 if item.checkState() == Qt.Checked]
 
 
-def choose_screen_data(parent=None, folder=None) -> List[ScreenAsset]:
+def choose_screen_data(parent=None, folder=None,
+                       kind: Optional[str] = None) -> List[ScreenAsset]:
     """Ask which pieces to download.
 
+    :param kind: show only this kind, so a Feature download cannot start a
+        30 GB crop transfer by a mis-click.
     :returns: the chosen pieces, empty when the dialog was cancelled.
     """
-    dialog = ScreenDataPicker(folder=folder, parent=parent)
+    dialog = ScreenDataPicker(folder=folder, parent=parent, kind=kind)
     if dialog.exec() != QDialog.Accepted:
         return []
     return dialog.chosen()

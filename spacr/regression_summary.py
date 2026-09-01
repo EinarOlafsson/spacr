@@ -127,7 +127,7 @@ CONTRACT: Dict[str, Tuple[str, ...]] = {
         "positive_rank", "positive_percentile",
     ),
     "excluded": (
-        "min_cell_count", "fraction_threshold", "missing_metadata",
+        "min_cell_count", "exclude_grnas", "fraction_threshold", "missing_metadata",
         "rows_not_fitted", "untested_coefficients", "below_effect_size",
     ),
 }
@@ -183,6 +183,7 @@ LABELS: Dict[Tuple[str, str], str] = {
     ("call", "positive_rank"): "positive control rank",
     ("call", "positive_percentile"): "positive control percentile",
     ("excluded", "min_cell_count"): "min_cell_count",
+    ("excluded", "exclude_grnas"): "pre-fraction exclusions",
     ("excluded", "fraction_threshold"): "fraction_threshold",
     ("excluded", "missing_metadata"): "unpaired / missing metadata",
     ("excluded", "rows_not_fitted"): "rows not fitted",
@@ -1755,6 +1756,45 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
         add("min_cell_count",
             value=f"wells with fewer than {minimum:,} objects were dropped "
                   f"before aggregation; {_NOT_RECORDED}")
+
+    # A KNOWN CONTAMINANT MUST LEAVE BEFORE THE FRACTION DENOMINATOR. Merely
+    # echoing the setting cannot establish that it matched anything, and a
+    # misspelling that removed zero rows is exactly the failure this audit is
+    # meant to expose. ``process_reads`` records both the resolved guide names
+    # and unmatched requests at the raw-count boundary, before well totals.
+    requested = _setting(settings, "exclude_grnas")
+    if not requested:
+        add("exclude_grnas",
+            value="not set, so no guide was removed before well totals")
+    else:
+        recorded = _setting(settings, "_regression_exclusions") or {}
+        dropped = _exclusion_count(settings, "exclude_grnas")
+        outof = _exclusion_count(settings, "exclude_grnas_of")
+        resolved = [str(value) for value in
+                    (recorded.get("exclude_grnas_guides") or [])]
+        unmatched = [str(value) for value in
+                     (recorded.get("exclude_grnas_unmatched") or [])]
+        if dropped is None:
+            add("exclude_grnas",
+                value=(f"{requested!r} was requested, but this run predates "
+                       "the raw-count exclusion audit; whether it matched "
+                       "and left before well totals cannot be verified"))
+        else:
+            denominator = (f" of {outof:,}" if outof is not None else "")
+            guide_text = (", ".join(resolved[:8])
+                          + (" ..." if len(resolved) > 8 else ""))
+            value = (f"{dropped:,}{denominator} raw count rows spanning "
+                     f"{len(resolved):,} guide(s) were removed before well "
+                     f"totals and fractions")
+            if guide_text:
+                value += f": {guide_text}"
+            if unmatched:
+                missing = (", ".join(unmatched[:8])
+                           + (" ..." if len(unmatched) > 8 else ""))
+                value += (f" -- warning: {len(unmatched):,} requested "
+                          f"identifier(s) matched nothing: {missing}")
+            add("exclude_grnas", value=value)
+
     fraction = _setting(settings, "fraction_threshold")
     if fraction is None:
         add("fraction_threshold",
