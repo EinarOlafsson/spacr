@@ -199,6 +199,7 @@ def test_a_horseshoe_fit_that_did_not_converge_says_so(capsys):
     assert results.converged is False
     assert list(results.params.index) == ['g1', 'g2']
     assert results.pvalues['g1'] == pytest.approx(0.02)
+    assert results.summary() is estimates
 
 
 def test_the_rra_summary_is_the_per_gene_table():
