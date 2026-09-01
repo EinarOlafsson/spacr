@@ -664,7 +664,7 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
         }
 
     preds = prob_mat.argmax(axis=1)
-    acc = (preds == y_true).mean() if len(y_true) else np.nan
+    acc = (preds == y_true).mean()
 
     # Per-class (diagonal / row sum)
     cm = confusion_matrix(y_true, preds, labels=np.arange(prob_mat.shape[1]))
@@ -679,8 +679,7 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     # Average precision macro (one-vs-rest)
     # Build one-hot y_true
     y_true_oh = np.zeros((len(y_true), C), dtype=int)
-    if len(y_true):
-        y_true_oh[np.arange(len(y_true)), y_true] = 1
+    y_true_oh[np.arange(len(y_true)), y_true] = 1
     try:
         ap_macro = average_precision_score(y_true_oh, prob_mat, average="macro")
     except Exception as e:
@@ -3016,13 +3015,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             scheduler.step()
 
         # Save rolling CSVs
-        if accumulated_train_dicts and accumulated_val_dicts:
+        if accumulated_val_dicts:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts),
                            pd.DataFrame(accumulated_val_dicts))
-            accumulated_train_dicts, accumulated_val_dicts = [], []
-        elif accumulated_train_dicts:
+        else:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
-            accumulated_train_dicts = []
+        accumulated_train_dicts, accumulated_val_dicts = [], []
         # pass val_dict to _save_model so checkpoint decisions use validation accuracy
         will_stop = (
             early_stopping_patience > 0
@@ -3252,7 +3250,7 @@ def generate_activation_map(settings):
             smoothgrad_sigma=settings['smoothgrad_sigma'])
     elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
         cam_generator = GradCAMGenerator(model, target_layer=settings['target_layer'], cam_type=settings['cam_type'])
-    elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
+    else:
         cam_generator = SaliencyMapGenerator(model)
 
     time_ls = []
@@ -3266,7 +3264,7 @@ def generate_activation_map(settings):
             activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
         elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
             activation_maps, predicted_classes = cam_generator.compute_gradcam_and_predictions(inputs)
-        elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
+        else:
             activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
 
         # Move activation maps to CPU
@@ -3313,7 +3311,7 @@ def generate_activation_map(settings):
                 activation_map = (activation_map * 255).astype(np.uint8)
                 activation_image = Image.fromarray(activation_map, mode='L')
 
-            elif settings['cam_type'] == 'saliency_channel':
+            else:
                 # Handle each channel separately and save as RGB
                 rgb_activation_map = np.zeros((activation_map.shape[1], activation_map.shape[2], 3), dtype=np.uint8)
                 for c in range(min(activation_map.shape[0], 3)):  # Limit to 3 channels for RGB
@@ -3456,9 +3454,8 @@ def analyze_activation_maps(model, images, methods=None, *, masks=None,
                 sanity[name] = f"{type(exc).__name__}: {exc}"
 
     table = pd.DataFrame(rows)
-    if not table.empty and 'deletion_auc' in table.columns:
-        table = table.sort_values(['image', 'deletion_auc'],
-                                  na_position='last').reset_index(drop=True)
+    table = table.sort_values(['image', 'deletion_auc'],
+                              na_position='last').reset_index(drop=True)
 
     notes = [NOT_AN_EXPLANATION]
     if masks is None:

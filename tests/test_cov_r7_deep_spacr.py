@@ -41,18 +41,18 @@ What is driven:
 
 What is proved:
 
-* ``_multiclass_metrics``'s second ``if len(y_true)`` is dead: the function
-  has already returned for the empty case forty lines above it.
-* the three ``elif`` chains over ``cam_type`` in ``generate_activation_map``
-  are exhaustive partitions of a validated four-name vocabulary, so their
-  final else-arcs cannot be taken.
-* ``analyze_activation_maps``'s ``not table.empty and 'deletion_auc' in
-  table.columns`` is answered by the two guards above it.
-* ``train_model``'s ``elif accumulated_train_dicts:`` is answered by an
-  unconditional append earlier in the same loop body.
+* ``_multiclass_metrics`` fills one-hot labels unconditionally because it has
+  already returned for the empty case forty lines above it.
+* the three ``cam_type`` chains in ``generate_activation_map`` end in
+  exhaustive ``else`` arms after validating the method vocabulary.
+* ``analyze_activation_maps`` sorts unconditionally because its two input
+  guards guarantee a non-empty table with ``deletion_auc``.
+* ``train_model`` chooses only whether a validation frame accompanies the
+  training frame, which is appended unconditionally each epoch.
 """
 from __future__ import annotations
 
+import inspect
 import os
 import sys
 
@@ -747,7 +747,7 @@ def test_the_attribution_report_can_be_read_from_the_return_value_alone(
 
 
 def test_the_attribution_table_always_has_a_deletion_auc_to_sort_on():
-    """``if not table.empty and 'deletion_auc' in table.columns`` is always True.
+    """The unconditional attribution-table sort always has its two columns.
 
     ``analyze_activation_maps`` refuses an empty image list at :3398, falls
     back to four default methods when ``methods`` is falsy at :3402, and
@@ -790,6 +790,10 @@ def test_the_attribution_table_always_has_a_deletion_auc_to_sort_on():
     # sorted by the column the guard asks about, ascending, NaN last
     ordered = filled_in['table']['deletion_auc']
     assert ordered.dropna().is_monotonic_increasing
+
+    source = inspect.getsource(analyze_activation_maps)
+    assert "if not table.empty and 'deletion_auc' in table.columns:" not in source
+    assert "table = table.sort_values(['image', 'deletion_auc']" in source
 
 
 # ---------------------------------------------------------------------------
@@ -979,7 +983,7 @@ def test_a_resume_without_a_best_metric_starts_the_comparison_from_scratch(
 
 def test_the_epoch_flush_always_has_a_training_row_to_write(tmp_path,
                                                             monkeypatch):
-    """``elif accumulated_train_dicts:`` at :3011 cannot be False.
+    """Every epoch flush has a training row; validation is the only choice.
 
     Every pass of the epoch loop appends the training metrics unconditionally
     at :2911, and the only two places the list is emptied (:3010 and :3013)
@@ -1018,6 +1022,10 @@ def test_the_epoch_flush_always_has_a_training_row_to_write(tmp_path,
                 val_loaders=_tiny_loader(), schedule=None, tensorboard=False,
                 write_card=False)
     assert flushes == [(1, 1), (1, 1)]
+
+    source = inspect.getsource(train_model)
+    assert "elif accumulated_train_dicts:" not in source
+    assert "if accumulated_val_dicts:" in source
 
 
 # ---------------------------------------------------------------------------

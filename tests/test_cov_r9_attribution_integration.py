@@ -185,10 +185,10 @@ class TestAnalyzingActivationMaps:
         assert not table.empty
 
 
-class TestTheOneHotGuard:
+class TestTheUnconditionalOneHotFill:
 
     def test_an_empty_batch_gives_a_one_hot_of_no_rows(self):
-        """THE PIN, for ``if len(y_true)``.
+        """The indexing itself accepts an empty integer label array.
 
         The fancy-index below it is ``y_true_oh[np.arange(0), []] = 1``,
         which numpy accepts -- so the guard is not preventing an error,
@@ -215,15 +215,16 @@ class TestTheOneHotGuard:
         assert metrics["num_classes"] == 3
         assert len(metrics["per_class_accuracy"]) == 3
 
-    def test_the_guard_is_where_the_one_hot_is_built(self):
+    def test_the_empty_return_precedes_the_unconditional_fill(self):
         from spacr.deep_spacr import _multiclass_metrics
 
         source = inspect.getsource(_multiclass_metrics)
+        early = source.index("if len(y_true) == 0:")
         build = source.index("y_true_oh = np.zeros(")
-        guard = source.index("if len(y_true):", build)
+        fill = source.index("y_true_oh[np.arange(len(y_true)), y_true] = 1")
 
-        assert build < guard
-        assert "y_true_oh[np.arange(len(y_true)), y_true] = 1" in source[guard:]
+        assert early < build < fill
+        assert "if len(y_true):" not in source
 
 
 class TestTheSaliencyGenerator:
@@ -305,9 +306,8 @@ class TestTheSaliencyGenerator:
             f"the attribution weights the empty corners ({corners:.4g}) at "
             f"least as much as the object ({centre:.4g})")
 
-    def test_the_dispatch_still_names_both_saliency_types(self):
-        """THE PIN, for the three ``saliency_image``/``saliency_channel``
-        arcs in ``generate_activation_map``.
+    def test_the_dispatch_ends_in_the_two_saliency_types(self):
+        """THE PIN for the three exhaustive saliency dispatch tails.
 
         The function needs a settings dict, a database and a folder of
         crops, so the dispatch is held by shape while the generator it
@@ -318,11 +318,15 @@ class TestTheSaliencyGenerator:
 
         source = inspect.getsource(D.generate_activation_map)
 
-        assert source.count(
-            "settings['cam_type'] in ['saliency_image', 'saliency_channel']"
-        ) >= 2, "one of the saliency branches no longer names both types"
+        assert "settings['cam_type'] in ['saliency_image', 'saliency_channel']" \
+            in source
         assert "cam_generator = SaliencyMapGenerator(model)" in source
         assert "compute_saliency_and_predictions" in source
-        assert "elif settings['cam_type'] == 'saliency_channel':" in source, (
-            "the per-channel RGB save is gone, so a saliency_channel run "
-            "writes a single-channel image instead")
+        assert "elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:" \
+            not in source
+        assert "elif settings['cam_type'] == 'saliency_channel':" not in source
+        assert "else:\n        cam_generator = SaliencyMapGenerator(model)" in source
+        assert "else:\n            activation_maps, predicted_classes = " \
+               "cam_generator.compute_saliency_and_predictions(inputs)" in source
+        assert "else:\n                # Handle each channel separately and save as RGB" \
+            in source

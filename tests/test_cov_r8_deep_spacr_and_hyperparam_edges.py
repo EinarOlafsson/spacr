@@ -50,24 +50,20 @@ class TestTheMulticlassMetrics:
 
         assert isinstance(metrics, dict)
 
-    def test_the_one_hot_guard_further_down_cannot_fire(self):
-        """THE PIN, for ``if len(y_true):`` before the one-hot fill.
+    def test_the_one_hot_fill_needs_no_second_guard(self):
+        """THE PIN for the unconditional one-hot fill.
 
-        It is a second check of the same question, and the first one
-        already returned: an empty ``y_true`` never reaches it. Keeping
-        it is cheap and it guards a real hazard --
-        ``y_true_oh[np.arange(0), y_true] = 1`` with a FLOAT-typed empty
-        array, which is what an empty pandas column gives you, is not a
-        legal index -- but the early return is what makes it moot.
-
-        This fails if that early return goes, which is exactly when the
-        one-hot guard becomes the only thing standing there.
+        The function's first check already returned: an empty ``y_true`` never
+        reaches the fill. Indexing with a FLOAT-typed empty array (what an
+        empty pandas column gives you) is not legal, but the early return makes
+        that case moot.
         """
         source = inspect.getsource(D._multiclass_metrics)
         early = source.index("if len(y_true) == 0:")
-        one_hot = source.index("if len(y_true):")
+        one_hot = source.index("y_true_oh[np.arange(len(y_true)), y_true] = 1")
         assert early < one_hot, (
             "the empty case is no longer answered before the one-hot fill")
+        assert "if len(y_true):" not in source
 
         empty = pd.Series([], dtype=float).to_numpy()
         with pytest.raises((IndexError, TypeError)):
@@ -88,8 +84,8 @@ class TestTheMulticlassMetrics:
 
 class TestSortingTheAttributionTable:
 
-    def test_an_empty_table_is_returned_unsorted(self):
-        """THE UNCOVERED ARC: nothing to sort by.
+    def test_an_empty_table_explains_the_public_input_guard(self):
+        """An empty internal table would have no columns to sort by.
 
         ``sort_values(['image', 'deletion_auc'])`` on an empty frame
         raises KeyError for the columns that were never created -- and
@@ -104,15 +100,15 @@ class TestSortingTheAttributionTable:
 
         source = inspect.getsource(D.analyze_activation_maps)
         assert "if not table.empty and 'deletion_auc' in table.columns:" \
-            in source, (
-            "the sort is no longer guarded on both the rows and the column")
+            not in source
+        assert "table = table.sort_values(['image', 'deletion_auc']" in source
 
-    def test_a_table_without_the_metric_is_returned_unsorted_too(self):
-        """The second half of the same guard.
+    def test_every_internal_row_must_supply_the_metric(self):
+        """A row without the metric would also make sorting invalid.
 
-        A method that produced rows but no deletion AUC -- a saliency
-        map has no deletion curve -- still has a table worth returning,
-        just not one that can be ranked by a metric it does not carry.
+        ``analyze_activation_maps`` supplies ``deletion_auc`` on both its
+        successful and failed row paths, which is why this malformed example
+        cannot arise from the public function.
         """
         table = pd.DataFrame({"image": ["a.png", "b.png"],
                               "method": ["saliency", "saliency"]})
