@@ -115,11 +115,22 @@ def test_a_non_number_says_so():
     assert "not a number" in said
 
 
-def test_mandelbrot_is_the_default_pattern():
+def test_the_orbit_fold_is_the_default_pattern():
+    """CHANGED 2026-09-01 at the maintainer's request.
+
+    It was `mandelbrot`, which is the ONE pattern with no CPU renderer --
+    so on every machine without a usable GPU the stated default could not
+    be drawn, and `pattern_for_this_machine` quietly substituted the orbit
+    fold anyway. The default now says what actually happens, which is why
+    it must equal the fallback rather than merely differ from it.
+    """
     from spacr.qt.fractal_defaults import DEFAULT_PATTERN, FALLBACK_PATTERN
 
-    assert DEFAULT_PATTERN == "mandelbrot"
+    assert DEFAULT_PATTERN == "orbit"
     assert FALLBACK_PATTERN == "orbit"
+    assert DEFAULT_PATTERN == FALLBACK_PATTERN, (
+        "the default and the no-GPU fallback have drifted apart again, so "
+        "what a machine draws depends on what it turned out to have")
 
 
 def test_a_machine_without_a_gpu_gets_the_orbit_fold(monkeypatch):

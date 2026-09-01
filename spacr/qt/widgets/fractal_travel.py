@@ -894,6 +894,10 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             #: Read on the GUI thread each tick. The widget never becomes a
             #: mouse target -- see `Pointer`.
             self._pointer = Pointer()
+            # Integrated travel, so a speed change does not teleport the
+            # camera. One per canvas: it is this canvas's own position on
+            # the trajectory.
+            self._depth_phase = DepthPhase()
             self._timer.start(30)
 
         # ---------------------------------------------------- winding down
@@ -1266,9 +1270,56 @@ class CameraState:
     palette_phase: float
 
 
-def state_at_seconds(t: float, speed: float, dream: float) -> CameraState:
-    """The camera at ``t``. Pure, so a test can assert it moves."""
-    depth = t * speed / 12.0
+class DepthPhase:
+    """How far along the trajectory the camera is, as a number that only grows.
+
+    SPEED MUST CHANGE THE RATE, NOT THE POSITION. Depth used to be
+    ``t * speed``, so a scroll that doubled the speed doubled the depth
+    in the same instant: measured at t=60s, speed 1 -> 2 moved the camera
+    5.0 units, which is 3,600 frames of ordinary travel arriving in one.
+    That is the jump reported as "it ruins the immersion when it jumps".
+
+    Integrating instead -- ``phase += dt * speed`` -- makes a speed change
+    continuous by construction. The camera is exactly where it was; only
+    how fast it leaves matters.
+
+    Kept as a small object rather than two floats on the widget because
+    the invariant is worth naming: `value` never decreases.
+    """
+
+    __slots__ = ("value", "_last_t")
+
+    def __init__(self) -> None:
+        self.value = 0.0
+        self._last_t: Optional[float] = None
+
+    def advance(self, t: float, speed: float) -> float:
+        """Move the phase to wall-clock ``t`` at ``speed``, and return it.
+
+        A t that goes BACKWARDS -- a restart, a clock reset -- re-bases
+        rather than rewinding: the phase is the distance travelled, and
+        travel does not un-happen.
+        """
+        last = self._last_t
+        self._last_t = t
+        if last is None or t < last:
+            return self.value
+        self.value += (t - last) * max(0.0, float(speed))
+        return self.value
+
+
+def state_at_seconds(t: float, speed: float, dream: float,
+                     depth_phase: Optional[float] = None) -> CameraState:
+    """The camera at ``t``. Pure, so a test can assert it moves.
+
+    :param depth_phase: the integrated distance travelled. When given it
+        is what positions the camera along the trajectory, and ``speed``
+        no longer does -- which is what stops a scroll teleporting it.
+        ``None`` reproduces the old ``t * speed``, for callers that have
+        no phase to keep.
+    """
+    travelled = t * speed if depth_phase is None else float(depth_phase)
+    depth = travelled / 12.0
     tx = dream * (0.090 * math.sin(2.0 * math.pi * t / 47.0)
                   + 0.035 * math.sin(2.0 * math.pi * t / 131.0 + 1.1)
                   + 0.025 * math.cos(2.0 * math.pi * t / 307.0 + 0.6))
@@ -1415,6 +1466,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # except a rectangle to be relative to -- which is why one class
             # serves both backends.
             self._pointer = Pointer()
+            # Integrated travel, so a speed change does not teleport the
+            # camera. One per canvas: it is this canvas's own position on
+            # the trajectory.
+            self._depth_phase = DepthPhase()
             # THE REFERENCE ORBIT, for the Mandelbrot pattern only. Built on
             # a worker thread because iterating a few thousand points at 320
             # decimal digits takes seconds, and the backdrop has to keep
@@ -1470,7 +1525,12 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             width = max(1, int(width))
             height = max(1, int(height))
             speed = controls.speed_at(elapsed)
-            state = state_at_seconds(elapsed, speed, controls.dream)
+            # THE PHASE, not `elapsed * speed`. Scrolling changes how fast
+            # the trajectory is travelled; it must not change WHERE on the
+            # trajectory the camera is. See DepthPhase.
+            phase = self._depth_phase.advance(elapsed, speed)
+            state = state_at_seconds(elapsed, speed, controls.dream,
+                                     depth_phase=phase)
             pointer_x, pointer_y, pull, push = self._pointer_state()
             # ONLY WHAT THIS SHADER DECLARES. The three patterns share this
             # update but not their uniforms -- space has no dream term, since
