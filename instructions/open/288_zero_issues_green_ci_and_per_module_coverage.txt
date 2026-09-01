@@ -435,3 +435,59 @@ after another launch had reconfigured logging. Both passed alone and
 failed in a run. The pattern is worth naming -- a test that depends on
 global state must pin it on the way IN as well as restoring it on the
 way out, or a test running BEFORE it decides the answer.
+
+--------------------------------------------------------------------------------
+A MECHANISM FOR THE SEGFAULT, FOUND AND REPRODUCED (2026-09-01)
+--------------------------------------------------------------------------------
+
+A test that leaves a PARENTLESS Qt object owning a RUNNING TIMER for the
+garbage collector to free will crash a LATER test's event loop.
+
+REPRODUCED, both directions, in about a minute:
+
+    pytest tests/qt/test_the_console_keeps_the_ai_error_analysis.py \
+           tests/qt/test_track_previews.py::test_completion_handler_runs_on_the_gui_thread
+    -> Fatal Python error: Segmentation fault
+       Current thread ... qt_compat.py:160 in exec
+                          wait_signal.py:58 in wait
+                          test_track_previews.py:584
+
+Each file passes ALONE. The faulting frame is inside `qapp.exec()` in the
+SECOND file, which is why "every file was run on its own and none segfaulted"
+came back clean and told us nothing: the guilty file is not the one that dies.
+
+WHY. A `ConsolePanel` built in a test has no parent, so nothing owns it and
+Python frees it whenever the collector next runs -- which can be in the middle
+of another test's event dispatch. It owns `_WorkingDots`, a QTimer that is
+still RUNNING. Destroying a Qt object with a live timer from inside event
+dispatch is the crash. This is the same defect `spacr/qt/gc_policy.py` was
+written for on the application side, one layer out: an object destroyed at a
+moment nobody chose. THE SUITE DOES NOT INSTALL THAT POLICY, so tests remain
+exposed to it.
+
+THE FIX IS PER-FIXTURE AND CHEAP: stop the timer, then `close()`,
+`setParent(None)`, `deleteLater()`, `processEvents()`. Stopping the timer
+FIRST is load-bearing -- `deleteLater` has not run by the time the fixture
+returns. Applied to `test_the_console_keeps_the_ai_error_analysis.py` and
+`test_the_issue_preview_can_diagnose.py`; both crashes went away.
+
+WHAT TO DO NEXT, in order:
+
+1. Audit every `tests/qt` fixture that constructs a widget with no parent and
+   returns it without teardown. `grep -l "= ConsolePanel()\|Panel(\|Dialog("
+   tests/qt` is the starting set. Each is a candidate for the same crash.
+
+2. Consider a session-scoped autouse fixture that runs `gc.collect()` at a
+   CHOSEN point between tests, so a collection cannot land inside `exec()`.
+   That converts the whole class from "crashes somewhere else" into "freed
+   here", and would not need every fixture to be correct.
+
+3. Only then re-measure whether the full-suite segfault is gone. Do NOT
+   conclude it is fixed from a single clean run: the position moved between
+   runs before, so absence on one run is not evidence.
+
+NOTE the second symptom of the same cause: the same pairing can produce a
+FAILURE rather than a crash (`test_the_issue_preview_can_diagnose.py` +
+`test_track_previews.py` failed the track test without dying). So an
+order-dependent FAILURE in `tests/qt` is worth checking against this mechanism
+before it is assumed to be leaked global state.

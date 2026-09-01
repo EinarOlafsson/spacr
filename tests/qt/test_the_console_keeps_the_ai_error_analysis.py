@@ -17,12 +17,37 @@ SECOND = "ValueError: could not broadcast input array"
 
 @pytest.fixture
 def console(qapp, monkeypatch):
+    """A console panel that is DESTROYED when the test ends.
+
+    Not tidiness. A ConsolePanel owns a running QTimer (the working dots) and
+    keeps retired QThreads, and it has no parent here -- so nothing owned it
+    and Python freed it whenever the collector next ran. That landed in the
+    middle of a LATER test's `qapp.exec()`, destroying a widget with a live
+    timer from inside event dispatch: `tests/qt/test_track_previews.py`
+    segfaulted, having done nothing wrong.
+
+    That is the same defect `spacr.qt.gc_policy` fixes for the application --
+    a Qt object destroyed at a moment nobody chose -- and it is worth noting
+    that the suite does not install that policy, so a test which leaves
+    Qt objects to the collector is the shape that produces instruction 288's
+    unattributed `tests/qt` crashes.
+    """
     panel = ConsolePanel()
     monkeypatch.setattr(panel, "_current_provider", lambda: object())
     monkeypatch.setattr(panel, "_start_stream", lambda **kw: None)
     monkeypatch.setattr(panel, "_console_context_for_question",
                         lambda text: ("", "no context"))
-    return panel
+    yield panel
+    # Stop the timer FIRST: it is the thing Qt cannot have running when the
+    # object goes, and `deleteLater` would not have run by then.
+    dots = getattr(panel, "_working_dots", None)
+    if dots is not None:
+        dots.stop()
+        panel._working_dots = None
+    panel.close()
+    panel.setParent(None)
+    panel.deleteLater()
+    qapp.processEvents()
 
 
 def test_an_answer_is_returned_for_the_error_it_explains(console):

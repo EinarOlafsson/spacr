@@ -5,6 +5,8 @@ pytest-qt is not installed so the rest of the suite still runs.
 """
 from __future__ import annotations
 
+import gc
+
 import os
 from importlib.util import find_spec
 
@@ -674,3 +676,35 @@ def _the_live_backdrop_controls_do_not_leak():
         yield
     finally:
         fractal_travel._LIVE_CONTROLS[:] = before
+
+
+@pytest.fixture(autouse=True)
+def _collect_between_tests():
+    """Free unowned Qt objects HERE, rather than wherever the collector lands.
+
+    THE CRASH THIS PREVENTS, reproduced 2026-09-01 and recorded in instruction
+    288: a test that builds a parentless widget owning a running QTimer -- a
+    `ConsolePanel` and its working dots, say -- leaves it for the cyclic
+    collector, because nothing owns it. The collector then runs at whatever
+    moment an allocation happens to cross a threshold, and that moment can be
+    inside a LATER test's ``qapp.exec()``. Destroying a Qt object with a live
+    timer from inside event dispatch segfaults the process.
+
+    That is why "every file in the segfaulting subset was run on its own and
+    none segfaulted" came back clean and told us nothing: the file that dies
+    is not the file at fault.
+
+    Collecting between tests does not make the widgets correct -- a fixture
+    that stops its timer and deletes its widget is still the right thing, and
+    44 fixtures in this directory currently return a parentless widget with no
+    teardown. It makes the COLLECTION happen at a point of our choosing, where
+    no event loop is running, which is what turns the whole class from "crashes
+    somewhere else" into "freed here".
+
+    Two generations, not a full sweep: gen-2 walks every live numpy array the
+    session has accumulated, and paying that between every one of ~1900 tests
+    would cost more than the crash it prevents. Anything that survives two
+    generations is not a widget built by the test that just ended.
+    """
+    yield
+    gc.collect(1)
