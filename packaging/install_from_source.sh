@@ -58,19 +58,44 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-# The exclusion list lives beside this script so that the script and the
-# test that pins it read the SAME file and cannot drift.
-HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-EXCLUDES="$HERE/source_install_excludes.txt"
-
-if [ ! -f "$EXCLUDES" ]; then
-    # Running the script standalone -- curl'd on its own, say -- is a
-    # supported way to use it, so fetch the list rather than failing.
-    EXCLUDES=$(mktemp)
-    RAW="https://raw.githubusercontent.com/EinarOlafsson/spacr/$BRANCH/packaging/source_install_excludes.txt"
-    echo "fetching exclusion list from $RAW"
-    curl -fsSL "$RAW" -o "$EXCLUDES"
-fi
+# The exclusion list. It lives in packaging/source_install_excludes.txt
+# WITH its justifications, and is embedded here as well.
+#
+# The embedding is not duplication for its own sake: this script is meant
+# to be curl'd on its own, and the first version fetched the list over the
+# network as a second request. That broke immediately, and in the way a
+# second request always breaks -- the script was curl'd from `nightly`,
+# defaulted its branch to `main`, asked `main` for a file that only exists
+# on `nightly`, and died on a bare `curl: (56) 404` under `set -e`.
+#
+# A self-contained script has no such failure mode. A test asserts this
+# copy is character-for-character the same as the file, so the two cannot
+# drift.
+read_the_exclusions() {
+    HERE=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd) || HERE=""
+    if [ -n "$HERE" ] && [ -f "$HERE/source_install_excludes.txt" ]; then
+        # Running from inside a checkout: prefer the file, so someone
+        # editing the list sees their edit take effect immediately.
+        grep -v '^[[:space:]]*#' "$HERE/source_install_excludes.txt" \
+            | grep -v '^[[:space:]]*$'
+        return
+    fi
+    cat <<'SPACR_EXCLUDES'
+/*
+!/docs/
+!/tests/
+!/instructions/
+!/Notebooks/
+!/proposals/
+!/tools/
+!/data/
+!/*.pdf
+!/spacr/resources/models/
+!/spacr/resources/home/versions/
+!/spacr/resources/icons/backup_icons/
+!/spacr/qt/i18n_catalogs/
+SPACR_EXCLUDES
+}
 
 if [ -e "$DIR" ]; then
     echo "error: $DIR already exists -- pass --dir to choose somewhere else" >&2
@@ -91,10 +116,7 @@ git config core.sparseCheckout true
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter blob:none
 
-# Strip comments and blank lines; git reads this file itself and is
-# happier without them.
-grep -v '^[[:space:]]*#' "$EXCLUDES" | grep -v '^[[:space:]]*$' \
-    > .git/info/sparse-checkout
+read_the_exclusions > .git/info/sparse-checkout
 
 drop_exclusion() {
     grep -v -x -F "$1" .git/info/sparse-checkout > .git/info/sparse-checkout.new
@@ -112,8 +134,22 @@ if [ "$KEEP_DOCS" = 1 ];         then drop_exclusion '!/docs/'; fi
 # `|| true` on the fetch: servers that do not implement filtering warn and
 # send everything instead. That is slower, not broken, so it must not stop
 # the install.
-git fetch -q --depth 1 --filter=blob:none origin "$BRANCH" || \
-    git fetch -q --depth 1 origin "$BRANCH"
+# Two fallbacks, and they are for different failures.
+#
+# A server that does not implement filtering warns and sends everything;
+# that is slower, not broken, so the plain fetch is tried next. A branch
+# that does not exist is a different problem and deserves to be said out
+# loud rather than surfacing as a bare git error.
+if ! git fetch -q --depth 1 --filter=blob:none origin "$BRANCH" 2>/dev/null; then
+    if ! git fetch -q --depth 1 origin "$BRANCH" 2>/dev/null; then
+        echo "error: could not fetch branch '$BRANCH' from $REPO" >&2
+        echo "       available branches:" >&2
+        git ls-remote --heads "$REPO" 2>/dev/null \
+            | sed 's#.*refs/heads/#         #' >&2
+        echo "       pass --branch to choose one" >&2
+        exit 1
+    fi
+fi
 git checkout -q FETCH_HEAD
 
 # Leave the checkout on a real branch rather than a detached FETCH_HEAD,
