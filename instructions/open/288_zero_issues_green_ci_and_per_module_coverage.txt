@@ -347,3 +347,63 @@ worth naming.
 
 So the rule is: quote one run, on one commit, and say which. Combine runs only
 across files whose bytes are identical, and say that is what you did.
+
+PROGRESS NOTE, 2026-09-01 (Qt lane)
+-----------------------------------
+Pragma count in spacr/qt: 88 -> 33. Fifty-five sites resolved, each one
+either DRIVEN with the line verified EXECUTED via coverage JSON, or
+DELETED with the premise it rested on pinned by a test.
+
+What the sweep actually found is worth recording, because it changes how
+much a `# pragma: no cover` is worth as evidence:
+
+  THE COMMENTS WERE WRONG MORE OFTEN THAN THE CODE.
+
+  * Three sites claimed "JobRunner always returns True today". It
+    returns False whenever it is unthreaded and the work or the
+    completion callback raises -- which is exactly how those panels are
+    built in tests.
+  * One claimed "60 doublings passes any finite limit". The walk covers
+    step * 2**59, so a small enough step against a large enough limit
+    exhausts it, and an infinite limit exhausts it outright.
+  * TWO marked lines that were covered all along, by tests that had been
+    driving them for as long as they existed.
+  * One import-time stylesheet guard was labelled "decoration is not
+    load-bearing" -- true at runtime, backwards at import, where the
+    failure is not a missing background but the module not importing and
+    taking down whatever imports it.
+  * Fourteen carried no reason at all.
+
+AND THE TESTS WERE NOT MUCH BETTER. The hygiene suite's
+assertion-free ratchet was already failing when this lane started; it is
+green now, thirty-four tests later. Two of those were not merely missing
+an assertion -- they were testing something other than their name:
+
+  * test_arrays_are_found_and_drawn drew nothing, because
+    plot_images_and_arrays only reaches plt.subplots with one continuous
+    image AND one label mask, and the test built two folders of the same
+    random array.
+  * test_a_verdict_is_drawn_onto_the_axis passed a STRING where
+    draw_verdict reads verdict.level, so it raised AttributeError and was
+    swallowed by the very guard the two tests below it exercise.
+
+Four failure-swallowing skips are gone, and one order-dependent failure
+(a laptop-mode test that asserted on caplog after another launch had
+already reconfigured logging) is fixed.
+
+Eight stale section assertions from the 2026-08-31 Home restructure are
+fixed as well. Two of those were self-contradictory rather than merely
+stale: test_feature_dictionary_panel asserted SECTION_EXPLORE IS in
+SECTIONS while test_registration_seams asserts it is NOT, so one of the
+pair had to fail whichever way the code went.
+
+THE RULE THIS LANE RAN ON, since it caught something every time: after
+writing a test for a named line, MEASURE that line. Five tests in this
+batch passed without touching their target -- an editable install's
+MetaPathFinder beating sys.path, a module-level function patched as
+though it were a method, a guard sitting behind an earlier refusal that
+was never satisfied. Every one of them was green.
+
+STILL OPEN in this lane: the full tests/qt run segfaults at 34% in a
+single process. Pre-existing and already tracked here; the affected
+files pass when run directly.
