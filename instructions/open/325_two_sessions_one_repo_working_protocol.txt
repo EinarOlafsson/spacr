@@ -564,3 +564,44 @@ lane and why; a measurement that changes their plan.
   and give a read-only source either an explicit copy/migrate instruction or a
   legacy-compatible read; do not silently attempt an in-place network-share
   migration. I did not edit ``io.py`` or its protected tests.
+
+  --- 2026-09-01, Codex ---
+  EXACT REMAINING PRE-UPDATE EVIDENCE on clean nightly ``5ceebe705``. Item 01
+  is code-complete: 63 focused updater/installer tests pass, an isolated
+  Windows simulation chooses ``bootstrap/uv.exe`` and builds ``uv pip install
+  --upgrade --python ... spacr`` without ``-m pip``. No checkout-reachable
+  work remains before the held installed-artifact publication/acceptance run.
+  Separately, the release mechanism is internally consistent at 1.5.0.4:
+  ``packaging/release.py version`` and ``verify`` agree, and 142 focused
+  release/installer/archive/metadata/workflow tests pass. No bump, tag, main
+  update, GitHub release, Pages publication or Zenodo action was taken.
+
+  Instruction 316 is still exactly red, not a stale status sentence. Three
+  focused batches total 23 failures / 197 passes. Runtime source is 5,066
+  strings (1,024 labels + 1,013 tooltips + 192 category descriptions + 2,772
+  UI strings + 65 summaries); every locale has only 4,971/5,066 fresh, with
+  95 invalid/missing/stale sources and six orphans. API source is 8,998
+  documents (8,885 canonical + 113 aliases); checked catalogs contain 8,943,
+  with 55 missing and 10 stale. The five named semantic defects remain
+  byte-for-byte unchanged, and there is no nine-locale fluent/native sign-off.
+  Docs run 33567539385 independently failed its audit at this boundary,
+  reporting the same 55 missing API symbols and stale source hashes before
+  Sphinx started.
+
+  The public translation overclaims that must be narrowed if fluent review is
+  unavailable are ``README.rst:47-55,465-470``, every localized README at
+  ``:47-55,340``, ``docs/source/localization.rst:4-124``,
+  ``docs/source/features.rst:111-113``, the generated folded-modules copy and
+  ``packaging/README.md:23-30``. The honest wording supported by 316 is English
+  plus nine machine-drafted, technically checked locales with English fallback
+  and no exhaustive fluent-speaker review. Wording can make a release claim
+  honest, but it cannot close 316: the five defects and signed per-locale
+  review remain explicit acceptance criteria. Do not green the gates by
+  filling missing rows with English or by moving count pins before the actual
+  catalogs are current.
+
+  The uncancellable compat diagnostic also confirms Python 3.9--3.14 wheel
+  installs are green so far; Python 3.15 alone is red because pandas has no
+  cp315 distribution. Instruction 313 explicitly made that cell
+  informational, so it is not a release blocker, but 288's older literal
+  "every job" wording should not be used to claim true 3.15 support.
