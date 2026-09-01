@@ -441,20 +441,37 @@ _SECTION_NOTE_LIBRARY = {
                      "controls and replicates."),
 }
 
+#: A plugin's declared section, mapped onto a section Home actually
+#: draws.
+#:
+#: EVERY VALUE HERE MUST BE IN `SECTION_ORDER`, and that is not a style
+#: rule. `register_app` refuses a section it does not know, the plugin
+#: loop below catches the ValueError per plugin, and the app is then
+#: dropped in silence.
+#:
+#: That is not hypothetical: the 2026-08-31 restructure left
+#: Core/Data/Tools/Assays, and this map still pointed `results`,
+#: `models`, `explore` and `design` at the retired names. Since
+#: `AppContribution.section` DEFAULTS to "results", every plugin app
+#: that did not name a section was being thrown away -- and the only
+#: sign of it was one red test.
+#:
+#: The retired names are kept as keys so an existing plugin's manifest
+#: still loads; they point at where those modules actually went when the
+#: built-ins moved.
 _PLUGIN_SECTION_MAP = {
     "core": SECTION_CORE,
     "data": SECTION_DATA,
-    "models": SECTION_MODELS,
-    "results": SECTION_RESULTS,
-    "toxo": SECTION_ASSAYS,
-    # `spacr.plugins._SECTIONS` does not accept these two yet, so no
-    # plugin can reach them today. They are mapped here so that widening
-    # the plugin allow-list is a one-line change there rather than a
-    # KeyError that takes every plugin app down with it — the loop below
-    # catches per-registry, not per-plugin.
-    "explore": SECTION_EXPLORE,
-    "design": SECTION_DESIGN,
     "tools": SECTION_TOOLS,
+    "toxo": SECTION_ASSAYS,
+    # Retired sections, aimed at where their built-ins went: report and
+    # the control chart moved from Results & QC into Data, the power
+    # calculator from Design into Data, and the feature dictionary from
+    # Explore into Tools.
+    "results": SECTION_DATA,
+    "models": SECTION_DATA,
+    "design": SECTION_DATA,
+    "explore": SECTION_TOOLS,
 }
 
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
