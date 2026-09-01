@@ -297,13 +297,40 @@ class TestRemovingADragPatch:
         finally:
             plt.close(figure)
 
-    def test_the_patch_is_forgotten_whether_or_not_it_removed(self):
+    @pytest.mark.parametrize("removal_error",
+                             (None, ValueError, NotImplementedError))
+    def test_the_patch_is_forgotten_whether_or_not_it_removed(
+            self, removal_error):
         from spacr.qt.widgets import gate_editor as G
 
-        source = _source(G)
-        handler = source.index(
-            "except (ValueError, NotImplementedError):")
-        assert "self._drag_patch = None" in source[handler:handler + 200], (
+        class Patch:
+            calls = 0
+
+            def remove(self):
+                self.calls += 1
+                if removal_error is not None:
+                    raise removal_error("the artist is already gone")
+
+        class Canvas:
+            _resize = None
+            _move_name = None
+            _tool = "rectangle"
+            _drag_origin = None
+
+            def __init__(self):
+                self._drag_patch = Patch()
+
+            @staticmethod
+            def _volume_release(_event):
+                return False
+
+        canvas = Canvas()
+        patch = canvas._drag_patch
+
+        G.GateCanvas._on_release(canvas, object())
+
+        assert patch.calls == 1
+        assert canvas._drag_patch is None, (
             "a patch that could not be removed is still held, so the next "
             "drag tries to remove it again")
 
