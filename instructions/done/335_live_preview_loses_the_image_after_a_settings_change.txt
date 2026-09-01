@@ -58,3 +58,16 @@ HOW TO KNOW IT WORKED
 * Change a setting, load the example images, press Live: the image appears.
 * The image loaded BEFORE a settings change survives the change.
 * A dropped image that is not under `src` also survives.
+
+--------------------------------------------------------------------------------
+DONE, 2026-09-01
+--------------------------------------------------------------------------------
+
+`spacr.qt.app._carry_preview_state` moves the loaded image to the rebuilt
+screen. The cause was confirmed to be `rebuild_app_screen`, which a shaping
+edit -- entering an object channel -- triggers.
+
+A SECOND DEFECT WAS FOUND IN THE FIX and is worth remembering: carrying the
+image alone left a picture above an EMPTY set table, and since `_image_path`
+came across too the panel read as already-loaded, so pressing Choose appeared
+to do nothing. The carry now rebuilds the table as well.

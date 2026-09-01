@@ -48,3 +48,11 @@ HOW TO KNOW IT WORKED
 * 99.999 can be entered, is stored, survives a settings save/load, and reaches
   the normalisation unchanged.
 * The value shown after reopening is the value typed.
+
+--------------------------------------------------------------------------------
+DONE, 2026-09-01
+--------------------------------------------------------------------------------
+
+`percentile_pair.DECIMALS` raised from 3 to 6, matching what make_masks
+already accepted. The two controls set the same setting and disagreed about
+how precisely it could be written.
