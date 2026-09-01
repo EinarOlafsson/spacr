@@ -1117,7 +1117,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             # has run, so fall back to page order and say why rather than
             # showing an empty grid.
             return {"filtered_rows": None,
-                    "total": count_rows(s.db_path, s.image_type, table=self._settings.png_table),
+                    "total": count_rows(s.db_path, s.image_type, table=s.png_table),
                     "queue_summary": "",
                     "note": f"Uncertainty queue unavailable: {exc}"}
         rows = al.queue_rows(queue)
@@ -1138,7 +1138,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
         return {"filtered_rows": rows, "total": len(rows),
                 "queue_summary": "", "note": ""}
     return {"filtered_rows": None,
-            "total": count_rows(s.db_path, s.image_type, table=self._settings.png_table),
+            "total": count_rows(s.db_path, s.image_type, table=s.png_table),
             "queue_summary": "", "note": ""}
 
 
@@ -1178,25 +1178,11 @@ class _SettingsDialog(QDialog):
         # Both unpack into the same plate folder, so pressing both leaves a
         # complete plate and either strategy then works. One button fetching
         # 670 MB would make the cheaper half unavailable on its own.
-        example_btn = QPushButton(tr("Load test data"))
-        example_btn.setToolTip(
-            "Download about 280 MB: 2,341 single-cell crops already cut, with "
-            "the measurements database that indexes them, labelled infected "
-            "or not. For annotating images that exist on disk. The annotation "
-            "settings are filled in with it.")
-        example_btn.clicked.connect(self._load_the_example_data)
-        self._example_btn = example_btn
-        src_row.addWidget(example_btn)
-
-        stream_btn = QPushButton("Example (streaming)")
-        stream_btn.setToolTip(
-            "Download about 390 MB: the merged arrays the crops were cut "
-            "from, so a set can be streamed with 'Generate annotation "
-            "database…' rather than read off disk. Unpacks beside the crops "
-            "in the same plate folder.")
-        stream_btn.clicked.connect(self._load_the_streaming_example)
-        self._stream_btn = stream_btn
-        src_row.addWidget(stream_btn)
+        # THE TWO EXAMPLE BUTTONS MOVED. They were here, beside the source
+        # box, spending two slots on a choice most users make once -- and
+        # naming the choice ("crops" vs "streaming") before explaining it.
+        # They are now one "Load test data" button next to Generate, which
+        # opens a chooser that can afford to describe each route properly.
         src_wrap = QWidget(); src_wrap.setLayout(src_row)
         form.addRow("Source folder", src_wrap)
 
@@ -2213,6 +2199,106 @@ _AUTO_ANNOTATE_OPEN_GATE = 100
 _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
+class TestDataChooser(QDialog):
+    """Pick which half of the example plate to fetch, and read why first.
+
+    The two routes need different halves of the plate and differ in size, and
+    the old pair of buttons named the choice ("crops" / "streaming") without
+    room to explain it -- the difference lived in a tooltip that had to be
+    hunted for. Here the description sits UNDER the buttons and fills in on
+    hover, so both routes can be compared before either is started. A download
+    of several hundred megabytes deserves that much.
+
+    Nothing is fetched by this dialog. It reports the chosen route and the
+    screen does the work, so the dialog stays testable without a network.
+    """
+
+    #: ``key -> (button text, what it fetches)``. The sizes are the real
+    #: archive sizes, and they are in the text because "about 280 MB" is the
+    #: fact a user on a hotel connection is actually deciding on.
+    ROUTES = (
+        ("load", "Load",
+         "Download about 280 MB: 2,341 single-cell crops already cut, with "
+         "the measurements database that indexes them, labelled infected or "
+         "not.\n\nFor annotating images that already exist on disk. The "
+         "source folder and the annotation settings are filled in with it, "
+         "and Image source is set to LOAD IMAGES."),
+        ("stream", "Stream",
+         "Download about 390 MB: the merged arrays the crops were cut from, "
+         "so a set can be streamed as the page is drawn rather than read off "
+         "disk.\n\nNeeds no exported crops. Unpacks into the same plate "
+         "folder as Load, so pressing both leaves a complete plate and either "
+         "route then works. Image source is set to STREAM IMAGES."),
+    )
+
+    #: What the description pane says before anything is hovered.
+    RESTING_TEXT = ("Hover a button to see what it downloads and what it "
+                    "sets. Nothing is fetched until you press one.")
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(tr("Load test data"))
+        self.chosen = ""
+
+        layout = QVBoxLayout(self)
+
+        buttons = QHBoxLayout()
+        self._buttons = {}
+        for key, label, description in self.ROUTES:
+            button = QPushButton(tr(label), self)
+            button.setCursor(Qt.PointingHandCursor)
+            button.setProperty("routeKey", key)
+            # The tooltip stays as well as the pane. The pane is the better
+            # surface, but a tooltip is what a user reaches for by habit and
+            # what the accessibility tree reads.
+            button.setToolTip(description)
+            button.installEventFilter(self)
+            button.clicked.connect(
+                lambda checked=False, k=key: self._choose(k))
+            buttons.addWidget(button)
+            self._buttons[key] = button
+        layout.addLayout(buttons)
+
+        self._description = QLabel(self.RESTING_TEXT, self)
+        self._description.setWordWrap(True)
+        self._description.setObjectName("TestDataDescription")
+        # A FIXED HEIGHT, so the dialog does not resize under the pointer as
+        # the text changes length -- the buttons would move away from the
+        # cursor that is hovering them.
+        self._description.setMinimumHeight(110)
+        self._description.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        layout.addWidget(self._description)
+
+        closing = QHBoxLayout()
+        closing.addStretch(1)
+        close = QPushButton(tr("Close"), self)
+        close.clicked.connect(self.reject)
+        closing.addWidget(close)
+        layout.addLayout(closing)
+
+    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
+        """Fill the pane on hover, and empty it on leave."""
+        kind = event.type()
+        if kind == QEvent.Enter:
+            key = str(watched.property("routeKey") or "")
+            for route_key, _label, description in self.ROUTES:
+                if route_key == key:
+                    self._description.setText(description)
+                    break
+        elif kind == QEvent.Leave:
+            self._description.setText(self.RESTING_TEXT)
+        return super().eventFilter(watched, event)
+
+    def description_text(self) -> str:
+        """What the pane currently says. For tests and the accessibility tree."""
+        return self._description.text()
+
+    def _choose(self, key: str) -> None:
+        self.chosen = str(key)
+        self.accept()
+
+
+
 class AnnotateScreen(QWidget):
     """Main Qt widget for the annotate app."""
 
@@ -2591,6 +2677,16 @@ class AnnotateScreen(QWidget):
         # because it is a module rather than one of the per-page actions to
         # its left.
         row.addStretch(1)
+        # TO THE LEFT OF GENERATE, because fetching a set to work on comes
+        # before building one from it, and the two are the same kind of action.
+        self._btn_test_data = QPushButton(tr("Load test data"))
+        self._btn_test_data.setCursor(Qt.PointingHandCursor)
+        self._btn_test_data.setToolTip(tr(
+            "Download an example plate to annotate, and fill in the settings "
+            "that go with it."))
+        self._btn_test_data.clicked.connect(self._choose_the_test_data)
+        row.addWidget(self._btn_test_data)
+
         self._btn_generate = QPushButton("Generate annotation database…")
         self._btn_generate.setCursor(Qt.PointingHandCursor)
         self._btn_generate.setToolTip(
@@ -2695,14 +2791,68 @@ class AnnotateScreen(QWidget):
         console_layout = QVBoxLayout(self._console_wrap)
         console_layout.setContentsMargins(0, 0, 0, 0)
         console_layout.setSpacing(SPACING["xs"])
+        # THE TITLE IS A ROW, so the two controls a console is actually for
+        # can sit on it. This screen builds its own ConsolePanel rather than
+        # using the generic module screen's, and had inherited neither -- so
+        # the one pane most likely to be holding a traceback was the one pane
+        # you could not copy or file from.
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(SPACING["sm"])
         console_title = QLabel("Console + AI", self._console_wrap)
         console_title.setObjectName("CardTitle")
-        console_layout.addWidget(console_title)
+        title_row.addWidget(console_title)
+        title_row.addStretch(1)
+
+        self._btn_copy_console = QPushButton(tr("Copy console"),
+                                             self._console_wrap)
+        self._btn_copy_console.setObjectName("GhostButton")
+        self._btn_copy_console.setCursor(Qt.PointingHandCursor)
+        self._btn_copy_console.setToolTip(tr(
+            "Copy everything in the console, section headers included."))
+        self._btn_copy_console.clicked.connect(self._on_copy_console)
+        title_row.addWidget(self._btn_copy_console)
+
+        # HIDDEN UNTIL THERE IS SOMETHING TO REPORT, exactly as the module
+        # screens do it: a permanently visible "File as issue" invites reports
+        # with no traceback attached, which are the ones nobody can act on.
+        self._btn_file_issue = QPushButton(tr("File as issue"),
+                                           self._console_wrap)
+        self._btn_file_issue.setObjectName("GhostButton")
+        self._btn_file_issue.setCursor(Qt.PointingHandCursor)
+        self._btn_file_issue.setToolTip(tr(
+            "Open a pre-filled GitHub issue with the last traceback and "
+            "environment. You review it before submitting."))
+        self._btn_file_issue.setVisible(False)
+        self._btn_file_issue.setEnabled(False)
+        self._btn_file_issue.clicked.connect(self._on_file_issue)
+        title_row.addWidget(self._btn_file_issue)
+
+        console_layout.addLayout(title_row)
         from ..widgets import ConsolePanel
         self._console = ConsolePanel(
             active_app_label="Annotate", parent=self._console_wrap)
         self._console.setMinimumHeight(180)
         console_layout.addWidget(self._console, 1)
+
+        # EVERY error path, not a list of them. `append_error` is the single
+        # funnel the panel documents -- a WARNING routes through it too -- so
+        # wrapping it here reveals "File as issue" whoever raised the problem,
+        # including code written after this line. Listing the call sites
+        # instead would have missed the pipeline worker, which is the one that
+        # reported this.
+        _original_append_error = self._console.append_error
+
+        def _append_error_and_offer_the_report(text, *args, **kwargs):
+            try:
+                return _original_append_error(text, *args, **kwargs)
+            finally:
+                # In a finally: a console that cannot draw is exactly when a
+                # user most wants the report button, and a raise here would
+                # otherwise swallow the original error.
+                self.note_console_error()
+
+        self._console.append_error = _append_error_and_offer_the_report
         self._runtime_splitter.addWidget(self._console_wrap)
         self._runtime_splitter.setStretchFactor(0, 4)
         self._runtime_splitter.setStretchFactor(1, 2)
@@ -2768,6 +2918,193 @@ class AnnotateScreen(QWidget):
             height = max(480, self._runtime_splitter.height())
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
+
+    def _choose_the_test_data(self, *, chooser=None, ask=None) -> str:
+        """Ask which half of the example plate to fetch, then fetch it.
+
+        The two routes need different halves of the plate and differ in size,
+        so the choice is made in a dialog that can describe both before either
+        starts -- see :class:`TestDataChooser`. They were two buttons beside
+        the source box, naming the choice ("crops" / "streaming") with the
+        explanation hidden in a tooltip.
+
+        Whichever route is taken, three things follow and all three matter:
+        the data arrives, the source is re-pointed at the LOCAL folder it
+        landed in, and Image source is set to the mode that route implies.
+        The second is the one that used to be missing -- the shipped settings
+        carry the paths of the machine that generated them, so applying them
+        left ``src`` pointing at a stranger's home directory.
+
+        :param chooser: replaces the dialog, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: the source that was set, or ``""`` when nothing was chosen
+            or the download has not finished yet.
+        """
+        dialog = chooser if chooser is not None else TestDataChooser(self)
+        if hasattr(dialog, "exec"):
+            dialog.exec()
+        route = str(getattr(dialog, "chosen", "") or "")
+        if not route:
+            return ""
+
+        from ..hf_download import example_plate_folder
+
+        destination = example_plate_folder()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # WHAT COUNTS AS ALREADY HAVING IT differs by route, and the folder
+        # itself answers neither: it is shared with the other example sets and
+        # a cancelled download leaves it behind. Each route tests for its own
+        # half.
+        if route == "stream":
+            merged = destination / "merged"
+            have_it = merged.is_dir() and any(merged.glob("*.npy"))
+        else:
+            have_it = (destination / "measurements"
+                       / "measurements.db").is_file()
+
+        if have_it:
+            return self._use_the_test_data(destination, route)
+
+        was = self._btn_test_data.text()
+        self._btn_test_data.setEnabled(False)
+        self._btn_test_data.setText(tr("Fetching test data…"))
+
+        def _done(result, error):
+            self._btn_test_data.setEnabled(True)
+            self._btn_test_data.setText(was)
+            if result is None:
+                LOG.info("test data not downloaded: %s", error)
+                self._console.append_notice(
+                    "Test data was not downloaded: {detail}\n",
+                    detail=error or "cancelled")
+                return
+            self._use_the_test_data(destination, route)
+
+        download = ask
+        if download is None:
+            if route == "stream":
+                from ..hf_download import download_measure_example as download
+            else:
+                from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _use_the_test_data(self, destination, route: str) -> str:
+        """Point this screen at the downloaded plate, in ``route``'s mode.
+
+        The LOCAL destination, whatever the shipped settings said. Applied
+        after them rather than before, so a path recorded on the publisher's
+        machine cannot be the last write -- which is the defect reported on
+        2026-09-01, where the source came back as
+        ``/home/carruthers/datasets/plate1`` on a machine that had never heard
+        of that user.
+        """
+        from pathlib import Path
+
+        destination = Path(destination)
+        database = destination / "measurements" / "measurements.db"
+        source = str(database if database.is_file() else destination)
+
+        self._settings.src = source
+        self._settings.db_path = str(database) if database.is_file() else ""
+
+        # STREAM cuts crops out of merged/*.npy as the page is drawn; LOAD
+        # reads the ones already exported under data/. Setting this is half of
+        # what the route means; leaving it would open the wrong reader on the
+        # right data.
+        self._settings.crop_source = (
+            "stream_images" if route == "stream" else "load_images")
+
+        self._console.append_notice(
+            "Test data ready: {path}\n", path=source)
+        # The page count is what a new source changes first, and it is the
+        # number the user reads to know the load worked.
+        refresh = getattr(self, "_refresh_total", None)
+        if callable(refresh):
+            try:
+                refresh()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not refresh after the test data", exc_info=True)
+        return source
+
+    def _on_copy_console(self) -> None:
+        """Copy the whole console, and say so.
+
+        A clipboard write is silent, so a button that appears to do nothing is
+        indistinguishable from one that failed. The caption reports it, and it
+        is TRANSLATED at the moment of writing: the language pass ran when this
+        screen was built and does not run again, so an English literal set by a
+        handler would stay English for the session.
+        """
+        try:
+            text = self._console.copy_all()
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Could not copy the console: {detail}\n", detail=exc)
+            return
+        self._btn_copy_console.setText(tr("Copied"))
+        QTimer.singleShot(
+            1200,
+            lambda: self._btn_copy_console.setText(tr("Copy console")))
+        LOG.debug("copied %d console characters", len(text))
+
+    def note_console_error(self) -> None:
+        """Reveal "File as issue" because something went wrong.
+
+        Asked for on 2026-09-01: the button should turn up in this console when
+        there is an issue. It is hidden until then rather than always present,
+        because a permanently visible report button invites reports with no
+        traceback attached, which are the ones nobody can act on.
+
+        Still gated on the user's opt-in, the same gate the module screens use.
+        Opting in reveals the ACTION; nothing is ever submitted in response to
+        the failure itself.
+        """
+        button = getattr(self, "_btn_file_issue", None)
+        if button is None:
+            return
+        try:
+            from ..ai import settings as _ai_settings
+            allowed = _ai_settings.get_auto_file_issues()
+        except Exception:                                    # noqa: BLE001
+            allowed = False
+        button.setVisible(bool(allowed))
+        button.setEnabled(bool(allowed))
+
+    def _on_file_issue(self) -> None:
+        """Open a pre-filled GitHub issue for what the console is holding.
+
+        The console text is read here, on the GUI thread, because reading a
+        widget is the one part that must happen here. Everything after it --
+        resolving a token through ``gh auth token`` and POSTing to
+        api.github.com -- is what the module screens measured at up to 28
+        seconds on a bad network, so it is handed to the shared reporter rather
+        than run inline.
+        """
+        try:
+            body = self._console.copy_all()
+        except Exception:                                    # noqa: BLE001
+            body = ""
+        try:
+            from ..ai.issue_report import file_issue
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Issue reporting is unavailable: {detail}\n", detail=exc)
+            return
+        try:
+            file_issue(self, {"screen": "annotate"}, body)
+        except TypeError:
+            # The reporter's signature is the module screens' business and has
+            # changed before. A failure to file must not take the annotation
+            # session with it, so it is reported rather than raised.
+            LOG.debug("file_issue signature mismatch", exc_info=True)
+            self._console.append_notice(
+                "Could not open the issue form; the console text is copied "
+                "instead.\n")
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Could not file the issue: {detail}\n", detail=exc)
 
     def _set_console_switch_text(self, expanded: bool,
                                  language: Optional[str] = None) -> None:

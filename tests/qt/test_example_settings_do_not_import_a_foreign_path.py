@@ -90,3 +90,39 @@ def test_without_the_fix_the_foreign_path_would_be_applied(plate):
         "this test machine really has a /home/carruthers tree; "
         "pick a different foreign path for the fixture")
     assert reanchor({"src": raw}, plate)["src"] != raw
+
+
+# ---------------------------------------------------------------------------
+# Container-valued settings. Found by an audit of the first version of this
+# fix, which tested ``isinstance(value, str)`` and skipped everything else --
+# and so skipped exactly the two modules that have no local-path fallback.
+# ---------------------------------------------------------------------------
+
+def test_a_list_valued_source_is_rehomed(plate):
+    """Classify's ``src`` is list-valued.
+
+    ``utils.load_settings`` turns a CSV cell starting with ``[`` into a real
+    Python list, and Classify's loader never writes a local path of its own --
+    so a skipped list left the publisher's path as the panel's only truth.
+    """
+    out = reanchor({"src": ["/home/carruthers/datasets/plate1"]}, plate)
+    assert out["src"] == [str(plate)]
+
+
+def test_a_tuple_of_paths_is_rehomed_and_stays_a_tuple(plate):
+    """Regression's count_data/score_data/paired_data are container-valued."""
+    given = ("/home/carruthers/datasets/plate1/a.csv",
+             "/home/carruthers/datasets/plate1/b.csv")
+    out = reanchor({"paired_data": given}, plate)
+    assert out["paired_data"] == (str(plate / "a.csv"), str(plate / "b.csv"))
+    assert isinstance(out["paired_data"], tuple)
+
+
+def test_nested_containers_are_walked(plate):
+    out = reanchor({"src": [["/home/carruthers/datasets/plate1/x"]]}, plate)
+    assert out["src"] == [[str(plate / "x")]]
+
+
+def test_non_string_values_survive_untouched(plate):
+    given = {"n": 5, "flag": True, "nothing": None, "ratio": 0.5}
+    assert reanchor(dict(given), plate) == given
