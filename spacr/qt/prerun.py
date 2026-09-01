@@ -225,7 +225,7 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
 try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(QSS_NAME, _qss, replace=True)
-except Exception:            # pragma: no cover - decoration is not load-bearing
+except Exception:
     # INVARIANTS 10: a stylesheet that cannot be registered costs this panel
     # its background, not the Measure module its run.
     LOG.exception("could not register the pre-run stylesheet at import")
