@@ -62,16 +62,20 @@ class TestLabellingOneProcess:
         """A library call has no run context, and that is not an error."""
         from spacr import runctx
 
-        registered = []
-        monkeypatch.setattr(runctx, "current_run_context", lambda: None)
+        context_checks = []
+
+        def no_active_run():
+            context_checks.append(True)
+            return None
+
+        monkeypatch.setattr(runctx, "current_run_context", no_active_run)
 
         S._label_resource_process(_Process(pid=1), "kind", 1)
 
-        # AND NOTHING WAS RECORDED. With no context there is nowhere to
-        # record to, so an empty list is the outcome -- "did not raise"
-        # alone would not tell that apart from a worker registered
-        # against a context that does not exist.
-        assert registered == []
+        # The no-context guard was actually reached. The live-context test
+        # above is the positive counterpart and proves registration happens
+        # once a context exists.
+        assert context_checks == [True], "the run context was never consulted"
 
     def test_a_process_with_no_pid_yet_is_skipped(self, monkeypatch):
         """A child that has not started has `pid is None`."""
