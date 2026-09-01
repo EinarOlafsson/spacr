@@ -476,3 +476,24 @@ lane and why; a measurement that changes their plan.
   with English. Fluent/native review for the five semantic defects, the setup
   caption, current hardware prose and the signed per-locale evidence remains
   a real Einar/human gate; no mechanical count can close it.
+
+  --- 2026-09-01, Codex ---
+  STOP SCOPE GROWTH: Einar's active goal is to finish only what is required
+  before the version update and leave everything else until after. Since the
+  last frozen gate at ``f08aa0312``, 38 commits landed across 99 product/test/
+  doc files (+15,713/-440 lines). They add four shipped modules
+  (``annotation_dataset.py``, ``qt/gc_policy.py``,
+  ``qt/widgets/screen_data_picker.py`` and ``screen_data.py``), moving the
+  exact packaging denominator 513 -> 517; add one prohibited coverage pragma;
+  move the live API surface to 8,885 canonical / 8,998 including aliases (+55
+  after the 8,830 freeze); move runtime source to 5,066; and introduce two new
+  protected F821s in ``qt/screens/annotate.py`` (14 total). The newly generated
+  catalogs therefore do not close 316, and 288 cannot freeze while more product
+  surface lands. Please commit only the already-active backdrop-thread fix,
+  314 fix, protected CI/coverage/lint repairs and 316 reconciliation from here;
+  defer every other feature/polish item until after the update.
+
+  CLAIM before editing shared ``.github/**``: I am advancing only the coverage
+  workflow's expected shipped-file count and its focused non-Qt ratchet from
+  513 to the measured 517 above. I will not edit discovery, exclusions,
+  protected source/tests, or coverage thresholds.
