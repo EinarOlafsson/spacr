@@ -1602,7 +1602,16 @@ def preprocess_pathogen_data(pathogen_df):
     parasite_counts = pathogen_df.groupby(group_keys).size().reset_index(name='parasite_count')
 
     # Aggregate numerical columns and take the first of object columns
-    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in group_keys + ['parasite_count']}
+    value_columns = [
+        col for col in pathogen_df.columns
+        if col not in group_keys + ['parasite_count']
+    ]
+    agg_funcs = {}
+    for col in value_columns:
+        dtype = pathogen_df[col].dtype
+        numeric = (pd.api.types.is_numeric_dtype(dtype)
+                   and not pd.api.types.is_bool_dtype(dtype))
+        agg_funcs[col] = 'mean' if numeric else 'first'
     pathogen_agg = pathogen_df.groupby(group_keys).agg(agg_funcs).reset_index()
 
     # Merge the counts back into the aggregated data. one_to_one: both sides

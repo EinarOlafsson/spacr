@@ -392,7 +392,8 @@ def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
         "cell_id": [7, 7, 7, 9, 7],
         "object_label": [1, 2, 3, 1, 1],   # parasite ids, must be dropped
         "pathogen_area": [10.0, 20.0, 30.0, 5.0, 40.0],
-        "note": ["a", "b", "c", "d", "e"],
+        "note": pd.Series(["a", "b", "c", "d", "e"], dtype="string"),
+        "is_edge": pd.Series([True, False, False, True, True], dtype="boolean"),
     })
     out = preprocess_pathogen_data(df)
 
@@ -404,6 +405,7 @@ def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
     # numeric columns are averaged, object columns take the first value
     assert t1_host7["pathogen_area"] == pytest.approx(20.0)
     assert t1_host7["note"] == "a"
+    assert bool(t1_host7["is_edge"]) is True
     assert out[out["object_label"] == 9].iloc[0]["parasite_count"] == 1
 
 
