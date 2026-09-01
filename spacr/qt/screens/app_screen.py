@@ -7271,7 +7271,13 @@ class AppScreen(QWidget):
             return
         try:
             tabs.setCurrentWidget(page)
-        except (RuntimeError, TypeError):                # pragma: no cover
+        except (RuntimeError, TypeError):
+            # A deleted page raises RuntimeError and one of the wrong
+            # type raises TypeError. Failing to raise a tab is a blemish;
+            # raising out of the slot that tries would lose whatever
+            # called it. Covered by
+            # tests/qt/test_cov_r8_app_screen_tails.py -- the pragma here
+            # was simply wrong, not merely unexplained.
             LOG.debug("could not raise the results tab", exc_info=True)
 
     def _on_runs_removed(self, records) -> None:
