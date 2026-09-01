@@ -247,7 +247,7 @@ def _supported(token: str, allowed: Set[float]) -> bool:
     """
     try:
         value = float(token)
-    except ValueError:                                # pragma: no cover
+    except ValueError:
         return False
     if not math.isfinite(value):
         return False

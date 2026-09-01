@@ -12,11 +12,43 @@ is self-consistent and silently rescales an entire study.
 """
 from __future__ import annotations
 
+import sys
+import types
+
 import numpy as np
 import pytest
 
+from spacr import plaque
 from spacr.plaque import (WELL_DIAMETERS_MM, PlaqueScale, Well, crop_well,
                           scale_from_well)
+
+
+def test_a_missing_well_detector_names_the_optional_dependency(monkeypatch):
+    """No detector install must produce an actionable error, not a bare import."""
+    monkeypatch.setitem(sys.modules, "ultralytics", None)
+
+    with pytest.raises(ImportError, match="pip install ultralytics") as caught:
+        plaque._load_detector("wells.pt")
+
+    assert isinstance(caught.value.__cause__, ImportError)
+
+
+def test_an_installed_well_detector_receives_the_requested_weights(monkeypatch):
+    """The positive import path still constructs the detector exactly once."""
+    calls = []
+
+    class FakeYOLO:
+        def __init__(self, weights):
+            calls.append(weights)
+
+    fake = types.ModuleType("ultralytics")
+    fake.YOLO = FakeYOLO
+    monkeypatch.setitem(sys.modules, "ultralytics", fake)
+
+    detector = plaque._load_detector("wells.pt")
+
+    assert isinstance(detector, FakeYOLO)
+    assert calls == ["wells.pt"]
 
 
 def test_a_square_box_gives_its_side_as_the_diameter():

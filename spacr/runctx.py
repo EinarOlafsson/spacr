@@ -1128,7 +1128,7 @@ class ErrorPolicy:
         """Record the failure, then skip or re-raise according to the mode."""
         if self.record:
             self.ledger.record_failure(unit, stage, exc)
-        if exc is None:                                 # pragma: no cover
+        if exc is None:
             return
         if self.mode == ON_ERROR_SKIP:
             reason = (f"{type(exc).__name__}: {exc}" if str(exc)

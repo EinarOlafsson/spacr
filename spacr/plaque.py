@@ -161,7 +161,7 @@ def _load_detector(weights: str):
     """
     try:
         from ultralytics import YOLO
-    except ImportError as exc:                              # pragma: no cover
+    except ImportError as exc:
         raise ImportError(
             "Well detection needs the 'ultralytics' package, which spaCR does "
             "not install by default. Install it with:\n"

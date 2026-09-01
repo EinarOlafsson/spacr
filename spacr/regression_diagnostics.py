@@ -506,7 +506,7 @@ def _stamp(axis, verdict) -> None:
         from .regression_qc import draw_verdict
 
         draw_verdict(axis, verdict)
-    except Exception:                       # pragma: no cover - advisory only
+    except Exception:
         pass
 
 
@@ -528,7 +528,7 @@ def _house(axis, title="", xlabel="", ylabel=""):
         from .figures.style import resolve_ink, theme_target
 
         ink = resolve_ink(theme_target())
-    except Exception:                       # pragma: no cover - style absent
+    except Exception:
         pass
     if title:
         axis.set_title(title, fontsize=TYPE_SCALE["label"], color=ink, pad=3.0)
