@@ -78,6 +78,7 @@ def test_no_screen_puts_hover_help_on_an_editable_field(qtbot):
             screen.resize(900, 700)
         except Exception:
             continue
+        qtbot.addWidget(screen)
         built += 1
         offenders = _offenders(screen)
         if offenders:
@@ -102,6 +103,7 @@ def test_the_helper_moves_the_tooltip_and_leaves_the_field_quiet(qtbot):
         _sibling_label_for, format_tooltip, retarget_field_tooltips)
 
     screen = PowerScreen()
+    qtbot.addWidget(screen)
     screen.resize(900, 700)
     # Already clean, because PowerScreen calls the helper itself now.
     assert _offenders(screen) == []
@@ -140,6 +142,7 @@ def test_a_disabled_reason_stays_on_the_control_it_explains(qtbot):
         DISABLED_REASON_TOOLTIP, _sibling_label_for, retarget_field_tooltips)
 
     screen = PowerScreen()
+    qtbot.addWidget(screen)
     screen.resize(900, 700)
     field = next(c for c in screen.findChildren(QWidget)
                  if isinstance(c, EDITORS) and _sibling_label_for(c))
@@ -164,6 +167,7 @@ def test_each_setting_keeps_its_own_help_when_the_row_is_not_laid_out(qtbot):
     from spacr.qt.screens.settings_model import retarget_field_tooltips
 
     host = QWidget()
+    qtbot.addWidget(host)
     form = QFormLayout(host)
     fields = {}
     for name in ("Genes", "gRNAs / gene", "Score per", "Seed"):
@@ -203,6 +207,7 @@ def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
             continue
         finally:
             sm.retarget_field_tooltips = real
+        qtbot.addWidget(bare)
         authored = {c.toolTip() for c in bare.findChildren(QWidget)
                     if isinstance(c, EDITORS) and c.toolTip()}
         if not authored:
@@ -211,6 +216,7 @@ def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
             built = cls()
         except Exception:
             continue
+        qtbot.addWidget(built)
         checked += 1
         surviving = [c.toolTip() for c in built.findChildren(QWidget)
                      if c.toolTip()]
@@ -236,6 +242,7 @@ def test_a_field_with_no_label_keeps_its_tooltip(qtbot):
     from spacr.qt.screens.settings_model import retarget_field_tooltips
 
     host = QWidget()
+    qtbot.addWidget(host)
     host.resize(300, 80)
     lone = QComboBox(host)
     lone.setToolTip("The only help this control has.")
