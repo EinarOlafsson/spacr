@@ -435,7 +435,7 @@ application in the same categories and order used on the spaCR home screen.
 Make Masks
 ~~~~~~~~~~
 
-Make Masks appears under **Data** for manual correction of segmentation
+Make Masks appears under **Tools** for manual correction of segmentation
 masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**,
 **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**,
 **Zoom** and **Recrop**. Draw makes one filled label from a closed outline,
