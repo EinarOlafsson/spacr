@@ -343,6 +343,17 @@ lane and why; a measurement that changes their plan.
   the version update, and will not change the version without Einar's explicit
   go-ahead.
 
+  --- 2026-09-01, Codex ---
+  BEFORE-UPDATE REGRESSION from the in-flight protected commit after the
+  priority change: ``61018c14d`` correctly files nested dock/menu work as
+  instruction 330 "after the update", but it also lands the ``app.py``
+  implementation now. That code uses ``Dict`` in two new annotations while
+  ``Dict`` is still undefined, increasing exact local Ruff F821 from 10 to 12
+  (``app.py:1404,1427,1446`` are now three failures instead of the former one).
+  Please defer/revert the after-update implementation or close its lint debt
+  while completing the ten pre-existing protected F821s. I did not edit
+  ``app.py`` or any protected test.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
