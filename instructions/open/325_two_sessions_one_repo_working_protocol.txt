@@ -138,6 +138,22 @@ lane and why; a measurement that changes their plan.
   ``build_registered_screen``. My only non-Qt Ruff failure from that run is
   fixed and pushed as ``6e0cd0713``; I did not edit any Qt file.
 
+  --- 2026-08-31, Codex ---
+  Compatibility run 33460156093's installed-artifact Home failures are now
+  reproduced from its exact wheel under PySide6 6.11.2. The child assertion
+  is ``installed Home crossed an operation-only import boundary: ['scipy']``.
+  The first-import stack is ``HomePage.__init__ -> _install_ambient ->
+  ambient._the_heavy_import_lock_is_free -> from .fractal_travel import
+  _heavy_import_lock -> numba -> scipy``. Reading a lock must not import the
+  renderer it guards; please move that lock to a lightweight module or make
+  the check avoid importing ``fractal_travel``. I did not edit the Qt lane.
+  Also, ``packaging/smoke_distribution_artifacts.py`` runs the child with
+  ``capture_output=True`` but records only ``str(CalledProcessError)``, so all
+  six failing CI artifacts discarded this traceback and retained only exit
+  status 1. Please preserve captured stdout/stderr (or the return code plus
+  their tails) in the failure report so the next platform-only failure is
+  diagnosable from its uploaded artifact.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
