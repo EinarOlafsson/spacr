@@ -26,7 +26,7 @@
    :alt: Tickets GitHub
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: Licence BSD 3-Clause
+   :alt: Licence PolyForm Noncommercial
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: DOI Zenodo
@@ -58,12 +58,207 @@ Langues: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.
 
-Pour les criblages CRISPR groupés fondés sur l’imagerie, spaCR fournit le flux de travail depuis la segmentation des images jusqu’à la hiérarchisation des résultats. Pour les études de microscopie à haut contenu sans criblage fondé sur le séquençage, les modules de segmentation, de mesure, d’annotation et de classification peuvent être utilisés indépendamment.
+Les modules de segmentation, de mesure, d'annotation et de classification fonctionnent également sans bras de séquençage.
 
-Les images, masques, recadrages, mesures, annotations, prédictions, codes-barres et identifiants de puits sont conservés dans un même projet SQLite, ce qui permet de relier chaque valeur d’un résultat à son objet d’origine.
+Images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identificateurs de puits vivent dans un projet SQLite.
 
-Exécutez spaCR comme application de bureau ou sans interface graphique sur une station de travail, un serveur ou un cluster. Les deux modes utilisent les mêmes modules et CUDA est activé automatiquement lorsqu’un module le prend en charge.
+Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.
 
+Support matériel
+~~~~~~~~~~~~~~~~
+
+.. spacr-hardware-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 18 18 22
+
+   * - Hardware
+     - Cellpose 4
+     - Torch
+     - UMAP / clustering
+   * - NVIDIA (CUDA)
+     - 🟢 GPU
+     - 🟢 GPU
+     - 🟢 GPU
+   * - AMD on Linux (ROCm)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - AMD in an Intel Mac (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Apple Silicon (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Intel Arc/Xe (XPU)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - No GPU
+     - 🟢 CPU
+     - 🟢 CPU
+     - 🟢 CPU
+
+Soutien (stable) Soutien (bêta) CPU seulement
+
+.. spacr-hardware-end
+
+
+Installer spaCR
+---------------
+
+Application de bureau
+~~~~~~~~~~~~~~~~~~~~~
+
+Les installateurs regroupent leur propre Python. Conda n'est pas nécessaire.
+
+.. spacr-installer-links-begin
+
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
+
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11 : télécharger spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: Linux 64 bits : télécharger spaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Anciens programmes d’installation de spaCR
+   :target: ../../source/installers.rst
+
+.. spacr-installer-links-end
+
+Les trois premières icônes téléchargent la version actuelle. L'icône spaCR ouvre l'archive complète de l'installateur. Les liens d'installation et les noms de fichiers en version sont mis à jour par le flux de travail de la version; les installateurs précédents restent dans la même archive de version.
+
+Sous Linux, rendez le fichier téléchargé exécutable, puis exécutez-le :
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+Sur macOS, ouvrez le ``.pkg``. La bêta actuelle n'est pas notariée; si Gatekeeper le bloque, choisissez **Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon**.
+
+Consultez les instructions `guide d'installation <../../source/installer_guide.rst>`_ pour mettre à jour, désinstaller, déconnecter et dépanner.
+
+Installation depuis PyPI
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pour la version publiée sur PyPI, installez spaCR avec pip dans un environnement Conda. Python 3.12 offre le plus grand choix de paquets scientifiques facultatifs :
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install --upgrade pip
+   python -m pip install "spacr[qt]"
+   spacr
+
+spaCR prend en charge Python **3.9 à 3.14**, à l'exception de Python 3.14.1, qui torchvision exclut. Linux est recommandé pour les flux de travail les plus lourds CUDA et ROCm; macOS et Windows sont également pris en charge, et les deux utilisent leur GPUs — macOS via Metal, qui couvre Apple Silicon et les cartes AMD dans Intel Macs, et Windows par CUDA ou DirectML.
+
+Sur un serveur, un cluster ou un exécuteur CI, omettez Qt :
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list
+
+Les intégrations optionnelles sont installées séparément, par exemple ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` et ``spacr[czi,nd2,lif]``. Voir le `guide d'installation <../../source/installer_guide.rst>`_ pour les extras complets et la table de compatibilité Python-version.
+
+Installation avec conda-forge
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Le paquet conda-forge officiel installe spaCR et les dépendances de son application de bureau dans l’environnement actif :
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Installer à partir de la source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Cloner le dépôt et l'installer en mode modifiable, de sorte que votre copie de travail *est* le paquet installé et les modifications prennent effet sans réinstaller::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+La branche par défaut est ``nightly``. Pour une version spécifique::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+Pour tirer des changements plus tard, de l'intérieur du clone::
+
+    git pull
+    pip install -e .
+
+La deuxième ligne n'est nécessaire que lorsque les dépendances ou les points d'entrée ont changé; le code Python est récupéré sans celui-ci. Si une commande exécute toujours un ancien code après avoir tiré, ``spacr-doctor`` signale que ``spacr`` est en fait sur votre chemin, ce qui est la cause habituelle.
+
+Installer à partir de la source (lumière)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+clone complet: 427 Mo. clone de base: 76 Mo.
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+Passer ``docs/``, ``tests/``, les points de contrôle Cellpose, des chiffres archivés et les catalogues de traduction étendus. Le résultat est une commande normale.
+
+Options : ``--dir``, ``--branch`` (par défaut ``main``), ``--with-tests``,``--with-docs``, [``--with-translations`` et ``--no-install``.
+
+``packaging/source_install_excludes.txt`` liste tous les chemins échappés.
+
+
+Points d’entrée en ligne de commande
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr                                      # launch the Qt application
+   spacr-doctor                               # diagnose the installation
+   spacr-run --list                           # list headless modules
+   spacr-run --describe MODULE                # inspect a module contract
+   spacr-run MODULE --settings settings.csv   # execute a module
+   spacr-run validate --module MODULE \
+       --settings settings.csv                # validate before running
+   spacr-repro RUN_DIR                        # replay a recorded run
+
+Définissez ``SPACR_LOG_LEVEL=DEBUG`` lors du dépannage. Les journaux avec rotation sont écrits dans ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` répertorie les modules dotés de points d’entrée en ligne de commande pour une exécution sans interface graphique. Les modules d’annotation, de curation, de comparaison et d’exploration disponibles uniquement dans l’interface graphique sont omis.
+
+
+Flux de travail principal
+-------------------------
+
+Le flux de travail principal comprend six modules :
+
+- **Mask** segmente les cellules, les noyaux, les agents pathogènes et les organites avec Cellpose.
+- **Measure** enregistre dans SQLite les caractéristiques morphologiques, d’intensité, de texture, spatiales et de colocalisation, ainsi que les vignettes des objets.
+- **Annotate** annote les vignettes dans une grille pilotée au clavier et prend en charge les files d’apprentissage actif.
+- **Classify** entraîne des modèles fondés sur les images ou les mesures et enregistre, avec chaque checkpoint, les performances sur les données réservées.
+- **Map Barcodes** associe les lectures FASTQ aux puits et aux gRNA, avec un contrôle qualité de l’abondance, des collisions et de la couverture.
+- **Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.
+
+Le même projet permet également de concevoir des plaques, d’estimer la puissance statistique, de corriger les effets de lot, d’examiner la qualité de la segmentation, d’explorer des graphiques et des extraits d’image liés, d’exporter AnnData, de reprendre un traitement interrompu et d’enregistrer les paramètres associés à chaque résultat.
 
 Vue d’ensemble du flux de travail
 ---------------------------------
@@ -199,132 +394,12 @@ Vue d’ensemble du flux de travail
 Sélectionnez un module du flux de travail pour ouvrir sa page d’API. La grille contient toutes les autres applications, classées dans les mêmes catégories et dans le même ordre que sur l’écran d’accueil de spaCR.
 
 
-Installer spaCR
----------------
-
-Application de bureau
-~~~~~~~~~~~~~~~~~~~~~
-
-Les installateurs de bureau comprennent un environnement privé Python, donc conda et une installation existante Python ne sont pas nécessaires.
-
-.. spacr-installer-links-begin
-
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
-
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Windows 10/11 : télécharger spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
-   :width: 64
-   :alt: Linux 64 bits : télécharger spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
-   :width: 64
-   :alt: Anciens programmes d’installation de spaCR
-   :target: ../../source/installers.rst
-
-.. spacr-installer-links-end
-
-Les trois premières icônes téléchargent la version actuelle. L'icône spaCR ouvre l'archive complète de l'installateur. Les liens d'installation et les noms de fichiers en version sont mis à jour par le flux de travail de la version; les installateurs précédents restent dans la même archive de version.
-
-Sous Linux, rendez le fichier téléchargé exécutable, puis exécutez-le :
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-Sur macOS, ouvrez le ``.pkg``. La bêta actuelle n'est pas notariée; si Gatekeeper le bloque, choisissez **Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon**.
-
-Consultez les instructions `guide d'installation <../../source/installer_guide.rst>`_ pour mettre à jour, désinstaller, déconnecter et dépanner.
-
-Installation avec conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Le paquet conda-forge officiel installe spaCR et les dépendances de son application de bureau dans l’environnement actif :
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   conda install conda-forge::spacr
-   spacr
-
-Installation depuis PyPI
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Pour la version publiée sur PyPI, installez spaCR avec pip dans un environnement Conda. Python 3.12 offre le plus grand choix de paquets scientifiques facultatifs :
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
-   spacr
-
-spaCR prend en charge Python **3.9 à 3.14**, à l’exception de Python 3.14.1, exclu par torchvision. Linux est recommandé pour les flux CUDA ; macOS et Windows sont également pris en charge.
-
-Sur un serveur, un cluster ou un exécuteur CI, omettez Qt :
-
-.. code-block:: bash
-
-   python -m pip install spacr
-   spacr-run --list
-
-Les intégrations optionnelles sont installées séparément, par exemple ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` et ``spacr[czi,nd2,lif]``. Voir le `guide d'installation <../../source/installer_guide.rst>`_ pour les extras complets et la table de compatibilité Python-version.
-
-Points d’entrée en ligne de commande
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   spacr                                      # launch the Qt application
-   spacr-doctor                               # diagnose the installation
-   spacr-run --list                           # list headless modules
-   spacr-run --describe MODULE                # inspect a module contract
-   spacr-run MODULE --settings settings.csv   # execute a module
-   spacr-run validate --module MODULE \
-       --settings settings.csv                # validate before running
-   spacr-repro RUN_DIR                        # replay a recorded run
-
-Définissez ``SPACR_LOG_LEVEL=DEBUG`` lors du dépannage. Les journaux avec rotation sont écrits dans ``~/.spacr/logs/spacr.log``.
-
-``spacr-run --list`` répertorie les modules dotés de points d’entrée en ligne de commande pour une exécution sans interface graphique. Les modules d’annotation, de curation, de comparaison et d’exploration disponibles uniquement dans l’interface graphique sont omis.
-
-
-Flux de travail principal
--------------------------
-
-Le flux de travail principal comprend six modules :
-
-- **Mask** segmente les cellules, les noyaux, les agents pathogènes et les organites avec Cellpose.
-- **Measure** enregistre dans SQLite les caractéristiques morphologiques, d’intensité, de texture, spatiales et de colocalisation, ainsi que les vignettes des objets.
-- **Annotate** annote les vignettes dans une grille pilotée au clavier et prend en charge les files d’apprentissage actif.
-- **Classify** entraîne des modèles fondés sur les images ou les mesures et enregistre, avec chaque checkpoint, les performances sur les données réservées.
-- **Map Barcodes** associe les lectures FASTQ aux puits et aux gRNA, avec un contrôle qualité de l’abondance, des collisions et de la couverture.
-- **Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.
-
-Le même projet permet également de concevoir des plaques, d’estimer la puissance statistique, de corriger les effets de lot, d’examiner la qualité de la segmentation, d’explorer des graphiques et des extraits d’image liés, d’exporter AnnData, de reprendre un traitement interrompu et d’enregistrer les paramètres associés à chaque résultat.
-
-Modules accessibles depuis leurs écrans hôtes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Vingt modules sont intégrés à des écrans hôtes associés au lieu d’être affichés sous forme de tuiles distinctes sur l’écran d’accueil. Chaque module s’ouvre depuis l’en-tête de son écran hôte et utilise le projet actif. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP et Make Masks donnent accès à ces modules intégrés. Leur aide et leur documentation API restent disponibles, et les modules dotés de points d’entrée de pipeline peuvent toujours être exécutés sans interface graphique. Le `guide des fonctionnalités <../../source/features.rst>`_ répertorie chaque module intégré et son écran hôte.
-
 Make Masks
 ~~~~~~~~~~
 
-Make Masks apparaît sous **Data** et permet la correction manuelle des masques de segmentation. Son en-tête donne également accès aux flux de travail Cellpose. Le canevas comporte neuf outils : **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** et **Recrop**. Draw crée une étiquette remplie à partir d’un contour fermé tracé à main levée. Divide sépare un objet fusionné selon une ligne définie par l’utilisateur tout en préservant les étiquettes de tous les autres objets.
+Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
 
-Recrop extrait un champ ne contenant qu’un objet à partir d’une image préparée qui en contient plusieurs. Une boîte englobante autour d’un objet enregistre les régions correspondantes de l’image et du masque dans un nouveau champ, programme ce champ après le champ actif et retire de la file de curation le champ initial contenant plusieurs objets. Recrop modifie le champ actif plutôt que les pixels des étiquettes.
-
-L’exécution de Cellpose-SAM depuis Make Masks affiche deux résultats intermédiaires à côté du masque : la **carte de probabilité cellulaire** et le **champ de flux**. Le masque est défini par un seuil appliqué à la carte de probabilité, et les contrôles de cohérence du flux peuvent rejeter les objets dont les flux dérivés diffèrent du champ prédit. Examinez ces résultats pour distinguer une faible probabilité cellulaire d’un flux incohérent lors de l’évaluation d’un masque incorrect ou incomplet.
+Cellpose-SAM exécute ici la carte de probabilité de cellules et le champ de flux à côté du masque. Voir le `guide des caractéristiques <../../source/features.rst>`_ pour chaque outil.
 
 **Autres ressources**
 
@@ -380,11 +455,86 @@ Générez un rapport matériel et joignez-le à un ticket relatif aux performanc
 
     python tools/spacr_hardware_report.py
 
-La commande affiche un rapport et enregistre une copie sous ``~/.spacr/reports`` ; la dernière ligne indique le chemin du fichier enregistré. ``--quick`` omet les mesures de performance les plus longues et ``--out PATH`` sélectionne un autre emplacement de sortie.
+Enregistre dans ``~/.spacr/reports`` et imprime le chemin. ``--quick`` saute les points de repère plus longs; ``--out PATH`` définit l'emplacement.
 
-Le rapport n’ouvre aucun projet et ne lit aucune donnée de projet. Il enregistre les temps d’importation et des bibliothèques numériques, la mise à l’échelle de l’affichage, les préférences actives, la construction de la fenêtre principale et des écrans de modules, ainsi que les performances des animations. Le fichier de rapport est la seule sortie créée.
+Ne lit pas de données de projet. Importations de temps, bibliothèques numériques, construction de fenêtres et d'animation. Reporte l'émulation processeur-architecture (un x86_64 Python construire sur Apple Silicon) et l'implémentation BLAS de NumPy.
 
-Le rapport identifie également l’émulation de l’architecture du processeur, par exemple une version x86_64 de Python sur Apple Silicon, et l’implémentation BLAS utilisée par NumPy. Ces deux facteurs peuvent affecter sensiblement les performances.
+Référence en ligne de commande
+------------------------------
+
+Chaque commande ci-dessous est installée par ``pip install spacr``. Tous acceptent ``--help``.
+
+Lancement de l'application
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` saute le criblage de configuration modale, qui autrement bloquerait un travail sans surveillance.
+
+``spacr-qt`` et ``spacr-nightly`` sont des alias de ``spacr``.
+
+Quand spaCR ne démarrera pas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` affiche une ligne par vérification, avec une commande à exécuter pour chaque échec. Il indique également quel ``spacr`` est sur le chemin, qui est ce qu'une ancienne install shadows modifiable.
+
+``safespacr`` lit chaque préférence comme son défaut et force la toile de fond, les animations, l'enregistrement de verbes et le préchargement. Utilisez-le quand une préférence sauvegardée casse le lancement. Il ne change rien de façon permanente.
+
+Modules de exécution sans interface graphique
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pas de Qt, pas d'affichage — pour les clusters, les serveurs et les CI.
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+``validate`` lit les mêmes paramètres que l'exécution et signale ce qui manque, contradictoire ou pointant vers rien.
+
+``spacr-run --list`` ne montre que les modules avec un point d'entrée sans interface graphique; l'annotation, la curation et l'exploration sont interactifs et omis.
+
+Inspecter une course après
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Chaque exécution est journalisée à ``~/.spacr/runs`` avec ses paramètres, entrées hashées, sorties, avertissements, versions et graines.
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+Audit des données et installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+Environnement
+~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+Les journaux rotatifs sont écrits à ``~/.spacr/logs/spacr.log``. Joindre ce fichier à un rapport de bogue.
+
 
 Contributions et assistance
 ---------------------------
@@ -394,7 +544,9 @@ Soumettez les rapports de bogues et les demandes de fonctionnalités bien délim
 Licence
 ~~~~~~~~~
 
-spaCR est un logiciel libre sous `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, la même licence que CellProfiler, napari et Cellpose. Il peut être utilisé à toutes fins, y compris commerciales. Les versions 1.5.0.0 à 1.5.0.4 étaient publiées sous la PolyForm Noncommercial License 1.0.0 et les versions jusqu’à 1.4.9.9 sous la licence MIT ; ces versions restent disponibles sous la licence qui les accompagnait.
+spaCR est libéré sous le `Licence BSD 3-Clause <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+
+Si spaCR a contribué à des travaux publiés, une citation est appréciée et n'est pas une condition de la licence — voir `Citing spaCR`_ ci-dessous.
 
 Tutoriels
 ~~~~~~~~~

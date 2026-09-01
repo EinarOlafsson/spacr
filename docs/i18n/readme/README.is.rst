@@ -26,7 +26,7 @@
    :alt: GitHub-mál
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: BSD 3-Clause-leyfi
+   :alt: PolyForm Noncommercial-leyfi
 .. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
    :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
@@ -58,12 +58,207 @@ Tungumál: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 
 spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.
 
-Fyrir myndgreindar samsettar CRISPR-skimanir býður spaCR upp á verkflæði frá myndaðgreiningu til forgangsröðunar niðurstaðna. Í afkastamiklum smásjárrannsóknum án raðgreiningarmiðaðra skimunar er hægt að nota einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.
+Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms.
 
-Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og brunnaauðkenni eru geymd í einu SQLite-verkefni, þannig að rekja má niðurstöðugildi aftur til viðfangsins sem það kom frá.
+Myndir, maskar, vöru, mælingar, notkun, fyrirspurn, barkód og vel viðurkenningar eru í einum SQLite verkefni.
 
-Keyrðu spaCR sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa. Báðar leiðir nota sömu einingar og CUDA er virkjað sjálfkrafa þegar einingin styður það.
+Það virkar eins og skrifstofu notkun eða heiðarlega á vinnustaði, serveri eða klústeri.
 
+Hardware aðstoð
+~~~~~~~~~~~~~~~~
+
+.. spacr-hardware-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 18 18 22
+
+   * - Hardware
+     - Cellpose 4
+     - Torch
+     - UMAP / clustering
+   * - NVIDIA (CUDA)
+     - 🟢 GPU
+     - 🟢 GPU
+     - 🟢 GPU
+   * - AMD on Linux (ROCm)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - AMD in an Intel Mac (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Apple Silicon (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Intel Arc/Xe (XPU)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - No GPU
+     - 🟢 CPU
+     - 🟢 CPU
+     - 🟢 CPU
+
+stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
+
+.. spacr-hardware-end
+
+
+Setja upp spaCR
+---------------
+
+Skjáborðsforrit
+~~~~~~~~~~~~~~~~~~~
+
+Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
+
+.. spacr-installer-links-begin
+
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
+
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir macOS 11+ (Intel og Apple Silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir 64-bita Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Eldri spaCR-uppsetningarforrit
+   :target: ../../source/installers.rst
+
+.. spacr-installer-links-end
+
+Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið installer arkívu. Installer tengsl og verslun filnames eru uppfærdur af útgáfur vinnuflu; fyrri installerir eru enn í sama útgáfa arkíva.
+
+Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
+
+Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
+
+Uppsetning frá PyPI
+~~~~~~~~~~~~~~~~~~~
+
+Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install --upgrade pip
+   python -m pip install "spacr[qt]"
+   spacr
+
+spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útskýrir. Linux er mælt fyrir þyngsta CUDA og ROCm vinnuflöðum; macOS og Windows eru einnig styður, og bæði nota GPUs — macOS með Metal, sem dregur Apple Silicon og AMD kort í Intel Macs, og Windows með CUDA eða DirectML.
+
+Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list
+
+Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installer_guide.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
+
+Uppsetning með conda-forge
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Uppsetur frá kjarninu
+~~~~~~~~~~~~~~~~~~~~~
+
+Klónaðu upphafinn og setja upp það í breyttan hátt, þannig að vinnumópi þína *is* byggð pakka og breytingar munu virka án endursetningu::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+Skammslan er ``nightly``. Fyrir ákveðinn útgáfur::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+Til að draga eftirfarandi breytingar, frá innri klóna::
+
+    git pull
+    pip install -e .
+
+2. línu er aðeins nauðsynlegt þegar afhengingar eða innfangspunktur breytist; Python kóða er taka upp án þess. ef lögun er enn að hlaupa gamla kóða eftir að taka, ``spacr-doctor`` segir að ``spacr`` er í raun á leiðinni, sem er venjulega ástæða.
+
+Að setja upp úr ljósið (Light)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fullt klón: 427 MB. Kjarnklón: 76 MB.
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+Skips ``docs/``, ``tests/`` og Cellpose athygli, skráðir tölur og útbreiddar þýðingar.
+
+Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
+
+``packaging/source_install_excludes.txt`` listar hvert skipað leið.
+
+
+Skipanalínuskipanir
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr                                      # launch the Qt application
+   spacr-doctor                               # diagnose the installation
+   spacr-run --list                           # list headless modules
+   spacr-run --describe MODULE                # inspect a module contract
+   spacr-run MODULE --settings settings.csv   # execute a module
+   spacr-run validate --module MODULE \
+       --settings settings.csv                # validate before running
+   spacr-repro RUN_DIR                        # replay a recorded run
+
+Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
+
+
+Kjarnaverkflæði
+---------------
+
+Aðalvinnuflæðið samanstendur af sex einingum:
+
+- **Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.
+- **Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.
+- **Annotate** merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms.
+- **Classify** þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti.
+- **Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.
+- **Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.
+
+Sama verkefni má einnig nota til að hanna plötur, meta tölfræðilegan styrk, leiðrétta lotuáhrif, kanna gæði hlutunar, skoða tengd gröf og myndúrklippur, flytja út AnnData, halda áfram vinnslu sem var stöðvuð og skrá stillingarnar sem liggja að baki hverri niðurstöðu.
 
 Yfirlit yfir verkflæðið
 -----------------------
@@ -199,134 +394,14 @@ Yfirlit yfir verkflæðið
 Veldu verkflæðiseiningu til að opna API-síðu hennar. Taflan sýnir öll önnur forrit í sömu flokkum og röð og á upphafssíðu spaCR.
 
 
-Setja upp spaCR
----------------
-
-Skjáborðsforrit
-~~~~~~~~~~~~~~~~~~~
-
-Stöðvarstöðvarnar innihalda persónulegt Python umhverfi, þannig að konda og núverandi Python uppsetningu er ekki nauðsynlegt.
-
-.. spacr-installer-links-begin
-
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
-
-.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Sækja spaCR 1.5.0.4 fyrir Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: Sækja spaCR 1.5.0.4 fyrir macOS 11+ (Intel og Apple Silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
-   :width: 64
-   :alt: Sækja spaCR 1.5.0.4 fyrir 64-bita Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
-   :width: 64
-   :alt: Eldri spaCR-uppsetningarforrit
-   :target: ../../source/installers.rst
-
-.. spacr-installer-links-end
-
-Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið installer arkívu. Installer tengsl og verslun filnames eru uppfærdur af útgáfur vinnuflu; fyrri installerir eru enn í sama útgáfa arkíva.
-
-Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
-
-Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
-
-Uppsetning með conda-forge
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   conda install conda-forge::spacr
-   spacr
-
-Uppsetning frá PyPI
-~~~~~~~~~~~~~~~~~~~
-
-Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
-   spacr
-
-spaCR styður Python **3.9 til 3.14**, að undanskildu Python 3.14.1 sem torchvision styður ekki. Mælt er með Linux fyrir CUDA-verkflæði; macOS og Windows eru einnig studd.
-
-Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
-
-.. code-block:: bash
-
-   python -m pip install spacr
-   spacr-run --list
-
-Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installer_guide.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
-
-Skipanalínuskipanir
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   spacr                                      # launch the Qt application
-   spacr-doctor                               # diagnose the installation
-   spacr-run --list                           # list headless modules
-   spacr-run --describe MODULE                # inspect a module contract
-   spacr-run MODULE --settings settings.csv   # execute a module
-   spacr-run validate --module MODULE \
-       --settings settings.csv                # validate before running
-   spacr-repro RUN_DIR                        # replay a recorded run
-
-Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
-
-``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
-
-
-Kjarnaverkflæði
----------------
-
-Aðalvinnuflæðið samanstendur af sex einingum:
-
-- **Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.
-- **Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.
-- **Annotate** merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms.
-- **Classify** þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti.
-- **Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.
-- **Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.
-
-Sama verkefni má einnig nota til að hanna plötur, meta tölfræðilegan styrk, leiðrétta lotuáhrif, kanna gæði hlutunar, skoða tengd gröf og myndúrklippur, flytja út AnnData, halda áfram vinnslu sem var stöðvuð og skrá stillingarnar sem liggja að baki hverri niðurstöðu.
-
-Einingar sem eru tiltækar úr hýsingarskjám
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Tuttugu einingar eru samþættar við tengda hýsingarskjái í stað þess að birtast sem aðskildir reitir á heimaskjánum. Hver eining opnast af hausstiku hýsingarskjásins og notar virka verkefnið. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP og Make Masks bjóða upp á þessar samþættu einingar. Hjálpar- og API-skjöl þeirra eru áfram tiltæk og einingar með inngang fyrir vinnslukeðju má enn keyra án grafísks viðmóts. `Eiginleikahandbókin <../../source/features.rst>`_ listar hverja samþætta einingu og hýsingarskjá hennar.
-
 Make Masks
 ~~~~~~~~~~
 
-Make Masks birtist undir **Data** og býður upp á handvirka leiðréttingu á hlutunargrímum. Af hausstikunni má einnig opna Cellpose-vinnuferlin. Vinnusvæðið hefur níu verkfæri: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** og **Recrop**. Draw býr til eitt fyllt merki úr lokaðri fríhendisútlínu. Divide aðskilur samvaxinn hlut eftir línu sem notandinn skilgreinir og varðveitir öll önnur hlutamerki.
+Make Masks birtast undir **Tools** fyrir höndilega korrigeringu af sviði maskar; másthead hans opnar Cellpose vinnuflokk. Nín tól: **Brush**, **Erase**,**Erasa objekt**, #**Wand +**, [**Wan −**, "**Draw**, '**Divide**,'**Zoom** og '**Recrop**.
 
-Recrop dregur út myndsvið með einum hlut úr undirbúinni mynd sem inniheldur marga hluti. Afmarkandi rammi utan um einn hlut skrifar samsvarandi svæði myndar og grímu sem nýtt myndsvið, setur það á eftir núverandi myndsviði í biðröðinni og fjarlægir upprunalega myndsviðið með mörgum hlutum úr yfirferðarröðinni. Recrop breytir virka myndsviðinu en ekki merkjapixlum.
+Cellpose-SAM fer hér að sýna möguleika kartan og flutningsfólkið við maskinn. Sjá `Leikstjóri <../../source/features.rst>`_ fyrir hvert tól.
 
-Þegar Cellpose-SAM er keyrt úr Make Masks birtast tvær milliniðurstöður við hlið grímunnar: **líkindakort frumna** og **flæðisvið**. Gríman er skilgreind með þröskuldi á líkindakortinu og samræmispróf á flæði geta hafnað hlutum ef afleitt flæði þeirra víkur frá spáða sviðinu. Skoðaðu þessar niðurstöður til að greina lágar frumulíkur frá ósamræmdu flæði þegar röng eða ófullgerð gríma er metin.
-
-**Önnur úrræði**
+**Andrar auðlindir**
 
 - `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
 - `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
@@ -380,11 +455,86 @@ Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::
 
     python tools/spacr_hardware_report.py
 
-Skipunin birtir skýrslu og vistar afrit undir ``~/.spacr/reports``; síðasta línan tilgreinir slóð vistuðu skrárinnar. ``--quick`` sleppir lengri afkastamælingum og ``--out PATH`` velur annan stað fyrir úttakið.
+Spara til ``~/.spacr/reports`` og trúa leiðinni. ``--quick`` skiptir lengri skilyrði; ``--out PATH`` setur staðsetningu.
 
-Skýrslan opnar ekki verkefni og les engin verkefnisgögn. Hún skráir tímasetningar innflutnings og tölulegra safna, skjákvörðun, virkar kjörstillingar, smíði aðalglugga og einingarskjáa og afköst hreyfimynda. Skýrsluskráin er eina úttakið sem hún býr til.
+Lesa engin verkefni gögnum. Tíms innfang, fjölbreytna bókasafn, vinstri byggingu og uppgötvun. Rannsóknir um meðferð-arquitectur emulans (a x86_64 Python bygging á Apple Silicon) og BLAS framkvæmd NumPy.
 
-Skýrslan greinir einnig hermun á örgjörvaarkitektúr, svo sem x86_64-útgáfu af Python á Apple Silicon, og BLAS-útfærsluna sem NumPy notar. Hvort tveggja getur haft veruleg áhrif á afköst.
+Orðlinna reference
+----------------------
+
+Öll beint hér að neðan er sett með ``pip install spacr``. Allir samþykkir ``--help``.
+
+Að byrja við umsókn
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` skípa modal setup skján, sem annars myndi blokkja óþekkt vinnu.
+
+``spacr-qt`` og ``spacr-nightly`` eru alias af ``spacr``.
+
+Þegar spaCR mun ekki byrja
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` drukkar eitt línu á athygli, með komandi til að kjósa fyrir hvert mismunandi. Það segir einnig hvaða ``spacr`` er á leiðinni, sem er það sem gamla redigable uppsetningu skugga.
+
+``safespacr`` lætur hvert forrit eins og uppáhaldsins og þykir bakgrunni, tegundum, verbose logging og hlaða út. Nottu það þegar sparaður forrit breytir upphafið. Það breytist ekkert stöðugt.
+
+Að hlaupa modúlum án heiðar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+``validate`` lætur sömu settun sem fer myndi og segir hvað er saknað, óþekkt eða sýnir ekkert.
+
+``spacr-run --list`` sýnir aðeins mólur með heiðarlegt innfangspunkt; notkun, lækning og rannsóknir eru samskipt og yfirgefið.
+
+Spurning á leiðinni síðar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hver rán er skráður á ``~/.spacr/runs`` með settum sínum, hashed inntölum, úttökum, varningar, útgáfur og frönum.
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+Ákvarðanir gögnum og uppsetningu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+Umhverfi
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+Rotating logs eru skrifað í ``~/.spacr/logs/spacr.log``. Sættu þessar skál á bug-report.
+
 
 Framlög og aðstoð
 ------------------------
@@ -394,7 +544,9 @@ Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-m�
 Leyfi
 ~~~~~~~~~
 
-spaCR er opinn hugbúnaður samkvæmt `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, sama leyfi og CellProfiler, napari og Cellpose nota. Nota má hann í hvaða tilgangi sem er, þar með talið í atvinnuskyni. Útgáfur 1.5.0.0 til 1.5.0.4 báru PolyForm Noncommercial License 1.0.0 og útgáfur til og með 1.4.9.9 báru MIT-leyfið; þær útgáfur eru áfram tiltækar samkvæmt því leyfi sem fylgdi þeim.
+spaCR er frelsað undir `BSD 3-Klausur leyfi <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+
+Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá `Citing spaCR`_ hér neðan.
 
 Kennsluefni
 ~~~~~~~~~~~
