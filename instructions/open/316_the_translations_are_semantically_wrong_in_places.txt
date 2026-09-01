@@ -200,3 +200,34 @@ WATCH, and this is the whole difficulty:
   The resolver reports DETECTED and USABLE separately on purpose, and a
   translation that promises use where only detection happened is the
   failure 319 spends a section warning about.
+
+
+--------------------------------------------------------------------------------
+WHICH TESTS ARE RED WHILE THIS IS OPEN, AND WHY THAT IS CORRECT
+--------------------------------------------------------------------------------
+
+Two suites fail until the translation pass lands. Both are red ON
+PURPOSE. Do not green them by filling rows with the English text or by
+re-pinning a count -- that makes the suite pass while leaving the UI
+untranslated, and removes the only thing still asking for the work.
+
+  tests/qt/test_i18n_caption_ratchet.py
+      three failures: the compact caption surface, the generated-catalog
+      owners, and the external caption layer. New user-facing strings
+      landed today -- the Home band names, nine Help labels, the Import
+      rename, the hardware table headers -- and the ratchet counts them.
+
+  tests/qt/test_the_setup_screen_speaks_the_chosen_language.py
+      one failure: `test_every_slide_title_and_blurb_is_in_the_catalog`,
+      for the spaCR-mode caption. It was green before 2026-08-31 with the
+      667-character version; cutting that caption to 253 replaced the
+      string, so the catalog entry no longer matches. The shorter text is
+      the one to translate -- translating the long one would be nine
+      translations of text that is not on screen.
+
+A NOTE ON WHY THESE WERE NOT SIMPLY LEFT ALONE. The caption was cut
+because 667 characters is not readable in any language and would have
+been a cost paid nine times in text no reviewer could check at a glance.
+Shortening it before translating is cheaper than translating it and
+shortening it afterwards, which would waste the pass this file is
+waiting for.
