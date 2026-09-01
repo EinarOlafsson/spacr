@@ -54,6 +54,24 @@ LOG = logging.getLogger("spacr.qt.figure_queue")
 #: cost render time nobody can see.
 PDF_DISPLAY_MAX_PX = 2200
 
+#: Ceiling for a render the USER's zoom asked for.
+#:
+#: The first vector render is sized for a figure filling a panel. Zooming in
+#: then magnifies that raster, so past a point the user is looking at big
+#: pixels of a vector page -- which is the one thing a vector page exists to
+#: avoid. Zooming re-renders the page finer instead, up to here.
+#:
+#: 8000 px on the long side is ~256 MB as ARGB, which is the reason for a
+#: ceiling at all: it is a working buffer for ONE figure, held only while that
+#: figure is on screen.
+PDF_ZOOM_MAX_PX = 8000
+
+#: How much further in the user must zoom before the page is re-rendered.
+#:
+#: Not 1.0. Every wheel notch would otherwise start a render, and the renders
+#: would queue behind a user who is still turning the wheel.
+PDF_ZOOM_REFINE_RATIO = 1.6
+
 
 #: Where a figure remembers the text size a user chose for IT, as opposed to
 #: the size every figure gets from :func:`spacr.qt.preferences.get_figure_text_size`.
@@ -599,6 +617,9 @@ class FigureQueue(QWidget):
         #: :meth:`_request_pdf_refinement`.
         self._pdf_state: Dict[int, Any] = {}
         self._pdf_seq = 0
+        #: Longest edge each slot's vector page was last rendered at, so a
+        #: zoom knows whether a finer render would show anything new.
+        self._pdf_render_px: Dict[int, int] = {}
         #: Newest live-preview render; older results are dropped on arrival.
         self._preview_seq = 0
         #: A preview draw is on a worker right now.
@@ -638,6 +659,9 @@ class FigureQueue(QWidget):
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
+        # ZOOMING PAST THE RASTER RE-RENDERS THE VECTOR PAGE, rather than
+        # magnifying pixels of it. See `_on_view_zoomed`.
+        self._view.zoom_changed.connect(self._on_view_zoomed)
         # THE CONTAINER DOES NOT PAINT A BACKGROUND. Instruction 118 asks for
         # figures with "not black not white just transparent", and a
         # transparent PNG dropped into a container that paints its own base
@@ -1429,6 +1453,7 @@ class FigureQueue(QWidget):
         self._figure_bytes.clear()
         self._titles.clear()
         self._pdf_state.clear()
+        self._pdf_render_px.clear()
         self._count = 0
         self._current = -1
         self._view.set_pixmap(QPixmap())
@@ -1515,12 +1540,60 @@ class FigureQueue(QWidget):
         self._pdf_seq += 1
         token = self._pdf_seq
         self._pdf_state[idx] = token
+        # The baseline a later zoom compares against: without it the first
+        # wheel notch cannot tell whether a finer render would show anything.
+        self._pdf_render_px[idx] = PDF_DISPLAY_MAX_PX
         path = str(pdf)
         # The submitted callable runs on a worker thread: it touches no
         # widget, no member of this object, and builds a QImage rather than a
         # QPixmap. Everything it needs is bound as a default argument.
         self._jobs.submit(
             lambda _i=idx, _t=token, _p=path: (_i, _t, render_pdf_to_image(_p)),
+            self._on_pdf_rendered)
+
+    def _on_view_zoomed(self, scale: float) -> None:
+        """Render the vector page finer when the user zooms into it.
+
+        THE POINT OF KEEPING A PDF AT ALL. Without this the page is rasterised
+        once at :data:`PDF_DISPLAY_MAX_PX` and zooming magnifies that raster,
+        so a user who zooms into a spilled figure is looking at big pixels of
+        a vector document -- reported as "I can zoom into the very old figures
+        ... that png should be higher resolution ... and I should be able to
+        zoom into the PDF version".
+
+        Re-rendering rather than raising the initial size is what keeps this
+        affordable: the fine render happens for the ONE figure being examined,
+        when it is examined, instead of for every figure a run produces.
+        """
+        idx = self._current
+        if idx < 0 or scale <= 1.0:
+            return
+        png = self._png_paths.get(idx)
+        if not png:
+            return
+        pdf = _sibling_pdf(png)
+        if not pdf.is_file():
+            return
+        try:
+            width = max(1, int(self._view.viewport().width()))
+        except Exception:                                    # noqa: BLE001
+            return
+        # What the view is actually asking the page for, in pixels.
+        wanted = int(width * float(scale))
+        have = int(self._pdf_render_px.get(idx, 0))
+        if have and wanted < have * PDF_ZOOM_REFINE_RATIO:
+            return
+        target = min(max(wanted, PDF_DISPLAY_MAX_PX), PDF_ZOOM_MAX_PX)
+        if have >= target:
+            return                       # already as fine as it will ever get
+        self._pdf_seq += 1
+        token = self._pdf_seq
+        self._pdf_state[idx] = token
+        self._pdf_render_px[idx] = target
+        path = str(pdf)
+        self._jobs.submit(
+            lambda _i=idx, _t=token, _p=path, _m=target: (
+                _i, _t, render_pdf_to_image(_p, max_px=_m)),
             self._on_pdf_rendered)
 
     def _on_pdf_rendered(self, payload: Optional[Tuple]) -> None:
