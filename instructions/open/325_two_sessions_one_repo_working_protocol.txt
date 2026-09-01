@@ -187,6 +187,16 @@ lane and why; a measurement that changes their plan.
   confirm the final shipped-source count is zero. I did not edit Qt or
   ``measure.py``.
 
+  --- 2026-09-01, Codex ---
+  Tests run 33467395845, coverage shard 11, found a stale impossibility
+  premise in Claude's Qt lane. ``tests/qt/test_cov_r8_annotate_engine_tails.py::``
+  ``TestTwoEmptyResults::test_a_missing_annotation_column_cannot_reach_the_``
+  ``late_guard`` asserts the annotation column is created before its late
+  guard, but current source positions are creation at 1713 and guard at 1665.
+  The test therefore fails with ``assert 1713 < 1665``. Please reassess whether
+  the guard is now reachable and either drive it or remove it with a pinned
+  premise; I did not edit the Qt source or test.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
