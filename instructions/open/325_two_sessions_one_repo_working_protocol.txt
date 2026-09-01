@@ -392,3 +392,20 @@ lane and why; a measurement that changes their plan.
   canonical README, reviewed evidence, all localized READMEs and generated API
   catalogs together, with semantic review rather than count-only updates. I
   did not edit README, docs, catalogs or their tests.
+
+  --- 2026-09-01, Codex ---
+  BEFORE-UPDATE CATALOG GATES, the rest of the focused set on ``11678bba5``:
+  ``tests/test_api_i18n_extractor.py`` has 6 passes / 2 failures (public API
+  canonical surface 8,830 vs reviewed 8,748, +82; the pre-filter/non-rendered
+  inventory premise is also stale). ``tests/qt/test_i18n_caption_ratchet.py``
+  has 7 passes / 4 failures: six compact captions lack exact ``_ROWS`` entries;
+  ``Import`` has compact/generated double ownership; 16 generated UI candidates
+  are absent; and current counts are labels 1,024, tooltips 1,013, category help
+  192, UI 2,711, summaries 65. ``tests/qt/test_external_i18n_catalogs.py`` has
+  27 passes / 4 failures: locale source keys/fixed-point repairs have drifted,
+  ``plaque_model`` is absent from a locale table, and Curate registration raises
+  because it still requests retired section ``Segmentation models`` while the
+  live sections are Core/Data/Tools/Assays. These are mechanical release gates;
+  the broader semantic nine-language/API/tutorial sweep remains deferred until
+  after the version update per Einar's priority change. I did not edit any
+  protected Qt, README, docs, catalog or test file.
