@@ -13,6 +13,8 @@ import re
 from typing import Dict
 
 from PySide6.QtCore import Qt, Signal
+
+from ..i18n import tr
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QDialog,
@@ -131,7 +133,7 @@ class BarcodeRegexDialog(QDialog):
 
         actions = QHBoxLayout()
         self._default_button = QPushButton("Reset spaCR default", self)
-        self._example_button = QPushButton("Use bundled example", self)
+        self._example_button = QPushButton(tr("Load test data"), self)
         actions.addWidget(self._default_button)
         actions.addWidget(self._example_button)
         actions.addStretch(1)
@@ -143,7 +145,7 @@ class BarcodeRegexDialog(QDialog):
         self._sample_input.setFont(mono)
         self._sample_input.setMaximumHeight(90)
         self._sample_input.setPlaceholderText(
-            "Paste a DNA sequence here, or click “Use bundled example”."
+            "Paste a DNA sequence here, or click “Load test data”."
         )
         outer.addWidget(self._sample_input)
 
