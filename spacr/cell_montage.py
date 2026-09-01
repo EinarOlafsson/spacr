@@ -1166,13 +1166,14 @@ class MontagePlan:
 
 
 def _well_labels(frame: pd.DataFrame, keys: Sequence[str]) -> pd.Series:
-    if list(keys) == ["prc"]:
-        return frame["prc"].astype(str)
-    parts = [frame[k].astype(str) for k in keys]
-    joined = parts[0]
-    for part in parts[1:]:
-        joined = joined + "_" + part
-    return joined
+    columns = frame.loc[:, list(keys)]
+    missing = columns.isna().any(axis=1)
+    text = columns.astype(str)
+    joined = (text.iloc[:, 0] if len(keys) == 1
+              else text.agg("_".join, axis=1))
+    result = joined.astype(object)
+    result.loc[missing] = None
+    return result
 
 
 def _shared_well_key(objects: pd.DataFrame, wells: pd.DataFrame) -> List[str]:
