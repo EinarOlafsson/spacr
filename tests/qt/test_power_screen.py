@@ -637,19 +637,24 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     # claim is stated as the rule rather than as the count — otherwise the
     # test reads as a regression in Power the day anything else is filed
     # under Design.
+    # DATA, not DESIGN. Home was restructured into Core/Data/Tools/Assays
+    # on 2026-08-31 and Power moved with it; SECTION_DESIGN survives as a
+    # legacy alias that nothing is filed under any more.
+    section = app_mod.SECTION_DATA
     neighbours = [row[0] for row in app_mod.APPS
-                  if row[3] == app_mod.SECTION_DESIGN and row[0] != APP_KEY]
+                  if row[3] == section and row[0] != APP_KEY]
     app_mod.unregister_app(APP_KEY)
-    assert (app_mod.SECTION_DESIGN in app_mod.SECTIONS) == bool(neighbours), (
+    assert (section in app_mod.SECTIONS) == bool(neighbours), (
         "a section is drawn exactly when something is filed under it; "
-        f"Design still holds {neighbours}")
+        f"{section} still holds {neighbours}")
 
     assert register() is True
     assert register() is False, "a second import must not raise or duplicate"
 
     row = next(row for row in app_mod.APPS if row[0] == APP_KEY)
-    assert row[3] == app_mod.SECTION_DESIGN
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
+    assert row[3] == section
+    assert section in app_mod.SECTIONS
+    assert section in app_mod.SECTION_ORDER
     # Through the accessor, not the raw table: this screen's row is declared
     # in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES until somebody
     # asks is a stand-in that has not imported this module.

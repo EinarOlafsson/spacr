@@ -68,11 +68,14 @@ def screen(qtbot, coefficients):
 # ---------------------------------------------------------------------------
 
 def test_the_screen_registers_itself_through_the_seam():
-    from spacr.qt.app import APPS, SECTION_EXPLORE, registered_factory
+    # CORE, not EXPLORE, since the 2026-08-31 Home restructure.
+    from spacr.qt.app import (APPS, SECTION_CORE, SECTION_ORDER,
+                              registered_factory)
 
     row = next((r for r in APPS if r[0] == screen_module.APP_KEY), None)
     assert row is not None, "importing the module did not register the app"
-    assert row[3] == SECTION_EXPLORE
+    assert row[3] == SECTION_CORE
+    assert SECTION_CORE in SECTION_ORDER
     assert registered_factory(screen_module.APP_KEY) is (
         screen_module.make_profiler_screen)
     assert screen_module.register() is False, "register() is not idempotent"
