@@ -69,11 +69,10 @@ Images, masks, crops, measurements, annotations, predictions, barcodes and
 well identifiers live in one SQLite project.
 
 Runs as a desktop application or headlessly on a workstation, server or
-cluster; both drive the same modules. GPU where supported, CPU otherwise —
-see `What each configuration accelerates`_.
+cluster.
 
-What each configuration accelerates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hardware support
+~~~~~~~~~~~~~~~~
 
 .. spacr-hardware-begin
 
@@ -114,6 +113,189 @@ What each configuration accelerates
 
 .. spacr-hardware-end
 
+
+Install spaCR
+-------------
+
+Desktop application
+~~~~~~~~~~~~~~~~~~~
+
+The installers bundle their own Python. Conda is not required.
+
+.. spacr-installer-links-begin
+
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
+
+.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Download spaCR 1.5.0.4 for Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: Download spaCR 1.5.0.4 for macOS 11+ (Intel and Apple silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: Download spaCR 1.5.0.4 for 64-bit Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Earlier spaCR installers
+   :target: docs/source/installers.rst
+
+.. spacr-installer-links-end
+
+The first three icons download the current release. The spaCR icon opens the
+complete installer archive. Installer links and versioned filenames are
+updated by the release workflow; earlier installers remain in the same
+release archive.
+
+On Linux, make the downloaded file executable and run it:
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
+blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
+
+See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
+offline and troubleshooting instructions.
+
+PyPI installation
+~~~~~~~~~~~~~~~~~
+
+For the PyPI release, install spaCR with pip inside a Conda environment.
+Python 3.12 has the widest choice of optional scientific packages:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   python -m pip install --upgrade pip
+   python -m pip install "spacr[qt]"
+   spacr
+
+spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which
+torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm
+workflows; macOS and Windows are also supported, and both use their GPUs —
+macOS through Metal, which covers Apple Silicon and the AMD cards in Intel
+Macs, and Windows through CUDA or DirectML.
+
+For a server, cluster or CI runner, omit Qt:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list
+
+Optional integrations are installed separately, for example
+``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and
+``spacr[czi,nd2,lif]``. See the `installation guide
+<docs/source/installer_guide.rst>`_ for the complete extras and Python-version
+compatibility table.
+
+Conda-forge installation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The official conda-forge package installs spaCR and its desktop dependencies
+into the active environment:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Install from source
+~~~~~~~~~~~~~~~~~~~
+
+Clone the repository and install it in editable mode, so your working copy
+*is* the installed package and edits take effect without reinstalling::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+The default branch is ``nightly``. For a specific release::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+To pull later changes, from inside the clone::
+
+    git pull
+    pip install -e .
+
+The second line is only needed when dependencies or entry points changed;
+Python code is picked up without it. If a command still runs old code after
+pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
+which is the usual cause.
+
+Install from source (light)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Full clone: 427 MB. Core clone: 76 MB.
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+Skips ``docs/``, ``tests/``, Cellpose checkpoints, archived figures and the
+extended translation catalogs. The result is a normal checkout.
+
+Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``,
+``--with-docs``, ``--with-translations``, ``--no-install``.
+
+``packaging/source_install_excludes.txt`` lists every skipped path.
+
+
+Command-line entry points
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr                                      # launch the Qt application
+   spacr-doctor                               # diagnose the installation
+   spacr-run --list                           # list headless modules
+   spacr-run --describe MODULE                # inspect a module contract
+   spacr-run MODULE --settings settings.csv   # execute a module
+   spacr-run validate --module MODULE \
+       --settings settings.csv                # validate before running
+   spacr-repro RUN_DIR                        # replay a recorded run
+
+Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
+to ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` lists modules with headless command-line entry points.
+GUI-only annotation, curation, comparison and exploration modules are omitted.
+
+
+Core workflow
+-------------
+
+The primary workflow comprises six modules:
+
+- **Mask** segments cells, nuclei, pathogens and organelles with Cellpose.
+- **Measure** writes morphology, intensity, texture, spatial and
+  colocalization features, together with object crops, to SQLite.
+- **Annotate** labels crops in a keyboard-driven grid and supports
+  active-learning queues.
+- **Classify** trains image or measurement-based models and records held-out
+  performance with each checkpoint.
+- **Map Barcodes** maps FASTQ reads to wells and gRNAs, with abundance,
+  collision and coverage QC.
+- **Regression** estimates guide, gene, condition and control effects with
+  model families suited to continuous, fractional and count responses.
+
+The same project can also design plates, estimate power, correct batch effects,
+inspect segmentation quality, explore linked plots and crops, export AnnData,
+resume interrupted work and record the settings behind each result.
 
 Workflow at a glance
 --------------------
@@ -169,77 +351,77 @@ Workflow at a glance
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Import API
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Run Compare API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Experiment Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Power / Design API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Dose–Response API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the QC API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Make Masks API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Align & Stitch API
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Image UMAP API
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Gate Editor API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Graph Builder API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Plaque Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Recruitment API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Invasion Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Open the Replication Assay API
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -249,189 +431,6 @@ Workflow at a glance
 Select a workflow module to open its API page. The grid contains every other
 application in the same categories and order used on the spaCR home screen.
 
-
-Install spaCR
--------------
-
-Desktop application
-~~~~~~~~~~~~~~~~~~~
-
-The installers bundle their own Python. Conda is not required.
-
-.. spacr-installer-links-begin
-
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
-
-.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
-   :width: 64
-   :alt: Download spaCR 1.5.0.4 for Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
-   :width: 64
-   :alt: Download spaCR 1.5.0.4 for macOS 11+ (Intel and Apple silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
-   :width: 64
-   :alt: Download spaCR 1.5.0.4 for 64-bit Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
-   :width: 64
-   :alt: Earlier spaCR installers
-   :target: docs/source/installers.rst
-
-.. spacr-installer-links-end
-
-The first three icons download the current release. The spaCR icon opens the
-complete installer archive. Installer links and versioned filenames are
-updated by the release workflow; earlier installers remain in the same
-release archive.
-
-On Linux, make the downloaded file executable and run it:
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
-blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
-
-See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
-offline and troubleshooting instructions.
-
-Conda-forge installation
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The official conda-forge package installs spaCR and its desktop dependencies
-into the active environment:
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   conda install conda-forge::spacr
-   spacr
-
-PyPI installation
-~~~~~~~~~~~~~~~~~
-
-For the PyPI release, install spaCR with pip inside a Conda environment.
-Python 3.12 has the widest choice of optional scientific packages:
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 -y
-   conda activate spacr
-   python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
-   spacr
-
-spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which
-torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm
-workflows; macOS and Windows are also supported, and both use their GPUs —
-macOS through Metal, which covers Apple Silicon and the AMD cards in Intel
-Macs, and Windows through CUDA or DirectML.
-
-For a server, cluster or CI runner, omit Qt:
-
-.. code-block:: bash
-
-   python -m pip install spacr
-   spacr-run --list
-
-Optional integrations are installed separately, for example
-``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and
-``spacr[czi,nd2,lif]``. See the `installation guide
-<docs/source/installer_guide.rst>`_ for the complete extras and Python-version
-compatibility table.
-
-Install from source
-~~~~~~~~~~~~~~~~~~~
-
-Clone the repository and install it in editable mode, so your working copy
-*is* the installed package and edits take effect without reinstalling::
-
-    git clone https://github.com/EinarOlafsson/spacr.git
-    cd spacr
-    conda create -n spacr python=3.12 -y
-    conda activate spacr
-    pip install -e .
-    spacr
-
-The default branch is ``nightly``. For a specific release::
-
-    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
-
-To pull later changes, from inside the clone::
-
-    git pull
-    pip install -e .
-
-The second line is only needed when dependencies or entry points changed;
-Python code is picked up without it. If a command still runs old code after
-pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
-which is the usual cause.
-
-Install from source, without the whole repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Full clone: 427 MB. Core clone: 76 MB.
-
-::
-
-    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
-    sh install_spacr.sh --branch nightly
-
-Skips ``docs/``, ``tests/``, Cellpose checkpoints, archived figures and the
-extended translation catalogs. The result is a normal checkout.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``,
-``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` lists every skipped path.
-
-
-Command-line entry points
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   spacr                                      # launch the Qt application
-   spacr-doctor                               # diagnose the installation
-   spacr-run --list                           # list headless modules
-   spacr-run --describe MODULE                # inspect a module contract
-   spacr-run MODULE --settings settings.csv   # execute a module
-   spacr-run validate --module MODULE \
-       --settings settings.csv                # validate before running
-   spacr-repro RUN_DIR                        # replay a recorded run
-
-Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
-to ``~/.spacr/logs/spacr.log``.
-
-``spacr-run --list`` lists modules with headless command-line entry points.
-GUI-only annotation, curation, comparison and exploration modules are omitted.
-
-
-What you can do
----------------
-
-The primary workflow comprises six modules:
-
-- **Mask** segments cells, nuclei, pathogens and organelles with Cellpose.
-- **Measure** writes morphology, intensity, texture, spatial and
-  colocalization features, together with object crops, to SQLite.
-- **Annotate** labels crops in a keyboard-driven grid and supports
-  active-learning queues.
-- **Classify** trains image or measurement-based models and records held-out
-  performance with each checkpoint.
-- **Map Barcodes** maps FASTQ reads to wells and gRNAs, with abundance,
-  collision and coverage QC.
-- **Regression** estimates guide, gene, condition and control effects with
-  model families suited to continuous, fractional and count responses.
-
-The same project can also design plates, estimate power, correct batch effects,
-inspect segmentation quality, explore linked plots and crops, export AnnData,
-resume interrupted work and record the settings behind each result.
 
 Make Masks
 ~~~~~~~~~~
@@ -446,22 +445,7 @@ in a crowded field into its own field.
 Cellpose-SAM runs here show the cell-probability map and the flow field beside
 the mask. See the `feature guide <docs/source/features.rst>`_ for each tool.
 
-Objects and settings
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from
-their masks, and between zero and twenty-six organelle slots. Each organelle
-slot has an independent channel, diameter, morphology preset and detection
-method.
-
-The settings panel displays controls only when they apply. Organelle slots
-above the configured count are hidden, an object with no assigned channel is
-excluded from the run, and morphology-specific controls are shown only for the
-selected method. The **3D** and **Time** switches define the dimensionality:
-``z_stack`` enables volumetric settings, ``timelapse`` enables tracking
-settings, and four-dimensional settings appear when both are enabled.
-
-Choose the next page by what you want to do:
+**Other resources**
 
 - `Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_
   — 73 guided workflows from installation through hit investigation.

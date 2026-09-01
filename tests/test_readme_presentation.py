@@ -42,7 +42,12 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     text = _read(README)
     features = _read(FEATURES)
 
-    assert "What you can do\n---------------" in text
+    # RENAMED on 2026-09-01. "What you can do" said nothing the six
+    # module names underneath it did not already say; "Core workflow" is
+    # what the section actually is, and it now sits directly above the
+    # module grid rather than above the installers.
+    assert "Core workflow\n-------------" in text
+    assert "What you can do" not in text
     assert "The primary workflow comprises six modules" in text
     assert "docs/source/features.rst" in text
     # Image substitutions carry accessibility text and targets but are not
@@ -258,31 +263,35 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
     )
     app_width = generator.APP_COLUMNS * generator.APP_DISPLAY_PERCENT
     assert top_width < 100
-    # Not an exact equality. APP_DISPLAY_PERCENT is the top row's width
-    # divided by the column count and ROUNDED to three decimals, so it is
-    # only exact when the column count divides 99.5. At six columns it is
-    # 16.583, and six of those come to 99.498 rather than 99.5.
+
+    # THE BUTTONS MATCH, NOT THE ROWS. Asked for on 2026-08-31: "the
+    # dimensions of the core module buttons should be the same as the
+    # other module buttons".
     #
-    # The 0.002% shortfall is two thousandths of one percent of the
-    # viewport -- far under a device pixel at any width a browser renders.
-    # Allowing the generator's own rounding is right; widening this any
-    # further would stop it catching a genuinely mismatched row.
-    tolerance = generator.APP_COLUMNS * 0.001
-    assert abs(app_width - top_width) <= tolerance, (
-        f"app row is {app_width}% against a {top_width}% pipeline row -- "
-        f"more than rounding apart")
-    # The row layout CHANGED, and these assertions now pin the new rule.
+    # They could not be while both rows were sized to the same total
+    # width, because the two rows carry different things -- the core row
+    # is six buttons AND five arrows, an app row is six buttons -- so the
+    # arrows had to come out of the core buttons, leaving them narrower.
     #
-    # Tiles used to distribute their transparent gutter across the row so a
-    # full row met both edges of the core row above it. That made a
-    # button's position depend on which column it landed in, so the same
-    # module moved inside its canvas whenever the row above changed length
-    # -- and with bands of 6, 6, 5 and 4, three of the four rows are short.
-    # APP_COLUMN_STEP is 0 now: every tile is drawn at the same offset and
-    # every row, full or not, anchors to the left edge.
-    #
-    # So the old invariants are gone deliberately, not broken. What
-    # replaces them is that the offset does not vary at all.
+    # A core tile fills its 512px canvas; an app tile is APP_TILE_SIZE
+    # inside one. The drawn width is the canvas percentage scaled by that
+    # ratio, and it is those two numbers that must agree.
+    core_button = generator.PIPELINE_DISPLAY_PERCENT
+    app_button = (generator.APP_DISPLAY_PERCENT
+                  * generator.APP_TILE_SIZE / generator.BUTTON_SIZE)
+    assert abs(core_button - app_button) <= 0.01, (
+        f"a core button draws at {core_button}% and an app button at "
+        f"{app_button:.3f}%; they are meant to be the same size")
+
+    # An app row consequently ends SHORT of the right margin, and that is
+    # the deliberate trade. Rows already anchor left -- three of the four
+    # bands are short anyway -- so the only thing lost is a full-width
+    # bottom row that never existed for most sections.
+    assert app_width < top_width, (
+        "the app row fills the same width as the core row again, which "
+        "means the buttons went back to being different sizes")
+    assert app_width < 100, "an app row that wraps its last tile"
+
     assert generator.APP_COLUMN_STEP == 0
     offsets = {generator._app_column(key) * generator.APP_COLUMN_STEP
                for items in generator._grouped_apps().values()

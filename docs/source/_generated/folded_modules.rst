@@ -24,7 +24,7 @@ Opened from a host's masthead
 * **Mask** opens Timelapse
 * **Measure** opens AnnData Export, Illumination, Motility Assay
 * **QC** opens `Control Charts <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/control_chart/index.html>`_, `Layer Viewer <https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html>`_, `Outliers <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/outliers/index.html>`_
-* **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Volcano Explorer
+* **Regression** opens Hit List, `Investigate Hit <https://einarolafsson.github.io/spacr/api/spacr/hit_investigation/index.html>`_, Methods & Results, `Prediction Profiler <https://einarolafsson.github.io/spacr/api/spacr/qt/screens/profiler/index.html>`_, Diagnostics, Volcano Explorer
 
 Opened from the Help menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~

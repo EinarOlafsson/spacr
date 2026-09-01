@@ -119,77 +119,77 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
 |App_analyze_plaques|\ |App_recruitment|\ |App_invasion|\ |App_replication|
 
 .. |App_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Import API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
    :align: middle
 .. |App_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Run Compare API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
    :align: middle
 .. |App_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Experiment Design API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
    :align: middle
 .. |App_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Power / Design API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
    :align: middle
 .. |App_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Dose–Response API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
    :align: middle
 .. |App_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: QC API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
    :align: middle
 .. |App_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Make Masks API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
    :align: middle
 .. |App_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Align & Stitch API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
    :align: middle
 .. |App_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Image UMAP API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
    :align: middle
 .. |App_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Gate Editor API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
    :align: middle
 .. |App_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Graph Builder API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
    :align: middle
 .. |App_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Plaque Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Recruitment API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Invasion Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
 .. |App_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
-   :width: 16.583%
+   :width: 15.466%
    :alt: Replication Assay API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
    :align: middle
@@ -298,8 +298,8 @@ spaCR는 Python **3.9~3.14** 버전을 지원하지만 torchvision이 제외하�
 ``spacr-run --list``\ 는 그래픽 인터페이스 없이 실행할 수 있는 명령줄 진입점이 있는 모듈을 나열합니다. GUI에서만 제공되는 주석, 큐레이션, 비교 및 탐색 모듈은 목록에서 제외됩니다.
 
 
-할 수 있는 일
----------------
+핵심 워크플로
+-------
 
 기본 워크플로는 6개 모듈로 구성됩니다:
 
@@ -326,14 +326,7 @@ Recrop은 큐레이션을 위해 준비된 여러 객체 이미지에서 단일 
 
 Make Masks에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력인 **세포 확률 맵**\ 과 **흐름장**\ 이 표시됩니다. 마스크는 확률 맵의 임계값으로 정의되며, 흐름 일관성 검사는 계산된 흐름이 예측된 흐름장과 다른 객체를 제외할 수 있습니다. 잘못되거나 불완전한 마스크를 평가할 때 이 출력들을 확인하여 낮은 세포 확률과 일관되지 않은 흐름을 구분하십시오.
 
-객체 및 설정
-~~~~~~~~~~~~~~~~~~~~
-
-spaCR는 세포, 핵 및 병원체 객체, 이 객체들의 마스크에서 파생되는 세포질, 그리고 0개에서 26개까지의 세포소기관 슬롯을 지원합니다. 각 세포소기관 슬롯에는 독립적인 채널, 직경, 형태 프리셋 및 검출 방법이 있습니다.
-
-설정 패널은 적용되는 경우에만 컨트롤을 표시합니다. 설정된 개수를 초과하는 세포소기관 슬롯은 숨겨지고, 채널이 지정되지 않은 객체는 실행에서 제외되며, 형태별 컨트롤은 선택한 방법에 해당할 때만 표시됩니다. **3D**와 **Time** 스위치는 차원을 정의합니다. ``z_stack``\ 은 체적 설정을 활성화하고, ``timelapse``\ 는 추적 설정을 활성화하며, 두 스위치를 모두 활성화하면 4차원 설정이 표시됩니다.
-
-다음 페이지를 선택하십시오 당신이 원하는 것에 따라 :
+**기타 자료**
 
 - `인터랙티브 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치에서 히트 조사를 통해 73 개의 지시된 작업 흐름.
 - `Python API 빠른 시작 <../../source/python_api.rst>`_ - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
