@@ -282,11 +282,12 @@ def test_the_qc_suite_gives_the_gallery_one_tile_per_file(tmp_path, monkeypatch,
     # And the manifest names files that are there. A path recorded for a file
     # that was written under another extension is "saved but I cannot see it"
     # wearing a different hat.
-    for path in manifest["written"]:
+    manifest_paths = [
+        *manifest["written"], manifest["combined"], manifest["assumptions"]]
+    for path in manifest_paths:
         assert os.path.isfile(path), f"the manifest names a missing file: {path}"
-    assert os.path.isfile(manifest["combined"])
-    assert set(announced) == {
-        *manifest["written"], manifest["combined"]}
+    assert set(announced) == set(manifest_paths)
+    assert set(on_disk) == {os.path.basename(path) for path in manifest_paths}
 
 
 def test_the_diagnostic_panels_are_published_not_only_saved(tmp_path, monkeypatch):
@@ -390,7 +391,8 @@ def test_a_headless_run_still_writes_its_regression_figures(tmp_path, monkeypatc
     Instruction 139 A moves the generated figures to pyqtgraph, which is a
     SCREEN library. "A run that silently stops writing figures when there is
     no display is the worst outcome here", so the guarantee is pinned here:
-    NO DISPLAY, no sink, and the QC suite still puts its twenty files on disk.
+    NO DISPLAY, no sink, and the QC suite still puts its twenty-one files on
+    disk.
 
     IT USED TO ASSERT THERE WAS NO ``QApplication`` AND THAT IS THE WRONG
     QUESTION, twice over. matplotlib's own QtAgg backend constructs one from
@@ -418,8 +420,10 @@ def test_a_headless_run_still_writes_its_regression_figures(tmp_path, monkeypatc
         regression_type="ols")
 
     on_disk = _image_files(manifest["directory"])
-    assert len(on_disk) == len(manifest["written"]) + 1, on_disk
-    assert len(on_disk) >= 20, (
+    manifest_paths = [
+        *manifest["written"], manifest["combined"], manifest["assumptions"]]
+    assert set(on_disk) == {os.path.basename(path) for path in manifest_paths}
+    assert len(on_disk) >= 21, (
         f"a headless run wrote only {len(on_disk)} figure(s)")
     for name in on_disk:
         assert _opens(os.path.join(manifest["directory"], name))

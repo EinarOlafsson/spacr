@@ -107,6 +107,7 @@ def test_the_panel_reports_the_corrected_number():
 
     ctx = _Ctx()
     ctx.fitted, ctx.resid, ctx.n = fitted, resid, n
+    ctx.n_unique_wells = n
     ctx.family, ctx.prediction_note = "gaussian", ""
 
     figure = plt.figure()
