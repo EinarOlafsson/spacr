@@ -44,6 +44,190 @@
       "source_sha256": "8d71cb5158dd96e8445215b2a86fa0a00bbdfb64e13080f338e323bc9c151f6c",
       "text": "Build-time spaCR version used by the lightweight package facade.\n\nThis literal is kept in lockstep with ``setup.py::VERSION`` by\n``packaging/release.py bump``.  Keeping the installed artifact's own version\nbeside the package lets ``import spacr`` report ``spacr.__version__`` without\nimporting :mod:`importlib.metadata` and its email, pathlib, inspect and typing\nstack.  The public :mod:`spacr.version` module still performs a metadata lookup\nwhen a caller explicitly asks it to inspect the installed distribution."
     },
+    "spacr.accelerator": {
+      "source_blocks_sha256": [
+        "6a0727eb0e4a2017b52999065e6cee0c605bfbd7c02c49476897f6f4b870eef5",
+        "15dff90b56995b17fd1aa75bb409e01dab59b0979aef01687f92913453f098d8",
+        "99d4ce17199d371ee68c074f60b5d0a194a2875300fd5f7dcfb5f0a7f1adb3f7",
+        "8c64ff1aa50e85739b9ad280a75fc946984083709f4b392ec67ca309be3286ae",
+        "a14f18227402c2e74284729c483c05e77f5552f51e7c39d7f0097f0c826b5e09",
+        "d161ca04622e0fbb0d23c6b2c8d46d2fe64b8789e13c387322cb248c5433f821",
+        "cf41dfcad12f1c86581be6c1d2ecf4e3c6478c22e0adf6a7ca3928d1a5f52b62",
+        "453415f95bbd7ad1c741908f0e25af536265bae230853c21c9df6a207029d875",
+        "f2e09a5ff091661fadd97ef88d0132d9fbc70cdad21d55074f32402627e82547",
+        "ebee4687683583794e8c9e973edca24371996c35c536bc84d5913aa223bce733"
+      ],
+      "source_sha256": "61f96686df792b263d539bce0b6b6c7edd1f2ec26c4da53c0521cd1edf552449",
+      "text": "One answer to \"what should this run on, and what is it called\".\n\nInstruction 319. spaCR grew up on NVIDIA, so roughly forty-five call sites\nask ``torch.cuda.is_available()`` and most of them mean \"is there a GPU?\".\nThose are DIFFERENT QUESTIONS on every machine that is not NVIDIA, and\nconflating them is what makes a perfectly good card read as \"no GPU\":\n\n* ROCm answers ``torch.cuda.is_available()`` **True** and wants\n  ``device=\"cuda\"``. Code that then prints \"CUDA\" is naming a vendor that\n  is not there; code that prints \"no NVIDIA GPU\" is denying one that is.\n* Apple's Metal answers it **False** and wants ``device=\"mps\"``. This is\n  the case the instruction under-describes: MPS is filed there under\n  \"Apple Silicon\", but MPS is *Metal*, not an Apple-Silicon feature. On\n  the Intel iMac this was written on it drives an AMD Radeon Pro 5300 --\n  measured 16x on conv2d inference and 2.7x on a training step against\n  the same machine's CPU. ROCm has no macOS build at all, so Metal is the\n  ONLY route to an AMD card on a Mac.\n\nSo this module answers both questions separately, and a third that matters\nmore than either: *what is this device unable to do?* Re-pointing a tensor\nat MPS is not enough, because three things fail rather than degrade, and\neach was measured rather than assumed:\n\n* ``float64`` raises ``TypeError`` outright -- not a slow path, a hard\n  stop. Anything wanting double precision must stay on the CPU.\n* ``autocast(device_type=\"mps\")`` raises ``RuntimeError``. Mixed precision\n  has to be branched off, not merely re-pointed.\n* Some operators are simply missing (``aten::linalg_qr.out`` among them).\n  ``PYTORCH_ENABLE_MPS_FALLBACK=1`` turns those from a crash into a quiet\n  CPU detour, so this module sets it when it selects MPS.\n\nDETECTED AND USABLE ARE REPORTED SEPARATELY, and the instruction is right\nto insist on it. A setup screen announcing an accelerator spaCR will never\ndispatch to is worse than one that says nothing, because the user then\nblames their hardware for CPU speed. Neural engines are the whole reason\nthat distinction exists here: the Apple Neural Engine, Intel AI Boost and\nQualcomm Hexagon are all real silicon with no portable torch device, so\nthey are named as FOUND and never selected.\n\nNOTHING HERE RAISES. A half-installed ROCm, a broken driver, a torch built\nwithout a backend it advertises -- all resolve to the CPU with a note. The\nmachines most likely to have a strange accelerator are the least able to\nafford a traceback at import time."
+    },
+    "spacr.accelerator.Accelerator": {
+      "source_blocks_sha256": [
+        "4341189fdc373cb717f0c45a5ebadeb1dbab7d707e79224c067d9a4e9e2c3775",
+        "032f14a0ef36aa093eba3ed56926180bd3f204a61e41f0d1700c654012a0b271",
+        "f427eb694f9c750f736b945e6d37e0210f843c9898ac992baad883d730edf6d9",
+        "fad4ec73de4cc2bd3fc370c09e5c715851b51bc9a90fd5a4cd43f71c038042e2",
+        "bf08ecc5b0e47142a6751870646db29e7279df57a64df24e53b815f024ab5725",
+        "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+        "70be5e7d6d7325a7b164b6b6ad65094099854507c61dc921e87148a56c9ae96d",
+        "e1795cecdd2fb464ec0ddc68d73203dd157c660acc994b245b9e0a9a048beb7f",
+        "037e68bd2b501058b6e0df88d3158920f2676ebffc502000914727ee4a6fe302",
+        "1c1152a4d0f4b2ab229be147c05415c5c55c17b98fdfe363177106de5e3ca444",
+        "8c3f8b52c28abc29634a890c2081561d4626aea70d9a82e9ec53aaeb86701b03"
+      ],
+      "source_sha256": "40029cfd16268cde677cb4dfc32135ad117e94a80a09fcd88a44ad623a12a103",
+      "text": "What spaCR will compute on, and what it can be told about it.\n\n:param kind: one of :data:`KINDS`. ``rocm`` is reported distinctly from\n    ``cuda`` even though both dispatch to ``device=\"cuda\"``, because\n    the only thing a user can act on is the true vendor.\n:param device: the string to hand ``torch.device``.\n:param label: human text for the setup slide and the doctor.\n:param detected: the hardware is present.\n:param usable: spaCR will actually dispatch to it. Never true unless\n    ``detected``; false for accelerators with no torch device.\n:param note: why it is not usable, when it is not. Empty otherwise.\n:param float64: the device accepts double precision.\n:param autocast: ``torch.autocast`` accepts this device type.\n:param fallback: missing operators silently run on the CPU instead of\n    raising, because this module set the backend's fallback flag.\n:param bfloat16: the device accepts ``torch.bfloat16``. PROBED rather\n    than assumed from the backend name, because it is the one\n    capability that moves with the torch version: Metal gained it\n    after 2.2, and 2.2.2 is the last x86-64 macOS wheel, so the same\n    backend answers differently on an Intel Mac and an Apple Silicon\n    one. Cellpose's cpsam loads its weights in bfloat16 by default,\n    so a wrong answer here is a TypeError at model construction."
+    },
+    "spacr.accelerator.Accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "4cc1e361a59dd5b8b677d9b1f2c0d3e2ecaf410621f4f8234d9976ff7d0a3f5a",
+        "19b1041774af16e43efeceb67ba4c69173e9bc8ad96c57769761e34833816668"
+      ],
+      "source_sha256": "75a2cb10792ad3fa36faff9aa79649277f29ba5384c43e0a4af1f0752b051778",
+      "text": "Is this genuinely NVIDIA CUDA.\n\nNarrower than :attr:`is_gpu` and deliberately so: anything reading\n``nvidia-smi``, a CUDA version, or NVIDIA-specific memory\ninterfaces wants this one and would be wrong on ROCm."
+    },
+    "spacr.accelerator.Accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "ad2a0db989f68883110633f2987354e746226875fe34ada912e3aa43df8aad8f",
+        "60ec10a2f1b0fdb06af28e99ca79a706f5e11909dd1f82b2674ba386906b5f79"
+      ],
+      "source_sha256": "8df64a6f814be9f6c87fe66f0d61f21fc839e7b9d4830a868eb337420fc8cc37",
+      "text": "Is there a usable non-CPU device.\n\nTHE QUESTION MOST CALL SITES ACTUALLY MEANT when they wrote\n``torch.cuda.is_available()``."
+    },
+    "spacr.accelerator.Accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ],
+      "source_sha256": "ccbd0918a3838f05bdbf83e756f06f7499ee7a418857648c39093eaa0be697cb",
+      "text": "A ``torch.device`` for :attr:`device`, or the CPU if torch is\nmissing entirely."
+    },
+    "spacr.accelerator.autocast_device_type": {
+      "source_blocks_sha256": [
+        "995d81791d5ffb824bff678e0866866e73124b8c50f856aa17b9cd6206a92f00",
+        "471cb7d35648f2113d56e0d3d032c3e3e8e938e62c2d2c2d3911d3eff8080b5e"
+      ],
+      "source_sha256": "3f7c2806ee2eea2cdb86788bfca0e862a8100fd0034cfff4c8ddbec10e1fe86f",
+      "text": "The string for ``torch.autocast(device_type=...)``, or None.\n\nNone means \"do not use mixed precision here\", which is a different\nanswer from \"use it on the CPU\" and has to stay distinguishable."
+    },
+    "spacr.accelerator.capabilities": {
+      "source_blocks_sha256": [
+        "bb17469948889fd716609bc9354f42ff9208fe80f8df24f63820cdc5013e721f",
+        "a7f7a6a6bb252b0fe58d0189634b4a19c8f0f605674e595b09ed55f034f37b6c",
+        "ceebdaf460cfe33da36b24422bc85c6b023f4c7baf1f5005b99569f54d3abccb"
+      ],
+      "source_sha256": "3431462a61d298e6530beeeb4f8020d2456373dffe5089f6ddf1522904543174",
+      "text": "``(task, accelerated, detail)`` for what this machine can actually do.\n\nWHAT THE SETUP SCREEN IS FOR. \"Compatible GPU\" on its own answers a\nquestion nobody asked: users want to know whether THE SLOW STEP will\nbe slow. So this reports per task, and it reports the truth per\nbackend rather than one verdict for all of them -- on Metal the\nsegmentation and the classifier are accelerated while the cuML\nreductions are not, and a single green tick would be a lie about the\nsecond.\n\nOrdered by how much the acceleration is worth: segmentation on the CPU\ntook 444 s for one 256x256 image on the machine this was written on,\nand 3.2 s on its Radeon."
+    },
+    "spacr.accelerator.cellpose_gpu": {
+      "source_blocks_sha256": [
+        "0b62e0e446eafbccf41cbe6c9cc22e8d176323cb92ba1159b2c966a0a8ed2a9e",
+        "680ac631422960a10b7ec9926dfe92422e6cd9d1994ac8c57570c21123c35bf4"
+      ],
+      "source_sha256": "c46df9d94f4eac4458246f4ae659eead3d7208e04e4d767bd5a97761efd71a6c",
+      "text": "What to pass cellpose as ``gpu=``.\n\nCellpose does its own device resolution and already knows about MPS --\n``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it\ncannot do is guess, so it must be TOLD there is a GPU. Passing\n``torch.cuda.is_available()`` here is what pinned every Mac to the CPU:\ncellpose branches on this flag before it looks at ``device`` at all."
+    },
+    "spacr.accelerator.cellpose_kwargs": {
+      "source_blocks_sha256": [
+        "e56dc47dab72c547814747d0536afad7208612fcaf0e560166feba83607cbfc1",
+        "22cce6a0256a4486d5aedf633158b0d7ed49d09dd4719779936ed384862f9669",
+        "b4def188b67888a1c8888cd7b22f157c1092cdb746660f4987497047327752cc",
+        "a774f565e91f075b1a3583fee07834268085a5981a0beae077675f8fe2a4abf5",
+        "4a511fda210971a1653f51074ea2d28995aadbfefdcc584d8202972ed0680c7e",
+        "4c3579b4fb865a18864e51f71a775a321c707ec77978c6241d35dde7e63f6246"
+      ],
+      "source_sha256": "be36b28490263dafa1d73f9cae0eed747160d2c560e41269b1044cce14cb8c8c",
+      "text": "Everything ``CellposeModel`` needs to land on this machine's GPU.\n\nTHREE ARGUMENTS THAT HAVE TO AGREE, which is why they are produced\ntogether rather than spelled out at six call sites:\n\n* ``gpu`` -- cellpose branches on this BEFORE it looks at ``device``,\n  so a device without the flag still takes the CPU path.\n* ``device`` -- from the one resolver, so cellpose and spaCR cannot\n  disagree about the same machine.\n* ``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default\n  and Metal on torch 2.2 has no bfloat16, so the default is a\n  ``TypeError: BFloat16 is not supported on MPS`` at construction.\n  Measured on the reporting iMac; float32 weights work there and cost\n  VRAM, which is the right trade for a card that otherwise sits idle.\n\nCallers that pass ``device=None`` on purpose -- letting cellpose\nresolve it -- should take ``gpu`` and ``use_bfloat16`` from here and\ndrop ``device``."
+    },
+    "spacr.accelerator.describe": {
+      "source_blocks_sha256": [
+        "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db"
+      ],
+      "source_sha256": "50187888980228409563692b60f9bab41464d6b8a0e9276b163e14057a8689db",
+      "text": "One line for a log or a console: what was found and whether it runs."
+    },
+    "spacr.accelerator.device_string": {
+      "source_blocks_sha256": [
+        "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48"
+      ],
+      "source_sha256": "5b0d1ebea88cb88252f1dd4048f4ffdfb073bc0868c3c000b9e89c651cd56a48",
+      "text": "The resolved device as a string, e.g. ``\"cuda:0\"``, ``\"mps\"``."
+    },
+    "spacr.accelerator.empty_cache": {
+      "source_blocks_sha256": [
+        "2e214e3e0b1555b714c84b246ac05923a68f3e12987aa77754377881478d98e5",
+        "6a760af003e1f8e495805ec1ac45e9cd012f9e1fbc7ae0c32ddfb16c2196b05c"
+      ],
+      "source_sha256": "39b9c29b3095048ed01a18697cf4d7fdeaf49840fecf9dce6ad8723a734dd396",
+      "text": "Hand the driver back whatever this backend caches. Never raises.\n\n:param torch_module: ask about THIS torch instead of the cached answer\n    for the machine. :mod:`spacr.qt.resource_cleanup` holds its own\n    handle -- it deliberately does not import torch just to free\n    memory -- and a cached global would send the call to the wrong\n    backend when that handle is a stand-in."
+    },
+    "spacr.accelerator.inspect_torch": {
+      "source_blocks_sha256": [
+        "6317ab68f7a35c5378a64f15fc48a732fc26144c27f80a19b521e123ac0db953",
+        "9d1bdde5e14f6f9df4624af51775d04ee57d910b3dfad0b055c25cd294dc846d"
+      ],
+      "source_sha256": "89905add35f6e46b7884000568e55fb3e362aef092cf770201cdf4e02de7ebd9",
+      "text": "Resolve against a SPECIFIC torch module, without touching the cache.\n\nFor callers that already hold a torch handle and must be answered about\nthat one -- :func:`spacr.doctor.check_gpu` is the case: it imports torch\nthrough its own indirection so the diagnosis can be exercised against a\nstand-in, and a cached answer about the real machine would defeat that\nentirely. Same probes and same order as :func:`resolve`, so the two\ncannot drift."
+    },
+    "spacr.accelerator.is_cuda": {
+      "source_blocks_sha256": [
+        "9afb729c3b683cc6f20a8353d791d4d808ab0051af642ce9b1e5eb2d8e2ca656",
+        "464f092322d2b8bd7ce6e316ef111143293e2959f6a0d8ff5aefda5c6d0d4909"
+      ],
+      "source_sha256": "fcf1d0bbb604ffda019d26ca0b23adf7c296932c46e35a3d60b628545a75e2a7",
+      "text": "Is the resolved accelerator genuinely NVIDIA CUDA.\n\nFor the places that legitimately need CUDA specifically -- memory\ninterrogation, ``nvidia-smi`` advice, CUDA version reporting."
+    },
+    "spacr.accelerator.is_gpu": {
+      "source_blocks_sha256": [
+        "3c560283890f10dc867d39b641440531d81a1b4b5a162ebe69848f432b7c601e",
+        "ed21ba5b37e2c3eb68dc2ed548ee1a7375f9fdf9cce5d4cecabf44844404b59a"
+      ],
+      "source_sha256": "c7c2492a485dea49cd29c0d86b946a285fbef19208390b3924ea9a8ba04cb3f6",
+      "text": "Is there a usable accelerator of any vendor.\n\nWhat a call site means when it writes ``torch.cuda.is_available()`` to\ndecide whether to use a GPU at all."
+    },
+    "spacr.accelerator.neural_engines": {
+      "source_blocks_sha256": [
+        "cefa51270f5cbff34a6f4adf304a12e51303c9018d80e6a6eea64b4926c4c61e",
+        "793621758e6340a4a792461f46091f26e0f14a998f684b74fd5b13fd2baf9cca"
+      ],
+      "source_sha256": "6a01b8415d8d44b160edbfa32eed027bc63b461887502bd57a79fc956c8c21d9",
+      "text": "Inference silicon that is present and that spaCR will NOT use.\n\nReported so the setup slide can say \"found, not used\" rather than\nleaving a user to wonder why their Neural Engine is idle. There is no\nportable torch device for any of these -- the ANE is reachable only\nthrough CoreML, Intel's AI Boost only through OpenVINO -- so naming\none as a compute device would be a promise nothing behind it can keep."
+    },
+    "spacr.accelerator.resolve": {
+      "source_blocks_sha256": [
+        "71f3c04fb83fe480fde852a007279d76c29c6b225715508e51739b2e546c0eb9",
+        "73c9663388611bd7865e72d97897e77ead3ee64a753bf0183dc2ecf909ac6693"
+      ],
+      "source_sha256": "ed55e31201a7ca0914eadebdc6fdf3d0275cc79bffe63e699ed55d55920d7c6f",
+      "text": "The accelerator spaCR will use. Cached; never raises.\n\n:param refresh: probe again instead of answering from the cache. For\n    tests, which fake the probes."
+    },
+    "spacr.accelerator.supports_autocast": {
+      "source_blocks_sha256": [
+        "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083"
+      ],
+      "source_sha256": "dcce0709e9d25f9ee120b6ffaaba0b63ff7118a4791ec66e9a76ea94be8d9083",
+      "text": "Whether ``torch.autocast`` accepts this device type."
+    },
+    "spacr.accelerator.supports_bfloat16": {
+      "source_blocks_sha256": [
+        "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934"
+      ],
+      "source_sha256": "5bad95acc7fc913082a3cfab99013e734294a26663851731479016d0cf6b2934",
+      "text": "Whether ``torch.bfloat16`` tensors may be put on the device."
+    },
+    "spacr.accelerator.supports_float64": {
+      "source_blocks_sha256": [
+        "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6"
+      ],
+      "source_sha256": "6ca134b14596b6530f247dd6be7c2b001e0a42d111eec4ca3d362fc524d2e3f6",
+      "text": "Whether double precision may be sent to the device."
+    },
+    "spacr.accelerator.torch_device": {
+      "source_blocks_sha256": [
+        "7aa10622c8586fbe6e244c521f09abc84f60063a47bed43ba90b8702aa7cc157",
+        "064e19296edc2fd16fa26f9a4da33b8fde33b851a7ce4a8fb9092a0bda8eefb9"
+      ],
+      "source_sha256": "5081bfcb3af6754254ed5933d972cda0d5b78d2a115cfad6c7304e163138f135",
+      "text": "``torch.device`` for the resolved accelerator.\n\nThe direct replacement for\n``torch.device(\"cuda:0\" if torch.cuda.is_available() else \"cpu\")``."
+    },
     "spacr.active_learning": {
       "source_blocks_sha256": [
         "ad02092d00cb13b31d72e0020474b106724600648bac8c4865aa1896d88387a5",
@@ -6766,7 +6950,7 @@
         "30f5db716c5321c029205fb20bed20737f71fc336215465f4e111b963299b6bb",
         "f5a3891f2aca490d5c737940a5d0be4914b86e2b967ef0741fc3822c9b9e4f05",
         "e0ca4472b134720edba0ce728751d3c31211058eaa5b861a55f422428fdfcaae",
-        "cdbcac4248f5452793cc57ecc68155ff793302a9751a4b190cd6c9b2bf3c8f35",
+        "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
         "76da8fd26dd640f20604df3f309b11d6cfad804e3285f6a242b06658edc90d4a",
         "f156737bd7777fb3403d9b269ec7bf3af4482e5f2d473182308eb40a771266da",
         "4a26450667f19313c64cd55bfab6fe92569d4de4128fb847e4f1af26483b1f65",
@@ -6778,8 +6962,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
       ],
-      "source_sha256": "3996af7f9926e613d27f7d3b85a473676bddd463636afd205e3b40d45e68d57e",
-      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — removed. Pathogens are segmented with cpsam\n      like every other object; the pre-SAM toxo checkpoints are gone.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
+      "source_sha256": "106e3b3159d69d117144e8c1a332713778fa3a75ed041bf5f3802330dd3944db",
+      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
     },
     "spacr.core.preprocess_generate_masks_timelapse": {
       "source_blocks_sha256": [
@@ -22874,8 +23058,8 @@
         "d029f87e3d80f8fd9b1be67c7426b4cc1ff47b4a9d0a8461c826a59d8c5eb6cd",
         "c685efdcd6fe024ea405d69f6df68566cb667ce83b3158ea7ac1164abf9ab10c"
       ],
-      "source_sha256": "12fce4f1aff95c588516f17b61e2bc0e19f8c8a79bfeebbdfc48af0f695c2ee1",
-      "text": "Browse, verify, fetch and benchmark spaCR segmentation and classification models.\n\nWhy this exists\n---------------\nspaCR can run a stock Cellpose model, a Cellpose model somebody on the team\nfine-tuned last year, a classifier checkpoint from a run three folders up, or a\ncheckpoint downloaded from Hugging Face. Today the only way to find out which\nof those exist on a machine is ``find / -name '*.pth'``, the only way to know\nwhat one of them was trained on is to remember, and the only way to know\nwhether the copy on disk is the file the author published is to hope.\n\nThis module answers those three questions and nothing else:\n\n* **what is here** — :func:`discover_local` walks folders and returns the\n  checkpoints, classified as Cellpose or classifier, with whatever provenance\n  is recoverable from the settings snapshots spaCR already writes;\n* **is it the right bytes** — :func:`sha256_file` / :func:`verify` /\n  :func:`fetch`, which downloads atomically, checksums what arrived, and\n  refuses to install a mismatch;\n* **what does it do on my data** — :func:`benchmark`, which is\n  :mod:`spacr.model_compare`'s \"three fields\" harness pointed at one model\n  instead of two.\n\nNothing here imports torch or cellpose at module import time. Browsing the zoo,\nreading provenance, checksumming a file and rendering the table all work on a\nmachine with neither installed; only :func:`benchmark` (through\n:func:`spacr.model_compare.segment_with_cellpose`) needs them, and only when it\nis called. ``tests/test_model_zoo.py`` asserts that.\n\nThe four things that make this trustworthy rather than merely convenient\n------------------------------------------------------------------------\n**Every download is checksummed, and verification happens before use.**\n    A checkpoint truncated by a dropped connection, or swapped for a different\n    one at the same URL, still loads. It does not raise; it produces silently\n    different masks, and the run that used it looks exactly like the run that\n    did not. So :func:`fetch` hashes what arrived and compares it to the hash\n    the catalogue published: a mismatch deletes the file and raises\n    :class:`ChecksumMismatch` — the entry is never registered. The hash that\n    was actually computed is stored on the returned entry, so \"verified\"\n    means \"these bytes\", not \"this filename\".\n\n    A catalogue entry with no published hash cannot be verified at all, and\n    that is refused by default (``require_checksum=True``) rather than quietly\n    treated as fine. Callers that knowingly accept an unverifiable source pass\n    ``require_checksum=False``; the resulting entry carries\n    ``verified=False`` and says so in :func:`format_zoo`.\n\n**Every download is atomic, and never overwrites.**\n    Bytes stream into a temporary file *in the destination directory* (so the\n    final ``os.replace`` is a same-filesystem rename, which is atomic) and the\n    rename happens only after the checksum passes. An interrupted or cancelled\n    download therefore leaves nothing behind that looks like a model — the\n    failure mode where half a checkpoint sits at the real filename, loads, and\n    segments badly, cannot happen.\n\n    The destination is versioned rather than overwritten\n    (:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, …). Two\n    models with the same filename are a normal thing to have; losing the first\n    one to the second is not.\n\n**Provenance is recorded, and \"unknown\" is written out in full.**\n    A Cellpose model fine-tuned on 60x confluent HeLa is not interchangeable\n    with one trained on 20x sparse fibroblasts, and no amount of benchmark\n    score makes it so. What a model was trained on is the single most useful\n    thing the zoo can show, so :class:`ModelEntry` carries\n    :attr:`~ModelEntry.trained_on` and :attr:`~ModelEntry.trained_by`, both\n    recovered from the settings snapshots spaCR already writes beside its\n    models (``<file>_settings.csv`` for a Cellpose model,\n    ``<dst>/settings.csv`` for a classifier — read through\n    :func:`spacr.train_compare.load_run`, which already knows where to look).\n\n    Where it could not be recovered the field reads ``'unknown'``, never ``''``.\n    A blank cell in a provenance table reads as \"no constraints\"; that is the\n    opposite of what it means.\n\n**Benchmarks are only comparable inside one field set.**\n    A model's score on your three fields says nothing whatsoever about its\n    score on somebody else's, and a table that sorts the two together invents a\n    ranking out of two unrelated numbers. So every :class:`BenchmarkResult`\n    records a :func:`fieldset_id` — a hash of the actual pixels, not the folder\n    name — and :func:`rank` **raises** :class:`IncomparableBenchmarks` when\n    handed results from more than one field set. :func:`rank_groups` and\n    :func:`format_benchmarks` are the supported alternative: they group by\n    field set, rank within each group, and label the groups.\n\nAnd a fifth, smaller one: a model file that is missing, empty, or not a torch\ncheckpoint at all fails in :func:`inspect_checkpoint` with a message naming the\nfile, before anything tries to load it. The default failure — a ``KeyError`` on\na state-dict key from deep inside torch — names nothing the user chose.\n\nWhat the benchmark can and cannot say\n-------------------------------------\nThere is no ground truth here. :func:`benchmark` runs one model over N fields\nand reports what came out: object counts, timings and the\n:mod:`spacr.seg_qc` verdict per field (fused? shattered? empty? all on the\nborder?). That is a *quality-control* score, not an accuracy — it can tell you\na model collapsed on your data, it cannot tell you which of two plausible\nsegmentations is right. :data:`RANK_KEYS` therefore offers exactly two keys,\n``'qc'`` and ``'seconds'``, and no key that would read as accuracy. To compare\ntwo models against each other, use :func:`compare_entries`, which hands both to\n:func:`spacr.model_compare.compare_models` — the A/B harness that is explicit\nabout neither side being the truth.\n\nCellpose 4 accepts and ignores ``model_type``, ``diam_mean``, ``nchan``,\n``channels`` and ``rescale``; only ``diameter`` at ``eval`` still changes the\nmasks. :class:`BenchmarkResult` carries the resolved ``honoured`` and\n``ignored`` parameter dicts straight from\n:class:`spacr.model_compare.ModelConfig` so a benchmark cannot silently be a\nbenchmark of settings nothing read.\n\nExample::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('toxo_plaque_cyto_e25000_X1120_Y1120.CP_model', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\nSee Also:\n    :mod:`spacr.model_compare` — the A/B harness this module reuses for\n    segmentation and for the two-model comparison.\n    :mod:`spacr.train_compare` — run discovery and settings recovery, reused\n    wholesale for the classifier half of the zoo.\n    :func:`spacr.utils.download_models` — the legacy bulk pull of the bundled\n    Hugging Face model pack, wrapped by :func:`download_bundled_models`."
+      "source_sha256": "83cb76b62543507805c052895fd3461e9bad7836f187b85ce99b1f8b5b5a4af0",
+      "text": "Browse, verify, fetch and benchmark spaCR segmentation and classification models.\n\nWhy this exists\n---------------\nspaCR can run a stock Cellpose model, a Cellpose model somebody on the team\nfine-tuned last year, a classifier checkpoint from a run three folders up, or a\ncheckpoint downloaded from Hugging Face. Today the only way to find out which\nof those exist on a machine is ``find / -name '*.pth'``, the only way to know\nwhat one of them was trained on is to remember, and the only way to know\nwhether the copy on disk is the file the author published is to hope.\n\nThis module answers those three questions and nothing else:\n\n* **what is here** — :func:`discover_local` walks folders and returns the\n  checkpoints, classified as Cellpose or classifier, with whatever provenance\n  is recoverable from the settings snapshots spaCR already writes;\n* **is it the right bytes** — :func:`sha256_file` / :func:`verify` /\n  :func:`fetch`, which downloads atomically, checksums what arrived, and\n  refuses to install a mismatch;\n* **what does it do on my data** — :func:`benchmark`, which is\n  :mod:`spacr.model_compare`'s \"three fields\" harness pointed at one model\n  instead of two.\n\nNothing here imports torch or cellpose at module import time. Browsing the zoo,\nreading provenance, checksumming a file and rendering the table all work on a\nmachine with neither installed; only :func:`benchmark` (through\n:func:`spacr.model_compare.segment_with_cellpose`) needs them, and only when it\nis called. ``tests/test_model_zoo.py`` asserts that.\n\nThe four things that make this trustworthy rather than merely convenient\n------------------------------------------------------------------------\n**Every download is checksummed, and verification happens before use.**\n    A checkpoint truncated by a dropped connection, or swapped for a different\n    one at the same URL, still loads. It does not raise; it produces silently\n    different masks, and the run that used it looks exactly like the run that\n    did not. So :func:`fetch` hashes what arrived and compares it to the hash\n    the catalogue published: a mismatch deletes the file and raises\n    :class:`ChecksumMismatch` — the entry is never registered. The hash that\n    was actually computed is stored on the returned entry, so \"verified\"\n    means \"these bytes\", not \"this filename\".\n\n    A catalogue entry with no published hash cannot be verified at all, and\n    that is refused by default (``require_checksum=True``) rather than quietly\n    treated as fine. Callers that knowingly accept an unverifiable source pass\n    ``require_checksum=False``; the resulting entry carries\n    ``verified=False`` and says so in :func:`format_zoo`.\n\n**Every download is atomic, and never overwrites.**\n    Bytes stream into a temporary file *in the destination directory* (so the\n    final ``os.replace`` is a same-filesystem rename, which is atomic) and the\n    rename happens only after the checksum passes. An interrupted or cancelled\n    download therefore leaves nothing behind that looks like a model — the\n    failure mode where half a checkpoint sits at the real filename, loads, and\n    segments badly, cannot happen.\n\n    The destination is versioned rather than overwritten\n    (:func:`versioned_path`: ``foo.CP_model``, ``foo_v2.CP_model``, …). Two\n    models with the same filename are a normal thing to have; losing the first\n    one to the second is not.\n\n**Provenance is recorded, and \"unknown\" is written out in full.**\n    A Cellpose model fine-tuned on 60x confluent HeLa is not interchangeable\n    with one trained on 20x sparse fibroblasts, and no amount of benchmark\n    score makes it so. What a model was trained on is the single most useful\n    thing the zoo can show, so :class:`ModelEntry` carries\n    :attr:`~ModelEntry.trained_on` and :attr:`~ModelEntry.trained_by`, both\n    recovered from the settings snapshots spaCR already writes beside its\n    models (``<file>_settings.csv`` for a Cellpose model,\n    ``<dst>/settings.csv`` for a classifier — read through\n    :func:`spacr.train_compare.load_run`, which already knows where to look).\n\n    Where it could not be recovered the field reads ``'unknown'``, never ``''``.\n    A blank cell in a provenance table reads as \"no constraints\"; that is the\n    opposite of what it means.\n\n**Benchmarks are only comparable inside one field set.**\n    A model's score on your three fields says nothing whatsoever about its\n    score on somebody else's, and a table that sorts the two together invents a\n    ranking out of two unrelated numbers. So every :class:`BenchmarkResult`\n    records a :func:`fieldset_id` — a hash of the actual pixels, not the folder\n    name — and :func:`rank` **raises** :class:`IncomparableBenchmarks` when\n    handed results from more than one field set. :func:`rank_groups` and\n    :func:`format_benchmarks` are the supported alternative: they group by\n    field set, rank within each group, and label the groups.\n\nAnd a fifth, smaller one: a model file that is missing, empty, or not a torch\ncheckpoint at all fails in :func:`inspect_checkpoint` with a message naming the\nfile, before anything tries to load it. The default failure — a ``KeyError`` on\na state-dict key from deep inside torch — names nothing the user chose.\n\nWhat the benchmark can and cannot say\n-------------------------------------\nThere is no ground truth here. :func:`benchmark` runs one model over N fields\nand reports what came out: object counts, timings and the\n:mod:`spacr.seg_qc` verdict per field (fused? shattered? empty? all on the\nborder?). That is a *quality-control* score, not an accuracy — it can tell you\na model collapsed on your data, it cannot tell you which of two plausible\nsegmentations is right. :data:`RANK_KEYS` therefore offers exactly two keys,\n``'qc'`` and ``'seconds'``, and no key that would read as accuracy. To compare\ntwo models against each other, use :func:`compare_entries`, which hands both to\n:func:`spacr.model_compare.compare_models` — the A/B harness that is explicit\nabout neither side being the truth.\n\nCellpose 4 accepts and ignores ``model_type``, ``diam_mean``, ``nchan``,\n``channels`` and ``rescale``; only ``diameter`` at ``eval`` still changes the\nmasks. :class:`BenchmarkResult` carries the resolved ``honoured`` and\n``ignored`` parameter dicts straight from\n:class:`spacr.model_compare.ModelConfig` so a benchmark cannot silently be a\nbenchmark of settings nothing read.\n\nExample::\n\n    from spacr import model_zoo as zoo\n\n    entries = zoo.catalogue() + zoo.discover_local('/data/screen1')\n    print(zoo.format_zoo(entries))\n\n    entry = zoo.resolve('cpsam_plaque_r3', entries)\n    result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)\n    print(zoo.format_benchmarks([result]))\n\nSee Also:\n    :mod:`spacr.model_compare` — the A/B harness this module reuses for\n    segmentation and for the two-model comparison.\n    :mod:`spacr.train_compare` — run discovery and settings recovery, reused\n    wholesale for the classifier half of the zoo.\n    :func:`spacr.utils.download_models` — the legacy bulk pull of the bundled\n    Hugging Face model pack, wrapped by :func:`download_bundled_models`."
     },
     "spacr.model_zoo.BenchmarkResult": {
       "source_blocks_sha256": [
@@ -23214,13 +23398,16 @@
     },
     "spacr.model_zoo.hf_uri": {
       "source_blocks_sha256": [
-        "2a59bfa69fa642c3cf0afba55f735fd55913706e824d0274275063dba1b83b62",
-        "199b43f564eef876743eb13a85abefe5f4f6b9c84273460d44b51b8c4a952faa",
+        "201488179802ee453add75adc8b9f1a10678316cf946fc844a6a52511cd0fbc7",
+        "d707caa1dac688dde8e806747e241637ccdd3cbbd57480c1952b777b246af9f9",
         "20c27e4986b0163bb9405576424c980b7ff9164d01402172450b16225932e050",
-        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a"
+        "d14ac783f6bc714d1cc867f2c2399d16028138334efcdbf740b3f2b95957fcc1",
+        "57ceea20f60ce244abe7730d9d8906caafbef9d3271ba672017554729638723a",
+        "d9eb0f6be7a4024dd34a4d25805e22bd611dd18c2d0d6cfecd18f35369eff75b",
+        "73c4925336ee0b32be6c64819776011bcde47b1ffa5a6c9da48087e2f62e2411"
       ],
-      "source_sha256": "52e49fc3d9083b421994f816fe942b788daba6307c9895b45e03ffc39170fde8",
-      "text": "The download URL for a file in a Hugging Face **dataset** repo.\n\n:param repo_id: Hugging Face dataset repository identifier.\n:param filename: repository-relative name of the file to download.\n\nExactly the URL :func:`spacr.utils.download_models` and\n:func:`spacr.qt.hf_download._download_one` build, kept in one place so the\nzoo cannot drift away from the downloader spaCR already ships."
+      "source_sha256": "460292250dd48e5cd3cf5dfa2ae8915f72762c154db7bd2a15acf955f8eaed91",
+      "text": "The download URL for a file in a Hugging Face repo.\n\n:param repo_id: Hugging Face repository identifier.\n:param filename: repository-relative name of the file to download.\n:param repo_type: ``\"dataset\"`` (the default, and what spaCR shipped\n    first) or ``\"model\"``.\n\nExactly the URL :func:`spacr.utils.download_models` and\n:func:`spacr.qt.hf_download._download_one` build, kept in one place so the\nzoo cannot drift away from the downloader spaCR already ships.\n\nTHE TWO REPO KINDS HAVE DIFFERENT URLS, which is not cosmetic: a dataset\nfile lives under ``/datasets/<repo>/resolve/...`` and a model file under\n``/<repo>/resolve/...``. Asking for one at the other's URL returns a 404\npage, and a downloader that does not check the content type writes that\nHTML into the destination and leaves a \"checkpoint\" that fails to load\nwith a torch error naming neither the URL nor the repo.\n\n``dataset`` remains the default because :data:`HF_MODELS_REPO` is a\nDATASET repo -- ``einarolafsson/models`` -- and every entry written before\nthis parameter existed assumes it. New model repos pass ``\"model\"``."
     },
     "spacr.model_zoo.inspect_checkpoint": {
       "source_blocks_sha256": [
@@ -23281,6 +23468,25 @@
       "source_sha256": "dea7147f856d444b34e3ccb5421ec72fe8937c54ac2bbc9932c3c4aca0ceea8a",
       "text": "``<spacr>/resources/models`` — where the bundled pack lives.\n\nThe same folder :func:`spacr.utils.download_models` fills and\n:func:`spacr.submodules.analyze_plaques` reads from."
     },
+    "spacr.model_zoo.publish_model": {
+      "source_blocks_sha256": [
+        "f706fa49fea9876a84946de1a132e4ed895dcbb3edd063f1f51c6ec0641deb67",
+        "580e5bc97aecf5da1659e5b7a770b6fa8cceaf9e658ec5d1b5d9f34753ec1477",
+        "35fdcf7bf4b6cd8a028800b680472dcfffef86ac4c1e0c95f922d1191c314e8f",
+        "ee2f07255bebdb809a7e6655c2afc13695559bead8a5bf2eacf464f74a455bf7",
+        "46f56fc545a25965f04a6eeffffd8fc81b613160495cefc27faa4c12e2b15fe1",
+        "f217d93d7cc15dfe02c0bae94e0fd1fc19b3ba445aa9c888c77612ae66cb1ff4",
+        "d5bfcf60574a3ee8ddd64e18641f545faf91be10adf29aece4b145447e417069",
+        "48909f1d1f80db6d572e41536c7f06ac38e92dd5a1229f30c479edbdc01f7e3e",
+        "e7cc1af6de91affc4a608628fa50a5d53b3b34c0371554702c2a478bf9a2f4b4",
+        "9f14437941218d4a48704c42c918fe84d0c3f5c37aa8f86e43fa20bcf83fa116",
+        "df5968b7a99568cb7c3d12daffee697e525d979773318842b9f92994eb8652d2",
+        "c6d0f7375e75539f20c06819d9dce8cecffa7a84759cb42960480e7276eb9d83",
+        "4d54092612677cb82923a5210c71666dd66fa845885c73428c1ab75497cee9c2"
+      ],
+      "source_sha256": "0d3f5dde0dceb2eb7533f51a5f304d7523a4030ffe07edf01dbd5595c8af739d",
+      "text": "Upload a model to Hugging Face and return its catalogue row.\n\n:param local_path: the checkpoint to upload.\n:param repo_id: ``<user>/<repo>`` -- YOUR OWN account.\n:param key: the short name spaCR will offer the model under.\n:param kind: one of :data:`KINDS`.\n:param trained_on: what the model was trained on. Say it properly: this is\n    the only thing another lab has to decide whether it applies to them.\n:param trained_by: who trained it, and roughly when.\n:param private: keep the repo private. A private model cannot be fetched by\n    other spaCR users, so it is off by default.\n:param notes: caveats worth carrying next to the model.\n:returns: the catalogue row, with the sha256 filled in.\n:raises ImportError: when ``huggingface_hub`` is not installed.\n\nTHE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded,\nwhich is the whole reason this exists as a function rather than as\ninstructions in a README. :func:`fetch` refuses an entry it cannot verify,\nso a row written by hand without a hash produces a model nobody can install\nwithout disabling the check -- which is what the one pre-existing bundled\nentry does, and it is a hole rather than a precedent.\n\nPublishing does NOT distribute the model on its own: add the returned row\nto the shared catalogue (:data:`REMOTE_CATALOGUE_URI`) and every spaCR user\nsees it within :data:`CATALOGUE_CACHE_SECONDS`."
+    },
     "spacr.model_zoo.rank": {
       "source_blocks_sha256": [
         "733801703a6c71ba83a9a2d82a0275ef091d6a6b02e67f46b845c6425c7b0da8",
@@ -23327,6 +23533,19 @@
       ],
       "source_sha256": "41cf72216f2b49253344a6ea37f97f4faa01841985f4b6ad13b36e87ceda2191",
       "text": "Hex SHA-256 of a file, read in chunks so a 2 GB checkpoint is not RAM.\n\n:param path: the file.\n:param chunk_size: bytes per read.\n:returns: the lowercase hex digest.\n:raises ModelUnreadable: when the file is missing or cannot be read, with\n    the path in the message."
+    },
+    "spacr.model_zoo.shared_catalogue": {
+      "source_blocks_sha256": [
+        "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
+        "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
+        "5d8a8ef77689c45f2d05b60e9e0753f98317f2c7a6464ac7712e7a527dbb43f3",
+        "31d4679f77140e9c23069411514fcf89691da67b480a52034393ff66f94622f1",
+        "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
+        "60ed1b2259fd67117ec0a7a9d9aa0a948e574bacfdfc991acf217b4532d3382c",
+        "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
+      ],
+      "source_sha256": "e509ddcbd927f27362584d7b1c6cff42e402960106e8096171763ec4e5d80b98",
+      "text": "The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.\n\n:param uri: override the catalogue location.\n:param timeout: seconds to wait for the request.\n:param force: ignore the cache and re-fetch.\n:returns: the entries, or ``()`` when the catalogue cannot be read.\n\nNEVER RAISES, and that is deliberate. This runs when a user opens a module\nthat offers a model list, and the list is useful without it: the bundled\nentries and any local models are still there. A laptop on a train, a lab\nbehind a proxy and a Hugging Face outage all produce the same thing -- a\nshorter list and a log line -- rather than a module that will not open.\n\nThe failure that WOULD be silent and harmful is a corrupt or hostile\ncatalogue, so entries that do not parse are dropped individually, and an\nentry without a ``sha256`` still cannot be installed by :func:`fetch`\nwithout an explicit override. A catalogue row is a claim about where a file\nlives; the checksum is what makes it a claim about which file."
     },
     "spacr.model_zoo.verify": {
       "source_blocks_sha256": [
@@ -26730,6 +26949,126 @@
       ],
       "source_sha256": "77aadeca35ca81c07d45342da340577889d6458773256ff5d56aebec8ca56925",
       "text": "Write one ``merged/stack_<field>.npy`` per field.\n\nReads originals directly (no rename-into-channel-folders step),\nstacks the selected channels along the C axis, and writes one\nnpy per field. Also emits a ``channel_order.json`` sidecar\ndescribing which C-index holds which channel.\n\n:param src: plate folder containing the original images.\n:param mapper: :class:`FilenameMapper` produced from ``src``.\n:param channels: which channel numbers (as parsed from filenames)\n    to include, in the order they should occupy the C axis.\n:param channel_names: human names for those channels (must match\n    ``channels`` length). Default: ``[\"ch0\", \"ch1\", …]``.\n:param dst: override the output folder; defaults to ``<src>/merged``.\n:returns: list of :class:`StackFile`, one per field written."
+    },
+    "spacr.plaque": {
+      "source_blocks_sha256": [
+        "4d3bf9235924af4da2143761c5a27cd7e46ff33414c79a69e4908a4570afdda4",
+        "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
+        "c11841650656574225811d61e62095472888bebbbe66e518157d5ca017a2b045",
+        "6ec8281e68b70e3f6b484efa2d347143d33fc7506ebe2b503791f8ae98d596aa",
+        "4c24aeeb63934d7675e061dcec78e6a5b56d4cbcebc022381c1416d792b5ad3a",
+        "2d73e5b66b7c0cd573014408c710b19313b7808a31efbcaa34a60e5bb467cbc1",
+        "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
+      ],
+      "source_sha256": "363a766b9cf0030415769afdb429eb9771d795efdbc625ce9760f26f3b2fba6f",
+      "text": "Well detection and physical scale for the plaque assay.\n\nA plaque assay is counted from images that arrive in two shapes, and they need\ndifferent handling:\n\n* **one plaque field per image** -- segment it and count, which is what\n  :func:`spacr.submodules.analyze_plaques` has always done;\n* **several wells in one image** -- a whole plate, or a strip. Segmenting that\n  directly counts every plaque in every well into one number and loses which\n  well each came from, which is the entire experiment.\n\nThis module supplies the front half for the second case: find the wells, then\nhand each one to the segmenter separately.\n\nWHY THE WELL IS MEASURED AND NOT JUST CROPPED. Plaque *area* in pixels is a\nproperty of the microscope, not of the biology. The same plaque imaged at two\nmagnifications gives two areas, and a study that pools them is comparing\noptics. A well, by contrast, is a manufactured object of known physical size --\na 6-well plate well is 34.8 mm whatever images it. So the well's diameter in\npixels is a ruler that is present in the image itself, and dividing by it turns\nevery area into a physical one that can be pooled across microscopes,\nobjectives and days.\n\nThat is why :func:`detect_wells` returns a diameter rather than only a box, and\nwhy :func:`scale_from_well` is the piece the analysis actually consumes."
+    },
+    "spacr.plaque.PlaqueScale": {
+      "source_blocks_sha256": [
+        "fd34679e6581f9e83ea804ad4a278fb7be7af2b1da56d1e1490ff68390e26e26",
+        "0178c9739574a7db3cff4f05e3443b1c20121dec067e53ff29007f27479ffd9c",
+        "bd7133cbb6c558082d3eedaad7799ea40938260244eb698695c7678c32c1e813",
+        "34b919142f878f2f0bb7fdb6ea641fad72714d63c32ffcbb2ff59ab902c8c4ba",
+        "2d8615811ffd50a9ad7f018b7d4a5d0ef49d8f296b4d23a3dab7efeb81623c21"
+      ],
+      "source_sha256": "e0f5c5562990ef35b09e82eb5293d06b255f7ba03cd6e64ae8062da9562d9684",
+      "text": "Pixels-to-millimetres for one well, and what it was derived from.\n\n:param px_per_mm: pixels per millimetre.\n:param well_diameter_px: the measured diameter the scale came from.\n:param well_diameter_mm: the physical diameter it was compared against.\n:param source: how ``well_diameter_mm`` was decided -- a plate format name,\n    or ``\"explicit\"``."
+    },
+    "spacr.plaque.PlaqueScale.area_mm2": {
+      "source_blocks_sha256": [
+        "4bad4abe369edadacd3960a2a5b853254b08f0b023d3a3d012b0aab478077309",
+        "fbba576e3c57087032a496669b1c74e301e4e3c3e10805ca24699c2a938ebc26",
+        "7b04ea9eb1fdf8df3cef8f074790c5b4ce2b317b3365b05ffa8325aeb09de39e"
+      ],
+      "source_sha256": "6aea07076422c831508ed3450aa90e69c2b936072ab7bbcb5803ac01f21b54c6",
+      "text": "Convert a pixel area to mm^2.\n\n:param area_px: an area in pixels.\n:returns: the same area in square millimetres."
+    },
+    "spacr.plaque.Well": {
+      "source_blocks_sha256": [
+        "a85a2ec1296a2c62344893f6ba9de322c0ed67af072a97693bb7900c7fa72680",
+        "11b5dd26582ae540c1d4f02593dd6e6072e666a90b5bdb7b2e0b3c1fa87f44a9",
+        "0bc495683cda93d55f5a6db6ce664bd93d3d8099733bbb6e58398acaa7d95aa0",
+        "2c570f38ad6a69b4ce98a8749730a892cc870870011afdae20af22db467f46fa",
+        "eaba50e515f50ef499e221d7160ccd4d96c19ca21ecad831337bd9e3761033ea",
+        "086bf9a56fac8478c13f773ca6bfc8daee28c1a39929ea2fbd348c43b0b808a6"
+      ],
+      "source_sha256": "3feac3fafe8ba9997dd22a31358863ce45949f521f7f0cf4b0bd2e8ec8c6e546",
+      "text": "One detected well.\n\n:param x0: left edge in pixels.\n:param y0: top edge in pixels.\n:param x1: right edge in pixels.\n:param y1: bottom edge in pixels.\n:param confidence: the detector's score for this box."
+    },
+    "spacr.plaque.Well.as_dict": {
+      "source_blocks_sha256": [
+        "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b"
+      ],
+      "source_sha256": "3eb7a60faf03e2c4e95023403d909404d49cac60a8a72deab4dac288a651c62b",
+      "text": "The box plus its derived measures, for a results table."
+    },
+    "spacr.plaque.Well.axis_ratio": {
+      "source_blocks_sha256": [
+        "7a8ee795fd989ce039884eb0dcf175f69c180d28a78c78677923a7dc1837e555",
+        "42445b7fe70f69b99d0239a74270f4b2a03cb7bf66df6ff12f3d6992298fe8a3"
+      ],
+      "source_sha256": "100d39b77b35d5674d4a3b19ae3aa913a0d0dedea3e191c29dd077bcde862f5d",
+      "text": "Shorter box side over longer, so 1.0 is square.\n\nTHE HONESTY CHECK ON THE RULER. A well is circular; a box much wider\nthan it is tall means the detector clipped it at an image edge, or\nmerged two wells, or found something that is not a well. Any of those\nmakes :attr:`diameter_px` wrong, and since that diameter rescales\nevery area in the well, a wrong one is worse than a missing one."
+    },
+    "spacr.plaque.Well.diameter_px": {
+      "source_blocks_sha256": [
+        "dc2705df1c319ce03c92ccaa1e9f1e7236536429cf2feddcd8a7affe2088d35d",
+        "f13f0dd38a721eab0b83d6b9e65996baf3109b08d1d00b6096ec57de11c2603c"
+      ],
+      "source_sha256": "69e906d54fb5613caa9115025969327fbfd5706cf9df755f473cc55ad4f05805",
+      "text": "The well's diameter in pixels, as the mean of the box sides.\n\nA well is round, so a correct box is square and the two sides agree.\nThe MEAN rather than either side alone is what makes a slightly loose\nbox degrade gently instead of biasing one way -- and the disagreement\nitself is reported by :attr:`axis_ratio`, so a box that is not square\nis visible rather than silently averaged into a plausible number."
+    },
+    "spacr.plaque.Well.height": {
+      "source_blocks_sha256": [
+        "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865"
+      ],
+      "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
+      "text": "Box height in pixels."
+    },
+    "spacr.plaque.Well.width": {
+      "source_blocks_sha256": [
+        "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ],
+      "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
+      "text": "Box width in pixels."
+    },
+    "spacr.plaque.crop_well": {
+      "source_blocks_sha256": [
+        "4472f722d2e08a47c03718b9f819aad15769c1535f8b1a1df9b753c0c29d6d23",
+        "1c09a685342bd83b0edb0ebdfa33b2a62c0606df4dec82b95b27617a97431db5",
+        "220007a0db5f514e872429f1aa58a1fc0929a8fe36658932ecc291a0849fdc2e",
+        "4d05689341415edc1b2927c064ba5b63378837b771309f938460f59d32a4bb9d",
+        "6d283f22812d405bfce22ac18da0fd6f0a27dbe5b1fbde9843dc6fa62334e4ee"
+      ],
+      "source_sha256": "0cecf02b0dd4afd16055aeef8a9796e2b470f39220f9fa7a50a767be4719d4c2",
+      "text": "The image inside one well.\n\n:param image: the full field.\n:param well: the box to cut out.\n:param pad: extra pixels around the box, clipped to the image.\n:returns: a view-shaped copy of that region."
+    },
+    "spacr.plaque.detect_wells": {
+      "source_blocks_sha256": [
+        "1d2caa3a3ed2d99abf429a3f7c3ec025bc96e4be94a9831054e622cecc0b5e21",
+        "2cf5a0200673a30b1cc0dd0c639807ab50c5f8a8968028a28683d69b354fc71e",
+        "f7728c2d90e11f4d4f2a1338b89aa37de0115d19a708cfa860b93129c4421e89",
+        "28b69f036ab7003d87b6bba6cc06b88fdbbcf04e21a86502449687ed6e55c7ba",
+        "357c1725ae5f701f6ee029d91100d55b02c267fb1dc3c98c4135e2657d29ac97",
+        "23c7eb2d92cf705b09cf22010137254189fb077ca93cd35be6b979db161b28d7",
+        "60ae7d1a22b6e5e791057cc573cd2b739d6f91b95a0d979e2334d9bbe3864674",
+        "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
+      ],
+      "source_sha256": "b2d5d59baf95b872d44bcfd4916b31ba6d615f5e69e90f7f31f47d9570fb7aee",
+      "text": "Find the wells in one image.\n\n:param image: the field, as an array the detector can read.\n:param weights: path to the YOLO checkpoint.\n:param confidence: drop detections scoring below this.\n:param imgsz: inference size; 640 is what the shipped detector trained at.\n:param min_axis_ratio: reject boxes less square than this. See\n    :attr:`Well.axis_ratio` -- a non-square box makes the diameter, and\n    therefore every area in that well, wrong.\n:returns: the wells, ordered top-to-bottom then left-to-right, which is\n    reading order and therefore the order a plate map is written in.\n:raises ImportError: when ``ultralytics`` is not installed."
+    },
+    "spacr.plaque.scale_from_well": {
+      "source_blocks_sha256": [
+        "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
+        "9911096259f98d4ebc85d9981d672b240ed3841c9c7a40e46108e53a31822241",
+        "2718ef72048df6a447dc8b671f89acbad86876488cdd85f75bc536598e4e366d",
+        "b356fdf0a0c779489f22ef4620430af61438221b20b6212abbbf3fc6cda1a212",
+        "a86ee3443409aaa41b3c9663d5dd026c6375a1868d46dfa0e93c88ab6a475071",
+        "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
+        "fdcddab3f7b6d974d15d4e152375b6782662f202108aacb531717e8659142ac3"
+      ],
+      "source_sha256": "911b79d76180023104a5771c25a6731295b7ee733ad886a1452ae29bde831f9d",
+      "text": "Pixels-per-millimetre from a detected well, or ``None``.\n\n:param well: the detected well to measure.\n:param plate_format: a key of :data:`WELL_DIAMETERS_MM`.\n:param well_diameter_mm: the physical diameter, overriding ``plate_format``.\n:returns: the scale, or ``None`` when neither argument says how big the\n    well physically is.\n:raises KeyError: if ``plate_format`` is not a known format.\n\nRETURNS ``None`` RATHER THAN ASSUMING. Without a physical diameter there is\nno scale, and inventing one -- a default plate format, say -- would convert\nevery area into confident millimetres that are wrong by whatever the real\nplate was. The caller keeps pixels and says so."
     },
     "spacr.plate_measurements": {
       "source_blocks_sha256": [
@@ -31206,10 +31545,12 @@
     "spacr.qt.app.app_is_visible": {
       "source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
-        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28"
+        "c9b304a50854c83e82771e566756b5e5f414e8f80728261700d8d325c49b0f28",
+        "8fc954aa7de3eec50b6e3a471439a0ce35053cb3af29fb4d6313f61c25ae1f81",
+        "c0e7c7e21c85e75f244efbed376fbe21324a4b55a442f8369a4f99c66147d110"
       ],
-      "source_sha256": "23488ee5be2d7a54d77a2dd8634051f56ccd4f4a807e0263163e949c3ab21669",
-      "text": "Whether ``key`` should appear in module navigation.\n\nPreferences are imported lazily so this registry remains safe for\npackaging and headless callers. If preferences cannot be read, preserve\nthe historical all-modules-visible behaviour."
+      "source_sha256": "6f5b5b61ebee7b92a466d95545114550d58fe04af2e94cb2edd185dbb20790d3",
+      "text": "Whether ``key`` should appear in module navigation.\n\nPreferences are imported lazily so this registry remains safe for\npackaging and headless callers. If preferences cannot be read, preserve\nthe historical all-modules-visible behaviour.\n\nNOT A TILE CHECK. This answers \"is the user allowed to reach this\nmodule\", which is the maturity preference and nothing else. A folded\nmodule is still reachable -- from its host's button, from Help, and\nfrom the command palette -- so it is still VISIBLE; it just has no\ntile. Use :func:`tiled_apps` for the tile question.\n\nThis function did briefly answer both, and the command palette is\nwhat caught it: filtering :data:`TILELESS_APPS` out here took nine\nmodules out of Ctrl+K, so the folds removed a door instead of moving\none. Two questions, two functions."
     },
     "spacr.qt.app.app_stage": {
       "source_blocks_sha256": [
@@ -31227,6 +31568,16 @@
       ],
       "source_sha256": "a99082cddce76dc92e4dc6aaa6e2731a644cc0526da2fc56e0fd930de15146dd",
       "text": "The Demos-menu label of the demo that opens in app ``app_key``.\n\n``None`` when no demo lands there, which is most of the registry —\nthe caller says something generic rather than naming a demo that\nwould take the user somewhere else.\n\nResolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target\napp) rather than a second table, so a demo that is re-pointed at a\ndifferent app moves its hint with it. The first match wins: two demos\nland on ``measure`` (Measure and Crop) and the one named after the\napp is the one it lists first."
+    },
+    "spacr.qt.app.folded_children": {
+      "source_blocks_sha256": [
+        "a5ee1eccadf938cf4617f59f0eee48df8d2612afbc8c958f17d3e35a9a7b88e0",
+        "cdc6651cfe23d83bbc56e020bb8a44765ec7d0403398d29383edf86b4567f89c",
+        "fa79b30a9da610f41adf631c2cb10dbc226a36b61f61b433f5cc6bfd2cd2e808",
+        "7ca534244cbbb0fb770b690bf9b27e0f271a612b78d6f0e66b6d552b06972116"
+      ],
+      "source_sha256": "27c3758399bbd997ce1ab46b3dccc8a0c9526f18f78c60ab4fc076600f65c44c",
+      "text": "``host key -> the module keys folded onto its masthead``.\n\nONE MAPPING, read from the hosts themselves, so the dock, the menu\nbar and the fold strips cannot disagree about what belongs where.\nEach host declares its own `FOLDED_APPS`; that tuple is the truth\nand this only collects them.\n\nAsked for on 2026-09-01: the dock and the spaCR menu should show the\nnested structure, \"adding a level to each where the butons are\nrepresented one level down from the new main modules\".\n\nNever raises: a host whose module cannot be imported contributes\nnothing, because a navigation aid must not be able to stop the\nwindow being built."
     },
     "spacr.qt.app.home_bands": {
       "source_blocks_sha256": [
@@ -31341,10 +31692,30 @@
     },
     "spacr.qt.app.section_members": {
       "source_blocks_sha256": [
-        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426"
+        "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
+        "9d5d2aaea39fac25999bcc850b3c2f999cb009d50fa18e5d1b22639fdcbf86d7",
+        "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
       ],
-      "source_sha256": "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
-      "text": "The ``APPS`` rows a category's tab shows, in registry order."
+      "source_sha256": "357c82920205bd6ca003ec9b4be48ff7d5ff1287da8f8c7357a94d8d457f68ed",
+      "text": "The ``APPS`` rows a category's tab shows, in registry order.\n\nTILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what\nits label COUNTS, so a module with no tile must be out of both --\notherwise the label reads \"Results & QC (7)\" over three tiles, which\nis a count of something the user cannot see.\n\nAn explicit ``apps`` list is filtered too. A caller passing its own\nrows is asking \"which of these belong to this section\", and a\ntileless one does not belong to any tab whichever list it arrives in."
+    },
+    "spacr.qt.app.tile_sort_key": {
+      "source_blocks_sha256": [
+        "6ab7a372b5316f62b107189443768b02ee3c5abc4bc818afa1b192211b9f4929",
+        "fae5777e5581d241ea3f4bd49ecee8d15eb5fc6ff291822bb8736085cb535eb7",
+        "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430"
+      ],
+      "source_sha256": "3db7ad675463135c57b7b51fd553b1dcbe3be22e8f49505967b7bc560f997146",
+      "text": "Sort key placing ``row`` where :data:`SECTION_TILE_ORDER` says.\n\n:param row: an ``APPS`` row.\n:returns: ``(section index, position in that section)``. An unlisted\n    key sorts after every listed one, keeping registry order among\n    the unlisted by virtue of Python's stable sort."
+    },
+    "spacr.qt.app.tiled_apps": {
+      "source_blocks_sha256": [
+        "0de3276422ae3898b1b48b0fdac8dc399457b5bf72b54219ad7028d4b4d0f470",
+        "bf6bb627ba20566a0c317f879cdc5d720fe41787e9c1a53aa2d60b0c4c8d46ac",
+        "9ee4a0bb76ae9ea2b3d57da7d5644871fb76544bd6a1a423d1054f44766cd64d"
+      ],
+      "source_sha256": "64990697010505290ee3ef07acf3ad1d2b73f554e0b7a0d78930e6143deab60e",
+      "text": "The ``APPS`` rows that get a TILE, in registry order.\n\n``APPS`` is what EXISTS; this is what Home DRAWS. The two stopped\nbeing the same thing when modules began folding into hosts -- a\nfolded module keeps its registry row (it still has a screen, an\nicon, a section and a key to navigate to) and loses only its tile,\nbecause it is now reached from a button on its host or from the Help\nmenu.\n\nAnything asking \"what does the user see on Home\", \"how many tiles\nare in this band\", or \"does this tile's label fit\" wants this.\nAnything asking \"can this key be navigated to\", \"does this app have\nartwork\", or \"does every app have a screen\" wants ``APPS`` -- a\nfolded module must still answer yes to all three."
     },
     "spacr.qt.app.unregister_app": {
       "source_blocks_sha256": [
@@ -36518,6 +36889,34 @@
       ],
       "source_sha256": "a21ab11c705259d35926a8ac8d408e057b599ac3328d87973d47b05d372513d6",
       "text": "Assign a macOS menu role and return ``action``.\n\nParameters\n----------\naction : PySide6.QtGui.QAction\n    Action whose role is assigned.\nrole : {'none', 'preferences', 'quit', 'about'}, default='none'\n    Target system-menu role. ``'none'`` keeps the action in its menu.\n\nReturns\n-------\nPySide6.QtGui.QAction\n    The input action.\n\nRaises\n------\nValueError\n    If ``role`` is not supported."
+    },
+    "spacr.qt.module_hints": {
+      "source_blocks_sha256": [
+        "d8f6e3e0b5355ec9031d55a72dd4a733a400ed3bc412eaefe798f7be205b7e3f",
+        "a463479b0fc8dcf01d78cd0c4daec2985d0c48c83ca1ff12bef2f24a9478bc8f",
+        "ea746518bb511cb0a199918eb5fd78df8ec07ed2ec5e85abd216004ba84e5ab2",
+        "9c825b5d71ea0ecd9f73aeb6740230a59f9b35a52305fdb00d53e5a3bfc25bc6",
+        "3c898e5af9ca348cf9fcb99f4c306b8cd7efb19c77b4d04d1c4ebcb06edb0230"
+      ],
+      "source_sha256": "741a88a2e3df1152f1f9b3484fe2f0eb0e050b03f095610b973423124be45bd1",
+      "text": "Module descriptions go to the bottom of the window, not over the grid.\n\nAsked for on 2026-09-01: \"the tooltips for modules should only be shown\nat the bottom of the screen\".\n\nHome already worked this way and the reason is written on ``AppTile``:\nthese blurbs run to several hundred characters, which is fine in a fixed\nline the eye can skip and wrong in a box drawn on top of the very grid\nyou are reading to choose between. The sidebar and the fold strip kept\npopping them anyway.\n\nThe hook is ``QEvent.ToolTip`` rather than hover. It fires exactly when\nQt has decided to show a tooltip -- after the same delay, at the same\nmoment -- so the description appears when the user expects it, and\nreturning ``True`` from the filter is what stops the popup being drawn.\nReimplementing the timing on ``HoverEnter`` would be a second, slightly\ndifferent delay for the same gesture.\n\nAccessible names and descriptions are untouched: they are set separately\non these widgets and are what a screen reader reads, so moving the\nvisible text costs no assistive text."
+    },
+    "spacr.qt.module_hints.install_module_hints": {
+      "source_blocks_sha256": [
+        "ee83f4926dd95e4ec9618fe40a394064c5a5ac943d6392b91c3fcc4bbb48e859",
+        "605a69897d886c8b1c4bcb6bca01f6828f33b5aeeb8eaf2c965266f8ba964090",
+        "fe88ff4f9714e4c7379af5d1796af632e7cabc3ccd07b8dc71846b64a25772ee"
+      ],
+      "source_sha256": "36f68efa46a9ffcb71e07b51f866927485983dcf8407693e65676ea7ac118fb1",
+      "text": "Send module descriptions to ``window``'s status bar.\n\nInstalled on the APPLICATION rather than on each button: the fold\nstrip builds its buttons lazily, per host masthead, and a filter\ninstalled per widget would miss every one made after this ran.\n\n:returns: the filter, so a caller can remove it; ``None`` when there\n    is no application to install it on."
+    },
+    "spacr.qt.module_hints.module_hint_text": {
+      "source_blocks_sha256": [
+        "9fdd57aa2915f1e1cb0e328482838953dac127fcb6c0796a21676bf3d0cdb6e0",
+        "45beb280c858bf92b35ba189a97e1306986b75da6b0c020564b9916d053dc44f"
+      ],
+      "source_sha256": "f45a839213e871ed90848c477a64b26483f8ba2aea6d49d452f1cb7bff999925",
+      "text": "The line a module widget contributes, or ``\"\"``.\n\nName and summary are read from PROPERTIES rather than from the\ntooltip, so the text is the canonical English source and a language\nswitch retranslates it rather than translating a translation."
     },
     "spacr.qt.multi_format": {
       "source_blocks_sha256": [
@@ -42036,6 +42435,14 @@
       "source_sha256": "aea848c104e6e35e76aabb00dad768a2da5fb2a2869a515893b0d6cf0f7adcbf",
       "text": "Return SQLite's type affinity for a declared column type.\n\nThe five rules are the ones in the SQLite file-format spec, in\norder: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT,\n``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` →\nREAL, otherwise NUMERIC. Knowing the affinity is what lets\n:func:`coerce_for_column` refuse a value SQLite would otherwise\nstore with the wrong type.\n\n:param decl_type: declared SQLite column type, or ``None``/an empty string\n    when untyped.\n:returns: ``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``."
     },
+    "spacr.qt.screens.db_browser.install_folds": {
+      "source_blocks_sha256": [
+        "9373aaa67d4cb47235c9dc47218d7a82b5b6fc32bb51f8f5592e88d5e1a7d6f9",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "fa3c58a28e4b5b84002322e6d99cc7cad9888a07f069d9e13d57356fc4555875",
+      "text": "Put db_browser's fold strip on ``screen``'s masthead.\n\nReached by the one pass over the stack that serves every host --\nsee :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`."
+    },
     "spacr.qt.screens.db_browser.quote_ident": {
       "source_blocks_sha256": [
         "4ae9a7dd68895566c7c158bf97eca9adc6223daa4be1a8d7a8fed6fa152cbd66",
@@ -42719,6 +43126,13 @@
       "source_sha256": "574c656f4ea7b6f28e8099c75701bb3f7d0b103572c62c2ba29049e11f397ef9",
       "text": "Their columns with no mapping, by name."
     },
+    "spacr.qt.screens.foreign.install_folds": {
+      "source_blocks_sha256": [
+        "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9"
+      ],
+      "source_sha256": "4946a59d9523c5690d0482a592f0693eabe502e6ddb7896353c03384725c8bd9",
+      "text": "Put Import's fold strip on ``screen``'s masthead."
+    },
     "spacr.qt.screens.gate_editor": {
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
@@ -43002,6 +43416,14 @@
       ],
       "source_sha256": "8e345d75be70016dbf6b25b01179d0b48d8d1c5f1ec872e105c84aff12fa503c",
       "text": "Plot ``frame``. The one call a host needs."
+    },
+    "spacr.qt.screens.graph_builder.install_folds": {
+      "source_blocks_sha256": [
+        "b380eb9877cf0d4f70fb3cceadfea84b4badbeffab43408f1e894552b0e6f0c3",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "58cb8e09fdf787b9df7a617b99bf69cdb01f5929f4df5ed05956d4da4fec6851",
+      "text": "Put graph_builder's fold strip on ``screen``'s masthead.\n\nReached by the one pass over the stack that serves every host --\nsee :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`."
     },
     "spacr.qt.screens.graph_builder.make_graph_builder_screen": {
       "source_blocks_sha256": [
@@ -44284,6 +44706,19 @@
       ],
       "source_sha256": "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05",
       "text": "Show the folded module; raise it if it is already up."
+    },
+    "spacr.qt.screens.map_barcodes.build_registered_screen": {
+      "source_blocks_sha256": [
+        "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
+        "0f70848f7ef21f5dc3f108e5d89f1b481b313c7bef6ed5d6914d8a02ffbab3b2",
+        "e2693ed89228b02e20fe367123fbddc5a9b45a1b6629683a60ec43a7929da0de",
+        "a0c45a1424dea18b4ae55ab475aaf665be1849161a729181c54cfeff52ded824",
+        "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+        "fc5d8741925314ec351f6997c871873647b6c079eab1e0cfa7a03c2911fae138",
+        "7208722366104a9670be1e6bfce4039b7d24f62f253bc1e0792885cf86697804"
+      ],
+      "source_sha256": "9838634199216863bd21b4fb26cd2d2dfb1b3b2d347cd6f66601f8118765d737",
+      "text": "The screen NAVIGATION builds for ``key``, for a fold button to open.\n\nFolded modules that still hold a registry row are reached two ways --\nthe button on their host's masthead and the command palette -- and\nthe two must land on the same screen. Asking the window to build it\nis what guarantees that: `_build_screen` is the one place that knows\nwhich keys have a dedicated screen class, which are catalogue-driven\n`AppScreen`s, and which come from a plugin.\n\nThe alternative was a table here mapping ten keys to ten classes,\nwhich is the same knowledge written a second time and free to drift\nfrom the first.\n\nFalls back to :func:`build_settings_screen` when there is no window\nto ask -- the headless and unit-test path, where a settings screen is\nwhat the catalogue-driven modules would have produced anyway.\n\n:param key: the folded module's registry key.\n:param host_window: the main window, when there is one.\n:returns: the screen."
     },
     "spacr.qt.screens.map_barcodes.build_settings_screen": {
       "source_blocks_sha256": [
@@ -46422,6 +46857,14 @@
       "source_sha256": "9974c3fc66cede0a5f0b32af057afe0f944a7994f5e5d32f619d79a1aa1b6826",
       "text": "Every card line currently on screen, joined. For tests."
     },
+    "spacr.qt.screens.qc_dashboard.install_folds": {
+      "source_blocks_sha256": [
+        "ecadd6bfabbd0fcabf76ae423a0cedcc71ad3d872a248ea38d7c10987a4a55be",
+        "f313c7b4d8540a99134564578e52f7bec29849f8a2e674f7ca7abb2a9e29679d"
+      ],
+      "source_sha256": "275082acf7c4d42b82ea4102bdcf6505be749df2ed48e8ca64f0289a0298744a",
+      "text": "Put qc_dashboard's fold strip on ``screen``'s masthead.\n\nReached by the one pass over the stack that serves every host --\nsee :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`."
+    },
     "spacr.qt.screens.qc_dashboard.make_qc_dashboard_screen": {
       "source_blocks_sha256": [
         "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
@@ -46481,6 +46924,32 @@
       ],
       "source_sha256": "553eb322297db298929bf2430a3616335e4b5e7608b6d21023c5017a38733ec8",
       "text": "Regression, and the three modules that are the rest of the visit.\n\nA regression run is not finished when the coefficients appear. Three\nscreens carry on from there, and none of them duplicates anything the\nresults panel does:\n\n* **Volcano Explorer** is the only publication-figure path in spaCR. Its\n  volcano is a matplotlib render behind a 56-field style that can be\n  saved and reloaded as JSON, every called point labelled, colour or\n  shape driven by an annotation file merged on an inferred key, arbitrary\n  x/y columns, and a vector re-render at journal size. The panel's own\n  volcano is pyqtgraph and can honour none of it, so the explorer is\n  offered from that plot's own menu as \"Publication figure…\", seeded with\n  the frame already on screen.\n* **Hit List** displays one ranked row per gene for the loaded regression\n  run. Backends that report p-values receive Benjamini–Hochberg q-values\n  computed across the genes tested; penalised backends instead rank by\n  bootstrap selection frequency and do not report q-values. Each row includes\n  the effect estimate, a 95% interval when a standard error is available, and\n  gRNA sign agreement when guide-level coefficients are available. Annotation\n  CSVs are collapsed to one row per gene before validated many-to-one joins.\n  The complete :class:`~spacr.qt.screens.hit_list.HitListScreen` is installed\n  as the **Hits** tab after Guide support, follows the run loaded by the\n  results panel, and exports the displayed filtered list as CSV, Markdown, or\n  self-contained HTML.\n* **Methods & Results** builds the run digest -- package versions,\n  timings, seed and error policy, per-module parameters parsed out of the\n  emitted macro, the segmentation verdict, artifact counts, held-out\n  metrics -- drafts the two sections from it and then mechanically checks\n  every number in the draft back against the digest. It opens seeded with\n  the project the regression screen is already pointed at, so the path it\n  otherwise asks the user to type is filled in.\n\nEach of the three is also a button on the Regression masthead: the\nmodule's own icon with no text, its one-line description as the tooltip,\nlit on hover in the maturity colour its tile used -- see\n:class:`spacr.qt.widgets.fold_strip.FoldStrip`. The button and the place\nthe capability lives are the same door: the Hit List button raises the\nHits tab rather than opening a second hit list, and the Volcano Explorer\nbutton opens exactly what \"Publication figure…\" opens.\n\nONE CORRECTION FAMILY ON ONE VOLCANO. A guide permutation writes every\nminimum-support family stacked into one long table, and fits one family\nper response when several outcomes were fitted. Each of those is its own\nBenjamini-Hochberg family, so drawing the table unfiltered puts a guide on\nthe plot two to four times at different heights and pools two corrections\ninto one picture. :func:`single_correction_family` is the cut, and\n:func:`install_correction_families` puts it in front of the panel's own\n``set_frame`` so every route into the panel -- a finished run, a folder\nopened by hand, a dropped bundle -- draws one family.\n\nThe shared half of a fold -- opening a module in a window, wiring the host\nsignals a sidebar row used to wire, and hanging the strip off the\nmasthead -- lives in :mod:`spacr.qt.screens.map_barcodes` and is imported\nrather than repeated."
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener": {
+      "source_blocks_sha256": [
+        "0f4f7779ca5851d23ec8b6f7c4271ecf698ba7506858cc98927e4cb33566c402",
+        "b9b835c8f5605fe8dd3c6e335aec1e7817d62d4a6f7d6f9b8efe1c0e07f4483d",
+        "6ab3ae927aee13014a565f1b486c38517f493ed3f8a81a12776cbf4d6cb50e75",
+        "7f0324b69872a608df4dc85b49c57d9d2d3c91b163c1c5244463d488669237bd"
+      ],
+      "source_sha256": "4ddc199e82c3cbdbf53c87ba5446144c3a0b75b33d42d2a8d334c8cbd6145d38",
+      "text": "The Diagnostics button: show the panels the last run wrote.\n\nNOT A MODULE. `spacr.ml` writes these panels into the run's results\nfolder as it finishes -- see `_write_regression_diagnostics` -- so\nthere is nothing to compute here and nothing to configure. The button\nopens what is already on disk.\n\nWhich is also why it can be pressed when there is nothing to show. A\nrun that has not happened, or one whose backend has no residuals, has\nno folder or a partial one, and saying so is more useful than a\nbutton that appears to do nothing.\n\n:param screen: the host screen the button sits on."
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.open": {
+      "source_blocks_sha256": [
+        "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751"
+      ],
+      "source_sha256": "cdf2f4b10f57b894ec968ef54af7f11c986e0403b9d976917d4b97b2efeeb751",
+      "text": "Open the folder, or say why there is nothing to open."
+    },
+    "spacr.qt.screens.regression.DiagnosticsOpener.verdict": {
+      "source_blocks_sha256": [
+        "b399ec2f073258d2848401d84a148df082fbb02754f3424c034fdfa30b3bfed1",
+        "479189aad9a855b2228a8d39f83f0c3cb674ac9f85a0f6c0bdb0084530ca8125",
+        "c11963af4f1b2786bb036766bb466e7fc461fa4e6bef4dd937ec95519aab2a9b"
+      ],
+      "source_sha256": "9795c92d2e4e6677035d29863bc487189b56f9000770b2c3b9fbc212c3349785",
+      "text": "``(level, detail)`` for the badge, from what is on disk.\n\nITEM 3 OF INSTRUCTION 322: the button is badged with the worst of\nscore_design / score_residuals / score_inference. That worst is\nalready computed and written -- ``diagnostic_summary.csv`` carries\na ``suite``/``verdict_level`` row -- so this is a READ, and it has\nto stay one. Recomputing it here would let the button and the\npanels disagree about the same run.\n\n``(\"\", \"\")`` when there is nothing to read, which is not the same\nas a pass: a run that has not happened has no verdict, and a green\ndot would claim it did and was fine."
     },
     "spacr.qt.screens.regression.HitsOpener": {
       "source_blocks_sha256": [
@@ -48102,6 +48571,55 @@
       "source_sha256": "ee8305f877482c7ee0b0f0814e4e22f744f417c1dc3ce43e575a6dc6dea32672",
       "text": "Return the settings heading ``key`` is grouped under.\n\n:param key: a settings key, e.g. ``\"cell_diameter\"``.\n:returns: the category name, or :data:`UNCATEGORISED` when the key is\n    in no bucket (a plugin's key, a run-journal bookkeeping column, or\n    a knob nobody has filed yet)."
     },
+    "spacr.qt.settings_pack": {
+      "source_blocks_sha256": [
+        "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
+        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
+        "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
+        "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
+        "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
+        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+      ],
+      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
+      "text": "Read a downloaded settings pack into settings this spaCR can run.\n\nThe demo dataset on HuggingFace ships ``<app>_settings.csv`` files beside\nthe images. They were written by an older spaCR, so some of what they name\nno longer exists -- keys renamed, keys removed with the feature they\nconfigured, keys that were never settings at all.\n\nMERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous\nloader read every row of the CSV straight over the defaults, so a key the\ncurrent build has never heard of arrived in the settings dict and travelled\ninto the pipeline, where it was either ignored silently or produced an\nerror naming a setting the user did not type and cannot find in the form.\nEither way the user is told nothing at the point where it could be\nexplained.\n\nSo this MIGRATES rather than merges, and REPORTS rather than guesses:\n\n* a key the app still has is applied;\n* a key that has been renamed is applied under its new name and counted;\n* a key that no longer exists anywhere is dropped and named.\n\nThe report is the deliverable as much as the settings are. \"Loaded 34\nsettings, renamed 2, dropped 3 this version no longer has\" is a sentence a\nuser can act on. Thirty-nine settings applied silently, three of which do\nnothing, is not."
+    },
+    "spacr.qt.settings_pack.PackReport": {
+      "source_blocks_sha256": [
+        "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06"
+      ],
+      "source_sha256": "2ec5737fdfc68d1680655ab42835f234b17706c38ba5341940a57a75e6cd1d06",
+      "text": "What became of a settings pack, in terms a user can be told."
+    },
+    "spacr.qt.settings_pack.PackReport.summary": {
+      "source_blocks_sha256": [
+        "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+      ],
+      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
+      "text": "One sentence for a status bar, naming what was lost.\n\nNames the dropped keys rather than counting them: \"dropped 3\" tells\na user something went missing without telling them what, which is\nthe worst of both."
+    },
+    "spacr.qt.settings_pack.read_pack": {
+      "source_blocks_sha256": [
+        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
+        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+      ],
+      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
+      "text": "``({key: value}, malformed row count)`` from ``<app>_settings.csv``.\n\nMissing file is not an error: a pack legitimately carries settings for\nsome apps and not others, and the caller gets an empty dict."
+    },
+    "spacr.qt.settings_pack.settings_from_pack": {
+      "source_blocks_sha256": [
+        "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
+        "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
+        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
+        "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
+        "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
+      ],
+      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
+      "text": "The app's defaults, with the pack migrated over them.\n\n:param app_key: the module the pack is for.\n:param pack_dir: folder holding ``<app_key>_settings.csv``.\n:param src: dataset folder; overrides whatever ``src`` the pack names,\n    because a pack written on somebody else's machine names a path\n    that does not exist on this one.\n:param defaults: the app's defaults; resolved from the registry when\n    omitted.\n:returns: the settings to apply, and what became of the pack."
+    },
     "spacr.qt.settings_search": {
       "source_blocks_sha256": [
         "c75fdd23d525b9704a0cd36681dcaa474e3c97d012d481059f69e8a47879539a",
@@ -49409,6 +49927,16 @@
       ],
       "source_sha256": "116cfcd174129a41fe274fe7b48faf96ca224b73bde2956ed6989c60a3289fc7",
       "text": "Brightest a background image may be before ``theme`` fails AA.\n\nClosed form, not a search: for a foreground of relative luminance\n``Lf`` and a required ratio ``r``, WCAG allows a background up to\n``(Lf + 0.05) / r - 0.05``. The answer is the tightest of those over\n:data:`BARE_IMAGE_RULES`, and it is what\n:func:`spacr.qt.imagery.solve_dim` expects as its target."
+    },
+    "spacr.qt.theme.menu_bar_background": {
+      "source_blocks_sha256": [
+        "0ef1e0b248738e104fab71325864b8918e97796c5d30139cc3fb07109de10a78",
+        "e5342e28fd1bef3b3a2ff8d80faa2d7a4c02a43894374ca19ce5165b5376a8a4",
+        "4123bbe9bc92ef59539e0d6696ce6633daa1a1f64a1ff72e69c231bf2e6b1bd9",
+        "5c0d3263237d2549a7d002576bb3ef65abaf54ecb29ac03c82d974e503337c89"
+      ],
+      "source_sha256": "e5ab259b5f80f09ce6f7e666a5168492a84f2f569af0ab68039fa18b91fd8dda",
+      "text": "The QSS colour the menu bar and its corner chrome both paint.\n\nONE FUNCTION FOR BOTH so they cannot drift. The bar is styled from\nthe generated stylesheet and the window chrome is styled in\n``spacr.qt.app`` with a stylesheet of its own; two hard-coded colours\nthat have to match is one of them going stale.\n\n:param theme: theme name; the active theme when omitted.\n:returns: a QSS colour string."
     },
     "spacr.qt.theme.page_colour": {
       "source_blocks_sha256": [
@@ -53563,6 +54091,15 @@
       "source_sha256": "8fc48961d9cace93944593d1c3f9b2e54391c1481cb2e7998623d2c3f70b9604",
       "text": "Append pipeline output as blue text under a 'spaCR output' banner.\n\nSafe to call from any thread: an off-thread call is re-posted to\nthe GUI thread through :attr:`_relay_stdout` and returns without\ntouching a widget. See :meth:`_on_gui_thread`.\n\nRe-entrant calls on the same thread are refused. Drawing a line\nruns Python inside a QWidget, and with verbose logging on the\nfunction-trace profile hook logs on entry to every spaCR function\nit passes through — including this one. Both console log sinks feed\nthat record straight back here, and ``_StdoutBlock.append`` answers\nit with a nested ``setPlainText`` whose first act is to destroy the\nQTextDocument's frames — the ones the outer call is still inside.\ngdb: ``QTextFrame::~QTextFrame -> QTextDocumentPrivate::clear``,\n``#0`` in freed memory. Reproduced as ``pytest\ntests/qt/test_all_module_smoke.py\ntests/qt/test_batch_f_diagnostics.py`` (exit 139)."
     },
+    "spacr.qt.widgets.console_panel.ConsolePanel.append_warning": {
+      "source_blocks_sha256": [
+        "43671ecf50dfdd68d9a39e4936764f7b18dae5352758c14ba3752f7407e2dd1b",
+        "6efa78e8c8e6549929382ab90dd2186fb4117ecd3a7079da4b12d4eaabdda543",
+        "f699cc1988ba0b9c6ad5094ebf723213a74cc7c69244f94c534260b68ef90cb8"
+      ],
+      "source_sha256": "5b61531411fe7eaf96fedc897f05a19bdc5c60f25a3b72c5967576f0aeec7f97",
+      "text": "Append warning text in the theme's amber, under the output banner.\n\nDELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one\nrather than a design one: a \"spaCR warning\" heading would need a new\nrow in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the\nCOMPACT caption ratchet another session owns. Amber under the existing\ntranslated \"spaCR output\" heading already satisfies what instruction\n320 asks for -- warnings out of the ERROR pane, errors still in it --\nwithout reaching into that machinery. A dedicated banner is the nicer\nend state and is recorded in 320 as the follow-up.\n\n:param text: the formatted record; empty strings are ignored."
+    },
     "spacr.qt.widgets.console_panel.ConsolePanel.apply_zoom": {
       "source_blocks_sha256": [
         "809eac73c97a658c420331267ae9d478ed8cf5186cdf79f4d0d1667982e73620"
@@ -53786,6 +54323,14 @@
       ],
       "source_sha256": "e858936fab2f7d6abdf565b0461ba157dcc39e69c4b69cf3c8eb23c3939e4d58",
       "text": "User-input colour for the theme on screen right now."
+    },
+    "spacr.qt.widgets.console_panel.color_warning": {
+      "source_blocks_sha256": [
+        "991fe8e233f0f2a7874c5c71976941ea4fe79081509b792319685f5ba3502a0e",
+        "4c41f83e11a551581814d3bf0704722946c9d394f93a14caf458d9f4cda5ff67"
+      ],
+      "source_sha256": "5fda83a953445a6056e1535e7b981d5d3d66e79a0bd0d484493c22e2e79c0d54",
+      "text": "Warning colour for the theme on screen right now.\n\nDistinct from :func:`color_error` on purpose -- see\n:meth:`ConsolePanel.append_warning`. Every theme already defines the\n``warning`` role; nothing here needed inventing."
     },
     "spacr.qt.widgets.console_panel.get_split_state": {
       "source_blocks_sha256": [
@@ -57292,12 +57837,12 @@
         "4a7618289eb2b2115930041f8195b8b298d67b1e7d0e7552d0e90e3b23f6dc6e",
         "51b795024d73c44a107b628775b0119b4e6394902f1503cb563078cb468627e7",
         "514dd2531b57a99fb060d614648ab537d72562c86b63dcbbb8ca8af435b45b7f",
-        "daf330e74aaf8e574d68ac110a7c240dde42c5d39b9015acc2859cb40a919c99",
+        "e0549d09928c50d38cbfa012e6c7f76d81479c664e29d8358b14f159802d8d37",
         "4b5c4c8132e0bc132147e7bfa1e66e66ee9f57aa476ee77f3d902cec47d693ab",
         "02e65cdb2acee1355970f59fe7858a30a3ab48f666fe278f1b3815e39a6eb899"
       ],
-      "source_sha256": "acb0f5bc4ea460c4333333a6f13bcbe94a862b3c59ce38d455a49547c8c155b6",
-      "text": "The in-app feature dictionary: look a measurement up without leaving spaCR.\n\nA finished run writes hundreds of columns per object with names like\n``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` has known what\nthose mean for a while, but only as an *export*: you could write a markdown\nfile describing a database, and that was the whole interface. So the moment a\nuser actually needs the answer — reading a results table, staring at a\nregression coefficient, hovering a UMAP axis — they have to leave the app.\n\nThis module is the missing half:\n\n:class:`FeatureDictionaryPanel`\n    the searchable panel. Search by column name, by substring, or by *idea*\n    (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"), filter\n    by object type and concept, and read the definition, the unit, which\n    objects the feature exists for, which channel it applies to and which\n    module computes it.\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary`\n    the same panel as a non-modal window, optionally opened straight onto one\n    column.\n\n:func:`register`\n    puts the panel in the app registry (Explore section) and its QSS in the\n    theme, through the ``register_app`` / ``register_widget_qss`` seams —\n    this module owns its own registration and edits neither ``app.py`` nor\n    ``theme.py``.\n\n:func:`install_window_hooks`\n    the two reach-me-from-where-I-am routes: a **Help ▸ Feature Dictionary…**\n    action, and a **\"What is this?\"** item on the context menu of any results\n    table in the app.\n\nThe context-menu route is deliberately an application-level event filter\nrather than an edit to each table screen. There are eleven table-bearing\nscreens and none of them claims a context menu today, so a filter reaches all\nof them — including the ones built lazily, long after this hook ran — and\nreaches any table added later for free. It stands aside for any widget that\nhas claimed its own context menu (``CustomContextMenu`` / ``ActionsContextMenu``),\nso adopting one later silently takes precedence over this."
+      "source_sha256": "942df7b3a5bd67f0f687614647ab8720d91c5f29ffab47038bca9157b7483f12",
+      "text": "The in-app feature dictionary: look a measurement up without leaving spaCR.\n\nA finished run writes hundreds of columns per object with names like\n``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` has known what\nthose mean for a while, but only as an *export*: you could write a markdown\nfile describing a database, and that was the whole interface. So the moment a\nuser actually needs the answer — reading a results table, staring at a\nregression coefficient, hovering a UMAP axis — they have to leave the app.\n\nThis module is the missing half:\n\n:class:`FeatureDictionaryPanel`\n    the searchable panel. Search by column name, by substring, or by *idea*\n    (\"intensity\", \"texture\", \"shape\", \"distance\", \"how big\", \"blurry\"), filter\n    by object type and concept, and read the definition, the unit, which\n    objects the feature exists for, which channel it applies to and which\n    module computes it.\n\n:class:`FeatureDictionaryDialog` / :func:`open_feature_dictionary`\n    the same panel as a non-modal window, optionally opened straight onto one\n    column.\n\n:func:`register`\n    puts the panel in the app registry (Tools section) and its QSS in the\n    theme, through the ``register_app`` / ``register_widget_qss`` seams —\n    this module owns its own registration and edits neither ``app.py`` nor\n    ``theme.py``.\n\n:func:`install_window_hooks`\n    the two reach-me-from-where-I-am routes: a **Help ▸ Feature Dictionary…**\n    action, and a **\"What is this?\"** item on the context menu of any results\n    table in the app.\n\nThe context-menu route is deliberately an application-level event filter\nrather than an edit to each table screen. There are eleven table-bearing\nscreens and none of them claims a context menu today, so a filter reaches all\nof them — including the ones built lazily, long after this hook ran — and\nreaches any table added later for free. It stands aside for any widget that\nhas claimed its own context menu (``CustomContextMenu`` / ``ActionsContextMenu``),\nso adopting one later silently takes precedence over this."
     },
     "spacr.qt.widgets.feature_dictionary.FeatureDictionaryDialog": {
       "source_blocks_sha256": [
@@ -58885,6 +59430,17 @@
       "source_sha256": "a7a3426a87b6779bc7cae24e4b41af8d697b6740e46a61d14a684866e0c9ca3d",
       "text": "Re-state the maturity this button is drawn in.\n\nThe stage is read from the app registry when the button is built,\nand the registry stops answering for a module the day its row is\ndropped -- which is what folding one ends in. Restating it has to\nmove BOTH things the stage decides: the Qt property the shipped\nhover rule selects on, and the widget-local ``:checked`` fill,\nwhich is a stylesheet computed once from whatever the stage was\nat construction. Moving only the property left a switch that\nhovered in its own colour and lit stable-blue when it was on.\n\n:param stage: ``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``."
     },
+    "spacr.qt.widgets.fold_strip.FoldButton.set_verdict": {
+      "source_blocks_sha256": [
+        "1ad0e93d1fbd8028236e36e6a64b89416a664c62092f3f13134356ffc37a71d3",
+        "3ef646b4c335f48f41d50726610b4ea7159f59cdf9c1614ec44ed32d8b747b66",
+        "e641356b2aac9678dd4ab143e1655819bf6fd48fe38fdf7ff5807dd499911895",
+        "64da6288febc7f6b4edde5a1c8bf17dbcfc4486a61b4611ec1952994ed039379",
+        "216a1eedb7795fc6e1492b19fc9da5492c42cadc7dc1188ada5a0e018d9ef1ca"
+      ],
+      "source_sha256": "52dea2bcadb94908be8570e73aaa9ab9a8a219b4e43a1f4274778c205413d5fa",
+      "text": "Badge this button with a run's worst verdict.\n\nA DOT, NOT A COLOURED BUTTON. The button's own colour already\nmeans maturity -- alpha, beta, stable -- and a second meaning on\nthe same surface makes both unreadable. The dot is drawn over the\ncorner instead, and the detail goes in the tooltip where the\nreason can be a sentence.\n\n``\"\"`` clears it, which is what a run that has produced no\ndiagnostics yet must show: no dot rather than a green one, because\n\"not measured\" and \"measured and fine\" are different answers.\n\n:param level: ``\"pass\"``, ``\"check\"``, ``\"fail\"`` or ``\"\"``.\n:param detail: the sentence behind the verdict, for the tooltip."
+    },
     "spacr.qt.widgets.fold_strip.FoldStrip": {
       "source_blocks_sha256": [
         "6a50ddd84c7227d3d3f3501ef193ff8b80cb1850011cf55fad4e8f554b71b784",
@@ -59667,6 +60223,24 @@
       "source_sha256": "90865fb7bfa778a28c42d0eee3b00e379edb013130c7008e1d2726a0edf2b527",
       "text": "Where the picture has detail worth steering toward.\n\n:returns: a boolean map the same shape as ``escaped``.\n\nSET MEMBERSHIP IS NOT ENOUGH ONCE THE ZOOM IS DEEP. Around a Misiurewicz\npoint the set is measure-zero: measured on a 96x54 map at a scale of\n1.25e-3, every pixel escaped and :func:`boundary_mask` found NOTHING, so\nthe guided path stopped steering after two decades and the dive went\nstraight down again.\n\nWhat is still there is the escape TIME, and its level sets are the\nfilaments the picture is made of. A pixel whose escape time differs\nsharply from its neighbours sits on one of those edges -- which is where\ndetail survives at any magnification, and is what the eye reads as\nstructure.\n\nThe true boundary is preferred where it exists, because a bounded point\nbeside an escaping one is the strongest evidence of an edge there is."
     },
+    "spacr.qt.widgets.fractal_orbit_gpu": {
+      "source_blocks_sha256": [
+        "a0321f31ace6aea55af1384f4fc91bd5b8c2f62ac5ce6e122729ef0d34321be4",
+        "02727a705ada0afaa8e8d6127e2eb0ea3296787532c5365a0835e91f751608a7",
+        "75a813886aa962a7bef10ddfe069c0c5eac21f94ea3eb4702a33cf6c5288ca10",
+        "1d805b1d806a17696a442c411d625ed84fa27de93fe61a7abb5c87ce3af2561a"
+      ],
+      "source_sha256": "75402e36c4c4c08c60a34ea86e34a51ca0919eddabd04ffb9e24d01553e2753f",
+      "text": "The orbit fold on the GPU: the fifth spaceout pattern.\n\nInstruction 327 (5). The CPU orbit fold in\n:mod:`spacr.qt.widgets.fractal_travel` is the one renderer the maintainer\nsingled out as right -- \"the orbit fold cpu effect is like a magnigying\nglass, which looks cool\" -- and it is the one the pointer complaint\nexcluded. This is that same map, on the GPU.\n\nWHY IT IS A SECOND ENTRY RATHER THAN A BACKEND SWITCH. The CPU path\njitters four samples ACROSS four frames, which averages four different\nanimation times; a GPU pass can afford the four samples inside one\ninstant. They are not the same picture, so offering them as one option\nwith a hidden backend would mean the same setting drawing two things.\n\"Orbit fold\" is taken, so this is \"Orbit fold (sharp)\" -- descriptive of\nwhat actually differs rather than a version number.\n\nTHE MAP IS TRANSLITERATED, not reinvented: same fold, same inversion\nconstants, same three orbit traps, same palette. A test asserts the\nconstants match the CPU function character for character, because two\nrenderers that drift apart are two patterns wearing one name."
+    },
+    "spacr.qt.widgets.fractal_regions": {
+      "source_blocks_sha256": [
+        "5c7ea33918a061ca5b59290044449b18476bbc3f3980f30dfaa5261385d79554",
+        "9406df6d4a7f1efc4ca01799df8708ad0f4231a355e5dec55372e0d3f6bb8eb3"
+      ],
+      "source_sha256": "4a4e33a8aff4067e7aa71979040b7563dea514c77e39e294cf17e9545dd03ead",
+      "text": "Mandelbrot coordinates the backdrop camera tours.\n\nGENERATED by tools/find_mandelbrot_regions.py -- do not hand-edit.\nInstruction 327 (3). Each entry is a point that keeps a high\nescape-time gradient across four decades of zoom, so the camera\nstill has something to show when it arrives."
+    },
     "spacr.qt.widgets.fractal_space": {
       "source_blocks_sha256": [
         "e158c620939913328c1bf469d951093c551573f47225d188dffc0265013a0dd9",
@@ -59743,6 +60317,24 @@
       "source_sha256": "27d3fd3eb90d52f4a727012e64ac715bd4fd451de597e8bb664f27ee52096482",
       "text": "Where the GPU field is looking, at one instant."
     },
+    "spacr.qt.widgets.fractal_travel.DepthPhase": {
+      "source_blocks_sha256": [
+        "0acbfed2a8de82c703a66dbe9cad070699326eb869948566ed24423190fb13da",
+        "ffd62a341272ed7efb021704d33c66a8d7ed2cce4547b650d8170164882ce13b",
+        "7a22e7f431fac3f9bb6a3177159c2806f7b4ccd2c5b9b3ea90923208ec578967",
+        "4fe7f8d19404ba55b80e83a85e56759432a0a5d7f15a2d09212e7e07ec5a4d9e"
+      ],
+      "source_sha256": "5ebf34207069f04e242befd7ecf99e4545f93418bfde208ebebc7a515817052f",
+      "text": "How far along the trajectory the camera is, as a number that only grows.\n\nSPEED MUST CHANGE THE RATE, NOT THE POSITION. Depth used to be\n``t * speed``, so a scroll that doubled the speed doubled the depth\nin the same instant: measured at t=60s, speed 1 -> 2 moved the camera\n5.0 units, which is 3,600 frames of ordinary travel arriving in one.\nThat is the jump reported as \"it ruins the immersion when it jumps\".\n\nIntegrating instead -- ``phase += dt * speed`` -- makes a speed change\ncontinuous by construction. The camera is exactly where it was; only\nhow fast it leaves matters.\n\nKept as a small object rather than two floats on the widget because\nthe invariant is worth naming: `value` never decreases."
+    },
+    "spacr.qt.widgets.fractal_travel.DepthPhase.advance": {
+      "source_blocks_sha256": [
+        "e703c51e741e9518b85fb0aafc6af7faa11fb0be224bca46114f04aa8ffa276f",
+        "58f0ebcf71fdc5f6a5fb4d33e66a35ab75bde8270e9894053e4c485caa61b85c"
+      ],
+      "source_sha256": "93ea642573b377444074f7d7e66c55a68f5f5256f33202588ee884f7d6fa0101",
+      "text": "Move the phase to wall-clock ``t`` at ``speed``, and return it.\n\nA t that goes BACKWARDS -- a restart, a clock reset -- re-bases\nrather than rewinding: the phase is the distance travelled, and\ntravel does not un-happen."
+    },
     "spacr.qt.widgets.fractal_travel.GpuBackendError": {
       "source_blocks_sha256": [
         "59b3fa955b77ea359b2f008345c1604d06fcefb3d55e27751223c9873222b72f"
@@ -59784,6 +60376,55 @@
       ],
       "source_sha256": "b94896bdd6f88cead5c0b4bf3537590cb84054358ef50a63b04f524306f2c185",
       "text": "Read the pointer relative to ``widget``. Never raises.\n\n:param widget: visible Qt widget whose global rectangle defines the\n    returned centred coordinates and inside/outside state. Coordinates\n    use the short edge as their scale, so that axis maps to -1..1 and\n    the long axis may extend beyond it.\n:param size: how far the effect reaches in short-edge-normalised\n    coordinate units; 1.0 reaches the widget's short edge.\n:param strength: how hard it pulls, 0 to 2."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour": {
+      "source_blocks_sha256": [
+        "94f9190e866263ed0bfb9a54b3775e6c8a495591aa671c49d55d37ddc65e5a41",
+        "b57036d63c78f88a0f0b4fcabd64c537d5fee67473dd5d37a7019ef198903de3",
+        "2362a3fbf5a085b910612d028cfede9cc76d45daabca7117ffafdb446e411755",
+        "5e129f240c5025e38151cba7656c4ea1b966b42410b2857c96f5653175b3ae6b",
+        "f4f904ea80c3aa1ca525423e8368996c79c974c727f333175ba83c626710d46f",
+        "4799fe04a4e8ff65c9aed6133c0328eadd3ef1e9de1089b7783e39d9b70956d3",
+        "7a0af2fbd14c3c46c394ec8f113d6afb23cae6caf0b8803b0c3b57379e3f2ed1"
+      ],
+      "source_sha256": "27127790bc767be47367670c7c9d2e5511d9c965f5391956910bef024adba137",
+      "text": "Floats the camera between the coordinates worth looking at.\n\nInstruction 327 (3): \"have say 20 regions on the image that the\ncamera will automatically smoothely float towards\".\n\nSMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a\nsmoothstep rather than a straight line: it leaves one region and\narrives at the next with zero velocity, which is what stops the\narrival reading as a stop. A linear blend is continuous in position\nand not in velocity, and the eye sees the corner.\n\nDRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a\nstatement about where they want to be, and a tour that resumes over\nit is the application arguing. :meth:`take_over` stops it for good;\n:meth:`restart` is what Ctrl+R calls.\n\n:param regions: ``(name, x, y, half_width, score)`` rows, usually\n    :data:`spacr.qt.widgets.fractal_regions.REGIONS`.\n:param dwell: seconds spent at a region before leaving.\n:param travel: seconds spent moving between two regions."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.active": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "Whether the tour is still steering."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.period": {
+      "source_blocks_sha256": [
+        "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1"
+      ],
+      "source_sha256": "1c77ab6d69f786a0e6f079204d0eda1e0c0baade2fa3c528b24d2531cc2f18f1",
+      "text": "Seconds for one full circuit of every region."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.restart": {
+      "source_blocks_sha256": [
+        "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d"
+      ],
+      "source_sha256": "aa74ca0efe4b72b91a03e0fff13b521c0bdcbdc273cfacb33112d6415d65480d",
+      "text": "Ctrl+R: hand the camera back to the tour."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.take_over": {
+      "source_blocks_sha256": [
+        "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d"
+      ],
+      "source_sha256": "8ebd0c85118a24161eb8822611c2b81c52aeb0f314c9f25172b6a4857599204d",
+      "text": "The user moved the camera. The tour does not argue."
+    },
+    "spacr.qt.widgets.fractal_travel.RegionTour.target_at": {
+      "source_blocks_sha256": [
+        "f99425d4c60b727e1df40721087166767dde33cbdb874e4bace67a4ae637353e",
+        "7998864774cae35e3880025d01aadf0b3352b8e983b1b295f149a4f9c0747130"
+      ],
+      "source_sha256": "62d802f7f78a23c7931e447d3dc111e60be5c481b3dd894ea0c4e2b520da2926",
+      "text": "Where the camera should be heading at ``seconds``.\n\n``None`` when the tour is not steering, so a caller can leave the\ncamera exactly where the user put it rather than being handed a\ncoordinate it has to ignore."
     },
     "spacr.qt.widgets.fractal_travel.RuntimeControls": {
       "source_blocks_sha256": [
@@ -59841,6 +60482,13 @@
       "source_sha256": "7ebc3909bb4297e1b9ad2c8be8eed99ece54c09cc67afca3ab60a0e9be725e28",
       "text": "Build the fractal backdrop, GPU when there is one.\n\n:returns: a QWidget carrying `backend_name`, `stats_text()`, `pause()`,\n    `resume()` and `shutdown()`. Never raises for a missing GPU: an\n    explicit ``backend='gpu'`` that cannot be built still falls back,\n    because a backdrop is not worth refusing to start the application\n    over."
     },
+    "spacr.qt.widgets.fractal_travel.default_region_tour": {
+      "source_blocks_sha256": [
+        "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e"
+      ],
+      "source_sha256": "efb645af30d978b781f9999e73d7651b26c23478ffc862c0512e44086b9df51e",
+      "text": "A tour over the committed regions, or an empty one without them."
+    },
     "spacr.qt.widgets.fractal_travel.gpu_is_available": {
       "source_blocks_sha256": [
         "d8ac9aaeacdc8f5bbd43db9b687885aadbe7e0bb5266bce71d50d8190d05e228",
@@ -59866,11 +60514,12 @@
         "ec8c94075ffbc62cdd7dce8bef1f166870c69f016af3a2168c699b6f64efd61c",
         "7be9c9bdb03fa48be8a14829136c386b958445fe3cb1de80006bcbca6b377abf",
         "ce8ae6bf385e6f4494ddc12e5241ed1527a76a0ce2ded12c475d68e4ad63186f",
-        "df7cbfe9339972a835a788915719e6d4b954201b525a480610848f3bced5189b",
-        "89eb3ae37b59b093ec666751cfc8757381631b173db863df7b4ad86df15ef3fe"
+        "83056b62d3911d0abbb834c08d1015d90ca5ec61cd8374f964a06ad21e891e92",
+        "46f767a6f2678cca2a811de5545287180196dd10db9a93c80a80a77c9be5c187",
+        "879cb818af87c9a8ee13f9ec07208ce6ea5222f7e3ea971f9cdbf69e4b4fdd1a"
       ],
-      "source_sha256": "cfd200f21085b660bde040a05009082747b6284539260565b3cb46d32884196e",
-      "text": "The pattern that can actually be drawn here.\n\n:param pattern: what the user asked for.\n:param backend: the resolved backend, or ``\"auto\"``.\n:returns: ``pattern``, or the fallback when it cannot be drawn.\n\nMANDELBROT IS GPU-ONLY. It needs a texture of the reference orbit and a\nshader to perturb around it; there is no numba renderer for it yet. So a\nmachine with no usable GL context gets the orbit fold instead -- which\nhas a CPU renderer and is the cheapest of the three that do -- rather\nthan a backdrop that draws nothing at all.\n\nSilent, and deliberately: the backdrop is decoration, and a dialog\nexplaining that a machine cannot run one of four ornaments is worth less\nthan the interruption costs."
+      "source_sha256": "3025f9ae25049c48ac75ee9d56bf6e27a0c4a71ebe00fb67dc3895d6d6f259a1",
+      "text": "The pattern that can actually be drawn here.\n\n:param pattern: what the user asked for.\n:param backend: the resolved backend, or ``\"auto\"``.\n:returns: ``pattern``, or the fallback when it cannot be drawn.\n\nTWO PATTERNS ARE GPU-ONLY. Mandelbrot needs a texture of the reference\norbit and a shader to perturb around it, and `orbit_gpu` is a fragment\nshader with no numba twin -- the CPU orbit fold is a DIFFERENT picture,\nfour samples across four frames rather than four of one instant, which\nis why the two are separate entries at all.\n\nSo a machine with no usable GL context gets the orbit fold instead --\nit has a CPU renderer and is the cheapest of the ones that do -- rather\nthan a backdrop that draws nothing.\n\nSilent, and deliberately: the backdrop is decoration, and a dialog\nexplaining that a machine cannot run one of five ornaments is worth\nless than the interruption costs."
     },
     "spacr.qt.widgets.fractal_travel.platform_can_do_opengl": {
       "source_blocks_sha256": [
@@ -59918,10 +60567,21 @@
     },
     "spacr.qt.widgets.fractal_travel.state_at_seconds": {
       "source_blocks_sha256": [
-        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218"
+        "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
+        "6ecfef74f33fc4a1a461301d83724cbd06381f528eb94bc318809a3de212cb01"
       ],
-      "source_sha256": "91b837fd1e4db22a54a83daac8020911bcc7f7db4b27679319c02f54ad760218",
-      "text": "The camera at ``t``. Pure, so a test can assert it moves."
+      "source_sha256": "c7e993c4aa84f71054193db06529572aa1a410a24a7e89cefc2c5eabed35f4fc",
+      "text": "The camera at ``t``. Pure, so a test can assert it moves.\n\n:param depth_phase: the integrated distance travelled. When given it\n    is what positions the camera along the trajectory, and ``speed``\n    no longer does -- which is what stops a scroll teleporting it.\n    ``None`` reproduces the old ``t * speed``, for callers that have\n    no phase to keep."
+    },
+    "spacr.qt.widgets.fractal_travel.target_render_size": {
+      "source_blocks_sha256": [
+        "1f108251feb3af26cb97e55e6b8343483f5827b3369cc98b33a2d4d39b1ab2b0",
+        "2886a01261b5a90a4450ea775f27467944aa30d831f00902634e6de234875c38",
+        "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
+        "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
+      ],
+      "source_sha256": "cb0c01a3a861743b503b471ac476b65ae970e5242e8dc32a8844e33509a1c826",
+      "text": "How many pixels to shade for a widget of this size.\n\nLIFTED OUT OF THE CANVAS so it can be measured. Instruction 327 asks\nwhich of four candidates makes fullscreen choppy while the backdrop\nis smooth, and says to answer with numbers before writing a fix --\nwhich is not possible while the arithmetic only exists inside a\nnested method on a class that needs a GL context.\n\nThe rule itself is unchanged: shade ``render_scale`` squared of the\nwidget's own physical pixels, never more than the widget has and\nnever fewer than 180,000, keeping the aspect ratio and an even\nwidth and height.\n\n:returns: ``(width, height)`` in physical pixels."
     },
     "spacr.qt.widgets.gate_canvas": {
       "source_blocks_sha256": [
@@ -64411,6 +65071,79 @@
       ],
       "source_sha256": "f617a6502c4f759a68b5a087c359500d7ada6b35c1cbab61a9d6300e3b06906f",
       "text": "Write the current rows to ``dst`` as a ``filename_map.csv``.\n\n:returns: the path written."
+    },
+    "spacr.qt.widgets.model_zoo_picker": {
+      "source_blocks_sha256": [
+        "8c984e0e5ee1ae6840a431247c6eb9b706531286d165ed5886d5ec4736b6c566",
+        "11a1fe90e044ae03ac4d6942ae4534e5d4318fe2cd2c6da325dca6cc2be84539",
+        "3b62748b2fde38f7cbca21b21b8f57ac548c36cd63ac93b3019a806950e0f6df",
+        "c77e10260a852b65e6e384d252a7b856872e80e0e40ec6c6eff66e6d7d1a39b4"
+      ],
+      "source_sha256": "1f9551a5524e82117f70f90fea60a41637b657dbcd185f0f421579f27d924c46",
+      "text": "Browse the model zoo, download a model, and hand back its path.\n\nA model setting takes a filesystem path, which is exact and unhelpful: the\nuser has to know a model exists, find where it lives, and type it correctly\nbefore anything happens. This dialog is the other way in -- the list of models\nspaCR knows about, what each was trained on, whether it is already on this\nmachine, and a button that downloads one and returns its path to the field\nthat opened it.\n\nWHY THE DOWNLOAD LOCATION IS A CONTROL RATHER THAN A CONSTANT. Checkpoints are\nlarge -- the Toxoplasma models are 1.2 GB each -- and on a shared workstation\nor a laptop with a small root volume the default is often the wrong disk. A\nlab that keeps models on a NAS wants them there once, not once per user. So\nthe folder is on screen, remembered between openings, and shown before anything\nis fetched rather than discovered afterwards in a full-disk error.\n\nNOTHING IS DOWNLOADED WITHOUT BEING ASKED FOR. Opening the dialog lists; the\ndownload happens on the button. That matters because the list is useful on its\nown -- seeing that a model exists and what it was trained on is often the whole\nquestion -- and because a dialog that starts a gigabyte transfer on open is one\nusers learn not to open."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker": {
+      "source_blocks_sha256": [
+        "a919f1a3585bff2727ae85ab838168fc0efa10b7a2a702ec57eec78027f01434",
+        "066e460f8c0934afbc233b8256616c413d4fe31500b0394db7dca606ac620742",
+        "fc90d642ec5e7ec6e043d48b3aaa9e5fe74821d4e905a4471717ba56caed49a0"
+      ],
+      "source_sha256": "9bc9330cc5bab388fad244c5945241e834a4eda84a89c43bae07476632deda11",
+      "text": "Pick a model from the zoo; returns a local path.\n\n:param kinds: restrict the list to these :data:`spacr.model_zoo.KINDS`.\n    A pathogen-model field wants ``(\"cellpose\",)`` -- offering a detector\n    there would be offering something that cannot be loaded.\n:param parent: the widget that opened this."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.chosen_path": {
+      "source_blocks_sha256": [
+        "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f"
+      ],
+      "source_sha256": "2ef6e7d490027f39c2acb10a912fe0f31a0142cfd268a517d8b6e67646c43e0f",
+      "text": "The path the user accepted, or ``None`` if they cancelled."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.closeEvent": {
+      "source_blocks_sha256": [
+        "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d"
+      ],
+      "source_sha256": "d075fc8edb4910bb763a8b2ff56dd871ac015a046c0cdaf7d46b6deadce3307d",
+      "text": "Join the download before the dialog goes away."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.refresh": {
+      "source_blocks_sha256": [
+        "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e"
+      ],
+      "source_sha256": "336fedec8ccde4eb4581bd9132e28dd9fee8b28e453e60ca97f3cc5bf46d9a5e",
+      "text": "Reload the catalogue and redraw the table."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.reject": {
+      "source_blocks_sha256": [
+        "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9"
+      ],
+      "source_sha256": "cc20b3e036da8a735256d14512fe0a6e54acd289acc01293932c5abbb7a937d9",
+      "text": "Cancel closes the dialog; it must not leave a thread behind."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.selected_entry": {
+      "source_blocks_sha256": [
+        "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada"
+      ],
+      "source_sha256": "8c4a9309fe8fbbdc716830d7ab8747c88536fd955d48f40888086c334ec8eada",
+      "text": "The catalogue entry on the highlighted row, or ``None``."
+    },
+    "spacr.qt.widgets.model_zoo_picker.choose_model": {
+      "source_blocks_sha256": [
+        "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
+        "cce640e839953f779b30159faa6b9db72f6f8c171047e4b7f8cba9171380eedf",
+        "1ab46d1267bc0bf37fe8cd9c91d349e4135b106c648a314cf5db196b9d36dece",
+        "d0fad6b91759412b57adee181106326c85614fc1c0b27dd44a402077a8e9b93d",
+        "0ff5ddb1c91fe7d6fcbbb2eb4994f54c428acbf8f69483e7861372b76965c2ff"
+      ],
+      "source_sha256": "8c1b45ab0a50f6cf04856fa6b299983b7f11fe1ad7dd24225dca2ce6edfb1baa",
+      "text": "Open the picker and return the chosen path, or ``None``.\n\nThe one-call form for a settings row's trailing button::\n\n    path = choose_model(self, kinds=(\"cellpose\",))\n    if path:\n        field.setText(path)\n\n:param parent: the widget opening the dialog.\n:param kinds: restrict to these model kinds.\n:returns: a local filesystem path, or ``None`` when cancelled."
+    },
+    "spacr.qt.widgets.model_zoo_picker.remembered_model_dir": {
+      "source_blocks_sha256": [
+        "f694e83d44aa0b638e17453270a2807a0d0d2a3375405c22ac80d81074fa678e",
+        "f4233925200d9ec23cf19f5bdabdafb57b5f2186fa9680995648b92bff6bd2dc"
+      ],
+      "source_sha256": "c4d8357a5ccd6528027c5f6f397ccace6844de4fbb935407a20744f6b1ceab15",
+      "text": "The folder the user last downloaded into, or the default.\n\nReading through QSettings rather than holding it on the dialog: the next\nmodel is usually wanted in the same place as the last one, and that is\ntrue across sessions, not only within one."
     },
     "spacr.qt.widgets.motility_preview": {
       "source_blocks_sha256": [
@@ -71515,13 +72248,14 @@
         "89b1adf928de86480b19df43a602595dcc44a719f1e769aa859816064d161c51",
         "4fc5aab8007bba828fecfd8661b155c1b4089b2f52e975f9d75f80d1b3eb3b20",
         "557fcf82a4e7dcc194d289e4456082b476683b77e6a25f81d1f83674edcfbdd0",
-        "0bb3487afbf03f2f7aa76eedcafaef9e76d5f9e15f4bdf13c1fe6fd9cbac4964",
+        "9409654345f8c0033d2614279ef6690cee61f1834ee4bb1bcfd7d13599274801",
         "b7f6aa983771c05c73f6685f30172a5075c0b30e512314f08890a23844a1b76d",
         "ffe0cdd7fb8976c6f4f34e4e0c506e53dcdf2c48090ac3228feb613fd9d1a39f",
+        "305b1e14b85d6403393507600f990a59230c78234efb5ca22a4a4b7b768a7d71",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "50c06eafcf0e43ba7619d63113a1b6c198b19d9d8ebc2a462f191dc71e8d6bb8",
-      "text": "Classify the shape of a screen's p-value distribution.\n\nA screen in which most genes do nothing should give p-values that are\nuniform on ``[0, 1]`` with a spike in the first bin (the real hits). Two\nother shapes are diagnostic of a broken fit and are the reason this panel\nexists:\n\n* a **spike near 1** means the test is conservative — usually a\n  variance component soaking up the signal, or duplicated rows inflating n;\n* a **U shape** (both ends enriched) means the null is mis-specified —\n  typically unmodelled plate structure, which pushes half the genes one way\n  and half the other.\n\n:param p_values: Iterable of p-values; non-finite entries are dropped.\n:param n_bins: Histogram resolution. Default 20 (bins of width 0.05).\n:returns: dict with ``verdict`` (one of ``'uniform-with-spike'``,\n    ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``,\n    ``'too-few'``), ``message``, ``counts``, ``expected``,\n    ``first_bin_ratio``, ``last_bin_ratio`` and ``frac_below_0.05``.\n\nExample:\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'"
+      "source_sha256": "e73eadfe81a07d104bbdf702bb106ce1fcfb90263873145f6988c9bc0157df71",
+      "text": "Classify the shape of a screen's p-value distribution.\n\nA screen in which most genes do nothing should give p-values that are\nuniform on ``[0, 1]`` with a spike in the first bin (the real hits). Two\nother shapes are diagnostic of a broken fit and are the reason this panel\nexists:\n\n* a **spike near 1** means the test is conservative — usually a\n  variance component soaking up the signal, or duplicated rows inflating n;\n* a **U shape** (both ends enriched) means the null is mis-specified —\n  typically unmodelled plate structure, which pushes half the genes one way\n  and half the other.\n\n:param p_values: Iterable of p-values; non-finite entries are dropped.\n    Every remaining value must lie in the closed interval ``[0, 1]``.\n:param n_bins: Histogram resolution. Default 20 (bins of width 0.05).\n:returns: dict with ``verdict`` (one of ``'uniform-with-spike'``,\n    ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``,\n    ``'too-few'``), ``message``, ``counts``, ``expected``,\n    ``first_bin_ratio``, ``last_bin_ratio`` and ``frac_below_0.05``.\n:raises ValueError: if a finite value lies outside ``[0, 1]``.\n\nExample:\n    >>> import numpy as np\n    >>> rng = np.random.default_rng(1)\n    >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']\n    'uniform'\n    >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),\n    ...                         rng.uniform(size=200)])\n    >>> diagnose_p_value_histogram(spiky)['verdict']\n    'excess-large'"
     },
     "spacr.regression_qc.draw_panel": {
       "source_blocks_sha256": [
@@ -74007,6 +74741,21 @@
       ],
       "source_sha256": "b9d137bda394c3fe77c5c888d526cde45098582c6476cf0bf1c11fb64f085b11",
       "text": "Return the :class:`Run` currently open on this thread, or ``None``.\n\nUseful for pipeline internals (Cellpose model loaders, etc.) that\nwant to record a model checkpoint hash without every caller\nneeding to plumb the :class:`Run` object through.\n\nState is thread-local because the batch runner and database browser can\nexecute independent workers concurrently."
+    },
+    "spacr.run_journal.delete_runs": {
+      "source_blocks_sha256": [
+        "ab14ade1a330b5102e8fe02cb7c4937f50ecc675ef793b446d1b3c5daabd5081",
+        "94e051ab9eab8b3fdb584502bfeb60c571ce19bf1d2a131a3aea7988c138cbff",
+        "43840ea675d347a875070a58bcff2b9f096d33d840b2add67a8ad7d65181a54b",
+        "322c8423613c7d46db468ee16f4df93449188f6b5198468b36bf8ca8bbebe8f0",
+        "a715192853b7ee09f29c1a0db0d91e2db3ed8b74a90ac29fed35bfa2e01b58ce",
+        "5498d700fd623a37baf8d812716d8622e4ef848711c2dadef7a56bf5ffa0a1bb",
+        "21f8373d644eacc3b7085be558556232f0a6355c15fbfdd0611953ca0d65aed1",
+        "c960a06beb656f320d1ea3115156db90d5c9319c4757da1cb3d06d1ce3fa5155",
+        "5b3816eb8c524f2f4d590c6029b8aeb43b9b02313b87bb3a80782599430d138d"
+      ],
+      "source_sha256": "bc1bdf3655f643385c18dca11cca6129b3cfc295b99f742c13a03e6c44a82416",
+      "text": "Delete journalled run folders. Returns ``(deleted, refused)``.\n\nTHIS REMOVES FILES, so every guard below is load-bearing rather than\ndefensive habit:\n\n* A path is deleted only if, once resolved, it is strictly INSIDE\n  :func:`runs_root`. A record's ``dir`` is read from a manifest on\n  disk, and a manifest is a file a user can edit; ``../../..`` in one\n  must not reach anything. Resolving first is what makes the check\n  real -- comparing unresolved strings passes for a symlink that\n  points anywhere.\n* ``runs_root()`` ITSELF is refused. \"Delete everything\" is a loop\n  over children, never a removal of the root, so a caller that\n  computes an empty selection cannot take the journal with it.\n* The run OPEN ON THIS THREAD is refused: deleting the folder a run\n  is still writing into leaves it failing on its next write with an\n  error that names nothing.\n* A path that is not a directory is refused rather than unlinked.\n\nRefusals are RETURNED, not raised. Deleting fifty runs where one is\nlive should delete forty-nine and say which one it kept -- an\nexception at that point has already deleted an unknown number and\ntells the caller nothing about which.\n\n:param directories: run folder paths, as in a record's ``\"dir\"``.\n:returns: how many were removed, and a message per refusal."
     },
     "spacr.run_journal.diff_runs": {
       "source_blocks_sha256": [
@@ -79011,6 +79760,13 @@
       "source_sha256": "ba9392cdee32c668aaf365bc998272f3233154e32b89c32e6895e83e808018af",
       "text": "Lazy image/label dataset for Cellpose training and inference.\n\nLoads paired image and label tiffs on demand, optionally normalizing,\naugmenting (8-fold rotations/flips), and resizing to a target size.\n\n:param image_files: paths to input image tiffs.\n:param label_files: paths to matching label tiffs (same length as ``image_files``).\n:param settings: dict with keys ``normalize``, ``percentiles``, ``target_size``.\n:param randomize: shuffle the image/label pairing order. Default ``True``.\n:param augment: enable 8-fold augmentation (dataset length x8). Default ``False``.\n:raises ValueError: when image/label lists differ in length or are empty."
     },
+    "spacr.submodules.ModelZooMissing": {
+      "source_blocks_sha256": [
+        "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
+      ],
+      "source_sha256": "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25",
+      "text": "A named model is not where it should be."
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -79233,6 +79989,17 @@
       ],
       "source_sha256": "481e03cbf87343da468d7ff9f75f0ce41131a263589d5b6bfb75d3f3a3a76834",
       "text": "Compute gRNA correlation and propagate fixed effect sizes across correlated gRNAs.\n\n:param csv_file: CSV with columns ``grna``, ``fraction`` and ``prc``.\n:param grna_dict: mapping of anchor ``grna`` names to their fixed effect sizes.\n:param grna_list: gRNAs to include in the correlation matrix.\n:param save: persist correlation matrix, effect sizes and plots. Default ``False``.\n:returns: None. Displays plots and optionally writes results to ``<csv_dir>/post_regression_analysis_results``."
+    },
+    "spacr.submodules.split_wells": {
+      "source_blocks_sha256": [
+        "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
+        "23fe5dc7a07e6e2191befab0210373406951f4fb582c62587d5641428a8a5854",
+        "686174645ed7fbf932881c734d4794e704d5c2c2669954f7fc7093052c97efb6",
+        "4d9c67e04440f7f255ef30f58e5626e7bcf02cd8c8cbd0f727a619660f261251",
+        "f8cf5ffad8d154596062d06e0de8638931d2ea45d147f8d515a665dba88da570"
+      ],
+      "source_sha256": "06c42017109b7337ffdc0b99f0444c5973bc9dcef375ed40c8b7d7b67829a575",
+      "text": "Cut every multi-well image under ``src`` into one image per well.\n\nRuns the YOLO well detector over each image, writes one crop per well into\n``<src>/wells``, and records each crop's box so\n:func:`_plaque_scale_for` can turn its diameter into a scale later.\n\n:param settings: the plaque settings dict. Reads ``src``,\n    ``well_detector_model``, ``well_confidence`` and ``well_pad``; writes\n    ``_well_geometry``.\n:returns: the folder holding the crops, or ``src`` unchanged when\n    detection is off or finds nothing.\n\nWHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the\ntwo shapes of input differ in what a RESULT ROW MEANS. One field per image\ngives one row per image; a plate gives one row per well, and the well has\nto be named or the conditions are pooled into a single meaningless count.\nSplitting first makes every downstream row a well, whichever shape arrived."
     },
     "spacr.submodules.test_cellpose_model": {
       "source_blocks_sha256": [
