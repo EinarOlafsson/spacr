@@ -726,6 +726,34 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
 # Magic wand — flood-fill by intensity tolerance (mirrors ModifyMaskApp)
 # ---------------------------------------------------------------------------
 
+#: How many pixels the wand may EXAMINE per pixel it is allowed to change.
+#:
+#: The budget is on WORK, and it has to accommodate a case the change
+#: budget deliberately does not bound: re-wanding an object the mask
+#: already owns, with a wider tolerance, to grow it. Crossing owned
+#: pixels costs nothing against ``max_pixels`` ON PURPOSE -- otherwise
+#: the second click would stop at the first owned pixel and do nothing --
+#: so the walk is bounded here instead.
+VISIT_BUDGET_FACTOR = 4
+
+#: The smallest visit budget, whatever ``max_pixels`` is, and the number
+#: that actually matters.
+#:
+#: It has to be BIGGER THAN ANY OBJECT SOMEBODY RE-WANDS and smaller than
+#: a frame. A hundred thousand is a 316x316 region, larger than any single
+#: object in a field of cells, and it caps the pathological case -- a
+#: mis-click on uniform background -- at about 0.7 s instead of the 4.8 s
+#: measured on an 800x800 field or the half-minute at 2048x2048.
+#:
+#: It cannot be tight. A pixel count cannot tell "usefully growing a large
+#: object" from "clicked on the background", because both walk until
+#: tolerance stops them and on a uniform field neither does. So this is
+#: set to keep every real fill working and to make the wrong click a
+#: hitch rather than a hang, which is the honest trade rather than a
+#: pretence that the two can be separated.
+VISIT_BUDGET_FLOOR = 100_000
+
+
 def magic_wand(
     image: np.ndarray,
     mask: np.ndarray,
@@ -746,14 +774,35 @@ def magic_wand(
     visited = np.zeros(image.shape[:2], dtype=bool)
     q = deque([(seed_x, seed_y)])
     added = 0
+    # A SECOND BUDGET, ON WORK RATHER THAN ON CHANGES.
+    #
+    # `added` counts only pixels that CHANGE state, which is the budget a
+    # user thinks in -- "fill at most this many". But a flood that changes
+    # nothing never increments it, so `added < max_pixels` stayed true
+    # forever and the search walked the entire frame. Erasing where the
+    # mask is already empty, or adding over ground the mask already owns,
+    # is the most ordinary wrong click there is: measured at 4.8 s on an
+    # 800x800 field with max_pixels=100, and roughly half a minute at
+    # 2048x2048, with the GUI unresponsive and no way to cancel.
+    #
+    # So visits are bounded too. The multiplier is generous on purpose --
+    # a legitimate fill examines its region AND the out-of-tolerance
+    # perimeter around it, and a thin structure can have as much perimeter
+    # as area -- so this stops the pathological case without shortening
+    # any fill a user would recognise. The floor keeps small budgets
+    # workable, since a max_pixels of 10 still needs room to look around.
+    examined = 0
+    visit_budget = max(VISIT_BUDGET_FACTOR * max_pixels,
+                       max_pixels + VISIT_BUDGET_FLOOR)
     fill_val = 255 if action == "add" else 0
-    while q and added < max_pixels:
+    while q and added < max_pixels and examined < visit_budget:
         cx, cy = q.popleft()
         if not (0 <= cx < image.shape[1] and 0 <= cy < image.shape[0]):
             continue
         if visited[cy, cx]:
             continue
         visited[cy, cx] = True
+        examined += 1
         cur = image[cy, cx].astype(np.float32)
         if float(np.linalg.norm(cur - initial)) > tolerance:
             continue
