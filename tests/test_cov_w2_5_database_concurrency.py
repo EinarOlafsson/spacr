@@ -252,10 +252,37 @@ def _fake_mounts(monkeypatch, *, is_file=True, text="", error=None):
     monkeypatch.setattr(dc, "Path", fake_path)
 
 
-def test_a_platform_with_no_proc_mounts_cannot_tell(monkeypatch, tmp_path):
-    """macOS and Windows answer None, and None is not "local"."""
+def test_a_platform_with_no_proc_mounts_falls_back_rather_than_giving_up(
+        monkeypatch, tmp_path):
+    """UPDATED for issue 115. The INTENT is unchanged: a platform that cannot
+    tell must not guess. What changed is that macOS and Windows CAN now tell.
+
+    This used to assert None off Linux, which was accurate and was also the
+    defect: `wal_is_safe_here` turns None into False, so every Mac ran without
+    WAL even on a local disk, and `doctor` could not tell a user on an SMB
+    share that they were on one. That reporter is issue 115.
+
+    The failing-safe property is asserted where it still belongs -- when the
+    fall-back ALSO cannot tell, below."""
     _fake_mounts(monkeypatch, is_file=False)
 
+    import psutil
+    from types import SimpleNamespace
+    monkeypatch.setattr(psutil, "disk_partitions",
+                        lambda all=False: [SimpleNamespace(mountpoint="/",
+                                                           fstype="apfs")])
+    assert dc.filesystem_type(tmp_path) == "apfs"
+    assert dc.wal_is_safe_here(tmp_path) is True
+
+
+def test_no_proc_mounts_and_no_partition_table_still_cannot_tell(
+        monkeypatch, tmp_path):
+    """The failing-safe half, kept: unknown is still unsafe."""
+    _fake_mounts(monkeypatch, is_file=False)
+
+    import psutil
+    monkeypatch.setattr(psutil, "disk_partitions",
+                        lambda all=False: [])
     assert dc.filesystem_type(tmp_path) is None
     assert dc.wal_is_safe_here(tmp_path) is False
 

@@ -308,16 +308,72 @@ def transaction(
             raise
 
 
-def filesystem_type(path: os.PathLike | str) -> Optional[str]:
-    """Best-effort Linux filesystem type for ``path``; None elsewhere.
+def _filesystem_type_via_psutil(target: Path) -> Optional[str]:
+    """Filesystem type for ``target`` off psutil's partition table.
 
-    The longest matching mount point in ``/proc/mounts`` wins. This is
-    advisory only—containers and automounters can hide the real backing store.
+    The longest matching mount point wins, exactly as the ``/proc/mounts``
+    reader does -- ``/`` matches everything, so the nested mount has to beat
+    it or an SMB share under ``/Volumes`` would be reported as the root
+    filesystem and treated as safe.
+
+    ``all=True`` because the default hides network mounts on some platforms,
+    which are the ones this function exists to find.
     """
+    try:
+        import psutil
+    except Exception:                                        # noqa: BLE001
+        return None
+    # NO WALK-UP BEFORE MATCHING. A mount point either is a prefix of this
+    # path or it is not, and that is true whether or not the leaf exists yet --
+    # a measurement.db about to be created on a share is still on the share.
+    # Walking up to the nearest EXISTING ancestor first sent a path under a
+    # share that had no file yet all the way to "/", which matches the root
+    # mount and reports the local disk. That is the one wrong answer that
+    # matters here: the root is usually apfs, apfs is on WAL_SAFE_FILESYSTEMS,
+    # and the result would be WAL enabled on a network share.
+    best: Optional[tuple] = None
+    try:
+        partitions = psutil.disk_partitions(all=True)
+    except Exception:                                        # noqa: BLE001
+        # Advisory only: a platform that refuses to enumerate mounts leaves
+        # the answer unknown, which wal_is_safe_here already treats as unsafe.
+        return None
+    for part in partitions:
+        mount = str(getattr(part, "mountpoint", "") or "")
+        fstype = str(getattr(part, "fstype", "") or "")
+        if not mount or not fstype:
+            continue
+        try:
+            target.relative_to(mount)
+        except ValueError:
+            continue
+        if best is None or len(mount) > best[0]:
+            best = (len(mount), fstype)
+    return None if best is None else str(best[1])
+
+
+def filesystem_type(path: os.PathLike | str) -> Optional[str]:
+    """Best-effort filesystem type for ``path``, or None when unknowable.
+
+    Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table
+    elsewhere, so macOS and Windows get a real answer rather than None. The
+    longest matching mount point wins on both paths. Advisory only--containers
+    and automounters can hide the real backing store.
+    """
+    target = Path(path).expanduser().resolve()
     mounts = Path("/proc/mounts")
     if not mounts.is_file():
-        return None
-    target = Path(path).expanduser().resolve()
+        # NOT LINUX. Until this branch existed the answer here was None on
+        # every macOS and Windows machine, and `wal_is_safe_here` turns None
+        # into False -- so every Mac ran without WAL even on local APFS, and,
+        # worse, `doctor` could not tell a user on an SMB share that they WERE
+        # on one. Issue 115 is exactly that reporter: Apple Silicon, a
+        # measurement.db on an SMB server, and nothing in spaCR able to name
+        # the filesystem in its own diagnosis.
+        #
+        # psutil is already a declared dependency and reports fstype on every
+        # platform spaCR supports, so this needs no new requirement.
+        return _filesystem_type_via_psutil(target)
     while not target.exists() and target != target.parent:
         target = target.parent
     best: Optional[tuple] = None
