@@ -633,7 +633,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
         pair: (variant.claimed, variant.actual_repr)
         for pair, variant in DEFAULT_VARIANT_EXPECTATIONS.items()
     }
-    assert comparisons == 674
+    assert comparisons == 680
     assert len(variants) == 52
     assert variants == expected
     assert {
@@ -702,8 +702,8 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
             if not reason.strip() or not any(source in reason for source in sources):
                 failures.append((app_key, key, reason))
 
-    assert len(witnessed) == 47
-    assert len({key for _app, key in witnessed}) == 33
+    assert len(witnessed) == 49
+    assert len({key for _app, key in witnessed}) == 35
     assert not failures
 
 
