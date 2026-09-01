@@ -97,10 +97,9 @@ class TestTheTrainingAdvisorsSuggestions:
         """De-duplicating with a set would also reorder, and the order is
         the priority: the first suggestion is the one to try first."""
         source = inspect.getsource(U.suggest_training_changes)
-        assert "seen = set()" in source
-        assert "dedup = []" in source
-        assert "dedup.append(s); seen.add(s)" in source, (
+        assert "list(dict.fromkeys(out[\"suggestions\"]))" in source, (
             "the de-duplication no longer preserves order")
+        assert "if s not in seen:" not in source
 
 
 # ---------------------------------------------------------------------------
@@ -134,7 +133,7 @@ class TestScanningAFolderInTestMode:
 
     def test_a_file_the_regex_does_not_match_never_enters_the_loop(
             self, tmp_path, capsys):
-        """THE PIN, for the ``if match:`` inside the loop.
+        """THE PIN for removing the duplicate ``if match`` inside the loop.
 
         It cannot be false: ``all_filenames`` is built by the same
         ``regular_expression.match``, so everything the loop sees has
@@ -143,11 +142,8 @@ class TestScanningAFolderInTestMode:
         another tool -- and those are filtered out before the loop, not
         inside it.
 
-        The guard is still right to keep: ``match.group('wellID')`` on
-        None stops the scan at whatever file the operating system
-        happened to list first, which is not reproducible between
-        machines. This fails if the listing stops filtering, which is
-        what would let a non-match reach it.
+        This fails if the listing stops filtering, which is what would let a
+        non-match reach the now-unconditional group reads.
         """
         pattern = (r"(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_"
                    r"(?P<fieldID>\d+)_(?P<chanID>\d+)\.tif")
@@ -171,13 +167,12 @@ class TestScanningAFolderInTestMode:
             "the listing no longer filters by the regex, so a non-match "
             "can now reach the loop and the guard inside it is live")
 
-    def test_the_match_is_checked_before_any_group_is_read(self):
+    def test_the_listing_filter_is_the_only_match_check(self):
         source = inspect.getsource(U._run_test_mode)
-        check = source.index("if match:")
+        listing = source.index("if regular_expression.match(filename)")
         first_group = source.index("match.group(")
-        assert check < first_group, (
-            "a regex group is read before the match is checked, so an "
-            "unrecognised filename is an AttributeError")
+        assert listing < first_group
+        assert "if match:" not in source
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +201,8 @@ class TestTheDatabaseRetryLoops:
         than a silence.
         """
         source = inspect.getsource(getattr(U, function))
-        assert "for attempt in range(1, DB_WRITE_ATTEMPTS + 1):" in source
+        assert "while True:" in source
+        assert "for attempt in range(" not in source
         assert "attempt == DB_WRITE_ATTEMPTS" in source, (
             f"{function}'s last attempt no longer re-raises, so the loop "
             f"can now fall through and return None")
@@ -266,14 +262,13 @@ class TestMergingOverlappingCells:
         index 0, and the labels come from ``np.unique``, so the first
         label is not in the tail and the skip cannot fire.
 
-        It is right to keep: ``cell_mask[cell_mask == first] = first`` is
-        a no-op that costs a full-frame comparison per label, and on a
-        1080p mask with 300 objects that is measurable.
+        The redundant comparisons are removed; every tail member is therefore
+        relabelled directly.
         """
         for function in ("_merge_cells_based_on_parasite_overlap",):
             source = inspect.getsource(getattr(U, function))
             assert "overlapping_cell_labels[1:]" in source
-            assert "if other_label != first_label:" in source
+            assert "if other_label != first_label:" not in source
             assert "np.unique" in source, (
                 "the labels no longer come from np.unique, so the tail can "
                 "now repeat the first label")
