@@ -726,7 +726,16 @@ class DoseResponseResult:
         """
         if self.ec50_low is None or self.ec50_high is None:
             return None
-        if self.ec50_low <= 0:  # pragma: no cover - a log-space CI is positive
+        if self.ec50_low <= 0:
+            # A bound from `fit_dose_response` IS positive -- both ends
+            # are back-transformed out of log space. But this dataclass
+            # is public, frozen and validates nothing, so one
+            # `dataclasses.replace` away is a bound of zero, and the
+            # alternative to declining is a division that yields `inf`
+            # and a panel reporting "within a factor of inf".
+            #
+            # `<= 0` rather than `== 0`: a negative bound would otherwise
+            # take the square root of a negative number.
             return None
         return float(np.sqrt(self.ec50_high / self.ec50_low))
 
@@ -1462,7 +1471,14 @@ def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
         if candidate == limit:
             return None
         reach *= 2.0
-    else:  # pragma: no cover - 60 doublings passes any finite limit
+    else:
+        # THE WALK NEVER ARRIVED. Sixty doublings covers `step * 2**59`,
+        # which is not the same as "any finite limit" -- a step small
+        # enough against a large enough limit exhausts the loop, and an
+        # infinite limit exhausts it outright.
+        #
+        # Either way the answer is the same one the limit case gives:
+        # this experiment does not bound the EC50 on that side.
         return None
     while abs(outside - inside) > PROFILE_TOLERANCE:
         middle = 0.5 * (inside + outside)
