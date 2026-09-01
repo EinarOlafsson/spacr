@@ -379,6 +379,42 @@ Python code is picked up without it. If a command still runs old code after
 pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
 which is the usual cause.
 
+Install from source, without the whole repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A plain clone is large: it fetches the full history and writes about
+427 MB of files, of which roughly 76 MB is what it takes to run spaCR.
+The rest is built documentation, the test suite, archived figures and
+Cellpose checkpoints that spaCR downloads on demand anyway.
+
+To fetch only what runs::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/main/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh
+
+That produces a 76 MB working tree with about 52 MB of git objects,
+against 427 MB plus the entire history for a full clone. It is a normal
+git checkout: ``git pull`` works, and so does editing the code you just
+installed.
+
+Useful options::
+
+    sh install_spacr.sh --dir ~/code/spacr     # where to put it
+    sh install_spacr.sh --branch v1.5.0.5      # a specific release
+    sh install_spacr.sh --with-translations    # extended UI translations
+    sh install_spacr.sh --with-tests           # the test suite
+    sh install_spacr.sh --no-install           # fetch only, install later
+
+Everything the lean install leaves out is either regenerated on demand or
+absent from the PyPI wheel as well, with one exception: the extended
+translation catalogs. Without them the interface is still translated, from
+a smaller built-in catalog that covers the common interface text; add
+``--with-translations`` for the full set.
+
+If you would rather run the git commands yourself, the script is short and
+the paths it skips are listed with their justifications in
+``packaging/source_install_excludes.txt``.
+
 
 Command-line entry points
 ~~~~~~~~~~~~~~~~~~~~~~~~~
