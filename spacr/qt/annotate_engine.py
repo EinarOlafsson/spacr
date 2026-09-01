@@ -38,6 +38,17 @@ from spacr.database_concurrency import (
 
 LOG = logging.getLogger("spacr.qt.annotate_engine")
 
+#: The crop table the annotation screen reads.
+#:
+#: A GENERATED SET LANDS UNDER ANOTHER NAME. `spacr.annotation_dataset` writes
+#: `png_list`, then `png_list_2`, `png_list_3` -- never overwriting a set that
+#: may already carry hand-made labels -- so the screen has to be able to open
+#: more than the first one. Every reader below therefore takes the table as a
+#: keyword, defaulting to this, and nothing changes for a caller that does not
+#: pass one.
+DEFAULT_PNG_TABLE = "png_list"
+
+
 
 def _ensure_cache_budget_sweep() -> None:
     """Start the GUI sweep if resource cleanup was registered before Qt."""
@@ -815,6 +826,13 @@ class AnnotateSettings:
 
     src: str = ""
     db_path: str = ""
+    #: The crop table being annotated.
+    #:
+    #: A generated set lands under `png_list_2` and onwards -- never
+    #: overwriting one that may already carry hand-made labels -- so the
+    #: screen has to be told which it is opening. Defaults to the first,
+    #: which is what a Measure run writes.
+    png_table: str = DEFAULT_PNG_TABLE
     annotation_column: str = "annotate"
     image_size: Tuple[int, int] = (200, 200)
     image_type: Optional[str] = None
@@ -889,8 +907,9 @@ class AnnotateSettings:
 # DB helpers
 # ---------------------------------------------------------------------------
 
-def ensure_annotation_column(db_path: str, column: str) -> None:
-    """Add `column` INTEGER to `png_list` if missing and index png_path."""
+def ensure_annotation_column(db_path: str, column: str, *,
+                             table: str = DEFAULT_PNG_TABLE) -> None:
+    """Add `column` INTEGER to ``table`` if missing and index png_path."""
     if not column or not os.path.isfile(db_path):
         return
     safe = column.replace('"', '""')
@@ -898,11 +917,12 @@ def ensure_annotation_column(db_path: str, column: str) -> None:
     try:
         cur = conn.cursor()
         with transaction(conn):
-            cur.execute('PRAGMA table_info("png_list")')
+            cur.execute(f'PRAGMA table_info("{table}")')
             cols = {row[1] for row in cur.fetchall()}
             if column not in cols:
-                cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{safe}" INTEGER')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_png_path ON "png_list" (png_path)')
+                cur.execute(f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
+            cur.execute(f'CREATE INDEX IF NOT EXISTS idx_png_path '
+                        f'ON "{table}" (png_path)')
     finally:
         conn.close()
 
@@ -1016,7 +1036,9 @@ def _parse_term(tokens):
     return "png_path LIKE ?", [f"%{head}%"], rest
 
 
-def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
+
+def count_rows(db_path: str, image_type: Optional[str] = None, *,
+               table: str = DEFAULT_PNG_TABLE) -> int:
     """Return the number of ``png_list`` rows, optionally filtered by ``image_type``.
 
     :param db_path: path to ``measurements.db``; missing files count as 0.
@@ -1030,7 +1052,7 @@ def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
         cur = conn.cursor()
         where, params = parse_image_type(image_type)
         clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT COUNT(*) FROM "png_list"{clause}', params)
+        cur.execute(f'SELECT COUNT(*) FROM "{table}"{clause}', params)
         return int(cur.fetchone()[0])
 
 
@@ -1040,7 +1062,7 @@ def fetch_page(
     offset: int,
     page_size: int,
     image_type: Optional[str] = None,
-) -> List[Tuple[str, Optional[int]]]:
+    *, table: str = DEFAULT_PNG_TABLE) -> List[Tuple[str, Optional[int]]]:
     """Read one page of (png_path, annotation) rows in insertion order."""
     if not os.path.isfile(db_path):
         return []
@@ -1052,7 +1074,7 @@ def fetch_page(
         where, params = parse_image_type(image_type)
         clause = f"WHERE {where} " if where else ""
         cur.execute(
-            f'SELECT png_path, "{col}" FROM "png_list" '
+            f'SELECT png_path, "{col}" FROM "{table}" '
             f'{clause}LIMIT ? OFFSET ?',
             (*params, page_size, offset),
         )
@@ -1086,7 +1108,7 @@ def fetch_filtered_paths(
     thresholds: List[float],
     directions: List[str],
     image_type: Optional[str] = None,
-) -> List[Tuple[str, Optional[int]]]:
+    *, table: str = DEFAULT_PNG_TABLE) -> List[Tuple[str, Optional[int]]]:
     """Return ALL (png_path, annotation) rows matching every one of the
     measurement/threshold/direction triples.
 
@@ -1185,7 +1207,8 @@ METADATA_COLUMNS: Tuple[str, ...] = (
 )
 
 
-def metadata_values(db_path: str, column: str) -> List[str]:
+def metadata_values(db_path: str, column: str, *,
+                    table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """The distinct values of one png_list metadata column, sorted.
 
     Read from the database rather than guessed from a naming convention:
@@ -1209,17 +1232,18 @@ def metadata_values(db_path: str, column: str) -> List[str]:
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        cur.execute('PRAGMA table_info("png_list")')
+        cur.execute(f'PRAGMA table_info("{table}")')
         if column not in {row[1] for row in cur.fetchall()}:
             return []
         cur.execute(
-            f'SELECT DISTINCT "{column}" FROM "png_list" '
+            f'SELECT DISTINCT "{column}" FROM "{table}" '
             f'WHERE "{column}" IS NOT NULL')
         return sorted(str(row[0]) for row in cur.fetchall())
 
 
 def paths_by_metadata(db_path: str, column: str,
-                      values: Sequence[str]) -> List[str]:
+                      values: Sequence[str],
+                          *, table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """png_paths whose ``column`` is one of ``values``.
 
     :param db_path: the measurements database.
@@ -1240,12 +1264,12 @@ def paths_by_metadata(db_path: str, column: str,
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        cur.execute('PRAGMA table_info("png_list")')
+        cur.execute(f'PRAGMA table_info("{table}")')
         if column not in {row[1] for row in cur.fetchall()}:
             return []
         # CAST so a numeric columnID matches the strings the picker offers.
         cur.execute(
-            f'SELECT png_path FROM "png_list" '
+            f'SELECT png_path FROM "{table}" '
             f'WHERE CAST("{column}" AS TEXT) IN ({placeholders})', wanted)
         return [row[0] for row in cur.fetchall()]
 
@@ -1289,7 +1313,8 @@ def paths_by_measurements(db_path: str, annotation_column: str,
     return [path for path, _ in rows]
 
 
-def gate_paths(db_path: str, gates: Sequence[Any]) -> List[str]:
+def gate_paths(db_path: str, gates: Sequence[Any], *,
+               table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """png_paths surviving a chain of :class:`spacr.qt.widgets.gate_spec.Gate`.
 
     The route the Gate Editor was missing. The gate maths is NOT reproduced
@@ -1336,7 +1361,8 @@ def annotation_batch(paths: Iterable[str],
     return {str(path): value for path in paths}
 
 
-def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
+def class_counts(db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE) -> List[Tuple[int, int]]:
     """Return sorted list of (class_value, count) for annotated rows."""
     if not os.path.isfile(db_path):
         return []
@@ -1347,13 +1373,14 @@ def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
         cur = conn.cursor()
         cur.execute(
             f'SELECT "{col}" AS cls, COUNT(*) '
-            f'FROM "png_list" WHERE "{col}" IS NOT NULL '
+            f'FROM "{table}" WHERE "{col}" IS NOT NULL '
             f'GROUP BY "{col}" ORDER BY 1'
         )
         return [(int(r[0]), int(r[1])) for r in cur.fetchall() if r[0] is not None]
 
 
-def clear_column(db_path: str, annotation_column: str) -> None:
+def clear_column(db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE) -> None:
     """Null every value in ``annotation_column`` of ``png_list``.
 
     :param db_path: path to ``measurements.db``; missing files are ignored.
@@ -1365,7 +1392,7 @@ def clear_column(db_path: str, annotation_column: str) -> None:
     conn = connect_database(db_path, timeout=30)
     try:
         with transaction(conn):
-            conn.execute(f'UPDATE "png_list" SET "{col}" = NULL')
+            conn.execute(f'UPDATE "{table}" SET "{col}" = NULL')
     finally:
         conn.close()
 
@@ -1375,7 +1402,7 @@ def find_last_annotated_offset(
     annotation_column: str,
     page_size: int,
     image_type: Optional[str] = None,
-) -> Optional[int]:
+    *, table: str = DEFAULT_PNG_TABLE) -> Optional[int]:
     """Return the page-aligned offset of the last annotated row, or None."""
     if not os.path.isfile(db_path):
         return None
@@ -1386,7 +1413,7 @@ def find_last_annotated_offset(
         cur = conn.cursor()
         where, params = parse_image_type(image_type)
         clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT "{col}" FROM "png_list"{clause}', params)
+        cur.execute(f'SELECT "{col}" FROM "{table}"{clause}', params)
         rows = cur.fetchall()
     last = None
     for i, (val,) in enumerate(rows):
@@ -1407,14 +1434,19 @@ class SaveWorker:
     """
     _SENTINEL = object()
 
-    def __init__(self, db_path: str, annotation_column: str):
+    def __init__(self, db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE):
         """Prepare an idle worker; call :meth:`start` to spawn its thread.
 
         :param db_path: path to the SQLite ``measurements.db``.
-        :param annotation_column: column in ``png_list`` to write into.
+        :param annotation_column: column in ``table`` to write into.
+        :param table: the crop table being annotated. A generated set lands
+            under ``png_list_2`` and onwards, and a writer pointed at the
+            wrong one would put a user's labels on somebody else's rows.
         """
         self.db_path = db_path
         self.annotation_column = annotation_column
+        self.table = table
         self._q: "queue.Queue[Any]" = queue.Queue()
         self._terminate = False
         self._busy = False
@@ -1545,13 +1577,13 @@ class SaveWorker:
                     with transaction(conn):
                         if to_null:
                             cur.executemany(
-                                f'UPDATE "png_list" SET "{col}" = NULL '
+                                f'UPDATE "{self.table}" SET "{col}" = NULL '
                                 'WHERE png_path = ?',
                                 [(p,) for p in to_null],
                             )
                         if to_set:
                             cur.executemany(
-                                f'UPDATE "png_list" SET "{col}" = ? '
+                                f'UPDATE "{self.table}" SET "{col}" = ? '
                                 'WHERE png_path = ?',
                                 to_set,
                             )

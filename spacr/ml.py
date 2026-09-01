@@ -8438,10 +8438,20 @@ def _perform_regression(settings):
     # not carry `.attrs` through.
     _exclusions = settings.setdefault("_regression_exclusions", {})
     _stage(settings, "reading the counts")
+    _read_kwargs = {
+        "filter_column": filter_column,
+        "filter_value": filter_value,
+        "record": _exclusions,
+    }
+    # Keep the optional keyword out of legacy calls when it is inactive.
+    # Besides preserving compatibility for callers that wrap process_reads,
+    # this makes the active setting explicit at the only boundary where it
+    # matters: the raw count table, before well totals and fractions exist.
+    if settings.get('exclude_grnas'):
+        _read_kwargs["exclude_grnas"] = settings['exclude_grnas']
     independent_df = process_reads(
         count_data_df, settings['fraction_threshold'], None,
-        filter_column=filter_column, filter_value=filter_value,
-        record=_exclusions)
+        **_read_kwargs)
         
     if settings['verbose']:
         print("independent_df columns:", list(independent_df.columns))
@@ -9362,7 +9372,7 @@ def _assign_prcfo_parts(df, object_column='objectID'):
 
 
 def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
-                  filter_value=None, record=None):
+                  filter_value=None, record=None, exclude_grnas=None):
     """Load a per-gRNA read-count CSV and return per-well normalised fractions.
 
     Splits derived ``plate_row`` or ``prcfo`` identifiers, computes each
@@ -9378,6 +9388,12 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
     :param filter_column: Column (or list of columns) to filter rows on.
     :param filter_value: Values (or list of values) to drop from
         ``filter_column``.
+    :param record: Optional mutable mapping that records exclusions for the
+        persisted regression summary.
+    :param exclude_grnas: Guide or gene identifiers to remove from the raw
+        count table. Gene identifiers remove all associated guides. This is
+        applied before well totals and fractions are calculated, so retained
+        guides are normalised against the retained read count.
     :returns: DataFrame with columns ``prc``, ``grna``, ``fraction``.
     :raises ValueError: on missing required columns, invalid
         ``fraction_threshold``, or when the threshold removes all rows.
@@ -9394,6 +9410,61 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
     
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
+
+    # EXCLUDE KNOWN CONTAMINANTS BEFORE FORMING THE DENOMINATOR.
+    #
+    # Applying this after ``groupby('prc')['count'].sum()`` would leave the
+    # excluded reads in ``total_counts`` and depress every retained guide's
+    # fraction. The setting accepts either exact guide identifiers or a gene
+    # identifier, which resolves to every guide assigned to that gene.
+    if exclude_grnas and 'grna' in csv_df.columns:
+        from .read_background import resolve_exclusions, unmatched_exclusions
+
+        requested = ([exclude_grnas] if isinstance(exclude_grnas, str)
+                     else list(exclude_grnas))
+        guide_names = csv_df['grna'].astype(str)
+        gene_names = (csv_df['gene'].astype(str)
+                      if 'gene' in csv_df.columns else None)
+        resolved = resolve_exclusions(requested, guide_names, gene_names)
+        unmatched = unmatched_exclusions(requested, guide_names, gene_names)
+        drop_mask = guide_names.isin(resolved)
+        rows_before = len(csv_df)
+        rows_removed = int(drop_mask.sum())
+
+        if rows_removed:
+            csv_df = csv_df.loc[~drop_mask].copy()
+            print(
+                f"Excluded {rows_removed} of {rows_before} raw count rows "
+                f"spanning {len(resolved)} guide(s) named by exclude_grnas "
+                f"before well totals and fractions were calculated: "
+                f"{', '.join(sorted(resolved)[:5])}"
+                f"{' ...' if len(resolved) > 5 else ''}."
+            )
+        if unmatched:
+            print(
+                f"exclude_grnas named {len(unmatched)} value(s) that match "
+                f"no guide or gene in the raw count table: "
+                f"{', '.join(map(str, unmatched[:5]))}"
+                f"{' ...' if len(unmatched) > 5 else ''}."
+            )
+
+        if record is not None:
+            record["exclude_grnas"] = (
+                record.get("exclude_grnas", 0) + rows_removed)
+            record["exclude_grnas_of"] = (
+                record.get("exclude_grnas_of", 0) + rows_before)
+            prior_guides = record.get("exclude_grnas_guides", ())
+            record["exclude_grnas_guides"] = sorted(
+                set(map(str, prior_guides)) | set(map(str, resolved)))
+            prior_unmatched = record.get("exclude_grnas_unmatched", ())
+            record["exclude_grnas_unmatched"] = sorted(
+                set(map(str, prior_unmatched)) | set(map(str, unmatched)))
+
+        if csv_df.empty:
+            raise ValueError(
+                f"exclude_grnas removed all {rows_before} raw count rows. "
+                "Remove or narrow the exclusion before running regression."
+            )
     if 'plate_row' in csv_df.columns:
         # 'plate_row' is '<plate>_<row>'. Split on the LAST separator rather
         # than on every one: the plate is the component that may itself

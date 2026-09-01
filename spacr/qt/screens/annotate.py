@@ -1117,7 +1117,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             # has run, so fall back to page order and say why rather than
             # showing an empty grid.
             return {"filtered_rows": None,
-                    "total": count_rows(s.db_path, s.image_type),
+                    "total": count_rows(s.db_path, s.image_type, table=self._settings.png_table),
                     "queue_summary": "",
                     "note": f"Uncertainty queue unavailable: {exc}"}
         rows = al.queue_rows(queue)
@@ -1138,7 +1138,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
         return {"filtered_rows": rows, "total": len(rows),
                 "queue_summary": "", "note": ""}
     return {"filtered_rows": None,
-            "total": count_rows(s.db_path, s.image_type),
+            "total": count_rows(s.db_path, s.image_type, table=self._settings.png_table),
             "queue_summary": "", "note": ""}
 
 
@@ -3050,8 +3050,10 @@ class AnnotateScreen(QWidget):
             self._worker = None
         self._settings.src = src
         self._settings.db_path = db_path
-        ensure_annotation_column(db_path, self._settings.annotation_column)
-        self._worker = SaveWorker(db_path, self._settings.annotation_column)
+        ensure_annotation_column(db_path, self._settings.annotation_column,
+                                 table=self._settings.png_table)
+        self._worker = SaveWorker(db_path, self._settings.annotation_column,
+                                  table=self._settings.png_table)
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
@@ -3154,12 +3156,10 @@ class AnnotateScreen(QWidget):
         page = self._settings.page_size
         rows = self._filtered_rows
         if rows is None:
-            return find_last_annotated_offset(
-                self._settings.db_path,
+            return find_last_annotated_offset(self._settings.db_path,
                 self._settings.annotation_column,
                 page,
-                self._settings.image_type,
-            )
+                self._settings.image_type,table=self._settings.png_table)
         last = None
         for index, (_path, value) in enumerate(rows):
             if value is not None and value != 0:
@@ -3169,7 +3169,7 @@ class AnnotateScreen(QWidget):
         return (last // page) * page
 
     def _on_class_counts(self):
-        rows = class_counts(self._settings.db_path, self._settings.annotation_column)
+        rows = class_counts(self._settings.db_path, self._settings.annotation_column, table=self._settings.png_table)
         if not rows:
             QMessageBox.information(self, "Class counts", "No annotated rows yet.")
             return
@@ -3351,7 +3351,8 @@ class AnnotateScreen(QWidget):
         if self._worker is not None:
             self._worker.stop(wait=True)
             self._worker = SaveWorker(self._settings.db_path,
-                                      self._settings.annotation_column)
+                                      self._settings.annotation_column,
+                                      table=self._settings.png_table)
             self._worker.start()
 
         self._btn_retrain.setEnabled(False)
@@ -3541,7 +3542,7 @@ class AnnotateScreen(QWidget):
         if answer != QMessageBox.Yes:
             return
         self._pending_updates.clear()
-        clear_column(self._settings.db_path, col)
+        clear_column(self._settings.db_path, col, table=self._settings.png_table)
         self._refresh_total(then=self._load_page)
 
     def _on_auto_annotate(self):
@@ -3605,7 +3606,8 @@ class AnnotateScreen(QWidget):
 
         column = self._settings.annotation_column
         try:
-            ensure_annotation_column(self._settings.db_path, column)
+            ensure_annotation_column(self._settings.db_path, column,
+                                     table=self._settings.png_table)
         except Exception as exc:
             QMessageBox.warning(
                 self, "Could not write",
@@ -3732,32 +3734,26 @@ class AnnotateScreen(QWidget):
         dialog = _GenerateAnnotationDatabaseDialog(self._settings, self)
         if dialog.exec() != QDialog.Accepted:
             return
+        from spacr.annotation_dataset import crops_folder_for
+
         table = dialog.written_table()
         if not table:
             return
-        # SAID PLAINLY, INCLUDING THE PART THAT DOES NOT WORK YET. This screen
-        # reads `png_list` and only `png_list` (see `spacr.agreement.
-        # PNG_TABLE`), so a second generated set lands under a name it cannot
-        # open. Telling the user that is the honest thing; silently showing
-        # them the OLD set while a new one sits unopened would look like the
-        # generator had done nothing.
-        from spacr.annotation_dataset import PNG_TABLE_BASE
-
-        if table == PNG_TABLE_BASE:
-            QMessageBox.information(
-                self, "Annotation set ready",
-                f"Wrote {table}. Reopening the source to show it.")
-            try:
-                self._reload()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not reload after generating", exc_info=True)
-        else:
-            QMessageBox.information(
-                self, "Annotation set ready",
-                f"Wrote {table}.\n\nThis screen currently opens "
-                f"'{PNG_TABLE_BASE}' only, so to annotate this set either "
-                f"rename it, or work from a database where it is the first "
-                f"one. Instruction 338 tracks making the table selectable.")
+        # OPENED, not merely reported. The screen used to read `png_list` and
+        # only `png_list`, so a second generated set landed under a name it
+        # could not show -- and a user who had just asked for a set and was
+        # then shown the old one would reasonably conclude it had failed.
+        # Every engine reader takes the table now, so the new set is simply
+        # what this screen is looking at.
+        self._settings.png_table = table
+        try:
+            self._reload()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open the generated set", exc_info=True)
+        QMessageBox.information(
+            self, "Annotation set ready",
+            f"Wrote {table} and opened it. Its crops are in "
+            f"{crops_folder_for(table)}/ beside the database.")
 
     def _on_thumb_left(self, slot: int):
         self._toggle_annotation(slot, 1)
@@ -3896,13 +3892,11 @@ class AnnotateScreen(QWidget):
         if self._filtered_rows is not None:
             self._page_paths = list(self._filtered_rows[self._offset:self._offset + page])
         else:
-            self._page_paths = fetch_page(
-                self._settings.db_path,
+            self._page_paths = fetch_page(self._settings.db_path,
                 self._settings.annotation_column,
                 self._offset,
                 page,
-                self._settings.image_type,
-            )
+                self._settings.image_type,table=self._settings.png_table)
         # A crop blown up over the grid belongs to the page being replaced.
         self._fold_zoom_back()
         # Clear all thumbs
