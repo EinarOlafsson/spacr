@@ -199,13 +199,16 @@ def test_timelapse_summarise_child_features_no_numeric_cols_returns_counts_only(
     })
     props = pd.DataFrame({
         "frame": [0, 0], "obj_id": [1, 2],
-        "label_name": ["a", "b"],   # string-only, non-numeric
+        # pandas 3 infers StringDtype for ordinary text columns.  Keeping the
+        # extension dtype explicit makes this regression run on pandas 2 too.
+        "label_name": pd.Series(["a", "b"], dtype="string"),
     })
     df = _summarise_child_features_per_parent(
         overlaps, props, "cell_id", "obj_id", "child_count",
     )
     # Only frame + cell_id + child_count expected.
     assert set(df.columns) >= {"frame", "cell_id", "child_count"}
+    assert df["child_count"].tolist() == [2]
     # No numeric columns from props should appear.
     assert "label_name" not in df.columns
 

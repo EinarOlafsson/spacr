@@ -654,7 +654,8 @@ def test_a_column_that_is_not_whole_is_left_alone():
 
     assert str(out["seconds"].dtype) == "float64"
     assert str(out["trial_id"].dtype) == "Int64"
-    assert str(out["run"].dtype) == "object"
+    assert pd.api.types.is_string_dtype(out["run"])
+    assert out["run"].tolist() == ["a", "b"]
 
 
 def test_no_run_is_loaded_is_said_rather_than_left_blank(panel, tmp_path):
