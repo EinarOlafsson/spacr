@@ -1014,6 +1014,10 @@ EXAMPLE_DATA_SECTIONS = {
     # merged arrays with their label masks, so Measure can be run end to end
     # without segmenting anything first.
     "measure": "Input & Experiment",
+    # Classify's example data is the MEASURE output plus real labels: 2,341
+    # crops of which 88 are annotated. Unlabelled crops would exercise the
+    # viewer and nothing else -- a training example needs labels.
+    "classify": "Labels & Classes",
 }
 
 
@@ -2639,6 +2643,8 @@ class AppScreen(QWidget):
                 self._install_example_data_button(section)
             elif self.app_key == "measure":
                 self._install_measure_example_button(section)
+            elif self.app_key == "classify":
+                self._install_annotate_example_button(section)
             else:
                 self._install_example_images_button(section)
         # DEEPEST FIRST. Recorded after the children so the list a consumer
@@ -3755,6 +3761,105 @@ class AppScreen(QWidget):
         self._console.append_stdout(
             tr("Source directory (src): {path}", path=source) + "\n")
         return {"src": source}
+
+    def _install_annotate_example_button(self, section) -> None:
+        """Add the example-data control for the Annotate/Classify set."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load the example annotation data\u2026"))
+        button.setToolTip(tr(
+            "Download about 280 MB of example data: 2,341 single-cell crops "
+            "with a measurements database, of which 88 are already labelled. "
+            "Settings are filled in with it, so the module can be run "
+            "straight away. Cached afterwards."))
+        button.clicked.connect(lambda: self.load_the_annotate_example())
+        self._annotate_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def annotate_example_destination(self):
+        """Cache directory for the Annotate/Classify example data."""
+        from pathlib import Path
+
+        return Path.home() / ".cache" / "spacr" / "example_annotate"
+
+    def load_the_annotate_example(self, *, ask=None) -> dict:
+        """Download the annotation example and fill this module's settings in.
+
+        :param ask: optional download function used in place of
+            :func:`spacr.qt.hf_download.download_annotate_example`.
+        :returns: the settings that were applied, or an empty mapping.
+        """
+        destination = self.annotate_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # An arrived dataset is reused. The DATABASE is the test, not the
+        # folder: a cancelled download leaves the folder behind.
+        if (destination / "measurements.db").is_file():
+            return self._apply_the_example_settings(destination)
+
+        button = getattr(self, "_annotate_example_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching the example data\u2026"))
+
+        applied: dict = {}
+
+        def _done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load the example annotation data\u2026"))
+            if result is None:
+                self._console.append_notice(
+                    "[example] the annotation example was not downloaded: "
+                    "{detail}\n", detail=error or "cancelled")
+                return
+            applied.update(self._apply_the_example_settings(destination))
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return applied
+
+    def _apply_the_example_settings(self, destination) -> dict:
+        """Load this module's example settings into the panel.
+
+        THE POINT OF SHIPPING SETTINGS WITH THE DATA. The dataset is useless
+        without knowing which column holds the labels, what size the crops are
+        and which classes exist; making the user find that out first is most of
+        the work the example was meant to save. The published file carries the
+        answers, and this puts them in the panel so Run is the next action.
+        """
+        from pathlib import Path
+
+        destination = Path(destination)
+        name = ("classify_settings.csv" if self.app_key == "classify"
+                else "annotate_settings.csv")
+        path = destination / "settings" / name
+        if not path.is_file():
+            self._console.append_notice(
+                "[example] no settings file for {app} in the example data\n",
+                app=self.app_key)
+            return {}
+        try:
+            # THE SAME TWO CALLS "Import settings…" MAKES. A second reader
+            # would drift from it, and the whole value of shipping settings
+            # with the data is that they land exactly as a user's own file
+            # would.
+            loaded = self._load_settings_csv(str(path))
+            applied = self.apply_settings_dict(loaded)
+        except Exception as exc:                             # noqa: BLE001
+            LOG.debug("could not apply the example settings", exc_info=True)
+            self._console.append_notice(
+                "[example] the settings could not be applied: {detail}\n",
+                detail=exc)
+            return {}
+        self._console.append_notice(
+            "[example] {count} settings loaded from the example data\n",
+            count=applied)
+        self._console.append_stdout(
+            tr("Example data ready: {path}", path=str(destination)) + "\n")
+        return dict(loaded) or {"src": str(destination)}
 
     def example_images_destination(self):
         """Return the cache directory used for downloaded example images."""

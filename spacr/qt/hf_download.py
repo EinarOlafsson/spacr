@@ -55,6 +55,17 @@ SETTINGS_REPO = "einarolafsson/spacr_settings"
 #: are most of what Measure does after the per-object step.
 MEASURE_EXAMPLE_REPO = "einarolafsson/spacr-example-measure"
 
+#: Annotate and Classify share one example set: the crops a Measure run cut,
+#: the measurements database that indexes them, and 88 real labels.
+#:
+#: ONE REPO, TWO SETTINGS FILES. Both modules read the same 282 MB of crops and
+#: the same database; only the settings differ. Publishing it twice would
+#: double the download and let the two copies drift.
+ANNOTATE_EXAMPLE_REPO = "einarolafsson/spacr-example-annotate"
+
+#: The token a published settings file uses for "wherever this was unpacked".
+DATASET_PLACEHOLDER = "<dataset>"
+
 
 @dataclass
 class DownloadResult:
@@ -473,6 +484,136 @@ class _MeasureExampleWorker(QObject):
                 # One bad archive must not cost the other fifteen. It is left
                 # on disk, so what failed is visible rather than merely absent.
                 LOG.warning("could not unpack %s", archive, exc_info=True)
+
+
+def make_the_example_paths_absolute(root) -> int:
+    """Point a downloaded example at where it actually landed.
+
+    A measurements database stores ABSOLUTE paths to its crops, which name the
+    machine that made it and resolve nowhere else. The published copy stores
+    them relative to the dataset root instead, so it is portable and carries no
+    account name -- and this is what turns them back into paths that open.
+
+    The settings files are rewritten the same way: they carry
+    :data:`DATASET_PLACEHOLDER` where the unpack location goes, so a user can
+    press Run without first editing a path.
+
+    Idempotent. A path that is already absolute is left alone, so running this
+    twice -- a re-download over an existing copy -- does not produce
+    ``/home/me/data//home/me/data/...``.
+
+    :param root: the folder the dataset was unpacked into.
+    :returns: how many values were rewritten.
+    """
+    import sqlite3
+
+    root = Path(root)
+    prefix = str(root).rstrip("/") + "/"
+    rewritten = 0
+
+    database = root / "measurements.db"
+    if database.is_file():
+        connection = sqlite3.connect(str(database))
+        try:
+            tables = [r[0] for r in connection.execute(
+                "select name from sqlite_master where type='table'")]
+            for table in tables:
+                columns = [r[1] for r in connection.execute(
+                    f'PRAGMA table_info("{table}")')]
+                for column in columns:
+                    try:
+                        # Only the values that look like OUR relative paths.
+                        # A column holding prose is untouched, and one already
+                        # absolute is skipped by the same test.
+                        cursor = connection.execute(
+                            f'update "{table}" set "{column}" = ? || "{column}" '
+                            f'where cast("{column}" as text) like \'data/%\' '
+                            f'or cast("{column}" as text) like \'measurements/%\'',
+                            (prefix,))
+                        rewritten += cursor.rowcount or 0
+                    except sqlite3.Error:
+                        # A column that cannot be updated -- a generated one,
+                        # or a type that will not concatenate -- is not a
+                        # reason to abandon the other forty.
+                        continue
+            connection.commit()
+        finally:
+            connection.close()
+
+    for settings_file in sorted((root / "settings").glob("*.csv")):
+        try:
+            text = settings_file.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if DATASET_PLACEHOLDER not in text:
+            continue
+        settings_file.write_text(
+            text.replace(DATASET_PLACEHOLDER, str(root).rstrip("/")),
+            encoding="utf-8")
+        rewritten += 1
+
+    LOG.info("example dataset at %s: %d paths made absolute", root, rewritten)
+    return rewritten
+
+
+class _AnnotateExampleWorker(QObject):
+    """Fetch the Annotate/Classify example set and make it usable in place."""
+
+    progress = Signal(str, int, int)
+    info     = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    def __init__(self, dest_dir: Path):
+        super().__init__()
+        self._dest = Path(dest_dir)
+        self._cancel = False
+
+    def cancel(self) -> None:
+        self._cancel = True
+
+    def run(self) -> None:
+        try:
+            self.info.emit("Fetching the example annotation set…")
+            try:
+                from huggingface_hub import snapshot_download
+            except ImportError as exc:
+                raise ImportError(
+                    f"huggingface_hub is not installed: {exc}") from exc
+            # snapshot_download RATHER THAN a file at a time. This set is 2,365
+            # files, and one HTTP request each -- the shape the Mask demo uses
+            # for its six -- spends minutes on request overhead alone.
+            #
+            # The cost is granular progress: the dialog cannot show a count it
+            # is not given. It says what it is doing instead, which is better
+            # than a bar that moves once.
+            self._dest.mkdir(parents=True, exist_ok=True)
+            snapshot_download(ANNOTATE_EXAMPLE_REPO, repo_type="dataset",
+                              local_dir=str(self._dest))
+            if self._cancel:
+                self.finished.emit(False, "", "", "Cancelled by user.")
+                return
+            self.info.emit("Pointing the database at its crops…")
+            make_the_example_paths_absolute(self._dest)
+            self.progress.emit("done", 1, 1)
+            self.finished.emit(True, str(self._dest),
+                               str(self._dest / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("annotate example download failed: %s", e,
+                        exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+
+def download_annotate_example(parent, dest: Path,
+                              on_done: Callable[
+                                  [Optional[DownloadResult], str],
+                                  None]) -> None:
+    """Fetch the Annotate/Classify example set, with the shared dialog."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    download_toxo_mito_demo(
+        parent, dest, on_done,
+        worker_factory=_AnnotateExampleWorker,
+        title="Downloading spaCR annotation example data")
 
 
 def download_measure_example(parent, dest: Path,

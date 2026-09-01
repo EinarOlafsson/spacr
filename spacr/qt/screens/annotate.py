@@ -1164,6 +1164,17 @@ class _SettingsDialog(QDialog):
         src_btn = QPushButton("Browse…")
         src_btn.clicked.connect(self._pick_src)
         src_row.addWidget(src_btn)
+        # SOMETHING TO ANNOTATE, for a user who has not measured a plate yet.
+        # Beside Browse because it fills the same field, and because the
+        # question it answers -- "what do I point this at?" -- is asked here.
+        example_btn = QPushButton("Example…")
+        example_btn.setToolTip(
+            "Download about 280 MB of example data: 2,341 single-cell crops "
+            "with a measurements database, 88 of them already labelled. The "
+            "annotation settings are filled in with it. Cached afterwards.")
+        example_btn.clicked.connect(self._load_the_example_data)
+        self._example_btn = example_btn
+        src_row.addWidget(example_btn)
         src_wrap = QWidget(); src_wrap.setLayout(src_row)
         form.addRow("Source folder", src_wrap)
 
@@ -1522,6 +1533,63 @@ class _SettingsDialog(QDialog):
         previous folder.
         """
         return self._src_edit.text().strip()
+
+    def example_destination(self):
+        """Where the annotation example is cached. Shared with Classify: it is
+        one dataset, and downloading it twice would cost 280 MB twice."""
+        from pathlib import Path
+
+        return Path.home() / ".cache" / "spacr" / "example_annotate"
+
+    def _load_the_example_data(self, *, ask=None) -> str:
+        """Fetch the example set and point this screen at it.
+
+        :returns: the source that was set, or ``""``.
+        """
+        destination = self.example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # The DATABASE is the test for "already here", not the folder: a
+        # cancelled download leaves the folder behind.
+        if (destination / "measurements.db").is_file():
+            return self._use_the_example_data(destination)
+
+        button = getattr(self, "_example_btn", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText("Fetching…")
+
+        def _done(result, error):
+            if button is not None:
+                button.setEnabled(True)
+                button.setText("Example…")
+            if result is None:
+                LOG.info("annotation example not downloaded: %s", error)
+                return
+            self._use_the_example_data(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _use_the_example_data(self, destination) -> str:
+        """Point the source field at the downloaded example.
+
+        The DATABASE, not the folder: this screen reads `png_list`, and the
+        published settings file names the database for the same reason.
+        """
+        from pathlib import Path
+
+        database = Path(destination) / "measurements.db"
+        source = str(database if database.is_file() else destination)
+        self._src_edit.setText(source)
+        # The column the published labels are in, so the screen opens on them
+        # rather than on an empty column the user then has to guess.
+        if hasattr(self, "_ann_col") and not self._ann_col.text().strip():
+            self._ann_col.setText("annotate")
+        return source
 
     def _pick_src(self):
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",

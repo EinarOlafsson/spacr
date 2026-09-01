@@ -477,10 +477,24 @@ WHAT TO DO NEXT, in order:
    returns it without teardown. `grep -l "= ConsolePanel()\|Panel(\|Dialog("
    tests/qt` is the starting set. Each is a candidate for the same crash.
 
-2. Consider a session-scoped autouse fixture that runs `gc.collect()` at a
-   CHOSEN point between tests, so a collection cannot land inside `exec()`.
-   That converts the whole class from "crashes somewhere else" into "freed
-   here", and would not need every fixture to be correct.
+2. DO NOT add a between-tests `gc.collect()` fixture. It was tried on
+   2026-09-01 and it is the wrong answer twice over:
+
+   * MEASURED NOT TO WORK. With the per-fixture teardown reverted and the
+     collect fixture in place, the pair still dumped core. Raising it from
+     `gc.collect(1)` to a full `gc.collect()` turned the crash into a plain
+     failure but did not remove it. Whatever retains the panel is not a cycle
+     the collector frees at that point.
+   * AGAINST A DELIBERATE INVARIANT ALREADY WRITTEN DOWN HERE.
+     `tests/qt/test_retained_widget_tree.py::
+     test_no_boundary_fixture_forces_python_collection_over_live_qt_wrappers`
+     exists to forbid exactly this, and calls itself "the CI segfault guard:
+     ownership cleanup must stay on Qt's side". Its AST check inspects two
+     named fixtures by name, so a third one slipped past it -- which is worth
+     fixing on its own: the guard should check every autouse fixture in both
+     conftests, or it only forbids what it happens to have been pointed at.
+
+   The per-fixture teardown is therefore the fix, not a stopgap for it.
 
 3. Only then re-measure whether the full-suite segfault is gone. Do NOT
    conclude it is fixed from a single clean run: the position moved between
