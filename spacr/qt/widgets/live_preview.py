@@ -1068,8 +1068,8 @@ def _model_menu():
     to an empty combo.
     """
     try:
-        from ...settings import cellpose_model_menu
-        menu = tuple(cellpose_model_menu())
+        from ...settings import cellpose_live_model_menu
+        menu = tuple(cellpose_live_model_menu())
     except Exception:
         return _FALLBACK_MODELS
     return menu or _FALLBACK_MODELS
