@@ -820,11 +820,13 @@ def diagnose_p_value_histogram(p_values, n_bins=20):
       and half the other.
 
     :param p_values: Iterable of p-values; non-finite entries are dropped.
+        Every remaining value must lie in the closed interval ``[0, 1]``.
     :param n_bins: Histogram resolution. Default 20 (bins of width 0.05).
     :returns: dict with ``verdict`` (one of ``'uniform-with-spike'``,
         ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``,
         ``'too-few'``), ``message``, ``counts``, ``expected``,
         ``first_bin_ratio``, ``last_bin_ratio`` and ``frac_below_0.05``.
+    :raises ValueError: if a finite value lies outside ``[0, 1]``.
 
     Example:
         >>> import numpy as np
@@ -838,6 +840,11 @@ def diagnose_p_value_histogram(p_values, n_bins=20):
     """
     p = np.asarray(list(p_values), dtype=float).ravel()
     p = p[np.isfinite(p)]
+    outside = (p < 0.0) | (p > 1.0)
+    if np.any(outside):
+        raise ValueError(
+            f"{int(np.count_nonzero(outside))} finite p-value(s) outside "
+            f"[0, 1]; observed range [{p.min():.3g}, {p.max():.3g}]")
     counts, edges = np.histogram(p, bins=n_bins, range=(0.0, 1.0))
     n = int(counts.sum())
     expected = n / float(n_bins) if n else float("nan")
@@ -2694,7 +2701,10 @@ def _panel_p_value_histogram(ctx, ax):
     finite = values[np.isfinite(values)]
     if finite.size == 0:
         raise PanelUnavailable("every p-value is non-finite")
-    diag = diagnose_p_value_histogram(finite)
+    try:
+        diag = diagnose_p_value_histogram(finite)
+    except ValueError as exc:
+        raise PanelUnavailable(str(exc)) from exc
     counts, edges = diag["counts"], diag["edges"]
     bad = diag["verdict"] in ("excess-large", "u-shaped", "anti-uniform")
     with figure_style(_REPORT_TARGET):

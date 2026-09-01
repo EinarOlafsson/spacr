@@ -622,6 +622,37 @@ def test_p_value_histogram_diagnoses_each_broken_shape():
     assert rq.diagnose_p_value_histogram([0.1, 0.2])["verdict"] == "too-few"
 
 
+def test_p_value_histogram_refuses_numbers_that_cannot_be_p_values():
+    """A statistic column must not masquerade as an empty p-value column."""
+    with pytest.raises(ValueError, match=(
+            r"3 finite p-value\(s\) outside \[0, 1\]; "
+            r"observed range \[3, 12\]")):
+        rq.diagnose_p_value_histogram([3.0, 7.0, 12.0])
+
+
+def test_probability_boundaries_are_real_p_values_and_the_panel_explains_bad_ones():
+    """Zero and one are valid; a malformed coefficient table is named."""
+    boundary = rq.diagnose_p_value_histogram([0.0, 1.0])
+    assert boundary["n"] == 2
+    assert boundary["counts"][[0, -1]].tolist() == [1, 1]
+
+    model, X, y, meta = _ols_case()
+    coef_df = pd.DataFrame({
+        "feature": ["stat-1", "stat-2", "stat-3"],
+        "coefficient": [0.1, 0.2, 0.3],
+        "p_value": [3.0, 7.0, 12.0],
+    })
+    ctx = rq.build_context(model, X, y, metadata=meta, coef_df=coef_df,
+                           regression_type="ols")
+    fig, ax = _axes()
+    try:
+        with pytest.raises(rq.PanelUnavailable, match=(
+                r"3 finite p-value\(s\) outside \[0, 1\]")):
+            rq.draw_panel("p_value_histogram", ctx, ax)
+    finally:
+        fig.clear()
+
+
 def test_p_value_panel_prints_the_diagnosis_on_the_figure():
     """A verdict nobody can see on the figure is a verdict nobody acts on."""
     rng = _stream(41, 2)
