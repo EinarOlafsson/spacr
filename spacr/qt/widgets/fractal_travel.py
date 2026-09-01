@@ -1366,6 +1366,91 @@ class DepthPhase:
         return self.value
 
 
+class RegionTour:
+    """Floats the camera between the coordinates worth looking at.
+
+    Instruction 327 (3): "have say 20 regions on the image that the
+    camera will automatically smoothely float towards".
+
+    SMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a
+    smoothstep rather than a straight line: it leaves one region and
+    arrives at the next with zero velocity, which is what stops the
+    arrival reading as a stop. A linear blend is continuous in position
+    and not in velocity, and the eye sees the corner.
+
+    DRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a
+    statement about where they want to be, and a tour that resumes over
+    it is the application arguing. :meth:`take_over` stops it for good;
+    :meth:`restart` is what Ctrl+R calls.
+
+    :param regions: ``(name, x, y, half_width, score)`` rows, usually
+        :data:`spacr.qt.widgets.fractal_regions.REGIONS`.
+    :param dwell: seconds spent at a region before leaving.
+    :param travel: seconds spent moving between two regions.
+    """
+
+    __slots__ = ("regions", "dwell", "travel", "_taken")
+
+    def __init__(self, regions, dwell: float = 18.0,
+                 travel: float = 9.0) -> None:
+        self.regions = tuple(regions or ())
+        self.dwell = max(0.1, float(dwell))
+        self.travel = max(0.1, float(travel))
+        self._taken = False
+
+    @property
+    def active(self) -> bool:
+        """Whether the tour is still steering."""
+        return bool(self.regions) and not self._taken
+
+    def take_over(self) -> None:
+        """The user moved the camera. The tour does not argue."""
+        self._taken = True
+
+    def restart(self) -> None:
+        """Ctrl+R: hand the camera back to the tour."""
+        self._taken = False
+
+    def period(self) -> float:
+        """Seconds for one full circuit of every region."""
+        return len(self.regions) * (self.dwell + self.travel)
+
+    def target_at(self, seconds: float) -> Optional[tuple]:
+        """Where the camera should be heading at ``seconds``.
+
+        ``None`` when the tour is not steering, so a caller can leave the
+        camera exactly where the user put it rather than being handed a
+        coordinate it has to ignore.
+        """
+        if not self.active:
+            return None
+        leg = self.dwell + self.travel
+        total = len(self.regions) * leg
+        # Modulo, so the tour is a loop and a long session does not run
+        # off the end of the list.
+        position = float(seconds) % total
+        index = int(position // leg)
+        into = position - index * leg
+        here = self.regions[index]
+        if into <= self.dwell:
+            return float(here[1]), float(here[2])
+        there = self.regions[(index + 1) % len(self.regions)]
+        fraction = (into - self.dwell) / self.travel
+        eased = fraction * fraction * (3.0 - 2.0 * fraction)
+        return (float(here[1]) + (float(there[1]) - float(here[1])) * eased,
+                float(here[2]) + (float(there[2]) - float(here[2])) * eased)
+
+
+def default_region_tour(**kwargs) -> RegionTour:
+    """A tour over the committed regions, or an empty one without them."""
+    try:
+        from .fractal_regions import REGIONS
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("no fractal regions to tour", exc_info=True)
+        REGIONS = ()
+    return RegionTour(REGIONS, **kwargs)
+
+
 def state_at_seconds(t: float, speed: float, dream: float,
                      depth_phase: Optional[float] = None) -> CameraState:
     """The camera at ``t``. Pure, so a test can assert it moves.
