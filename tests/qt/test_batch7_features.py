@@ -142,17 +142,32 @@ class TestLivePreviewModelDefault:
         qtbot.addWidget(panel)
         assert panel.current_params()["model"] == "cpsam"
 
-    def test_legacy_models_still_available(self, qtbot):
+    def test_legacy_models_are_not_offered_but_are_still_accepted(self, qtbot):
+        """UPDATED 2026-09-01, and the distinction is the point.
+
+        This used to assert the pre-SAM spellings were IN the live combo. They
+        are deliberately not, at the maintainer's request: all four resolve to
+        cpsam, so offering them is four labels for one model.
+
+        The obligation they existed for is real and is kept -- a SAVED settings
+        file naming cyto2 must still round-trip, or the preview quietly uses a
+        different model than the settings say. That is now handled by
+        accepting the value rather than by advertising it, which is the half
+        that actually protected the user.
+        """
         from spacr.qt.widgets.live_preview import LivePreviewPanel
         panel = LivePreviewPanel()
         qtbot.addWidget(panel)
         items = [panel._model_box.itemText(i)
                   for i in range(panel._model_box.count())]
         assert "cpsam" in items
+        assert items[0] == "cpsam", "SAM is the default and comes first"
         for legacy in ("cyto3", "cyto2", "nuclei"):
-            assert legacy in items
-        # SAM should be first (default)
-        assert items[0] == "cpsam"
+            assert legacy not in items, f"{legacy} is still offered"
+
+        # ... and a settings file naming one is still honoured.
+        panel.apply_settings({"model_name": "cyto2"})
+        assert panel._model_box.currentText() == "cyto2"
 
 
 # ---------------------------------------------------------------------------

@@ -992,11 +992,23 @@ def downloaded_zoo_models():
 
         from . import model_zoo
 
+        # include_bundled=False, AND THAT IS NOT AN OPTIMISATION. It is the
+        # flag that runs `discover_local`, which SCANDIRS resources/models --
+        # and this function is called while a settings panel is being built,
+        # on the GUI thread. `tests/qt/test_preview_registry.py::
+        # test_the_registry_never_touches_the_filesystem` exists to catch
+        # exactly that and did: the first version of this walked the disk
+        # every time a panel opened.
+        #
+        # The remote rows carry the paths anyway, so nothing is lost: what is
+        # skipped is the walk looking for models nobody declared.
         out = []
-        for entry in model_zoo.catalogue(remote=True):
+        for entry in model_zoo.catalogue(remote=True, include_bundled=False,
+                                         include_plugins=False):
             if entry.kind != "cellpose":
                 continue
             path = str(getattr(entry, "path", "") or "")
+            # One stat per declared entry, not a directory walk.
             if path and os.path.isfile(path):
                 out.append(path)
         return tuple(out)
