@@ -24,6 +24,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
+import spacr.accelerator as accelerator                       # noqa: E402
 from spacr.deep_spacr import GPU_ROOM_MB, pick_device        # noqa: E402
 
 
@@ -36,6 +37,10 @@ class _Card:
         self.available, self.readable = available, readable
 
     def install(self, monkeypatch):
+        # ``pick_device`` now uses the shared cached resolver. Each card in
+        # this test is a different machine, so it must start with a fresh
+        # hardware answer rather than inheriting the previous test's GPU.
+        monkeypatch.setattr(accelerator, "_CACHED", None)
         monkeypatch.setattr(torch.cuda, "is_available",
                             lambda: self.available)
 
