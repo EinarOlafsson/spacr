@@ -8,10 +8,8 @@ from __future__ import annotations
 
 import inspect
 
-import numpy as np
 import pandas as pd
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # qt/annotate_engine -- an image filter that reads to nothing
@@ -154,46 +152,40 @@ class TestTheSudokuWellSelection:
 
         assert rows == [0, 2, 3]
 
-    def test_a_guide_with_no_cell_under_it_says_so_and_stops(self):
-        """THE UNCOVERED ARC: no row survives the well filter.
+    def test_the_empty_row_recheck_is_removed_after_its_premise(self):
+        """The producing loop makes an empty row selection impossible.
 
-        A guide can be in the library and in the sequencing and have no
-        imaged cell in any well that holds it -- a plate where those
-        wells failed segmentation. ``frame.iloc[[]]`` is an empty frame
-        that every later step then divides by, so stopping with a note
-        is the honest answer.
+        Fractions are collected only for labels present in ``wells``;
+        ``mine`` is a non-empty subset of those labels when execution reaches
+        ``rows``; and ``keep`` contains all of ``mine``.  The positive
+        counterpart above demonstrates the resulting selection.  Keeping a
+        second empty check would add an arc no input can take.
         """
         from spacr import cell_montage as M
 
-        wells = ["A01", "A02"]
-        keep = {"B07"}
-        rows = [i for i, w in enumerate(wells) if w in keep]
+        source = inspect.getsource(M._sudoku_calls)
+        assert "for label in sorted(set(wells)):" in source
+        assert "keep = set(mine) | anchoring" in source
+        assert "if not rows:" not in source
+        assert "no cell sits in a well holding this guide" not in source
 
-        assert rows == []
+    def test_a_source_with_no_root_returns_before_channel_lookup(self):
+        """Crop resolution already refuses every falsy root.
 
-        source = inspect.getsource(M)
-        assert "if not rows:" in source
-        assert "sudoku: no cell sits in a well holding this guide" in source
-
-    def test_a_source_with_no_root_declares_no_channels(self):
-        """THE UNCOVERED ARC: ``root`` is falsy.
-
-        The source can be a mapping with no ``src``, an empty list, or
-        None -- the montage is asked what it needs before a folder has
-        been chosen. ``os.path.abspath(None)`` is a TypeError, and the
-        answer without a root is simply that nothing is declared.
+        The wrapper returns a displayable unavailable choice for those
+        inputs.  Therefore the later channel-lookup path owns a truthy root
+        and needs no duplicate ``if root`` branch; the merged-folder test
+        below is its positive counterpart.
         """
         from spacr import cell_montage as M
 
         for source_value in (None, {}, [], {"src": None}, {"src": []}):
-            root = (source_value.get("src")
-                    if isinstance(source_value, dict) else source_value)
-            if isinstance(root, (list, tuple)):
-                root = root[0] if root else None
-            assert not root, f"{source_value!r} produced a root of {root!r}"
+            choice = M.resolve_montage_crop_source(source_value)
+            assert choice.available is False
+            assert choice.source is None
 
-        source = inspect.getsource(M)
-        assert "if root:" in source
+        source = inspect.getsource(M.resolve_montage_crop_source)
+        assert "if root:" not in source
         assert 'os.path.basename(os.path.abspath(root)) == "merged"' in source
 
     def test_a_merged_folder_is_climbed_to_its_plate(self):
