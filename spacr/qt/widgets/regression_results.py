@@ -2364,7 +2364,11 @@ class RegressionResultsPanel(QWidget):
             self.table.table.clearSelection()
             self.table.table.setCurrentCell(-1, -1)
             self.table.table.blockSignals(blocked)
-        except (RuntimeError, AttributeError):   # pragma: no cover - no table
+        except (RuntimeError, AttributeError):
+            # A table whose C++ half has gone raises RuntimeError; one
+            # that was never built raises AttributeError. Neither is a
+            # reason to refuse the frame -- the selection being cleared
+            # is housekeeping ahead of repopulating it.
             pass
         for plot in self._keyed_plots():
             plot.clear_highlight()
