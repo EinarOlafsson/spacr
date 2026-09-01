@@ -3688,7 +3688,10 @@ class AppScreen(QWidget):
 
         # TWO THAT COST GIGABYTES ASK FIRST. Each opens a picker holding only
         # its own kind, with what it costs said above the list.
-        feature = QPushButton("Feature")
+        # NAMED FOR THE FILE IT FETCHES. It was "Feature", which is what the
+        # tables hold rather than what the button gets you, and a user asking
+        # for "the measurements.db button" could not find it.
+        feature = QPushButton("Measurements (.db)")
         feature.setToolTip(
             "Choose which of the screen's measurement databases to download. "
             "These are what the measurement and cell functions read. About "
