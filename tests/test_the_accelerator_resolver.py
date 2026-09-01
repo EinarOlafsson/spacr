@@ -314,13 +314,23 @@ def test_autocast_device_type_is_none_where_autocast_raises(
 
 def test_empty_cache_is_safe_on_every_backend(monkeypatch):
     """Called from resource cleanup, which must not be able to raise."""
+    checked = []
     for kwargs in (dict(cuda=True, cuda_version="12.1"),
                    dict(cuda=False, mps=True, mps_built=True),
                    dict(cuda=False)):
         monkeypatch.setattr(acc, "_CACHED", None, raising=False)
         _install(monkeypatch, _Torch(**kwargs))
-        acc.resolve(refresh=True)
-        acc.empty_cache()
+        resolved = acc.resolve(refresh=True)
+
+        acc.empty_cache()                  # must not raise
+
+        # ASSERTED per backend. A loop whose body silently did nothing
+        # would pass on "no exception" alone, and this is called from
+        # resource cleanup where a wrong backend is exactly the risk.
+        assert resolved.kind in ("cuda", "mps", "cpu"), resolved.kind
+        checked.append(resolved.kind)
+    assert len(checked) == 3, f'only {len(checked)} backends were exercised'
+
 
 
 def test_describe_separates_found_from_in_use(monkeypatch):

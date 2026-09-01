@@ -63,7 +63,15 @@ class TestPickingTheMostColourfulShade:
         pytest.importorskip("PySide6")
         from spacr.qt import theme as T
 
+        before = dict(getattr(T, "_WIDGET_QSS_CONTEXT", {}) or {})
+
         T.set_widget_qss_context(None, "dark", 1.0, None)   # must not raise
+
+        # AND NOTHING WAS RECORDED. There is nowhere to put it without an
+        # application, so the correct outcome is that no context appears
+        # -- which "did not raise" alone would not distinguish from one
+        # stashed somewhere it can never be read back.
+        assert dict(getattr(T, "_WIDGET_QSS_CONTEXT", {}) or {}) == before
 
     def test_with_an_application_the_context_is_recorded_on_it(self, qtbot):
         """The other arm, and what it is for: the exact live preference

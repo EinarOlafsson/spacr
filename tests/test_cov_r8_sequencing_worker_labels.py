@@ -62,8 +62,16 @@ class TestLabellingOneProcess:
         """A library call has no run context, and that is not an error."""
         from spacr import runctx
 
+        registered = []
         monkeypatch.setattr(runctx, "current_run_context", lambda: None)
+
         S._label_resource_process(_Process(pid=1), "kind", 1)
+
+        # AND NOTHING WAS RECORDED. With no context there is nowhere to
+        # record to, so an empty list is the outcome -- "did not raise"
+        # alone would not tell that apart from a worker registered
+        # against a context that does not exist.
+        assert registered == []
 
     def test_a_process_with_no_pid_yet_is_skipped(self, monkeypatch):
         """A child that has not started has `pid is None`."""
@@ -95,9 +103,23 @@ class TestLabellingOneProcess:
             def register_worker(*_a, **_k):
                 raise RuntimeError("the resource record is closed")
 
+        asked = []
+
+        class _Counting(_Hostile):
+            @staticmethod
+            def register_worker(*_a, **_k):
+                asked.append(True)
+                raise RuntimeError("the resource record is closed")
+
         monkeypatch.setattr(runctx, "current_run_context",
-                            lambda: _Hostile())
+                            lambda: _Counting())
+
         S._label_resource_process(_Process(pid=7), "kind", 1)   # must not raise
+
+        # ASSERTED that the refusal was actually REACHED. Otherwise this
+        # passes against a version that never consults the context at
+        # all, which is a different bug wearing the same green tick.
+        assert asked == [True], "the run context was never asked"
 
     def test_a_runctx_that_will_not_import_is_survived(self, monkeypatch):
         """The import is INSIDE the guard, not above it."""
@@ -108,8 +130,25 @@ class TestLabellingOneProcess:
                 raise ImportError("runctx is unavailable")
             return real(name, g, l, fromlist, level)
 
-        monkeypatch.setattr(builtins, "__import__", refuse)
+        attempted = []
+        real_import = builtins.__import__
+
+        def counting(name, g=None, l=None, fromlist=(), level=0):
+            if "runctx" in name or "current_run_context" in (fromlist or ()):
+                attempted.append(name)
+                raise ImportError("runctx is unavailable")
+            return real_import(name, g, l, fromlist, level)
+
+        monkeypatch.setattr(builtins, "__import__", counting)
+
         S._label_resource_process(_Process(pid=7), "kind", 1)   # must not raise
+
+        # ASSERTED that the import was TRIED. The claim in the docstring
+        # is that the import sits inside the guard rather than above it,
+        # and a version that never imported runctx at all would pass on
+        # "did not raise" while breaking every real recording.
+        assert attempted, "runctx was never imported, so nothing was guarded"
+
 
 
 class TestLabellingAWholePool:

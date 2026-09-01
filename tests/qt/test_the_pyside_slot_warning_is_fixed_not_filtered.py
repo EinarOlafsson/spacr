@@ -142,6 +142,15 @@ def test_a_watched_host_does_not_kill_its_childs_virtual_overrides(qtbot):
     child.show()
     qtbot.waitUntil(lambda: child.shown > 0, timeout=2000)
 
+    # STATED, not left to waitUntil. The wait does raise on timeout, so
+    # the test was never vacuous -- but the claim it is making is the
+    # thing worth reading, and a wait whose predicate is later loosened
+    # would go quiet without this line.
+    assert child.shown > 0, (
+        "the child's showEvent override never ran; Shiboken resolved it "
+        "through a displaced wrapper, which is what silently stopped the "
+        "backdrop animating")
+
 
 def test_a_watched_host_still_delivers_its_childs_own_signals(qtbot):
     """A signal on a poisoned child is a silent no-op, which is the worst

@@ -36,7 +36,45 @@ def axis():
 class TestStampingTheVerdict:
 
     def test_a_verdict_is_drawn_onto_the_axis(self, axis):
+        """The ordinary path, asserted on the AXIS.
+
+        A REAL PanelVerdict, not the string this test used to pass.
+        `draw_verdict` reads `verdict.level`, so a string raised
+        AttributeError and was swallowed by the very guard the other two
+        tests exercise -- the "ordinary path" drew nothing and tested the
+        same arm twice.
+        """
+        from spacr.regression_qc import PanelVerdict
+
+        verdict = PanelVerdict(level="pass",
+                               headline="variance is stable across the fit",
+                               detail="", score=None, statistic="")
+        before = len(axis.texts)
+
+        RD._stamp(axis, verdict)
+
+        assert len(axis.texts) > before, "no verdict was drawn"
+        assert any("variance is stable" in text.get_text()
+                   for text in axis.texts), (
+            f"the verdict is not on the axis: "
+            f"{[t.get_text() for t in axis.texts]}")
+
+    def test_an_unknown_verdict_leaves_the_panel_alone(self, axis):
+        """Documented behaviour, and the boundary of the test above."""
+        from spacr.regression_qc import PanelVerdict
+
+        before = len(axis.texts)
+        RD._stamp(axis, PanelVerdict(level="unknown", headline="x",
+                                     detail="", score=None, statistic=""))
+        assert len(axis.texts) == before
+
+    def test_a_verdict_of_the_wrong_type_is_swallowed(self, axis):
+        """A string has no `.level`, so it raises inside draw_verdict and
+        the guard catches it. Recorded because this is what the ordinary
+        -path test used to be doing by accident."""
+        before = len(axis.texts)
         RD._stamp(axis, "passed")          # must not raise
+        assert len(axis.texts) == before
 
     def test_a_stamp_helper_that_will_not_import_is_survived(self, axis,
                                                              monkeypatch):
@@ -54,7 +92,16 @@ class TestStampingTheVerdict:
             return real(name, g, l, fromlist, level)
 
         monkeypatch.setattr(builtins, "__import__", refuse)
+        before = len(axis.texts)
+
         RD._stamp(axis, "passed")          # must not raise
+
+        # AND NOTHING WAS DRAWN. The stamp is advisory, so its absence is
+        # the correct outcome -- but "did not raise" alone would also
+        # pass against a version that drew a half-finished stamp.
+        assert len(axis.texts) == before, (
+            "a verdict was drawn even though its helper could not be "
+            "imported")
 
     def test_a_stamp_that_raises_while_drawing_is_survived(self, axis,
                                                            monkeypatch):
@@ -65,7 +112,12 @@ class TestStampingTheVerdict:
             raise RuntimeError("no renderer for that text")
 
         monkeypatch.setattr(regression_qc, "draw_verdict", explode)
-        RD._stamp(axis, "passed")
+        before = len(axis.texts)
+
+        RD._stamp(axis, "passed")          # must not raise
+
+        assert len(axis.texts) == before, (
+            "a partial verdict was left on the axis after the draw failed")
 
 
 class TestTheHouseStyle:
