@@ -100,7 +100,11 @@ class AiToggleLabel(QLabel):
         """
         try:
             kind = event.type()
-        except Exception:              # pragma: no cover - defensive
+        except Exception:
+            # PySide6 raises when the C++ half of a wrapper is gone, and
+            # changeEvent is called during teardown as well as during a
+            # Preferences save. An unreadable event means "restyle
+            # nothing", not an exception out of a Qt callback.
             kind = None
         super().changeEvent(event)
         if kind in (QEvent.StyleChange, QEvent.PaletteChange,

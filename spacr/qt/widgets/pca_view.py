@@ -462,8 +462,10 @@ class PCAScoresCanvas(GraphCanvas):
         self._arrow_scale = 0.0
         try:
             self._draw_arrows()
-        except Exception:  # pragma: no cover - a decoration must never
-            # take the chart down with it.
+        except Exception:
+            # A DECORATION MUST NEVER TAKE THE CHART WITH IT. The scores
+            # are the plot; the loading arrows are an overlay on top of
+            # them, so a failure here costs the arrows and nothing else.
             LOG.debug("could not draw the loading arrows", exc_info=True)
 
     def _draw_arrows(self) -> None:
@@ -500,11 +502,27 @@ class PCAScoresCanvas(GraphCanvas):
                        zorder=3)
             ax.axvline(0.0, color=palette["border_soft"], linewidth=0.7,
                        zorder=3)
+            # THE FINITE CHECK IS FOR set_result's CALLERS, not for
+            # `pca()`. A result from `pca()` cannot carry a non-finite
+            # correlation -- it ends that block with
+            # `np.clip(np.nan_to_num(correlations), -1, 1)`, and 4,000
+            # adversarial frames (zero-variance columns, collinear pairs,
+            # 1e12 and 1e-12 magnitudes, NaN and infinite entries) never
+            # produced one.
+            #
+            # But `set_result` is public and takes any PCAResult, and the
+            # dataclass validates nothing. An arrow to a NaN is a line to
+            # nowhere on a plot the reader takes at face value, so the
+            # feature loses its arrow and the rest keep theirs.
+            #
+            # It carried a `no cover` pragma claiming it was unreachable.
+            # It was covered all along, by
+            # test_a_feature_whose_correlation_is_not_a_number_gets_no_arrow.
             for i in picked:
                 dx = float(result.correlations[i, kx]) * scale
                 dy = float(result.correlations[i, ky]) * scale
                 if not (np.isfinite(dx) and np.isfinite(dy)):
-                    continue  # pragma: no cover - correlations are clipped
+                    continue
                 ax.annotate(
                     "", xy=(dx, dy), xytext=(0.0, 0.0), zorder=7,
                     arrowprops={"arrowstyle": "-|>", "color": ink,
@@ -759,7 +777,12 @@ class PCAPanel(QWidget):
                 result = pca(frame, spec)
             except PCAError as exc:
                 return {"error": str(exc)}
-            except Exception as exc:  # pragma: no cover - defensive
+            except Exception as exc:
+                # ANYTHING THAT IS NOT A PCAError. That one is the
+                # expected refusal and carries its own explanation; this
+                # is a fault inside the decomposition, and it runs on a
+                # worker where an escaping exception has nowhere to go.
+                # The 'PCA failed:' prefix is what tells the two apart.
                 LOG.info("PCA failed", exc_info=True)
                 return {"error": f"PCA failed: {exc}"}
             # `scores_frame` is another pass over the table; it belongs on
