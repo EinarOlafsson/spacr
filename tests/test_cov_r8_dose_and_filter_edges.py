@@ -34,10 +34,10 @@ class TestTheDoseResponseReport:
     def test_a_real_fit_produces_a_report_with_caveats(self):
         D, dose, response = self._fit()
 
-        try:
-            result = D.fit_dose_response(dose, response)
-        except Exception as error:              # noqa: BLE001
-            pytest.skip(f"the fit needs more than this fixture: {error}")
+        # NOT WRAPPED IN A SKIP. The fixture is deterministic -- a seeded
+        # 4PL with known parameters -- so a fit that raises on it is a bug
+        # in spaCR, which is exactly the thing a skip would hide.
+        result = D.fit_dose_response(dose, response)
 
         assert result.caveats(), "a fitted curve carried no caveats at all"
         assert "  ! " in result.report()

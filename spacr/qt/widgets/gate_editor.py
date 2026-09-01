@@ -2214,7 +2214,12 @@ class GateCanvas(GraphCanvas):
         if self._drag_patch is not None:
             try:
                 self._drag_patch.remove()
-            except (ValueError, NotImplementedError):  # pragma: no cover
+            except (ValueError, NotImplementedError):
+                # Matplotlib raises ValueError when an artist is already
+                # gone and NotImplementedError for containers that do not
+                # support removal. Either way the drag is over; the
+                # reference below is dropped regardless, or the next drag
+                # draws over a stale patch nothing cleans up.
                 pass
             self._drag_patch = None
         if origin is None or event.inaxes is not origin[0]:

@@ -47,8 +47,18 @@ class TestAskedBeforeTheLayoutExists:
         before that point has nothing to write to -- and must not raise
         out of a constructor.
         """
+        plot._headline = "a headline nobody can read"
         plot._status = None
+
         plot._refresh_status()          # must not raise
+
+        # ASSERTED. Without this the test passes against a
+        # `_refresh_status` that returns before doing anything at all,
+        # including on a plot that HAS a status line.
+        assert plot._status is None, (
+            "_refresh_status invented a status label on the way past")
+        assert plot._headline == "a headline nobody can read", (
+            "the headline was cleared when there was nowhere to write it")
 
     def test_refreshing_the_status_writes_the_composed_line(self, plot):
         status = getattr(plot, "_status", None)

@@ -63,7 +63,11 @@ def set_menu_role(action: Any, role: str = "none") -> Any:
             f"unknown menu role {role!r}; expected one of {sorted(roles)}")
     try:
         action.setMenuRole(roles[key])
-    except Exception:                       # pragma: no cover
+    except Exception:
+        # A binding that will not take the role. The menu still works,
+        # it is simply in the ordinary place rather than moved into the
+        # macOS application menu -- not a reason to fail building the
+        # action, which is what the caller wanted.
         pass
     return action
 

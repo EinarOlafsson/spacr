@@ -76,11 +76,21 @@ class TestTearingDownAScreenThatIsAlreadyHalfGone:
         would leave the screen half-closed.
         """
         class _Gone:
+            def __init__(self):
+                self.asked = 0
+
             def shutdown(self):
+                self.asked += 1
                 raise RuntimeError("Internal C++ object already deleted.")
 
-        screen._flowview_section = _Gone()
+        section = _Gone()
+        screen._flowview_section = section
         screen.close()          # must not raise
+
+        # ASSERTED, not merely survived. "It did not raise" passes just
+        # as well against a closeEvent that never reaches the section.
+        assert section.asked == 1, "the section was never shut down"
+        assert screen.isVisible() is False, "the screen did not close"
 
     def test_a_flowview_section_that_closes_cleanly_is_shut_down(
             self, screen):
@@ -105,28 +115,52 @@ class TestRaisingTheResultsTab:
         tries would lose whatever called it.
         """
         class _Refuses:
+            def __init__(self):
+                self.asked = 0
+
             def setCurrentWidget(self, _page):   # noqa: N802 - Qt naming
+                self.asked += 1
                 raise RuntimeError("Internal C++ object already deleted.")
 
-        screen._results_tabs = _Refuses()
+        tabs = _Refuses()
+        screen._results_tabs = tabs
         screen._results_page = object()
         with caplog.at_level("DEBUG"):
             screen._raise_the_results_tab()      # must not raise
 
+        assert tabs.asked == 1, "the tab was never asked to be raised"
+
     def test_a_type_error_is_caught_as_well(self, screen):
         """A page of the wrong type raises TypeError, not RuntimeError."""
         class _Picky:
+            def __init__(self):
+                self.asked = 0
+
             def setCurrentWidget(self, _page):   # noqa: N802 - Qt naming
+                self.asked += 1
                 raise TypeError("not a QWidget")
 
-        screen._results_tabs = _Picky()
+        tabs = _Picky()
+        screen._results_tabs = tabs
         screen._results_page = object()
         screen._raise_the_results_tab()
 
+        assert tabs.asked == 1, "the tab was never asked to be raised"
+
     def test_with_no_tabs_or_no_page_it_does_nothing(self, screen):
+        """The early return, asserted as one.
+
+        Without an assertion this passes against a version that raises
+        the wrong tab -- there is nothing here that could fail.
+        """
         screen._results_tabs = None
         screen._results_page = None
-        screen._raise_the_results_tab()
+
+        screen._raise_the_results_tab()      # must not raise
+
+        assert screen._results_tabs is None, (
+            "the slot invented a tab widget on the way past")
+        assert screen._results_page is None
 
 
 class TestTheFormShapeDecision:

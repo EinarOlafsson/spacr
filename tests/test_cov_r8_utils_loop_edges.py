@@ -124,10 +124,10 @@ class TestScanningAFolderInTestMode:
             "plate1_A02_1_1.tif",
         ])
 
-        try:
-            U._run_test_mode(source, pattern)
-        except Exception as error:              # noqa: BLE001
-            pytest.skip(f"test mode needs more than filenames: {error}")
+        # NOT WRAPPED IN A SKIP. The input is filenames this test wrote
+        # into tmp_path, so anything _run_test_mode raises on them is a
+        # bug in spaCR -- the exact thing a blanket skip would hide.
+        U._run_test_mode(source, pattern)
 
         assert "Found 3 files" in capsys.readouterr().out
 
@@ -152,10 +152,10 @@ class TestScanningAFolderInTestMode:
             "flatfield_correction.tif",
         ])
 
-        try:
-            U._run_test_mode(source, pattern)
-        except Exception as error:              # noqa: BLE001
-            pytest.skip(f"test mode needs more than filenames: {error}")
+        # NOT WRAPPED IN A SKIP. The input is filenames this test wrote
+        # into tmp_path, so anything _run_test_mode raises on them is a
+        # bug in spaCR -- the exact thing a blanket skip would hide.
+        U._run_test_mode(source, pattern)
 
         printed = capsys.readouterr().out
         assert "Found 1 files" in printed, (

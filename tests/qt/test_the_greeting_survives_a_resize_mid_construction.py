@@ -43,13 +43,25 @@ def test_fading_a_greeting_that_does_not_exist_yet_is_a_no_op():
     Before the fix this raised AttributeError, and ``_show_slide`` calls
     it on every slide change.
     """
-    SetupSlides._fade_the_greeting_away(_HalfBuilt())      # must not raise
+    half = _HalfBuilt()
+
+    SetupSlides._fade_the_greeting_away(half)              # must not raise
+
+    # ASSERTED. "It did not raise" passes just as well against a method
+    # that returns immediately in EVERY case, including the real one --
+    # which is the failure this guard could quietly become.
+    assert getattr(half, "_greeting", None) is None, (
+        "a greeting was invented on a half-built dialog")
 
 
 def test_placing_a_greeting_that_does_not_exist_yet_is_a_no_op():
     """The half that was already right, asserted so a tidy-up that
     'harmonises' the two cannot remove the wrong one."""
-    SetupSlides._place_the_greeting(_HalfBuilt())          # must not raise
+    half = _HalfBuilt()
+
+    SetupSlides._place_the_greeting(half)                  # must not raise
+
+    assert getattr(half, "_greeting", None) is None
 
 
 def test_neither_needs_a_card_either():
@@ -59,8 +71,14 @@ def test_neither_needs_a_card_either():
     window, and it reaches both methods.
     """
     empty = type("Empty", (), {})()
+
     SetupSlides._fade_the_greeting_away(empty)
     SetupSlides._place_the_greeting(empty)
+
+    # Nothing was created on the way past -- neither a greeting nor the
+    # card whose absence is the point of this test.
+    assert not hasattr(empty, "_greeting")
+    assert not hasattr(empty, "card")
 
 
 def test_a_finished_dialog_still_fades_its_greeting(qtbot, qt_theme_applied,

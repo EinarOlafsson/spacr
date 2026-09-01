@@ -118,7 +118,21 @@ class TestTheBoundedWalkToThePanel:
             "the second None check is no longer after the loop")
 
     def test_a_bar_with_no_panel_above_it_copies_nothing(self, qtbot):
-        """The live refusal: nothing to ask for a span."""
+        """The live refusal: nothing to ask for a span.
+
+        Asserted on the CLIPBOARD, not merely survived: "it did not
+        raise" passes just as well against a version that copies the
+        wrong thing, and copying the wrong thing silently is the failure
+        worth catching here.
+        """
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.clipboard().setText("what was there before")
+
         bar = _make_bar()
         qtbot.addWidget(bar)
+
         bar._copy_section()                # must not raise
+
+        assert QApplication.clipboard().text() == "what was there before", (
+            "a bar with no panel above it put something on the clipboard")
