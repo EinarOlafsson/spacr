@@ -1531,8 +1531,16 @@ def derive_replot_recipe(figure):
     if len(pairs) < 2:
         return None
     frame = pandas.DataFrame(pairs, columns=[DERIVED_GROUP, DERIVED_VALUE])
-    if frame[DERIVED_GROUP].nunique() < 1:
-        return None
+    # NO `nunique() < 1` GUARD. The group column comes only from
+    # `_named`, which returns either a tick label or `f"{float(x):g}"` --
+    # always a str, never a missing value, and "nan" for a NaN x rather
+    # than NaN itself. With at least two rows guaranteed above,
+    # `nunique()` is 1 or more by construction.
+    #
+    # It could only be reached by making `_pairs_from_axes` return actual
+    # NaN group names, which is not a figure. Instruction 310 A15 counted
+    # it, and a reader maintaining this was being told nameless groups
+    # are a case that occurs.
     return {
         "df": frame,
         "grouping_column": DERIVED_GROUP,
