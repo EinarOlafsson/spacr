@@ -63,7 +63,7 @@ def test_an_smb_share_is_not_wal_safe(monkeypatch):
 def test_a_local_mac_disk_is_now_recognised(monkeypatch):
     """The gain. Before this, every Mac answered None and lost WAL."""
     _fake_psutil(monkeypatch, [_Part(mountpoint="/", fstype="apfs")])
-    assert dc._filesystem_type_via_psutil(Path("/Users/someone/data")) == "apfs"
+    assert dc._filesystem_type_via_psutil(Path("/local/project/data")) == "apfs"
     assert "apfs" in dc.WAL_SAFE_FILESYSTEMS
 
 
