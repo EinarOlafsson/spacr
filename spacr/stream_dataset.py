@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Tuple)
 
@@ -406,7 +407,51 @@ def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
     for name in sorted(os.listdir(str(merged_folder))):
         if name.endswith(".npy") and name.startswith(wanted):
             return os.path.join(str(merged_folder), name)
+    # AND THE WELL SPELLING, which is the difference between the two routes.
+    #
+    # A selection built from the merged arrays records the file it came from,
+    # so it never reaches here. One built from the DATABASE has only the
+    # parsed identifiers, and those come back as `r1`/`c1` while the file is
+    # named `plate1_A01_1_1.npy` -- so neither test above matches and every
+    # object in every field was reported missing. The database route wrote
+    # nothing at all, which is what instruction 338's parity test found the
+    # first time it ran.
+    well = _well_spelling(wanted)
+    if well and well != wanted:
+        for name in sorted(os.listdir(str(merged_folder))):
+            if not name.endswith(".npy"):
+                continue
+            if os.path.splitext(name)[0] == well or name.startswith(well):
+                return os.path.join(str(merged_folder), name)
     return None
+
+
+def _well_spelling(stem: str) -> str:
+    """``plate1_r1_c1_1`` as ``plate1_A01_1``, or ``""``.
+
+    Rows are letters and columns are two digits in a plate well name, which is
+    how an acquisition names its files; spaCR's parsed identifiers keep them
+    as `r<n>` and `c<n>`. Only that one substitution is made -- everything
+    else in the stem is left exactly as it is, so a name this cannot convert
+    is returned as empty rather than as a guess.
+    """
+    parts = str(stem).split("_")
+    row = column = None
+    for index, part in enumerate(parts):
+        if re.fullmatch(r"r\d+", part) and row is None:
+            row = index
+        elif re.fullmatch(r"c\d+", part) and column is None:
+            column = index
+    if row is None or column is None or column != row + 1:
+        return ""
+    number = int(parts[row][1:])
+    if not 1 <= number <= 26:
+        # Beyond Z a plate uses AA, AB … and this is not the place to invent
+        # that convention; say so by returning nothing.
+        return ""
+    letter = chr(ord("A") + number - 1)
+    well = f"{letter}{int(parts[column][1:]):02d}"
+    return "_".join(parts[:row] + [well] + parts[column + 1:])
 
 
 def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
@@ -473,6 +518,11 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
 
     for stem, here in frame.groupby("_stem", sort=True):
         path = _stack_for(merged_folder, str(stem))
+        # The stem AS THE FILE SPELLS IT, which is what the crops are named
+        # after. `_stack_for` resolves a database-built stem onto the file's
+        # own well spelling, and that resolution must reach the names too.
+        found_stem = (os.path.splitext(os.path.basename(path))[0]
+                      if path else str(stem))
         if path is None:
             # COUNTED, NOT SKIPPED SILENTLY. A dataset short by a field is a
             # dataset trained on a different screen from the one the table
@@ -510,7 +560,13 @@ def stream(selection: pd.DataFrame, merged_folder: str, dst: str, *,
             if crop is None:
                 report["missing"] += 1
                 continue
-            name = crop_name(str(stem), label, crop_mode=crop_mode)
+            # NAMED FROM THE FILE THAT WAS FOUND, not from the stem that
+            # went looking for it. The two spell the same field differently
+            # -- `plate1_A01_1_1` from the arrays, `plate1_r1_c1_1` from the
+            # database -- so naming from the stem gave the two routes
+            # different names for identical pictures, and a set built one way
+            # could not be matched against a set built the other.
+            name = crop_name(found_stem, label, crop_mode=crop_mode)
             out = os.path.join(str(dst), str(row.get("split", "train")), name)
             write(out, crop)
             report["written"] += 1
