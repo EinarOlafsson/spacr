@@ -53,12 +53,10 @@ class TestPackingAFrameForTheWriter:
             f"the outer test now admits {admitted}; the two arms below it "
             f"handle 1 and 2 only")
 
-        arms = set()
-        for literal in re.findall(r"frame\.shape\[2\] == (\d+)", source):
-            arms.add(int(literal))
-        assert set(admitted) <= arms | {1}, (
-            f"{sorted(set(admitted) - (arms | {1}))} is admitted by the "
-            f"outer test and handled by neither arm")
+        block = source[source.index("# Handling 1-channel"):]
+        block = block[:block.index("elif frame.shape[2] >= 3:")]
+        assert "elif frame.shape[2] == 2:" not in block
+        assert "\n            else:\n" in block
 
     def test_a_two_channel_frame_becomes_red_and_green(self):
         """The live side: the arm that IS taken, and what it produces."""
@@ -111,6 +109,8 @@ class TestTheIouCost:
         assert "np.unique" in source, (
             "the labels no longer come from the masks themselves, so a "
             "label with no pixels can now reach the IoU and divide by zero")
+        assert "if union > 0:" not in source
+        assert "cost[i, j] = 1 - inter/union" in source
 
 
 # ---------------------------------------------------------------------------
@@ -158,7 +158,7 @@ class TestSmoothingASingleFrameGlitch:
         assert "for i_local in range(1, n - 1):" in source, (
             "the glitch scan no longer excludes the endpoints, so the "
             "guard below it is live")
-        assert "if i_local <= 0 or i_local >= n - 1:" in source
+        assert "if i_local <= 0 or i_local >= n - 1:" not in source
 
         n = 8
         assert all(0 < i < n - 1 for i in range(1, n - 1))
@@ -177,7 +177,7 @@ class TestSmoothingASingleFrameGlitch:
             "column of fewer than three rows can now reach the "
             "interpolation")
         assert "s = g[col].to_numpy(dtype=float)" in source
-        assert "if len(s) < 3:" in source
+        assert "if len(s) < 3:" not in source
 
         frame = self._track(n=8)
         group = frame[frame["cellID"] == 1]
@@ -229,7 +229,8 @@ class TestTheMergedRgbPanel:
         assert guard < shape_read, (
             "nothing returns before norm_intensity[0] is indexed")
 
-        assert "if n_channels >= 1:" in source
+        assert "if n_channels >= 1:" not in source
+        assert "merged_rgb[..., 0] = norm_intensity[0]" in source
         assert "if n_channels >= 2:" in source
         assert "if n_channels >= 3:" in source
 

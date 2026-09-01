@@ -51,12 +51,14 @@ class TestTheIouDenominator:
 
         assert inter == 0 and union == 2
         assert 1 - inter / union == 1.0
+        assert T.link_by_iou(m1, m2, iou_threshold=0.1) == []
 
     def test_identical_masks_cost_nothing(self):
         m = np.zeros((4, 4), dtype=bool)
         m[1:3, 1:3] = True
 
         assert 1 - np.logical_and(m, m).sum() / np.logical_or(m, m).sum() == 0.0
+        assert T.link_by_iou(m, m, iou_threshold=0.1) == [(True, True)]
 
 
 class TestTheQcAxisBudget:
@@ -79,18 +81,19 @@ class TestTheQcAxisBudget:
         assert len(drawn) == 3
         assert axis_idx == len(axes)
 
-    def test_a_fourth_panel_with_three_axes_is_dropped_not_raised(self):
-        axes = [object(), object(), object()]
-        axis_idx, dropped = 0, 0
-        for _panel in range(4):
-            if axis_idx < len(axes):
-                axis_idx += 1
-            else:
-                dropped += 1
+    def test_xgboost_reserves_exactly_the_two_axes_it_draws(self):
+        axes = [object(), object()]
+        axis_idx = 0
+        probability = axes[axis_idx]
+        axis_idx += 1
+        importance = axes[axis_idx]
+        axis_idx += 1
 
-        assert dropped == 1
+        assert probability is axes[0]
+        assert importance is axes[1]
+        assert axis_idx == len(axes)
 
-    def test_both_xgboost_panels_are_guarded(self):
+    def test_both_xgboost_panels_use_the_reserved_axes(self):
         from spacr import timelapse as TL
 
         source = inspect.getsource(TL)
@@ -105,9 +108,8 @@ class TestTheQcAxisBudget:
             "there being two")
         block = source[xgb:xgb + 500]
 
-        assert block.count("if axis_idx < len(axes):") == 2, (
-            "one of the two xgboost QC panels is no longer guarded, so a "
-            "layout one axis short raises instead of dropping a panel")
+        assert "if axis_idx < len(axes):" not in block
+        assert block.count("axes[axis_idx]") == 2
 
         counter = source[source.index(
             'elif qc_strategy == "xgboost" and has_xgb:'):]
@@ -144,7 +146,8 @@ class TestTheMergedPreviewChannels:
     def test_the_preview_still_caps_at_three(self):
         source = inspect.getsource(T._debug_plot_merged_planes)
 
-        assert "if n_channels >= 1:" in source
+        assert "if n_channels >= 1:" not in source
+        assert "merged_rgb[..., 0] = norm_intensity[0]" in source
         assert "if n_channels >= 2:" in source
         assert "if n_channels >= 3:" in source
         assert "if n_channels >= 4:" not in source, (
@@ -164,18 +167,32 @@ class TestCarryingTheFirstGroupsQcPayload:
         """
         source = inspect.getsource(T._apply_infection_intensity_qc)
         concat = source.index("all_df_qc = pd.concat(parts")
-        guard = source.index("if first_payload_settings is not None:", concat)
+        payload = source.index(
+            'settings["infection_hist_data"] = first_payload_settings.get',
+            concat)
 
-        assert concat < guard
+        assert concat < payload
+        assert "if first_payload_settings is not None:" not in source[concat:payload]
         for key in ("infection_hist_data", "infection_pca_data",
                     "infection_xgb_importance"):
-            assert f'settings["{key}"]' in source[guard:], (
+            assert f'settings["{key}"]' in source[payload:], (
                 f"{key} is no longer carried out of the first group's payload")
 
     def test_the_comment_says_which_group_it_is(self):
         source = inspect.getsource(T._apply_infection_intensity_qc)
 
         assert "from the first processed group" in source
+
+
+class TestOptionalEmbeddingImports:
+
+    def test_only_the_call_site_checks_optional_embedders(self):
+        source = inspect.getsource(T._infection_qc_pca_clustering)
+
+        assert 'if embed_method == "umap" and umap is not None:' in source
+        assert 'elif embed_method == "tsne" and TSNE is not None:' in source
+        assert "if umap is None:" not in source
+        assert "if TSNE is None:" not in source
 
 
 class TestTheStraightnessFilter:
@@ -203,10 +220,13 @@ class TestTheStraightnessFilter:
             "for being too straight without the user asking")
         assert 'settings.get("straightness_threshold", 0.95)' in source
 
-    def test_a_frame_without_the_column_is_left_alone(self):
-        track_df = pd.DataFrame({"velocity": [1.0]})
+    def test_every_track_record_supplies_the_column(self):
+        source = inspect.getsource(T._compute_velocities_and_well_summary)
 
-        assert "straightness" not in track_df.columns
+        built = source.index('"straightness": straightness')
+        used = source.index('track_df["straightness"]', built)
+        assert built < used
+        assert 'if "straightness" in track_df.columns:' not in source
 
 
 class TestTheWellSummary:
@@ -217,18 +237,14 @@ class TestTheWellSummary:
         assert records
         assert list(pd.DataFrame(records)["well"]) == ["A01"]
 
-    def test_no_records_leaves_the_summary_as_it_was(self):
-        """THE ARC: ``well_records`` is empty.
+    def test_a_nonempty_track_frame_always_produces_a_well_record(self):
+        source = inspect.getsource(T._compute_velocities_and_well_summary)
 
-        Every track was filtered out -- a strict straightness or velocity
-        cut does this -- and ``DataFrame([])`` would replace a summary
-        that has columns with one that has none, so later readers see a
-        frame missing every field rather than an empty one.
-        """
-        records = []
-
-        assert not records
-        assert list(pd.DataFrame(records).columns) == []
+        empty_return = source.index("if track_df.empty:")
+        grouping = source.index('track_df.groupby(["plateID", "wellID"])')
+        conversion = source.index("pd.DataFrame(well_records)", grouping)
+        assert empty_return < grouping < conversion
+        assert "if well_records:" not in source[grouping:conversion]
 
 
 class TestTheXgboostQcPayloads:
@@ -241,27 +257,24 @@ class TestTheXgboostQcPayloads:
         failure into a run with no QC panel rather than no run.
         """
         source = inspect.getsource(T._infection_qc_xgboost)
-        opened = source.rindex("try:", 0, source.index(
-            "if intensity_col in cell_level.columns:"))
-        guard = source.index("if intensity_col in cell_level.columns:")
+        selected = source.index("if intensity_col is None:")
+        payload = source.index(
+            "intens = cell_level[intensity_col].to_numpy(dtype=float)")
+        opened = source.rindex("try:", 0, payload)
 
-        assert opened < guard, (
+        assert selected < opened < payload, (
             "the histogram payload is no longer inside a try, so a QC "
             "failure now costs the run rather than the panel")
+        assert "if intensity_col in cell_level.columns:" not in source
 
-    def test_no_usable_features_skips_the_pca_panel(self):
-        """THE ARC: ``used_feature_cols`` is empty.
+    def test_the_trained_feature_list_cannot_be_empty_at_the_panel(self):
+        source = inspect.getsource(T._infection_qc_xgboost)
 
-        A frame with no numeric feature column has nothing to decompose,
-        and PCA over a zero-width matrix raises. Skipping the panel
-        leaves the histogram and the importances, which are still worth
-        showing.
-        """
-        used_feature_cols = []
-
-        assert not used_feature_cols
-        frame = pd.DataFrame({"a": [1.0, 2.0]})
-        assert frame[used_feature_cols].to_numpy(dtype=float).shape == (2, 0)
+        refusal = source.index("if not feature_cols:")
+        assignment = source.index("used_feature_cols = feature_cols", refusal)
+        panel = source.index("X_panel = cell_level[used_feature_cols]", assignment)
+        assert refusal < assignment < panel
+        assert "if used_feature_cols:" not in source[assignment:panel]
 
     def test_the_panel_matrix_is_owned_rather_than_viewed(self):
         """The comment there is a pandas-3 trap worth keeping: a

@@ -41,7 +41,8 @@ class TestWritingAMovie:
         assert written.exists() and written.stat().st_size > 0
 
         source = inspect.getsource(T._npz_to_movie)
-        assert "elif frame.shape[2] == 2:" in source
+        assert "elif frame.shape[2] == 2:" not in source
+        assert "\n            else:\n" in source
         assert "rgb_frame[..., 0] = frame[..., 0]" in source
         assert "rgb_frame[..., 1] = frame[..., 1]" in source
         assert "rgb_frame[..., 2]" not in source, (
@@ -171,7 +172,7 @@ class TestRepairingAGlitch:
         repair = source.index("for i_local in glitch_frames:", detect)
 
         assert detect < repair
-        assert "if i_local <= 0 or i_local >= n - 1:" in source[repair:]
+        assert "if i_local <= 0 or i_local >= n - 1:" not in source[repair:]
 
         for n in (3, 4, 10):
             for i_local in range(1, n - 1):
@@ -189,11 +190,7 @@ class TestRepairingAGlitch:
         """
         source = inspect.getsource(T._smooth_tracks_and_features)
         gate = source.index("if n >= 3:")
-        inner = source.index("if len(s) < 3:", gate)
-
-        assert gate < inner, (
-            "the per-feature length check no longer sits inside the n >= 3 "
-            "block, so it is doing real work and needs a driven test")
+        assert "if len(s) < 3:" not in source[gate:]
 
     def test_a_feature_is_interpolated_at_the_repaired_frame(self):
         """The work the inner loop does when it is not skipping: the
