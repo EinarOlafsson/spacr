@@ -22,7 +22,7 @@ import os
 import socket
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtWidgets import QLabel, QProgressDialog
@@ -486,6 +486,169 @@ class _MeasureExampleWorker(QObject):
                 LOG.warning("could not unpack %s", archive, exc_info=True)
 
 
+#: The single archive each example repo ships, keyed by repo.
+#:
+#: ONE REQUEST INSTEAD OF THOUSANDS. The annotate set is 2,365 files; fetching
+#: it a file at a time spent most of its wall clock on HTTP round trips, and
+#: `snapshot_download` -- the obvious alternative -- cannot be interrupted, so
+#: Cancel did nothing and quitting mid-download aborted the process.
+#:
+#: A tar fixes all three: one stream that can be stopped between chunks, one
+#: progress figure that means something, and no per-file overhead at either
+#: end. It is NOT compressed: the payloads are PNGs and .npz arrays, already
+#: compressed, so gzip would cost minutes of CPU on every download to save
+#: almost nothing.
+EXAMPLE_ARCHIVES: Dict[str, str] = {
+    MEASURE_EXAMPLE_REPO: "spacr-example-measure.tar",
+    ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
+}
+
+
+def extract_example_archive(archive, dest) -> int:
+    """Unpack a downloaded example archive under ``dest``.
+
+    EXTRACTED WITH ``filter="data"``, which is the whole reason this is a
+    function rather than two lines at the call site. A tar can name
+    ``../../etc/something`` or an absolute path, and a plain ``extractall``
+    will happily write there -- so unpacking downloaded content without a
+    filter hands whoever can publish to the repo a write anywhere the user can
+    write. The filter rejects those members, along with device nodes, setuid
+    bits and symlinks pointing outside the tree.
+
+    Python 3.12 and later have it built in. Older interpreters get an explicit
+    check instead of a silent unfiltered unpack.
+
+    :param archive: the ``.tar`` on disk.
+    :param dest: the folder to unpack into.
+    :returns: how many members were written.
+    """
+    import tarfile
+
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(str(archive)) as tar:
+        members = tar.getmembers()
+        if hasattr(tarfile, "data_filter"):
+            tar.extractall(str(dest), filter="data")
+        else:
+            # No filter available: refuse anything that leaves the tree rather
+            # than trusting the archive.
+            for member in members:
+                name = member.name
+                if name.startswith("/") or ".." in name.split("/"):
+                    raise ValueError(
+                        f"refusing to unpack {name!r}: it escapes the "
+                        f"destination folder")
+                if not (member.isfile() or member.isdir()):
+                    raise ValueError(
+                        f"refusing to unpack {name!r}: it is not a plain file "
+                        f"or directory")
+            tar.extractall(str(dest))
+    return len(members)
+
+
+class _TarExampleWorker(QObject):
+    """Fetch one example dataset as a single archive and unpack it.
+
+    Subclasses name the repo. Everything else -- the streaming download, the
+    cancel checks, the safe extraction and the path rewrite -- is shared,
+    because every example set needs all four and a second copy of any of them
+    is a second place to get the extraction filter wrong.
+    """
+
+    progress = Signal(str, int, int)
+    info     = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    #: Set by each subclass.
+    repo: str = ""
+
+    def after_extract(self, dest) -> None:
+        """Hook for whatever one set needs after unpacking. Nothing by default."""
+
+    def __init__(self, dest_dir: Path):
+        super().__init__()
+        self._dest = Path(dest_dir)
+        self._cancel = False
+
+    def cancel(self) -> None:
+        self._cancel = True
+
+    def run(self) -> None:
+        try:
+            import requests
+
+            archive_name = EXAMPLE_ARCHIVES[self.repo]
+            self.info.emit("Downloading the example dataset…")
+            url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+                   f"{archive_name}?download=true")
+            target = self._dest / archive_name
+            self._dest.mkdir(parents=True, exist_ok=True)
+            part = target.with_name(target.name + ".part")
+
+            response = requests.get(url, stream=True, timeout=30)
+            response.raise_for_status()
+            expected = _content_length(response)
+            written = 0
+            with part.open("wb") as handle:
+                for chunk in response.iter_content(chunk_size=1 << 20):
+                    if self._cancel:
+                        # BETWEEN CHUNKS, so Cancel and application shutdown
+                        # both take effect within a megabyte rather than after
+                        # the whole set has arrived.
+                        part.unlink(missing_ok=True)
+                        self.finished.emit(False, "", "", "Cancelled by user.")
+                        return
+                    if not chunk:
+                        continue
+                    handle.write(chunk)
+                    written += len(chunk)
+                    if expected:
+                        self.progress.emit(
+                            archive_name, written // (1 << 20),
+                            max(1, expected // (1 << 20)))
+            if expected is not None and written != expected:
+                part.unlink(missing_ok=True)
+                raise IOError(
+                    f"the download stopped early: {written} bytes of "
+                    f"{expected}. Nothing was unpacked.")
+            part.replace(target)
+
+            self.info.emit("Unpacking…")
+            extract_example_archive(target, self._dest)
+            # The archive is not kept: it is a second copy of everything that
+            # was just written, and these sets are hundreds of megabytes.
+            target.unlink(missing_ok=True)
+
+            self.info.emit("Preparing the files…")
+            # Whatever this particular set needs doing to it after unpacking.
+            self.after_extract(self._dest)
+            make_the_example_paths_absolute(self._dest)
+            self.progress.emit("done", 1, 1)
+            self.finished.emit(True, str(self._dest),
+                               str(self._dest / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("example download failed: %s", e, exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+
+class _MeasureTarWorker(_TarExampleWorker):
+    repo = MEASURE_EXAMPLE_REPO
+
+    def after_extract(self, dest) -> None:
+        """Write the compressed arrays back out as the ``.npy`` Measure reads.
+
+        The compression is a TRANSPORT detail -- it halves the download -- and
+        Measure loads `.npy`. Converting here keeps the second format entirely
+        inside the downloader rather than teaching every reader about it.
+        """
+        _MeasureExampleWorker(dest)._expand_arrays(Path(dest) / "merged")
+
+
+class _AnnotateTarWorker(_TarExampleWorker):
+    repo = ANNOTATE_EXAMPLE_REPO
+
+
 def make_the_example_paths_absolute(root) -> int:
     """Point a downloaded example at where it actually landed.
 
@@ -635,7 +798,7 @@ def download_annotate_example(parent, dest: Path,
     dest.mkdir(parents=True, exist_ok=True)
     download_toxo_mito_demo(
         parent, dest, on_done,
-        worker_factory=_AnnotateExampleWorker,
+        worker_factory=_AnnotateTarWorker,
         title="Downloading spaCR annotation example data")
 
 
@@ -654,7 +817,7 @@ def download_measure_example(parent, dest: Path,
     dest.mkdir(parents=True, exist_ok=True)
     download_toxo_mito_demo(
         parent, dest, on_done,
-        worker_factory=_MeasureExampleWorker,
+        worker_factory=_MeasureTarWorker,
         title="Downloading spaCR Measure example data")
 
 
