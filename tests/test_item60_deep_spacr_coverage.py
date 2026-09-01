@@ -593,6 +593,40 @@ def test_cross_validation_selects_best_model_for_available_metric(
     assert "fewer than two successful outer folds" in output
 
 
+def test_clean_cross_validation_keeps_requested_non_temperature_calibration(
+        tmp_path, monkeypatch, capsys):
+    """Clean audits stay quiet and ``none`` needs no second successful fold."""
+    import spacr.classifier_evaluation as evaluation
+    import spacr.deep_spacr as ds
+
+    _patch_cv_dependencies(monkeypatch)
+    clean = SimpleNamespace(passed=True, critical_levels=[])
+    monkeypatch.setattr(evaluation, "audit_cv_folds", lambda *_a, **_k: clean)
+    monkeypatch.setattr(
+        evaluation, "audit_split_leakage", lambda *_a, **_k: clean,
+    )
+    received = {}
+
+    def evaluate_predictions(*_args, **kwargs):
+        received.update(kwargs)
+        return {}
+
+    monkeypatch.setattr(evaluation, "evaluate_predictions", evaluate_predictions)
+    settings = _cv_settings(
+        tmp_path,
+        classifier_evaluation=True,
+        evaluation_calibration="none",
+    )
+    result = ds._cross_validate_model(settings, 2)
+
+    assert os.path.isfile(result)
+    assert received["calibration_method"] == "none"
+    output = capsys.readouterr().out
+    assert "full CV partition leakage audit failed" not in output
+    assert "outer fold 1 leakage" not in output
+    assert "fewer than two successful outer folds" not in output
+
+
 def test_cross_validation_rejects_result_path_label_cardinality_mismatch(
         tmp_path, monkeypatch):
     import spacr.deep_spacr as ds
